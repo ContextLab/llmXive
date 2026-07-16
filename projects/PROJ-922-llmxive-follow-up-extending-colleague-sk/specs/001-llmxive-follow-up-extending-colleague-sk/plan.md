@@ -7,7 +7,7 @@
 
 This project investigates whether explicitly decoupling capability heuristics (what the agent knows) from behavioral style (how the agent speaks) reduces hallucination and style drift compared to monolithic prompts. The technical approach involves:
 1.  **Data Synthesis**: Generating expert profiles (capability + behavior) and multi-turn task scenarios (coding, math, logic, creative, factual) using rule-based Python scripts. *Scale reduced for CI feasibility.*
-2.  **Inference Engine**: Running a quantized small language model (e.g., Llama-3-8B-Q4 or Phi-3-mini) on a CPU-only backend (`llama.cpp` or `transformers` with `torch.float32`) under three prompt conditions: Monolithic, Separated Tracks, and Generic Baseline.
+2.  **Inference Engine**: Running a quantized small language model (e.g., Llama-8B-Q4 or Phi-3-mini) on a CPU-only backend (`llama.cpp` or `transformers` with `torch.float32`) under three prompt conditions: Monolithic, Separated Tracks, and Generic Baseline.
 3.  **Deterministic Evaluation**: Calculating Heuristic Adherence (via AST/SymPy/Z3), Style Consistency (via NLI/Style Classifier), and Hallucination Rate (via NLI/External Truth) via rule-based scripts without LLM judges.
 4.  **Statistical Analysis**: Fitting a Generalized Linear Mixed Model (GLMM) to test for significant differences in metrics across conditions, applying Bonferroni correction for multiple comparisons.
 
@@ -35,7 +35,7 @@ This project investigates whether explicitly decoupling capability heuristics (w
 - **IV. Single Source of Truth**: **COMPLIANT**. All statistics in the final paper will trace to specific rows in `data/processed/` and code blocks in `code/`.
 - **V. Versioning Discipline**: **COMPLIANT**. **Versioning Trigger**: `scripts/update_state.py` is executed as a **mandatory post-inference CI step** immediately after data generation and evaluation. It recalculates checksums for all `data/` artifacts and updates `state/` timestamps. If checksums do not match the expected values, the CI job **fails immediately**, enforcing the discipline.
 - **VI. Deterministic Evaluation**: **COMPLIANT**. The plan explicitly forbids LLM judges. Heuristic Adherence, Style Consistency, and Hallucination Rate are defined as rule-based calculations (AST, SymPy, Z3, NLI models).
-- **VII. Resource-Constrained Model Validation**: **COMPLIANT**. The plan mandates CPU-only inference with quantized models (Llama-3-8B-Q4 or Phi-3-mini). No GPU-accelerated results are planned for primary hypothesis testing.
+- **VII. Resource-Constrained Model Validation**: **COMPLIANT**. The plan mandates CPU-only inference with quantized models (Llama-8B-Q4 or Phi-3-mini). No GPU-accelerated results are planned for primary hypothesis testing.
 
 ## Project Structure
 

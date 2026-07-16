@@ -1,0 +1,21 @@
+T011:
+  c: false
+  h: 24ddd930b848f811833ca1c8f85171a2d4afe372bd81714d3968c4758f883f3b
+  r: "The required file `tests/integration/test_inference_single.py` is missing from\
+    \ the repository, so the integration test for a single inference run does not\
+    \ exist. Without this artifact, the task\u2019s requirement is not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_inference.py` file or code snippet was provided, and there is no evidence\
+    \ of logging statements (e.g., using Python\u2019s `logging` module) that record\
+    \ inference start, progress, completion, or failures. The required artifact is\
+    \ missing, so the task is not satisfied."
+T023:
+  c: false
+  h: d61079718ef4e50b99a4afe7d2e9b431732c559d452dc56fecf61ea179794f93
+  r: The repository contains a partially shown `code/scripts/evaluate.py`, but the
+    file is truncated and does not demonstrate writing `data/interim/evaluation_scores.jsonl`.
+    Moreover, the required input `data/interim/inference_outputs.jsonl` and the expected
+    output `data/interim/evaluation_scores.jsonl` are both absent. Without these files
+    and a complete implementation, the task is not satisfied.

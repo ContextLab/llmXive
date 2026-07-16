@@ -1,0 +1,605 @@
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: generate 50 synthetic expert profiles
+  claim_id: c_c3f5f2b0
+  context: 'Implement `code/data_generation/profiles.py` to generate 50 synthetic
+    expert profiles. **Schema**: `{"id": str, "domain": str, "capability_rules": str,
+    "behavior_keywords": [str]}`. **Domains**: coding, math, logic, creative, factual
+    (10 profiles each).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate 50 synthetic expert profiles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:51:51Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: generate 200 stratified task scenarios
+  claim_id: c_65376f36
+  context: 'Implement `code/data_generation/tasks.py` to generate 200 stratified task
+    scenarios (A representative sample of instances per domain.: coding, math, logic,
+    creative, factual).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate 200 stratified task scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:52:10Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: transformers version 4.40.0
+  claim_id: c_ceebc09c
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`...'
+  evidence:
+    asserted: '4.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning transformers==4.40.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:10Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: torch version 2.2.0+cpu
+  claim_id: c_834956ff
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`,
+    `llama-cpp-python==0.2.70`...'
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning torch==2.2.0+cpu
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:10Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: llama-cpp-python version 0.2.70
+  claim_id: c_ccdb2d79
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`,
+    `llama-cpp-python==0.2.70`...'
+  evidence:
+    asserted: '0.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning llama-cpp-python==0.2.70
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:10Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_cefec14c
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`,
+    `llama-cpp-python==0.2.70`, `statsmodels==0.14.1`...'
+  evidence:
+    asserted: '0.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning statsmodels==0.14.1
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:10Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_443bb507
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`,
+    `llama-cpp-python==0.2.70`, `statsmodels==0.14.1`, `pandas==2.2.0`...'
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning pandas==2.2.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:10Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_38fbfd3c
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`,
+    `llama-cpp-python==0.2.70`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`...'
+  evidence:
+    asserted: '1.26'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning numpy==1.26.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:10Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pytest version 8.0.0
+  claim_id: c_98f5add5
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`,
+    `llama-cpp-python==0.2.70`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`,
+    `pytest==8.0.0`...'
+  evidence:
+    asserted: '8.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning pytest==8.0.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:10Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_9fabafbf
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`,
+    `llama-cpp-python==0.2.70`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`,
+    `pytest==8.0.0`, `pyyaml==6.0.1`...'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning pyyaml==6.0.1
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:11Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: sympy version 1.12
+  claim_id: c_c2489d7a
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`,
+    `llama-cpp-python==0.2.70`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`,
+    `pytest==8.0.0`, `pyyaml==6.0.1`, `sympy==1.12`...'
+  evidence:
+    asserted: '1.12'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning sympy==1.12
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:11Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: z3-solver version 4.12.0
+  claim_id: c_7f913362
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`,
+    `llama-cpp-python==0.2.70`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`,
+    `pytest==8.0.0`, `pyyaml==6.0.1`, `sympy==1.12`, `z3-solver==4.12.0`...'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning z3-solver==4.12.0
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:11Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_357a418c
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`,
+    `llama-cpp-python==0.2.70`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`,
+    `pytest==8.0.0`, `pyyaml==6.0.1`, `sympy==1.12`, `z3-solver==4.12.0`, `scikit-learn==1.4.0`...'
+  evidence:
+    asserted: '1.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning scikit-learn==1.4.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:11Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: datasets version 2.18.0
+  claim_id: c_89328079
+  context: 'Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`,
+    `llama-cpp-python==0.2.70`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`,
+    `pytest==8.0.0`, `pyyaml==6.0.1`, `sympy==1.12`, `z3-solver==4.12.0`, `scikit-learn==1.4.0`,
+    `datasets==2.18.0`'
+  evidence:
+    asserted: '2.18'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning datasets==2.18.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T14:52:11Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: global seed set to 42
+  claim_id: c_91ca0823
+  context: Implement `code/utils/config.py` for seed pinning (global seed=42), path
+    management, and environment configuration
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:52:33Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 10 profiles per domain
+  claim_id: c_3eaec71e
+  context: '**Domains**: coding, math, logic, creative, factual (10 profiles each).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10 profiles each
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:53:17Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: fit within 3600s CI limits
+  claim_id: c_4b0665c9
+  context: 'Implement `code/scripts/run_inference.py` to segment workload into parallel
+    jobs (one per condition: Monolithic, Separated, Generic) to fit within 3600s CI
+    limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fit_within_3600s_CI_limits
+  kind: entity_fact
+  raw_text: fit within 3600s CI limits
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:53:33Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: verify that the model generates text within 300 seconds
+  claim_id: c_40e8739e
+  context: The system can be tested by running a single profile-task pair through
+    all three conditions and verifying that the model generates text within 300 seconds
+    without CUDA errors or OOM crashes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify that the model generates text within 300 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:53:55Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: three distinct prompt templates
+  claim_id: c_a239c688
+  context: Implement `code/inference/prompts.py` defining three distinct prompt templates
+    with explicit text and placeholders
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Three_distinct_prompt_templates
+  kind: entity_fact
+  raw_text: three distinct prompt templates
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:54:25Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: load Llama-8B-Q4 or Phi-3-mini quantized model
+  claim_id: c_ed1fe58b
+  context: Implement `code/inference/engine.py` to load a quantized model (Llama-8B-Q4
+    or Phi-3-mini) on CPU-only backend with OOM protection and timeout handling
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load a quantized model (Llama-8B-Q4 or Phi-3-mini)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:54:42Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: load quantized model using llama-cpp-python with device cpu and n_gpu_layers
+    0
+  claim_id: c_dc1d4d74
+  context: 'Implement `code/inference/engine.py` logic to: 1) Load quantized model
+    using `llama-cpp-python` with `device=\"cpu\"`, `n_gpu_layers=0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load quantized model using `llama-cpp-python` with `device=\"cpu\"`, `n_gpu_layers=0`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:54:59Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: regex extraction of entity-value pairs
+  claim_id: c_0fe0e634
+  context: 'Implement `code/evaluation/metrics.py` Hallucination Rate calculation:
+    1) Regex extraction of entity-value pairs (`\\b(\\w+): (\\w+)\\b`)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regex_extraction_of_entity-value_pairs
+  kind: entity_fact
+  raw_text: 'regex extraction of entity-value pairs (`\\b(\\w+): (\\w+)\\b`)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:55:23Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: aggregate evaluation scores into a DataFrame
+  claim_id: c_b9b205a9
+  context: 'Implement `code/analysis/stats.py` to load `data/interim/evaluation_scores.jsonl`
+    (Output of T023). **Input**: T023 output. **Dependency**: Verify `data/interin/evaluation_scores.jsonl`
+    exists before proceeding. Aggregate into a DataFrame.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aggregate_evaluation_scores_into_a_DataFrame
+  kind: entity_fact
+  raw_text: aggregate into a DataFrame
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:56:01Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: fit a Generalized Linear Mixed Model (GLMM)
+  claim_id: c_1c559f8f
+  context: 'Goal: Aggregate scores and fit a Generalized Linear Mixed Model (GLMM)
+    to test for significant differences between conditions'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fit_a_Generalized_Linear_Mixed_Model_(GLMM)
+  kind: entity_fact
+  raw_text: fit a Generalized Linear Mixed Model (GLMM)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:56:12Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM fitting with random intercepts for Profile and Task
+  claim_id: c_276883c2
+  context: Implement `code/analysis/stats.py` GLMM fitting with random intercepts
+    for Profile and Task for Heuristic Adherence, Hallucination Rate, and Style Consistency.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GLMM_fitting_with_random_intercepts_for_Profile_and_Task
+  kind: entity_fact
+  raw_text: GLMM fitting with random intercepts for Profile and Task
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:56:19Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: output final_results.csv and analysis_report.md
+  claim_id: c_3957867f
+  context: Create `code/scripts/analyze.py` to run the full analysis pipeline and
+    output `data/processed/final_results.csv` and `data/processed/analysis_report.md`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_final_results.csv_and_analysis_report.md
+  kind: entity_fact
+  raw_text: output `data/processed/final_results.csv` and `data/processed/analysis_report.md`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:56:29Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'verify direction of effect: Separated less than Monolithic for Hallucination
+    Rate'
+  claim_id: c_270f9dee
+  context: Verify that the direction of effect aligns with the hypothesis (Separated
+    < Monolithic for Hallucination Rate).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_direction_of_effect:_Separated_less_than_Monolithic_f
+  kind: magnitude
+  raw_text: verify that the direction of effect aligns with the hypothesis (Separated
+    < Monolithic for Hallucination Rate)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T14:56:36Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: model generates text within 300 seconds for single profile-task pair
+    without CUDA errors or OOM crashes
+  claim_id: c_9aafe788
+  context: 'Independent Test: The system can be tested by running a single profile-task
+    pair through all three conditions and verifying that the model generates text
+    within 300 seconds without CUDA errors or OOM crashes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system can be tested by running a single profile-task pair through
+    all three conditions and verifying that the model generates text within 300 seconds
+    without CUDA errors or OOM crashes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:02:36Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: generate 50 synthetic expert profiles
+  claim_id: c_791a6385
+  context: 'T006 [P] Implement code/data_generation/profiles.py to generate 50 synthetic
+    expert profiles. Schema: {"id": str, "domain": str, "capability_rules": str, "behavior_keywords":
+    [str]}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data_generation/profiles.py to generate 50 synthetic expert
+    profiles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:02:58Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 10 profiles each for 5 domains
+  claim_id: c_2edcefa0
+  context: 'Domains: coding, math, logic, creative, factual (10 profiles each). Rules:
+    Capability rules define heuristic constraints. Behavior keywords define a set
+    of style markers.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Domains: coding, math, logic, creative, factual (10 profiles each).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:03:25Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: generate 200 stratified task scenarios
+  claim_id: c_dab0ebfd
+  context: 'T007 Implement code/data_generation/tasks.py to generate 200 stratified
+    task scenarios (A representative sample of instances per domain.: coding, math,
+    logic, creative, factual).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data_generation/tasks.py to generate 200 stratified task
+    scenarios.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:03:41Z'
