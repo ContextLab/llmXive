@@ -1,66 +1,54 @@
 import os
 import random
+import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Project Root
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-DATA_ROOT = PROJECT_ROOT / "data"
-CODE_ROOT = PROJECT_ROOT / "code"
+from utils.logger import get_logger
 
-# Solvent List
-DEFAULT_SOLVENTS = ["acetonitrile", "chloroform", "dichloromethane", "dcm"]
+logger = get_logger(__name__)
 
-# Simulated Mode Flag
-SIMULATED_MODE_FLAG = False
+_SEED = 42
+_SIMULATED_MODE = False
+_MODE_HALIDE = None
 
-def get_path(*args) -> Path:
-    """Get path relative to project root."""
-    return PROJECT_ROOT / Path(*args)
+def get_path() -> Path:
+    """Get project root path."""
+    return Path(__file__).parent.parent.parent
 
-def get_data_path(*args) -> Path:
-    """Get path relative to data root."""
-    return DATA_ROOT / Path(*args)
+def get_data_path() -> Path:
+    """Get data directory path."""
+    return get_path() / "data"
 
-def get_code_path(*args) -> Path:
-    """Get path relative to code root."""
-    return CODE_ROOT / Path(*args)
+def get_code_path() -> Path:
+    """Get code directory path."""
+    return get_path() / "code"
 
 def set_seed(seed: int = 42):
-    """Set random seeds for reproducibility."""
+    """Set random seed for reproducibility."""
+    global _SEED
+    _SEED = seed
     random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    # If numpy/pandas are used, set their seeds too
-    try:
+    if 'numpy' in globals():
         import numpy as np
         np.random.seed(seed)
-    except ImportError:
-        pass
+    logger.info(f"Random seed set to {seed}")
 
 def get_solvent_list() -> List[str]:
-    """Return the list of allowed solvents."""
-    return DEFAULT_SOLVENTS.copy()
+    """Return list of allowed solvents."""
+    return ['acetonitrile', 'chloroform', 'dichloromethane', 'dcm']
 
 def is_simulated_mode() -> bool:
-    """Check if the project is running in simulated data mode."""
-    state_file = get_data_path("simulated/state.json")
-    if state_file.exists():
-        import json
-        try:
-            with open(state_file, 'r') as f:
-                state = json.load(f)
-            return state.get("SIMULATED_MODE", False)
-        except Exception:
-            return False
-    return SIMULATED_MODE_FLAG
+    """Check if pipeline is running in simulated data mode."""
+    return _SIMULATED_MODE
 
-def set_simulated_mode(mode: bool):
-    """Set the simulated mode flag."""
-    global SIMULATED_MODE_FLAG
-    SIMULATED_MODE_FLAG = mode
-    # Persist to state file
-    state_file = get_data_path("simulated/state.json")
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-    import json
-    with open(state_file, 'w') as f:
-        json.dump({"SIMULATED_MODE": mode}, f)
+def set_simulated_mode(mode: bool, halide: Optional[str] = None):
+    """Set simulated mode flag and mode halide."""
+    global _SIMULATED_MODE, _MODE_HALIDE
+    _SIMULATED_MODE = mode
+    _MODE_HALIDE = halide
+    logger.info(f"Simulated mode set to {mode}, mode halide: {halide}")
+
+def get_mode_halide() -> Optional[str]:
+    """Get the mode halide if in simulated mode."""
+    return _MODE_HALIDE

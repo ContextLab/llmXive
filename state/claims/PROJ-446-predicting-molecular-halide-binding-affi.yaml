@@ -1,0 +1,259 @@
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: Host molecules required measurements for at least three different halides
+    for inclusion
+  claim_id: c_ba535971
+  context: Data was filtered for specific solvents (acetonitrile, chloroform, DCM)
+    and standardized to log K units. Host molecules were required to have measurements
+    for at least three different halides to be included in the comparative analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Host_molecules_required_measurements_for_at_least_three_diff
+  kind: magnitude
+  raw_text: Host molecules were required to have measurements for at least three different
+    halides to be included in the comparative analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:47:33Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: Pairwise comparisons used 10,000 bootstrap resamples
+  claim_id: c_3e78a721
+  context: "Pairwise comparisons between halide groups were performed using bootstrap\
+    \ confidence intervals (10,000 resamples). Power analysis was conducted to verify\
+    \ sufficient sample size (N \u2265 10 per group)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pairwise comparisons between halide groups were performed using bootstrap
+    confidence intervals (10,000 resamples).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:47:44Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: Power analysis verified sample size of at least 10 per group
+  claim_id: c_73be3897
+  context: "Pairwise comparisons between halide groups were performed using bootstrap\
+    \ confidence intervals (10,000 resamples). Power analysis was conducted to verify\
+    \ sufficient sample size (N \u2265 10 per group)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_verified_sample_size_of_at_least_10_per_group
+  kind: magnitude
+  raw_text: "Power analysis was conducted to verify sufficient sample size (N \u2265\
+    \ 10 per group)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:48:33Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: Mean difference F- vs Cl- is -0.245 with 95% CI [-0.412, -0.078]
+  claim_id: c_fc55ac48
+  context: Pairwise comparisons between halide groups were performed using bootstrap
+    confidence intervals (10,000 resamples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean difference for F- vs Cl- was -0.245 with a 95% CI of [-0.412,
+    -0.078].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:48:50Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: Mean difference F- vs Br- is -0.512 with 95% CI [-0.698, -0.326]
+  claim_id: c_10cd54d9
+  context: Pairwise comparisons between halide groups were performed using bootstrap
+    confidence intervals (10,000 resamples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean difference for F- vs Br- was -0.512 with a 95% CI of [-0.698,
+    -0.326].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:49:05Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: Mean difference F- vs I- is -0.789 with 95% CI [-0.981, -0.597]
+  claim_id: c_7022339f
+  context: Pairwise comparisons between halide groups were performed using bootstrap
+    confidence intervals (10,000 resamples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean difference for F- vs I- was -0.789 with a 95% CI of [-0.981,
+    -0.597].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:49:21Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: Mean difference Cl- vs Br- is -0.267 with 95% CI [-0.423, -0.111]
+  claim_id: c_3038382a
+  context: Pairwise comparisons between halide groups were performed using bootstrap
+    confidence intervals (10,000 resamples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean difference for Cl- vs Br- was -0.267 with a 95% CI of [-0.423,
+    -0.111].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:49:37Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: Mean difference Cl- vs I- is -0.544 with 95% CI [-0.712, -0.376]
+  claim_id: c_5641ce5b
+  context: Pairwise comparisons between halide groups were performed using bootstrap
+    confidence intervals (10,000 resamples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean difference for Cl- vs I- was -0.544 with a 95% CI of [-0.712,
+    -0.376].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:49:37Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: Mean difference Br- vs I- is -0.277 with 95% CI [-0.445, -0.109]
+  claim_id: c_6f131054
+  context: Pairwise comparisons between halide groups were performed using bootstrap
+    confidence intervals (10,000 resamples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean difference for Br- vs I- was -0.277 with a 95% CI of [-0.445,
+    -0.109].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:49:37Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: "Random Forest model achieved Mean R\xB2 0.78 and Mean RMSE 0.42"
+  claim_id: c_1614d67d
+  context: Two machine learning models were trained using host-identity stratified
+    cross-validation to prevent data leakage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Random Forest model achieved a Mean R\xB2 of 0.78 and a Mean RMSE\
+    \ of 0.42."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:49:53Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: "Gradient Boosting model achieved Mean R\xB2 0.82 and Mean RMSE 0.38"
+  claim_id: c_c4e9c8ba
+  context: Two machine learning models were trained using host-identity stratified
+    cross-validation to prevent data leakage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Gradient Boosting model achieved a Mean R\xB2 of 0.82 and a Mean\
+    \ RMSE of 0.38."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:50:07Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: charge_density feature stability score (CV) is 0.12
+  claim_id: c_b875d1be
+  context: Top Stable Features (CV < 0.3) were identified with charge_density ranked
+    first.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The charge_density feature had a stability score (CV) of 0.12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:50:23Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: hydrogen_bond_donor_count feature stability score (CV) is 0.18
+  claim_id: c_f768fc14
+  context: Top Stable Features (CV < 0.3) were identified with hydrogen_bond_donor_count
+    ranked second.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hydrogen_bond_donor_count feature had a stability score (CV) of 0.18.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:51:03Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: cavity_volume feature stability score (CV) is 0.21
+  claim_id: c_ad7f04da
+  context: Top Stable Features (CV < 0.3) were identified with cavity_volume ranked
+    third.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The cavity_volume feature had a stability score (CV) of 0.21.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:51:35Z'
+- artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/docs/paper/report.md
+  attempts: 1
+  canonical: halide_electronegativity feature stability score (CV) is 0.25
+  claim_id: c_8229295c
+  context: Top Stable Features (CV < 0.3) were identified with halide_electronegativity
+    ranked fourth.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The halide_electronegativity feature had a stability score (CV) of 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T21:51:37Z'

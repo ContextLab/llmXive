@@ -1,32 +1,37 @@
-"""
-Task T001: Create the project root directory.
-
-This script ensures the existence of the project root directory:
-projects/PROJ-446-predicting-molecular-halide-binding-affi/
-"""
 import os
 from pathlib import Path
 from code.utils.logger import get_logger
 
-logger = get_logger(__name__)
-
-PROJECT_ROOT_NAME = "PROJ-446-predicting-molecular-halide-binding-affi"
-PROJECTS_PARENT = Path("projects")
-
 def main():
-    """Create the project root directory if it does not exist."""
-    target_dir = PROJECTS_PARENT / PROJECT_ROOT_NAME
-
-    if target_dir.exists():
-        logger.info(f"Directory already exists: {target_dir}")
-        return True
-
+    """
+    Create the root directory for the project.
+    Task T001: Create `projects/PROJ-446-predicting-molecular-halide-binding-affi/` root directory.
+    """
+    logger = get_logger(__name__)
+    
+    # Define the project root path relative to the repository root
+    # Assuming the script is run from the repository root or code/
+    repo_root = Path(__file__).resolve().parent.parent
+    project_root = repo_root / "projects" / "PROJ-446-predicting-molecular-halide-binding-affi"
+    
+    logger.info(f"Creating project root directory: {project_root}")
+    
     try:
-        target_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Successfully created directory: {target_dir}")
-        return True
-    except OSError as e:
-        logger.error(f"Failed to create directory {target_dir}: {e}")
+        project_root.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Successfully created directory: {project_root}")
+        
+        # Verify existence
+        if project_root.exists() and project_root.is_dir():
+            logger.info("Verification: Directory exists and is a directory.")
+            return True
+        else:
+            logger.error("Verification failed: Directory does not exist or is not a directory.")
+            return False
+    except PermissionError:
+        logger.error(f"Permission denied while creating directory: {project_root}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error while creating directory: {e}")
         return False
 
 if __name__ == "__main__":

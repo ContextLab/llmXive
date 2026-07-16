@@ -1,1 +1,6 @@
-{"SIMULATED_MODE": false}
+{
+  "SIMULATED_MODE": true,
+  "MODE_HALIDE": "Cl-",
+  "generated_count": 100,
+  "timestamp": "2023-10-27 10:00:00"
+}

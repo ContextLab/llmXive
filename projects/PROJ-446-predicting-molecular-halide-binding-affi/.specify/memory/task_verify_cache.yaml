@@ -1,0 +1,27 @@
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `README.md` content was provided; there is no evidence that a new\
+    \ section describing the project goal, dependencies, and pipeline execution steps\
+    \ exists or is non\u2011empty. The implementer must add and show the revised README\
+    \ with the required information."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (e.g., a diff, a lint report, or the formatted `code/` files) were\
+    \ provided to demonstrate that `ruff check --fix` and `black` were run and that\
+    \ all lint errors were resolved. The implementer\u2019s claim cannot be verified\
+    \ without such evidence."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No performance\u2011related artifacts (e.g., profiling reports, optimized code,\
+    \ benchmark logs, or documentation showing CPU usage now meets the specified limits)\
+    \ were provided. Without evidence of script optimizations or verification that\
+    \ the CPU constraints are satisfied, the task cannot be considered completed."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a quickstart.md validation run (e.g., execution logs, reproduced
+    results, or a report confirming that the quickstart steps complete successfully)
+    was provided. The required artifact is missing, so the task is not satisfied.

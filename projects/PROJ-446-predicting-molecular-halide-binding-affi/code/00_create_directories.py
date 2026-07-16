@@ -3,35 +3,34 @@ from pathlib import Path
 
 def main():
     """
-    Create the essential project directory structure for PROJ-446.
-    Specifically creates code/ and code/utils/ directories.
+    Create the standard directory structure for the project.
+    Assumes the project root 'projects/PROJ-446-predicting-molecular-halide-binding-affi' exists.
     """
-    # Determine project root based on the file location
-    # Assuming this script is run from the project root or the script is in the root
-    # We construct paths relative to the current working directory to ensure
-    # they land in the correct project folder.
-    project_root = Path.cwd()
+    project_root = Path("projects/PROJ-446-predicting-molecular-halide-binding-affi")
     
-    # Define the directories to create as per T002
-    # Path relative to project root: code/ and code/utils/
-    code_dir = project_root / "code"
-    utils_dir = code_dir / "utils"
-    
-    dirs_to_create = [code_dir, utils_dir]
-    
-    created = []
-    for dir_path in dirs_to_create:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(dir_path))
-            print(f"Created directory: {dir_path}")
-        else:
-            print(f"Directory already exists: {dir_path}")
-    
-    if not created:
-        print("All required directories for T002 already exist.")
-    
-    return created
+    if not project_root.exists():
+        print(f"Error: Project root {project_root} does not exist. Run 00_create_project_root.py first.")
+        return False
+
+    # Define directories to create
+    directories = [
+        "code",
+        "code/utils",
+        "data",
+        "docs",
+        "data/raw",
+        "data/processed",
+        "data/simulated",
+        "docs/paper"
+    ]
+
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created: {full_path}")
+
+    return True
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    exit(0 if success else 1)

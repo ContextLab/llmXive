@@ -1,0 +1,54 @@
+# Schema for halide binding dataset
+# Used for validation in T017 and T016
+name: halide_binding_data
+version: 1.0.0
+columns:
+  - name: host_smiles
+    type: string
+    required: true
+    description: SMILES string of the host molecule
+  - name: host_name
+    type: string
+    required: false
+    description: Optional name of the host
+  - name: halide_identity
+    type: string
+    required: true
+    description: Identity of the halide (F-, Cl-, Br-, I-)
+    allowed_values:
+      - "F-"
+      - "Cl-"
+      - "Br-"
+      - "I-"
+  - name: affinity_log_k
+    type: number
+    required: true
+    description: Binding affinity as log K
+    min: -10.0
+    max: 20.0
+  - name: solvent
+    type: string
+    required: true
+    description: Solvent used in the measurement
+    allowed_values:
+      - "acetonitrile"
+      - "chloroform"
+      - "dichloromethane"
+      - "DCM"
+  - name: charge_density
+    type: number
+    required: true
+    description: Calculated charge density of the host
+  - name: cavity_volume
+    type: number
+    required: true
+    description: Calculated cavity volume of the host
+  - name: source
+    type: string
+    required: false
+    description: Source of the data (e.g., 'real', 'simulated')
+constraints:
+  - description: "At least one row must exist"
+    condition: "len(df) > 0"
+  - description: "No duplicate host-halide pairs"
+    condition: "not df.duplicated(subset=['host_smiles', 'halide_identity']).any()"

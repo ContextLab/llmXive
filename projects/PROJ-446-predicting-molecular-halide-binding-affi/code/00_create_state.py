@@ -1,37 +1,37 @@
-"""
-Script to initialize the project state.yaml file and set up tracking hooks.
-This script is the entry point for T011.
-"""
 import os
 import sys
 from pathlib import Path
-
-# Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
 from code.utils.state_manager import init_project_state, get_project_state_path, update_artifact_hash
 from code.utils.logger import get_logger
 
-logger = get_logger(__name__)
-
-
 def main():
-    """Initialize project state and register this script's output."""
-    logger.info("Initializing project state for T011...")
+    """
+    Initialize the project state tracking system.
+    Creates the initial state.yaml file in the project root.
+    """
+    logger = get_logger(__name__)
+    project_root = Path("projects/PROJ-446-predicting-molecular-halide-binding-affi")
 
-    # Initialize the main state.yaml
-    init_project_state()
+    if not project_root.exists():
+        logger.error(f"Project root {project_root} does not exist.")
+        return False
 
-    state_path = get_project_state_path()
-    logger.info(f"State file created/updated at: {state_path}")
-
-    # Register the state file itself as an artifact
-    update_artifact_hash(state_path, "state.yaml", state_path)
-
-    logger.info("T011 Complete: state.yaml tracking hooks established.")
-    return 0
-
+    # Initialize state
+    state_path = get_project_state_path(project_root)
+    logger.info(f"Initializing project state at: {state_path}")
+    
+    success = init_project_state(project_root)
+    
+    if success:
+        logger.info("Project state initialized successfully.")
+        # Update initial artifact hashes (empty set for now)
+        update_artifact_hash(project_root)
+        logger.info("Initial artifact hash updated.")
+        return True
+    else:
+        logger.error("Failed to initialize project state.")
+        return False
 
 if __name__ == "__main__":
-    sys.exit(main())
+    success = main()
+    exit(0 if success else 1)
