@@ -58,7 +58,7 @@
 - [X] T006 Create base `GrainBoundaryRecord` dataclass/schema in `code/models/grain_boundary_record.py`
 - [X] T007 Setup error handling infrastructure for `Data Insufficiency` halt (exit code 1) ensuring the error message logs the exact count of retrieved vs. required records (implementation in T011)
 - [X] T008 Configure environment variables for API keys (Materials Project, OpenKIM) in `.env` (not committed)
-- [ ] T016 [P] [US1/Foundational] Implement `code/diagnostics.py` to: <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+- [X] T016 [P] [US1/Foundational] Implement `code/diagnostics.py` to: <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
  - Compute Mutual Information (MI) between **misorientation angle** and **Σ value** (calculated from misorientation) on the raw dataset.
  - **Algorithm**: Calculate Σ value using the Coincidence Site Lattice (CSL) definition for the given misorientation angle.
  - **Log** a warning: "MI > 0.8 indicates strong dependency; relationship is descriptive, not causal."
@@ -77,12 +77,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `code/download.py` to: <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+- [X] T009 [US1] Implement `code/download.py` to: <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
  - Fetch raw structures (POSCAR/CIF) from Materials Project API, OpenKIM, and NIST.
  - **Search Strategy**: Use query parameters `keywords=["grain boundary", "bicrystal"]` and `properties=["diffusivity"]` to identify relevant records. If specific material IDs are not known, use the Materials Project search endpoint to filter by these keywords.
  - Validate returned JSON schema and store raw files in `data/raw/` with checksums.
  - **Verify** the count of raw records is >= 500 before proceeding; if < 500, log "Data Insufficiency: Retrieved {count} < 500" and exit with code 1.
-- [ ] T010 [US1] Implement `code/geometry_parser.py` to:
+- [X] T010 [US1] Implement `code/geometry_parser.py` to:
  - Parse POSCAR/CIF files using `pymatgen` (e.g., `Structure.from_file`).
  - **Derive Boundary Plane Normal**: Identify the interface plane in the bicrystal slab by locating the mid-plane of the simulation cell perpendicular to the growth direction. Calculate the normal vector to this plane and convert it to Miller indices (hkl) using the lattice basis vectors.
  - **Derive Σ Value**: Calculate the Σ value from the misorientation angle using the Coincidence Site Lattice (CSL) definition (e.g., Σ = 1 / (1 - cos(θ)) approximation or lookup table for common angles).
@@ -90,13 +90,13 @@
  - **Encode** misorientation angle as Rodrigues vectors (using `pymatgen.symmetry.analyzer` or custom rotation matrix logic).
  - **Encode** boundary plane normal as Miller indices (using `pymatgen.core.lattice` methods).
  - Output intermediate parsed data to `data/processed/parsed_geometry.parquet`.
-- [ ] T011 [US1] Implement `code/preprocess.py` to: <!-- FAILED: unspecified -->
+- [X] T011 [US1] Implement `code/preprocess.py` to: <!-- FAILED: unspecified -->
  - **Execute after T010**: Load parsed geometry and raw data.
  - Filter records with missing required features (misorientation, boundary plane, Σ value, temperature, composition, diffusivity, boundary width, excess volume).
  - **Tag** `simulation_method` (DFT, MD, KMC) and `potential_id` as features.
  - **Enforce** `n >= 500` constraint: If fewer than 500 valid records remain, log "Data Insufficiency: {valid_count} < 500. Missing features: {missing_feature_list}" and exit with code 1. The error must explicitly list which features (e.g., 'boundary plane normal', 'Σ value') caused the insufficiency.
  - Output `data/processed/cleaned_dataset.parquet`.
-- [ ] T012 [US1] Implement `code/train.py` to:
+- [X] T012 [US1] Implement `code/train.py` to:
  - Perform a **70/15/15** train/validation/test split. *Note: Corrected from ambiguous spec notation '/15/15' to ensure sufficient training data for XGBoost.*
  - Execute `RandomizedSearchCV` (k=5) for XGBoost hyperparameter tuning.
  - **Search space**: `max_depth` [3, 10], `learning_rate` [0.01, 0.3], `n_estimators` [50, 300].
@@ -104,7 +104,7 @@
  - Train final model on training set.
  - Save `models/best_model.json`.
  - Log R², RMSE, MAPE on held-out test set to `artifacts/reports/training_metrics.json`.
-- [ ] T013 [P] [US1] Add unit tests in `tests/unit/test_geometry_parser.py` for parsing logic and encoding correctness (including boundary plane normal derivation).
+- [X] T013 [P] [US1] Add unit tests in `tests/unit/test_geometry_parser.py` for parsing logic and encoding correctness (including boundary plane normal derivation).
 - [X] T014 [P] [US1] Add unit tests in `tests/unit/test_preprocess.py` for feature engineering, Σ value calculation, and missing value handling.
 - [X] T015 [US1] Add integration test in `tests/integration/test_pipeline.py` to verify end-to-end execution (T009 -> T010 -> T011 -> T016 -> T012) within 6 hours and <7 GB RAM.
 
@@ -163,13 +163,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T025a [P] Documentation updates: Write API usage and data schema sections in `README.md` and `docs/`.
-- [~] T025b [P] Documentation updates: Write Installation and Environment setup sections in `README.md`.
+- [ ] T025a [P] Documentation updates: Write API usage and data schema sections in `README.md` and `docs/`.
+- [ ] T025b [P] Documentation updates: Write Installation and Environment setup sections in `README.md`.
 - [X] T026a [P] Code cleanup: Remove unused imports from `code/utils.py`.
 - [X] T026b [P] Code cleanup: Standardize logging format in `code/utils.py`.
-- [~] T027 Performance optimization: ensure all heavy loops use vectorized numpy/pandas operations to stay within 6h runtime.
-- [~] T028 [P] Run `quickstart.md` validation.
-- [~] T029 Verify `state.yaml` updates with content hashes after successful pipeline run.
+- [ ] T027 Performance optimization: ensure all heavy loops use vectorized numpy/pandas operations to stay within 6h runtime.
+- [ ] T028 [P] Run `quickstart.md` validation.
+- [ ] T029 Verify `state.yaml` updates with content hashes after successful pipeline run.
 
 ---
 

@@ -1,11 +1,5 @@
-'T009 [US1] Implement `code/download.py` to: <!-- ATOMIZE: requested -->': 1
-'T009 [US1] Implement `code/download.py` to: <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->': 1
-'T010 [US1] Implement `code/geometry_parser.py` to:': 2
-'T011 [US1] Implement `code/preprocess.py` to:': 1
-'T011 [US1] Implement `code/preprocess.py` to: <!-- FAILED: unspecified -->': 1
-'T012 [US1] Implement `code/train.py` to:': 1
-? T013 [P] [US1] Add unit tests in `tests/unit/test_geometry_parser.py` for parsing
-  logic and encoding correctness (including boundary plane normal derivation).
-: 1
-'T016 [P] [US1/Foundational] Implement `code/diagnostics.py` to: <!-- ATOMIZE: requested -->': 1
-'T016 [P] [US1/Foundational] Implement `code/diagnostics.py` to: <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->': 2
+T025a: 2
+T025b: 1
+T027: 1
+T028: 1
+T029: 1

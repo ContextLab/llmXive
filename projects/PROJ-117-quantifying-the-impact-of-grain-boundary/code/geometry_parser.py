@@ -1,8 +1,12 @@
 """
 Geometry parser for grain boundary structures.
 
-This module parses POSCAR/CIF files to extract geometric features of grain boundaries,
-including boundary plane normals, Sigma values, misorientation angles, and excess volume.
+This module handles the parsing of POSCAR/CIF files to extract geometric features
+relevant to grain boundary character, including:
+- Boundary plane normal (Miller indices)
+- Sigma (Σ) value from misorientation
+- Boundary width and excess volume
+- Rodrigues vector encoding
 """
 
 import logging
@@ -14,101 +18,105 @@ from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 from pymatgen.core import Structure, Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants for Sigma calculation (CSL lookup for common angles)
-# Using a simplified lookup table for common CSL boundaries
-SIGMA_LOOKUP = {
-    36.87: 5,   # Σ5
-    53.13: 5,   # Σ5 (alternative)
-    28.07: 13,  # Σ13
-    38.94: 13,  # Σ13 (alternative)
-    22.62: 17,  # Σ17
-    36.87: 25,  # Σ25 (alternative)
-    43.60: 29,  # Σ29
-    46.40: 31,  # Σ31
-    50.48: 33,  # Σ33
-    54.74: 3,   # Σ3 (twin)
-    70.53: 3,   # Σ3 (alternative)
-}
 
-# For angles not in lookup, use the approximation: Σ ≈ 1 / (1 - cos(θ))
-# Note: This is a simplification; real CSL requires integer solutions
-
-
-def calculate_sigma_from_misorientation(misorientation_angle: float) -> int:
+def calculate_sigma_from_misorientation(misorientation_angle_deg: float) -> int:
     """
     Calculate the Sigma (Σ) value from misorientation angle using CSL definition.
 
-    Args:
-        misorientation_angle: Misorientation angle in degrees.
-
-    Returns:
-        Sigma value (integer).
-    """
-    # Check lookup table first
-    # Use a tolerance for floating point comparison
-    for angle, sigma in SIGMA_LOOKUP.items():
-        if abs(misorientation_angle - angle) < 0.5:
-            return sigma
-
-    # For angles not in lookup, use approximation
-    # Convert to radians
-    theta_rad = np.radians(misorientation_angle)
-    cos_theta = np.cos(theta_rad)
-
-    # Avoid division by zero
-    denominator = 1.0 - cos_theta
-    if abs(denominator) < 1e-6:
-        return 1  # No boundary (0 misorientation)
-
-    # Approximate Sigma value
-    sigma_approx = 1.0 / denominator
-
-    # Round to nearest integer and ensure it's odd (CSL property)
-    sigma = int(round(sigma_approx))
-    if sigma % 2 == 0:
-        sigma += 1
-
-    # Ensure minimum Sigma is 3 (for meaningful boundaries)
-    return max(3, sigma)
-
-
-def calculate_rodrigues_vector(misorientation_axis: np.ndarray, misorientation_angle: float) -> np.ndarray:
-    """
-    Calculate Rodrigues vector from misorientation axis and angle.
-
-    The Rodrigues vector is defined as: R = n * tan(θ/2)
-    where n is the rotation axis and θ is the rotation angle.
+    For cubic systems, common Σ values are derived from specific misorientation
+    angles. This function uses a lookup table for common angles and an
+    approximation for others.
 
     Args:
-        misorientation_axis: Unit vector representing the rotation axis.
-        misorientation_angle: Rotation angle in degrees.
+        misorientation_angle_deg: Misorientation angle in degrees.
 
     Returns:
-        Rodrigues vector as numpy array.
+        Sigma value (integer). Returns -1 if no common CSL match is found.
     """
-    # Normalize the axis
-    axis_norm = np.linalg.norm(misorientation_axis)
-    if axis_norm < 1e-10:
-        return np.array([0.0, 0.0, 0.0])
+    # Common CSL misorientation angles for cubic systems (approximate)
+    # Format: (angle, sigma)
+    csl_table = [
+        (38.94, 3),   # Σ3
+        (50.48, 9),   # Σ9
+        (60.00, 3),   # Σ3 (twin)
+        (70.53, 3),   # Σ3 (another variant)
+        (28.95, 27),  # Σ27
+        (31.60, 27),  # Σ27
+        (36.87, 5),   # Σ5
+        (53.13, 5),   # Σ5
+        (21.80, 13),  # Σ13
+        (27.80, 13),  # Σ13
+        (43.60, 13),  # Σ13
+        (46.40, 13),  # Σ13
+    ]
 
-    n = misorientation_axis / axis_norm
+    # Find closest match in table
+    best_sigma = -1
+    min_diff = float('inf')
 
-    # Convert angle to radians and calculate tan(θ/2)
-    theta_rad = np.radians(misorientation_angle)
-    tan_half_theta = np.tan(theta_rad / 2.0)
+    for angle, sigma in csl_table:
+        diff = abs(misorientation_angle_deg - angle)
+        if diff < min_diff:
+            min_diff = diff
+            best_sigma = sigma
 
-    # Rodrigues vector
-    rodrigues = n * tan_half_theta
+    # If within tolerance, return the match
+    if min_diff < 2.0:  # 2 degree tolerance
+        return best_sigma
 
-    return rodrigues
+    # For non-standard angles, use approximation: Σ ≈ 1 / (1 - cos(θ))
+    # This is a rough approximation and may not yield integer Σ
+    theta_rad = np.radians(misorientation_angle_deg)
+    if np.abs(1 - np.cos(theta_rad)) < 1e-6:
+        return -1  # Avoid division by zero
+
+    sigma_approx = 1.0 / (1 - np.cos(theta_rad))
+
+    # Round to nearest integer and check if it's a valid CSL (odd integer for cubic)
+    sigma_rounded = int(round(sigma_approx))
+    if sigma_rounded > 0 and sigma_rounded % 2 == 1:
+        return sigma_rounded
+
+    return -1  # No valid CSL match
+
+
+def calculate_rodrigues_vector(rotation_matrix: np.ndarray) -> np.ndarray:
+    """
+    Calculate Rodrigues vector from rotation matrix.
+
+    The Rodrigues vector is a compact representation of 3D rotations.
+
+    Args:
+        rotation_matrix: 3x3 rotation matrix.
+
+    Returns:
+        Rodrigues vector (3-element array).
+    """
+    # Extract rotation angle from trace of rotation matrix
+    trace = np.trace(rotation_matrix)
+    theta = np.arccos(np.clip((trace - 1) / 2, -1, 1))
+
+    if np.abs(theta) < 1e-6:
+        return np.zeros(3)
+
+    # Extract rotation axis
+    axis = np.array([
+        rotation_matrix[2, 1] - rotation_matrix[1, 2],
+        rotation_matrix[0, 2] - rotation_matrix[2, 0],
+        rotation_matrix[1, 0] - rotation_matrix[0, 1]
+    ]) / (2 * np.sin(theta))
+
+    # Rodrigues vector = axis * tan(theta/2)
+    rod = axis * np.tan(theta / 2)
+    return rod
 
 
 def get_miller_indices(normal_vector: np.ndarray, lattice: Lattice) -> Tuple[int, int, int]:
@@ -120,321 +128,285 @@ def get_miller_indices(normal_vector: np.ndarray, lattice: Lattice) -> Tuple[int
         lattice: Pymatgen Lattice object.
 
     Returns:
-        Tuple of (h, k, l) as integers.
+        Tuple of (h, k, l) Miller indices.
     """
-    # Convert Cartesian vector to fractional coordinates
-    reciprocal_lattice = lattice.reciprocal_lattice
-    frac_coords = np.dot(normal_vector, reciprocal_lattice.matrix.T)
+    # Convert Cartesian to fractional coordinates
+    frac_coords = lattice.get_fractional_coords(normal_vector)
 
-    # Normalize to smallest integers
-    # Find the greatest common divisor approximation
-    # First, scale to reasonable integers
-    scale_factor = 100.0  # Initial scaling
-    hkl_float = frac_coords * scale_factor
+    # Normalize to smallest integer ratio
+    # Multiply by a large factor to avoid floating point issues
+    scaled = frac_coords * 1000
+    rounded = np.round(scaled)
 
-    # Round to nearest integers
-    hkl_int = np.round(hkl_float).astype(int)
+    # Find GCD to reduce to smallest integers
+    gcd_val = np.gcd.reduce(np.abs(rounded.astype(int)))
+    if gcd_val > 0:
+        hkl = (rounded / gcd_val).astype(int)
+    else:
+        hkl = rounded.astype(int)
 
-    # If all zeros, return (0, 0, 1) as default
-    if np.all(hkl_int == 0):
-        return (0, 0, 1)
+    # Ensure at least one non-zero component
+    if np.all(hkl == 0):
+        hkl = np.array([1, 0, 0])
 
-    # Simplify by dividing by GCD
-    def gcd(a, b):
-        while b:
-            a, b = b, a % b
-        return a
-
-    def gcd_list(lst):
-        result = lst[0]
-        for i in range(1, len(lst)):
-            result = gcd(result, lst[i])
-        return abs(result)
-
-    common = gcd_list(hkl_int)
-    if common > 1:
-        hkl_int = hkl_int // common
-
-    return tuple(hkl_int.tolist())
+    return tuple(hkl)
 
 
-def extract_boundary_plane_normal(structure: Structure, growth_direction: np.ndarray = None) -> np.ndarray:
+def extract_boundary_plane_normal(structure: Structure, growth_direction: str = 'z') -> np.ndarray:
     """
     Extract the boundary plane normal from a bicrystal structure.
 
-    Identifies the mid-plane of the simulation cell perpendicular to the growth direction.
+    Identifies the interface plane by locating the mid-plane of the simulation
+    cell perpendicular to the growth direction.
 
     Args:
         structure: Pymatgen Structure object.
-        growth_direction: Optional growth direction vector. Defaults to [0, 0, 1].
+        growth_direction: Direction of the simulation cell growth ('x', 'y', or 'z').
 
     Returns:
-        Normal vector to the boundary plane.
+        Normal vector to the boundary plane in Cartesian coordinates.
     """
-    if growth_direction is None:
-        growth_direction = np.array([0.0, 0.0, 1.0])
+    lattice = structure.lattice
 
-    # Normalize growth direction
-    growth_direction = growth_direction / np.linalg.norm(growth_direction)
+    # Determine which axis corresponds to growth direction
+    if growth_direction.lower() == 'x':
+        axis_idx = 0
+    elif growth_direction.lower() == 'y':
+        axis_idx = 1
+    elif growth_direction.lower() == 'z':
+        axis_idx = 2
+    else:
+        raise ValueError(f"Invalid growth direction: {growth_direction}")
 
-    # For a bicrystal slab, the boundary plane is typically perpendicular to the growth direction
-    # The normal to the boundary plane is the growth direction itself
-    return growth_direction
+    # Get lattice vectors
+    lattice_vectors = lattice.matrix
+
+    # The normal to the plane perpendicular to growth direction
+    # is simply the lattice vector in that direction (normalized)
+    normal = lattice_vectors[axis_idx]
+    normal = normal / np.linalg.norm(normal)
+
+    return normal
 
 
-def calculate_boundary_width(structure: Structure, growth_direction: np.ndarray = None) -> float:
+def calculate_boundary_width(structure: Structure, growth_direction: str = 'z') -> float:
     """
     Calculate the boundary width from the structure dimensions.
 
     Args:
         structure: Pymatgen Structure object.
-        growth_direction: Growth direction vector.
+        growth_direction: Direction of the simulation cell growth.
 
     Returns:
         Boundary width in Angstroms.
     """
-    if growth_direction is None:
-        growth_direction = np.array([0.0, 0.0, 1.0])
-
-    # Get the lattice parameters
     lattice = structure.lattice
-    lengths = lattice.abc
-    angles = lattice.angles
 
-    # Calculate the length along the growth direction
-    # Project lattice vectors onto growth direction
-    lattice_vectors = np.array([
-        lattice.a_vector,
-        lattice.b_vector,
-        lattice.c_vector
-    ])
-
-    projections = np.dot(lattice_vectors, growth_direction)
-    total_length = np.sum(np.abs(projections))
-
-    # For a typical bicrystal, the boundary width is roughly half the total length
-    # (assuming symmetric bicrystal)
-    return total_length / 2.0
+    if growth_direction.lower() == 'x':
+        return lattice.a
+    elif growth_direction.lower() == 'y':
+        return lattice.b
+    elif growth_direction.lower() == 'z':
+        return lattice.c
+    else:
+        raise ValueError(f"Invalid growth direction: {growth_direction}")
 
 
-def calculate_excess_volume(structure: Structure, bulk_density: float = None) -> float:
+def calculate_excess_volume(structure: Structure, bulk_density: float, boundary_width: float) -> float:
     """
     Calculate excess volume at the grain boundary.
 
-    Excess volume is the difference between the actual volume and the volume
-    of the same number of atoms in the bulk configuration.
+    Excess volume is the additional volume per unit area due to the grain boundary.
 
     Args:
         structure: Pymatgen Structure object.
-        bulk_density: Optional bulk density (atoms/A³). If None, estimated from structure.
+        bulk_density: Density of the bulk material (atoms/Angstrom^3).
+        boundary_width: Width of the boundary region (Angstroms).
 
     Returns:
-        Excess volume in Angstrom³.
+        Excess volume per unit area (Angstrom).
     """
-    # Get total volume of the structure
-    total_volume = structure.lattice.volume
+    # Calculate total volume of the structure
+    total_volume = structure.volume
 
-    # Estimate number of atoms
+    # Calculate number of atoms
     n_atoms = len(structure)
 
-    # If bulk density not provided, estimate from the structure
-    # Assuming most atoms are in bulk-like environment
-    if bulk_density is None:
-        # Use a heuristic: assume 90% of atoms are in bulk
-        bulk_atoms = n_atoms * 0.9
-        # Estimate bulk volume per atom from typical metal values
-        # This is a rough approximation; real implementation would use reference bulk structure
-        avg_atomic_volume = total_volume / n_atoms * 0.95  # Slight expansion at boundary
-        bulk_density = bulk_atoms / (total_volume * 0.95)
-
-    # Calculate expected volume for bulk atoms
-    expected_bulk_volume = n_atoms / bulk_density
+    # Expected volume for bulk material
+    expected_volume = n_atoms / bulk_density
 
     # Excess volume
-    excess_volume = total_volume - expected_bulk_volume
+    excess_vol_total = total_volume - expected_volume
 
-    # Ensure non-negative (boundary should have excess volume)
-    return max(0.0, excess_volume)
+    # Excess volume per unit area (assuming the boundary spans the cross-section)
+    # Cross-sectional area perpendicular to growth direction
+    lattice = structure.lattice
+    if boundary_width == lattice.a:  # Growth in x
+        cross_section_area = lattice.b * lattice.c
+    elif boundary_width == lattice.b:  # Growth in y
+        cross_section_area = lattice.a * lattice.c
+    else:  # Growth in z
+        cross_section_area = lattice.a * lattice.b
+
+    if cross_section_area == 0:
+        return 0.0
+
+    excess_vol_per_area = excess_vol_total / cross_section_area
+
+    return excess_vol_per_area
 
 
-def parse_structure_file(file_path: str) -> Structure:
+def parse_structure_file(file_path: str) -> Optional[Structure]:
     """
-    Parse a structure file (POSCAR or CIF) using pymatgen.
+    Parse a structure file (POSCAR or CIF).
 
     Args:
         file_path: Path to the structure file.
 
     Returns:
-        Pymatgen Structure object.
-
-    Raises:
-        ValueError: If file format is unsupported or parsing fails.
+        Pymatgen Structure object, or None if parsing fails.
     """
     path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Structure file not found: {file_path}")
 
-    suffix = path.suffix.lower()
+    if not path.exists():
+        logger.error(f"File not found: {file_path}")
+        return None
 
     try:
-        if suffix in ['.poscar', '.vasp']:
-            return Structure.from_file(file_path)
-        elif suffix == '.cif':
-            return Structure.from_file(file_path)
+        if path.suffix.lower() in ['.vasp', '.poscar', '.car']:
+            structure = Structure.from_file(file_path, fmt='vasp')
+        elif path.suffix.lower() == '.cif':
+            structure = Structure.from_file(file_path, fmt='cif')
         else:
-            # Try to auto-detect
-            return Structure.from_file(file_path)
+            # Try to detect format
+            structure = Structure.from_file(file_path)
+
+        logger.info(f"Successfully parsed structure from {file_path}")
+        return structure
+
     except Exception as e:
-        logger.error(f"Failed to parse structure file {file_path}: {e}")
-        raise ValueError(f"Unsupported file format or parsing error: {e}")
+        logger.error(f"Failed to parse structure from {file_path}: {e}")
+        return None
 
 
-def extract_geometry_features(structure: Structure, misorientation_angle: float = None) -> Dict[str, Any]:
+def extract_geometry_features(structure: Structure, metadata: Dict[str, Any]) -> Dict[str, Any]:
     """
     Extract all geometric features from a structure.
 
     Args:
         structure: Pymatgen Structure object.
-        misorientation_angle: Optional misorientation angle in degrees.
-            If not provided, will be estimated or set to None.
+        metadata: Dictionary containing metadata like misorientation angle,
+                 growth direction, bulk density, etc.
 
     Returns:
-        Dictionary containing extracted features.
+        Dictionary of extracted geometric features.
     """
     features = {}
 
-    # Extract boundary plane normal (default to [0,0,1])
-    normal = extract_boundary_plane_normal(structure)
-    features['boundary_plane_normal'] = normal.tolist()
-
-    # Get Miller indices
-    miller_indices = get_miller_indices(normal, structure.lattice)
-    features['miller_indices'] = list(miller_indices)
+    # Get misorientation angle from metadata
+    misorientation_angle = metadata.get('misorientation_angle', 0.0)
 
     # Calculate Sigma value
-    if misorientation_angle is not None:
-        sigma = calculate_sigma_from_misorientation(misorientation_angle)
-        features['sigma_value'] = sigma
-        features['misorientation_angle'] = misorientation_angle
+    sigma = calculate_sigma_from_misorientation(misorientation_angle)
+    features['sigma_value'] = sigma
 
-        # Calculate Rodrigues vector (assuming axis is normal to plane)
-        rodrigues = calculate_rodrigues_vector(normal, misorientation_angle)
-        features['rodrigues_vector'] = rodrigues.tolist()
-    else:
-        features['sigma_value'] = None
-        features['misorientation_angle'] = None
-        features['rodrigues_vector'] = None
+    # Get growth direction from metadata
+    growth_direction = metadata.get('growth_direction', 'z')
+
+    # Extract boundary plane normal
+    normal_vector = extract_boundary_plane_normal(structure, growth_direction)
+    features['boundary_plane_normal_cartesian'] = normal_vector.tolist()
+
+    # Convert to Miller indices
+    lattice = structure.lattice
+    miller_indices = get_miller_indices(normal_vector, lattice)
+    features['boundary_plane_miller_indices'] = list(miller_indices)
 
     # Calculate boundary width
-    width = calculate_boundary_width(structure)
-    features['boundary_width'] = width
+    boundary_width = calculate_boundary_width(structure, growth_direction)
+    features['boundary_width'] = boundary_width
+
+    # Get bulk density from metadata
+    bulk_density = metadata.get('bulk_density', 0.1)  # Default fallback
 
     # Calculate excess volume
-    excess_vol = calculate_excess_volume(structure)
-    features['excess_volume'] = excess_vol
+    excess_volume = calculate_excess_volume(structure, bulk_density, boundary_width)
+    features['excess_volume_per_area'] = excess_volume
+
+    # Calculate Rodrigues vector
+    # For simplicity, we assume the rotation is around the growth direction
+    # In a real implementation, this would use the actual rotation matrix
+    rotation_angle_rad = np.radians(misorientation_angle)
+    if growth_direction.lower() == 'x':
+        rotation_axis = np.array([1, 0, 0])
+    elif growth_direction.lower() == 'y':
+        rotation_axis = np.array([0, 1, 0])
+    else:  # z
+        rotation_axis = np.array([0, 0, 1])
+
+    # Create rotation matrix from axis-angle
+    cos_theta = np.cos(rotation_angle_rad)
+    sin_theta = np.sin(rotation_angle_rad)
+    ux, uy, uz = rotation_axis
+
+    rotation_matrix = np.array([
+        [cos_theta + ux**2 * (1 - cos_theta), ux * uy * (1 - cos_theta) - uz * sin_theta, ux * uz * (1 - cos_theta) + uy * sin_theta],
+        [uy * ux * (1 - cos_theta) + uz * sin_theta, cos_theta + uy**2 * (1 - cos_theta), uy * uz * (1 - cos_theta) - ux * sin_theta],
+        [uz * ux * (1 - cos_theta) - uy * sin_theta, uz * uy * (1 - cos_theta) + ux * sin_theta, cos_theta + uz**2 * (1 - cos_theta)]
+    ])
+
+    rodrigues_vector = calculate_rodrigues_vector(rotation_matrix)
+    features['rodrigues_vector'] = rodrigues_vector.tolist()
 
     # Additional structure info
-    features['n_atoms'] = len(structure)
-    features['volume'] = structure.lattice.volume
-    features['composition'] = dict(structure.composition)
+    features['num_atoms'] = len(structure)
+    features['volume'] = structure.volume
+    features['density'] = len(structure) / structure.volume
 
     return features
 
 
-def parse_all_structures(input_dir: str, output_path: str, misorientation_map: Dict[str, float] = None) -> None:
+def parse_all_structures(structure_files: List[str], metadata_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Parse all structure files in a directory and extract geometric features.
+    Parse multiple structure files and extract geometry features.
 
     Args:
-        input_dir: Directory containing structure files (POSCAR/CIF).
-        output_path: Path to save the output parquet file.
-        misorientation_map: Optional dictionary mapping file names to misorientation angles.
+        structure_files: List of paths to structure files.
+        metadata_list: List of metadata dictionaries corresponding to each file.
+
+    Returns:
+        List of dictionaries containing extracted features.
     """
-    input_path = Path(input_dir)
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input directory not found: {input_dir}")
+    results = []
 
-    # Find all structure files
-    structure_files = list(input_path.glob('*.poscar')) + \
-                     list(input_path.glob('*.POSCAR')) + \
-                     list(input_path.glob('*.cif')) + \
-                     list(input_path.glob('*.CIF'))
+    for i, (file_path, metadata) in enumerate(zip(structure_files, metadata_list)):
+        logger.info(f"Processing file {i+1}/{len(structure_files)}: {file_path}")
 
-    if not structure_files:
-        logger.warning(f"No structure files found in {input_dir}")
-        return
-
-    logger.info(f"Found {len(structure_files)} structure files to parse")
-
-    # Prepare data list
-    data_list = []
-
-    for file_path in structure_files:
-        try:
-            logger.info(f"Parsing {file_path.name}")
-            structure = parse_structure_file(str(file_path))
-
-            # Get misorientation angle from map if available
-            misorientation = None
-            if misorientation_map and file_path.name in misorientation_map:
-                misorientation = misorientation_map[file_path.name]
-
-            # Extract features
-            features = extract_geometry_features(structure, misorientation)
-
-            # Add file metadata
-            features['file_name'] = file_path.name
-            features['file_path'] = str(file_path)
-
-            data_list.append(features)
-
-        except Exception as e:
-            logger.error(f"Failed to parse {file_path}: {e}")
+        structure = parse_structure_file(file_path)
+        if structure is None:
+            logger.warning(f"Skipping {file_path} due to parsing failure")
             continue
 
-    if not data_list:
-        logger.warning("No structures were successfully parsed")
-        return
+        try:
+            features = extract_geometry_features(structure, metadata)
+            features['source_file'] = file_path
+            results.append(features)
+        except Exception as e:
+            logger.error(f"Failed to extract features from {file_path}: {e}")
+            continue
 
-    # Convert to DataFrame and save
-    import pandas as pd
-    df = pd.DataFrame(data_list)
-
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Save to parquet
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Saved {len(df)} records to {output_path}")
+    logger.info(f"Successfully processed {len(results)} out of {len(structure_files)} files")
+    return results
 
 
 def main():
     """
-    Main entry point for the geometry parser.
+    Main function to demonstrate geometry parsing.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Parse grain boundary structures and extract geometric features')
-    parser.add_argument('--input-dir', type=str, required=True,
-                      help='Directory containing structure files (POSCAR/CIF)')
-    parser.add_argument('--output', type=str, required=True,
-                      help='Output path for the parsed data (parquet format)')
-    parser.add_argument('--misorientation-map', type=str, default=None,
-                      help='JSON file mapping filenames to misorientation angles')
-
-    args = parser.parse_args()
-
-    # Load misorientation map if provided
-    misorientation_map = None
-    if args.misorientation_map:
-        import json
-        with open(args.misorientation_map, 'r') as f:
-            misorientation_map = json.load(f)
-
-    # Parse structures
-    parse_all_structures(args.input_dir, args.output, misorientation_map)
+    # This would typically be called by a pipeline
+    # For now, just log that the module is ready
+    logger.info("Geometry parser module loaded successfully")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,58 +1,97 @@
 # Data Schema Documentation
 
-This document defines the data structures used throughout the pipeline.
+This document describes the data schemas used throughout the Grain Boundary Diffusivity pipeline.
 
-## Raw Data Metadata (`data/metadata.yaml`)
+## Raw Data Schema
 
-Tracks provenance for all downloaded data.
+### Source: Materials Project
 
-```yaml
-source: <string> # e.g., "materials_project", "openkim", "nist"
-version: <string> # Version tag of the dataset
-checksum: <string> # SHA-256 hash of the raw data
-retrieval_date: <ISO8601> # Date and time of retrieval
+**Endpoint**: `
+
+**Response Fields**:
+```json
+{
+ "task_id": "string",
+ "material_id": "string",
+ "structure": {
+ "sites": [{"species": [{"element": "string", "occu": float}], "xyz": [float, float, float]}],
+ "lattice": {"a": float, "b": float, "c": float, "alpha": float, "beta": float, "gamma": float}
+ },
+ "properties": {
+ "diffusivity": float,
+ "temperature": float
+ },
+ "metadata": {
+ "simulation_method": "string",
+ "potential_id": "string"
+ }
+}
 ```
 
-## Parsed Geometry (`data/processed/parsed_geometry.parquet`)
+### Source: OpenKIM
 
-Columns:
+**Endpoint**: ` Name or service not known)"))]
 
-- `structure_id`: str (unique identifier)
-- `misorientation_angle`: float (degrees)
-- `sigma_value`: int (CSL Σ value)
-- `boundary_plane_normal`: list of 3 floats (normalized vector)
-- `miller_indices`: list of 3 ints (h, k, l)
-- `rodrigues_vector`: list of 3 floats
-- `boundary_width`: float (Å)
-- `excess_volume`: float (Å³)
-- `temperature`: float (K)
-- `composition`: str (e.g., "Cu")
-- `diffusivity`: float (m²/s)
-- `simulation_method`: str ("DFT", "MD", "KMC")
-- `potential_id`: str
+**Response Fields**:
+```json
+{
+ "id": "string",
+ "structure_file": "base64_encoded_poscar_or_cif",
+ "properties": {
+ "diffusivity": float,
+ "temperature": float
+ },
+ "metadata": {
+ "simulation_method": "string",
+ "potential_id": "string"
+ }
+}
+```
 
-## Cleaned Dataset (`data/processed/cleaned_dataset.parquet`)
+## Processed Data Schema
 
-Subset of parsed geometry with:
-- No missing values in required features.
-- Minimum 500 records.
-- Additional tags for metadata features.
+### Parsed Geometry (`data/processed/parsed_geometry.parquet`)
 
-## Model Artifacts (`models/best_model.json`)
+| Column | Type | Description |
+|--------|------|-------------|
+| `structure_id` | string | Unique identifier |
+| `source` | string | Data source (Materials Project, OpenKIM, NIST) |
+| `misorientation_angle` | float | Angle in degrees [0, 90] |
+| `sigma_value` | int | Σ value from CSL (odd integer) |
+| `boundary_plane_normal_h` | int | Miller index h |
+| `boundary_plane_normal_k` | int | Miller index k |
+| `boundary_plane_normal_l` | int | Miller index l |
+| `rodrigues_x` | float | Rodrigues vector x component |
+| `rodrigues_y` | float | Rodrigues vector y component |
+| `rodrigues_z` | float | Rodrigues vector z component |
+| `boundary_width` | float | Boundary width in Å |
+| `excess_volume` | float | Excess volume in Å³ |
+| `temperature` | float | Temperature in K |
+| `composition` | string | Chemical formula |
+| `diffusivity` | float | Atomic diffusivity in m²/s |
+| `simulation_method` | string | DFT, MD, or KMC |
+| `potential_id` | string | Interatomic potential identifier |
 
-JSON serialization of the trained XGBoost model, including:
-- Hyperparameters (`max_depth`, `learning_rate`, `n_estimators`, etc.)
-- Feature names
-- Trained tree structure
+### Cleaned Dataset (`data/processed/cleaned_dataset.parquet`)
 
-## Reports
+Same schema as parsed geometry with additional validation:
+- No null values in required columns
+- `n >= 500` records
+- Metadata features tagged for encoding
+
+## Output Artifacts Schema
 
 ### `artifacts/reports/collinearity_diagnostic.json`
 
 ```json
 {
- "mutual_information": <float>,
- "warning": "<string>"
+ "mutual_information": {
+ "misorientation_vs_sigma": 0.45,
+ "misorientation_vs_plane_normal": 0.12,
+ "sigma_vs_plane_normal": 0.08
+ },
+ "warnings": ["MI > 0.8 indicates strong dependency"],
+ "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -60,9 +99,16 @@ JSON serialization of the trained XGBoost model, including:
 
 ```json
 {
- "r2": <float>,
- "rmse": <float>,
- "mape": <float>
+ "r2": 0.78,
+ "rmse": 0.15,
+ "mape": 12.3,
+ "test_size": 150,
+ "hyperparameters": {
+ "max_depth": 7,
+ "learning_rate": 0.1,
+ "n_estimators": 200
+ },
+ "timestamp": "2024-01-15T11:00:00Z"
 }
 ```
 
@@ -70,17 +116,70 @@ JSON serialization of the trained XGBoost model, including:
 
 ```json
 {
- "cv_r2_mean": <float>,
- "cv_r2_std": <float>,
- "bias_intercept": <float>,
- "bias_slope": <float>,
- "bias_p_value": <float>,
- "bonferroni_corrected": true
+ "cross_validation": {
+ "r2_mean": 0.76,
+ "r2_std": 0.03,
+ "rmse_mean": 0.16,
+ "mape_mean": 13.1
+ },
+ "bias_test": {
+ "intercept": 0.02,
+ "slope": 0.98,
+ "intercept_pvalue": 0.45,
+ "slope_pvalue": 0.01
+ },
+ "bonferroni_alpha": 0.017,
+ "timestamp": "2024-01-15T12:00:00Z"
 }
 ```
 
 ### `artifacts/reports/threshold-variation-table.csv`
 
-CSV with columns:
-- `threshold`: float
-- `pass_rate`: float (proportion of folds passing)
+| threshold | pass_rate | fold_count |
+|-----------|-----------|------------|
+| 0.50 | 1.00 | 5 |
+| 0.60 | 1.00 | 5 |
+| 0.70 | 0.80 | 4 |
+| 0.80 | 0.40 | 2 |
+| 0.90 | 0.00 | 0 |
+
+## Metadata Schema (`data/metadata.yaml`)
+
+```yaml
+version: "1.0"
+datasets:
+ - source: "Materials Project"
+ version_tag: "2024.01"
+ checksum: "sha256:abc123..."
+ retrieval_date: "2024-01-15T09:00:00Z"
+ record_count: 350
+ - source: "OpenKIM"
+ version_tag: "2024.01"
+ checksum: "sha256:def456..."
+ retrieval_date: "2024-01-15T09:30:00Z"
+ record_count: 200
+```
+
+## Data Constraints
+
+### Required Features
+The following features are required for model training:
+- `misorientation_angle`
+- `sigma_value`
+- `boundary_plane_normal` (h, k, l)
+- `temperature`
+- `composition`
+- `diffusivity`
+- `boundary_width`
+- `excess_volume`
+
+### Minimum Record Count
+- **Constraint**: `n >= 500` valid records
+- **Error**: If violated, pipeline exits with code 1 and logs:
+ `"Data Insufficiency: {valid_count} < 500. Missing features: {missing_feature_list}"`
+
+### Data Types
+- Floats: 64-bit precision
+- Integers: 32-bit for indices, 64-bit for Σ value
+- Strings: UTF-8 encoding
+- Dates: ISO 8601 format

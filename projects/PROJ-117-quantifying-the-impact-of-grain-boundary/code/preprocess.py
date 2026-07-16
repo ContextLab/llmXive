@@ -1,9 +1,14 @@
 """
 Preprocessing module for Grain Boundary Diffusivity pipeline.
 
-Loads parsed geometry data, filters records with missing required features,
-tags metadata fields, and enforces the n >= 500 constraint.
+This module handles:
+- Loading parsed geometry data from T010
+- Validating required features
+- Tagging metadata features (simulation_method, potential_id)
+- Enforcing minimum record count (n >= 500)
+- Saving cleaned dataset to parquet
 """
+
 import logging
 import sys
 import os
@@ -13,156 +18,210 @@ from typing import List, Dict, Any, Tuple
 import pandas as pd
 import numpy as np
 
-# Import existing project utilities
+# Import error handling utilities
+from error_handling import DataInsufficiencyError, exit_on_insufficiency
+# Import utility functions
 from utils import setup_logging, set_random_seed
-from error_handling import DataInsufficiencyError, check_data_sufficiency, exit_on_insufficiency
-from models.grain_boundary_record import GrainBoundaryRecord
+# Import geometry parser functions if needed for validation
+from geometry_parser import calculate_sigma_from_misorientation
 
 # Configure logging
-logger = setup_logging("preprocess")
+logger = logging.getLogger(__name__)
 
-# Define required features based on task specification
+# Define required features for the model
 REQUIRED_FEATURES = [
     'misorientation_angle',
-    'boundary_plane_normal',  # Stored as string or tuple representation
+    'boundary_plane_normal',  # Tuple or string representation
     'sigma_value',
     'temperature',
     'composition',
     'diffusivity',
     'boundary_width',
-    'excess_volume'
-]
-
-# Optional features that should be tagged if present
-OPTIONAL_FEATURES = [
+    'excess_volume',
     'simulation_method',
     'potential_id'
 ]
 
-MIN_RECORDS = 500
+# Metadata features that need tagging
+METADATA_FEATURES = ['simulation_method', 'potential_id']
 
 def load_parsed_data(input_path: str) -> pd.DataFrame:
-    """Load the parsed geometry data from parquet file."""
+    """
+    Load parsed geometry data from Parquet file.
+
+    Args:
+        input_path: Path to the parsed geometry parquet file
+
+    Returns:
+        DataFrame containing parsed geometry data
+    """
     path = Path(input_path)
     if not path.exists():
         raise FileNotFoundError(f"Parsed data file not found: {input_path}")
-    
+
     logger.info(f"Loading parsed data from {input_path}")
     df = pd.read_parquet(path)
-    logger.info(f"Loaded {len(df)} records")
+    logger.info(f"Loaded {len(df)} records from {input_path}")
     return df
 
 def validate_features(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
     """
-    Filter records with missing required features and identify missing features.
-    
+    Filter records with missing required features.
+
+    Args:
+        df: DataFrame with parsed geometry data
+
     Returns:
-        Tuple of (cleaned dataframe, list of missing feature names found in dataset)
+        Tuple of (cleaned DataFrame, list of missing features found)
     """
+    logger.info(f"Validating features for {len(df)} records")
+    
+    # Track which features are missing
     missing_features = []
     
-    # Check which required features are missing entirely from the dataset
+    # Check for required features in the dataframe
     available_cols = set(df.columns)
-    for feature in REQUIRED_FEATURES:
-        if feature not in available_cols:
-            missing_features.append(feature)
+    missing_cols = set(REQUIRED_FEATURES) - available_cols
     
-    if missing_features:
-        logger.warning(f"Dataset is missing required columns: {missing_features}")
-        # If entire columns are missing, we cannot proceed
-        raise DataInsufficiencyError(
-            f"Dataset missing required columns: {missing_features}. "
-            f"Cannot filter records for missing values in non-existent columns."
-        )
+    if missing_cols:
+        logger.warning(f"Missing required columns in dataset: {missing_cols}")
+        missing_features.extend(missing_cols)
     
-    # Create a mask for records with all required features present
-    valid_mask = pd.Series([True] * len(df), index=df.index)
+    # Create a copy to avoid modifying original
+    cleaned_df = df.copy()
     
-    for feature in REQUIRED_FEATURES:
-        # Check for NaN, None, or empty string values
-        if df[feature].dtype == object:
-            # For object columns, check for None, empty strings, or NaN
-            col_mask = df[feature].notna() & (df[feature] != '') & (df[feature] != 'None')
-        else:
-            # For numeric columns, just check NaN
-            col_mask = df[feature].notna()
-        
-        valid_mask &= col_mask
-        
-        # Track if this feature has missing values
-        if not col_mask.all():
-            logger.debug(f"Feature '{feature}' has {(~col_mask).sum()} missing values")
+    # Filter out rows with missing values in required features
+    # Only consider the features that are actually present in the dataframe
+    present_required = [f for f in REQUIRED_FEATURES if f in cleaned_df.columns]
     
-    cleaned_df = df[valid_mask].reset_index(drop=True)
+    if not present_required:
+        logger.error("No required features found in dataset")
+        return cleaned_df, list(missing_cols)
     
-    # Identify which features caused records to be dropped
-    dropped_count = len(df) - len(cleaned_df)
+    # Drop rows with any missing values in required features
+    initial_count = len(cleaned_df)
+    cleaned_df = cleaned_df.dropna(subset=present_required)
+    dropped_count = initial_count - len(cleaned_df)
+    
     if dropped_count > 0:
-        logger.info(f"Dropped {dropped_count} records due to missing required features")
+        logger.info(f"Dropped {dropped_count} records due to missing values in required features")
     
-    return cleaned_df, []
+    # Check for specific feature validity
+    # For sigma_value, ensure it's a valid positive number
+    if 'sigma_value' in cleaned_df.columns:
+        invalid_sigma = cleaned_df[cleaned_df['sigma_value'] <= 0]
+        if len(invalid_sigma) > 0:
+            logger.warning(f"Found {len(invalid_sigma)} records with invalid sigma_value (<=0)")
+            cleaned_df = cleaned_df[cleaned_df['sigma_value'] > 0]
+    
+    # For misorientation_angle, ensure it's within valid range (0-90 degrees typically)
+    if 'misorientation_angle' in cleaned_df.columns:
+        invalid_angle = cleaned_df[(cleaned_df['misorientation_angle'] < 0) | 
+                                  (cleaned_df['misorientation_angle'] > 90)]
+        if len(invalid_angle) > 0:
+            logger.warning(f"Found {len(invalid_angle)} records with invalid misorientation_angle")
+            cleaned_df = cleaned_df[(cleaned_df['misorientation_angle'] >= 0) & 
+                                   (cleaned_df['misorientation_angle'] <= 90)]
+    
+    # Check for boundary_plane_normal validity (should be a 3-tuple or similar)
+    if 'boundary_plane_normal' in cleaned_df.columns:
+        # Filter out empty or invalid entries
+        invalid_plane = cleaned_df[cleaned_df['boundary_plane_normal'].isna() | 
+                                 (cleaned_df['boundary_plane_normal'] == '')]
+        if len(invalid_plane) > 0:
+            logger.warning(f"Found {len(invalid_plane)} records with invalid boundary_plane_normal")
+            cleaned_df = cleaned_df[cleaned_df['boundary_plane_normal'].notna() & 
+                                  (cleaned_df['boundary_plane_normal'] != '')]
+    
+    logger.info(f"Feature validation complete: {len(cleaned_df)} valid records remaining")
+    return cleaned_df, missing_features
 
 def tag_metadata_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Tag simulation_method and potential_id as features if present.
-    
-    These are added as metadata tags to the dataset.
-    """
-    for feature in OPTIONAL_FEATURES:
-        if feature in df.columns:
-            logger.info(f"Tagging optional feature: {feature}")
-            # Ensure categorical encoding if needed
-            if df[feature].dtype == object:
-                df[feature] = df[feature].astype('category')
-        else:
-            logger.debug(f"Optional feature '{feature}' not present in dataset")
-    
-    return df
+    Tag metadata features (simulation_method, potential_id) for model training.
 
-def enforce_minimum_records(df: pd.DataFrame, min_count: int = MIN_RECORDS) -> pd.DataFrame:
-    """
-    Enforce the minimum record count constraint.
-    
     Args:
-        df: Cleaned dataframe
-        min_count: Minimum required records
-        
+        df: DataFrame with validated features
+
     Returns:
-        DataFrame if sufficient, otherwise raises DataInsufficiencyError
+        DataFrame with tagged metadata features
+    """
+    logger.info("Tagging metadata features")
+    
+    cleaned_df = df.copy()
+    
+    # Ensure metadata features exist
+    for feature in METADATA_FEATURES:
+        if feature not in cleaned_df.columns:
+            logger.warning(f"Metadata feature '{feature}' not found in dataset, creating placeholder")
+            cleaned_df[feature] = 'unknown'
+        else:
+            # Convert to string if not already
+            cleaned_df[feature] = cleaned_df[feature].astype(str)
+            # Replace any remaining NaN with 'unknown'
+            cleaned_df[feature] = cleaned_df[feature].fillna('unknown')
+    
+    logger.info(f"Tagged metadata features: {METADATA_FEATURES}")
+    return cleaned_df
+
+def enforce_minimum_records(df: pd.DataFrame, min_records: int = 500) -> None:
+    """
+    Enforce minimum record count constraint.
+
+    Args:
+        df: DataFrame to check
+        min_records: Minimum required records (default 500)
+
+    Raises:
+        DataInsufficiencyError: If record count is below minimum
     """
     valid_count = len(df)
     
-    if valid_count < min_count:
-        # Determine which features contributed to the insufficiency
-        missing_features = []
+    if valid_count < min_records:
+        # Determine which features might be causing insufficiency
+        missing_feature_list = []
         for feature in REQUIRED_FEATURES:
-            if feature in df.columns:
-                if df[feature].isna().any() or (df[feature] == '').any() if df[feature].dtype == object else False:
-                    missing_features.append(feature)
+            if feature not in df.columns or df[feature].isna().all():
+                missing_feature_list.append(feature)
         
-        error_msg = (
-            f"Data Insufficiency: {valid_count} < {min_count}. "
-            f"Missing features: {missing_features if missing_features else 'N/A (insufficient valid records)'}"
-        )
+        error_msg = (f"Data Insufficiency: {valid_count} < {min_records}. "
+                    f"Missing features: {missing_feature_list if missing_feature_list else 'None detected'}")
+        
         logger.error(error_msg)
         raise DataInsufficiencyError(error_msg)
     
-    logger.info(f"Dataset meets minimum record requirement: {valid_count} >= {min_count}")
-    return df
+    logger.info(f"Data sufficiency check passed: {valid_count} >= {min_records} records")
 
-def save_cleaned_data(df: pd.DataFrame, output_path: str):
-    """Save the cleaned dataset to parquet format."""
-    output = Path(output_path)
-    output.parent.mkdir(parents=True, exist_ok=True)
+def save_cleaned_data(df: pd.DataFrame, output_path: str) -> None:
+    """
+    Save cleaned dataset to Parquet file.
+
+    Args:
+        df: Cleaned DataFrame to save
+        output_path: Path for output file
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
     logger.info(f"Saving cleaned dataset to {output_path}")
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Saved {len(df)} records to {output_path}")
+    df.to_parquet(path, index=False)
+    
+    # Verify file was created
+    if path.exists():
+        file_size = path.stat().st_size
+        logger.info(f"Saved {len(df)} records to {output_path} ({file_size} bytes)")
+    else:
+        raise IOError(f"Failed to save cleaned dataset to {output_path}")
 
 def main():
-    """Main entry point for preprocessing pipeline."""
-    # Set random seed for reproducibility
+    """
+    Main preprocessing pipeline execution.
+    """
+    # Set up logging
+    setup_logging()
     set_random_seed(42)
+    
+    logger.info("Starting preprocessing pipeline")
     
     # Define paths
     input_path = "data/processed/parsed_geometry.parquet"
@@ -172,28 +231,26 @@ def main():
         # Load parsed data
         df = load_parsed_data(input_path)
         
-        # Validate and filter features
-        df_clean, missing_features = validate_features(df)
+        # Validate features and filter
+        df_cleaned, missing_features = validate_features(df)
         
         # Tag metadata features
-        df_clean = tag_metadata_features(df_clean)
+        df_tagged = tag_metadata_features(df_cleaned)
         
         # Enforce minimum record count
-        df_clean = enforce_minimum_records(df_clean)
+        enforce_minimum_records(df_tagged, min_records=500)
         
         # Save cleaned dataset
-        save_cleaned_data(df_clean, output_path)
+        save_cleaned_data(df_tagged, output_path)
         
-        logger.info("Preprocessing completed successfully")
-        return 0
+        logger.info("Preprocessing pipeline completed successfully")
         
     except DataInsufficiencyError as e:
-        logger.error(f"Data insufficiency error: {e}")
+        logger.error(f"Data insufficiency detected: {e}")
         exit_on_insufficiency(str(e))
-        return 1
     except Exception as e:
-        logger.error(f"Unexpected error during preprocessing: {e}")
+        logger.error(f"Preprocessing pipeline failed: {e}")
         raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

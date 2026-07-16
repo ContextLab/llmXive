@@ -1,0 +1,32 @@
+T025a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` or documentation files containing the required \u201CAPI usage\u201D\
+    \ and \u201Cdata schema\u201D sections were provided; the evidence shows no updated\
+    \ documentation artifacts at all. The task\u2019s deliverable is therefore missing."
+T025b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `README.md` file or its contents were provided, and there is no evidence that
+    Installation and Environment setup sections have been added. The required documentation
+    updates are therefore missing.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, benchmark logs, or profiling reports were supplied to demonstrate that\
+    \ heavy loops have been replaced with vectorized NumPy/Pandas operations, nor\
+    \ any evidence that the full pipeline now runs within the 6\u2011hour limit. Without\
+    \ such artifacts, the performance\u2011optimization requirement cannot be verified."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation output, logs, or report for running `quickstart.md` were provided;
+    the implementer supplied no artifact demonstrating that the quickstart documentation
+    was executed and validated. The required evidence (e.g., execution logs, success/failure
+    summary, or generated validation report) is missing.
+T029:
+  c: false
+  h: ea8be3499a3726d7a4b0ec03029317af4d436762f4588a07c5983d42e67a8804
+  r: The required `state.yaml` file is missing entirely, so there is no evidence that
+    it was updated with content hashes after a pipeline run. The task cannot be considered
+    completed without this artifact.

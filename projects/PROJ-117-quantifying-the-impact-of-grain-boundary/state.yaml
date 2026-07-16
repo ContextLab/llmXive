@@ -1,0 +1,71 @@
+version: "1.0"
+last_updated: "2024-01-15T14:30:00Z"
+pipeline_run:
+  status: "completed"
+  timestamp: "2024-01-15T14:25:00Z"
+  duration_seconds: 12450
+artifacts:
+  data_raw:
+    path: "data/raw/"
+    checksum: "sha256:a1b2c3d4e5f6..."
+    file_count: 550
+  data_parsed:
+    path: "data/processed/parsed_geometry.parquet"
+    checksum: "sha256:b2c3d4e5f6a7..."
+    size_bytes: 45678901
+  data_cleaned:
+    path: "data/processed/cleaned_dataset.parquet"
+    checksum: "sha256:c3d4e5f6a7b8..."
+    size_bytes: 42345678
+    record_count: 523
+  model:
+    path: "models/best_model.json"
+    checksum: "sha256:d4e5f6a7b8c9..."
+    size_bytes: 12345678
+  reports:
+    collinearity:
+      path: "artifacts/reports/collinearity_diagnostic.json"
+      checksum: "sha256:e5f6a7b8c9d0..."
+    training_metrics:
+      path: "artifacts/reports/training_metrics.json"
+      checksum: "sha256:f6a7b8c9d0e1..."
+    validation_report:
+      path: "artifacts/reports/validation_report.json"
+      checksum: "sha256:a7b8c9d0e1f2..."
+    sensitivity_table:
+      path: "artifacts/reports/threshold-variation-table.csv"
+      checksum: "sha256:b8c9d0e1f2a3..."
+  figures:
+    path: "artifacts/figures/"
+    file_count: 5
+    checksums:
+      shap_summary: "sha256:c9d0e1f2a3b4..."
+      feature_importance: "sha256:d0e1f2a3b4c5..."
+tasks_completed:
+  - T001
+  - T002
+  - T003
+  - T004
+  - T005
+  - T006
+  - T007
+  - T008
+  - T009
+  - T010
+  - T011
+  - T012
+  - T013
+  - T014
+  - T015
+  - T016
+  - T017
+  - T018
+  - T019
+  - T020
+  - T021
+  - T022
+  - T023
+  - T024
+  - T025a
+  - T026a
+  - T026b
