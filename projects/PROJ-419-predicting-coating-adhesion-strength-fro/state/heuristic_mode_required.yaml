@@ -1,0 +1,3 @@
+status: HEURISTIC_MODE_REQUIRED
+reason: Unique identifiers missing in raw data headers for one or more sources.
+timestamp: 2026-07-16T12:06:59.241000

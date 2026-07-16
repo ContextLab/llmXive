@@ -1,15 +1,61 @@
-T056:
+T060:
   c: false
-  h: 2062075dcb9de8c4f2cfceeab219aa2b56922c4cd82ba7285377c35302634450
-  r: "The provided `code/main.py` does not contain logic that verifies all three required\
-    \ sources (API, NIST, Literature) nor does it write `state/HALT_SIGNAL.yaml` when\
-    \ a source is missing; the literature verification function is absent and the\
-    \ HALT signal file is not present on disk. Consequently the task\u2019s core requirement\
-    \ is unmet."
+  h: c7b5d44fb4f0b9b82bb18ba1057e3b3c0b07361563ce6c4a7aa69a0e8fec8d4a
+  r: "The provided `code/utils.py` does not contain a function that checks the Materials\
+    \ Project API URL for accessibility and validates its schema, nor does it demonstrate\
+    \ writing `state/HALT_SIGNAL.yaml` and exiting with code\u202F1 when the check\
+    \ fails. Additionally, the required `state/HALT_SIGNAL.yaml` file is absent. The\
+    \ implementation must add the verification function and ensure the halt\u2011\
+    signal behavior is exercised."
+T061:
+  c: false
+  h: c7b5d44fb4f0b9b82bb18ba1057e3b3c0b07361563ce6c4a7aa69a0e8fec8d4a
+  r: "The provided `code/utils.py` does not contain any function that checks the accessibility\
+    \ or schema validity of a NIST Surface Metrology Repository URL, nor does it invoke\
+    \ `write_halt_signal` and exit with code\u202F1 when the URL is missing or invalid.\
+    \ The file only includes generic utilities (e.g., `write_halt_signal`, memory\
+    \ checks) and the required verification logic is absent. Consequently the task\
+    \ requirement is not met."
 T062:
-  c: true
-  h: c7692364c75e41eec9d91506df10ae6f2f4cce2a7363cdb7ea783b64c609ca6d
-  r: "The `code/main.py` file exists and defines `check_halt_signal()` that (1) looks\
-    \ for `state/HALT_SIGNAL.yaml`, (2) logs the exact message \u201CData Gap: Missing\
-    \ Verified Sources - Manual Intervention Required\u201D, and (3) exits immediately\
-    \ via `sys.exit(1)` when the file is found. This satisfies the task\u2019s requirement."
+  c: false
+  h: 1aed912ae473694c8c39cfacf6fc873cc4ebfaffa0ae62c7282c587e81771d1c
+  r: "The provided `code/main.py` never checks for the presence of `state/HALT_SIGNAL.yaml`\
+    \ nor logs the required message; it only defines a wrapper for `check_halt_signal`\
+    \ but never calls it. Consequently the pipeline does not halt when the halt signal\
+    \ file exists, failing the task specification. The missing halt\u2011signal file\
+    \ on disk is irrelevant because the logic to detect it is absent."
+T067:
+  c: false
+  h: d6f3b0176058a6c53e89cfea3b162e77b13c4aef3a611978f5596fd914bb7e7a
+  r: "The provided `code/utils.py` is truncated, contains a syntax/logic error (`return\
+    \ all_v` undefined), and lacks any function that checks for unique, verified identifiers\
+    \ in raw data headers or writes `state/heuristic_mode_required.yaml`. Moreover,\
+    \ the required `state/heuristic_mode_required.yaml` file does not exist. The task\u2019\
+    s core requirement is therefore unmet."
+T076:
+  c: false
+  h: 88ed6ba424386663e1b3eff519033b73964b305020a952bb2878241a8aab3af7
+  r: "The repository lacks the required `data/processed/proxy_validation_report.csv`\
+    \ file, so the code cannot actually read and evaluate any proxy statuses. Without\
+    \ this CSV the gate logic cannot be exercised, and the task\u2019s core requirement\
+    \ is unmet. The implementer must provide the missing report file (with appropriate\
+    \ `status`, `proxy_name`, and `reason` columns) and ensure the main script invokes\
+    \ the gate check during execution."
+T080:
+  c: false
+  h: 1aed912ae473694c8c39cfacf6fc873cc4ebfaffa0ae62c7282c587e81771d1c
+  r: "The `enforce_runtime_safety_margin` function only measures elapsed time right\
+    \ after setting `start_time`, so it never detects a runtime overrun, and it is\
+    \ never invoked in the pipeline. Moreover, the required `state/HALT_SIGNAL.yaml`\
+    \ file is absent, indicating the halt\u2011signal writing logic is not implemented\
+    \ or functional."
+T085:
+  c: false
+  h: 14ff7ededf8419c47098a53ac6b73d27404845448eda8e0022fa71ce0ba1002a
+  r: "The required file `data/processed/data_source_verification_report.json` does\
+    \ not exist, and the provided `utils.py` excerpt does not show any function that\
+    \ creates and writes this JSON report. Consequently, `main.py` cannot validate\
+    \ a non\u2011existent report, so the task\u2019s core requirement is unmet. The\
+    \ next implementer must add a function in `utils.py` that generates the verification\
+    \ report and writes it to the specified path, and ensure `main.py` loads and checks\
+    \ this file before continuing."

@@ -1,28 +1,39 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
-
-The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
-
-1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
-2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
-3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
-
-- code/preprocessing.py: synthetic/fake INPUT data not authorized by the spec — “…NFO)          # Create a mock dataset for testing the validity…”
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/preprocessing.py: synthetic/fake INPUT data not authorized by the spec — “…NFO)          # Create a mock dataset for testing the validity…”; 2 command(s) failed: python code/ingestion.py --input-dir data/raw --output data/processed/coating_adhesion_dataset.csv (rc=1); python code/main.py (rc=1)
+**Summary**: 1 command(s) failed: python code/main.py (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/ingestion.py --input-dir data/raw --output data/processed/coating_adhesion_dataset.csv -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/ingestion.py", line 5, in <module>
-    import requests
-ModuleNotFoundError: No module named 'requests'
 - python code/main.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/main.py", line 4, in <module>
-    import yaml
-ModuleNotFoundError: No module named 'yaml'
+    2026-07-16 12:06:59,241 - __main__ - INFO - Pipeline execution started.
+2026-07-16 12:06:59,241 - __main__ - INFO - Starting Coating Adhesion Pipeline...
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/main.py", line 263, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/main.py", line 259, in main
+    exit_code = run_pipeline()
+                ^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/main.py", line 139, in run_pipeline
+    if check_halt_signal():
+       ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/main.py", line 50, in check_halt_signal
+    return check_halt_signal(STATE_DIR)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: check_halt_signal() takes 0 positional arguments but 1 was given
+
+## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
+
+One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
+
+**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
+
+**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### `check_halt_signal` — defined in `code/utils.py`; called 2 way(s):
+
+- code/main.py: return check_halt_signal(STATE_DIR)
+- code/main.py: if check_halt_signal():
+
+Make `check_halt_signal` in `code/utils.py` accept ALL of the above.

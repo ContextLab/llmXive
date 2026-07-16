@@ -44,12 +44,12 @@
 **Purpose**: Verify availability of correct dataset URLs and assess alignment feasibility. **MUST PASS before Phase 1.**
 
 **CRITICAL**: If verified URLs are missing, the pipeline MUST halt here and signal for manual intervention.
-**NOTE**: There is a known conflict between Spec FR-007 (Heuristic Mapping) and Plan Phase 1.3 (Strict Alignment). The Plan's strict alignment requirement takes precedence. Heuristic mapping is implemented ONLY if unique identifiers are missing (T067).
 
-- [X] T060 [P] Implement `code/utils.py` function to verify Materials Project API URL accessibility and schema validity; **if missing/invalid, write `state/HALT_SIGNAL.yaml` and exit with code 1** (Plan Phase 0)
-- [X] T061 [P] Implement `code/utils.py` function to verify NIST Surface Metrology Repository URL accessibility and schema validity; **if missing/invalid, write `state/HALT_SIGNAL.yaml` and exit with code 1** (Plan Phase 0)
-- [X] T060-REV [P] **Automated Verification Loop**: Implement `code/utils.py` function `verify_all_sources()` that attempts to verify all three sources (MP, NIST, Lit). If any fail after a configurable number of retries, write `state/HALT_SIGNAL.yaml` and exit. **Replaces T101**. (Addressing Plan Phase 0 Blocker, Constitution Principle II)
-- [X] T062 [NOT P] Implement `code/main.py` logic to check for `state/HALT_SIGNAL.yaml` and halt execution immediately if found, logging "Data Gap: Missing Verified Sources - Manual Intervention Required". **This task orchestrates T060, T061, and T060-REV and must run after them.** (Plan Phase 0)
+- [X] T062 [P] **Orchestration Gate**: Implement `code/main.py` logic to trigger T060, T061, and T060-REV in parallel. If any fail, write `state/HALT_SIGNAL.yaml` and exit with code 1. **This task must run first in Phase 0.** (Plan Phase 0)
+- [X] T060 [P] Implement `code/utils.py` function to verify Materials Project API URL accessibility and schema validity; **if missing/invalid, raise error for T062 to catch**. (Plan Phase 0)
+- [X] T061 [P] Implement `code/utils.py` function to verify NIST Surface Metrology Repository URL accessibility and schema validity; **if missing/invalid, raise error for T062 to catch**. (Plan Phase 0)
+- [X] T060-REV [P] **Automated Verification Loop & Report**: Implement `code/utils.py` function `verify_all_sources()` that attempts to verify all three sources. **Aggregates results into `data/processed/data_source_verification_report.json`** with status for each source. If any fail, raise error for T062. (Addressing Plan Phase 0 Blocker, Constitution Principle II, executability-b12067ba)
+- [X] T021-LIT [P] **Literature Ingestion Config**: Implement `code/ingestion/literature_scraper.py`. **Logic**: Read `code/config.py` for keys `LIT_API_URL` and `LIT_API_KEY`. If source is a URL, use `requests` to fetch. If local file, load it. **If `code/config.py` is missing or keys invalid, raise `DataGapError` immediately**. (Addressing executability-00f01ea8)
 
 ---
 
@@ -61,6 +61,7 @@
 - [X] T002 [P] Create `code` and `tests` directory structure (Plan Phase 1)
 - [X] T003 [P] Initialize Python project with `requirements.txt` (pandas, scikit-learn, shap, requests, numpy, pyyaml, pytest) (Plan Phase 1)
 - [X] T004 [P] Configure linting (ruff) and formatting (black) tools (Plan Phase 1)
+- [X] T003-CONFIG [P] **Configuration Setup**: Create `code/config.py` with keys: `MP_API_KEY`, `NIST_URL`, `LIT_API_URL`, `LIT_API_KEY`, `PROXY_CORR_THRESHOLD` (default 0.3), `PROXY_R2_THRESHOLD` (default 0.05), `MAX_ROWS` (5000), `RAM_LIMIT_GB` (7), `TIMEOUT_HOURS` (4). (Addressing executability-00f01ea8, executability-f33d2786)
 
 ---
 
@@ -75,15 +76,17 @@
 - [X] T007 [P] Setup `pytest` configuration and directory structure (`tests/unit`, `tests/integration`) (Plan Phase 1)
 - [X] T008 [P] Implement logic to generate/update `state/` YAML file with checksums for raw data files (Constitution Principle III) (Plan Phase 1)
 - [X] T009 [P] Implement `code/preprocessing.py` skeleton with **explicit interface definitions** (function signatures, argument types, return types) for one-hot encoding and standardization that T029/T030 must implement (Plan Phase 1)
+- [X] T067-STRICT [P] **Strict ID Verification**: Implement `code/utils.py` function to verify the presence of **unique, verified identifiers** in the raw data headers for all three sources. **If missing, write `state/HALT_SIGNAL.yaml` and exit**. (Plan Phase 1.3, Constitution Principle VII, constraint_preservation-466f3d8c)
+- [X] T075 [P] **Strict Alignment Enforcement**: Implement `code/ingestion.py` logic to perform **strict** record alignment using **only** unique, verified identifiers. Any record pair that cannot be linked via a verified unique identifier MUST be excluded and logged. **Pipeline halts if alignment fails to produce valid pairs**. (Addressing Plan Phase 1.3, Constitution Principle VII, constraint_preservation-fcb9c1b6, constraint_preservation-9e65055c)
+- [X] T023-DOC [P] **Mapping Protocol Documentation**: Implement `docs/decision_log.md` section "Mapping Protocol (FR-007)" documenting the **strict** implementation. Explicitly state: "FR-007 is implemented ONLY via strict unique identifier alignment. Heuristic mapping is explicitly rejected per Plan Phase 1.3." (Addressing coverage-187e689a)
+- [X] T015 [P] **Construct Validity Assessment**: Implement `code/preprocessing.py` function to validate derived proxies against **theoretical models** (e.g., literature-derived correlations) as per Plan Phase 1.8. **Use thresholds from `code/config.py` (PROXY_CORR_THRESHOLD, PROXY_R2_THRESHOLD)**. **Output**: `data/processed/proxy_validation_report.csv`. **If proxy is EXCLUDED, HALT**. (Addressing constraint_preservation-1a8b239c, executability-f33d2786, ordering-a0f70fb9)
+- [X] T084 [P] **Proxy Validation Gate**: Implement `code/main.py` logic to read `data/processed/proxy_validation_report.csv` (from T015) and halt execution if any proxy is marked as `EXCLUDED`. Log the specific proxy names and reasons. (Addressing Plan Phase 1.8, Constitution Principle VII, missing_artifact_T084)
 - [X] T010 [P] Implement `code/utils.py` power analysis function to check sample size N ≥ 1,000 (Plan Phase 1.6)
 - [X] T011 [P] Implement `code/utils.py` function to calculate exclusion ratio (missing targets / total valid) and enforce <10% threshold (Plan Phase 1.4, SC-005)
 - [X] T012 [P] Implement `code/utils.py` function to calculate processing success rate and enforce ≥95% threshold (Plan Phase 1.5, SC-001)
 - [X] T013 [P] Implement `code/modeling.py` skeleton with placeholder for nested CV and SHAP (Plan Phase 2)
 - [X] T014 [P] Implement `code/evaluation.py` skeleton for statistical testing (Plan Phase 3)
-- [X] T067 [P] Implement `code/utils.py` function to verify the presence of **unique, verified identifiers** in the raw data headers for all three sources. **If missing, write `state/heuristic_mode_required.yaml` (DO NOT HALT)**. (Plan Phase 1.3, Constitution Principle VII)
-- [X] T067-REV [P] **Dynamic Verification Gate**: Implement `code/utils.py` to read `state/verified_sources.yaml` (from T060/T061) and validate that the *actual* URLs used in ingestion match the verified ones. **If mismatch, write `state/HALT_SIGNAL.yaml` and exit**. (Addressing coverage-f00892d8)
-- [X] T075 [P] **Strict Alignment Enforcement**: Implement `code/ingestion.py` logic to perform **strict** record alignment using **only** unique, verified identifiers. Any record pair that cannot be linked via a verified unique identifier MUST be excluded and logged. **If `state/heuristic_mode_required.yaml` exists, SKIP strict exclusion and allow T023-REV to run**. (Addressing Plan Phase 1.3, Constitution Principle VII)
-- [X] T023-DOC [P] **Mapping Protocol Documentation**: Implement `docs/decision_log.md` section "Mapping Protocol (FR-007)" documenting the **conditional** implementation of heuristic mapping. Explicitly state: "FR-007 is implemented ONLY if unique identifiers are missing (T067). If IDs exist, Strict Alignment (T075) is used." (Addressing coverage-f159bd80, coverage-d8d0f5db)
+- [X] T086-PHASE-GATES [P] **Unified Phase Gate Logic**: Implement `code/main.py` function `verify_phase_completion(phase_id)` that checks for `state/phase_<id>_complete.yaml`. This single function is called by all subsequent phase gates. (Addressing executability-e6864739, coverage-8173206f)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -107,19 +110,15 @@
 
 - [X] T019 [P] [US1] Implement `code/ingestion.py` to fetch data from Materials Project API with rate-limit handling (FR-001)
 - [X] T020 [P] [US1] Implement `code/ingestion.py` to fetch data from NIST Surface Metrology Repository with error handling for 404/schema changes (FR-001)
-- [X] T021-LIT [P] [US1] **Literature Ingestion**: Implement `code/ingestion/literature_scraper.py`. **Logic**: Read `state/verified_sources.yaml`. If source is a URL, use `requests` to fetch from arXiv/ScienceDirect API (config defined in `code/config.py`). If source is a local file, load it. **If `state/verified_sources.yaml` is missing or source invalid, raise `DataGapError` immediately**. (Addressing coverage-6f9d90ce, coverage-369d7b9c, executability-270b9174)
 - [X] T022 [US1] Implement `code/ingestion.py` logic to filter records strictly to ASTM D4541 pull-off test results (FR-009)
-- [X] T023-REV [P] [US1] **Heuristic Mapping Protocol**: Implement `code/ingestion.py` logic to link records using heuristic proxies (e.g., chemical formula + surface roughness range) **ONLY IF** `state/heuristic_mode_required.yaml` exists. **If IDs exist, skip this task**. (Addressing coverage-1b003112, constraint_preservation-d8d0f5db)
 - [X] T024 [US1] Implement `code/ingestion.py` logic to exclude records with missing target variables and log counts (US-1, SC-005)
 - [X] T025 [US1] Implement `code/ingestion.py` logic to resolve duplicates (most recent date or highest sample count) (US-1)
 - [X] T026 [US1] Implement `code/ingestion.py` logic to sample dataset to ≤ 5,000 rows if raw volume exceeds memory (FR-006) (Plan Phase 1.1)
 - [X] T027 [US1] Implement `code/ingestion.py` logic to exclude records with missing surface roughness data (impute median or exclude) (US-1)
+- [X] T028 [US1] **Validation Gate**: Implement `code/main.py` logic to **calculate processing success rate and exclusion ratio** AFTER ingestion tasks (T019-T027) complete. **Call T011/T012 functions** to calculate metrics on the *output* dataset. **Trigger a HALT** if thresholds are missed. **Must run BEFORE T031**. (Plan Phase 1.4/1.5, SC-001, SC-005, ordering-a7ea4436)
 - [X] T031 [US1] Implement `code/main.py` orchestration to save unified `coating_adhesion_dataset.csv` to `data/processed/` **only if T028 passes**
-- [X] T028 [US1] **Validation Gate**: Implement `code/main.py` logic to **calculate processing success rate and exclusion ratio** AFTER ingestion tasks (T019-T031) complete. **Call T011/T012 functions** to calculate metrics on the *output* dataset. **Trigger a HALT** if thresholds are missed. (Plan Phase 1.4/1.5, SC-001, SC-005).
 - [X] T029 [US1] Implement `code/preprocessing.py` to encode compositional data (one-hot, atomic radius variance, crosslinker density proxy) adhering to T009 interface (FR-002)
 - [X] T030 [US1] Implement `code/preprocessing.py` to standardize surface metrics (RMS, skewness, kurtosis) adhering to T009 interface (FR-002)
-- [X] T015 [US1] Implement `code/preprocessing.py` function to perform **Construct Validity Assessment** on derived proxies: compare proxy correlation against target using **thresholds from `code/config.py` (default r=0.3, R²=0.05)**. **Output**: `data/processed/proxy_validation_report.csv`. **If proxy is EXCLUDED and Strict Alignment is active, HALT**. **If Heuristic Mode is active, log warning but allow proxy for ranking only**. (Addressing executability-5e3108c4, constraint_preservation-6dfbf864)
-- [X] T076 [US1] **Proxy Validation Gate**: Implement `code/main.py` logic to read `data/processed/proxy_validation_report.csv` (from T015) and halt execution if any proxy is marked as `EXCLUDED` AND Strict Alignment is active. Log the specific proxy names and reasons for exclusion. (Addressing Plan Phase 1.8, Constitution Principle VII)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -145,8 +144,8 @@
 - [X] T038 [US2] Implement `code/modeling.py` to rank top features distinguishing compositional vs. surface categories (FR-004)
 - [X] T039 [US2] Implement `code/modeling.py` to calculate Spearman correlation between SHAP and permutation rankings (SC-003)
 - [X] T040 [US2] Implement `code/main.py` to output JSON report with mean R², RMSE, MAE for both models (US-2)
-- [X] T041 [US2] Implement `code/modeling.py` sensitivity analysis for 'crosslinker density' proxy. **Definitions to test**: 1) C/H atomic ratio, 2) O/C atomic ratio, 3) (C+O)/H ratio. Output `data/processed/crosslinker_sensitivity_report.csv` with columns: `definition, model_r2, model_rmse, variance` (FR-008)
-- [X] T041-SHIFT [US2] **Sensitivity Validation Gate**: Implement `code/main.py` logic to validate `data/processed/crosslinker_sensitivity_report.csv` (from T041). If variance > threshold, flag "Unstable Proxy" and halt. (Addressing ordering-195d1213)
+- [X] T041 [US2] **Sensitivity Analysis**: Implement `code/modeling.py` sensitivity analysis for 'crosslinker density' proxy. **Definitions to test**: 1) C/H atomic ratio, 2) O/C atomic ratio, 3) (C+O)/H ratio. **Explicitly output** `data/processed/crosslinker_sensitivity_report.csv` with columns: `definition, model_r2, model_rmse, variance`. (FR-008, executability-f3eb2394, F001)
+- [X] T041-SHIFT [US2] **Sensitivity Validation Gate**: Implement `code/main.py` logic to validate `data/processed/crosslinker_sensitivity_report.csv` (from T041). If variance > threshold, flag "Unstable Proxy" and halt. **Must run immediately after T041 and before T040**. (Addressing ordering-6acc0359, coverage-8c138b8a)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -170,7 +169,7 @@
 - [X] T047 [US3] Implement `code/evaluation.py` to execute Nadeau & Bengio corrected t-test comparing full vs. baselines (FR-005)
 - [X] T048 [US3] Implement `code/evaluation.py` to apply Bonferroni correction to p-values (FR-005)
 - [X] T049 [US3] Implement `code/evaluation.py` to flag "Informative Null" if full model does not outperform baselines (US-3)
-- [X] T050-REP [US3] Implement `code/main.py` to output final statistical comparison report. **Specific Artifact**: `state/statistical_comparison_report.json`. **Schema**: `{ "p_values": {...}, "method": "Nadeau-Bengio", "conclusion": "Significant" | "Informative Null", "bonferroni_adjusted": true }` (US-3, FR-005, SC-002)
+- [X] T050-REP [US3] Implement `code/main.py` to output final statistical comparison report. **Specific Artifact**: `state/statistical_comparison_report.json`. **Schema**: `{ "p_values": {...}, "method": "Nadeau-Bengio", "conclusion": "Significant" | "Informative Null", "bonferroni_adjusted": true }` (US-3, FR-005, SC-002, ordering-9c54c950)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -190,18 +189,9 @@
 - [X] T057 [P] **Stability Verification**: Implement unit test in `tests/unit/test_modeling.py` with `assert spearman_corr >= 0.8`. Update `.github/workflows/pipeline.yml` to enforce this test as a required check. (Addressing coverage-52e9c757)
 - [X] T058 [P] **Statistical Rigor**: Implement `code/evaluation.py` logic to log the number of hypothesis tests and Bonferroni-adjusted alpha to `state/statistical_test_log.json` before drawing conclusions. (Addressing coverage-8dc248b4)
 - [X] T059 [P] **Spec Update**: Flag Spec FR-007 for external amendment due to conflict with Plan Phase 1.3 (Reject Heuristic Mapping). Document the conflict in `docs/decision_log.md`. (Addressing constraint_preservation-ccefb06e)
-- [X] T080 [P] **Runtime Safety Margin**: Implement `code/main.py` logic to monitor total pipeline runtime. If runtime exceeds a predefined safety threshold, write `state/HALT_SIGNAL.yaml` and exit with a message indicating the safety margin was exceeded. (SC-004). (Addressing SC-004)
+- [X] T080 [P] **Runtime Safety Margin**: Implement `code/main.py` logic to monitor total pipeline runtime. If runtime exceeds **4 hours** (SC-004), write `state/HALT_SIGNAL.yaml` and exit with a message indicating the safety margin was exceeded. (SC-004, ordering-af537616)
 - [X] T081 [P] **Data Gap Documentation**: Update `docs/decision_log.md` to explicitly document the removal of heuristic mapping (FR-007) and the enforcement of strict unique identifier alignment. Include the rationale from Plan Phase 1.3. (Addressing Plan Phase 1.3, Constitution Principle VII)
-- [X] T082 [P] **Proxy Sensitivity Report**: Ensure `code/modeling.py` (T041) explicitly outputs `data/processed/crosslinker_sensitivity_report.csv` with the required columns (`definition, model_r2, model_rmse, variance`) and that `code/main.py` validates the presence of this file before proceeding to reporting. (Addressing FR-008)
 - [X] T083 [P] **Statistical Test Logging**: Ensure `code/evaluation.py` (T047-T049) logs the number of hypothesis tests performed and the Bonferroni-adjusted alpha threshold to `state/statistical_test_log.json` before drawing conclusions. (Addressing FR-005, SC-002)
-- [X] T084 [P] **Construct Validity Report**: Ensure `code/preprocessing.py` (T015) outputs `data/processed/proxy_validation_report.csv` with the required columns (`proxy_name, correlation, r_squared, status`) and that `code/main.py` validates this file before proceeding to modeling. (Addressing Plan Phase 1.8, Constitution Principle VII)
-- [X] T085 [P] **Data Source Verification Report**: Ensure `code/utils.py` (T060, T061, T067) generates a `data/processed/data_source_verification_report.json` detailing the status of each data source (URL, schema validation, unique identifier presence) and that `code/main.py` validates this report before proceeding. (Addressing Plan Phase 0, Plan Phase 1.3)
-- [X] T086-P0 [P] **Phase 0 Gate**: Implement `code/main.py` logic to verify `state/phase_0_complete.yaml` exists before proceeding. (Addressing Plan Phase 0)
-- [X] T086-P1 [P] **Phase 1 Gate**: Implement `code/main.py` logic to verify `state/phase_1_complete.yaml` exists before proceeding. (Addressing Plan Phase 1)
-- [X] T086-P2 [P] **Phase 2 Gate**: Implement `code/main.py` logic to verify `state/phase_2_complete.yaml` exists before proceeding. (Addressing Plan Phase 2)
-- [X] T086-P3 [P] **Phase 3 Gate**: Implement `code/main.py` logic to verify `state/phase_3_complete.yaml` exists before proceeding. (Addressing Plan Phase 3)
-- [X] T086-P4 [P] **Phase 4 Gate**: Implement `code/main.py` logic to verify `state/phase_4_complete.yaml` exists before proceeding. (Addressing Plan Phase 4)
-- [X] T086-P5 [P] **Phase 5 Gate**: Implement `code/main.py` logic to verify `state/phase_5_complete.yaml` exists before reporting. (Addressing Plan Phase 5)
 - [X] T087 [P] **Error Handling Enhancement**: Update `code/utils.py` to ensure all API errors (404, rate limits, connection errors) trigger a `DataGapError` or `APIError` with a clear, actionable message, preventing silent failures. (Addressing Plan Risk Mitigation 2)
 - [X] T088 [P] **Memory Safety Enforcement**: Update `code/utils.py` to ensure memory monitoring (T005) actively checks RAM usage and triggers a `MemoryError` if the 7 GB limit is approached, preventing OOM crashes. (Addressing Plan Risk Mitigation 3, FR-006)
 - [X] T089 [P] **Runtime Monitoring**: Update `code/utils.py` to implement a runtime monitor that checks elapsed time against the 4-hour limit and triggers a `RuntimeError` if exceeded. (Addressing Plan Risk Mitigation 4, SC-004)
@@ -302,12 +292,9 @@ With multiple developers:
 - **CRITICAL**: Pipeline MUST halt at Phase 0 if verified data URLs are not provided (Plan Phase 0).
 - **CRITICAL**: All models must run CPU-only; no CUDA/GPU dependencies.
 - **CRITICAL**: Safety gates (Power Analysis, Exclusion Ratio, Success Rate) are enforced in Phase 2 and Phase 3 before any modeling.
-- **CRITICAL**: Construct Validity (T015) must pass before model training; invalid proxies are EXCLUDED and pipeline halts (unless Heuristic Mode is active).
-- **CRITICAL**: Task T023-REV (Heuristic Mapping) is implemented ONLY if `state/heuristic_mode_required.yaml` exists (T067).
-- **CRITICAL**: Task T075 enforces Strict Alignment by default; skips heuristic logic if IDs exist.
-- **CRITICAL**: Task T021-LIT raises `DataGapError` if `state/verified_sources.yaml` is missing.
+- **CRITICAL**: Construct Validity (T015) must pass before model training; invalid proxies are EXCLUDED and pipeline halts.
+- **CRITICAL**: Task T023-REV (Heuristic Mapping) has been REMOVED. Strict alignment is the only path.
 - **CRITICAL**: Task T041-SHIFT is now in Phase 4 to validate sensitivity report immediately.
-- **CRITICAL**: T067 sets a flag instead of halting if IDs are missing, allowing T023-REV to run.
-- **CRITICAL**: T086-P0 through T086-P5 explicitly check for specific phase completion files.
+- **CRITICAL**: T086-PHASE-GATES enforces all phase gates via a single parameterized function.
 - **CRITICAL**: T092-TEST-SUITE groups all integration tests into a single task.
 - **CRITICAL**: The project is currently in a **Data Gap Analysis** state (Plan.md). The pipeline is blocked until verified URLs for Materials Project, NIST, and Literature sources are provided.

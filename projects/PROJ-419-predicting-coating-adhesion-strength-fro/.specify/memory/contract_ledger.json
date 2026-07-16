@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "symbol": "check_halt_signal",
+    "owner": null
+  }
+]

@@ -1,17 +1,16 @@
 {
   "project_id": "PROJ-419-predicting-coating-adhesion-strength-fro",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/preprocessing.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026NFO)          # Create a mock dataset for testing the validity\u2026\u201d; 2 command(s) failed: python code/ingestion.py --input-dir data/raw --output data/processed/coating_adhesion_dataset.csv (rc=1); python code/main.py (rc=1)",
+  "reason": "1 command(s) failed: python code/main.py (rc=1)",
   "artifacts": [],
   "failures": [
-    "python code/ingestion.py --input-dir data/raw --output data/processed/coating_adhesion_dataset.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/ingestion.py\", line 5, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/main.py\", line 4, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'"
+    "python code/main.py -> rc=1\n    2026-07-16 12:06:59,241 - __main__ - INFO - Pipeline execution started.\n2026-07-16 12:06:59,241 - __main__ - INFO - Starting Coating Adhesion Pipeline...\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/main.py\", line 263, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/main.py\", line 259, in main\n    exit_code = run_pipeline()\n                ^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
+  "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-16T03:04:36Z"
+  "updated_at": "2026-07-16T12:07:00Z"
 }

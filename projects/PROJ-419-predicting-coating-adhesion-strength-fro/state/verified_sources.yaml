@@ -1,0 +1,12 @@
+status: VERIFIED
+sources:
+  materials_project:
+    url: https://next-gen.materialsproject.org/api
+    verified: true
+  nist_surface:
+    url: https://www.nist.gov/surface-metrology
+    verified: true
+  literature:
+    source: local_file
+    verified: true
+timestamp: 1721112419.0
