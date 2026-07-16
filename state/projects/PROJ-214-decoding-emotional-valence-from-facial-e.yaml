@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T18:27:45.931785Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-214-decoding-emotional-valence-from-facial-e
-last_run_id: 24a300ef-e947-42cc-90c2-c969f4637f22
+last_run_id: 5dc1a2fe-cdb0-45aa-993d-e109d994b1a8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e
 title: Decoding Emotional Valence from Facial EMG Patterns with Machine Learning
-updated_at: '2026-07-08T12:01:34.157005Z'
+updated_at: '2026-07-16T14:19:44.333223Z'

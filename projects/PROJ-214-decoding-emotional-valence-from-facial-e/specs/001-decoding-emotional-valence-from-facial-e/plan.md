@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a reproducible machine learning pipeline to decode emotional valence (positive vs. negative) from facial Electromyography (EMG) signals using the **DEAP-EMG** dataset (an extension of the standard DEAP dataset containing facial EMG). The system ingests raw EMG data, applies a band-pass Butterworth filter and 50 Hz notch filter, segments signals into 1-second windows, and extracts four time-domain features (RMS, ZCR, WAMP, MAV) for three muscle groups (corrugator, zygomaticus, orbicularis).
+This project implements a reproducible machine learning pipeline to decode emotional valence (positive vs. negative) from facial Electromyography (EMG) signals using the **DEAP-EMG** dataset (an extension of the standard DEAP dataset containing facial EMG). The system ingests raw EMG data, applies a band-pass Butterworth filter and a notch filter to remove power line interference, segments signals into fixed-duration windows, and extracts four time-domain features (RMS, ZCR, WAMP, MAV) for three muscle groups (corrugator, zygomaticus, orbicularis).
 
 The pipeline employs **Nested Leave-One-Subject-Out (LOSO)** cross-validation:
 1.  **Outer Loop**: LOSO (32 iterations) to estimate generalization error on unseen subjects. This maximizes test set representation (N=31 training, N=1 testing) and avoids the high variance of 5-fold CV on small N.
@@ -51,7 +51,7 @@ To guarantee the <6 hour runtime on a 2-CPU runner:
 | **III. Data Hygiene** | Raw data downloaded to `data/raw` with checksum validation. Derived features written to `data/processed` with new filenames. No in-place modification. | **PASS** |
 | **IV. Single Source of Truth** | All statistics in reports generated programmatically from `code/` outputs. No hand-typed numbers in `paper/` or `plan.md`. | **PASS** |
 | **V. Versioning Discipline** | Artifacts hashed upon creation. `state` file updated on artifact change. | **PASS** |
-| **VI. Signal Processing Integrity** | Pipeline implements 10–500 Hz Butterworth band-pass and 50 Hz notch filter. Baseline correction uses pre-stimulus interval. | **PASS** |
+| **VI. Signal Processing Integrity** | Pipeline implements a low-frequency Butterworth band-pass and a power-line frequency notch filter. Baseline correction uses pre-stimulus interval. | **PASS** |
 | **VII. Statistical Validation Rigor** | **Both** Permutation test (1000 shuffles) **AND** Paired t-test against shuffled baseline implemented. Cohen’s d calculated. | **PASS** |
 
 ## Project Structure
@@ -102,7 +102,7 @@ projects/PROJ-214-decoding-emotional-valence-from-facial-e/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Nested LOSO | Required to maximize test set representation (N=32) and prevent data leakage. 5-fold CV yields too few test subjects. | Simple 5-fold CV would have high variance in accuracy estimates due to small test sets (~6 subjects). |
+| Nested LOSO | Required to maximize test set representation (N=32) and prevent data leakage. 5-fold CV yields too few test subjects. | A simple k-fold cross-validation would have high variance in accuracy estimates due to small test sets (~6 subjects). |
 | Dual Model (RF + LogReg) | RF is superior for non-linear prediction; LogReg is required for Nagelkerke's R². | Using only RF makes variance explanation mathematically invalid. Using only LogReg reduces predictive power. |
 | Parallelized Outer Loop | Required to meet 6-hour runtime on 2-CPU runner. | Sequential 32-fold LOSO would likely exceed time limits. |
 | Subject-Level Aggregation | Required to handle temporal autocorrelation in window data. | Evaluating per-window violates independence assumptions. |

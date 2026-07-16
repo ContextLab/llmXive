@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -46,7 +46,7 @@
 - [ ] T001a [P] Create `code/` and `tests/` directories at repository root
 - [ ] T001b [P] Create `data/raw`, `data/processed`, `data/models` directories at repository root
 
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, scikit-learn, pandas, joblib, shap, requests, scikit-learn-extra, pytest, pytest-cov)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, scikit-learn, pandas, joblib, shap, requests, scikit-learn-extra, pytest, pytest-cov)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -57,13 +57,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` with paths, hyperparameters, random seeds, and DEAP dataset metadata
-- [ ] T005 [P] Create `code/download.py` to fetch the official DEAP dataset from the University of Surrey/Google Drive source, extract specific EMG channels (corrugator, zygomaticus, orbicularis), validate checksums, and save to `data/raw/` (FR-001) [Note: DEAP-EMG is a derived subset, not a standalone HF repo]
-- [ ] T006 [P] Create `code/preprocessing.py` stubs for filtering, windowing, and feature extraction logic (FR-002, FR-003, FR-004)
-- [ ] T007 Create `code/train.py` stub for nested LOSO pipeline and model bundling (FR-005)
-- [ ] T008 Create `code/importance.py` stub for permutation importance and SHAP analysis (FR-006)
-- [ ] T009 Create `code/validate.py` stub for permutation tests and sensitivity analysis (FR-008, FR-009)
-- [ ] T010 Create `code/report.py` stub for final report generation (FR-009, SC-001..005)
+- [X] T004 Implement `code/config.py` with paths, hyperparameters, random seeds, and DEAP dataset metadata
+- [X] T005 [P] Create `code/download.py` to fetch the official DEAP dataset from the verified HuggingFace source (`emre-ozgür/DEAP-EMG`), extract specific EMG channels (corrugator, zygomaticus, orbicularis), validate checksums, and save to `data/raw/` (FR-001)
+- [X] T006 [P] Create `code/preprocessing.py` stubs for filtering, windowing, and feature extraction logic (FR-002, FR-003, FR-004)
+- [X] T007 Create `code/train.py` stub for nested LOSO pipeline and model bundling (FR-005)
+- [X] T008 Create `code/importance.py` stub for permutation importance and SHAP analysis (FR-006)
+- [X] T009 Create `code/validate.py` stub for permutation tests and sensitivity analysis (FR-008, FR-009)
+- [X] T010 Create `code/report.py` stub for final report generation (FR-009, SC-001..005)
 - [ ] T011 Setup unit test structure in `tests/unit/` and integration test structure in `tests/integration/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -80,26 +80,21 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T012 [P] [US1] Unit test for Butterworth filter and 50Hz notch filter in `tests/unit/test_preprocessing.py`
-- [ ] T013 [P] [US1] Unit test for RMS, ZCR, WAMP, MAV feature extraction in `tests/unit/test_features.py`
-- [ ] T014 [P] [US1] Integration test for end-to-end subject processing (download -> preprocess -> train) in `tests/integration/test_pipeline.py`
+- [X] T012 [P] [US1] Unit test for Butterworth filter and 50Hz notch filter in `tests/unit/test_preprocessing.py`
+- [X] T013 [P] [US1] Unit test for RMS, ZCR, WAMP, MAV feature extraction in `tests/unit/test_features.py`
+- [X] T014 [P] [US1] Integration test for end-to-end subject processing (download -> preprocess -> train) in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement signal filtering (low-frequency to high-frequency band-pass, 50 Hz notch)
-
-References: [Preserve existing citations verbatim]
-
-Research Question: [Preserve existing research question verbatim]
-
-Method: [Preserve existing method verbatim] and baseline correction in `code/preprocessing.py` (FR-002, FR-003)
-- [ ] T016 [US1] Implement non-overlapping windowing with a fixed duration. and feature extraction (RMS, ZCR, WAMP, MAV) for 3 muscles in `code/preprocessing.py` (FR-004)
-- [ ] T017a [US1] Implement global data check for 'Skewed Valence Scores' (Edge Case: Skewed Valence) to detect subjects with all scores > 5 or < 5 in `code/preprocessing.py`
-- [ ] T018 [US1] Implement missing channel imputation (median filter) and logging in `code/preprocessing.py`
-- [ ] T019 [US1] Implement Nested Leave-One-Subject-Out (LOSO) cross-validation loop with `joblib` parallelization (n_jobs=4) in `code/train.py` (FR-005) [Deviation: FR-005 '5-fold' -> LOSO per Plan Complexity Tracking]. **Includes fold-level exclusion logic**: If a subject is flagged by T017a, they are excluded from the current LOSO fold (not globally) to prevent bias.
-- [ ] T020 [US1] Train Linear SVM and Random Forest models with a standard ensemble size. within LOSO folds with strict subject-level isolation in `code/train.py` (FR-005)
+- [X] T015 [US1] Implement signal filtering in `code/preprocessing.py` (FR-002, FR-003): Apply a band-pass Butterworth filter and a line-frequency notch filter to raw EMG signals.., followed by baseline correction using the pre-stimulus interval.
+- [X] T016 [US1] Implement non-overlapping short-duration windowing and feature extraction (RMS, ZCR, WAMP, MAV) for 3 muscles in `code/preprocessing.py` (FR-004)
+- [X] T017a [US1] Implement global data check for 'Skewed Valence Scores' (Edge Case: Skewed Valence) to detect subjects with all scores > 5 or < 5 in `code/preprocessing.py`
+- [ ] T018 [US1] Implement missing channel imputation (median filter) and explicitly log the exclusion of any subject with missing channels to `data/processed/exclusions.log` AND the final report in `code/preprocessing.py` (Edge Case: Missing Channels)
+- [X] T019 [US1] Implement Nested Leave-One-Subject-Out (LOSO) cross-validation loop with `joblib` parallelization (n_jobs=4) in `code/train.py` (FR-005) [Deviation: FR-005 '5-fold' -> LOSO per Plan Complexity Tracking]. **Includes fold-level exclusion logic**: If a subject is flagged by T017a, they are excluded from the current LOSO fold (not globally) to prevent bias.
+- [ ] T020 [US1] Train Random Forest (with a configured ensemble size) within LOSO folds with strict subject-level isolation in `code/train.py` (FR-005)
+- [ ] T020a [US1] Train Linear SVM (linear kernel) within LOSO folds with strict subject-level isolation in `code/train.py` (FR-005)
 - [ ] T021 [US1] Implement window-level prediction aggregation via majority voting to produce subject-level labels in `code/train.py`
-- [ ] T022 [US1] Save `model_bundle.pkl` containing the trained Random Forest model to `data/models/` and implement memory flushing (delete intermediate features per subject) to stay <7GB RAM (FR-010)
+- [ ] T022 [US1] Save `model_bundle.pkl` containing BOTH the trained Random Forest and Linear SVM models to `data/models/` and implement memory flushing (delete intermediate features per subject) to stay <7GB RAM (FR-010)
 - [ ] T023 [US1] Calculate and log cross-validated accuracy against majority class baseline and label-shuffled distribution (p < 0.05) in `code/validate.py` (SC-001)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -122,8 +117,8 @@ Method: [Preserve existing method verbatim] and baseline correction in `code/pre
 - [ ] T026 [US2] Implement permutation importance calculation grouped by muscle origin in `code/importance.py` (FR-006) [Depends: T022]
 - [ ] T027 [US2] Implement SHAP value calculation for Random Forest model and generate summary plots in `code/importance.py` (FR-006) [Depends: T022]
 - [ ] T028 [US2] Implement hierarchical model fitting sequence (Corrugator → +Zygomaticus → +Orbicularis) in `code/importance.py` (FR-007)
-- [ ] T029 [US2] Train Logistic Regression models on hierarchical feature subsets (from T019/T022) to calculate Nagelkerke’s R² change (FR-007) [Depends: T019, T022] [Deviation: FR-007 'RF only' -> Dual Model Strategy per Plan]
-- [ ] T030 [US2] Implement bootstrap calculation for 95% confidence intervals on R² change in `code/importance.py` [Depends: T029]
+- [ ] T029 [US2] Train Logistic Regression models on hierarchical feature subsets (from T019/T022) in `code/importance.py` (FR-007) [Depends: T019, T022] [Deviation: FR-007 'RF only' -> Dual Model Strategy per Plan]. **Deliverable**: Calculate and log Nagelkerke’s R² change for each step (Corrugator vs Baseline, +Zygomaticus vs Corrugator, etc.) and aggregate results.
+- [ ] T030 [US2] Implement bootstrap calculation for confidence intervals on R² change in `code/importance.py` [Depends: T029]
 - [ ] T031 [US2] Generate report output listing top 10 features, muscle group contributions, and R² changes with CIs in `code/report.py` (SC-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -165,7 +160,7 @@ Method: [Preserve existing method verbatim] and baseline correction in `code/pre
 - [ ] T041b [P] Code cleanup: remove unused imports in `code/`
 - [ ] T042 [P] Additional unit tests for edge cases (missing data, skewed subjects) in `tests/unit/`
 - [ ] T043 Run `quickstart.md` validation to ensure full pipeline execution <6 hours and <7GB RAM
-- [ ] T044 Verify all artifacts (model_bundle.pkl, reports) are hashable and versioned per Constitution Principle V
+- [ ] T044 Verify all artifacts (model_bundle.pkl, reports, exclusions.log) are hashable and versioned per Constitution Principle V
 
 ---
 
@@ -176,8 +171,8 @@ Method: [Preserve existing method verbatim] and baseline correction in `code/pre
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -243,9 +238,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Core Pipeline)
-   - Developer B: User Story 2 (Importance Analysis)
-   - Developer C: User Story 3 (Validation & Reporting)
+ - Developer A: User Story 1 (Core Pipeline)
+ - Developer B: User Story 2 (Importance Analysis)
+ - Developer C: User Story 3 (Validation & Reporting)
 3. Stories complete and integrate independently
 
 ---
@@ -260,6 +255,6 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only GitHub Actions (limited CPU resources, 7GB RAM, 6h limit). No GPU, no 8-bit quantization, no large models.
-- **Data Integrity**: Never fabricate data. Use real DEAP dataset via `download.py`.
+- **Data Integrity**: Never fabricate data. Use real DEAP dataset via `download.py` from HuggingFace.
 - **Memory Management**: Process subjects sequentially in training loop; delete intermediate features immediately.
 - **Deviation Markers**: Tasks with [Deviation: FR-XX] explicitly override spec requirements per Plan justification.

@@ -1,0 +1,7 @@
+T018:
+  c: false
+  h: b39adeefba8d6b52b95641796221308ad90f8d3f4efae4842eb1ba2c68adea6d
+  r: "The repository lacks the required `data/processed/exclusions.log` file, and\
+    \ the shown portion of `code/preprocessing.py` contains no median\u2011filter\
+    \ imputation for missing EMG channels nor any logging of excluded subjects. Consequently\
+    \ the task\u2019s edge\u2011case handling is not implemented."
