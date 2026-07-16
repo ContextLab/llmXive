@@ -1,3 +1,9 @@
-# Extends the configuration in pyproject.toml for local overrides if needed
-# Currently empty, relying on pyproject.toml defaults
-extend = "pyproject.toml"
+[lint]
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
+ignore = []
+target-version = "py311"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

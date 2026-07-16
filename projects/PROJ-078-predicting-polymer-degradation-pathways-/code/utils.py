@@ -1,137 +1,142 @@
 import logging
 import os
 import time
-import random
 from pathlib import Path
-from typing import Optional, Callable, Any, TypeVar, Union
+from typing import Optional, Callable, Any, Dict
+import random
 
-T = TypeVar('T')
+# Configure basic logging if not already configured
+if not logging.getLogger().handlers:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
-def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> None:
+def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Configure logging for the application.
+    Setup shared logging infrastructure with file handlers.
     
     Args:
-        log_level: The logging level (e.g., logging.INFO).
-        log_file: Optional path to a log file. If None, logs to console only.
+        log_file: Optional path to log file.
+        level: Logging level (default: INFO).
+        
+    Returns:
+        Configured logger instance.
     """
-    handlers = []
+    logger = logging.getLogger('llmXive')
+    logger.setLevel(level)
+    
+    # Clear existing handlers
+    logger.handlers.clear()
     
     # Console handler
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(log_level)
-    console_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    console_handler.setLevel(level)
+    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     console_handler.setFormatter(console_formatter)
-    handlers.append(console_handler)
+    logger.addHandler(console_handler)
     
     # File handler if specified
     if log_file:
-        # Ensure directory exists
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        
+        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(log_level)
-        file_formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
+        file_handler.setLevel(level)
+        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         file_handler.setFormatter(file_formatter)
-        handlers.append(file_handler)
+        logger.addHandler(file_handler)
     
-    # Configure root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
-    
-    # Remove existing handlers to avoid duplicates
-    root_logger.handlers.clear()
-    
-    for handler in handlers:
-        root_logger.addHandler(handler)
+    return logger
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Get a logger instance with the specified name.
+    Get a logger with the specified name.
     
     Args:
-        name: The name of the logger (usually __name__).
+        name: Logger name (usually __name__).
         
     Returns:
-        A configured Logger instance.
+        Logger instance.
     """
     return logging.getLogger(name)
 
-def with_exponential_backoff(
-    func: Callable[..., T],
-    max_retries: int = 3,
-    base_delay: float = 1.0,
-    max_delay: float = 60.0
-) -> Callable[..., T]:
+def load_config_env(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Decorator that implements exponential backoff for a function.
+    Load configuration from environment variables and optional file.
     
     Args:
-        func: The function to wrap.
-        max_retries: Maximum number of retry attempts.
-        base_delay: Initial delay in seconds.
-        max_delay: Maximum delay in seconds.
+        config_path: Optional path to config file (YAML/JSON).
         
     Returns:
-        The wrapped function.
+        Dictionary of configuration values.
     """
-    def wrapper(*args, **kwargs) -> T:
-        last_exception = None
-        
-        for attempt in range(max_retries + 1):
-            try:
-                return func(*args, **kwargs)
-            except Exception as e:
-                last_exception = e
-                if attempt == max_retries:
-                    break
-                
-                # Calculate delay with exponential backoff and jitter
-                delay = min(base_delay * (2 ** attempt) + random.uniform(0, 1), max_delay)
-                logger = get_logger(func.__module__)
-                logger.warning(
-                    f"Attempt {attempt + 1}/{max_retries + 1} failed for {func.__name__}: {e}. "
-                    f"Retrying in {delay:.2f}s..."
-                )
-                time.sleep(delay)
-        
-        raise last_exception
-
-def load_config(config_path: Optional[str] = None) -> dict:
-    """
-    Load configuration from a YAML file or environment variables.
-    
-    Args:
-        config_path: Path to the YAML config file. If None, uses environment variables.
-        
-    Returns:
-        Dictionary containing configuration.
-    """
-    import yaml
-    
     config = {}
     
+    # Load from environment variables
+    for key, value in os.environ.items():
+        if key.startswith('LLMXIVE_'):
+            config[key] = value
+    
+    # Override with file if provided
     if config_path and os.path.exists(config_path):
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f) or {}
-    
-    # Override with environment variables if present
-    # Example: DATA_RAW_PATH, DATA_PROCESSED_PATH, etc.
-    env_mapping = {
-        'DATA_RAW_PATH': 'data_raw_path',
-        'DATA_PROCESSED_PATH': 'data_processed_path',
-        'LOG_FILE': 'log_file',
-        'LOG_LEVEL': 'log_level'
-    }
-    
-    for env_key, config_key in env_mapping.items():
-        env_val = os.getenv(env_key)
-        if env_val:
-            config[config_key] = env_val
+        import json
+        try:
+            with open(config_path, 'r') as f:
+                file_config = json.load(f)
+                config.update(file_config)
+        except Exception as e:
+            logging.warning(f"Failed to load config from {config_path}: {e}")
     
     return config
+
+def get_project_paths() -> Dict[str, Path]:
+    """
+    Get standard project directory paths relative to the project root.
+    
+    Returns:
+        Dictionary mapping path names to Path objects.
+    """
+    # Assume project root is 3 levels up from this file (code/utils.py)
+    base_dir = Path(__file__).resolve().parent.parent
+    
+    return {
+        'root': base_dir,
+        'code': base_dir / 'code',
+        'data_raw': base_dir / 'data' / 'raw',
+        'data_processed': base_dir / 'data' / 'processed',
+        'data_reports': base_dir / 'data' / 'reports',
+        'tests': base_dir / 'tests',
+        'state': base_dir / 'state'
+    }
+
+def retry_with_backoff(func: Callable, *args, max_retries: int = 3, base_delay: float = 1.0, **kwargs) -> Any:
+    """
+    Execute a function with exponential backoff on failure.
+    
+    Args:
+        func: Function to execute.
+        *args: Positional arguments for the function.
+        max_retries: Maximum number of retry attempts (default: 3).
+        base_delay: Base delay in seconds (default: 1.0).
+        **kwargs: Keyword arguments for the function.
+        
+    Returns:
+        Result of the function call.
+        
+    Raises:
+        Exception: If all retries fail.
+    """
+    last_exception = None
+    
+    for attempt in range(1, max_retries + 1):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            last_exception = e
+            if attempt == max_retries:
+                break
+            
+            delay = base_delay * (2 ** (attempt - 1)) + random.uniform(0, 1)
+            logging.warning(f"Attempt {attempt}/{max_retries} failed: {e}. Retrying in {delay:.2f}s...")
+            time.sleep(delay)
+    
+    raise last_exception

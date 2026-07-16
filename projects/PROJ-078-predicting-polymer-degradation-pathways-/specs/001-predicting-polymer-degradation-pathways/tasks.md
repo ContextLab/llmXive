@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -43,13 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan:
- - Create directories: `code/`, `data/raw/`, `data/processed/`, `data/reports/`, `tests/unit/`, `tests/integration/`, `state/`
- - Create files: `code/requirements.txt`, `code/.gitignore`, `README.md`
- - Ensure `code/` contains no subdirectories other than those for scripts.
-
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pins: `rdkit`, `torch`, `torch-geometric`, `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `requests`)
-- [ ] T003 [P] Configure linting (`ruff` or `flake8`) and formatting (`black`) tools
+- [ ] T001 Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/reports/`, `tests/`, `state/`
+- [X] T002 Initialize Python 3.11 project by generating `code/requirements.txt` with pinned versions: `rdkit`, `torch`, `torch-geometric`, `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `requests`
+- [ ] T003 [P] Configure linting (`ruff` or `flake8`) and formatting (`black`) tools in `code/.ruff.toml` or `code/.flake8`
 
 ---
 
@@ -85,9 +81,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] (Depends on T007) Implement `ingest.py`: Download records from NIST/Materials Project with rate-limit backoff (FR-001, FR-008) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T013 [US1] (Depends on T007) Implement `ingest.py`: Validate presence of explicit 'degradation pathway' labels; exclude records if missing (FR-008)
-- [ ] T014 [US1] (Depends on T007) Implement `preprocess.py`: Convert SMILES to molecular graphs using RDKit; **EXCLUDE** records with missing temp/pH/UV (Plan constraint overrides Spec FR-002); log excluded records
+- [ ] T012 [US1] (Depends on T007) Implement `ingest.py`: Download records from NIST/Materials Project with rate-limit backoff (FR-001, FR-008)
+- [ ] T013 [US1] (Depends on T007) Implement `ingest.py`: Validate presence of explicit 'degradation pathway' labels; EXCLUDE records if missing (FR-008)
+- [ ] T014 [US1] (Depends on T007) Implement `preprocess.py`: Convert SMILES to molecular graphs using RDKit; EXCLUDE records with missing environmental data (temp/pH/UV) to prevent confounding (FR-002, Plan: Data Exclusion); do NOT impute.
 - [ ] T015 [US1] (Depends on T007) Implement `preprocess.py`: Filter dataset to retain only polyesters based on functional group detection in SMILES
 - [X] T015b [US1] (Depends on T016) Implement power analysis logic: Calculate dataset size; if <150, generate `data/reports/power_analysis_warning.txt` and flag in logs (SC-004)
 - [ ] T016 [US1] (Depends on T007) Implement `preprocess.py`: Save raw and processed datasets to `data/raw/` and `data/processed/` with checksums
@@ -112,8 +108,8 @@
 ### Implementation for User Story 2
 
 - [ ] T021 [US2] (Depends on T016) Implement `model.py`: Define lightweight GNN architecture (≤3 layers, hidden dim ≤128) CPU-only (FR-003)
-- [ ] T022 [US2] (Depends on T016) Implement `preprocess.py`: Apply **SMILES canonicalization** AND **functional-group-preserving edge dropout** (non-ester bonds only) for augmentation; **FORBID** bond rotation/atom masking per Plan constraint (FR-004)
-- [ ] T023 [US2] (Depends on T016) Implement `train.py`: Training loop with -fold cross-validation (or leave-one-out if n < 50) and random seed pinning (FR-003)
+- [ ] T022 [US2] (Depends on T016) Implement `preprocess.py`: Apply functional-group-preserving edge dropout (non-ester bonds only) and SMILES canonicalization for augmentation; DO NOT implement bond rotation or atom masking as they are chemically invalid (FR-004, Plan: Complexity Tracking)
+- [ ] T023 [US2] (Depends on T016) Implement `train.py`: Training loop with 5-fold cross-validation (or leave-one-out if n < 50) and random seed pinning (FR-003)
 - [ ] T024 [US2] (Depends on T016) Implement `model.py`: Compute feature importance scores using Integrated Gradients (FR-005)
 - [ ] T025 [US2] (Depends on T016) Implement `evaluate.py`: Save model checkpoints, validation metrics (macro-F1), and IG attribution maps to `data/reports/`
 - [ ] T026 [US2] (Depends on T016) Add logging for training progress, validation scores, and augmentation stats in `code/train.py`
@@ -136,12 +132,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] (Depends on T025) Implement `evaluate.py`: Perform **Motif-Masking Permutation Test** (shuffling input motifs 1000 times) AND **χ² Discretization Protocol** (binning IG scores) to validate significance (FR-006)
-- [ ] T031 [US3] (Depends on T025) Implement `evaluate.py`: Aggregate feature importances to identify a small set of top structural motifs and their correlation with degradation types (FR-007)
-- [ ] T032 [US3] (Depends on T025) Implement `evaluate.py`: Generate final report in `data/reports/` including p-values, motif list, and confidence flags (FR-007)
-- [ ] T033 [US3] (Depends on T025) Implement `evaluate.py`: Add logic to flag predictions with confidence < 0.6 as "low confidence" in the report (US-3 Acceptance Scenario 3)
-- [ ] T034 [US3] (Depends on T025) Add logging for statistical test results and report generation in `code/evaluate.py`
-- [ ] T035 [US3] (Depends on T025) Implement verification for SC-005: Define a configurable threshold variable (default high); Calculate if Integrated Gradients identifies ester bonds in the top N% of attribution scores for ≥90% of hydrolysis cases; log result and include in report
+- [ ] T030 [US3] (Depends on T025) Implement `evaluate.py`: Perform Motif-Masking Permutation Test (shuffling input motifs a sufficient number of times) as the PRIMARY validation method to validate significance (FR-006, Plan: Complexity Tracking)
+- [ ] T031 [US3] (Depends on T025) Implement `evaluate.py`: Implement χ² Discretization Protocol (binning IG scores) as a SECONDARY/SUPPLEMENTAL step only to satisfy Constitution VI; ensure Permutation Test results are prioritized in the final report (Plan: Complexity Tracking)
+- [ ] T032 [US3] (Depends on T025) Implement `evaluate.py`: Aggregate feature importances to identify a small set of top structural motifs and their correlation with degradation types. (FR-007)
+- [ ] T033 [US3] (Depends on T025) Implement `evaluate.py`: Generate final report in `data/reports/` including p-values, motif list, and confidence flags (FR-007)
+- [ ] T034 [US3] (Depends on T025) Implement `evaluate.py`: Add logic to flag predictions with confidence < 0.6 as "low confidence" in the report (US-3 Acceptance Scenario 3, Plan: Data Exclusion)
+- [ ] T035 [US3] (Depends on T025) Add logging for statistical test results and report generation in `code/evaluate.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,12 +147,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates: Generate `README.md`, `quickstart.md`, and API docs; include usage examples and document augmentation logic
-- [ ] T037 Code cleanup and refactoring of shared utilities in `code/utils.py`
-- [ ] T038a [P] Implement memory monitoring utility in `code/utils.py`
-- [ ] T038b [P] Integrate subsampling trigger in `code/preprocess.py` if memory > 7GB
-- [ ] T039 [P] Additional unit tests for edge cases in `tests/unit/`: `test_invalid_smiles_raises`, `test_empty_dataset_raises`
-- [ ] T040 Run `quickstart.md` validation to ensure end-to-end pipeline executes within 6 hours
+- [ ] T036 [P] Generate `README.md` in repository root with usage examples and setup instructions
+- [ ] T037 [P] Generate `docs/usage.md` with detailed API and script documentation
+- [ ] T038 [P] Refactor `code/utils.py` to ensure shared utilities are modular and tested
+- [ ] T039 [P] Refactor `code/data_models.py` to ensure data classes are robust and validated
+- [ ] T040 [P] Implement memory monitoring utility in `code/utils.py`
+- [ ] T041 [P] Integrate subsampling trigger in `code/preprocess.py` if memory > 7GB
+- [ ] T042 [P] Additional unit tests for edge cases in `tests/unit/`: `test_invalid_smiles_raises`, `test_empty_dataset_raises`
+- [ ] T043 Run `quickstart.md` validation to ensure end-to-end pipeline executes within 6 hours
 
 ---
 
@@ -264,9 +262,8 @@ The following rules override any conflicting instructions in `spec.md` or previo
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All data ingestion must use real URLs; no synthetic data generation allowed.
-- **CRITICAL**: Records with missing environmental data (temp/pH/UV) MUST be EXCLUDED (Plan constraint overrides Spec FR-002).
+- **CRITICAL**: Records with missing environmental data (temp/pH/UV) MUST be EXCLUDED from the dataset (Plan: Data Exclusion).
 - **CRITICAL**: GNN must run on CPU only; no CUDA/GPU dependencies.
-- **CRITICAL**: Data augmentation MUST use SMILES canonicalization and functional-group-preserving edge dropout; bond rotation and atom masking are FORBIDDEN (Plan constraint overrides Spec FR-004).
-- **CRITICAL**: Permutation test (shuffling motifs) MUST be implemented per Spec FR-006, specifically the Motif-Masking variant.
-- **CRITICAL**: χ² Discretization Protocol MUST be implemented to satisfy Constitution VI.
-- **CRITICAL**: Power analysis warning MUST be generated if dataset <150.
+- **CRITICAL**: Bond rotation and atom masking are FORBIDDEN; use functional-group-preserving edge dropout (Plan: Complexity Tracking).
+- **CRITICAL**: Permutation test (Motif-Masking) is the PRIMARY validation method; χ² is secondary (Plan: Complexity Tracking).
+- **CRITICAL**: Confidence threshold < 0.6 is MANDATORY for flagging low-confidence predictions (US-3 Scenario 3, Plan).

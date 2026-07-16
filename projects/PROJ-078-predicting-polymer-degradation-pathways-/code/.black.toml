@@ -1,3 +1,16 @@
-# Extends the configuration in pyproject.toml for local overrides if needed
-# Currently empty, relying on pyproject.toml defaults
-extend = "pyproject.toml"
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.tox
+  | __pycache__
+  | build
+  | dist
+  | data
+)/
+'''
+skip-string-normalization = false
+preview = true

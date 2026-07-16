@@ -1,30 +1,39 @@
-"""
-Pytest configuration and shared fixtures for the polymer degradation pipeline.
-"""
-import logging
-import os
+import pytest
 import sys
 from pathlib import Path
-from typing import Iterator
 
-import pytest
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root / 'code'))
 
-# Add the project root to sys.path to allow imports from code/
-# This assumes the project is run from the root directory.
-project_root = Path(__file__).parent.parent
-code_dir = project_root / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+@pytest.fixture
+def sample_polyester_smiles():
+    """Provide a sample polyester SMILES string for testing."""
+    return 'O=C(OCCOC(=O)c1ccc(C(=O)OCCOC(=O)c2ccc(C(=O)O)cc2)cc1)c3ccc(C(=O)O)cc3'
 
-# Configure logging for tests to avoid silent failures
-@pytest.fixture(autouse=True)
-def setup_test_logging():
-    """Configure logging for all tests to capture output."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    yield
+@pytest.fixture
+def sample_non_polyester_smiles():
+    """Provide a sample non-polyester SMILES string for testing."""
+    return 'CCO'
+
+@pytest.fixture
+def sample_records():
+    """Provide sample polymer degradation records for testing."""
+    return [
+        {
+            'id': '1',
+            'smiles': 'O=C(OCCOC(=O)c1ccc(C(=O)OCCOC(=O)c2ccc(C(=O)O)cc2)cc1)c3ccc(C(=O)O)cc3',
+            'temperature': 25,
+            'ph': 7.0,
+            'uv_intensity': 100,
+            'degradation_pathway': 'hydrolysis'
+        },
+        {
+            'id': '2',
+            'smiles': 'CCO',
+            'temperature': 30,
+            'ph': 6.5,
+            'uv_intensity': 150,
+            'degradation_pathway': 'oxidation'
+        }
+    ]
