@@ -1,6 +1,6 @@
 # Revision Specification: Paper Writing Revision — PROJ-766-mcompassrag-topic-metadata-as-a-semantic round 2
 
-**Generated**: 2026-07-16T12:53:49.008618+00:00
+**Generated**: 2026-07-16T13:09:25.952930+00:00
 **Kind**: paper_writing
 **Project**: PROJ-766-mcompassrag-topic-metadata-as-a-semantic
 **Round**: 2

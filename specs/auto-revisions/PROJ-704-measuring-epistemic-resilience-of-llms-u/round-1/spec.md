@@ -1,6 +1,6 @@
 # Revision Specification: Paper Writing Revision — PROJ-704-measuring-epistemic-resilience-of-llms-u round 1
 
-**Generated**: 2026-07-16T12:52:58.683182+00:00
+**Generated**: 2026-07-16T13:08:55.514865+00:00
 **Kind**: paper_writing
 **Project**: PROJ-704-measuring-epistemic-resilience-of-llms-u
 **Round**: 1

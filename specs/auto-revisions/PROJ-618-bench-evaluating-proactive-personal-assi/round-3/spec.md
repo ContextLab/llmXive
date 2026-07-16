@@ -1,6 +1,6 @@
 # Revision Specification: Paper Writing Revision — PROJ-618-bench-evaluating-proactive-personal-assi round 3
 
-**Generated**: 2026-07-16T12:48:18.465029+00:00
+**Generated**: 2026-07-16T13:06:06.017460+00:00
 **Kind**: paper_writing
 **Project**: PROJ-618-bench-evaluating-proactive-personal-assi
 **Round**: 3

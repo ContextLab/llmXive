@@ -1,6 +1,6 @@
 # Revision Specification: Paper Writing Revision — PROJ-701-minimax-sparse-attention round 1
 
-**Generated**: 2026-07-16T12:52:48.027015+00:00
+**Generated**: 2026-07-16T13:08:48.589268+00:00
 **Kind**: paper_writing
 **Project**: PROJ-701-minimax-sparse-attention
 **Round**: 1

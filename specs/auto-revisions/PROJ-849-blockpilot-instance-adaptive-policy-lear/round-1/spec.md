@@ -1,6 +1,6 @@
 # Revision Specification: Paper Writing Revision — PROJ-849-blockpilot-instance-adaptive-policy-lear round 1
 
-**Generated**: 2026-07-16T12:55:10.011150+00:00
+**Generated**: 2026-07-16T13:10:14.939760+00:00
 **Kind**: paper_writing
 **Project**: PROJ-849-blockpilot-instance-adaptive-policy-lear
 **Round**: 1

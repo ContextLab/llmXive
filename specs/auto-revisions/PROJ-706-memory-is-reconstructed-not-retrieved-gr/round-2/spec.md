@@ -1,6 +1,6 @@
 # Revision Specification: Paper Writing Revision — PROJ-706-memory-is-reconstructed-not-retrieved-gr round 2
 
-**Generated**: 2026-07-16T12:53:01.957147+00:00
+**Generated**: 2026-07-16T13:08:57.432899+00:00
 **Kind**: paper_writing
 **Project**: PROJ-706-memory-is-reconstructed-not-retrieved-gr
 **Round**: 2

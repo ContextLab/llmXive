@@ -1,6 +1,6 @@
 # Revision Specification: Paper Writing Revision — PROJ-807-liveedit-towards-real-time-diffusion-bas round 1
 
-**Generated**: 2026-07-16T12:54:59.087642+00:00
+**Generated**: 2026-07-16T13:10:08.329005+00:00
 **Kind**: paper_writing
 **Project**: PROJ-807-liveedit-towards-real-time-diffusion-bas
 **Round**: 1

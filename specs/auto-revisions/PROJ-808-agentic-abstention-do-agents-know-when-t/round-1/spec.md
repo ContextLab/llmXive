@@ -1,6 +1,6 @@
 # Revision Specification: Paper Writing Revision — PROJ-808-agentic-abstention-do-agents-know-when-t round 1
 
-**Generated**: 2026-07-16T12:55:04.093324+00:00
+**Generated**: 2026-07-16T13:10:11.291994+00:00
 **Kind**: paper_writing
 **Project**: PROJ-808-agentic-abstention-do-agents-know-when-t
 **Round**: 1

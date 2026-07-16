@@ -1,6 +1,6 @@
 # Revision Specification: Paper Writing Revision — PROJ-627-trisplat-simulation-ready-feed-forward-3 round 3
 
-**Generated**: 2026-07-16T12:48:44.207953+00:00
+**Generated**: 2026-07-16T13:06:21.182998+00:00
 **Kind**: paper_writing
 **Project**: PROJ-627-trisplat-simulation-ready-feed-forward-3
 **Round**: 3

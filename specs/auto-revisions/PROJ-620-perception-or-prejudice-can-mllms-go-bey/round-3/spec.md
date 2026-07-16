@@ -1,6 +1,6 @@
 # Revision Specification: Paper Writing Revision — PROJ-620-perception-or-prejudice-can-mllms-go-bey round 3
 
-**Generated**: 2026-07-16T12:48:23.202151+00:00
+**Generated**: 2026-07-16T13:06:08.864026+00:00
 **Kind**: paper_writing
 **Project**: PROJ-620-perception-or-prejudice-can-mllms-go-bey
 **Round**: 3

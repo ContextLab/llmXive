@@ -1,6 +1,6 @@
 # Revision Specification: Paper Writing Revision — PROJ-687-swe-explore-benchmarking-how-coding-agen round 2
 
-**Generated**: 2026-07-16T12:51:44.157012+00:00
+**Generated**: 2026-07-16T13:08:08.969219+00:00
 **Kind**: paper_writing
 **Project**: PROJ-687-swe-explore-benchmarking-how-coding-agen
 **Round**: 2
