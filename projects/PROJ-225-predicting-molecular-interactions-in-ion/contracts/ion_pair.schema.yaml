@@ -1,0 +1,63 @@
+name: UnifiedDatasetSchema
+description: Schema for the unified molecular interaction dataset
+fields:
+  - name: cation_id
+    type: str
+    required: true
+    description: Unique identifier for the cation
+  - name: anion_id
+    type: str
+    required: true
+    description: Unique identifier for the anion
+  - name: electrostatic_energy
+    type: float
+    required: true
+    min_value: -1000.0
+    description: Electrostatic component of SAPT energy (kcal/mol)
+  - name: dispersion_energy
+    type: float
+    required: true
+    min_value: -1000.0
+    description: Dispersion component of SAPT energy (kcal/mol)
+  - name: hbond_energy
+    type: float
+    required: true
+    min_value: -1000.0
+    description: Hydrogen bond component of SAPT energy (kcal/mol)
+  - name: total_energy
+    type: float
+    required: true
+    min_value: -2000.0
+    description: Total interaction energy (kcal/mol)
+  - name: tpsa
+    type: float
+    required: true
+    min_value: 0.0
+    description: Topological Polar Surface Area (Angstrom^2)
+  - name: molecular_surface_area
+    type: float
+    required: true
+    min_value: 0.0
+    description: Molecular Surface Area (Angstrom^2)
+  - name: hbond_count
+    type: int
+    required: true
+    min_value: 0
+    description: Number of hydrogen bonds
+  - name: morgan_fp
+    type: array
+    required: true
+    description: Morgan fingerprint vector (stored as list or string)
+  - name: structural_family
+    type: str
+    required: true
+    description: Structural family classification
+  - name: charge_reliability
+    type: str
+    required: false
+    allowed_values:
+      - reliable
+      - unreliable
+    description: Reliability flag for calculated partial charges
+strict: true
+coerce: true

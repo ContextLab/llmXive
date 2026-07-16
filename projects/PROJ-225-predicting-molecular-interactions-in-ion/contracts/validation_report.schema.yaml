@@ -1,0 +1,117 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Validation Report Schema
+description: Schema for the aggregated validation report containing ANOVA, Tukey HSD, DFT validation, experimental status, and tautology checks.
+type: object
+required:
+  - anova_results
+  - tukey_hsd
+  - dft_validation_mae
+  - experimental_validation_status
+  - tautology_check
+properties:
+  anova_results:
+    type: object
+    description: Results from ANOVA tests performed on SAPT energy components by structural family.
+    properties:
+      electrostatic:
+        type: object
+        properties:
+          f_statistic:
+            type: number
+          p_value:
+            type: number
+          significant:
+            type: boolean
+      dispersion:
+        type: object
+        properties:
+          f_statistic:
+            type: number
+          p_value:
+            type: number
+          significant:
+            type: boolean
+      hbond:
+        type: object
+        properties:
+          f_statistic:
+            type: number
+          p_value:
+            type: number
+          significant:
+            type: boolean
+    additionalProperties: true
+  tukey_hsd:
+    type: object
+    description: Results from Tukey's Honest Significant Difference test for pairwise comparisons.
+    properties:
+      electrostatic:
+        type: object
+        description: Pairwise comparisons for electrostatic energy.
+        additionalProperties:
+          type: object
+          properties:
+            reject:
+              type: boolean
+            pvalue:
+              type: number
+            mean_diff:
+              type: number
+      dispersion:
+        type: object
+        description: Pairwise comparisons for dispersion energy.
+        additionalProperties:
+          type: object
+          properties:
+            reject:
+              type: boolean
+            pvalue:
+              type: number
+            mean_diff:
+              type: number
+      hbond:
+        type: object
+        description: Pairwise comparisons for hydrogen-bond energy.
+        additionalProperties:
+          type: object
+          properties:
+            reject:
+              type: boolean
+            pvalue:
+              type: number
+            mean_diff:
+              type: number
+    additionalProperties: true
+  dft_validation_mae:
+    type: number
+    description: Mean Absolute Error (MAE) in kcal/mol when comparing model predictions against the independent DFT validation set.
+    minimum: 0
+  experimental_validation_status:
+    type: string
+    description: Status of experimental validation. Must indicate if the result is calculated but scientifically invalid due to entropic contributions, or if it was not performed.
+    enum:
+      - not_performed
+      - calculated_but_invalid_entropic_contributions
+      - valid
+  tautology_check:
+    type: object
+    description: Results of the tautology check ensuring no descriptor-target correlation exceeds the threshold (0.95).
+    properties:
+      passed:
+        type: boolean
+      flagged_pairs:
+        type: array
+        items:
+          type: object
+          properties:
+            descriptor:
+              type: string
+            target:
+              type: string
+            correlation:
+              type: number
+        default: []
+    required:
+      - passed
+      - flagged_pairs
+additionalProperties: false

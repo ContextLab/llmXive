@@ -1,0 +1,49 @@
+T012a:
+  c: true
+  h: 8c86f7db8bd3a034642a914222ae21ab9d4c4296cf186442e7ee40b452132d8a
+  r: "The `code/data_ingestion.py` file contains a fully implemented `download_spice(url)`\
+    \ function that downloads the dataset, writes it to `data/raw/spice.parquet`,\
+    \ and loads it into a DataFrame. No placeholder or stub code is present; the missing\
+    \ `spice.parquet` file is expected to be created at runtime, not required as a\
+    \ pre\u2011existing artifact."
+T014:
+  c: false
+  h: 799a1ebb6a7c788d46e2901f99eddf6b334cff91bda561360ec3519fec7223b5
+  r: "The repository lacks an `attempt_il_sapt_download` implementation in `code/data_ingestion.py`\
+    \ (the file only contains other placeholder functions) and the required `data/raw/sapt.parquet`\
+    \ file is absent. Consequently the task\u2019s core behavior\u2014downloading\
+    \ or synthesizing SAPT data and saving it with the specified columns\u2014is not\
+    \ fulfilled."
+T016:
+  c: false
+  h: b165a66eb4ba263a53420ff28389d04d75407862d7281b8a0ca9a7122eabe58d
+  r: "The repository contains `code/data_ingestion.py`, but the provided excerpt does\
+    \ not show an `engineer_features(df)` implementation, and the required output\
+    \ file `data/processed/unified_dataset.parquet` is absent. Consequently the task\u2019\
+    s core deliverable\u2014feature engineering with the specified columns, dropping\
+    \ `partial_charge`, adding `charge_reliability`, and saving the parquet file\u2014\
+    has not been fulfilled. The next implementer must add a complete `engineer_features`\
+    \ function and generate the missing parquet dataset."
+T017b:
+  c: false
+  h: b165a66eb4ba263a53420ff28389d04d75407862d7281b8a0ca9a7122eabe58d
+  r: The repository does not contain the required output file `data/processed/unified_dataset.parquet`,
+    and the shown portion of `code/data_ingestion.py` does not include a `write_unified_dataset(df,
+    path)` implementation. Without the function or the saved Parquet file, the task
+    requirement is not satisfied.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging code, configuration, or example log output was provided; the claim
+    that logging for ingestion steps and a synthetic generation fallback was added
+    cannot be verified because the required artifacts are missing. The next implementer
+    must add the logging implementation and supply the corresponding source files
+    and sample logs.
+T021b:
+  c: true
+  h: 7e3f3dcc61220b79dbdb5a09c875353698535c25e7e083a6178a9d036afee31f
+  r: "The `code/model_training.py` file exists and its `save_splits` function creates\
+    \ `data/processed` and writes `train.parquet`, `val.parquet`, and `test.parquet`\
+    \ to the specified locations, matching the task\u2019s requirement. The missing\
+    \ parquet files are simply because the function hasn\u2019t been run, not because\
+    \ the implementation is absent or placeholder."
