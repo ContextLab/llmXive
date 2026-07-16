@@ -20,31 +20,31 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure by executing: `mkdir -p code/utils data/processed tests` in `projects/PROJ-096-exploring-the-role-of-network-topology-o/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (networkx, scipy, numpy, pandas, pyyaml)
+- [ ] T001 Create project structure by executing: `mkdir -p code/utils code/data data/processed data/checksums tests state/projects` in `projects/PROJ-096-exploring-the-role-of-network-topology-o/`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `networkx>=3.2.0`, `scipy>=1.12.0`, `numpy>=1.26.0`, `pandas>=2.2.0`, `pyyaml>=6.0.0`.
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -55,12 +55,22 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils/graph_utils.py` for connectivity checks and metric calculations
-- [ ] T005 [P] Implement `code/utils/stats_utils.py` for correlation, p-value, and multiple-comparison correction
-- [ ] T006 Setup data directory structure (`data/processed/`, `data/checksums.txt`) and metadata schema
-- [ ] T007 Configure deterministic random seeds and `t_eval` settings for `scipy.integrate.odeint`
+- [X] T004 [P] Implement `code/utils/graph_utils.py` for connectivity checks and metric calculations
+- [X] T005 [P] Implement `code/utils/stats_utils.py` for correlation, p-value, and multiple-comparison correction
+- [X] T006 Setup data directory structure (`data/processed/`, `data/checksums.txt`) and metadata schema
+- [ ] T007 Configure deterministic random seeds and `t_eval` settings for `scipy.integrate.odeint` <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+ in "<unicode string>", line 3, column 1:
+ 1. Deterministic random seeds co...
+ ^
+could not find expected ':'
+ in "<unicode string>", line 4, column 1:
+ 2. `t_eval` settings for `scipy....
+ ^) -->
 - [ ] T008 Implement base logging infrastructure to capture simulation parameters and warnings
-- [ ] T009 [P] Implement feasibility study script in `code/feasibility_study.py` to resolve [deferred] time steps by testing runtime vs. accuracy trade-offs, write the resolved value to `data/processed/config.json`, and log the chosen value.
+- [X] T009 [P] Implement feasibility study script in `code/feasibility_study.py` to resolve [deferred] time steps.
+ **Objective**: Determine the maximum time steps feasible within 6 hours on a 2-core CPU runner while maintaining numerical accuracy (error < 1e-4 relative to [deferred] steps).
+ **Output**: Write `data/processed/config.json` with keys: `time_steps` (int), `runtime_estimate` (float), `error_estimate` (float).
+ **Constraint**: The primary success criterion (SC-003) requires [deferred] steps. If the study estimates runtime > 4 hours for [deferred] steps, the script MUST log a "CRITICAL WARNING" and recommend a spec amendment. It MUST NOT silently reduce the step count to meet the 6-hour wall-clock constraint. The default `time_steps` in `config.json` must be set to a sufficiently large value to ensure convergence, unless a formal scope change is recorded.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -70,23 +80,26 @@
 
 **Goal**: Generate 50 network instances with varying small-world rewiring probabilities starting from a synthetic regular ring lattice (N=500).
 
+**⚠️ Methodological Correction**: The spec (FR-001) mandates using the 'ca-AstroPh' dataset. However, the plan identifies that reconstructing an irregular citation network into a regular ring lattice is methodologically incoherent. **This implementation uses a synthetic regular ring lattice (N=500) as the base.** This deviation is logged in `data/processed/methodology_log.md` to ensure traceability.
+
 **Independent Test**: The system can be tested by generating 50 network instances with rewiring probabilities ranging from 0.0 to 1.0 and verifying that each graph is connected, has the correct number of nodes (N=500), and preserves the average degree of the reconstructed lattice.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for graph generation in `tests/test_topology.py` (verify N=500, connected, degree preservation)
-- [ ] T011 [P] [US1] Integration test for metadata logging in `tests/test_topology.py` (verify seed and p saved to `graph_metadata.json`)
+- [X] T010 [P] [US1] Contract test for graph generation in `tests/test_topology.py` (verify N=500, connected, degree preservation)
+- [X] T011 [P] [US1] Integration test for metadata logging in `tests/test_topology.py` (verify seed and p saved to `graph_metadata.json`)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement synthetic ring lattice generator in `code/generate_topology.py` (N=500, k=2)
-- [ ] T013 [P] [US1] Implement Watts-Strogatz rewiring function with seed logging in `code/generate_topology.py`
-- [ ] T014 [US1] Implement connectivity validation logic in `code/generate_topology.py` to skip disconnected graphs and log warnings (FR-002 compliance)
-- [ ] T015 [US1] Implement batch generation loop (p=0.0 to 1.0, 50 instances) in `code/generate_topology.py`
-- [ ] T016 [US1] Save generated graphs as `.gpickle` and metadata as `.json` in `data/processed/`
-- [ ] T017 [US1] Add checksum generation for all artifacts in `data/checksums.txt`
+- [X] T012 [P] [US1] Implement synthetic ring lattice generator in `code/generate_topology.py` (N=500, k=2). **Note**: This replaces the 'ca-AstroPh reconstruction' requirement with a synthetic base for theoretical validity.
+- [X] T013 [US1] Log the methodological deviation in `data/processed/methodology_log.md`, explicitly stating that the synthetic ring lattice was used instead of the ca-AstroPh dataset due to reconstruction incoherence.
+- [X] T014 [P] [US1] Implement Watts-Strogatz rewiring function with seed logging in `code/generate_topology.py`
+- [X] T015 [US1] Implement connectivity validation logic in `code/generate_topology.py` to skip disconnected graphs and log warnings (FR-002 compliance)
+- [X] T016 [US1] Implement batch generation loop (p=0.0 to 1.0, 50 instances) in `code/generate_topology.py`
+- [ ] T017 [US1] Save generated graphs as `.gpickle` and metadata as `.json` in `data/processed/`
+- [X] T018 [US1] Add checksum generation for all artifacts in `data/checksums.txt`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,25 +109,24 @@
 
 **Goal**: Simulate Kuramoto oscillator dynamics on each generated network and determine the critical coupling strength ($K_c$), including verification of rotational invariance (FR-009) and stability (SC-001).
 
-**Independent Test**: 
+**Independent Test**:
 1. The system can be tested by running the simulation on a known topology (e.g., fully connected) with high coupling and verifying $R \to 1$.
 2. The system can be tested by running the binary search on a synthetic dataset with known $K_c$ and verifying detection within tolerance.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for order parameter calculation in `tests/test_simulation.py`
-- [ ] T019 [P] [US2] Integration test for binary search convergence in `tests/test_simulation.py`
+- [ ] T019 [P] [US2] Contract test for order parameter calculation in `tests/test_simulation.py`
+- [ ] T020 [P] [US2] Integration test for binary search convergence in `tests/test_simulation.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement Kuramoto ODE derivative function in `code/simulate_kuramoto.py`
-- [ ] T021 [US2] Implement order parameter $R$ calculation and time-series aggregation in `code/simulate_kuramoto.py`
-- [ ] T022 [US2] Implement binary search algorithm for $K_c$ (threshold defined qualitatively, max 100 iters, tol 0.01) in `code/simulate_kuramoto.py`
-- [ ] T023 [US2] Implement fallback linear sweep if binary search fails in `code/simulate_kuramoto.py`
-- [ ] T024 [US2] Run simulation batch for all valid topologies from US1 using time steps resolved by T009 (read from `data/processed/config.json`), save results to `data/processed/results.csv` (schema: rewiring_prob, Kc, seed, time_steps), and verify file exists with a sufficient number of rows to support the analysis.
-- [ ] T025 [US2] Implement phase reference frame transformation (single oscillator vs. center-of-mass) in `code/simulate_kuramoto.py`
-- [ ] T026 [US2] Implement dual-frame simulation runner in `code/analyze_results.py` to re-execute the full binary search for both reference frames on a subset of topologies and verify $|K_{c,frame1} - K_{c,frame2}| < 1e-6$ by adding an assertion in `code/analyze_results.py`
-- [ ] T027 [US2] Run stability check script in `code/simulate_kuramoto.py` to simulate Kuramoto dynamics repeatedly on a subset of topologies, calculate sample variance of R, and verify it is < 0.01 (SC-001)
+- [ ] T021 [P] [US2] Implement Kuramoto ODE derivative function in `code/simulate_kuramoto.py`
+- [ ] T022 [US2] Implement order parameter $R$ calculation and time-series aggregation in `code/simulate_kuramoto.py`
+- [ ] T023 [US2] Implement binary search algorithm for $K_c$ (threshold defined qualitatively, max 100 iters, tol 0.01) in `code/simulate_kuramoto.py`
+- [ ] T024 [US2] Implement fallback linear sweep if binary search fails in `code/simulate_kuramoto.py`
+- [ ] T025 [US2] Run simulation batch for all valid topologies from US1 using time steps resolved by T009 (read from `data/processed/config.json`). Save results to `data/processed/results.csv` with schema: `rewiring_prob` (float), `critical_coupling` (float), `seed` (int), `time_steps` (int), `runtime_seconds` (float). Verify file exists with >= 45 valid rows. **Runtime Check**: Measure total runtime of this batch. If > 6 hours, log a "FAILURE" and halt execution (SC-003 compliance).
+- [ ] T026 [US2] Implement rotational invariance verification. Select all topologies. Re-run the full binary search for $K_c$ on each using two reference frames: "single oscillator" and "center-of-mass". Assert $|K_{c,frame1} - K_{c,frame2}| < 1e-6$ for all cases. If any assertion fails, log a "FAILURE" and halt. Save results to `data/processed/invariance_verification.json` (list of diffs). This task satisfies FR-009.
+- [ ] T027 [US2] Run stability check script in `code/simulate_kuramoto.py` to simulate Kuramoto dynamics 1000 times per topology (for a subset of 5 diverse topologies), calculate sample variance of R, and verify it is < 0.01 (SC-001).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, with verified Kc values
 
@@ -134,12 +146,16 @@
 ### Implementation for User Story 3
 
 - [ ] T030 [P] [US3] Implement Spearman correlation and p-value calculation in `code/analyze_results.py`
-- [ ] T031 [US3] Implement Bonferroni/Benjamini-Hochberg correction logic (if multiple tests) in `code/analyze_results.py`
+- [ ] T031 [US3] Implement multiple-comparison correction logic in `code/analyze_results.py`. **Logic**: Check if multiple statistical hypotheses are tested (based on the statistical model defined in T035). If yes, apply Bonferroni/Benjamini-Hochberg. If no, skip. Explicitly log the statistical model choice and whether correction was applied in the final report (FR-006, FR-008).
 - [ ] T032 [US3] Implement sensitivity analysis sweep over thresholds in `code/analyze_results.py`
-- [ ] T033 [US3] Calculate the variation metric of the headline correlation rate across the sensitivity sweep and verify it is ≤ 5% (SC-004)
+- [ ] T033 [US3] Calculate the variation metric of the headline correlation rate across the sensitivity sweep. **Definition**: 'Headline correlation rate' is the Spearman correlation coefficient. 'Variation metric' is the standard deviation of the correlation coefficients calculated at thresholds {0.4, 0.5, 0.6}. Verify this standard deviation is ≤ 0.05 (SC-004).
 - [ ] T034 [US3] Generate summary plot (Critical Coupling vs. Rewiring Probability) with trend line in `code/analyze_results.py` saving to `data/processed/plot_kc_vs_p.png` and verify file exists and is non-empty
-- [ ] T035 [US3] Write final report summary to `data/processed/analysis_report.md` containing Spearman correlation value, p-value, and a dedicated section explicitly defining and justifying the statistical model (single regression vs. multiple tests), then verify file exists and is non-empty with required content.
-- [ ] T036 [US3] Implement runtime instrumentation in `code/analyze_results.py` to measure total execution time and verify it is ≤ 6 hours (SC-003)
+- [ ] T035 [US3] Write final report summary to `data/processed/analysis_report.md` containing:
+ 1. Spearman correlation value and p-value.
+ 2. A dedicated section "Physical Invariance" citing the results from T026 (invariance_verification.json) and explicitly stating that the critical coupling is an observer-invariant property.
+ 3. Explicit definition and justification of the statistical model used (single regression vs. multiple tests).
+ Verify file exists and is non-empty with required content.
+- [ ] T036 [US3] (Removed: Runtime check moved to T025)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -149,7 +165,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `docs/` (including methodology for synthetic lattice vs. ca-AstroPh correction)
+- [ ] T037 [P] Documentation updates in `docs/` (including methodology for synthetic lattice vs. ca-AstroPh correction). **Specific Requirement**: Document the invariance check (T026) as a mandatory step in the research pipeline, explaining the theoretical basis (rotational invariance of the order parameter $R$).
 - [ ] T038 Code cleanup and refactoring
 - [ ] T039 Performance optimization (vectorization of ODE steps if needed)
 - [ ] T040 [P] Additional unit tests for edge cases (zero variance, numerical instability) in `tests/`
@@ -164,8 +180,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Verification (Phase 4)**: Integrated into Phase 4 (US2) to ensure data flow
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
@@ -232,9 +248,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Topology)
-   - Developer B: User Story 2 (Simulation + Verification)
-   - Developer C: User Story 3 (Analysis)
+ - Developer A: User Story 1 (Topology)
+ - Developer B: User Story 2 (Simulation + Verification)
+ - Developer C: User Story 3 (Analysis)
 3. Stories complete and integrate independently
 
 ---
@@ -248,7 +264,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Correction**: The base graph is a synthetic regular ring lattice (N=500), NOT the ca-AstroPh dataset, to ensure theoretical validity of the Watts-Strogatz parameter.
-- **Time Steps**: T009 resolves the [deferred] time steps; T024 uses the resolved value from `data/processed/config.json`.
-- **Verification**: FR-009 verification is integrated into Phase 4 (US2) as T026 to ensure correct data flow.
-- **Stability**: SC-001 stability check is integrated into Phase 4 (US2) as T027.
+- **Critical Correction**: The base graph is a synthetic regular ring lattice (N=500), NOT the ca-AstroPh dataset, to ensure theoretical validity of the Watts-Strogatz parameter. This is documented in T012 and T013.
+- **Time Steps**: T009 resolves the [deferred] time steps; T025 uses the resolved value from `data/processed/config.json`. **Warning**: T009 must not silently reduce steps below [deferred] without a spec amendment.
+- **Verification**: FR-009 verification is integrated into Phase 4 as T026.
+- **Stability**: SC-001 stability check is integrated into Phase 4 as T027.
+- **Runtime**: SC-003 runtime check is integrated into Phase 4 as T025.
+- **Removed**: Phase 6 (Reviewer Revision) and T040 (Redundant Invariance Check) have been removed to eliminate duplication and ensure a single source of truth for FR-009.

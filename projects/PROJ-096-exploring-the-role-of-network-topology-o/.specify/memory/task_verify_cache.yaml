@@ -1,0 +1,7 @@
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gpickle` graph files nor accompanying `.json` metadata were provided in\
+    \ `data/processed/` (or any other location) for the generated networks, so the\
+    \ required artifacts do not exist or are empty. The task\u2019s core requirement\u2014\
+    persisting the graphs and their metadata\u2014is therefore unmet."

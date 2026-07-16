@@ -1,0 +1,681 @@
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: 50 network instances generated with rewiring probabilities 0.0 to 1.0
+  claim_id: c_40c1cbf7
+  context: 'Goal: Generate 50 network instances with varying small-world rewiring
+    probabilities starting from a synthetic regular ring lattice (N=500).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system generates 50 network instances with rewiring probabilities
+    ranging from 0.0 to 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:33:33Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Synthetic regular ring lattice N=500
+  claim_id: c_8d0ce60c
+  context: However, the plan identifies that reconstructing an irregular citation
+    network into a regular ring lattice is methodologically incoherent. This implementation
+    uses a synthetic regular ring lattice (N=500) as the base.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic regular ring lattice used as a base has N=500 nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:34:32Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Synthetic regular ring lattice k=2
+  claim_id: c_f23481de
+  context: Implement synthetic ring lattice generator in code/generate_topology.py
+    (N=500, k=2).
+  evidence:
+    asserted: '2.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The base graph has an average degree of k=2.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T07:34:32Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Binary search max 100 iterations
+  claim_id: c_84741fd7
+  context: Implement binary search algorithm for Kc (threshold defined qualitatively,
+    max 100 iters, tol 0.01) in code/simulate_kuramoto.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The binary search algorithm for critical coupling strength allows a maximum
+    of 100 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:34:52Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Binary search tolerance 0.01
+  claim_id: c_7c1b0543
+  context: Implement binary search algorithm for Kc (threshold defined qualitatively,
+    max 100 iters, tol 0.01) in code/simulate_kuramoto.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The binary search algorithm for critical coupling strength uses a tolerance
+    of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:35:20Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Results file verified with 45 valid rows
+  claim_id: c_5c7e1c85
+  context: 'Save results to data/processed/results.csv with schema: rewiring_prob
+    (float), critical_coupling (float), seed (int), time_steps (int), runtime_seconds
+    (float). Verify file exists with >= 45 valid rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Results_file_verified_with_45_valid_rows
+  kind: magnitude
+  raw_text: The results file results.csv is verified to exist with at least 45 valid
+    rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:35:48Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Rotational invariance difference < 1e-6
+  claim_id: c_fbb695c1
+  context: Assert |Kc,frame1 - Kc,frame2| < 1e-6 for all cases.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rotational_invariance_difference_%3C_1e-6
+  kind: magnitude
+  raw_text: Rotational invariance verification asserts that the absolute difference
+    between Kc values from two reference frames is less than 1e-6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:36:12Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Stability check 1000 simulations per topology for 5 topologies
+  claim_id: c_1532a284
+  context: Run stability check script in code/simulate_kuramoto.py to simulate Kuramoto
+    dynamics 1000 times per topology (for a subset of 5 diverse topologies), calculate
+    sample variance of R, and verify it is < 0.01 (SC-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stability check involves simulating Kuramoto dynamics 1000 times per topology
+    for a subset of 5 diverse topologies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:36:33Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Sample variance of R < 0.01
+  claim_id: c_8a182443
+  context: calculate sample variance of R, and verify it is < 0.01 (SC-001).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_variance_of_R_%3C_0.01
+  kind: magnitude
+  raw_text: The sample variance of the order parameter R is verified to be less than
+    0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:37:41Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Standard deviation of correlation coefficients <= 0.05
+  claim_id: c_b9bbb873
+  context: "Verify this standard deviation is \u2264 0.05 (SC-004)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Standard_deviation_of_correlation_coefficients_%3C=_0.05
+  kind: magnitude
+  raw_text: The variation metric (standard deviation) of the headline correlation
+    rate across the sensitivity sweep is verified to be less than or equal to 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:38:31Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep thresholds 0.4, 0.5, 0.6
+  claim_id: c_058ce0b8
+  context: '''Variation metric'' is the standard deviation of the correlation coefficients
+    calculated at thresholds {0.4, 0.5, 0.6}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep calculates correlation coefficients at
+    thresholds 0.4, 0.5, and 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:38:59Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/data/processed/methodology_log.md
+  attempts: 1
+  canonical: synthetic regular ring lattice with 500 nodes
+  claim_id: c_8dc275ff
+  context: 'To ensure theoretical validity and strict adherence to the mathematical
+    definition of the Watts-Strogatz small-world model, this implementation utilizes
+    a **synthetic regular ring lattice** with the following parameters: - **Nodes
+    ($N$):** 500'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation utilizes a synthetic regular ring lattice with 500
+    nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:49:11Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/data/processed/methodology_log.md
+  attempts: 1
+  canonical: synthetic regular ring lattice initial degree 4
+  claim_id: c_2401aea7
+  context: 'The implementation utilizes a **synthetic regular ring lattice** with
+    the following parameters: - **Nodes ($N$):** 500 - **Initial Degree ($2k$):**
+    4 (nearest neighbors $k=2$)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial degree (2k) of the synthetic regular ring lattice is 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:49:30Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Generate 50 network instances from synthetic regular ring lattice with
+    N=500
+  claim_id: c_aedf73b2
+  context: 'Goal: Generate 50 network instances with varying small-world rewiring
+    probabilities starting from a synthetic regular ring lattice (N=500).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 50 network instances with varying small-world rewiring probabilities
+    starting from a synthetic regular ring lattice (N=500).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:52:35Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Synthetic ring lattice generator uses N=500 and k=2
+  claim_id: c_fb0519d6
+  context: '- [X] T012 [P] [US1] Implement synthetic ring lattice generator in code/generate_topology.py
+    (N=500, k=2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement synthetic ring lattice generator in code/generate_topology.py
+    (N=500, k=2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:52:51Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Simulate Kuramoto dynamics 1000 times per topology for 5 diverse topologies
+  claim_id: c_a529c393
+  context: '- [ ] T027 [US2] Run stability check script in code/simulate_kuramoto.py
+    to simulate Kuramoto dynamics 1000 times per topology (for a subset of 5 diverse
+    topologies), calculate sample variance of R, and verify it is < 0.01 (SC-001).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulate Kuramoto dynamics 1000 times per topology for a subset of 5 diverse
+    topologies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:53:24Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Verify results.csv contains at least 45 valid rows
+  claim_id: c_7e72c407
+  context: '- [ ] T025 [US2] Run simulation batch for all valid topologies from US1
+    using time steps resolved by T009 (read from data/processed/config.json). Save
+    results to data/processed/results.csv with schema: rewiring_prob (float), critical_coupling
+    (float), seed (int), time_steps (int), runtime_seconds (float). Verify file exists
+    with >= 45 valid rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_results.csv_contains_at_least_45_valid_rows
+  kind: magnitude
+  raw_text: Verify file exists with >= 45 valid rows in results.csv.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:53:42Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Standard deviation of correlation coefficients at thresholds 0.4, 0.5,
+    0.6 is at most 0.05
+  claim_id: c_615ef7bd
+  context: "- [ ] T033 [US3] Calculate the variation metric of the headline correlation\
+    \ rate across the sensitivity sweep. Definition: 'Headline correlation rate' is\
+    \ the Spearman correlation coefficient. 'Variation metric' is the standard deviation\
+    \ of the correlation coefficients calculated at thresholds {0.4, 0.5, 0.6}. Verify\
+    \ this standard deviation is \u2264 0.05 (SC-004)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Standard_deviation_of_correlation_coefficients_at_thresholds
+  kind: magnitude
+  raw_text: "Verify standard deviation of correlation coefficients calculated at thresholds\
+    \ {0.4, 0.5, 0.6} is \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:54:10Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: synthetic regular ring lattice base with N=500 nodes
+  claim_id: c_7ac0312b
+  context: The spec (FR-001) mandates using the 'ca-AstroPh' dataset. However, the
+    plan identifies that reconstructing an irregular citation network into a regular
+    ring lattice is methodologically incoherent. This implementation uses a synthetic
+    regular ring lattice (N=500) as the base.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses a synthetic regular ring lattice (N=500) as the
+    base.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:56:10Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: generate 50 network instances with small-world rewiring probabilities
+  claim_id: c_9f1e79ff
+  context: 'Goal: Generate 50 network instances with varying small-world rewiring
+    probabilities starting from a synthetic regular ring lattice (N=500).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The goal is to generate 50 network instances with varying small-world
+    rewiring probabilities.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:56:28Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: maximum time steps feasible within 6 hours on 2-core CPU
+  claim_id: c_e08bc8c0
+  context: 'Objective: Determine the maximum time steps feasible within 6 hours on
+    a 2-core CPU runner while maintaining numerical accuracy (error < 1e-4 relative
+    to [deferred] steps).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility study determines the maximum time steps feasible within
+    6 hours on a 2-core CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:56:55Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: numerical accuracy error less than 1e-4
+  claim_id: c_700986e4
+  context: 'Objective: Determine the maximum time steps feasible within 6 hours on
+    a 2-core CPU runner while maintaining numerical accuracy (error < 1e-4 relative
+    to [deferred] steps).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Numerical_accuracy_error_less_than_1e-4
+  kind: magnitude
+  raw_text: The feasibility study maintains numerical accuracy with error less than
+    1e-4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:57:24Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: log CRITICAL WARNING if runtime estimate exceeds 4 hours
+  claim_id: c_be78326b
+  context: 'Constraint: The primary success criterion (SC-003) requires [deferred]
+    steps. If the study estimates runtime > 4 hours for [deferred] steps, the script
+    MUST log a ''CRITICAL WARNING'' and recommend a spec amendment.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_CRITICAL_WARNING_if_runtime_estimate_exceeds_4_hours
+  kind: magnitude
+  raw_text: The script must log a CRITICAL WARNING if the feasibility study estimates
+    runtime greater than 4 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:58:19Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: binary search for Kc max 100 iterations tolerance 0.01
+  claim_id: c_a1a0032e
+  context: Implement binary search algorithm for Kc (threshold defined qualitatively,
+    max 100 iters, tol 0.01) in code/simulate_kuramoto.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The binary search algorithm for Kc has a maximum of 100 iterations and
+    a tolerance of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:58:39Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: results file must have at least 45 valid rows
+  claim_id: c_f8532f72
+  context: 'Save results to data/processed/results.csv with schema: rewiring_prob
+    (float), critical_coupling (float), seed (int), time_steps (int), runtime_seconds
+    (float). Verify file exists with >= 45 valid rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Results_file_must_have_at_least_45_valid_rows
+  kind: magnitude
+  raw_text: The results file must contain at least 45 valid rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:59:07Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: rotational invariance Kc difference less than 1e-6
+  claim_id: c_96e14aca
+  context: Assert |Kc,frame1 - Kc,frame2| < 1e-6 for all cases. If any assertion fails,
+    log a 'FAILURE' and halt.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rotational_invariance_Kc_difference_less_than_1e-6
+  kind: magnitude
+  raw_text: The rotational invariance verification asserts that the difference between
+    Kc values in two reference frames is less than 1e-6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:59:29Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: simulate Kuramoto dynamics 1000 times per topology for 5 diverse topologies
+  claim_id: c_d8013f40
+  context: Run stability check script in code/simulate_kuramoto.py to simulate Kuramoto
+    dynamics 1000 times per topology (for a subset of 5 diverse topologies), calculate
+    sample variance of R, and verify it is < 0.01 (SC-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability check simulates Kuramoto dynamics 1000 times per topology
+    for a subset of 5 diverse topologies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:59:53Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: sample variance of R less than 0.01
+  claim_id: c_6d0531b4
+  context: Run stability check script in code/simulate_kuramoto.py to simulate Kuramoto
+    dynamics 1000 times per topology (for a subset of 5 diverse topologies), calculate
+    sample variance of R, and verify it is < 0.01 (SC-001).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_variance_of_R_less_than_0.01
+  kind: magnitude
+  raw_text: The stability check verifies that the sample variance of R is less than
+    0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T08:01:08Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: variation metric standard deviation at thresholds 0.4 0.5 0.6
+  claim_id: c_89c85e4b
+  context: 'Definition: ''Headline correlation rate'' is the Spearman correlation
+    coefficient. ''Variation metric'' is the standard deviation of the correlation
+    coefficients calculated at thresholds {0.4, 0.5, 0.6}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The variation metric of the headline correlation rate is the standard
+    deviation of correlation coefficients calculated at thresholds 0.4, 0.5, and 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T08:01:34Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: variation metric of headline correlation rate less than or equal to 0.05
+  claim_id: c_ab908af4
+  context: "Verify this standard deviation is \u2264 0.05 (SC-004)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variation_metric_of_headline_correlation_rate_less_than_or_e
+  kind: magnitude
+  raw_text: The variation metric of the headline correlation rate must be less than
+    or equal to 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T08:02:03Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: project uses Python 3.11
+  claim_id: c_8f7177bd
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: networkx>=3.2.0, scipy>=1.12.0, numpy>=1.26.0, pandas>=2.2.0, pyyaml>=6.0.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T08:02:24Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: networkx version 3.2.0 or higher
+  claim_id: c_ac152994
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: networkx>=3.2.0, scipy>=1.12.0, numpy>=1.26.0, pandas>=2.2.0, pyyaml>=6.0.0.'
+  evidence:
+    asserted: '3.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt pins networkx to version 3.2.0 or higher.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T08:02:24Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: scipy version 1.12.0 or higher
+  claim_id: c_463054d2
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: networkx>=3.2.0, scipy>=1.12.0, numpy>=1.26.0, pandas>=2.2.0, pyyaml>=6.0.0.'
+  evidence:
+    asserted: '1.12'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt pins scipy to version 1.12.0 or higher.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T08:02:24Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0 or higher
+  claim_id: c_6bd80480
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: networkx>=3.2.0, scipy>=1.12.0, numpy>=1.26.0, pandas>=2.2.0, pyyaml>=6.0.0.'
+  evidence:
+    asserted: '1.26'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt pins numpy to version 1.26.0 or higher.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T08:02:24Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0 or higher
+  claim_id: c_487b3afa
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: networkx>=3.2.0, scipy>=1.12.0, numpy>=1.26.0, pandas>=2.2.0, pyyaml>=6.0.0.'
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt pins pandas to version 2.2.0 or higher.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T08:02:24Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.0 or higher
+  claim_id: c_9dcdd079
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: networkx>=3.2.0, scipy>=1.12.0, numpy>=1.26.0, pandas>=2.2.0, pyyaml>=6.0.0.'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt pins pyyaml to version 6.0.0 or higher.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T08:02:25Z'
