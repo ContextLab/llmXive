@@ -7,6 +7,7 @@ those declarations.
 
 from __future__ import annotations
 
+import enum
 from collections.abc import Iterable
 
 from llmxive.backends.base import (
@@ -16,6 +17,7 @@ from llmxive.backends.base import (
     ChatMessage,
     ChatResponse,
     ModelDownError,
+    PaidGuardDenied,
     PermanentBackendError,
     TransientBackendError,
 )
@@ -154,6 +156,94 @@ def _chat_one_model(
             continue
     assert last_type_error is not None
     raise last_type_error
+
+
+class CandidateDisposition(enum.Enum):
+    """How a :class:`ModelChain` walker (spec 026 ``execute``) must treat a
+    candidate's TERMINAL failure — the three outcomes the plan enumerates.
+
+    - ``SKIP``: an EXPECTED non-use of this candidate (the paid guard declined it)
+      — say nothing failed; try the next candidate.
+    - ``RETRY_ADVANCE``: the candidate was tried and failed transiently (generic
+      transient exhausted its retries, the model is down, or its breaker is open)
+      — advance to the next candidate; a fully-transient exhaustion is an OUTAGE.
+    - ``ABORT``: a hard permanent failure (auth, bad request, config) that walking
+      more candidates cannot heal — stop the chain immediately.
+    """
+
+    SKIP = "skip"
+    RETRY_ADVANCE = "retry_advance"
+    ABORT = "abort"
+
+
+def disposition_of(exc: BaseException) -> CandidateDisposition:
+    """Classify a backend failure into a :class:`CandidateDisposition`. The typed
+    ``PaidGuardDenied`` split is what lets a paid-guard denial SKIP (not ABORT):
+    it is checked BEFORE its ``PermanentBackendError`` base. ``BackendUnavailable``
+    (breaker open) and every transient class advance; any other permanent aborts.
+    """
+    if isinstance(exc, PaidGuardDenied):
+        return CandidateDisposition.SKIP
+    if isinstance(exc, BackendUnavailable):
+        return CandidateDisposition.RETRY_ADVANCE  # breaker open → try next candidate
+    if isinstance(exc, TransientBackendError):  # incl. ModelDown/Deadline/EmptyReply
+        return CandidateDisposition.RETRY_ADVANCE
+    if isinstance(exc, PermanentBackendError):  # hard refusal / config
+        return CandidateDisposition.ABORT
+    return CandidateDisposition.ABORT  # unknown backend error → conservative abort
+
+
+def chat_one_candidate(
+    backend: BaseBackend,
+    messages: Iterable[ChatMessage],
+    *,
+    model: str | None,
+    max_tokens: int | None = None,
+    temperature: float | None = None,
+    retries: int = 3,
+) -> ChatResponse:
+    """Run EXACTLY ONE model with the router's per-model safeguards but NO
+    fallback chain — the seam spec-026 ``execute`` walks a :class:`ModelChain`
+    over (each candidate is one call to this).
+
+    Safeguards preserved: the per-model circuit breaker + per-request deadline +
+    302-fast-fail live inside ``backend.chat`` and still apply; this adds the
+    bounded same-model RETRY of GENERIC transient flaps (``retries`` attempts,
+    2s-per-attempt backoff). It fails fast — no retry — on the conditions where
+    retrying the SAME model is futile: ``BackendUnavailable`` (breaker open),
+    ``ModelDownError`` (deadline hang / 302 outage), a ``reasoning budget
+    exhausted`` transient (it will re-exhaust), and any ``PermanentBackendError``
+    (incl. the ``PaidGuardDenied`` skip). On terminal failure it RAISES the
+    classified exception; the caller maps it with :func:`disposition_of` and
+    decides skip / advance / abort. ``model=None`` makes a single
+    signature-degrading call (the injected-fake test shape).
+    """
+    import time as _time
+
+    msg_list = list(messages)
+    if model is None:
+        return _chat_one_model(
+            backend, msg_list, model=None, max_tokens=max_tokens, temperature=temperature
+        )
+    last_transient: TransientBackendError | None = None
+    for attempt in range(max(1, retries)):
+        if attempt:
+            _time.sleep(2.0 * attempt)
+        try:
+            return _chat_one_model(
+                backend, msg_list, model=model, max_tokens=max_tokens, temperature=temperature
+            )
+        except ModelDownError:
+            raise  # model down/deadline/302 — retrying the same model is futile
+        except TransientBackendError as exc:
+            last_transient = exc
+            if "reasoning budget exhausted" in str(exc):
+                raise  # will re-exhaust the budget — advance instead of burning retries
+            continue  # generic transient flap — retry the SAME model
+        except PermanentBackendError:
+            raise  # PaidGuardDenied (skip) / BackendUnavailable (breaker) / hard refusal
+    assert last_transient is not None
+    raise last_transient
 
 
 def chat_with_model_fallback(
@@ -408,8 +498,11 @@ def chat_with_fallback(
 __all__ = [
     "GENERATION_MAX_TOKENS",
     "REASONING_MAX_TOKENS",
+    "CandidateDisposition",
+    "chat_one_candidate",
     "chat_with_fallback",
     "chat_with_model_fallback",
+    "disposition_of",
     "make_backend",
     "reasoning_chat",
 ]

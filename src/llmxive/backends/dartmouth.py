@@ -21,6 +21,7 @@ from llmxive.backends.base import (
     ChatResponse,
     EmptyReplyError,
     ModelDownError,
+    PaidGuardDenied,
     PermanentBackendError,
     TransientBackendError,
     invoke_with_deadline,
@@ -772,7 +773,9 @@ class DartmouthBackend(BaseBackend):
 
             allowed, reason = paid_call_allowed(model)
             if not allowed:
-                raise PermanentBackendError(f"Dartmouth: {reason}")
+                # A budget/opt-in denial is an EXPECTED skip, not a hard refusal:
+                # the model-chain walker moves to the next candidate (spec 026).
+                raise PaidGuardDenied(f"Dartmouth: {reason}")
             _log.info("dartmouth: %s", reason)
 
         client = self._client(model)

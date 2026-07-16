@@ -67,7 +67,7 @@ class EmptyReplyError(TransientBackendError):
     EMPTY — the qwen ``<think>``-mode flap: it burns completion tokens reasoning and
     returns nothing. Unlike a network 5xx (a true transient blip that a retry rides
     out), an empty reply is a CONSISTENT model behavior: a couple of stochastic
-    retries may recover, but retrying the SAME flapping model the full ~8× (~5 min)
+    retries may recover, but retrying the SAME flapping model the full ~8x (~5 min)
     just delays the fall-through to a healthy peer / the fast paid fallback. Retry
     layers cap it low (:data:`~llmxive.backends.dartmouth._EMPTY_REPLY_MAX_RETRIES`)
     so the router escapes quickly. Still a TransientBackendError so the model-
@@ -87,6 +87,20 @@ class BackendUnavailable(PermanentBackendError):
     PermanentBackendError so the run loop's existing permanent-error handling
     aborts the run cleanly (stage state preserved for the next scheduled tick)
     instead of thrashing for hours on a dead endpoint.
+    """
+
+
+class PaidGuardDenied(PermanentBackendError):
+    """The free-first paid guard DECLINED this specific model — opt-in is off, or
+    the daily credit budget has no headroom for it (``credits.paid_call_allowed``
+    returned false). This is an EXPECTED skip, NOT a hard refusal: it says nothing
+    about other candidates, so a model-chain walker SKIPS to the next candidate
+    (spec 026 slice 1A ``CandidateDisposition.SKIP``) rather than aborting.
+
+    Subclasses PermanentBackendError so the LEGACY router walker
+    (``chat_with_model_fallback``) — which already caught the paid guard's bare
+    ``PermanentBackendError`` (breaking to the next peer) — keeps IDENTICAL
+    behavior; the split only gives the new ``execute`` seam a typed skip signal.
     """
 
 
@@ -178,6 +192,7 @@ __all__ = [
     "DeadlineExceededError",
     "EmptyReplyError",
     "ModelDownError",
+    "PaidGuardDenied",
     "PermanentBackendError",
     "TransientBackendError",
     "invoke_with_deadline",
