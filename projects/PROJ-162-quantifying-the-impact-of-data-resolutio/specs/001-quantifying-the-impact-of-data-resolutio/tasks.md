@@ -25,9 +25,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `contracts/`)
-- [ ] T002 Initialize Python 3.10 project with `requirements.txt` (pycbc, scipy, numpy, pandas, gwosc, pytest, memory-profiler, scikit-learn)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T001 Create project structure per implementation plan: `mkdir -p src tests data/raw data/processed data/profiling contracts state`.
+- [X] T002 Initialize Python 3.10 project with `requirements.txt` (pycbc, scipy, numpy, pandas, gwosc, pytest, memory-profiler, scikit-learn)
+- [ ] T003 [P] Configure linting and formatting: Create `ruff.toml` (rules E, F, I) and `pyproject.toml` (black config) at repository root.
 
 ---
 
@@ -37,12 +37,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create JSON schemas in `contracts/` (`injection.schema.yaml`, `detection_metric.schema.yaml`)
-- [ ] T005 [P] Implement `src/config.py` with global seeds, paths, and resolution targets (4096, 2048, 1024, 512, 256 Hz)
-- [ ] T006 [P] Implement `src/data_hygiene.py` for SHA256 checksum generation and `state/` management
-- [ ] T007 Create `src/schema_validator.py` to enforce contract validation on all data writes
-- [ ] T008 Implement `src/profiler.py` (FR-006) with memory monitoring (hard limit) and wall-clock tracking
-- [ ] T009 Setup `pytest` configuration and `tests/contract/test_schemas.py` to verify schema enforcement
+- [ ] T004 [P] Create JSON schemas in `contracts/`: `contracts/injection.schema.yaml` (fields: resolution, snr, re_weighted_snr, timestamp, noise_segment_id) and `contracts/detection_metric.schema.yaml` (fields: p_value, method, detection_probability, resolution, n_injections).
+- [X] T005 [P] Implement `src/config.py` with global seeds, paths, and resolution targets (, 2048, 1024, 512, 256 Hz)
+- [ ] T006a [P] Implement `src/data_hygiene.py` to generate SHA256 checksums for all files in `data/` and write them to `state/checksums.json` in the format `{file_path: hash}`.
+- [ ] T006b [P] Implement `data-hygiene.sh` shell script that calls `src/data_hygiene.py` and writes the final checksum record to `state/checksums.json` (Constitution Principle III).
+- [ ] T007 [P] Create `src/schema_validator.py` with a function `validate_json(data, schema_path)` that raises `ValueError` on mismatch, and add a CLI entry point to validate a specific file against a schema.
+- [ ] T008 [P] Implement `src/profiler.py` (FR-006) with memory monitoring (hard limit substantial capacity). **Critical**: If peak memory usage exceeds 6GB during any batch, abort the current batch, exit with code 1, and write a detailed log to `data/profiling/memory_error.log`.
+- [X] T009 Setup `pytest` configuration and `tests/contract/test_schemas.py` to verify schema enforcement
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -52,7 +53,7 @@
 
 **Goal**: Generate diverse non-spinning BBH waveforms at a high sampling frequency and down-sample them to multiple resolution levels. using anti-aliasing FIR filters with amplitude correction.
 
-**Independent Test**: Generate a single waveform, down-sample to a target sampling rate, verify via FFT that aliasing artifacts are < -40dB relative to signal peak and that the Nyquist limit is respected.
+**Independent Test**: Generate a single waveform, down-sample to a target sampling rate, verify via FFT that aliasing artifacts are suppressed to negligible levels relative to the signal peak. and that the Nyquist limit is respected.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -63,10 +64,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `src/waveform_gen.py` (FR-001) to generate non-spinning BBH waveforms (10–50 M⊙, 100–500 Mpc) at 4096 Hz using `pycbc.waveform`
+- [ ] T012 [P] [US1] Implement `src/waveform_gen.py` (FR-001) to generate non-spinning BBH waveforms (low to high mass, 100–500 Mpc) at 4096 Hz using `pycbc.waveform`
 - [ ] T013 [US1] [Depends: T012] Implement `src/downsample.py` (FR-002) to apply FIR low-pass filters (cutoff = fs/2). **Critical**: Calculate the theoretical frequency response H(f) of the filter, then pre-scale the waveform amplitude by $1/|H(f_{peak})|$ before decimation to isolate resolution loss from filter attenuation (Plan: Filter Confound Control).
-- [ ] T014 [US1] [Depends: T012, T013] Implement `src/downsample.py` pipeline to produce 5 distinct files per waveform (one per target rate: high, medium, and low frequencies) with metadata tagging. **Critical**: This task MUST also generate the 'injection realization metadata' (time offset, random seed, resolution, noise segment ID) required for FR-003 and US2, linking the generated waveforms to the injection process.
-- [ ] T015 [US1] Add validation in `src/downsample.py` to ensure no frequency components exceed Nyquist limit by > 10dB of noise floor (SC-004)
+- [ ] T014 [US1] [Depends: T012, T013] Implement `src/downsample.py` pipeline logic to produce A small set of distinct files per waveform: **Copy** the native output of T012 as the 4096 Hz file (no re-processing) and **generate** 4 down-sampled files (2048, 1024, 512, 256 Hz) with metadata tagging.
+- [ ] T015 [US1] Add validation in `src/downsample.py` to ensure no frequency components exceed the measured RMS noise floor of the specific segment by more than 10 dB (SC-004). **Critical**: Calculate RMS noise floor of the target segment and assert that aliased components > Nyquist are < 10 dB above this floor, raising an error if violated.
 - [ ] T016 [US1] Integrate `src/schema_validator.py` to validate down-sampled waveform metadata before saving to `data/processed/`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -87,11 +88,10 @@
 ### Implementation for User Story 2
 
 - [ ] T020 [US2] [Depends: T014] Implement `src/injection.py` (FR-003) to fetch real GWOSC noise segments, inject waveforms at random time offsets (with a minimum separation interval), and **explicitly generate injection realization metadata** (random seeds, time offsets, specific noise segment IDs) for reproducibility and statistical analysis.
-- [ ] T021 [US2] [Depends: T020] Implement `src/injection.py` logic to handle the two-stage power analysis strategy (pilot N=20 -> calculate sigma_emp -> determine final N).
-- [ ] T021a [US2] [Depends: T021] **Execute** the pilot injection run with N=20 per resolution. Calculate the empirical standard deviation ($\sigma_{emp}$) of SNR degradation from the pilot results.
-- [ ] T021b [US2] [Depends: T021a] Dynamically determine the final sample size $N$ (capped at 200) for the full study based on $\sigma_{emp}$ and the power analysis formula.
-- [ ] T022 [US2] [Depends: T021b] Implement `src/matched_filter.py` (FR-004, FR-008) to compute matched-filter SNR. **Critical**: Must use **resolution-matched template banks** (generate/load banks specific to each sampling rate: 4096, 2048, 1024, 512, 256 Hz) to ensure scientific soundness.
-- [ ] T023 [US2] Implement `src/matched_filter.py` logic to calculate re-weighted SNR $\hat{\rho} = \rho / \sqrt{1 + (\chi^2/df)^2}$ with 16 frequency bins
+- [ ] T021a [US2] [Depends: T020] Implement `src/injection.py::run_pilot(N=20)` to execute a pilot injection run and return the empirical standard deviation ($\sigma_{emp}$).
+- [ ] T021b [US2] [Depends: T021a] Implement `src/injection.py::calculate_final_n(sigma, target_power=0.8)` to calculate the required sample size N based on $\sigma_{emp}$, **capped at 200**, to achieve power ≥ 0.8.
+- [ ] T022 [US2] [Depends: T020] Implement `src/matched_filter.py` (FR-004, FR-008) to compute matched-filter SNR. **Critical**: Must use **resolution-matched template banks** (generate/load banks specific to each sampling rate: high, medium, and low frequencies) to ensure scientific soundness.
+- [ ] T023 [US2] Implement `src/matched_filter.py` logic to calculate re-weighted SNR $\hat{\rho} = \rho / \sqrt{ + (\chi^/df)^2}$ with 16 frequency bins
 - [ ] T024 [US2] Implement `src/matched_filter.py` to re-estimate PSD for each specific sampling rate (critical for correct SNR)
 - [ ] T025 [US2] Integrate `src/profiler.py` to record CPU/Memory usage per injection run
 - [ ] T026 [US2] Validate output rows against `detection_metric.schema.yaml` before writing to `data/processed/injections.csv`
@@ -102,7 +102,7 @@
 
 ## Phase 5: User Story 3 - Analyze Detection Probability and Compute Resource Metrics (Priority: P3)
 
-**Goal**: Calculate detection probability (re-weighted SNR > 8) per resolution, profile resources, and perform statistical tests (Jonckheere-Terpstra, Welch's t-test, Mann-Whitney U) to confirm SNR degradation.
+**Goal**: Calculate detection probability (re-weighted SNR > 8) per resolution, profile resources, and perform statistical tests (Welch's t-test, Mann-Whitney U) to confirm SNR degradation.
 
 **Independent Test**: Run analysis on a small subset; verify detection probability matches manual count and resource metrics are non-zero and proportional to data size.
 
@@ -114,9 +114,10 @@
 ### Implementation for User Story 3
 
 - [ ] T030 [P] [US3] Implement `src/analysis.py` (FR-005) to calculate detection probability (fraction of $\hat{\rho} > 8$) per resolution level
-- [ ] T031 [US3] [Depends: T026] Implement `src/analysis.py` to perform Jonckheere-Terpstra test for monotonic trends (SC-001), Welch's t-tests with Bonferroni correction for adjacent pairs (FR-007, SC-005), AND **implement the Mann-Whitney U fallback test** for cases where normality assumptions fail.
-- [ ] T032 [US3] Implement `src/analysis.py` to compute detection probability curves and identify "knee" points by **explicitly extracting high, moderate, and low thresholds via logistic regression (or linear interpolation if sparse)** as per SC-002.
-- [ ] T033 [US3] Implement `src/analysis.py` to aggregate resource metrics (CPU time, memory) and compute efficiency trade-off guidelines (SC-003)
+- [ ] T031a [US3] [Depends: T026] Implement `src/analysis.py` to perform **Jonckheere-Terpstra test** as the **primary verification method** for monotonic SNR degradation (SC-001, FR-007).
+- [ ] T031b [US3] [Depends: T031a] Implement `src/analysis.py` to perform **Welch's t-tests with Bonferroni correction** for adjacent pairs (secondary check) AND implement the **Mann-Whitney U fallback test** (conditional on Shapiro-Wilk normality test failure).
+- [ ] T032 [US3] Implement `src/analysis.py` to compute detection probability curves and identify "knee" points: **Implement logistic regression for curve fitting; if data points < 3, fallback to linear interpolation between 10%, 50%, 90% thresholds** as per SC-002.
+- [ ] T033 [US3] Implement `src/analysis.py` to aggregate resource metrics (CPU time, memory) and compute efficiency trade-off guidelines (FR-006, SC-003)
 - [ ] T034 [US3] Implement stratified analysis logic (SNR bins: 8-12, 12-20, >20) for all statistical tests
 - [ ] T035 [US3] Validate final aggregated metrics against schema and write to `data/processed/analysis_results.json`
 
@@ -131,12 +132,9 @@
 - [ ] T036 [P] Documentation updates in `specs/001-quantifying-the-impact-of-data-resolutio/quickstart.md`
 - [ ] T037 Code cleanup and refactoring (remove unused imports, optimize loops for h limit)
 - [ ] T038 Performance optimization: ensure data streaming to respect system memory constraints
-
-The research question remains: [Research Question]
-The method remains: [Method]
-The references remain: [References]
-- [ ] T039 [P] Additional unit tests for edge cases (glitches, phase distortion) in `tests/unit/`
-- [ ] T040 Run `quickstart.md` validation and verify all acceptance criteria pass
+- [ ] T039 [P] Add unit test `tests/unit/test_injection.py::test_glitch_handling` for edge case handling of transient glitches
+- [ ] T040 [P] Add unit test `tests/unit/test_downsample.py::test_phase_distortion_check` for edge case handling of filter phase distortion
+- [ ] T041 Run `quickstart.md` validation and verify all acceptance criteria pass
 
 ---
 
@@ -147,10 +145,10 @@ The references remain: [References]
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - **CRITICAL DATA FLOW**: While tasks are grouped by Phase, the data flow enforces strict ordering:
-    - US1 (Phase 3) MUST complete before US2 (Phase 4) can begin (Waveforms -> Injection). **T020 explicitly depends on T014**.
-    - US2 (Phase 4) MUST complete before US3 (Phase 5) can begin (Injections -> Analysis). **T031 explicitly depends on T026**.
-  - The "Parallel Team Strategy" below is only valid if the team respects these data dependencies (i.e., Developer C cannot start until Developer B finishes).
+ - **CRITICAL DATA FLOW**: While tasks are grouped by Phase, the data flow enforces strict ordering:
+ - US1 (Phase 3) MUST complete before US2 (Phase 4) can begin (Waveforms -> Injection). **T020 explicitly depends on T014**.
+ - US2 (Phase 4) MUST complete before US3 (Phase 5) can begin (Injections -> Analysis). **T031a explicitly depends on T026**.
+ - The "Parallel Team Strategy" below is only valid if the team respects these data dependencies (i.e., Developer C cannot start until Developer B finishes).
 
 ### User Story Dependencies
 
@@ -165,9 +163,9 @@ The references remain: [References]
 - Core implementation before integration
 - Story complete before moving to next priority
 - **Explicit Task Ordering**:
-  - US1: T012 -> T013 -> T014
-  - US2: T020 -> T021 -> T021a -> T021b -> T022 -> T023 -> T024 -> T025 -> T026
-  - US3: T030 -> T031 -> T032 -> T033 -> T034 -> T035
+ - US1: T012 -> T013 -> T014
+ - US2: T020 -> T021a -> T021b -> T022 -> T023 -> T024 -> T025 -> T026
+ - US3: T030 -> T031a -> T031b -> T032 -> T033 -> T034 -> T035
 
 ### Parallel Opportunities
 
@@ -217,9 +215,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Waveforms)
-   - Developer B: User Story 2 (Injection/SNR) - **Waits for Developer A (T014)**
-   - Developer C: User Story 3 (Analysis/Stats) - **Waits for Developer B (T026)**
+ - Developer A: User Story 1 (Waveforms)
+ - Developer B: User Story 2 (Injection/SNR) - **Waits for Developer A (T014)**
+ - Developer C: User Story 3 (Analysis/Stats) - **Waits for Developer B (T026)**
 3. Stories complete and integrate sequentially based on data flow, not just phase grouping.
 
 ---
@@ -235,5 +233,5 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Compute Feasibility**: All tasks designed for CPU-only (limited vCPU, GB RAM). No GPU, no 8-bit quantization, no large model training.
 - **Data Integrity**: All tasks use real GWOSC data; no synthetic/fake data generation for input.
-- **Statistical Rigor**: Power analysis (pilot -> full) and Bonferroni correction implemented as per plan.
+- **Statistical Rigor**: Power analysis (configurable pilot -> full) and Bonferroni correction implemented as per plan.
 - **Ordering**: Explicit dependencies [Depends: T###] added to enforce correct data flow (Producer before Consumer).

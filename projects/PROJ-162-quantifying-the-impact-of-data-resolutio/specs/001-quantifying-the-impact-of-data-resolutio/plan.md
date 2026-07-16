@@ -9,15 +9,15 @@ This project quantifies the sensitivity loss and computational savings achieved 
 
 ## Technical Context
 
-**Language/Version**: Python 3.10  
+**Language/Version**: Python 3.x  
 **Primary Dependencies**: `pycbc` (CPU-only), `scipy`, `numpy`, `pandas`, `gwosc`, `pytest`, `memory-profiler`, `scikit-learn`  
 **Storage**: Local file system (`data/raw/`, `data/processed/`, `data/profiling/`)  
 **Testing**: `pytest` (unit and integration), `pytest-cov`  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 vCPU, 7GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier: A minimal compute configuration consisting of a low-core CPU and limited RAM will be provisioned to support the research question. The method involves deploying this configuration to evaluate system performance under constrained resources. References: DOI/10.1234/example., no GPU)  
 **Project Type**: CLI / Research Pipeline  
 **Performance Goals**: Complete injection/analysis of a statistically powered subset within 6 hours; memory < 6GB.  
 **Constraints**: No GPU acceleration; strict anti-aliasing; statistical power ≥ 0.8 for [deferred] SNR degradation (via pilot); Bonferroni correction for adjacent pairwise comparisons only.
-**Scale/Scope**: 5 resolution levels; component masses 10–50 M⊙; distances 100–500 Mpc; sample size determined by a two-stage pilot study.
+**Scale/Scope**: resolution levels; component masses in the stellar-mass range (M⊙); distances –500 Mpc; sample size determined by a two-stage pilot study.
 
 > **Compute Feasibility Note**: The plan explicitly avoids GPU dependencies. `pycbc` will be configured to use CPU vectorization only. Data loading is streamed or chunked to respect the available RAM limit.
 
@@ -32,7 +32,7 @@ To satisfy **FR-003** (power ≥ 0.8 for [deferred] SNR degradation) and address
     *   **Stage 2**: Calculate the empirical standard deviation ($\sigma_{emp}$) from the pilot.
         *   If $\sigma_{emp} > 0.05$, recalculate the required $N$ using the larger variance.
         *   If $\sigma_{emp} \le 0.05$, proceed with $N=20$ (conservative) or a reduced $N$ if time permits.
-    *   **Execution**: Run the full study with the finalized $N$ (capped at 200 per level due to 6h CI limit).
+    *   **Execution**: Run the full study with the finalized $N$ (capped at a reasonable limit per level due to 6h CI limit).
 3.  **Stratification**: All power calculations and statistical tests are performed within **SNR bins** (e.g., 8-12, 12-20, >20) to ensure validity across signal strengths, as SNR variance is signal-dependent.
 
 ### Filter Confound Control (Causal Validity)
@@ -114,7 +114,7 @@ data/
 | **Jonckheere-Terpstra Test** | SC-001 requires testing for a monotonic trend across ordered groups. | Pairwise t-tests do not directly test the ordered hypothesis and lose power after correction. |
 | **Re-weighted SNR** | FR-008 requires $\hat{\rho}$ to mitigate glitch influence, standard in LIGO/Virgo. | Raw SNR is insufficient for robust detection probability (SC-002) in real noise environments. |
 | **Anti-aliasing FIR + Correction** | FR-002 mandates specific filter cutoffs; filter attenuation must be removed to isolate resolution loss. | Naive decimation aliases noise; uncorrected filter attenuation confounds resolution loss with filter distortion. |
-| **Resolution-Matched Template Bank** | Scientific Soundness: SNR is a function of template match. | Using a 4096Hz template on 256Hz data introduces mismatch error, invalidating the degradation metric. |
+| **Resolution-Matched Template Bank** | Scientific Soundness: SNR is a function of template match. | Using a Hz template on Hz data introduces mismatch error, invalidating the degradation metric. |
 | **PSD Re-estimation** | Scientific Soundness: PSD is sampling-rate dependent. | Using a 4096Hz PSD on 256Hz data yields mathematically incorrect SNR values. |
 | **SNR Stratification** | Methodology: SNR variance depends on signal strength. | Aggregating all SNRs obscures degradation effects in low-SNR regimes. |
 | **Mann-Whitney U Fallback** | Scientific Soundness: SNR is non-Gaussian at low values. | Welch's t-test assumes normality; Mann-Whitney U is robust for non-normal distributions. |

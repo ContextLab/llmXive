@@ -1,0 +1,487 @@
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Generate non-spinning BBH waveforms mass 10-50 solar masses distance
+    100-500 Mpc at 4096 Hz
+  claim_id: c_c5b8f045
+  context: "T012 [P] [US1] Implement src/waveform_gen.py (FR-001) to generate non-spinning\
+    \ BBH waveforms (10\u201350 M\u2299, 100\u2013500 Mpc) at 4096 Hz using pycbc.waveform"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate non-spinning BBH waveforms (10\u201350 M\u2299, 100\u2013500\
+    \ Mpc) at 4096 Hz using pycbc.waveform"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:48:49Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Down-sample to resolution levels 4096 2048 1024 512 256 Hz
+  claim_id: c_0cd98f0f
+  context: T005 [P] Implement src/config.py with global seeds, paths, and resolution
+    targets (4096, 2048, 1024, 512, 256 Hz)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Down-sample to multiple resolution levels (4096, 2048, 1024, 512, 256
+    Hz)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:49:15Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Verify recovered SNR matches injected value within 1 percent at 4096
+    Hz
+  claim_id: c_aac91803
+  context: 'Independent Test: Inject a high-SNR signal at 4096 Hz and 256 Hz; verify
+    recovered SNR matches injected value within 1% at 4096 Hz and is lower but valid
+    at 256 Hz.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify recovered SNR matches injected value within 1% at 4096 Hz
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:49:15Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Calculate re-weighted SNR with 16 frequency bins
+  claim_id: c_20d0eb22
+  context: T023 [US2] Implement src/matched_filter.py logic to calculate re-weighted
+    SNR rho_hat = rho / sqrt(1 + (chi^2/df)^2) with 16 frequency bins
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate re-weighted SNR with 16 frequency bins
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:49:27Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Detect signals where re-weighted SNR greater than 8
+  claim_id: c_1b17e13f
+  context: 'Goal: Calculate detection probability (re-weighted SNR > 8) per resolution,
+    profile resources, and perform statistical tests...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Detect_signals_where_re-weighted_SNR_greater_than_8
+  kind: magnitude
+  raw_text: Detect signals where re-weighted SNR > 8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:49:55Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Perform statistical tests on SNR bins 8-12 12-20 greater than 20
+  claim_id: c_1de75be1
+  context: 'T034 [US3] Implement stratified analysis logic (SNR bins: 8-12, 12-20,
+    >20) for all statistical tests'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Perform_statistical_tests_on_SNR_bins_8-12_12-20_greater_tha
+  kind: magnitude
+  raw_text: Perform statistical tests on SNR bins 8-12, 12-20, >20
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:50:33Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Sample size calculation capped at 200 to achieve power 0.8
+  claim_id: c_d8fe855e
+  context: T021 [US2] ... Sample size calculator function that takes empirical standard
+    deviation (sigma_emp) as input and returns final N (capped at 200) to achieve
+    power >= 0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample size calculation capped at 200 to achieve power >= 0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:50:59Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Default parameters N=20 sigma_rel=0.05 for power analysis
+  claim_id: c_db436d31
+  context: Default parameters (N=20, sigma_rel=0.05) are configurable but not hardcoded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default parameters N=20, sigma_rel=0.05 for power analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:51:47Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Generate non-spinning BBH waveforms 10-50 solar masses 100-500 Mpc at
+    4096 Hz
+  claim_id: c_b13f4341
+  context: "Implement src/waveform_gen.py (FR-001) to generate non-spinning BBH waveforms\
+    \ (10\u201350 M\u2299, 100\u2013500 Mpc) at 4096 Hz using pycbc.waveform"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate non-spinning BBH waveforms (10\u201350 M\u2299, 100\u2013500\
+    \ Mpc) at 4096 Hz"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:59:57Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: down-sample waveforms to 4096 2048 1024 512 256 Hz
+  claim_id: c_e3a2214b
+  context: Implement src/config.py with global seeds, paths, and resolution targets
+    (4096, 2048, 1024, 512, 256 Hz)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: down-sample them to multiple resolution levels (4096, 2048, 1024, 512,
+    256 Hz)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:00:21Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: verify recovered SNR matches injected value within 1% at 4096 Hz
+  claim_id: c_fd14c8f5
+  context: 'Independent Test: Inject a high-SNR signal at 4096 Hz and 256 Hz; verify
+    recovered SNR matches injected value within 1% at 4096 Hz and is lower but valid
+    at 256 Hz.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify recovered SNR matches injected value within 1% at 4096 Hz
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:00:21Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: calculate re-weighted SNR with 16 frequency bins
+  claim_id: c_e9158c74
+  context: Implement src/matched_filter.py logic to calculate re-weighted SNR rho_hat
+    = rho / sqrt(1 + (chi^2/df)^2) with 16 frequency bins
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate re-weighted SNR with 16 frequency bins
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:00:21Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: detect signals where re-weighted SNR greater than 8
+  claim_id: c_11f0680b
+  context: Implement src/analysis.py (FR-005) to calculate detection probability (fraction
+    of rho_hat > 8) per resolution level
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Detect_signals_where_re-weighted_SNR_greater_than_8
+  kind: magnitude
+  raw_text: detect signals where re-weighted SNR > 8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:00:23Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: stratified analysis SNR bins 8-12 12-20 greater than 20
+  claim_id: c_283e0ef1
+  context: 'Implement stratified analysis logic (SNR bins: 8-12, 12-20, >20) for all
+    statistical tests'
+  evidence:
+    candidates:
+    - - Stratified analysis SNR bins 8-12
+      - 12.0
+    - - Look for Stratified analysis SNR bins
+      - 8.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Stratified_analysis_SNR_bins_8-12_12-20_greater_than_20
+  kind: magnitude
+  raw_text: 'stratified analysis logic (SNR bins: 8-12, 12-20, >20)'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-16T19:00:43Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: sample size capped at 200 to achieve power 0.8
+  claim_id: c_3c96cafa
+  context: "Sample size calculator function that takes empirical standard deviation\
+    \ (sigma_emp) as input and returns final N (capped at 200) to achieve power \u2265\
+    \ 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sample size calculator capped at 200 to achieve power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:01:05Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Default parameters N 20 sigma_rel 0.05
+  claim_id: c_3f9f7c97
+  context: Default parameters (N=20, sigma_rel=0.05) are configurable but not hardcoded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default parameters (N=20, sigma_rel=0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:01:48Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Generate non-spinning BBH waveforms with masses 10 to 50 solar masses
+    and distances 100 to 500 Mpc at 4096 Hz
+  claim_id: c_399438f8
+  context: "T012 [P] [US1] Implement `src/waveform_gen.py` (FR-001) to generate non-spinning\
+    \ BBH waveforms (10\u201350 M\u2299, 100\u2013500 Mpc) at 4096 Hz using `pycbc.waveform`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate non-spinning BBH waveforms (10\u201350 M\u2299, 100\u2013500\
+    \ Mpc) at 4096 Hz"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:02:52Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Down-sample waveforms to multiple resolution levels using anti-aliasing
+    FIR filters with amplitude correction
+  claim_id: c_db56a5f7
+  context: 'Goal: Generate diverse non-spinning BBH waveforms at a high sampling frequency
+    and down-sample them to multiple resolution levels. using anti-aliasing FIR filters
+    with amplitude correction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Down-sample_waveforms_to_multiple_resolution_levels_using_an
+  kind: entity_fact
+  raw_text: down-sample them to multiple resolution levels. using anti-aliasing FIR
+    filters with amplitude correction
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:03:10Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Verify recovered SNR matches injected value within 1% at 4096 Hz
+  claim_id: c_85dc4528
+  context: 'Independent Test: Inject a high-SNR signal at 4096 Hz and 256 Hz; verify
+    recovered SNR matches injected value within 1% at 4096 Hz and is lower but valid
+    at 256 Hz.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify recovered SNR matches injected value within 1% at 4096 Hz
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:03:10Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Resolution targets are 4096, 2048, 1024, 512, and 256 Hz
+  claim_id: c_35cb0814
+  context: T005 [P] Implement `src/config.py` with global seeds, paths, and resolution
+    targets (4096, 2048, 1024, 512, 256 Hz)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: resolution targets (4096, 2048, 1024, 512, 256 Hz)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:03:37Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Sample size calculator returns final N capped at 200 to achieve power
+    greater than or equal to 0.8
+  claim_id: c_125cf741
+  context: "T021 [US2] [Depends: T020] Implement `src/injection.py` logic for a configurable\
+    \ power analysis strategy: (1) Pilot runner to execute N injections per resolution,\
+    \ (2) Sample size calculator function that takes empirical standard deviation\
+    \ ($\\sigma_{emp}$) as input and returns final N (capped at 200) to achieve power\
+    \ \u2265 0.8."
+  evidence:
+    asserted: '200.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "sample size calculator function that takes empirical standard deviation\
+    \ ($\\sigma_{emp}$) as input and returns final N (capped at 200) to achieve power\
+    \ \u2265 0.8"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T19:03:37Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Default parameters for power analysis are N=20 and sigma_rel=0.05
+  claim_id: c_dca0ef2d
+  context: Default parameters (N=20, $\sigma_{rel}=0.05$) are configurable but not
+    hardcoded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default parameters (N=20, $\sigma_{rel}=0.05$)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:03:37Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Calculate re-weighted SNR using formula rho divided by sqrt(1 + (chi-squared/df)
+    squared) with 16 frequency bins
+  claim_id: c_882bcf66
+  context: T023 [US2] Implement `src/matched_filter.py` logic to calculate re-weighted
+    SNR $\hat{\rho} = \rho / \sqrt{1 + (\chi^2/df)^2}$ with 16 frequency bins
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate re-weighted SNR $\hat{\rho} = \rho / \sqrt{1 + (\chi^2/df)^2}$
+    with 16 frequency bins
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:03:51Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Calculate detection probability as fraction of re-weighted SNR greater
+    than 8 per resolution level
+  claim_id: c_91a6b2ed
+  context: T030 [P] [US3] Implement `src/analysis.py` (FR-005) to calculate detection
+    probability (fraction of $\hat{\rho} > 8$) per resolution level
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calculate_detection_probability_as_fraction_of_re-weighted_S
+  kind: magnitude
+  raw_text: calculate detection probability (fraction of $\hat{\rho} > 8$) per resolution
+    level
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:04:14Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Stratified analysis logic uses SNR bins 8 to 12, 12 to 20, and greater
+    than 20
+  claim_id: c_b3902564
+  context: 'T034 [US3] Implement stratified analysis logic (SNR bins: 8-12, 12-20,
+    >20) for all statistical tests'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_analysis_logic_uses_SNR_bins_8_to_12,_12_to_20,_a
+  kind: magnitude
+  raw_text: 'stratified analysis logic (SNR bins: 8-12, 12-20, >20)'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:04:16Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Perform Welch's t-tests with Bonferroni correction for adjacent pairs
+  claim_id: c_444a4749
+  context: 'T031 [US3] [Depends: T026] Implement `src/analysis.py` to perform Welch''s
+    t-tests with Bonferroni correction for adjacent pairs (FR-007, SC-005) as the
+    primary verification method'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_Welch's_t-tests_with_Bonferroni_correction_for_adjac
+  kind: entity_fact
+  raw_text: perform Welch's t-tests with Bonferroni correction for adjacent pairs
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:04:42Z'
+- artifact_path: projects/PROJ-162-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: All tasks designed for CPU-only execution
+  claim_id: c_3c3cc122
+  context: 'Compute Feasibility: All tasks designed for CPU-only (limited vCPU, GB
+    RAM). No GPU, no 8-bit quantization, no large model training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_tasks_designed_for_CPU-only_execution
+  kind: entity_fact
+  raw_text: All tasks designed for CPU-only (limited vCPU, GB RAM)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:05:01Z'

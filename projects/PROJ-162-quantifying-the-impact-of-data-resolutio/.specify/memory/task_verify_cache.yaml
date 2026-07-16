@@ -1,0 +1,14 @@
+T010:
+  c: false
+  h: e50b2305939213a7f6baf86a4c02fb249ac622a09137c751ee88008375141295
+  r: The required unit test file `tests/unit/test_downsample.py` is missing from the
+    repository, so the specified test `test_downsample_anti_aliasing` does not exist.
+    Without this artifact, the task of verifying FFT spectral content via a unit test
+    is not satisfied. The implementer must add the missing test file with the appropriate
+    test implementation.
+T011:
+  c: false
+  h: 6764dffb55dbe20d770657c93974411ee909db75b8ad92f484e02da319f99a8f
+  r: The required file `tests/unit/test_waveform_gen.py` does not exist, so the unit
+    test `test_waveform_generation_range` cannot be present or verified. The implementer
+    must add the missing test file with the appropriate test implementation.
