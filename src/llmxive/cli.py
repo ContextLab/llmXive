@@ -309,6 +309,31 @@ def _cmd_credits(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_credits_ledger_sweep(args: argparse.Namespace) -> int:
+    """Reconcile/sweep the credit-reservation ledger (spec 026 / FR-016).
+
+    Settles abandoned in-flight reservations conservatively, discards prior-epoch
+    reservations at the daily reset, and reconciles the current-epoch settling
+    batch against the freshly-observed provider spend (attribution-prefix rule).
+    Intended for a maintenance cron; safe to run repeatedly (idempotent events).
+    """
+    from llmxive.backends import credits as credits_mod
+    from llmxive.config import repo_root
+    from llmxive.model_selection import reservations
+
+    balance = credits_mod.fetch_credit_balance()  # FRESH, cache-bypassing
+    remote = None if args.no_remote else args.remote
+    result = reservations.sweep(
+        repo_root(),
+        observed_spend=balance.spend,
+        current_epoch=balance.budget_reset_at,
+        remote=remote,
+    )
+    for phase, ids in result.items():
+        print(f"{phase}: {len(ids)}" + (f" ({', '.join(ids)})" if ids else ""))
+    return 0
+
+
 def _cmd_auth_set(args: argparse.Namespace) -> int:
     if args.key:
         key = args.key
@@ -1036,6 +1061,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="show the Dartmouth daily paid-credit balance (issue #295)",
     )
     p_credits.set_defaults(func=_cmd_credits)
+
+    p_ledger_sweep = subs.add_parser(
+        "credits-ledger-sweep",
+        help="reconcile/sweep the credit-reservation ledger (spec 026 / FR-016)",
+    )
+    p_ledger_sweep.add_argument(
+        "--remote", default="origin",
+        help="git remote holding the authoritative ledger ref (default: origin)",
+    )
+    p_ledger_sweep.add_argument(
+        "--no-remote", action="store_true",
+        help="operate on the local ledger ref only (no fetch/push)",
+    )
+    p_ledger_sweep.set_defaults(func=_cmd_credits_ledger_sweep)
 
     p_auth = subs.add_parser("auth", help="manage local Dartmouth Chat credentials")
     auth_subs = p_auth.add_subparsers(dest="auth_cmd", required=True)

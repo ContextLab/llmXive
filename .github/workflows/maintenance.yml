@@ -82,6 +82,14 @@ jobs:
         # them). Throttled by the same intake allowance. Non-fatal on failure.
         run: python -m llmxive hf-papers submit-top --limit 5 || echo "[maintenance] hf-papers intake skipped/failed (non-fatal)"
 
+      - name: Sweep credit-reservation ledger
+        # Reconcile the strict-CAS credit-reservation ledger (spec 026 / FR-016):
+        # conservatively settle abandoned in-flight reservations, discard prior-epoch
+        # ones at the daily reset, and reconcile the current settling batch against
+        # fresh provider spend. Pushes only refs/llmxive/credit-ledger (contents:
+        # write). Inert with the paid opt-in off / an empty ledger; non-fatal.
+        run: python -m llmxive credits-ledger-sweep || echo "[maintenance] credit-ledger sweep skipped/failed (non-fatal)"
+
       - name: Regenerate web data
         run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
 
