@@ -384,6 +384,20 @@ def reconcile_settled(
     charged). Every reservation not fully covered stays ``settling`` (still
     counting) until more spend is observed or the daily reset. A single reservation
     is NEVER partially reconciled. Returns the reconciled ids in order.
+
+    KNOWN BOUND (C1, accepted 2026-07-16): reconciling against LAGGED AGGREGATE
+    spend is inherently approximate — two reservations with the SAME baseline are
+    indistinguishable by ``(baseline, worst_case)``. When one of them is already
+    reconciled, its landed charge inflates ``covered`` for a later batch, so a
+    still-``settling`` sibling can be reconciled before ITS charge lands (created_at
+    order != charge order). The window is NARROW (shared baseline + a reconciled
+    sibling + a slow, not-yet-charged straggler) and BOUNDED by one ``worst_case``;
+    it is backstopped by the FRESH-spend re-check at the next ``reserve`` (the
+    straggler's charge, once it lands, is reflected in ``spend``) and swept by the
+    daily-epoch reset. A stricter fix (discount reconciled ``worst_case`` from
+    ``covered``, or all-or-nothing per batch) was considered and deliberately not
+    taken — the maintainer accepted the documented bound over the added complexity /
+    slower headroom reclaim.
     """
     now = now or _utcnow()
     current = project(read_events(repo))
