@@ -1,0 +1,35 @@
+T005:
+  c: true
+  h: 5d2c5af92a4d279ce4e077bd02e3c91d1bb6d76add991a268d46b08a3ec718e8
+  r: "The repository contains a non\u2011empty `code/utils/state_manager.py` implementing\
+    \ `update_artifact_hash(path)`, which computes a SHA\u2011256 hash of the given\
+    \ file and writes/updates an entry in `state/artifact_hashes.yaml`, creating the\
+    \ state directory and file if needed. This fulfills the specified requirement."
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration artifact (e.g., a YAML/JSON settings file, .env template, or
+    code that centralizes dataset URLs and random seed handling) is present in the
+    provided evidence. The only artifacts described relate to data ingestion, feature
+    engineering, and model training, which do not satisfy the requirement to configure
+    environment configuration management for dataset URLs and random seeds. The implementer
+    must add a concrete configuration solution (e.g., a config module or file) that
+    defines and loads these parameters.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The task explicitly requires setting up a `contracts/` directory containing schema
+    definitions in CSV and JSON formats, but there is no evidence in the provided
+    context that this directory or any schema files exist. The available text describes
+    high-level feature specifications and user stories for data processing and model
+    training, which are distinct from the specific deliverable of creating schema
+    definition files. Without the actual `contracts/` directory and its contents,
+    the requirement is not met.
+T012:
+  c: false
+  h: 6b8fcb6138293c5af4a5c24ae14bbc56709965bbc883e3afad3db3aa4e380402
+  r: "The repository contains `code/data/download.py`, but the required output artifacts\
+    \ `data/raw/gfa_dataset.csv` and `data/raw/gfa_dataset.csv.sha256` are absent.\
+    \ Since the success condition explicitly demands these files be created, the implementation\
+    \ does not satisfy the task. The next implementer must ensure the download script\
+    \ actually writes the CSV and its SHA\u2011256 checksum to the `data/raw/` directory."

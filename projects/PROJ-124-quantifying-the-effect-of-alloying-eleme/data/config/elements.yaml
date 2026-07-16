@@ -1,0 +1,35 @@
+# List of 30 most abundant metallic elements for screening
+# Used by T030 for generating ternary combinations
+abundant_elements:
+  - Al
+  - Ca
+  - Fe
+  - Mg
+  - Ti
+  - Na
+  - K
+  - Zn
+  - Si
+  - Zr
+  - Cu
+  - Ni
+  - Cr
+  - Mn
+  - V
+  - Sn
+  - Pb
+  - Ag
+  - Au
+  - Pd
+  - Pt
+  - Mo
+  - W
+  - Nb
+  - Ta
+  - Hf
+  - Y
+  - La
+  - Ce
+  - Sc
+count: 30
+description: "Most abundant metallic elements in the Earth's crust and common alloying elements"

@@ -42,3 +42,27 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/GFA-D2/pilot_flags/76f5f73a18d746d15cdd098354159d7cf154ae4b/data.csv?%2Fdatasets%2FGFA-D2%2Fpilot_flags%2Fresolve%2Fmain%2Fdata.csv=&etag=%22868157417cbe46f5e1ce3cadc77a2e945cd53c65%22
   verified_at: '2026-07-10T10:46:45.676471Z'
+- artifact_hash: de9d36b8e69f9325e22ba16f5b5be946f773601c0e98c32530fb8d2f90f10027
+  artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/README_LINTING.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - astral-sh/ruff-pre-commit: A pre-commit hook for Ruff.\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/astral-sh/ruff-pre-commit
+  verification_status: pending
+  verified_against_url: https://github.com/astral-sh/ruff-pre-commit
+  verified_at: '2026-07-16T22:01:03.312939Z'
+- artifact_hash: de9d36b8e69f9325e22ba16f5b5be946f773601c0e98c32530fb8d2f90f10027
+  artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/README_LINTING.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - psf/black: The uncompromising Python code formatter \xB7\
+    \ GitHub"
+  kind: url
+  value: https://github.com/psf/black
+  verification_status: pending
+  verified_against_url: https://github.com/psf/black
+  verified_at: '2026-07-16T22:01:03.312939Z'

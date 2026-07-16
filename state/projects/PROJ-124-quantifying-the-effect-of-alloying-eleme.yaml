@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T05:10:10.403690Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-124-quantifying-the-effect-of-alloying-eleme
-last_run_id: 6f2d3ecd-539a-4dab-b469-a213292cae0f
+last_run_id: 99196c92-2590-49fd-a95f-182f111d3a0b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme
 title: Quantifying the Effect of Alloying Elements on the Glass-Forming Ability of
   Metallic Glasses
-updated_at: '2026-07-10T13:29:27.113100Z'
+updated_at: '2026-07-16T22:09:37.171441Z'

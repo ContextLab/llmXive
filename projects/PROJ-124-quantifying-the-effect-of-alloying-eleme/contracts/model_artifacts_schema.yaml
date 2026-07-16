@@ -1,0 +1,66 @@
+# Model Artifacts Schema Definition
+# Defines the structure of saved model files and related metadata.
+
+version: "1.0"
+description: "Schema for Trained Model Artifacts"
+
+model_pickle:
+  file_pattern: data/processed/*.pkl
+  format: pickle
+  description: "Serialized scikit-learn model"
+  required_attributes:
+    - _estimator_type
+    - classes_ (if classifier)
+    - feature_names_in_
+  
+scaler_pickle:
+  file: data/processed/scaler.pkl
+  format: pickle
+  required_attributes:
+    - mean_
+    - scale_
+    - n_features_in_
+
+training_data_pickle:
+  file: data/processed/X_train.pkl
+  format: pickle
+  type: numpy.ndarray
+  description: "Scaled training features"
+  
+training_target_pickle:
+  file: data/processed/y_train.pkl
+  format: pickle
+  type: numpy.ndarray
+  description: "Training target values"
+
+shap_results:
+  file: output/shap_feature_importance.json
+  format: json
+  required_fields:
+    - feature_names
+    - shap_values
+    - mean_abs_shap
+  field_definitions:
+    feature_names:
+      type: array
+      items: string
+    shap_values:
+      type: array
+      items: number
+    mean_abs_shap:
+      type: array
+      items: number
+
+heteroscedasticity_test:
+  file: state/heteroscedasticity_test.json
+  format: json
+  required_fields:
+    - p_value
+    - heteroscedasticity_flag
+  field_definitions:
+    p_value:
+      type: number
+      min: 0
+      max: 1
+    heteroscedasticity_flag:
+      type: boolean

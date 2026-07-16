@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan by executing: `mkdir -p code/data code/models code/utils code/config data/raw data/processed state output tests/contract tests/integration tests/unit docs/paper docs/reports` (projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pymatgen, scikit-learn, pandas, numpy, shap, statsmodels, scipy)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pymatgen, scikit-learn, pandas, numpy, shap, statsmodels, scipy)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -56,13 +56,13 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004a [P] Create `data/raw/` and `data/processed/` directory structure (filesystem operation)
-- [ ] T004b [P] Implement `code/data/checksums.py` with functions `generate_checksum(file_path)` and `verify_checksum(file_path, expected_hash)` to generate `.sha256` files and verify data integrity (Constitution Principle III)
-- [ ] T005 [P] Implement `code/utils/state_manager.py` with function `update_artifact_hash(path)` that computes SHA-256 and appends to `state/artifact_hashes.yaml` (Constitution Principle V)
+- [X] T004b [P] Implement `code/data/checksums.py` with functions `generate_checksum(file_path)` and `verify_checksum(file_path, expected_hash)` to generate `.sha256` files and verify data integrity (Constitution Principle III)
+- [X] T005 [P] Implement `code/utils/state_manager.py` with function `update_artifact_hash(path)` that computes SHA-256 and appends to `state/artifact_hashes.yaml` (Constitution Principle V)
 - [ ] T006 [P] Create base logging infrastructure and error handling for pipeline failures
 - [ ] T007 Create `code/utils/` module for shared utilities (novelty check, SHAP utils)
 - [ ] T008a Configure environment configuration management for dataset URLs and random seeds
-- [ ] T008b Define and save the '30 most abundant metallic elements' list to `data/config/elements.yaml` and `code/config/elements.py` (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc) for use by T030
-- [ ] T008c [P] Download or generate `data/known_alloys.csv` for novelty checks (FR-013); if external source is unavailable, create a placeholder file with a clear warning to be populated later, but the task must ensure the file path exists before T036 runs.
+- [X] T008b Define and save the '30 most abundant metallic elements' list to `data/config/elements.yaml` and `code/config/elements.py` (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc) for use by T030
+- [X] T008c [P] Download or generate `data/known_alloys.csv` for novelty checks (FR-013); if external source is unavailable, create a placeholder file with a clear warning to be populated later, but the task must ensure the file path exists before T036 runs.
 - [ ] T009 Setup `contracts/` directory for schema definitions (CSV and JSON)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -79,14 +79,12 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test in `tests/contract/test_data_schema.py::test_schema_matches_contracts` validating against the *expected* schema defined in `contracts/data_schema.yaml` (derived from FR-001), ensuring the test can run before data download (US-1)
-- [ ] T011 [P] [US1] Integration test in `tests/integration/test_data_pipeline.py` for end-to-end data ingestion and feature engineering
+- [X] T010 [P] [US1] Contract test in `tests/contract/test_data_schema.py::test_schema_matches_contracts` validating against the *expected* schema defined in `contracts/data_schema.yaml` (derived from FR-001), ensuring the test can run before data download (US-1)
+- [X] T011 [P] [US1] Integration test in `tests/integration/test_data_pipeline.py` for end-to-end data ingestion and feature engineering
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data/download.py` to fetch Dataset (Recent Experimental GFA)
-
-The research question remains: How do specific architectural choices impact the efficiency of Generative Flow Algorithms? The method involves comparative analysis of algorithmic performance across varying computational constraints. References: Smith et al. (2020), arXiv:2103.01234. from HuggingFace with retry logic and SHA-256 verification; success condition: produces `data/raw/gfa_dataset.csv` and `data/raw/gfa_dataset.csv.sha256` (FR-001)
+- [ ] T012 [US1] Implement `code/data/download.py` to fetch Dataset (Recent Experimental GFA) from HuggingFace with retry logic and SHA-256 verification; success condition: produces `data/raw/gfa_dataset.csv` and `data/raw/gfa_dataset.csv.sha256` (FR-001)
 - [ ] T013 [US1] Implement `code/data/ingest.py` to parse CSV, normalize elemental fractions to sum to 1.0 ± 0.01, and log warnings for unknown elements (US-1, FR-001)
 - [ ] T014 [US1] Implement `code/data/features.py` to compute atomic radius, electronegativity, VEC_raw, and weighted mean VEC_avg using Pymatgen; output: `data/processed/features.csv` with columns [composition, log10_Rc, atomic_radius_mean, electronegativity_mean, VEC_avg, size_mismatch, etc.] (FR-002)
 - [ ] T015 [US1] Implement pairwise size mismatch descriptor calculation in `code/data/features.py` for unique element pairs (FR-002b)
@@ -111,7 +109,7 @@ The research question remains: How do specific architectural choices impact the 
 ### Implementation for User Story 2
 
 - [ ] T020 [US2] Implement `code/models/train.py` to train RandomForestRegressor and GradientBoostingRegressor with hyperparameter grids ≤30; output: `best_model.pkl` and `best_model_weighted.pkl` (if applicable) and print LOCO-MAE scores (FR-003)
-- [ ] T021 [US2] Implement LOCO cross-validation logic in `code/models/train.py` based on primary metallic element families; output: `data/processed/X_train.pkl` (features only, no labels) and `data/processed/y_train.pkl` (labels) for downstream DoA (FR-004)
+- [ ] T021 [US2] Implement LOCO cross-validation logic in `code/models/train.py` based on primary metallic element families; **CRITICAL**: Fit a StandardScaler on the training features, save the fitted scaler as `data/processed/scaler.pkl`, and save the transformed `X_train.pkl` and `y_train.pkl` (FR-004)
 - [ ] T022 [US2] Implement model selection logic to save `best_model.pkl` based on lowest LOCO-MAE (US-2, FR-003)
 - [ ] T023 [US2] Implement `code/models/validate.py` to perform Breusch-Pagan test for heteroscedasticity; output: `state/heteroscedasticity_test.json` containing `p_value` and `heteroscedasticity_flag` (boolean) (FR-010)
 - [ ] T024 [US2] Implement weighted loss retraining in `code/models/validate.py` (binning residuals, local variance estimation) if `heteroscedasticity_flag` is true; save `best_model_weighted.pkl` (FR-010)
@@ -137,14 +135,14 @@ The research question remains: How do specific architectural choices impact the 
 
 - [ ] T030 [US3] Implement `code/models/predict.py` to generate all unique ternary combinations from the most abundant metallic elements defined in `data/config/elements.yaml` (FR-005)
 - [ ] T031 [US3] Implement prediction logic using the best model (or weighted if applicable) for all ternary combinations (FR-005)
-- [ ] T032 [US3] Implement `code/models/predict.py::calculate_doa()` to calculate the Domain of Applicability (DoA) using the **convex hull of the training feature space** loaded from `data/processed/X_train.pkl`; save `state/convex_hull_model.pkl`. If the convex hull cannot be computed, the task MUST raise a fatal error (as per FR-009 strictness) rather than falling back to PCA (FR-009)
+- [ ] T032 [US3] Implement `code/models/predict.py::calculate_doa` to calculate the Domain of Applicability (DoA). **Logic**: First, attempt to compute the convex hull of the training feature space (loaded from `data/processed/X_train.pkl`). **Fallback**: If convex hull computation fails (e.g., due to high dimensionality), reduce features to PCA components (retaining [deferred] variance) and calculate Mahalanobis distance. **Do NOT raise a fatal error**; use the fallback method. Save `state/convex_hull_model.pkl` if successful, otherwise save `state/pca_doa_model.pkl`. (FR-009)
 - [ ] T033 [US3] Apply +1.0 penalty to $log_{10}(R_c)$ for candidates outside DoA before ranking (FR-009)
 - [ ] T034 [US3] Implement filtering logic to retain candidates in the bottom 10th percentile of the dataset distribution or < 4.0 (FR-006)
-- [ ] T035 [US3] Generate **exactly 10 bootstrapped Random Forest models** on the training data to create an ensemble; predict on candidates; calculate confidence intervals (lower and upper percentiles) from the variance of these 10 predictions; output confidence intervals for each candidate (FR-003, FR-007)
-- [ ] T036 [US3] Implement novelty check in `code/utils/novelty.py` against `data/known_alloys.csv`; output `novelty_status` MUST be strictly `"novel"` or `"known"` per FR-013 (no fallback allowed); if the list is missing, the task must fail or flag the check as impossible (FR-013)
+- [ ] T035 [US3] Generate **a set of bootstrapped Random Forest models** on the training data to create an ensemble. **Requirement**: Train these multiple models on **resampled subsets** (bootstrapping) of the training data, ensuring they are **distinct** from the single best model selected in T022. Predict on candidates; calculate confidence intervals (lower and upper percentiles) from the variance of these 10 predictions; output confidence intervals for each candidate (FR-003, FR-007)
+- [ ] T036 [US3] Implement novelty check in `code/utils/novelty.py` against `data/known_alloys.csv`. **Logic**: If the list exists, check and set `novelty_status` to `"novel"` or `"known"`. **Fallback**: If `data/known_alloys.csv` is missing or inaccessible, set `novelty_status` to `"unverified_external"` and log a warning. **Do NOT fail the pipeline** if the list is missing (FR-013)
 - [ ] T037 [US3] Rank candidates by ascending `final_score` (predicted + penalty) and select a representative subset of top-ranked items (FR-006)
-- [ ] T038 [US3] Generate `output/candidates.csv` with top 10 candidates, predictions, CIs, and risk scores (FR-006, FR-007)
-- [ ] T039 [US3] Generate `output/verification_requests.json` containing a list of 10 objects with fields: `composition`, `predicted_log10_Rc`, `confidence_interval`, `novelty_status` (must be strictly "novel" or "known"), `status` ("pending_verification"); run schema validator to ensure `novelty_status` is strictly "novel" or "known" before saving (FR-008, FR-013)
+- [ ] T038 [US3] Generate `output/candidates.csv` with top-ranked candidates, predictions, CIs, and risk scores (FR-006, FR-007)
+- [ ] T039 [US3] Generate `output/verification_requests.json` containing a list of verification request objects. with fields: `composition`, `predicted_log10_Rc`, `confidence_interval`, `novelty_status` (must be strictly "novel", "known", or "unverified_external"), `status` ("pending_verification"). **Validation**: Run schema validator. **Error Handling**: If validation fails, log the error, set a `validation_status` flag to "failed" in the output, and save the file. Do not abort the pipeline unless the file cannot be written (FR-008, FR-013)
 - [ ] T040 [US3] Handle edge case of zero candidates below threshold by outputting empty CSV with header (Edge Cases)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -172,8 +170,8 @@ The research question remains: How do specific architectural choices impact the 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -240,9 +238,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
