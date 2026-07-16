@@ -1,0 +1,13 @@
+# Core Data Science Stack
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+scipy>=1.11.0
+
+# Text Processing & NLP
+nltk>=3.8.0
+
+# Utilities
+pyyaml>=6.0
+tqdm>=4.65.0

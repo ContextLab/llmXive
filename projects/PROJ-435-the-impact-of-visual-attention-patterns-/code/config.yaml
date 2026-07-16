@@ -1,0 +1,36 @@
+# Environment and Reproducibility Configuration
+# This file controls random seeds and execution paths for the pipeline.
+
+# Reproducibility Settings
+# All random number generators (numpy, random, torch if available) use this seed.
+random_seed: 42
+
+# Paths (relative to project root)
+paths:
+  data_raw: data/raw
+  data_derived: data/derived
+  data_processed: data/processed
+  figures: figures
+  state: state
+  logs: logs
+
+# Logging Configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/pipeline.log
+
+# Algorithm Defaults (fallbacks if not specified in task-specific configs)
+algorithms:
+  ivt:
+    velocity_threshold: 30  # degrees/second
+    min_duration: 60        # milliseconds
+  idt:
+    dispersion_threshold: 100 # pixels
+    min_duration: 100       # milliseconds
+
+# Data Processing
+processing:
+  outlier_cap_percentile_low: 1
+  outlier_cap_percentile_high: 99
+  min_roi_duration: 0 # Allow zero duration fixations on ROI as valid (T017)

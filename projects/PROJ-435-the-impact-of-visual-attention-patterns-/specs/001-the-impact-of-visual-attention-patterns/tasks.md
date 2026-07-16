@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: `code/`, `data/raw/`, `data/derived/`, `data/processed/`, `tests/`, `state/`
-- [ ] T002 Initialize Python 3.11 project with requirements.txt dependencies (pandas, numpy, scikit-learn, statsmodels, nltk, scipy)
+- [X] T002 Initialize Python 3.11 project with requirements.txt dependencies (pandas, numpy, scikit-learn, statsmodels, nltk, scipy)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -58,19 +58,22 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [ ] T004 Setup data directory structure: `data/raw/`, `data/derived/`, `data/processed/`
-- [ ] T005 [P] Implement `code/utils/data_loading.py` with functions to fetch eye-tracking data from verified sources using `datasets.load_dataset` (e.g., HuggingFace dataset `nab` or specific UCI repository URL with revision tag `v1.0.0`)
-- [ ] T006 [P] Implement `code/utils/fixation_detection.py` with I-VT (velocity threshold = 30 deg/s) and I-DT (dispersion = 100px) algorithms (CPU-optimized, no GPU dependencies). **Note**: These parameters (30 deg/s, 100px) are implementation defaults. You MUST expose them as configurable parameters in `code/config.yaml` to ensure reproducibility and alignment with the spec's 'configurable' nature.
+- [X] T005 [P] Implement `code/utils/data_loading.py` with functions to fetch eye-tracking data from verified sources using `datasets.load_dataset` (e.g., HuggingFace dataset `nab` or specific UCI repository URL with revision tag `v1.0.0`). **Constraint**: Must strictly adhere to the "Verified datasets" block in plan.md (University of Dundee/Boston University sources). Do NOT use generic "verified sources" descriptions. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T006 [P] Implement `code/utils/fixation_detection.py` with I-VT and I-DT algorithms (CPU-optimized). **Config Requirement**: The code MUST attempt to read parameters from `code/config.yaml` first. If the keys `ivt_velocity_threshold` or `idt_dispersion_threshold` are missing, it MUST fall back to the hardcoded defaults of 30 deg/s and 100px respectively. The task description must explicitly state this fallback logic to avoid ambiguity.
 - [ ] T007 [P] Create base data models in `code/models/`: `Participant` (id, crt_score, random_intercept), `Stimulus` (id, headline_text, valence, random_intercept), `GazeEvent` (timestamp, duration, roi, participant_id)
 - [ ] T008 Configure logging infrastructure to capture data quality warnings and exclusion counts
 - [ ] T009 Setup environment configuration and random seed management for reproducibility
-- [ ] T022 [P] [US2] Implement `code/05_synthetic_data_generator.py` to generate the unified dataset for simulation. **Mandatory Requirements**: 
-    1. Generate `belief_rating` (Likert scale, Uniform distribution) and `cognitive_reflection_score` (Normal distribution, mean=5, std=1.5).
-    2. **Immediately apply** outlier capping to `cognitive_reflection_score` at the 1st and 99th percentiles within this script before saving.
-    3. Merge with `headline_text` from the raw dataset (fetched in T005).
-    4. Generate ground truth variables for the **three-way interaction** with specific coefficients: `fixation_coef=0.5`, `valence_coef=0.3`, `crt_coef=-0.2`, `interaction_coef=0.1`.
-    5. **DO NOT** generate `confidence_assignment_time` or any four-way interaction variables.
-    6. Output `data/derived/synthetic_unified_data.csv`.
-    7. **Note**: This task consolidates the logic previously split between T022 and T023. Capping is performed atomically within this generation step to ensure data integrity before downstream consumption.
+- [X] T022 [P] [US2] Implement `code/05_synthetic_data_generator.py` to generate the unified synthetic dataset for simulation. **Mandatory Requirements**:
+ 1. Generate `belief_rating` (Likert scale, Uniform distribution) and `cognitive_reflection_score` (Normal distribution, mean=5, std=1.5).
+ 2. Generate ground truth variables for the **three-way interaction** with specific coefficients: `fixation_coef=0.5`, `valence_coef=0.3`, `crt_coef=-0.2`, `interaction_coef=0.1`.
+ 3. **DO NOT** generate `confidence_assignment_time` or any four-way interaction variables.
+ 4. Output `data/derived/synthetic_raw_data.csv`.
+ 5. **Note**: This task is strictly for raw synthetic generation. Outlier capping and merging are handled in T023.
+- [ ] T023 [US2] Implement `code/03_data_merge.py` to merge the Gaze stream (`data/derived/preprocessed_gaze.csv` from T018) and the Synthetic stream (`data/derived/synthetic_raw_data.csv` from T022). **Logic**:
+ 1. Join on `participant_id` and `headline_id`.
+ 2. **Immediately apply** outlier capping to `cognitive_reflection_score` at the 1st and 99th percentiles within this script.
+ 3. Output `data/derived/merged_dataset.csv`.
+ 4. **Dependency**: Must run after T018 (Preprocessed Gaze) and T022 (Synthetic Gen).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,14 +89,14 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data ingestion output schema in `tests/contract/test_ingestion_schema.py`
-- [ ] T011 [P] [US1] Integration test for I-VT algorithm on sample noisy data in `tests/integration/test_ivt_preprocessing.py`
+- [X] T010 [P] [US1] Contract test for data ingestion output schema in `tests/contract/test_ingestion_schema.py`
+- [X] T011 [P] [US1] Integration test for I-VT algorithm on sample noisy data in `tests/integration/test_ivt_preprocessing.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/01_ingest_and_preprocess.py` to load raw CSV/Parquet eye-tracking data
-- [ ] T013 [P] [US1] Implement I-VT fixation detection logic in `code/utils/fixation_detection.py` (minimum duration threshold set to a configurable value)
-- [ ] T014 [US1] Implement data quality filter in `code/01_ingest_and_preprocess.py` to retain participants with <20% data loss (exclude those with >20% loss)
+- [X] T012 [P] [US1] Implement `code/01_ingest_and_preprocess.py` to load raw CSV/Parquet eye-tracking data
+- [X] T013 [P] [US1] Implement I-VT fixation detection logic in `code/utils/fixation_detection.py` (minimum duration threshold set to a configurable value)
+- [X] T014 [US1] Implement data quality filter in `code/01_ingest_and_preprocess.py` to retain participants with <20% data loss (exclude those with >20% loss)
 - [ ] T015 [US1] Implement ROI mapping logic to assign gaze points to "source attribution" and other bounding boxes
 - [ ] T016 [US1] Handle edge cases: exclude trials with missing ROI coordinates and log exclusion counts
 - [ ] T017 [US1] Handle edge cases: treat zero fixations on source ROI as valid data (duration=0) rather than missing
@@ -116,13 +119,13 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/02_valence_calculation.py` using NRC Emotion Lexicon with automatic fallback to VADER if coverage < 50%. **Input**: `data/derived/synthetic_unified_data.csv` (column `headline_text`) generated by T022. **Output**: `data/derived/valence_scores.csv`. **Depends on**: T022 completion. **Logic**: Calculate NRC coverage; if < 50%, switch to VADER and log the switch (FR-003).
-- [ ] T024 [US2] Implement `code/03_mixed_effects_model.py` using `statsmodels` for mixed-effects regression (random intercepts for Participant and Headline). **Input**: `data/derived/valence_scores.csv` (T021) and `data/derived/preprocessed_gaze.csv` (T018). **Output**: `data/derived/regression_results.csv`. **Model Formula**: `belief_rating ~ fixation_duration * valence * crt + (1|participant_id) + (1|headline_id)`. **Depends on**: T021.
+- [ ] T021 [US2] Implement `code/02_valence_calculation.py` using NRC Emotion Lexicon with automatic fallback to VADER if coverage < 50%. **Input**: `data/derived/merged_dataset.csv` (column `headline_text`) generated by T023. **Output**: `data/derived/valence_scores.csv`. **Depends on**: T023 completion. **Logic**: Calculate NRC coverage defined as the percentage of unique words in the headline that match the NRC lexicon. If coverage < 50%, switch to VADER and log the switch (FR-003).
+- [ ] T024 [US2] Implement `code/04_regression_analysis.py` using `statsmodels` for mixed-effects regression (random intercepts for Participant and Headline). **Input**: `data/derived/valence_scores.csv` (T021) and `data/derived/preprocessed_gaze.csv` (T018). **Output**: `data/derived/regression_results.csv`. **Model Formula**: `belief_rating ~ fixation_duration * valence * crt + (1|participant_id) + (1|headline_id)`. **Depends on**: T021.
 - [ ] T025 [US2] Implement calculation of the three-way interaction term (fixation × valence × cognitive reflection) and verify it matches the ground truth from T022.
 - [ ] T026 [US2] Apply multiple-comparison correction (Bonferroni or Holm-Bonferroni) for hypothesis testing.
 - [ ] T027 [US2] Generate `data/derived/regression_results.csv` containing coefficients, p-values, CIs, and interaction terms.
-- [ ] T028 [US2] Ensure the final report frames findings as causal per FR-006 regarding the simulated mechanism. **Instruction**: Generate a 'Causal Framing Statement' that explicitly states: "Within the controlled experimental design of this synthetic simulation, the data supports a causal link between [variables]. However, this finding is a validation of the pipeline logic and does not constitute empirical causal proof until processed against real-world data." The report MUST assert the causal link within the controlled experimental design (synthetic ground truth) without weakening disclaimers that negate the causal framing, while strictly adhering to the Outcome-Neutral Validation principle.
-- [ ] T037 [US2] [P] Verify that the direction and significance of the main effect (three-way interaction) remain consistent using the capped `cognitive_reflection_score` data generated in T022. **Input**: `data/derived/regression_results.csv` (T027). **Note**: This task explicitly validates the three-way interaction only; no four-way interactions or `confidence_assignment_time` variables are involved. **Dependency**: Requires T022 completion to ensure capped data is used.
+- [ ] T028 [US2] Ensure the final report frames findings as causal per FR-006 regarding the simulated mechanism **AND** adheres to Outcome-Neutral Validation. **Instruction**: If the p-value for the interaction term is >= 0.05, the script MUST trigger `code/09_null_result_report.py` to generate a formal 'Null Result Report' treating this as a primary finding. If p < 0.05, generate a 'Causal Framing Statement' that explicitly states: "Within the controlled experimental design of this synthetic simulation, the data supports a causal link between [variables]." The report MUST assert the causal link within the controlled experimental design (synthetic ground truth) without weakening disclaimers that negate the causal framing, while strictly adhering to the Outcome-Neutral Validation principle by prioritizing the Null Result Report for non-significant findings.
+- [ ] T037 [US2] [P] Verify that the direction and significance of the main effect (three-way interaction) remain consistent using the capped `cognitive_reflection_score` data generated in T023. **Input**: `data/derived/regression_results.csv` (T027). **Note**: This task explicitly validates the three-way interaction only; no four-way interactions or `confidence_assignment_time` variables are involved. **Dependency**: Requires T023 completion to ensure capped data is used.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -141,8 +144,8 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [ ] T031 [P] [US3] Implement `code/_robustness_analysis.py` to sweep fixation duration cutoffs {50ms, 100ms, 150ms}.
-- [ ] T032 [US3] Implement robustness analysis to sweep the **fixation duration cutoff** (50ms, 100ms, 150ms) and measure the resulting variation in the mean belief rating. **Input**: `data/derived/preprocessed_gaze.csv` (T018) and `data/derived/synthetic_unified_data.csv` (T022). **Action**: Re-run the regression model logic (T024) with each new threshold value. **Output**: `data/derived/robustness_report.csv`. **Note**: This task strictly addresses SC-003 (threshold sweep) and does not involve sweeping significance levels (alpha).
+- [ ] T031 [P] [US3] Implement `code/robustness_analysis.py` to sweep fixation duration cutoffs across a range of values to evaluate sensitivity.
+- [ ] T032 [US3] Implement robustness analysis to sweep the **fixation duration cutoff** (50ms, 100ms, 150ms) and measure the resulting variation in the mean belief rating. **Input**: `data/derived/preprocessed_gaze.csv` (T018), `data/derived/merged_dataset.csv` (T023), `data/derived/valence_scores.csv` (T021), and the regression logic from T024. **Action**: Re-run the regression model logic (T024) with each new threshold value. **Output**: `data/derived/robustness_report.csv`. **Note**: This task strictly addresses SC-003 (threshold sweep) and does not involve sweeping significance levels (alpha). **Dependency**: Must depend on T024 and T021 to ensure correct logic and data are used.
 - [ ] T033 [US3] Implement controls for headline length in the regression model to rule out confounding.
 - [ ] T034 [US3] Generate `data/derived/robustness_report.csv` showing variation in mean belief rating across thresholds.
 - [ ] T038 [US3] [P] Verify that the direction and significance of the main effect remain consistent across threshold variations. **Note**: This task focuses on threshold stability.
@@ -170,16 +173,16 @@ Examples of foundational tasks (adjust based on your project):
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - **Critical**: T022 (Synthetic Data) must complete before any US2 or US3 tasks.
+ - **Critical**: T022 (Synthetic Data) and T023 (Data Merge) must complete before any US2 or US3 tasks.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires preprocessed data from US1. **Note**: T022 (Synthetic Data) must be completed before T021 (Valence) and T024 (Model) can execute. T021 depends on T022. T024 depends on T021.
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires preprocessed data from US1. **Note**: T022 (Synthetic Data) must be completed before T023 (Merge). T023 must be completed before T021 (Valence) and T024 (Model). T021 depends on T023. T024 depends on T021.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires results from US2
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
@@ -224,9 +227,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -242,10 +245,9 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must be feasible on CPU-only CI with limited core counts and memory resources (no GPU).. No 8-bit quantization or large model loading.
 - **Data Integrity**: All synthetic data generation must use pinned random seeds and be documented as "Simulation Mode" to distinguish from real empirical claims.
-- **Scope Constraint**: Strictly implement the three-way interaction (FR-004). Do not implement four-way interactions or `confidence_assignment_time` variables unless explicitly authorized by a spec amendment.
-- **Causal Framing**: Adhere to FR-006 by framing findings as causal within the experimental design, without weakening disclaimers.
-- **Task Consolidation**: Task T023 has been removed. Its functionality (outlier capping) is now integrated directly into T022 to ensure atomic data generation and prevent data leakage.
-- **Task Ordering**: T021 explicitly depends on T022 to ensure headline text is available. T037 explicitly depends on T022 to ensure capped data is used.
-- **Phase 6 Removal**: The "WYSIATI Mechanism" phase (Phase 6) and associated Tasks T051-T054 have been removed as they introduced unapproved four-way interactions and variables not defined in `spec.md` (FR-004). All WYSIATI-related analysis is now contained within the three-way interaction verification in US2 (T037).
+- **Scope Constraint**: Strictly implement the three-way interaction (FR-004). Do NOT implement four-way interactions or `confidence_assignment_time` variables. Phase 6 has been removed.
+- **Causal Framing**: Adhere to FR-006 by framing findings as causal within the experimental design, without weakening disclaimers, while prioritizing Null Result Reports for non-significant findings.
+- **Task Consolidation**: Task T023 (Data Merge) has been restored to ensure the producer-consumer chain is valid. T022 is now strictly for generation; T023 handles merge and capping.
+- **Task Ordering**: T021 explicitly depends on T023. T037 explicitly depends on T023. T032 explicitly depends on T024 and T021.
 - **Robustness Correction**: T032 has been corrected to re-run the regression model with new thresholds using raw data, rather than attempting to derive variation from static results.
 - **Alpha Sweep Removal**: Tasks T035 and T036 have been removed as the alpha sweep was not authorized by the spec (FR-005).

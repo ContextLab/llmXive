@@ -1,0 +1,490 @@
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 2
+  canonical: cognitive_reflection_score generated with mean 5 and std 1.5
+  claim_id: c_3a023f8d
+  context: Generate belief_rating (Likert scale, Uniform distribution) and cognitive_reflection_score
+    (Normal distribution, mean=5, std=1.5).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate cognitive_reflection_score (Normal distribution, mean=5, std=1.5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:51:53Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 4
+  canonical: 'three-way interaction coefficients: fixation 0.5, valence 0.3, crt -0.2,
+    interaction 0.1'
+  claim_id: c_0322f863
+  context: 'Generate ground truth variables for the three-way interaction with specific
+    coefficients: fixation_coef=0.5, valence_coef=0.3, crt_coef=-0.2, interaction_coef=0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate ground truth variables for the three-way interaction with specific
+    coefficients: fixation_coef=0.5, valence_coef=0.3, crt_coef=-0.2, interaction_coef=0.1.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:52:05Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 2
+  canonical: outlier capping applied at 1st and 99th percentiles
+  claim_id: c_a72b270e
+  context: Immediately apply outlier capping to cognitive_reflection_score at the
+    1st and 99th percentiles within this script.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outlier_capping_applied_at_1st_and_99th_percentiles
+  kind: entity_fact
+  raw_text: Immediately apply outlier capping to cognitive_reflection_score at the
+    1st and 99th percentiles within this script.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:52:32Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: pipeline verification requires <20% data loss
+  claim_id: c_613a0ae0
+  context: The pipeline can be fully tested by running the preprocessing script on
+    a provided sample dataset and verifying that the output contains only participants
+    with <20% data loss and that fixation events are correctly timestamped and mapped
+    to Regions of Interest (ROIs).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline can be fully tested by running the preprocessing script on
+    a provided sample dataset and verifying that the output contains only participants
+    with <20% data loss.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:52:32Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: retain participants with <20% data loss
+  claim_id: c_39d3991c
+  context: Implement data quality filter in code/01_ingest_and_preprocess.py to retain
+    participants with <20% data loss (exclude those with >20% loss).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement data quality filter in code/01_ingest_and_preprocess.py to retain
+    participants with <20% data loss (exclude those with >20% loss).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:52:53Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: I-VT minimum duration threshold configurable
+  claim_id: c_e33cb54b
+  context: Implement I-VT fixation detection logic in code/utils/fixation_detection.py
+    (minimum duration threshold set to a configurable value)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/I-VT_minimum_duration_threshold_configurable
+  kind: entity_fact
+  raw_text: Implement I-VT fixation detection logic in code/utils/fixation_detection.py
+    (minimum duration threshold set to a configurable value).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:53:21Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: NRC Emotion Lexicon coverage threshold 50%
+  claim_id: c_d5df91c9
+  context: Implement code/02_valence_calculation.py using NRC Emotion Lexicon with
+    automatic fallback to VADER if coverage < 50%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/02_valence_calculation.py using NRC Emotion Lexicon with
+    automatic fallback to VADER if coverage < 50%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:53:38Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: NRC coverage calculated as percentage of unique words matching lexicon
+  claim_id: c_d74bf46e
+  context: Calculate NRC coverage defined as the percentage of unique words in the
+    headline that match the NRC lexicon. If coverage < 50%, switch to VADER and log
+    the switch (FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NRC_coverage_calculated_as_percentage_of_unique_words_matchi
+  kind: entity_fact
+  raw_text: Calculate NRC coverage defined as the percentage of unique words in the
+    headline that match the NRC lexicon.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:53:57Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: multiple-comparison correction using Bonferroni or Holm-Bonferroni
+  claim_id: c_9da935b1
+  context: Apply multiple-comparison correction (Bonferroni or Holf-Bonferroni) for
+    hypothesis testing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple-comparison_correction_using_Bonferroni_or_Holm-Bonf
+  kind: entity_fact
+  raw_text: Apply multiple-comparison correction (Bonferroni or Holm-Bonferroni) for
+    hypothesis testing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:54:24Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: p-value >= 0.05 triggers Null Result Report
+  claim_id: c_99339f66
+  context: If the p-value for the interaction term is >= 0.05, the script MUST trigger
+    code/09_null_result_report.py to generate a formal 'Null Result Report' treating
+    this as a primary finding.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the p-value for the interaction term is >= 0.05, the script MUST trigger
+    code/09_null_result_report.py to generate a formal 'Null Result Report' treating
+    this as a primary finding.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:54:53Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 3
+  canonical: fixation duration cutoffs swept at 50ms, 100ms, 150ms
+  claim_id: c_07352397
+  context: Implement robustness analysis to sweep the fixation duration cutoff (50ms,
+    100ms, 150ms) and measure the resulting variation in the mean belief rating.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixation_duration_cutoffs_swept_at_50ms,_100ms,_150ms
+  kind: entity_fact
+  raw_text: Implement robustness analysis to sweep the fixation duration cutoff (50ms,
+    100ms, 150ms) and measure the resulting variation in the mean belief rating.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:55:25Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: performance optimization target <300 minutes runtime
+  claim_id: c_d1594d6b
+  context: Performance optimization across all stories (ensure <300 min runtime)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure <300 min runtime for performance optimization across all stories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:55:25Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 2
+  canonical: cognitive_reflection_score distribution mean 5 std 1.5
+  claim_id: c_fdafde9a
+  context: Generate belief_rating (Likert scale, Uniform distribution) and cognitive_reflection_score
+    (Normal distribution, mean=5, std=1.5).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate cognitive_reflection_score with Normal distribution, mean=5,
+    std=1.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:13:25Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 4
+  canonical: three-way interaction coefficients fixation 0.5 valence 0.3 crt -0.2
+    interaction 0.1
+  claim_id: c_2292e4c8
+  context: 'Generate ground truth variables for the three-way interaction with specific
+    coefficients: fixation_coef=0.5, valence_coef=0.3, crt_coef=-0.2, interaction_coef=0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate ground truth variables for the three-way interaction with specific
+    coefficients: fixation_coef=0.5, valence_coef=0.3, crt_coef=-0.2, interaction_coef=0.1.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:13:25Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: retention threshold 20% data loss
+  claim_id: c_b508a404
+  context: Implement data quality filter in code/01_ingest_and_preprocess.py to retain
+    participants with <20% data loss (exclude those with >20% loss)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Retention_threshold_20%25_data_loss
+  kind: magnitude
+  raw_text: Retain participants with less than 20% data loss.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:13:52Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 2
+  canonical: outlier capping percentiles 1 and 99
+  claim_id: c_05b92455
+  context: Immediately apply outlier capping to cognitive_reflection_score at the
+    1st and 99th percentiles within this script.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply outlier capping to cognitive_reflection_score at the 1st and 99th
+    percentiles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:14:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: NRC coverage threshold 50% switch to VADER
+  claim_id: c_2fc22f72
+  context: Implement code/02_valence_calculation.py using NRC Emotion Lexicon with
+    automatic fallback to VADER if coverage < 50%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/NRC_coverage_threshold_50%25_switch_to_VADER
+  kind: magnitude
+  raw_text: Switch to VADER if NRC Emotion Lexicon coverage is less than 50%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:14:45Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 3
+  canonical: fixation duration cutoffs 50ms 100ms 150ms
+  claim_id: c_9b051587
+  context: Implement robustness analysis to sweep the fixation duration cutoff (50ms,
+    100ms, 150ms) and measure the resulting variation in the mean belief rating.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixation_duration_cutoffs_50ms_100ms_150ms
+  kind: entity_fact
+  raw_text: Sweep the fixation duration cutoff using values 50ms, 100ms, and 150ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:15:17Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: runtime performance threshold 300 minutes
+  claim_id: c_3e8c8c60
+  context: Performance optimization across all stories (ensure <300 min runtime)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_performance_threshold_300_minutes
+  kind: causal
+  raw_text: Ensure performance optimization across all stories results in less than
+    300 minutes runtime.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:15:20Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 2
+  canonical: cognitive_reflection_score generated with Normal distribution mean=5
+    std=1.5
+  claim_id: c_374b91ff
+  context: 'Mandatory Requirements for T022: Generate belief_rating and cognitive_reflection_score
+    with specific distributions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate cognitive_reflection_score (Normal distribution, mean=5, std=1.5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:17:43Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 4
+  canonical: three-way interaction coefficients fixation=0.5 valence=0.3 crt=-0.2
+    interaction=0.1
+  claim_id: c_2698857e
+  context: 'Mandatory Requirements for T022: Generate ground truth variables for the
+    three-way interaction with specific coefficients.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate ground truth variables for the three-way interaction with specific
+    coefficients: fixation_coef=0.5, valence_coef=0.3, crt_coef=-0.2, interaction_coef=0.1.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:17:43Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 2
+  canonical: fixation detection fallback defaults 30 deg/s and 100px
+  claim_id: c_b7c00906
+  context: 'T006: Config Requirement for fixation_detection.py parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If keys ivt_velocity_threshold or idt_dispersion_threshold are missing,
+    fallback to hardcoded defaults of 30 deg/s and 100px respectively.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:18:00Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: data quality filter exclude participants with >20% data loss
+  claim_id: c_6d4aa186
+  context: 'T014: Implement data quality filter in code/01_ingest_and_preprocess.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter participants with <20% data loss (exclude those with >20% loss).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:18:00Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: switch to VADER if NRC coverage < 50%
+  claim_id: c_d547d41e
+  context: 'T021: Implement valence calculation with automatic fallback to VADER if
+    coverage < 50%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to VADER if NRC Emotion Lexicon coverage is < 50%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:18:00Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: mixed-effects regression model formula belief_rating fixation_duration
+    valence crt
+  claim_id: c_19e10cb8
+  context: 'T024: Model Formula for mixed-effects regression.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Model Formula: belief_rating ~ fixation_duration * valence * crt + (1|participant_id)
+    + (1|headline_id).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:18:24Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: trigger Null Result Report if interaction p-value >= 0.05
+  claim_id: c_e90882b3
+  context: 'T028: Instruction for report generation based on p-value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the p-value for the interaction term is >= 0.05, trigger generation
+    of a formal 'Null Result Report'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:18:50Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 3
+  canonical: robustness analysis sweep fixation duration cutoffs 50ms 100ms 150ms
+  claim_id: c_a0529c71
+  context: 'T032: Implement robustness analysis to sweep fixation duration cutoff.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Robustness_analysis_sweep_fixation_duration_cutoffs_50ms_100
+  kind: entity_fact
+  raw_text: Sweep the fixation duration cutoff (50ms, 100ms, 150ms) and measure the
+    resulting variation in the mean belief rating.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:19:20Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: performance optimization runtime < 300 min
+  claim_id: c_e1191502
+  context: 'T047: Performance optimization across all stories.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure <300 min runtime across all stories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:19:21Z'

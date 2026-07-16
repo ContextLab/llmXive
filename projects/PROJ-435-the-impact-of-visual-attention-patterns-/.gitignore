@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+venv/
+ENV/
+.venv/
+.env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Data (except .gitkeep files)
+data/**/*.csv
+data/**/*.parquet
+data/**/*.json
+data/**/*.pkl
+!data/**/.gitkeep
+
+# Figures
+figures/**/*.png
+figures/**/*.pdf
+figures/**/*.svg
+!figures/**/.gitkeep
+
+# State and logs
+state/*.log
+state/*.json
+!state/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
