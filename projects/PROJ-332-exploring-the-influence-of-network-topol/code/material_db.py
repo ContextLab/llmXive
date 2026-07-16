@@ -1,58 +1,64 @@
 import logging
-from typing import Dict, Optional, Any, Union
+from typing import Dict, Optional, Any, Union, List
 
-# NIST default thermal conductivities in W/(m·K)
+logger = logging.getLogger(__name__)
+
+# NIST Default Thermal Conductivities (W/(m·K))
 NIST_DEFAULTS: Dict[str, float] = {
     "Si": 149.0,
     "CNT": 3500.0,
     "Ag": 429.0,
-    "Au": 318.0,
+    "Au": 318.0
 }
 
-logger = logging.getLogger(__name__)
-
 def get_material_conductivity(
-    material: str,
-    provided_k: Optional[float] = None,
-    **kwargs: Any
+    material_name: Union[str, Any], 
+    bulk_conductivity: Optional[float] = None
 ) -> float:
     """
-    Retrieve thermal conductivity for a given material.
-
-    Signature compatibility:
-      1. get_material_conductivity(material)
-      2. get_material_conductivity(material, provided_k)
-      3. get_material_conductivity(material, provided_k, **kwargs)
-
-    Logic:
-      - If 'provided_k' is not None, use it (user override).
-      - Else if material is in NIST_DEFAULTS, use the default.
-      - Else raise a clear error.
-
+    Get thermal conductivity for a material.
+    
+    Supports three call patterns:
+    1. get_material_conductivity(material_name) -> looks up NIST or raises
+    2. get_material_conductivity(material_name, bulk_conductivity) -> uses provided value
+    3. get_material_conductivity(config_obj) -> extracts material name and optional bulk_conductivity
+    
     Args:
-        material: Name of the material (e.g., "Si", "Ag").
-        provided_k: Optional explicit conductivity value to use.
-
+        material_name: String name, or object with .material attribute
+        bulk_conductivity: Optional override value
+        
     Returns:
-        Thermal conductivity in W/(m·K).
-
+        Thermal conductivity in W/(m·K)
+        
     Raises:
-        ValueError: If material is not found and no value is provided.
+        ValueError: If material not found and no override provided
     """
-    if provided_k is not None:
-        logger.debug(f"Using provided conductivity {provided_k} for {material}")
-        return float(provided_k)
-
-    if material in NIST_DEFAULTS:
-        val = NIST_DEFAULTS[material]
-        logger.debug(f"Using NIST default {val} for {material}")
+    # Handle config object case
+    if hasattr(material_name, 'material'):
+        # It's a config object
+        name = material_name.material
+        override = getattr(material_name, 'bulk_conductivity', None)
+        if bulk_conductivity is None and override is not None:
+            bulk_conductivity = override
+    elif isinstance(material_name, str):
+        name = material_name
+    else:
+        raise ValueError(f"Invalid material argument type: {type(material_name)}")
+    
+    # If override provided, use it
+    if bulk_conductivity is not None:
+        logger.debug(f"Using provided conductivity {bulk_conductivity} for {name}")
+        return float(bulk_conductivity)
+    
+    # Look up in NIST
+    if name in NIST_DEFAULTS:
+        val = NIST_DEFAULTS[name]
+        logger.debug(f"Using NIST default {val} for {name}")
         return val
+    
+    # Not found
+    raise ValueError(f"Material {name} not found in local store or NIST defaults; please provide value in W/(m·K).")
 
-    raise ValueError(
-        f"Material {material} not found in local store or NIST defaults; "
-        "please provide value in W/(m·K)."
-    )
-
-def list_available_materials() -> list:
-    """Return a list of material names available in the NIST defaults."""
+def list_available_materials() -> List[str]:
+    """Return list of available material names."""
     return list(NIST_DEFAULTS.keys())

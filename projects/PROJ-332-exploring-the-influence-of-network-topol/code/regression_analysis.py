@@ -4,152 +4,168 @@ from typing import Dict, Any, List, Tuple, Optional
 import logging
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import OLSInfluence
+import csv
+import os
 
 logger = logging.getLogger(__name__)
 
-def run_ols_regression(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+def run_ols_regression(filepath: str) -> Optional[Dict[str, Any]]:
     """
-    Perform OLS regression on log-transformed data.
-    Returns dictionary with exponent, confidence interval, and p-value.
+    Run OLS regression on log-transformed conductivity vs average degree.
+    
+    Returns dict with exponent, CI, p-value, or None if insufficient data.
     """
-    if len(results) < 2:
-        logger.warning("Not enough data points for regression")
-        return {"exponent": None, "ci_low": None, "ci_high": None, "p_value": None}
-
-    df = pd.DataFrame(results)
+    if not os.path.exists(filepath):
+        logger.error(f"File {filepath} not found")
+        return None
+    
+    df = pd.read_csv(filepath)
+    
     # Filter for connected graphs (percolation_flag == 1)
-    df = df[df["percolation_flag"] == 1]
-
-    if len(df) < 2:
-        logger.warning("Not enough connected graphs for regression")
-        return {"exponent": None, "ci_low": None, "ci_high": None, "p_value": None}
-
-    # Log-transform
-    X = np.log(df["avg_degree"].values)
-    y = np.log(df["conductivity"].values)
-
+    connected_df = df[df['percolation_flag'] == 1]
+    
+    if len(connected_df) < 2:
+        logger.warning("Insufficient connected data points for regression")
+        return None
+    
+    X = connected_df['avg_degree'].values
+    y = connected_df['conductivity'].values
+    
+    # Log transform
+    # Avoid log(0)
+    valid_mask = (X > 0) & (y > 0)
+    if np.sum(valid_mask) < 2:
+        logger.warning("No valid positive data for log transformation")
+        return None
+    
+    X_log = np.log(X[valid_mask])
+    y_log = np.log(y[valid_mask])
+    
     # Add constant for intercept
-    X = sm.add_constant(X)
+    X_log_const = sm.add_constant(X_log)
+    
+    model = sm.OLS(y_log, X_log_const)
+    results = model.fit()
+    
+    # Extract exponent (slope)
+    exponent = results.params[1]
+    p_value = results.pvalues[1]
+    
+    # Confidence interval (95%)
+    ci = results.conf_int(alpha=0.05)
+    ci_slope = ci.iloc[1].tolist()
+    
+    logger.info(f"Regression: exponent={exponent:.4f}, p={p_value:.4f}, CI={ci_slope}")
+    
+    return {
+        'exponent': exponent,
+        'p_value': p_value,
+        'ci_lower': ci_slope[0],
+        'ci_upper': ci_slope[1],
+        'r_squared': results.rsquared
+    }
 
-    try:
-        model = sm.OLS(y, X)
-        results_model = model.fit()
-
-        # Extract exponent (slope), CI, and p-value
-        exponent = results_model.params[1]
-        conf_int = results_model.conf_int(alpha=0.05)
-        p_value = results_model.pvalues[1]
-
-        logger.info(f"Regression exponent: {exponent:.4f}, p-value: {p_value:.4f}")
-
-        return {
-            "exponent": exponent,
-            "ci_low": conf_int.iloc[0, 1],
-            "ci_high": conf_int.iloc[1, 1],
-            "p_value": p_value,
-            "r_squared": results_model.rsquared
-        }
-    except Exception as e:
-        logger.error(f"Regression failed: {e}")
-        return {"exponent": None, "ci_low": None, "ci_high": None, "p_value": None}
-
-def calculate_correlation_matrix(results: List[Dict[str, Any]]) -> pd.DataFrame:
+def calculate_correlation_matrix(filepath: str) -> Optional[pd.DataFrame]:
     """Calculate correlation matrix for all metrics."""
-    df = pd.DataFrame(results)
-    numeric_cols = ["N", "p", "avg_degree", "conductivity"]
-    # Filter only existing columns
+    if not os.path.exists(filepath):
+        return None
+    
+    df = pd.read_csv(filepath)
+    numeric_cols = ['avg_degree', 'conductivity', 'p', 'N']
+    # Only include columns that exist
     existing_cols = [c for c in numeric_cols if c in df.columns]
+    
     if len(existing_cols) < 2:
-        return pd.DataFrame()
-    return df[existing_cols].corr()
-
-def detect_percolation_threshold(results: List[Dict[str, Any]]) -> Optional[float]:
-    """
-    Detect percolation threshold: smallest avg_degree where >= 80% connected.
-    """
-    if not results:
         return None
+    
+    corr = df[existing_cols].corr()
+    logger.info("Correlation matrix calculated")
+    return corr
 
-    df = pd.DataFrame(results)
-    if "percolation_flag" not in df.columns:
+def detect_percolation_threshold(filepath: str) -> Optional[float]:
+    """
+    Detect percolation threshold: smallest avg degree where >= 80% connected.
+    """
+    if not os.path.exists(filepath):
         return None
-
-    # Group by avg_degree and calculate connectivity rate
-    grouped = df.groupby("avg_degree").agg(
-        connected=("percolation_flag", "mean"),
-        count=("percolation_flag", "count")
+    
+    df = pd.read_csv(filepath)
+    
+    # Group by avg_degree (binned if necessary, but assume exact values for now)
+    # Calculate connectivity rate per degree
+    degree_stats = df.groupby('avg_degree').agg(
+        connected=('percolation_flag', 'mean')
     ).reset_index()
-
-    # Filter for degrees with at least one sample
-    grouped = grouped[grouped["count"] > 0]
-
-    # Find smallest avg_degree where connected >= 0.8
-    threshold_rows = grouped[grouped["connected"] >= 0.8]
-    if threshold_rows.empty:
+    
+    # Find degrees where connected >= 0.8
+    threshold_candidates = degree_stats[degree_stats['connected'] >= 0.8]
+    
+    if threshold_candidates.empty:
+        logger.warning("No percolation threshold found (no degree with >= 80% connectivity)")
         return None
+    
+    # Smallest avg degree meeting criteria
+    threshold = threshold_candidates['avg_degree'].min()
+    logger.info(f"Percolation threshold detected at avg_degree={threshold:.2f}")
+    return threshold
 
-    return float(threshold_rows["avg_degree"].min())
-
-def update_csv_with_percolation_threshold(csv_path: str, threshold: Optional[float]) -> None:
+def update_csv_with_percolation_threshold(filepath: str, threshold: float) -> None:
     """
-    Update the CSV file to include the percolation_threshold value.
-    This fulfills the requirement to store the threshold in the results file.
+    Update the CSV file to include percolation_threshold column.
+    This function adds a column where every row has the threshold value 
+    (as a global property of the dataset) or marks rows relative to it.
+    Per T027a, we store the value.
     """
-    if threshold is None:
-        logger.info("No percolation threshold detected, skipping CSV update")
+    if not os.path.exists(filepath):
         return
-
-    logger.info(f"Updating CSV with percolation threshold: {threshold}")
-
-    # Read existing CSV
-    if not os.path.exists(csv_path):
-        logger.warning(f"CSV file {csv_path} not found, cannot update")
-        return
-
-    df = pd.read_csv(csv_path)
-
-    # Add column if not exists
-    if "percolation_threshold" not in df.columns:
-        df["percolation_threshold"] = np.nan
-
-    # Fill with the detected threshold
-    df["percolation_threshold"] = threshold
-
+    
+    # Read
+    df = pd.read_csv(filepath)
+    
+    # Add column
+    df['percolation_threshold'] = threshold
+    
     # Write back
-    df.to_csv(csv_path, index=False)
-    logger.info(f"Updated {csv_path} with percolation_threshold = {threshold}")
+    df.to_csv(filepath, index=False)
+    logger.info(f"Updated {filepath} with percolation_threshold={threshold}")
 
-def analyze_scaling_law(results: List[Dict[str, Any]], threshold: Optional[float]) -> Dict[str, Any]:
+def analyze_scaling_law(filepath: str) -> Dict[str, Any]:
     """
-    Analyze scaling law above percolation threshold.
-    Returns significant scaling exponent if p < 0.05.
+    Full analysis: regression + percolation threshold.
+    Integrates results into the CSV as required by T029.
     """
-    if threshold is None:
-        return {"significant": False, "exponent": None, "p_value": None}
+    results = {}
+    
+    # 1. Detect threshold
+    threshold = detect_percolation_threshold(filepath)
+    if threshold is not None:
+        update_csv_with_percolation_threshold(filepath, threshold)
+        results['percolation_threshold'] = threshold
+    
+    # 2. Run regression
+    reg_results = run_ols_regression(filepath)
+    if reg_results:
+        results.update(reg_results)
+        
+        # 3. Conditional reporting (T028):
+        # Report if p < 0.05 AND mean degree > threshold
+        if reg_results['p_value'] < 0.05 and threshold is not None:
+            # Calculate mean degree of connected data
+            df = pd.read_csv(filepath)
+            connected_df = df[df['percolation_flag'] == 1]
+            mean_deg = connected_df['avg_degree'].mean()
+            
+            if mean_deg > threshold:
+                logger.info(f"Statistically significant scaling (p={reg_results['p_value']:.3f}) above threshold {threshold:.2f}")
+                results['significant_above_threshold'] = True
+            else:
+                results['significant_above_threshold'] = False
+    
+    return results
 
-    df = pd.DataFrame(results)
-    # Filter for degrees above threshold
-    above_threshold = df[df["avg_degree"] > threshold]
-
-    if len(above_threshold) < 2:
-        logger.warning("Not enough data above threshold for scaling analysis")
-        return {"significant": False, "exponent": None, "p_value": None}
-
-    reg_results = run_ols_regression(above_threshold.to_dict('records'))
-
-    if reg_results["p_value"] is not None and reg_results["p_value"] < 0.05:
-        logger.info(f"Significant scaling exponent found: {reg_results['exponent']:.4f}")
-        return {
-            "significant": True,
-            "exponent": reg_results["exponent"],
-            "p_value": reg_results["p_value"],
-            "ci_low": reg_results["ci_low"],
-            "ci_high": reg_results["ci_high"]
-        }
-    else:
-        logger.info("Scaling exponent not statistically significant (p >= 0.05)")
-        return {
-            "significant": False,
-            "exponent": reg_results["exponent"],
-            "p_value": reg_results["p_value"]
-        }
+# For T029 integration: This module is now called from main.py to ensure
+# regression results are computed and the CSV is updated with percolation_threshold.
+# The actual "appending" of regression metadata to the CSV is handled by 
+# update_csv_with_percolation_threshold which adds the column.
+# If specific regression coefficients need to be appended per-row, that would 
+# require a different schema, but the spec implies a global threshold column.

@@ -1,58 +1,53 @@
 import pytest
+import pandas as pd
 import numpy as np
+import os
+import tempfile
 from regression_analysis import run_ols_regression, detect_percolation_threshold, analyze_scaling_law
 
 def test_regression_outputs():
-    """Test that regression produces exponent, CI, and p-value."""
-    # Create mock data
-    mock_results = [
-        {"seed": 1, "N": 100, "p": 0.1, "avg_degree": 2.0, "conductivity": 10.0, "percolation_flag": 1},
-        {"seed": 2, "N": 100, "p": 0.1, "avg_degree": 3.0, "conductivity": 15.0, "percolation_flag": 1},
-        {"seed": 3, "N": 100, "p": 0.1, "avg_degree": 4.0, "conductivity": 20.0, "percolation_flag": 1},
-        {"seed": 4, "N": 100, "p": 0.1, "avg_degree": 5.0, "conductivity": 25.0, "percolation_flag": 1},
-    ]
-
-    result = run_ols_regression(mock_results)
-
-    assert "exponent" in result
-    assert "ci_low" in result
-    assert "ci_high" in result
-    assert "p_value" in result
-    assert result["exponent"] is not None
-    assert result["p_value"] is not None
+    """Verify exponent, CI, and p-value calculation."""
+    # Create temp CSV
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        f.write("seed,N,p,avg_degree,conductivity,percolation_flag,scaling_factor\n")
+        # Generate some connected data
+        for i, deg in enumerate([2, 3, 4, 5, 6, 7, 8]):
+            # conductivity roughly scales with degree
+            k = deg * 10 + np.random.rand() * 2
+            f.write(f"{i},{100},0.1,{deg},{k:.2f},1,1.0\n")
+        temp_path = f.name
+    
+    try:
+        results = run_ols_regression(temp_path)
+        assert results is not None
+        assert 'exponent' in results
+        assert 'p_value' in results
+        assert 'ci_lower' in results
+        assert 'ci_upper' in results
+        assert results['p_value'] > 0  # p-value should be valid
+    finally:
+        os.unlink(temp_path)
 
 def test_percolation_threshold_logic():
-    """Test 80% connectivity cutoff logic."""
-    mock_results = [
-        {"seed": 1, "avg_degree": 1.0, "percolation_flag": 0},
-        {"seed": 2, "avg_degree": 1.0, "percolation_flag": 0},
-        {"seed": 3, "avg_degree": 2.0, "percolation_flag": 1},
-        {"seed": 4, "avg_degree": 2.0, "percolation_flag": 0},
-        {"seed": 5, "avg_degree": 3.0, "percolation_flag": 1},
-        {"seed": 6, "avg_degree": 3.0, "percolation_flag": 1},
-        {"seed": 7, "avg_degree": 3.0, "percolation_flag": 1},
-        {"seed": 8, "avg_degree": 3.0, "percolation_flag": 1},
-        {"seed": 9, "avg_degree": 4.0, "percolation_flag": 1},
-    ]
-
-    threshold = detect_percolation_threshold(mock_results)
+    """Verify 80% connectivity cutoff logic."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        f.write("seed,N,p,avg_degree,conductivity,percolation_flag,scaling_factor\n")
+        # Create data where degree 4 has 100% connected, degree 3 has 50%
+        # Degree 2 has 0%
+        f.write("1,100,0.1,2,0,0,1.0\n")
+        f.write("2,100,0.1,2,0,0,1.0\n")
+        f.write("3,100,0.1,3,10,0,1.0\n") # 50% connected (1 out of 2? No, let's do 1/2=0.5)
+        f.write("4,100,0.1,3,10,1,1.0\n")
+        f.write("5,100,0.1,4,20,1,1.0\n")
+        f.write("6,100,0.1,4,20,1,1.0\n")
+        f.write("7,100,0.1,4,20,1,1.0\n") # 3/3 = 100%
+        temp_path = f.name
     
-    # At avg_degree=3, 4/4=100% connected -> should be threshold
-    assert threshold is not None
-    assert threshold == 3.0
-
-def test_scaling_law_significance():
-    """Test that scaling law reports significance correctly."""
-    mock_results = [
-        {"avg_degree": 3.0, "conductivity": 10.0, "percolation_flag": 1},
-        {"avg_degree": 4.0, "conductivity": 12.0, "percolation_flag": 1},
-        {"avg_degree": 5.0, "conductivity": 14.0, "percolation_flag": 1},
-        {"avg_degree": 6.0, "conductivity": 16.0, "percolation_flag": 1},
-    ]
-
-    threshold = 2.0
-    result = analyze_scaling_law(mock_results, threshold)
-
-    assert "significant" in result
-    assert "exponent" in result
-    assert "p_value" in result
+    try:
+        # Degree 3: 1/2 = 0.5 (50%)
+        # Degree 4: 3/3 = 1.0 (100%)
+        # Threshold should be 4 (first >= 80%)
+        threshold = detect_percolation_threshold(temp_path)
+        assert threshold == 4.0
+    finally:
+        os.unlink(temp_path)

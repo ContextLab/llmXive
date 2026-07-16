@@ -3,32 +3,31 @@ import csv
 import os
 from typing import Dict, Any, List
 
-def setup_logging(level: int = logging.INFO) -> logging.Logger:
-    """Setup logging configuration."""
-    logger = logging.getLogger()
-    logger.setLevel(level)
-    
-    # Console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    
-    if not logger.handlers:
-        logger.addHandler(ch)
-    
-    return logger
+def setup_logging(level: int = logging.INFO) -> None:
+    """Setup basic logging configuration."""
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler('simulation.log')
+        ]
+    )
 
-def write_csv_row(filepath: str, row: Dict[str, Any], fieldnames: List[str]) -> None:
-    """Write a single row to CSV, creating file if necessary."""
+def write_csv_row(filepath: str, row: Dict[str, Any]) -> None:
+    """Append a row to the CSV file."""
     file_exists = os.path.exists(filepath)
+    fieldnames = ['seed', 'N', 'p', 'avg_degree', 'conductivity', 'percolation_flag', 'scaling_factor']
     
     with open(filepath, 'a', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         if not file_exists:
             writer.writeheader()
-        writer.writerow(row)
+        
+        # Ensure all required fields are present
+        write_row = {k: row.get(k, '') for k in fieldnames}
+        writer.writerow(write_row)
 
-def format_error(error: Exception) -> str:
+def format_error(e: Exception) -> str:
     """Format exception for logging."""
-    return f"{type(error).__name__}: {str(error)}"
+    return f"{type(e).__name__}: {str(e)}"

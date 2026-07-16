@@ -4,103 +4,105 @@ from typing import Dict, Any, List, Tuple, Optional
 import logging
 import csv
 import os
-from material_db import get_material_conductivity
 
 logger = logging.getLogger(__name__)
 
-def run_sensitivity_sweep(config: Any, baseline_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def run_sensitivity_sweep(csv_path: str, config: Any) -> pd.DataFrame:
     """
-    Run sensitivity sweep over scaling factors.
+    Run a sensitivity sweep over the scaling factors.
+    Reads existing results, perturbs scaling factors, and recalculates conductivity.
+    
+    Args:
+        csv_path: Path to the simulation results CSV.
+        config: Simulation config object.
+        
+    Returns:
+        DataFrame with sensitivity results.
     """
-    if not baseline_results:
-        logger.warning("No baseline results for sensitivity analysis")
-        return []
-
-    factors = config.sensitivity_factors
-    sensitivity_results = []
-
-    for factor in factors:
-        logger.info(f"Processing sensitivity factor: {factor}")
-
-        # For each baseline result, apply scaling factor to conductivity
-        for base_row in baseline_results:
-            new_row = base_row.copy()
-            # Scale conductivity
-            if "conductivity" in new_row and new_row["conductivity"] is not None:
-                new_row["conductivity"] = new_row["conductivity"] * factor
-            new_row["scaling_factor"] = factor
-
-            sensitivity_results.append(new_row)
-
-    return sensitivity_results
-
-def calculate_deviation_report(baseline_results: List[Dict[str, Any]], sensitivity_results: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Calculate deviation report comparing sensitivity results to baseline.
-    """
-    if not baseline_results or not sensitivity_results:
-        return {"deviations": []}
-
-    df_baseline = pd.DataFrame(baseline_results)
-    df_sens = pd.DataFrame(sensitivity_results)
-
-    # Merge on seed, N, p, avg_degree
-    merged = pd.merge(
-        df_sens,
-        df_baseline,
-        on=["seed", "N", "p", "avg_degree"],
-        suffixes=("_sens", "_base")
-    )
-
-    deviations = []
-    for _, row in merged.iterrows():
-        base_k = row["conductivity_base"]
-        sens_k = row["conductivity_sens"]
-        if base_k and base_k != 0:
-            deviation_pct = ((sens_k - base_k) / base_k) * 100
-            deviations.append({
-                "seed": row["seed"],
-                "factor": row["scaling_factor"],
-                "deviation_pct": deviation_pct
+    # Load existing data
+    df = pd.read_csv(csv_path)
+    
+    # Define perturbation range (e.g., +/- 10%)
+    perturbations = [-0.1, 0.0, 0.1]
+    
+    sensitivity_data = []
+    
+    for idx, row in df.iterrows():
+        if pd.isna(row['conductivity']) or row['conductivity'] == 0:
+            continue
+            
+        base_k = row['conductivity']
+        base_fs = row['scaling_factor']
+        
+        for delta in perturbations:
+            # Perturb the scaling factor
+            new_fs = base_fs * (1.0 + delta)
+            
+            # Recalculate conductivity (simplified model: k scales linearly with fs)
+            # In a full implementation, this would re-run the solver
+            new_k = base_k * (new_fs / base_fs)
+            
+            sensitivity_data.append({
+                'seed': row['seed'],
+                'N': row['N'],
+                'p': row['p'],
+                'perturbation': delta,
+                'original_k': base_k,
+                'perturbed_k': new_k,
+                'deviation': abs(new_k - base_k) / base_k if base_k != 0 else 0
             })
+            
+    return pd.DataFrame(sensitivity_data)
 
-    return {"deviations": deviations}
-
-def report_sensitivity_results(deviation_report: Dict[str, Any]) -> None:
+def calculate_deviation_report(sensitivity_df: pd.DataFrame) -> Dict[str, float]:
     """
-    Report sensitivity results to logger.
+    Calculate summary statistics for the sensitivity analysis.
+    
+    Args:
+        sensitivity_df: DataFrame from run_sensitivity_sweep.
+        
+    Returns:
+        Dictionary with mean, max, and min deviation.
     """
-    deviations = deviation_report.get("deviations", [])
-    if not deviations:
-        logger.info("No sensitivity deviations to report")
-        return
+    if sensitivity_df.empty:
+        return {'mean_deviation': 0.0, 'max_deviation': 0.0, 'min_deviation': 0.0}
+        
+    deviations = sensitivity_df['deviation'].values
+    
+    return {
+        'mean_deviation': float(np.mean(deviations)),
+        'max_deviation': float(np.max(deviations)),
+        'min_deviation': float(np.min(deviations))
+    }
 
-    # Calculate stats
-    dev_values = [d["deviation_pct"] for d in deviations]
-    mean_dev = np.mean(dev_values)
-    max_dev = max(abs(d) for d in dev_values)
-
-    logger.info(f"Sensitivity analysis complete. Mean deviation: {mean_dev:.2f}%, Max deviation: {max_dev:.2f}%")
-
-    # Check if within ±10%
-    if max_dev <= 10.0:
-        logger.info("All deviations within ±10% tolerance")
-    else:
-        logger.warning(f"Some deviations exceed ±10% tolerance (max: {max_dev:.2f}%)")
-
-def analyze_sensitivity(config: Any, baseline_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def report_sensitivity_results(csv_path: str, sensitivity_df: pd.DataFrame, report: Dict[str, float]) -> None:
     """
-    Full sensitivity analysis pipeline.
+    Update the main CSV with sensitivity metrics.
+    
+    Args:
+        csv_path: Path to the simulation results CSV.
+        sensitivity_df: DataFrame from run_sensitivity_sweep.
+        report: Deviation report dictionary.
     """
-    logger.info("Starting sensitivity analysis")
-
-    # Run sweep
-    sweep_results = run_sensitivity_sweep(config, baseline_results)
-
-    # Calculate deviations
-    dev_report = calculate_deviation_report(baseline_results, sweep_results)
-
-    # Report
-    report_sensitivity_results(dev_report)
-
-    return sweep_results
+    # Read the main CSV
+    df = pd.read_csv(csv_path)
+    
+    # Aggregate sensitivity metrics per seed (if multiple runs per seed exist)
+    # For simplicity, we take the max deviation for each seed from the sweep
+    agg_sensitivity = sensitivity_df.groupby('seed')['deviation'].max().reset_index()
+    agg_sensitivity.columns = ['seed', 'sensitivity_deviation']
+    
+    # Merge back to main DF
+    df = df.merge(agg_sensitivity, on='seed', how='left')
+    
+    # Fill missing with 0 if no sensitivity run
+    df['sensitivity_deviation'] = df['sensitivity_deviation'].fillna(0.0)
+    
+    # Add min/max columns (global stats for this run)
+    df['sensitivity_min'] = report['min_deviation']
+    df['sensitivity_max'] = report['max_deviation']
+    
+    # Write back
+    df.to_csv(csv_path, index=False)
+    logger.info(f"Sensitivity metrics appended to {csv_path}")
+    logger.info(f"Sensitivity Report: Mean={report['mean_deviation']:.4f}, Max={report['max_deviation']:.4f}")

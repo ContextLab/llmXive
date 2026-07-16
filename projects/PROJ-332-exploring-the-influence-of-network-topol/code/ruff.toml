@@ -1,31 +1,33 @@
-target-version = "py311"
+# Ruff configuration for PROJ-332
 line-length = 88
-indent-width = 4
+target-version = "py311"
 
 [lint]
+# Enforce specific rules required by the project
 select = [
     "E",   # pycodestyle errors
     "F",   # Pyflakes
     "W",   # pycodestyle warnings
     "I",   # isort
-    "UP",  # pyupgrade
+    "N",   # pep8-naming
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "E402", # module level import not at top of file
-    "F401", # unused imports (allowed for __init__.py and flexibility)
-    "W293", # blank line contains whitespace (handled by black/formatting)
+    "E501", # Line too long (handled by black)
 ]
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]
+# Specific rule enforcement requested in T003b
+# E402: module level import not at top of file (enforced)
+# F401: imported but unused (enforced)
+# W293: blank line contains whitespace (enforced)
+extend-select = [
+    "E402",
+    "F401",
+    "W293",
+]
 
 [lint.isort]
-known-first-party = []
-force-single-line = true
+force-single-line = false
+lines-after-imports = 2
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.per-file-ignores]
+"tests/*" = ["F401"]
