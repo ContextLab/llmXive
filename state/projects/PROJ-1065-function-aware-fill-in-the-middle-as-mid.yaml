@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-16T01:40:28.782368Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1065-function-aware-fill-in-the-middle-as-mid
-last_run_id: null
+last_run_id: 3e1e4cf2-cd5f-4277-8da3-a24134ecb73d
 last_run_status: null
 points_paper: {}
 points_research: {}
