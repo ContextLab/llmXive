@@ -387,3 +387,91 @@ def test_generic_transient_keeps_full_retry_budget():
     with pytest.raises(TransientBackendError):
         _retry_with_backoff(fn, max_retries=4, base_delay_s=0.001)
     assert len(calls) == 5  # max_retries + 1
+
+
+def test_client_closed_request_is_transient():
+    """Regression (engine-failure #505): Dartmouth's gateway returns HTTP 499
+    'Client Closed Request' when an upstream proxy drops the connection before
+    the model responds — a textbook transient. Before the fix it fell through to
+    PermanentBackendError, crashing the plan stage and filing a spurious
+    engine-failure issue instead of riding out the flap."""
+    for txt in (
+        "Client Closed Request",
+        "PermanentBackendError: Client Closed Request",
+        "499 client closed request",
+    ):
+        assert _is_transient_error_text(txt), txt
+
+
+def test_auth_error_text_matches_gateway_reject_strings():
+    """The auth-error matcher recognizes the gateway's key-rejection strings
+    (both word orders) without over-matching unrelated errors."""
+    from llmxive.backends.dartmouth import _is_auth_error_text
+
+    for txt in (
+        "api key invalid!",          # Dartmouth gateway's exact string (#515-518)
+        "'API key invalid!'",
+        "invalid api key",
+        "authentication failed: 401 unauthorized",
+        "AuthenticationError: 401",
+    ):
+        assert _is_auth_error_text(txt.lower()), txt
+    for txt in (
+        "503 service unavailable",
+        "connection reset by peer",
+        "the model produced a malformed schema",
+    ):
+        assert not _is_auth_error_text(txt.lower()), txt
+
+
+def test_auth_flap_with_valid_key_is_transient(monkeypatch):
+    """Regression (engine-failure #515-518): the Dartmouth gateway transiently
+    rejected a VALID key ('API key invalid!') during a ~2h auth-service flap on
+    2026-07-06. When the catalog endpoint (same key + host) still ACCEPTS the key
+    — i.e. we cannot confirm the key is genuinely bad — the mid-run rejection is a
+    flap and must be TRANSIENT so the router aborts cleanly (BackendUnavailable)
+    and the project retries next tick, NOT a PermanentBackendError that files a
+    spurious engine-failure issue."""
+    from llmxive.backends import dartmouth
+
+    # Catalog accepts the key → NOT a genuine bad key → flap.
+    monkeypatch.setattr(dartmouth, "_gateway_rejects_key", lambda **_: False)
+    with pytest.raises(TransientBackendError):
+        dartmouth._raise_for_backend_error("'api key invalid!'", RuntimeError("x"))
+
+
+def test_genuine_bad_key_stays_permanent(monkeypatch):
+    """A GENUINELY bad/expired key is rejected by the catalog endpoint too
+    (401/403). That is a real config error — it must stay PermanentBackendError so
+    the run surfaces a loud, actionable engine-failure issue (Fail Fast), never a
+    silent retry-forever."""
+    from llmxive.backends import dartmouth
+
+    monkeypatch.setattr(dartmouth, "_gateway_rejects_key", lambda **_: True)
+    with pytest.raises(PermanentBackendError):
+        dartmouth._raise_for_backend_error("'api key invalid!'", RuntimeError("x"))
+
+
+def test_raise_for_backend_error_preserves_model_down_and_transient(monkeypatch):
+    """The centralized classifier keeps the existing precedence: a model-down
+    redirect → ModelDownError; a generic transient → TransientBackendError; an
+    unclassified non-auth error → PermanentBackendError (auth preflight is only
+    consulted for auth-shaped errors)."""
+    from llmxive.backends import dartmouth
+
+    # Auth preflight must NOT be consulted for non-auth errors.
+    def _boom(**_):  # pragma: no cover - must never run
+        raise AssertionError("_gateway_rejects_key consulted for a non-auth error")
+
+    monkeypatch.setattr(dartmouth, "_gateway_rejects_key", _boom)
+
+    with pytest.raises(ModelDownError):
+        dartmouth._raise_for_backend_error(
+            "302 moved temporarily → outage.dartmouth.edu", RuntimeError("x")
+        )
+    with pytest.raises(TransientBackendError):
+        dartmouth._raise_for_backend_error("503 service unavailable", RuntimeError("x"))
+    with pytest.raises(PermanentBackendError):
+        dartmouth._raise_for_backend_error(
+            "the model produced a malformed schema", RuntimeError("x")
+        )

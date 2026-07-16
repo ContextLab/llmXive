@@ -12,7 +12,7 @@ import os
 import random
 import time
 from collections.abc import Callable, Iterable
-from typing import Any, TypeVar
+from typing import Any, NoReturn, TypeVar
 
 from llmxive.backends.base import (
     BackendUnavailable,
@@ -249,6 +249,12 @@ _TRANSIENT_ERROR_MARKERS: tuple[str, ...] = (
     "not found", "no such model", "does not exist", "model_not_found",
     # Network-level transients:
     "temporary failure", "name resolution", "connection error",
+    # HTTP 499: an upstream proxy/gateway closed the connection before the model
+    # responded (Dartmouth returns this when the vLLM pod is slow to first-byte).
+    # A textbook transient — retrying/falling through to a peer recovers it.
+    # (engine-failure #505: was misclassified PermanentBackendError, crashing the
+    # plan stage and filing a spurious engine-failure issue.)
+    "client closed request", "499",
     # Connection dropped mid-stream while reading a large response (common when a
     # flaky endpoint streams a big planner/reviewer reply): requests
     # ChunkedEncodingError wrapping urllib3/http.client IncompleteRead, SSL EOF,
@@ -282,6 +288,124 @@ def _is_model_down_text(text: str) -> bool:
     """True if *text* names the maintenance/outage redirect (model is DOWN)."""
     low = text.lower()
     return any(marker in low for marker in _MODEL_DOWN_MARKERS)
+
+
+# Substrings that mark a Dartmouth failure as an AUTH rejection ("API key
+# invalid!", a 401/403). These are DELIBERATELY kept out of _TRANSIENT_ERROR_MARKERS
+# — an auth rejection is AMBIGUOUS: it can mean a genuinely bad/expired key (a real
+# config error → fail fast + loud) OR a transient auth-service flap that spuriously
+# rejects a VALID key (engine-failure #515-518: a ~2h Dartmouth flap on 2026-07-06).
+# The two are disambiguated at classification time by _gateway_rejects_key (a live
+# catalog-endpoint probe), NOT by substring — so _is_transient_error_text stays a
+# pure, over-match-free function.
+_AUTH_ERROR_MARKERS: tuple[str, ...] = (
+    "api key invalid", "invalid api key", "unauthorized", "authentication",
+    "401", "403", "not authenticated", "invalid_api_key", "authenticationerror",
+    "invalid authentication", "incorrect api key",
+)
+
+
+def _is_auth_error_text(text: str) -> bool:
+    """True if *text* (a lowercased exception str) names an auth/key rejection."""
+    low = text.lower()
+    return any(marker in low for marker in _AUTH_ERROR_MARKERS)
+
+
+# Process-cached result of the key-validity preflight. True = the gateway
+# DEFINITIVELY rejects the configured key (genuine bad/expired key). False/None =
+# accepted or indeterminate ("cannot confirm the key is bad"). Only a definitive
+# True is cached — an indeterminate probe (network/5xx/flap) is re-probed on the
+# next auth error rather than being frozen into a wrong verdict.
+_KEY_REJECTED_CACHE: bool | None = None
+
+
+def _catalog_get(key: str, *, timeout: float = 30.0):  # type: ignore[no-untyped-def]
+    """GET the Dartmouth chat catalog authenticated with *key*, returning the
+    ``requests.Response`` (the caller inspects status / raises). THE single place
+    the lazy ``requests`` import and the auth header live (Constitution I) — used
+    by both the free-model catalog fetch and the key-validity preflight."""
+    import requests  # type: ignore[import-untyped]  # no stubs; types-requests not installed
+
+    return requests.get(
+        _cloud_models_url(),
+        headers={"Authorization": f"Bearer {key}"},
+        timeout=timeout,
+    )
+
+
+def _gateway_rejects_key(*, force_refresh: bool = False) -> bool:
+    """True ONLY if the Dartmouth chat catalog endpoint DEFINITIVELY rejects the
+    configured key (HTTP 401/403) — i.e. the key is genuinely bad/expired.
+
+    The catalog uses the SAME key + host as chat completions, so it is an exact
+    proxy for "is this key accepted right now". Returns False on a 200 (accepted)
+    OR on ANY indeterminate outcome (missing ``requests``, network error, 5xx,
+    timeout, a flapping catalog): we only escalate an ``API key invalid!`` chat
+    error to PERMANENT when we can CONFIRM the key itself is rejected. This keeps a
+    transient auth-service flap (which spuriously 401s the chat path while the key
+    is actually valid) from being misread as a permanent config error.
+
+    Probes up to 3 times so a briefly-flapping catalog is not mistaken for a
+    genuine rejection (a real bad key 401s consistently; a flap recovers).
+    Definitive verdicts are cached for the process lifetime.
+    """
+    global _KEY_REJECTED_CACHE
+    if _KEY_REJECTED_CACHE is not None and not force_refresh:
+        return _KEY_REJECTED_CACHE
+    try:
+        _ensure_api_key_env()
+        key = os.environ.get("DARTMOUTH_CHAT_API_KEY")
+    except Exception:
+        return False
+    if not key:
+        # No key configured at all: genuinely unusable (a real config error).
+        _KEY_REJECTED_CACHE = True
+        return True
+    for attempt in range(3):
+        try:
+            resp = _catalog_get(key, timeout=15)
+        except Exception:
+            # Missing ``requests`` / network / timeout: indeterminate. Retry a
+            # couple times, then give up as "cannot confirm bad" (False) — the
+            # flap will clear next tick.
+            continue
+        status = resp.status_code
+        if status in (401, 403):
+            _KEY_REJECTED_CACHE = True
+            return True
+        if 200 <= status < 400:
+            _KEY_REJECTED_CACHE = False
+            return False
+        # 5xx / 429 / other: the gateway is flapping, not rejecting the key.
+        # Retry a couple times before concluding "cannot confirm bad".
+        if attempt < 2:
+            time.sleep(1.0)
+    return False
+
+
+def _raise_for_backend_error(text: str, exc: BaseException) -> NoReturn:
+    """Classify a raw Dartmouth/vLLM exception and raise the typed BackendError.
+
+    THE single classification chokepoint (Constitution I) — every chat-path
+    failure routes through here so the transient/model-down/auth/permanent
+    precedence is defined in exactly one place:
+
+    * maintenance/outage redirect → :class:`ModelDownError` (fast-fail to a peer)
+    * a listed transient marker    → :class:`TransientBackendError` (retry)
+    * an AUTH rejection whose key the catalog still ACCEPTS (or cannot be
+      confirmed bad) → :class:`TransientBackendError` — a transient auth-service
+      flap (engine-failure #515-518), NOT a config error. A genuinely bad key is
+      rejected by the catalog too (_gateway_rejects_key → True) and falls through
+      to PERMANENT below, surfacing a loud, actionable engine-failure issue.
+    * anything else                → :class:`PermanentBackendError` (no retry)
+    """
+    if _is_model_down_text(text):
+        raise ModelDownError(str(exc)) from exc
+    if _is_transient_error_text(text):
+        raise TransientBackendError(str(exc)) from exc
+    if _is_auth_error_text(text) and not _gateway_rejects_key():
+        raise TransientBackendError(str(exc)) from exc
+    raise PermanentBackendError(str(exc)) from exc
 
 
 def _retry_with_backoff(
@@ -427,13 +551,7 @@ def _fetch_cloud_models() -> list[dict[str, Any]]:
         raise PermanentBackendError(
             "DARTMOUTH_CHAT_API_KEY is not set (required by Dartmouth backend)"
         )
-    import requests  # type: ignore[import-untyped]  # no stubs; types-requests not installed
-
-    resp = requests.get(
-        _cloud_models_url(),
-        headers={"Authorization": f"Bearer {key}"},
-        timeout=30,
-    )
+    resp = _catalog_get(key, timeout=30)
     resp.raise_for_status()
     return list((resp.json() or {}).get("data") or [])
 
@@ -725,13 +843,10 @@ class DartmouthBackend(BaseBackend):
                     else:
                         exc = None  # type: ignore[assignment]
                 if exc is not None:
-                    if _is_model_down_text(text):
-                        # 302 → outage.dartmouth.edu: THIS model is in
-                        # maintenance — fail fast to a peer (don't burn retries).
-                        raise ModelDownError(str(exc)) from exc
-                    if _is_transient_error_text(text):
-                        raise TransientBackendError(str(exc)) from exc
-                    raise PermanentBackendError(str(exc)) from exc
+                    # Single classification chokepoint: model-down → transient →
+                    # auth-flap-vs-genuine-bad-key → permanent (see
+                    # _raise_for_backend_error).
+                    _raise_for_backend_error(text, exc)
 
             text_out = str(reply.content)
             # Reasoning models (Qwen 3.5, gpt-oss) consume completion-budget
