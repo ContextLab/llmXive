@@ -105,6 +105,14 @@ jobs:
       - name: Contract tests
         run: pytest tests/contract -v
 
+      # issue #1139 round 2: the offline unit suite was NOT run by ANY workflow,
+      # so unit regressions (e.g. the fix-loop task-reopen, fabrication-guard
+      # precision, intake throttle, and the research-wall crossing contract) never
+      # gated a PR. Run the FAST offline subset here (slow venv/build tests stay
+      # nightly), fail-fast BEFORE the real-LLM minutes.
+      - name: Unit tests (fast offline subset)
+        run: pytest tests/unit -q -m "not slow"
+
       # The real-call suite is the canonical Constitution III gate. The per-PR
       # gate runs the FAST subset (connectivity + backend fallback + the
       # reference/citation gates + personality liveness + Spec Kit scripts); the
