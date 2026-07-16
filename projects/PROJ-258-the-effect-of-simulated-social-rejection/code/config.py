@@ -1,31 +1,21 @@
-"""
-Configuration management for the project.
-Handles paths, random seeds, and alpha thresholds.
-"""
 import os
 import random
 from typing import Set, List
 
-# Random Seed for reproducibility
-RANDOM_SEED = 42
+# Project root directory
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Alpha thresholds for statistical testing
-ALPHA_THRESHOLDS: Set[float] = {0.01, 0.05, 0.1}
+# Random seed for reproducibility
+_RANDOM_SEED = 42
 
-# Project Root (assumed to be the directory containing this file's parent)
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Significance thresholds for sensitivity analysis
+_ALPHA_SET: Set[float] = {0.01, 0.05, 0.1}
 
-# Directory Structure Paths
-DATA_DIR = os.path.join(PROJECT_ROOT, "data")
-DATA_RAW_DIR = os.path.join(DATA_DIR, "raw")
-DATA_INTERIM_DIR = os.path.join(DATA_DIR, "interin")
-DATA_PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
-CODE_DIR = os.path.join(PROJECT_ROOT, "code")
-TESTS_DIR = os.path.join(PROJECT_ROOT, "tests")
-FIGURES_DIR = os.path.join(PROJECT_ROOT, "figures")
+# Memory threshold in MB (approx 7GB for safety margin)
+_MEMORY_THRESHOLD_MB = 7000
 
-def set_random_seed(seed: int = RANDOM_SEED) -> None:
-    """Sets the random seed for reproducibility."""
+def set_random_seed(seed: int = _RANDOM_SEED) -> None:
+    """Set the random seed for reproducibility."""
     random.seed(seed)
     try:
         import numpy as np
@@ -33,6 +23,26 @@ def set_random_seed(seed: int = RANDOM_SEED) -> None:
     except ImportError:
         pass
 
-def get_path(relative_path: str) -> str:
-    """Returns the absolute path for a given relative path from project root."""
-    return os.path.join(PROJECT_ROOT, relative_path)
+def get_path(*subdirs: str, filename: str = "") -> str:
+    """
+    Construct an absolute path relative to the project root.
+    
+    Args:
+        *subdirs: Subdirectories to traverse
+        filename: Optional filename at the end
+    
+    Returns:
+        Absolute path string
+    """
+    parts = [_PROJECT_ROOT] + list(subdirs)
+    if filename:
+        parts.append(filename)
+    return os.path.join(*parts)
+
+def get_alpha_set() -> Set[float]:
+    """Return the set of alpha thresholds for sensitivity analysis."""
+    return _ALPHA_SET
+
+def get_memory_threshold_mb() -> int:
+    """Return the memory threshold in MB."""
+    return _MEMORY_THRESHOLD_MB

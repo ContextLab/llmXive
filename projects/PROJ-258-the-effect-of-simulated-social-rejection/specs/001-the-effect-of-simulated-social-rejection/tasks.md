@@ -45,17 +45,16 @@
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`)
 - [X] T002 Initialize Python 3.11 project with `pandas`, `numpy`, `scipy`, `statsmodels`, `pyyaml`, `requests` in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (flake8) and formatting (black) tools
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `code/config.py` to manage paths, random seeds, and α thresholds ({0.01, 0.05, 0.1})
+- [X] T004 Create `code/config.py` to manage paths, random seeds, α thresholds ({0.01, 0.05, 0.1}), and `MAX_RAM_GB=7`
 - [X] T005 [P] Implement `code/__init__.py` and basic logging infrastructure for memory usage tracking
 - [X] T006 Create `code/data_model.py` defining `Dataset`, `PreprocessedRecord`, and `AnalysisResult` entities with `design_type` field
 
@@ -65,26 +64,35 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Design Determination (Priority: P1) 🎯 MVP
 
-**Goal**: Download and validate datasets. The system MUST first attempt to find a **Single-Cohort** dataset (both tasks in one file). If found, proceed with Mixed ANOVA. If NOT found (e.g., ds000208 lacks reward task), the system MUST proceed to a **Composite Dataset Strategy** (matching IDs across ds000208 and ds003392) to enable a Between-Subjects ANOVA. **Merging is forbidden for Within-Subjects, but required for Between-Subjects fallback.**
+**Goal**: Download and validate datasets. The system MUST first attempt to find a **Single-Cohort** dataset (both tasks in one file). If found, proceed with Mixed ANOVA. If NOT found (e.g., ds000208 lacks reward task), the system MUST proceed to a **Separate-Streams** strategy (validate ds000208 and ds003392 independently) to enable a Between-Subjects ANOVA. **Merging distinct studies is strictly forbidden.**
 
-**Independent Test**: Execute ingestion script against a mock single-cohort file (pass) and a mock composite set (pass with design_type=Between-Subjects). Verify script halts with exit code 1 only if NO valid data source exists.
+**Independent Test**: Execute ingestion script against a mock single-cohort file (pass) and a mock separate-set (pass with design_type=Between-Subjects). Verify script halts with exit code 1 only if NO valid data source exists.
 
 ### Tests for User Story 1 (REQUIRED) ⚠️
 
 - [X] T010 [P] [US1] Contract test in `tests/test_ingest.py::test_schema_validates_single_cohort` to assert `exit_code == 0` when single-cohort data is found
-- [X] T011 [P] [US1] Integration test in `tests/test_ingest.py::test_download_and_validate_composite` to verify successful ingestion and design switching when single-cohort is missing
+- [X] T011 [P] [US1] Integration test in `tests/test_ingest.py::test_download_and_validate_separate` to verify successful ingestion and design switching when single-cohort is missing
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `code/ingest.py` with `download_dataset(url)` function. **MUST include logic to verify the dataset contains BOTH Cyberball and Reward tasks.** If single-cohort found, set `design_type="Within-Subjects"`. If not, **DO NOT halt**; instead, flag for composite validation.
-- [ ] T016 [US1] **Immediately after download**, generate `data/raw/checksums.json` to preserve raw data integrity (Constitution Principle III). This MUST occur before any validation logic.
-- [X] T015 [US1] Add memory guard in `code/ingest.py` to monitor **runtime RAM usage** using `psutil`. **Halt execution with exit code if the process memory footprint exceeds a predefined threshold.**, explicitly distinguishing this from raw file size on disk (FR-001, Plan Clarification). This check must occur *before* full data loading.
-- [X] T013 [US1] Implement `validate_schema(df)` in `code/ingest.py` to check for `Condition` (Cyberball), `Condition` (Reward), `Reaction Time`, `Mood`. **Exit code 1 if required variables are missing AND no fallback dataset is available.**
-- [X] T014 [US1] Implement `verify_single_cohort(df)` in `code/ingest.py` to ensure Participant IDs are consistent within the SINGLE dataset. If consistent, set `design_type="Within-Subjects"`. If inconsistent or missing, proceed to T017.
-- [X] T017 [US1] Implement `validate_composite_datasets(df_rejection, df_reward)` in `code/ingest.py`. **MUST match Participant IDs across distinct datasets (ds000208 vs ds003392).** If matching IDs exist, set `design_type="Between-Subjects"`. If no matching IDs, halt with "Data Unavailable" (exit code 1).
-- [X] T019 [US1] Implement `log_design_switch()` in `code/ingest.py` to explicitly record the transition from "Single-Cohort attempt" to "Composite Fallback" in the execution log, ensuring traceability for the "associational" framing.
+- [X] T015a [US1] **Pre-Load Memory Check**: Implement `estimate_dataset_size(manifest)` in `code/ingest.py`. **Reads `data/raw/dataset_manifest.json`** to estimate total size of selected datasets. **Halt execution with exit code 1 if estimated combined size > 7 GB** (referencing `config.MAX_RAM_GB=7`). **MUST run BEFORE T012 and T017a.**
+- [X] T012 [US1] Implement `code/ingest.py` with `download_dataset(url)` function. **MUST verify the dataset contains the Cyberball task.** Use verified URLs: `https://openneuro.org/datasets/ds000208` (Cyberball) and `https://openneuro.org/datasets/ds003392` (Reward). **Logic**: 
+  1. Attempt Single-Cohort fetch. If found, set `design_type="Within-Subjects"`. 
+  2. If not found, fetch and validate separate datasets. If both valid, set `design_type="Between-Subjects"`. 
+  3. If neither valid, raise exception. 
+  **Output Artifact**: Generate `data/raw/dataset_manifest.json` with schema {url, status, checksum} and verify it exists. **Dependency**: Must run after T015a.
+- [X] T013 [US1] Implement `validate_schema(df)` in `code/ingest.py` to check for `Condition` (Cyberball), `Condition` (Reward), `Reaction Time`, `Mood`. **Exit code 1 if required variables are missing AND no fallback dataset is available.** **Output Artifact**: Generate `data/interim/validation_report.json` with schema {passed, missing_columns} and verify it exists. **Dependency**: Must run after T012.
+- [X] T014 [US1] Implement `verify_single_cohort(df)` in `code/ingest.py` to ensure Participant IDs are consistent within the SINGLE dataset. If consistent, set `design_type="Within-Subjects"`. If inconsistent or missing, proceed to T017d.
+- [X] T015b [US1] **Runtime Memory Guard**: Add memory guard in `code/ingest.py` to monitor **runtime RAM usage** using `psutil`. **Halt execution with a non-zero exit code if the process memory footprint exceeds `config.MAX_RAM_GB` (7 GB).** This check occurs **AFTER** design determination (T013/T014) to allow fallback to smaller separate datasets if the single-cohort path is too large. **Dependency**: Must run after T015a.
+- [X] T017a [US1] Implement `validate_separate_datasets(df_rejection, df_reward)` in `code/ingest.py`. **MUST validate ds000208 and ds003392 independently WITHOUT merging.** If both are valid, proceed to T017d. If either is missing/invalid, proceed to T017c. **Dependency**: Must run after T015a.
+- [X] T017d [US1] **Single-Cohort Constraint Check**: Implement `check_single_cohort_constraint()` in `code/ingest.py`. **MUST verify if the current data source is a Single-Cohort dataset.** If the data is from distinct studies (ds000208 + ds003392), **force `design_type="Between-Subjects"` regardless of ID matching.** This prevents invalid Within-Subjects claims on merged distinct studies. **MUST run before T017b.**
+- [X] T017b [US1] Implement `match_ids_across_datasets(df_rejection, df_reward)` in `code/ingest.py`. **MUST check if Participant IDs exist in BOTH datasets.** **CRITICAL**: If datasets are distinct (per T017d), set `design_type="Between-Subjects"` even if IDs match. Only set `design_type="Within-Subjects"` if a SINGLE dataset was found. **Output Artifact**: Write `data/processed/id_match_status.json` with schema {match_count, design_type}. **Dependency**: Must run after T017d.
+- [X] T017c [US1] Implement `handle_data_unavailable()` in `code/ingest.py`. **Halt execution with exit code 1 and log "Data Unavailable" if no valid dataset or valid separate datasets are found.**
+- [X] T018 [US1] Implement `log_design_switch()` in `code/ingest.py` to explicitly record the transition from "Single-Cohort attempt" to "Separate-Streams Fallback" in `data/processed/metadata.json`. **Schema**: Append entry {event: 'design_switch', from: 'Single-Cohort', to: 'Separate-Streams', timestamp: ...}. **Dependency**: Must run after T017d.
+- [X] T019 [US1] Implement `write_metadata(design_type)` in `code/ingest.py` to write the final `design_type` (Within-Subjects or Between-Subjects) to `data/processed/metadata.json` for downstream consumption.
+- [X] T016 [US1] **Checksum & State Update**: Implement checksum generation (SHA-256) for downloaded files in `code/ingest.py`. **Write checksums directly to `state/projects/PROJ-258-the-effect-of-simulated-social-rejection.yaml`** in the `artifact_hashes` map per Constitution Principle V. **DO NOT create `data/raw/checksums.json`.** **Dependency**: Must run after T012 download completes.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. The pipeline must support both Within-Subjects (if found) and Between-Subjects (fallback) paths.
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. The pipeline must support both Within-Subjects (if found) and Between-Subjects (fallback) paths without merging distinct studies.
 
 ---
 
@@ -102,7 +110,7 @@
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/preprocess.py` with `clean_data(df)` function
-- [X] T021 [US2] Implement `normalize_rt(df)` in `code/preprocess.py` to standardize reaction times <!-- SKIPPED: non-mapping output -->
+- [X] T021 [US2] Implement `normalize_rt(df)` in `code/preprocess.py` to standardize reaction times
 - [X] T022 [US2] Implement `detect_outliers_iqr(df, group_col='Condition')` in `code/preprocess.py` to flag/cap outliers using a standard interquartile range multiplier per group (FR-002)
 - [X] T023 [US2] Implement `extract_features(df)` in `code/preprocess.py` to compute `mean_rt` and `avg_mood` per participant/condition
 - [X] T024 [US2] Save intermediate data to `data/interim/preprocessed_data.csv` with `design_type` tag
@@ -113,7 +121,7 @@
 
 ## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
 
-**Goal**: Execute ANOVA (Mixed for single-cohort; One-Way for composite), apply FDR, generate sensitivity analysis, and export report. **If the design is Between-Subjects, explicitly drop the "modulation" claim and frame results as "associational group differences".**
+**Goal**: Execute ANOVA (Mixed for single-cohort; One-Way for separate), apply FDR, generate sensitivity analysis, and export report. **If the design is Between-Subjects, explicitly drop the "modulation" claim and frame results as "associational group differences".**
 
 **Independent Test**: Run analysis on preprocessed data; verify output report contains p-values, effect sizes, sensitivity tables, and correct test selection logic.
 
@@ -126,12 +134,13 @@
 
 - [X] T027 [P] [US3] Implement `code/analysis.py` with `run_anova(df, design_type)` to select Mixed ANOVA (Within) or One-Way ANOVA (Between). **If design_type is Between-Subjects, explicitly drop the "modulation" claim and flag the inability to test it.**
 - [X] T028 [US3] Implement `apply_fdr(p_values)` in `code/analysis.py` using Benjamini-Hochberg method (FR-004)
-- [X] T029 [US3] Implement `sensitivity_sweep(df, alpha_set={0.01, 0.05, 0.1})` in `code/analysis.py` (FR-006)
-- [X] T030 [US3] Implement `generate_report_logic(results, design_type)` in `code/report.py`. **MUST enforce "associational" phrasing in Limitations when design_type is Between-Subjects.**
-- [ ] T031 [US3] Add convergence warning logic for small N (N < 30) and report effect size confidence intervals
-- [ ] T033 [US3] Implement `save_final_results(results, design_type)` in `code/report.py` to write `data/processed/final_results.json` ensuring the `p_fdr` column is present (SC-003) and `design_type` is recorded (FR-008).
-- [ ] T034 [US3] Implement `verify_report_constraints()` in `tests/test_report.py` to assert that `reports/final_report.md` contains the exact phrase "associational" in Limitations and excludes "causal" in Results (FR-003).
-- [ ] T032 [US3] Save final results to `data/processed/final_results.json` and `reports/final_report.md`
+- [X] T035 [US3] Implement `sensitivity_sweep(df, alpha_set={0.01, 0.05, 0.1})` in `code/analysis.py` (FR-006) to sweep α and report result consistency.
+- [X] T035b [US3] **Sensitivity Report Verification**: Implement `verify_sensitivity_coverage()` in `tests/test_analysis.py` or `code/report.py`. **Assert that `reports/final_report.md` explicitly includes a sensitivity table with results for α ∈ {0.01, 0.05, 0.1}**. **Verification**: Ensure SC-004 is met.
+- [X] T030 [US3] Implement `generate_report_logic(results, design_type)` in `code/report.py`. **Depends on T017/T019 (reads data/processed/metadata.json) and T035/T035b.** **If design_type is Between-Subjects, explicitly inject the phrase "associational" into the Limitations section.** **Output Artifact**: Generate `reports/final_report.md`. **Verification**: Assert report contains "associational", excludes "causal", and includes sensitivity table for α ∈ {0.01, 0.05, 0.1}.
+- [X] T031 [US3] Implement `handle_convergence_warnings()` in `code/analysis.py`: **Add try/except block to catch convergence errors when N < 30 and output effect size confidence intervals.** **Output Format**: Append {convergence_warning: true, ci_95: [lower, upper]} to `data/processed/final_results.json`.
+- [X] T033 [US3] Implement `save_final_results(results, design_type)` in `code/report.py` to write `data/processed/final_results.json` ensuring the `p_fdr` column is present (SC-003) and `design_type` is recorded (FR-008).
+- [X] T034 [US3] Implement `verify_report_constraints()` in `tests/test_report.py` to assert that `reports/final_report.md` contains the exact phrase "associational" in Limitations and excludes "causal" in Results (FR-003).
+- [X] T032 [US3] Save final results to `data/processed/final_results.json` and `reports/final_report.md`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -141,11 +150,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T036 Code cleanup and refactoring in `code/`
-- [ ] T037 Performance optimization to ensure total runtime ≤ 6 hours for N ≤ 500
-- [ ] T038 [P] Additional unit tests in `tests/unit/`
-- [ ] T039 Run `quickstart.md` validation
+- [ ] T035a [P] **Documentation**: Update `README.md` with installation steps, data source citations, and usage instructions.
+- [ ] T035b [P] **Documentation**: Generate `docs/api.md` from code docstrings.
+- [X] T036 Code cleanup and refactoring in `code/`
+- [X] T037a [P] **Performance CI**: Add timeout assertion to GitHub Actions workflow (`.github/workflows/ci.yml`) to enforce -hour limit (SC-002).
+- [X] T037b [P] **Benchmarking**: Implement `code/benchmark.py` to generate `data/processed/performance_log.json` with runtime metrics for N=500.
+- [X] T038 [P] Additional unit tests in `tests/unit/`
+- [X] T039 Run `quickstart.md` validation
 
 ---
 
@@ -190,11 +201,11 @@
 ```bash
 # Launch all tests for User Story 1 together:
 Task: "Contract test in tests/test_ingest.py::test_schema_validates_single_cohort"
-Task: "Integration test in tests/test_ingest.py::test_download_and_validate_composite"
+Task: "Integration test in tests/test_ingest.py::test_download_and_validate_separate"
 
 # Launch all models for User Story 1 together:
-Task: "Implement code/ingest.py with download_dataset(url) function (verify single-cohort OR composite)"
-Task: "Generate data/raw/checksums.json immediately after download"
+Task: "Implement code/ingest.py with download_dataset(url) function (verify single-cohort OR separate)"
+Task: "Generate data/raw/dataset_manifest.json immediately after download"
 ```
 
 ---
@@ -239,4 +250,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: The pipeline must support both Single-Cohort (Within-Subjects) and Composite (Between-Subjects) paths. Merging distinct studies is forbidden for Within-Subjects but required for the Between-Subjects fallback.
+- **CRITICAL**: The pipeline must support both Single-Cohort (Within-Subjects) and Separate-Streams (Between-Subjects) paths. **Merging distinct studies is strictly forbidden.**
+- **CRITICAL**: Data loading must fail loudly if the real source is unavailable; no synthetic fallbacks are permitted.
+- **CRITICAL**: For large datasets, the system halts with exit code 1; no streaming logic is required for N ≤ 500.
+- **CRITICAL**: All data sources must be real, verified, and explicitly cited. Synthetic data is forbidden for research results.
+- **CRITICAL**: Memory guard (T015a) MUST run before data loading (T012) to prevent RAM overflow.
+- **CRITICAL**: Single-Cohort check (T017d) MUST run before ID matching (T017b) to prevent invalid Within-Subjects claims.

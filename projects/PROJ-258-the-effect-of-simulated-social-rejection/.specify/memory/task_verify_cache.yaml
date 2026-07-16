@@ -1,22 +1,36 @@
-T001:
+T033:
+  c: false
+  h: 2057f2824f07e6496d8b33f86ef48177314d627540f57fac30fc5e20f71683a9
+  r: "The `save_final_results` function is incomplete (truncated with a stray \u201C\
+    e\u201D and never writes the `final_results` dict to `data/processed/final_results.json`).\
+    \ Consequently the required JSON file does not exist, so the task\u2019s requirements\
+    \ are not met."
+T034:
+  c: false
+  h: 88874721cf2decbe26d820b2f9db68733ded8558dfb6f43a7ba29594bc636a20
+  r: "The repository lacks `reports/final_report.md` entirely, and the provided `tests/test_report.py`\
+    \ does not contain a `verify_report_constraints()` function (or any test that\
+    \ checks for the exact phrase \u201Cassociational\u201D in Limitations and the\
+    \ absence of \u201Ccausal\u201D in Results). Both the required artifact and the\
+    \ specific test implementation are missing."
+T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory tree (`code/`, `data/raw/`, `data/interim/`,
-    `data/processed/`, `tests/`) is present in the provided artifacts; the implementer
-    did not supply any files or folder listings to confirm the project structure was
-    created.
-T003:
+  r: No `docs/` directory or updated `README.md` files were provided; the implementer
+    supplied only the feature specification text without any actual documentation
+    artifacts, so the required documentation updates are missing.
+T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml\
-    \ with black settings, pre\u2011commit hooks, or related scripts) are present,\
-    \ and the provided artifacts pertain only to a behavioral data analysis feature,\
-    \ not to configuring flake8/black. The required linting/formatting setup is missing."
-T031:
+  r: No code artifacts in the `code/` directory were provided or referenced, and there
+    is no evidence (e.g., diff, commit log, cleaned scripts) showing that any cleanup
+    or refactoring was performed. Without tangible files or changes, the requirement
+    cannot be confirmed as satisfied.
+T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided showing that convergence\u2011\
-    warning logic for N\u202F<\u202F30 was added, nor any implementation that reports\
-    \ effect\u2011size confidence intervals. Without concrete artifacts (e.g., modified\
-    \ analysis module, unit tests, or example output), the requirement cannot be verified\
-    \ as satisfied."
+  r: "No code, benchmark results, or documentation were provided showing that the\
+    \ analysis pipeline has been optimized to run in \u2264\u202F6\u202Fhours for\
+    \ datasets with N\u202F\u2264\u202F500. The only artifacts described are the high\u2011\
+    level user stories; there is no implementation or performance evidence to verify\
+    \ the claimed optimization."

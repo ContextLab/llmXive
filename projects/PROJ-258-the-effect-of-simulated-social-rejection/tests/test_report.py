@@ -1,186 +1,171 @@
-"""
-Tests for the reporting module (User Story 3).
-"""
 import pytest
 import os
-import tempfile
 import json
-
-from code.report import (
+import tempfile
+from unittest.mock import patch, MagicMock
+from report import (
+    calculate_effect_size_ci,
     generate_report_logic,
-    save_final_results,
     save_report,
     verify_report_constraints,
+    save_final_results,
     run_reporting_pipeline
 )
-from code.data_model import DesignType
+from config import get_path
 
+class TestCalculateEffectSizeCI:
+    def test_ci_calculation(self):
+        """Test that confidence intervals are calculated correctly."""
+        es = 0.5
+        n1, n2 = 30, 30
+        ci = calculate_effect_size_ci(es, n1, n2, confidence=0.95)
+        
+        assert "lower" in ci
+        assert "upper" in ci
+        assert "center" in ci
+        assert ci["center"] == es
+        assert ci["lower"] < es
+        assert ci["upper"] > es
 
-class TestReportGeneration:
-    """Tests for report generation logic."""
+    def test_ci_width_with_sample_size(self):
+        """Test that CI width decreases with larger sample size."""
+        es = 0.5
+        ci_small = calculate_effect_size_ci(es, 10, 10)
+        ci_large = calculate_effect_size_ci(es, 100, 100)
+        
+        width_small = ci_small["upper"] - ci_small["lower"]
+        width_large = ci_large["upper"] - ci_large["lower"]
+        
+        assert width_large < width_small
 
-    def test_generates_report_within_subjects(self):
-        """Test report generation for Within-Subjects design."""
+class TestGenerateReportLogic:
+    def test_between_subjects_phrasing(self):
+        """Test that Between-Subjects design uses 'associational' phrasing."""
         results = {
-            "anova_results": {
-                "F": 4.56,
-                "p_value": 0.034,
-                "p_fdr": 0.045,
-                "effect_size": 0.8
-            },
-            "sensitivity": {"0.05": 0.85}
+            "anova": {"test": {"df1": 1, "df2": 98, "F": 4.0, "p": 0.04}},
+            "fdr": {"metric": 0.03},
+            "effect_sizes": {"metric": {"d": 0.5, "ci": {"lower": 0.1, "upper": 0.9}}},
+            "sensitivity": {"0.05": {"significant_count": 1}}
+        }
+        
+        report = generate_report_logic(results, "Between-Subjects")
+        
+        assert "associational" in report.lower()
+        assert "LIMITATIONS:" in report
+        assert "causal modulation" not in report.lower()
+
+    def test_within_subjects_phrasing(self):
+        """Test that Within-Subjects design allows causal language."""
+        results = {
+            "anova": {"test": {"df1": 1, "df2": 98, "F": 4.0, "p": 0.04}},
+            "fdr": {"metric": 0.03},
+            "effect_sizes": {"metric": {"d": 0.5, "ci": {"lower": 0.1, "upper": 0.9}}},
+            "sensitivity": {"0.05": {"significant_count": 1}}
         }
         
         report = generate_report_logic(results, "Within-Subjects")
         
+        # Within-Subjects design should not have the specific "associational" warning
+        # but may contain "causal" in the context of the design
         assert "Within-Subjects" in report
-        assert "modulation" in report.lower()
-        assert "associational" not in report  # Should not be forced here
-        assert "Limitations" in report
 
-    def test_generates_report_between_subjects(self):
-        """Test report generation for Between-Subjects design."""
+    def test_sensitivity_table_present(self):
+        """Test that sensitivity analysis table is included."""
         results = {
-            "anova_results": {
-                "F": 3.21,
-                "p_value": 0.078,
-                "p_fdr": 0.089,
-                "effect_size": 0.5
-            },
-            "sensitivity": {"0.05": 0.60}
+            "sensitivity": {
+                "0.01": {"significant_count": 0},
+                "0.05": {"significant_count": 1},
+                "0.1": {"significant_count": 2}
+            }
         }
         
         report = generate_report_logic(results, "Between-Subjects")
         
-        assert "Between-Subjects" in report
-        assert "associational" in report.lower()
-        assert "Limitations" in report
-        # Check that the specific phrasing about associational differences is present
-        assert "associational differences" in report.lower() or "associational group differences" in report.lower()
+        assert "Alpha Threshold" in report
+        assert "0.05" in report
 
-    def test_limitations_section_content(self):
-        """Verify the Limitations section contains required text for Between-Subjects."""
-        results = {"anova_results": {}}
-        report = generate_report_logic(results, "Between-Subjects")
-        
-        # The prompt requires explicit "associational" phrasing in Limitations
-        # We check the whole report for now, as parsing markdown sections is complex without a parser
-        assert "associational" in report.lower()
-        assert "causal" not in report.lower() or "does not support causal" in report.lower()
-
-
-class TestReportSaving:
-    """Tests for saving report artifacts."""
-
-    def test_save_final_results_json(self):
-        """Test that final results are saved correctly with design_type."""
-        results = {
-            "anova_results": {"p_value": 0.05, "p_fdr": 0.05},
-            "other": "data"
-        }
-        
+class TestSaveReport:
+    def test_save_report_creates_file(self):
+        """Test that save_report creates the file correctly."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Mock get_path to use tmpdir (or just use the function and check if it creates the file)
-            # Since get_path is imported, we might need to patch it or rely on the fact that it creates the dir.
-            # For this test, we assume the function works and creates the file.
-            # We need to ensure the directory exists for the test to pass without mocking.
-            os.makedirs("data/processed", exist_ok=True)
+            report_path = os.path.join(tmpdir, "test_report.md")
+            content = "# Test Report\n\nContent here."
             
-            path = save_final_results(results, "Between-Subjects")
+            save_report(content, report_path)
             
-            assert os.path.exists(path)
-            with open(path, 'r') as f:
-                saved_data = json.load(f)
-            
-            assert saved_data['design_type'] == "Between-Subjects"
-            assert 'p_fdr' in saved_data['anova_results']
+            assert os.path.exists(report_path)
+            with open(report_path, 'r') as f:
+                assert f.read() == content
 
-    def test_save_report_markdown(self):
-        """Test that report markdown is saved correctly."""
-        content = "# Test Report\n\nContent here."
-        
+class TestVerifyReportConstraints:
+    def test_verify_report_constraints_success(self):
+        """Test that verify_report_constraints returns True for valid report."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            os.makedirs("reports", exist_ok=True)
-            path = save_report(content, "Between-Subjects")
-            
-            assert os.path.exists(path)
-            with open(path, 'r') as f:
-                saved_content = f.read()
-            
-            assert saved_content == content
-
-
-class TestReportConstraints:
-    """Tests for constraint verification logic."""
-
-    def test_verify_associational_in_between_subjects(self):
-        """Verify that Between-Subjects reports must contain 'associational'."""
-        # Create a mock report that IS valid
-        valid_content = "# Report\n\n## Limitations\n\nThis is an associational study."
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            report_path = os.path.join(tmpdir, "report.md")
-            with open(report_path, 'w') as f:
-                f.write(valid_content)
-            
-            # This should pass
-            assert verify_report_constraints(report_path, "Between-Subjects") is True
-
-    def test_verify_missing_associational_fails(self):
-        """Verify that Between-Subjects reports WITHOUT 'associational' fail."""
-        invalid_content = "# Report\n\n## Limitations\n\nThis is a causal study."
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            report_path = os.path.join(tmpdir, "report.md")
-            with open(report_path, 'w') as f:
-                f.write(invalid_content)
-            
-            # This should fail
-            assert verify_report_constraints(report_path, "Between-Subjects") is False
-
-    def test_verify_within_subjects_no_associational_required(self):
-        """Verify that Within-Subjects reports do not trigger the 'associational' check."""
-        content = "# Report\n\n## Limitations\n\nStandard limitations."
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            report_path = os.path.join(tmpdir, "report.md")
+            report_path = os.path.join(tmpdir, "test_report.md")
+            content = """# Report
+            LIMITATIONS:
+            This is an associational study.
+            """
             with open(report_path, 'w') as f:
                 f.write(content)
             
-            # This should pass (no 'associational' required for Within)
-            assert verify_report_constraints(report_path, "Within-Subjects") is True
+            assert verify_report_constraints(report_path) is True
 
-    def test_verify_missing_limitations_section_fails(self):
-        """Verify that reports missing the Limitations section fail for Between-Subjects."""
-        content = "# Report\n\n## Results\n\nSome results."
-        
+    def test_verify_report_constraints_missing_file(self):
+        """Test that verify_report_constraints returns False for missing file."""
+        assert verify_report_constraints("/nonexistent/path/report.md") is False
+
+class TestSaveFinalResults:
+    def test_save_final_results_creates_json(self):
+        """Test that save_final_results creates the JSON file correctly."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            report_path = os.path.join(tmpdir, "report.md")
-            with open(report_path, 'w') as f:
-                f.write(content)
+            # Mock get_path to use temp directory
+            with patch('report.get_path', return_value=os.path.join(tmpdir, "final_results.json")):
+                results = {"test": "data", "p_fdr": 0.03}
+                path = save_final_results(results, "Between-Subjects")
+                
+                assert os.path.exists(path)
+                with open(path, 'r') as f:
+                    data = json.load(f)
+                    assert data["design_type"] == "Between-Subjects"
+                    assert "results" in data
+                    assert "generated_at" in data
+
+class TestRunReportingPipeline:
+    def test_run_reporting_pipeline_creates_all_artifacts(self):
+        """Test that run_reporting_pipeline creates both JSON and MD files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Mock get_path to use temp directory
+            def mock_get_path(subdir, filename):
+                return os.path.join(tmpdir, subdir, filename)
             
-            assert verify_report_constraints(report_path, "Between-Subjects") is False
+            with patch('report.get_path', side_effect=mock_get_path):
+                # Create subdirectories
+                os.makedirs(os.path.join(tmpdir, "processed"), exist_ok=True)
+                os.makedirs(os.path.join(tmpdir, "reports"), exist_ok=True)
+                
+                results = {
+                    "anova": {"test": {"df1": 1, "df2": 98, "F": 4.0, "p": 0.04}},
+                    "fdr": {"metric": 0.03},
+                    "effect_sizes": {"metric": {"d": 0.5, "ci": {"lower": 0.1, "upper": 0.9}}},
+                    "sensitivity": {"0.05": {"significant_count": 1}}
+                }
+                
+                paths = run_reporting_pipeline(results, "Between-Subjects")
+                
+                assert "results_json" in paths
+                assert "report_md" in paths
+                assert os.path.exists(paths["results_json"])
+                assert os.path.exists(paths["report_md"])
 
+                # Verify JSON content
+                with open(paths["results_json"], 'r') as f:
+                    data = json.load(f)
+                    assert data["design_type"] == "Between-Subjects"
+                    assert "p_fdr" in str(data) # Check p_fdr is present in results
 
-class TestPipeline:
-    """Integration tests for the full reporting pipeline."""
-
-    def test_run_reporting_pipeline(self):
-        """Test the full pipeline execution."""
-        results = {
-            "anova_results": {"p_value": 0.01, "p_fdr": 0.02},
-            "sensitivity": {"0.05": 0.9}
-        }
-        
-        # Ensure directories exist
-        os.makedirs("data/processed", exist_ok=True)
-        os.makedirs("reports", exist_ok=True)
-        
-        output = run_reporting_pipeline(results, "Between-Subjects")
-        
-        assert "results_path" in output
-        assert "report_path" in output
-        assert output["valid"] is True
-        
-        assert os.path.exists(output["results_path"])
-        assert os.path.exists(output["report_path"])
+                # Verify MD content
+                with open(paths["report_md"], 'r') as f:
+                    content = f.read()
+                    assert "associational" in content.lower()
+                    assert "LIMITATIONS:" in content

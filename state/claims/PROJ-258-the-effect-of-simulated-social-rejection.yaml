@@ -1,0 +1,105 @@
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/reports/final_report.md
+  attempts: 1
+  canonical: reaction time FDR-corrected p-value 0.042
+  claim_id: c_903eabf8
+  context: FDR-Corrected P-values section reporting significance for reaction time.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'reaction_time: p_fdr = 0.0420 ** (significant)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:58:59Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/reports/final_report.md
+  attempts: 1
+  canonical: mood change FDR-corrected p-value 0.015
+  claim_id: c_559b1f78
+  context: FDR-Corrected P-values section reporting significance for mood change.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'mood_change: p_fdr = 0.0150 ** (significant)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:59:05Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/reports/final_report.md
+  attempts: 1
+  canonical: reaction time effect size 0.45 with 95% confidence interval 0.12 to 0.78
+  claim_id: c_d432b4d7
+  context: Effect Sizes and Confidence Intervals section for reaction time.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'reaction_time: d = 0.4500 [95% CI: 0.1200, 0.7800]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:59:11Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/reports/final_report.md
+  attempts: 1
+  canonical: mood change effect size 0.62 with 95% confidence interval 0.28 to 0.96
+  claim_id: c_79b51f4d
+  context: Effect Sizes and Confidence Intervals section for mood change.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'mood_change: d = 0.6200 [95% CI: 0.2800, 0.9600]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:59:13Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/reports/final_report.md
+  attempts: 1
+  canonical: one significant finding at alpha threshold 0.01
+  claim_id: c_d242a4e2
+  context: Sensitivity Analysis table showing stability of results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1 Significant Finding at Alpha Threshold 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:59:19Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/reports/final_report.md
+  attempts: 1
+  canonical: two significant findings at alpha threshold 0.05
+  claim_id: c_0912482f
+  context: Sensitivity Analysis table showing stability of results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2 Significant Findings at Alpha Threshold 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:59:25Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/reports/final_report.md
+  attempts: 1
+  canonical: two significant findings at alpha threshold 0.1
+  claim_id: c_a628e0b6
+  context: Sensitivity Analysis table showing stability of results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2 Significant Findings at Alpha Threshold 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:59:31Z'

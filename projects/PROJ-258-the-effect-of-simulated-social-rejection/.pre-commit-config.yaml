@@ -1,0 +1,23 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--config=pyproject.toml]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: [--config=code/.flake8]
+        additional_dependencies: []
+
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: Run Tests
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true

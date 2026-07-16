@@ -1,6 +1,16 @@
 [flake8]
 max-line-length = 88
 extend-ignore = E203, W503
-exclude = .git,__pycache__,venv,.venv,build,dist
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .eggs,
+    *.egg-info
 per-file-ignores =
-    __init__.py:F401
+    # Allow unused imports in __init__.py for public API exposure
+    */__init__.py: F401
+    # Allow unused variables in test mocks if necessary
+    tests/*: N802
+max-complexity = 15
