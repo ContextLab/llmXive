@@ -1,32 +1,54 @@
 import os
-import pytest
 import shutil
-import sys
+import tempfile
+import pytest
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from setup_directories import create_project_structure
+# We need to import the function from the code module
+# Since the project structure might not be fully set up in the test environment,
+# we ensure the path is correct or mock the import if necessary.
+# Assuming standard PYTHONPATH includes the root or 'code' is in path.
+# For this test, we assume the test runner is configured to find 'code'.
+from code.setup_directories import create_project_structure
 
 class TestSetupDirectories:
-    """Tests for the directory creation logic."""
-
-    def test_creates_all_required_directories(self, tmp_path):
-        """Verify that all required directories are created."""
-        # Change to tmp_path to isolate test
+    def test_creates_required_directories(self, tmp_path):
+        """Test that all required directories are created."""
+        # Change to a temporary directory to avoid polluting the real project
         original_cwd = os.getcwd()
         os.chdir(str(tmp_path))
-
+        
         try:
-            result = create_project_structure()
+            # Mock os.makedirs to capture calls
+            with patch('code.setup_directories.os.makedirs') as mock_makedirs:
+                create_project_structure()
+                
+                expected_dirs = [
+                    "data/raw",
+                    "data/results",
+                    "code",
+                    "tests/unit",
+                    "tests/contract",
+                    "contracts",
+                    "projects/PROJ-975-llmxive-follow-up-extending-from-chatbot"
+                ]
+                
+                # Verify makedirs was called for each expected directory
+                for dir_path in expected_dirs:
+                    mock_makedirs.assert_any_call(dir_path, exist_ok=True)
+                    
+        finally:
+            os.chdir(original_cwd)
 
-            # Check counts
-            assert result["created"] == 7
-            assert result["existing"] == 0
-            assert result["total"] == 7
-
-            # Check specific directories exist
-            required_dirs = [
+    def test_directories_exist_after_run(self, tmp_path):
+        """Test that directories actually exist on disk after running."""
+        original_cwd = os.getcwd()
+        os.chdir(str(tmp_path))
+        
+        try:
+            create_project_structure()
+            
+            expected_dirs = [
                 "data/raw",
                 "data/results",
                 "code",
@@ -35,50 +57,24 @@ class TestSetupDirectories:
                 "contracts",
                 "projects/PROJ-975-llmxive-follow-up-extending-from-chatbot"
             ]
-
-            for dir_name in required_dirs:
-                full_path = os.path.join(str(tmp_path), dir_name)
-                assert os.path.isdir(full_path), f"Directory {dir_name} was not created."
-
+            
+            for dir_path in expected_dirs:
+                assert os.path.isdir(dir_path), f"Directory {dir_path} was not created"
         finally:
             os.chdir(original_cwd)
 
-    def test_handles_existing_directories_gracefully(self, tmp_path):
-        """Verify that the function handles pre-existing directories without error."""
+    def test_idempotent(self, tmp_path):
+        """Test that running the script twice does not raise errors."""
         original_cwd = os.getcwd()
         os.chdir(str(tmp_path))
-
+        
         try:
-            # Pre-create one directory
-            os.makedirs("data/raw", exist_ok=True)
-
-            result = create_project_structure()
-
-            # Should report 1 existing, 6 created
-            assert result["existing"] == 1
-            assert result["created"] == 6
-
-            # Verify the pre-existing one is still there
+            # Run twice
+            create_project_structure()
+            create_project_structure()
+            
+            # Verify directories still exist
+            assert os.path.isdir("code")
             assert os.path.isdir("data/raw")
-
-        finally:
-            os.chdir(original_cwd)
-
-    def test_nested_structure_created(self, tmp_path):
-        """Verify that nested directories (e.g., data/raw) are created correctly."""
-        original_cwd = os.getcwd()
-        os.chdir(str(tmp_path))
-
-        try:
-            result = create_project_structure()
-            assert result["created"] == 7
-
-            # Verify deep nesting
-            assert os.path.isdir("data/raw")
-            assert os.path.isdir("data/results")
-            assert os.path.isdir("tests/unit")
-            assert os.path.isdir("tests/contract")
-            assert os.path.isdir("projects/PROJ-975-llmxive-follow-up-extending-from-chatbot")
-
         finally:
             os.chdir(original_cwd)

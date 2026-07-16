@@ -1,12 +1,8 @@
-? T013 [US1] Implement logic in `code/generate_data.py` to **assign** unique ground-truth
-  solution paths (3-5 skill IDs) to each of the 500 tasks, ensuring this assignment
-  uses a distinct random seed (Seed B) from the skill generation (Seed A) to guarantee
-  independence.
-: 2
-? T014 [US1] Implement JSON serialization in `code/generate_data.py` to output `data/raw/skills.json`
-  and `data/raw/tasks.json` with embedded metadata (overlap level, seed used).
-: 1
-? 'T014 [US1] Implement JSON serialization in `code/generate_data.py` to output `data/raw/skills.json`
-  and `data/raw/tasks.json` with embedded metadata (overlap level, seed used). <!--
-  ATOMIZE: requested -->'
-: 1
+T001: 1
+T003: 1
+T004: 1
+T009: 1
+T034: 2
+T037: 1
+T038: 1
+T041: 1

@@ -1,135 +1,104 @@
 # llmXive: From Chatbot to Digital Colleague
 
-Automated research pipeline for evaluating skill-library scaling effects in LLM agents.
-
-## Project Overview
-
-This project implements a synthetic environment to study how the size and semantic density of a skill library affect an LLM agent's ability to solve multi-step tasks. It includes:
-- Synthetic dataset generation (tasks and skills)
-- A minimal "Digital Colleague" agent with retrieval and execution logic
-- Pruning heuristics to manage library growth
-- Statistical analysis of performance tipping points
+An automated research pipeline investigating the impact of skill library size and semantic overlap on the performance of a "Digital Colleague" agent. This project generates synthetic Python tasks and skills, executes an agent with retrieval-based augmentation, and analyzes the results to identify performance tipping points.
 
 ## Prerequisites
 
-- Python 3.10+
-- pip (Python package installer)
-- A Unix-like environment (Linux/macOS) or WSL on Windows
+- Python 3.9+
+- pip
+- ~14 GB free disk space (for data and dependencies)
+- ~8 GB RAM recommended (for embedding calculations)
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory:
+1. **Clone the repository** (or navigate to the project root):
  ```bash
+ git clone <repository-url>
  cd PROJ-975-llmxive-follow-up-extending-from-chatbot
  ```
 
-2. Create a virtual environment (recommended):
+2. **Create a virtual environment** (recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. Install dependencies:
+3. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
 
-4. (Optional) Install pre-commit hooks for code quality:
+4. **Verify installation**:
  ```bash
- pre-commit install
+ python -c "from code.config import SEED_A; print(f'Config OK: SEED_A={SEED_A}')"
  ```
-
-## Configuration
-
-Set the following environment variables to control random seeds for reproducibility:
-
-- `SEED_A`: Seed for skill generation (default: 42)
-- `SEED_B`: Seed for task generation (default: 123)
-
-Example:
-```bash
-export SEED_A=42
-export SEED_B=123
-```
-
-## Quick Start
-
-Follow the detailed steps in `quickstart.md` to run the full pipeline.
-
-### 1. Generate Synthetic Data
-
-Generate 100 skills and 500 tasks:
-```bash
-python code/generate_data.py
-```
-Output:
-- `data/raw/skills.json`
-- `data/raw/tasks.json`
-
-### 2. Run the Experiment
-
-Execute the agent across varying library sizes:
-```bash
-python code/run_experiment.py
-```
-Output:
-- `data/results/experiment_log.csv`
-- `data/results/metrics.json`
-
-### 3. Run Baseline (No Pruning)
-
-```bash
-python code/run_baseline.py
-```
-Output:
-- `data/results/experiment_log_baseline.csv`
-
-### 4. Analyze Results
-
-Perform statistical analysis and generate the final report:
-```bash
-python code/analyze.py
-```
-Output:
-- `data/results/final_analysis.json`
-- `data/results/sensitivity_report.json`
 
 ## Project Structure
 
-```
-.
-├── code/ # Source code
-│ ├── config.py # Configuration and seeds
-│ ├── utils.py # Embedding and similarity helpers
-│ ├── logging_config.py # Logging infrastructure
-│ ├── generate_data.py # Synthetic data generation
-│ ├── agent.py # Agent logic
-│ ├── run_experiment.py # Experiment runner
-│ ├── run_baseline.py # Baseline runner (no pruning)
-│ ├── analyze.py # Statistical analysis
-│ └──...
-├── data/
-│ ├── raw/ # Generated datasets
-│ └── results/ # Experiment logs and analysis outputs
-├── tests/ # Unit and contract tests
-├── contracts/ # JSON/YAML schemas
-├── requirements.txt # Dependencies
-├── README.md # This file
-└── quickstart.md # Step-by-step execution guide
+- `code/`: Core implementation scripts
+ - `generate_data.py`: Generates synthetic skills and tasks.
+ - `agent.py`: The Digital Colleague agent with retrieval logic.
+ - `run_experiment.py`: Orchestrates experiments across library sizes.
+ - `run_baseline.py`: Runs experiments with pruning disabled.
+ - `analyze.py`: Statistical analysis and tipping point detection.
+ - `config.py`, `utils.py`, `logging_config.py`: Shared utilities.
+- `data/`:
+ - `raw/`: Generated synthetic datasets (`skills.json`, `tasks.json`).
+ - `results/`: Experiment logs (`experiment_log.csv`), analysis outputs (`final_analysis.json`).
+- `contracts/`: Schema definitions for data validation.
+- `tests/`: Unit and integration tests.
+- `specs/`: Design documents and user stories.
+
+## Quick Start
+
+To run the full pipeline from data generation to final analysis:
+
+1. **Generate Data**:
+ ```bash
+ python code/generate_data.py
+ ```
+ *Output*: `data/raw/skills.json`, `data/raw/tasks.json`
+
+2. **Run Experiments** (with pruning):
+ ```bash
+ python code/run_experiment.py
+ ```
+ *Output*: `data/results/experiment_log.csv`, `data/results/metrics.json`
+
+3. **Run Baseline** (without pruning):
+ ```bash
+ python code/run_baseline.py
+ ```
+ *Output*: `data/results/experiment_log_baseline.csv`
+
+4. **Analyze Results**:
+ ```bash
+ python code/analyze.py
+ ```
+ *Output*: `data/results/final_analysis.json`, `data/results/sensitivity_report.json`
+
+## Configuration
+
+The pipeline uses random seeds for reproducibility. Configure them via environment variables:
+
+- `SEED_A`: Seed for skill generation (default: 42)
+- `SEED_B`: Seed for task ground-truth assignment (default: 123)
+
+Example:
+```bash
+export SEED_A=100
+export SEED_B=200
+python code/generate_data.py
 ```
 
 ## Testing
 
-Run unit and contract tests:
+Run the test suite to verify implementation:
+
 ```bash
-pytest tests/
+pytest tests/ -v
 ```
-
-## Reproducibility
-
-All experiments are deterministic when `SEED_A` and `SEED_B` are set.
-Dependencies are pinned in `requirements.txt`.
 
 ## License
 
-MIT License
+This project is part of the llmXive research initiative. See LICENSE for details.

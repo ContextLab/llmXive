@@ -1,0 +1,64 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`data/raw`, `data/results`, `code`,
+    `tests/unit`, `tests/contract`, `contracts`, `projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/`)
+    being present on disk is provided; without visible artifacts we cannot confirm
+    the structure was created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` file was presented; there is no evidence of its existence,
+    content, or installation instructions, so the required artifact is missing.
+T032:
+  c: false
+  h: 90ee48ded2f6fa2f4deb7b5fdda65d18b26e901cb9777a5fc422a25bb4ea9566
+  r: "The `code/analyze.py` script is truncated and lacks a complete implementation\
+    \ (e.g., the pruning efficacy calculation is unfinished and there is no function\
+    \ that writes the tipping point, p\u2011value, and VIF metrics to `data/results/final_analysis.json`).\
+    \ Moreover, the required `data/results/final_analysis.json` file does not exist.\
+    \ The task\u2019s deliverables are therefore missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `README.md` file (or its contents) was provided; therefore we
+    cannot confirm that installation and run instructions were added as required.
+    The implementer must supply the updated README showing the requested sections.
+T036:
+  c: true
+  h: 76db9828ce17e3a691041fc44481fb801df82c9d86ac27020fa34901f6eb5fef
+  r: "The repository contains a non\u2011empty `code/run_baseline.py` that defines\
+    \ the required library sizes, disables pruning, and references the output path\
+    \ `data/results/experiment_log_baseline.csv`. The missing CSV is an expected runtime\
+    \ product, not a required deliverable."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, or commit diffs are provided that show random\
+    \ seeds being set or dependencies being locked. Without artifacts such as updated\
+    \ scripts, a `requirements.txt`/`environment.yml` with pinned versions, or a report\
+    \ confirming reproducibility, the claim that the code cleanup and seed\u2011pinning\
+    \ task is finished cannot be verified. The implementer must supply the modified\
+    \ code and dependency specifications demonstrating the changes."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., benchmark script, memory profiling results, or optimized\
+    \ embedding implementation) was provided to demonstrate that calculating embeddings\
+    \ for 100 skills stays within the specified memory limits, nor any sampling strategy.\
+    \ Without concrete code, logs, or measurements, the performance\u2011optimization\
+    \ requirement is not satisfied."
+T040:
+  c: false
+  h: d87d913c69482319dbec7661cfebd525c26313787955ece53f6e896dc83ba35f
+  r: "The `code/analyze.py` file is truncated and does not contain any function that\
+    \ sweeps pruning thresholds over 5,\u202F10,\u202F20 tasks or writes a `sensitivity_report.json`.\
+    \ Moreover, the required `data/results/sensitivity_report.json` file is absent.\
+    \ The task\u2019s core requirement is therefore not satisfied."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run is provided\u2014there are no\
+    \ logs, screenshots, or reproducibility reports showing that the quickstart instructions\
+    \ were executed on a clean environment and succeeded. The implementer only supplied\
+    \ feature specifications, not the required validation artifact."

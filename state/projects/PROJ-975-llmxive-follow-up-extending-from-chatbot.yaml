@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-975-llmxive-follow-up-extending-from-chatbot
-last_run_id: 99410dff-a33f-466b-95a6-f9785acfea06
+last_run_id: b166503f-b28a-4b0f-aa52-672d94803831
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot
 title: 'llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm
   Shift Toward Persisten"'
-updated_at: '2026-07-12T17:25:30.401099Z'
+updated_at: '2026-07-16T23:15:07.016692Z'

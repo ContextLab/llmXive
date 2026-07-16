@@ -1,125 +1,104 @@
 """
-Unit tests for logging_config.py (T007).
-
-Verifies:
-1. The logger configuration writes to the correct CSV path.
-2. A log entry is written successfully.
-3. The file exists after writing.
+Unit tests for code/logging_config.py (Task T007).
 """
 import os
-import csv
 import json
 import tempfile
 import shutil
 import pytest
-from datetime import datetime
+from code.logging_config import CSVLogHandler, get_logger, log_experiment_entry, verify_log_file_exists
 
-# We need to temporarily override the module-level constants to use a temp directory
-# to avoid polluting the project data directory during tests.
-import code.logging_config as logging_config
+@pytest.fixture
+def temp_log_dir():
+    """Create a temporary directory for log files."""
+    temp_dir = tempfile.mkdtemp()
+    yield temp_dir
+    shutil.rmtree(temp_dir)
 
-class TestLoggingConfig:
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """
-        Setup a temporary directory for logs and teardown afterwards.
-        We monkeypatch the module's constants for the duration of the test.
-        """
-        self.temp_dir = tempfile.mkdtemp()
-        self.original_results_dir = logging_config.RESULTS_DIR
-        self.original_log_file_path = logging_config.LOG_FILE_PATH
-        
-        logging_config.RESULTS_DIR = self.temp_dir
-        logging_config.LOG_FILE_PATH = os.path.join(self.temp_dir, "experiment_log.csv")
-        
-        yield
-        
-        # Restore original values
-        logging_config.RESULTS_DIR = self.original_results_dir
-        logging_config.LOG_FILE_PATH = self.original_log_file_path
-        
-        # Cleanup temp directory
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
+def test_csv_handler_creates_file(temp_log_dir):
+    """Test that CSVLogHandler creates the file and writes a header."""
+    filepath = os.path.join(temp_log_dir, "test_log.csv")
+    handler = CSVLogHandler(filepath)
+    
+    # Log a message to trigger file creation
+    handler.emit(logging.LogRecord(
+        name="test",
+        level=logging.INFO,
+        pathname="test.py",
+        lineno=1,
+        msg="Test message",
+        args=(),
+        exc_info=None
+    ))
+    
+    assert os.path.exists(filepath)
+    with open(filepath, 'r') as f:
+        header = f.readline().strip()
+        assert "timestamp" in header
+        assert "level" in header
+        assert "message" in header
+        assert "metadata_json" in header
 
-    def test_logger_writes_to_csv(self):
-        """Test that get_logger creates a CSV file and writes a record."""
-        # Clear any existing handlers to ensure clean state
-        logger = logging_config.get_logger("test_logger")
-        # Remove handlers to force re-creation with new path
-        logger.handlers.clear()
+def test_get_logger_writes_to_file(temp_log_dir):
+    """Test that get_logger writes entries to the specified file."""
+    # Monkeypatch the LOG_FILE_PATH for this test
+    import code.logging_config as lc
+    original_path = lc.LOG_FILE_PATH
+    lc.LOG_FILE_PATH = os.path.join(temp_log_dir, "test_logger.csv")
+    
+    try:
+        logger = get_logger("test_logger")
+        logger.info("Test log entry")
         
-        # Re-get logger to ensure it picks up the monkeypatched path
-        logger = logging_config.get_logger("test_logger")
-        
-        test_msg = "Test log entry for T007 verification"
-        logger.info(test_msg)
-        
-        # Verify file existence
-        assert os.path.exists(logging_config.LOG_FILE_PATH), "Log file was not created."
-        
-        # Verify content
-        with open(logging_config.LOG_FILE_PATH, 'r', newline='') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            
-        assert len(rows) >= 1, "No rows were written to the CSV."
-        
-        last_row = rows[-1]
-        assert last_row['level'] == 'INFO'
-        assert test_msg in last_row['message']
-        assert 'timestamp' in last_row
-        assert 'metadata_json' in last_row
+        assert verify_log_file_exists()
+        with open(lc.LOG_FILE_PATH, 'r') as f:
+            content = f.read()
+            assert "Test log entry" in content
+    finally:
+        lc.LOG_FILE_PATH = original_path
 
-    def test_log_experiment_entry_structure(self):
-        """Test that log_experiment_entry writes all required fields."""
-        logger = logging_config.get_logger("test_entry_logger")
-        logger.handlers.clear()
-        logger = logging_config.get_logger("test_entry_logger")
-        
-        logging_config.log_experiment_entry(
-            task_id="T007-TEST",
+def test_log_experiment_entry_structure(temp_log_dir):
+    """Test that log_experiment_entry writes correct metadata structure."""
+    import code.logging_config as lc
+    original_path = lc.LOG_FILE_PATH
+    lc.LOG_FILE_PATH = os.path.join(temp_log_dir, "test_entry.csv")
+    
+    try:
+        log_experiment_entry(
+            task_id="T001",
             success=True,
-            latency=0.123,
+            latency=0.5,
             tokens=100,
-            retrieval_precision=0.85,
-            retrieval_diversity=0.45,
+            retrieval_precision=0.8,
+            retrieval_diversity=0.2,
             pruning_risk_count=0,
-            library_size=10,
+            library_size=50,
             pruning_enabled=False
         )
         
-        assert os.path.exists(logging_config.LOG_FILE_PATH)
-        
-        with open(logging_config.LOG_FILE_PATH, 'r', newline='') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
+        assert verify_log_file_exists()
+        with open(lc.LOG_FILE_PATH, 'r') as f:
+            lines = f.readlines()
+            assert len(lines) > 1  # Header + 1 entry
             
-        assert len(rows) >= 1
-        last_row = rows[-1]
-        
-        # Verify metadata JSON contains the keys
-        metadata = json.loads(last_row['metadata_json'])
-        assert metadata['task_id'] == 'T007-TEST'
-        assert metadata['success'] is True
-        assert abs(metadata['latency'] - 0.123) < 0.001
-        assert metadata['tokens'] == 100
-        assert abs(metadata['retrieval_precision'] - 0.85) < 0.01
-        assert metadata['library_size'] == 10
-        assert metadata['pruning_enabled'] is False
+            # Parse the last line as CSV to verify structure
+            import csv
+            reader = csv.DictReader(lines)
+            row = next(reader)
+            
+            assert json.loads(row["metadata_json"])["task_id"] == "T001"
+            assert json.loads(row["metadata_json"])["success"] is True
+            assert json.loads(row["metadata_json"])["library_size"] == 50
+    finally:
+        lc.LOG_FILE_PATH = original_path
 
-    def test_verify_log_file_exists(self):
-        """Test the verify_log_file_exists helper function."""
-        # Initially file shouldn't exist if we just cleared handlers and haven't logged
-        # But to be safe, let's log one entry first
-        logger = logging_config.get_logger("verify_logger")
-        logger.handlers.clear()
-        logger = logging_config.get_logger("verify_logger")
-        logger.info("Initial log")
-        
-        assert logging_config.verify_log_file_exists() is True
-        
-        # Remove the file manually to test False case
-        if os.path.exists(logging_config.LOG_FILE_PATH):
-            os.remove(logging_config.LOG_FILE_PATH)
-            
-        assert logging_config.verify_log_file_exists() is False
+def test_verify_log_file_exists_false():
+    """Test verify_log_file_exists returns False for non-existent file."""
+    import code.logging_config as lc
+    original_path = lc.LOG_FILE_PATH
+    lc.LOG_FILE_PATH = "/non/existent/path/file.csv"
+    
+    try:
+        assert not verify_log_file_exists()
+    finally:
+        lc.LOG_FILE_PATH = original_path

@@ -1,21 +1,46 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Skill Schema
-description: Schema for a single skill in the llmXive experiment
+description: Schema for Python "skills" (functions) in the synthetic library.
 type: object
 required:
-  - id
+  - skill_id
   - code
+  - description
+  - embedding
+  - metadata
 properties:
-  id:
+  skill_id:
     type: string
-    description: Unique identifier for the skill
+    description: Unique identifier for the skill (e.g., "skill_001").
   code:
     type: string
-    description: Python code implementation of the skill
-  category:
+    description: The actual Python source code of the function.
+  description:
     type: string
-    description: Category or type of the skill
-  created_at:
-    type: number
-    description: Unix timestamp of creation
-additionalProperties: true
+    description: Natural language description of what the skill does.
+  embedding:
+    type: array
+    description: Vector embedding of the skill description/code.
+    items:
+      type: number
+      format: float
+    minItems: 384
+    maxItems: 384
+  metadata:
+    type: object
+    description: Skill metadata.
+    properties:
+      complexity:
+        type: integer
+        description: Complexity score of the skill.
+      similarity_stats:
+        type: object
+        description: Pre-calculated similarity statistics if available.
+        properties:
+          mean_pairwise:
+            type: number
+            format: float
+          max_pairwise:
+            type: number
+            format: float
+additionalProperties: false

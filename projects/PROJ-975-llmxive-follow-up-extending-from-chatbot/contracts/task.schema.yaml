@@ -1,24 +1,41 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Task Schema
-description: Schema for a single task in the llmXive experiment
+description: Schema for synthetic multi-step tasks generated for the llmXive experiment.
 type: object
 required:
-  - id
+  - task_id
   - description
   - ground_truth_path
+  - required_skills
+  - metadata
 properties:
-  id:
+  task_id:
     type: string
-    description: Unique identifier for the task
+    description: Unique identifier for the task (e.g., "task_001").
   description:
     type: string
-    description: Natural language description of the task
+    description: Natural language description of the task to be solved.
   ground_truth_path:
     type: array
-    description: List of skill IDs that form the solution path
+    description: Ordered list of skill IDs representing the correct solution path.
     items:
       type: string
-  created_at:
-    type: number
-    description: Unix timestamp of creation
-additionalProperties: true
+  required_skills:
+    type: array
+    description: List of skill IDs necessary to complete the task (subset of library).
+    items:
+      type: string
+  metadata:
+    type: object
+    description: Additional task metadata.
+    properties:
+      complexity:
+        type: integer
+        description: Estimated complexity score.
+      overlap_level:
+        type: string
+        description: The overlap level (Low, Medium, High) this task was generated under.
+      seed_b_reference:
+        type: string
+        description: Reference to the seed used for ground truth assignment.
+additionalProperties: false

@@ -82,3 +82,728 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T17:43:19Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: 500 multi-step tasks with unique ground-truth solution paths independent
+    of embedding space
+  claim_id: c_e9e21240
+  context: Implement code/generate_data.py to create exactly 100 Python functions
+    (skills) and exactly 500 multi-step tasks. Explicitly validate that mean pairwise
+    cosine similarity matches thresholds...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate tasks with unique ground-truth solution paths (a small number
+    of deterministic actions) independent of the embedding space.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:32:31Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Generate 100 skills and 500 multi-step tasks
+  claim_id: c_2bed9b9a
+  context: Implement code/generate_data.py to create exactly 100 Python functions
+    (skills) and exactly 500 multi-step tasks. Explicitly validate that mean pairwise
+    cosine similarity matches thresholds...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logic in code/generate_data.py to create exactly 100 Python
+    functions (skills) and exactly 500 multi-step tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:32:57Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: 'Validate cosine similarity thresholds: Low <0.30, Medium >0.50 (>30%
+    pairs), High >0.80 (>30% pairs)'
+  claim_id: c_dfb9f7a7
+  context: 'Implement code/generate_data.py to create exactly 100 Python functions
+    (skills) and exactly 500 multi-step tasks. Explicitly validate that mean pairwise
+    cosine similarity matches thresholds: Low <0.30, Medium >0.50 (and >30% pairs
+    >0.50), High >0.80 (and >30% pairs >0.80).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly validate that mean pairwise cosine similarity matches thresholds:
+    Low <0.30, Medium >0.50 (and >30% pairs >0.50), High >0.80 (and >30% pairs >0.80).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:32:57Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Assign 3-5 skill IDs as ground-truth paths to 500 tasks
+  claim_id: c_35978c35
+  context: Implement logic in code/generate_data.py to assign unique ground-truth
+    solution paths (3-5 skill IDs) to each of the 500 tasks, ensuring this assignment
+    uses a distinct random seed (Seed B)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assign unique ground-truth solution paths (3-5 skill IDs) to each of the
+    500 tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:33:29Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Trigger minimal baseline retrieval precision if mean pairwise similarity
+    >= 0.95
+  claim_id: c_fe83ffe9
+  context: 'Implement logic in code/generate_data.py to detect mean pairwise similarity
+    >= 0.95. If detected: set Retrieval Precision to a minimal baseline level, implement
+    deterministic tie-breaking logic...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Detect mean pairwise similarity >= 0.95 to trigger minimal baseline retrieval
+    precision and deterministic tie-breaking.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:33:46Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Fail if RAM usage exceeds 6 GB during embedding calculation
+  claim_id: c_36745cac
+  context: Add memory pressure check in code/generate_data.py to detect RAM limits
+    during embedding calculation and fail gracefully with 'Memory Limit Exceeded'
+    if > 6 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail gracefully with 'Memory Limit Exceeded' if RAM usage exceeds 6 GB
+    during embedding calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:34:06Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Fetch top-5 skills based on task embedding
+  claim_id: c_d6a01557
+  context: Implement code/agent.py retrieval logic using code/utils.py to fetch top-k
+    (k=5) skills based on task embedding.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch top-k (k=5) skills based on task embedding.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:34:37Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Remove skills with usage=0 and similarity < 0.70 after every 10 tasks
+  claim_id: c_44229b22
+  context: Implement 'Safe Pruning' heuristic in code/agent.py that removes skills
+    where usage_count == 0 AND min_cosine_similarity < 0.70 after every 10 tasks,
+    per FR-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 'Safe Pruning' heuristic that removes skills where usage_count
+    == 0 AND min_cosine_similarity < 0.70 after every 10 tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:34:56Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Sweep pruning thresholds across 5, 10, and 20 tasks
+  claim_id: c_ae9c8795
+  context: Implement sensitivity analysis logic in code/analyze.py to sweep pruning
+    thresholds across a range of {5, 10, 20} tasks (per Spec Assumptions) and verify
+    robustness of the tipping point finding.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep pruning thresholds across a range of {5, 10, 20} tasks for sensitivity
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:35:17Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Generate 500 tasks with unique deterministic ground-truth solution paths
+    independent of embedding space
+  claim_id: c_3d36851b
+  context: T012 [P] [US1] Implement code/generate_data.py to create exactly 100 Python
+    functions (skills) and exactly 500 multi-step tasks. Explicitly validate that
+    mean pairwise cosine similarity matches thresholds...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate tasks with unique ground-truth solution paths (a small number
+    of deterministic actions) independent of the embedding space.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:40:57Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Assign 3-5 skill IDs as ground-truth paths to each of 500 tasks
+  claim_id: c_65e98bc1
+  context: T013 [US1] Implement logic in code/generate_data.py to assign unique ground-truth
+    solution paths (3-5 skill IDs) to each of the 500 tasks, ensuring this assignment
+    uses a distinct random seed...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logic in code/generate_data.py to assign unique ground-truth
+    solution paths (3-5 skill IDs) to each of the 500 tasks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:41:17Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Create exactly 100 Python functions (skills)
+  claim_id: c_cbde9f27
+  context: T012 [P] [US1] Implement code/generate_data.py to create exactly 100 Python
+    functions (skills) and exactly 500 multi-step tasks.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generate_data.py to create exactly 100 Python functions
+    (skills)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:41:35Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: 'Validate mean pairwise cosine similarity thresholds: Low <0.30, Medium
+    >0.50 with >30% pairs >0.50, High >0.80 with >30% pairs >0.80'
+  claim_id: c_390ffb6e
+  context: 'T012 [P] [US1] ... Explicitly validate that mean pairwise cosine similarity
+    matches thresholds: Low <0.30, Medium >0.50 (and >30% pairs >0.50), High >0.80
+    (and >30% pairs >0.80).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly validate that mean pairwise cosine similarity matches thresholds:
+    Low <0.30, Medium >0.50 (and >30% pairs >0.50), High >0.80 (and >30% pairs >0.80).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:41:35Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Remove skills with usage_count 0 and cosine similarity < 0.70 every 10
+    tasks
+  claim_id: c_21c3dabe
+  context: T027 [US2] Implement 'Safe Pruning' heuristic in code/agent.py that removes
+    skills where usage_count == 0 AND min_cosine_similarity < 0.70 after every 10
+    tasks, per FR-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 'Safe Pruning' heuristic in code/agent.py that removes skills
+    where usage_count == 0 AND min_cosine_similarity < 0.70 after every 10 tasks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:41:54Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Agent fails gracefully and logs missing skill ID without crashing
+  claim_id: c_70fef5a3
+  context: T024 [US2] Add handling for 'missing skill' edge cases where the agent
+    fails gracefully, logs the missing skill ID, and records the failure without crashing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Agent_fails_gracefully_and_logs_missing_skill_ID_without_cra
+  kind: entity_fact
+  raw_text: Add handling for 'missing skill' edge cases where the agent fails gracefully,
+    logs the missing skill ID, and records the failure without crashing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:42:20Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Fetch top-5 skills based on task embedding
+  claim_id: c_757a8fcf
+  context: T019 [P] [US2] Implement code/agent.py retrieval logic using code/utils.py
+    to fetch top-k (k=5) skills based on task embedding.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement retrieval logic using code/utils.py to fetch top-k (k=5) skills
+    based on task embedding.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:42:31Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Run experiment with pruning disabled and save to baseline log
+  claim_id: c_3ea6bf8b
+  context: T036 [US3] Create code/run_baseline.py to run the full experiment set (library
+    sizes ranging from small to large) with pruning disabled and save results to data/results/experiment_log_baseline.csv
+    to satisfy SC-003 performance recovery comparison.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_experiment_with_pruning_disabled_and_save_to_baseline_lo
+  kind: entity_fact
+  raw_text: Run the full experiment set (library sizes ranging from small to large)
+    with pruning disabled and save results to data/results/experiment_log_baseline.csv
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:42:53Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Perform piecewise linear regression with single breakpoint to identify
+    tipping point library size
+  claim_id: c_7326dc3d
+  context: T030 [US3] Implement code/analyze.py to load data/results/experiment_log.csv
+    and perform Piecewise Linear Regression with a single breakpoint (per FR-005,
+    SC-004) to identify the 'tipping point' library size where success rate declines.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_piecewise_linear_regression_with_single_breakpoint_t
+  kind: entity_fact
+  raw_text: Perform Piecewise Linear Regression with a single breakpoint to identify
+    the 'tipping point' library size where success rate declines.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:43:21Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Calculate tipping point x0 as inflection point of logistic curve
+  claim_id: c_5e3cdbf0
+  context: T039 [US3] Implement Logistic Regression with a Quadratic Term ... to identify
+    the 'tipping point' library size where success rate declines. Calculate x0 (tipping
+    point) by finding the inflection point (derivative = 0) of the fitted logistic
+    curve.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate x0 (tipping point) by finding the inflection point (derivative
+    = 0) of the fitted logistic curve.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:44:13Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Calculate VIF for library size and total redundancy to confirm VIF <
+    5.0
+  claim_id: c_97946812
+  context: T031 [US3] Implement calculation of Variance Inflation Factor (VIF) in
+    code/analyze.py for predictors 'library size' and 'total redundancy' to confirm
+    VIF < 5.0, output VIF values to a log/variable.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement calculation of Variance Inflation Factor (VIF) in code/analyze.py
+    for predictors 'library size' and 'total redundancy' to confirm VIF < 5.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:44:13Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Sweep pruning thresholds across 5, 10, and 20 tasks
+  claim_id: c_ba76f40d
+  context: T040 [US3] Implement sensitivity analysis logic in code/analyze.py to sweep
+    pruning thresholds across a range of {5, 10, 20} tasks (per Spec Assumptions)
+    and verify robustness of the tipping point finding.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sensitivity analysis logic in code/analyze.py to sweep pruning
+    thresholds across a range of {5, 10, 20} tasks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:44:38Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Handle mean pairwise similarity >= 0.95 by setting minimal precision
+    and flagging maximal overlap
+  claim_id: c_18c7ed2e
+  context: 'T015 [US1] Implement logic in code/generate_data.py to detect mean pairwise
+    similarity >= 0.95. If detected: set Retrieval Precision to a minimal baseline
+    level, implement deterministic tie-breaking logic (random selection with logging),
+    log a warning, and ensure the script exits with code 0 while writing data/raw/skills.json
+    with a maximal_overlap_detected: true flag in metadata.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Detect mean pairwise similarity >= 0.95. If detected: set Retrieval Precision
+    to a minimal baseline level, implement deterministic tie-breaking logic, log a
+    warning, and ensure the script exits with code 0 while writing data/raw/skills.json
+    with a maximal_overlap_detected: true flag.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:44:54Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Fail gracefully with Memory Limit Exceeded if RAM usage > 6 GB
+  claim_id: c_fb335589
+  context: T016 [US1] Add memory pressure check in code/generate_data.py to detect
+    RAM limits during embedding calculation and fail gracefully with 'Memory Limit
+    Exceeded' if > 6 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add memory pressure check in code/generate_data.py to detect RAM limits
+    during embedding calculation and fail gracefully with 'Memory Limit Exceeded'
+    if > 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:44:54Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: 100 skills and 500 multi-step tasks generated
+  claim_id: c_08e03aaa
+  context: 'Generate 100 skills and 500 multi-step tasks with ground-truth solution
+    paths: python code/generate_data.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 100 skills and 500 multi-step tasks with ground-truth solution
+    paths
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:45:55Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 download size 80MB
+  claim_id: c_c7d82579
+  context: 'Model Download: The first run will download sentence-transformers/all-MiniLM-L6-v2
+    (~80MB). Ensure internet connectivity.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sentence-transformers/all-MiniLM-L6-v2_download_size_80MB
+  kind: entity_fact
+  raw_text: The first run will download sentence-transformers/all-MiniLM-L6-v2 (~80MB)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T22:46:11Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Generate tasks with unique ground-truth solution paths independent of
+    embedding space
+  claim_id: c_1e262bff
+  context: 'T013 [US1] Implement code/generate_data.py to create exactly 100 Python
+    functions (skills) and exactly 500 multi-step tasks. Explicitly validate that
+    mean pairwise cosine similarity matches thresholds: Low <0.30, Medium >0.50 (and
+    >30% pairs >0.50), High >0.80 (and >30% pairs >0.80). Read OVERLAP_LEVEL from
+    config.py to determine target thresholds. Use sklearn.metrics.pairwise.cosine_similarity
+    for validation. Generate tasks with unique ground-truth solution paths (a small
+    number of deterministic actions) independent of the embedding space.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_tasks_with_unique_ground-truth_solution_paths_indep
+  kind: entity_fact
+  raw_text: Generate tasks with unique ground-truth solution paths (a small number
+    of deterministic actions) independent of the embedding space.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:08:04Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Create 100 Python functions and 500 multi-step tasks
+  claim_id: c_1703cf19
+  context: 'T013 [US1] Implement code/generate_data.py to create exactly 100 Python
+    functions (skills) and exactly 500 multi-step tasks. Explicitly validate that
+    mean pairwise cosine similarity matches thresholds: Low <0.30, Medium >0.50 (and
+    >30% pairs >0.50), High >0.80 (and >30% pairs >0.80).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create exactly 100 Python functions (skills) and exactly 500 multi-step
+    tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:08:32Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: 'Validate mean pairwise cosine similarity thresholds: Low <0.30, Medium
+    >0.50 (>30% pairs), High >0.80 (>30% pairs)'
+  claim_id: c_ebd8522c
+  context: 'T013 [US1] Implement code/generate_data.py to create exactly 100 Python
+    functions (skills) and exactly 500 multi-step tasks. Explicitly validate that
+    mean pairwise cosine similarity matches thresholds: Low <0.30, Medium >0.50 (and
+    >30% pairs >0.50), High >0.80 (and >30% pairs >0.80). Read OVERLAP_LEVEL from
+    config.py to determine target thresholds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly validate that mean pairwise cosine similarity matches thresholds:
+    Low <0.30, Medium >0.50 (and >30% pairs >0.50), High >0.80 (and >30% pairs >0.80).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:08:32Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Set Retrieval Precision to 0.0 if mean pairwise similarity >= 0.95
+  claim_id: c_deaf95c9
+  context: 'T016 [US1] Implement logic in code/generate_data.py to detect mean pairwise
+    similarity >= 0.95. If detected: set Retrieval Precision to exactly 0.0 for all
+    tasks, implement deterministic tie-breaking logic (random selection with logging),
+    log a warning, and ensure the script exits with code 0 while writing data/raw/skills.json
+    with a maximal_overlap_detected: true flag in metadata.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If mean pairwise similarity >= 0.95 is detected: set Retrieval Precision
+    to exactly 0.0 for all tasks.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:09:08Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Fail with Memory Limit Exceeded if RAM > 6 GB
+  claim_id: c_deb98d81
+  context: T017 [US1] Add memory pressure check in code/generate_data.py to detect
+    RAM limits during embedding calculation and fail gracefully with 'Memory Limit
+    Exceeded' if > 6 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail gracefully with 'Memory Limit Exceeded' if RAM usage is > 6 GB during
+    embedding calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:09:08Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Fetch top-5 skills based on task embedding
+  claim_id: c_d6bb4914
+  context: T021 [P] [US2] Implement code/agent.py retrieval logic using code/utils.py
+    to fetch top-k (k=5) skills based on task embedding.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement retrieval logic to fetch top-k (k=5) skills based on task embedding.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:10:57Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Calculate Retrieval Diversity as inverse variance of cosine similarities
+    of 5 retrieved skills
+  claim_id: c_2d9255f9
+  context: T023 [US2] Implement calculation of Retrieval Precision (Jaccard similarity
+    between top-k retrieved skills and ground-truth set) and Retrieval Diversity (inverse
+    of the variance of the cosine similarities of the 5 retrieved skills against the
+    ground-truth set) in code/agent.py per FR-006 and SC-002, and append these values
+    as new data rows to data/results/experiment_log.csv for every task run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Retrieval Diversity as the inverse of the variance of the cosine
+    similarities of the 5 retrieved skills against the ground-truth set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:11:29Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Prune skills with usage=0 and similarity < 0.70 every 10 tasks
+  claim_id: c_62889358
+  context: T028 [US2] Implement 'Safe Pruning' heuristic in code/agent.py that removes
+    skills where usage_count == 0 AND min_cosine_similarity < 0.70 after every N tasks
+    (where N is a configurable parameter, read from config.py with default 10 to match
+    FR-004), per FR-004. Explicitly log the count of pruned skills that had high similarity
+    to ground truth to experiment_log.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 'Safe Pruning' heuristic that removes skills where usage_count
+    == 0 AND min_cosine_similarity < 0.70 after every N tasks (default N=10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:12:01Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Sweep pruning thresholds across 5, 10, and 20 tasks
+  claim_id: c_45deff05
+  context: T035 [US3] Implement sensitivity analysis logic in code/analyze.py to sweep
+    pruning thresholds across a range of {5, 10, 20} tasks (per Spec Assumptions)
+    and verify robustness of the tipping point finding by recalculating the tipping
+    point for each sweep. Output results to data/results/sensitivity_report.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep pruning thresholds across a range of {5, 10, 20} tasks to verify
+    robustness of the tipping point finding.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:12:39Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Confirm VIF < 5.0 for library size and semantic overlap predictors
+  claim_id: c_a59b2fd4
+  context: T032 [US3] Implement calculation of Variance Inflation Factor (VIF) in
+    code/analyze.py for predictors 'library size' and 'semantic overlap' to confirm
+    VIF < 5.0, output VIF values to a log/variable.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Variance Inflation Factor (VIF) for predictors 'library size'
+    and 'semantic overlap' to confirm VIF < 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:12:39Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Calculate tipping point x0 via inflection point of logistic curve using
+    scipy.optimize.root_scalar
+  claim_id: c_405eb90a
+  context: 'T033 [US3] Implement Logistic Regression with a Quadratic Term (per Plan:
+    Methodological Correction) in code/analyze.py to identify the ''tipping point''
+    library size where success rate declines. Calculate x0 (tipping point) by finding
+    the inflection point (derivative = 0) of the fitted logistic curve using scipy.optimize.root_scalar.
+    Output the breakpoint parameter x0 to data/results/tipping_point.json and verify
+    it is included in the final report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate x0 (tipping point) by finding the inflection point (derivative
+    = 0) of the fitted logistic curve using scipy.optimize.root_scalar.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:13:38Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Flag model invalid if VIF >= 5.0
+  claim_id: c_9852a4c0
+  context: 'T041 [US3] Statistical Validity: Refine code/analyze.py to explicitly
+    calculate and report the Variance Inflation Factor (VIF) for the ''library size''
+    and ''semantic overlap'' predictors. Add a hard assertion or warning if VIF >=
+    5.0, flagging the model as invalid due to collinearity as per FR-007 and SC-006.
+    (Note: Logic already in T032, this task ensures final report includes it).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add a hard assertion or warning if VIF >= 5.0, flagging the model as invalid
+    due to collinearity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:13:53Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: Use SHA-256 for checksum validation of tasks.json and skills.json
+  claim_id: c_33d1d508
+  context: 'T042 [US1] Data Integrity: Enhance code/generate_data.py to include a
+    checksum validation step upon loading generated tasks.json and skills.json. Algorithm:
+    SHA-256. Storage: Generate checksums to data/raw/checksums.json upon write; validate
+    against state/artifact_hashes.json upon load. Raise an error immediately if checksums
+    mismatch.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use SHA-256 algorithm for checksum validation of generated tasks.json
+    and skills.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:14:23Z'
