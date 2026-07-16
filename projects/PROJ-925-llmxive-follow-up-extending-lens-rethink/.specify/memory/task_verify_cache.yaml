@@ -1,0 +1,23 @@
+T018:
+  c: false
+  h: 6ea948dc15ed5dccc674f8ab026e57d1d6af57950bbdde0f16d1dde16e9d83b1
+  r: The `code/data/features.py` file exists but is truncated (the `validate_dataframe`
+    function ends abruptly and there is no logic to read the input stream, call `extract_features_batch`,
+    or write `data/processed/features.csv`). Moreover, the required schema file `contracts/feature_vector.schema.yaml`
+    is absent, and the expected output CSV was not generated. These missing pieces
+    prevent the task from being fully satisfied.
+T025:
+  c: false
+  h: 1248d67c27d1c1044c252e2c20d74474d78fa2f6f13590ddb99185dac36c8986
+  r: The required output file `data/processed/deviation.csv` does not exist, and the
+    provided `code/data/preprocess.py` snippet is truncated before any code that checks
+    zero variance or raises the exact `ValueError("Target not learnable")`. Both the
+    artifact and the specific behavior are missing.
+T033:
+  c: false
+  h: 354e078bcc6f427efa472bbcda701c5207cb69a2b41a258cf4d24799f51856f1
+  r: "The provided `code/data/train.py` does not contain any logic that reads a list\
+    \ of seeds from the config, iterates training over those seeds, aggregates feature\u2011\
+    importance rankings, computes mean rank and standard deviation, or writes the\
+    \ required `results/stability_metrics.json`. Moreover, the JSON file is missing\
+    \ entirely. The task\u2019s core functionality is therefore not implemented."

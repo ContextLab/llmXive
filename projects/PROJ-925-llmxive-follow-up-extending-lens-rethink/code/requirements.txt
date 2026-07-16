@@ -1,0 +1,13 @@
+xgboost>=2.0.0
+scikit-learn>=1.4.0
+transformers>=4.38.0
+spacy>=3.7.0
+datasets>=2.16.0
+pandas>=2.2.0
+numpy>=1.26.0
+torch>=2.2.0
+pydantic>=2.6.0
+jsonschema>=4.21.0
+pytest>=8.0.0
+ruff>=0.3.0
+black>=24.2.0

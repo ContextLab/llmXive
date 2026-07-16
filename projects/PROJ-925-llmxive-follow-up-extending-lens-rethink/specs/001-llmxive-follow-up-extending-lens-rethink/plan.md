@@ -111,7 +111,7 @@ No complexity violations found. The design strictly adheres to the CPU constrain
 - **Goal**: Compute the alignment gap.
 - **Steps**:
   1.  Compute CLIP score for each caption-image pair.
-  2.  Convert `winner`/`loser` pairs to a normalized `human_rating` (0.0 to 1.0).
+  2.  Convert `winner`/`loser` pairs to a normalized `human_rating` within a bounded unit interval.
   3.  Calculate $Y = | \text{CLIP\_Score} - \text{Human\_Rating} |$.
   4.  Output `deviation.csv` validated against `contracts/deviation_target.schema.yaml`.
 

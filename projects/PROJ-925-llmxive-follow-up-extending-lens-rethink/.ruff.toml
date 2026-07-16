@@ -1,0 +1,20 @@
+# This file is a legacy alias for ruff.toml if ruff is invoked without pyproject.toml
+# The primary configuration is in pyproject.toml [tool.ruff]
+# This file ensures compatibility with older ruff invocations that look for .ruff.toml
+extend = "pyproject.toml"
+target-version = "py311"
+line-length = 88
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+    "N",
+]
+ignore = [
+    "E501",
+    "B008",
+]
