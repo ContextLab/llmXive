@@ -1,0 +1,61 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No repository skeleton directories (`src/`, `tests/`, `data/`, `results/`, `docs/`,
+    `contracts/`) are present in the provided evidence; the implementer supplied only
+    a textual claim without any actual folder structure or files. The required artifact
+    is missing.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `renv.lock` file, R project initialization script, or any evidence of the
+    listed Bioconductor packages being installed is provided. The required artifact
+    (a reproducible R environment setup) is missing, so the task is not satisfied.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no linting or formatting configuration files (e.g., `pyproject.toml`
+    with ruff/black settings, `.ruff.toml`, `.style.yapf`, or similar) and no evidence
+    that `ruff`, `black`, or `styler` have been added to the project. The artifacts
+    listed are unrelated to the linting task, so the required configuration is missing.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no code, file, or snippet showing a CLI argument validator\
+    \ in `run_pipeline.py`, nor any test or documentation confirming that `--threshold`\
+    \ is enforced to be \u2265\u202F0.75. Without the actual artifact, the requirement\
+    \ is not satisfied."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI configuration, script, or workflow file is provided that adds a citation\u2011\
+    verification step, nor any evidence (e.g., GitHub Actions YAML, test logs, or\
+    \ documentation) showing the Reference\u2011Validator Agent being invoked on markdown\
+    \ and code files. The required artifact is missing, so the task is not satisfied."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code changes, log files, or test output were provided to demonstrate that\
+    \ the downloader now checks sample counts, skips series with fewer than\u202F\
+    30 samples, and writes a warning to `pipeline.log`. Without such artifacts, the\
+    \ requirement cannot be verified as satisfied."
+T098:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code changes, configuration, or example `pipeline.log` showing the added\
+    \ command\u2011line, version, and seed information were provided; thus the required\
+    \ logger extension cannot be verified. The implementer must supply the modified\
+    \ logger implementation and a sample log entry demonstrating the new fields."
+T099:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test script, CI configuration, or code artifact was presented that runs the\
+    \ CLI validator with a threshold below\u202F0.75 and checks for rejection. The\
+    \ required CI test file (e.g., a pytest or GitHub Actions step) is missing, so\
+    \ the claim is unsupported."
+T100:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no CI configuration, script, or workflow file that\
+    \ runs a Reference\u2011Validator Agent, nor any evidence that the pipeline would\
+    \ fail on citation mismatches. Consequently, the required artifact is missing."

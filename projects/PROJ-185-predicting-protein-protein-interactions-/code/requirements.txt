@@ -1,0 +1,23 @@
+# Core scientific stack
+numpy
+pandas
+networkx
+goatools
+scikit-learn
+tqdm
+requests
+
+# Additional packages required for GEO downloading and YAML handling
+GEOparse
+pyyaml
+
+# Pin versions (example – adjust as needed for reproducibility)
+numpy==1.26.4
+pandas==2.2.2
+networkx==3.3
+goatools==1.4.0
+scikit-learn==1.5.0
+tqdm==4.66.5
+requests==2.32.3
+GEOparse==2.2.1
+pyyaml==6.0.2

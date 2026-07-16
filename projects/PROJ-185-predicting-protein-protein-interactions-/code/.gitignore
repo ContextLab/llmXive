@@ -1,0 +1,36 @@
+# Data and Results (Generated)
+data/
+results/
+*.csv
+*.tsv
+*.gz
+*.log
+*.json
+*.yaml
+*.lock
+
+# Python
+__pycache__/
+*.py[cod]
+$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# R
+.Rhistory
+.Rdata
+renv/

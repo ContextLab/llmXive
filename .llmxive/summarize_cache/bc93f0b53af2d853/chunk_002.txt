@@ -1,0 +1,43 @@
+- **Co‑expression Edge**: Undirected connection between two Genes; attributes include Pearson (or optional Spearman) correlation coefficient, bootstrap CI, and optional STRING confidence score.
+- **RawCorrelation**: Undirected gene‑gene correlation prior to identifier mapping; attributes `gene_id_1`, `gene_id_2`, `correlation`, `p_value`, `adjusted_p_value`.
+- **ProteinCorrelation**: Post‑mapping correlation record; attributes `protein_id_1`, `protein_id_2`, `correlation`.
+- **Evaluation Metric**: Quantitative result (AUROC, AUPRC, baseline AUROC/AUPRC, baseline_p) linked to the prediction set per species.
+- **GO Enrichment Record**: GO term identifier, raw p‑value, Benjamini–Hochberg adjusted p‑value, and gene count.
+
+## Phase Mapping *(mandatory)*
+
+The pipeline is organized into distinct phases. Each functional requirement (FR) is assigned to the phase(s) that implement it.
+
+- **Phase 1 – Data Acquisition**: FR-001
+- **Phase 2 – Normalization & Filtering**: FR-002, FR-003, FR-004
+- **Phase 3 – Correlation Computation**: FR-004, FR-020, FR-025
+- **Phase 4 – Identifier Mapping**: FR-005
+- **Phase 5 – Edge Selection & Thresholding**: FR-004, FR-045
+- **Phase 6 – Evaluation**: FR-006, FR-007, FR-016, FR-032, FR-018, FR-019, FR-012
+- **Phase 7 – Functional Enrichment**: FR-008, FR-024, FR-022
+- **Phase 8 – Reporting & Summary**: FR-021, FR-028, FR-030, FR-034, FR-035
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: For each species **with at least one predicted edge**, AUROC of the co‑expression‑derived predictions (computed on raw correlation scores for the full, imbalanced set) against STRING high‑confidence interactions (excluding co‑expression evidence) must be **≥ 0.70** **and** AUPRC must be **≥ 0.65**.
+- **SC-002**: Adjusted p‑value for at least one GO term in the enrichment report must be **< 0.05** (Benjamini–Hochberg) for each species.
+- **SC-003**: End‑to‑end pipeline runtime on the default GitHub Actions runner must be **≤ 6 hours** (wall‑clock).
+- **SC-004**: The pipeline must produce reproducible results (identical `evaluation_metrics.json`, `go_enrichment_<species>.tsv`, `summary_<species>.txt`, `raw_correlations_<species>.tsv.gz`, and related files) when re‑run on the same input data with the same random seed (as provided via FR‑012).
+- **SC-005**: After each Make target, the verification step (FR‑017) must confirm that all required output files (`predicted_ppi_<species>.tsv`, `evaluation_metrics.json`, `go_enrichment_<species>.tsv`, `pipeline.log`, `summary_<species>.txt`, `raw_correlations_<species>.tsv.gz`, etc.) are present, syntactically valid, and parsable for every processed species.
+- **SC-006** (See US-1): The schema‑validation steps (FR‑013, FR‑019, FR‑030) must pass without errors for all species, guaranteeing that every output conforms to its respective contract.
+
+## Assumptions
+
+- Public GEO series listed in the configuration contain **≥ 50 RNA‑seq samples** with sufficient depth for TPM/DESeq2 normalization for each species. A power‑analysis (Cohen, 1992, *Statistical Power Analysis for the Behavioral Sciences*) shows that with 50 samples there is ≥ 80 % power to detect a true Pearson correlation of 0.8 at α = 0.05, providing stable correlation estimates for the high‑threshold network.
+- After CPM filtering and variance‑based sub‑selection, the pipeline retains **≤ 5,000 genes** per species, reducing pairwise tests to ≤ 12.5 M, which is tractable on a GitHub Actions runner within the 6‑hour budget using block‑wise streaming.
+- The latest STRING release (`protein.links.v11.5.txt.gz`) is accessible via the URL provided on the STRING download page and contains high‑confidence scores ≥ 700. The evaluation uses the subset that **excludes the co‑expression evidence channel** (see STRING API documentation: https://string-db.org/cgi/help?subpage=api).
+- The compute environment provides Python ≥ 3.10, R ≥ 4.2, and the necessary libraries (NumPy, Pandas, NetworkX, GOATOOLS, DESeq2, Bioconductor `org.At.tair.db`, limma/ComBat, sva).
+- Internet connectivity is stable enough to download GEO and STRING files within the 6‑hour runtime budget.
+- The correlation threshold is configurable via a CLI flag but **must not be set below 0.75**; the default is **0.80**.
+- The GO ontology release dated 2023‑12‑01 (GO release 2023‑12‑01) is used; GOATOOLS will download this specific ontology file at runtime to guarantee reproducibility across runs.
+- Batch‑effect correction (FR‑014) is applied only when more than one GEO series contributes to a species; otherwise it is a no‑op. When metadata are incomplete, surrogate variable analysis (SVA) is applied as a fallback, and expression‑level & gene‑length confounds are regressed out prior to correlation.
+- Raw correlation scores are saved to compressed, block‑wise TSV files (`raw_correlations_<species>.tsv.gz`) to enable streaming computation within memory limits.
+- The sensitivity analysis of the correlation threshold (FR‑023) and construct‑validity justification (FR‑026) are performed as part of the pipeline to substantiate the use of co‑expression as a proxy for physical interaction.
+- Multiple‑testing correction is enforced via FR‑045 (Benjamini‑Hochberg FDR ≤ 0.05) before edge inclusion.

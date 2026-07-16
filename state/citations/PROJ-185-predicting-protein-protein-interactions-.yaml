@@ -20,3 +20,15 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/ppi-coexpression
   verified_at: '2026-07-06T20:03:48.674389Z'
+- artifact_hash: 8fc22511854e36c38488c3569d717c0e5fb106acb375cdaa88e69928e546ef96
+  artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2107.01173] Momentum Accelerates the Convergence of Stochastic
+    AUPRC Maximization'
+  kind: url
+  value: https://arxiv.org/abs/2107.01173
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2107.01173
+  verified_at: '2026-07-16T03:45:02.899331Z'

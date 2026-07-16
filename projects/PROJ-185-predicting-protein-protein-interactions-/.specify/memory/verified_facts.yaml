@@ -1,0 +1,10 @@
+'|auprc':
+  quote: "ADAP 0.7667 \xB1 0.0015 0.6371 \xB1 0.0041"
+  source_id: '2107.01173'
+  url: https://arxiv.org/abs/2107.01173
+  value: '0.7667'
+'|auroc':
+  quote: binary cross entropy (BCE), and achieved an AUROC of 86.11%
+  source_id: '2402.03547'
+  url: https://arxiv.org/abs/2402.03547
+  value: 86.11%

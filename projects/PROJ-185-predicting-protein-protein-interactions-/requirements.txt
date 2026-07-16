@@ -1,0 +1,8 @@
+numpy
+pandas
+networkx
+goatools
+scikit-learn
+tqdm
+requests
+# Existing dependencies retained; ``requests`` added for citation validation.

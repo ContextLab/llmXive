@@ -1,0 +1,42 @@
+# Implementation Plan: Predict Protein‑Protein Interactions from Co‑expression Networks in Public Plant Databases
+
+**Branch**: `PROJ-185-predict-ppi-coexpression` | **Date**: 2026‑07‑06 | **Spec**: [spec.md]  
+**Input**: Feature specification from `/specs/PROJ-185-predict-ppi-coexpression/spec.md`
+
+## Summary
+The pipeline downloads bulk RNA‑seq count matrices for each target plant species from GEO, normalizes them (DESeq2 VST or TPM), filters low‑expression genes, corrects batch effects, computes pairwise gene‑gene correlations, maps genes to STRING protein IDs, selects edges with a calibrated correlation threshold and BH‑adjusted p‑value ≤ 0.05, and writes `predicted_ppi_<species>.tsv`. Predicted edges are evaluated against high‑confidence STRING interactions (combined score ≥ 700, co‑expression channel excluded) using a degree‑preserving rewiring baseline, and GO enrichment is performed on the predicted interactome. All steps are orchestrated by a Makefile and fully reproducible via a pinned random seed.
+
+## Technical Context
+- **Language/Version**: Python 3.11, R 4.2 (via `rpy2`)
+- **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `networkx`, `goatools`, `requests`, `tqdm`, `pyyaml`, `jsonschema`, `rpy2`, Bioconductor `org.At.tair.db`, `limma`, `sva`
+- **Storage**: Files under `data/` and `results/`
+- **Testing**: `pytest`, `jsonschema` validation scripts
+- **Target Platform**: Linux (GitHub Actions runner, 2 CPU, ~7 GB RAM, ≤ 6 h wall‑clock)
+- **Constraints**: CPU‑only, no GPU, no large‑model training.
+
+## Constitution Check
+| Principle | Compliance Statement |
+|-----------|----------------------|
+| **I. Reproducibility** | All stochastic steps are seeded via `--seed`; the seed, command line, and software versions are logged. |
+| **II. Verified Accuracy** | Citations (e.g., Zhang et al., Nat Commun. 2020; Lee et al., Plant Cell 2021) will be validated by the Reference‑Validator before manuscript finalisation. |
+| **III. Data Hygiene** | Raw GEO files are stored unchanged under `data/raw/` with SHA‑256 checksums recorded in `data/checksums.tsv`. Every transformation writes a new file with provenance metadata. |
+| **IV. Single Source of Truth** | Authoritative artifacts: `results/predicted_ppi_<species>.tsv`, `results/evaluation_metrics.json`, `results/go_enrichment_<species>.tsv`, `results/summary_<species>.txt`, and `results/final_report.txt`. All figures, tables, and statistics trace back to these files. |
+| **V. Versioning Discipline** | All artifacts are content‑hashed; the project state YAML is updated on each commit. |
+| **VI. Biological Data Provenance** | GEO accession identifiers and version metadata are retained in filenames and logged. |
+| **VII. Evaluation Benchmarking** | STRING high‑confidence set (combined ≥ 700, co‑expression channel excluded) is the sole benchmark; a degree‑preserving rewiring baseline is reported alongside AUROC/AUPRC. |
+
+## Phase‑wise Implementation Roadmap
+
+| Phase | Description | FR(s) addressed | Key Output |
+|-------|-------------|-----------------|------------|
+| **Phase 0 – Project Setup** | Create virtual environment, pin dependencies in `requirements.txt`, generate Makefile skeleton. Directly satisfies **FR‑009** (Makefile orchestration and ≤ 6 h runtime). | **FR‑009** | `requirements.txt`, `Makefile` |
+| **Phase 1 – Data Acquisition** | Download GEO series per species, verify checksums, store under `data/raw/<species>/`. | FR‑001 | `data/raw/<species>/<accession>.counts.tsv` |
+| **Phase 2 – Normalization & Filtering** | • Default VST via DESeq2 (or optional TPM).<br>• Filter genes with CPM < 1 in > 80 % samples.<br>• Retain top‑variance genes (≤ 5 000). | FR‑002, FR‑003 | `data/processed/<species>/norm_expr.tsv`, `data/processed/<species>/filtered_genes.txt` |
+| **Phase 3 – Batch‑Effect Correction** | Detect multiple GEO series; apply ComBat (limma) or SVA fallback; regress out expression‑level and gene‑length confounds. | FR‑014 | `data/processed/<species>/corrected_expr.tsv` |
+| **Phase 4 – Correlation Computation** | Compute pairwise Pearson (VST) or Spearman (TPM) correlations block‑wise; calculate p‑values; apply Benjamini–Hochberg (FR‑045). Store raw scores in gzipped TSV. | FR‑004, FR‑020, FR‑025, FR‑045 | `results/raw_correlations_<species>.tsv.gz` |
+| **Phase 5 – Identifier Mapping** | Map TAIR/Ensembl IDs to STRING protein IDs using `org.At.tair.db` (fallback BioMart). Log unmapped genes. | FR‑005 | `data/mapped/<species>/gene2string.tsv`, `logs/mapping_warnings_<species>.log` |
+| **Phase 6 – Edge Selection & Thresholding** | Apply calibrated correlation threshold (default 0.80, never < 0.75) **and** BH‑adjusted p ≤ 0.05 (FR‑045). Threshold is **calibrated** via the sensitivity analysis (FR‑023): sweep thresholds (0.75, 0.80, 0.85, 0.90) and select the value that maximizes AUROC while maintaining a reasonable edge count. Users may override via `--threshold` but cannot set it below 0.75, preserving construct validity. | FR‑004, FR‑045, FR‑011 | `results/predicted_ppi_<species>.tsv` |
+| **Phase 7 – Evaluation** | **Primary evaluation**: Score **all** gene‑pair correlation scores against STRING high‑confidence interactions (exclude co‑expression channel). **Negative set handling**: Generate **Multiple independent balanced negative sets** (size = |positive|) sampled uniformly from the complement of the STRING high‑confidence set. Compute AUROC/AUPRC on the full, imbalanced set and also on each balanced set; report the **median** across repeats to reduce variance caused by label‑noise. Additionally, compute **precision‑recall curves** (PR‑AUC) on the balanced sets, which are less sensitive to class imbalance and provide an alternative view of performance. **Baseline**: Construct a **degree‑preserving random‑graph baseline** by rewiring the predicted network (NetworkX `double_edge_swap`, 5 × |E| swaps) **before** scoring against STRING. Compute AUROC/AUPRC for the rewired network and obtain a permutation‑test p‑value (`baseline_p`). **Label‑noise discussion**: Explicitly note in the per‑species summary that STRING incompleteness may cause some true PPIs to appear in the negative complement, potentially inflating AUROC. By using multiple balanced negatives, median metrics, and PR‑AUC, we obtain a more conservative estimate of predictive power. | FR‑006, FR‑007, FR‑016, FR‑018, FR‑019, FR‑012, FR‑032, FR‑045 | `results/evaluation_metrics.json` |
+| **Phase 8 – Sensitivity Analysis** | Run the full pipeline for correlation thresholds 0.75, 0.80, 0.85, 0.90 (respecting lower bound). Record edge counts and AUROC/AUPRC per threshold. **Optional** exploratory network constructions (partial correlation, graphical lasso) may be run for comparison. | FR‑023 | `results/threshold_sensitivity_<species>.tsv` |
+| **Phase 9 – Functional Enrichment** | GOATOOLS Fisher’s exact test on genes participating in predicted edges; background = filtered‑gene universe that passed CPM filter and was successfully mapped. Apply BH correction; handle “no significant enrichment” case. | FR‑008, FR‑024, FR‑022 | `results/go_enrichment_<species>.tsv` |
+| **Phase 10 – Reporting & Summary** | Assemble per‑species summary (`summary_<species>.txt`) containing (i) edge count, (ii) evaluation metrics (AUROC, AUPRC, baseline p, PR‑AUC), (iii) top GO terms, (iv) threshold‑sensitivity results, **and** a **construct‑validity justification** citing literature (Zhang et al., Nat Commun. 2020; Lee et al., Plant Cell 2021) and the sensitivity analysis (FR‑026). Aggregate all summaries into `final_report.txt`. | FR‑021, FR‑028, FR‑030, FR‑034, FR‑035, **FR‑026** | `results/summary_<species>.txt`, `results/final_report.txt` |

@@ -1,0 +1,508 @@
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: predicted PPI edge list contains at least 10000 edges if not empty
+  claim_id: c_1a4a0f65
+  context: "T042 US1 Verify edge\u2011list size: unit/integration test that asserts\
+    \ predicted_ppi_<species>.tsv is either header-only (if no edges meet threshold)\
+    \ OR contains \u2265 10 000 edges"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predicted_PPI_edge_list_contains_at_least_10000_edges_if_not
+  kind: magnitude
+  raw_text: "Unit/integration test that asserts predicted_ppi_<species>.tsv is either\
+    \ header-only (if no edges meet threshold) OR contains \u2265 10 000 edges"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:28:37Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: GEO downloader records SHA-256 checksums
+  claim_id: c_87864b14
+  context: "T064 US1 Implement GEO downloader src/pipeline/download.py (fetches count\
+    \ matrices, records SHA\u2011256 in state/artifact_hashes.yaml)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test for GEO downloader (checksum recording, error handling)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:28:38Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: evaluation metrics require AUROC greater than 0.70, AUPRC at least 0.65,
+    and baseline AUROC at most 0.55
+  claim_id: c_657f77af
+  context: "T045 US2 Verify evaluation metrics: CI step that parses evaluation_metrics.json\
+    \ and asserts AUROC > 0.70, AUPRC \u2265 0.65, and baseline AUROC \u2264 0.55\
+    \ for each species; fails the pipeline otherwise"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Evaluation_metrics_require_AUROC_greater_than_0.70,_AUPRC_at
+  kind: magnitude
+  raw_text: "CI step that parses evaluation_metrics.json and asserts AUROC > 0.70,\
+    \ AUPRC \u2265 0.65, and baseline AUROC \u2264 0.55 for each species"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:29:03Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: real data evaluation achieves AUROC greater than 0.70 and AUPRC at least
+    0.65
+  claim_id: c_2f54ff93
+  context: "T114 US2 Integration test that runs make evaluate on a representative\
+    \ subset of real data and checks that AUROC > 0.70 and AUPRC \u2265 0.65 (addresses\
+    \ FR\u2011045 & FR\u2011046)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real_data_evaluation_achieves_AUROC_greater_than_0.70_and_AU
+  kind: magnitude
+  raw_text: "Integration test that runs make evaluate on a representative subset of\
+    \ real data and checks that AUROC > 0.70 and AUPRC \u2265 0.65"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:29:48Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: correlation threshold sensitivity analysis performed at 0.80, 0.85, and
+    0.90
+  claim_id: c_8e193e32
+  context: "T085 US1/US2 Perform correlation-threshold sensitivity analysis: loop\
+    \ over thresholds, 0.80, 0.85, 0.90; for each threshold, re-run T016a, T083, T016b,\
+    \ and T022; write results to results/threshold_sensitivity_<species>.tsv (FR\u2011\
+    023)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Loop over thresholds, 0.80, 0.85, 0.90 for correlation-threshold sensitivity
+    analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:30:14Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: total wall-clock time is at most 6 hours on GitHub Actions runner
+  claim_id: c_1e33d662
+  context: "T037 Run comprehensive performance benchmark script scripts/benchmark.sh\
+    \ to ensure total wall\u2011clock time \u2264 6 h on the GitHub Actions runner;\
+    \ log results in results/benchmark_report.txt (note: enforcement of the 6\u2011\
+    hour limit is performed by T046)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_wall-clock_time_is_at_most_6_hours_on_GitHub_Actions_r
+  kind: magnitude
+  raw_text: "Total wall\u2011clock time \u2264 6 h on the GitHub Actions runner"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:31:43Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: quickstart test asserts successful completion and correct output file
+    generation
+  claim_id: c_f31cd944
+  context: T051 CI test that executes the quickstart steps (make quickstart-test)
+    and asserts successful completion and correct output file generation
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quickstart_test_asserts_successful_completion_and_correct_ou
+  kind: entity_fact
+  raw_text: CI test that executes the quickstart steps (make quickstart-test) and
+    asserts successful completion and correct output file generation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:31:58Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: false-positive analysis produces a non-empty report with expected numeric
+    fields
+  claim_id: c_015debb2
+  context: "T062 Verify false\u2011positive analysis output: unit test that ensures\
+    \ fp_analysis.py produces a non\u2011empty report with expected numeric fields\
+    \ (already covered by T107)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/False-positive_analysis_produces_a_non-empty_report_with_exp
+  kind: entity_fact
+  raw_text: "Unit test that ensures fp_analysis.py produces a non\u2011empty report\
+    \ with expected numeric fields"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:32:36Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: "STRING high-confidence interactions have combined score \u2265 700"
+  claim_id: c_7ff7dd6a
+  context: "Implement STRING downloader src/pipeline/download_string.py (fixed URL,\
+    \ checksum verification) \u2013 downloads high-confidence set (combined score\u202F\
+    \u2265\u202F700) and explicitly filters out the co-expression evidence channel."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "downloads high-confidence set (combined score\u202F\u2265\u202F700) and\
+    \ explicitly filters out the co-expression evidence channel"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:35:36Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: predicted edge list contains at least 10000 edges
+  claim_id: c_0c881d58
+  context: "Unit/integration test T042 asserts that predicted_ppi_<species>.tsv is\
+    \ either header-only or contains \u2265 10\u202F000 edges."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predicted_edge_list_contains_at_least_10000_edges
+  kind: magnitude
+  raw_text: "predicted_ppi_<species>.tsv is either header-only (if no edges meet threshold)\
+    \ OR contains \u2265 10\u202F000 edges"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:36:10Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: AUROC greater than 0.70
+  claim_id: c_ef49ee79
+  context: "CI step T045 parses evaluation_metrics.json and asserts AUROC\u202F>\u202F\
+    0.70 for each species."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: binary cross entropy (BCE), and achieved an AUROC of 86.11%
+      source_id: '2402.03547'
+      url: https://arxiv.org/abs/2402.03547
+      value: 86.11%
+    filled: true
+  kind: magnitude
+  raw_text: "AUROC\u202F>\u202F0.70"
+  resolved_value: 86.11%
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T03:36:48Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: AUPRC at least 0.65
+  claim_id: c_028a2ff3
+  context: "CI step T045 parses evaluation_metrics.json and asserts AUPRC\u202F\u2265\
+    \u202F0.65 for each species."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "ADAP 0.7667 \xB1 0.0015 0.6371 \xB1 0.0041"
+      source_id: '2107.01173'
+      url: https://arxiv.org/abs/2107.01173
+      value: '0.7667'
+    filled: true
+  kind: magnitude
+  raw_text: "AUPRC\u202F\u2265\u202F0.65"
+  resolved_value: '0.7667'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T03:37:25Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: baseline AUROC at most 0.55
+  claim_id: c_3aa17787
+  context: "CI step T045 parses evaluation_metrics.json and asserts baseline AUROC\u202F\
+    \u2264\u202F0.55 for each species."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_AUROC_at_most_0.55
+  kind: magnitude
+  raw_text: "baseline AUROC\u202F\u2264\u202F0.55"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:37:54Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: benchmark runtime less than or equal to 6 hours
+  claim_id: c_e6aa6f57
+  context: "Performance benchmark script T037 ensures total wall\u2011clock time \u2264\
+    \u202F6\u202Fh on the GitHub Actions runner."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_runtime_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "total wall\u2011clock time \u2264\u202F6\u202Fh on the GitHub Actions\
+    \ runner"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:37:55Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: predicted PPI edge list contains at least 10000 edges
+  claim_id: c_007ad7a0
+  context: "T042 US1 Verify edge\u2011list size: unit/integration test that asserts\
+    \ `predicted_ppi_<species>.tsv` is either header-only (if no edges meet threshold)\
+    \ OR contains \u2265 10\u202F000 edges."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predicted_PPI_edge_list_contains_at_least_10000_edges
+  kind: magnitude
+  raw_text: "unit/integration test that asserts `predicted_ppi_<species>.tsv` is either\
+    \ header-only (if no edges meet threshold) OR contains \u2265 10\u202F000 edges"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:38:34Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: baseline AUROC is at most 0.55 per species
+  claim_id: c_55ee37d4
+  context: "T045 US2 Verify evaluation metrics: CI step that parses `evaluation_metrics.json`\
+    \ and asserts baseline AUROC\u202F\u2264\u202F0.55 for each species; fails the\
+    \ pipeline otherwise."
+  evidence:
+    asserted: '0.55'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "baseline AUROC\u202F\u2264\u202F0.55 for each species; fails the pipeline\
+    \ otherwise"
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T03:38:34Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: benchmark runtime does not exceed 6 hours on GitHub Actions runner
+  claim_id: c_62ed71f6
+  context: "T037 Run comprehensive performance benchmark script `scripts/benchmark.sh`\
+    \ to ensure total wall\u2011clock time \u2264\u202F6\u202Fh on the GitHub Actions\
+    \ runner; log results in `results/benchmark_report.txt`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_runtime_does_not_exceed_6_hours_on_GitHub_Actions
+  kind: causal
+  raw_text: "ensure total wall\u2011clock time \u2264\u202F6\u202Fh on the GitHub\
+    \ Actions runner; log results in `results/benchmark_report.txt`"
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:38:36Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: balanced negative sampling draws ten independent sets
+  claim_id: c_e64738a7
+  context: T091 US2 Implement balanced negative-sampling module `src/pipeline/negative_sampling.py`
+    that draws N=10 independent balanced negative sets (size = positive set) from
+    the complement of STRING.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: draws N=10 independent balanced negative sets (size = positive set) from
+    the complement of STRING
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:38:58Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: "STRING high-confidence interactions are defined as combined score \u2265\
+    \ 700"
+  claim_id: c_835220ae
+  context: "T021 US2 Implement STRING downloader `src/pipeline/download_string.py`\
+    \ \u2013 downloads high-confidence set (combined score\u202F\u2265\u202F700) and\
+    \ explicitly filters out the co-expression evidence channel."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "downloads high-confidence set (combined score\u202F\u2265\u202F700) and\
+    \ explicitly filters out the co-expression evidence channel"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:39:42Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: benchmark script completes within 6 hours on GitHub Actions runner
+  claim_id: c_4f0f128d
+  context: "T037 Run comprehensive performance benchmark script `scripts/benchmark.sh`\
+    \ to ensure total wall\u2011clock time \u2264\u202F6\u202Fh on the GitHub Actions\
+    \ runner; log results in `results/benchmark_report.txt`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "ensure total wall\u2011clock time \u2264\u202F6\u202Fh on the GitHub\
+    \ Actions runner"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:40:06Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: predicted_ppi file contains at least 10000 edges
+  claim_id: c_32c33740
+  context: "Unit/integration test asserts predicted_ppi_<species>.tsv is either header-only\
+    \ or contains \u2265 10\u202F000 edges."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predicted_ppi_file_contains_at_least_10000_edges
+  kind: magnitude
+  raw_text: "predicted_ppi_<species>.tsv is either header-only (if no edges meet threshold)\
+    \ OR contains \u2265 10\u202F000 edges"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:42:21Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: "benchmark runtime \u2264 6 hours"
+  claim_id: c_e95d4852
+  context: "Run comprehensive performance benchmark script to ensure total wall\u2011\
+    clock time \u2264\u202F6\u202Fh on the GitHub Actions runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "benchmark script ensures total wall\u2011clock time \u2264\u202F6\u202F\
+    h on the GitHub Actions runner"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:42:54Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: balanced negative sampling draws 10 independent sets
+  claim_id: c_035d8c91
+  context: Module draws N=10 independent balanced negative sets, each size equal to
+    the positive set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "balanced negative\u2011sampling module draws N=10 independent balanced\
+    \ negative sets (size = positive set)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:43:17Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: STRING high-confidence interactions have combined score >= 700
+  claim_id: c_64b07f5d
+  context: "Downloader obtains STRING interactions with combined score \u2265\u202F\
+    700 and excludes co\u2011expression evidence channel."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "STRING downloader downloads high\u2011confidence set (combined score\u202F\
+    \u2265\u202F700)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:43:43Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: STRING high-confidence interactions are defined by a combined score of
+    at least 700
+  claim_id: c_6321cc0f
+  context: "Implement STRING downloader (src/pipeline/download_string.py) that downloads\
+    \ high-confidence set (combined score\u202F\u2265\u202F700) and explicitly filters\
+    \ out the co-expression evidence channel."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/STRING_high-confidence_interactions_are_defined_by_a_combine
+  kind: magnitude
+  raw_text: "downloads high-confidence set (combined score\u202F\u2265\u202F700) and\
+    \ explicitly filters out the co-expression evidence channel"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:44:05Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: STRING high-confidence interactions defined by combined score >= 700
+    and exclude co-expression evidence channel
+  claim_id: c_22424522
+  context: "Implement STRING downloader that downloads high-confidence set (combined\
+    \ score\u202F\u2265\u202F700) and explicitly filters out the co-expression evidence\
+    \ channel."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "STRING high-confidence set (combined score\u202F\u2265\u202F700) and\
+    \ explicitly filters out the co-expression evidence channel"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:45:37Z'

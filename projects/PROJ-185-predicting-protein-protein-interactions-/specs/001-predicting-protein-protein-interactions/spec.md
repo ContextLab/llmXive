@@ -180,7 +180,7 @@ The pipeline is organized into distinct phases. Each functional requirement (FR)
 - The compute environment provides Python ≥ 3.10, R ≥ 4.2, and the necessary libraries (NumPy, Pandas, NetworkX, GOATOOLS, DESeq2, Bioconductor `org.At.tair.db`, limma/ComBat, sva).
 - Internet connectivity is stable enough to download GEO and STRING files within the 6‑hour runtime budget.
 - The correlation threshold is configurable via a CLI flag but **must not be set below 0.75**; the default is **0.80**.
-- The GO ontology release dated 2023‑12‑01 (GO release 2023‑12‑01) is used; GOATOOLS will download this specific ontology file at runtime to guarantee reproducibility across runs.
+- The GO ontology release is used.; GOATOOLS will download this specific ontology file at runtime to guarantee reproducibility across runs.
 - Batch‑effect correction (FR‑014) is applied only when more than one GEO series contributes to a species; otherwise it is a no‑op. When metadata are incomplete, surrogate variable analysis (SVA) is applied as a fallback, and expression‑level & gene‑length confounds are regressed out prior to correlation.
 - Raw correlation scores are saved to compressed, block‑wise TSV files (`raw_correlations_<species>.tsv.gz`) to enable streaming computation within memory limits.
 - The sensitivity analysis of the correlation threshold (FR‑023) and construct‑validity justification (FR‑026) are performed as part of the pipeline to substantiate the use of co‑expression as a proxy for physical interaction.
