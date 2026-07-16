@@ -31,3 +31,25 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-08T05:45:09.535762Z'
+- artifact_hash: 41ffef146be168983726f2bdc19d41abd2d3939eae03608497abaa731e5bc333
+  artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2106.08611'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-07-16T12:06:48.768546Z'
+- artifact_hash: 41ffef146be168983726f2bdc19d41abd2d3939eae03608497abaa731e5bc333
+  artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2305.06325'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-07-16T12:06:48.768546Z'

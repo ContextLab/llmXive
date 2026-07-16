@@ -1,0 +1,403 @@
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: fetch supplementary data from arXiv:2106.08611
+  claim_id: c_dad5ce1a
+  context: Implement `code/data/download.py` to fetch **arXiv:2106.08611** supplementary
+    data from (or the exact CSV URL if provided in the supplement) and store it under
+    `data/raw/2106.08611/`.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: fetch arXiv:2106.08611 supplementary data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T11:57:44Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: fetch calibration curves from arXiv:2305.06325
+  claim_id: c_8af04abd
+  context: Implement `code/data/download.py` to fetch **arXiv:2305.06325** calibration
+    curves from (or the exact CSV URL if provided) and store under `data/raw/2305.06325/`.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: fetch arXiv:2305.06325 calibration curves
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T11:57:45Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: verify title-token-overlap is greater than or equal to 0.7
+  claim_id: c_9a0f5266
+  context: "invoke the Reference\u2011Validator Agent to confirm title\u2011token\u2011\
+    overlap \u2265 0.7 with the primary sources; halt the pipeline with a clear error\
+    \ if validation fails."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_title-token-overlap_is_greater_than_or_equal_to_0.7
+  kind: magnitude
+  raw_text: "title-token-overlap \u2265 0.7 with the primary sources"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T11:58:13Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: start MCMC with minimum 5000 steps
+  claim_id: c_bcaa446d
+  context: "Implement `emcee` runner that **starts with a minimum of 5 000 steps**\
+    \ and then continues in batches of 1 000 steps **until** the Gelman\u2011Rubin\
+    \ statistic falls below 1.01."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: start with a minimum of 5 000 steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T11:58:41Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: continue MCMC in batches of 1000 steps
+  claim_id: c_2ead3aec
+  context: "Implement `emcee` runner that starts with a minimum of 5 000 steps and\
+    \ then continues in batches of 1 000 steps **until** the Gelman\u2011Rubin statistic\
+    \ falls below 1.01."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: continue in batches of 1 000 steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T11:59:02Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Gelman-Rubin statistic threshold is less than 1.01
+  claim_id: c_f0fdd8b1
+  context: "Implement `emcee` runner that starts with a minimum of 5 000 steps and\
+    \ then continues in batches of 1 000 steps **until** the Gelman\u2011Rubin statistic\
+    \ falls below 1.01."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gelman-Rubin_statistic_threshold_is_less_than_1.01
+  kind: magnitude
+  raw_text: "Gelman\u2011Rubin statistic falls below 1.01"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T11:59:39Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: runtime limit is 6 hours
+  claim_id: c_b90268f5
+  context: "if the 6\u2011hour runtime limit is approached, the automatic subsampling\
+    \ logic in T027 will be triggered to reduce the data size before further steps."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "6\u2011hour runtime limit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T11:59:54Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: injection-recovery test requires recovery within 95% credible interval
+  claim_id: c_671eb3c2
+  context: "Implement injection\u2011recovery test (FR\u2011008) to validate that\
+    \ a known non\u2011zero \u03B1 injected into simulated data is recovered within\
+    \ the 95 % credible interval."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: recover within the 95 % credible interval
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:00:27Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: automatic subsampling triggers if wall-clock time exceeds 5 hours
+  claim_id: c_80718a77
+  context: "Add runtime monitoring: **if wall\u2011clock time exceeds 5 hours**, automatically\
+    \ subsample the dataset by selecting a random [deferred] of points **without replacement**..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "wall\u2011clock time exceeds 5 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:00:48Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: robustness test requires Bayes factors and upper-limit shifts to be less
+    than 15%
+  claim_id: c_78bf2449
+  context: "Run `code/robustness/cross_val.py` and `code/robustness/uncertainty.py`;\
+    \ verify Bayes factors and credible\u2011upper\u2011limit shifts stay < 15 % across\
+    \ all iterations."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_test_requires_Bayes_factors_and_upper-limit_shift
+  kind: magnitude
+  raw_text: "Bayes factors and credible\u2011upper\u2011limit shifts stay < 15 % across\
+    \ all iterations"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:01:11Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: leave-one-out logic requires 3 or more independent runs
+  claim_id: c_00cd1188
+  context: "Implement leave\u2011one\u2011experiment\u2011out cross\u2011validation\
+    \ loop in `code/robustness/cross_val.py`. **Conditional logic**: if the harmonized\
+    \ dataset contains \u2265 3 independent runs, perform true leave\u2011one\u2011\
+    out..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "if the harmonized dataset contains \u2265 3 independent runs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:01:11Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: emit warning if coefficient of variation exceeds 15%
+  claim_id: c_79019f1e
+  context: Log the CV percentage; if **CV > 15 %**, emit a **warning** (not a fatal
+    error) indicating potential instability while allowing the pipeline to continue.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if CV > 15 %
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:01:11Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: optimize likelihood evaluation if total runtime exceeds 2.5 hours
+  claim_id: c_5977da2c
+  context: Optimize likelihood evaluation speed (tune banded covariance bandwidth)
+    if total runtime exceeds 2.5 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: total runtime exceeds 2.5 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:01:28Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: arXiv:2106.08611
+  claim_id: c_774500ee
+  context: Implement code/data/download.py to fetch arXiv:2106.08611 supplementary
+    data from...
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: arXiv:2106.08611
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T12:02:02Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: arXiv:2305.06325
+  claim_id: c_02a8bf7f
+  context: Implement code/data/download.py to fetch arXiv:2305.06325 calibration curves
+    from...
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: arXiv:2305.06325
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T12:02:04Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: title-token-overlap greater than or equal to 0.7
+  claim_id: c_b7b6d0a9
+  context: "invoke the Reference\u2011Validator Agent to confirm title\u2011token\u2011\
+    overlap \u2265 0.7 with the primary sources"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Title-token-overlap_greater_than_or_equal_to_0.7
+  kind: magnitude
+  raw_text: "title-token-overlap \u2265 0.7"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:02:22Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: 10 to the negative 5 to 10 to the negative 4 meters
+  claim_id: c_b8debf46
+  context: "verify output is a single CSV/JSON file containing aligned force data,\
+    \ separation distances, and a valid positive\u2011definite covariance matrix with\
+    \ no missing values in the 10\u207B\u2075\u201310\u207B\u2074 m range"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "10\u207B\u2075\u201310\u207B\u2074 m"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:02:46Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Gelman-Rubin statistic less than 1.01
+  claim_id: c_26631f09
+  context: "verify output includes posterior samples, Bayes factor, and Gelman\u2011\
+    Rubin < 1.01 within the 6\u2011hour limit"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gelman-Rubin_statistic_less_than_1.01
+  kind: magnitude
+  raw_text: "Gelman\u2011Rubin < 1.01"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:03:12Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: 6 hour runtime limit
+  claim_id: c_a98dae9c
+  context: "verify output includes posterior samples, Bayes factor, and Gelman\u2011\
+    Rubin < 1.01 within the 6\u2011hour limit"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "6\u2011hour limit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:03:26Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: emcee starts with minimum 5000 steps
+  claim_id: c_f65491d8
+  context: Implement emcee runner that starts with a minimum of 5 000 steps and then
+    continues in batches of 1 000 steps
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: minimum of 5 000 steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:03:45Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: emcee continues in batches of 1000 steps
+  claim_id: c_7b3cd27f
+  context: "starts with a minimum of 5 000 steps and then continues in batches of\
+    \ 1 000 steps until the Gelman\u2011Rubin statistic falls below 1.01"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: batches of 1 000 steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:04:08Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: 95 percent credible interval
+  claim_id: c_d3867c99
+  context: "validate that a known non\u2011zero \u03B1 injected into simulated data\
+    \ is recovered within the 95 % credible interval"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.95'
+      source_id: Credible interval
+      url: https://en.wikipedia.org/wiki/Credible_interval
+      value: '0.95'
+    filled: true
+  kind: numeric
+  raw_text: 95 % credible interval
+  resolved_value: '0.95'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T12:04:16Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Bayes factors and credible-upper-limit shifts stay less than 15 percent
+  claim_id: c_45b096bc
+  context: "verify Bayes factors and credible\u2011upper\u2011limit shifts stay <\
+    \ 15 % across all iterations"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayes_factors_and_credible-upper-limit_shifts_stay_less_than
+  kind: magnitude
+  raw_text: shifts stay < 15 %
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:04:39Z'

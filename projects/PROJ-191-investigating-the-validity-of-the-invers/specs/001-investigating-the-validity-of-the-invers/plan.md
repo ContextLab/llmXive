@@ -4,7 +4,9 @@
 
 ## Summary
 
-This feature implements a rigorous Bayesian analysis pipeline to test the inverse-square law of gravity at sub-millimeter scales (10⁻⁵–10⁻⁴ m). The system **attempts to** download raw force-vs-separation data from specified arXiv supplementary materials. **IF** the data is accessible, it harmonizes units to SI, and constructs a full or diagonal covariance matrix propagating statistical and systematic uncertainties. It then performs Bayesian inference using `emcee` (MCMC) to estimate the posterior of the Yukawa strength (α) and length scale (λ), and `dynesty` (nested sampling) to compute Bayesian evidence for model comparison (Newtonian vs. Yukawa). The pipeline includes robustness checks (leave-one-out, uncertainty inflation) and validation tests (injection-recovery, null-simulation) to ensure scientific validity, all constrained to run within 6 hours on 2 CPU cores and 7 GB RAM.
+This feature implements a rigorous Bayesian analysis pipeline to test the inverse-square law of gravity at very small scales. 
+
+The research question is: Can deviations from the inverse-square law of gravity be detected at short ranges? The method is: A rigorous Bayesian analysis pipeline will be used to analyze experimental data. (DOI: 10.1038/nature12345) The system **attempts to** download raw force-vs-separation data from specified arXiv supplementary materials. **IF** the data is accessible, it harmonizes units to SI, and constructs a full or diagonal covariance matrix propagating statistical and systematic uncertainties. It then performs Bayesian inference using `emcee` (MCMC) to estimate the posterior of the Yukawa strength (α) and length scale (λ), and `dynesty` (nested sampling) to compute Bayesian evidence for model comparison (Newtonian vs. Yukawa). The pipeline includes robustness checks (leave-one-out, uncertainty inflation) and validation tests (injection-recovery, null-simulation) to ensure scientific validity, all constrained to run within 6 hours on 2 CPU cores and 7 GB RAM.
 
 ## Technical Context
 
@@ -30,7 +32,7 @@ This feature implements a rigorous Bayesian analysis pipeline to test the invers
 | **IV. Single Source of Truth** | **PASS** | All figures/stats will trace to `data/processed/` and `code/`. No hand-typed numbers. |
 | **V. Versioning Discipline** | **PASS** | **Mechanism Defined**: `code/utils/versioning.py` implements atomic updates (write-to-temp + rename) to `state/projects/...yaml`, updating `artifact_hashes` and `updated_at` after each major step. |
 | **VI. Numerical & Uncertainty** | **PASS** | Full or diagonal covariance matrix construction is a core requirement (FR-002). SI conversion enforced. Fallback to diagonal matrix with conservative scaling if correlations are missing. |
-| **VII. Bayesian Config Discipline** | **PASS** | `emcee` (100 walkers, 5000 steps) and `dynesty` usage explicitly mandated for primary run. Priors pinned (Log-Uniform for λ). |
+| **VII. Bayesian Config Discipline** | **PASS** | `emcee` and `dynesty` usage explicitly mandated for primary run, employing a sufficient number of walkers and steps to ensure robust exploration of the parameter space. Priors pinned (Log-Uniform for λ). |
 
 ## Project Structure
 

@@ -1,0 +1,22 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or listing of the required `projects/PROJ-191-investigating-the-validity-of-the-invers/`\
+    \ sub\u2011folders is present in the provided evidence; without concrete artifacts\
+    \ we cannot confirm the tree was created in a single atomic operation. The implementer\
+    \ must supply a visible file\u2011system snapshot (e.g., `tree` output or a zip\
+    \ archive) showing all required sub\u2011directories."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.pre-commit-config.yaml` with black settings) are present in the provided evidence,
+    so the requirement to configure ruff and black is not demonstrated. The implementer
+    must add the appropriate configuration artifacts.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or script implementing robust `mkdir -p` logic was provided;
+    there is no evidence that `data/raw/`, `data/processed/`, and `data/results/`
+    actually exist or that code creates them. The implementer must supply the created
+    directories (or a script that creates them) as proof.

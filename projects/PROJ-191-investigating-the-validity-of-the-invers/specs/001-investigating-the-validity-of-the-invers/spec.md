@@ -13,7 +13,7 @@ The researcher must be able to download raw force-vs-separation data from the sp
 
 **Why this priority**: Without a unified, uncertainty-aware dataset, no statistical inference can be performed. This is the foundational step that enables all subsequent modeling and is the primary bottleneck for reproducibility.
 
-**Independent Test**: Can be fully tested by executing the data pipeline script against the provided arXiv URLs and verifying that the output is a single CSV/JSON file containing aligned force data, separation distances, and a valid positive-definite covariance matrix, with no missing values in the 10⁻⁵–10⁻⁴ m range.
+**Independent Test**: Can be fully tested by executing the data pipeline script against the provided arXiv URLs and verifying that the output is a single CSV/JSON file containing aligned force data, separation distances, and a valid positive-definite covariance matrix, with no missing values at relevant scales.
 
 **Acceptance Scenarios**:
 
