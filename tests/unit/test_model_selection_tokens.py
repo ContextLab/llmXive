@@ -11,6 +11,7 @@ from llmxive.model_selection.tokens import (
     estimate_message_tokens,
     estimate_tokens,
     fits_budget,
+    max_input_tokens_upper_bound,
 )
 from llmxive.model_selection.types import CallBudget
 from llmxive.tools.summarize import estimate_tokens as summarize_estimate_tokens
@@ -64,6 +65,15 @@ def test_fits_budget_rejects_output_overflow() -> None:
     budget = call_budget_for(msgs, max_output_tokens=100)
     ok, reason = fits_budget(msgs, 9999, budget)
     assert not ok and "max_tokens" in reason
+
+
+def test_hard_upper_bound_exceeds_estimate_and_actual_chars() -> None:
+    # #6: the hard bound is >= the char/4 estimate AND >= the raw char count (a true
+    # tokenizer-independent ceiling, since a token consumes >= 1 char).
+    msgs = [ChatMessage(role="user", content="x" * 400 + " punctuation-heavy!!!")]
+    hard = max_input_tokens_upper_bound(msgs)
+    assert hard >= estimate_message_tokens(msgs)
+    assert hard >= sum(len(m.content) for m in msgs)
 
 
 def test_estimator_handles_dict_and_str_messages() -> None:

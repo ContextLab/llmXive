@@ -217,6 +217,14 @@ def chat_one_candidate(
     classified exception; the caller maps it with :func:`disposition_of` and
     decides skip / advance / abort. ``model=None`` makes a single
     signature-degrading call (the injected-fake test shape).
+
+    RETRY-COST COMPOSITION (spec 026 #4 — slice-3 acceptance criterion): this makes
+    up to ``retries`` provider ATTEMPTS for one candidate, but a credit reservation
+    holds ONE call's ``worst_case_credits``. A paid transient could therefore cost
+    up to ``retries x worst_case``. ``execute`` OWNS ``retries`` (it passes it), so
+    for a PAID candidate it MUST reserve the full retry envelope
+    (``worst_case_credits x retries``) up front — or pass ``retries=1`` and rely on
+    advancing to the next candidate. Free candidates are unaffected.
     """
     import time as _time
 

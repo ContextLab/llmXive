@@ -27,12 +27,16 @@ def test_runtime_snapshot_real_composite() -> None:
     assert "local" in backends, "local fallback missing (composite requirement)"
 
     byid = {m.model_id: m for m in snap.models}
-    # canonical identity: vendor is separate from serving endpoint/backend
-    if "qwen.qwen3.5-122b" in byid:
-        m = byid["qwen.qwen3.5-122b"]
-        assert m.vendor == "qwen" and m.model_family == "qwen3.5"
-        assert m.serving_endpoint != m.vendor
-        assert snap.pricing["qwen.qwen3.5-122b"].is_free  # cost 0
+    # #10: the maintainer-default model MUST be present + free (unconditional — its
+    # absence is a real signal the default is down, not a reason to skip).
+    assert "qwen.qwen3.5-122b" in byid, "default model qwen.qwen3.5-122b absent from catalog"
+    m = byid["qwen.qwen3.5-122b"]
+    assert m.vendor == "qwen" and m.model_family == "qwen3.5"
+    assert m.serving_endpoint != m.vendor  # vendor is separate from serving endpoint
+    assert snap.pricing["qwen.qwen3.5-122b"].is_free  # cost 0
+    # the local fallback inventory is loaded into the composite (Qwen2.5-3B)
+    assert "Qwen/Qwen2.5-3B-Instruct" in byid, "local fallback model not in composite snapshot"
+    assert byid["Qwen/Qwen2.5-3B-Instruct"].backend == "local"
 
     # credit guard: fraction-aware effective cap, not raw balance-spend
     c = snap.credit

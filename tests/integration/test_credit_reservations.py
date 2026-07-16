@@ -18,6 +18,7 @@ from llmxive.model_selection.reservations import (
     STATE_OPEN,
     STATE_RECONCILED,
     STATE_SETTLING,
+    CreditObservation,
     ReservationLease,
     counting_total,
     project,
@@ -51,18 +52,20 @@ def remote_and_two_clones(tmp_path: Path):
     b = tmp_path / "clone_B"
     _git(["clone", "--quiet", str(remote), str(a)], tmp_path)
     _git(["clone", "--quiet", str(remote), str(b)], tmp_path)
+    from llmxive.model_selection.ledger_transport import bootstrap_ledger
+
+    bootstrap_ledger(a, remote="origin")  # #7: bootstrap the shared ledger once
     return remote, a, b
 
 
-def _reserve(repo: Path, rid: str, wc: float, *, cap: float, spend: float, remote=None):
+def _reserve(repo: Path, rid: str, wc: float, *, cap: float, spend: float, remote=None,
+             epoch: str = EPOCH, model: str = "anthropic.claude-haiku-4-5"):
     return reserve(
         repo,
         reservation_id=rid,
         worst_case_credits=wc,
-        model="anthropic.claude-haiku-4-5",
-        effective_cap=cap,
-        budget_epoch=EPOCH,
-        fresh_spend_fn=lambda: spend,
+        model=model,
+        credit_observer=lambda: CreditObservation(spend=spend, effective_cap=cap, budget_epoch=epoch),
         lease_expires_at=LEASE,
         now=T0,
         remote=remote,
@@ -142,6 +145,45 @@ def test_fresh_spend_counts_against_headroom(repo):
         _reserve(repo, "r1", 5.0, cap=10.0, spend=6.0)
 
 
+def test_reserve_epoch_and_baseline_come_from_observer(repo):
+    """#2/C11: the reservation's epoch + settlement_baseline are derived from the
+    FRESH credit observation (re-read each attempt), not fixed arguments."""
+    calls = []
+
+    def observer():
+        calls.append(1)
+        return CreditObservation(spend=42.0, effective_cap=1000.0, budget_epoch="EPOCH-X")
+
+    r = reserve(repo, reservation_id="r1", worst_case_credits=10.0, model="m",
+                credit_observer=observer, lease_expires_at=LEASE, now=T0)
+    assert r.budget_epoch == "EPOCH-X"
+    assert r.settlement_baseline == 42.0
+    assert calls  # the observer was actually consulted inside the CAS attempt
+
+
+def test_reserve_id_collision_fails_closed(repo):
+    """#8: a re-reserve of the SAME id with a DIFFERENT identity must fail closed
+    (else a bigger/other call could run under an older, smaller hold)."""
+    _reserve(repo, "r1", 10.0, cap=1000.0, spend=0.0, model="modelA")
+    with pytest.raises(LedgerDenied):  # different model
+        _reserve(repo, "r1", 10.0, cap=1000.0, spend=0.0, model="modelB")
+    with pytest.raises(LedgerDenied):  # different amount
+        _reserve(repo, "r1", 20.0, cap=1000.0, spend=0.0, model="modelA")
+    with pytest.raises(LedgerDenied):  # different epoch
+        _reserve(repo, "r1", 10.0, cap=1000.0, spend=0.0, model="modelA", epoch="OTHER")
+    # matching identity is an idempotent no-op (no double count, no error)
+    r = _reserve(repo, "r1", 10.0, cap=1000.0, spend=0.0, model="modelA")
+    assert r.model == "modelA"
+    assert counting_total(project(read_events(repo)).values(), epoch=EPOCH) == 10.0
+
+
+def test_reserve_rejects_bad_amount(repo):
+    import math
+    for bad in (-1.0, math.inf, math.nan):
+        with pytest.raises(ValueError):
+            _reserve(repo, "r1", bad, cap=1000.0, spend=0.0)
+
+
 # --------------------- attribution-prefix reconciliation ------------------- #
 
 
@@ -185,11 +227,40 @@ def test_sweep_conservatively_settles_crashed_open(repo):
     assert r.state == STATE_SETTLING and r.counts  # RETAINED, not released
 
 
+def test_sweep_fetches_authoritative_ref_before_projecting(remote_and_two_clones):
+    """#3: a fresh checkout that hasn't fetched refs/llmxive/credit-ledger has an
+    EMPTY local projection; sweep MUST fetch first (not silently no-op)."""
+    _remote, producer, fresh = remote_and_two_clones
+    _reserve(producer, "r1", 5.0, cap=1000.0, spend=0.0, remote="origin")
+    settle(producer, "r1", now=T0, remote="origin")
+    assert project(read_events(fresh)) == {}  # fresh clone is blind until it fetches
+    out = sweep(fresh, observed_spend=5.0, current_epoch=EPOCH, now=T0, remote="origin")
+    assert out["reconciled"] == ["r1"]  # fetched, saw r1, reconciled it
+
+
+def test_sweep_settlement_timeout_force_reconciles(repo):
+    """#9: a settling hold attribution can't reconcile is force-reconciled once it
+    has been settling past the settlement timeout (its charge is by now in spend)."""
+    _reserve(repo, "r1", 10.0, cap=1000.0, spend=0.0)  # created + settled at T0
+    settle(repo, "r1", now=T0)
+    # within the timeout: NOT force-reconciled
+    soon = T0 + timedelta(seconds=1800)
+    out_early = sweep(repo, observed_spend=0.0, current_epoch=EPOCH, now=soon, settlement_timeout_s=3600.0)
+    assert out_early["settlement_timed_out"] == []
+    assert project(read_events(repo))["r1"].state == STATE_SETTLING
+    # past the timeout: force-reconciled (attribution still can't — spend is 0)
+    later = T0 + timedelta(seconds=7200)
+    out = sweep(repo, observed_spend=0.0, current_epoch=EPOCH, now=later, settlement_timeout_s=3600.0)
+    assert out["reconciled"] == [] and out["settlement_timed_out"] == ["r1"]
+    assert project(read_events(repo))["r1"].state == STATE_RECONCILED
+
+
 def test_sweep_discards_prior_epoch_reservation(repo):
     reserve(
         repo, reservation_id="old", worst_case_credits=9.0, model="m",
-        effective_cap=100.0, budget_epoch="2026-07-16T03:45:00Z",  # yesterday
-        fresh_spend_fn=lambda: 0.0, lease_expires_at=LEASE, now=T0,
+        credit_observer=lambda: CreditObservation(
+            spend=0.0, effective_cap=100.0, budget_epoch="2026-07-16T03:45:00Z"),  # yesterday
+        lease_expires_at=LEASE, now=T0,
     )
     out = sweep(repo, observed_spend=0.0, current_epoch=EPOCH, now=T0 + timedelta(days=1))
     assert out["discarded_prior_epoch"] == ["old"]
@@ -230,7 +301,8 @@ def test_two_runners_cannot_collectively_overspend(remote_and_two_clones):
             barrier.wait(timeout=10)
             reserve(
                 clone, reservation_id=rid, worst_case_credits=10.0, model="m",
-                effective_cap=10.0, budget_epoch=EPOCH, fresh_spend_fn=lambda: 0.0,
+                credit_observer=lambda: CreditObservation(
+                    spend=0.0, effective_cap=10.0, budget_epoch=EPOCH),
                 lease_expires_at=LEASE, now=T0, remote="origin",
             )
             results[rid] = "admitted"

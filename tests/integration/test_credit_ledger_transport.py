@@ -41,6 +41,9 @@ def remote_and_clones(tmp_path: Path):
         path = tmp_path / f"clone_{name}"
         _git(["clone", "--quiet", str(remote), str(path)], tmp_path)
         clones.append(path)
+    from llmxive.model_selection.ledger_transport import bootstrap_ledger
+
+    bootstrap_ledger(clones[0], remote="origin")  # #7: the ledger must be bootstrapped once
     return remote, clones[0], clones[1]
 
 
@@ -119,10 +122,39 @@ def test_predicate_denial_appends_nothing(remote_and_clones):
     def deny(_events):
         return False, "no headroom"
 
+    tip_before = _rev(clone_a, LEDGER_REF)  # the bootstrap anchor
     with pytest.raises(LedgerDenied):
         append_event(clone_a, _event("r1", 10.0), remote="origin", predicate=deny)
     assert read_events(clone_a) == []  # nothing appended
-    assert _rev(clone_a, LEDGER_REF) is None
+    assert _rev(clone_a, LEDGER_REF) == tip_before  # ref unchanged
+
+
+def test_remote_write_requires_bootstrap(tmp_path):
+    """#7: a remote append to a NON-bootstrapped ledger fails closed (never spawns a
+    divergent ledger); after bootstrap it succeeds."""
+    from llmxive.model_selection.ledger_transport import LedgerAuthError, bootstrap_ledger
+
+    remote = tmp_path / "remote.git"
+    _git(["init", "--bare", "-b", "main", str(remote)], tmp_path)
+    clone = tmp_path / "clone"
+    _git(["clone", "--quiet", str(remote), str(clone)], tmp_path)
+    with pytest.raises(LedgerAuthError):
+        append_event(clone, _event("r1", 10.0), remote="origin")  # not bootstrapped
+    bootstrap_ledger(clone, remote="origin")
+    append_event(clone, _event("r1", 10.0), remote="origin")  # now allowed
+    assert [e["reservation_id"] for e in read_events(clone)] == ["r1"]
+
+
+def test_bootstrap_is_idempotent(tmp_path):
+    from llmxive.model_selection.ledger_transport import bootstrap_ledger
+
+    remote = tmp_path / "remote.git"
+    _git(["init", "--bare", "-b", "main", str(remote)], tmp_path)
+    clone = tmp_path / "clone"
+    _git(["clone", "--quiet", str(remote), str(clone)], tmp_path)
+    first = bootstrap_ledger(clone, remote="origin")
+    again = bootstrap_ledger(clone, remote="origin")
+    assert first == again  # no-op second time
 
 
 def test_auth_failure_fails_closed(tmp_path):

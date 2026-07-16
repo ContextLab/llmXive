@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from types import MappingProxyType
 from typing import Literal
 
 Capability = Literal["cheap", "standard", "deep", "vision"]
@@ -176,6 +177,14 @@ class RuntimeSnapshot:
     sources: dict[str, SnapshotProvenance]  # component ("catalog"/"local"/"credit") -> provenance
     digest: str = ""
 
+    def __post_init__(self) -> None:
+        # frozen=True freezes the ATTRIBUTES, not the dicts they point at (#5): wrap
+        # the mappings so a caller cannot mutate pricing/health/sources after the
+        # snapshot (and its digest) are fixed.
+        object.__setattr__(self, "pricing", MappingProxyType(dict(self.pricing)))
+        object.__setattr__(self, "health", MappingProxyType(dict(self.health)))
+        object.__setattr__(self, "sources", MappingProxyType(dict(self.sources)))
+
 
 @dataclass(frozen=True)
 class Candidate:
@@ -202,6 +211,11 @@ class ModelChain:
     snapshot_provenance: dict[str, SnapshotProvenance]
     selection_policy_version: int
     explanation: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "snapshot_provenance", MappingProxyType(dict(self.snapshot_provenance))
+        )
 
 
 def worst_case_credits(pricing: ModelPricing, budget: CallBudget) -> float | None:

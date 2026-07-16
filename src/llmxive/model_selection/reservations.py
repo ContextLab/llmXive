@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import itertools
 import logging
+import math
 import threading
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
@@ -41,6 +42,7 @@ from pathlib import Path
 from llmxive.model_selection.ledger_transport import (
     LedgerDenied,
     append_event,
+    fetch_ledger,
     read_events,
 )
 
@@ -83,10 +85,24 @@ class Reservation:
     created_at: str
     lease_expires_at: str
     last_heartbeat_at: str
+    settled_at: str = ""  # ts of the open→settling transition (drives the settlement timeout, #9)
 
     @property
     def counts(self) -> bool:
         return self.state in COUNTING_STATES
+
+
+@dataclass(frozen=True)
+class CreditObservation:
+    """One internally-consistent credit-guard reading: ``spend``, the fractional
+    ``effective_cap``, and the ``budget_epoch`` (``budget_reset_at``) they belong to
+    — all captured together. ``reserve`` re-reads this on EVERY CAS attempt so a
+    provider daily-reset between the caller's observation and the admitting predicate
+    cannot admit a call under a stale epoch (fixes #2)."""
+
+    spend: float
+    effective_cap: float
+    budget_epoch: str
 
 
 def lease_duration_for(deadline_s: float | None, *, margin_s: float = DEFAULT_LEASE_MARGIN_S) -> float:
@@ -138,6 +154,7 @@ def project(events: Iterable[dict]) -> dict[str, Reservation]:
                 "created_at": str(e.get("created_at", e.get("ts", ""))),
                 "lease_expires_at": str(e.get("lease_expires_at", "")),
                 "last_heartbeat_at": str(e.get("ts", "")),
+                "settled_at": "",
             }
         elif rid in state:
             if etype == "heartbeat":
@@ -148,6 +165,7 @@ def project(events: Iterable[dict]) -> dict[str, Reservation]:
                 state[rid]["last_heartbeat_at"] = str(e.get("ts", ""))
             elif etype == STATE_SETTLING and state[rid]["state"] == STATE_OPEN:
                 state[rid]["state"] = STATE_SETTLING
+                state[rid]["settled_at"] = str(e.get("ts", ""))
             elif etype == STATE_RECONCILED:
                 state[rid]["state"] = STATE_RECONCILED
     return {rid: Reservation(**rec) for rid, rec in state.items()}
@@ -178,20 +196,25 @@ def reserve(
     reservation_id: str,
     worst_case_credits: float,
     model: str,
-    effective_cap: float,
-    budget_epoch: str,
-    fresh_spend_fn: Callable[[], float],
+    credit_observer: Callable[[], CreditObservation],
     lease_expires_at: datetime,
     now: datetime | None = None,
     remote: str | None = None,
 ) -> Reservation:
-    """Open a reservation for ``worst_case_credits`` under strict CAS. The headroom
-    predicate is re-evaluated against FRESH spend + the freshly-fetched counting
-    reservations on every CAS attempt (FR-011/FR-016). Raises
-    :class:`ledger_transport.LedgerDenied` if there is no headroom. Idempotent: a
-    re-``reserve`` of an already-counting id is admitted without double-counting.
+    """Open a reservation for ``worst_case_credits`` under strict CAS.
+
+    ``credit_observer`` is called on EVERY CAS attempt to get a FRESH,
+    internally-consistent :class:`CreditObservation` (spend + effective_cap +
+    budget_epoch). The headroom predicate and the event's epoch / settlement
+    baseline are all derived from that SAME observation, so a provider daily-reset
+    mid-retry cannot admit a call under a stale epoch (fixes #2/C11). Raises
+    :class:`ledger_transport.LedgerDenied` when there is no headroom, or when the id
+    already names a reservation with a DIFFERENT identity (collision, fixes #8).
+    Idempotent for a matching re-``reserve`` (no double-count).
     """
     now = now or _utcnow()
+    if not math.isfinite(worst_case_credits) or worst_case_credits < 0:
+        raise ValueError(f"worst_case_credits must be finite non-negative, got {worst_case_credits!r}")
     if remote is None:
         global _warned_local_reserve
         if not _warned_local_reserve:
@@ -200,43 +223,50 @@ def reserve(
                 "reservation opened with remote=None — LOCAL ledger only, NO cross-runner "
                 "headroom protection (C7). Production/slice-3 wiring MUST pass a real remote."
             )
-    # Idempotency: a reservation already counting locally is returned as-is (never
-    # re-append an `open`, which would regress a `settling` record back to `open`).
-    # The CAS predicate below still guards the concurrent same-id case.
-    existing = project(read_events(repo)).get(reservation_id)
-    if existing is not None and existing.counts:
-        return existing
-    event = {
-        "event_id": f"{reservation_id}-open",
-        "reservation_id": reservation_id,
-        "type": STATE_OPEN,
-        "worst_case_credits": worst_case_credits,
-        "model": model,
-        "budget_epoch": budget_epoch,
-        "settlement_baseline": fresh_spend_fn(),
-        "created_at": now.isoformat(),
-        "lease_expires_at": lease_expires_at.isoformat(),
-        "ts": now.isoformat(),  # explicit logical time (do NOT rely on wall-clock default)
-    }
 
-    def predicate(events: list[dict]) -> tuple[bool, str]:
+    def prepare(events: list[dict]) -> dict | None:
+        obs = credit_observer()  # FRESH + internally consistent (spend, cap, epoch) each attempt
         current = project(events)
         existing = current.get(reservation_id)
         if existing is not None and existing.counts:
-            return True, "idempotent: already reserved"
-        counting = counting_total(current.values(), epoch=budget_epoch)
-        spend = fresh_spend_fn()  # FRESH, cache-bypassing each attempt
-        if _admits(
-            effective_cap=effective_cap, fresh_spend=spend, counting=counting, worst_case=worst_case_credits
+            # #8: idempotent ONLY if the identity matches — a colliding id with a
+            # different model/amount/epoch must FAIL CLOSED (else a bigger call could
+            # run under an older, smaller hold).
+            if (
+                existing.model != model
+                or existing.worst_case_credits != worst_case_credits
+                or existing.budget_epoch != obs.budget_epoch
+            ):
+                raise LedgerDenied(
+                    f"reservation id {reservation_id!r} COLLISION: existing (model="
+                    f"{existing.model!r}, wc={existing.worst_case_credits}, epoch="
+                    f"{existing.budget_epoch!r}) != requested (model={model!r}, wc="
+                    f"{worst_case_credits}, epoch={obs.budget_epoch!r})"
+                )
+            return None  # matching reservation already present — idempotent no-op
+        counting = counting_total(current.values(), epoch=obs.budget_epoch)
+        if not _admits(
+            effective_cap=obs.effective_cap, fresh_spend=obs.spend,
+            counting=counting, worst_case=worst_case_credits,
         ):
-            return True, "admitted"
-        return (
-            False,
-            f"reservation {reservation_id!r} denied: fresh spend {spend:.2f} + counting "
-            f"{counting:.2f} + call {worst_case_credits:.2f} exceeds cap {effective_cap:.2f}",
-        )
+            raise LedgerDenied(
+                f"reservation {reservation_id!r} denied: fresh spend {obs.spend:.2f} + counting "
+                f"{counting:.2f} + call {worst_case_credits:.2f} exceeds cap {obs.effective_cap:.2f}"
+            )
+        return {
+            "event_id": f"{reservation_id}-open",
+            "reservation_id": reservation_id,
+            "type": STATE_OPEN,
+            "worst_case_credits": worst_case_credits,
+            "model": model,
+            "budget_epoch": obs.budget_epoch,
+            "settlement_baseline": obs.spend,
+            "created_at": now.isoformat(),
+            "lease_expires_at": lease_expires_at.isoformat(),
+            "ts": now.isoformat(),
+        }
 
-    append_event(repo, event, remote=remote, predicate=predicate)
+    append_event(repo, prepare=prepare, remote=remote)
     return project(read_events(repo))[reservation_id]
 
 
@@ -400,6 +430,8 @@ def reconcile_settled(
     slower headroom reclaim.
     """
     now = now or _utcnow()
+    if remote is not None:
+        fetch_ledger(repo, remote)  # #3: sync the authoritative ref BEFORE projecting
     current = project(read_events(repo))
     batch = sorted(
         (r for r in current.values() if r.state == STATE_SETTLING and r.budget_epoch == epoch),
@@ -439,10 +471,17 @@ def sweep(
        is discarded (finalized as ``reconciled``) so it no longer counts.
     3. **reconcile** — the current-epoch ``settling`` batch is reconciled against
        the freshly-observed spend via the attribution-prefix rule.
+    4. **settlement timeout (#9)** — a current-epoch ``settling`` hold that the
+       attribution rule could NOT reconcile and that has been settling longer than
+       ``settlement_timeout_s`` is force-reconciled: its charge (if any) has by now
+       landed in the observed spend, so retaining the worst-case residue would lock
+       headroom until the daily reset for no safety benefit.
 
     Returns the ids affected per phase.
     """
     now = now or _utcnow()
+    if remote is not None:
+        fetch_ledger(repo, remote)  # #3: sync the authoritative ref BEFORE projecting
     current = project(read_events(repo))
 
     conservatively_settled: list[str] = []
@@ -462,16 +501,36 @@ def sweep(
     reconciled = reconcile_settled(
         repo, observed_spend=observed_spend, epoch=current_epoch, now=now, remote=remote
     )
+
+    # 4. Settlement timeout (#9): force-reconcile current-epoch settling holds that
+    #    attribution left behind and that have been settling past the timeout.
+    timed_out: list[str] = []
+    for r in project(read_events(repo)).values():
+        if (
+            r.state == STATE_SETTLING
+            and r.budget_epoch == current_epoch
+            and r.settled_at
+            and (now - _parse(r.settled_at)).total_seconds() > settlement_timeout_s
+        ):
+            _reconcile_one(repo, r.reservation_id, now=now, remote=remote)
+            timed_out.append(r.reservation_id)
+
     return {
         "conservatively_settled": conservatively_settled,
         "discarded_prior_epoch": discarded,
         "reconciled": reconciled,
+        "settlement_timed_out": timed_out,
     }
 
 
-def outstanding_headroom_consumption(repo: Path, *, epoch: str) -> float:
+def outstanding_headroom_consumption(
+    repo: Path, *, epoch: str, remote: str | None = None
+) -> float:
     """The current counting-reservation total on the authoritative ledger — what
-    slice 3's pre-call guard subtracts from the fractional cap."""
+    slice 3's pre-call guard subtracts from the fractional cap. Fetches the
+    authoritative ref first (#3) so a fresh checkout is never silently blind."""
+    if remote is not None:
+        fetch_ledger(repo, remote)
     return counting_total(project(read_events(repo)).values(), epoch=epoch)
 
 
@@ -482,6 +541,7 @@ __all__ = [
     "STATE_OPEN",
     "STATE_RECONCILED",
     "STATE_SETTLING",
+    "CreditObservation",
     "LedgerDenied",
     "Reservation",
     "ReservationLease",

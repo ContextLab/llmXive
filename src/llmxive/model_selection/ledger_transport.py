@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import os
 import re
 import subprocess
@@ -82,6 +83,50 @@ _PUSH_DENY_MARKERS = ("pre-receive hook declined", "protected branch", "protecte
 #: Event/reservation ids become git path segments (reservations/<rev>/<id>.json), so
 #: they must be a single safe path component — no "/" (nesting/collision) or "..".
 _SAFE_ID = re.compile(r"^[A-Za-z0-9._-]+$")
+#: The reservation-event schema this ledger accepts.
+_KNOWN_EVENT_TYPES = frozenset({"open", "heartbeat", "settling", "reconciled"})
+#: Credit-amount fields that MUST be finite and non-negative when present (a
+#: negative or NaN amount would corrupt counting_total → phantom headroom → overspend).
+_AMOUNT_FIELDS = ("worst_case_credits", "settlement_baseline")
+
+
+def _canonical(event: dict) -> str:
+    """The single canonical on-disk serialization of an event (also the blob body)."""
+    return json.dumps(event, indent=2, sort_keys=True)
+
+
+def _validate_event(event: dict) -> None:
+    """Generic write-boundary schema validation (fixes #1) — the invariants that
+    keep the projection sound, independent of reservation semantics: required
+    ``event_id``/``reservation_id``/``type`` (safe-charset ids, known type) and
+    every credit-amount field, WHEN PRESENT, finite and non-negative (a negative or
+    NaN amount would corrupt ``counting_total`` → phantom headroom → overspend).
+    Reservation-specific required fields (e.g. ``open`` needs ``worst_case_credits``
+    + ``budget_epoch``) are validated by :mod:`reservations` where the events are built.
+    """
+    for key in ("event_id", "reservation_id", "type"):
+        if key not in event:
+            raise ValueError(f"ledger event missing required field {key!r}")
+    for key in ("event_id", "reservation_id"):
+        if not _SAFE_ID.match(str(event[key])):
+            raise ValueError(f"ledger {key}={event[key]!r} must match {_SAFE_ID.pattern}")
+    if event["type"] not in _KNOWN_EVENT_TYPES:
+        raise ValueError(f"ledger event type {event['type']!r} not in {sorted(_KNOWN_EVENT_TYPES)}")
+    for field in _AMOUNT_FIELDS:
+        if field in event:
+            val = event[field]
+            if not isinstance(val, (int, float)) or isinstance(val, bool) or not math.isfinite(val):
+                raise ValueError(f"ledger event {field}={val!r} must be a finite number")
+            if val < 0:
+                raise ValueError(f"ledger event {field}={val!r} must be non-negative")
+
+
+def _read_event_blob(repo: Path, event_id: str, tip: str) -> str | None:
+    """The stored body of ``<event_id>.json`` at ``tip``, or ``None`` if absent."""
+    proc = _git(
+        ["cat-file", "-p", f"{tip}:{_EVENT_DIR}/{event_id}.json"], cwd=repo, check=False
+    )
+    return proc.stdout if proc.returncode == 0 else None
 
 
 class LedgerError(RuntimeError):
@@ -157,7 +202,7 @@ def _append_commit(repo: Path, parent: str | None, event: dict) -> str:
     proc = subprocess.run(
         ["git", "hash-object", "-w", "--stdin"],
         cwd=str(repo),
-        input=json.dumps(event, indent=2, sort_keys=True),
+        input=_canonical(event),
         capture_output=True,
         text=True,
         check=True,
@@ -206,6 +251,44 @@ def _fetch_authoritative(repo: Path, remote: str) -> None:
         raise LedgerAuthError(f"ledger fetch from {remote!r} failed: {proc.stderr.strip()}")
 
 
+def bootstrap_ledger(repo: Path, remote: str | None = None) -> str:
+    """Create the authoritative ledger ref with an empty anchor commit — the ONLY
+    sanctioned way to bring a ledger into existence (#7). Idempotent: a no-op if the
+    ref already exists (locally or, when ``remote`` is given, on the remote). Every
+    other write path fails closed when the ref is absent, so a fork / misconfigured
+    origin cannot silently spawn a DIVERGENT ledger; a one-time bootstrap (setup or
+    the maintenance workflow) must run first. Returns the anchor commit OID."""
+    if remote is not None:
+        _fetch_authoritative(repo, remote)
+    existing = _rev(repo, LEDGER_REF)
+    if existing is not None:
+        return existing
+    with tempfile.TemporaryDirectory() as td:
+        env = {"GIT_INDEX_FILE": os.path.join(td, "index")}
+        empty_tree = _git(["write-tree"], cwd=repo, extra_env=env).stdout.strip()  # empty index → empty tree
+    commit = _git(
+        ["commit-tree", empty_tree, "-m", f"bootstrap credit-ledger {SCHEMA_REVISION}"], cwd=repo
+    ).stdout.strip()
+    proc = _git(["update-ref", LEDGER_REF, commit, _ZERO_OID], cwd=repo, check=False)
+    if proc.returncode != 0:  # a concurrent bootstrap won locally
+        return _rev(repo, LEDGER_REF) or commit
+    if remote is not None and not _push_fast_forward(repo, remote, commit):
+        # a concurrent bootstrap won remotely — adopt it as authoritative
+        _fetch_authoritative(repo, remote)
+        return _rev(repo, LEDGER_REF) or commit
+    return commit
+
+
+def fetch_ledger(repo: Path, remote: str) -> None:
+    """Sync the local ledger ref from the AUTHORITATIVE remote before a projection
+    (fixes #3). Any read that gates admission or reconciliation — ``sweep``,
+    ``reconcile_settled``, production headroom reads — MUST call this first: a fresh
+    Actions checkout does not fetch ``refs/llmxive/credit-ledger``, so an un-synced
+    local projection is EMPTY and every downstream decision is silently blind. Fails
+    closed on auth/permission (never proceeds against a stale/empty local ledger)."""
+    _fetch_authoritative(repo, remote)
+
+
 def _push_fast_forward(repo: Path, remote: str, commit: str) -> bool:
     """Fast-forward-only push of ``commit`` to the authoritative ref. Returns
     True on success, False on a benign non-fast-forward rejection (a concurrent
@@ -228,45 +311,71 @@ def _push_fast_forward(repo: Path, remote: str, commit: str) -> bool:
 
 def append_event(
     repo: Path,
-    event: dict,
+    event: dict | None = None,
     *,
+    prepare: Callable[[list[dict]], dict | None] | None = None,
     remote: str | None = None,
     predicate: Callable[[list[dict]], tuple[bool, str]] | None = None,
+    allow_cold_start: bool = False,
     max_retries: int = 8,
 ) -> str:
-    """Append ONE ``event`` to the authoritative ledger under strict CAS.
+    """Append ONE event to the authoritative ledger under strict CAS.
 
     Each attempt: (1) fetch the authoritative ref (if ``remote``); (2) re-read the
-    events (the projection input); (3) re-evaluate ``predicate`` against that fresh
-    state — a False result raises :class:`LedgerDenied` and NOTHING is appended;
-    (4) build the append-only commit onto the current tip; (5) fast-forward the ref
-    (``update-ref`` CAS locally, FF push remotely); (6) on a non-fast-forward
-    rejection, discard and recompute from the NEW tip. Every ledger mutation
-    (open / heartbeat / settling / reconciled) flows through here.
+    events; (3) BUILD the event — either the fixed ``event`` (optionally gated by
+    ``predicate``) or, for callers that must price against FRESH state each attempt
+    (``reserve``), ``prepare(events)`` which returns the event to append, ``None``
+    for an idempotent no-op, or raises :class:`LedgerDenied`; (4) enforce append-only
+    immutability; (5) append onto the current tip; (6) fast-forward the ref
+    (``update-ref`` CAS locally, FF push remotely); (7) on non-fast-forward, refetch
+    and recompute. Every ledger mutation flows through here.
 
-    ``event`` MUST carry a unique ``event_id`` (append-only filename) and a
-    ``reservation_id`` (idempotency key). Returns the new tip commit OID.
+    ``prepare`` is re-invoked on EVERY attempt so the event's epoch / settlement
+    baseline reflect a fresh, internally-consistent credit observation (fixes #2 —
+    the daily-reset race). Returns the tip commit OID.
     """
-    if "event_id" not in event or "reservation_id" not in event:
-        raise ValueError("ledger event requires 'event_id' and 'reservation_id'")
-    # C9: ids become a git path segment reservations/<rev>/<id>.json — reject any
-    # that are not a single safe component (e.g. slice-3 model-derived ids contain
-    # "/"/":" and MUST be sanitized before reaching the ledger, else nesting/collision).
-    for key in ("event_id", "reservation_id"):
-        if not _SAFE_ID.match(str(event[key])):
-            raise ValueError(f"ledger {key}={event[key]!r} must match {_SAFE_ID.pattern}")
-    event.setdefault("ts", datetime.now(UTC).isoformat())
+    if (event is None) == (prepare is None):
+        raise ValueError("append_event requires exactly one of 'event' or 'prepare'")
 
     for _attempt in range(max_retries):
         if remote is not None:
             _fetch_authoritative(repo, remote)
+            # #7: a REMOTE write requires the ledger to already exist (bootstrapped).
+            # Refuse to create a divergent ledger against a fork/misconfigured origin.
+            if not allow_cold_start and _rev(repo, LEDGER_REF) is None:
+                raise LedgerAuthError(
+                    f"ledger ref {LEDGER_REF} absent on {remote!r} — not bootstrapped; "
+                    "refusing to create a divergent ledger (call bootstrap_ledger first)"
+                )
         events = read_events(repo)
-        if predicate is not None:
-            ok, reason = predicate(events)
-            if not ok:
-                raise LedgerDenied(reason)
+        if prepare is not None:
+            built = prepare(events)  # fresh per attempt; may raise LedgerDenied
+            if built is None:
+                return _rev(repo, LEDGER_REF) or _ZERO_OID  # idempotent no-op
+        else:
+            built = event
+            if predicate is not None:
+                ok, reason = predicate(events)
+                if not ok:
+                    raise LedgerDenied(reason)
+        built.setdefault("ts", datetime.now(UTC).isoformat())
+        _validate_event(built)  # strict schema (fixes #1): required fields, finite non-neg amounts
+        body = _canonical(built)
+        event_id = str(built["event_id"])
         parent = _rev(repo, LEDGER_REF)
-        new_commit = _append_commit(repo, parent, event)
+        # APPEND-ONLY (fixes #1): an event_id is write-once. An IDENTICAL re-append
+        # (an in-flight CAS retry) is an idempotent no-op; a DIFFERENT body for the
+        # same id is a mutation of committed state → fail closed, never overwrite.
+        if parent is not None:
+            existing = _read_event_blob(repo, event_id, parent)
+            if existing is not None:
+                if existing == body:
+                    return parent
+                raise LedgerError(
+                    f"event_id {event_id!r} already exists with DIFFERENT content "
+                    "(append-only violation) — failing closed"
+                )
+        new_commit = _append_commit(repo, parent, built)
         if remote is not None:
             if _push_fast_forward(repo, remote, new_commit):
                 # Sync the local ref to what we successfully pushed.
@@ -293,5 +402,7 @@ __all__ = [
     "LedgerDenied",
     "LedgerError",
     "append_event",
+    "bootstrap_ledger",
+    "fetch_ledger",
     "read_events",
 ]

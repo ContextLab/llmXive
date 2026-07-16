@@ -127,3 +127,34 @@ def test_digest_reflects_component_source(monkeypatch: pytest.MonkeyPatch, tmp_p
     assert from_lkg.sources["catalog"].source == "last_known_good"
     assert {m.model_id for m in from_lkg.models} == {m.model_id for m in live.models}
     assert live.digest != from_lkg.digest
+
+
+def test_digest_binds_full_snapshot_and_contracts_are_immutable(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    """#5: the digest binds the COMPLETE snapshot (a change in credit spend alone
+    changes it), and the mapping fields are truly immutable."""
+    import llmxive.model_selection.snapshot as snap_mod
+    from llmxive.model_selection.lkg import LKGStore
+    from llmxive.model_selection.types import CreditGuardSnapshot, ModelRef
+
+    ref = ModelRef("dartmouth", "https://x", "qwen.qwen3.5-122b", "qwen3.5", "qwen")
+    price = {"qwen.qwen3.5-122b": ModelPricing(0.0, 0.0)}
+    t0 = datetime(2026, 7, 16, tzinfo=UTC)
+    monkeypatch.setattr(snap_mod, "_fetch_dartmouth", lambda: ([ref], price))
+    monkeypatch.setattr(snap_mod, "_fetch_local", lambda: ([], {}))
+
+    def snap(spend: float):
+        monkeypatch.setattr(
+            snap_mod, "_fetch_credit",
+            lambda *, now: CreditGuardSnapshot(
+                100.0, spend, 200.0, True, 0.75, 150.0, 150.0 - spend, "r", now, "live"
+            ),
+        )
+        return snap_mod.runtime_snapshot(now=t0, lkg_store=LKGStore(tmp_path / f"lkg_{spend}.json"))
+
+    a, b = snap(10.0), snap(90.0)
+    assert a.digest != b.digest  # spend participates in the digest now
+    for mapping in (a.pricing, a.sources, a.health):
+        with pytest.raises(TypeError):
+            mapping["x"] = 1  # MappingProxyType — read-only

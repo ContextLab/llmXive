@@ -323,6 +323,10 @@ def _cmd_credits_ledger_sweep(args: argparse.Namespace) -> int:
 
     balance = credits_mod.fetch_credit_balance()  # FRESH, cache-bypassing
     remote = None if args.no_remote else args.remote
+    if remote is not None:
+        from llmxive.model_selection.ledger_transport import bootstrap_ledger
+
+        bootstrap_ledger(repo_root(), remote=remote)  # #7: idempotent; the sanctioned creator
     result = reservations.sweep(
         repo_root(),
         observed_spend=balance.spend,

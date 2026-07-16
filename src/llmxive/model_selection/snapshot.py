@@ -269,15 +269,20 @@ def _resolve_credit_component(
 def _digest(
     models: tuple[ModelRef, ...],
     pricing: dict[str, ModelPricing],
+    health: dict[str, str],
     credit: CreditGuardSnapshot,
+    observed_at: datetime,
     sources: dict[str, SnapshotProvenance],
 ) -> str:
-    """SHA-256 over the canonical (order-independent) snapshot content that
-    affects a decision — binds the FULL snapshot, not just the catalog. Includes
-    each component's ``source`` (live vs last_known_good vs unavailable changes
-    what ``select`` admits, FR-007) but NOT the time-varying ``observed_at``/
-    ``age_s`` (which would make the digest non-reproducible)."""
+    """SHA-256 over the COMPLETE canonical RuntimeSnapshot (FR-004, #5): every input
+    that can change a decision — models, pricing, health, the FULL credit-guard
+    observation, the snapshot ``observed_at``, AND each component's full provenance
+    (source + observation time + age, since freshness gates eligibility per FR-007).
+    Two snapshots taken at different times are DIFFERENT snapshots (distinct
+    ``observed_at``) → distinct digests, which is correct; ``select`` determinism
+    (SC-001) is over a FIXED snapshot, not across time."""
     payload = {
+        "observed_at": observed_at.isoformat(),
         "models": sorted(
             [m.backend, m.serving_endpoint, m.model_id, m.model_family, m.vendor] for m in models
         ),
@@ -285,8 +290,18 @@ def _digest(
             k: [pricing[k].input_usd_per_token, pricing[k].output_usd_per_token]
             for k in sorted(pricing)
         },
-        "credit": [credit.effective_cap, credit.available_headroom, credit.paid_opt_in, credit.budget_reset_at],
-        "sources": {k: sources[k].source for k in sorted(sources)},
+        "health": {k: health[k] for k in sorted(health)},
+        "credit": {
+            "balance": credit.balance, "spend": credit.spend, "max_budget": credit.max_budget,
+            "paid_opt_in": credit.paid_opt_in, "budget_fraction": credit.budget_fraction,
+            "effective_cap": credit.effective_cap, "available_headroom": credit.available_headroom,
+            "budget_reset_at": credit.budget_reset_at, "observed_at": credit.observed_at.isoformat(),
+            "source": credit.source,
+        },
+        "sources": {
+            k: [sources[k].source, sources[k].observed_at.isoformat(), sources[k].age_s]
+            for k in sorted(sources)
+        },
     }
     return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
 
@@ -316,7 +331,7 @@ def runtime_snapshot(*, now: datetime | None = None, lkg_store: LKGStore | None 
     pricing = {**d_pricing, **l_pricing}
     health = {m.model_id: "ok" for m in models}  # advisory only (see RuntimeSnapshot.health)
     sources = {"catalog": d_prov, "local": l_prov, "credit": c_prov}
-    digest = _digest(models, pricing, credit, sources)
+    digest = _digest(models, pricing, health, credit, observed_at, sources)
     return RuntimeSnapshot(
         models=models, pricing=pricing, health=health, credit=credit,
         observed_at=observed_at, sources=sources, digest=digest,

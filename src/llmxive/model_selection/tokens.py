@@ -29,6 +29,7 @@ __all__ = [
     "estimate_message_tokens",
     "estimate_tokens",
     "fits_budget",
+    "max_input_tokens_upper_bound",
 ]
 
 #: Fixed overhead ADDED to the char/÷4 content estimate. Chat APIs wrap each
@@ -70,6 +71,21 @@ def estimate_message_tokens(messages: Iterable[Any]) -> int:
         role, content = _role_content(m)
         total += _PER_MESSAGE_OVERHEAD_TOKENS + estimate_tokens(role) + estimate_tokens(content)
     return math.ceil(total * _SAFETY_MARGIN)  # conservative headroom (C2) — over-, not under-count
+
+
+def max_input_tokens_upper_bound(messages: Iterable[Any]) -> int:
+    """A HARD, tokenizer-independent upper bound on the input token count (FR-010,
+    #6): every BPE/char token consumes AT LEAST one character, so ``len(text)`` is a
+    guaranteed ceiling on the number of tokens. Slice-3 reservation sizing
+    (``worst_case_credits``) MUST size against THIS — never the char/÷4
+    ``estimate_message_tokens`` (an average, not a bound) — so a paid call can never
+    be charged for more input than it reserved. Deliberately over-conservative
+    (~4x the average); acceptable because paid calls are opt-in and rare."""
+    total = _REQUEST_OVERHEAD_TOKENS
+    for m in messages:
+        role, content = _role_content(m)
+        total += _PER_MESSAGE_OVERHEAD_TOKENS + len(role) + len(content)
+    return total
 
 
 def call_budget_for(messages: Iterable[Any], max_output_tokens: int) -> CallBudget:
