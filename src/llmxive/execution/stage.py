@@ -97,6 +97,46 @@ def _data_unavailable_failures(failures: list[str]) -> list[str]:
     return out
 
 
+#: argparse's own rejection lines when a run-book command's ARGS don't match the
+#: script's CLI — the quickstart invokes ``python code/x.py --icc 0.1`` but x.py's
+#: argparse never declared ``--icc`` (``unrecognized arguments``), or invokes it
+#: with NO args while x.py marks flags ``required`` (``the following arguments are
+#: required``). Re-running the identical command can NEVER pass and editing the
+#: script BODY won't help — the run-book command and the script's argparse have
+#: DRIFTED and must be reconciled (the live PROJ-148/239/585 stalls at fr=2-7).
+_ARGPARSE_ERROR_RE = re.compile(
+    r":\s*error:\s+(?:the following arguments are required|unrecognized arguments|"
+    r"argument\s+[^\n:]+:|invalid choice|expected (?:one|at least one) argument|"
+    r"ambiguous option|not allowed with argument)",
+    re.IGNORECASE,
+)
+_USAGE_RE = re.compile(r"^usage:\s*(.+)$", re.MULTILINE)
+
+
+def _runbook_cli_mismatches(res: AnalysisRunResult) -> list[tuple[str, str, str]]:
+    """Failing commands where the RUN-BOOK invocation doesn't match the script's
+    own argparse CLI. argparse prints ``usage: <prog> ...`` then ``<prog>: error:
+    the following arguments are required: --input`` / ``unrecognized arguments:
+    --icc`` — BOTH already in the captured tail, so the real CLI is recovered
+    without re-running ``--help``. Returns ``(command, usage, error_line)`` per
+    mismatch so the implementer is told to reconcile the quickstart command and the
+    script's argparse (not pointlessly edit the body)."""
+    out: list[tuple[str, str, str]] = []
+    for r in res.commands:
+        if r.ok or not r.tail:
+            continue
+        if not _ARGPARSE_ERROR_RE.search(r.tail):
+            continue
+        err_line = next(
+            (ln.strip() for ln in r.tail.splitlines() if _ARGPARSE_ERROR_RE.search(ln)),
+            "",
+        )
+        um = _USAGE_RE.search(r.tail)
+        usage = " ".join(um.group(1).split()) if um else ""
+        out.append((r.command, usage, err_line))
+    return out
+
+
 def _needs_verified_source(res: AnalysisRunResult, failures: list[str]) -> bool:
     """True when the failure signals the project lacks a REAL, programmatically
     reachable data source — the exact case data-source discovery exists to fix.
@@ -645,6 +685,29 @@ def _write_execution_feedback(
             *(f"- `{c}`" for c in regressions),
             "",
         ]
+    cli_mismatches = _runbook_cli_mismatches(res)
+    if cli_mismatches:
+        lines += [
+            "## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments",
+            "",
+            "These commands did not crash on a code bug — the script's own argparse "
+            "REJECTED the arguments the quickstart passed (it required flags the "
+            "quickstart omitted, or the quickstart passed flags the script never "
+            "declared). Re-running the identical command can NEVER pass, and editing "
+            "the script's logic will NOT help: the run-book command and the script's "
+            "CLI have DRIFTED. Reconcile them — either change the quickstart command "
+            "to match the script's real usage, OR change the script's argparse to "
+            "accept the quickstart's arguments (whichever is correct for the "
+            "analysis). The script's REAL usage is shown so you can see the exact gap:",
+            "",
+        ]
+        for cmd, usage, err in cli_mismatches:
+            lines.append(f"- run-book command: `{cmd}`")
+            if usage:
+                lines.append(f"  - script usage: `{usage}`")
+            if err:
+                lines.append(f"  - argparse error: `{err}`")
+        lines.append("")
     infra = _compute_infra_failures(failures)
     if infra:
         lines += [

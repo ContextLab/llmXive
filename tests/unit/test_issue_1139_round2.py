@@ -16,7 +16,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from llmxive.execution.analysis_runner import AnalysisRunResult, RunCommandResult
-from llmxive.execution.stage import _reopen_failing_tasks
+from llmxive.execution.stage import (
+    _FEEDBACK_FILENAME,
+    _reopen_failing_tasks,
+    _runbook_cli_mismatches,
+    _write_execution_feedback,
+)
 
 
 def _mk_project(tmp_path: Path, pid: str, tasks_md: str) -> Path:
@@ -108,3 +113,121 @@ def test_b1_tail_scan_ignores_venv_library_frames(tmp_path: Path) -> None:
     # The pandas library frame did not add a spurious task or crash.
     assert "pandas" not in after
     assert reopened >= 2
+
+
+# ---------------------------------------------------------------------------
+# B2 — run-book / CLI (argparse) mismatch is diagnosed for the implementer
+# ---------------------------------------------------------------------------
+
+_ARGPARSE_TAIL_REQUIRED = (
+    "usage: extract_metrics.py [-h] --input INPUT --output OUTPUT\n"
+    "                          [--extension EXTENSION]\n"
+    "extract_metrics.py: error: the following arguments are required: --input, --output\n"
+)
+_ARGPARSE_TAIL_UNRECOGNIZED = (
+    "usage: simulation_runner.py [-h] [--iterations ITERATIONS]\n"
+    "simulation_runner.py: error: unrecognized arguments: --icc 0.1 --alpha 0.05\n"
+)
+
+
+def test_b2_detects_argparse_runbook_mismatch() -> None:
+    """A quickstart command whose argparse rejects the args ('the following
+    arguments are required' / 'unrecognized arguments') is a run-book/CLI drift —
+    re-running never succeeds and editing the script body won't help. The detector
+    surfaces (command, usage, error) for each (live PROJ-148/239/585)."""
+    res = AnalysisRunResult(
+        ok=False,
+        commands=[
+            RunCommandResult(
+                "python code/extract_metrics.py", False, 2, 0.1, False,
+                _ARGPARSE_TAIL_REQUIRED,
+            ),
+            RunCommandResult(
+                "python code/simulation_runner.py --icc 0.1 --alpha 0.05",
+                False, 2, 0.1, False, _ARGPARSE_TAIL_UNRECOGNIZED,
+            ),
+            RunCommandResult(  # an ordinary crash — NOT a CLI mismatch
+                "python code/train.py", False, 1, 0.1, False,
+                "Traceback ...\nValueError: shapes not aligned\n",
+            ),
+        ],
+    )
+    mm = _runbook_cli_mismatches(res)
+    cmds = {c for c, _u, _e in mm}
+    assert cmds == {
+        "python code/extract_metrics.py",
+        "python code/simulation_runner.py --icc 0.1 --alpha 0.05",
+    }, "only the two argparse-mismatch commands (not the ValueError crash)"
+    # usage + error are carried through
+    by_cmd = {c: (u, e) for c, u, e in mm}
+    assert "--input INPUT --output OUTPUT" in by_cmd["python code/extract_metrics.py"][0]
+    assert "required" in by_cmd["python code/extract_metrics.py"][1]
+    assert "unrecognized arguments" in by_cmd[
+        "python code/simulation_runner.py --icc 0.1 --alpha 0.05"][1]
+
+
+def test_b2_feedback_names_the_cli_mismatch(tmp_path: Path) -> None:
+    """The execution feedback the implementer reads must call out the run-book/CLI
+    mismatch explicitly (command + the script's real usage + the argparse error),
+    so the implementer reconciles the quickstart and the script's argparse instead
+    of pointlessly editing the script body."""
+    mem = tmp_path / ".specify" / "memory"
+    res = AnalysisRunResult(
+        ok=False,
+        commands=[
+            RunCommandResult(
+                "python code/extract_metrics.py", False, 2, 0.1, False,
+                _ARGPARSE_TAIL_REQUIRED,
+            ),
+        ],
+    )
+    failures = ["python code/extract_metrics.py -> rc=2\n    " + _ARGPARSE_TAIL_REQUIRED]
+    _write_execution_feedback(mem, res, failures)
+    fb = (mem / _FEEDBACK_FILENAME).read_text(encoding="utf-8")
+    assert "RUN-BOOK" in fb and "CLI" in fb
+    assert "extract_metrics.py" in fb
+    assert "--input INPUT --output OUTPUT" in fb  # the real usage is shown
+    assert "the following arguments are required" in fb  # the argparse error is shown
+
+
+# ---------------------------------------------------------------------------
+# B3 — script-missing self-heal appends a SELF-OWNING reconciliation task
+# ---------------------------------------------------------------------------
+
+
+def test_b3_script_missing_selfheal_is_self_owning(tmp_path: Path) -> None:
+    """A run-book command naming a script NO task created (script_missing) must get
+    a reconciliation task that (a) names the EXACT run-book path and (b) is
+    self-owning — a second identical failure round must NOT append a duplicate (the
+    PROJ-552 stall was the loop never converging). Guards convergence within a
+    spec cycle."""
+    pid = "PROJ-B3-scriptmissing"
+    tasks_md = (
+        "- [X] T001 Build `code/main.py`\n"
+        "- [X] T002 Produce `data/results.json`\n"
+    )
+    proj = _mk_project(tmp_path, pid, tasks_md)
+    missing = "code/reproducibility/checksum_generator.py"
+    res = AnalysisRunResult(
+        ok=False,
+        commands=[
+            RunCommandResult(
+                f"python {missing}", False, 2, 0.1, False,
+                "[script missing]", script_missing=True,
+            ),
+        ],
+    )
+
+    first = _reopen_failing_tasks(proj, res)
+    after1 = (proj / "specs" / "001-feature" / "tasks.md").read_text(encoding="utf-8")
+    assert first >= 1
+    assert "Reconcile run-book" in after1
+    assert missing in after1, "the reconciliation task must name the exact run-book path"
+
+    # Second identical round: the appended task now OWNS the path → no duplicate.
+    second = _reopen_failing_tasks(proj, res)
+    after2 = (proj / "specs" / "001-feature" / "tasks.md").read_text(encoding="utf-8")
+    assert after2.count("Reconcile run-book vs implementation for `%s`" % missing) == 1, (
+        "self-heal must not append a duplicate reconciliation task each round"
+    )
+    assert second == 0, "a converged self-heal reopens nothing new on the next round"
