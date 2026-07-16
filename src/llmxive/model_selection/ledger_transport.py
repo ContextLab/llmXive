@@ -30,6 +30,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import subprocess
 import tempfile
 from collections.abc import Callable
@@ -66,7 +67,21 @@ _AUTH_FAIL_MARKERS = (
     "remote: permission to",
     "terminal prompts disabled",
 )
-_NON_FF_MARKERS = ("non-fast-forward", "fetch first", "failed to push some refs", "! [rejected]")
+# Benign rejections a concurrent reserver caused — REFETCH + recompute (retry).
+# A concurrent CREATE of the same new ref reports "cannot lock ref ... reference
+# already exists" / "failed to update ref"; a concurrent UPDATE reports
+# non-fast-forward. Both are the CAS working, not an error.
+_NON_FF_MARKERS = (
+    "non-fast-forward", "fetch first", "failed to push some refs", "! [rejected]",
+    "reference already exists", "cannot lock ref", "failed to update ref",
+)
+# A push rejected by a branch/ref PROTECTION or PERMISSION rule is an AUTH failure
+# (fail closed), checked first so it is never masked. Kept SPECIFIC — a bare "remote
+# rejected" also appears in the benign concurrent-create case above, so it is NOT here.
+_PUSH_DENY_MARKERS = ("pre-receive hook declined", "protected branch", "protected ref", "gh006")
+#: Event/reservation ids become git path segments (reservations/<rev>/<id>.json), so
+#: they must be a single safe path component — no "/" (nesting/collision) or "..".
+_SAFE_ID = re.compile(r"^[A-Za-z0-9._-]+$")
 
 
 class LedgerError(RuntimeError):
@@ -124,8 +139,12 @@ def read_events(repo: Path, *, ref: str = LEDGER_REF) -> list[dict]:
         blob = _git(["cat-file", "blob", f"{tip}:{path}"], cwd=repo).stdout
         try:
             events.append(json.loads(blob))
-        except json.JSONDecodeError as exc:  # a corrupt event is skipped, never fatal
-            logger.warning("ledger event %s is unparseable (%s); skipping", path, exc)
+        except json.JSONDecodeError as exc:
+            # FAIL CLOSED (C4): this is the AUTHORITATIVE financial ledger, not a
+            # cache. Skipping a corrupt event could drop a COUNTING (open/settling)
+            # reservation from the projection → counting_total under-counts →
+            # phantom headroom → overspend. Refuse to read rather than under-count.
+            raise LedgerError(f"corrupt ledger event {path!r}: {exc}") from exc
     return events
 
 
@@ -173,12 +192,17 @@ def _fetch_authoritative(repo: Path, remote: str) -> None:
     )
     if proc.returncode != 0:
         stderr = proc.stderr.strip().lower()
-        # A remote that simply has no ledger ref yet is NOT an error (cold start):
-        # git reports "couldn't find remote ref". Auth/permission problems ARE.
-        if "couldn't find remote ref" in stderr or "no such ref" in stderr:
-            return
+        # Check auth/permission markers FIRST (C5): a real auth failure whose stderr
+        # ALSO mentions a missing ref must NOT be misread as a benign cold start
+        # (that would proceed against an empty ledger unguarded = fail OPEN).
         if any(m in stderr for m in _AUTH_FAIL_MARKERS):
             raise LedgerAuthError(f"ledger ref unreachable on {remote!r}: {proc.stderr.strip()}")
+        # A genuinely-absent ref on a REACHABLE remote is a cold start (first run).
+        # NOTE: a reachable-but-WRONG remote (fork / renamed origin) is
+        # indistinguishable from first-run here; slice-3 wiring MUST bootstrap the
+        # ref + pin the correct remote so a missing ref thereafter is an error.
+        if "couldn't find remote ref" in stderr or "no such ref" in stderr:
+            return
         raise LedgerAuthError(f"ledger fetch from {remote!r} failed: {proc.stderr.strip()}")
 
 
@@ -192,10 +216,13 @@ def _push_fast_forward(repo: Path, remote: str, commit: str) -> bool:
     if proc.returncode == 0:
         return True
     stderr = proc.stderr.strip().lower()
-    if any(m in stderr for m in _NON_FF_MARKERS):
-        return False
-    if any(m in stderr for m in _AUTH_FAIL_MARKERS):
+    # Auth / permission / ref-protection denial FIRST (C10): a protected-ref rejection
+    # emits "failed to push some refs" too, so classifying it as a benign non-FF would
+    # waste the whole retry budget and then raise the WRONG (contention) error.
+    if any(m in stderr for m in _AUTH_FAIL_MARKERS) or any(m in stderr for m in _PUSH_DENY_MARKERS):
         raise LedgerAuthError(f"ledger push to {remote!r} denied: {proc.stderr.strip()}")
+    if any(m in stderr for m in _NON_FF_MARKERS):
+        return False  # a concurrent event won — refetch + recompute
     raise LedgerError(f"ledger push to {remote!r} failed: {proc.stderr.strip()}")
 
 
@@ -222,6 +249,12 @@ def append_event(
     """
     if "event_id" not in event or "reservation_id" not in event:
         raise ValueError("ledger event requires 'event_id' and 'reservation_id'")
+    # C9: ids become a git path segment reservations/<rev>/<id>.json — reject any
+    # that are not a single safe component (e.g. slice-3 model-derived ids contain
+    # "/"/":" and MUST be sanitized before reaching the ledger, else nesting/collision).
+    for key in ("event_id", "reservation_id"):
+        if not _SAFE_ID.match(str(event[key])):
+            raise ValueError(f"ledger {key}={event[key]!r} must match {_SAFE_ID.pattern}")
     event.setdefault("ts", datetime.now(UTC).isoformat())
 
     for _attempt in range(max_retries):

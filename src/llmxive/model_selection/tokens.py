@@ -17,6 +17,7 @@ imports this — it only reads the ``CallBudget`` and stays pure.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Iterable
 from typing import Any
 
@@ -31,11 +32,19 @@ __all__ = [
 ]
 
 #: Fixed overhead ADDED to the char/÷4 content estimate. Chat APIs wrap each
-#: message with role tags + delimiters and each request with system/tool framing;
-#: these are deliberately generous so the total stays an UPPER bound (never a call
-#: that fits the estimate but overruns the real tokenizer).
+#: message with role tags + delimiters and each request with system/tool framing.
 _PER_MESSAGE_OVERHEAD_TOKENS = 8
 _REQUEST_OVERHEAD_TOKENS = 16
+
+#: Multiplicative safety margin applied to the char/÷4 estimate (C2). char/4 is the
+#: AVERAGE English ratio, not an upper bound — token-dense inputs (code, punctuation,
+#: CJK, whitespace) tokenize to MORE than len/4. Since this estimate sizes
+#: ``worst_case_credits`` (which the reservation ledger holds), under-estimating would
+#: UNDER-reserve and re-open an overspend window. This margin makes the estimate
+#: conservative for realistic prose/code; it is NOT a hard bound for adversarial
+#: single-char text (whose true ceiling is len(content)) — acceptable because llmXive
+#: inputs are prose/code and the fresh-spend re-check backstops residual under-count.
+_SAFETY_MARGIN = 1.5
 
 
 def _role_content(message: Any) -> tuple[str, str]:
@@ -60,7 +69,7 @@ def estimate_message_tokens(messages: Iterable[Any]) -> int:
     for m in messages:
         role, content = _role_content(m)
         total += _PER_MESSAGE_OVERHEAD_TOKENS + estimate_tokens(role) + estimate_tokens(content)
-    return total
+    return math.ceil(total * _SAFETY_MARGIN)  # conservative headroom (C2) — over-, not under-count
 
 
 def call_budget_for(messages: Iterable[Any], max_output_tokens: int) -> CallBudget:

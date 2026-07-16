@@ -72,6 +72,28 @@ def _reserve(repo: Path, rid: str, wc: float, *, cap: float, spend: float, remot
 # ------------------------------ projection --------------------------------- #
 
 
+def test_project_duplicate_open_does_not_regress_settling():
+    """C12: a duplicate `open` event (cross-runner stale-local retry) must NOT
+    overwrite an already-`settling` reservation nor reset its baseline/created_at."""
+    events = [
+        {"type": "open", "reservation_id": "X", "event_id": "X-open",
+         "ts": "2026-07-16T12:00:00", "worst_case_credits": 10, "budget_epoch": "E",
+         "settlement_baseline": 0, "created_at": "2026-07-16T12:00:00", "lease_expires_at": "z"},
+        {"type": "settling", "reservation_id": "X", "event_id": "X-settling",
+         "ts": "2026-07-16T12:01:00"},
+        {"type": "open", "reservation_id": "X", "event_id": "X-open2",
+         "ts": "2026-07-16T12:02:00", "worst_case_credits": 10, "budget_epoch": "E",
+         "settlement_baseline": 99, "created_at": "2026-07-16T12:02:00", "lease_expires_at": "z"},
+    ]
+    res = project(events)
+    assert res["X"].state == STATE_SETTLING  # not regressed to open
+    assert res["X"].settlement_baseline == 0.0  # original preserved, not the duplicate's 99
+    assert res["X"].created_at == "2026-07-16T12:00:00"
+
+
+
+
+
 def test_reserve_settle_reconcile_projection(repo):
     r = _reserve(repo, "r1", 10.0, cap=100.0, spend=0.0)
     assert r.state == STATE_OPEN and r.counts

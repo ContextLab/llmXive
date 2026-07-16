@@ -59,6 +59,7 @@ DEFAULT_LEASE_MARGIN_S = 60.0
 #: sweeper conservatively finalizes it (Dartmouth's settlement lag).
 DEFAULT_SETTLEMENT_TIMEOUT_S = 3600.0
 _DEFAULT_DEADLINE_S = 360.0  # a reasoning call's default wall-clock deadline
+_warned_local_reserve = False  # one-shot guard for the remote=None warning (C7)
 
 
 def _utcnow() -> datetime:
@@ -121,7 +122,12 @@ def project(events: Iterable[dict]) -> dict[str, Reservation]:
         etype = e.get("type")
         if rid is None or etype is None:
             continue
-        if etype == STATE_OPEN:
+        if etype == STATE_OPEN and rid not in state:
+            # CREATE-ONLY (C12): a duplicate `open` (e.g. a cross-runner retry whose
+            # local ref was stale when the idempotency pre-check ran) must NOT
+            # overwrite an already-advanced reservation — a later-ts open would
+            # otherwise regress `settling`→`open` and reset created_at/baseline,
+            # corrupting reconciliation attribution.
             state[rid] = {
                 "reservation_id": rid,
                 "worst_case_credits": float(e.get("worst_case_credits", 0.0)),
@@ -186,6 +192,14 @@ def reserve(
     re-``reserve`` of an already-counting id is admitted without double-counting.
     """
     now = now or _utcnow()
+    if remote is None:
+        global _warned_local_reserve
+        if not _warned_local_reserve:
+            _warned_local_reserve = True
+            logger.warning(
+                "reservation opened with remote=None — LOCAL ledger only, NO cross-runner "
+                "headroom protection (C7). Production/slice-3 wiring MUST pass a real remote."
+            )
     # Idempotency: a reservation already counting locally is returned as-is (never
     # re-append an `open`, which would regress a `settling` record back to `open`).
     # The CAS predicate below still guards the concurrent same-id case.

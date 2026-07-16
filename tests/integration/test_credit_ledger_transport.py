@@ -142,3 +142,58 @@ def test_local_only_cas_serializes_same_clone(remote_and_clones):
     append_event(clone_a, _event("r2", 20.0))
     rids = [e["reservation_id"] for e in read_events(clone_a)]
     assert sorted(rids) == ["r1", "r2"]
+
+
+def _commit_raw_event(repo: Path, filename: str, content: str) -> None:
+    """Inject a RAW (possibly non-JSON) event blob onto the ledger ref via plumbing."""
+    import os
+    import tempfile
+
+    from llmxive.model_selection.ledger_transport import _EVENT_DIR, _rev
+
+    blob = subprocess.run(
+        ["git", "hash-object", "-w", "--stdin"], cwd=str(repo),
+        input=content, capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    parent = _rev(repo, LEDGER_REF)
+    ident = {"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t",
+             "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t"}
+    with tempfile.TemporaryDirectory() as td:
+        env = {**os.environ, "GIT_INDEX_FILE": os.path.join(td, "index")}
+        if parent:
+            subprocess.run(["git", "read-tree", parent], cwd=str(repo), env=env, check=True)
+        subprocess.run(
+            ["git", "update-index", "--add", "--cacheinfo",
+             f"100644,{blob},{_EVENT_DIR}/{filename}"], cwd=str(repo), env=env, check=True,
+        )
+        tree = subprocess.run(
+            ["git", "write-tree"], cwd=str(repo), env=env, capture_output=True, text=True, check=True
+        ).stdout.strip()
+    args = ["git", "commit-tree", tree, "-m", "raw"] + (["-p", parent] if parent else [])
+    commit = subprocess.run(
+        args, cwd=str(repo), env={**os.environ, **ident}, capture_output=True, text=True, check=True
+    ).stdout.strip()
+    subprocess.run(["git", "update-ref", LEDGER_REF, commit], cwd=str(repo), check=True)
+
+
+def test_corrupt_event_fails_closed(remote_and_clones):
+    """C4: a corrupt event on the AUTHORITATIVE ledger must RAISE, not silently skip
+    (a skipped counting event would under-count headroom → overspend)."""
+    from llmxive.model_selection.ledger_transport import LedgerError
+
+    _remote, clone_a, _clone_b = remote_and_clones
+    append_event(clone_a, _event("r1", 10.0))
+    _commit_raw_event(clone_a, "r2-open.json", "{ this is not json")
+    with pytest.raises(LedgerError):
+        read_events(clone_a)
+
+
+def test_append_event_rejects_unsafe_ids(remote_and_clones):
+    """C9: ids that aren't a single safe path component are rejected (e.g. slice-3
+    model-derived ids containing '/')."""
+    _remote, clone_a, _clone_b = remote_and_clones
+    with pytest.raises(ValueError):
+        append_event(clone_a, {"event_id": "a/b", "reservation_id": "r", "type": "open"})
+    with pytest.raises(ValueError):
+        append_event(clone_a, {"event_id": "e", "reservation_id": "Qwen/Qwen2.5", "type": "open"})
+    assert read_events(clone_a) == []  # nothing was written
