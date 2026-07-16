@@ -2,253 +2,302 @@
 
 **Feature Branch**: `025-self-improvement-lane`
 **Created**: 2026-07-16
-**Status**: Draft (revision 2 — reworked after design review of rev 1)
+**Status**: Draft (revision 3 — reworked after design reviews of rev 1 and rev 2)
 **Input**: GitHub issue [#1242](https://github.com/ContextLab/llmXive/issues/1242) and its [design comment](https://github.com/ContextLab/llmXive/issues/1242#issuecomment-4987730544). Add two cron jobs: (1) learn from recurring errors and suggest an improvement *to llmXive* that can be planned/implemented/tested; (2) peruse open issues and submit high-value work to the pipeline. Unlike sandboxed research projects, success in these jobs changes **llmXive itself**.
 
 ## Overview
 
 llmXive advances research projects through a ~34-state lifecycle, committing every artifact to git. Those projects are **sandboxed** under `projects/`: their agents never modify the platform. This feature adds a distinct **self-improvement lane** whose successful output is a **branch/PR against llmXive itself**.
 
-The lane's safety case rests on **data contracts and trust boundaries**, not on adjectives. Every promotion decision is grounded in: a **stable two-part identity** (identity is not derived from mutable evidence); a **transactional, commit-persisted, append-only** state model; a **pre-implementation proposal gate** with an independent assessor and numeric thresholds; **five isolated trust domains** so candidate code can never touch a secret or the evaluator; a **typed, executable evaluation contract** (fails-at-base / passes-at-head) rather than "reread the logs"; and **concrete, attributed rollback thresholds** with ancestry checks. Live auto-merge to `main` is gated behind a **default-off flag** *and* explicit shadow-mode quality thresholds; until then the loop runs for real against a disposable canary branch and never mutates `main`.
+The lane's safety case rests on **data contracts, trust boundaries, and a versioned numeric policy** — never on adjectives. Its load-bearing guarantees:
+
+- **Problem vs. attempt identity** — a stable `problem_id` (per issue/fingerprint) aggregates evidence; each fix try is a separate `ImprovementAttempt` with its own base SHA, branch, PR, and evaluation contract.
+- **Genuine optimistic concurrency** — append-only events + per-record `expected_revision` fast-forward pushes; correctness does NOT depend on `commit-and-push.sh`'s `-X theirs` (which is not per-record CAS) nor on the in-host lease (which only guards same-filesystem processes).
+- **Seven isolated trust domains** — discovery/persistence/claiming/implementation/candidate-testing/trusted-evaluation/promotion — so candidate code never touches a secret, a repo-write token, or the evaluator, and privileged persistence never runs an LLM or candidate command.
+- **A safely-executable evaluation harness** — the trusted harness (pinned `main`) executes the untrusted system-under-test (candidate head) in a network-denied container; `base_reproducer`s are structured, allowlisted invocations, never free-form command strings.
+- **A versioned, protected numeric policy** (see "Policy Contract v1") — every threshold is a concrete default, immutable by candidate branches.
+
+Live auto-merge to `main` is gated behind a **default-off flag** *and* explicit shadow-mode quality thresholds; until then the loop runs for real against a disposable canary branch and never mutates `main`.
 
 Governed by the constitution ([.specify/memory/constitution.md](../../.specify/memory/constitution.md)): Single Source of Truth (I), Verified Accuracy (II), Real-World Testing (III), Cost Effectiveness / Free-First (IV), Fail Fast (V), Convergent Review (VI).
 
 ## Scope & Dependencies
 
-**In scope**: the two discovery crons; the candidate lifecycle and transactional store; the pre-implementation proposal gate; the isolated implementation executor; the trusted evaluation + promotion path (shadow → canary branch); post-merge monitoring + auto-revert + circuit breakers; the default-off live-main flag; About-page/docs; the GitHub App setup walkthrough.
+**In scope**: the two discovery crons; the Problem/Attempt store; the pre-implementation proposal gate; the isolated implementation executor; the trusted evaluation + promotion path (shadow → canary branch); post-merge monitoring + attributed auto-revert + circuit breakers; the default-off live-main flag; the versioned policy; About-page/docs; the GitHub App setup walkthrough.
 
-**Out of scope (separate prerequisite work)**: the **platform-wide model-selection consolidation**. Re-pointing *every* model-selection site (registry defaults, router peer chains `MODEL_FALLBACKS`, the execution tier-ladder, catalog filtering, and the many direct model pins) is a broad refactor not required to deliver the two crons. This spec **consumes** a minimal `select(requirement) -> ModelChain` interface (FR-001–FR-004); the full migration of existing call sites is deferred to its **own spec `026-model-selection-consolidation` with its own PR, which lands first** (maintainer decision, 2026-07-16). Spec 025 depends on 026: the lane's model calls use the consolidated `select()` mechanism delivered by 026.
+**Out of scope — prerequisite `026-model-selection-consolidation` (own spec + PR, lands first; maintainer decision 2026-07-16)**: the platform-wide migration of every model-selection site (registry defaults, `MODEL_FALLBACKS`, execution tier-ladder, catalog filtering, ~20 direct pins).
 
-**Reuse (Constitution I — do NOT reinvent)**: failure fingerprinting `advance_ledger.classify_message`; severity `web_data._activity_severity`; run-log reader `web_data._recent_activity`; GitHub `gh` wrapper pattern (`integrations/issues.py`); model router `backends/router.chat_with_model_fallback`; credit guard `backends/credits.paid_opt_in_enabled()`; the in-host lease `pipeline/project_lease.py`; the CAS persistence script `scripts/ci/commit-and-push.sh`.
+**026 dependency contract (minimal, so 025 can be planned before 026 lands)**:
+- **Import**: `from llmxive.backends.model_selection import select, ModelRequirement, ModelChain, ModelUnavailable`.
+- **`select(req: ModelRequirement) -> ModelChain`**: pure, deterministic given the same live-catalog snapshot; returns an ordered chain (primary + fallbacks).
+- **Types**: `ModelRequirement(capability: Literal["cheap","standard","deep","vision"], independent_of: str|None, allow_paid: bool, budget_hint: int|None)`; `ModelChain(models: list[str], resolved_at: datetime, catalog_digest: str)`.
+- **Errors**: `ModelUnavailable` when no model satisfies the requirement (e.g. `allow_paid=False` and every free tier model is absent from the live catalog).
+- **Availability semantics**: absence from a successfully-fetched live catalog = **unavailable for new selection**; `ModelChain.resolved_at`/`catalog_digest` make availability **timestamped evidence**, re-checked per call.
+- **Slice sequencing**: delivery slices 1–2's *deterministic* parts (run-log/ledger clustering, issue filtering/ranking/pagination, the store, the transaction protocol) need **no** model and MAY proceed before 026 lands; the *LLM* parts (proposer, independent assessor, implementer, LLM verifier) are **blocked on 026** and MUST import the contract above rather than call the router directly.
+
+**Reuse (Constitution I)**: `advance_ledger.classify_message`; `web_data._activity_severity` / `_recent_activity`; the `gh` wrapper pattern; `credits.paid_opt_in_enabled()`; `project_lease.py` (in-host mutual exclusion only — NOT cross-runner correctness); `scripts/ci/commit-and-push.sh` (append-only event/blob writes only — NOT as the per-record CAS mechanism).
 
 ## User Scenarios & Testing *(mandatory)*
 
-The stories map 1:1 to the delivery slices (see "Delivery Slices"), each independently testable and shippable.
+Stories map 1:1 to delivery slices; each is independently testable.
 
 ### User Story 1 - Observation-only discovery (Priority: P1)
 
-Both crons run end-to-end to produce **proposal-verified candidates** — clustering real errors and ranking real issues, assessed by a proposer and an *independent* assessor against numeric thresholds — but take **no external action**: no branches, no PRs, no issue labels, no merges. Output is canonical candidate snapshots + append-only events committed to the repo.
+Both crons run end-to-end to produce **proposal-verified candidate attempts** — clustering real errors and ranking real issues, assessed by a proposer and an *independent* assessor against the numeric policy — with **no issue/branch/PR/promotion side effects**. (This is not "zero risk": it commits Problem/Attempt state to the repo through the privileged **persistence** domain.)
 
-**Why this priority**: Delivers the issue's core value (surface the platform's most consequential recurring defects and highest-value backlog work, with reproducible evidence) at zero external risk. Everything downstream builds on this store.
+**Why this priority**: Delivers the issue's core value (surface the platform's most consequential recurring defects and highest-value backlog work, with reproducible evidence) without any external mutation beyond committed state.
 
-**Independent Test**: Run each cron against live `state/run-log` + `state/advance_errors` and the live open-issue set; assert candidates carry a stable `candidate_id`, an `evidence_digest`, a proposal, an evaluation contract, rubric scores, and a machine-readable accept/reject; assert soft kickbacks and automated/bot issues are excluded; assert re-running does not create duplicates.
+**Independent Test**: Run each cron against live `state/run-log` + `state/advance_errors` and the live open-issue set; assert Problems carry a stable `problem_id`, Attempts carry an `evidence_digest` (order-independent), a proposal, an evaluation contract, rubric scores, and a machine-readable accept/reject against the policy; assert only `StagePanelKickback` is excluded (escalations are eligible); assert re-running does not create duplicate Problems.
 
 **Acceptance Scenarios**:
 
-1. **Given** a hard failure recurring across ≥3 distinct projects, **When** the error cron runs, **Then** one candidate is emitted whose `candidate_id = hash(schema_version, "errors", "<fingerprint>@<fp_schema_version>")` and whose evidence (run/project refs) is stored as append-only events, not in the identity.
-2. **Given** the same cluster grows by one project on the next run, **When** the cron runs, **Then** the *same* `candidate_id` is updated (new `evidence_digest`, new event appended, `revision` incremented) — no duplicate candidate.
-3. **Given** a cluster of only `StagePanelKickback`/`StagePanelEscalation` soft mechanics, **When** the cron runs, **Then** no candidate is emitted.
-4. **Given** a proposal that fails the independent assessor's thresholds, **When** assessment runs, **Then** the candidate is marked `rejected` with a machine-readable reason and is NOT advanced to `claimed`.
+1. **Given** a hard failure recurring across ≥3 distinct projects, **When** the error cron runs, **Then** one `ImprovementProblem` is emitted with `problem_id = hash(schema_version, "errors", "<fingerprint>@<fp_schema_version>")` and evidence stored as append-only events, and one `proposed` Attempt.
+2. **Given** the same cluster grows/reorders on the next run, **When** the cron runs, **Then** the `problem_id` is unchanged and the `evidence_digest` (hash of the deduplicated, canonically-sorted, normalized evidence set) reflects only genuine membership changes — order does not affect it.
+3. **Given** a cluster of only `StagePanelKickback` soft mechanics, **When** the cron runs, **Then** no Problem is emitted; **Given** a `StagePanelEscalation` (panel-engine hard failure), **Then** it IS eligible evidence.
+4. **Given** a proposal below any policy threshold, **When** the independent assessor runs, **Then** the Attempt is `rejected` with a machine-readable reason and is NOT advanced toward `claimed`.
 
 ---
 
 ### User Story 2 - Transactional claiming (Priority: P1)
 
-At most one candidate at a time is atomically **claimed**: the lane acquires an in-host lease, compare-and-swaps the candidate snapshot against the latest `main`, applies a `self-improvement:claimed` label + proposal comment on the source issue (if any), and records the claim as one recoverable transaction — with defined reconciliation if either half (state commit / label) fails.
+At most one Problem is `claimed`/active at a time, established by a genuine optimistic-concurrency transaction: read `expected_revision=N`, fetch latest `main`, rebuild the snapshot from events, verify still `N`, push the claim event + label as a fast-forward; on any mismatch, discard and recompute (never `-X theirs`).
 
-**Why this priority**: Two independent crons plus "one active candidate" plus mutable files plus issue-label side effects is a distributed-transaction problem; without it, concurrent runs silently drop work (the documented D16 race) or double-claim.
+**Why this priority**: Two independent crons + "one active" + mutable projections + issue-label side effects is a distributed transaction; without real CAS, `commit-and-push.sh` lets two ticks both land and the second silently overwrites the first snapshot.
 
-**Independent Test**: Simulate two concurrent claim attempts and assert exactly one wins (lease + CAS); kill a claim between the state commit and the label call and assert the reconciliation step converges (either completes the label or rolls the claim back), never leaving an orphaned claim.
+**Independent Test**: Simulate two concurrent claims sharing the same `expected_revision`; assert exactly one fast-forwards and the other detects the revision moved and recomputes; kill a claim between the state push and the label call and assert reconciliation converges idempotently.
 
 **Acceptance Scenarios**:
 
-1. **Given** two concurrent discovery runs, **When** both attempt to claim, **Then** the in-host lease + CAS-against-`main` admit exactly one; the loser observes the claim and yields.
-2. **Given** a claim whose state commit landed but whose label call failed, **When** reconciliation runs, **Then** it re-applies the label (idempotently) or marks the claim incomplete — provenance is never overwritten in place.
-3. **Given** an already-claimed source issue or one in cooldown, **When** discovery runs, **Then** it is not re-enqueued.
-4. **Given** a candidate advancing, **When** each transition occurs, **Then** an append-only event `state/self-improvement/events/<id>/<event-id>.json` is written and the snapshot `state/self-improvement/candidates/<id>.json` is a projection rebuildable from those events.
+1. **Given** two concurrent claim attempts at `expected_revision=N`, **When** both persist, **Then** exactly one push fast-forwards to `N+1`; the loser's push is rejected (non-fast-forward) or its rebuilt revision ≠ N, so it discards and recomputes.
+2. **Given** a claim whose state event landed but whose label call failed, **When** reconciliation runs, **Then** it re-applies the label idempotently or records the claim incomplete — provenance events are never overwritten.
+3. **Given** an already-claimed source or one in cooldown, **When** discovery runs, **Then** it is not re-enqueued.
+4. **Given** any transition, **When** it occurs, **Then** an append-only event (`event_id`, `event_type`, `problem_id`, optional `attempt_id`, `expected_revision`/`resulting_revision`, `timestamp`, `actor`, `payload`, `schema_version`) is written and the snapshot is a projection rebuildable from events.
 
 ---
 
 ### User Story 3 - Bounded draft PRs (Priority: P2)
 
-The executor drains a claimed candidate: branches from `base_sha` in an isolated worktree, runs the implementer under a strict diff policy + budgets in the **implementation trust domain** (no production/repo secrets), runs offline tests, and opens a **draft PR** — with no merge. Candidates outside the supported envelope route to a human lane instead of counting as failures.
+The executor drains a claimed Attempt: branches `bot/self-improvement/<problem-id>/<attempt-id>` from `base_sha` in an isolated worktree (implementation trust domain — no prod/repo secrets), runs the implementer under the policy's diff envelope + budgets, runs offline tests in a **network-denied container**, and opens a **draft PR**. Out-of-envelope work routes to a human lane.
 
-**Why this priority**: Turns a verified proposal into a concrete, reviewable change to llmXive itself — while keeping candidate code away from every secret and never yet touching a protected branch.
+**Why this priority**: Turns a verified proposal into a concrete, reviewable change while keeping candidate code away from every secret and any protected branch.
 
-**Independent Test**: Feed a claimed candidate to the executor; assert branch creation from `base_sha`, diff obeys the allowlist + caps, a forbidden-path or over-cap diff is rejected with a machine reason, tests run with no secrets present, and a draft PR is opened. Assert an out-of-envelope candidate is routed to `unsupported_scope`/human_lane, not rejected+cooled.
+**Independent Test**: Feed a claimed Attempt to the executor; assert branch creation from `base_sha`, diff obeys the envelope, a forbidden-path/over-cap diff is rejected with a machine reason before any test runs, tests run with no secrets and `--network none`, and a draft PR is opened. Assert an out-of-envelope Attempt routes to `unsupported_scope`.
 
 **Acceptance Scenarios**:
 
-1. **Given** a claimed candidate, **When** the executor runs, **Then** a branch `bot/self-improvement/<id>` is created from `base_sha` in an isolated checkout with no production secrets available to candidate code.
-2. **Given** an implementer diff editing `.github/workflows/**`, secrets/auth, branch protection, the self-improvement policy/eval baseline, dep locks, or generated corpora, **When** the diff policy runs, **Then** the candidate is rejected before any test executes.
-3. **Given** a legitimate issue requiring a change outside the supported diff surface, **When** the executor evaluates scope, **Then** it is routed to `unsupported_scope` (a labeled human-lane issue), not repeatedly rejected/cooled as an implementation failure.
-4. **Given** a passing bounded implementation, **When** the executor completes, **Then** a **draft** PR is opened linking candidate id, evidence, evaluation contract, and offline-gate results.
+1. **Given** a claimed Attempt, **When** the executor runs, **Then** a branch `bot/self-improvement/<problem-id>/<attempt-id>` is created from `base_sha`; candidate code has no production/repo secrets.
+2. **Given** an implementer diff editing `.github/workflows/**`, secrets/auth, branch protection, the policy/eval baseline, dep locks, or generated corpora, **When** the diff policy runs, **Then** the Attempt is rejected before any test executes.
+3. **Given** an issue-derived candidate needing a change outside the supported surface, **When** scope is evaluated, **Then** it routes to `unsupported_scope` — for a source-issue candidate via a human-lane label/comment on that issue; for an **error-derived** candidate (no source issue) the **claiming** domain opens a new human-lane issue. Neither counts as an implementation failure/cooldown.
+4. **Given** a passing bounded implementation, **When** the executor completes, **Then** a **draft** PR is opened linking `problem_id`/`attempt_id`, evidence, evaluation contract, and offline-gate results.
 
 ---
 
 ### User Story 4 - Trusted promotion into a canary branch (Priority: P2)
 
-A candidate is promoted into the **canary branch** only after a **typed evaluation contract** proves the change (fails-at-base / passes-at-head where replayable) with zero material regression, all required checks pass **from named trusted GitHub Apps** (no name spoofing), and the checks themselves run from **trusted code pinned to a main SHA** — never from the PR. Promotion uses an App token and never executes candidate code.
+An Attempt promotes into the **canary branch** only after the trusted harness (pinned `main`) runs the candidate head's `EvaluationContract` — proving **fails-at-base / passes-at-head** via a structured, allowlisted `base_reproducer` — with no material regression per the policy, all required checks green **from named trusted GitHub Apps**, using an App token that never executes candidate code.
 
-**Why this priority**: This is the autonomous promotion boundary. Its integrity depends on the trust domains and the executable metric, not on "tests pass".
+**Why this priority**: The autonomous promotion boundary. Integrity depends on the trust split (trusted harness/fixtures from pinned main; untrusted system-under-test + candidate tests from head) and an executable, non-free-form metric.
 
-**Independent Test**: In shadow mode, run the full gate on a candidate branch; assert promotion to the canary branch occurs only when every required trusted-App check is green AND the evaluation contract shows base-fails/head-passes with no material regression; assert a candidate whose `base_reproducer` does not fail at `base_sha` cannot promote.
+**Independent Test**: In shadow mode, run the harness on an Attempt; assert promotion occurs only when the allowlisted `base_reproducer` fails at `base_sha`, passes at head, the regression suite is clean, and every required check comes from a trusted App; assert a free-form command `base_reproducer` is refused.
 
 **Acceptance Scenarios**:
 
-1. **Given** a candidate with a valid `base_reproducer` failing at `base_sha` and passing at head, all trusted-App required checks green, and no material regression, **When** promotion runs in shadow mode, **Then** it merges into the canary branch (never `main` — the live flag is off).
-2. **Given** a check reported by an App **not** on the trusted-App allowlist but with a required check name, **When** promotion evaluates gates, **Then** the spoofed check is not accepted and promotion is blocked.
-3. **Given** a candidate whose tests pass but whose `base_reproducer` does not fail at `base_sha` (no demonstrated defect), **When** promotion runs, **Then** it is blocked (observational-only candidates require a separately-defined observational canary).
-4. **Given** the evaluation shows target improvement but a regression in the trusted regression suite, **When** promotion runs, **Then** the merge is blocked.
+1. **Given** an Attempt whose allowlisted `base_reproducer` fails at `base_sha` and passes at head, all trusted-App checks green, no material regression, **When** promotion runs in shadow mode, **Then** it merges into the canary branch (never `main`).
+2. **Given** a check reported by an App not on the trusted allowlist but using a required check name, **When** gates are evaluated, **Then** the spoofed check is rejected and promotion blocked.
+3. **Given** a `base_reproducer` that is a free-form command string (not a trusted test id or structured harness invocation), **When** it is validated, **Then** it is refused (never executed).
+4. **Given** target improvement but a newly-failing trusted regression check (material regression), **When** promotion runs, **Then** the merge is blocked.
 
 ---
 
 ### User Story 5 - Post-merge monitoring, attributed auto-revert & circuit breakers (Priority: P2)
 
-After promotion (to the canary target in shadow mode), the lane monitors health over a **concretely-defined window with minimum sample sizes**, attributes failures to the candidate (excluding provider/model outages), checks ancestry before reverting, and auto-reverts genuine regressions. Repeated failures trip a global circuit breaker.
+After promotion (canary target in shadow), the lane monitors the operational canary over the policy's window/min-observations, **corroborates** attribution (a transient error class alone is NOT sufficient), checks ancestry, and auto-reverts genuine, causally-attributed regressions. Repeated failures trip the breaker.
 
-**Why this priority**: Makes autonomy *safe*. A blanket "failures rose 20%" is unsafe at small counts; attribution and ancestry prevent reverting for reasons unrelated to the change.
+**Why this priority**: Makes autonomy safe. Excluding all transient-class failures would be a false-negative path (a candidate can break routing → transient failures); a blanket "20% up" is unsafe at small counts.
 
-**Independent Test**: In shadow mode, inject a deliberate regression on the merged canary and assert an attributed, ancestry-checked revert is created+merged within the health window; assert a provider-outage transient does NOT trigger a revert; assert two reverts in the breaker window disable promotion while discovery continues.
+**Independent Test**: Inject a deliberate regression on the merged canary and assert an ancestry-checked, corroboration-backed revert within the window; assert a provider outage WITHOUT corroboration does not trigger a revert; assert a candidate-caused transient-class failure WITH corroboration does; assert two reverts in the breaker window disable promotion while discovery continues.
 
 **Acceptance Scenarios**:
 
-1. **Given** a merged candidate whose target metric worsens beyond both the absolute and relative thresholds over ≥ the minimum observations, **When** monitoring runs, **Then** an ancestry-checked revert is created and merged automatically.
-2. **Given** post-merge failures explained by a model/provider outage (transient class), **When** attribution runs, **Then** the failures are NOT attributed to the candidate and no revert occurs.
+1. **Given** a merged Attempt whose target worsens beyond both absolute and relative thresholds over ≥ the minimum observations, **When** monitoring runs, **Then** an ancestry-checked revert is created and merged.
+2. **Given** post-merge transient-class failures, **When** attribution runs, **Then** a revert occurs ONLY if ≥1 corroboration signal holds (base/control fails contemporaneously; provider health evidence; same failure on unrelated main/canary; failure before candidate code is reached) — the class alone is insufficient either way.
 3. **Given** a human change landed on the target after the autonomous merge, **When** revert is considered, **Then** the lane does not blind-revert; it re-derives against current head (ancestry) or escalates.
-4. **Given** two automatic reverts within the breaker window, **When** the next candidate is ready, **Then** promotion is disabled (discovery continues) until the manual re-enable procedure is followed.
+4. **Given** two automatic reverts within the breaker window, **When** the next Attempt is ready, **Then** promotion is disabled (discovery continues) until the manual re-enable procedure.
 
 ---
 
 ### User Story 6 - Live-main promotion, metric-gated (Priority: P3)
 
-Promotion targets `main` only when: the `LLMXIVE_SELF_IMPROVEMENT_LIVE` flag is on; a GitHub App identity + branch protection are configured; **and** shadow-mode has met explicit quality thresholds (proposal precision, 7/30-day retention, false-revert rate). Absent any of these while live, promotion fails closed.
+Promotion targets `main` only when the `LLMXIVE_SELF_IMPROVEMENT_LIVE` flag is on, a GitHub App + branch protection are configured, and shadow-mode has met the policy's live-eligibility thresholds. Absent any, promotion fails closed.
 
-**Why this priority**: The final, highest-consequence step. It must be earned by measured shadow-mode performance, not merely toggled.
-
-**Independent Test**: With the flag on but the App/branch-protection absent, assert promotion refuses (fail-closed). With shadow metrics below threshold, assert live promotion is withheld.
+**Independent Test**: Flag on but App/protection absent → promotion refuses. Shadow metrics below threshold → live promotion withheld.
 
 **Acceptance Scenarios**:
 
-1. **Given** the live flag on but no configured App/branch-protection, **When** promotion runs, **Then** it refuses rather than merging with a weaker guarantee.
-2. **Given** the live flag on, App+protection configured, and shadow metrics ≥ thresholds, **When** promotion runs, **Then** the merge targets `main` via the App (author ≠ merger).
-3. **Given** shadow metrics below the configured thresholds, **When** live promotion is attempted, **Then** it is withheld and the reason recorded.
+1. **Given** the live flag on but no App/protection, **When** promotion runs, **Then** it refuses (fail-closed).
+2. **Given** the live flag on, App+protection configured, and shadow metrics ≥ the policy thresholds, **When** promotion runs, **Then** the merge targets `main` via the App (author ≠ merger).
+3. **Given** shadow metrics below threshold, **When** live promotion is attempted, **Then** it is withheld and the reason recorded.
 
 ---
 
 ### Edge Cases
 
-- **Evidence growth vs identity**: a candidate's evidence set grows or reorders → `candidate_id` MUST stay stable (identity excludes evidence); only `evidence_digest`/`revision` change.
-- **State committed but label failed (and reverse)**: reconciliation must converge without overwriting provenance.
-- **Concurrent crons**: lost-update (D16) prevented by lease + CAS + append-only events under one concurrency group.
-- **Corrupt/partial state**: a malformed JSONL line or missing ledger field is skipped, not fatal.
-- **Ledger/run-log double counting**: cumulative `consecutive_count` is NOT summed with time-bounded run-log events; distinct affected projects is the primary support metric.
-- **Incomplete issue pagination**: a truncated open-issue view fails closed (no candidates) until a terminal-page marker is observed.
-- **Non-existent error classes**: the classifier has no security/data-loss class; eligibility must not reference them (see FR-013).
-- **Small/zero baseline**: below the minimum sample size, ordinary-metric reverts are withheld; only high-severity sentinel signals act immediately.
-- **Provider outage vs real regression**: transient/provider failures are not attributed to a candidate.
-- **Human change after autonomous merge**: ancestry check prevents blind revert.
-- **Check-name spoofing**: only checks from named trusted Apps are accepted.
-- **Unsupported scope**: out-of-envelope candidates route to a human lane, not endless reject/cooldown.
-- **Catalog absence**: a model absent from the live catalog is handled per the defined semantics (FR-004), not silently assumed available.
-- **Recursive self-reference**: a generation may not modify the discovery/promoter/evaluator it depends on in the same generation.
+- **Recurrence after retention**: a `retained` problem's fingerprint returns months later → a NEW `ImprovementAttempt` under the same `problem_id`, with fresh `base_sha`/branch/PR/contract; "first fix failed" vs "problem recurred" is distinguished by attempt lineage + disposition.
+- **Freshness / drift**: before implementation or promotion, if `main` has moved past the freshness bound from `base_sha` or any touched file changed, the Attempt is recreated (new `base_sha`) and base/head evaluation re-run.
+- **Discovery has no write token**: discovery emits a schema-validated artifact only; the separate persistence domain validates + commits it.
+- **Concurrent writers same revision**: detected by the fetch-rebuild-verify-fast-forward protocol; the loser recomputes.
+- **Evidence order/dupes**: `evidence_digest` is over a deduplicated, canonically-sorted, normalized set — order-independent.
+- **Escalation is hard**: only `StagePanelKickback` is soft.
+- **Transient ≠ outage**: provider-outage exclusion requires corroboration; a candidate-caused transient failure is still attributed.
+- **Sentinel scope**: a high-severity sentinel may block/breaker/quarantine/attributed-revert/notify — it never fast-tracks proposal/implementation/evaluation/merge.
+- **Observational candidates**: no reproducible base failure → draft-PR + human-lane only; never auto-promote in v1.
+- **Incomplete pagination**: a truncated open-issue view fails closed until a terminal-page marker.
+- **Non-existent classes**: eligibility references only the real classifier classes; no security/data-loss error classes exist.
+- **Recursive self-reference**: a generation may not modify the discovery/persistence/promoter/evaluator/policy it depends on.
 
 ## Requirements *(mandatory)*
 
-### Model-selection interface (minimal; full consolidation deferred to a separate spec)
+### Model-selection dependency (026)
 
-- **FR-001**: The lane MUST consume a single `select(requirement) -> ModelChain` helper mapping a call's requirements (capability tier, `independent_of`, `allow_paid`, `budget_hint`) to an ordered model chain; it MUST prefer free models and include a paid model only when `allow_paid` AND the credit guard (`paid_opt_in_enabled()` + budget headroom) permit.
-- **FR-002**: Verifier **independence** MUST be characterized and recorded along ALL of: model id, provider/backend, prompt version, and the exact context supplied, plus a distinct verifier identity. `independent_of` (different model id) is necessary but NOT sufficient; **deterministic checks remain authoritative** over any LLM verifier.
-- **FR-003**: The full migration of the existing selection sites (registry defaults, `MODEL_FALLBACKS`, execution tier-ladder, catalog filtering, direct pins) is OUT of scope here and specified separately; this spec MUST NOT silently change their default behavior (qwen3.5-122b remains the default).
-- **FR-004**: Catalog semantics MUST be explicit: absence of a model from a successfully-fetched live catalog is treated as **unavailable for new selection** (distinct from the existing `is_free_model` static-allowlist fallback used only for known-free classification); model-availability MUST be treated as **timestamped, re-checked evidence**, never a durable assumption.
+- **FR-001**: All LLM calls in the lane MUST go through the 026 `select(ModelRequirement) -> ModelChain` contract (import path + types + errors + availability semantics per "Scope & Dependencies"); the lane MUST NOT call the router/backends directly or embed a model ranking.
+- **FR-002**: Verifier **independence** MUST be recorded along model id, provider/backend, prompt version, supplied context, and verifier identity; `independent_of` is necessary but not sufficient. **Deterministic checks are authoritative** over any LLM verifier.
+- **FR-003**: Slices 1–2's deterministic components MUST be implementable and testable without any model; only proposer/assessor/implementer/verifier calls depend on 026.
 
-### Identity & deduplication
+### Identity: Problem vs. Attempt
 
-- **FR-005**: Candidate identity MUST use two separate identifiers: `candidate_id = hash(schema_version, source_kind, canonical_source_key)` (stable) and `evidence_digest = hash(canonicalized_evidence)` (mutable). Evidence MUST be appended as events; it MUST NOT be part of `candidate_id`.
-- **FR-006**: `canonical_source_key` MUST be `github:<owner>/<repo>#<number>` for issues and `<fingerprint>@<fingerprint_schema_version>` for errors (so a classifier change is a new key, not a silent redefinition).
+- **FR-004**: `problem_id = hash(schema_version, source_kind, canonical_source_key)` is stable; `canonical_source_key` = `github:<owner>/<repo>#<n>` for issues, `<fingerprint>@<fp_schema_version>` for errors. `fp_schema_version` is bumped whenever `classify_message`'s fingerprint set/semantics change (a semantics change starts a new Problem).
+- **FR-005**: Each fix try is an `ImprovementAttempt(attempt_id, problem_id, base_sha, branch, pr_number, evaluator_version, evaluation_contract, status, attempt_count)`; branches are `bot/self-improvement/<problem-id>/<attempt-id>`; `parent_id` links a retry to its predecessor Attempt.
+- **FR-006**: `evidence_digest` MUST be the hash of the **deduplicated, canonically-sorted, normalized** evidence-reference set — independent of event/insertion order.
 
-### Persistence, concurrency & provenance (transaction model)
+### Persistence, concurrency & provenance (real optimistic concurrency)
 
-- **FR-007**: Lane state MUST be persisted by committing to the repo via the existing `scripts/ci/commit-and-push.sh` (CAS rebase); writing files in an Actions runner without committing persists nothing.
-- **FR-008**: Canonical snapshots live at `state/self-improvement/candidates/<id>.json` (no month partition); append-only events at `state/self-improvement/events/<id>/<event-id>.json`. The snapshot MUST be a projection rebuildable from events; provenance MUST NEVER be overwritten in place.
-- **FR-009**: Snapshots MUST carry `schema_version`, `revision`, `updated_at`, and a `lease`. Discovery and promotion MUST be serialized under ONE GitHub `concurrency` group and MUST use `pipeline/project_lease.py` (in-host mutual exclusion) plus CAS-against-`main` (cross-runner).
-- **FR-010**: Claiming MUST be one recoverable transaction (CAS the snapshot + commit state + apply the `self-improvement:claimed` label). Reconciliation MUST be defined for "state committed but label failed" and the reverse, converging idempotently.
-- **FR-011**: At most one candidate MUST be in an active state (`claimed` through post-merge `monitoring`, i.e. before a terminal `retained`/`reverted`/off-ramp) at a time; automated submissions MUST NOT refill the queue.
+- **FR-007**: State MUST persist via append-only events at `state/self-improvement/events/<problem-id>/<event-id>.json`; snapshots at `state/self-improvement/problems/<problem-id>.json` and `.../attempts/<attempt-id>.json` are projections rebuildable from events; provenance is NEVER overwritten.
+- **FR-008**: A mutation MUST use optimistic concurrency: (1) read `expected_revision=N`; (2) create the event with `expected_revision=N`, `resulting_revision=N+1`; (3) fetch latest `main`; (4) rebuild the snapshot from events and verify it is still `N`; (5) push ONLY as a fast-forward from the expected ref; (6) on any mismatch or non-fast-forward, discard and recompute — MUST NOT resolve the conflict with `-X theirs`. Correctness MUST NOT depend on scheduled workflows being the only writers.
+- **FR-009**: The in-host `project_lease` MAY reduce same-runner contention and a shared GitHub `concurrency` group MAY reduce cross-runner contention, but neither is the correctness mechanism (FR-008 is).
+- **FR-010**: Events MUST carry: `event_id`, `event_type`, `problem_id`, optional `attempt_id`, `expected_revision`, `resulting_revision`, `timestamp`, `actor` (trust-domain identity), `payload`, `schema_version`.
+- **FR-011**: At most one Problem MUST be in an active state (`claimed` through post-merge `monitoring`) at a time; automated submissions MUST NOT refill the queue.
+
+### Trust domains (seven)
+
+- **FR-012**: The lane MUST enforce seven isolated domains with explicit posture:
+  |Domain|Secrets/tokens|Network|Runs LLM?|Runs candidate code?|
+  |-|-|-|-|-|
+  |Discovery|issue-read + model key|as model needs|yes|no (produces schema-validated artifact only)|
+  |Persistence|narrow `contents: write`|none|no|no (validates + commits the artifact)|
+  |Claiming|`issues: write`|GitHub API|no|no (labels/comments)|
+  |Implementation|model key during generation only; NO prod/repo secrets|as model needs|yes (generation)|no|
+  |Candidate-testing|NONE; read-only checkout; checkout creds disabled|**denied** (`--network none`, no docker socket, no cred mounts, `permissions: {}`)|no|**yes** (untrusted)|
+  |Trusted-evaluation|fixtures/baselines from pinned `main`|denied|no|orchestrates the untrusted SUT|
+  |Promotion|GitHub App token only|GitHub API|no|**never**|
+- **FR-013**: Required status checks MUST be accepted ONLY from a named trusted-GitHub-App allowlist (no name-spoofing); protected policy/replay/harness code MUST NOT be modifiable by a candidate branch.
+- **FR-014**: The offline test mechanism MUST be concrete: a pinned prebuilt container run with `--network none`, no Docker socket, no credential mounts, `permissions: {}`, and checkout credentials disabled. Splitting networked generation from testing is necessary but NOT sufficient by itself.
 
 ### Discovery — errors (Cron 1)
 
-- **FR-012**: The cron MUST read a bounded window of `state/run-log/<YYYY-MM>/*.jsonl` and current `state/advance_errors/` records, fingerprint failures ONLY via `advance_ledger.classify_message`, and exclude expected mechanics via the existing severity (`ok`/`soft`/`hard`; only `hard` eligible).
-- **FR-013**: Eligibility MUST use only classes that exist in the canonical classifier (`transient/permanent/invariant/deterministic_repair/emitter_context`); it MUST NOT reference nonexistent "security"/"data-loss" error classes. A candidate MUST require ≥3 distinct affected projects, OR 2 projects + ≥5 recent occurrences; a single-project cluster qualifies ONLY if its class is `invariant` OR it originates from a defined high-severity sentinel signal (below).
-- **FR-014**: High-severity emergency signals (which may bypass minimum-sample rules for immediate action) MUST come from **separate deterministic sentinel inputs** (e.g. an `InvariantEvent` from the existing invariant class; explicitly-defined `SecurityEvent`/`DataIntegrityEvent` sources such as a security scan or data-integrity assertion) — NOT from free-text exception classification.
+- **FR-015**: Read a bounded window of `state/run-log/<YYYY-MM>/*.jsonl` + `state/advance_errors/`; fingerprint ONLY via `advance_ledger.classify_message`; exclude only `StagePanelKickback` (soft) via `web_data._activity_severity`; `StagePanelEscalation` and all other `hard` outcomes are eligible. Do NOT sum cumulative `consecutive_count` with time-bounded events; distinct affected projects is the primary support metric.
+- **FR-016**: Eligibility uses only real classifier classes; a candidate requires ≥3 distinct projects, OR 2 projects + ≥5 recent occurrences; a single-project cluster qualifies ONLY if class `invariant` OR it originates from a deterministic high-severity sentinel (FR-025).
 
 ### Discovery — issues (Cron 2)
 
-- **FR-015**: The cron MUST enumerate the **complete** open-issue set via explicit API pagination and MUST observe a terminal-page marker before producing any candidate (a truncated view fails closed).
-- **FR-016**: A deterministic filter MUST exclude bot-authored issues, `human-submission`/`new-paper` labels, issue #1242 itself, already-claimed/cooldown issues, and issues already satisfied by `main`; remaining issues are deterministically ranked; a proposer assesses ≤ top 10; an independent verifier re-ranks ≤ top 3; ≤ 1 candidate/day is enqueued.
-- **FR-017**: Issue/PR text handling MUST enforce concrete properties (replacing "inert"): no shell interpolation; no privileged tools during assessment; bounded text length; structured quoting; untrusted text MUST NOT be copied into control fields without validation; and a candidate MUST have deterministic corroboration before implementation.
-- **FR-018**: Enqueued issues MUST become `ImprovementCandidate`s (NOT routed through `_create_brainstormed_project`), marked `self-improvement:claimed`.
+- **FR-017**: Enumerate the COMPLETE open-issue set via explicit API pagination; a terminal-page marker MUST be observed before any candidate is produced (a truncated view fails closed).
+- **FR-018**: A deterministic filter excludes bot-authored issues, `human-submission`/`new-paper`, issue #1242, already-claimed/cooldown, and issues **already satisfied by `main`** (defined: closed-as-completed / referenced by a merged PR, OR — once a reproducer exists — a `base_reproducer` that does not fail at current `main`). Remaining issues are ranked by a **defined deterministic formula** (weighted maintainer labels, recency, evidence/reproduction signals, affected-surface path mentions, capped discussion count, estimated scope) with a **stable tie-break by ascending issue number**; a proposer assesses ≤ top 10; an independent verifier re-ranks ≤ top 3; ≤ 1 candidate/day enqueued.
+- **FR-019**: An enqueued issue creates a `discovered`/`proposed` Attempt (NOT via `_create_brainstormed_project`); the `self-improvement:claimed` label + comment are applied ONLY after the US2 claim transaction succeeds (claiming domain).
+- **FR-020**: Issue/PR text handling MUST enforce: no shell interpolation; no privileged tools during assessment; bounded text length; structured quoting; untrusted text MUST NOT be copied into control fields without validation; and **deterministic corroboration** (a reproducible base failure, unless explicitly `observational`) is required before implementation.
 
 ### Proposal gate (pre-implementation)
 
-- **FR-019**: The lifecycle MUST be `discovered → proposed → proposal_verified → claimed → implementing → canary → merged → monitoring → retained | reverted`, with off-ramps `rejected | unsupported_scope | circuit_broken | cooldown` reachable from the appropriate earlier states. An **independent assessor** MUST evaluate the proposal BEFORE implementation.
-- **FR-020**: Advancement to `claimed` MUST require: impact, confidence, tractability, testability each ≥ a defined threshold; blast_radius ≤ a defined maximum; a reproducible base failure (a `base_reproducer` that fails at `base_sha`) UNLESS the candidate is explicitly classified `observational`; a supported diff surface; estimated file/line + budget bounds; a deterministic verifier rubric; and a machine-readable rejection reason on failure.
+- **FR-021**: Lifecycle: `discovered → proposed → proposal_verified → claimed → implementing → canary → merged → monitoring → retained | reverted`, off-ramps `rejected | unsupported_scope | circuit_broken | cooldown`. An **independent assessor** MUST evaluate the proposal BEFORE implementation.
+- **FR-022**: Advancement to `claimed` MUST meet the Policy Contract: rubric thresholds; blast-radius maximum; a reproducible base failure (unless `observational`); a supported diff surface; estimated file/line + budget bounds; a deterministic verifier rubric; and a machine-readable rejection reason otherwise.
 
-### Trust domains (execution boundary)
+### Evaluation contract (safely executable)
 
-- **FR-021**: The lane MUST enforce five isolated trust domains with explicit secret/token/network posture:
-  - **Discovery**: issue read + model key (if required); NO repository write token.
-  - **Implementation**: isolated environment; model access only during generation; NO production/repository secrets.
-  - **Candidate testing**: NO secrets; read-only checkout; NO privileged cache restore; outbound network denied.
-  - **Trusted evaluation**: policy/replay definitions loaded from a **pinned trusted `main` SHA**, never from the PR.
-  - **Promotion**: GitHub App token only; MUST NEVER execute candidate code.
-- **FR-022**: Required status checks MUST be accepted ONLY from a named trusted-GitHub-App allowlist (a candidate MUST NOT be able to spoof a required check by name). The protected policy/replay code MUST NOT be modifiable by the candidate branch.
-- **FR-023**: The network posture MUST name a concrete mechanism: since GitHub-hosted runners lack a workflow-level outbound allowlist, the design MUST split networked generation from offline execution (or name the container/firewall used). Candidate-testing jobs MUST run with outbound network denied.
+- **FR-023**: Each Attempt MUST carry a typed `EvaluationContract`: `base_reproducer`, `head_expectation`, `target_metric` {name, numerator, denominator, direction, min_effect}, `regression_suite` (trusted, pinned-`main` checks), `replay_mode` ∈ {deterministic_replay, mirrored_workload, not_replayable}.
+- **FR-024**: `base_reproducer` MUST be one of: (a) a trusted test identifier from an allowlist; (b) a structured invocation interpreted by the trusted harness; or (c) a fixture generated into the protected replay corpus by a separate trusted process. A **free-form command string MUST NEVER be executed**. The trusted harness (pinned `main`) executes the untrusted SUT (candidate head); candidate-provided tests are advisory/untrusted.
+- **FR-025**: High-severity sentinels (`InvariantEvent` from the existing `invariant` class; explicitly-defined `SecurityEvent`/`DataIntegrityEvent` deterministic sources) MAY trigger ONLY: block promotion, trip a breaker, quarantine an Attempt, revert a causally-attributed change, or notify/escalate. They MUST NOT bypass the proposal, implementation, evaluation, or merge gates.
+- **FR-026**: Promotion requires fails-at-base/passes-at-head where `replay_mode` supports it; "tests pass" alone is insufficient; an `observational` Attempt (no reproducible base failure) is draft-PR + human-lane only and MUST NOT auto-promote in v1. Historical run logs MUST NOT be a canary signal.
 
-### Evaluation contract (executable canary)
+### Canary model & retention
 
-- **FR-024**: Each candidate MUST carry a typed `EvaluationContract`: `base_reproducer` (command/fixture that fails at `base_sha`); `head_expectation` (expected pass at head); `target_metric` = {name, numerator, denominator, direction, min_effect}; `regression_suite` (trusted checks unrelated to the target); `replay_mode` ∈ {deterministic_replay, shadow_execution, not_replayable}.
-- **FR-025**: Promotion MUST require "fails on base, passes on head" wherever the contract's `replay_mode` supports it. "Tests pass" alone is insufficient. Candidates without a valid reproducer MUST remain observational-only or proposal-only.
-- **FR-026**: Historical run logs MUST NOT be used as a canary signal (they are outputs, not replayable inputs). The canary branch's health signal MUST be defined as either mirrored production state/traffic executed from it, or deterministic replay only.
+- **FR-027**: The operational canary for **retention** MUST be a **mirrored_workload** canary: real scheduled workloads execute from the canary branch over the window (so 7/30-day retention is meaningful). `deterministic_replay` is used ONLY for pre-merge base/head evaluation and MUST NOT be counted as retention; an Attempt whose change lacks a mirrored-workload signal is NOT live-eligible (stays shadow/observational).
 
 ### Rollback thresholds & attribution
 
-- **FR-027**: Rollback MUST define concretely: health-window duration; minimum number of relevant observations and minimum sample size; BOTH absolute and relative failure thresholds; zero/small-baseline behavior (withhold ordinary-metric reverts below minimum sample; high-severity sentinels may act immediately); and explicit target-metric and global-metric formulas.
-- **FR-028**: Failures MUST be attributed to the candidate and MUST exclude model/provider outages (transient class). A revert MUST perform an ancestry check (only revert a change still present / of which head is a descendant) and MUST NOT blind-revert when a subsequent human change has landed — it re-derives or escalates.
-- **FR-029**: Circuit breakers MUST enforce: ≤1 active candidate; ≤1 autonomous merge / 24h; two automatic reverts within a defined breaker window disables promotion (discovery continues) until a defined manual re-enable procedure; three failed attempts per candidate → a 30-day cooldown.
+- **FR-028**: Rollback thresholds come from the Policy Contract: health window + minimum observations; BOTH absolute and relative regression thresholds; zero/small-baseline behavior (withhold ordinary-metric reverts below the minimum sample; sentinels act immediately); explicit `target_metric` and `material_regression` formulas.
+- **FR-029**: A revert MUST be causally attributed: excluding a failure as a provider/model outage REQUIRES ≥1 corroboration signal (contemporaneous base/control failure; provider health evidence; same failure on unrelated main/canary; failure before candidate code is reached). Error class alone (transient/unknown) is insufficient in either direction. A revert MUST pass an ancestry check and MUST NOT blind-revert over a subsequent human change.
+- **FR-030**: Circuit breakers per the Policy Contract: ≤1 active Problem; ≤1 autonomous merge/24h; N auto-reverts in the breaker window disables promotion (discovery continues) until a defined manual re-enable; M failed Attempts per Problem → 30-day cooldown.
 
 ### Rollout & operations
 
-- **FR-030**: Live auto-merge to `main` MUST be gated by the default-off `LLMXIVE_SELF_IMPROVEMENT_LIVE` flag AND explicit shadow-mode quality thresholds (proposal precision, 7/30-day retention, false-revert rate). With the flag off, the merge target is a disposable canary branch and `main` is never modified. When live, if the App/branch-protection is absent, promotion MUST fail closed.
-- **FR-031**: Both crons MUST be idempotent, bounded, least-privilege, individually manually dispatchable, and share the single concurrency group.
-- **FR-032**: Every proposal, decision, patch, verification, canary measurement, merge, and revert MUST be recorded as immutable append-only provenance.
-- **FR-033**: The About page and relevant documentation MUST describe the lane (behavior, safety envelope, trust domains, flag/identity config). A step-by-step GitHub App setup walkthrough MUST be provided.
+- **FR-031**: Live auto-merge to `main` MUST be gated by the default-off `LLMXIVE_SELF_IMPROVEMENT_LIVE` flag AND the Policy Contract's live-eligibility thresholds (shadow sample minimum, proposal precision, 7/30-day retention, max false-revert rate). Flag off → merge target is a disposable canary branch; `main` is never modified. Flag on but App/branch-protection absent → fail closed.
+- **FR-032**: Both crons MUST be idempotent, bounded, least-privilege, individually manually dispatchable, and share the single concurrency group; every proposal/decision/patch/verification/canary/merge/revert is immutable append-only provenance.
+- **FR-033**: The About page + docs MUST describe the lane (behavior, safety envelope, seven trust domains, policy, flag/identity config); a step-by-step GitHub App setup walkthrough MUST be provided.
+- **FR-034**: The Policy Contract MUST be a **versioned, protected artifact** (its own module + `policy_version`); candidate branches MUST NOT modify it; changing it is a normal reviewed human/PR change, never an autonomous one.
 
 ### Key Entities
 
-- **ImprovementCandidate** (snapshot): `schema_version`, `candidate_id`, `evidence_digest`, `source_kind`(`errors`|`issue`), `source_key`, `title`, `status`, `revision`, `created_at`, `updated_at`, `lease`, `attempt_count`, `rejection_reason`, `proposer`{model, backend, prompt_version}, `verifier`{model, backend, prompt_version, identity}, `evaluator_version`, rubric scores {impact, confidence, tractability, testability}, `blast_radius`, `base_sha`, `branch`, `pr_number`, `parent_id`, `evaluation_contract`, `budget`{wall_clock_s, model_credits}, `budget_usage`, `promotion_mode`(`shadow`|`live`), `unsupported_reason`.
-- **EvidenceEvent** (append-only): a single reproducible observation — run id, project id, issue URL, fingerprint@schema, and/or commit SHA — plus timestamp; the ordered set yields `evidence_digest`.
-- **EvaluationContract**: `base_reproducer`, `head_expectation`, `target_metric`{name, numerator, denominator, direction, min_effect}, `regression_suite`, `replay_mode`.
-- **ModelRequirement / ModelChain**: capability tier (`cheap`|`standard`|`deep`|`vision`), `independent_of`, `allow_paid`, `budget_hint` → ordered primary + fallbacks (free-first).
-- **HighSeverityEvent**: a deterministic sentinel (`InvariantEvent`/`SecurityEvent`/`DataIntegrityEvent`) that may authorize immediate action outside ordinary sample-size rules.
-- **ProvenanceRecord**: an immutable, appended audit entry per lifecycle event.
+- **ImprovementProblem**: `schema_version`, `problem_id`, `source_kind`(`errors`|`issue`), `canonical_source_key`, `title`, `evidence_digest`, evidence aggregate (via events), `current_disposition`, `revision`, `created_at`, `updated_at`, `cooldown_until`.
+- **ImprovementAttempt**: `attempt_id`, `problem_id`, `parent_id`, `status`, `base_sha`, `branch`, `pr_number`, `proposer`{model, backend, prompt_version}, `verifier`{model, backend, prompt_version, identity}, `evaluator_version`, `evaluation_contract`, rubric scores {impact, confidence, tractability, testability}, `blast_radius`, `budget`{wall_clock_s, model_credits}, `budget_usage`, `promotion_mode`(`shadow`|`live`|`observational`), `unsupported_reason`, `attempt_count`, `created_at`, `updated_at`.
+- **Event** (append-only): fields per FR-010.
+- **EvaluationContract**: fields per FR-023.
+- **PolicyContract**: `policy_version` + every numeric threshold below (protected).
+- **ModelRequirement / ModelChain**: per the 026 dependency contract.
+- **HighSeverityEvent**: a deterministic sentinel (`InvariantEvent`/`SecurityEvent`/`DataIntegrityEvent`) with the limited action set of FR-025.
+
+## Policy Contract v1 (protected defaults; `policy_version = 1`)
+
+These are concrete, versioned defaults, immutable by candidate branches (FR-034). Values are provisional starting points, tunable only via a reviewed human PR.
+
+|Parameter|Default|
+|-|-|
+|Rubric minimum (impact, confidence, tractability, testability; 1–5)|each ≥ 3|
+|Blast-radius maximum (1–5, lower safer)|≤ 2|
+|Diff envelope|≤ 8 files, ≤ 300 changed lines|
+|Base-failure requirement|valid `base_reproducer` fails at `base_sha`, unless `observational`|
+|Health window|max(24h, next 3 mirrored-workload ticks)|
+|Minimum observations before an ordinary-metric revert|5 relevant runs|
+|Relative regression threshold (global hard-failure rate)|head − base ≥ +20% relative|
+|Absolute regression threshold (dual-gate with relative)|AND ≥ +3 absolute failures|
+|`material_regression`|any newly-failing trusted `regression_suite` check, OR the dual-gate global threshold met over ≥ min observations|
+|Cost/runtime regression|> +25% over the Attempt's budget baseline|
+|Freshness bound|recreate Attempt if `base_sha` > 200 commits behind `main` OR any touched file changed on `main` since `base_sha`|
+|Breaker window|7 days|
+|Auto-reverts to disable promotion|2 within the breaker window|
+|Failed Attempts per Problem → cooldown|3 → 30-day cooldown|
+|Provider-outage exclusion|requires ≥ 1 corroboration signal (FR-029)|
+|Live-eligibility: shadow sample minimum|≥ 10 shadow-promoted Attempts observed|
+|Live-eligibility: proposal precision|≥ 0.80 (verified/accepted)|
+|Live-eligibility: 7-day retention|≥ 0.90|
+|Live-eligibility: 30-day retention|≥ 0.80|
+|Live-eligibility: max false-revert rate|≤ 0.10|
 
 ## Success Criteria *(mandatory)*
 
-- **SC-001**: A candidate's `candidate_id` is invariant under evidence growth/reordering while `evidence_digest`/`revision` change — verified by re-running discovery with added evidence and asserting a single stable id.
-- **SC-002**: Concurrent discovery/promotion never lose or double-write state — verified by a concurrency test (lease + CAS + append-only events) and a kill-between-commit-and-label reconciliation test.
-- **SC-003**: No candidate is implemented before an independent assessor accepts it against the numeric thresholds AND (unless observational) a `base_reproducer` fails at `base_sha` — verified against proposal-gate tests.
-- **SC-004**: Candidate code and tests execute with no secrets, no repo-write token, and outbound network denied; required checks are accepted only from named trusted Apps — verified against trust-domain tests (secret-absence + spoofed-check rejection).
-- **SC-005**: Promotion occurs only on fails-at-base/passes-at-head (where replayable) with no material regression from trusted-App checks — verified on a real candidate branch in shadow mode.
-- **SC-006**: A harmful retained change is auto-reverted within the defined window with correct attribution (provider outages excluded) and ancestry checks; repeated failures trip the breaker — verified against injected-regression + injected-outage shadow runs.
-- **SC-007**: Expected pipeline mechanics never generate candidates (zero soft-sourced candidates); the eligibility logic references only existing classifier classes — verified against the severity set + classifier.
-- **SC-008**: Model selection returns a free chain by default and paid only under explicit allowance + budget headroom; verifier independence records model+backend+prompt-version — verified against the selection interface + credit guard.
-- **SC-009 (acceptance demo for #1242)**: The lane runs end-to-end in shadow mode — real discovery → proposal-verified candidate → claimed transaction → bounded implementation branch → trusted evaluation (base-fails/head-passes) → promotion into the canary branch → injected-regression attributed auto-revert — captured as concrete evidence on the PR.
+- **SC-001**: A Problem's `problem_id` is invariant under evidence growth/reordering while `evidence_digest`/`revision` change; a recurrence after `retained` produces a NEW Attempt under the same `problem_id` — verified by re-running discovery.
+- **SC-002**: Concurrent mutations sharing `expected_revision` never lose/duplicate state (exactly one fast-forwards; the other recomputes); a kill-between-commit-and-label reconciles idempotently — verified by concurrency + fault-injection tests.
+- **SC-003**: No Attempt is implemented before the independent assessor accepts it against the Policy Contract AND (unless `observational`) a `base_reproducer` fails at `base_sha` — verified against proposal-gate tests with the v1 thresholds.
+- **SC-004**: Candidate code executes with no secrets, no repo-write token, and `--network none`; required checks are accepted only from named trusted Apps; a free-form `base_reproducer` is refused — verified against trust-domain + harness tests.
+- **SC-005**: Promotion occurs only on fails-at-base/passes-at-head (where replayable) with no material regression per the v1 formula from trusted-App checks — verified on a real Attempt branch in shadow mode.
+- **SC-006**: A causally-attributed harmful change is auto-reverted within the v1 window (provider outages without corroboration excluded; candidate-caused transient failures with corroboration included) with ancestry checks; repeated failures trip the breaker — verified against injected-regression + injected-outage shadow runs.
+- **SC-007**: Only `StagePanelKickback` is excluded as soft; escalations are eligible; eligibility references only real classifier classes — verified against `_activity_severity` + the classifier.
+- **SC-008**: All lane LLM calls resolve through the 026 `select()` contract; verifier independence records model+backend+prompt-version+identity — verified against the dependency contract.
+- **SC-009 (acceptance demo for #1242)**: The lane runs end-to-end in shadow mode — real discovery → proposal-verified Attempt → claimed transaction → bounded implementation branch → trusted evaluation (base-fails/head-passes) → promotion into the canary branch → injected-regression attributed auto-revert — captured as concrete evidence on the PR.
 
 ## Delivery Slices
 
-1. **Observation-only** — canonical store + append-only events; error mining; issue ranking; proposer + independent assessor; NO labels/branches/merges. (US1)
-2. **Claiming** — transactional claim/lease/CAS/reconciliation; proposal comment + label; one active candidate. (US2)
-3. **Bounded draft PRs** — isolated implementation trust domain; diff policy + budgets; offline tests; draft PR; `unsupported_scope` routing. (US3)
-4. **Trusted promotion into canary** — typed evaluation contract; trusted-App required checks from pinned main SHA; promotion by App token; merge to canary branch. (US4)
-5. **Post-merge monitoring** — concrete thresholds; attribution; ancestry; injected-regression auto-revert; circuit breakers. (US5)
-6. **Live-main promotion** — enabled ONLY after shadow precision/retention/false-revert thresholds are met AND flag on AND App+protection configured; else fail closed. (US6)
-7. **Model-selection consolidation** — the platform-wide multi-site migration, delivered as **separate spec 026 + its own PR that lands before this lane** (a prerequisite dependency of the lane's model calls, not built here).
+1. **Observation-only** — store + append-only events + optimistic-concurrency protocol; error mining; issue ranking/pagination; proposer + independent assessor; discovery/persistence domains; NO labels/branches/merges. (US1)
+2. **Claiming** — the claim transaction (fetch-rebuild-verify-fast-forward), reconciliation, label/comment; one active Problem. (US2)
+3. **Bounded draft PRs** — implementation domain; diff policy + budgets; network-denied container tests; draft PR; `unsupported_scope` routing (incl. error-derived human-lane issue). (US3)
+4. **Trusted promotion into canary** — `EvaluationContract`; trusted harness + allowlisted `base_reproducer`; trusted-App required checks; App-token merge to canary. (US4)
+5. **Post-merge monitoring** — policy thresholds; corroborated attribution; ancestry; auto-revert; breakers. (US5)
+6. **Live-main promotion** — enabled only after the v1 live-eligibility thresholds are met AND flag on AND App+protection; else fail closed. (US6)
+7. **Model-selection consolidation** — separate spec 026 + its own PR, landing before this lane (dependency, not built here).
 
 ## Assumptions
 
-- The `gh` CLI is available/authenticated in the cron environment (as in `maintenance.yml` / `integrations/issues.py`).
+- The `gh` CLI is available/authenticated in the cron environment.
 - A Dartmouth API key is present for free-model calls; `LLMXIVE_PAID_OPT_IN` is OFF by default and gated by the credit guard.
-- **Model availability is timestamped evidence, not a durable assumption.** Verified by real calls on **2026-07-16**: `qwen.qwen3.5-122b` (default), `openai.gpt-oss-120b`, `google.gemma-4-31B-it` all live and free (cost 0) and passed code-reasoning + strict-JSON probes; `qwen.qwen3-vl:32b` available for the vision tier. This MUST be re-checked at runtime.
+- **Model availability is timestamped evidence.** Verified by real calls on **2026-07-16**: `qwen.qwen3.5-122b` (default), `openai.gpt-oss-120b`, `google.gemma-4-31B-it` all live and free (cost 0) and passed code-reasoning + strict-JSON probes; `qwen.qwen3-vl:32b` for vision. Re-checked at runtime via the 026 contract.
 - Live auto-merge is disabled until the maintainer creates the GitHub App, stores its secrets, and configures branch protection; until then the loop targets a disposable `self-improvement/canary` branch and never mutates `main`.
-- The lane reuses `advance_ledger.classify_message`, `web_data._activity_severity` / `_recent_activity`, the `gh` wrapper, `router`/`backends`, `credits`, `project_lease.py`, and `commit-and-push.sh` (Constitution I).
+- Spec 026 lands first and provides the `select()` contract; slices 1–2's deterministic parts may be built before it.
+- The lane reuses `advance_ledger.classify_message`, `web_data._activity_severity`/`_recent_activity`, the `gh` wrapper, `credits`, `project_lease` (contention only), and `commit-and-push.sh` (append-only writes only), per Constitution I.
 - The self-improvement lane is separate from `Project`/`Stage`; it never routes work through the sandboxed research-project intake.
