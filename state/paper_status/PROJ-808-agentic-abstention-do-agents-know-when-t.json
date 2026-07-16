@@ -1,10 +1,22 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-808-agentic-abstention-do-agents-know-when-t/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 8, saw section 2025",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 44
+      }
+    ],
+    "audited_at": "2026-07-16T12:55:04.070674+00:00"
+  },
+  "repair_rounds": 1,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-808-agentic-abstention-do-agents-know-when-t",
-  "updated_at": "2026-07-02T16:38:52.231019+00:00"
+  "updated_at": "2026-07-16T12:55:04.159399+00:00"
 }

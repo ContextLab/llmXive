@@ -1,10 +1,22 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 9, saw section 196",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 24
+      }
+    ],
+    "audited_at": "2026-07-16T12:49:18.597366+00:00"
+  },
+  "repair_rounds": 1,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
-  "updated_at": "2026-07-02T06:50:47.117744+00:00"
+  "updated_at": "2026-07-16T12:49:18.672180+00:00"
 }

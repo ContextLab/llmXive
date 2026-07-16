@@ -1,10 +1,14 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-790-wan-streamer-v0-1-end-to-end-real-time-i/paper/pdf/main-llmxive.pdf",
-  "audit": null,
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-07-16T12:54:22.748923+00:00"
+  },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
-  "status": "restyled_unaudited",
+  "status": "audited",
   "failure": null,
   "paper_id": "PROJ-790-wan-streamer-v0-1-end-to-end-real-time-i",
-  "updated_at": "2026-07-02T14:53:14.763222+00:00"
+  "updated_at": "2026-07-16T12:54:22.748938+00:00"
 }

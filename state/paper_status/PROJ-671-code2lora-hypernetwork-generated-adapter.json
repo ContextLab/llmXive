@@ -1,10 +1,22 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 8, saw section 9",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 43
+      }
+    ],
+    "audited_at": "2026-07-16T12:51:17.337775+00:00"
+  },
+  "repair_rounds": 1,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
-  "updated_at": "2026-07-02T09:42:51.944568+00:00"
+  "updated_at": "2026-07-16T12:51:17.417868+00:00"
 }

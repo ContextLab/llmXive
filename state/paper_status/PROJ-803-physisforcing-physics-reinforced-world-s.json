@@ -1,10 +1,14 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-803-physisforcing-physics-reinforced-world-s/paper/pdf/main-llmxive.pdf",
-  "audit": null,
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-07-16T12:54:47.319493+00:00"
+  },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
-  "status": "restyled_unaudited",
+  "status": "audited",
   "failure": null,
   "paper_id": "PROJ-803-physisforcing-physics-reinforced-world-s",
-  "updated_at": "2026-07-02T15:51:14.835398+00:00"
+  "updated_at": "2026-07-16T12:54:47.319506+00:00"
 }

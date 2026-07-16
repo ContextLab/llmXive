@@ -1,10 +1,14 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-851-dockerless-environment-free-program-veri/paper/pdf/main-llmxive.pdf",
-  "audit": null,
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-07-16T12:55:22.232286+00:00"
+  },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
-  "status": "restyled_unaudited",
+  "status": "audited",
   "failure": null,
   "paper_id": "PROJ-851-dockerless-environment-free-program-veri",
-  "updated_at": "2026-07-02T16:39:41.548993+00:00"
+  "updated_at": "2026-07-16T12:55:22.232298+00:00"
 }

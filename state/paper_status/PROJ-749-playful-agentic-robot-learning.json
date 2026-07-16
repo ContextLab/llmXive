@@ -1,10 +1,78 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-749-playful-agentic-robot-learning/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 7, saw section 15",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 54
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 16, saw section 45",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 54
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 46, saw section 58",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 54
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 59, saw section 67",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 54
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 68, saw section 124",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 54
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 125, saw section 144",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 54
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 145, saw section 171",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 54
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 172, saw section 179",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 54
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 180, saw section 184",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 54
+      }
+    ],
+    "audited_at": "2026-07-16T12:53:44.665106+00:00"
+  },
+  "repair_rounds": 1,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-749-playful-agentic-robot-learning",
-  "updated_at": "2026-07-02T13:38:21.666622+00:00"
+  "updated_at": "2026-07-16T12:53:44.753824+00:00"
 }

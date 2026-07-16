@@ -1,10 +1,120 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 1,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 7, saw section 8",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 9, saw section 10",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 11, saw section 12",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 16, saw section 18",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 20, saw section 21",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 25, saw section 26",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 30, saw section 33",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 34, saw section 36",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 37, saw section 38",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 40, saw section 41",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 45, saw section 46",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 49, saw section 50",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 51, saw section 52",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 58, saw section 60",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 63, saw section 64",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 88
+      }
+    ],
+    "audited_at": "2026-07-16T12:49:14.441378+00:00"
+  },
+  "repair_rounds": 2,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-634-https-arxiv-org-abs-2605-27367",
-  "updated_at": "2026-07-02T06:50:36.083807+00:00"
+  "updated_at": "2026-07-16T12:49:14.520619+00:00"
 }

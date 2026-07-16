@@ -1,10 +1,57 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 1,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 7, saw section 13",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 64
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 14, saw section 19",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 64
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 20, saw section 23",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 64
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 25, saw section 27",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 64
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 28, saw section 29",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 64
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 32, saw section 41",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 64
+      }
+    ],
+    "audited_at": "2026-07-16T12:51:12.287336+00:00"
+  },
+  "repair_rounds": 2,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
-  "updated_at": "2026-07-02T09:42:30.169794+00:00"
+  "updated_at": "2026-07-16T12:51:12.369946+00:00"
 }

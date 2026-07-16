@@ -1,0 +1,37 @@
+project_id: PROJ-849-blockpilot-instance-adaptive-policy-lear
+round: 1
+revision_kind: paper_writing
+from_stage: paper_review
+to_stage: paper_tasked
+worst_severity: writing
+seed_action_items:
+- id: auditdef00000
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 6, saw section 14", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    22}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-849-blockpilot-instance-adaptive-policy-lear/paper/source/
+  location: page 22
+kickback_reason: 'spec 023 / FR-023: compile/audit repair round'
+kickback_artifact_links:
+- projects/PROJ-849-blockpilot-instance-adaptive-policy-lear/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 1 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-07-16T12:55:10.011451+00:00'

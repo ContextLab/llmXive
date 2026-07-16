@@ -1,0 +1,55 @@
+project_id: PROJ-650-colleague-skill-automated-ai-skill-gener
+round: 3
+revision_kind: paper_writing
+from_stage: paper_review
+to_stage: paper_tasked
+worst_severity: writing
+seed_action_items:
+- id: auditdef00000
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 3, saw section 4", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    16}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/source/
+  location: page 16
+- id: auditdef00001
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 11, saw section 1544501967", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "p'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/source/
+  location: page 16
+- id: auditdef00002
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 1544501968, saw section 2559063619", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in sou'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/source/
+  location: page 16
+kickback_reason: 'spec 023 / FR-023: compile/audit repair round'
+kickback_artifact_links:
+- projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 3 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-07-16T12:49:54.396499+00:00'

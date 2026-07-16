@@ -1,10 +1,14 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-774-dataclaw0-agentic-tailoring-multimodal-d/paper/pdf/main-llmxive.pdf",
-  "audit": null,
+  "audit": {
+    "passed": true,
+    "defects": [],
+    "audited_at": "2026-07-16T12:53:57.978705+00:00"
+  },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
-  "status": "restyled_unaudited",
+  "status": "audited",
   "failure": null,
   "paper_id": "PROJ-774-dataclaw0-agentic-tailoring-multimodal-d",
-  "updated_at": "2026-07-02T13:40:33.905457+00:00"
+  "updated_at": "2026-07-16T12:53:57.978736+00:00"
 }

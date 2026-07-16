@@ -1,10 +1,43 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-731-zone-of-proximal-policy-optimization-tea/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 1, saw section 5",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 76
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 7, saw section 14",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 76
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 15, saw section 16",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 76
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 17, saw section 18",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 76
+      }
+    ],
+    "audited_at": "2026-07-16T12:53:29.023321+00:00"
+  },
+  "repair_rounds": 1,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-731-zone-of-proximal-policy-optimization-tea",
-  "updated_at": "2026-07-02T13:03:40.217515+00:00"
+  "updated_at": "2026-07-16T12:53:29.110935+00:00"
 }

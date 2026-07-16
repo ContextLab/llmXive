@@ -1,10 +1,29 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 5, saw section 15",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 52
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 16, saw section 37",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 52
+      }
+    ],
+    "audited_at": "2026-07-16T12:52:39.161515+00:00"
+  },
+  "repair_rounds": 1,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-698-toward-generalist-autonomous-research-vi",
-  "updated_at": "2026-07-02T11:15:45.074952+00:00"
+  "updated_at": "2026-07-16T12:52:39.244329+00:00"
 }

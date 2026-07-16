@@ -1,10 +1,71 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "non_square_bracket_cite",
+        "evidence": "\u00b9",
+        "class": "source_fixable",
+        "recommendation": "bibstyle is producing superscripts; force \\bibliographystyle{unsrt}",
+        "page": 5
+      },
+      {
+        "kind": "non_square_bracket_cite",
+        "evidence": "(Bunting et al., 2018)",
+        "class": "source_fixable",
+        "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source",
+        "page": 25
+      },
+      {
+        "kind": "non_square_bracket_cite",
+        "evidence": "(Garner et al., 2021)",
+        "class": "source_fixable",
+        "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source",
+        "page": 25
+      },
+      {
+        "kind": "non_square_bracket_cite",
+        "evidence": "(Garner et al., 2021)",
+        "class": "source_fixable",
+        "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source",
+        "page": 25
+      },
+      {
+        "kind": "non_square_bracket_cite",
+        "evidence": "(Garner et al., 2021)",
+        "class": "source_fixable",
+        "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source",
+        "page": 25
+      },
+      {
+        "kind": "non_square_bracket_cite",
+        "evidence": "(Emanuel et al., 2006)",
+        "class": "source_fixable",
+        "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source",
+        "page": 25
+      },
+      {
+        "kind": "non_square_bracket_cite",
+        "evidence": "(Trinh et al., 2024)",
+        "class": "source_fixable",
+        "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source",
+        "page": 61
+      },
+      {
+        "kind": "non_square_bracket_cite",
+        "evidence": "(Vaswani et al., 2017)",
+        "class": "source_fixable",
+        "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source",
+        "page": 70
+      }
+    ],
+    "audited_at": "2026-07-16T12:51:36.409349+00:00"
+  },
+  "repair_rounds": 1,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-683-researchclawbench-a-benchmark-for-end-to",
-  "updated_at": "2026-07-02T09:45:53.685505+00:00"
+  "updated_at": "2026-07-16T12:51:36.497628+00:00"
 }

@@ -1,10 +1,43 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-613-indusagent-reinforcing-open-vocabulary-i/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 1,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 8, saw section 9",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 46
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 10, saw section 14",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 46
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 15, saw section 22",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 46
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 23, saw section 28",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 46
+      }
+    ],
+    "audited_at": "2026-07-16T12:48:05.965657+00:00"
+  },
+  "repair_rounds": 2,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
-  "updated_at": "2026-07-02T03:53:26.364706+00:00"
+  "updated_at": "2026-07-16T12:48:06.039772+00:00"
 }

@@ -1,10 +1,22 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-621-transitlm-a-large-scale-dataset-and-benc/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 1,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 2, saw section 3",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 37
+      }
+    ],
+    "audited_at": "2026-07-16T12:48:27.739190+00:00"
+  },
+  "repair_rounds": 2,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-  "updated_at": "2026-07-02T05:33:51.010392+00:00"
+  "updated_at": "2026-07-16T12:48:27.811556+00:00"
 }

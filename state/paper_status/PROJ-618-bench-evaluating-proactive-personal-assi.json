@@ -1,10 +1,36 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-618-bench-evaluating-proactive-personal-assi/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 2, saw section 4",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 57
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 5, saw section 7",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 57
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 8, saw section 10",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 57
+      }
+    ],
+    "audited_at": "2026-07-16T12:48:18.441079+00:00"
+  },
+  "repair_rounds": 1,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-  "updated_at": "2026-07-02T05:33:03.038224+00:00"
+  "updated_at": "2026-07-16T12:48:18.513998+00:00"
 }

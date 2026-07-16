@@ -1,0 +1,118 @@
+{
+  "pdf_path": "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/pdf/main-llmxive.pdf",
+  "paper_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
+  "audited_at": "2026-07-16T12:49:52Z",
+  "total_pages": 16,
+  "pages": [
+    {
+      "page": 1,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 2,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 3,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 4,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 5,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 6,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 7,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 8,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 9,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 10,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 11,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 12,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 13,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 14,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 15,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 16,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "section_number_gap",
+          "evidence": "expected section 3, saw section 4",
+          "class": "unsupported_construct",
+          "recommendation": "check for stray \\setcounter or \\section* in source"
+        },
+        {
+          "kind": "section_number_gap",
+          "evidence": "expected section 11, saw section 1544501967",
+          "class": "unsupported_construct",
+          "recommendation": "check for stray \\setcounter or \\section* in source"
+        },
+        {
+          "kind": "section_number_gap",
+          "evidence": "expected section 1544501968, saw section 2559063619",
+          "class": "unsupported_construct",
+          "recommendation": "check for stray \\setcounter or \\section* in source"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_failures": 3,
+    "failure_classes": {
+      "source_fixable": 0,
+      "unsupported_construct": 3,
+      "source_missing": 0,
+      "audit_tool_crash": 0
+    },
+    "passed_pages": 15,
+    "failed_pages": 1
+  }
+}

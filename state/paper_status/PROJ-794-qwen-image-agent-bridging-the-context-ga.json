@@ -1,10 +1,22 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-794-qwen-image-agent-bridging-the-context-ga/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 0,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 4, saw section 5",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 25
+      }
+    ],
+    "audited_at": "2026-07-16T12:54:33.732613+00:00"
+  },
+  "repair_rounds": 1,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-794-qwen-image-agent-bridging-the-context-ga",
-  "updated_at": "2026-07-02T15:49:42.547605+00:00"
+  "updated_at": "2026-07-16T12:54:33.820140+00:00"
 }

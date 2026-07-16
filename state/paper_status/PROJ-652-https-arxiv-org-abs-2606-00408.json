@@ -1,10 +1,29 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-652-https-arxiv-org-abs-2606-00408/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 1,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "literal_command_text",
+        "evidence": "he inline \\cite-style citations ((*@\ufffd48\u2020L2-L5\ufffd",
+        "class": "source_fixable",
+        "recommendation": "extend normalize_authors / normalize_references / normalize_figures to handle this construct, or add a restyle wrapper",
+        "page": 38
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 8, saw section 27",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 50
+      }
+    ],
+    "audited_at": "2026-07-16T12:49:59.470088+00:00"
+  },
+  "repair_rounds": 2,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-  "updated_at": "2026-07-02T08:07:17.192806+00:00"
+  "updated_at": "2026-07-16T12:49:59.547133+00:00"
 }

@@ -1,0 +1,424 @@
+{
+  "pdf_path": "projects/PROJ-731-zone-of-proximal-policy-optimization-tea/paper/pdf/main-llmxive.pdf",
+  "paper_id": "PROJ-731-zone-of-proximal-policy-optimization-tea",
+  "audited_at": "2026-07-16T12:53:14Z",
+  "total_pages": 76,
+  "pages": [
+    {
+      "page": 1,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 2,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 3,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 4,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 5,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 6,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 7,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 8,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 9,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 10,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 11,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 12,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 13,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 14,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 15,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 16,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 17,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 18,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 19,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 20,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 21,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 22,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 23,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 24,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 25,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 26,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 27,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 28,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 29,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 30,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 31,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 32,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 33,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 34,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 35,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 36,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 37,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 38,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 39,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 40,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 41,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 42,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 43,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 44,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 45,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 46,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 47,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 48,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 49,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 50,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 51,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 52,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 53,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 54,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 55,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 56,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 57,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 58,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 59,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 60,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 61,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 62,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 63,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 64,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 65,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 66,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 67,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 68,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 69,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 70,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 71,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 72,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 73,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 74,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 75,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 76,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "section_number_gap",
+          "evidence": "expected section 1, saw section 5",
+          "class": "unsupported_construct",
+          "recommendation": "check for stray \\setcounter or \\section* in source"
+        },
+        {
+          "kind": "section_number_gap",
+          "evidence": "expected section 7, saw section 14",
+          "class": "unsupported_construct",
+          "recommendation": "check for stray \\setcounter or \\section* in source"
+        },
+        {
+          "kind": "section_number_gap",
+          "evidence": "expected section 15, saw section 16",
+          "class": "unsupported_construct",
+          "recommendation": "check for stray \\setcounter or \\section* in source"
+        },
+        {
+          "kind": "section_number_gap",
+          "evidence": "expected section 17, saw section 18",
+          "class": "unsupported_construct",
+          "recommendation": "check for stray \\setcounter or \\section* in source"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_failures": 4,
+    "failure_classes": {
+      "source_fixable": 0,
+      "unsupported_construct": 4,
+      "source_missing": 0,
+      "audit_tool_crash": 0
+    },
+    "passed_pages": 75,
+    "failed_pages": 1
+  }
+}

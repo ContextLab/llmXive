@@ -1,0 +1,154 @@
+{
+  "pdf_path": "projects/PROJ-693-abot-earth-0-5-generative-3d-earth-model/paper/pdf/main-llmxive.pdf",
+  "paper_id": "PROJ-693-abot-earth-0-5-generative-3d-earth-model",
+  "audited_at": "2026-07-16T12:51:58Z",
+  "total_pages": 23,
+  "pages": [
+    {
+      "page": 1,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 2,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 3,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 4,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 5,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 6,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 7,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 8,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 9,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 10,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "\u00b2",
+          "class": "source_fixable",
+          "recommendation": "bibstyle is producing superscripts; force \\bibliographystyle{unsrt}"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "\u00b2",
+          "class": "source_fixable",
+          "recommendation": "bibstyle is producing superscripts; force \\bibliographystyle{unsrt}"
+        }
+      ]
+    },
+    {
+      "page": 11,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 12,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 13,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 14,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "\u00b2",
+          "class": "source_fixable",
+          "recommendation": "bibstyle is producing superscripts; force \\bibliographystyle{unsrt}"
+        }
+      ]
+    },
+    {
+      "page": 15,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 16,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 17,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 18,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 19,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 20,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 21,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 22,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 23,
+      "status": "pass",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "total_failures": 3,
+    "failure_classes": {
+      "source_fixable": 3,
+      "unsupported_construct": 0,
+      "source_missing": 0,
+      "audit_tool_crash": 0
+    },
+    "passed_pages": 21,
+    "failed_pages": 2
+  }
+}

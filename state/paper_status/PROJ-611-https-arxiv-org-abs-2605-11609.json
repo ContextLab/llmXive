@@ -1,10 +1,22 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-611-https-arxiv-org-abs-2605-11609/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 1,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "literal_command_text",
+        "evidence": "code in a \\texttt{```python} block.\nGiven a list",
+        "class": "source_fixable",
+        "recommendation": "extend normalize_authors / normalize_references / normalize_figures to handle this construct, or add a restyle wrapper",
+        "page": 20
+      }
+    ],
+    "audited_at": "2026-07-16T12:48:01.103831+00:00"
+  },
+  "repair_rounds": 2,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-  "updated_at": "2026-07-02T03:52:32.036049+00:00"
+  "updated_at": "2026-07-16T12:48:01.179851+00:00"
 }

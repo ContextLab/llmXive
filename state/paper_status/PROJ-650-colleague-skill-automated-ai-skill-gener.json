@@ -1,10 +1,36 @@
 {
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-650-colleague-skill-automated-ai-skill-gener/paper/pdf/main-llmxive.pdf",
-  "audit": null,
-  "repair_rounds": 1,
+  "audit": {
+    "passed": false,
+    "defects": [
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 3, saw section 4",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 16
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 11, saw section 1544501967",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 16
+      },
+      {
+        "kind": "section_number_gap",
+        "evidence": "expected section 1544501968, saw section 2559063619",
+        "class": "unsupported_construct",
+        "recommendation": "check for stray \\setcounter or \\section* in source",
+        "page": 16
+      }
+    ],
+    "audited_at": "2026-07-16T12:49:54.372453+00:00"
+  },
+  "repair_rounds": 2,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-650-colleague-skill-automated-ai-skill-gener",
-  "updated_at": "2026-07-02T08:06:34.407183+00:00"
+  "updated_at": "2026-07-16T12:49:54.450247+00:00"
 }
