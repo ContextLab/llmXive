@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-419-predicting-coating-adhesion-strength-fro",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/preprocessing.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026NFO)          # Create a mock dataset for testing the validity\u2026\u201d; 2 command(s) failed: python code/ingestion.py --input-dir data/raw --output data/processed/coating_adhesion_dataset.csv (rc=1); python code/main.py (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/ingestion.py --input-dir data/raw --output data/processed/coating_adhesion_dataset.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/ingestion.py\", line 5, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-419-predicting-coating-adhesion-strength-fro/code/main.py\", line 4, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-16T03:04:36Z"
+}

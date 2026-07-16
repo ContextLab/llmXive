@@ -1,81 +1,125 @@
 import pytest
 import pandas as pd
 import numpy as np
-import sys
 import os
+import sys
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path to allow imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+# Add the code directory to the path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from code.ingestion import exclude_missing_surface_roughness
+from ingestion import resolve_duplicates, exclude_missing_target_records, filter_astm_d4541_records
 
-class TestExcludeMissingSurfaceRoughness:
-    """Tests for T027: Exclude records with missing surface roughness data."""
-
-    def setup_method(self):
-        """Setup test data."""
-        self.data = pd.DataFrame({
-            'id': [1, 2, 3, 4, 5],
-            'RMS_Roughness': [0.5, np.nan, 0.8, 0.9, np.nan],
-            'Ra': [0.2, 0.3, np.nan, 0.4, 0.5],
-            'adhesion_strength': [10.0, 12.0, 11.0, 13.0, 14.0]
-        })
-
-    def test_exclude_strategy_removes_missing(self):
-        """Test that 'exclude' strategy removes rows with any missing roughness data."""
-        result = exclude_missing_surface_roughness(self.data, strategy='exclude')
+class TestResolveDuplicates:
+    def test_resolve_duplicates_by_date(self):
+        """Test that duplicates are resolved by keeping the most recent date."""
+        data = {
+            'sample_id': ['A', 'A', 'B'],
+            'date': ['2023-01-01', '2023-01-05', '2023-01-01'],
+            'value': [10, 20, 30]
+        }
+        df = pd.DataFrame(data)
+        df['date'] = pd.to_datetime(df['date'])
         
-        # Expected: rows 0, 3 (ids 1 and 4) remain. Rows 1, 2, 4 (ids 2, 3, 5) removed.
-        # Row 1: RMS_Roughness is NaN
-        # Row 2: Ra is NaN
-        # Row 4: RMS_Roughness is NaN
-        expected_len = 2
-        assert len(result) == expected_len
-        assert list(result['id']) == [1, 4]
-        assert result['RMS_Roughness'].isna().sum() == 0
-        assert result['Ra'].isna().sum() == 0
+        result = resolve_duplicates(df, date_col='date', sample_count_col='value')
+        
+        # Should keep the row with date 2023-01-05 for sample_id 'A'
+        assert len(result) == 2
+        assert result.loc[result['sample_id'] == 'A', 'date'].iloc[0] == pd.Timestamp('2023-01-05')
+        assert result.loc[result['sample_id'] == 'A', 'value'].iloc[0] == 20
 
-    def test_impute_median_strategy_fills_missing(self):
-        """Test that 'impute_median' strategy fills missing values with column median."""
-        result = exclude_missing_surface_roughness(self.data, strategy='impute_median')
+    def test_resolve_duplicates_by_sample_count(self):
+        """Test that duplicates are resolved by keeping the highest sample count when date is missing."""
+        data = {
+            'sample_id': ['A', 'A', 'B'],
+            'sample_count': [5, 10, 3],
+            'value': [100, 200, 300]
+        }
+        df = pd.DataFrame(data)
         
-        # Expected: all rows remain, but NaNs are filled.
-        # RMS_Roughness non-NaN values: 0.5, 0.8, 0.9 -> Median = 0.8
-        # Ra non-NaN values: 0.2, 0.3, 0.4, 0.5 -> Median = 0.35
+        result = resolve_duplicates(df, date_col='nonexistent', sample_count_col='sample_count')
         
-        assert len(result) == 5
-        assert result['RMS_Roughness'].isna().sum() == 0
-        assert result['Ra'].isna().sum() == 0
-        
-        # Check specific imputed values
-        # Row 1 (id 2): RMS_Roughness was NaN, should be 0.8
-        assert result.loc[result['id'] == 2, 'RMS_Roughness'].values[0] == 0.8
-        # Row 2 (id 3): Ra was NaN, should be 0.35
-        assert result.loc[result['id'] == 3, 'Ra'].values[0] == 0.35
+        # Should keep the row with sample_count 10 for sample_id 'A'
+        assert len(result) == 2
+        assert result.loc[result['sample_id'] == 'A', 'sample_count'].iloc[0] == 10
+        assert result.loc[result['sample_id'] == 'A', 'value'].iloc[0] == 200
 
-    def test_no_missing_data_unchanged(self):
-        """Test that data without missing values is returned unchanged."""
-        clean_data = pd.DataFrame({
+    def test_resolve_duplicates_empty_df(self):
+        """Test handling of empty DataFrame."""
+        df = pd.DataFrame(columns=['sample_id', 'date', 'value'])
+        result = resolve_duplicates(df)
+        assert result.empty
+
+    def test_resolve_duplicates_no_duplicates(self):
+        """Test that no changes occur if there are no duplicates."""
+        data = {
+            'sample_id': ['A', 'B', 'C'],
+            'date': ['2023-01-01', '2023-01-02', '2023-01-03'],
+            'value': [10, 20, 30]
+        }
+        df = pd.DataFrame(data)
+        df['date'] = pd.to_datetime(df['date'])
+        
+        result = resolve_duplicates(df, date_col='date')
+        assert len(result) == 3
+        pd.testing.assert_frame_equal(result, df)
+
+class TestExcludeMissingTargetRecords:
+    def test_exclude_missing_target(self):
+        """Test exclusion of records with missing target values."""
+        data = {
+            'id': [1, 2, 3, 4],
+            'adhesion_strength': [10.0, np.nan, 15.0, np.nan]
+        }
+        df = pd.DataFrame(data)
+        
+        result = exclude_missing_target_records(df, target_col='adhesion_strength')
+        
+        assert len(result) == 2
+        assert result['adhesion_strength'].isna().sum() == 0
+
+    def test_exclude_missing_target_empty_df(self):
+        """Test handling of empty DataFrame."""
+        df = pd.DataFrame(columns=['id', 'adhesion_strength'])
+        result = exclude_missing_target_records(df)
+        assert result.empty
+
+    def test_exclude_missing_target_no_missing(self):
+        """Test that no rows are excluded if none are missing."""
+        data = {
+            'id': [1, 2, 3],
+            'adhesion_strength': [10.0, 15.0, 20.0]
+        }
+        df = pd.DataFrame(data)
+        result = exclude_missing_target_records(df)
+        assert len(result) == 3
+
+class TestFilterASTMD4541:
+    def test_filter_astm_d4541(self):
+        """Test filtering for ASTM D4541 records."""
+        data = {
+            'id': [1, 2, 3, 4],
+            'test_standard': ['ASTM D4541', 'ISO 4624', 'ASTM D4541', 'Other']
+        }
+        df = pd.DataFrame(data)
+        
+        result = filter_astm_d4541_records(df)
+        
+        assert len(result) == 2
+        assert all(result['test_standard'] == 'ASTM D4541')
+
+    def test_filter_astm_d4541_no_match(self):
+        """Test filtering when no records match."""
+        data = {
             'id': [1, 2],
-            'RMS_Roughness': [0.5, 0.8],
-            'adhesion_strength': [10.0, 12.0]
-        })
-        
-        result = exclude_missing_surface_roughness(clean_data, strategy='exclude')
-        pd.testing.assert_frame_equal(result, clean_data)
+            'test_standard': ['ISO 4624', 'Other']
+        }
+        df = pd.DataFrame(data)
+        result = filter_astm_d4541_records(df)
+        assert result.empty
 
-    def test_invalid_strategy_raises_error(self):
-        """Test that an invalid strategy raises ValueError."""
-        with pytest.raises(ValueError, match="Invalid strategy"):
-            exclude_missing_surface_roughness(self.data, strategy='invalid_strategy')
-
-    def test_no_roughness_columns_skips(self):
-        """Test that if no roughness columns exist, the function returns the original dataframe."""
-        no_roughness_data = pd.DataFrame({
-            'id': [1, 2],
-            'composition': ['A', 'B'],
-            'adhesion_strength': [10.0, 12.0]
-        })
-        
-        result = exclude_missing_surface_roughness(no_roughness_data, strategy='exclude')
-        pd.testing.assert_frame_equal(result, no_roughness_data)
+    def test_filter_astm_d4541_empty_df(self):
+        """Test handling of empty DataFrame."""
+        df = pd.DataFrame(columns=['id', 'test_standard'])
+        result = filter_astm_d4541_records(df)
+        assert result.empty

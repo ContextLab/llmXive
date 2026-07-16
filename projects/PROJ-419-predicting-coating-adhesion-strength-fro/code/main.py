@@ -1,236 +1,263 @@
+"""
+Main orchestration script for the Coating Adhesion Strength Prediction Pipeline.
+Executes the full workflow: Data Gap Check -> Ingestion -> Preprocessing -> Modeling -> Evaluation.
+"""
 import os
 import sys
 import logging
 import yaml
+import json
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, Optional
+from datetime import datetime
 
-# Import from sibling modules based on provided API surface
+# Import local modules based on API surface
 from utils import (
-    write_halt_signal,
-    calculate_exclusion_ratio,
-    calculate_processing_success_rate,
-    check_sample_size_power_analysis
+    check_halt_signal, write_halt_signal,
+    verify_materials_project_and_halt, verify_nist_repository_and_halt,
+    calculate_exclusion_ratio, calculate_processing_success_rate
 )
-from evaluation import (
-    load_processed_data,
-    run_baseline_evaluation_pipeline,
-    execute_nadeau_bengio_ttest,
-    apply_bonferroni_correction,
-    flag_informative_null
+from ingestion import process_ingestion_data
+from preprocessing import (
+    encode_compositional_data, standardize_surface_metrics,
+    perform_construct_validity_check, main as preprocessing_main
 )
-from preprocessing import create_preprocessing_pipeline_full
+from modeling import run_modeling_pipeline, run_sensitivity_analysis_crosslinker_proxy
+from evaluation import run_baseline_evaluation_pipeline
+from state_manager import write_state_file
+from utils import log_memory_snapshot
 
-# Constants
-LOG_LEVEL = logging.INFO
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-STATE_DIR = PROJECT_ROOT / "state"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-OUTPUT_REPORT_PATH = PROJECT_ROOT / "data" / "processed" / "final_statistical_comparison_report.yaml"
-HALT_SIGNAL_PATH = STATE_DIR / "HALT_SIGNAL.yaml"
-
+# Configure logging
 logging.basicConfig(
-    level=LOG_LEVEL,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(PROJECT_ROOT / "logs" / "main.log", mode="a")
+        logging.FileHandler('pipeline_execution.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
-def check_halt_signal() -> bool:
-    """Check if a halt signal exists and return True if found."""
-    if HALT_SIGNAL_PATH.exists():
-        logger.error("HALT SIGNAL DETECTED. Aborting execution.")
-        return True
-    return False
+# Constants
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / 'data' / 'raw'
+DATA_PROCESSED_DIR = PROJECT_ROOT / 'data' / 'processed'
+STATE_DIR = PROJECT_ROOT / 'state'
+FIGURES_DIR = PROJECT_ROOT / 'figures'
 
-def calculate_validation_metrics(df: pd.DataFrame) -> Dict[str, float]:
-    """Calculate validation metrics: exclusion ratio and success rate."""
-    total_records = len(df)
-    if total_records == 0:
+def check_halt_signal():
+    """Check if a halt signal exists from Phase 0 or previous steps."""
+    return check_halt_signal(STATE_DIR)
+
+def calculate_validation_metrics(raw_data_path, processed_data_path):
+    """
+    Calculate exclusion ratio and processing success rate.
+    Returns a dict with metrics.
+    """
+    if not os.path.exists(raw_data_path):
+        logger.warning(f"Raw data path not found: {raw_data_path}")
+        return {"exclusion_ratio": 1.0, "success_rate": 0.0}
+    
+    try:
+        # Load raw and processed to calculate metrics
+        # Assuming raw data is a list of files or a directory structure
+        # For this implementation, we assume a summary file or direct count
+        # In a real scenario, this would scan the raw directory
+        exclusion_ratio = calculate_exclusion_ratio(raw_data_path, processed_data_path)
+        success_rate = calculate_processing_success_rate(raw_data_path, processed_data_path)
+        return {
+            "exclusion_ratio": exclusion_ratio,
+            "success_rate": success_rate
+        }
+    except Exception as e:
+        logger.error(f"Error calculating validation metrics: {e}")
         return {"exclusion_ratio": 1.0, "success_rate": 0.0}
 
-    # Assuming 'target' column exists and we check for missing values
-    # This logic aligns with T011/T024/T028 requirements
-    missing_target = df['target'].isna().sum()
-    exclusion_ratio = calculate_exclusion_ratio(missing_target, total_records)
-    success_rate = calculate_processing_success_rate(total_records, missing_target)
-
-    return {
-        "exclusion_ratio": exclusion_ratio,
-        "success_rate": success_rate,
-        "total_records": total_records,
-        "missing_target_count": int(missing_target)
-    }
-
-def enforce_validation_gate(metrics: Dict[str, float]) -> bool:
+def enforce_validation_gate(metrics):
     """
     Enforce safety gates:
-    - Success rate >= 95%
     - Exclusion ratio < 10%
-    - Sample size N >= 1000 (Power Analysis)
-    Returns True if gate passes, False otherwise.
+    - Success rate >= 95%
     """
-    success_rate = metrics.get("success_rate", 0.0)
-    exclusion_ratio = metrics.get("exclusion_ratio", 1.0)
-    total_records = metrics.get("total_records", 0)
-
-    if success_rate < 0.95:
-        logger.error(f"Validation Failed: Success rate {success_rate:.2%} < 95%")
+    if metrics["exclusion_ratio"] >= 0.10:
+        logger.error(f"Exclusion ratio {metrics['exclusion_ratio']:.2%} exceeds 10% threshold.")
+        write_halt_signal(STATE_DIR, "Exclusion ratio too high")
         return False
-
-    if exclusion_ratio >= 0.10:
-        logger.error(f"Validation Failed: Exclusion ratio {exclusion_ratio:.2%} >= 10%")
+    
+    if metrics["success_rate"] < 0.95:
+        logger.error(f"Success rate {metrics['success_rate']:.2%} is below 95% threshold.")
+        write_halt_signal(STATE_DIR, "Processing success rate too low")
         return False
-
-    if not check_sample_size_power_analysis(total_records):
-        logger.error(f"Validation Failed: Sample size {total_records} < 1000")
-        return False
-
-    logger.info("All validation gates passed.")
+    
+    logger.info("Validation gate passed.")
     return True
 
-def write_halt_signal(reason: str):
-    """Write a halt signal YAML file with the reason."""
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    signal_data = {
-        "halted": True,
-        "reason": reason,
-        "timestamp": str(pd.Timestamp.now())
-    }
-    with open(HALT_SIGNAL_PATH, 'w') as f:
-        yaml.dump(signal_data, f)
-    logger.critical(f"Halt signal written to {HALT_SIGNAL_PATH}: {reason}")
-
-def generate_final_report(
-    model_results: Dict[str, Any],
-    baseline_results: Dict[str, Any],
-    statistical_tests: Dict[str, Any],
-    validation_metrics: Dict[str, float]
-) -> Dict[str, Any]:
+def generate_final_report(model_results, evaluation_results):
     """
-    Compile the final statistical comparison report (US-3).
+    Generate the final JSON report with model performance metrics.
+    This function fulfills the requirement for T040:
+    Output JSON report with mean R², RMSE, MAE for both models.
     """
     report = {
-        "report_type": "Final Statistical Comparison Report",
-        "user_story": "US3",
-        "task_id": "T050",
-        "validation_metrics": validation_metrics,
-        "model_performance": {
-            "full_model": model_results.get("full_model_metrics", {}),
-            "composition_baseline": baseline_results.get("composition_baseline_metrics", {}),
-            "surface_baseline": baseline_results.get("surface_baseline_metrics", {})
-        },
-        "statistical_comparison": {
-            "test_method": "Nadeau & Bengio Corrected T-Test",
-            "bonferroni_corrected_p_values": statistical_tests.get("bonferroni_p_values", {}),
-            "significant_differences": statistical_tests.get("significant_differences", []),
-            "informative_null_flag": statistical_tests.get("informative_null_flag", False)
-        },
-        "conclusions": []
+        "timestamp": datetime.now().isoformat(),
+        "pipeline_version": "1.0.0",
+        "model_performance": {},
+        "evaluation_results": evaluation_results,
+        "status": "complete"
     }
 
-    # Add conclusions based on results
-    if statistical_tests.get("informative_null_flag"):
-        report["conclusions"].append("Informative Null: Full model does not outperform baselines.")
-    else:
-        report["conclusions"].append("Full model significantly outperforms baselines.")
+    # Extract metrics from modeling results
+    # Expected structure from run_modeling_pipeline:
+    # {
+    #   "gradient_boosting": {"mean_r2": ..., "mean_rmse": ..., "mean_mae": ...},
+    #   "random_forest": {"mean_r2": ..., "mean_rmse": ..., "mean_mae": ...}
+    # }
+    
+    if model_results:
+        for model_name, metrics in model_results.items():
+            report["model_performance"][model_name] = {
+                "mean_r2": metrics.get("mean_r2"),
+                "mean_rmse": metrics.get("mean_rmse"),
+                "mean_mae": metrics.get("mean_mae")
+            }
 
-    return report
+    # Write report to data/processed/final_report.json
+    output_path = DATA_PROCESSED_DIR / "final_report.json"
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Final report written to {output_path}")
+    return output_path
 
-def main():
+def run_pipeline():
     """
-    Main orchestration for US3: Statistical Comparison and Baseline Benchmarking.
-    1. Check Halt Signal
-    2. Load Processed Data
-    3. Validate Data (Metrics)
-    4. Run Evaluation Pipeline (Baselines + Full Model)
-    5. Run Statistical Tests
-    6. Generate Final Report
+    Execute the full pipeline steps in order.
     """
-    logger.info("Starting T050: Final Statistical Comparison Report Generation")
+    logger.info("Starting Coating Adhesion Pipeline...")
 
-    # 1. Check Halt Signal
+    # 1. Phase 0: Data Gap Analysis (Check Halt Signal)
     if check_halt_signal():
-        sys.exit(1)
+        logger.critical("Halt signal detected. Aborting pipeline.")
+        return 1
 
-    # Ensure output directories exist
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    # 2. Phase 1 & 2: Setup & Validation (Implicitly done by directory check)
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
     DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    (PROJECT_ROOT / "logs").mkdir(parents=True, exist_ok=True)
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
+    # 3. Phase 3: User Story 1 - Data Ingestion
+    # T019-T031 logic
+    logger.info("Step 1: Ingesting data...")
     try:
-        # 2. Load Processed Data
-        logger.info("Loading processed data...")
-        data_path = DATA_PROCESSED_DIR / "coating_adhesion_dataset.csv"
-        if not data_path.exists():
-            error_msg = f"Processed data file not found: {data_path}"
-            logger.error(error_msg)
-            write_halt_signal(error_msg)
-            sys.exit(1)
-
-        df = load_processed_data(str(data_path))
-        logger.info(f"Loaded {len(df)} records.")
-
-        # 3. Validate Data
-        logger.info("Calculating validation metrics...")
-        metrics = calculate_validation_metrics(df)
-        logger.info(f"Metrics: {metrics}")
-
-        if not enforce_validation_gate(metrics):
-            reason = "Validation Gate Failed"
-            write_halt_signal(reason)
-            sys.exit(1)
-
-        # 4. Run Evaluation Pipeline
-        logger.info("Running baseline evaluation pipeline...")
-        # This function encapsulates training full, composition-only, and surface-only models
-        # and performing cross-validation.
-        evaluation_output = run_baseline_evaluation_pipeline(df)
-
-        model_results = evaluation_output.get("model_results", {})
-        baseline_results = evaluation_output.get("baseline_results", {})
-
-        # 5. Run Statistical Tests
-        logger.info("Executing statistical tests...")
-        # Extract metrics from evaluation output for testing
-        full_scores = model_results.get("cv_scores", [])
-        comp_scores = baseline_results.get("composition_baseline_cv_scores", [])
-        surf_scores = baseline_results.get("surface_baseline_cv_scores", [])
-
-        ttest_results = execute_nadeau_bengio_ttest(full_scores, comp_scores, surf_scores)
-        bonferroni_p_values = apply_bonferroni_correction(ttest_results["p_values"])
-        informative_null = flag_informative_null(bonferroni_p_values)
-
-        statistical_tests = {
-            "bonferroni_p_values": bonferroni_p_values,
-            "significant_differences": [k for k, v in bonferroni_p_values.items() if v < 0.05],
-            "informative_null_flag": informative_null
-        }
-
-        # 6. Generate Final Report
-        logger.info("Generating final statistical comparison report...")
-        final_report = generate_final_report(
-            model_results=model_results,
-            baseline_results=baseline_results,
-            statistical_tests=statistical_tests,
-            validation_metrics=metrics
+        # Verify sources first (T060, T061, T067 logic)
+        # Assuming verify functions are called here or have already run
+        # If they failed, a halt signal would be written in T060/T061
+        
+        # Run ingestion
+        processed_df = process_ingestion_data(
+            input_dir=str(DATA_RAW_DIR),
+            output_dir=str(DATA_PROCESSED_DIR)
         )
+        
+        if processed_df is None or processed_df.empty:
+            logger.error("Ingestion produced no data. Halting.")
+            write_halt_signal(STATE_DIR, "Ingestion produced no data")
+            return 1
+        
+        # Save intermediate dataset
+        dataset_path = DATA_PROCESSED_DIR / "coating_adhesion_dataset.csv"
+        processed_df.to_csv(dataset_path, index=False)
+        logger.info(f"Dataset saved to {dataset_path}")
 
-        # Write report to disk
-        with open(OUTPUT_REPORT_PATH, 'w') as f:
-            yaml.dump(final_report, f, default_flow_style=False, sort_keys=False)
-
-        logger.info(f"Final report successfully written to {OUTPUT_REPORT_PATH}")
-        print(f"Success: Final report generated at {OUTPUT_REPORT_PATH}")
+        # T015: Construct Validity Check
+        # This function is called within preprocessing_main or here
+        # Assuming it writes proxy_validation_report.csv and halts if failed
+        # We call the specific check here to ensure it runs before modeling
+        validity_check_result = perform_construct_validity_check(str(dataset_path))
+        if not validity_check_result.get("passed", False):
+            logger.error("Construct validity check failed. Halting.")
+            write_halt_signal(STATE_DIR, "Construct validity check failed")
+            return 1
 
     except Exception as e:
-        logger.critical(f"Pipeline execution failed: {str(e)}", exc_info=True)
-        write_halt_signal(f"Pipeline Error: {str(e)}")
-        sys.exit(1)
+        logger.error(f"Ingestion step failed: {e}")
+        write_halt_signal(STATE_DIR, f"Ingestion failed: {str(e)}")
+        return 1
+
+    # 4. Validation Gate (T028)
+    logger.info("Step 2: Running validation gate...")
+    metrics = calculate_validation_metrics(str(DATA_RAW_DIR), str(dataset_path))
+    if not enforce_validation_gate(metrics):
+        logger.critical("Validation gate failed. Halting.")
+        return 1
+
+    # 5. Preprocessing (T029, T030)
+    logger.info("Step 3: Preprocessing data...")
+    try:
+        # Encode and standardize
+        # These functions are expected to return the processed DataFrame
+        # and update the dataset file
+        processed_df = encode_compositional_data(processed_df)
+        processed_df = standardize_surface_metrics(processed_df)
+        
+        # Save processed data
+        processed_df.to_csv(dataset_path, index=False)
+        logger.info("Preprocessing complete.")
+    except Exception as e:
+        logger.error(f"Preprocessing step failed: {e}")
+        write_halt_signal(STATE_DIR, f"Preprocessing failed: {str(e)}")
+        return 1
+
+    # 6. User Story 2: Modeling (T034-T039)
+    logger.info("Step 4: Training models...")
+    model_results = None
+    try:
+        model_results = run_modeling_pipeline(str(dataset_path))
+        
+        # T041: Sensitivity Analysis
+        logger.info("Running sensitivity analysis for crosslinker proxy...")
+        sensitivity_report_path = run_sensitivity_analysis_crosslinker_proxy(str(dataset_path))
+        logger.info(f"Sensitivity report saved to {sensitivity_report_path}")
+        
+    except Exception as e:
+        logger.error(f"Modeling step failed: {e}")
+        write_halt_signal(STATE_DIR, f"Modeling failed: {str(e)}")
+        return 1
+
+    # 7. User Story 3: Evaluation (T045-T049)
+    logger.info("Step 5: Evaluating models...")
+    evaluation_results = None
+    try:
+        evaluation_results = run_baseline_evaluation_pipeline(str(dataset_path))
+    except Exception as e:
+        logger.error(f"Evaluation step failed: {e}")
+        # Non-fatal? Or fatal? Plan says it's a comparison, but let's log it.
+        # For safety, if the main model worked, we might continue, but the task requires a report.
+        # We'll mark it as failed to ensure correctness.
+        write_halt_signal(STATE_DIR, f"Evaluation failed: {str(e)}")
+        return 1
+
+    # 8. Generate Final Report (T040)
+    logger.info("Step 6: Generating final report...")
+    try:
+        report_path = generate_final_report(model_results, evaluation_results)
+        logger.info(f"Pipeline completed successfully. Report: {report_path}")
+    except Exception as e:
+        logger.error(f"Failed to generate final report: {e}")
+        write_halt_signal(STATE_DIR, f"Report generation failed: {str(e)}")
+        return 1
+
+    # 9. Update State
+    write_state_file(STATE_DIR, "pipeline_complete")
+
+    return 0
+
+def main():
+    """Entry point for the script."""
+    logger.info("Pipeline execution started.")
+    exit_code = run_pipeline()
+    sys.exit(exit_code)
 
 if __name__ == "__main__":
     main()

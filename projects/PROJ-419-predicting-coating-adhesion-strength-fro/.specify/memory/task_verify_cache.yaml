@@ -1,0 +1,15 @@
+T056:
+  c: false
+  h: 2062075dcb9de8c4f2cfceeab219aa2b56922c4cd82ba7285377c35302634450
+  r: "The provided `code/main.py` does not contain logic that verifies all three required\
+    \ sources (API, NIST, Literature) nor does it write `state/HALT_SIGNAL.yaml` when\
+    \ a source is missing; the literature verification function is absent and the\
+    \ HALT signal file is not present on disk. Consequently the task\u2019s core requirement\
+    \ is unmet."
+T062:
+  c: true
+  h: c7692364c75e41eec9d91506df10ae6f2f4cce2a7363cdb7ea783b64c609ca6d
+  r: "The `code/main.py` file exists and defines `check_halt_signal()` that (1) looks\
+    \ for `state/HALT_SIGNAL.yaml`, (2) logs the exact message \u201CData Gap: Missing\
+    \ Verified Sources - Manual Intervention Required\u201D, and (3) exits immediately\
+    \ via `sys.exit(1)` when the file is found. This satisfies the task\u2019s requirement."

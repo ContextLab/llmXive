@@ -1,0 +1,19 @@
+status: none
+intent: Materials Project API dataset mp-api python package surface metrology NIST
+  jsonl dataset python package dataset
+required_fields:
+- coating_id
+- substrate_id
+- material_id
+- elemental_composition
+- band_gap
+- formation_energy
+- sample_id
+- Ra
+- Rq
+- Rsk
+- Rku
+- bearing_area
+cache_key: 63b7b4a141f8f067d2cc2a04240afaebaeae33c24278c69207a8b121091b4bf5
+searched_at: '2026-07-16T03:06:05.835452+00:00'
+retry_count: 1

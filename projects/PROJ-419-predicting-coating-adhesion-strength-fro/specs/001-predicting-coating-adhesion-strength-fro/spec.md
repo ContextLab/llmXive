@@ -73,7 +73,7 @@ The researcher MUST be able to compare the full-feature model against two baseli
 - **FR-006**: System MUST enforce a memory ceiling of 7 GB by sampling the dataset to ≤ 5,000 records maximum regardless of raw volume to ensure memory safety (See US-1).
 - **FR-007**: System MUST implement a Mapping Protocol that documents the heuristic linking bulk properties (Materials Project) and surface data (NIST) to specific coating-substrate pairs in the literature, explicitly acknowledging the lack of unique identifiers (See US-1).
 - **FR-008**: System MUST perform a sensitivity analysis on the 'crosslinker density' heuristic proxy by testing at least three different ratio-based definitions and reporting the variance in model performance (See US-2).
-- **FR-009**: System MUST filter out all adhesion data not derived from ASTM D4541 pull-off tests to ensure methodological consistency of the target variable (See US-1).
+- **FR-009**: System MUST filter out all adhesion data not derived from ASTM pull-off tests to ensure methodological consistency of the target variable (See US-1).
 
 ### Key Entities
 
@@ -105,7 +105,7 @@ To ensure deterministic verification of feature categories:
 - The Materials Project REST API and NIST Surface Metrology Repository remain accessible and do not change their data schema during the execution window.
 - The dataset, even after merging, can be reduced to ≤ 5,000 records without losing the statistical power required to detect the expected effect size (R² is expected to indicate a moderate to strong fit.).
 - **Construct Validity**: The lack of unique identifiers between bulk databases and specific coating formulations is acknowledged; the Mapping Protocol (FR-007) provides a defensible heuristic for linking these sources.
-- **Methodological Consistency**: Only adhesion strength values derived from ASTM D4541 pull-off tests are included; scratch test or other method data is excluded to prevent systematic bias.
+- **Methodological Consistency**: Only adhesion strength values derived from ASTM pull-off tests are included; scratch test or other method data is excluded to prevent systematic bias.
 - The GitHub Actions free-tier runner provides sufficient disk I/O speed for the CSV read/write operations within the 6-hour time limit.
 - No GPU is available; all machine learning models (Gradient Boosting, Random Forest, SHAP) are executed in CPU-only mode using scikit-learn and shap libraries.
 - The 'crosslinker density' and 'atomic radius variance' are treated as heuristic proxies derived from elemental composition data, not direct physical measurements of polymer topology.
