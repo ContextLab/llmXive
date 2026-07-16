@@ -4,199 +4,120 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from utils.logger import get_logger
 from config.settings import get_settings
+from datetime import datetime
 
 logger = get_logger(__name__)
 
 class ReportGenerator:
-    """
-    Generates the final summary report text file including:
-    1. Actual N achieved
-    2. Power limitation flags for underpowered subgroups
-    3. Exclusion reasons for incomplete sessions
-    """
+    def __init__(self, processed_dir: Path, figures_dir: Path):
+        self.processed_dir = processed_dir
+        self.figures_dir = figures_dir
+        self.report_path = processed_dir / "report_summary.txt"
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self.settings = get_settings()
-        self.config = config or {}
-        self.project_root = Path(self.settings.project_root)
-        self.data_raw_dir = self.project_root / self.settings.data_raw_dir
-        self.data_processed_dir = self.project_root / self.settings.data_processed_dir
+    def load_metrics(self) -> pd.DataFrame:
+        path = self.processed_dir / "metrics_summary.csv"
+        if path.exists():
+            return pd.read_csv(path)
+        return pd.DataFrame()
 
-        # Ensure processed directory exists
-        self.data_processed_dir.mkdir(parents=True, exist_ok=True)
+    def load_cleaned_data(self) -> pd.DataFrame:
+        path = self.processed_dir / "cleaned_sessions.csv"
+        if path.exists():
+            return pd.read_csv(path)
+        return pd.DataFrame()
 
-        logger.info(f"ReportGenerator initialized. Raw data: {self.data_raw_dir}, Processed: {self.data_processed_dir}")
+    def load_power_flags(self) -> List[str]:
+        path = self.processed_dir / "power_flags.txt"
+        if path.exists():
+            return path.read_text().splitlines()
+        return []
 
-    def _load_raw_sessions(self) -> List[Dict[str, Any]]:
-        """Load all raw session JSON files."""
-        sessions = []
-        pattern = self.data_raw_dir / "session_*.json"
-        files = list(self.data_raw_dir.glob(pattern.name))
+    def generate_report(self):
+        """Generates the summary report text file."""
+        metrics_df = self.load_metrics()
+        data_df = self.load_cleaned_data()
+        power_flags = self.load_power_flags()
         
-        if not files:
-            logger.warning(f"No session files found in {self.data_raw_dir}")
-            return sessions
-
-        for file_path in files:
-            try:
-                with open(file_path, 'r') as f:
-                    data = json.load(f)
-                    sessions.append(data)
-            except Exception as e:
-                logger.error(f"Failed to load session file {file_path}: {e}")
+        lines = []
+        lines.append("Research Study Summary Report")
+        lines.append("=" * 50)
+        lines.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        lines.append("")
         
-        return sessions
-
-    def _calculate_statistics(self, sessions: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Calculate N, exclusion reasons, and power flags.
-        """
-        total_sessions = len(sessions)
-        completed_sessions = [s for s in sessions if s.get('status') == 'complete']
-        incomplete_sessions = [s for s in sessions if s.get('status') != 'complete']
-        
-        n_total = total_sessions
-        n_completed = len(completed_sessions)
-        n_incomplete = len(incomplete_sessions)
-
-        exclusion_reasons = []
-        for s in incomplete_sessions:
-            reason = s.get('dropout_reason', 'Unknown')
-            exclusion_reasons.append({
-                'session_id': s.get('session_id', 'N/A'),
-                'reason': reason,
-                'participant_id': s.get('participant_id', 'N/A')
-            })
-
-        # Power analysis logic
-        # Assuming a standard power analysis for a medium effect size (Cohen's d = 0.5)
-        # with alpha = 0.05, power = 0.80 requires N ~ 34 per group for independent,
-        # or fewer for repeated measures (e.g., ~17-20 depending on correlation).
-        # We flag if N < 20 per interface type (conservative for repeated measures).
-        
-        interface_counts = {}
-        for s in completed_sessions:
-            # Assuming interface_variant is stored in the session or derived from sequence
-            # In our data model, sequence is stored, so we check the sequence for the interface type
-            # But for simplicity, let's assume 'interface_variant' is a field or we infer from 'sequence'
-            # Looking at T014/T019, 'interface_variant' might be logged. 
-            # Let's check for 'sequence' which contains the order (e.g., ['Traditional', 'Explainable'])
-            sequence = s.get('sequence', [])
-            for iface in sequence:
-                interface_counts[iface] = interface_counts.get(iface, 0) + 1
-
-        power_flags = []
-        min_power_n = 20  # Threshold for power flagging (adjust based on actual power calc if available)
-        
-        for iface, count in interface_counts.items():
-            if count < min_power_n:
-                power_flags.append({
-                    'interface': iface,
-                    'n': count,
-                    'threshold': min_power_n,
-                    'message': f"Underpowered: N={count} < {min_power_n} for interface '{iface}'"
-                })
-
-        return {
-            'n_total': n_total,
-            'n_completed': n_completed,
-            'n_incomplete': n_incomplete,
-            'exclusion_reasons': exclusion_reasons,
-            'power_flags': power_flags,
-            'interface_counts': interface_counts
-        }
-
-    def generate_report(self, output_path: Optional[str] = None) -> str:
-        """
-        Generate the summary report and write to disk.
-        Returns the path to the generated report.
-        """
-        logger.info("Starting report generation...")
-        
-        sessions = self._load_raw_sessions()
-        stats = self._calculate_statistics(sessions)
-
-        report_lines = [
-            "=" * 60,
-            "RESEARCH STUDY SUMMARY REPORT",
-            "=" * 60,
-            "",
-            "1. PARTICIPANT & SESSION STATISTICS",
-            "-" * 40,
-            f"Total Sessions Initiated: {stats['n_total']}",
-            f"Completed Sessions: {stats['n_completed']}",
-            f"Incomplete/Excluded Sessions: {stats['n_incomplete']}",
-            "",
-            "2. EXCLUSION REASONS (Incomplete Sessions)",
-            "-" * 40,
-        ]
-
-        if stats['exclusion_reasons']:
-            for reason in stats['exclusion_reasons']:
-                report_lines.append(
-                    f"  - Session {reason['session_id']} (Participant {reason['participant_id']}): {reason['reason']}"
-                )
+        # 1. Participant Statistics
+        lines.append("1. Participant Statistics")
+        lines.append("-" * 30)
+        if not data_df.empty:
+            lines.append(f"Total Sessions Analyzed: {len(data_df)}")
+            if 'disability_type' in data_df.columns:
+                lines.append(f"Disability Types: {data_df['disability_type'].value_counts().to_dict()}")
+            if 'interface_type' in data_df.columns:
+                lines.append(f"Interface Distribution: {data_df['interface_type'].value_counts().to_dict()}")
         else:
-            report_lines.append("  No incomplete sessions recorded.")
+            lines.append("No data available.")
+        lines.append("")
 
-        report_lines.extend([
-            "",
-            "3. POWER ANALYSIS & LIMITATIONS",
-            "-" * 40,
-        ])
-
-        if stats['power_flags']:
-            report_lines.append("  ⚠️ POWER LIMITATIONS DETECTED:")
-            for flag in stats['power_flags']:
-                report_lines.append(f"    - {flag['message']}")
-            report_lines.append("")
-            report_lines.append("  Note: Small sample sizes may reduce statistical power to detect medium effects.")
+        # 2. Statistical Results
+        lines.append("2. Statistical Results (ANOVA)")
+        lines.append("-" * 30)
+        if not metrics_df.empty:
+            for _, row in metrics_df.iterrows():
+                lines.append(f"Metric: {row['metric']}")
+                lines.append(f"  F-statistic: {row['F-statistic']:.4f}")
+                lines.append(f"  p-value: {row['p-value']:.4f}")
+                lines.append(f"  Adjusted p-value: {row['adjusted p-value']:.4f}")
+                lines.append(f"  Effect Size: {row['effect size']:.4f}")
+                lines.append(f"  Method: {row['method']}")
+                lines.append("")
         else:
-            report_lines.append("  ✓ Sample sizes appear sufficient for power analysis (N >= 20 per interface).")
+            lines.append("No statistical results available.")
+        lines.append("")
 
-        report_lines.extend([
-            "",
-            "4. INTERFACE DISTRIBUTION (Completed Sessions)",
-            "-" * 40,
-        ])
-
-        for iface, count in sorted(stats['interface_counts'].items()):
-            report_lines.append(f"  - {iface}: {count} sessions")
-
-        report_lines.extend([
-            "",
-            "=" * 60,
-            f"Report Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}",
-            "=" * 60,
-        ])
-
-        report_text = "\n".join(report_lines)
-
-        # Determine output path
-        if output_path is None:
-            output_path = self.data_processed_dir / "report_summary.txt"
+        # 3. Power Analysis
+        lines.append("3. Power Analysis & Limitations")
+        lines.append("-" * 30)
+        if power_flags:
+            for flag in power_flags:
+                lines.append(f"  - {flag}")
         else:
-            output_path = Path(output_path)
-            if not output_path.parent.exists():
-                output_path.parent.mkdir(parents=True, exist_ok=True)
+            lines.append("  No power flags generated.")
+        lines.append("")
 
-        with open(output_path, 'w') as f:
-            f.write(report_text)
+        # 4. Exclusions
+        lines.append("4. Exclusion Summary")
+        lines.append("-" * 30)
+        exclusion_log = self.processed_dir / "exclusion_log.txt"
+        if exclusion_log.exists():
+            lines.append(exclusion_log.read_text())
+        else:
+            lines.append("No exclusion log found.")
+        lines.append("")
 
-        logger.info(f"Report generated successfully at: {output_path}")
-        return str(output_path)
+        # 5. Figures
+        lines.append("5. Generated Figures")
+        lines.append("-" * 30)
+        if self.figures_dir.exists():
+            plots = list(self.figures_dir.glob("*.png"))
+            for p in plots:
+                lines.append(f"  - {p.name}")
+        else:
+            lines.append("  No figures directory found.")
+        
+        # Write to file
+        with open(self.report_path, "w") as f:
+            f.write("\n".join(lines))
+        
+        logger.info(f"Report generated: {self.report_path}")
 
-    def main():
-        """CLI entry point."""
-        generator = ReportGenerator()
-        try:
-            report_path = generator.generate_report()
-            print(f"Report generated: {report_path}")
-            return 0
-        except Exception as e:
-            logger.error(f"Failed to generate report: {e}")
-            return 1
+def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--processed", type=str, required=True)
+    parser.add_argument("--figures", type=str, required=True)
+    args = parser.parse_args()
+    
+    gen = ReportGenerator(Path(args.processed), Path(args.figures))
+    gen.generate_report()
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(ReportGenerator.main())
+    main()

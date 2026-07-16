@@ -1,0 +1,9 @@
+T023a:
+  c: false
+  h: 4d144170e3a2912be88370722868c227879617f0089eebc7ba2a5462fa5ae489
+  r: "The `stat_utils.py` file only contains a basic ANOVA helper and a Holm\u2011\
+    Bonferroni function; it does not produce the required `data/processed/metrics_summary.csv`,\
+    \ the effect\u2011size calculation is truncated, and there is no logic that runs\
+    \ the analysis for the three specific metrics (completion time, error count, SUS)\
+    \ or writes their F\u2011statistic, p\u2011value, adjusted p\u2011value, and effect\
+    \ size to the CSV. The deliverable is therefore missing."

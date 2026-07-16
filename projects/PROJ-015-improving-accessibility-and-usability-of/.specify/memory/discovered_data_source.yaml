@@ -1,0 +1,14 @@
+status: none
+intent: download Usability.gov System Usability Scale SUS dataset python package dataset
+required_fields:
+- participant_id
+- task_id
+- interface_type
+- task_completion_time
+- error_count
+- explanation_engagement_time
+- SUS_score
+- disability_profile
+cache_key: db73159fe4566351fa499942521ff50adeb3f393d1c71535e459c4e21b648ea5
+searched_at: '2026-07-16T01:44:25.081468+00:00'
+retry_count: 1

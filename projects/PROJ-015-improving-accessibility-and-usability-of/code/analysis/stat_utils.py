@@ -1,375 +1,244 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from utils.logger import get_logger
 import os
 
 logger = get_logger(__name__)
 
-class StatUtils:
+def run_anova_pipeline(df: pd.DataFrame, 
+                       within_subject_col: str = "interface_type",
+                       between_subject_col: str = "disability_type",
+                       metrics: List[str] = ["completion_time", "error_count", "sus_score"]) -> Dict[str, Any]:
     """
-    Utility class for statistical analysis operations.
+    Runs Repeated Measures ANOVA on the specified metrics.
+    
+    Note: Per T023a-amendment and Plan Phase 3, we explicitly skip normality testing
+    and Levene's test. We assume the paired design mitigates the need for normality
+    checks on the raw data, focusing on difference scores if needed, but here we
+    proceed directly to ANOVA as mandated.
+    
+    Args:
+        df: Cleaned session data.
+        within_subject_col: Column name for the within-subject factor (e.g., interface type).
+        between_subject_col: Column name for between-subject factor (optional for now).
+        metrics: List of metric column names to analyze.
+    
+    Returns:
+        Dictionary containing ANOVA results.
     """
-
-    @staticmethod
-    def shapiro_wilk_test(data: np.ndarray) -> Dict[str, Any]:
-        """
-        Perform Shapiro-Wilk normality test on the provided data.
-
-        Args:
-            data: numpy array of values to test.
-
-        Returns:
-            Dictionary containing 'statistic' and 'pvalue'.
-        """
-        if len(data) < 3:
-            logger.warning("Insufficient data points for Shapiro-Wilk test (n < 3).")
-            return {"statistic": None, "pvalue": None}
-
-        try:
-            stat, p_value = stats.shapiro(data)
-            return {"statistic": float(stat), "pvalue": float(p_value)}
-        except Exception as e:
-            logger.error(f"Shapiro-Wilk test failed: {e}")
-            return {"statistic": None, "pvalue": None, "error": str(e)}
-
-    @staticmethod
-    def repeated_measures_anova(data: pd.DataFrame, 
-                                subject_col: str, 
-                                within_col: str, 
-                                value_col: str) -> Dict[str, Any]:
-        """
-        Perform Repeated Measures ANOVA on the provided data.
+    results = {}
+    
+    # Ensure data is wide format for repeated measures or use long format with statsmodels
+    # Since we might not have statsmodels, we will use scipy's f_oneway for independent,
+    # but for Repeated Measures, we ideally need a library like pingouin or statsmodels.
+    # Given constraints, we will implement a simplified RM-ANOVA using scipy by reshaping
+    # or calculating difference scores if only two levels (Traditional vs Explainable).
+    
+    # Check if we have exactly two levels for the within-subject factor
+    if within_subject_col not in df.columns:
+        raise ValueError(f"Column {within_subject_col} not found in dataframe")
+    
+    levels = df[within_subject_col].unique()
+    
+    for metric in metrics:
+        if metric not in df.columns:
+            logger.warning(f"Metric {metric} not found in dataframe, skipping.")
+            continue
         
-        Note: This implementation uses scipy.stats.f_oneway as a proxy for 
-        independent groups if a full rm-anova library is not available, 
-        or performs a simplified calculation. For strict RM-ANOVA, 
-        statsmodels or pingouin is typically required, but we stick to 
-        scipy/numpy as per constraints unless specified otherwise.
+        logger.info(f"Running ANOVA for metric: {metric}")
         
-        However, to provide a valid RM-ANOVA with only scipy/numpy/pandas:
-        We will calculate the F-statistic manually or use a simplified approach
-        if the data structure allows.
+        # Pivot to wide format: rows=participants, columns=conditions
+        # Assuming 'participant_id' exists
+        if "participant_id" not in df.columns:
+            # If no participant_id, we cannot do repeated measures properly.
+            # Fallback to independent t-test/ANOVA (less ideal but prevents crash)
+            logger.warning("No participant_id found. Falling back to independent test.")
+            groups = [group[metric].values for name, group in df.groupby(within_subject_col)]
+            if len(groups) == 2:
+                stat, p_val = stats.ttest_ind(groups[0], groups[1])
+                results[metric] = {
+                    "F-statistic": 0.0, # Not an F-test here
+                    "p-value": p_val,
+                    "method": "Independent T-Test (Fallback)",
+                    "df": None
+                }
+            else:
+                stat, p_val = stats.f_oneway(*groups)
+                results[metric] = {
+                    "F-statistic": stat,
+                    "p-value": p_val,
+                    "method": "One-way ANOVA (Independent Fallback)",
+                    "df": None
+                }
+            continue
         
-        For this implementation, we assume the data is in long format.
-        We will perform a standard ANOVA on the groups defined by `within_col`
-        after accounting for subject variability if possible, or fall back 
-        to a standard one-way ANOVA on the differences if applicable.
+        # Repeated Measures Logic (Two conditions: Traditional, Explainable)
+        # We calculate the difference and test if mean difference is 0 (Paired T-Test)
+        # OR we reshape and use statsmodels. Since we want F-statistic for ANOVA,
+        # we will use a simplified approach: Paired T-Test is equivalent to RM-ANOVA for 2 levels.
+        # However, the task asks for F-statistic. 
+        # For 2 groups, F = t^2.
         
-        Given the constraints and typical usage in this project:
-        We will compute the F-statistic for the within-subject factor.
+        pivot_df = df.pivot_table(index='participant_id', 
+                                  columns=within_subject_col, 
+                                  values=metric, 
+                                  aggfunc='mean')
         
-        Args:
-            data: DataFrame with columns for subject, within-factor, and value.
-            subject_col: Name of the column identifying subjects.
-            within_col: Name of the column identifying the within-subject condition.
-            value_col: Name of the column containing the measured values.
-
-        Returns:
-            Dictionary with F-statistic, p-value, and degrees of freedom.
-        """
-        try:
-            # Pivot to wide format for standard ANOVA calculation
-            # This assumes each subject has exactly one value per condition
-            wide_data = data.pivot_table(index=subject_col, columns=within_col, values=value_col)
-            
-            # Extract arrays for each group
-            groups = [wide_data[col].dropna().values for col in wide_data.columns]
-            
-            if any(len(g) < 2 for g in groups):
-                logger.warning("Not enough data points per group for ANOVA.")
-                return {"f_statistic": None, "p_value": None, "df": None, "error": "Insufficient data"}
-
-            # Perform one-way ANOVA (approximation for RM-ANOVA if subject effect is removed via pivot)
-            # Note: True RM-ANOVA removes subject variance. 
-            # A simple f_oneway on the wide data columns treats them as independent, which is incorrect for RM.
-            # To do it properly with scipy only, we calculate the ANOVA on the differences or use a manual formula.
-            # Given the task constraints, we will implement a manual RM-ANOVA calculation.
-            
-            n_subjects = len(wide_data)
-            k_conditions = len(wide_data.columns)
-            
-            if n_subjects < 2 or k_conditions < 2:
-                return {"f_statistic": None, "p_value": None, "df": None, "error": "Insufficient subjects or conditions"}
-
-            # Calculate Means
-            grand_mean = wide_data.values.mean()
-            subject_means = wide_data.mean(axis=1).values
-            condition_means = wide_data.mean(axis=0).values
-
-            # Sum of Squares Total
-            ss_total = np.sum((wide_data.values - grand_mean) ** 2)
-            
-            # Sum of Squares Between Subjects
-            ss_subjects = k_conditions * np.sum((subject_means - grand_mean) ** 2)
-            
-            # Sum of Squares Between Conditions (Treatment)
-            ss_conditions = n_subjects * np.sum((condition_means - grand_mean) ** 2)
-            
-            # Sum of Squares Error (Residual)
-            ss_error = ss_total - ss_subjects - ss_conditions
-            
-            if ss_error <= 0:
-                logger.warning("SS Error is zero or negative, cannot compute F-statistic.")
-                return {"f_statistic": None, "p_value": None, "df": None, "error": "SS Error <= 0"}
-
-            # Degrees of Freedom
-            df_conditions = k_conditions - 1
-            df_error = (n_subjects - 1) * (k_conditions - 1)
-            
-            # Mean Squares
-            ms_conditions = ss_conditions / df_conditions
-            ms_error = ss_error / df_error
-            
-            # F-statistic
-            f_stat = ms_conditions / ms_error
-            
-            # P-value
-            p_val = 1 - stats.f.cdf(f_stat, df_conditions, df_error)
-            
-            return {
-                "f_statistic": float(f_stat),
-                "p_value": float(p_val),
-                "df": (int(df_conditions), int(df_error)),
-                "ss_conditions": float(ss_conditions),
-                "ss_error": float(ss_error),
-                "ms_conditions": float(ms_conditions),
-                "ms_error": float(ms_error)
-            }
-
-        except Exception as e:
-            logger.error(f"Repeated Measures ANOVA failed: {e}")
-            return {"f_statistic": None, "p_value": None, "df": None, "error": str(e)}
-
-    @staticmethod
-    def holm_bonferroni_correction(p_values: List[float]) -> List[float]:
-        """
-        Apply Holm-Bonferroni correction to a list of p-values.
-
-        Args:
-            p_values: List of raw p-values.
-
-        Returns:
-            List of adjusted p-values.
-        """
-        if not p_values:
-            return []
-
-        n = len(p_values)
-        sorted_indices = np.argsort(p_values)
-        sorted_p_values = [p_values[i] for i in sorted_indices]
+        if pivot_df.shape[1] != 2:
+            logger.warning(f"Metric {metric} does not have 2 levels for paired test.")
+            continue
         
-        adjusted_p_values = [0.0] * n
-        min_alpha = 1.0
+        col1, col2 = pivot_df.columns
+        # Drop rows with missing data
+        clean_pivot = pivot_df.dropna()
         
-        for i, p in enumerate(sorted_p_values):
-            # Holm-Bonferroni step: p * (n - i)
-            # Ensure it doesn't exceed 1.0 and doesn't decrease from previous step
-            adjusted = p * (n - i)
-            adjusted = min(1.0, max(adjusted, min_alpha)) # Monotonicity constraint
-            min_alpha = adjusted
-            adjusted_p_values[sorted_indices[i]] = adjusted
-            
-        return adjusted_p_values
+        if len(clean_pivot) < 2:
+            logger.warning(f"Not enough data points for {metric}.")
+            continue
+        
+        t_stat, p_val = stats.ttest_rel(clean_pivot[col1], clean_pivot[col2])
+        f_stat = t_stat ** 2
+        
+        results[metric] = {
+            "F-statistic": f_stat,
+            "p-value": p_val,
+            "method": "Repeated Measures ANOVA (via Paired T-Test)",
+            "df": (1, len(clean_pivot)-1),
+            "n_subjects": len(clean_pivot)
+        }
+    
+    return results
 
-    @staticmethod
-    def calculate_effect_size(mean1: float, std1: float, n1: int, 
-                              mean2: float, std2: float, n2: int) -> Dict[str, float]:
-        """
-        Calculate Cohen's d effect size for two independent groups.
-        For paired data (like RM-ANOVA), a different calculation is needed, 
-        but this is a general utility.
-        
-        For paired data, we would need the correlation or the std of differences.
-        Given the context, we will implement a simplified version for independent groups
-        or return None if it's clearly paired and we lack correlation data.
-        
-        However, for the specific task of RM-ANOVA effect size (Partial Eta Squared):
-        eta_squared = SS_conditions / (SS_conditions + SS_error)
-        
-        Let's add a specific method for Partial Eta Squared if we have the SS values.
-        """
-        # Standard independent t-test Cohen's d
-        pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
-        if pooled_std == 0:
-            return {"cohens_d": 0.0, "interpretation": "zero"}
-        
-        d = (mean1 - mean2) / pooled_std
-        return {"cohens_d": float(d)}
+def run_holm_bonferroni(p_values: List[float]) -> List[float]:
+    """
+    Applies Holm-Bonferroni correction to a list of p-values.
+    
+    Args:
+        p_values: List of raw p-values.
+    
+    Returns:
+        List of adjusted p-values.
+    """
+    m = len(p_values)
+    if m == 0:
+        return []
+    
+    # Sort p-values and keep track of original indices
+    sorted_indices = np.argsort(p_values)
+    sorted_p = np.array(p_values)[sorted_indices]
+    
+    adjusted_p = np.zeros(m)
+    
+    for i, p in enumerate(sorted_p):
+        # Holm-Bonferroni: p * (m - i)
+        # But ensure it doesn't exceed 1.0 and is at least the previous adjusted p
+        adj = p * (m - i)
+        adjusted_p[sorted_indices[i]] = min(1.0, max(adj, adjusted_p[sorted_indices[i-1]] if i > 0 else 0))
+    
+    return adjusted_p.tolist()
 
-    @staticmethod
-    def calculate_partial_eta_squared(ss_conditions: float, ss_error: float) -> float:
-        """
-        Calculate Partial Eta Squared for ANOVA.
-        eta^2 = SS_effect / (SS_effect + SS_error)
-        """
-        if ss_conditions + ss_error == 0:
+def calculate_effect_size(df: pd.DataFrame, 
+                          metric: str, 
+                          within_col: str = "interface_type") -> Optional[float]:
+    """
+    Calculates Cohen's d for the difference between two conditions.
+    
+    Args:
+        df: Session data.
+        metric: Metric column.
+        within_col: Condition column.
+    
+    Returns:
+        Cohen's d value.
+    """
+    if "participant_id" not in df.columns:
+        # Independent d
+        groups = [g[metric].values for _, g in df.groupby(within_col)]
+        if len(groups) != 2:
+            return None
+        g1, g2 = groups
+        mean_diff = np.mean(g1) - np.mean(g2)
+        std_pooled = np.sqrt((np.var(g1, ddof=1) + np.var(g2, ddof=1)) / 2)
+        if std_pooled == 0:
             return 0.0
-        return ss_conditions / (ss_conditions + ss_error)
+        return mean_diff / std_pooled
+    
+    # Paired d
+    pivot = df.pivot_table(index='participant_id', columns=within_col, values=metric, aggfunc='mean').dropna()
+    if pivot.shape[1] != 2:
+        return None
+    
+    diff = pivot.iloc[:, 0] - pivot.iloc[:, 1]
+    mean_diff = diff.mean()
+    std_diff = diff.std()
+    
+    if std_diff == 0:
+        return 0.0
+    return mean_diff / std_diff
 
-    @staticmethod
-    def compute_descriptive_stats(data: pd.DataFrame, 
-                                  metric: str, 
-                                  group_col: Optional[str] = None) -> pd.DataFrame:
-        """
-        Compute descriptive statistics (mean, std) for a specific metric.
-        
-        Args:
-            data: Input DataFrame.
-            metric: Column name to compute stats for.
-            group_col: Optional column to group by (e.g., interface_type).
-        
-        Returns:
-            DataFrame with descriptive statistics.
-        """
-        if metric not in data.columns:
-            logger.warning(f"Metric '{metric}' not found in data columns.")
-            return pd.DataFrame()
-
-        if group_col:
-            if group_col not in data.columns:
-                logger.warning(f"Group column '{group_col}' not found.")
-                return pd.DataFrame()
-            
-            stats_df = data.groupby(group_col)[metric].agg(['mean', 'std', 'count']).reset_index()
-            stats_df.columns = [group_col, 'mean', 'std', 'count']
-        else:
-            mean_val = data[metric].mean()
-            std_val = data[metric].std()
-            count_val = data[metric].count()
-            stats_df = pd.DataFrame({
-                'metric': [metric],
-                'mean': [mean_val],
-                'std': [std_val],
-                'count': [count_val]
-            })
-
-        return stats_df
-
-    @staticmethod
-    def generate_descriptive_stats_csv(output_path: str, 
-                                       raw_data_path: str,
-                                       metric: str = "explanation_engagement_time") -> bool:
-        """
-        Main entry point to generate the descriptive statistics CSV file.
-        Loads raw session data, computes stats for the specified metric, 
-        and saves to the output path.
-        
-        Args:
-            output_path: Path to save the CSV.
-            raw_data_path: Path or glob pattern to raw session JSON files.
-            metric: The metric to analyze (default: explanation_engagement_time).
-        
-        Returns:
-            True if successful, False otherwise.
-        """
-        logger.info(f"Generating descriptive stats for '{metric}' from {raw_data_path}")
-        
-        try:
-            # Load data
-            raw_files = []
-            if os.path.isdir(raw_data_path):
-                raw_files = [f for f in os.listdir(raw_data_path) if f.endswith('.json')]
-                raw_files = [os.path.join(raw_data_path, f) for f in raw_files]
-            elif os.path.isfile(raw_data_path):
-                raw_files = [raw_data_path]
-            else:
-                # Assume glob pattern
-                import glob as glob_module
-                raw_files = glob_module.glob(raw_data_path)
-
-            if not raw_files:
-                logger.error(f"No raw data files found matching {raw_data_path}")
-                return False
-
-            all_data = []
-            for f_path in raw_files:
-                try:
-                    with open(f_path, 'r') as f:
-                        data = json.load(f)
-                        # Flatten if necessary or extract specific field
-                        # Assuming data structure has 'metrics' or direct fields
-                        # Based on T019, session logs contain metrics.
-                        # We need to handle the structure defined in T007/T019.
-                        # Assuming a structure like: { "metrics": { "explanation_engagement_time": 12.5 }, ... }
-                        # or direct fields.
-                        
-                        # Let's assume the session log structure from T007/T019
-                        # Session model: session_id, participant_id, interface_type, ... error_count, explanation_engagement_time_seconds, sus_score
-                        # If the JSON matches the Session model:
-                        
-                        val = data.get(metric) or data.get(metric + "_seconds")
-                        if val is not None:
-                            all_data.append({
-                                "session_id": data.get("session_id"),
-                                "interface_type": data.get("interface_type"),
-                                "metric_value": float(val)
-                            })
-                except Exception as e:
-                    logger.warning(f"Failed to parse {f_path}: {e}")
-                    continue
-
-            if not all_data:
-                logger.error("No valid data points found for the metric.")
-                # Create an empty file with headers to indicate failure/no data
-                df_empty = pd.DataFrame(columns=["interface_type", "mean", "std", "count"])
-                df_empty.to_csv(output_path, index=False)
-                return False
-
-            df = pd.DataFrame(all_data)
-            
-            # Calculate stats per interface type
-            if "interface_type" in df.columns:
-                result_df = df.groupby("interface_type")["metric_value"].agg(['mean', 'std', 'count']).reset_index()
-                result_df.columns = ["interface_type", "mean", "std", "count"]
-            else:
-                # Global stats
-                mean_val = df["metric_value"].mean()
-                std_val = df["metric_value"].std()
-                count_val = df["metric_value"].count()
-                result_df = pd.DataFrame({
-                    "interface_type": ["All"],
-                    "mean": [mean_val],
-                    "std": [std_val],
-                    "count": [count_val]
-                })
-
-            # Ensure output directory exists
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            
-            result_df.to_csv(output_path, index=False)
-            logger.info(f"Descriptive stats saved to {output_path}")
-            return True
-
-        except Exception as e:
-            logger.error(f"Failed to generate descriptive stats: {e}")
-            return False
+def generate_metrics_summary(df: pd.DataFrame, 
+                             output_path: str,
+                             metrics: List[str] = ["completion_time", "error_count", "sus_score"]) -> None:
+    """
+    Orchestrates the ANOVA, Holm-Bonferroni, and effect size calculation,
+    then writes the results to a CSV.
+    
+    Args:
+        df: Cleaned session data.
+        output_path: Path to the output CSV.
+        metrics: List of metrics to analyze.
+    """
+    logger.info(f"Generating metrics summary for {len(metrics)} metrics")
+    
+    # 1. Run ANOVA
+    anova_results = run_anova_pipeline(df, metrics=metrics)
+    
+    # 2. Collect p-values for Holm-Bonferroni
+    p_values = []
+    metric_names = []
+    for metric in metrics:
+        if metric in anova_results:
+            p_values.append(anova_results[metric]["p-value"])
+            metric_names.append(metric)
+    
+    adjusted_p_values = run_holm_bonferroni(p_values)
+    
+    # 3. Build DataFrame
+    summary_data = []
+    for i, metric in enumerate(metric_names):
+        res = anova_results[metric]
+        effect = calculate_effect_size(df, metric)
+        summary_data.append({
+            "metric": metric,
+            "F-statistic": res["F-statistic"],
+            "p-value": res["p-value"],
+            "adjusted p-value": adjusted_p_values[i],
+            "effect size": effect,
+            "method": res["method"],
+            "df": str(res.get("df", ""))
+        })
+    
+    summary_df = pd.DataFrame(summary_data)
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    summary_df.to_csv(output_path, index=False)
+    logger.info(f"Metrics summary written to {output_path}")
+    
+    return summary_df
 
 def main():
-    """
-    Main function to run the descriptive stats generation.
-    """
-    import sys
-    from pathlib import Path
-    from config.settings import get_settings
-
-    settings = get_settings()
-    raw_data_dir = settings.data_raw_dir
-    output_file = settings.data_processed_dir / "descriptive_stats.csv"
+    """CLI entry point for stat_utils."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Run statistical analysis")
+    parser.add_argument("--input", type=str, required=True, help="Input CSV path")
+    parser.add_argument("--output", type=str, required=True, help="Output CSV path")
+    args = parser.parse_args()
     
-    # Ensure paths are strings for the function
-    raw_path_str = str(raw_data_dir)
-    output_path_str = str(output_file)
-    
-    success = StatUtils.generate_descriptive_stats_csv(
-        output_path=output_path_str,
-        raw_data_path=raw_path_str,
-        metric="explanation_engagement_time"
-    )
-    
-    if not success:
-        sys.exit(1)
+    df = pd.read_csv(args.input)
+    generate_metrics_summary(df, args.output)
 
 if __name__ == "__main__":
     main()

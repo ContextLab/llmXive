@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-015-improving-accessibility-and-usability-of",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/simulator/app.py: self-declared fabricated metric \u2014 \u201c\u2026engagement_time = 5.0 # Placeholder                          metrics = {                 \"session\u2026\u201d; run-book completed but produced no data/figure artifacts; 1 declared deliverable(s) absent: data/processed/metrics_summary.csv",
+  "artifacts": [],
+  "failures": [
+    "python -c \"import scipy, matplotlib, pandas, streamlit; print('All dependencies OK')\" -> rc=1\n    Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'scipy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-16T01:43:32Z"
+}

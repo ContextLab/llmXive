@@ -1,79 +1,66 @@
 from pathlib import Path
 from config.settings import get_settings
 from analysis.data_cleaner import DataCleaner
-from analysis.stat_utils import StatUtils
+from analysis.stat_utils import generate_metrics_summary
 from analysis.visualizer import Visualizer
-import sys
-import logging
+from analysis.report_generator import ReportGenerator
 from utils.logger import get_logger
+import sys
+import argparse
 
 logger = get_logger(__name__)
 
 def main():
-    """
-    Orchestrates the full analysis pipeline:
-    1. Clean data
-    2. Run statistical tests
-    3. Generate descriptive stats
-    4. Visualize results
-    """
+    parser = argparse.ArgumentParser(description="Run the full analysis pipeline")
+    parser.add_argument("--input", type=str, help="Path to raw sessions CSV (optional if using default)")
+    parser.add_argument("--output", type=str, help="Path to metrics summary CSV (optional if using default)")
+    args = parser.parse_args()
+    
     settings = get_settings()
-    raw_data_dir = settings.get('raw_data_dir', 'data/raw')
-    processed_data_dir = settings.get('processed_data_dir', 'data/processed')
+    project_root = Path(__file__).resolve().parent.parent
     
-    # Ensure directories exist
-    Path(processed_data_dir).mkdir(parents=True, exist_ok=True)
+    # Default paths
+    raw_dir = project_root / "data" / "raw"
+    processed_dir = project_root / "data" / "processed"
+    figures_dir = project_root / "figures"
     
-    logger.info("Starting analysis pipeline...")
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    
+    input_csv = args.input or str(processed_dir / "cleaned_sessions.csv")
+    output_csv = args.output or str(processed_dir / "metrics_summary.csv")
+    
+    logger.info("Starting analysis pipeline")
     
     # 1. Data Cleaning
-    cleaner = DataCleaner()
-    clean_df = cleaner.clean(raw_data_dir)
+    # If input is the cleaned file, we assume cleaning is done. 
+    # If input points to raw, we might need to run cleaner.
+    # For this script, we assume input is the cleaned data ready for stats.
+    if not Path(input_csv).exists():
+        # Try to run cleaner if raw data exists
+        logger.info(f"Input {input_csv} not found. Attempting to clean raw data...")
+        cleaner = DataCleaner(raw_dir, processed_dir)
+        input_csv = cleaner.run_pipeline()
+        
+    if not Path(input_csv).exists():
+        logger.error(f"Cleaned data not found at {input_csv}. Aborting.")
+        sys.exit(1)
     
-    if clean_df is None or clean_df.empty:
-        logger.error("No valid data found after cleaning. Exiting.")
-        return 1
+    # 2. Statistical Analysis
+    logger.info(f"Running statistical analysis on {input_csv}")
+    generate_metrics_summary(input_csv, output_csv)
     
-    logger.info(f"Data cleaning complete. {len(clean_df)} valid sessions.")
+    # 3. Visualization
+    logger.info("Generating visualizations")
+    visualizer = Visualizer(processed_dir, figures_dir)
+    visualizer.run_all_plots()
     
-    # 2. Generate Descriptive Stats (T023b)
-    desc_output = Path(processed_data_dir) / "descriptive_stats.csv"
-    if not StatUtils.generate_descriptive_stats_report(raw_data_dir, str(desc_output)):
-        logger.warning("Failed to generate descriptive stats report.")
+    # 4. Report Generation
+    logger.info("Generating report")
+    report_gen = ReportGenerator(processed_dir, figures_dir)
+    report_gen.generate_report()
     
-    # 3. Statistical Analysis (T022, T023, T024)
-    # Run Shapiro-Wilk on difference scores for key metrics
-    metrics_to_test = ['completion_time', 'error_count', 'sus_score']
-    
-    for metric in metrics_to_test:
-        if metric in clean_df.columns:
-            # Calculate difference (Explainable - Traditional) per participant
-            # Requires pivoting
-            try:
-                wide = clean_df.pivot_table(index='participant_id', columns='interface_type', values=metric)
-                if len(wide.columns) == 2:
-                    diff = wide[wide.columns[1]] - wide[wide.columns[0]]
-                    sw_result = StatUtils.run_shapiro_wilk(diff)
-                    logger.info(f"Shapiro-Wilk for {metric} diff: stat={sw_result['statistic']:.4f}, p={sw_result['pvalue']:.4f}")
-            except Exception as e:
-                logger.warning(f"Could not compute Shapiro-Wilk for {metric}: {e}")
-    
-    # Run RM-ANOVA for key metrics
-    for metric in ['completion_time', 'error_count', 'sus_score']:
-        if metric in clean_df.columns:
-            anova_result = StatUtils.run_repeated_measures_anova(
-                clean_df, 
-                within_subject_col='interface_type', 
-                dependent_col=metric
-            )
-            logger.info(f"RM-ANOVA for {metric}: F={anova_result.get('F_statistic', 'N/A')}, p={anova_result.get('p_value', 'N/A')}")
-    
-    # 4. Visualization (T027)
-    viz = Visualizer()
-    viz.generate_box_plots(clean_df, metrics_to_test, processed_data_dir)
-    
-    logger.info("Analysis pipeline complete.")
-    return 0
+    logger.info("Analysis pipeline completed successfully")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
