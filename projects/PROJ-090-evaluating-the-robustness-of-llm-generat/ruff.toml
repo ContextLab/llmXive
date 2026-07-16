@@ -1,8 +1,8 @@
-# Ruff configuration for PROJ-090
-target-version = "py311"
-line-length = 88
+# Ruff configuration for llmXive project
+# Enforces strict linting rules for research code quality
 
 [lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -11,17 +11,20 @@ select = [
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in research code)
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in data loaders)
+    "C408", # Unnecessary dict call (often more readable)
 ]
 
 [lint.isort]
-known-first-party = ["config", "data", "model", "analysis", "utils"]
 force-single-line = true
+lines-after-imports = 2
 
 [format]
+# Enforce Black-compatible formatting
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false

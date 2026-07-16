@@ -1,3 +1,3 @@
 """
-Statistical analysis and reporting module.
+Statistical analysis and reporting modules.
 """

@@ -1,3 +1,3 @@
 """
-Data acquisition and perturbation generation module.
+Data acquisition, perturbation, and validation modules.
 """

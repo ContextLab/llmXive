@@ -1,0 +1,13 @@
+T029b:
+  c: false
+  h: 0e6a6e8d778f26c958b447dfaad3ee058675c79a8d7c93d10908037262f7eab5
+  r: "The required `code/main.py` file does not exist, so the budget\u2011cap enforcer\
+    \ cannot be present or verified. Without this script, the task of reading `MAX_SAMPLES`\
+    \ and ordering prompts as specified is not fulfilled."
+T036:
+  c: false
+  h: 6f7e4334f75c4de3c9a090e2ba1635062126901d2caa6fafdcab91deb5d2d9bf
+  r: "The required output file `data/processed/mixed_effects_results.json` does not\
+    \ exist, and the provided `statistics.py` snippet shows no completed mixed\u2011\
+    effects logistic regression that writes a variance component for \u201Ctask\u201D\
+    \ to that JSON file. Consequently the task\u2019s deliverable is not satisfied."

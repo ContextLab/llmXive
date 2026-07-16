@@ -1,157 +1,165 @@
 """
 Unit tests for model loading configuration.
 
-Verifies that the StarCoder2-3B model is configured with 4-bit quantization
-and CPU offload settings as required by the project specifications.
+This module verifies that the model loading logic in `code/model/inference.py`
+correctly configures bitsandbytes 4-bit quantization and targets CPU devices.
 """
+
 import unittest
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import patch, MagicMock, call
 import sys
-import os
+from pathlib import Path
 
-# Ensure project root is in path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Add the project root to the path to allow imports from code/
+# Assuming this test runs from the project root or the path is set correctly
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-class TestModelLoad(unittest.TestCase):
-    """Test suite for model loading verification."""
+class TestModelLoadConfig(unittest.TestCase):
+    """Tests to verify model loading flags and device configuration."""
 
-    def test_4bit_quantization_flag_present(self):
+    @patch('model.inference.AutoModelForCausalLM')
+    @patch('model.inference.AutoTokenizer')
+    @patch('model.inference.BitsAndBytesConfig')
+    @patch('model.inference.torch')
+    def test_bitsandbytes_4bit_config_set(self, mock_torch, mock_bnb_config, mock_tokenizer, mock_model):
         """
-        Verify that the 4-bit quantization configuration is present and correct.
+        Verify that BitsAndBytesConfig is instantiated with 4-bit quantization flags.
         
-        This test mocks the actual model loading to avoid heavy dependencies
-        while verifying that the correct flags are passed to the loader.
+        This test ensures that when `load_model` is called, it explicitly requests
+        4-bit quantization via `load_in_4bit=True` and the corresponding BNB config.
         """
-        # Import the inference module to check configuration
-        from code.model import inference
+        # Setup mocks
+        mock_tokenizer.return_value = MagicMock()
+        mock_model.from_pretrained.return_value = MagicMock()
+        mock_bnb_config.return_value = MagicMock()
         
-        # Mock the transformers.AutoModelForCausalLM.from_pretrained
-        # to capture the arguments passed to it
-        with patch('code.model.inference.AutoModelForCausalLM.from_pretrained') as mock_load:
-            # Setup mock return value
-            mock_model = MagicMock()
-            mock_load.return_value = mock_model
-            
-            # Mock the config to simulate a successful load
-            mock_config = MagicMock()
-            mock_config.quantization_config = MagicMock()
-            mock_config.quantization_config.load_in_4bit = True
-            mock_model.config = mock_config
-            
-            # Call the load function (assuming it exists or creating a minimal test)
-            # Since T024 (implementation) is not done yet, we test the configuration
-            # that SHOULD be present in the implementation.
-            # We verify the expected configuration dictionary structure.
-            
-            expected_config = {
-                "load_in_4bit": True,
-                "bnb_4bit_compute_dtype": "float16",
-                "bnb_4bit_quant_type": "nf4",
-                "bnb_4bit_use_double_quant": True,
-                "device_map": "auto"
-            }
-            
-            # Verify the expected keys are present in the configuration
-            # This ensures that when T024 is implemented, it uses the correct flags
-            self.assertIn("load_in_4bit", expected_config)
-            self.assertTrue(expected_config["load_in_4bit"])
-            self.assertIn("bnb_4bit_compute_dtype", expected_config)
-            self.assertEqual(expected_config["bnb_4bit_compute_dtype"], "float16")
-            
-            # If we were to call the actual load function (once implemented),
-            # it should pass these arguments:
-            # inference.load_model("starcoder2-3b", **expected_config)
-            
-            # Verify that the mock was called with the correct quantization settings
-            # (This is a contract test for the implementation)
-            mock_load.assert_not_called() # We haven't called it yet, but we verified the config structure
-    
-    def test_cpu_offload_configuration(self):
-        """
-        Verify that CPU offload is configured for CPU-compatible execution.
-        
-        Ensures that the model loading strategy supports CPU execution
-        as required by the project constraints.
-        """
-        # Check that device_map is set to "auto" which enables offloading
-        expected_device_map = "auto"
-        
-        # This test verifies the configuration strategy
-        # In a real implementation, this would be:
-        # config = {
-        #     "device_map": "auto",  # Enables CPU offload when GPU memory is insufficient
-        #     ...
-        # }
-        
-        self.assertEqual(expected_device_map, "auto")
-        
-        # Verify that "auto" device_map enables offloading
-        # This is a standard transformers pattern for CPU/GPU hybrid execution
-        self.assertTrue(expected_device_map in ["auto", "cpu", "balanced"])
-    
-    def test_quantization_config_structure(self):
-        """
-        Test the structure of the quantization configuration.
-        
-        Ensures that all required fields for 4-bit quantization are present.
-        """
-        required_fields = [
-            "load_in_4bit",
-            "bnb_4bit_compute_dtype",
-            "bnb_4bit_quant_type",
-            "bnb_4bit_use_double_quant"
-        ]
-        
-        # Simulate the configuration that should be passed to from_pretrained
-        mock_config = {
-            "load_in_4bit": True,
-            "bnb_4bit_compute_dtype": "float16",
-            "bnb_4bit_quant_type": "nf4",
-            "bnb_4bit_use_double_quant": True,
-            "device_map": "auto"
-        }
-        
-        # Verify all required fields are present
-        for field in required_fields:
-            self.assertIn(field, mock_config, f"Missing required field: {field}")
-        
-        # Verify the values are correct for 4-bit quantization
-        self.assertTrue(mock_config["load_in_4bit"])
-        self.assertEqual(mock_config["bnb_4bit_quant_type"], "nf4")
-        self.assertTrue(mock_config["bnb_4bit_use_double_quant"])
-    
-    def test_model_loading_with_mock(self):
-        """
-        Mock test that simulates model loading with 4-bit quantization.
-        
-        This test verifies the loading process without actually loading
-        the model, ensuring the correct parameters are used.
-        """
-        with patch('code.model.inference.AutoModelForCausalLM.from_pretrained') as mock_from_pretrained:
-            # Create a mock model instance
-            mock_model = MagicMock()
-            mock_model.config.quantization_config = MagicMock()
-            mock_model.config.quantization_config.load_in_4bit = True
-            
-            mock_from_pretrained.return_value = mock_model
-            
-            # Simulate calling the load function with correct parameters
-            # (This would be implemented in T024)
-            # inference.load_model("starcoder2-3b", load_in_4bit=True, ...)
-            
-            # Verify that if we were to call it, the parameters would be correct
-            expected_kwargs = {
-                "load_in_4bit": True,
-                "device_map": "auto"
-            }
-            
-            # Check that the expected configuration is valid
-            self.assertTrue(expected_kwargs["load_in_4bit"])
-            self.assertEqual(expected_kwargs["device_map"], "auto")
-            
-            # Verify the mock would be called with these arguments
-            # (This is a contract test - the actual call happens in T024)
-            mock_from_pretrained.assert_not_called()
+        # Import the function under test
+        from model.inference import load_model
 
-if __name__ == "__main__":
+        # Call the function
+        # We mock the config path to avoid needing a real config file for this unit test
+        load_model(model_path="test/model", config_path=None)
+
+        # Assert BitsAndBytesConfig was called
+        mock_bnb_config.assert_called_once()
+
+        # Retrieve the call arguments to verify 4-bit flags
+        call_kwargs = mock_bnb_config.call_args.kwargs
+
+        # Verify 4-bit quantization is enabled
+        self.assertTrue(call_kwargs.get('load_in_4bit'), "load_in_4bit must be True")
+        
+        # Verify standard 4-bit config settings are present
+        # These are typical defaults for 4-bit quantization in bitsandbytes
+        self.assertTrue(call_kwargs.get('bnb_4bit_use_double_quant', True), 
+                        "bnb_4bit_use_double_quant should typically be True for efficiency")
+        
+        # Verify quantization type (nf4 is standard for 4-bit)
+        self.assertEqual(call_kwargs.get('bnb_4bit_quant_type'), 'nf4',
+                         "bnb_4bit_quant_type should be 'nf4'")
+
+    @patch('model.inference.AutoModelForCausalLM')
+    @patch('model.inference.AutoTokenizer')
+    @patch('model.inference.BitsAndBytesConfig')
+    @patch('model.inference.torch')
+    def test_cpu_device_targeting(self, mock_torch, mock_bnb_config, mock_tokenizer, mock_model):
+        """
+        Verify that the model is loaded onto the CPU device.
+        
+        This test ensures that the loading logic explicitly sets the device to CPU,
+        satisfying the constraint that inference must run on CPU (no CUDA).
+        """
+        # Setup mocks
+        mock_tokenizer.return_value = MagicMock()
+        mock_model.from_pretrained.return_value = MagicMock()
+        mock_bnb_config.return_value = MagicMock()
+        
+        # Mock torch.device to verify it is called with 'cpu'
+        mock_device_instance = MagicMock()
+        mock_torch.device.return_value = mock_device_instance
+
+        # Import the function under test
+        from model.inference import load_model
+
+        # Call the function
+        load_model(model_path="test/model", config_path=None)
+
+        # Verify that torch.device was called with 'cpu'
+        mock_torch.device.assert_called_with('cpu')
+
+        # Verify that from_pretrained was called with device_map or torch_dtype/device args
+        # depending on how the inference.py implementation handles device placement.
+        # We expect the model to be moved to CPU explicitly.
+        from_pretrained_calls = mock_model.from_pretrained.call_args_list
+        
+        # Check if 'device_map' is set to 'cpu' or 'auto' with CPU offload, 
+        # or if 'torch_dtype' is used in conjunction with device placement.
+        # The most robust check for CPU-only is ensuring 'cpu' is in the device_map or passed as device.
+        
+        # Common pattern: device_map="cpu" or device_map={"": "cpu"}
+        # Or passing device=torch.device("cpu")
+        
+        # Let's check the kwargs of the last call
+        last_call_kwargs = mock_model.from_pretrained.call_args.kwargs
+        
+        # We expect either device_map or explicit device handling
+        if 'device_map' in last_call_kwargs:
+            device_map = last_call_kwargs['device_map']
+            # If it's a string, it should be 'cpu'
+            if isinstance(device_map, str):
+                self.assertEqual(device_map, 'cpu', "device_map must be 'cpu' for CPU-only execution")
+            # If it's a dict, it should map to cpu
+            elif isinstance(device_map, dict):
+                self.assertTrue(all(v == 'cpu' for v in device_map.values()), 
+                                "All device_map values must be 'cpu'")
+        else:
+            # If device_map is not used, check if 'device' is passed
+            self.assertIn('device', last_call_kwargs, 
+                          "Either 'device_map' or 'device' must be specified for CPU loading")
+            self.assertEqual(last_call_kwargs['device'], mock_device_instance, 
+                             "Device must be set to CPU instance")
+
+    @patch('model.inference.AutoModelForCausalLM')
+    @patch('model.inference.AutoTokenizer')
+    @patch('model.inference.BitsAndBytesConfig')
+    @patch('model.inference.torch')
+    def test_no_cuda_device_used(self, mock_torch, mock_bnb_config, mock_tokenizer, mock_model):
+        """
+        Verify that CUDA is explicitly NOT used.
+        
+        This test ensures that no part of the loading logic attempts to initialize
+        CUDA or use a GPU device.
+        """
+        # Setup mocks
+        mock_tokenizer.return_value = MagicMock()
+        mock_model.from_pretrained.return_value = MagicMock()
+        mock_bnb_config.return_value = MagicMock()
+        
+        # Mock torch.cuda to ensure it's not accessed inappropriately
+        mock_torch.cuda.is_available.return_value = True # Even if available, we shouldn't use it
+        
+        # Import the function under test
+        from model.inference import load_model
+
+        # Call the function
+        load_model(model_path="test/model", config_path=None)
+
+        # Verify that device is set to cpu, not cuda
+        # This is covered by test_cpu_device_targeting, but we double-check no 'cuda' string appears
+        # in the device_map or device arguments
+        
+        last_call_kwargs = mock_model.from_pretrained.call_args.kwargs
+        
+        device_arg = last_call_kwargs.get('device_map', last_call_kwargs.get('device', ''))
+        
+        # Check for any 'cuda' string in the device configuration
+        if isinstance(device_arg, str):
+            self.assertNotIn('cuda', device_arg.lower(), "CUDA device must not be used")
+        elif isinstance(device_arg, dict):
+            for v in device_arg.values():
+                self.assertNotIn('cuda', str(v).lower(), "CUDA device must not be used in device_map")
+
+if __name__ == '__main__':
     unittest.main()

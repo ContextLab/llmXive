@@ -1,3 +1,3 @@
 """
-Model inference and execution sandbox module.
+Model inference and sandbox execution modules.
 """

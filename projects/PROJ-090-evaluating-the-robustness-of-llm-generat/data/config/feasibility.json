@@ -1,0 +1,11 @@
+{
+  "max_samples": 4,
+  "constraint_bottleneck": "memory",
+  "estimated_memory_per_sample_gb": 1.5,
+  "estimated_time_per_sample_seconds": 45.0,
+  "memory_limit_gb": 7.0,
+  "time_limit_seconds": 300,
+  "max_samples_by_memory": 4,
+  "max_samples_by_time": 6,
+  "calculation_timestamp": "T029a-feasibility-calc"
+}

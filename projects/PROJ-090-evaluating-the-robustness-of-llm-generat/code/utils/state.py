@@ -1,290 +1,351 @@
 """
-Experiment state management for tracking sample counts and budget caps.
+Experiment state management module.
 
-This module provides a singleton-style state manager to track:
-- Total samples processed (original + perturbed)
-- Budget caps for generation limits
-- Current counts for monitoring against caps
-
-Thread-safe for potential parallel execution scenarios.
+Tracks sample counts, generation counts, and enforces budget caps for the
+robustness evaluation pipeline. Provides thread-safe operations for concurrent
+execution scenarios.
 """
 import json
 import os
 import threading
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
 
 from config import ensure_directories
+
+# Default configuration values
+DEFAULT_MAX_SAMPLES = 1000
+DEFAULT_MAX_GENERATIONS = 5000
+STATE_FILE_NAME = "experiment_state.json"
+
+# Global state instance with thread lock
+_state_lock = threading.Lock()
+_current_state: Optional["ExperimentState"] = None
+_state_file_path: Optional[Path] = None
 
 
 class ExperimentState:
     """
-    Singleton-like state manager for experiment tracking.
+    Represents the current state of the experiment execution.
 
-    Tracks sample counts and enforces budget caps across the pipeline.
-    State is persisted to disk in data/logs/state.json for recovery.
+    Tracks:
+    - Total samples processed (original + perturbed)
+    - Total generations attempted
+    - Budget caps (max samples, max generations)
+    - Start time and last update time
+    - Status flags (exhausted, paused, completed)
     """
 
-    _instance: Optional['ExperimentState'] = None
-    _lock = threading.Lock()
+    def __init__(
+        self,
+        max_samples: int = DEFAULT_MAX_SAMPLES,
+        max_generations: int = DEFAULT_MAX_GENERATIONS,
+        samples_processed: int = 0,
+        generations_attempted: int = 0,
+        start_time: Optional[str] = None,
+        last_update: Optional[str] = None,
+        status: str = "initialized"
+    ):
+        self.max_samples = max_samples
+        self.max_generations = max_generations
+        self.samples_processed = samples_processed
+        self.generations_attempted = generations_attempted
+        self.start_time = start_time or self._get_timestamp()
+        self.last_update = last_update or self._get_timestamp()
+        self.status = status
 
-    def __new__(cls, *args, **kwargs):
-        with cls._lock:
-            if cls._instance is None:
-                cls._instance = super().__new__(cls)
-                cls._instance._initialized = False
-            return cls._instance
+    @staticmethod
+    def _get_timestamp() -> str:
+        """Return current ISO format timestamp string."""
+        from datetime import datetime
+        return datetime.now().isoformat()
 
-    def __init__(self, state_file: Optional[str] = None):
-        if self._initialized:
-            return
-
-        self._initialized = True
-        self._state_file = state_file or "data/logs/experiment_state.json"
-        self._lock = threading.Lock()
-
-        # Initialize state structure
-        self._state = {
-            "total_samples": 0,
-            "original_tasks": 0,
-            "perturbed_tasks": 0,
-            "budget_cap": 1000,  # Default cap, can be overridden
-            "current_generation_count": 0,
-            "max_generations": 1000,
-            "started_at": None,
-            "last_updated": None,
-            "status": "initialized"
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert state to dictionary for serialization."""
+        return {
+            "max_samples": self.max_samples,
+            "max_generations": self.max_generations,
+            "samples_processed": self.samples_processed,
+            "generations_attempted": self.generations_attempted,
+            "start_time": self.start_time,
+            "last_update": self.last_update,
+            "status": self.status
         }
 
-        # Load existing state if available
-        self._load_state()
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ExperimentState":
+        """Create ExperimentState from dictionary."""
+        return cls(
+            max_samples=data.get("max_samples", DEFAULT_MAX_SAMPLES),
+            max_generations=data.get("max_generations", DEFAULT_MAX_GENERATIONS),
+            samples_processed=data.get("samples_processed", 0),
+            generations_attempted=data.get("generations_attempted", 0),
+            start_time=data.get("start_time"),
+            last_update=data.get("last_update"),
+            status=data.get("status", "initialized")
+        )
 
-    def _load_state(self) -> None:
-        """Load state from disk if it exists."""
-        state_path = Path(self._state_file)
-        if state_path.exists():
-            try:
-                with open(state_path, 'r') as f:
-                    loaded = json.load(f)
-                    # Merge loaded state with defaults
-                    for key, value in loaded.items():
-                        if key in self._state:
-                            self._state[key] = value
-            except (json.JSONDecodeError, IOError) as e:
-                # If state file is corrupted, start fresh
-                self._state["status"] = "corrupted_recovered"
+    def update(self, **kwargs: Any) -> None:
+        """Update state fields with provided values."""
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        self.last_update = self._get_timestamp()
 
-    def _save_state(self) -> None:
-        """Persist state to disk."""
-        import datetime
-        self._state["last_updated"] = datetime.datetime.now().isoformat()
+    def is_exhausted(self) -> bool:
+        """Check if any budget cap has been reached."""
+        return (
+            self.samples_processed >= self.max_samples or
+            self.generations_attempted >= self.max_generations
+        )
 
-        # Ensure directory exists
+    def remaining_samples(self) -> int:
+        """Calculate remaining sample budget."""
+        return max(0, self.max_samples - self.samples_processed)
+
+    def remaining_generations(self) -> int:
+        """Calculate remaining generation budget."""
+        return max(0, self.max_generations - self.generations_attempted)
+
+
+def get_state_file_path() -> Path:
+    """Get the path to the state file."""
+    global _state_file_path
+    if _state_file_path is None:
         ensure_directories()
-
-        state_path = Path(self._state_file)
-        with open(state_path, 'w') as f:
-            json.dump(self._state, f, indent=2)
-
-    def reset(self, budget_cap: Optional[int] = None, max_generations: Optional[int] = None) -> None:
-        """
-        Reset state to initial values.
-
-        Args:
-            budget_cap: New budget cap for total samples
-            max_generations: New limit for generation count
-        """
-        with self._lock:
-            import datetime
-            self._state = {
-                "total_samples": 0,
-                "original_tasks": 0,
-                "perturbed_tasks": 0,
-                "budget_cap": budget_cap or self._state["budget_cap"],
-                "current_generation_count": 0,
-                "max_generations": max_generations or self._state["max_generations"],
-                "started_at": datetime.datetime.now().isoformat(),
-                "last_updated": None,
-                "status": "running"
-            }
-            self._save_state()
-
-    def increment_original(self, count: int = 1) -> bool:
-        """
-        Increment original task count.
-
-        Args:
-            count: Number of original tasks to add
-
-        Returns:
-            True if increment succeeded, False if budget exceeded
-        """
-        with self._lock:
-            if self._state["total_samples"] + count > self._state["budget_cap"]:
-                self._state["status"] = "budget_exceeded"
-                self._save_state()
-                return False
-
-            self._state["original_tasks"] += count
-            self._state["total_samples"] += count
-            self._save_state()
-            return True
-
-    def increment_perturbed(self, count: int = 1) -> bool:
-        """
-        Increment perturbed task count.
-
-        Args:
-            count: Number of perturbed tasks to add
-
-        Returns:
-            True if increment succeeded, False if budget exceeded
-        """
-        with self._lock:
-            if self._state["total_samples"] + count > self._state["budget_cap"]:
-                self._state["status"] = "budget_exceeded"
-                self._save_state()
-                return False
-
-            self._state["perturbed_tasks"] += count
-            self._state["total_samples"] += count
-            self._save_state()
-            return True
-
-    def increment_generation(self, count: int = 1) -> bool:
-        """
-        Increment generation count (used for budget cap logic).
-
-        Args:
-            count: Number of generations to add
-
-        Returns:
-            True if increment succeeded, False if max_generations exceeded
-        """
-        with self._lock:
-            if self._state["current_generation_count"] + count > self._state["max_generations"]:
-                self._state["status"] = "generation_limit_reached"
-                self._save_state()
-                return False
-
-            self._state["current_generation_count"] += count
-            self._save_state()
-            return True
-
-    def get_remaining_budget(self) -> int:
-        """Get remaining sample budget."""
-        with self._lock:
-            return max(0, self._state["budget_cap"] - self._state["total_samples"])
-
-    def get_remaining_generations(self) -> int:
-        """Get remaining generation count."""
-        with self._lock:
-            return max(0, self._state["max_generations"] - self._state["current_generation_count"])
-
-    def is_budget_exceeded(self) -> bool:
-        """Check if budget cap has been exceeded."""
-        with self._lock:
-            return self._state["total_samples"] >= self._state["budget_cap"]
-
-    def is_generation_limit_reached(self) -> bool:
-        """Check if generation limit has been reached."""
-        with self._lock:
-            return self._state["current_generation_count"] >= self._state["max_generations"]
-
-    def get_state(self) -> Dict[str, Any]:
-        """Get a copy of current state."""
-        with self._lock:
-            return self._state.copy()
-
-    def set_budget_cap(self, cap: int) -> None:
-        """Update the budget cap."""
-        with self._lock:
-            self._state["budget_cap"] = cap
-            self._save_state()
-
-    def set_max_generations(self, limit: int) -> None:
-        """Update the maximum generation limit."""
-        with self._lock:
-            self._state["max_generations"] = limit
-            self._save_state()
-
-    def finalize(self) -> None:
-        """Mark experiment as completed."""
-        with self._lock:
-            import datetime
-            self._state["status"] = "completed"
-            self._state["last_updated"] = datetime.datetime.now().isoformat()
-            self._save_state()
+        _state_file_path = Path("data") / "logs" / STATE_FILE_NAME
+    return _state_file_path
 
 
-# Convenience functions for direct access
-def get_state() -> Dict[str, Any]:
-    """Get current experiment state."""
-    return ExperimentState().get_state()
+def get_state() -> ExperimentState:
+    """
+    Get the current experiment state, loading from disk if available.
 
-def reset_state(budget_cap: Optional[int] = None, max_generations: Optional[int] = None) -> None:
-    """Reset experiment state."""
-    ExperimentState().reset(budget_cap, max_generations)
+    Thread-safe: uses a lock to prevent race conditions during state loading.
+    """
+    global _current_state
 
-def increment_samples(count: int = 1, is_perturbed: bool = False) -> bool:
-    """Increment sample count (original or perturbed)."""
-    state = ExperimentState()
-    if is_perturbed:
-        return state.increment_perturbed(count)
-    return state.increment_original(count)
+    with _state_lock:
+        if _current_state is None:
+            state_path = get_state_file_path()
+            if state_path.exists():
+                try:
+                    with open(state_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        _current_state = ExperimentState.from_dict(data)
+                except (json.JSONDecodeError, KeyError) as e:
+                    # Corrupted state file - reset to default
+                    _current_state = ExperimentState()
+            else:
+                _current_state = ExperimentState()
+        return _current_state
 
-def increment_generations(count: int = 1) -> bool:
-    """Increment generation count."""
-    return ExperimentState().increment_generation(count)
+
+def reset_state(max_samples: Optional[int] = None, max_generations: Optional[int] = None) -> ExperimentState:
+    """
+    Reset the experiment state to initial values.
+
+    Args:
+        max_samples: New max samples limit (uses default if None)
+        max_generations: New max generations limit (uses default if None)
+
+    Returns:
+        The reset ExperimentState instance.
+    """
+    global _current_state
+
+    with _state_lock:
+        _current_state = ExperimentState(
+            max_samples=max_samples if max_samples is not None else DEFAULT_MAX_SAMPLES,
+            max_generations=max_generations if max_generations is not None else DEFAULT_MAX_GENERATIONS,
+            status="reset"
+        )
+        save_state(_current_state)
+        return _current_state
+
+
+def save_state(state: Optional[ExperimentState] = None) -> None:
+    """
+    Save the current state to disk.
+
+    Args:
+        state: State to save. If None, uses the current global state.
+    """
+    if state is None:
+        state = get_state()
+
+    state_path = get_state_file_path()
+    ensure_directories()
+
+    with open(state_path, "w", encoding="utf-8") as f:
+        json.dump(state.to_dict(), f, indent=2)
+
+
+def increment_samples(count: int = 1) -> int:
+    """
+    Increment the samples processed counter.
+
+    Args:
+        count: Number of samples to add (default: 1)
+
+    Returns:
+        The new total samples processed count.
+    """
+    state = get_state()
+    state.samples_processed += count
+    state.update(status="running" if not state.is_exhausted() else "exhausted")
+    save_state(state)
+    return state.samples_processed
+
+
+def increment_generations(count: int = 1) -> int:
+    """
+    Increment the generations attempted counter.
+
+    Args:
+        count: Number of generations to add (default: 1)
+
+    Returns:
+        The new total generations attempted count.
+    """
+    state = get_state()
+    state.generations_attempted += count
+    state.update(status="running" if not state.is_exhausted() else "exhausted")
+    save_state(state)
+    return state.generations_attempted
+
 
 def get_remaining() -> Dict[str, int]:
-    """Get remaining budget and generation counts."""
-    state = ExperimentState()
+    """
+    Get the remaining budget counts.
+
+    Returns:
+        Dictionary with 'samples' and 'generations' keys.
+    """
+    state = get_state()
     return {
-        "samples": state.get_remaining_budget(),
-        "generations": state.get_remaining_generations()
+        "samples": state.remaining_samples(),
+        "generations": state.remaining_generations()
     }
 
+
 def is_exhausted() -> bool:
-    """Check if either budget or generation limit is exhausted."""
-    state = ExperimentState()
-    return state.is_budget_exceeded() or state.is_generation_limit_reached()
+    """
+    Check if the experiment budget is exhausted.
 
-def main():
-    """CLI entry point for state management testing."""
+    Returns:
+        True if any budget cap has been reached, False otherwise.
+    """
+    state = get_state()
+    return state.is_exhausted()
+
+
+def set_budget_caps(max_samples: int, max_generations: int) -> None:
+    """
+    Update the budget caps for the experiment.
+
+    Args:
+        max_samples: New maximum samples limit
+        max_generations: New maximum generations limit
+    """
+    state = get_state()
+    state.max_samples = max_samples
+    state.max_generations = max_generations
+    state.update(status="running")
+    save_state(state)
+
+
+def get_state_summary() -> Dict[str, Any]:
+    """
+    Get a summary of the current experiment state.
+
+    Returns:
+        Dictionary containing key state metrics.
+    """
+    state = get_state()
+    return {
+        "samples_processed": state.samples_processed,
+        "max_samples": state.max_samples,
+        "remaining_samples": state.remaining_samples(),
+        "generations_attempted": state.generations_attempted,
+        "max_generations": state.max_generations,
+        "remaining_generations": state.remaining_generations(),
+        "status": state.status,
+        "is_exhausted": state.is_exhausted(),
+        "start_time": state.start_time,
+        "last_update": state.last_update
+    }
+
+
+def main() -> None:
+    """
+    CLI entry point for state management utilities.
+
+    Usage:
+        python code/utils/state.py [command] [args]
+
+    Commands:
+        status       - Display current state summary
+        reset        - Reset state to initial values
+        set-caps     - Update budget caps (requires --samples and --generations)
+        increment    - Increment counters (requires --samples and/or --generations)
+    """
     import argparse
+    import sys
 
-    parser = argparse.ArgumentParser(description="Experiment state management CLI")
-    parser.add_argument("--reset", action="store_true", help="Reset state")
-    parser.add_argument("--budget", type=int, help="Set budget cap")
-    parser.add_argument("--generations", type=int, help="Set max generations")
-    parser.add_argument("--status", action="store_true", help="Show current status")
-    parser.add_argument("--sample", type=int, default=1, help="Add sample count")
-    parser.add_argument("--perturbed", action="store_true", help="Mark as perturbed sample")
-    parser.add_argument("--generation", type=int, default=1, help="Add generation count")
+    parser = argparse.ArgumentParser(
+        description="Experiment state management utility"
+    )
+    parser.add_argument(
+        "command",
+        choices=["status", "reset", "set-caps", "increment"],
+        help="Command to execute"
+    )
+    parser.add_argument(
+        "--samples",
+        type=int,
+        default=None,
+        help="Number of samples (for set-caps or increment)"
+    )
+    parser.add_argument(
+        "--generations",
+        type=int,
+        default=None,
+        help="Number of generations (for set-caps or increment)"
+    )
 
     args = parser.parse_args()
 
-    if args.reset:
-        reset_state(args.budget, args.generations)
-        print("State reset complete.")
-    elif args.status:
-        state = get_state()
-        print(json.dumps(state, indent=2))
-    elif args.sample > 0:
-        result = increment_samples(args.sample, args.perturbed)
-        if result:
-            print(f"Added {args.sample} sample(s). Remaining: {get_remaining()['samples']}")
-        else:
-            print("Budget exceeded!")
-    elif args.generation > 0:
-        result = increment_generations(args.generation)
-        if result:
-            print(f"Added {args.generation} generation(s). Remaining: {get_remaining()['generations']}")
-        else:
-            print("Generation limit reached!")
-    else:
-        parser.print_help()
+    if args.command == "status":
+        summary = get_state_summary()
+        print(json.dumps(summary, indent=2))
+
+    elif args.command == "reset":
+        reset_state()
+        print("State reset successfully.")
+        print(json.dumps(get_state_summary(), indent=2))
+
+    elif args.command == "set-caps":
+        if args.samples is None or args.generations is None:
+            print("Error: --samples and --generations are required for set-caps", file=sys.stderr)
+            sys.exit(1)
+        set_budget_caps(args.samples, args.generations)
+        print(f"Budget caps updated: max_samples={args.samples}, max_generations={args.generations}")
+        print(json.dumps(get_state_summary(), indent=2))
+
+    elif args.command == "increment":
+        samples_added = args.samples if args.samples is not None else 0
+        generations_added = args.generations if args.generations is not None else 0
+
+        if samples_added > 0:
+            new_total = increment_samples(samples_added)
+            print(f"Samples incremented by {samples_added}. Total: {new_total}")
+
+        if generations_added > 0:
+            new_total = increment_generations(generations_added)
+            print(f"Generations incremented by {generations_added}. Total: {new_total}")
+
+        print(json.dumps(get_state_summary(), indent=2))
 
 
 if __name__ == "__main__":

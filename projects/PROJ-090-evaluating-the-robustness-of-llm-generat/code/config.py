@@ -1,52 +1,50 @@
 """
-Project Configuration
-Handles directory creation and configuration retrieval.
+Configuration and environment setup.
 """
-
 import os
 from pathlib import Path
 from typing import Optional
 
-# Base project root (assumed to be the directory containing this file's parent 'code')
-# In a standard setup, we assume the script runs from the project root.
+# Project Root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+DATA_DIR = PROJECT_ROOT / "data"
+TESTS_DIR = PROJECT_ROOT / "tests"
+DOCS_DIR = PROJECT_ROOT / "docs"
 
-# Directory Structure
+# Directories to ensure exist
 DIRECTORIES = [
-    "code",
-    "code/data",
-    "code/model",
-    "code/analysis",
-    "code/utils",
-    "data",
-    "data/raw",
-    "data/processed",
-    "data/logs",
-    "tests",
-    "tests/unit",
-    "tests/contract"
+    DATA_DIR,
+    DATA_DIR / "raw",
+    DATA_DIR / "processed",
+    DATA_DIR / "logs",
+    DATA_DIR / "config",
+    CODE_DIR,
+    CODE_DIR / "data",
+    CODE_DIR / "model",
+    CODE_DIR / "analysis",
+    CODE_DIR / "utils",
+    TESTS_DIR,
+    TESTS_DIR / "unit",
+    TESTS_DIR / "contract",
+    DOCS_DIR,
 ]
 
-# Configuration Defaults
-CONFIG = {
-    "model_path": "meta-llama/Llama-2-7b-chat-hf", # Placeholder, overridden by env
-    "timeout": 30,
-    "seed": 42,
-    "semantic_threshold": 0.95,
-    "max_variants": 3,
-    "budget_cap": 100
-}
-
 def ensure_directories() -> None:
-    """Creates all required project directories if they do not exist."""
-    for dir_path in DIRECTORIES:
-        full_path = PROJECT_ROOT / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
+    """Create all required project directories if they do not exist."""
+    for directory in DIRECTORIES:
+        directory.mkdir(parents=True, exist_ok=True)
 
 def get_config_summary() -> dict:
-    """Returns a summary of current configuration."""
+    """Return a summary of the current configuration."""
+    ensure_directories()
     return {
         "project_root": str(PROJECT_ROOT),
-        "config": CONFIG,
-        "directories": DIRECTORIES
+        "data_dir": str(DATA_DIR),
+        "code_dir": str(CODE_DIR),
+        "tests_dir": str(TESTS_DIR),
+        "python_version": f"{os.sys.version_info.major}.{os.sys.version_info.minor}",
     }
+
+# Initialize directories on import if needed (or let main scripts call it)
+# ensure_directories()

@@ -29,6 +29,7 @@ MAX_VARIANTS_PER_TASK = 3
 SEMANTIC_THRESHOLD = 0.95
 RAW_DATA_PATH = "data/raw/humaneval.jsonl"
 PROCESSED_OUTPUT_PATH = "data/processed/perturbed_prompts.jsonl"
+CANDIDATES_LOG_PATH = "data/processed/perturbation_candidates.json"
 LOG_PATH = "data/logs/perturbation_raw.log"
 
 def load_humaneval_tasks() -> List[Dict[str, Any]]:
@@ -48,16 +49,17 @@ def load_humaneval_tasks() -> List[Dict[str, Any]]:
                 tasks.append(json.loads(line))
     return tasks
 
-def generate_and_filter_perturbations(tasks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def generate_and_filter_perturbations(tasks: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Core pipeline:
     1. For each task, generate up to MAX_VARIANTS_PER_TASK candidates.
     2. Score all candidates using semantic similarity.
     3. Filter candidates where similarity > SEMANTIC_THRESHOLD.
-    4. Return the list of valid perturbed prompts.
+    4. Return the list of valid perturbed prompts AND the full candidate pool.
     """
     logger = get_perturbation_logger()
     all_valid_perturbations = []
+    all_candidates_pool = []
     
     total_tasks = len(tasks)
     logger.info(f"Starting perturbation pipeline for {total_tasks} tasks.")
@@ -95,6 +97,18 @@ def generate_and_filter_perturbations(tasks: List[Dict[str, Any]]) -> List[Dict[
 
         valid_count = 0
         for res in validated_results:
+            # Log ALL candidates (included and excluded)
+            candidate_record = {
+                "task_id": res["task_id"],
+                "perturbation_type": res["type"],
+                "original_prompt": res["original"],
+                "perturbed_prompt": res["perturbed"],
+                "raw_score": res["score"],
+                "is_valid": res["valid"],
+                "reason": "passed" if res["valid"] else f"score {res['score']:.4f} < {SEMANTIC_THRESHOLD}"
+            }
+            all_candidates_pool.append(candidate_record)
+
             if res.get("valid", False):
                 # Construct the full record for the output
                 new_task = task.copy()
@@ -116,7 +130,7 @@ def generate_and_filter_perturbations(tasks: List[Dict[str, Any]]) -> List[Dict[
         logger.info(f"Task {idx+1}/{total_tasks} ({task_id}): Generated {len(candidates)}, "
                     f"Retained {valid_count}.")
 
-    return all_valid_perturbations
+    return all_valid_perturbations, all_candidates_pool
 
 def save_results(perturbations: List[Dict[str, Any]], output_path: str) -> None:
     """
@@ -130,6 +144,18 @@ def save_results(perturbations: List[Dict[str, Any]], output_path: str) -> None:
             f.write(json.dumps(item) + '\n')
     
     logging.info(f"Saved {len(perturbations)} perturbed prompts to {output_path}")
+
+def save_candidates_pool(candidates: List[Dict[str, Any]], output_path: str) -> None:
+    """
+    Save the full candidate pool (including excluded ones) to JSON for sensitivity analysis.
+    """
+    out_file = Path(output_path)
+    ensure_directories()
+
+    with open(out_file, 'w', encoding='utf-8') as f:
+        json.dump(candidates, f, indent=2)
+    
+    logging.info(f"Saved {len(candidates)} candidate records to {output_path}")
 
 def main():
     """
@@ -145,12 +171,16 @@ def main():
     logger.info(f"Loaded {len(tasks)} HumanEval tasks.")
 
     # 2. Generate and Filter
-    final_perturbations = generate_and_filter_perturbations(tasks)
+    final_perturbations, all_candidates = generate_and_filter_perturbations(tasks)
     
-    # 3. Save Results
+    # 3. Save Results (Filtered)
     save_results(final_perturbations, PROCESSED_OUTPUT_PATH)
 
+    # 4. Save Full Candidate Pool (for sensitivity analysis)
+    save_candidates_pool(all_candidates, CANDIDATES_LOG_PATH)
+
     logger.info(f"Pipeline complete. Total valid perturbations: {len(final_perturbations)}")
+    logger.info(f"Total candidates generated (for sensitivity analysis): {len(all_candidates)}")
 
 if __name__ == "__main__":
     main()

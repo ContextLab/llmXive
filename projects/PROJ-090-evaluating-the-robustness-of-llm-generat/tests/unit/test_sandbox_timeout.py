@@ -13,7 +13,7 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from code.model.sandbox import execute_code, ExecutionError
+from code.model.sandbox import execute_code, ExecutionError, TimeoutError
 
 
 class TestSandboxTimeout:

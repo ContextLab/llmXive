@@ -15,8 +15,18 @@ from pathlib import Path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from code.data.perturbations import substitute_synonyms, inject_typos, rephrase_syntax
-from code.data.semantic_validator import validate_semantic_similarity
-from code.data.generate_perturbations import generate_perturbations
+from code.data.semantic_validator import validate_perturbation
+from code.data.generate_perturbations import generate_and_filter_perturbations
+import jsonschema
+
+
+SCHEMA_PATH = Path(__file__).parent.parent.parent / "contracts" / "perturbation_schema.json"
+
+
+def load_schema():
+    """Load the JSON schema from disk."""
+    with open(SCHEMA_PATH, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 
 class TestPerturbationSchema:
@@ -77,7 +87,7 @@ class TestPerturbationSchema:
         
         # Validate each perturbation
         for perturbed, pert_type in perturbations:
-            similarity = validate_semantic_similarity(original_prompt, perturbed)
+            similarity = validate_perturbation(original_prompt, perturbed)
             
             # Schema requirement: similarity must be a float between 0 and 1
             assert isinstance(similarity, float), "Similarity must be a float"
@@ -96,11 +106,13 @@ class TestPerturbationSchema:
         }
         
         # Generate perturbations
-        results = generate_perturbations(mock_task, max_variants=3)
+        results = generate_and_filter_perturbations(mock_task, max_variants=3)
         
         # Validate output structure
         assert isinstance(results, list), "Output must be a list"
         assert len(results) <= 3, "Must have at most 3 variants"
+        
+        schema = load_schema()
         
         for result in results:
             # Each result must have required fields
@@ -108,7 +120,7 @@ class TestPerturbationSchema:
             assert "original_prompt" in result, "Missing original_prompt"
             assert "perturbed_prompt" in result, "Missing perturbed_prompt"
             assert "perturbation_type" in result, "Missing perturbation_type"
-            assert "semantic_similarity" in result, "Missing semantic_similarity"
+            assert "raw_score" in result, "Missing raw_score"
             assert "is_valid" in result, "Missing is_valid"
             
             # Validate data types
@@ -116,9 +128,23 @@ class TestPerturbationSchema:
             assert isinstance(result["original_prompt"], str)
             assert isinstance(result["perturbed_prompt"], str)
             assert isinstance(result["perturbation_type"], str)
-            assert isinstance(result["semantic_similarity"], float)
+            assert isinstance(result["raw_score"], float)
             assert isinstance(result["is_valid"], bool)
+            
+            # Validate against full JSON schema
+            jsonschema.validate(instance=result, schema=schema["definitions"]["PerturbationRecord"])
             
             # Validate semantic constraint
             if result["is_valid"]:
-                assert result["semantic_similarity"] > 0.95, "Valid perturbations must have similarity > 0.95"
+                assert result["raw_score"] > 0.95, "Valid perturbations must have similarity > 0.95"
+
+    def test_schema_definition_fields(self):
+        """Verify the schema definition contains all required fields."""
+        schema = load_schema()
+        record_def = schema["definitions"]["PerturbationRecord"]
+        
+        required_fields = ["task_id", "perturbation_type", "raw_score", "is_valid"]
+        
+        for field in required_fields:
+            assert field in record_def["required"], f"Required field '{field}' missing from schema"
+            assert field in record_def["properties"], f"Field '{field}' missing from properties"

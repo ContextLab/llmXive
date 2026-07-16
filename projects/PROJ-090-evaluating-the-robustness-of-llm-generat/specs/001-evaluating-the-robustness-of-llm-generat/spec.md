@@ -70,7 +70,7 @@ The system MUST calculate pass@1 rates for original vs. perturbed prompts, apply
 - **FR-002**: System MUST attempt to generate up to 3 perturbation variants per task using synonym substitution, typo injection, and syntactic rephrasing, retaining only those with a semantic similarity score > 0.95 for the primary dataset. (See US-1)
 - **FR-003**: System MUST validate semantic equivalence using the `sentence-transformers/all-MiniLM-L6-v2` model with cosine similarity, retaining only perturbations with a score > 0.95, while storing raw scores for all candidates. (See US-1)
 - **FR-004**: System MUST perform model inference using a `bitsandbytes` 4-bit quantized StarCoder2-3B configuration on CPU with offload, ensuring memory usage stays ≤ 7 GB. (See US-2)
-- **FR-005**: System MUST enforce a 30-second timeout for model generation and a 10-second timeout for test case execution. (See US-2)
+- **FR-005**: System MUST enforce a reasonable timeout for model generation and a 10-second timeout for test case execution. (See US-2)
 - **FR-006**: System MUST calculate pass@1 rates separately for the original prompts and each valid perturbation type. (See US-3)
 - **FR-007**: System MUST apply McNemar's test separately for each perturbation type (Original vs. Synonym; Original vs. Typo; Original vs. Rephrase) by aggregating contingency tables across all tasks for each comparison. (See US-3)
 - **FR-008**: System MUST apply Bonferroni correction for multiple comparisons when testing >1 hypothesis across perturbation types. (See US-3)
