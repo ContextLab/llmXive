@@ -5,36 +5,79 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right"
 
-## Summary of the prior work
-The paper introduces ArcANE, a benchmark and evaluation framework for Role-Playing Language Agents (RPLAs) that assesses whether a character's responses evolve correctly across their psychological "Character Arc" rather than maintaining a static persona. It segments narratives into phases along specific psychological axes and generates probes (scenarios) that test if the model adapts its behavior to the current phase, finding that explicitly conditioning on the arc significantly outperforms standard retrieval, especially for scenarios outside the source text.
+**Field**: linguistics
 
-## Proposed extension
-**Research Question:** Does the *granularity* of the psychological axis (e.g., coarse "Good vs. Evil" vs. fine-grained "Trust vs. Cynicism") determine the *transferability* of character evolution to novel, out-of-domain scenarios, and can a "coarse-to-fine" prompting strategy improve arc-awareness in CPU-tractable, small-context models?
+## Research question
 
-This matters because ArcANE demonstrates the value of arcs, but it remains unclear if all psychological abstractions are equally effective for generalizing behavior to unseen situations, and current arc-grounding methods often require large context windows or fine-tuning that may be prohibitive for edge deployment.
+Does the granularity of psychological axis specification (coarse vs. fine-grained) determine the transferability of character evolution to novel, out-of-domain scenarios in small language models, and can a coarse-to-fine prompting strategy mitigate the "over-tracking" of noise while preserving arc-awareness?
+
+## Motivation
+
+While the ArcANE framework establishes that conditioning on character arcs improves role-playing consistency, it remains unclear whether all levels of psychological abstraction are equally effective for generalizing behavior to unseen situations. Current arc-grounding methods often rely on large context windows or fine-tuning, which are prohibitive for edge deployment; understanding the optimal granularity for low-resource models is critical for deploying robust role-playing agents on CPU-only hardware.
+
+## Related work
+
+- [RoleMRC: A Fine-Grained Composite Benchmark for Role-Playing and Instruction-Following](https://arxiv.org/abs/2502.11387) — Establishes the necessity of fine-grained benchmarks for evaluating role identity and instruction following, providing a precedent for testing specific behavioral constraints.
+- [RoleRAG: Enhancing LLM Role-Playing via Graph Guided Retrieval](https://arxiv.org/abs/2505.18541) — Demonstrates that structured retrieval of character information improves consistency, suggesting that the *structure* of the prompt (not just the content) is a key variable for arc maintenance.
+- [Persona-Pruner: Sculpting Lightweight Models for Role-Playing](https://arxiv.org/abs/2606.14695) — Addresses the challenge of adapting role-playing capabilities to lightweight models, highlighting the tension between model capacity and the complexity of persona specifications.
+
+## Expected results
+
+We expect that coarse axes will fail to distinguish between adjacent phases in complex arcs due to ambiguity, while fine-grained axes will introduce noise that small models cannot track without fine-tuning. The hypothesis is that a hybrid "coarse-to-fine" strategy will yield the highest consistency scores on out-of-domain probes, demonstrating that structured narrative abstraction is necessary for robust character evolution in resource-constrained settings.
 
 ## Methodology sketch
-**Data:** Select 3 novels from the existing ArcANE corpus (e.g., Harry Potter, Pride and Prejudice) and manually define two sets of Character Arcs per character: (1) **Coarse Axes** (broad, high-level traits like "Innocence to Experience") and (2) **Fine Axes** (specific, nuanced shifts like "Naive Trust to Calculated Skepticism"). Generate a new set of 50 "Out-of-World" probes per character that are semantically distant from the source text (e.g., modern ethical dilemmas).
 
-**Procedure:** 
-1. Run a CPU-tractable, open-weight model (e.g., Phi-3-mini or TinyLlama) in a "zero-shot" mode.
-2. Prompt the model with the same probe under three conditions: (a) **Coarse Context** (only the broad axis description), (b) **Fine Context** (only the specific axis description), and (c) **Hybrid Context** (brief coarse summary followed by the specific phase details).
-3. Use a lightweight, rule-based scoring metric (e.g., keyword alignment with phase-specific behavioral constraints) and a single, small LLM-as-a-Judge (running locally via CPU quantization) to rate response consistency with the target phase.
+- **Data Selection**: Select 3 characters from the existing ArcANE corpus (e.g., Harry Potter, Elizabeth Bennet) and manually define two sets of arc specifications per character: (1) **Coarse Axes** (broad traits like "Innocence to Experience") and (2) **Fine Axes** (nuanced shifts like "Naive Trust to Calculated Skepticism").
+- **Probe Generation**: Generate 50 "Out-of-World" probes per character using a lightweight template generator, ensuring semantic distance from the source text (e.g., applying character traits to modern ethical dilemmas or hypothetical sci-fi scenarios).
+- **Model Setup**: Load a CPU-tractable, open-weight model (e.g., Phi-3-mini or TinyLlama-1.1B) using a quantized inference engine (e.g., `llama.cpp` or `transformers` with 4-bit quantization) to stay within the 7GB RAM limit.
+- **Experimental Conditions**: Run the model in zero-shot mode for each probe under three conditions: (a) **Coarse Context** (only the broad axis description), (b) **Fine Context** (only the specific axis description), and (c) **Hybrid Context** (brief coarse summary followed by specific phase details).
+- **Evaluation Metric**: Implement a rule-based scoring metric that checks for the presence/absence of phase-specific keywords and sentiment alignment with the target phase.
+- **LLM-as-a-Judge**: Run a second, smaller quantized model locally to rate the response consistency with the target phase on a 1-5 Likert scale, using a standardized prompt that explicitly forbids the judge from accessing the ground-truth phase labels.
+- **Statistical Analysis**: Perform a repeated-measures ANOVA to compare the mean consistency scores across the three prompting conditions (Coarse, Fine, Hybrid) for each character.
+- **Independence Check**: Ensure the evaluation target (consistency score) is derived from the model's generated text and the judge's independent assessment, not from the prompt structure itself or the input data's metadata.
 
-**Expected Result:** We hypothesize that while Coarse Context fails to distinguish between adjacent phases in complex arcs, Fine Context may be too noisy for small models to track without fine-tuning; the Hybrid Context strategy will yield the highest consistency scores, demonstrating that a structured "coarse-to-fine" narrative abstraction is necessary for robust, low-resource character evolution.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: None (this is a new proposal extending ArcANE).
+- Closest match: N/A (No prior fleshed-out ideas in the corpus).
+- Verdict: NOT a duplicate
 
-- **ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?** — Woojung Song, Nalim Kim, Sangjun Song, Chaewon Heo, Jongwon Lim, Yohan Jo. https://arxiv.org/abs/2606.05553.
 
-```bibtex
-@article{orig_arxiv_2606_05553,
-  title = {ArcANE: Do Role-Playing Language Agents Stay in Character at the Right Time?},
-  author = {Woojung Song and Nalim Kim and Sangjun Song and Chaewon Heo and Jongwon Lim and Yohan Jo},
-  year = {2026},
-  eprint = {2606.05553},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.05553},
-  url = {https://arxiv.org/abs/2606.05553}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-16T04:12:01Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right" linguistics
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "ArcANE: Do Role-Playing Language Agents Stay in Character at the Right" linguistics | 0 |
+| 1 | role-playing language agent consistency | 5 |
+| 2 | character adherence in generative AI | 0 |
+| 3 | persona stability in large language models | 0 |
+| 4 | in-character behavior evaluation metrics | 0 |
+| 5 | role consistency in conversational agents | 0 |
+| 6 | character drift in role-playing LLMs | 0 |
+| 7 | persona coherence in dialogue systems | 0 |
+| 8 | role-playing fidelity assessment | 0 |
+| 9 | agent identity maintenance in LLMs | 0 |
+| 10 | narrative consistency in AI role-play | 0 |
+| 11 | persona violation detection in language models | 0 |
+| 12 | character integrity in generative text | 0 |
+| 13 | role-playing agent alignment | 0 |
+| 14 | behavioral consistency in role-playing AI | 0 |
+| 15 | persona tracking in language agents | 0 |
+| 16 | character deviation in LLM role-play | 0 |
+| 17 | role adherence in conversational AI | 0 |
+| 18 | identity consistency in generative agents | 0 |
+| 19 | role-playing agent evaluation frameworks | 0 |
+| 20 | narrative fidelity in language model interactions | 0 |
+
+### Verified citations
+
+1. **Persona-Pruner: Sculpting Lightweight Models for Role-Playing** (2026). Jinsu Kim, Jihoon Tack, Noah Lee, Jongheon Jeong. arXiv. [2606.14695](https://arxiv.org/abs/2606.14695). PDF-sampled: No.
+2. **RoleRAG: Enhancing LLM Role-Playing via Graph Guided Retrieval** (2025). Yongjie Wang, Jonathan Leung, Zhiqi Shen. arXiv. [2505.18541](https://arxiv.org/abs/2505.18541). PDF-sampled: No.
+3. **RoleMRC: A Fine-Grained Composite Benchmark for Role-Playing and Instruction-Following** (2025). Junru Lu, Jiazheng Li, Guodong Shen, Lin Gui, Siyu An, et al.. arXiv. [2502.11387](https://arxiv.org/abs/2502.11387). PDF-sampled: No.

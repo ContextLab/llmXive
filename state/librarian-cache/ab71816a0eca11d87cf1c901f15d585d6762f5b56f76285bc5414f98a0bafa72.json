@@ -1,0 +1,507 @@
+{
+  "fetched_at": "2026-07-16T04:12:01Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Character at the Right\"",
+      "target_n": 5
+    },
+    "duration_seconds": 55.539,
+    "ended_at": "2026-07-16T04:12:01Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "role-playing language agent consistency"
+        ],
+        [
+          2,
+          "character adherence in generative AI"
+        ],
+        [
+          3,
+          "persona stability in large language models"
+        ],
+        [
+          4,
+          "in-character behavior evaluation metrics"
+        ],
+        [
+          5,
+          "role consistency in conversational agents"
+        ],
+        [
+          6,
+          "character drift in role-playing LLMs"
+        ],
+        [
+          7,
+          "persona coherence in dialogue systems"
+        ],
+        [
+          8,
+          "role-playing fidelity assessment"
+        ],
+        [
+          9,
+          "agent identity maintenance in LLMs"
+        ],
+        [
+          10,
+          "narrative consistency in AI role-play"
+        ],
+        [
+          11,
+          "persona violation detection in language models"
+        ],
+        [
+          12,
+          "character integrity in generative text"
+        ],
+        [
+          13,
+          "role-playing agent alignment"
+        ],
+        [
+          14,
+          "behavioral consistency in role-playing AI"
+        ],
+        [
+          15,
+          "persona tracking in language agents"
+        ],
+        [
+          16,
+          "character deviation in LLM role-play"
+        ],
+        [
+          17,
+          "role adherence in conversational AI"
+        ],
+        [
+          18,
+          "identity consistency in generative agents"
+        ],
+        [
+          19,
+          "role-playing agent evaluation frameworks"
+        ],
+        [
+          20,
+          "narrative fidelity in language model interactions"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Character at the Right\" linguistics": 0,
+        "role-playing language agent consistency": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "persona consistency role adherence character fidelity",
+      "role-playing agents benchmark instruction following",
+      "linguistic alignment persona drift agent behavior",
+      "role adherence evaluation metrics character stability",
+      "instruction following persona leakage character drift"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.14695"
+      ]
+    },
+    "per_query_hit_count": {
+      "instruction following persona leakage character drift": 1,
+      "linguistic alignment persona drift agent behavior": 2,
+      "llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Character at the Right\" linguistics": 3,
+      "persona consistency role adherence character fidelity": 3,
+      "role adherence evaluation metrics character stability": 3,
+      "role-playing agents benchmark instruction following": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2402.09161",
+          "rationale": "The paper focuses on the pedagogical application of LLMs in educational role-playing games to enhance student engagement, which is an off-domain application compared to the user's specific question about the linguistic mechanisms of character consistency (\"staying in character\") in role-playing agents. It does not measure the same biological pathway, physical observable, or causal mechanism regarding agent behavior stability, nor does it provide a foundational methodology or empirical baseline f",
+          "title": "Role-Playing Simulation Games using ChatGPT"
+        },
+        {
+          "primary_pointer": "2402.11651",
+          "rationale": "The paper focuses on improving LLM agent performance in tool-use and reasoning tasks by leveraging negative training examples, which is a distinct construct from the user's question about \"staying in character\" (role consistency) in role-playing agents. While both involve LLM agents, the mechanism (optimizing for task success vs. maintaining persona consistency) and the specific research gap (data efficiency vs. linguistic/behavioral fidelity) do not overlap sufficiently to satisfy the inclusion",
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents"
+        },
+        {
+          "primary_pointer": "2409.02645",
+          "rationale": "The paper focuses on \"emergent language\" in multi-agent reinforcement learning (where agents invent new communication protocols), which is a distinct construct from the user's question about \"role-playing\" and \"staying in character\" in pre-trained Large Language Models (LLMs). This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (specifically the word \"language\" and \"agents\"), as the mechanisms, domains, and research goals (inventing language vs. maintaining",
+          "title": "Emergent Language: A Survey and Taxonomy"
+        },
+        {
+          "primary_pointer": "2505.11807",
+          "rationale": "The paper focuses on improving LLM agent performance through offline reinforcement learning and action rescoring, which is a distinct mechanism from the user's question regarding \"staying in character\" (role consistency) and linguistic analysis. While both involve language agents, the candidate paper does not measure the specific construct of character adherence, nor does it provide a baseline or methodology for the linguistic evaluation of role-playing consistency requested by the user.",
+          "title": "Retrospex: Language Agent Meets Offline Reinforcement Learning Critic"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-16T04:11:05Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"arcane: do role-playing language agents stay in character at the right\" linguistics",
+      "raw": "llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Character at the Right\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-16T04:11:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-16T04:11:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-16T04:11:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Ensuring persona fidelity in large language models (LLMs) is essential for maintaining coherent and engaging human-AI interactions. However, LLMs often exhibit Out-of-Character (OOC) behavior, where generated responses deviate from an assigned persona, leading to inconsistencies that affect model reliability. Existing evaluation methods typically assign single scores to entire responses, struggling to capture subtle persona misalignment, particularly in long-form text generation. To address this limitation, we propose an atomic-level evaluation framework that quantifies persona fidelity at a finer granularity. Our three key metrics measure the degree of persona alignment and consistency within and across generations. Our approach enables a more precise and realistic assessment of persona fidelity by identifying subtle deviations that real users would encounter. Through our experiments, we demonstrate that our framework effectively detects persona inconsistencies that prior methods overlook. By analyzing persona fidelity across diverse tasks and personality types, we reveal how task structure and persona desirability influence model adaptability, highlighting challenges in maintaining consistent persona expression.",
+          "claimed_authors": [
+            "Jisu Shin",
+            "Juhyun Oh",
+            "Eunsu Kim",
+            "Hoyun Song",
+            "Alice Oh"
+          ],
+          "claimed_title": "Spotting Out-of-Character Behavior: Atomic-Level Evaluation of Persona Fidelity in Open-Ended Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.19352"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title='Spotting Out-of-Character Behavior: Atomic-Level Evaluation of Persona Fidelity in Open-Ended Generation')",
+        "failed_at": "2026-07-16T04:11:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Jailbreak attacks aim to exploit large language models (LLMs) by inducing them to generate harmful content, thereby revealing their vulnerabilities. Understanding and addressing these attacks is crucial for advancing the field of LLM safety. Previous jailbreak approaches have mainly focused on direct manipulations of harmful intent, with limited attention to the impact of persona prompts. In this study, we systematically explore the efficacy of persona prompts in compromising LLM defenses. We propose a genetic algorithm-based method that automatically crafts persona prompts to bypass LLM's safety mechanisms. Our experiments reveal that: (1) our evolved persona prompts reduce refusal rates by 50-70% across multiple LLMs, and (2) these prompts demonstrate synergistic effects when combined with existing attack methods, increasing success rates by 10-20%. Our code and data are available at https://github.com/CjangCjengh/Generic_Persona.",
+          "claimed_authors": [
+            "Zheng Zhang",
+            "Peilin Zhao",
+            "Deheng Ye",
+            "Hao Wang"
+          ],
+          "claimed_title": "Enhancing Jailbreak Attacks on LLMs via Persona Prompts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.22171"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title='Enhancing Jailbreak Attacks on LLMs via Persona Prompts')",
+        "failed_at": "2026-07-16T04:11:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction-following language models demand robust methodologies for information retrieval to augment instructions for question-answering applications. A primary challenge is the resolution of coreferences in the context of chunking strategies for long documents. The critical barrier to experimentation of handling coreferences is a lack of open source datasets, specifically in question-answering tasks that require coreference resolution. In this work we present our Coreference Resolution in Question-Answering (CRaQAn) dataset, an open-source dataset that caters to the nuanced information retrieval requirements of coreference resolution in question-answering tasks by providing over 250 question-answer pairs containing coreferences. To develop this dataset, we developed a novel approach for creating high-quality datasets using an instruction-following model (GPT-4) and a Recursive Criticism and Improvement Loop.",
+          "claimed_authors": [
+            "Rob Grzywinski",
+            "Joshua D'Arcy",
+            "Rob Naidoff",
+            "Ashish Shukla",
+            "Alex Browne",
+            "Ren Gibbons",
+            "Brinnae Bent"
+          ],
+          "claimed_title": "Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16338"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title='Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models')",
+        "failed_at": "2026-07-16T04:11:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Our ability to build autonomous agents that leverage Generative AI continues to increase by the day. As builders and users of such agents it is unclear what parameters we need to align on before the agents start performing tasks on our behalf. To discover these parameters, we ran a qualitative empirical research study about designing agents that can negotiate during a fictional yet relatable task of selling a camera online. We found that for an agent to perform the task successfully, humans/users and agents need to align over 6 dimensions: 1) Knowledge Schema Alignment 2) Autonomy and Agency Alignment 3) Operational Alignment and Training 4) Reputational Heuristics Alignment 5) Ethics Alignment and 6) Human Engagement Alignment. These empirical findings expand previous work related to process and specification alignment and the need for values and safety in Human-AI interactions. Subsequently we discuss three design directions for designers who are imagining a world filled with Human-Agent collaborations.",
+          "claimed_authors": [
+            "Nitesh Goyal",
+            "Minsuk Chang",
+            "Michael Terry"
+          ],
+          "claimed_title": "Designing for Human-Agent Alignment: Understanding what humans want from their agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.04289"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title='Designing for Human-Agent Alignment: Understanding what humans want from their agents')",
+        "failed_at": "2026-07-16T04:11:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid progress of foundation models has led to the prosperity of autonomous agents, which leverage the universal capabilities of foundation models to conduct reasoning, decision-making, and environmental interaction. However, the efficacy of agents remains limited when operating in intricate, realistic environments. In this work, we introduce the principles of $\\mathbf{U}$nified $\\mathbf{A}$lignment for $\\mathbf{A}$gents ($\\mathbf{UA}^2$), which advocate for the simultaneous alignment of agents with human intentions, environmental dynamics, and self-constraints such as the limitation of monetary budgets. From the perspective of $\\mathbf{UA}^2$, we review the current agent research and highlight the neglected factors in existing agent benchmarks and method candidates. We also conduct proof-of-concept studies by introducing realistic features to WebShop, including user profiles to demonstrate intentions, personalized reranking for complex environmental dynamics, and runtime cost statistics to reflect self-constraints. We then follow the principles of $\\mathbf{UA}^2$ to propose an initial design of our agent, and benchmark its performance with several candidate baselines in the retrofitted WebShop. The extensive experimental results further prove the importance of the principles of $\\mathbf{UA}^2$. Our research sheds light on the next steps of autonomous agent research with improved general problem-solving abilities.",
+          "claimed_authors": [
+            "Zonghan Yang",
+            "An Liu",
+            "Zijun Liu",
+            "Kaiming Liu",
+            "Fangzhou Xiong",
+            "Yile Wang",
+            "Zeyuan Yang",
+            "Qingyuan Hu",
+            "Xinrui Chen",
+            "Zhenhe Zhang",
+            "Fuwen Luo",
+            "Zhicheng Guo",
+            "Peng Li",
+            "Yang Liu"
+          ],
+          "claimed_title": "Towards Unified Alignment Between Agents, Humans, and Environment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.07744"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title='Towards Unified Alignment Between Agents, Humans, and Environment')",
+        "failed_at": "2026-07-16T04:11:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Objective: Subcutaneous Immunotherapy (SCIT) is the long-lasting causal treatment of allergic rhinitis (AR). How to enhance the adherence of patients to maximize the benefit of allergen immunotherapy (AIT) plays a crucial role in the management of AIT. This study aims to leverage novel machine learning models to precisely predict the risk of non-adherence of AR patients and related local symptom scores in three years SCIT.\n  Methods: The research develops and analyzes two models, sequential latent-variable model (SLVM) of Stochastic Latent Actor-Critic (SLAC) and Long Short-Term Memory (LSTM) evaluating them based on scoring and adherence prediction capabilities.\n  Results: Excluding the biased samples at the first time step, the predictive adherence accuracy of the SLAC models is from 60\\% to 72\\%, and for LSTM models, it is 66\\% to 84\\%, varying according to the time steps. The range of Root Mean Square Error (RMSE) for SLAC models is between 0.93 and 2.22, while for LSTM models it is between 1.09 and 1.77. Notably, these RMSEs are significantly lower than the random prediction error of 4.55.\n  Conclusion: We creatively apply sequential models in the long-term management of SCIT with promising accuracy in the prediction of SCIT nonadherence in AR patients. While LSTM outperforms SLAC in adherence prediction, SLAC excels in score prediction for patients undergoing SCIT for AR. The state-action-based SLAC adds flexibility, presenting a novel and effective approach for managing long-term AIT.",
+          "claimed_authors": [
+            "Yin Li",
+            "Yu Xiong",
+            "Wenxin Fan",
+            "Kai Wang",
+            "Qingqing Yu",
+            "Liping Si",
+            "Patrick van der Smagt",
+            "Jun Tang",
+            "Nutan Chen"
+          ],
+          "claimed_title": "Sequential Model for Predicting Patient Adherence in Subcutaneous Immunotherapy for Allergic Rhinitis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.11447"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title='Sequential Model for Predicting Patient Adherence in Subcutaneous Immunotherapy for Allergic Rhinitis')",
+        "failed_at": "2026-07-16T04:11:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_authors": [
+            "Dayananda Herurkar",
+            "Ahmad Ali",
+            "Andreas Dengel"
+          ],
+          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20900"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
+        "failed_at": "2026-07-16T04:11:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Computing devices and associated software govern everyday life, and form the backbone of safety critical systems in banking, healthcare, automotive and other fields. Increasing system complexity, quickly evolving technologies and paradigm shifts have kept software quality research at the forefront. Standards such as ISO's 25010 express it in terms of sub-characteristics such as maintainability, reliability and security. A significant body of literature attempts to link these subcharacteristics with software metric values, with the end goal of creating a metric-based model of software product quality. However, research also identifies the most important existing barriers. Among them we mention the diversity of software application types, development platforms and languages. Additionally, unified definitions to make software metrics truly language-agnostic do not exist, and would be difficult to implement given programming language levels of variety. This is compounded by the fact that many existing studies do not detail their methodology and tooling, which precludes researchers from creating surveys to enable data analysis on a larger scale. In our paper, we propose a comprehensive study of metric values in the context of three complex, open-source applications. We align our methodology and tooling with that of existing research, and present it in detail in order to facilitate comparative evaluation. We study metric values during the entire 18-year development history of our target applications, in order to capture the longitudinal view that we found lacking in existing literature. We identify metric dependencies and check their consistency across applications and their versions. At each step, we carry out comparative evaluation with existing research and present our results.",
+          "claimed_authors": [
+            "Arthur-Jozsef Molnar",
+            "Alexandra Neamţu",
+            "Simona Motogna"
+          ],
+          "claimed_title": "Evaluation of Software Product Quality Metrics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.01557"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title='Evaluation of Software Product Quality Metrics')",
+        "failed_at": "2026-07-16T04:11:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the advent of Large Language Models, single-task and token-based multi-task models have evolved into instruction-based systems that infer task and target language implicitly from natural language prompts. This trend is reflected in IWSLT's Instruction Following Track, which this year introduced new tasks including an unknown surprise task, posing a genuine challenge against overfitting to known tasks. We present KIT's submission to the Long and Short Instruction Following tracks in the unconstrained setting. Our approach combines a general data augmentation pipeline that converts short-form corpora into long-form training data through segment concatenation, LLM-based label generation, and cross-lingual translation, yielding over 1M instances across six tasks and four languages. We further show that likelihood-based re-ranking, while highly effective for ASR, systematically degrades semantic tasks by spuriously selecting candidates generated from segmented audio processing rather than holistic long-form inference, a failure mode resolved by combining likelihood with Minimum Bayes Risk decoding.",
+          "claimed_authors": [
+            "Enes Yavuz Ugan",
+            "Maike Züfle",
+            "Yuka Ko",
+            "Supriti Sinhamahapatra",
+            "Fabian Retkowski",
+            "Seymanur Akti",
+            "Jan Niehues",
+            "Alexander Waibel"
+          ],
+          "claimed_title": "Multilingual Long-Form Speech Instruction Following: KIT's Submission to IWSLT 2026",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.04730"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ArcANE: Do Role-Playing Language Agents Stay in Ch', candidate_title=\"Multilingual Long-Form Speech Instruction Following: KIT's Submission to IWSLT 2026\")",
+        "failed_at": "2026-07-16T04:11:37Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jinsu Kim",
+            "Jihoon Tack",
+            "Noah Lee",
+            "Jongheon Jeong"
+          ],
+          "title": "Persona-Pruner: Sculpting Lightweight Models for Role-Playing",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.14695",
+        "summary": "Language Models (LMs) have shown remarkable potential as role-playing chatbots, delivering consistent, stylized interactions when given a specification of a character or user persona. However, applying these capabilities to real-world applications (e.g., ecosystems with numerous NPCs interacting simultaneously) exposes a critical inefficiency due to the excessive computational cost. In this paper, we question the necessity of dedicating a full, generalist model to a single persona, hypothesizing that a specific character identity relies on only a fraction of the model's total capacity. We observe that naively pruning LMs often severely degrades the role-playing performance for a specific persona; it does not distinguish between redundant knowledge and essential character traits. We propose Persona-Pruner, a framework that sculpts a lightweight role-playing model by isolating persona-specific sub-networks from a single description. Our experiments consistently show that Persona-Pruner preserves role-playing performance substantially more effectively than existing state-of-the-art LLM pruning techniques, reducing the performance drop from the dense model by up to 93.8% over the strongest baseline on RoleBench in LLM-as-a-judge score, while still maintaining general LLM capabilities. Code is available at https://github.com/jsu-kim/Persona-Pruner.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.14695",
+          "http_status": 200,
+          "pdf_sample_score": 0.2374,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T04:11:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yongjie Wang",
+            "Jonathan Leung",
+            "Zhiqi Shen"
+          ],
+          "title": "RoleRAG: Enhancing LLM Role-Playing via Graph Guided Retrieval",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.18541",
+        "summary": "Large Language Models (LLMs) have shown promise in character imitation, enabling immersive and engaging conversations. However, they often generate content that is irrelevant or inconsistent with a character's background. We attribute these failures to: (1) the inability to accurately recall character-specific knowledge due to entity ambiguity, and (2) a lack of awareness of the character's cognitive boundaries. To address these issues, we propose RoleRAG, a retrieval-based framework that integrates efficient entity disambiguation for knowledge indexing with a boundary-aware retriever for extracting contextually appropriate information from a structured knowledge graph. Experiments on role-playing benchmarks show that RoleRAG's calibrated retrieval helps both general-purpose and role-specific LLMs better align with character knowledge and reduce hallucinated responses.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.18541",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T04:11:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Junru Lu",
+            "Jiazheng Li",
+            "Guodong Shen",
+            "Lin Gui",
+            "Siyu An",
+            "Yulan He",
+            "Di Yin",
+            "Xing Sun"
+          ],
+          "title": "RoleMRC: A Fine-Grained Composite Benchmark for Role-Playing and Instruction-Following",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.11387",
+        "summary": "Role-playing is important for Large Language Models (LLMs) to follow diverse instructions while maintaining role identity and the role's pre-defined ability limits. Existing role-playing datasets mostly contribute to controlling role style and knowledge boundaries, but overlook role-playing in instruction-following scenarios. We introduce a fine-grained role-playing and instruction-following composite benchmark, named RoleMRC, including: (1) Multi-turn dialogues between ideal roles and humans, including free chats or discussions upon given passages; (2) Role-playing machine reading comprehension, involving response, refusal, and attempts according to passage answerability and role ability; (3) More complex scenarios with nested, multi-turn and prioritized instructions. The final RoleMRC features a 10.2k role profile meta-pool, 37.9k well-synthesized role-playing instructions, and 1.4k testing samples. We develop a pipeline to quantitatively evaluate the fine-grained role-playing and instruction-following capabilities of several mainstream LLMs, as well as models that are fine-tuned on our data. Moreover, cross-evaluation on external role-playing datasets confirms that models fine-tuned on RoleMRC enhances instruction-following without compromising general role-playing and reasoning capabilities. We also probe the neural-level activation maps of different capabilities over post-tuned LLMs. Access to our RoleMRC, RoleMRC-mix and Codes: https://github.com/LuJunru/RoleMRC.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.11387",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T04:11:37Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"arcane: do role-playing language agents stay in character at the right\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

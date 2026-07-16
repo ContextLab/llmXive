@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.14695",
+  "judged_at": "2026-07-16T04:11:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"arcane: do role-playing language agents stay in character at the right\" linguistics",
+  "rationale": "This paper satisfies criterion (a) by investigating the same core mechanism of \"staying in character\" (role-playing consistency) for language agents, even though it focuses on the efficiency of maintaining this trait via pruning rather than the linguistic analysis of character drift. It also meets criterion (b) by measuring the dependent variable of role-playing performance on the specific domain of role-playing agents, providing essential empirical context for any study on character consistency",
+  "relevant": true
+}

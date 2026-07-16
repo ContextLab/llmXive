@@ -1,0 +1,114 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CharacterAxis
+description: >
+  JSON Schema for defining Coarse and Fine psychological axes for a character.
+  Used in the ArcANE framework to structure character analysis for gene-regulation
+  style probing.
+type: object
+required:
+  - character_name
+  - coarse_axis
+  - fine_axis
+  - source_metadata
+properties:
+  character_name:
+    type: string
+    description: The name of the character being analyzed.
+    minLength: 1
+    pattern: "^[a-zA-Z0-9_\\s-]+$"
+
+  coarse_axis:
+    type: object
+    description: >
+      Broad, high-level psychological dimension (e.g., "Moral Alignment", "Social Dominance").
+      Must be distinct from the Fine axis.
+    required:
+      - label
+      - definition
+      - range_description
+    properties:
+      label:
+        type: string
+        description: Short name for the coarse axis.
+        minLength: 1
+      definition:
+        type: string
+        description: Detailed definition of what this axis measures.
+        minLength: 10
+      range_description:
+        type: string
+        description: Description of the endpoints of the axis (e.g., "Altruistic to Egoistic").
+        minLength: 10
+
+  fine_axis:
+    type: object
+    description: >
+      Specific, nuanced psychological dimension derived from independent narrative observations.
+      Must be semantically distinct from the Coarse axis.
+    required:
+      - label
+      - definition
+      - range_description
+      - source_observation
+    properties:
+      label:
+        type: string
+        description: Short name for the fine axis.
+        minLength: 1
+      definition:
+        type: string
+        description: Detailed definition of this specific nuance.
+        minLength: 10
+      range_description:
+        type: string
+        description: Description of the endpoints of this specific axis.
+        minLength: 10
+      source_observation:
+        type: string
+        description: >
+          The specific narrative segment or independent observation that justifies
+          the existence of this fine axis. Used for FR-001 validation.
+        minLength: 10
+
+  source_metadata:
+    type: object
+    description: Metadata regarding the origin of these axis definitions.
+    required:
+      - created_at
+      - version
+    properties:
+      created_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of creation.
+      version:
+        type: string
+        description: Semantic version of the axis definition (e.g., "1.0.0").
+      author_id:
+        type: string
+        description: Optional identifier of the researcher who defined the axes.
+      notes:
+        type: string
+        description: Optional additional context or constraints.
+
+  validation_flags:
+    type: object
+    description: >
+      Flags indicating the results of semantic overlap checks (to be populated
+      by the validation service, T012).
+    properties:
+      lexical_overlap_score:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Jaccard or cosine similarity of token sets.
+      embedding_distance:
+        type: number
+        minimum: 0
+        maximum: 2
+        description: Cosine distance (1 - cosine_similarity) between axis embeddings.
+      is_valid:
+        type: boolean
+        description: True if overlap constraints (lexical < 0.4, distance > 0.7) are met.
+
+additionalProperties: false

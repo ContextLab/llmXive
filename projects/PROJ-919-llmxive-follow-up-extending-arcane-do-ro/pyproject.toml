@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive"
+version = "0.1.0"
+description = "Automated science pipeline for gene regulation analysis"
+requires-python = ">=3.11"
+dependencies = [
+    "transformers",
+    "llama-cpp-python",
+    "datasets",
+    "scikit-learn",
+    "scipy",
+    "pandas",
+    "numpy",
+    "tiktoken",
+    "hypothesis",
+    "pytest",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+target-version = "py311"
+extend-exclude = [
+    "__pycache__",
+    "*.egg-info",
+    ".venv",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+known-third-party = [
+    "datasets",
+    "huggingface_hub",
+    "numpy",
+    "pandas",
+    "pytest",
+    "scipy",
+    "sklearn",
+    "tiktoken",
+    "transformers",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"

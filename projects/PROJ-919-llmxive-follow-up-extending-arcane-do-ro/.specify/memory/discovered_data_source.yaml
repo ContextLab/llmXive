@@ -1,0 +1,17 @@
+status: none
+intent: PersonaBank character personality annotations with IPIP-NEO-120 validation
+  python package dataset
+required_fields:
+- character_name
+- coarse_axis_label
+- coarse_axis_definition
+- fine_axis_label
+- fine_axis_definition
+- source_text_reference
+- annotation_source
+- validation_trait_scores
+- lexical_overlap_score
+- embedding_cosine_distance
+cache_key: 59b66860297c396f98836fb35e390d26581e39f3c30ae9ca1943c8d97dbcfe4e
+searched_at: '2026-07-16T04:18:09.791351+00:00'
+retry_count: 1

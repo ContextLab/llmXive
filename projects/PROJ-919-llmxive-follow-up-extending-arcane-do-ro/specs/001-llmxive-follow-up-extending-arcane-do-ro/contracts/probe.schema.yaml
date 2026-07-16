@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Probe Schema"
+description: "Schema for an 'Out-of-World' scenario probe."
+type: object
+required:
+  - probe_id
+  - character_id
+  - scenario_text
+  - cosine_similarity
+  - status
+properties:
+  probe_id:
+    type: string
+    description: "Unique identifier for the probe."
+  character_id:
+    type: string
+    description: "Reference to the character."
+  scenario_text:
+    type: string
+    description: "The generated scenario text."
+  cosine_similarity:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Cosine similarity against source text. Must be < 0.3 for validity."
+  status:
+    type: string
+    enum:
+      - "valid"
+      - "regenerated"
+      - "discarded"
+    description: "Current status of the probe."
+additionalProperties: false

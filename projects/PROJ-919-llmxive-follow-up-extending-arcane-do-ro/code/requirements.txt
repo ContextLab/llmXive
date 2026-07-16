@@ -1,0 +1,14 @@
+transformers
+llama-cpp-python
+datasets
+scikit-learn
+scipy
+pandas
+numpy
+tiktoken
+hypothesis
+pytest
+sentence-transformers
+torch
+ruff
+black

@@ -1,0 +1,35 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file contents were provided showing that `src/`, `tests/`,
+    `data/`, and `specs/001-gene-regulation/` actually exist in the repository. Without
+    concrete evidence of these folders (and any files within them), the claim that
+    the required project structure has been created cannot be verified. The implementer
+    must add the missing directory structure (and optionally placeholder files) to
+    satisfy the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
+    settings, `.ruff.toml`, or a `requirements-dev.txt` including these tools) were
+    provided, nor any documentation or scripts showing they have been set up and integrated
+    into the project. The required artifacts are missing.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`data/raw/`, `data/derived/`, `data/gold_standard/`,
+    `artifacts/`) is provided; the claim lacks any artifact listing or screenshots
+    confirming their existence or contents.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation was provided that creates or demonstrates\
+    \ logging of experiment run IDs, timestamps, and parameter hashes. The evidence\
+    \ consists only of a high\u2011level feature specification unrelated to state\u2011\
+    tracking, so the required artifact is missing."
+T010:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: "The required file `specs/001-gene-regulation/contracts/axis.schema.yaml` (or\
+    \ `schema.yaml`) does not exist, so no JSON schema for `CharacterAxis` (Coarse/Fine)\
+    \ is provided. The task\u2019s primary artifact is missing."

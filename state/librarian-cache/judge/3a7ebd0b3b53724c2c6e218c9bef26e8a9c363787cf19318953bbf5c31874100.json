@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.11387",
+  "judged_at": "2026-07-16T04:11:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"arcane: do role-playing language agents stay in character at the right\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides a fine-grained benchmark and empirical evaluation specifically measuring the \"stay in character\" mechanism (role identity maintenance) in LLMs, which is the core dependent variable of the user's question regarding role-playing agents. Although it focuses on instruction-following scenarios rather than the specific \"linguistics\" angle of the original ArcANE paper, it establishes the necessary empirical baseline and measurement framework for ",
+  "relevant": true
+}

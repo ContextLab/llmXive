@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-07-16T04:22:07.970068+00:00",
+    "project": "PROJ-919-llmxive-follow-up-extending-arcane-do-ro",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/ethics-probes",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/mrdbourke/learn_hf_food_not_food_image_captions/resolve/main/data/train-00000-of-00001.parquet",
+        "intent": "ethics probes Alternative : was previously cited but is currently unreachable HTTP 404 . Correction This dataset NOT used. The \"Out of World\" will"
+      }
+    ]
+  }
+]
