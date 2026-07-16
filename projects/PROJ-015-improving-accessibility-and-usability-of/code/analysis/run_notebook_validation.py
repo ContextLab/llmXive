@@ -4,20 +4,19 @@ import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 from pathlib import Path
 import pandas as pd
+import json
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def log_message(log_file: Path, message: str, status: str = "INFO"):
-    """Append a timestamped message to the log file."""
-    from datetime import datetime
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(log_file, "a") as f:
-        f.write(f"[{timestamp}] [{status}] {message}\n")
+def log_message(message: str, log_file: Path):
+    with open(log_file, 'a') as f:
+        f.write(f"{message}\n")
+    logger.info(message)
 
 def check_dependencies():
-    """Verify that required dependencies are installed."""
-    required = ["nbformat", "nbconvert", "pandas", "scipy", "matplotlib"]
+    """Check if required dependencies are installed."""
+    required = ['pandas', 'numpy', 'scipy', 'matplotlib', 'nbformat', 'nbconvert']
     missing = []
     for pkg in required:
         try:
@@ -27,136 +26,168 @@ def check_dependencies():
     
     if missing:
         raise ImportError(f"Missing dependencies: {', '.join(missing)}")
-    return True
+    logger.info("All dependencies verified.")
 
-def preprocess_notebook(notebook_path: Path) -> nbformat.NotebookNode:
-    """Load the notebook and ensure paths are absolute relative to project root."""
-    with open(notebook_path, "r", encoding="utf-8") as f:
+def preprocess_notebook(notebook_path: Path):
+    """Preprocess notebook to ensure relative paths are resolved."""
+    with open(notebook_path, 'r', encoding='utf-8') as f:
         nb = nbformat.read(f, as_version=4)
     
-    # Ensure data paths are absolute to avoid relative path issues during execution
-    for cell in nb.cells:
-        if cell.cell_type == "code":
-            source = cell.source
-            # Replace relative paths like 'data/processed/' with absolute paths if they appear in strings
-            # This is a heuristic to fix common notebook path issues
-            if "data/processed/" in source:
-                # We rely on the notebook code itself using Path(__file__) or similar, 
-                # but we ensure the execution context is correct by setting CWD.
-                pass
+    # Ensure working directory is project root for relative paths
+    # Add a setup cell if not present
+    setup_code = """
+import os
+import sys
+from pathlib import Path
+# Set working directory to project root for relative paths
+project_root = Path(__file__).resolve().parent.parent.parent
+os.chdir(project_root)
+print(f"Working directory set to: {os.getcwd()}")
+"""
+    
+    # Insert setup cell at the beginning
+    nb.cells.insert(0, nbformat.v4.new_code_cell(setup_code))
+    
+    # Set seed in first code cell if not already set
+    seed_code = """
+import numpy as np
+import random
+np.random.seed(42)
+random.seed(42)
+print("Seeds set to 42")
+"""
+    
+    # Check if first cell is code and doesn't already set seeds
+    if nb.cells[0].cell_type == 'code':
+        if 'seed' not in nb.cells[0].source.lower():
+            nb.cells[0].source = seed_code + "\n" + nb.cells[0].source
+    else:
+        nb.cells.insert(1, nbformat.v4.new_code_cell(seed_code))
+    
     return nb
 
 def execute_notebook(notebook_path: Path, output_path: Path):
-    """Execute the notebook in the current environment."""
+    """Execute the notebook and save output."""
     nb = preprocess_notebook(notebook_path)
+    
     ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
     
     try:
-        # Execute the notebook in place
         ep.preprocess(nb, {'metadata': {'path': str(notebook_path.parent)}})
+        
         # Save the executed notebook
         with open(output_path, 'w', encoding='utf-8') as f:
             nbformat.write(nb, f)
+        
+        logger.info(f"Notebook executed successfully: {output_path}")
         return True
     except Exception as e:
-        logger.error(f"Notebook execution failed: {str(e)}")
+        logger.error(f"Notebook execution failed: {e}")
         raise
 
-def verify_outputs(project_root: Path) -> bool:
-    """Verify that the notebook produced the required artifacts."""
-    processed_dir = project_root / "data" / "processed"
+def verify_outputs(output_dir: Path, log_file: Path):
+    """Verify that all expected outputs were generated."""
+    required_files = [
+        'metrics_summary.csv',
+        'boxplot_completion_time.png',
+        'boxplot_error_count.png',
+        'boxplot_sus.png',
+        'report_summary.txt'
+    ]
     
-    # Check for metrics_summary.csv
-    metrics_file = processed_dir / "metrics_summary.csv"
-    if not metrics_file.exists():
-        logger.error(f"Missing: {metrics_file}")
-        return False
+    missing = []
+    invalid = []
     
-    # Verify columns in metrics_summary.csv
-    try:
-        df = pd.read_csv(metrics_file)
-        required_cols = ["F-statistic", "p-value", "adjusted p-value", "effect size"]
-        missing_cols = [c for c in required_cols if c not in df.columns]
-        if missing_cols:
-            logger.error(f"metrics_summary.csv missing columns: {missing_cols}")
-            return False
-        logger.info(f"metrics_summary.csv verified: {len(df)} rows, columns: {list(df.columns)}")
-    except Exception as e:
-        logger.error(f"Failed to read/verify metrics_summary.csv: {str(e)}")
-        return False
-
-    # Check for generated plots (visualizer.py creates these)
-    # Based on T027, we expect box plots. We check for existence of any png in figures/
-    figures_dir = project_root / "figures"
-    if figures_dir.exists():
-        plots = list(figures_dir.glob("*.png"))
-        if not plots:
-            logger.warning("No plots found in figures/ (T027 may not have run or saved correctly)")
-            # This is a warning, not a hard fail for T029 if the notebook ran, 
-            # but the task description says "all generated plots ... exist".
-            # We will be strict: if the notebook claims to generate them, they must exist.
-            # However, if the notebook didn't run the visualization cell, we catch it above.
-            # Let's assume if the notebook ran successfully, the plots are there.
-            # If not, we flag it.
-            pass 
+    # Check metrics_summary.csv
+    metrics_path = output_dir / 'metrics_summary.csv'
+    if not metrics_path.exists():
+        missing.append('metrics_summary.csv')
     else:
-        logger.warning("figures/ directory does not exist.")
-
-    # Check for specific log entries if T023b exclusion was logged
-    exclusion_log = processed_dir / "exclusion_log.txt"
-    if exclusion_log.exists():
-        content = exclusion_log.read_text()
-        if "explanation_engagement_time excluded" not in content:
-            logger.warning("Exclusion log does not contain expected message.")
+        try:
+            df = pd.read_csv(metrics_path)
+            required_cols = ['F_statistic', 'p_value', 'adjusted_p_value', 'effect_size', 'metric_name', 'interface_type']
+            if not all(col in df.columns for col in required_cols):
+                invalid.append('metrics_summary.csv: missing required columns')
+            elif df.empty:
+                invalid.append('metrics_summary.csv: empty dataframe')
+            else:
+                # Check for non-zero values in key columns
+                if df['F_statistic'].sum() == 0:
+                    invalid.append('metrics_summary.csv: F_statistic all zeros')
+        except Exception as e:
+            invalid.append(f'metrics_summary.csv: {str(e)}')
     
-    return True
+    # Check plot files
+    for plot in ['boxplot_completion_time.png', 'boxplot_error_count.png', 'boxplot_sus.png']:
+        plot_path = output_dir / plot
+        if not plot_path.exists():
+            missing.append(plot)
+        elif plot_path.stat().st_size == 0:
+            invalid.append(f'{plot}: empty file')
+    
+    # Check report file
+    report_path = output_dir / 'report_summary.txt'
+    if not report_path.exists():
+        missing.append('report_summary.txt')
+    
+    # Write log
+    with open(log_file, 'w') as f:
+        if missing or invalid:
+            f.write('FAIL\n')
+            if missing:
+                f.write(f"Missing files: {', '.join(missing)}\n")
+            if invalid:
+                f.write(f"Invalid files: {', '.join(invalid)}\n")
+            logger.error(f"Validation failed. Missing: {missing}, Invalid: {invalid}")
+            return False
+        else:
+            f.write('PASS\n')
+            logger.info("Validation passed. All outputs verified.")
+            return True
 
 def main():
     """Main entry point for notebook validation."""
     project_root = Path(__file__).resolve().parent.parent.parent
-    notebook_path = project_root / "code" / "analysis.ipynb"
-    output_notebook_path = project_root / "code" / "analysis_executed.ipynb"
-    log_file = project_root / "data" / "processed" / "notebook_execution_log.txt"
+    notebook_path = project_root / 'code' / 'analysis.ipynb'
+    output_dir = project_root / 'data' / 'processed'
+    output_notebook = output_dir / 'analysis_executed.ipynb'
+    log_file = output_dir / 'notebook_execution_log.txt'
     
-    # Ensure log directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Clear previous log
-    with open(log_file, "w") as f:
-        f.write("Notebook Execution Log\n")
-        f.write("=" * 50 + "\n")
-    
-    log_message(log_file, "Starting notebook validation for T029")
+    # Clear log file
+    if log_file.exists():
+        log_file.unlink()
     
     try:
-        # 1. Check Dependencies
-        log_message(log_file, "Checking dependencies...")
+        # Check dependencies
         check_dependencies()
-        log_message(log_file, "Dependencies OK")
+        log_message("Dependencies check passed", log_file)
         
-        # 2. Execute Notebook
-        log_message(log_file, f"Executing notebook: {notebook_path}")
-        if not notebook_path.exists():
-            raise FileNotFoundError(f"Notebook not found: {notebook_path}")
+        # Execute notebook
+        log_message("Executing notebook...", log_file)
+        execute_notebook(notebook_path, output_notebook)
+        log_message("Notebook execution completed", log_file)
         
-        execute_notebook(notebook_path, output_notebook_path)
-        log_message(log_file, "Notebook executed successfully")
+        # Verify outputs
+        success = verify_outputs(output_dir, log_file)
         
-        # 3. Verify Outputs
-        log_message(log_file, "Verifying outputs...")
-        if verify_outputs(project_root):
-            log_message(log_file, "Verification PASSED", status="PASS")
-            print("T029 Validation: PASS")
+        if success:
+            log_message("Final validation: PASS", log_file)
+            print("Validation successful. All outputs generated correctly.")
             return 0
         else:
-            log_message(log_file, "Verification FAILED", status="FAIL")
-            print("T029 Validation: FAIL")
+            log_message("Final validation: FAIL", log_file)
+            print("Validation failed. Check notebook_execution_log.txt for details.")
             return 1
             
     except Exception as e:
-        log_message(log_file, f"Execution failed: {str(e)}", status="FAIL")
-        print(f"T029 Validation: FAIL - {str(e)}")
+        log_message(f"Error: {str(e)}", log_file)
+        logger.error(f"Validation failed with error: {e}")
+        with open(log_file, 'a') as f:
+            f.write(f"ERROR: {str(e)}\n")
         return 1
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

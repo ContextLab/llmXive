@@ -7,3 +7,12 @@ T023a:
     \ the analysis for the three specific metrics (completion time, error count, SUS)\
     \ or writes their F\u2011statistic, p\u2011value, adjusted p\u2011value, and effect\
     \ size to the CSV. The deliverable is therefore missing."
+T029b:
+  c: false
+  h: 4eba9d84606ceb3840866909f0855a3e66bda95a735f7aefd338eec1af48a82f
+  r: "The `data/processed/notebook_execution_log.txt` exists but reports \u201CPASS\u201D\
+    \ while the required `data/processed/metrics_summary.csv` is missing, and no plot\
+    \ files are present. This means the validation script could not have succeeded,\
+    \ and the notebook\u2019s end\u2011to\u2011end execution (producing the CSV and\
+    \ plots) is not demonstrated. The task therefore fails to meet the verification\
+    \ criteria."

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: analyzed
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-015-improving-accessibility-and-usability-of
-last_run_id: acf2f1b0-c7c0-445c-bc1b-913be7fff6ad
+last_run_id: a58c6f42-db92-4d3a-b6d5-e90f5a1f2131
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of
 title: Improving Accessibility and Usability of Complex Computer Systems for People
   with Disabilities
-updated_at: '2026-07-16T02:32:59.935429Z'
+updated_at: '2026-07-16T11:57:25.287211Z'

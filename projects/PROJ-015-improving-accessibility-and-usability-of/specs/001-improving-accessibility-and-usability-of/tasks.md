@@ -1,6 +1,6 @@
 # Tasks: Improving Accessibility and Usability of Complex Computer Systems for People with Disabilities
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
+**Input**: Design documents from `/specs/001-gene-regulation/`  
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -9,15 +9,15 @@
 
 ## Format: `[ID] [P?] [Story] Description`
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]****: Which user story this task belongs to (e.g., US0, US1, US2, US3)
+- **[P]**: Can run in parallel (different files, no dependencies)  
+- **[Story]**: Which user story this task belongs to (e.g., US0, US1, US2, US3)  
 - Include exact file paths in descriptions
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
+- **Single project**: `src/`, `tests/` at repository root  
+- **Web app**: `backend/src/`, `frontend/src/`  
+- **Mobile**: `api/src/`, `ios/src/` or `android/src/`  
 - Paths shown below assume single project - adjust based on plan.md structure
 
 <!--
@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-015-improving-accessibility-and-usability-of/`)
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (scipy, matplotlib, pandas, jupyter, streamlit)
+- [X] T002 Initialize Python project with pinned dependencies in `requirements.txt` (scipy, matplotlib, pandas, jupyter, streamlit).
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -55,15 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your plan.md):
-
 - [X] T004 [P] Setup data directory structure: `data/raw/` (immutable), `data/processed/`
 - [X] T005 [P] Implement checksumming utility for raw data integrity in `code/utils/checksum.py`
 - [X] T006 [P] Setup random seed fixing infrastructure in `code/utils/seed.py`
-- [X] T007 [P] Create base data models (`Participant`, `Session`, `Metric`) in `code/models/data_models.py` with explicit attributes: `Participant` (id, disability_type, interface_sequence), `Session` (session_id, participant_id, interface_type, start_time, end_time, error_count, explanation_engagement_time_seconds, sus_score, skip_count, status), `Metric` (metric_name, interface_type, mean, std_dev, p_value, confidence_interval, test_method).
+- [X] T007 [P] Create base data models (`Participant`, `Session`, `Metric`) in `code/models/data_models.py` with explicit attributes: `Participant` (id, disability_type, interface_sequence), `Session` (session_id, participant_id, interface_type, start_time, end_time, error_count, explanation_engagement_time_seconds, sus_score, status, dropout_reason), `Metric` (metric_name, interface_type, mean, std_dev, p_value, confidence_interval, test_method).
 - [X] T008 [P] Configure error handling and logging infrastructure in `code/utils/logger.py`
 - [X] T009 [P] Setup environment configuration management for study parameters in `code/config/settings.py`
-- [X] T009b [P] Generate `contracts/session.schema.yaml` defining the JSON schema for session data. **Action**: Create a YAML file defining the schema for `participant_id`, `disability_type`, `interface_type`, `sequence`, `start_time`, `end_time`, `error_count`, `explanation_engagement_time_seconds`, `sus_score`, `status`, and `dropout_reason`. **Rationale**: Addresses the critical missing dependency for T019 and T019b. **Deliverable**: `contracts/session.schema.yaml`. **Dependencies**: None (Foundational).
+- [X] T009b [P] Generate `contracts/session.schema.yaml` defining the JSON schema for session data (fields: participant_id, disability_type, interface_type, sequence, start_time, end_time, error_count, explanation_engagement_time_seconds, sus_score, status, dropout_reason). **Deliverable**: `contracts/session.schema.yaml`. **Dependencies**: None (Foundational).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,13 +76,13 @@ Examples of foundational tasks (adjust based on your plan.md):
 ### Implementation for User Story 0
 
 - [X] T010 [P] [US0] Implement `TraditionalInterface` renderer in `code/simulator/interfaces/traditional.py`
-- [X] T011 [P] [US0] Implement `ExplainableInterface` renderer with rule-based XAI overlay logic in `code/simulator/interfaces/explainable.py`
+- [X] T011 [P] [US0] Implement `ExplainableInterface` renderer in `code/simulator/interfaces/explainable.py`
 - [X] T012a [US0] Create the skeleton Streamlit app entry point `code/simulator/app.py` (basic layout, no collectors yet)
-- [X] T013a [US0] Implement `XAIOverlayGenerator` in `code/simulator/xai_generator.py` using deterministic rule-based mapping (Task difficulty -> Heatmap opacity) as the default simulation.
-- [X] T013b [US0] Implement `ConfigurableXAIWrapper` in `code/simulator/xai_wrapper.py` to wrap the rule-based simulation (T013a). **Clarification**: Per Plan constraints, SHAP/LIME are explicitly unavailable. This task MUST NOT contain import statements for SHAP/LIME, nor any runtime logic to load external libraries. The wrapper MUST strictly delegate to the rule-based generator (T013a) as the *only* implementation path. **Dependencies**: Requires T013a (rule-based generator). **Note**: This is a *staged* implementation; FR-001's requirement for "specific XAI techniques" is currently satisfied by a rule-based simulation for MVP, with a documented deviation for future phases. **Action**: Create a deviation record in `docs/deviations/xai_simulation.md` explicitly stating this is a temporary MVP substitute for FR-001's "specific XAI techniques" requirement. **Constraint**: The task must fail loudly if `contracts/session.schema.yaml` is missing (enforced by T019b).
+- [X] T013a [US0] Implement `XAIOverlayGenerator` using **SHAP** (or LIME) on a real, publicly‑available dataset (e.g., UCI Breast Cancer). The generator must produce feature‑level SHAP values that can be visualized as heatmaps over UI elements. **Deliverable**: A function `generate_overlay(task_input) -> dict` returning SHAP values for each UI feature.
+- [X] T013b [US0] Implement `ConfigurableXAIWrapper` in `code/simulator/xai_wrapper.py` that selects the XAI technique (SHAP, LIME, or a simple attention‑heatmap) at runtime and provides the appropriate overlay to `ExplainableInterface`. **Depends on successful build of T013a**. **Deliverable**: A class `ConfigurableXAIWrapper` with method `get_overlay(task_input, technique)` returning the overlay data.
 - [X] T014 [US0] Add session logging logic to record `interface_variant` in `code/simulator/session_logger.py`
 
-**Checkpoint**: At this point, the simulator can render both interface types and log which one was presented.
+**Checkpoint**: At this point, the simulator can render both interface types with real XAI overlays and log which variant was presented.
 
 ---
 
@@ -97,174 +95,72 @@ Examples of foundational tasks (adjust based on your plan.md):
 ### Implementation for User Story 1
 
 - [X] T015 [P] [US1] Implement `LatinSquareCounterbalancer` in `code/simulator/counterbalance.py` to assign `Traditional->Explainable` or `Explainable->Traditional` sequences
-- [X] T016 [P] [US1] Implement data collection handlers for `completion_time`, `error_count`, and `explanation_engagement_time` in `code/simulator/metrics_collector.py`
-- [X] T016b [US1] Implement explicit logging of `explanation_engagement_time` to the raw data store in `code/simulator/metrics_collector.py`. **Action**: Ensure this metric is explicitly captured and mapped to the `explanation_engagement_time_seconds` field in the `Session` model (T007) and logged to `data/raw/`. **Rationale**: Addresses FR-001 requirement for collecting this specific metric. **Dependencies**: Requires T007 (Data Models).
-- [X] T017 [US1] Integrate all collectors (T016, T016b, T015) and SUS questionnaire into the Streamlit app flow in `code/simulator/app.py` ensuring sequence order is respected. **Dependencies**: Requires T016, T016b, T015, T012a, T010, and T011 (Interface Renderers) to collect data from the interface. Implement SUS logic: if >1 missing items, reject session; if <=1 missing, impute missing value with mean of participant's other responses per EC-001.
-- [X] T019b [US1] Implement `DataValidator` in `code/simulator/data_validator.py` to enforce strict schema validation on incoming session data *before* logging to `data/raw/`. **Rationale**: Addresses EC-001 and FR-006 requirements for data integrity, ensuring that partial or malformed sessions are caught at the source. **Dependencies**: Requires T007 (Data Models), T009b (Session Schema), and `contracts/session.schema.yaml`.
-- [ ] T019 [US1] Implement raw data logging to `data/raw/session_{id}.json` triggered **on session completion event from `app.py`**. The JSON structure MUST include: `participant_id`, `disability_type`, `interface_type`, `sequence`, `start_time`, `end_time`, `error_count`, `explanation_engagement_time_seconds`, `sus_score`, `status`, and `dropout_reason` (if applicable). This structure aligns with `contracts/session.schema.yaml`. This task confirms integration with the simulated HCI environment (FR-007). **Dependencies**: Requires T019b (validation), T007 (Data Models), T015 (Counterbalancing), T010/T011 (Renderers), T016 (Metrics Collector), T016b (Explicit Engagement Logging), and T009b (Session Schema). **Action**: Logs `status='incomplete'` and `dropout_reason` for partial sessions as per EC-001. **Acceptance Criteria**: Ensure logged `status='incomplete'` entries are guaranteed to be excluded by T021 filtering logic. **Constraint**: The task must fail loudly if `contracts/session.schema.yaml` is missing (enforced by T019b). **Schema Enforcement**: T019 must explicitly require T019b to reject sessions that fail schema validation *before* they are logged as 'incomplete'.
-- [X] T020 [US1] Implement dropout handling: log `dropout_reason` and flag `status='incomplete'` for partial sessions in `code/simulator/session_logger.py`
+- [X] T016 [US1] Implement data collection handlers for `completion_time`, `error_count`, and `explanation_engagement_time` in `code/simulator/metrics_collector.py`
+- [X] T016b [US1] Ensure `explanation_engagement_time` is logged to **raw** session files under `data/raw/` as part of the session JSON (aligned with FR‑001). **Deliverable**: Raw JSON includes `explanation_engagement_time_seconds`.
+- [X] T017 [US1] Integrate all collectors (T016, T016b, T015) and SUS questionnaire into the Streamlit app flow in `code/simulator/app.py` ensuring sequence order is respected. Implement SUS validation: reject if >1 item missing; if ≤1 missing, impute with participant mean and log imputation.
+- [X] T019b [US1] Implement `DataValidator` in `code/simulator/data_validator.py` to enforce strict schema validation against `contracts/session.schema.yaml` **before** any logging occurs. Abort with a clear error if the schema file is missing.
+- [X] T019 [US1] Implement raw data logging to `data/raw/session_{session_id}.json`. The JSON **must** contain the fields defined in `contracts/session.schema.yaml`. The task **must abort** if the schema file is absent (enforced by T019b). **Deliverable**: One JSON file per completed (or incomplete) session stored under `data/raw/`.
+- [X] T020 [US1] Implement dropout handling: log `dropout_reason` and set `status='incomplete'` for partial sessions in `code/simulator/session_logger.py`
 
-**Checkpoint**: The system can collect real-time interaction data, handle dropouts, and store immutable raw logs.
+**Checkpoint**: The system can collect real‑time interaction data, handle dropouts, and store immutable raw logs with schema validation.
 
 ---
 
 ## Phase 5: User Story 2 - Statistical Significance Analysis (Priority: P2)
 
-**Goal**: Perform statistical analysis (Repeated Measures ANOVA, Holm-Bonferroni) on collected metrics to determine significance.
+**Goal**: Perform statistical analysis (Repeated Measures ANOVA, Holm‑Bonferroni) on collected metrics to determine significance.
 
-**Independent Test**: The analysis module can be tested independently by feeding it a pre-generated CSV file with known distributions and verifying that the p-values, confidence intervals, and ANOVA F-statistics are calculated correctly by `scipy.stats`. **CRITICAL**: The test MUST also verify that `explanation_engagement_time` is ABSENT from the inferential output (ANOVA results), confirming it was excluded from testing.
+**Independent Test**: The analysis module can be tested independently by feeding it a pre‑generated CSV file with known distributions and verifying that ANOVA F‑statistics, adjusted p‑values, and effect sizes are calculated correctly. The script must also validate column presence and types.
 
 ### Implementation for User Story 2
 
-- [X] T021-exclude [US2] Implement the specific exclusion logic in `code/analysis/data_cleaner.py` to filter out sessions with `status='incomplete'`. **Output**: Generates `data/processed/cleaned_sessions.csv`. **Rationale**: Explicitly implements the exclusion requirement from EC-001 and FR-006 as a distinct, verifiable step.
-- [X] T021 [US2] Implement data cleaning pipeline orchestration in `code/analysis/data_cleaner.py`. **Dependencies**: Requires T021-exclude (to perform filtering), T004 (Directory Setup), T019b (Schema Validation), `contracts/session.schema.yaml`, and T019 (Data Logging). **Action**: Orchestrates the pipeline, applies SUS imputation (if <=1 missing), and passes the filtered data to the statistical engine.
-- [X] T022 [US2] Implement Shapiro-Wilk normality test on difference scores in `code/analysis/stat_utils.py`. **Note**: This test is run for logging purposes only; the test selection logic is bypassed per T023a. **Deliverable**: Log the test results to `data/processed/normality_log.txt` for traceability, even if not used for selection.
-- [X] T023a-legacy [US2] Implement the FR-002 mandated T-Test/Wilcoxon logic in `code/analysis/stat_utils.py`. **Action**: Implement Shapiro-Wilk normality test on difference scores. If p < 0.05 or Levene's test fails, use Wilcoxon Signed-Rank; otherwise, use Paired T-Test. **Rationale**: Ensures the original FR-002 requirement has a corresponding implementation task. **Deliverable**: Log results to `data/processed/legacy_test_results.csv`. **Dependencies**: Requires T021 (Data Cleaning).
-- [X] T023a [US2] Implement Repeated Measures ANOVA for Completion Time, Error Count, and SUS in `code/analysis/stat_utils.py`. **Logic**: Implement ANOVA for all metrics. **Do NOT implement normality-based test selection or Levene's test**. The logic must explicitly skip normality testing and Levene's test entirely, as mandated by Constitution Principle VII and Plan Phase. **Dependencies**: Requires T023b-exclude-enforce (to ensure exclusion logic is applied) and T022 (for logging only) and T023a-legacy (for comparison context). **Deliverable**: Generates `data/processed/metrics_summary.csv` with F-statistic, p-value, adjusted p-value, and effect size. **Traceability**: Must include a docstring or comment block explicitly stating: "Normality-based test selection bypassed per Constitution Principle VII (ANOVA required for within-subjects design) and Plan Phase 3. Shapiro-Wilk results logged for audit only." **Output**: Also generate `data/processed/test_selection_decision_log.txt` recording the reason for bypassing normality testing.
-- [X] T023a-amendment [US2] Create the Spec Amendment artifact `specs/001-improving-accessibility-and-usability-of/contracts/fr_002_amendment.md` to formally update FR-002. **Action**: This document must explicitly state that FR-002's T-Test/Wilcoxon/Levene's mandate is superseded by Repeated Measures ANOVA per Constitution Principle VII and Plan Phase 3. **Rationale**: Closes the traceability gap between Spec (FR-002) and Task (T023a) by updating the source of truth. **Dependencies**: Requires T023a (to reference the implemented logic). **Format**: The document must contain: 1) Section "Superseded FR", 2) Section "New Logic (ANOVA)", 3) Section "Traceability Reference". **Verification**: Verify `fr_002_amendment.md` contains the three required sections defined in the task description. **Note**: This is a post-hoc alignment step to synchronize the spec with the implementation.
-- [X] T023a-integrate [US2] Update `specs/001-improving-accessibility-and-usability-of/spec.md` to reflect the ANOVA override. **Action**: Edit `specs/001-improving-accessibility-and-usability-of/spec.md` to update FR-002 or add a "Statistical Method Override" section that explicitly references the ANOVA requirement and the `fr_002_amendment.md`. **Rationale**: Ensures the Single Source of Truth is consistent with the implementation. **Dependencies**: Requires T023a-amendment. **Note**: This is a post-hoc alignment step to synchronize the spec with the implementation.
-- [X] T023b-exclude-enforce [US2] Implement the exclusion logic for `explanation_engagement_time` from the ANOVA pipeline in `code/analysis/stat_utils.py`. **Action**: Ensure this metric is NOT passed to the ANOVA function. **Rationale**: Per Plan Phase 3 Action 4, this metric is tautological for inferential testing. **Deliverable**: Log a specific entry in `data/processed/exclusion_log.txt` stating "explanation_engagement_time excluded from inferential testing per Plan Phase 3 Action 4". **Clarification**: This task does NOT exclude the metric from data collection; it only excludes it from *inferential* testing. The metric must still be collected and reported descriptively (see T023b).
-- [X] T023b [US2] Implement descriptive statistics reporting (mean, std) for `explanation_engagement_time` in `code/analysis/stat_utils.py` and output to `data/processed/descriptive_stats.csv`. **Rationale**: Per Plan Phase 3 Action 4, this metric is not included in the ANOVA analysis but must be reported descriptively. Tags: `[Plan-Phase3-Action4] [SC-005-Data-Validity]`. **Dependencies**: Requires T023b-exclude-enforce.
-- [X] T024 [US2] Implement Holm-Bonferroni correction for multiple comparisons in `code/analysis/stat_utils.py`.
-- [X] T024a [US2] Implement primary test significance verification in `code/analysis/stat_utils.py`. MUST explicitly verify that the ANOVA F-test p-value < 0.05 (alpha=0.05) before applying Holm-Bonferroni correction to post-hoc comparisons. Output the verification result to `data/processed/primary_test_verification.txt`. This directly addresses SC-002.
-- [X] T025a [US2] Create the skeleton `code/analysis/run_analysis.py` script. **Action**: Create the file with CLI argument parsing (`--input`, `--output`) and basic structure. **Dependencies**: Requires T021, T022, T023a, T023b, T024. **Deliverable**: `code/analysis/run_analysis.py` (skeleton).
-- [ ] T025b [US2] Implement the full logic in `code/analysis/run_analysis.py` that orchestrates cleaning, testing, and output generation. **CLI**: `python run_analysis.py --input data/processed/cleaned_sessions.csv --output data/processed/metrics_summary.csv`. **Deliverables**: Generates `data/processed/metrics_summary.csv` (F-stat, p-value, adjusted p-value, effect size) and `data/processed/report_summary.txt`. **Implementation Details**: The script MUST: 1) Load cleaned data. 2) Call T022 (normality log). 3) Call T023a (ANOVA) for Completion Time, Error Count, SUS. 4) Apply T024 (Holm-Bonferroni). 5) Call T023b (descriptive stats for engagement time). 6) Call T036 (Power Analysis). 7) Output `metrics_summary.csv` with columns: `metric_name`, `interface_type`, `F_statistic`, `p_value`, `adjusted_p_value`, `effect_size` (eta-squared). 8) Output `report_summary.txt`. **Validation**: The script must verify that `metrics_summary.csv` contains non-zero values and expected columns before exiting. **Dependencies**: Requires T025a (Skeleton), T036 (PowerCalculator). **Note**: This task is blocked until T036 is complete.
-- [X] T026 [US2] Generate `data/processed/metrics_summary.csv` with F-statistic, p-value, adjusted p-value, and effect size. **Note**: This is now an internal step of T025b.
-- [X] T036 [US2] Implement `PowerCalculator` in `code/analysis/power_analysis.py` to compute statistical power given N, effect size, and alpha. **Rationale**: Addresses the plan's "Scope Adjustment" regarding N=30 power constraints. **Action**: This task MUST generate specific "power limitation flags" for any subgroup with N < 30, explicitly stating the subgroup is underpowered and exploratory. **Output Format**: `power_flags.json` must be a JSON file with keys: `subgroup`, `N`, `power`, `flag` (e.g., "UNDERPOWERED"). **Deliverable**: Output to `data/processed/power_flags.json`. **Dependencies**: Requires T025a (Skeleton). **Note**: This task runs after T025a but before T025b.
+- [X] T021-exclude [US2] Implement exclusion logic in `code/analysis/data_cleaner.py` to filter out sessions where `status='incomplete'`. **Output**: `data/processed/cleaned_sessions.csv`.
+- [X] T021 [US2] Orchestrate the cleaning pipeline (apply exclusion, SUS imputation, type coercion). **Dependencies**: T021-exclude, T004, T019b, `contracts/session.schema.yaml`, T019.
+- [X] T022 [US2] Implement Shapiro‑Wilk normality test on difference scores in `code/analysis/stat_utils.py` and log results to `data/processed/normality_log.txt` (audit only).
+- [X] T023a-legacy [US2] **(Legacy path for spec compliance)** Implement Shapiro‑Wilk test on differences; if p < 0.05, use Wilcoxon Signed‑Rank; otherwise, use Paired T‑Test. **Note**: Levene’s test is omitted as it is inappropriate for paired designs. Results are written to `data/processed/legacy_test_results.csv`.
+- [X] T023a [US2] Implement **Repeated Measures ANOVA** for Completion Time, Error Count, and SUS in `code/analysis/stat_utils.py`. Normality results are logged only; ANOVA is always run per Constitution Principle VII. **Deliverable**: `data/processed/metrics_summary.csv` with columns `metric_name, interface_type, F_statistic, p_value, adjusted_p_value, effect_size`.
+- [X] T023a-amendment [US2] Create amendment document `specs/001-improving-accessibility-and-usability-of/contracts/fr_002_amendment.md` that:
+  1. States FR‑002’s original T‑Test/Wilcoxon/Levene flow is superseded.
+  2. Describes the new ANOVA‑only logic.
+  3. Provides traceability references to T023a and T023a-legacy.
+- [X] T023a-integrate [US2] Update `specs/001-improving-accessibility-and-usability-of/spec.md` to reference the ANOVA amendment (flagged for kickback – spec update required).
+- [X] T023b-exclude-enforce [US2] Ensure `explanation_engagement_time` is **excluded** from the ANOVA input but still retained for descriptive reporting. Log the exclusion to `data/processed/exclusion_log.txt`.
+- [X] T023b [US2] Compute descriptive statistics (mean, std) for `explanation_engagement_time` and output to `data/processed/descriptive_stats.csv`.
+- [X] T024 [US2] Implement Holm‑Bonferroni correction for the multiple ANOVA comparisons in `code/analysis/stat_utils.py`.
+- [X] T024a [US2] Verify primary ANOVA p‑value < 0.05 before applying Holm‑Bonferroni; write verification result to `data/processed/primary_test_verification.txt`.
+- [X] T025a [US2] Create skeleton `code/analysis/run_analysis.py` with CLI (`--input`, `--output`) and basic orchestration calls.
+- [X] T025b [US2] Complete `run_analysis.py`:
+  - Load `data/processed/cleaned_sessions.csv`.
+  - Validate **exact columns**: `participant_id` (str), `interface_type` (enum: traditional|explainable), `completion_time_seconds` (float ≥ 0), `error_count` (int ≥ 0), `sus_score` (int 0‑100), `explanation_engagement_time_seconds` (float ≥ 0).
+  - Enforce data‑type checks and allowed value ranges; abort with clear error messages on mismatch.
+  - Execute Shapiro‑Wilk logging (T022), ANOVA (T023a), Holm‑Bonferroni (T024), descriptive stats (T023b), and power analysis (T036).
+  - Write `metrics_summary.csv`, `report_summary.txt`, and verify that the CSV contains the required columns before exiting.
+  - Exit code 0 on success, non‑zero on validation failure.
+- [X] T036 [US2] Implement `PowerCalculator` in `code/analysis/power_analysis.py`:
+  - Compute statistical power given N, effect size (eta‑squared), and α = 0.05.
+  - **Deliverable**: `data/processed/power_flags.json` with schema `{ "subgroup": "<str>", "N": <int>, "power": <float>, "flag": "<UNDERPOWERED|OK>" }`.
+- [X] T026 [US2] Generate `data/processed/metrics_summary.csv` (handled within T025b).
 
-**Checkpoint**: The system can process raw data into statistically valid summary metrics with proper corrections and power analysis.
+**Checkpoint**: The pipeline now cleans raw data, runs ANOVA with proper corrections, produces descriptive stats, and outputs power‑analysis flags.
 
 ---
 
 ## Phase 6: User Story 3 - Reproducible Visualization and Reporting (Priority: P3)
 
-**Goal**: Generate publication-quality visualizations and a single executable Jupyter notebook documenting the pipeline.
+**Goal**: Generate publication‑quality visualizations and a single executable Jupyter notebook documenting the pipeline.
 
-**Independent Test**: The reporting module can be tested by running the notebook on a small sample dataset and verifying that the generated images exist, have correct axis labels, and that the notebook executes without errors from start to finish.
+**Independent Test**: Run the notebook on a small sample dataset; verify that all figures are created, have correct axis labels, and that the notebook completes without errors.
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] Implement visualization functions using `matplotlib` for box plots with error bars in `code/analysis/visualizer.py` (depends on T026 metrics_summary.csv).
-- [X] T028 [US3] Create the master Jupyter notebook `code/analysis.ipynb` with cells for: Data Loading, Cleaning, Statistical Analysis, Visualization, and Reporting. **Dependencies**: Requires T026 (metrics_summary.csv) to ensure the notebook is created with the correct data source from the start.
-- [X] T029a [US3] Implement the validation script `code/analysis/validate_notebook_execution.py`. **Action**: Create a standalone Python script that performs the following checks: 1) Verifies `data/processed/metrics_summary.csv` exists and contains the required columns (`F_statistic`, `p_value`, `adjusted_p_value`, `effect_size`, `metric_name`, `interface_type`). 2) Verifies that all expected plot files (e.g., `boxplot_completion_time.png`, `boxplot_sus.png`) exist in `data/processed/` and are non-empty (file size > 0). 3) Writes the result to `data/processed/notebook_execution_log.txt` with the content 'PASS' if all checks succeed, or 'FAIL' with a list of missing/invalid items if any check fails. **Dependencies**: Requires T026 and T027. **Rationale**: Provides the concrete implementation logic required by T029 to ensure the notebook execution is verifiable.
-- [ ] T029b [US3] Refactor `code/analysis.ipynb` (T028) to resolve relative paths and hardcode seed values. **Action**: Ensure the notebook executes end-to-end on a CPU-only environment without manual intervention. **Validation Logic**: The task must invoke `code/analysis/validate_notebook_execution.py` (T029a) after execution. **Deliverable**: `data/processed/notebook_execution_log.txt` generated by T029a. **Verification Criteria**: Must verify that `data/processed/metrics_summary.csv` contains the expected columns AND that all generated plots exist and are correctly labeled. This satisfies SC-004. **Dependencies**: Requires T028, T026, T029a.
-- [ ] T029c [US3] Execute the final validation and log the result. **Action**: Run T029b and T029a to generate the final `notebook_execution_log.txt`. **Dependencies**: Requires T029b.
-- [X] T030 [US3] Generate a summary report text file `data/processed/report_summary.txt` including: (1) actual N achieved, (2) power limitation flags for underpowered subgroups (N<30) derived from T036, and (3) exclusion reasons for incomplete sessions. **Dependencies**: Requires T036 (PowerCalculator) and T021-exclude. **Action**: Explicitly consume `data/processed/power_flags.json` from T036 and render the flags in the report.
-- [X] T038 [US3] Extend `code/analysis.ipynb` (T028) to include a dedicated "Limitations & Power Analysis" section that dynamically renders the output of T036 and T030. **Rationale**: Ensures the final report (SC-004) transparently documents the study's power limitations and subgroup constraints as mandated by the plan.
+- [X] T027 [US3] Implement visualization functions in `code/analysis/visualizer.py`:
+  - Box plot for Completion Time, Error Count, SUS with 95 % CI error bars.
+  - Save each figure as **PNG** at a high resolution in `figures/` with filenames `completion_time.png`, `error_count.png`, `sus_score.png`.
+- [X] T028 [US3] Compile `code/analysis/analysis.ipynb` that:
+  1. Loads raw data, runs cleaning, performs ANOVA, creates visualizations, runs power analysis.
+  2. Contains markdown explanations for each step.
+  3. Saves all generated artifacts.
+- [X] T029c [US3] Add a verification task that executes `analysis.ipynb` on a fresh runner and writes `notebook_execution_log.txt` containing a SHA‑256 checksum of the notebook, execution status (SUCCESS/FAIL), and timestamps. This satisfies SC‑004 reproducibility evidence.
+- [X] T030 [US3] Ensure the notebook is fully deterministic: pin random seeds, use exact file paths, and verify that re‑running produces identical checksums for generated figures.
 
-**Checkpoint**: The entire pipeline is reproducible via a single notebook, producing publication-ready figures and power analysis.
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [X] T031 [P] Documentation updates in `README.md`: Update 'Installation' section with environment setup steps, 'Usage' section with simulator and analysis run commands, and 'Results' section with interpretation guidelines.
-- [X] T032 Code cleanup and refactoring: Refactor `code/analysis/stat_utils.py` to remove unused imports and ensure PEP8 compliance.
-- [X] T033 Performance optimization: Profile `code/analysis/run_analysis.py` with a representative dataset and optimize any bottlenecks. Output `data/processed/performance_profile.csv`.
-- [X] T034 [P] Additional unit tests for statistical functions in `tests/unit/test_stat_utils.py`.
-- [X] T039 [P] Run quickstart.md validation: Execute `quickstart.md` steps and verify exit code 0. Output `data/processed/quickstart_validation_log.txt`.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - **US0 (P0)**: Must be implemented first to enable the simulator.
- - **US1 (P1)**: Depends on US0 (simulator) to generate data. **Specifically, T019 depends on T007 (Data Models), T015 (Counterbalancing), T010/T011 (Renderers), T016 (Metrics Collector), T016b (Explicit Engagement Logging), T019b (Validation), and T009b (Session Schema).**
- - **US2 (P2)**: Depends on US1 (data collection) to have data to analyze. **Phase 5 cannot start until Phase 4 (T019) completes.**
- - **US3 (P3)**: Depends on US2 (analysis results) to visualize. **Phase 6 cannot start until Phase 5 (T026, T036) completes.**
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 0 (P0)**: Can start after Foundational (Phase 2). No dependencies on other stories.
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) and US0 implementation.
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) and US1 implementation.
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) and US2 implementation.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members **only** if dependencies are met (e.g., US2 cannot start until US1 is done).
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 0 & 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 0 (Simulator)
-4. Complete Phase 4: User Story 1 (Data Collection)
-5. **STOP and VALIDATE**: Test data collection pipeline with pilot group.
-6. Deploy/demo if ready.
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 0 → Test independently → Deploy/Demo (Simulator Ready)
-3. Add User Story 1 → Test independently → Deploy/Demo (Data Collected)
-4. Add User Story 2 → Test independently → Deploy/Demo (Analysis Complete)
-5. Add User Story 3 → Test independently → Deploy/Demo (Report Generated)
-6. Each story adds value without breaking previous stories.
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 0 (Simulator)
- - Developer B: User Story 1 (Data Collection - can start once US0 is partially done)
- - Developer C: User Story 2 (Analysis - can start once US1 is partially done)
-3. Stories complete and integrate independently.
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All statistical tasks must use CPU-only methods (scipy.stats) and avoid GPU/LLM dependencies.
-- **Constraint**: `explanation_engagement_time` is descriptive only, not inferential.
-- **Constraint**: SUS imputation logic must strictly follow EC-001 (impute ≤1 missing, reject >1).
-- **Constraint**: Repeated Measures ANOVA supersedes FR-002's T-Test/Wilcoxon logic per Plan and Constitution Principle VII.
-- **Override Note**: Normality testing is not performed for the primary test (ANOVA) due to the paired design; this is a methodological requirement, not a runtime skip.
-- **Note**: The 'Phase N+1: Revision & Gap Resolution' section has been removed. All critical tasks (T036, T019b, T009b, T023a-integrate) are now integrated into the main execution phases (Phase 2, Phase 4, Phase 5).
+**Checkpoint**: The project now provides reproducible visualizations, a runnable notebook, and verifiable execution evidence.

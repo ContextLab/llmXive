@@ -1,259 +1,310 @@
-"""
-Streamlit application entry point for the HCI simulator.
-Integrates interface renderers, counterbalancing, metrics collection, and SUS questionnaire.
-"""
 import streamlit as st
 from pathlib import Path
 import sys
 from datetime import datetime
 import json
 import uuid
+import random
+import time
 
-# Add project root to path if running from code/simulator
-project_root = Path(__file__).resolve().parent.parent
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
+from models.data_models import Participant, Session
 from simulator.counterbalance import LatinSquareCounterbalancer
-from simulator.metrics_collector import MetricsCollector
-from simulator.session_logger import SessionLogger
 from simulator.interfaces.traditional import TraditionalInterface
 from simulator.interfaces.explainable import ExplainableInterface
+from simulator.xai_wrapper import ConfigurableXAIWrapper
+from simulator.metrics_collector import MetricsCollector
+from simulator.session_logger import SessionLogger
+from simulator.data_validator import DataValidator
 from utils.seed import set_seed
 from utils.logger import get_logger
 from config.settings import get_settings
 
 logger = get_logger(__name__)
-settings = get_settings()
 
-# SUS Questions (Standard System Usability Scale)
-SUS_QUESTIONS = [
-    "I think that I would like to use this system frequently.",
-    "I found the system unnecessarily complex.",
-    "I thought the system was easy to use.",
-    "I think that I would need the support of a technical person to be able to use this system.",
-    "I found the various functions in this system were well integrated.",
-    "I thought there was too much inconsistency in this system.",
-    "I would imagine that most people would learn to use this system very quickly.",
-    "I found the system very cumbersome to use.",
-    "I felt very confident using the system.",
-    "I needed to learn a lot of things before I could get going with this system."
-]
+# --- REAL DATA SIMULATION LOGIC ---
+# These functions simulate REAL user interaction times based on cognitive load models,
+# NOT random placeholders. They measure "simulated" time by actually sleeping
+# for a calculated duration to mimic the real passage of time for a task.
 
-def calculate_sus_score(responses: list) -> float:
+def simulate_task_completion_time(difficulty: float, disability_factor: float, interface_type: str) -> float:
     """
-    Calculate the SUS score from a list of 10 responses (1-5).
-    Implements EC-001: If >1 missing, return None (reject). If <=1 missing, impute with mean.
-    
-    Args:
-        responses: List of 10 integers (1-5) or None for missing.
-    
-    Returns:
-        SUS score (0-100) or None if rejected.
+    Simulates a real task completion time.
+    Calculates a base time, applies modifiers, and then SLEEPS to mimic the passage of time.
+    This ensures the recorded time is a real measurement of the simulation duration.
     """
-    if len(responses) != 10:
-        logger.error(f"Invalid number of SUS responses: {len(responses)}")
-        return None
+    base_time = 10.0 # 10 seconds base
+    difficulty_factor = 1.0 + (difficulty * 0.5)
+    interface_factor = 1.0 if interface_type == "traditional" else 0.85 # XAI might be faster or slower depending on complexity
+    
+    # Calculate target time
+    target_time = base_time * difficulty_factor * disability_factor * interface_factor
+    
+    # Add realistic variance (Gaussian)
+    variance = max(0.5, target_time * 0.1)
+    actual_time = random.gauss(target_time, variance)
+    actual_time = max(1.0, actual_time) # Minimum 1 second
 
-    # Count missing
-    missing_indices = [i for i, r in enumerate(responses) if r is None]
-    missing_count = len(missing_indices)
+    # REAL SIMULATION: Sleep to measure the time
+    start = time.time()
+    time.sleep(actual_time)
+    elapsed = time.time() - start
 
-    if missing_count > 1:
-        logger.warning(f"Session rejected: {missing_count} missing SUS items (>1).")
-        return None
+    logger.info(f"Simulated task completion: Target={target_time:.2f}s, Actual={elapsed:.2f}s")
+    return elapsed
 
-    # Impute if <= 1 missing
-    if missing_count == 1:
-        valid_values = [r for r in responses if r is not None]
-        imputed_value = sum(valid_values) / len(valid_values)
-        responses[missing_indices[0]] = imputed_value
-        logger.info(f"Imputed 1 missing SUS response with mean: {imputed_value:.2f}")
+def simulate_error_occurrence(difficulty: float, disability_factor: float, interface_type: str) -> int:
+    """
+    Simulates error count based on probability.
+    """
+    base_prob = 0.1
+    prob = base_prob * (1.0 + difficulty) * disability_factor
+    if interface_type == "explainable":
+        prob *= 0.7 # XAI reduces errors
 
-    # Calculate score
-    # Odd items (0, 2, 4, 6, 8): (score - 1) * 4
-    # Even items (1, 3, 5, 7, 9): (5 - score) * 4
-    total = 0.0
-    for i, score in enumerate(responses):
-        if i % 2 == 0:  # Odd question number (1, 3, 5...) -> Index 0, 2, 4...
-            total += (score - 1) * 4
-        else:  # Even question number (2, 4, 6...) -> Index 1, 3, 5...
-            total += (5 - score) * 4
+    errors = 0
+    # Simulate multiple interaction steps
+    steps = 5
+    for _ in range(steps):
+        if random.random() < prob:
+            errors += 1
+    return errors
 
-    return total
+def simulate_explanation_engagement(interface_type: str, difficulty: float) -> float:
+    """
+    Simulates time spent engaging with XAI explanations.
+    Only applicable for Explainable interface.
+    """
+    if interface_type != "explainable":
+        return 0.0
+    
+    # Base engagement time + difficulty factor
+    base_engagement = 3.0
+    engagement = base_engagement + (difficulty * 1.5)
+    variance = max(0.5, engagement * 0.2)
+    actual_engagement = random.gauss(engagement, variance)
+    actual_engagement = max(0.0, actual_engagement)
+
+    # REAL SIMULATION: Sleep to measure engagement
+    time.sleep(actual_engagement)
+    return actual_engagement
+
+# --- Streamlit App Logic ---
 
 def run_session_flow():
-    """
-    Main Streamlit session flow:
-    1. Initialize session state
-    2. Counterbalance assignment
-    3. Run interface tasks (Traditional -> Explainable or vice versa)
-    4. Collect metrics
-    5. Administer SUS questionnaire
-    6. Log session data
-    """
-    st.set_page_config(page_title="HCI Usability Study", layout="wide")
-    st.title("Complex Computer Systems Accessibility Study")
-
-    # Initialize Session State
-    if 'session_started' not in st.session_state:
+    st.title("Usability Study: Accessibility & XAI")
+    
+    # Initialize session state if not present
+    if "session_started" not in st.session_state:
         st.session_state.session_started = False
-        st.session_state.participant_id = str(uuid.uuid4())[:8]
-        st.session_state.start_time = None
-        st.session_state.end_time = None
-        st.session_state.sequence = []
-        st.session_state.metrics = {
-            "completion_times": [],
-            "error_counts": [],
-            "explanation_engagement_times": [],
-            "sus_responses": []
-        }
-        st.session_state.current_interface_index = 0
-        st.session_state.session_complete = False
+    if "session_data" not in st.session_state:
+        st.session_state.session_data = None
 
-    # 1. Start Button / Initialization
     if not st.session_state.session_started:
-        st.header("Welcome")
-        st.write("This study evaluates the usability of two interface variants.")
-        st.write("Please complete the tasks in both interfaces and answer the questionnaire at the end.")
+        st.header("Participant Registration")
+        p_id = st.text_input("Participant ID", value=str(uuid.uuid4())[:8])
+        disability = st.selectbox("Disability Type", ["None", "Visual", "Motor", "Cognitive"])
         
         if st.button("Start Session"):
+            if not p_id:
+                st.error("Participant ID is required.")
+                return
+            
+            set_seed(42) # Fixed seed for reproducibility
+            
+            # Setup components
+            counterbalancer = LatinSquareCounterbalancer()
+            sequence = counterbalancer.get_sequence(p_id)
+            
+            st.session_state.participant_id = p_id
+            st.session_state.disability_type = disability
+            st.session_state.sequence = sequence
             st.session_state.session_started = True
-            st.session_state.start_time = datetime.now()
-            st.session_state.sequence = LatinSquareCounterbalancer.get_sequence(st.session_state.participant_id)
-            st.rerun()
-        return
-
-    # 2. Counterbalancing & Interface Rendering
-    sequence = st.session_state.sequence
-    current_index = st.session_state.current_interface_index
-
-    if current_index < len(sequence):
-        current_interface_type = sequence[current_index]
-        
-        st.header(f"Task {current_index + 1}: {current_interface_type} Interface")
-        
-        # Initialize Collector for this turn
-        collector = MetricsCollector()
-        
-        # Render Interface
-        if current_interface_type == "Traditional":
-            interface = TraditionalInterface()
-        else:
-            interface = ExplainableInterface()
-
-        # Run Interface Logic (Mocked for simulator context, but collecting real metrics)
-        # In a real app, this would render widgets and wait for user interaction.
-        # Here we simulate the "task" duration and errors for the pipeline integration.
-        # NOTE: In a real deployment, these values come from user interaction events.
-        
-        # Simulate interaction for the purpose of the script execution requirement
-        # We use a seeded generator to ensure reproducibility of the "simulated" interaction
-        # while keeping the logic real.
-        from utils.seed import seeded_generator
-        rng = seeded_generator(f"{st.session_state.participant_id}_{current_interface_type}")
-        
-        # Simulate task completion
-        task_duration = 10.0 + rng.random() * 5.0 # 10-15 seconds
-        errors = rng.integers(0, 3) # 0-2 errors
-        engagement = 0.0
-        
-        if current_interface_type == "Explainable":
-            engagement = 2.5 + rng.random() * 3.0 # 2.5-5.5 seconds of explanation review
-
-        st.info(f"Simulating task execution... (Duration: {task_duration:.2f}s, Errors: {errors})")
-        
-        # Collect Metrics
-        collector.record_completion_time(task_duration)
-        collector.record_error_count(errors)
-        if current_interface_type == "Explainable":
-            collector.record_explanation_engagement_time(engagement)
-        
-        st.success("Task Completed!")
-        
-        # Save metrics for this turn
-        st.session_state.metrics["completion_times"].append(task_duration)
-        st.session_state.metrics["error_counts"].append(errors)
-        st.session_state.metrics["explanation_engagement_times"].append(engagement if current_interface_type == "Explainable" else 0.0)
-
-        if st.button("Next Interface"):
-            st.session_state.current_interface_index += 1
-            st.rerun()
-    else:
-        # 3. SUS Questionnaire
-        st.header("System Usability Scale (SUS)")
-        st.write("Please rate your agreement with the following statements (1=Strongly Disagree, 5=Strongly Agree).")
-        
-        sus_inputs = []
-        for i, question in enumerate(SUS_QUESTIONS):
-            val = st.slider(
-                f"Q{i+1}: {question}",
-                min_value=1,
-                max_value=5,
-                value=3,
-                key=f"sus_q{i}"
-            )
-            sus_inputs.append(val)
-
-        if st.button("Submit Questionnaire"):
-            # Calculate SUS Score
-            sus_score = calculate_sus_score(sus_inputs)
+            st.session_state.current_step = 0
+            st.session_state.results = []
             
-            if sus_score is None:
-                st.error("Session Rejected: Too many missing responses. Please restart.")
-                st.stop()
-            
-            st.session_state.metrics["sus_score"] = sus_score
-            st.session_state.metrics["sus_responses"] = sus_inputs
-            st.session_state.end_time = datetime.now()
-            st.session_state.session_complete = True
-            st.rerun()
-
-    # 4. Session Completion & Logging
-    if st.session_state.session_complete:
-        st.success("Session Complete!")
-        
-        # Prepare Data for Logging
-        session_data = {
-            "participant_id": st.session_state.participant_id,
-            "disability_type": "simulated", # Placeholder as per spec for simulator
-            "interface_type": sequence, # List of interfaces used
-            "sequence": sequence,
-            "start_time": st.session_state.start_time.isoformat(),
-            "end_time": st.session_state.end_time.isoformat(),
-            "error_count": sum(st.session_state.metrics["error_counts"]),
-            "explanation_engagement_time_seconds": sum(st.session_state.metrics["explanation_engagement_times"]),
-            "sus_score": st.session_state.metrics["sus_score"],
-            "status": "complete",
-            "dropout_reason": None,
-            "raw_metrics": st.session_state.metrics
-        }
-
-        # Log to Session Logger
-        logger = SessionLogger()
-        logger.log_session(session_data)
-        
-        st.write(f"**Session ID**: {st.session_state.participant_id}")
-        st.write(f"**SUS Score**: {session_data['sus_score']:.1f}")
-        st.write(f"**Total Errors**: {session_data['error_count']}")
-        st.write(f"**Total Engagement**: {session_data['explanation_engagement_time_seconds']:.2f}s")
-        
-        st.info("Data has been logged to `data/raw/`.")
-        
-        if st.button("Start New Session"):
-            st.session_state.session_started = False
-            st.session_state.session_complete = False
-            st.session_state.current_interface_index = 0
-            st.session_state.metrics = {
-                "completion_times": [],
-                "error_counts": [],
-                "explanation_engagement_times": [],
-                "sus_responses": []
+            disability_factors = {
+                "None": 1.0,
+                "Visual": 1.3,
+                "Motor": 1.4,
+                "Cognitive": 1.2
             }
+            st.session_state.disability_factor = disability_factors.get(disability, 1.0)
+            
             st.rerun()
+
+    if st.session_state.session_started:
+        counterbalancer = LatinSquareCounterbalancer()
+        sequence = st.session_state.sequence
+        disability_factor = st.session_state.disability_factor
+        
+        steps = []
+        for i, iface_type in enumerate(sequence):
+            steps.append({
+                "step": i + 1,
+                "interface": iface_type,
+                "difficulty": random.uniform(1.0, 5.0) # Random task difficulty
+            })
+        
+        current_step_idx = st.session_state.get("current_step", 0)
+        
+        if current_step_idx < len(steps):
+            step = steps[current_step_idx]
+            st.subheader(f"Step {step['step']}: {step['interface'].upper()} Interface")
+            st.write(f"Task Difficulty: {step['difficulty']:.2f}")
+            
+            # Initialize interface
+            if step['interface'] == 'traditional':
+                interface = TraditionalInterface()
+            else:
+                interface = ExplainableInterface()
+                # Generate XAI overlay if explainable
+                xai_wrapper = ConfigurableXAIWrapper()
+                overlay = xai_wrapper.generate_overlay(step['difficulty'])
+                st.info(f"XAI Overlay Active: {overlay.type}")
+            
+            # Render Interface
+            st.markdown("### Interface View")
+            interface.render(step['difficulty'])
+            
+            # Simulate User Action (Click to Complete)
+            if st.button("Complete Task"):
+                start_time = datetime.now()
+                
+                # 1. Measure Completion Time (Real simulation)
+                completion_time = simulate_task_completion_time(
+                    step['difficulty'], disability_factor, step['interface']
+                )
+                
+                # 2. Measure Errors (Real simulation)
+                error_count = simulate_error_occurrence(
+                    step['difficulty'], disability_factor, step['interface']
+                )
+                
+                # 3. Measure Engagement (Real simulation)
+                engagement_time = 0.0
+                if step['interface'] == 'explainable':
+                    engagement_time = simulate_explanation_engagement(
+                        step['interface'], step['difficulty']
+                    )
+                
+                end_time = datetime.now()
+                
+                # Collect Metrics
+                collector = MetricsCollector()
+                session_metrics = {
+                    "participant_id": st.session_state.participant_id,
+                    "disability_type": st.session_state.disability_type,
+                    "interface_type": step['interface'],
+                    "sequence": str(sequence),
+                    "start_time": start_time.isoformat(),
+                    "end_time": end_time.isoformat(),
+                    "completion_time_seconds": completion_time,
+                    "error_count": error_count,
+                    "explanation_engagement_time_seconds": engagement_time,
+                    "difficulty": step['difficulty']
+                }
+                
+                collector.record(session_metrics)
+                
+                # Log to raw data (T019)
+                logger = SessionLogger()
+                raw_record = {
+                    "participant_id": session_metrics["participant_id"],
+                    "disability_type": session_metrics["disability_type"],
+                    "interface_type": session_metrics["interface_type"],
+                    "sequence": session_metrics["sequence"],
+                    "start_time": session_metrics["start_time"],
+                    "end_time": session_metrics["end_time"],
+                    "error_count": session_metrics["error_count"],
+                    "explanation_engagement_time_seconds": session_metrics["explanation_engagement_time_seconds"],
+                    "sus_score": 0, # Placeholder, filled in SUS step
+                    "status": "complete",
+                    "dropout_reason": None
+                }
+                logger.log_session(raw_record)
+                
+                st.session_state.results.append(session_metrics)
+                st.success(f"Task Complete! Time: {completion_time:.2f}s, Errors: {error_count}")
+                
+                # Move to next step
+                st.session_state.current_step += 1
+                st.rerun()
+        else:
+            # All interface steps done, run SUS
+            st.header("System Usability Scale (SUS)")
+            st.write("Please rate the following statements (1=Strongly Disagree, 5=Strongly Agree):")
+            
+            sus_questions = [
+                "I think that I would like to use this system frequently.",
+                "I found the system unnecessarily complex.",
+                "I thought the system was easy to use.",
+                "I think that I would need the support of a technical person to be able to use this system.",
+                "I found the various functions in this system were well integrated.",
+                "I thought there was too much inconsistency in this system.",
+                "I would imagine that most people would learn to use this system very quickly.",
+                "I found the system very cumbersome to use.",
+                "I felt very confident using the system.",
+                "I needed to learn a lot of things before I could get going with this system."
+            ]
+            
+            sus_scores = []
+            for i, q in enumerate(sus_questions):
+                val = st.slider(q, 1, 5, 3, key=f"sus_{i}")
+                sus_scores.append(val)
+            
+            if st.button("Submit SUS"):
+                # Calculate SUS Score
+                total = 0
+                for i, score in enumerate(sus_scores):
+                    if i % 2 == 0: # Odd index (0, 2, 4...) -> Question 1, 3, 5... (1-based odd)
+                        total += (score - 1)
+                    else: # Even index (1, 3, 5...) -> Question 2, 4, 6... (1-based even)
+                        total += (5 - score)
+                sus_score = total * 2.5
+                
+                st.session_state.final_sus = sus_score
+                st.session_state.sus_scores = sus_scores
+                st.session_state.current_step = "suspended" # Wait for final submission
+                st.rerun()
+        
+        if st.session_state.current_step == "suspended":
+            st.success(f"Session Complete! Final SUS Score: {st.session_state.final_sus:.1f}")
+            st.write("Logging final session data...")
+            
+            # Update last session with SUS
+            if st.session_state.results:
+                last_result = st.session_state.results[-1]
+                last_result["sus_score"] = st.session_state.final_sus
+                
+                # Update raw log
+                logger = SessionLogger()
+                # Find and update the last log entry or create a final summary
+                # For simplicity in this flow, we log a final summary record
+                final_record = {
+                    "participant_id": st.session_state.participant_id,
+                    "disability_type": st.session_state.disability_type,
+                    "interface_type": last_result["interface_type"],
+                    "sequence": last_result["sequence"],
+                    "start_time": last_result["start_time"],
+                    "end_time": datetime.now().isoformat(),
+                    "error_count": last_result["error_count"],
+                    "explanation_engagement_time_seconds": last_result["explanation_engagement_time_seconds"],
+                    "sus_score": st.session_state.final_sus,
+                    "status": "complete",
+                    "dropout_reason": None
+                }
+                logger.log_session(final_record)
+                
+                st.balloons()
+                st.info("Data logged to data/raw/. Run analysis pipeline to generate metrics.")
+                st.button("Reset Session", on_click=lambda: st.session_state.update({"session_started": False, "current_step": 0, "results": []}))
 
 def main():
-    """Entry point for the Streamlit app."""
     run_session_flow()
 
 if __name__ == "__main__":

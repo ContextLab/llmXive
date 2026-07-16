@@ -1,17 +1,25 @@
 """
-Raw Data Logger for Session Data.
+Raw Data Logger Module for PROJ-015.
 
-This module handles the logging of raw session data to JSON files in the `data/raw/` directory.
-It ensures that the data structure aligns with `contracts/session.schema.yaml` and handles
-both complete and incomplete sessions (dropouts).
+This module implements the `RawDataLogger` class to persist session data to
+`data/raw/session_{id}.json` upon session completion. It enforces strict
+schema validation using the `contracts/session.schema.yaml` file before
+writing any data to disk, ensuring data integrity as per EC-001 and FR-006.
+
+Key Responsibilities:
+1. Validate incoming session data against the schema.
+2. Log complete sessions with status 'complete'.
+3. Log partial/dropped sessions with status 'incomplete' and `dropout_reason`.
+4. Ensure `contracts/session.schema.yaml` exists before operation.
 """
+
 import json
 import hashlib
 import uuid
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 from utils.logger import get_logger
 from config.settings import get_settings
@@ -19,200 +27,179 @@ from simulator.data_validator import DataValidator
 
 logger = get_logger(__name__)
 
-
 class RawDataLogger:
     """
-    Handles logging of raw session data to JSON files.
+    Handles the persistence of session data to JSON files in data/raw/.
+
+    This class acts as the final sink for the simulator's data collection.
+    It requires the `contracts/session.schema.yaml` to be present.
     """
 
     def __init__(self):
-        self.settings = get_settings()
-        self.data_dir = Path(self.settings.data_raw_dir)
+        settings = get_settings()
+        self.project_root = settings.project_root
+        self.raw_data_dir = self.project_root / "data" / "raw"
+        
+        # Ensure directory exists
+        self.raw_data_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Initialize validator
         self.validator = DataValidator()
         
-        # Ensure data directory exists
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"RawDataLogger initialized. Data directory: {self.data_dir}")
+        logger.info(f"RawDataLogger initialized. Output directory: {self.raw_data_dir}")
 
-    def _generate_session_id(self) -> str:
-        """Generate a unique session ID."""
-        return str(uuid.uuid4())
-
-    def _generate_checksum(self, data: Dict[str, Any]) -> str:
-        """Generate a checksum for the session data."""
-        data_str = json.dumps(data, sort_keys=True)
-        return hashlib.sha256(data_str.encode('utf-8')).hexdigest()
-
-    def log_session(
-        self,
-        participant_id: str,
-        disability_type: str,
-        interface_type: str,
-        sequence: str,
-        start_time: datetime,
-        end_time: datetime,
-        error_count: int,
-        explanation_engagement_time_seconds: float,
-        sus_score: float,
-        status: str,
-        dropout_reason: Optional[str] = None
-    ) -> str:
+    def _validate_schema_exists(self) -> bool:
         """
-        Log a session to a JSON file in data/raw/.
+        Checks if the required schema file exists.
+        Returns True if found, raises FileNotFoundError if missing.
+        """
+        schema_path = self.project_root / "contracts" / "session.schema.yaml"
+        if not schema_path.exists():
+            error_msg = f"CRITICAL: Schema file missing at {schema_path}. T019 cannot proceed without T009b."
+            logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
+        return True
+
+    def log_session(self, session_data: Dict[str, Any]) -> str:
+        """
+        Validates and logs a session to a JSON file.
 
         Args:
-            participant_id: Unique identifier for the participant.
-            disability_type: Type of disability (e.g., 'visual', 'motor').
-            interface_type: Type of interface used ('Traditional' or 'Explainable').
-            sequence: Order of interface presentation (e.g., 'Traditional->Explainable').
-            start_time: Session start time.
-            end_time: Session end time.
-            error_count: Number of errors committed during the session.
-            explanation_engagement_time_seconds: Time spent engaging with explanations.
-            sus_score: System Usability Scale score.
-            status: Session status ('complete' or 'incomplete').
-            dropout_reason: Reason for dropout if status is 'incomplete'.
+            session_data: Dictionary containing session metrics. Must include:
+                - participant_id
+                - disability_type
+                - interface_type
+                - sequence
+                - start_time
+                - end_time
+                - error_count
+                - explanation_engagement_time_seconds
+                - sus_score
+                - status ('complete' or 'incomplete')
+                - dropout_reason (optional, required if status is 'incomplete')
 
         Returns:
-            The path to the logged JSON file.
+            str: The path to the created JSON file.
 
         Raises:
-            ValueError: If the session data fails validation.
+            ValueError: If schema validation fails.
+            FileNotFoundError: If the schema file is missing.
         """
-        session_id = self._generate_session_id()
+        # 1. Enforce Schema Existence
+        self._validate_schema_exists()
+
+        # 2. Validate Data against Schema
+        # The validator will raise ValueError if data is malformed or missing required fields
+        is_valid, errors = self.validator.validate_session(session_data)
         
-        # Construct the session record
-        session_record = {
-            "session_id": session_id,
-            "participant_id": participant_id,
-            "disability_type": disability_type,
-            "interface_type": interface_type,
-            "sequence": sequence,
-            "start_time": start_time.isoformat(),
-            "end_time": end_time.isoformat(),
-            "error_count": error_count,
-            "explanation_engagement_time_seconds": explanation_engagement_time_seconds,
-            "sus_score": sus_score,
-            "status": status,
-            "dropout_reason": dropout_reason if status == "incomplete" else None
-        }
+        if not is_valid:
+            error_details = f"Session validation failed: {errors}"
+            logger.error(error_details)
+            # Fail loudly as per constraints: do not log invalid data
+            raise ValueError(error_details)
 
-        # Validate the session record
-        if not self.validator.validate_session(session_record):
-            errors = self.validator.get_last_errors()
-            logger.error(f"Session validation failed: {errors}")
-            raise ValueError(f"Session data failed validation: {errors}")
+        # 3. Generate Filename
+        # Use participant_id or a generated UUID if not present (though schema requires participant_id)
+        session_id = session_data.get("participant_id", str(uuid.uuid4()))
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"session_{session_id}_{timestamp}.json"
+        file_path = self.raw_data_dir / filename
 
-        # Generate checksum
-        checksum = self._generate_checksum(session_record)
-        session_record["checksum"] = checksum
+        # 4. Add Metadata
+        session_data["logged_at"] = datetime.now().isoformat()
+        session_data["file_checksum"] = self._compute_checksum(session_data)
 
-        # Define file path
-        file_name = f"session_{session_id}.json"
-        file_path = self.data_dir / file_name
-
-        # Write to file
+        # 5. Write to Disk
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
-                json.dump(session_record, f, indent=4)
+                json.dump(session_data, f, indent=2, default=str)
             
-            logger.info(f"Session logged successfully: {file_path}")
+            logger.info(f"Successfully logged session to {file_path}")
             return str(file_path)
         except IOError as e:
             logger.error(f"Failed to write session data to {file_path}: {e}")
-            raise
+            raise e
 
-    def log_incomplete_session(
-        self,
-        participant_id: str,
-        disability_type: str,
-        interface_type: str,
-        sequence: str,
-        start_time: datetime,
-        end_time: datetime,
-        error_count: int,
-        explanation_engagement_time_seconds: float,
-        sus_score: float,
-        dropout_reason: str
-    ) -> str:
+    def _compute_checksum(self, data: Dict[str, Any]) -> str:
         """
-        Convenience method to log an incomplete session.
+        Computes a SHA-256 checksum of the session data for integrity.
+        """
+        # Sort keys to ensure deterministic checksum
+        json_str = json.dumps(data, sort_keys=True, default=str)
+        return hashlib.sha256(json_str.encode('utf-8')).hexdigest()
+
+    def log_dropout(self, participant_id: str, interface_type: str, 
+                    sequence: str, dropout_reason: str, 
+                    start_time: datetime, end_time: datetime,
+                    metrics_partial: Optional[Dict[str, Any]] = None) -> str:
+        """
+        Helper method to log a session that ended prematurely (dropout).
+        Sets status to 'incomplete' and includes the dropout reason.
 
         Args:
-            participant_id: Unique identifier for the participant.
-            disability_type: Type of disability.
-            interface_type: Type of interface used.
-            sequence: Order of interface presentation.
-            start_time: Session start time.
-            end_time: Session end time.
-            error_count: Number of errors committed.
-            explanation_engagement_time_seconds: Time spent engaging with explanations.
-            sus_score: System Usability Scale score.
-            dropout_reason: Reason for dropout.
+            participant_id: Unique ID for the participant.
+            interface_type: The interface used (Traditional/Explainable).
+            sequence: The order of interfaces (e.g., "Traditional->Explainable").
+            dropout_reason: Reason for leaving (e.g., "Frustration", "Technical Issue").
+            start_time: Session start datetime.
+            end_time: Session end datetime.
+            metrics_partial: Any partial metrics collected before dropout.
 
         Returns:
-            The path to the logged JSON file.
+            str: Path to the logged JSON file.
         """
-        return self.log_session(
-            participant_id=participant_id,
-            disability_type=disability_type,
-            interface_type=interface_type,
-            sequence=sequence,
-            start_time=start_time,
-            end_time=end_time,
-            error_count=error_count,
-            explanation_engagement_time_seconds=explanation_engagement_time_seconds,
-            sus_score=sus_score,
-            status="incomplete",
-            dropout_reason=dropout_reason
-        )
+        session_data = {
+            "participant_id": participant_id,
+            "disability_type": metrics_partial.get("disability_type", "unknown") if metrics_partial else "unknown",
+            "interface_type": interface_type,
+            "sequence": sequence,
+            "start_time": start_time.isoformat() if isinstance(start_time, datetime) else str(start_time),
+            "end_time": end_time.isoformat() if isinstance(end_time, datetime) else str(end_time),
+            "error_count": metrics_partial.get("error_count", 0) if metrics_partial else 0,
+            "explanation_engagement_time_seconds": metrics_partial.get("explanation_engagement_time_seconds", 0) if metrics_partial else 0,
+            "sus_score": metrics_partial.get("sus_score", None),
+            "status": "incomplete",
+            "dropout_reason": dropout_reason,
+            "metrics_snapshot": metrics_partial or {}
+        }
 
+        return self.log_session(session_data)
 
 def main():
     """
-    Main function for testing the RawDataLogger.
+    CLI entry point for testing the logger independently.
     """
+    import sys
+    
+    # Mock data for testing
+    test_session = {
+        "participant_id": "P-TEST-001",
+        "disability_type": "visual_impairment",
+        "interface_type": "Explainable",
+        "sequence": "Explainable->Traditional",
+        "start_time": datetime.now().isoformat(),
+        "end_time": datetime.now().isoformat(),
+        "error_count": 2,
+        "explanation_engagement_time_seconds": 15.5,
+        "sus_score": 85.0,
+        "status": "complete",
+        "dropout_reason": None
+    }
+
     logger = get_logger(__name__)
-    logger.info("Testing RawDataLogger...")
-
-    logger_instance = RawDataLogger()
-
-    # Test complete session
+    logger.info("Starting RawDataLogger self-test...")
+    
     try:
-        path = logger_instance.log_session(
-            participant_id="P001",
-            disability_type="visual",
-            interface_type="Explainable",
-            sequence="Traditional->Explainable",
-            start_time=datetime.now(),
-            end_time=datetime.now(),
-            error_count=2,
-            explanation_engagement_time_seconds=15.5,
-            sus_score=85.0,
-            status="complete"
-        )
-        logger.info(f"Complete session logged: {path}")
+        logger_instance = RawDataLogger()
+        path = logger_instance.log_session(test_session)
+        logger.info(f"Self-test passed. File created at: {path}")
+        return 0
+    except FileNotFoundError as e:
+        logger.error(f"Schema missing (Expected if T009b not run): {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Failed to log complete session: {e}")
-
-    # Test incomplete session
-    try:
-        path = logger_instance.log_incomplete_session(
-            participant_id="P002",
-            disability_type="motor",
-            interface_type="Traditional",
-            sequence="Explainable->Traditional",
-            start_time=datetime.now(),
-            end_time=datetime.now(),
-            error_count=5,
-            explanation_engagement_time_seconds=0.0,
-            sus_score=40.0,
-            dropout_reason="Participant requested to stop due to fatigue."
-        )
-        logger.info(f"Incomplete session logged: {path}")
-    except Exception as e:
-        logger.error(f"Failed to log incomplete session: {e}")
-
+        logger.error(f"Self-test failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

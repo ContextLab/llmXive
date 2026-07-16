@@ -1,0 +1,108 @@
+# Session Data Schema for PROJ-015
+# Defines the structure for session logs in data/raw/session_*.json
+# Enforced by T019b (DataValidator) and T019 (RawDataLogger)
+
+type: object
+required:
+  - participant_id
+  - disability_type
+  - interface_type
+  - sequence
+  - start_time
+  - end_time
+  - error_count
+  - explanation_engagement_time_seconds
+  - sus_score
+  - status
+
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant (e.g., P-001)
+    pattern: "^P-\\d{3,}$"
+
+  disability_type:
+    type: string
+    description: The category of disability for the participant
+    enum:
+      - visual_impairment
+      - hearing_impairment
+      - motor_impairment
+      - cognitive_impairment
+      - multiple
+      - unknown
+
+  interface_type:
+    type: string
+    description: The specific interface variant presented in this session
+    enum:
+      - Traditional
+      - Explainable
+
+  sequence:
+    type: string
+    description: The order of interfaces presented in this study session
+    pattern: "^(Traditional->Explainable|Explainable->Traditional)$"
+
+  start_time:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the session started
+
+  end_time:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the session ended
+
+  error_count:
+    type: integer
+    minimum: 0
+    description: Total number of errors committed by the user during the session
+
+  explanation_engagement_time_seconds:
+    type: number
+    minimum: 0
+    description: Time spent interacting with XAI explanations (only applicable for Explainable interface)
+
+  sus_score:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: System Usability Scale score (0-100). Null if session incomplete and SUS not administered.
+    nullable: true
+
+  status:
+    type: string
+    description: Completion status of the session
+    enum:
+      - complete
+      - incomplete
+
+  dropout_reason:
+    type: string
+    description: Reason for session abandonment if status is 'incomplete'
+    nullable: true
+    enum:
+      - frustration
+      - technical_issue
+      - time_constraint
+      - participant_request
+      - other
+      - null
+
+  logged_at:
+    type: string
+    format: date-time
+    description: Timestamp when the file was written to disk (auto-generated)
+
+  file_checksum:
+    type: string
+    description: SHA-256 checksum of the session data for integrity verification
+    pattern: "^[a-f0-9]{64}$"
+
+  metrics_snapshot:
+    type: object
+    description: Optional snapshot of partial metrics collected before dropout
+    nullable: true
+
+additionalProperties: false
