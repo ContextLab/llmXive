@@ -1,0 +1,606 @@
+{
+  "fetched_at": "2026-07-16T18:43:49Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\"",
+      "target_n": 5
+    },
+    "duration_seconds": 61.881,
+    "ended_at": "2026-07-16T18:43:49Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "generative world simulation with LLMs"
+        ],
+        [
+          2,
+          "open-ended interactive narrative generation"
+        ],
+        [
+          3,
+          "procedurally generated game worlds using large language models"
+        ],
+        [
+          4,
+          "dynamic storytelling agents in virtual environments"
+        ],
+        [
+          5,
+          "LLM-driven non-player character interaction systems"
+        ],
+        [
+          6,
+          "infinite content generation for interactive fiction"
+        ],
+        [
+          7,
+          "autonomous world simulation with natural language interfaces"
+        ],
+        [
+          8,
+          "scalable procedural narrative generation techniques"
+        ],
+        [
+          9,
+          "context-aware world building with transformer models"
+        ],
+        [
+          10,
+          "interactive environment generation via language models"
+        ],
+        [
+          11,
+          "emergent gameplay through LLM-based world logic"
+        ],
+        [
+          12,
+          "continuous narrative expansion in virtual worlds"
+        ],
+        [
+          13,
+          "multi-modal world generation for interactive experiences"
+        ],
+        [
+          14,
+          "adaptive story generation in open-world games"
+        ],
+        [
+          15,
+          "language model agents for persistent world simulation"
+        ],
+        [
+          16,
+          "generative AI for scalable game content creation"
+        ],
+        [
+          17,
+          "semantic world modeling with large language models"
+        ],
+        [
+          18,
+          "interactive fiction generation with infinite scope"
+        ],
+        [
+          19,
+          "AI-driven dynamic world state management"
+        ],
+        [
+          20,
+          "generative text-based simulation environments"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "generative world simulation with LLMs": 4,
+        "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" computer science": 0,
+        "open-ended interactive narrative generation": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "synthetic environment procedural generation",
+      "LLM embodied agents interactive simulation",
+      "open-world agent navigation decision making",
+      "agent trajectory consistency reward shaping",
+      "world model hallucination grounding verification"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2503.04641"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM embodied agents interactive simulation": 3,
+      "agent trajectory consistency reward shaping": 3,
+      "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" computer science": 3,
+      "open-world agent navigation decision making": 3,
+      "synthetic environment procedural generation": 3,
+      "world model hallucination grounding verification": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1003.3784",
+          "rationale": "The paper focuses on agent-based simulation for retail management and word-of-mouth dynamics, which is an off-domain application of simulation techniques unrelated to the user's specific question about extending the \"Infinite Worlds with Versatile Interactions\" (llmXive) computer science framework. It does not address the mechanism, variables, or empirical setting of the llmXive system, nor does it serve as a foundational reference for that specific research line.",
+          "title": "Simulating Customer Experience and Word Of Mouth in Retail - A Case Study"
+        },
+        {
+          "primary_pointer": "2510.16223",
+          "rationale": "The paper focuses on a specific application of Generative AI for embroidery pattern design and accessibility, which is an off-domain topic relative to the user's question about extending the \"Infinite Worlds with Versatile Interactions\" computer science framework (which typically concerns procedural generation, simulation, or game mechanics). It does not measure the same mechanisms, variables, or empirical populations as the user's specific research question, nor does it serve as a foundational ",
+          "title": "Case Study of GAI for Generating Novel Images for Real-World Embroidery"
+        },
+        {
+          "primary_pointer": "2305.01925",
+          "rationale": "The paper focuses on general Interactive Digital Narrative (IDN) design and complexity representation, which is a distinct construct from the specific \"Infinite Worlds with Versatile Interactions\" (llmXive) computer science framework; it shares only the broad keyword \"interactive\" without addressing the specific mechanism, algorithmic property, or empirical domain of the user's question.",
+          "title": "INDCOR White Paper 2: Interactive Narrative Design for Representing Complexity"
+        },
+        {
+          "primary_pointer": "2201.06858",
+          "rationale": "The paper focuses on \"open-ended evolutionary systems\" and \"self-modifying code\" within a complex systems/metaphysical framework, which is a distinct construct from the user's specific question about extending the \"Infinite Worlds with Versatile Interactions\" (llmXive) computer science project. While both involve code and systems, the paper does not measure the same mechanism, address the same domain variables, or serve as a foundational reference for the specific llmXive architecture or its pro",
+          "title": "Self-Modifying Code in Open-Ended Evolutionary Systems"
+        },
+        {
+          "primary_pointer": "2203.13050",
+          "rationale": "The paper focuses on biological and cultural evolution within the field of Artificial Life, which is a distinct domain from the user's specific question about extending a computer science framework for \"Infinite Worlds with Versatile Interactions\" (likely related to procedural content generation or game AI). While both touch on \"open-endedness,\" the paper does not measure the same algorithmic properties, provide a baseline for the specific CS mechanism, or offer the foundational methodology for ",
+          "title": "Evolved Open-Endedness in Cultural Evolution: A New Dimension in Open-Ended Evolution Research"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-16T18:42:47Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"infinite worlds with versatile interactions\" computer science",
+      "raw": "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
+          "claimed_authors": [
+            "Matthew Guzdial",
+            "Devi Acharya",
+            "Max Kreminski",
+            "Michael Cook",
+            "Mirjam Eladhari",
+            "Antonios Liapis",
+            "Anne Sullivan"
+          ],
+          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.06108"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Procedural content generation via machine learning (PCGML) is the process of procedurally generating game content using models trained on existing game content. PCGML methods can struggle to capture the true variance present in underlying data with a single model. In this paper, we investigated the use of ensembles of Markov chains for procedurally generating \\emph{Mega Man} levels. We conduct an initial investigation of our approach and evaluate it on measures of playability and stylistic similarity in comparison to a non-ensemble, existing Markov chain approach.",
+          "claimed_authors": [
+            "Bowei Li",
+            "Ruohan Chen",
+            "Yuqing Xue",
+            "Ricky Wang",
+            "Wenwen Li",
+            "Matthew Guzdial"
+          ],
+          "claimed_title": "Ensemble Learning For Mega Man Level Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.12524"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Ensemble Learning For Mega Man Level Generation')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Co-creative Procedural Content Generation via Machine Learning (PCGML) refers to systems where a PCGML agent and a human work together to produce output content. One of the limitations of co-creative PCGML is that it requires co-creative training data for a PCGML agent to learn to interact with humans. However, acquiring this data is a difficult and time-consuming process. In this work, we propose approximating human-AI interaction data and employing transfer learning to adapt learned co-creative knowledge from one game to a different game. We explore this approach for co-creative Zelda dungeon room generation.",
+          "claimed_authors": [
+            "Zisen Zhou",
+            "Matthew Guzdial"
+          ],
+          "claimed_title": "Toward Co-creative Dungeon Generation via Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.12533"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Toward Co-creative Dungeon Generation via Transfer Learning')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A common vision from science fiction is that robots will one day inhabit our physical spaces, sense the world as we do, assist our physical labours, and communicate with us through natural language. Here we study how to design artificial agents that can interact naturally with humans using the simplification of a virtual environment. We show that imitation learning of human-human interactions in a simulated world, in conjunction with self-supervised learning, is sufficient to produce a multimodal interactive agent, which we call MIA, that successfully interacts with non-adversarial humans 75% of the time. We further identify architectural and algorithmic techniques that improve performance, such as hierarchical action selection. Altogether, our results demonstrate that imitation of multi-modal, real-time human behaviour may provide a straightforward and surprisingly effective means of imbuing agents with a rich behavioural prior from which agents might then be fine-tuned for specific purposes, thus laying a foundation for training capable agents for interactive robots or digital assistants. A video of MIA's behaviour may be found at https://youtu.be/ZFgRhviF7mY",
+          "claimed_authors": [
+            " DeepMind Interactive Agents Team",
+            "Josh Abramson",
+            "Arun Ahuja",
+            "Arthur Brussee",
+            "Federico Carnevale",
+            "Mary Cassin",
+            "Felix Fischer",
+            "Petko Georgiev",
+            "Alex Goldin",
+            "Mansi Gupta",
+            "Tim Harley",
+            "Felix Hill",
+            "Peter C Humphreys",
+            "Alden Hung",
+            "Jessica Landon",
+            "Timothy Lillicrap",
+            "Hamza Merzic",
+            "Alistair Muldal",
+            "Adam Santoro",
+            "Guy Scully",
+            "Tamara von Glehn",
+            "Greg Wayne",
+            "Nathaniel Wong",
+            "Chen Yan",
+            "Rui Zhu"
+          ],
+          "claimed_title": "Creating Multimodal Interactive Agents with Imitation and Self-Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.03763"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Creating Multimodal Interactive Agents with Imitation and Self-Supervised Learning')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A few decades of work in the AI field have focused efforts on developing a new generation of systems which can acquire knowledge via interaction with the world. Yet, until very recently, most such attempts were underpinned by research which predominantly regarded linguistic phenomena as separated from the brain and body. This could lead one into believing that to emulate linguistic behaviour, it suffices to develop 'software' operating on abstract representations that will work on any computational machine. This picture is inaccurate for several reasons, which are elucidated in this paper and extend beyond sensorimotor and semantic resonance. Beginning with a review of research, I list several heterogeneous arguments against disembodied language, in an attempt to draw conclusions for developing embodied multisensory agents which communicate verbally and non-verbally with their environment. Without taking into account both the architecture of the human brain, and embodiment, it is unrealistic to replicate accurately the processes which take place during language acquisition, comprehension, production, or during non-linguistic actions. While robots are far from isomorphic with humans, they could benefit from strengthened associative connections in the optimization of their processes and their reactivity and sensitivity to environmental stimuli, and in situated human-machine interaction. The concept of multisensory integration should be extended to cover linguistic input and the complementary information combined from temporally coincident sensory impressions.",
+          "claimed_authors": [
+            "Michał B. Paradowski"
+          ],
+          "claimed_title": "Developing Embodied Multisensory Dialogue Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.7190"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Developing Embodied Multisensory Dialogue Agents')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLM recommendation agents increasingly produce structured recommendation reports: sets of items accompanied by natural-language justifications. Yet existing evaluations often reduce this setting to reranking small shortlisted candidate sets or judge reports mainly by semantic plausibility. We introduce Recommendation Atlas (Agentic Tool-Level Assessment for Shopping), or RecoAtlas, a benchmark and toolkit for evaluating shopping agents with behavior-grounded metrics. RecoAtlas complements held-out interaction metrics with learned utility proxies for relevance, complementarity, and diversity derived from interaction data, while separately measuring semantic coherence and explanation quality. Its controlled tool environment exposes agents to either semantic, behavior-aligned, or faulty tools, enabling diagnosis of whether performance gains arise from stronger reasoning, better signals, or more effective tool-use policies. Across controlled experiments, we show that RecoAtlas exhibits key properties of a meaningful benchmark for agentic systems: performance scales with model capacity and test-time compute, improves with stronger and better-aligned tools, degrades under noisy or misaligned signals, and reveals that semantic plausibility does not necessarily capture behavior-grounded utility. RecoAtlas provides a foundation for developing and evaluating shopping assistants that optimize not only for plausible recommendations, but also for coherent, behaviorally grounded recommendation sets.",
+          "claimed_authors": [
+            "Imad Aouali",
+            "Flavian Vasile",
+            "Otmane Sakhi",
+            "Alexandre Gilotte",
+            "Benjamin Heymann"
+          ],
+          "claimed_title": "RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.18805"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The influence of additional information on the decision making of agents, who are interacting members of a society, is analyzed within the mathematical framework based on the use of quantum probabilities. The introduction of social interactions, which influence the decisions of individual agents, leads to a generalization of the quantum decision theory developed earlier by the authors for separate individuals. The generalized approach is free of the standard paradoxes of classical decision theory. This approach also explains the error-attenuation effects observed for the paradoxes occurring when decision makers, who are members of a society, consult with each other, increasing in this way the available mutual information. A precise correspondence between quantum decision theory and classical utility theory is formulated via the introduction of an intermediate probabilistic version of utility theory of a novel form, which obeys the requirement that zero-utility prospects should have zero probability weights.",
+          "claimed_authors": [
+            "V. I. Yukalov",
+            "D. Sornette"
+          ],
+          "claimed_title": "Quantum decision making by social agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4918"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Quantum decision making by social agents')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper provides a perspective on the literature and current challenges in Multi-Agent Systems for interoperable robot navigation in industry. The focus is on the multi-agent decision stack for Autonomous Mobile Robots operating in mixed environments with humans, manually driven vehicles, and legacy Automated Guided Vehicles. We provide typical characteristics of such Multi-Agent Systems observed today and how these are expected to change on the short term due to the new standard VDA5050 and the interoperability framework OpenRMF. We present recent changes in fleet management standards and the role of open middleware frameworks like ROS2 reaching industrial-grade quality. Approaches to increase the robustness and performance of multi-robot navigation systems for transportation are discussed, and research opportunities are derived.",
+          "claimed_authors": [
+            "Niels van Duijkeren",
+            "Luigi Palmieri",
+            "Ralph Lange",
+            "Alexander Kleiner"
+          ],
+          "claimed_title": "An Industrial Perspective on Multi-Agent Decision Making for Interoperable Robot Navigation following the VDA5050 Standard",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.14615"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='An Industrial Perspective on Multi-Agent Decision Making for Interoperable Robot Navigation following the VDA5050 Standard')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Important decisions that impact human lives, livelihoods, and the natural environment are increasingly being automated. Delegating tasks to so-called automated decision-making systems (ADMS) can improve efficiency and enable new solutions. However, these benefits are coupled with ethical challenges. For example, ADMS may produce discriminatory outcomes, violate individual privacy, and undermine human self-determination. New governance mechanisms are thus needed that help organisations design and deploy ADMS in ways that are ethical, while enabling society to reap the full economic and social benefits of automation. In this article, we consider the feasibility and efficacy of ethics-based auditing (EBA) as a governance mechanism that allows organisations to validate claims made about their ADMS. Building on previous work, we define EBA as a structured process whereby an entity's present or past behaviour is assessed for consistency with relevant principles or norms. We then offer three contributions to the existing literature. First, we provide a theoretical explanation of how EBA can contribute to good governance by promoting procedural regularity and transparency. Second, we propose seven criteria for how to design and implement EBA procedures successfully. Third, we identify and discuss the conceptual, technical, social, economic, organisational, and institutional constraints associated with EBA. We conclude that EBA should be considered an integral component of multifaced approaches to managing the ethical risks posed by ADMS.",
+          "claimed_authors": [
+            "Jakob Mokander",
+            "Jessica Morley",
+            "Mariarosaria Taddeo",
+            "Luciano Floridi"
+          ],
+          "claimed_title": "Ethics-Based Auditing of Automated Decision-Making Systems: Nature, Scope, and Limitations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.10980"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Ethics-Based Auditing of Automated Decision-Making Systems: Nature, Scope, and Limitations')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Q-shaping is an extension of Q-value initialization and serves as an alternative to reward shaping for incorporating domain knowledge to accelerate agent training, thereby improving sample efficiency by directly shaping Q-values. This approach is both general and robust across diverse tasks, allowing for immediate impact assessment while guaranteeing optimality. We evaluated Q-shaping across 20 different environments using a large language model (LLM) as the heuristic provider. The results demonstrate that Q-shaping significantly enhances sample efficiency, achieving a \\textbf{16.87\\%} improvement over the best baseline in each environment and a \\textbf{253.80\\%} improvement compared to LLM-based reward shaping methods. These findings establish Q-shaping as a superior and unbiased alternative to conventional reward shaping in reinforcement learning.",
+          "claimed_authors": [
+            "Xiefeng Wu"
+          ],
+          "claimed_title": "From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01458"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning (RL) models have continually evolved to navigate the exploration - exploitation trade-off in uncertain Markov Decision Processes (MDPs). In this study, I leverage the principles of stochastic thermodynamics and system dynamics to explore reward shaping via diffusion processes. This provides an elegant framework as a way to think about exploration-exploitation trade-off. This article sheds light on relationships between information entropy, stochastic system dynamics, and their influences on entropy production. This exploration allows us to construct a dual-pronged framework that can be interpreted as either a maximum entropy program for deriving efficient policies or a modified cost optimization program accounting for informational costs and benefits. This work presents a novel perspective on the physical nature of information and its implications for online learning in MDPs, consequently providing a better understanding of information-oriented formulations in RL.",
+          "claimed_authors": [
+            "Peeyush Kumar"
+          ],
+          "claimed_title": "Reward Shaping via Diffusion Process in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11885"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Reward Shaping via Diffusion Process in Reinforcement Learning')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Training agentic models for terminal-based tasks critically depends on high-quality terminal trajectories that capture realistic long-horizon interactions across diverse domains. However, constructing such data at scale remains challenging due to two key requirements: \\textbf{\\emph{Executability}}, since each instance requires a suitable and often distinct Docker environment; and \\textbf{\\emph{Verifiability}}, because heterogeneous task outputs preclude unified, standardized verification. To address these challenges, we propose \\textbf{TerminalTraj}, a scalable pipeline that (i) filters high-quality repositories to construct Dockerized execution environments, (ii) generates Docker-aligned task instances, and (iii) synthesizes agent trajectories with executable validation code. Using TerminalTraj, we curate 32K Docker images and generate 50,733 verified terminal trajectories across eight domains. Models trained on this data with the Qwen2.5-Coder backbone achieve consistent performance improvements on TerminalBench (TB), with gains of up to 20\\% on TB~1.0 and 10\\% on TB~2.0 over their respective backbones. Notably, \\textbf{TerminalTraj-32B} achieves strong performance among models with fewer than 100B parameters, reaching 35.30\\% on TB~1.0 and 22.00\\% on TB~2.0, and demonstrates improved test-time scaling behavior. All code and data are available at https://github.com/Wusiwei0410/TerminalTraj.",
+          "claimed_authors": [
+            "Siwei Wu",
+            "Yizhi Li",
+            "Yuyang Song",
+            "Wei Zhang",
+            "Yang Wang",
+            "Riza Batista-Navarro",
+            "Xian Yang",
+            "Mingjie Tang",
+            "Bryan Dai",
+            "Jian Yang",
+            "Chenghua Lin"
+          ],
+          "claimed_title": "Large-Scale Terminal Agentic Trajectory Generation from Dockerized Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.01244"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Large-Scale Terminal Agentic Trajectory Generation from Dockerized Environments')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated clinical ICD-10 coding is a high-impact healthcare task requiring a balance between coverage, precision, and safety. While neural approaches achieve strong performance, they suffer from hallucination-generating invalid or unsupported codes-posing unacceptable risks in safety-critical clinical settings. Rule-based systems eliminate hallucination but lack scalability and coverage due to manual knowledge base (KB) curation.\n  We present Hybrid-Code v2, a neuro-symbolic framework that achieves zero Type-I hallucination by construction while maintaining competitive coverage and precision. The system integrates neural candidate generation with a symbolic KB verification layer that enforces validity constraints through multi-layer verification, including format, evidence grounding, negation detection, temporal consistency, and exclusion rules. In addition, we introduce an automated KB expansion mechanism that extracts and validates coding patterns from unlabeled clinical text, addressing the scalability limitations of rule-based systems.\n  Evaluated on the MIMIC-III dataset against ClinicalBERT, BioBERT, rule-based systems, and GPT-4, Hybrid-Code v2 achieves 85% coverage, 92% precision, and 0% Type-I hallucination, outperforming rule-based systems by +40% coverage while eliminating hallucination observed in neural baselines (6-18%). The proposed architecture provides a formal safety guarantee for syntactic validity while preserving strong empirical performance.\n  These results demonstrate that neuro-symbolic verification can enforce safety constraints in neural medical AI systems without sacrificing effectiveness, offering a generalizable design pattern for deploying trustworthy AI in safety-critical domains.",
+          "claimed_authors": [
+            "Yunguo Yu"
+          ],
+          "claimed_title": "Hybrid-Code v2: Zero-Hallucination Clinical ICD-10 Coding via Neuro-Symbolic Verification and Automated Knowledge Base Expansion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.23743"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Hybrid-Code v2: Zero-Hallucination Clinical ICD-10 Coding via Neuro-Symbolic Verification and Automated Knowledge Base Expansion')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hallucination, where models generate fluent text unsupported by visual evidence, remains a major flaw in vision-language models and is particularly critical in sign language translation (SLT). In SLT, meaning depends on precise grounding in video, and gloss-free models are especially vulnerable because they map continuous signer movements directly into natural language without intermediate gloss supervision that serves as alignment. We argue that hallucinations arise when models rely on language priors rather than visual input. To capture this, we propose a token-level reliability measure that quantifies how much the decoder uses visual information. Our method combines feature-based sensitivity, which measures internal changes when video is masked, with counterfactual signals, which capture probability differences between clean and altered video inputs. These signals are aggregated into a sentence-level reliability score, providing a compact and interpretable measure of visual grounding. We evaluate the proposed measure on two SLT benchmarks (PHOENIX-2014T and CSL-Daily) with both gloss-based and gloss-free models. Our results show that reliability predicts hallucination rates, generalizes across datasets and architectures, and decreases under visual degradations. Beyond these quantitative trends, we also find that reliability distinguishes grounded tokens from guessed ones, allowing risk estimation without references; when combined with text-based signals (confidence, perplexity, or entropy), it further improves hallucination risk estimation. Qualitative analysis highlights why gloss-free models are more susceptible to hallucinations. Taken together, our findings establish reliability as a practical and reusable tool for diagnosing hallucinations in SLT, and lay the groundwork for more robust hallucination detection in multimodal generation.",
+          "claimed_authors": [
+            "Yasser Hamidullah",
+            "Koel Dutta Chowdhury",
+            "Yusser Al Ghussin",
+            "Shakib Yazdani",
+            "Cennet Oguz",
+            "Josef van Genabith",
+            "Cristina España-Bonet"
+          ],
+          "claimed_title": "Grounding or Guessing? Visual Signals for Detecting Hallucinations in Sign Language Translation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.18439"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Grounding or Guessing? Visual Signals for Detecting Hallucinations in Sign Language Translation')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents results from the development and evaluation of a deductive verification benchmark consisting of 26 unmodified Linux kernel library functions implementing conventional memory and string operations. The formal contract of the functions was extracted from their source code and was represented in the form of preconditions and postconditions. The correctness of 23 functions was completely proved using AstraVer toolset, although success for 11 functions was achieved using 2 new specification language constructs. Another 2 functions were proved after a minor modification of their source code, while the final one cannot be completely proved using the existing memory model. The benchmark can be used for the testing and evaluation of deductive verification tools and as a starting point for verifying other parts of the Linux kernel.",
+          "claimed_authors": [
+            "Denis Efremov",
+            "Mikhail Mandrykin",
+            "Alexey Khoroshilov"
+          ],
+          "claimed_title": "Deductive Verification of Unmodified Linux Kernel Library Functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.00626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Deductive Verification of Unmodified Linux Kernel Library Functions')",
+        "failed_at": "2026-07-16T18:43:15Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Taiming Lu",
+            "Tianmin Shu",
+            "Alan Yuille",
+            "Daniel Khashabi",
+            "Jieneng Chen"
+          ],
+          "title": "Generative World Explorer",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.11844",
+        "summary": "Planning with partial observation is a central challenge in embodied AI. A majority of prior works have tackled this challenge by developing agents that physically explore their environment to update their beliefs about the world state. In contrast, humans can $\\textit{imagine}$ unseen parts of the world through a mental exploration and $\\textit{revise}$ their beliefs with imagined observations. Such updated beliefs can allow them to make more informed decisions, without necessitating the physical exploration of the world at all times. To achieve this human-like ability, we introduce the $\\textit{Generative World Explorer (Genex)}$, an egocentric world exploration framework that allows an agent to mentally explore a large-scale 3D world (e.g., urban scenes) and acquire imagined observations to update its belief. This updated belief will then help the agent to make a more informed decision at the current step. To train $\\textit{Genex}$, we create a synthetic urban scene dataset, Genex-DB. Our experimental results demonstrate that (1) $\\textit{Genex}$ can generate high-quality and consistent observations during long-horizon exploration of a large virtual physical world and (2) the beliefs updated with the generated observations can inform an existing decision-making model (e.g., an LLM agent) to make better plans.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.11844",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T18:43:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuqi Hu",
+            "Longguang Wang",
+            "Xian Liu",
+            "Ling-Hao Chen",
+            "Yuwei Guo",
+            "Yukai Shi",
+            "Ce Liu",
+            "Anyi Rao",
+            "Zeyu Wang",
+            "Hui Xiong"
+          ],
+          "title": "Simulating the Real World: A Unified Survey of Multimodal Generative Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.04641",
+        "summary": "Understanding and replicating the real world is a critical challenge in Artificial General Intelligence (AGI) research. To achieve this, many existing approaches, such as world models, aim to capture the fundamental principles governing the physical world, enabling more accurate simulations and meaningful interactions. However, current methods often treat different modalities, including 2D (images), videos, 3D, and 4D representations, as independent domains, overlooking their interdependencies. Additionally, these methods typically focus on isolated dimensions of reality without systematically integrating their connections. In this survey, we present a unified survey for multimodal generative models that investigate the progression of data dimensionality in real-world simulation. Specifically, this survey starts from 2D generation (appearance), then moves to video (appearance+dynamics) and 3D generation (appearance+geometry), and finally culminates in 4D generation that integrate all dimensions. To the best of our knowledge, this is the first attempt to systematically unify the study of 2D, video, 3D and 4D generation within a single framework. To guide future research, we provide a comprehensive review of datasets, evaluation metrics and future directions, and fostering insights for newcomers. This survey serves as a bridge to advance the study of multimodal generative models and real-world simulation within a unified framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.04641",
+          "http_status": 200,
+          "pdf_sample_score": 0.2621,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T18:43:22Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"infinite worlds with versatile interactions\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

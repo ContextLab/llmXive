@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Network Configuration"
+description: "Schema for simulation configuration parameters"
+type: "object"
+properties:
+  N:
+    type: integer
+    minimum: 10
+    description: "Number of nodes"
+  p_range:
+    type: array
+    items:
+      type: number
+      format: float
+    description: "Range of connection probabilities"
+  target_degrees:
+    type: array
+    items:
+      type: number
+      format: float
+    description: "List of target average degrees"
+  material:
+    type: string
+    description: "Material name"
+  diameter:
+    type: number
+    format: float
+    description: "Wire diameter in meters"
+  length:
+    type: number
+    format: float
+    description: "Wire length in meters"
+  seed:
+    type: integer
+    description: "Base random seed"
+required:
+  - N
+  - material
+  - diameter
+  - length
+  - seed

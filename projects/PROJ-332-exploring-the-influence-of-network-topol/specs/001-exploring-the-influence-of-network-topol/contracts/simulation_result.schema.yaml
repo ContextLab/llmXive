@@ -1,8 +1,75 @@
-columns:
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Result Record"
+description: "Schema for a single row in data/processed/simulation_results.csv"
+type: "object"
+properties:
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility"
+  N:
+    type: integer
+    description: "Number of nodes in the graph"
+  p:
+    type: number
+    format: float
+    description: "Connection probability"
+  target_degree:
+    type: number
+    format: float
+    description: "Target average degree"
+  measured_degree:
+    type: number
+    format: float
+    description: "Actual measured average degree"
+  material:
+    type: string
+    description: "Material name (e.g., Si, CNT)"
+  diameter:
+    type: number
+    format: float
+    description: "Wire diameter in meters"
+  length:
+    type: number
+    format: float
+    description: "Wire length in meters"
+  k_eff:
+    type: number
+    format: float
+    description: "Effective thermal conductivity in W/(m·K)"
+  residual:
+    type: number
+    format: float
+    description: "Solver residual norm"
+  convergence_status:
+    type: string
+    enum:
+      - "success"
+      - "failed"
+    description: "Solver convergence status"
+  is_connected:
+    type: boolean
+    description: "True if source-sink path exists"
+  scaling_factor:
+    type: number
+    format: float
+    description: "Resistance scaling factor used (0.9, 1.0, or 1.1)"
+  percolation_threshold:
+    type: number
+    format: float
+    description: "Operational percolation threshold (avg degree where P(connected)>=0.80)"
+required:
   - seed
   - N
   - p
-  - avg_degree
-  - conductivity
-  - percolation_flag
+  - target_degree
+  - measured_degree
+  - material
+  - diameter
+  - length
+  - k_eff
+  - residual
+  - convergence_status
+  - is_connected
   - scaling_factor
+  - percolation_threshold
+additionalProperties: false

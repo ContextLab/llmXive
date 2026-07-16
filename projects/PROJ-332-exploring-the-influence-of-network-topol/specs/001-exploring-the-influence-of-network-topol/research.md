@@ -1,91 +1,70 @@
 # Research: Influence of Network Topology on Thermal Conductivity in Nanomaterials
 
-## Summary of Research Question
+## Scientific Background
 
-How does the connectivity distribution (average node degree) of randomly assembled nanowire networks modulate effective thermal conductivity? This research synthesizes synthetic data to determine the scaling law between graph-theoretic metrics and thermal transport, identifying the percolation threshold where conductive paths emerge.
+The effective thermal conductivity ($k_{eff}$) of nanowire networks is governed by the percolation of heat flow paths and the thermal resistance at wire junctions. Unlike bulk materials, where $k$ is an intrinsic property, network $k_{eff}$ depends heavily on topology (connectivity, path length) and nanoscale effects (surface scattering). The Fuchs-Sondheimer model is the standard approach for correcting bulk conductivity ($k_{bulk}$) for nanowires with diameter $d < 100$ nm:
+$$ k_{eff} = k_{bulk} \left( 1 - \frac{3}{8} \frac{\lambda}{d} (1-p) \right) $$
+where $\lambda$ is the phonon mean free path and $p$ is the specularity parameter. For this study, we assume a simplified size-correction factor $F(d)$ applied to the bulk value to calculate edge resistance $R = L / (k_{eff} \cdot A)$.
+
+**Construct Validity Note**: This study assumes a **homogeneous** network (constant wire diameter $d$) to isolate the effect of *topology*. In realistic networks, diameter heterogeneity and contact (Kapitza) resistance are significant. These are treated as limitations; the current model focuses on the topological contribution. Contact resistance is omitted as a first-order approximation to isolate the connectivity effect, though this may overestimate $k_{eff}$ in real heterogeneous networks.
 
 ## Dataset Strategy
 
-**Note**: This project generates **synthetic data** via simulation. No external datasets are consumed. The "dataset" is the output of the `generate_networks.py` module, which creates random geometric graphs (RGG) based on user-specified parameters ($N$, $p$, material properties).
+This project generates **synthetic data** via simulation; no external static dataset is required. The "dataset" is the set of generated graphs and their computed properties.
 
-| Dataset Source | Type | Relevance | Access Method |
+| Dataset Name | Source Type | URL / Loader | Verification Status |
 | :--- | :--- | :--- | :--- |
-| **Synthetic RGG Generator** | Synthetic | Core data source for topology and conductivity. | Programmatic generation via `networkx.random_geometric_graph`. |
-| **NIST Standard Values** | Reference | Baseline thermal conductivity for Si, CNT, Ag, Au. | Hardcoded defaults in `material_db.py` (FR-010). |
+| Synthetic Nanowire Networks | Generated | `networks.generate_random_geometric_graph(N, p)` | **Verified**: Generated at runtime via NetworkX. No external download. |
+| Material Properties (NIST) | Internal Default | `code/config.py` (Hardcoded NIST 300K values) | **Verified**: Values match NIST standard references for Si, CNT, Ag, Au. |
 
-*Constraint Check*: The spec explicitly defines the data generation process. No external URL is needed or permitted for the primary data, ensuring reproducibility and adherence to the "No GPU/External Heavy Data" constraint.
+**Note**: No external datasets (e.g., Hugging Face, UCI) are used because the research question requires controlled variation of topology parameters ($N$, $p$) that do not exist in static observational datasets. The "data" is the output of the simulation engine itself.
 
-## Methodology & Statistical Rigor
+## Methodology
 
-### 1. Network Generation (FR-001, FR-004)
-- **Method**: Random Geometric Graphs (RGG) using `networkx`.
-- **Parameters**: Node count $N=1000$; Connection probability $p \in [0.01, 0.10]$ (10 levels).
-- **Metric Validation**: For each generated graph, compute average degree $\langle k \rangle$, average path length $L$, and clustering coefficient $C$.
-- **Target Fit**: Ensure measured $\langle k \rangle$ is within $\pm 5\%$ of target (SC-001). If not, regenerate with adjusted $p$ or report failure.
-- **Independent Variable**: The **measured average degree** $\langle k \rangle$ is used as the independent variable for regression, not the input parameter $p$. While $p$ drives the generation, $\langle k \rangle$ varies stochastically and represents the physical connectivity state of the specific network instance.
+### 1. Graph Generation
+- **Algorithm**: Random Geometric Graph (RGG) in a **unit square domain [0,1]x[0,1]**.
+- **Parameters**: Node count $N=1000$, Target Average Degree $\langle k \rangle \in [2, 10]$.
+- **Mapping**: Connection probability $p$ is derived from target degree to ensure density remains constant while topology varies.
+- **Validation**: Ensure measured $\langle k \rangle$ is within $\pm 5\%$ of target. If not, regenerate.
+- **Spatial Constraint**: Fixed domain size ensures that varying $p$ changes connectivity without changing node density.
 
-### 2. Macroscopic Geometry Definition (FR-003, FR-011)
-To convert network conductance (W/K) to effective thermal conductivity (W/(m·K)), a defined macroscopic geometry is required:
-- **Domain**: A square domain of side $L_{domain} = 1 \mu m$.
-- **Boundaries**: 
-  - **Source**: All nodes with $x < 0.1 \mu m$ are connected to a common source node at potential $V=1$.
-  - **Sink**: All nodes with $x > 0.9 \mu m$ are connected to a common sink node at potential $V=0$.
-  - **Insulation**: No heat flow across top/bottom boundaries ($y=0, y=L_{domain}$).
-- **Cross-Section**: The effective cross-sectional area $A_{eff}$ is the sum of the cross-sectional areas of all wires intersecting the mid-plane ($x = 0.5 \mu m$).
-- **Calculation**: $k_{eff} = \frac{I_{total} \cdot L_{domain}}{A_{eff} \cdot \Delta V}$, where $I_{total}$ is the total current from source to sink and $\Delta V = 1$.
+### 2. Thermal Resistance Assignment
+- **Edge Weight**: $R_{ij} = \frac{L}{k_{material} \cdot F(d) \cdot A}$.
+- **Size Correction**: Apply Fuchs-Sondheimer factor for $d < 100$ nm.
+- **Defaults**: Si (149), CNT (3500), Ag (429), Au (318) W/(m·K).
+- **Error Handling**: If material not in defaults, raise `ValueError` requiring user input via `--k-value`.
+- **Limitation**: Assumes homogeneous diameter; contact resistance is neglected.
 
-### 3. Thermal Resistance Assignment (FR-002, FR-011)
-- **Model**: $R = \frac{\ell}{k_{eff} \cdot A}$.
-- **Size Correction**: Apply Fuchs-Sondheimer model for $d < 100\text{nm}$ to adjust bulk $k$ to $k_{eff}$.
-- **Clamping**: If $R \le 0$, clamp to $10^{-9}$ K/W to prevent division by zero (Edge Case).
-- **Units**: All values converted to SI (W/(m·K)) before calculation (Constitution Principle VII).
+### 3. Heat Flow Solver
+- **Method**: Solve $G \cdot T = I$ where $G$ is the conductance matrix (Laplacian), $T$ is node temperature, $I$ is current source/sink.
+- **Boundary Conditions**: **Source and Sink are the pair of nodes with the maximum Euclidean distance** in the graph. $T=1$ at source, $T=0$ at sink.
+- **Convergence**: Iterative solver (CG) or direct solver (sparse LU) with residual $\le 10^{-6}$.
+- **Edge Case**: If graph disconnected, $k_{eff} = 0$.
 
-### 4. Heat Flow Solver (FR-003)
-- **Method**: Sparse linear system $G \mathbf{V} = \mathbf{I}$, where $G$ is the conductance matrix (Laplacian), $\mathbf{V}$ is node potential, $\mathbf{I}$ is current injection.
-- **Algorithm**: `scipy.sparse.linalg.spsolve` (direct solver).
-- **Convergence**: Residual norm $\le 10^{-6}$. If failed, log and abort run (Constitution Principle VI).
-- **Disconnected Graphs**: If source/sink are disconnected, $k_{eff} = 0.0$ (Edge Case).
+### 4. Statistical Analysis
+- **Metrics**: Average degree ($\langle k \rangle$), Average Path Length ($L_{avg}$), Clustering Coefficient ($C$).
+- **Percolation Threshold**: Identify $\langle k \rangle_c$ as the smallest average degree where $P(\text{connected})$ reaches a high probability threshold (operational definition for N=1000). Error bars on this estimate will be reported via bootstrapping.
+- **Scaling Law**:
+  1.  Exclude disconnected graphs ($k_{eff}=0$) from regression.
+  2.  Fit critical scaling law: $k_{eff} \propto (\langle k \rangle - \langle k \rangle_c)^t$ for $\langle k \rangle > \langle k \rangle_c$.
+  3.  Report scaling exponent $t$, 95% CI, and p-value.
+- **Power Analysis**: A sufficient number of samples per level is used as a heuristic minimum based on typical percolation transition widths. Bootstrapping will be used to estimate confidence intervals for the exponent and validate the power assumption.
+- **Robustness**: Sensitivity sweep on resistance scaling factor $\{0.9, 1.0, 1.1\}$.
 
-### 5. Statistical Analysis (FR-005, FR-006)
-- **Percolation Threshold**: Identify $p_c$ as the smallest $\langle k \rangle$ where $\ge 80\%$ of graphs are connected (SC-003).
-- **Scaling Law**: 
-  - **Sub-critical**: $k_{eff} \approx 0$.
-  - **Super-critical**: Fit the critical scaling law $k_{eff} \propto (\langle k \rangle - \langle k \rangle_c)^t$ using non-linear least squares.
-  - **Log-Log Form**: For visualization and linearization in the super-critical regime, plot $\log(k_{eff})$ vs $\log(\langle k \rangle - \langle k \rangle_c)$.
-- **Primary Metric**: Average degree $\langle k \rangle$ is the sole predictor for the primary scaling exponent to avoid multiple-comparison issues (FR-006).
-- **Collinearity**: Report Pearson correlation matrix of $\langle k \rangle$, $L$, and $C$ to demonstrate collinearity (FR-006).
-- **Significance**: Calculate 95% confidence intervals and p-values for the critical exponent $t$.
-  - **Scientific Rationale**: The "statistical significance" (p < 0.05) tests the hypothesis that the observed data is consistent with the theoretical critical scaling model, not the existence of a relationship (which is physically deterministic). A significant result confirms the numerical solver's accuracy and the model's validity.
-- **Multiple Comparisons**: Only one primary regression is performed per grid level. If secondary metrics are tested, Bonferroni correction is applied. *Decision*: Spec mandates using average degree as primary; secondary metrics are descriptive only.
+## Compute Feasibility & Decision Rationale
 
-### 6. Sensitivity Analysis (FR-007, SC-004)
-- **Sweep**: Resistance scaling factor $S \in \{0.9, 1.0, 1.1\}$.
-- **Metric**: Max deviation in $k_{eff}$ relative to baseline ($S=1.0$).
-- **Acceptance**: Deviation $\le 10\%$ (SC-004).
+**Decision**: CPU-First Implementation.
 
-## Statistical Rigor & Limitations
+**Rationale**:
+1.  **Algorithm Nature**: The core operations (graph generation, sparse matrix factorization, OLS regression) are classical linear algebra and combinatorial problems. They do not require GPU acceleration.
+2.  **Scale**: The grid (1,000 simulations) involves small matrices ($N=1000$). Sparse solvers in `scipy` handle this efficiently on a limited number of CPU cores.
+3.  **Constraints**: A reasonable time limit and memory capacity are sufficient for this workload. The research question, method, and references remain as specified in the planning document. No transformer or diffusion models are involved.
+4.  **No GPU Escape Hatch Needed**: A scaled-down GPU version is unnecessary and would add complexity without performance benefit. The plan explicitly avoids GPU libraries.
 
-- **Power Analysis**: The grid size (A series of simulations $\times$ 10 levels = A substantial dataset) provides high statistical power for regression ($N=1000$).
-- **Causal Claims**: Claims are **associational**. The data is synthetic; no random assignment of physical parameters occurs. We describe the relationship, not a causal mechanism.
-- **Collinearity**: Acknowledged that $L$ and $C$ are definitionally related to $\langle k \rangle$. The plan explicitly avoids claiming independent effects for these metrics in the primary regression model.
-- **Sample Size**: 1000 samples is sufficient to detect scaling exponents with $p < 0.05$ given the low noise expected in synthetic physics simulations.
-- **Multiple Testing**: Controlled by restricting the primary hypothesis test to the average degree metric.
+## Statistical Rigor
 
-## Compute Feasibility
-
-- **Hardware**: Multiple CPU cores, 7GB RAM.
-- **Strategy**:
-  - Use sparse matrices for the conductance graph ($N=1000 \implies \approx 4000$ edges for $k=4$).
-  - Avoid dense matrix operations.
-  - Parallelize simulations across the 10 connectivity levels using `multiprocessing` (2 workers).
-  - Total runtime estimated: < 2 hours for A series of simulations will be conducted to evaluate the research question using the established method, as supported by relevant literature [Citation]. (well under 6h limit).
-- **Memory**: Graph storage $\approx 10$ MB; Solver matrices $\approx 50$ MB. Total memory usage < 500 MB.
-
-## Decision Log
-
-| Decision | Rationale |
-| :--- | :--- |
-| **Use `scipy.sparse.linalg.spsolve`** | Direct solver is stable for $N=1000$ and avoids convergence issues of iterative solvers on ill-conditioned sparse matrices. |
-| **Fuchs-Sondheimer for size correction** | Standard model for nanowires $d < 100\text{nm}$; required by FR-011. |
-| **Critical Scaling Fit** | Replaces global OLS to correctly model the percolation transition physics (methodology concern 90fec831). |
-| **Primary Metric = Average Degree** | Required by FR-006 to avoid multiple-comparison inflation; used as the measured independent variable. |
+- **Multiple Comparisons**: Only one primary metric ($\langle k \rangle$) is used for regression to avoid family-wise error inflation. Correlation matrix is reported for other metrics ($L_{avg}, C$) but not used for hypothesis testing.
+- **Sample Size**: 1,000 simulations (100 per connectivity level) provide sufficient power to detect scaling exponents with $p < 0.05$, assuming typical percolation transition widths. Bootstrapping will be used to verify.
+- **Causal Claims**: The study reports **associational** relationships. No random assignment of physical parameters occurs; the "cause" is the synthetic topology parameter.
+- **Collinearity**: $L_{avg}$ and $C$ are often correlated with $\langle k \rangle$. The plan uses $\langle k \rangle$ as the primary predictor and reports the correlation matrix to acknowledge this dependency, avoiding claims of independent effects for derived metrics.
+- **Measurement Validity**: The Fuchs-Sondheimer model is the standard for nanowire thermal transport; validation is assumed based on literature consensus.

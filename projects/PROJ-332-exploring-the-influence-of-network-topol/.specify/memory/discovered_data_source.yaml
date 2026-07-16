@@ -1,13 +1,19 @@
 status: none
-intent: download NIST thermal conductivity reference dataset python package dataset
+intent: nanowire network random geometric graph generator using NIST thermophysical
+  properties python package dataset
 required_fields:
-- material_name
-- material_formula
-- temperature_K
-- thermal_conductivity_W_per_mK
-- measurement_method
-- uncertainty
-- reference_citation
-cache_key: fa4ab0898718a242ffbff94e98d497fb53ecb03cdf46b63a3d941996f1083c25
-searched_at: '2026-07-16T00:12:50.600049+00:00'
+- node_id
+- x_coordinate
+- y_coordinate
+- edge_source
+- edge_target
+- average_degree
+- connection_probability
+- material_type
+- thermal_conductivity
+- num_nodes_N
+- connection_prob_p
+- simulation_timestamp
+cache_key: 704c1e2a1054a350a54d1b154a9160a603d9f99043c1c7021e36e6d8e05db164
+searched_at: '2026-07-16T18:45:13.067751+00:00'
 retry_count: 1

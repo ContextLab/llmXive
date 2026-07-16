@@ -2,88 +2,74 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- pip (package installer)
+- Python 3.11 or higher
 - Git
+- A terminal with `pip` access
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-332-exploring-the-influence-of-network-topol
-   ```
+1.  **Clone the repository** (or navigate to the project root).
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` pins specific versions of `networkx`, `scipy`, `numpy`, etc.*
 
-2. **Create and activate a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## Running the Simulation
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-
-## Running the Pipeline
-
-### 1. Generate Networks and Solve (Single Run)
-Run a single simulation with default parameters (N=1000, p=0.04, material=Si):
+### Default Grid Sweep
+To run the full simulation grid (Multiple connectivity levels, 100 simulations each):
 ```bash
-python code/main.py --run-single --seed 42
+python code/main.py --grid
 ```
-*Output*: `data/processed/simulation_results.csv` (updated with one row).
+This will:
+1.  Generate a large set of random geometric graphs.
+2.  Assign thermal resistances (using NIST defaults).
+3.  Solve for effective conductivity.
+4.  Perform sensitivity analysis.
+5.  Output `data/processed/simulation_results.csv`.
 
-### 2. Run Full Grid (Default)
-Execute the full grid (100 simulations $\times$ 10 connectivity levels):
+### Single Simulation
+To run a single simulation with custom parameters:
 ```bash
-python code/main.py --run-grid
+python code/main.py --N 500 --p 0.05 --material Si --seed 42
 ```
-*Output*:
-- `data/processed/simulation_results.csv` (1000 rows).
-- `data/processed/regression_summary.json` (scaling exponents, p-values).
-- `data/processed/sensitivity_report.csv` (deviation analysis).
-- `logs/simulation.log` (detailed logs).
-- **State Update**: `state/projects/PROJ-332-exploring-the-influence-of-network-topol.yaml` is updated with the artifact hash.
 
-### 3. Sensitivity Analysis Only
-Run sensitivity sweep on existing results:
+### Running Sensitivity Analysis Only
 ```bash
-python code/main.py --sensitivity-only
+python code/main.py --sensitivity-only --base-k 10.0
+```
+
+### Providing Custom Material Values
+For non-standard materials, provide the thermal conductivity value:
+```bash
+python code/main.py --material "CustomAlloy" --k-value 25.5
 ```
 
 ## Verifying Results
 
-1. **Check Solver Convergence**:
-   ```bash
-   grep "Failed" data/processed/simulation_results.csv
-   # Should return empty or very few lines (< 1% of total)
-   ```
+### Check CSV Output
+Verify the output file was created and contains data:
+```bash
+head data/processed/simulation_results.csv
+```
+Expected columns: `seed`, `N`, `p`, `measured_degree`, `k_eff`, `convergence_status`, `percolation_threshold`, `is_connected`.
 
-2. **Verify Percolation Threshold**:
-   ```bash
-   python code/regression_analysis.py --check-percolation
-   # Output: "Percolation threshold detected at avg_degree = X.XX"
-   ```
-
-3. **Validate Scaling Law**:
-   ```bash
-   python code/regression_analysis.py --plot-scaling
-   # Generates a plot in the current directory: scaling_law.png
-   ```
+### Run Tests
+Ensure the solver and generator are working correctly:
+```bash
+pytest code/tests/ -v
+```
+This runs unit tests for graph generation, convergence checks, and regression logic.
 
 ## Troubleshooting
 
-- **Solver Failed**: Check `logs/simulation.log` for "Disconnected" or "Residual > 1e-6". Ensure `diameter` and `length` are within physical bounds.
-- **Memory Error**: The default grid (a standard set of runs) fits in standard RAM capacities.. If running larger grids, reduce `N` or `simulations_per_level`.
-- **Material Error**: If "Material X not found" appears, ensure X is one of {Si, CNT, Ag, Au} or provide a custom value in `code/material_db.py`.
-- **State Update Failed**: If the state YAML is not updated, check `logs/simulation.log` for errors in `update_state.py`.
-
-## Expected Output Example
-
-```csv
-run_id,seed,N,p,avg_degree,is_connected,effective_k,solver_status,material
-1,42,1000,0.04,4.02,True,12.5,Converged,Si
-2,43,1000,0.04,3.98,True,11.8,Converged,Si
-...
-```
+- **"Material not found"**: Ensure the material name matches one of the NIST defaults (Si, CNT, Ag, Au) or provide a custom value via `--k-value`.
+- **"Solver failed to converge"**: Check if the graph is disconnected. The system logs warnings for disconnected graphs and sets $k_{eff}=0$.
+- **"Memory Error"**: The default $N=1000$ should fit in 7GB RAM. If using larger $N$, reduce the number of simulations per level.
+- **"Timeout"**: The job exceeded the allocated time limit. Reduce the grid size or node count.

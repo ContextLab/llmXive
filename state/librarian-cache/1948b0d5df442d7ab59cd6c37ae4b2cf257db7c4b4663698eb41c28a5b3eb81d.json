@@ -1,0 +1,617 @@
+{
+  "fetched_at": "2026-07-16T18:42:30Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection",
+      "target_n": 5
+    },
+    "duration_seconds": 96.452,
+    "ended_at": "2026-07-16T18:42:30Z",
+    "expansion": null,
+    "extracted_queries": [
+      "leave-one-out influence function sensitivity",
+      "subsample stability regression coefficient variance",
+      "case deletion diagnostics leverage Cook distance",
+      "coefficient perturbation distribution bootstrap confidence",
+      "robustness check selection bias model specification"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1902.00995"
+      ]
+    },
+    "per_query_hit_count": {
+      "Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection statistics": 3,
+      "case deletion diagnostics leverage Cook distance": 3,
+      "coefficient perturbation distribution bootstrap confidence": 3,
+      "leave-one-out influence function sensitivity": 3,
+      "robustness check selection bias model specification": 3,
+      "subsample stability regression coefficient variance": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1112.0918",
+          "rationale": "The paper focuses on the methodology and consistency of *variable selection* (choosing which predictors to include) via best subset regression, whereas the user's question concerns the *sensitivity of estimated regression coefficients* to the specific *selection of data subsets* (rows/samples). While both involve the word \"subset,\" they address distinct statistical constructs: one is about model sparsity and predictor inclusion (independent variable selection), and the other is about the stabili",
+          "title": "On best subset regression"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-16T18:40:53Z",
+    "term_input": {
+      "normalized": "assessing the sensitivity of regression coefficients to dataset subset selection statistics",
+      "raw": "Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The success of deep learning hinges on enormous data and large models, which require labor-intensive annotations and heavy computation costs. Subset selection is a fundamental problem that can play a key role in identifying smaller portions of the training data, which can then be used to produce similar models as the ones trained with full data. Two prior methods are shown to achieve impressive results: (1) margin sampling that focuses on selecting points with high uncertainty, and (2) core-sets or clustering methods such as k-center for informative and diverse subsets. We are not aware of any work that combines these methods in a principled manner. To this end, we develop a novel and efficient factor 3-approximation algorithm to compute subsets based on the weighted sum of both k-center and uncertainty sampling objective functions. To handle large datasets, we show a parallel algorithm to run on multiple machines with approximation guarantees. The proposed algorithm achieves similar or better performance compared to other strong baselines on vision datasets such as CIFAR-10, CIFAR-100, and ImageNet.",
+          "claimed_authors": [
+            "Srikumar Ramalingam",
+            "Pranjal Awasthi",
+            "Sanjiv Kumar"
+          ],
+          "claimed_title": "A Weighted K-Center Algorithm for Data Subset Selection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10602"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='A Weighted K-Center Algorithm for Data Subset Selection')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce leave-one-out unfairness, which characterizes how likely a model's prediction for an individual will change due to the inclusion or removal of a single other person in the model's training data. Leave-one-out unfairness appeals to the idea that fair decisions are not arbitrary: they should not be based on the chance event of any one person's inclusion in the training data. Leave-one-out unfairness is closely related to algorithmic stability, but it focuses on the consistency of an individual point's prediction outcome over unit changes to the training data, rather than the error of the model in aggregate. Beyond formalizing leave-one-out unfairness, we characterize the extent to which deep models behave leave-one-out unfairly on real data, including in cases where the generalization error is small. Further, we demonstrate that adversarial training and randomized smoothing techniques have opposite effects on leave-one-out fairness, which sheds light on the relationships between robustness, memorization, individual fairness, and leave-one-out fairness in deep models. Finally, we discuss salient practical applications that may be negatively affected by leave-one-out unfairness.",
+          "claimed_authors": [
+            "Emily Black",
+            "Matt Fredrikson"
+          ],
+          "claimed_title": "Leave-one-out Unfairness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.10171"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Leave-one-out Unfairness')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "I develop an algorithm to produce the piecewise quadratic that computes leave-one-out cross-validation for the lasso as a function of its hyperparameter. The algorithm can be used to find exact hyperparameters that optimize leave-one-out cross-validation either globally or locally, and its practicality is demonstrated on real-world data sets. I also show how the algorithm can be modified to compute approximate leave-one-out cross-validation, making it suitable for larger data sets.",
+          "claimed_authors": [
+            "Ryan Burn"
+          ],
+          "claimed_title": "Evaluation and Optimization of Leave-one-out Cross-validation for the Lasso",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.14368"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Evaluation and Optimization of Leave-one-out Cross-validation for the Lasso')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce an analytical framework to quantify the changes in a machine learning algorithm's output distribution following the inclusion of a few data points in its training set, a notion we define as leave-one-out distinguishability (LOOD). This is key to measuring data **memorization** and information **leakage** as well as the **influence** of training data points in machine learning. We illustrate how our method broadens and refines existing empirical measures of memorization and privacy risks associated with training data. We use Gaussian processes to model the randomness of machine learning algorithms, and validate LOOD with extensive empirical analysis of leakage using membership inference attacks. Our analytical framework enables us to investigate the causes of leakage and where the leakage is high. For example, we analyze the influence of activation functions, on data memorization. Additionally, our method allows us to identify queries that disclose the most information about the training data in the leave-one-out setting. We illustrate how optimal queries can be used for accurate **reconstruction** of training data.",
+          "claimed_authors": [
+            "Jiayuan Ye",
+            "Anastasia Borovykh",
+            "Soufiane Hayou",
+            "Reza Shokri"
+          ],
+          "claimed_title": "Leave-one-out Distinguishability in Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.17310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Leave-one-out Distinguishability in Machine Learning')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article studies a class of semilinear scalar field equations on the real line with variable coefficients in the linear terms. These coefficients are not necessarily small perturbations of a constant. We prove that under suitable conditions, the non-translation-invariant linear operator leads to steady states that are ``almost constant'' in the spatial variable. The main challenge of the proof is due to a spectral obstruction that cannot be treated perturbatively. Next, we consider stability of constant and near-constant steady states. We establish asymptotic stability for the vacuum state with respect to perturbations in $H^1\\times L^2$, without placing any parity assumptions on the coefficients, potential, or initial data. Finally, under a parity assumption, we show asymptotic stability for near-constant steady states.",
+          "claimed_authors": [
+            "Mashael Alammari",
+            "Stanley Snelson"
+          ],
+          "claimed_title": "Existence and stability of near-constant solutions of variable-coefficient scalar field equations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.13909"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Existence and stability of near-constant solutions of variable-coefficient scalar field equations')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Currently, the genetic programming version of the gene-pool optimal mixing evolutionary algorithm (GP-GOMEA) is among the top-performing algorithms for symbolic regression (SR). A key strength of GP-GOMEA is its way of performing variation, which dynamically adapts to the emergence of patterns in the population. However, GP-GOMEA lacks a mechanism to optimize coefficients. In this paper, we study how fairly simple approaches for optimizing coefficients can be integrated into GP-GOMEA. In particular, we considered two variants of Gaussian coefficient mutation. We performed experiments using different settings on 23 benchmark problems, and used machine learning to estimate what aspects of coefficient mutation matter most. We find that the most important aspect is that the number of coefficient mutation attempts needs to be commensurate with the number of mixing operations that GP-GOMEA performs. We applied GP-GOMEA with the best-performing coefficient mutation approach to the data sets of SRBench, a large SR benchmark, for which a ground-truth underlying equation is known. We find that coefficient mutation can help re-discovering the underlying equation by a substantial amount, but only when no noise is added to the target variable. In the presence of noise, GP-GOMEA with coefficient mutation discovers alternative but similarly-accurate equations.",
+          "claimed_authors": [
+            "Marco Virgolin",
+            "Peter A. N. Bosman"
+          ],
+          "claimed_title": "Coefficient Mutation in the Gene-pool Optimal Mixing Evolutionary Algorithm for Symbolic Regression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.12159"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Coefficient Mutation in the Gene-pool Optimal Mixing Evolutionary Algorithm for Symbolic Regression')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Centering is a commonly used technique in linear regression analysis. With centered data on both the responses and covariates, the ordinary least squares estimator of the slope parameter can be calculated from a model without the intercept. If a subsample is selected from a centered full data, the subsample is typically un-centered. In this case, is it still appropriate to fit a model without the intercept? The answer is yes, and we show that the least squares estimator on the slope parameter obtained from a model without the intercept is unbiased and it has a smaller variance covariance matrix in the Loewner order than that obtained from a model with the intercept. We further show that for noninformative weighted subsampling when a weighted least squares estimator is used, using the full data weighted means to relocate the subsample improves the estimation efficiency.",
+          "claimed_authors": [
+            "HaiYing Wang"
+          ],
+          "claimed_title": "A note on centering in subsample selection for linear regression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.00111"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='A note on centering in subsample selection for linear regression')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In 1990 Subramanian defined the complexity class CC as the set of problems log-space reducible to the comparator circuit value problem (CCV). He and Mayr showed that NL \\subseteq CC \\subseteq P, and proved that in addition to CCV several other problems are complete for CC, including the stable marriage problem, and finding the lexicographically first maximal matching in a bipartite graph. We are interested in CC because we conjecture that it is incomparable with the parallel class NC which also satisfies NL \\subseteq NC \\subseteq P, and note that this conjecture implies that none of the CC-complete problems has an efficient polylog time parallel algorithm. We provide evidence for our conjecture by giving oracle settings in which relativized CC and relativized NC are incomparable.\n  We give several alternative definitions of CC, including (among others) the class of problems computed by uniform polynomial-size families of comparator circuits supplied with copies of the input and its negation, the class of problems AC^0-reducible to CCV, and the class of problems computed by uniform AC^0 circuits with CCV gates. We also give a machine model for CC, which corresponds to its characterization as log-space uniform polynomial-size families of comparator circuits. These various characterizations show that CC is a robust class. The main technical tool we employ is universal comparator circuits.\n  Other results include a simpler proof of NL \\subseteq CC, and an explanation of the relation between the Gale-Shapley algorithm and Subramanian's algorithm for stable marriage.\n  This paper continues the previous work of Cook, Lê and Ye which focused on Cook-Nguyen style uniform proof complexity, answering several open questions raised in that paper.",
+          "claimed_authors": [
+            "Stephen A. Cook",
+            "Yuval Filmus",
+            "Dai Tri Man Le"
+          ],
+          "claimed_title": "The Complexity of the Comparator Circuit Value Problem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1208.2721"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='The Complexity of the Comparator Circuit Value Problem')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper considers a binary channel with deletions and insertions, where each input bit is transformed in one of the following ways: it is deleted with probability d, or an extra bit is added after it with probability i, or it is transmitted unmodified with probability 1-d-i. A computable lower bound on the capacity of this channel is derived. The transformation of the input sequence by the channel may be viewed in terms of runs as follows: some runs of the input sequence get shorter/longer, some runs get deleted, and some new runs are added. It is difficult for the decoder to synchronize the channel output sequence to the transmitted codeword mainly due to deleted runs and new inserted runs.\n  The main idea is a mutual information decomposition in terms of the rate achieved by a sub-optimal decoder that determines the positions of the deleted and inserted runs in addition to decoding the transmitted codeword. The mutual information between the channel input and output sequences is expressed as the sum of the rate achieved by this decoder and the rate loss due to its sub-optimality. Obtaining computable lower bounds on each of these quantities yields a lower bound on the capacity. The bounds proposed in this paper provide the first characterization of achievable rates for channels with general insertions, and for channels with both deletions and insertions. For the special case of the deletion channel, the proposed bound improves on the previous best lower bound for deletion probabilities up to 0.3.",
+          "claimed_authors": [
+            "Ramji Venkataramanan",
+            "Sekhar Tatikonda",
+            "Kannan Ramchandran"
+          ],
+          "claimed_title": "Achievable Rates for Channels with Deletions and Insertions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.5112"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Achievable Rates for Channels with Deletions and Insertions')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The change in the least squares estimator (LSE) of a vector of regression coefficients due to a case deletion is often used for investigating the influence of an observation on the LSE. A normalization of the change in the LSE using the Moore-Penrose inverse of the covariance matrix of the change in the LSE is derived. This normalization turns out to be a square of the internally studentized residual. It is shown that the numerator term of Cook's distance does not in general have a chi-squared distribution except for a single case. An elaborate explanation about the inappropriateness of the choice of a scaling matrix defining Cook's distance is given. By reflecting a distributional property of the change in the LSE due to a case deletion, a new diagnostic measure that is a scalar is suggested. Three numerical examples are given for illustration.",
+          "claimed_authors": [
+            "Myung Geun Kim"
+          ],
+          "claimed_title": "On deletion diagnostic statistic in regression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.14127"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='On deletion diagnostic statistic in regression')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Consider the multiple linear regression model $y_{i} = \\boldsymbol{x}'_{i} \\boldsymbolβ + ε_{i}$, where $ε_i$'s are independent and identically distributed random variables, $\\mathbf{x}_i$'s are known design vectors and $\\boldsymbolβ$ is the $p \\times 1$ vector of parameters. An effective way of approximating the distribution of the M-estimator $\\boldsymbol{\\barβ}_n$, after proper centering and scaling, is the Perturbation Bootstrap Method. In this current work, second order results of this non-naive bootstrap method have been investigated. Second order correctness is important for reducing the approximation error uniformly to $o(n^{-1/2})$ to get better inferences. We show that the classical studentized version of the bootstrapped estimator fails to be second order correct. We introduce an innovative modification in the studentized version of the bootstrapped statistic and show that the modified bootstrapped pivot is second order correct (S.O.C.) for approximating the distribution of the studentized M-estimator. Additionally, we show that the Perturbation Bootstrap continues to be S.O.C. when the errors $ε_i$'s are independent, but may not be identically distributed. These findings establish perturbation Bootstrap approximation as a significant improvement over asymptotic normality in the regression M-estimation.",
+          "claimed_authors": [
+            "Debraj Das",
+            "Soumendra Nath Lahiri"
+          ],
+          "claimed_title": "Second Order Correctness of Perturbation Bootstrap M-Estimator of Multiple Linear Regression Parameter",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1605.01440"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Second Order Correctness of Perturbation Bootstrap M-Estimator of Multiple Linear Regression Parameter')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Normalised citation counts are routinely used to assess the average impact of research groups or nations. There is controversy over whether confidence intervals for them are theoretically valid or practically useful. In response, this article introduces the concept of a group's underlying research capability to produce impactful research. It then investigates whether confidence intervals could delimit the underlying capability of a group in practice. From 123120 confidence interval comparisons for the average citation impact of the national outputs of ten countries within 36 individual large monodisciplinary journals, moderately fewer than 95% of subsequent indicator values fall within 95% confidence intervals from prior years, with the percentage declining over time. This is consistent with confidence intervals effectively delimiting the research capability of a group, although it does not prove that this is the cause of the results. The results are unaffected by whether internationally collaborative articles are included.",
+          "claimed_authors": [
+            "Mike Thelwall"
+          ],
+          "claimed_title": "Confidence intervals for normalised citation counts: Can they delimit underlying research capability?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.08708"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Confidence intervals for normalised citation counts: Can they delimit underlying research capability?')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, an application of the numerical bootstrap method to quantum mechanics was proposed, and it successfully reproduces the eigenstates of various systems. However, it is unclear why this method works. In order to understand this question, we study the bootstrap method in harmonic oscillators. We find that the problem reduces to the Dirac's ladder operator problem and is exactly solvable analytically. Our result suggests that the bootstrap method may be regarded as a numerical version of the Dirac's approach and it may explain why it works in various systems.",
+          "claimed_authors": [
+            "Yu Aikawa",
+            "Takeshi Morita",
+            "Kota Yoshimura"
+          ],
+          "claimed_title": "Bootstrap Method in Harmonic Oscillator",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.08033"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Bootstrap Method in Harmonic Oscillator')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Controlled Direct Effect (CDE) is one of the causal estimands used to evaluate both exposure and mediation effects on an outcome. When there are unmeasured confounders existing between the mediator and the outcome, the ordinary identification assumption does not work. In this manuscript, we consider an identification condition to identify CDE in the presence of unmeasured confounders. The key assumptions are: 1) the random allocation of the exposure, and 2) the existence of instrumental variables directly related to the mediator. Under these conditions, we propose a novel doubly robust estimation method, which work well if either the propensity score model or the baseline outcome model is correctly specified. Additionally, we propose a Generalized Information Criterion (GIC)-based model selection criterion for CDE that ensures model selection consistency. Our proposed procedure and related methods are applied to both simulation and real datasets to confirm the performance of these methods. Our proposed method can select the correct model with high probability and accurately estimate CDE.",
+          "claimed_authors": [
+            "Shunichiro Orihara",
+            "Shinpei Imori",
+            "Kosuke Morikawa",
+            "Atsushi Goto",
+            "Masataka Taguri"
+          ],
+          "claimed_title": "Robust Estimation and Model Selection for the Controlled Directed Effect with Unmeasured Mediator-Outcome Confounders",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.21832"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Robust Estimation and Model Selection for the Controlled Directed Effect with Unmeasured Mediator-Outcome Confounders')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We observe an instance of gender-induced bias in a downstream application, despite the absence of explicit gender words in the test cases. We provide a test set, SoWinoBias, for the purpose of measuring such latent gender bias in coreference resolution systems. We evaluate the performance of current debiasing methods on the SoWinoBias test set, especially in reference to the method's design and altered embedding space properties. See https://github.com/hillarydawkins/SoWinoBias.",
+          "claimed_authors": [
+            "Hillary Dawkins"
+          ],
+          "claimed_title": "Second Order WinoBias (SoWinoBias) Test Set for Latent Gender Bias Detection in Coreference Resolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.14047"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Second Order WinoBias (SoWinoBias) Test Set for Latent Gender Bias Detection in Coreference Resolution')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We investigate the asymptotic distributions of coordinates of regression M-estimates in the moderate $p/n$ regime, where the number of covariates $p$ grows proportionally with the sample size $n$. Under appropriate regularity conditions, we establish the coordinate-wise asymptotic normality of regression M-estimates assuming a fixed-design matrix. Our proof is based on the second-order Poincaré inequality (Chatterjee, 2009) and leave-one-out analysis (El Karoui et al., 2011). Some relevant examples are indicated to show that our regularity conditions are satisfied by a broad class of design matrices. We also show a counterexample, namely the ANOVA-type design, to emphasize that the technical assumptions are not just artifacts of the proof. Finally, the numerical experiments confirm and complement our theoretical results.",
+          "claimed_authors": [
+            "Lihua Lei",
+            "Peter J. Bickel",
+            "Noureddine El Karoui"
+          ],
+          "claimed_title": "Asymptotics For High Dimensional Regression M-Estimates: Fixed Design Results",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1612.06358"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Asymptotics For High Dimensional Regression M-Estimates: Fixed Design Results')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Given a collection of $n$ points in $\\mathbb{R}^d$, the goal of the $(k,z)$-clustering problem is to find a subset of $k$ \"centers\" that minimizes the sum of the $z$-th powers of the Euclidean distance of each point to the closest center. Special cases of the $(k,z)$-clustering problem include the $k$-median and $k$-means problems. Our main result is a unified two-stage importance sampling framework that constructs an $\\varepsilon$-coreset for the $(k,z)$-clustering problem. Compared to the results for $(k,z)$-clustering in [Feldman and Langberg, STOC 2011], our framework saves a $\\varepsilon^2 d$ factor in the coreset size. Compared to the results for $(k,z)$-clustering in [Sohler and Woodruff, FOCS 2018], our framework saves a $\\operatorname{poly}(k)$ factor in the coreset size and avoids the $\\exp(k/\\varepsilon)$ term in the construction time. Specifically, our coreset for $k$-median ($z=1$) has size $\\tilde{O}(\\varepsilon^{-4} k)$ which, when compared to the result in [Sohler and Woodruff, STOC 2018], saves a $k$ factor in the coreset size. Our algorithmic results rely on a new dimensionality reduction technique that connects two well-known shape fitting problems: subspace approximation and clustering, and may be of independent interest. We also provide a size lower bound of $Ω\\left(k\\cdot \\min \\left\\{2^{z/20},d \\right\\}\\right)$ for a $0.01$-coreset for $(k,z)$-clustering, which has a linear dependence of size on $k$ and an exponential dependence on $z$ that matches our algorithmic results.",
+          "claimed_authors": [
+            "Lingxiao Huang",
+            "Nisheeth K. Vishnoi"
+          ],
+          "claimed_title": "Coresets for Clustering in Euclidean Spaces: Importance Sampling is Nearly Optimal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.06263"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Coresets for Clustering in Euclidean Spaces: Importance Sampling is Nearly Optimal')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper concerns about the limiting distributions of change point estimators, in a high-dimensional linear regression time series context, where a regression object $(y_t, X_t) \\in \\mathbb{R} \\times \\mathbb{R}^p$ is observed at every time point $t \\in \\{1, \\ldots, n\\}$. At unknown time points, called change points, the regression coefficients change, with the jump sizes measured in $\\ell_2$-norm. We provide limiting distributions of the change point estimators in the regimes where the minimal jump size vanishes and where it remains a constant. We allow for both the covariate and noise sequences to be temporally dependent, in the functional dependence framework, which is the first time seen in the change point inference literature. We show that a block-type long-run variance estimator is consistent under the functional dependence, which facilitates the practical implementation of our derived limiting distributions. We also present a few important byproducts of our analysis, which are of their own interest. These include a novel variant of the dynamic programming algorithm to boost the computational efficiency, consistent change point localisation rates under temporal dependence and a new Bernstein inequality for data possessing functional dependence. Extensive numerical results are provided to support our theoretical results. The proposed methods are implemented in the R package \\texttt{changepoints} \\citep{changepoints_R}.",
+          "claimed_authors": [
+            "Haotian Xu",
+            "Daren Wang",
+            "Zifeng Zhao",
+            "Yi Yu"
+          ],
+          "claimed_title": "Change point inference in high-dimensional regression models under temporal dependence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.12453"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Change point inference in high-dimensional regression models under temporal dependence')",
+        "failed_at": "2026-07-16T18:42:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The information-based optimal subdata selection (IBOSS) is a computationally efficient method to select informative data points from large data sets through processing full data by columns. However, when the volume of a data set is too large to be processed in the available memory of a machine, it is infeasible to implement the IBOSS procedure. This paper develops a divide-and-conquer IBOSS approach to solving this problem, in which the full data set is divided into smaller partitions to be loaded into the memory and then subsets of data are selected from each partitions using the IBOSS algorithm. We derive both finite sample properties and asymptotic properties of the resulting estimator. Asymptotic results show that if the full data set is partitioned randomly and the number of partitions is not very large, then the resultant estimator has the same estimation efficiency as the original IBOSS estimator. We also carry out numerical experiments to evaluate the empirical performance of the proposed method.",
+          "claimed_authors": [
+            "HaiYing Wang"
+          ],
+          "claimed_title": "Divide-and-Conquer Information-Based Optimal Subdata Selection Algorithm",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.09948"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Divide-and-Conquer Information-Based Optimal Subdata Selection Algorithm')",
+        "failed_at": "2026-07-16T18:42:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This work studies the theoretical rules of feature selection in linear discriminant analysis (LDA), and a new feature selection method is proposed for sparse linear discriminant analysis. An $l_1$ minimization method is used to select the important features from which the LDA will be constructed. The asymptotic results of this proposed two-stage LDA (TLDA) are studied, demonstrating that TLDA is an optimal classification rule whose convergence rate is the best compared to existing methods. The experiments on simulated and real datasets are consistent with the theoretical results and show that TLDA performs favorably in comparison with current methods. Overall, TLDA uses a lower minimum number of features or genes than other approaches to achieve a better result with a reduced misclassification rate.",
+          "claimed_authors": [
+            "Cheng Wang",
+            "Longbing Cao",
+            "Baiqi Miao"
+          ],
+          "claimed_title": "Optimal feature selection for sparse linear discriminant analysis and its applications in gene expression data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1206.1660"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Optimal feature selection for sparse linear discriminant analysis and its applications in gene expression data')",
+        "failed_at": "2026-07-16T18:42:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Consider a linear model $y = X β+ z$, $z \\sim N(0, σ^2 I_n)$. The Gram matrix $Θ= \\frac{1}{n} X'X$ is non-sparse, but it is approximately the sum of two components, a low-rank matrix and a sparse matrix, where neither component is known to us. We are interested in the Rare/Weak signal setting where all but a small fraction of the entries of $β$ are nonzero, and the nonzero entries are relatively small individually. The goal is to rank the variables in a way so as to maximize the area under the ROC curve.\n  We propose Factor-adjusted Covariate Assisted Ranking (FA-CAR) as a two-step approach to variable ranking. In the FA-step, we use PCA to reduce the linear model to a new one where the Gram matrix is approximately sparse. In the CAR-step, we rank variables by exploiting the local covariate structures.\n  FA-CAR is easy to use and computationally fast, and it is effective in resolving signal cancellation, a challenge we face in regression models. FA-CAR is related to the recent idea of Covariate Assisted Screening and Estimation (CASE), but two methods are for different goals and are thus very different.\n  We compare the ROC curve of FA-CAR with some other ranking ideas on numerical experiments, and show that FA-CAR has several advantages. Using a Rare/Weak signal model, we derive the convergence rate of the minimum sure-screening model size of FA-CAR. Our theoretical analysis contains several new ingredients, especially a new perturbation bound for PCA.",
+          "claimed_authors": [
+            "Zheng Tracy Ke",
+            "Fan Yang"
+          ],
+          "claimed_title": "Covariate Assisted Variable Ranking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.10370"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection', candidate_title='Covariate Assisted Variable Ranking')",
+        "failed_at": "2026-07-16T18:42:16Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michał Dereziński",
+            "Kenneth L. Clarkson",
+            "Michael W. Mahoney",
+            "Manfred K. Warmuth"
+          ],
+          "title": "Minimax experimental design: Bridging the gap between statistical and worst-case approaches to least squares regression",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1902.00995",
+        "summary": "In experimental design, we are given a large collection of vectors, each with a hidden response value that we assume derives from an underlying linear model, and we wish to pick a small subset of the vectors such that querying the corresponding responses will lead to a good estimator of the model. A classical approach in statistics is to assume the responses are linear, plus zero-mean i.i.d. Gaussian noise, in which case the goal is to provide an unbiased estimator with smallest mean squared error (A-optimal design). A related approach, more common in computer science, is to assume the responses are arbitrary but fixed, in which case the goal is to estimate the least squares solution using few responses, as quickly as possible, for worst-case inputs. Despite many attempts, characterizing the relationship between these two approaches has proven elusive. We address this by proposing a framework for experimental design where the responses are produced by an arbitrary unknown distribution. We show that there is an efficient randomized experimental design procedure that achieves strong variance bounds for an unbiased estimator using few responses in this general model. Nearly tight bounds for the classical A-optimality criterion, as well as improved bounds for worst-case responses, emerge as special cases of this result. In the process, we develop a new algorithm for a joint sampling distribution called volume sampling, and we propose a new i.i.d. importance sampling method: inverse score sampling. A key novelty of our analysis is in developing new expected error bounds for worst-case regression by controlling the tail behavior of i.i.d. sampling via the jointness of volume sampling. Our result motivates a new minimax-optimality criterion for experimental design which can be viewed as an extension of both A-optimal design and sampling for worst-case regression.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1902.00995",
+          "http_status": 200,
+          "pdf_sample_score": 0.3862,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T18:42:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daniel Freund",
+            "Samuel B. Hopkins"
+          ],
+          "title": "Towards Practical Robustness Auditing for Linear Regression",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2307.16315",
+        "summary": "We investigate practical algorithms to find or disprove the existence of small subsets of a dataset which, when removed, reverse the sign of a coefficient in an ordinary least squares regression involving that dataset. We empirically study the performance of well-established algorithmic techniques for this task -- mixed integer quadratically constrained optimization for general linear regression problems and exact greedy methods for special cases. We show that these methods largely outperform the state of the art and provide a useful robustness check for regression problems in a few dimensions. However, significant computational bottlenecks remain, especially for the important task of disproving the existence of such small sets of influential samples for regression problems of dimension $3$ or greater. We make some headway on this challenge via a spectral algorithm using ideas drawn from recent innovations in algorithmic robust statistics. We summarize the limitations of known techniques in several challenge datasets to encourage further algorithmic innovation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2307.16315",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T18:42:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Faming Liang",
+            "Jingnan Xue",
+            "Bochao Jia"
+          ],
+          "title": "Markov Neighborhood Regression for High-Dimensional Inference",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2010.08864",
+        "summary": "This paper proposes an innovative method for constructing confidence intervals and assessing p-values in statistical inference for high-dimensional linear models. The proposed method has successfully broken the high-dimensional inference problem into a series of low-dimensional inference problems: For each regression coefficient $β_i$, the confidence interval and $p$-value are computed by regressing on a subset of variables selected according to the conditional independence relations between the corresponding variable $X_i$ and other variables. Since the subset of variables forms a Markov neighborhood of $X_i$ in the Markov network formed by all the variables $X_1,X_2,\\ldots,X_p$, the proposed method is coined as Markov neighborhood regression. The proposed method is tested on high-dimensional linear, logistic and Cox regression. The numerical results indicate that the proposed method significantly outperforms the existing ones. Based on the Markov neighborhood regression, a method of learning causal structures for high-dimensional linear models is proposed and applied to identification of drug sensitive genes and cancer driver genes. The idea of using conditional independence relations for dimension reduction is general and potentially can be extended to other high-dimensional or big data problems as well.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2010.08864",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T18:42:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Weijie J. Su"
+          ],
+          "title": "When Is the First Spurious Variable Selected by Sequential Regression Procedures?",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1708.03046",
+        "summary": "Applied statisticians use sequential regression procedures to produce a ranking of explanatory variables and, in settings of low correlations between variables and strong true effect sizes, expect that variables at the very top of this ranking are truly relevant to the response. In a regime of certain sparsity levels, however, three examples of sequential procedures--forward stepwise, the lasso, and least angle regression--are shown to include the first spurious variable unexpectedly early. We derive a rigorous, sharp prediction of the rank of the first spurious variable for these three procedures, demonstrating that the first spurious variable occurs earlier and earlier as the regression coefficients become denser. This counterintuitive phenomenon persists for statistically independent Gaussian random designs and an arbitrarily large magnitude of the true effects. We gain a better understanding of the phenomenon by identifying the underlying cause and then leverage the insights to introduce a simple visualization tool termed the double-ranking diagram to improve on sequential methods. As a byproduct of these findings, we obtain the first provable result certifying the exact equivalence between the lasso and least angle regression in the early stages of solution paths beyond orthogonal designs. This equivalence can seamlessly carry over many important model selection results concerning the lasso to least angle regression.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1708.03046",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T18:42:15Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "assessing the sensitivity of regression coefficients to dataset subset selection statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

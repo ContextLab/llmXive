@@ -139,6 +139,10 @@
     "classified_at": "2026-07-12T04:21:10Z",
     "verdict": false
   },
+  "PROJ-1034-llmxive-follow-up-extending-infinite-wor::1.6.0": {
+    "classified_at": "2026-07-16T18:43:15Z",
+    "verdict": false
+  },
   "PROJ-1062-llmxive-follow-up-extending-weak-to-stro::1.6.0": {
     "classified_at": "2026-07-16T13:05:47Z",
     "verdict": false
