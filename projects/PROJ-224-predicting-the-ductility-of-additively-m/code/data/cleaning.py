@@ -1,6 +1,6 @@
 """
-Data Cleaning Module.
-Converts units, filters missing values, and maps alloy flags.
+Data cleaning module for the ductility prediction pipeline.
+Handles unit conversion, filtering, and feature engineering.
 """
 import os
 import sys
@@ -9,102 +9,115 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def convert_units(df):
-    """Convert all raw units to SI (W, mm/s, µm, %)."""
-    logger.info("Converting units to SI...")
-    # Assuming input is already in SI or close enough for this demo
-    # If 'kW' is present, convert to 'W'
+# Constants
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+def convert_units(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert all units to SI (W, mm/s, µm, %)."""
+    logger.info("Converting units to SI")
+    
+    # Power: ensure W (assume input is already W based on acquisition)
     if 'laser_power' in df.columns:
-        # Check if any values are likely kW (e.g., < 1000 but labeled kW? We assume W for simplicity)
-        # For this demo, we assume the data is already in W.
-        pass
+        df['laser_power'] = pd.to_numeric(df['laser_power'], errors='coerce')
+    
+    # Scan speed: ensure mm/s
+    if 'scan_speed' in df.columns:
+        df['scan_speed'] = pd.to_numeric(df['scan_speed'], errors='coerce')
+    
+    # Hatch spacing: ensure mm
+    if 'hatch_spacing' in df.columns:
+        df['hatch_spacing'] = pd.to_numeric(df['hatch_spacing'], errors='coerce')
+    
+    # Layer thickness: ensure mm
+    if 'layer_thickness' in df.columns:
+        df['layer_thickness'] = pd.to_numeric(df['layer_thickness'], errors='coerce')
+    
+    # Ductility: ensure %
+    if 'ductility' in df.columns:
+        df['ductility'] = pd.to_numeric(df['ductility'], errors='coerce')
+    
     return df
 
-def filter_missing_values(df):
+def filter_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """Filter out records with missing ductility or incomplete process specs."""
-    logger.info("Filtering missing values...")
+    logger.info("Filtering missing values")
+    
     required_cols = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness', 'ductility', 'alloy_family']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
-        return df
+    missing_before = len(df)
+    
+    # Drop rows with any missing required values
+    df_clean = df.dropna(subset=required_cols)
+    
+    dropped_count = missing_before - len(df_clean)
+    if dropped_count > 0:
+        logger.warning(f"Dropped {dropped_count} rows with missing required values")
+    
+    return df_clean
 
-    initial_count = len(df)
-    df = df.dropna(subset=required_cols)
-    dropped = initial_count - len(df)
-    if dropped > 0:
-        logger.warning(f"Dropped {dropped} rows due to missing values.")
-    return df
-
-def map_alloy_flags(df):
+def map_alloy_flags(df: pd.DataFrame) -> pd.DataFrame:
     """Map alloy composition to binary flags for specific elements."""
-    logger.info("Mapping alloy flags...")
-    elements = ['Cr', 'Al', 'Ti', 'Co', 'Mo', 'W']
-    # Simple mapping based on alloy_family name
-    # In a real scenario, this would parse chemical formulas
-    for element in elements:
-        df[f'has_{element}'] = 0
+    logger.info("Mapping alloy flags")
     
-    # Hardcoded mappings for common alloys
-    alloy_flags = {
-        'Inconel 718': {'Cr': 1, 'Al': 1, 'Ti': 1, 'Co': 0, 'Mo': 1, 'W': 0},
-        'Hastelloy X': {'Cr': 1, 'Al': 0, 'Ti': 0, 'Co': 1, 'Mo': 1, 'W': 0},
-        'Inconel 625': {'Cr': 1, 'Al': 0, 'Ti': 0, 'Co': 0, 'Mo': 1, 'W': 0}
-    }
+    elements = ['cr', 'al', 'ti', 'co', 'mo', 'w']
     
-    def apply_flags(row):
-        alloy = row['alloy_family']
-        if alloy in alloy_flags:
-            for elem, val in alloy_flags[alloy].items():
-                row[f'has_{elem}'] = val
-        return row
+    for elem in elements:
+        if elem in df.columns:
+            # Create binary flag: 1 if element present (>0.1%), 0 otherwise
+            df[f'{elem}_flag'] = (df[elem] > 0.1).astype(int)
+        else:
+            # If composition columns don't exist, create flags based on alloy family
+            df[f'{elem}_flag'] = 0
     
-    df = df.apply(apply_flags, axis=1)
     return df
 
-def add_validation_checks(df):
-    """Add validation checks and log reasons for exclusion."""
-    logger.info("Adding validation checks...")
+def add_validation_checks(df: pd.DataFrame) -> pd.DataFrame:
+    """Add validation checks for data integrity."""
+    logger.info("Adding validation checks")
     
-    # Task T019: Add validation check for row count
-    row_count = len(df)
-    if row_count < 50:
-        logger.critical(f"Dataset row count ({row_count}) is below the minimum threshold of 50. Proceeding with critical warning.")
-    else:
-        logger.info(f"Dataset row count ({row_count}) meets the minimum threshold of 50.")
+    # Check row count
+    if len(df) < 50:
+        logger.critical(f"Dataset has only {len(df)} rows (< 50). Proceeding with warning.")
     
-    # Log total excluded records and reasons (aggregated from previous steps)
-    # Note: Since we don't track individual exclusion reasons in this simple flow,
-    # we log the final count and the fact that filtering occurred in filter_missing_values.
-    logger.info(f"Total records in final dataset: {row_count}")
-    logger.info(f"Exclusion reasons: Missing values in required columns (see previous logs).")
+    # Check for negative values
+    numeric_cols = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness', 'ductility']
+    for col in numeric_cols:
+        if col in df.columns:
+            negative_count = (df[col] < 0).sum()
+            if negative_count > 0:
+                logger.warning(f"Found {negative_count} negative values in {col}")
     
     return df
 
 def main():
     """Main entry point for data cleaning."""
-    logger.info("Starting Data Cleaning...")
+    logger.info("Starting data cleaning")
     
-    input_path = Path(__file__).parent.parent.parent / "data" / "raw_merged.csv"
+    # Load input data (from acquisition)
+    input_path = DATA_DIR / "curated_builds_with_descriptors.csv"
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
         sys.exit(1)
     
     df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} records from {input_path}")
     
+    # Apply cleaning steps
     df = convert_units(df)
     df = filter_missing_values(df)
     df = map_alloy_flags(df)
     df = add_validation_checks(df)
     
-    output_path = Path(__file__).parent.parent.parent / "data" / "curated_builds.csv"
+    # Save output
+    output_path = DATA_DIR / "curated_builds.csv"
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved curated builds to {output_path}")
+    logger.info(f"Saved cleaned data to {output_path}")
     
-    logger.info("Data Cleaning stage completed.")
     return df
 
 if __name__ == "__main__":

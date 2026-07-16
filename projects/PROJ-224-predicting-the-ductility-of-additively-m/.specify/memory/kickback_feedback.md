@@ -1,0 +1,12 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 4 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- T023b (Reciprocal VIF) depends on T023 (VIF analysis) output 'data/filtered_builds_vif1.csv'. However, T023b is listed immediately after T023, but T024 (LME Model) is listed before T023b in the logical flow of the section header, creating ambiguity. More critically, T024 explicitly states input is 'data/filtered_builds_final.csv' from T023b. The current linear list order (T023 -> T023b -> T024) is correct, but the 'Parallel Example' section and general grouping imply T023/T023b are a single block. Ensure T023b is strictly sequential [S] and not marked [P] or parallelizable with T024.
+- T045 (Real Data Streaming Fallback) is in Phase 7 (Revision) but depends on T015 (Acquisition) and T040 (Fail Loud). T045 proposes a fallback logic that modifies the acquisition flow. If T045 is implemented, it effectively changes the logic of T015/T040. The ordering implies T045 is a separate task, but semantically it is a modification of T015. It should be ordered as a revision to T015/T040, not a standalone task after them, or T015/T040 must be marked as superseded by T045's logic.
+- T023b is marked [S] (Sequential) but the description says 'IF Energy Density WAS dropped in T023: This task is a no-op (skip)'. A 'no-op' task in a sequential chain is acceptable, but the dependency on T023's *internal logic state* (whether it dropped a column) rather than just its *output file* makes the ordering fragile. Ensure the task explicitly checks for the existence of the specific column or file state to determine if it should run, rather than relying on a hidden state from T023.
+- Task T023b describes a 'Reciprocal VIF check' with a 'HALT' condition. While the logic is described, the task is overly coarse and conflates two distinct logical branches (Energy Density dropped vs. not dropped) into one task, making the implementation path ambiguous for a single atomic step.

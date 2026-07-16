@@ -1,9 +1,3 @@
-T020:
-  c: false
-  h: 67751f68dd9e1ef21283a51b8e818d760fb8b8889c1600b00a824f8607175c92
-  r: The required artifact `data/curated_builds_features.csv` does not exist on disk,
-    so no dataset is available to meet the size, column, or versioning requirements.
-    The implementer must create and place the CSV file in the specified location.
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -11,9 +5,33 @@ T027:
     \ status, random\u2011effect estimates, and significance flags) was presented.\
     \ The evidence section contains no artifact paths or file contents, so the required\
     \ output is missing."
-T039:
+T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., validation log, report, or updated quickstart.md) is provided
-    to demonstrate that the quickstart.md validation was actually executed; the claim
-    lacks any concrete evidence. The required output is missing.
+  r: "No artifact named `PredictiveModelArtifact` is present, and there is no file\
+    \ containing the required metrics, hyperparameters, or the comparison results\
+    \ from `artifacts/model_comparison.json`. Consequently, the task\u2019s deliverable\
+    \ is missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only a textual description and a reference ID, but no concrete\
+    \ artifacts such as the data\u2011ingestion script, the generated CSV dataset\
+    \ (\u2265\u202F50 rows with required columns), the mixed\u2011effects model output\
+    \ table, or the trained XGBoost model and its performance report. Without these\
+    \ files or logs, the mandatory user\u2011story acceptance criteria cannot be verified.\
+    \ The implementer must supply the actual code, generated dataset, analysis results,\
+    \ and model artifacts."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file with updated final findings and limitations was provided;\
+    \ the evidence lacks the required artifact entirely, so the task\u2019s deliverable\
+    \ cannot be confirmed as completed."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution log, timing report, or output from `main.py` is provided; the claim\
+    \ lacks any artifact demonstrating that the full pipeline ran end\u2011to\u2011\
+    end within the 600\u2011second limit. The required evidence of a successful integration\
+    \ test is missing."

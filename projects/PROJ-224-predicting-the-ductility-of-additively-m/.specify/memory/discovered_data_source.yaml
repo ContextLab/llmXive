@@ -1,6 +1,6 @@
 status: none
-intent: download additive-manufacturing-superalloy dataset from HuggingFace and Materials
-  Project API python package dataset
+intent: download additive manufacturing superalloy laser parameters ductility materials
+  project python package dataset
 required_fields:
 - laser_power
 - scan_speed
@@ -8,7 +8,6 @@ required_fields:
 - layer_thickness
 - ductility
 - alloy_composition
-- material_id
-cache_key: a9105b402413a8b3ee4f72fe8239f59d5766f7176d16210443665a125d7e6910
-searched_at: '2026-07-15T15:11:42.554925+00:00'
+cache_key: 44d017ba3fee13083aed2641025a1e29b72a0484da4139b6330f351051c271ca
+searched_at: '2026-07-16T18:13:22.170017+00:00'
 retry_count: 1

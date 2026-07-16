@@ -1,15 +1,16 @@
 """
-Artifact versioning module for PROJ-224.
-Computes SHA-256 hashes and updates the project state file.
+Artifact Versioning Module for PROJ-224.
+
+This module handles the computation of SHA-256 hashes for data artifacts
+and the management of the project state file to record these hashes.
 """
+
 import hashlib
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Optional, Dict, Any
-
-import yaml
 
 # Configure logging
 logging.basicConfig(
@@ -18,16 +19,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Project root is assumed to be the parent of the 'code' directory
+# We traverse up from the current file location
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+STATE_DIR = PROJECT_ROOT / "state" / "projects"
+STATE_FILE_PATH = STATE_DIR / "PROJ-224-predicting-the-ductility-of-additively-m.yaml"
 
 def compute_sha256(file_path: Path) -> str:
     """
     Compute the SHA-256 hash of a file.
 
     Args:
-        file_path: Path to the file to hash.
+        file_path (Path): Path to the file to hash.
 
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        str: The hexadecimal SHA-256 hash string.
 
     Raises:
         FileNotFoundError: If the file does not exist.
@@ -39,7 +45,7 @@ def compute_sha256(file_path: Path) -> str:
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
+            # Read in chunks to handle large files efficiently
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
@@ -47,150 +53,113 @@ def compute_sha256(file_path: Path) -> str:
         logger.error(f"Error reading file {file_path}: {e}")
         raise
 
-
-def ensure_state_file(state_path: Path) -> Dict[str, Any]:
+def ensure_state_file() -> Dict[str, Any]:
     """
-    Ensure the state file exists and return its contents.
-    Creates the file with default structure if it doesn't exist.
-
-    Args:
-        state_path: Path to the state YAML file.
+    Ensures the state file exists and returns its current content.
+    Creates the file with the required structure if it does not exist.
 
     Returns:
-        Dictionary containing the state file contents.
+        Dict[str, Any]: The current content of the state file.
     """
-    # Ensure parent directory exists
-    state_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure the directory exists
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
 
-    if not state_path.exists():
-        logger.info(f"Creating new state file at {state_path}")
-        state_data = {
-            "artifact_hashes": {}
-        }
-        with open(state_path, 'w', encoding='utf-8') as f:
-            yaml.dump(state_data, f, default_flow_style=False)
-        return state_data
+    state_data = {}
 
-    try:
-        with open(state_path, 'r', encoding='utf-8') as f:
-            state_data = yaml.safe_load(f)
-            if state_data is None:
-                state_data = {"artifact_hashes": {}}
-            if "artifact_hashes" not in state_data:
-                state_data["artifact_hashes"] = {}
-        return state_data
-    except yaml.YAMLError as e:
-        logger.error(f"Error parsing existing state file {state_path}: {e}")
-        raise
+    if STATE_FILE_PATH.exists():
+        try:
+            import yaml
+            with open(STATE_FILE_PATH, 'r') as f:
+                state_data = yaml.safe_load(f) or {}
+            logger.info(f"Loaded existing state file: {STATE_FILE_PATH}")
+        except Exception as e:
+            logger.warning(f"Could not read existing state file {STATE_FILE_PATH}: {e}. Starting fresh.")
+            state_data = {}
+    else:
+        logger.info(f"State file {STATE_FILE_PATH} does not exist. Creating new structure.")
 
+    # Ensure the 'artifact_hashes' key exists
+    if "artifact_hashes" not in state_data:
+        state_data["artifact_hashes"] = {}
 
-def save_state(state_path: Path, state_data: Dict[str, Any]) -> None:
+    return state_data
+
+def save_state(state_data: Dict[str, Any]) -> None:
     """
-    Save the state dictionary to the YAML file.
+    Saves the state dictionary to the YAML file.
 
     Args:
-        state_path: Path to the state YAML file.
-        state_data: Dictionary to save.
+        state_data (Dict[str, Any]): The data to save.
     """
     try:
-        with open(state_path, 'w', encoding='utf-8') as f:
+        import yaml
+        with open(STATE_FILE_PATH, 'w') as f:
             yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
-        logger.info(f"State saved to {state_path}")
-    except IOError as e:
-        logger.error(f"Error writing state file {state_path}: {e}")
+        logger.info(f"State saved to {STATE_FILE_PATH}")
+    except Exception as e:
+        logger.error(f"Failed to save state file {STATE_FILE_PATH}: {e}")
         raise
 
-
-def version_artifact(
-    artifact_path: Path,
-    state_path: Path,
-    key_name: Optional[str] = None
-) -> str:
+def version_artifact(artifact_path: Path, state_data: Optional[Dict[str, Any]] = None) -> str:
     """
-    Version an artifact by computing its hash and recording it in the state file.
+    Computes the hash of an artifact, updates the state data, and saves it.
 
     Args:
-        artifact_path: Path to the artifact file to version.
-        state_path: Path to the project state YAML file.
-        key_name: Optional custom key name for the artifact in the state file.
-                 If None, uses the relative path from project root.
+        artifact_path (Path): Path to the artifact file.
+        state_data (Optional[Dict[str, Any]]): Existing state data. If None, loads from file.
 
     Returns:
-        The computed SHA-256 hash.
+        str: The computed hash.
 
     Raises:
-        FileNotFoundError: If the artifact does not exist.
-        ValueError: If the hash verification fails after writing.
+        FileNotFoundError: If the artifact file does not exist.
+        ValueError: If the state data structure is invalid.
     """
-    if not artifact_path.is_absolute():
-        # Assume relative to current working directory (project root)
-        artifact_path = Path.cwd() / artifact_path
-
-    if not artifact_path.exists():
-        raise FileNotFoundError(f"Artifact not found for versioning: {artifact_path}")
+    if state_data is None:
+        state_data = ensure_state_file()
 
     # Compute hash
-    file_hash = compute_sha256(artifact_path)
-    logger.info(f"Computed SHA-256 for {artifact_path}: {file_hash}")
+    hash_value = compute_sha256(artifact_path)
+    logger.info(f"Computed SHA-256 for {artifact_path.name}: {hash_value}")
 
-    # Determine key name
-    if key_name is None:
-        # Use relative path from current working directory
-        try:
-            key_name = str(artifact_path.relative_to(Path.cwd()))
-        except ValueError:
-            key_name = str(artifact_path)
+    # Update state
+    artifact_key = str(artifact_path.relative_to(PROJECT_ROOT))
+    state_data["artifact_hashes"][artifact_key] = hash_value
 
-    # Load or create state
-    state_data = ensure_state_file(state_path)
+    # Save state
+    save_state(state_data)
 
-    # Update hash
-    old_hash = state_data["artifact_hashes"].get(key_name)
-    state_data["artifact_hashes"][key_name] = file_hash
-    save_state(state_path, state_data)
+    # Verification
+    if state_data["artifact_hashes"].get(artifact_key) != hash_value:
+        raise ValueError(f"Verification failed: Hash mismatch for {artifact_key}")
 
-    # Verify
-    if state_data["artifact_hashes"][key_name] != file_hash:
-        raise ValueError(
-            f"Hash verification failed for {key_name}. "
-            f"Expected: {file_hash}, Found: {state_data['artifact_hashes'][key_name]}"
-        )
+    logger.info(f"Successfully versioned artifact: {artifact_key}")
+    return hash_value
 
-    logger.info(f"Artifact versioned successfully: {key_name} -> {file_hash}")
-    return file_hash
-
-
-def main() -> int:
+def main():
     """
-    Main entry point for artifact versioning.
-    Versions data/curated_builds_features.csv and updates state/projects/PROJ-224.yaml.
+    Main entry point for versioning the specific US1 artifact.
     """
-    project_root = Path.cwd()
-    artifact_file = project_root / "data" / "curated_builds_features.csv"
-    state_file = (
-        project_root / "state" / "projects" /
-        "PROJ-224-predicting-the-ductility-of-additively-m.yaml"
-    )
+    # Define the target artifact relative to project root
+    # The task specifies: data/curated_builds_features.csv
+    target_artifact = PROJECT_ROOT / "data" / "curated_builds_features.csv"
 
-    logger.info(f"Starting artifact versioning for {artifact_file}")
+    logger.info(f"Starting artifact versioning for: {target_artifact}")
+
+    if not target_artifact.exists():
+        logger.error(f"CRITICAL: Target artifact does not exist: {target_artifact}")
+        logger.error("The pipeline up to T018 (preprocessing) has not produced the required file.")
+        logger.error("Please ensure code/data/preprocessing.py has been run successfully.")
+        sys.exit(1)
 
     try:
-        # Version the artifact
-        hash_value = version_artifact(artifact_file, state_file)
-
-        logger.info(f"SUCCESS: Artifact versioned. Hash: {hash_value}")
-        return 0
-
-    except FileNotFoundError as e:
-        logger.critical(f"Failed to version artifact: {e}")
-        return 1
-    except ValueError as e:
-        logger.critical(f"Versioning verification failed: {e}")
-        return 1
+        hash_value = version_artifact(target_artifact)
+        print(f"SUCCESS: Artifact {target_artifact} versioned.")
+        print(f"Hash: {hash_value}")
+        print(f"State file updated: {STATE_FILE_PATH}")
     except Exception as e:
-        logger.critical(f"Unexpected error during versioning: {e}")
-        return 1
-
+        logger.error(f"Failed to version artifact: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

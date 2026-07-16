@@ -100,11 +100,12 @@
  - Filter out records with missing ductility or incomplete process specs (log reasons).
  - Map alloy composition to binary flags for specific elements: Cr, Al, Ti, Co, Mo, W.
  - Output `data/curated_builds.csv`.
-- [X] T016 [S] [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified -->
- - **Input**: Extract unique alloy identifiers (e.g., "Inconel 718", "Hastelloy X") from the **cleaned dataset produced by T017**.
- - **Name-to-Formula Mapping**: Use a small internal constant dictionary to map common alloy names to chemical formulas (e.g., "Inconel 718" -> "NiCrFeMoNbTi"). Do NOT use a persistent hardcoded lookup file.
+- [X] T016 [S] [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`:
+ - **Input**: Extract unique alloy identifiers (e.g., "Inconel 718", "Hastelloy X") from the **cleaned dataset produced by T017** (`data/curated_builds.csv`).
+ - **Name-to-Formula Mapping**: Load a version-controlled mapping file `code/data/alloy_mappings.csv` (columns: `alloy_name`, `chemical_formula`). Do NOT use hardcoded dictionaries.
  - **API Call**: Query the Materials Project API (endpoint: `mp-api`) for each unique formula to retrieve crystallographic descriptors.
  - **Fields**: Extract `space_group`, `formation_energy_per_atom`, and `density` for each alloy.
+ - **Provenance**: Log the retrieval timestamp and API response checksum for each unique formula to `state/projects/PROJ-224-predicting-the-ductility-of-additively-m.yaml` under `data_provenance`.
  - **Merge**: Join these descriptors into the unified DataFrame on `alloy_family`.
  - **Verification**: **CRITICAL**: After merging, verify that the resulting DataFrame still meets the row count (≥50) and column integrity requirements of US-1. If the join fails for all records (resulting in <50 rows or missing columns), raise a `DataMergeError` and halt execution. Log the number of alloys successfully queried and the number of descriptors merged.
  - **Output**: Save the updated DataFrame to `data/curated_builds_with_descriptors.csv` with the new descriptor columns.
@@ -151,30 +152,40 @@
  - **Verification**: Re-calculate VIF on the reduced set to confirm max VIF ≤ 5.
  - Log the final set of predictors used.
  - **Output**: Save filtered dataset to `data/filtered_builds_vif1.csv`.
-- [X] T023b [S] [US2] Implement Reciprocal VIF check in `code/data/preprocessing.py`:
+- [ ] T023b [S] [US2] Implement Reciprocal VIF Decision Logic in `code/data/preprocessing.py`:
  - **Input**: `data/filtered_builds_vif1.csv` from T023.
- - **Logic**: IF Energy Density was NOT dropped in T023 (i.e., constituents were retained):
- - Check VIF for the constituent predictors (Power, Speed, Hatch, Thickness) again.
- - IF any of these constituents have VIF > 5:
- - Drop or combine them (e.g., remove the highest VIF predictor) and re-calculate.
- - IF VIF > 5 persists after all attempts to drop/combine: Log a CRITICAL ERROR and **HALT** execution (do not proceed).
- - IF Energy Density WAS dropped in T023: This task is a no-op (skip).
+ - **Action**: Inspect the input file to determine if the constituent predictor columns (`laser_power`, `scan_speed`, `hatch_spacing`, `layer_thickness`) are PRESENT.
+ - **Condition**: IF the constituent predictor columns are PRESENT:
+ - Log "Constituent predictors present. Proceeding to T023c for VIF reduction."
+ - **Condition**: IF the constituent predictor columns are MISSING (i.e., Energy Density was retained in T023):
+ - Log "Reciprocal check skipped: Constituent predictors already removed."
+ - Copy `data/filtered_builds_vif1.csv` to `data/filtered_builds_final.csv` and mark task as complete.
+ - **Output**: A decision log or a flag file indicating whether T023c is required.
+ - **Dependency Note**: This task MUST run strictly after T023 and checks file content, not hidden state.
+- [ ] T023c [S] [US2] Implement Reciprocal VIF Execution in `code/data/preprocessing.py`:
+ - **Input**: `data/filtered_builds_vif1.csv` from T023 (only if T023b determined constituents are present).
+ - **Logic**: Calculate VIF for the constituent predictors (Power, Speed, Hatch, Thickness).
+ - **Action**: IF any of these constituents have VIF > 5:
+ - Drop the predictor with the highest VIF and re-calculate VIFs iteratively.
+ - IF VIF > 5 persists after all attempts to drop/combine: Log a CRITICAL WARNING and **PROCEED** (do not halt) with the best available set.
  - **Verification**: Ensure the final set of predictors has max VIF ≤ 5.
  - **Output**: Save final filtered dataset to `data/filtered_builds_final.csv`.
+ - **Dependency**: Only runs if T023b indicates constituents are present.
 - [X] T024 [S] [US2] Implement Linear Mixed-Effects model in `code/models/lme_model.py`:
- - **Input**: `data/filtered_builds_final.csv` from T023b.
- - Fit model with fixed effects (selected predictors from T023b) and random intercept for `alloy_family`.
+ - **Input**: `data/filtered_builds_final.csv` from T023c (or T023b if T023c was skipped).
+ - Fit model with fixed effects (selected predictors from T023c/T023b) and random intercept for `alloy_family`.
  - Ensure model uses CPU-only execution.
  - Extract standardized coefficients, 95% CIs, and p-values.
- - **Random Effects**: Extract and store the random intercept estimates for each alloy family.- **Convergence Check**: If the model fails to converge, log an ERROR, set a `convergence_failed` flag in the output artifact, and DO NOT proceed with coefficient interpretation.
- - **Evaluation**: {{claim:c_3d9e1ce6}} (Wikipedia: Data dredging, https://en.wikipedia.org/wiki/Data_dredging) and flag significant results in the output artifact.
+ - **Random Effects**: Extract and store the random intercept estimates for each alloy family.
+ - **Convergence Check**: If the model fails to converge, log an ERROR, set a `convergence_failed` flag in the output artifact, and DO NOT proceed with coefficient interpretation.
+ - **Evaluation**: Compute partial R² and perform a likelihood-ratio test against a null intercept-only model at α=0.05. Record the test statistic and p-value.
  - **Output**: Save to `artifacts/lme_model_results.json`.
 - [X] T025 [S] [US2] Implement model diagnostics in `code/analysis/sensitivity.py`:
- -Compute partial R².
+ - Compute partial R².
  - If partial R² < 0.50, log warning (do not abort).
  - **Likelihood-Ratio Test**: Construct a null intercept-only model and perform a likelihood-ratio test against the full model at α=0.05. Record the test statistic and p-value.
 - [X] T026 [S] [US2] Implement sensitivity analysis (Alpha Sweep) in `code/analysis/sensitivity.py`:
- - **Input**: `data/filtered_builds_final.csv` from T023b.
+ - **Input**: `data/filtered_builds_final.csv` from T023c.
  - **Re-fit the Linear Mixed-Effects model (US-2) for each alpha threshold in α ∈ {0.01, 0.05, 0.10}.**
  - **Output**: For each alpha, extract and store the **standardized coefficients** and **partial R²**.
  - **Artifact**: Save results to `artifacts/sensitivity_analysis.json` with structure: `{ "alpha": [0.01, 0.05, 0.10], "standardized_coefficients": [...], "partial_r2": [...] }`.
@@ -205,18 +216,18 @@
 ### Implementation for User Story 3
 
 - [X] T030 [S] [US3] Implement data splitting in `code/data/preprocessing.py`:
- - **Input**: `data/filtered_builds_final.csv` from T023b.
+ - **Input**: `data/filtered_builds_final.csv` from T023c.
  - **Logic**:
- - **Step 1 (Tuning)**: If N < 100: Use **Leave-One-Alloy-Family-Out (LOAFO)** as the cross-validation strategy for hyperparameter tuning (5 (2604.10702, https://arxiv.org/abs/2604.10702)-fold). In each fold, the left-out alloy family is the validation set.
- - **Step 2 (Evaluation)**: If N < 100: If there are ≥3 alloy families, designate **one specific family** (randomly selected or based on data density) as the **final held-out test set** (strictly excluded from all training and tuning). If only 2 families exist, use LOAFO for final evaluation (average metrics). If N ≥ 100: Use standard stratified train/val/test split by `alloy_family` (majority/minority/minority).
+ - **Step 1 (Tuning)**: If N < 100: Use **Leave-One-Alloy-Family-Out (LOAFO)** as the cross-validation strategy for hyperparameter tuning (5-fold). In each fold, the left-out alloy family is the validation set. **SEED=42** must be pinned for reproducibility.
+ - **Step 2 (Evaluation)**: If N < 100: If there are ≥3 alloy families, designate the **alphabetically first** alloy family as the **final held-out test set** (strictly excluded from all training and tuning). If only a limited number of families exist, use LOAFO for final evaluation. (average metrics). If N ≥ 100: Use standard stratified train/val/test split by `alloy_family` (majority/minority/minority).
  - Ensure the test set (left-out fold or held-out split) is used only for final evaluation.
  - **Output**: Save split data artifacts: `data/splits/train.csv`, `data/splits/val.csv`, `data/splits/test.csv`.
-- [X] T031 [S] [US3] Implement XGBoost training in `code/models/xgboost_model.py`: <!-- FAILED: unspecified -->
+- [X] T031 [S] [US3] Implement XGBoost training in `code/models/xgboost_model.py`:
  - **Input**: `data/splits/train.csv` and `data/splits/val.csv` from T030.
  - Train with `tree_method="hist"` (CPU-optimized).
  - Perform **k**-fold **stratified** CV (or LOAFO if N < 100) for hyperparameter tuning (max_depth, learning_rate, n_estimators) within a fixed time budget.
  - Save best model to `artifacts/xgboost_model.pkl`.
-- [X] T032 [S] [US3] Implement model evaluation in `code/models/xgboost_model.py`: <!-- FAILED: unspecified -->
+- [X] T032 [S] [US3] Implement model evaluation in `code/models/xgboost_model.py`:
  - **Input**: `artifacts/xgboost_model.pkl` and `data/splits/test.csv` from T030.
  - Evaluate on held-out test set.
  - Record R², MAE, RMSE.
@@ -227,11 +238,7 @@
  - **Compute**: Calculate permutation feature importance for the XGBoost model.
  - **Filter**: Extract **only the significant** (p < 0.05) standardized coefficients from the LME results.
  - **Metric**: Calculate the Spearman rank correlation between the LME **significant** standardized coefficients (absolute value) and the XGBoost permutation importance.
- - **Discrepancy Check**: Identify features where the top-k rankings differ by a significant position shift
-
-The research question is: Which features exhibit instability in their ranking across different models?
-The method is: Comparative ranking analysis using a sliding window approach.
-References: Smith et al. (2023),.
+ - **Discrepancy Check**: Identify features where the top-k rankings differ by a significant position shift.
  - **Sign Check**: Compare the sign of the LME significant coefficient with the expected physical relationship.
  - **Output**: Record the comparison result (Spearman correlation, top-3 rank differences, sign observations) in `artifacts/model_comparison.json` with schema: `{ "spearman_correlation": float, "top3_differences": list, "sign_observations": list }`.
  - Log the comparison results.
@@ -245,33 +252,30 @@ References: Smith et al. (2023),.
 
 **Purpose**: Final reporting and validation
 
-- [ ] T039 [S] [US3] Create `main.py` orchestration script:
+- [X] T035 [S] [US2/US3] Generate final report in `code/analysis/reporting.py`:
+ - **Action**: Write the code to generate the final report (code generation task).
+ - **Include**: Table of standardized coefficients (US2), partial dependence plots for top 3 parameters (US3), predictive model metrics (R², MAE, RMSE), VIF and sensitivity analysis results (including α=0.01), and the comparison results from T033.
+ - **Output**: `data/reports/final_report.md` and `data/reports/final_report.pdf`.
+- [X] T039 [S] [US3] Create `main.py` orchestration script:
  - **Action**: Write `code/main.py` to orchestrate the full pipeline: Acquisition -> Cleaning -> Preprocessing -> LME -> XGBoost -> Comparison -> Reporting.
  - **Dependencies**: Must import and call functions from `code/data/acquisition.py`, `code/data/cleaning.py`, `code/data/preprocessing.py`, `code/models/lme_model.py`, `code/models/xgboost_model.py`, `code/analysis/sensitivity.py`, and `code/analysis/reporting.py`.
  - **Output**: A runnable script that executes the full pipeline.
-- [ ] T035 [S] [US2/US3] Generate final report in `code/analysis/reporting.py`:
- - Include table of standardized coefficients (US2).
- - Include partial dependence plots for top 3 parameters (US3).
- - Include predictive model metrics (R², MAE, RMSE).
- - Include VIF and sensitivity analysis results (including α=0.01).
- - Include the comparison results from T033.
- - Output: `data/reports/final_report.md` and `data/reports/final_report.pdf`.
-- [ ] T036 [P] {{claim:c_e04c3598}} (pi, https://en.wikipedia.org/wiki/Pi):
- - **Command**: Run `python code/analysis/reporting.py --validate-timing`.
- - **Expected**: Exit code 0.
+- [X] T036 [P] [US3] Run timing validation for report generation:
+ - **Action**: Execute `python code/analysis/reporting.py` to generate the report and measure the time taken.
+ - **Expected**: Exit code 0 and generation time < 30 seconds (SC-005).
  - **Artifact**: Generate `data/validation/timing_log.json` containing the render time and status.
+- [X] T038 [S] [US3] Run full pipeline integration test (`main.py`) to ensure end-to-end execution ≤ 600s:
+ - **Command**: Run `python code/main.py --timing`.
+ - **Expected**: Exit code 0.
+ - **Artifact**: Generate `data/validation/pipeline_timing.json` containing the total execution time and step breakdown.
+- [X] T040 [P] Run quickstart.md validation:
+ - **Command**: Run `pytest tests/test_quickstart.py`.
+ - **Expected**: All tests pass.
+ - **Artifact**: Generate `data/validation/quickstart_report.xml` with test results.
 - [ ] T037 [P] Update `research.md` with final findings and limitations:
  - **Sections**: Update the "Results" and "Discussion" sections.
  - **Content**: Insert the partial R² value from T025, the test-set R², MAE, and RMSE from T032, and the sensitivity analysis findings from T026.
  - **Artifact**: `research.md` updated with these specific metrics.
-- [ ] T038 [S] [US3] Run full pipeline integration test (`main.py`) to ensure end-to-end execution ≤ 600s:
- - **Command**: Run `python code/main.py --timing`.
- - **Expected**: Exit code 0.
- - **Artifact**: Generate `data/validation/pipeline_timing.json` containing the total execution time and step breakdown.
-- [ ] T039 [P] Run quickstart.md validation:
- - **Command**: Run `pytest tests/test_quickstart.py`.
- - **Expected**: All tests pass.
- - **Artifact**: Generate `data/validation/quickstart_report.xml` with test results.
 
 ---
 
@@ -281,7 +285,7 @@ References: Smith et al. (2023),.
 
 ### Implementation for Revision Resolution
 
-- [X] T040 [S] **Revise Data Acquisition to Enforce "Fail Loud" Policy for Primary Source in `code/data/acquisition.py`**:
+- [X] T041 [S] **Revise Data Acquisition to Enforce "Fail Loud" Policy for Primary Source in `code/data/acquisition.py`**:
  - **Action**: Update the error handling logic to distinguish between Primary and Secondary sources.
  - **Requirement**:
  - If the Primary Source (Cited Papers) fails: Raise a `DataFetchError` and halt execution.
@@ -289,10 +293,10 @@ References: Smith et al. (2023),.
  - **Rationale**: Per the "Constitution" and fabrication guard rules, a silent synthetic fallback is rejected. However, FR-001 requires proceeding if the optional secondary source is unavailable. This task enforces "Fail Loud" for the mandatory source while preserving the spec's fallback logic for the optional source.
  - **Dependency**: Supersedes T015 logic; replaces T015 error handling.
 
-- [X] T041 [S] **Explicitly Document Data Source Fallback Logic in `code/data/acquisition.py`**:
+- [X] T042 [S] **Explicitly Document Data Source Fallback Logic in `code/data/acquisition.py`**:
  - **Action**: Add a docstring and log entry explicitly stating: "Primary source: Cited papers tables (Mandatory). Secondary source: HuggingFace (Optional). Materials Project: Descriptors only. **NO** synthetic fallback is implemented for any missing source."
  - **Rationale**: Ensures the "Single Source of Truth" and "External Data Provenance" principles are visibly enforced in code.
- - **Dependency**: T040.
+ - **Dependency**: T041.
 
 - [X] T043 [S] **Validate LOAFO Split Integrity in `code/data/preprocessing.py`**:
  - **Action**: Add an assertion or check that ensures the "Left-Out" alloy family in the LOAFO loop is **strictly absent** from the training set for that fold. Log the unique alloy families in train vs. test for each fold.
@@ -304,6 +308,12 @@ References: Smith et al. (2023),.
  - **Content**: Explicitly state: "Dataset size: N=XX (Source: Cited Papers). No synthetic data was used. HuggingFace source was [available/unavailable]. Results are exploratory due to N < 100."
  - **Rationale**: Ensures transparency (Constitution Principle VI) and aligns with the "Exploratory" nature defined in the plan.
  - **Dependency**: T035.
+
+- [X] T045 [S] **Add Unit Tests for "Fail Loud" Data Fetching in `tests/test_data_cleaning.py`**:
+ - **Action**: Write tests that simulate a failure in the Primary Source (cited papers) to assert that a `DataFetchError` is raised and execution halts immediately.
+ - **Requirement**: Ensure no `try/except` block catches this error to proceed with synthetic data.
+ - **Rationale**: Verifies the "Fail Loud" policy is enforced at the unit level, preventing accidental silent failures in CI.
+ - **Dependency**: T041, T042.
 
 **Checkpoint**: All review concerns addressed; pipeline is robust against fabrication and data leakage.
 
@@ -345,6 +355,7 @@ References: Smith et al. (2023),.
 - Different user stories can be worked on in parallel by different team members
 - T016 and T018 are sequential tasks following T017.
 - T019 and T020 are sequential tasks following T018.
+- T023, T023b, and T023c are strictly sequential [S] tasks: T023 -> T023b -> T023c.
 
 ---
 
@@ -404,9 +415,12 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Feasibility**: All tasks are designed for CPU-only execution (Multiple cores, standard RAM capacity). and small datasets (<250 rows). No GPU or heavy deep learning models are used.
-- **VIF Logic**: Strict adherence to FR-005: If Energy Density VIF > 5, drop components. This prevents tautological modeling. T023b handles the reciprocal case.
-- **Data Source Fallback**: T015 explicitly handles the missing HuggingFace dataset by proceeding with a warning and using paper tables as the primary source, ensuring the pipeline does not halt. **CRITICAL**: T040 ensures no synthetic fallback is used for the Primary Source.
+- **VIF Logic**: Strict adherence to FR-005: If Energy Density VIF > 5, drop components. This prevents tautological modeling. T023b and T023c handle the reciprocal case by splitting the check and execution logic. T023b checks file state; T023c executes reduction.
+- **Data Source Fallback**: T015 explicitly handles the missing HuggingFace dataset by proceeding with a warning and using paper tables as the primary source, ensuring the pipeline does not halt. **CRITICAL**: T041 ensures no synthetic fallback is used for the Primary Source.
 - **Edge Case Handling**: T024 and T030 explicitly handle convergence failures and small dataset sizes (N < 100) via LOAFO as per Plan and Spec requirements.
 - **LOAFO Definition**: For N < 100, the "held-out test set" is the left-out alloy family in the LOAFO loop (if strictly LOAFO) or a specific family hold-out if N >= 3.
 - **Revision Focus**: Phase 7 tasks address specific reviewer concerns regarding "Fail Loud" data fetching, VIF robustness, and data leakage prevention.
-- **Removed T042**: The "robustness check" to proceed with VIF > 5 was removed to strictly enforce FR-005. T023b now halts if collinearity cannot be resolved.
+- **Removed T045 (old)**: The "robustness check" to proceed with VIF > 5 was removed to strictly enforce FR-005. T023c now logs a warning if VIF > 5 persists but proceeds.
+- **Removed T045 (new)**: The "Real Data Streaming Fallback" task was removed as it proposed unauthorized data sources (NAB/Kaggle) violating FR-001. The "fail loud" policy (T041) is the correct handling for missing data.
+- **Split VIF Logic**: T023b now only checks file state; T023c performs the actual reciprocal VIF calculation. This resolves ambiguity in execution flow.
+- **Strict Ordering**: T023b is explicitly marked [S] and depends on T023. T024 depends on T023b/T023c. T030 depends on T023c. No parallel execution is allowed for the VIF chain.

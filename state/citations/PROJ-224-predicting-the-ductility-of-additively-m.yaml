@@ -1,4 +1,4 @@
-- artifact_hash: a086099fd5e4afa64d3d0d1c48e1770ae493d69bfab4896cbfa2822baa402f8e
+- artifact_hash: 00fac5fd1fbed6e91bc5124be15f58f7639deadd3523ef71dea6e6174d30a662
   artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,10 +8,23 @@
   value: https://en.wikipedia.org/wiki/Data_dredging
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Data_dredging
-  verified_at: '2026-07-15T17:30:16.236794Z'
-- artifact_hash: a086099fd5e4afa64d3d0d1c48e1770ae493d69bfab4896cbfa2822baa402f8e
+  verified_at: '2026-07-16T17:51:11.508251Z'
+- artifact_hash: 00fac5fd1fbed6e91bc5124be15f58f7639deadd3523ef71dea6e6174d30a662
   artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2604.10702] Backbone-Conditional Behavior of Modality Gating in
+    Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism
+    Analysis'
+  kind: url
+  value: https://arxiv.org/abs/2604.10702
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2604.10702
+  verified_at: '2026-07-16T17:51:11.508251Z'
+- artifact_hash: 00fac5fd1fbed6e91bc5124be15f58f7639deadd3523ef71dea6e6174d30a662
+  artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: Pi - Wikipedia
@@ -19,4 +32,4 @@
   value: https://en.wikipedia.org/wiki/Pi
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-07-15T17:30:16.236794Z'
+  verified_at: '2026-07-16T17:51:11.508251Z'
