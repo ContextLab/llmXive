@@ -350,3 +350,291 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T09:51:38Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/plan.md
+  attempts: 1
+  canonical: QM9 dataset contains 134000 small organic molecules
+  claim_id: c_cd538dca
+  context: Glossary section defining QM9.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'QM9: Quantum Machine 9 dataset, a collection of 134k small organic molecules.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:21:39Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Memory threshold for downsampling is 6.5 GB
+  claim_id: c_12815453
+  context: 'Downsampling Logic: Monitor memory usage. If usage exceeds 6.5 GB, apply
+    Stratified Random Sampling (strata: atom count, polarity) to reduce the sample
+    size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system monitors memory usage and applies Stratified Random Sampling
+    if usage exceeds 6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:26:04Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprint parameters are radius 2 and 2048 bits
+  claim_id: c_023fc4e1
+  context: 'Feature Generation: Generate 2D Morgan fingerprints (radius=2, nBits=2048)
+    and 3D graph features.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Morgan fingerprints are generated with a radius of 2 and 2048 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:26:17Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Cross-validation uses 5 folds
+  claim_id: c_222bfd92
+  context: 'Goal: Train Random Forest Regressors on 2D and 3D features using 5-fold
+    CV within 6 hours.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The training pipeline uses 5-fold Cross-Validation.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T12:26:46Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Model training runtime limit is 6 hours
+  claim_id: c_ce8cdba6
+  context: 'Goal: Train Random Forest Regressors on 2D and 3D features using 5-fold
+    CV within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model training pipeline has a runtime limit of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:27:03Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: n_estimators hyperparameter grid is 100, 500, 1000
+  claim_id: c_51fd65be
+  context: "Grid Search Logic: Implement K-fold Cross-Validation with GridSearchCV\
+    \ using a hyperparameter grid: n_estimators \u2208 {100, 500, 1000}..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter grid for n_estimators includes values 100, 500, and
+    1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:27:15Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: max_depth hyperparameter grid is 10, 20, None
+  claim_id: c_9d6e174e
+  context: "...max_depth \u2208 {10, 20, None}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter grid for max_depth includes values 10, 20, and None.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:27:25Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Stability ratio failure threshold is 5%
+  claim_id: c_38ed4ba3
+  context: 'Action: If stability ratio > 5%, set passed: false in artifacts/metrics/stability_report.json
+    and log a warning...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stability verification fails if the stability ratio (std_mae / mean_mae)
+    exceeds 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:27:25Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test sample size is approximately 2000
+  claim_id: c_6e06b2e5
+  context: 'Logic: Perform non-parametric Wilcoxon signed-rank test on per-molecule
+    absolute errors (N~2000) of 2D vs 3D models for each descriptor.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Wilcoxon signed-rank test is performed on approximately 2000 per-molecule
+    absolute errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:27:41Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha threshold is 0.0167
+  claim_id: c_040176a4
+  context: "Correction: Apply Bonferroni correction for multiple comparisons (\u03B1\
+    \ = 0.05 / 3 \u2248 0.0167)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction is applied for 3 comparisons, resulting in an alpha
+    threshold of approximately 0.0167.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:28:29Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Failure boundary REI threshold is 10%
+  claim_id: c_6f1090c3
+  context: "Logic: Define 'Failure Boundary' where Relative Error Increase (REI) \u2265\
+    \ 10% OR p-value < 0.0167 (Bonferroni corrected)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Failure_boundary_REI_threshold_is_10%25
+  kind: magnitude
+  raw_text: A failure boundary is defined where Relative Error Increase (REI) is greater
+    than or equal to 10%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:29:13Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/docs/data-model.md
+  attempts: 1
+  canonical: QM9 dataset contains approximately 134000 small organic molecules
+  claim_id: c_19b8a9bf
+  context: 'Source: QM9 (via `lisn/QM9`) The dataset contains quantum chemical calculations
+    for ~134k small organic molecules.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contains quantum chemical calculations for ~134k small organic
+    molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:30:46Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/docs/data-model.md
+  attempts: 1
+  canonical: Model 2D cross-validation mean MAE is 0.12
+  claim_id: c_83809b08
+  context: 'Cross-validation results. { "model_2d": { "fold_maes": [0.12, 0.11, 0.13,
+    ...], "mean_mae": 0.12, "std_mae": 0.01 } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cross-validation mean MAE for model_2d is 0.12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:30:52Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/docs/data-model.md
+  attempts: 1
+  canonical: Model 3D cross-validation mean MAE is 0.08
+  claim_id: c_38bd7b6e
+  context: 'Cross-validation results. { "model_3d": { "fold_maes": [0.08, 0.07, 0.09,
+    ...], "mean_mae": 0.08, "std_mae": 0.005 } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cross-validation mean MAE for model_3d is 0.08.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:30:57Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/docs/data-model.md
+  attempts: 1
+  canonical: 'Wilcoxon test for dipole: statistic 1234.5, p-value 0.001'
+  claim_id: c_77a8196b
+  context: 'Wilcoxon signed-rank test results. { "dipole": {"statistic": 1234.5, "pvalue":
+    0.001}, ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wilcoxon signed-rank test statistic for dipole is 1234.5 with p-value
+    0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:30:59Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/docs/data-model.md
+  attempts: 1
+  canonical: 'Wilcoxon test for homo: statistic 567.8, p-value 0.03'
+  claim_id: c_d316724a
+  context: 'Wilcoxon signed-rank test results. { "homo": {"statistic": 567.8, "pvalue":
+    0.03}, ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wilcoxon signed-rank test statistic for homo is 567.8 with p-value 0.03.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:31:00Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/docs/data-model.md
+  attempts: 1
+  canonical: 'Wilcoxon test for lumo: statistic 890.1, p-value 0.002'
+  claim_id: c_0974f228
+  context: 'Wilcoxon signed-rank test results. { "lumo": {"statistic": 890.1, "pvalue":
+    0.002} }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wilcoxon signed-rank test statistic for lumo is 890.1 with p-value 0.002.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T12:31:02Z'

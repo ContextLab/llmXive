@@ -1,0 +1,5 @@
+'|cross fold pipeline training use validation':
+  quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+  source_id: '2604.10702'
+  url: https://arxiv.org/abs/2604.10702
+  value: '5'

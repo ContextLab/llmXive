@@ -1,0 +1,28 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I examined the provided information for a `plan.md` file containing a \u201C\
+    Spec Amendments & Overrides\u201D section that records the update of FR\u2011\
+    001 to use the HuggingFace source `lisn/QM9`. No such file or amendment text was\
+    \ supplied, so the required artifact is missing. The task remains unfinished until\
+    \ the amendment is explicitly added to `plan.md`."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission provides no code, configuration, or documentation demonstrating
+    that data loading has been implemented with chunking to reduce memory spikes.
+    No artifact (e.g., updated data loader script, profiling logs, or tests) is present
+    to verify the optimization, so the requirement is unmet.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest execution log, report file, or any indication that unit/integration
+    tests were run and passed is provided; the claim lacks any artifact demonstrating
+    that `pytest` was executed successfully.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run is present\u2014there are no\
+    \ execution logs, output files, or screenshots showing the pipeline completing\
+    \ end\u2011to\u2011end. The required artifact (a successful validation of the\
+    \ quickstart guide) is missing, so the task is not satisfied."

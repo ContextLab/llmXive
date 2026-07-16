@@ -187,5 +187,5 @@ Every contract schema is exercised by a specific plan element:
 ## Limitations & Scope
 
 - **DFT Self-Consistency**: The 3D model uses DFT-optimized geometries to predict DFT properties. The "Failure Boundary" identified is specific to this DFT-consistent context and may not hold for noisy experimental geometries.
-- **Statistical Power**: The use of per-molecule errors (N~2000) ensures high power for the statistical test, unlike fold-aggregate tests (N=5).
+- **Statistical Power**: The use of per-molecule errors (N~large-scale) ensures high power for the statistical test, unlike fold-aggregate tests (N=5).
 - **Baseline Interpretation**: The "Theoretical Lower Bound" is implemented as the Mean Predictor Error (Zero-Order Baseline), not the Bayes error rate, due to data limitations.

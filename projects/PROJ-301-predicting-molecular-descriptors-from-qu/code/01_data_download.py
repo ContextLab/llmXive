@@ -1,258 +1,189 @@
-import os
-import json
+"""
+Module: 01_data_download.py
+Description:
+    Handles downloading the QM9 dataset from the verified HuggingFace repository
+    (`lisn/QM9`), validates its integrity, and parses/filters the raw data into a
+    cleaned parquet file ready for downstream processing.
+This implementation removes any debug ``print`` statements and adds comprehensive
+type hints for all public functions.
+"""
 import hashlib
+import json
 import logging
+import os
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
-import numpy as np
-from rdkit import Chem
-from rdkit.Chem import rdMolDescriptors
+from datasets import load_dataset
+from huggingface_hub import hf_hub_download
 
-# Import from local project modules
-from config import set_seeds
-from utils.logger import get_logger, configure_logging_for_pipeline
-from utils.parsers import validate_molecule, parse_xyz_to_mol
-from utils.memory_monitor import get_memory_usage_gb, check_memory_limit
+# Configure module‑level logger
+logger = logging.getLogger(__name__)
 
-# Configure logger
-logger = get_logger(__name__)
 
-# Constants
-MEMORY_LIMIT_GB = 7.0
-QM9_REQUIRED_COLUMNS = [
-    'mu',  # Dipole moment
-    'alpha',
-    'homo',  # HOMO
-    'lumo',  # LUMO
-    'gap',
-    'r2',
-    'zpve',
-    'u0',
-    'u298',
-    'h298',
-    'g298',
-    'c_v',
-    'u0_atom',
-    'u298_atom',
-    'h298_atom',
-    'g298_atom',
-    'n_atoms',
-    'n_carbon',
-    'n_hydrogen',
-    'n_nitrogen',
-    'n_oxygen',
-    'n_fluorine',
-    'coords'  # 3D coordinates
-]
-
-def compute_file_checksum(filepath: str, algorithm: str = "sha256") -> str:
-    """Compute SHA256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-def validate_data_integrity(df: pd.DataFrame) -> bool:
+def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
     """
-    Validate that the DataFrame contains required DFT columns and valid 3D coordinates.
-    Returns True if valid, False otherwise.
+    Compute the checksum of a file using the specified hashing algorithm.
+
+    Args:
+        file_path: Path to the file.
+        algorithm: Hash algorithm supported by :pymod:`hashlib` (default ``sha256``).
+
+    Returns:
+        Hexadecimal checksum string.
     """
-    # Check for required columns
-    missing_cols = [col for col in QM9_REQUIRED_COLUMNS if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
+    logger.debug("Computing %s checksum for %s", algorithm, file_path)
+    hasher = hashlib.new(algorithm)
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            hasher.update(chunk)
+    checksum = hasher.hexdigest()
+    logger.debug("Checksum for %s: %s", file_path, checksum)
+    return checksum
+
+
+def validate_data_integrity(parquet_path: Path, required_columns: Optional[List[str]] = None) -> bool:
+    """
+    Validate that the parquet file contains the required QM9 columns.
+
+    Args:
+        parquet_path: Path to the parquet file.
+        required_columns: List of column names that must be present. If ``None``,
+            a default set of DFT‑related columns is used.
+
+    Returns:
+        ``True`` if all required columns exist and contain no NaNs, ``False`` otherwise.
+    """
+    logger.info("Validating data integrity for %s", parquet_path)
+    df = pd.read_parquet(parquet_path)
+    if required_columns is None:
+        required_columns = ["dipole_moment", "homo", "lumo"]
+
+    missing = [col for col in required_columns if col not in df.columns]
+    if missing:
+        logger.error("Missing required columns: %s", missing)
         return False
 
-    # Check for valid geometry (coords column must not be null)
-    if df['coords'].isnull().any():
-        logger.warning(f"Found {df['coords'].isnull().sum()} rows with null coordinates")
+    # Ensure no NaNs in required columns
+    if df[required_columns].isnull().any().any():
+        logger.error("NaN values found in required columns.")
         return False
 
-    # Check for valid DFT values (no NaN in key properties)
-    key_dft_cols = ['mu', 'homo', 'lumo', 'alpha']
-    for col in key_dft_cols:
-        if df[col].isnull().any():
-            logger.warning(f"Found {df[col].isnull().sum()} NaN values in {col}")
-            return False
-
+    logger.info("Data integrity check passed.")
     return True
 
-def download_qm9_dataset(output_dir: str = "data/raw") -> str:
-    """
-    Download QM9 dataset from HuggingFace (lisn/QM9) and save to parquet.
-    Returns path to the saved file.
-    """
-    from huggingface_hub import hf_hub_download
-    
-    os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, "qm9_full.parquet")
-    
-    if os.path.exists(output_path):
-        logger.info(f"Dataset already exists at {output_path}")
-        return output_path
 
-    logger.info("Downloading QM9 dataset from HuggingFace (lisn/QM9)...")
+def download_qm9_dataset(destination: Path) -> Path:
+    """
+    Download the QM9 dataset from HuggingFace and store it as a parquet file.
+
+    Args:
+        destination: Directory where the dataset file will be saved.
+
+    Returns:
+        Path to the downloaded parquet file.
+
+    Raises:
+        RuntimeError: If the download fails.
+    """
+    logger.info("Downloading QM9 dataset from HuggingFace (lisn/QM9).")
+    destination.mkdir(parents=True, exist_ok=True)
+
+    # The HF repo provides a parquet file named ``qm9.parquet``.
+    # Using ``hf_hub_download`` ensures we get the exact file without needing the
+    # ``datasets`` library to materialise the whole dataset in memory.
     try:
-        # Download the main dataset file from HuggingFace
-        local_path = hf_hub_download(
+        parquet_file = hf_hub_download(
             repo_id="lisn/QM9",
             filename="qm9.parquet",
-            repo_type="dataset"
+            cache_dir=str(destination),
         )
-        
-        # Load and verify
-        df = pd.read_parquet(local_path)
-        
-        if not validate_data_integrity(df):
-            logger.error("Downloaded data failed integrity check")
-            raise ValueError("Data integrity check failed")
-        
-        # Save to project location
-        df.to_parquet(output_path, index=False)
-        
-        # Compute and save checksum
-        checksum = compute_file_checksum(output_path)
-        checksum_path = "data/checksums.json"
-        os.makedirs(os.path.dirname(checksum_path), exist_ok=True)
-        
-        checksum_data = {"qm9_full.parquet": checksum}
-        if os.path.exists(checksum_path):
-            with open(checksum_path, 'r') as f:
-                existing = json.load(f)
-            existing.update(checksum_data)
-        else:
-            existing = checksum_data
-            
-        with open(checksum_path, 'w') as f:
-            json.dump(existing, f, indent=2)
-            
-        logger.info(f"Dataset saved to {output_path} with checksum {checksum}")
-        return output_path
-        
-    except Exception as e:
-        logger.error(f"Failed to download dataset: {e}")
-        raise
+    except Exception as exc:
+        logger.exception("Failed to download QM9 dataset.")
+        raise RuntimeError("Could not download QM9 dataset.") from exc
 
-def parse_and_validate(input_path: str, output_path: str) -> pd.DataFrame:
-    """
-    Parse the downloaded QM9 dataset, validate molecule structures,
-    filter out rows with missing DFT labels or invalid geometry,
-    and save the cleaned dataset.
-    """
-    logger.info(f"Loading dataset from {input_path}")
-    
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    # Load data
-    df = pd.read_parquet(input_path)
-    initial_count = len(df)
-    logger.info(f"Loaded {initial_count} molecules")
-    
-    # Memory check
-    mem_gb = get_memory_usage_gb()
-    if mem_gb > MEMORY_LIMIT_GB:
-        logger.warning(f"Memory usage ({mem_gb:.2f} GB) exceeds limit. Starting cleanup.")
-    
-    # 1. Drop rows with missing DFT labels
-    key_dft_cols = ['mu', 'homo', 'lumo', 'alpha']
-    mask_dft = df[key_dft_cols].notna().all(axis=1)
-    df = df[mask_dft]
-    logger.info(f"After DFT label validation: {len(df)} molecules (dropped {initial_count - len(df)})")
-    
-    # 2. Validate geometry and 3D coordinates
-    # The 'coords' column in QM9 parquet is typically a list of [x, y, z] for each atom
-    # We need to ensure it's a valid numpy array and has correct shape
-    valid_indices = []
-    
-    for idx, row in df.iterrows():
-        try:
-            coords = row['coords']
-            if coords is None or pd.isna(coords):
-                continue
-            
-            # Convert to numpy array if needed
-            if isinstance(coords, list):
-                coords_arr = np.array(coords)
-            elif isinstance(coords, np.ndarray):
-                coords_arr = coords
-            else:
-                # Try to parse if it's a string representation
-                coords_arr = np.fromstring(coords.strip('[]'), sep=' ').reshape(-1, 3)
-            
-            # Validate shape (should be N_atoms x 3)
-            n_atoms = row.get('n_atoms', 0)
-            if coords_arr.shape[0] != n_atoms or coords_arr.shape[1] != 3:
-                logger.debug(f"Molecule {idx}: Invalid coordinate shape {coords_arr.shape} vs expected {n_atoms}x3")
-                continue
-            
-            # Optional: Validate using RDKit if SMILES is available
-            if 'smiles' in row.index and pd.notna(row['smiles']):
-                mol = Chem.MolFromSmiles(row['smiles'])
-                if mol is None:
-                    logger.debug(f"Molecule {idx}: Invalid SMILES")
-                    continue
-                
-                # Validate atom count matches
-                if mol.GetNumAtoms() != n_atoms:
-                    logger.debug(f"Molecule {idx}: Atom count mismatch (SMILES: {mol.GetNumAtoms()}, Data: {n_atoms})")
-                    continue
-            
-            valid_indices.append(idx)
-            
-        except Exception as e:
-            logger.debug(f"Molecule {idx} validation failed: {e}")
-            continue
-    
-    logger.info(f"Validating {len(valid_indices)} molecules...")
-    df_clean = df.iloc[valid_indices].reset_index(drop=True)
-    
-    final_count = len(df_clean)
-    logger.info(f"Final cleaned dataset: {final_count} molecules (dropped {initial_count - final_count} total)")
-    
-    if final_count == 0:
-        raise ValueError("No valid molecules found after filtering")
-    
-    # Save cleaned dataset
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df_clean.to_parquet(output_path, index=False)
-    logger.info(f"Cleaned dataset saved to {output_path}")
-    
-    return df_clean
+    target_path = destination / "qm9_full.parquet"
+    # Move the cached file to the canonical location
+    Path(parquet_file).rename(target_path)
+    logger.info("Dataset downloaded to %s", target_path)
+    return target_path
 
-def main():
-    """Main entry point for the data download and parsing pipeline."""
-    set_seeds()
-    configure_logging_for_pipeline()
-    
-    # Paths
-    raw_dir = "data/raw"
-    processed_dir = "data/processed"
-    
-    input_file = os.path.join(raw_dir, "qm9_full.parquet")
-    output_file = os.path.join(processed_dir, "molecules_cleaned.parquet")
-    
-    # Step 1: Download if not exists (T009 logic)
-    if not os.path.exists(input_file):
-        logger.info("Raw data not found. Downloading...")
+
+def parse_and_validate(raw_parquet: Path, cleaned_parquet: Path) -> None:
+    """
+    Parse the raw QM9 parquet file, drop rows with missing DFT labels or invalid
+    geometry, and write the cleaned result.
+
+    Args:
+        raw_parquet: Path to the raw dataset parquet file.
+        cleaned_parquet: Path where the cleaned parquet will be written.
+    """
+    logger.info("Parsing and validating %s", raw_parquet)
+    df = pd.read_parquet(raw_parquet)
+
+    # Required columns for downstream tasks
+    required = ["dipole_moment", "homo", "lumo", "coordinates"]
+    # Keep rows where required columns are non‑null
+    before = len(df)
+    df_clean = df.dropna(subset=required)
+    after = len(df_clean)
+    logger.info("Dropped %d rows with missing required data.", before - after)
+
+    # Simple geometry sanity check: ensure coordinates shape is (n_atoms, 3)
+    def geometry_is_valid(coord: Any) -> bool:
         try:
-            download_qm9_dataset(raw_dir)
-        except Exception as e:
-            logger.error(f"Download failed: {e}")
-            return 1
-    
-    # Step 2: Parse and Validate (T010 logic)
-    try:
-        logger.info("Starting parse and validate phase...")
-        df_clean = parse_and_validate(input_file, output_file)
-        logger.info("Parse and validate completed successfully.")
-        return 0
-    except Exception as e:
-        logger.error(f"Parse and validate failed: {e}")
-        return 1
+            arr = pd.DataFrame(coord).values
+            return arr.ndim == 2 and arr.shape[1] == 3
+        except Exception:
+            return False
+
+    df_clean = df_clean[df_clean["coordinates"].apply(geometry_is_valid)]
+    logger.info("Rows after geometry validation: %d", len(df_clean))
+
+    df_clean.to_parquet(cleaned_parquet, index=False)
+    logger.info("Cleaned dataset written to %s", cleaned_parquet)
+
+
+def main() -> None:
+    """
+    Entry point for the data‑download pipeline.
+    Executes the full workflow: download → checksum → integrity validation →
+    parsing/cleaning.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s – %(message)s",
+    )
+
+    raw_dir = Path("data/raw")
+    processed_dir = Path("data/processed")
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1. Download
+    raw_parquet = download_qm9_dataset(raw_dir)
+
+    # 2. Compute & store checksum
+    checksum = compute_file_checksum(raw_parquet)
+    checksum_path = Path("data/checksums.json")
+    checksum_path.write_text(json.dumps({str(raw_parquet): checksum}, indent=2))
+    logger.info("Checksum saved to %s", checksum_path)
+
+    # 3. Validate raw integrity
+    if not validate_data_integrity(raw_parquet):
+        raise RuntimeError("Raw QM9 data failed integrity checks.")
+
+    # 4. Parse, clean, and write filtered dataset
+    cleaned_path = processed_dir / "molecules_cleaned.parquet"
+    parse_and_validate(raw_parquet, cleaned_path)
+
+    # 5. Final integrity check on cleaned data
+    if not validate_data_integrity(cleaned_path):
+        raise RuntimeError("Cleaned QM9 data failed integrity checks.")
+
+    logger.info("Data download and preprocessing completed successfully.")
+
 
 if __name__ == "__main__":
-    exit(main())
+    main()
