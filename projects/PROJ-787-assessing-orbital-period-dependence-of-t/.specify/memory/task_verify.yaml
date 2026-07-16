@@ -1,12 +1,9 @@
-T002b [P] Install dependencies from `code/requirements.txt` in a virtual environment: 1
-'T002b [P] Install dependencies from `code/requirements.txt` in a virtual environment <!-- ATOMIZE: requested -->': 1
-? 'T002b [P] Install dependencies from `code/requirements.txt` in a virtual environment
-  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
-: 1
-? 'T002b [P] Install dependencies from `code/requirements.txt` in a virtual environment
-  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  -->'
-: 1
-T006 [P] Implement logging infrastructure and configuration management in `code/utils/`: 1
-T007 Create contract test suite `tests/contract/test_schemas.py` to validate data integrity against YAML schemas: 1
-T010 [P] [US1] Contract test for data ingestion output schema in `tests/contract/test_ingestion_schema.py`: 1
+T006: 1
+T012a: 1
+T012c: 1
+T014: 1
+T015: 1
+T016: 1
+T027: 1
+T028: 1
+T036: 1

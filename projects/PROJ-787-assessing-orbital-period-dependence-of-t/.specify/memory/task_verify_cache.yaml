@@ -1,0 +1,47 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging or configuration management code was presented in `code/utils/`; the
+    evidence lacks any files, classes, or documentation showing that the required
+    infrastructure was implemented. The task remains undone.
+T012a:
+  c: false
+  h: ef8195f8ae5e55b67381f67c6bee1b9b617723396664948f3f71c26be5551f99
+  r: "The `download_dr25.py` script is present, but the required output file `data/raw/dr25_raw.csv`\
+    \ does not exist, indicating the script has not been successfully executed (or\
+    \ failed to produce the expected CSV). Without the CSV, the task\u2019s core requirement\u2014\
+    fetching and saving the DR25 Planet Table\u2014is unmet. The next implementer\
+    \ must run the script (ensuring the retry logic works) and verify that `dr25_raw.csv`\
+    \ is created in the specified location."
+T012c:
+  c: false
+  h: eeda97f733738fab0229d47f11a8fc419b0ef04e8dcf8c1110238924a95ed3bd
+  r: The required output file `data/raw/kic_raw.csv` is missing, and the provided
+    `download_kic.py` script does not show any use of the imported `retry_with_backoff`
+    (retry logic) nor a call that actually writes the downloaded data to the specified
+    CSV path. Both the retry behavior and the saved CSV artifact are absent, so the
+    task is not fully satisfied.
+T014:
+  c: false
+  h: 6dde2a958d069f8be916902497cfa8be8ec645fdd8dd6d4026cfa316dcb3b138
+  r: "The `code/ingest/preprocess.py` file is present but truncated and does not contain\
+    \ logic to write the filtered DataFrame to `data/processed/filtered_planets.csv`.\
+    \ Moreover, the required output CSV file is missing from the repository. The task\u2019\
+    s core deliverable\u2014producing and saving the filtered dataset\u2014is therefore\
+    \ not satisfied."
+T015:
+  c: false
+  h: 6f3805b1146e3d71954a310c1f7596d5014b46dff6e4539f8f0a2ac5472ec2d8
+  r: "The repository contains a partially shown `preprocess.py` that implements loading\
+    \ and filtering but the file is truncated and does not include any logic for detecting\
+    \ or resolving duplicate planet entries, nor does it log removed duplicates. Moreover,\
+    \ the required output files `data/processed/filtered_planets.csv` and `data/processed/deduped_planets.csv`\
+    \ are absent from the disk. The task\u2019s core requirement\u2014duplicate resolution\
+    \ and saving the deduplicated CSV\u2014is therefore not satisfied."
+T016:
+  c: false
+  h: d7e100ace3fcfa4881031228c55b581bc92f668cc59b600ef46c6fd18241b0b1
+  r: "The `code/ingest/loaders.py` file exists and contains checksum\u2011verification\
+    \ logic, but the required data file `data/processed/deduped_planets.csv` is missing,\
+    \ so the loader cannot actually load the dataset as the task demands. The missing\
+    \ CSV (and its checksum file) must be provided for the task to be complete."

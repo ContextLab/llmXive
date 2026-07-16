@@ -1,40 +1,47 @@
-"""
-Setup script to create the project directory structure for PROJ-118.
-This script creates the necessary folders as defined in plan.md.
-"""
 import os
 from pathlib import Path
 
 def main():
-    # Project root directory
-    project_root = Path("projects/PROJ-118-investigating-the-neural-correlates-of-p")
+    """
+    Creates the project directory structure for PROJ-118.
+    Directories created relative to the project root:
+    - data/raw
+    - data/processed
+    - code
+    - tests
+    - results
+    """
+    # Define the project root. 
+    # We assume the script is run from the project root or that we create 
+    # the structure relative to the current working directory.
+    # Per the task: "projects/PROJ-118-investigating-the-neural-correlates-of-p/"
+    # We will create the structure in the current working directory as the root
+    # of the project implementation, or explicitly create the subdirectory if 
+    # we are running from a parent.
+    # Given the constraints "Stay inside the project tree", we assume the 
+    # working directory is the project root or we create the specific path.
     
-    # Directories to create as per plan.md
+    project_name = "PROJ-118-investigating-the-neural-correlates-of-p"
+    base_path = Path(project_name)
+    
+    # Create the base project directory if it doesn't exist
+    base_path.mkdir(exist_ok=True)
+    
+    # Define required directories
     directories = [
         "data/raw",
         "data/processed",
-        "results",
-        "results/plots",
         "code",
-        "tests/unit",
-        "tests/integration",
-        "specs/contracts",
+        "tests",
+        "results"
     ]
     
-    # Create each directory
     for dir_path in directories:
-        full_path = project_root / dir_path
+        full_path = base_path / dir_path
         full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created: {full_path}")
-    
-    # Verify structure
-    print("\nProject structure created successfully at:", project_root)
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        if full_path.exists():
-            print(f"  [OK] {full_path}")
-        else:
-            print(f"  [FAIL] {full_path}")
+        print(f"Created directory: {full_path}")
+        
+    print(f"Project structure for {project_name} created successfully.")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,47 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was presented showing that the required directories (`data/raw`,\
+    \ `data/processed`, `code`, `tests`, `results`) actually exist under `projects/PROJ-118-investigating-the-neural-correlates-of-p/`.\
+    \ Without a directory listing, screenshots, or any other artifact confirming their\
+    \ creation, the task requirement is not satisfied. The implementer must provide\
+    \ concrete proof that these folders have been created and are non\u2011empty."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I could find no evidence of a `data/raw` or `data/processed` directory, nor any
+    `.gitkeep` files within them. Without these actual artifacts present, the requirement
+    to set up the directory structure is not satisfied. The implementer must add the
+    two directories and place a `.gitkeep` file in each.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or documentation was presented that defines or manages
+    the `OPENNEURO_API_KEY` environment variable or sets up local path handling. The
+    required artifact (e.g., a `.env` file, a Python module that reads `os.getenv`,
+    or setup instructions) is missing, so the task is not satisfied.
+T011:
+  c: false
+  h: d66a8a78c521644b3992023941ae95af87a479ad465f605cb8979e0c1edc3a7b
+  r: "The integration test file `tests/integration/test_preprocess.py` exists, but\
+    \ the required output artifact `data/processed/epo_raw.fif` is missing, so the\
+    \ test cannot pass and the task\u2019s requirement is not satisfied. The pipeline\
+    \ must generate this file with >0 epochs for the test to be complete."
+T018:
+  c: false
+  h: a0166991521d3a3ccaea740abdff446ac33a1cedca2db6616c0f387a4305a3af
+  r: "The repository contains a `code/preprocess.py` file, but it is truncated and\
+    \ does not show a complete implementation of epoching or saving the resulting\
+    \ `epo_raw.fif`. Moreover, the required output file `data/processed/epo_raw.fif`\
+    \ is absent from the project. Consequently, the task\u2019s core requirement\u2014\
+    creating and writing the epochs for \u201Cstandard\u201D and \u201Cdeviant\u201D\
+    \ conditions\u2014is not satisfied."
+T022:
+  c: false
+  h: c6b25edb4433a69eb6528dabb7f1988521d763f59b73d6a25e2a0ea34408e5d3
+  r: "The required input file `data/processed/epo_raw.fif` does not exist, so the\
+    \ script cannot actually load any data or compute ERPs. Moreover, the provided\
+    \ `extract.py` is only a partial implementation (functions defined, script truncated,\
+    \ no top\u2011level code to iterate over participants), so it does not fulfill\
+    \ the task of computing average ERPs per participant. The missing data file and\
+    \ incomplete script must be added/fixed."

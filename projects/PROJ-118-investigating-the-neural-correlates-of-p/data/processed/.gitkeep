@@ -1,2 +1,3 @@
-# This directory contains preprocessed EEG data (epochs, cleaned files).
-# Do not commit large binary files.
+# This directory stores preprocessed EEG data (epochs, cleaned signals, etc.).
+# Outputs from code/preprocess.py and code/extract.py will be written here.
+# Do not remove this file; it ensures the directory is tracked by git.

@@ -3,12 +3,12 @@
   "stage": "clarified",
   "class": "permanent",
   "fingerprint": "unreachable_reference",
-  "consecutive_count": 1,
+  "consecutive_count": 0,
   "first_seen": "2026-07-08T06:34:43.549429+00:00",
-  "last_seen": "2026-07-08T06:34:43.549429+00:00",
+  "last_seen": "2026-07-16T21:52:16.579431+00:00",
   "retry_after": null,
   "last_error": "research.md reference is unreachable: 'https://archive.stsci.edu/kepler/dr25/' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
   "evidence": "research.md reference is unreachable: 'https://archive.stsci.edu/kepler/dr25/' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
   "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
-  "status": "rerouted"
+  "status": "cleared"
 }

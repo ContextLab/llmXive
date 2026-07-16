@@ -1,10 +1,9 @@
-? 'T001 Create project structure per implementation plan: `data/raw`, `data/processed`,
-  `code`, `tests`, `results` directories in `projects/PROJ-118-investigating-the-neural-correlates-of-p/`'
-: 2
-? 'T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`:
-  `mne>=1.6.0`, `numpy`, `scipy`, `pandas`, `matplotlib`, `scikit-learn`, `pingouin>=0.5.0`,
-  `pytest`'
-: 2
-T003 [P] Configure linting (flake8/black) and formatting tools in `.pre-commit-config.yaml`: 2
-T004 Setup `data/raw` and `data/processed` directory structure with `.gitkeep` files: 2
-T008 Configure `pytest` environment in `tests/` with `conftest.py` for fixtures: 1
+T001: 1
+T003: 1
+T004: 1
+T008: 1
+T009: 1
+T011: 1
+T018: 1
+T021: 1
+T022: 1

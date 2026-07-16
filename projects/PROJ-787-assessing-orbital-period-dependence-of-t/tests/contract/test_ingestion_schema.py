@@ -1,174 +1,182 @@
 """
-Contract test for data ingestion output schema.
+Contract tests for User Story 1: Data Ingestion Output Schema.
 
-Validates that the output of the data ingestion pipeline (filtered_planets.csv
-and deduped_planets.csv) adheres to the PlanetRecord schema defined in
-contracts/planet_record.schema.yaml.
+These tests verify that the data ingestion pipeline outputs conform to the
+expected schema defined in the project specifications. Specifically, they
+validate the structure, column names, and data types of the filtered and
+deduplicated planet catalogs produced by the ingestion pipeline.
 
-This test ensures data integrity before downstream analysis (US2, US3) proceeds.
+The tests assert:
+1. The output file exists at the expected path.
+2. Required columns are present (e.g., 'pl_name', 'pl_orbper', 'pl_radj', 'st_teff').
+3. Data types match expectations (numeric for measurements, string for identifiers).
+4. No null values exist in critical columns (radius, period, temperature).
+5. Constraints are met (e.g., radius uncertainty < 20%, period uncertainty < 1%).
 """
 
 import os
+import sys
 import pytest
 import pandas as pd
-import json
-import yaml
+import numpy as np
 from pathlib import Path
 
-# Import the schema validator logic (reusing T007 pattern)
-# Since T007 created tests/contract/test_schemas.py, we assume a helper exists
-# or we implement the validation logic inline here to ensure self-containment.
-# Based on T004/T007 context, we validate against the YAML schema directly.
+# Add project root to path to allow imports if running standalone
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-SCHEMA_PATH = PROJECT_ROOT / "contracts" / "planet_record.schema.yaml"
-DATA_RAW_PATH = PROJECT_ROOT / "data" / "processed" / "filtered_planets.csv"
-DATA_DEDUP_PATH = PROJECT_ROOT / "data" / "processed" / "deduped_planets.csv"
+# Define expected paths relative to project root
+DATA_PROCESSED_DIR = project_root / "data" / "processed"
+FILTERED_PLANETS_PATH = DATA_PROCESSED_DIR / "filtered_planets.csv"
+DEDUPED_PLANETS_PATH = DATA_PROCESSED_DIR / "deduped_planets.csv"
 
-# Required columns based on PlanetRecord dataclass and schema expectations
-# These are the critical fields for the ingestion pipeline output
+# Define the expected schema for the ingestion output
+# Based on the task description: radius uncertainty < 20%, period uncertainty < 1%,
+# and non-missing stellar effective temperature.
+EXPECTED_COLUMNS = {
+    "pl_name": "object",  # Planet name (string)
+    "pl_discmethod": "object",  # Discovery method
+    "pl_orbper": "float64",  # Orbital period (days)
+    "pl_orbpererr1": "float64",  # Period uncertainty
+    "pl_radj": "float64",  # Planet radius (Jupiter radii)
+    "pl_radjerr1": "float64",  # Radius uncertainty
+    "st_teff": "float64",  # Stellar effective temperature
+    "st_tefferr1": "float64",  # Temperature uncertainty
+    "st_mass": "float64",  # Stellar mass
+    "st_masserr1": "float64",  # Stellar mass uncertainty
+    "kepid": "int64",  # Kepler ID
+    "koi": "float64",  # KOI number
+    "pl_controvflag": "int64",  # Controversy flag
+    "pl_tranflag": "int64",  # Transit flag
+}
+
 REQUIRED_COLUMNS = [
-    "kepler_id",
-    "planet_name",
-    "radius_earth",
-    "radius_uncertainty",
-    "period_day",
-    "period_uncertainty",
-    "teff",
-    "teff_uncertainty",
-    "log_g",
-    "log_g_uncertainty",
-    "stellar_mass",
-    "stellar_mass_uncertainty",
-    "stellar_radius",
-    "stellar_radius_uncertainty"
+    "pl_name",
+    "pl_orbper",
+    "pl_orbpererr1",
+    "pl_radj",
+    "pl_radjerr1",
+    "st_teff",
+    "st_tefferr1",
+    "kepid",
 ]
 
-# Critical columns that must not be null for valid records
-CRITICAL_COLUMNS = [
-    "radius_earth",
-    "radius_uncertainty",
-    "period_day",
-    "period_uncertainty",
-    "teff"
-]
-
-# Thresholds defined in US1 requirements
-MAX_RADIUS_UNCERT = 0.20  # 20%
-MAX_PERIOD_UNCERT = 0.01  # 1%
-
-def load_schema(schema_path: Path) -> dict:
-    """Load the YAML schema file."""
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    with open(schema_path, 'r') as f:
-        return yaml.safe_load(f)
-
-def validate_columns(df: pd.DataFrame, required_cols: list) -> bool:
-    """Check if all required columns exist in the DataFrame."""
-    missing = set(required_cols) - set(df.columns)
-    if missing:
-        pytest.fail(f"Missing required columns: {missing}")
-    return True
-
-def validate_no_nulls(df: pd.DataFrame, critical_cols: list) -> bool:
-    """Check that critical columns have no null values."""
-    for col in critical_cols:
-        if df[col].isnull().any():
-            pytest.fail(f"Column '{col}' contains null values.")
-    return True
-
-def validate_uncertainty_thresholds(df: pd.DataFrame) -> bool:
-    """
-    Validate that radius uncertainty < 20% and period uncertainty < 1%.
-    Note: These are fractional values (e.g., 0.20 for 20%).
-    """
-    # Check radius uncertainty
-    if (df["radius_uncertainty"] >= MAX_RADIUS_UNCERT).any():
-        pytest.fail(f"Found entries with radius uncertainty >= {MAX_RADIUS_UNCERT}")
-    
-    # Check period uncertainty
-    if (df["period_uncertainty"] >= MAX_PERIOD_UNCERT).any():
-        pytest.fail(f"Found entries with period uncertainty >= {MAX_PERIOD_UNCERT}")
-    
-    return True
-
-def validate_positive_values(df: pd.DataFrame) -> bool:
-    """Ensure physical quantities are positive."""
-    positive_cols = ["radius_earth", "period_day", "teff", "stellar_mass", "stellar_radius"]
-    for col in positive_cols:
-        if col in df.columns:
-            if (df[col] <= 0).any():
-                pytest.fail(f"Column '{col}' contains non-positive values.")
-    return True
-
-@pytest.fixture(scope="module")
-def schema():
-    return load_schema(SCHEMA_PATH)
-
-@pytest.fixture(scope="module", params=[DATA_RAW_PATH, DATA_DEDUP_PATH])
-def ingestion_file_path(request):
-    """Fixture to test both filtered and deduped outputs if they exist."""
-    path = request.param
+def get_file_path(filename: str) -> Path:
+    """Get the full path for a data file, checking existence."""
+    path = DATA_PROCESSED_DIR / filename
     if not path.exists():
-        pytest.skip(f"Data file not found: {path}. Ingestion pipeline may not have run yet.")
+        pytest.fail(f"Expected data file not found: {path}")
     return path
 
-def test_ingestion_schema_compliance(ingestion_file_path, schema):
-    """
-    Contract test: Verify the ingestion output matches the expected schema
-    and meets the US1 filtering criteria.
-    """
-    # Load data
-    df = pd.read_csv(ingestion_file_path)
-    
-    # 1. Schema Compliance: Check columns
-    validate_columns(df, REQUIRED_COLUMNS)
-    
-    # 2. Data Integrity: Check for nulls in critical fields
-    validate_no_nulls(df, CRITICAL_COLUMNS)
-    
-    # 3. Business Logic: Verify uncertainty thresholds (US1 FR-002)
-    validate_uncertainty_thresholds(df)
-    
-    # 4. Physical Validity: Check for positive values
-    validate_positive_values(df)
-    
-    # 5. Schema Type Validation (basic check)
-    # Ensure numeric columns are actually numeric
-    numeric_cols = ["radius_earth", "radius_uncertainty", "period_day", "period_uncertainty", "teff"]
-    for col in numeric_cols:
-        if col in df.columns:
-            if not pd.api.types.is_numeric_dtype(df[col]):
-                pytest.fail(f"Column '{col}' is not numeric.")
-    
-    assert len(df) > 0, "The ingestion output file is empty."
+def load_test_data(filename: str) -> pd.DataFrame:
+    """Load a CSV file and return as DataFrame."""
+    path = get_file_path(filename)
+    try:
+        df = pd.read_csv(path)
+        return df
+    except Exception as e:
+        pytest.fail(f"Failed to load {filename}: {e}")
 
-def test_duplicate_resolution_logic(ingestion_file_path):
-    """
-    Specific check for T015 (Duplicate Resolution).
-    If the file is deduped_planets.csv, ensure no duplicate kepler_id/planet_name pairs exist.
-    """
-    if "deduped_planets.csv" not in str(ingestion_file_path):
-        pytest.skip("Duplicate resolution check only applies to deduped file.")
-    
-    df = pd.read_csv(ingestion_file_path)
-    
-    # Check for duplicates based on Kepler ID
-    if df["kepler_id"].duplicated().any():
-        # Count duplicates
-        dup_count = df["kepler_id"].duplicated().sum()
-        pytest.fail(f"Found {dup_count} duplicate Kepler IDs in deduped file. Duplicate resolution failed.")
+class TestFilteredPlanetsSchema:
+    """Tests for the filtered_planets.csv output schema."""
 
-def test_stellar_temp_filter(ingestion_file_path):
-    """
-    Verify that no entries have missing stellar effective temperature (US1 FR-002).
-    """
-    df = pd.read_csv(ingestion_file_path)
-    
-    # T014 requirement: exclude entries with missing stellar effective temperature
-    if df["teff"].isnull().any():
-        pytest.fail("Found entries with missing stellar effective temperature (teff).")
+    @pytest.fixture(scope="class")
+    def df(self):
+        return load_test_data("filtered_planets.csv")
+
+    def test_file_exists(self):
+        """Verify the filtered planets file exists."""
+        assert FILTERED_PLANETS_PATH.exists(), "filtered_planets.csv does not exist"
+
+    def test_required_columns_present(self, df):
+        """Verify all required columns are present in the dataframe."""
+        missing_cols = set(REQUIRED_COLUMNS) - set(df.columns)
+        assert not missing_cols, f"Missing required columns: {missing_cols}"
+
+    def test_column_dtypes(self, df):
+        """Verify data types match the expected schema."""
+        for col, expected_type in EXPECTED_COLUMNS.items():
+            if col in df.columns:
+                # Handle object vs string nuances in pandas
+                if expected_type == "object":
+                    assert df[col].dtype == "object" or df[col].dtype.name.startswith("str"), \
+                        f"Column {col} has dtype {df[col].dtype}, expected object/string"
+                else:
+                    # Allow for potential float32/float64 variations if strictness allows,
+                    # but strict check is preferred for contract testing.
+                    assert str(df[col].dtype) == expected_type, \
+                        f"Column {col} has dtype {df[col].dtype}, expected {expected_type}"
+
+    def test_no_nulls_in_critical_columns(self, df):
+        """Verify no null values in critical measurement columns."""
+        critical_cols = ["pl_orbper", "pl_radj", "st_teff", "kepid"]
+        for col in critical_cols:
+            if col in df.columns:
+                assert df[col].isnull().sum() == 0, \
+                    f"Column {col} contains {df[col].isnull().sum()} null values"
+
+    def test_radius_uncertainty_constraint(self, df):
+        """Verify radius uncertainty is < 20% (0.20)."""
+        if "pl_radjerr1" in df.columns and "pl_radj" in df.columns:
+            # Calculate percentage uncertainty
+            # Avoid division by zero if radius is 0 (though physically unlikely for planets)
+            valid_mask = df["pl_radj"] > 0
+            if valid_mask.any():
+                percent_uncertainty = df.loc[valid_mask, "pl_radjerr1"] / df.loc[valid_mask, "pl_radj"]
+                assert (percent_uncertainty < 0.20).all(), \
+                    "Some entries have radius uncertainty >= 20%"
+
+    def test_period_uncertainty_constraint(self, df):
+        """Verify period uncertainty is < 1% (0.01)."""
+        if "pl_orbpererr1" in df.columns and "pl_orbper" in df.columns:
+            valid_mask = df["pl_orbper"] > 0
+            if valid_mask.any():
+                percent_uncertainty = df.loc[valid_mask, "pl_orbpererr1"] / df.loc[valid_mask, "pl_orbper"]
+                assert (percent_uncertainty < 0.01).all(), \
+                    "Some entries have period uncertainty >= 1%"
+
+    def test_stellar_temp_present(self, df):
+        """Verify stellar effective temperature is present (not null)."""
+        assert "st_teff" in df.columns
+        assert df["st_teff"].notnull().all(), "Some entries have missing stellar effective temperature"
+
+class TestDedupedPlanetsSchema:
+    """Tests for the deduped_planets.csv output schema."""
+
+    @pytest.fixture(scope="class")
+    def df(self):
+        return load_test_data("deduped_planets.csv")
+
+    def test_file_exists(self):
+        """Verify the deduped planets file exists."""
+        assert DEDUPED_PLANETS_PATH.exists(), "deduped_planets.csv does not exist"
+
+    def test_subset_of_filtered_columns(self, df):
+        """Verify deduped file has a subset of columns from filtered file (no new columns)."""
+        filtered_df = load_test_data("filtered_planets.csv")
+        missing_in_deduped = set(filtered_df.columns) - set(df.columns)
+        # We expect deduped to have the same or fewer columns, but definitely not new ones
+        # unless the deduplication process adds metadata columns (not expected here).
+        assert not missing_in_deduped, \
+            f"Deduped file is missing columns present in filtered: {missing_in_deduped}"
+
+    def test_no_duplicate_kepid(self, df):
+        """Verify no duplicate Kepler IDs exist in the deduped file."""
+        if "kepid" in df.columns:
+            duplicates = df["kepid"].duplicated().sum()
+            assert duplicates == 0, f"Found {duplicates} duplicate Kepler IDs in deduped file"
+
+    def test_no_duplicate_koi(self, df):
+        """Verify no duplicate KOI numbers exist in the deduped file."""
+        if "koi" in df.columns:
+            duplicates = df["koi"].duplicated().sum()
+            assert duplicates == 0, f"Found {duplicates} duplicate KOI numbers in deduped file"
+
+    def test_row_count_consistency(self, df):
+        """Verify deduped file has <= rows than filtered file."""
+        filtered_df = load_test_data("filtered_planets.csv")
+        assert len(df) <= len(filtered_df), \
+            "Deduped file has more rows than filtered file, indicating logic error"
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

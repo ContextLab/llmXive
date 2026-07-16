@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T03:18:10.895717Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-337-predicting-plant-biomass-from-publicly-a
-last_run_id: 35391280-2c94-4ecb-abbb-c508ea5ac110
+last_run_id: 90e58e67-0f81-4c94-9f91-f1a800eaaa31
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Plant Biomass from Publicly Available Hyperspectral Imagery
-updated_at: '2026-06-12T19:29:27.070585Z'
+updated_at: '2026-07-16T21:30:56.985656Z'

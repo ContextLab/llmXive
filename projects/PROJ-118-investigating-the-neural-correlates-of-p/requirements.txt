@@ -1,10 +1,24 @@
+# Python 3.11+ Dependencies for PROJ-118
+# Investigating the Neural Correlates of Predictive Coding Errors
+# Generated for T002: Initialize project with pinned dependencies
+
+# Core Data Processing & EEG Analysis
 mne>=1.6.0
-numpy
-scipy
-pandas
-matplotlib
-scikit-learn
+numpy>=1.24.0
+scipy>=1.11.0
+pandas>=2.0.0
+
+# Visualization
+matplotlib>=3.7.0
+
+# Machine Learning & Statistics
+scikit-learn>=1.3.0
 pingouin>=0.5.0
-pytest
-pyyaml
-requests
+
+# Testing
+pytest>=7.4.0
+
+# Optional: Pre-commit hooks (referenced in T003)
+# pre-commit>=3.5.0
+# black>=23.0.0
+# flake8>=6.1.0

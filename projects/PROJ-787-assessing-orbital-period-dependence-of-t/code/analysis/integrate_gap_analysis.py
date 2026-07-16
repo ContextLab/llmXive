@@ -1,120 +1,136 @@
 """
-Task T028: Integrate binning and GMM logic to produce gap_locations.csv.
+Integration script for User Story 2: Gap Location Estimation.
 
-This script orchestrates the workflow:
-1. Loads the deduplicated planet data.
-2. Bins planets by orbital period (using binning.py).
-3. Fits GMM to each bin (using gmm_fitter.py).
-4. Aggregates results into data/processed/gap_locations.csv.
+This script orchestrates the full analysis pipeline for US2:
+1. Loads the deduplicated planet dataset (output of T015).
+2. Bins planets by orbital period (T021 logic).
+3. Fits GMM to each bin to find gap locations (T022/T023/T024 logic).
+4. Aggregates results into a single CSV: data/processed/gap_locations.csv.
+
+Dependencies:
+- code/analysis/binning.py (create_log_bins, assign_bin_index, bin_planets_by_period, save_binned_data)
+- code/analysis/gmm_fitter.py (fit_gmm_to_radius_distribution, calculate_gap_location, bootstrap_gap_estimation, process_binned_data)
+- code/ingest/loaders.py (load_deduplicated_planets)
+- code/utils/logging_config.py (setup_logging, get_logger)
 """
 import os
 import sys
 import logging
 from pathlib import Path
-
 import pandas as pd
 import numpy as np
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add project root to path if running as script
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from analysis.binning import bin_planets_by_period
+from analysis.binning import bin_planets_by_period, save_binned_data
 from analysis.gmm_fitter import process_binned_data
 from ingest.loaders import load_deduplicated_planets
-from utils.logging_config import get_logger
+from utils.logging_config import setup_logging, get_logger
+from utils.config import get_config
 
-logger = get_logger(__name__)
-
-def main():
+def run_integration_pipeline(logger: logging.Logger, config: dict):
     """
-    Main entry point for T028.
-    Produces data/processed/gap_locations.csv.
+    Execute the full US2 integration pipeline.
+    
+    Steps:
+    1. Load deduplicated planets.
+    2. Bin by period.
+    3. Fit GMM to each bin.
+    4. Aggregate results.
+    5. Save to data/processed/gap_locations.csv.
     """
-    logger.info("Starting T028: Gap Location Integration")
-
+    logger.info("Starting US2 Integration Pipeline")
+    
     # 1. Load Data
     logger.info("Loading deduplicated planets...")
     planets_df = load_deduplicated_planets()
-
     if planets_df is None or planets_df.empty:
-        logger.error("No data loaded from deduped_planets.csv. Aborting.")
-        sys.exit(1)
-
+        logger.error("Failed to load deduplicated planets. Aborting.")
+        raise RuntimeError("No data loaded for US2 integration.")
+    
     logger.info(f"Loaded {len(planets_df)} planets.")
-
-    # 2. Bin Planets
+    
+    # 2. Binning
     logger.info("Binning planets by orbital period...")
-    # bin_planets_by_period expects the dataframe and returns the binned dataframe
-    # It handles the merging of small bins internally as per T021 logic
-    binned_df = bin_planets_by_period(planets_df)
-
-    if binned_df is None or binned_df.empty:
-        logger.error("Binning produced no data. Aborting.")
-        sys.exit(1)
-
-    logger.info(f"Binned into {binned_df['bin_id'].nunique()} bins.")
-
-    # 3. Run GMM Fitting per Bin
-    logger.info("Fitting GMM models to binned data...")
-    # process_binned_data returns a DataFrame with gap results
-    gap_results_df = process_binned_data(binned_df)
-
-    if gap_results_df is None or gap_results_df.empty:
-        logger.error("GMM fitting produced no results. Aborting.")
-        sys.exit(1)
-
-    # 4. Enrich with Weighted Mean Period (from T027 logic if needed, 
-    # but T027 output is separate. We calculate it here for the final report 
-    # to ensure the CSV has the requested columns: bin centers, weighted mean periods, gap locations, uncertainties)
+    # Parameters from spec: log-spaced bins, min 30 planets per bin (merge if needed)
+    min_bin_size = config.get('us2', {}).get('min_bin_size', 30)
+    max_period_days = config.get('us2', {}).get('max_period_days', 100)
     
-    # Calculate weighted mean period for the final output if not already present
-    if 'weighted_mean_period' not in gap_results_df.columns:
-        logger.info("Calculating weighted mean periods for output...")
-        # Group by bin_id to calculate stats
-        bin_stats = binned_df.groupby('bin_id').agg({
-            'period': 'mean', # Placeholder if specific weights not available in this context
-            'period_uncertainty': 'mean'
-        }).reset_index()
+    binned_df, bin_stats = bin_planets_by_period(
+        planets_df, 
+        min_bin_size=min_bin_size, 
+        max_period=max_period_days
+    )
+    
+    # Save intermediate binned data for inspection
+    binned_path = Path(config['paths']['processed']) / "binned_planets.csv"
+    save_binned_data(binned_df, binned_path)
+    logger.info(f"Saved binned data to {binned_path}")
+    
+    # 3. GMM Fitting & Gap Calculation
+    logger.info("Fitting GMM and calculating gap locations...")
+    gap_results = process_binned_data(binned_df, logger)
+    
+    if not gap_results:
+        logger.warning("No gap locations were successfully calculated.")
+        # Create an empty result file with correct schema to prevent downstream crashes
+        results_df = pd.DataFrame(columns=[
+            'bin_index', 'bin_center_log_period', 'weighted_mean_period',
+            'gap_location', 'gap_uncertainty', 'status', 'n_planets'
+        ])
+    else:
+        results_df = pd.DataFrame(gap_results)
         
-        # Re-join with gap results
-        gap_results_df = gap_results_df.merge(bin_stats, on='bin_id', how='left')
-        # Rename to match expected output
-        if 'period' in gap_results_df.columns:
-            gap_results_df.rename(columns={'period': 'weighted_mean_period'}, inplace=True)
-
-    # Ensure required columns exist
-    required_cols = [
-        'bin_center_log_period', 
-        'weighted_mean_period', 
-        'gap_location_log_radius', 
-        'gap_location_uncertainty',
-        'status'
-    ]
+        # Ensure required columns exist
+        required_cols = [
+            'bin_index', 'bin_center_log_period', 'weighted_mean_period',
+            'gap_location', 'gap_uncertainty', 'status', 'n_planets'
+        ]
+        for col in required_cols:
+            if col not in results_df.columns:
+                results_df[col] = None
+                
+        # Sort by bin index
+        results_df = results_df.sort_values('bin_index')
     
-    # Normalize column names if they differ slightly
-    if 'gap_location' in gap_results_df.columns and 'gap_location_log_radius' not in gap_results_df.columns:
-        gap_results_df.rename(columns={'gap_location': 'gap_location_log_radius'}, inplace=True)
-    if 'uncertainty' in gap_results_df.columns and 'gap_location_uncertainty' not in gap_results_df.columns:
-        gap_results_df.rename(columns={'uncertainty': 'gap_location_uncertainty'}, inplace=True)
-    if 'bin_center' in gap_results_df.columns and 'bin_center_log_period' not in gap_results_df.columns:
-        gap_results_df.rename(columns={'bin_center': 'bin_center_log_period'}, inplace=True)
-    if 'status' not in gap_results_df.columns:
-        gap_results_df['status'] = 'resolved' # Default if T025 status logic wasn't fully merged
+    # 4. Save Final Output
+    output_path = Path(config['paths']['processed']) / "gap_locations.csv"
+    results_df.to_csv(output_path, index=False)
+    logger.info(f"Saved final gap locations to {output_path}")
+    
+    logger.info("US2 Integration Pipeline completed successfully.")
+    return results_df
 
-    # Select and order columns for the final CSV
-    final_columns = [c for c in required_cols if c in gap_results_df.columns]
-    output_df = gap_results_df[final_columns]
+def main():
+    """Entry point for the integration script."""
+    setup_logging(log_level=logging.INFO)
+    logger = get_logger(__name__)
+    
+    # Load configuration
+    try:
+        from utils.config import load_config
+        config = load_config()
+    except Exception as e:
+        logger.error(f"Failed to load config: {e}")
+        config = {
+            'paths': {
+                'processed': str(Path(__file__).resolve().parents[2] / 'data' / 'processed'),
+                'raw': str(Path(__file__).resolve().parents[2] / 'data' / 'raw')
+            },
+            'us2': {
+                'min_bin_size': 30,
+                'max_period_days': 100
+            }
+        }
 
-    # 5. Save Output
-    output_path = project_root / "data" / "processed" / "gap_locations.csv"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    output_df.to_csv(output_path, index=False)
-    logger.info(f"Successfully wrote gap locations to {output_path}")
-    logger.info(f"Output shape: {output_df.shape}")
-
-    return output_path
+    try:
+        run_integration_pipeline(logger, config)
+    except Exception as e:
+        logger.exception("Pipeline execution failed.")
+        raise
 
 if __name__ == "__main__":
     main()

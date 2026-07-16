@@ -1,118 +1,119 @@
 """
-Pytest configuration and fixtures for PROJ-118.
+Pytest configuration and fixtures for the llmXive automated science pipeline.
 
-This file configures the pytest environment, providing shared fixtures
-for project paths, configuration loading, and test data validation.
+This file configures the pytest environment and provides shared fixtures
+for testing the EEG preprocessing and analysis pipeline.
 """
 import os
 import sys
-import pytest
+import logging
+import tempfile
 from pathlib import Path
+from typing import Generator, Dict, Any
 
-# Add project root to path for imports
-# Assumes running from project root or tests/ directory
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+import pytest
+import yaml
 
-# Import project utilities to ensure they are available for tests
-try:
-    from code.data_utils import load_config_and_validate, get_subject_ids
-    from code.config import CONFIG_PATH
-except ImportError:
-    # Fallback if config module structure differs slightly during early setup
-    pass
+# Add the project root to the path to allow imports from code/
+# This assumes tests/ is at the root level alongside code/
+ROOT_DIR = Path(__file__).parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+# Configure logging for tests
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 
 @pytest.fixture(scope="session")
-def project_root_path():
+def project_root() -> Path:
     """Return the root path of the project."""
-    return project_root
+    return ROOT_DIR
 
 
 @pytest.fixture(scope="session")
-def data_raw_path(project_root_path):
+def data_dir(project_root: Path) -> Path:
+    """Return the path to the data directory."""
+    return project_root / "data"
+
+
+@pytest.fixture(scope="session")
+def raw_data_dir(data_dir: Path) -> Path:
     """Return the path to the raw data directory."""
-    return project_root_path / "data" / "raw"
+    return data_dir / "raw"
 
 
 @pytest.fixture(scope="session")
-def data_processed_path(project_root_path):
+def processed_data_dir(data_dir: Path) -> Path:
     """Return the path to the processed data directory."""
-    return project_root_path / "data" / "processed"
+    return data_dir / "processed"
 
 
 @pytest.fixture(scope="session")
-def results_path(project_root_path):
+def results_dir(project_root: Path) -> Path:
     """Return the path to the results directory."""
-    return project_root_path / "results"
+    return project_root / "results"
+
+
+@pytest.fixture(scope="function")
+def temp_output_dir() -> Generator[Path, None, None]:
+    """Create a temporary directory for test outputs that is cleaned up after."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        yield Path(tmp_dir)
 
 
 @pytest.fixture(scope="session")
-def code_path(project_root_path):
-    """Return the path to the code directory."""
-    return project_root_path / "code"
-
-
-@pytest.fixture(scope="session")
-def config_path(project_root_path):
+def config_path(project_root: Path) -> Path:
     """Return the path to the configuration file."""
-    return project_root_path / "code" / "config.yaml"
+    return project_root / "code" / "config.yaml"
 
 
-@pytest.fixture(scope="session")
-def valid_config(config_path):
+@pytest.fixture(scope="function")
+def sample_config(config_path: Path) -> Dict[str, Any]:
     """
-    Load and validate the project configuration.
-    Returns the config dict if valid, otherwise skips the test.
+    Load the sample configuration from code/config.yaml.
+    Falls back to a minimal valid config if the file doesn't exist yet
+    (useful for early-stage testing before T005 is fully populated).
     """
-    if not config_path.exists():
-        pytest.skip(f"Configuration file not found at {config_path}")
-
-    try:
-        config = load_config_and_validate(config_path)
-        return config
-    except Exception as e:
-        pytest.fail(f"Failed to load or validate config: {e}")
-
-
-@pytest.fixture(scope="session")
-def subject_ids(valid_config, data_raw_path):
-    """
-    Return a list of valid subject IDs based on the raw data present.
-    If no raw data is found, returns an empty list.
-    """
-    try:
-        ids = get_subject_ids(data_raw_path)
-        return ids
-    except Exception:
-        return []
-
-
-@pytest.fixture(scope="session")
-def has_raw_data(data_raw_path):
-    """Check if raw data directory exists and is not empty."""
-    return data_raw_path.exists() and any(data_raw_path.iterdir())
+    if config_path.exists():
+        with open(config_path, "r") as f:
+            return yaml.safe_load(f)
+    
+    # Fallback minimal config for testing purposes if file is missing
+    # This mirrors the expected schema from T005
+    return {
+        "filter": {
+            "lowcut": 1.0,
+            "highcut": 30.0,
+            "ftype": "fir"
+        },
+        "epoch": {
+            "tmin": -0.2,
+            "tmax": 0.6,
+            "baseline": (None, 0)
+        },
+        "ica": {
+            "threshold": 0.8,
+            "method": "fastica"
+        },
+        "montage": {
+            "standard": ["Fz", "FCz", "Cz", "Pz", "F3", "F4", "C3", "C4", "P3", "P4"]
+        }
+    }
 
 
-@pytest.fixture(scope="session")
-def has_processed_data(data_processed_path):
-    """Check if processed data directory exists and is not empty."""
-    return data_processed_path.exists() and any(data_processed_path.iterdir())
+@pytest.fixture(scope="function")
+def mock_subject_id() -> str:
+    """Return a mock subject ID for testing."""
+    return "sub-01"
 
 
-@pytest.fixture(autouse=True)
-def ensure_directories(project_root_path):
-    """
-    Ensure required directories exist before tests run.
-    This is an autouse fixture to guarantee structure integrity.
-    """
-    dirs = [
-        project_root_path / "data" / "raw",
-        project_root_path / "data" / "processed",
-        project_root_path / "results",
-        project_root_path / "results" / "plots",
-        project_root_path / "code",
-        project_root_path / "tests",
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+@pytest.fixture(scope="function")
+def mock_event_id() -> Dict[str, int]:
+    """Return a mock event ID mapping for EEG epochs."""
+    return {
+        "standard": 1,
+        "deviant": 2
+    }

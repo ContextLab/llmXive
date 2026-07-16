@@ -47,7 +47,7 @@
 - [X] T001b [P] Initialize data directories: Create `data/raw/`, `data/processed/` directories per implementation plan structure
 
 - [X] T002a [P] Create `code/requirements.txt` with dependencies (`pandas`, `numpy`, `scipy`, `scikit-learn`, `astropy`, `astroquery`, `pyyaml`, `pytest`, `tqdm`)
-- [ ] T002b [P] Install dependencies from `code/requirements.txt` in a virtual environment <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T002b [P] Install dependencies from `code/requirements.txt` in a virtual environment <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -61,7 +61,7 @@
 - [X] T004 Implement data models `code/models/planet_record.py` and `code/models/gap_result.py` matching `contracts/planet_record.schema.yaml` and `contracts/analysis_output.schema.yaml`
 - [X] T005 [P] Setup directory structure for `data/raw/` and `data/processed/` with checksum verification utilities
 - [ ] T006 [P] Implement logging infrastructure and configuration management in `code/utils/`
-- [ ] T007 Create contract test suite `tests/contract/test_schemas.py` to validate data integrity against YAML schemas
+- [X] T007 Create contract test suite `tests/contract/test_schemas.py` to validate data integrity against YAML schemas
 - [X] T008 Implement retry logic with exponential backoff for external API calls in `code/utils/retry.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,19 +78,19 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T010 [P] [US1] Contract test for data ingestion output schema in `tests/contract/test_ingestion_schema.py`
+- [X] T010 [P] [US1] Contract test for data ingestion output schema in `tests/contract/test_ingestion_schema.py`
 - [X] T011 [P] [US1] Unit test for duplicate resolution logic (keeping lowest radius uncertainty) in `tests/unit/test_preprocess.py`
 
 ### Implementation for User Story 1
 
-- [~] T012a [P] [US1] Implement `code/ingest/download_dr25.py` to fetch the Kepler DR25 Planet Table (MAST Product ID: `kplr_dr25_planet`) via `astroquery.mast` with retry logic, saving to `data/raw/dr25_raw.csv` (FR-001, Assumptions: Data Availability)
+- [ ] T012a [P] [US1] Implement `code/ingest/download_dr25.py` to fetch the Kepler DR25 Planet Table (MAST Product ID: `kplr_dr25_planet`) via `astroquery.mast` with retry logic, saving to `data/raw/dr25_raw.csv` (FR-001, Assumptions: Data Availability)
 - [X] T012b [P] [US1] Wire `code/utils/retry.py` into `code/ingest/download_dr25.py` to ensure exponential backoff is applied for the Kepler DR25 download (Edge Case: API Unavailability)
-- [~] T012c [P] [US1] Implement `code/ingest/download_kic.py` to fetch the Kepler Input Catalog (KIC) (MAST Product ID: `kic_v2`) via `astroquery.mast` with retry logic, saving to `data/raw/kic_raw.csv` (FR-001, Assumptions: Data Availability)
+- [ ] T012c [P] [US1] Implement `code/ingest/download_kic.py` to fetch the Kepler Input Catalog (KIC) (MAST Product ID: `kic_v2`) via `astroquery.mast` with retry logic, saving to `data/raw/kic_raw.csv` (FR-001, Assumptions: Data Availability)
 - [X] T012d [P] [US1] Wire `code/utils/retry.py` into `code/ingest/download_kic.py` to ensure exponential backoff is applied for the KIC download (Edge Case: API Unavailability)
 - [X] T013 [P] [US1] Implement `code/ingest/merge_catalogs.py` to merge Kepler DR25 (from T012a) and KIC (from T012c) on KIC ID to produce a unified DataFrame containing stellar parameters (FR-001, Ordering: Catalog Merge)
-- [~] T014 [US1] Implement `code/ingest/preprocess.py` to parse merged catalogs, filter for radius uncertainty <20% and period uncertainty <1% (FR-002), and exclude entries with missing stellar effective temperature. **Output**: Save filtered DataFrame to `data/processed/filtered_planets.csv` (FR-002, Ordering: Filter)
-- [~] T015 [US1] Implement duplicate resolution logic in `code/ingest/preprocess.py` to keep the entry with the lowest radius uncertainty and log removed duplicates. **Input**: `data/processed/filtered_planets.csv`. **Output**: Save deduplicated DataFrame to `data/processed/deduped_planets.csv` (Edge Case: duplicates).
-- [~] T016 [US1] Create `code/ingest/loaders.py` to load the deduplicated dataset into a unified DataFrame for downstream analysis, explicitly verifying the checksum of `data/processed/deduped_planets.csv` before loading to ensure data integrity (FR-001, Constitution Principle III). **Note**: This task loads the file output from T015.
+- [ ] T014 [US1] Implement `code/ingest/preprocess.py` to parse merged catalogs, filter for radius uncertainty <20% and period uncertainty <1% (FR-002), and exclude entries with missing stellar effective temperature. **Output**: Save filtered DataFrame to `data/processed/filtered_planets.csv` (FR-002, Ordering: Filter)
+- [ ] T015 [US1] Implement duplicate resolution logic in `code/ingest/preprocess.py` to keep the entry with the lowest radius uncertainty and log removed duplicates. **Input**: `data/processed/filtered_planets.csv`. **Output**: Save deduplicated DataFrame to `data/processed/deduped_planets.csv` (Edge Case: duplicates).
+- [ ] T016 [US1] Create `code/ingest/loaders.py` to load the deduplicated dataset into a unified DataFrame for downstream analysis, explicitly verifying the checksum of `data/processed/deduped_planets.csv` before loading to ensure data integrity (FR-001, Constitution Principle III). **Note**: This task loads the file output from T015.
 - [~] T018 [US1] Add logging for ingestion steps, including counts of excluded planets and reasons
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -117,7 +117,7 @@
 - [~] T025 [US2] Implement graceful failure handling in `code/analysis/gmm_fitter.py` for unimodal distributions (BIC diff < 10), flagging bins as "unresolved" rather than forcing a fit. **Output**: Update `data/processed/gap_locations.csv` with a `status` column set to "unresolved" for these bins (Edge Case: unimodal, Spec US-2 Edge Cases).
 - [ ] T027 [US2] Implement calculation of 'weighted mean period' using inverse variance of the gap location estimate (from T024) for each bin, outputting to `data/processed/binned_stats.csv` (FR-003, Ordering: Gap Variance Flow)
 - [ ] T028 [US2] Integrate binning and GMM logic to produce `data/processed/gap_locations.csv` containing bin centers, weighted mean periods, gap locations, and uncertainties
-- [ ] T029 [US2] Implement KDE validation in `code/analysis/kde_validator.py` to identify the gap location without parametric assumptions, verify it falls within the GMM confidence interval, and output `data/processed/kde_validation.json` with a boolean `validation_passed` flag (FR-008, SC-003, Ordering: Results Aggregation). **Note**: Depends on T028 output.
+- [~] T029 [US2] Implement KDE validation in `code/analysis/kde_validator.py` to identify the gap location without parametric assumptions, verify it falls within the GMM confidence interval, and output `data/processed/kde_validation.json` with a boolean `validation_passed` flag (FR-008, SC-003, Ordering: Results Aggregation). **Note**: Depends on T028 output.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -155,8 +155,8 @@
 - [~] T038 [P] Update `quickstart.md` with specific instructions for the new KIC/DR25 download and merge steps
 - [~] T039 [P] Update `README.md` with project overview and execution instructions
 - [~] T040 Code cleanup and refactoring for readability
-- [ ] T041 Performance optimization (vectorization) across all analysis scripts to meet CPU constraints
-- [ ] T042 [P] Additional unit tests for edge cases in `tests/unit/`
+- [~] T041 Performance optimization (vectorization) across all analysis scripts to meet CPU constraints
+- [~] T042 [P] Additional unit tests for edge cases in `tests/unit/`
 - [ ] T043 Run `quickstart.md` validation to ensure reproducibility
 
 ---
