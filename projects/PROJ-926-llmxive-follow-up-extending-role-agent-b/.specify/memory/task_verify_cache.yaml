@@ -1,0 +1,23 @@
+T018:
+  c: false
+  h: 976bd86c32e2957a29db084a27e157ed97005b13527aa8ffa902933a65fcd13e
+  r: "The `src/sim/validation.py` file does not contain any function that loads and\
+    \ cross\u2011references `data/raw/baseline_failures.json` with `data/raw/ground_truth_raw.json`;\
+    \ it only defines checksum and ground\u2011truth saving utilities. Moreover, both\
+    \ required JSON files are absent from the repository. Consequently the task\u2019\
+    s core requirement is not satisfied."
+T022:
+  c: true
+  h: 35ff409cd2551a377f500289a2998be13709c004e7ab9d370633d0ce6ed588a9
+  r: "The repository contains a non\u2011empty `src/conditions/run_degraded.py` that\
+    \ implements the generation of degraded\u2011condition failed trajectories, configures\
+    \ WIA=0, avoids re\u2011processing baseline data, and is intended to write the\
+    \ results to `data/raw/degraded_failures.json`. No placeholder or stub code is\
+    \ present. The missing `degraded_failures.json` is an expected runtime output,\
+    \ not a required repository artifact."
+T023:
+  c: false
+  h: e6d9c4141fe8302983b28b259e4289d70737d161bc33069b7fa978e2e4fbb988
+  r: The required file `src/retrieval/relevance_scorer.py` does not exist in the repository,
+    so the integration cannot be verified. The task demands a concrete implementation
+    that calculates relevance scores, which is missing.

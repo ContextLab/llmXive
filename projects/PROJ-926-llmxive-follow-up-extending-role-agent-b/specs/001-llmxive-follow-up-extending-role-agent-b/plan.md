@@ -22,7 +22,7 @@ The system statistically compares retrieval relevance scores and task completion
 **Project Type**: Research simulation / Computational experiment  
 **Performance Goals**: <6 hours total runtime; <7 GB peak RAM; reproducible seeds  
 **Constraints**: No local GPU; no external API calls; no access-gated datasets; deterministic simulation  
-**Scale/Scope**: 1500 total failure trajectories (500 per condition); experimental conditions; A statistical test suite.  
+**Scale/Scope**: 1500 total failure trajectories (A sufficient sample size per condition will be determined to ensure adequate statistical power for the analysis.); experimental conditions; A statistical test suite.  
 **Canonical Sources**: 
 - **LLM**: `meta-llama/Llama-3-8B` (Hugging Face)
 - **Simulator**: `alfworld` (PyPI package v1.1.0+)
@@ -68,7 +68,7 @@ src/
 │   └── derived/               # Processed stats, aggregated scores
 ├── sim/
 │   ├── alfworld_runner.py     # ALFWorld environment wrapper
-│   ├── trajectory_generator.py# Generates 1500 failure trajectories (3 cohorts)
+│   ├── trajectory_generator.py# Generates a substantial set of failure trajectories across three cohorts.
 │   └── validation.py          # Validates against ground-truth state transitions
 ├── conditions/
 │   ├── degraded.py            # WIA prediction horizon = 0 (Generation Config)

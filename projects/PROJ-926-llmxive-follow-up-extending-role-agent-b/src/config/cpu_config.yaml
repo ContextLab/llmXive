@@ -1,0 +1,20 @@
+# CPU-only execution configuration for llmXive
+# Enforces constraints to run within limited RAM and CPU resources
+CPU_DEVICE: true
+MAX_RAM_GB: 7
+MODEL_QUANTIZATION: "4bit"
+MAX_MODEL_SEQ_LEN: 2048
+BATCH_SIZE: 1
+NUM_WORKERS: 0  # Disable multiprocessing to save RAM
+TORCH_NUM_THREADS: 2
+HF_DATASETS_OFFLINE: false
+HF_DATASETS_STREAMING: true
+
+# ALFWorld specific CPU constraints
+ALFWORLD_CPU_MODE: true
+ALFWORLD_MAX_STEPS: 50
+ALFWORLD_TIMEOUT_SEC: 300
+
+# Logging
+LOG_LEVEL: "INFO"
+LOG_PATH: "logs/cpu_execution.log"

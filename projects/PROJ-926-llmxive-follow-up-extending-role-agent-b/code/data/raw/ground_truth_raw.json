@@ -1,0 +1,29 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "task_id": "task_1",
+    "attempt_number": 1,
+    "failure_reason": "Failure detected: timeout found in step. Observation: Task timed out after 100 steps.",
+    "action_log": [
+      {"step": 1, "action": "go to sinkbasin 1", "observation": "The sinkbasin is here."},
+      {"step": 2, "action": "pickup 1", "observation": "Nothing to pick up."},
+      {"step": 3, "action": "fail", "observation": "Task timed out after 100 steps."}
+    ],
+    "validated": true,
+    "validation_details": "Trajectory structure valid; failure state confirmed."
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "task_id": "task_2",
+    "attempt_number": 2,
+    "failure_reason": "Failure detected: cannot pick up found in step. Observation: I cannot pick up the object.",
+    "action_log": [
+      {"step": 1, "action": "go to countertop 1", "observation": "Countertop is here."},
+      {"step": 2, "action": "pickup 2", "observation": "I cannot pick up the object."}
+    ],
+    "validated": true,
+    "validation_details": "Trajectory structure valid; interaction failure confirmed."
+  }
+]
+# Note: This file mirrors the validated failures as per T007a/T016 requirements.
+# It serves as the raw ground truth reference for validation independence.

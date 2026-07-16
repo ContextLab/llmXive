@@ -1,0 +1,426 @@
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Project requirements include transformers 4.35.0, torch 2.1.0, scipy
+    1.11.0, datasets 2.14.0, alfworld 1.1.0, pandas 2.1.0, pytest 7.4.0, ruff 0.1.0,
+    black 23.0.0
+  claim_id: c_eef90064
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002 task description.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python project with requirements.txt containing pinned versions:
+    transformers==4.35.0, torch==2.1.0, scipy==1.11.0, datasets==2.14.0, alfworld==1.1.0,
+    pandas==2.1.0, pytest==7.4.0, ruff==0.1.0, black==23.0.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T18:44:01Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Random seed defined as 42 for ALFWorld experiments
+  claim_id: c_2810d31d
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define SEED=42 in src/config/config.py with pinned random seeds, paths,
+    and ALFWorld hyperparameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:44:22Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: CPU-only execution constrained to maximum 7 GB RAM
+  claim_id: c_48f7fadc
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T009 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/config/cpu_config.yaml with CPU_DEVICE=true and MAX_RAM_GB=7
+    to enforce CPU-only execution constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:44:33Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Pre-experimental power analysis targets sample size of 500 with power
+    of 0.8 or greater
+  claim_id: c_cdf966c2
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T036a task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform pre-experimental power analysis for N=500 (single dataset processed\
+    \ into 3 conditions) with target power \u22650.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:44:57Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Dataset of 500 failed agent trajectories generated using Llama-8B
+  claim_id: c_5e12fa9a
+  context: 'Phase 3: User Story 1 - Generate and Validate Baseline Failure Trajectories
+    goal.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_of_500_failed_agent_trajectories_generated_using_Lla
+  kind: magnitude
+  raw_text: Generate a dataset of at least 500 failed agent trajectories in ALFWorld
+    using Llama-8B (Standard WIA).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:45:39Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Baseline failure dataset contains at least 500 entries
+  claim_id: c_716cd4d5
+  context: 'Phase 3: User Story 1 - Independent Test description.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_failure_dataset_contains_at_least_500_entries
+  kind: magnitude
+  raw_text: "Run the generation script and verify data/raw/baseline_failures.json\
+    \ contains \u2265500 entries with valid IDs, failure steps, and linked ground-truth\
+    \ transitions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:46:03Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Degraded condition cohort consists of 500 failed trajectories with WIA
+    horizon 0
+  claim_id: c_9e9defd1
+  context: 'Phase 4: User Story 2 - Execute Degraded World Model Condition goal.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulate the 'Degraded' condition (WIA horizon=0) by generating a fresh
+    cohort of 500 failed trajectories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:47:38Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 0
+  canonical: Project initialized with specific pinned dependency versions including
+    transformers 4.35.0 and torch 2.1.0
+  claim_id: c_b73b463e
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002 details the specific
+    package versions required for the Python project initialization.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python project with requirements.txt containing pinned versions:
+    transformers==4.35.0, torch==2.1.0, scipy==1.11.0, datasets==2.14.0, alfworld==1.1.0,
+    pandas==2.1.0, pytest==7.4.0, ruff==0.1.0, black==23.0.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T18:52:10Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Random seed defined as 42 for project configuration
+  claim_id: c_c94d5741
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T004 specifies the
+    random seed value for config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define SEED=42 in src/config/config.py with pinned random seeds, paths,
+    and ALFWorld hyperparameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:52:10Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: CPU-only execution configured with 7 GB RAM limit
+  claim_id: c_c15c26cc
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T009 specifies the
+    memory constraint and device configuration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/config/cpu_config.yaml with CPU_DEVICE=true and MAX_RAM_GB=7
+    to enforce CPU-only execution constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:52:10Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Pre-experimental power analysis conducted for sample size 500 with target
+    power 0.8
+  claim_id: c_aae460f3
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T036a describes
+    the parameters for the power analysis report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform pre-experimental power analysis for N=500 with target power >=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:52:35Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Dataset of 500 failed agent trajectories generated using Llama-8B
+  claim_id: c_7b970b6f
+  context: 'Phase 3: User Story 1 - Goal description states the requirement to generate
+    500 failed trajectories.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_of_500_failed_agent_trajectories_generated_using_Lla
+  kind: magnitude
+  raw_text: Generate a dataset of at least 500 failed agent trajectories in ALFWorld
+    using Llama-8B.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:52:36Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Baseline failures file verified to contain 500 entries with valid IDs
+    and ground-truth links
+  claim_id: c_f834a844
+  context: 'Phase 3: User Story 1 - Independent Test requirement specifies the minimum
+    count and validation criteria for the output file.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the generation script and verify data/raw/baseline_failures.json contains
+    >=500 entries with valid IDs, failure steps, and linked ground-truth transitions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:52:36Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Llama-3-8B-Instruct model loaded in CPU mode with 4-bit quantization
+  claim_id: c_d7059cb8
+  context: 'Phase 3: User Story 1 - Task T013 specifies the model and quantization
+    settings for trajectory generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load meta-llama/Llama-3-8B-Instruct in CPU mode with 4-bit quantized or
+    smaller model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:52:46Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Degraded condition simulated with WIA horizon 0 generating 500 failed
+    trajectories
+  claim_id: c_a5fcee12
+  context: 'Phase 4: User Story 2 - Goal description specifies the generation of a
+    fresh cohort of 500 trajectories under the Degraded condition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulate the 'Degraded' condition (WIA horizon=0) by generating a fresh
+    cohort of 500 failed trajectories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:52:46Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: WIA prediction horizon set to 0 for Degraded condition
+  claim_id: c_a293cc92
+  context: 'Phase 4: User Story 2 - Task T021 specifies the configuration parameter
+    for the Degraded condition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure WIA prediction horizon = 0 for the Degraded condition.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:53:33Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 0
+  canonical: Project dependencies pinned to transformers 4.35.0, torch 2.1.0, scipy
+    1.11.0, datasets 2.14.0, alfworld 1.1.0, pandas 2.1.0, pytest 7.4.0, ruff 0.1.0,
+    black 23.0.0
+  claim_id: c_f49c862f
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python project with requirements.txt containing pinned versions:
+    transformers==4.35.0, torch==2.1.0, scipy==1.11.0, datasets==2.14.0, alfworld==1.1.0,
+    pandas==2.1.0, pytest==7.4.0, ruff==0.1.0, black==23.0.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T18:57:30Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42 for ALFWorld hyperparameters
+  claim_id: c_e73fd409
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004'
+  evidence:
+    asserted: '42.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement src/config/config.py with pinned random seeds, paths, and ALFWorld
+    hyperparameters. Define SEED=42.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T18:57:30Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Maximum RAM constraint set to 7 GB for CPU-only execution
+  claim_id: c_2566ede1
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T009'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/config/cpu_config.yaml with MAX_RAM_GB=7 to enforce CPU-only
+    execution constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:57:40Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Pre-experimental power analysis targets sample size N=500 with power
+    >= 0.8
+  claim_id: c_ba6bc3fc
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T036a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform pre-experimental power analysis for N=500 with target power \u2265\
+    0.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:57:40Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Dataset of 500 failed agent trajectories generated in ALFWorld using
+    Llama-8B
+  claim_id: c_aa55a992
+  context: 'Phase 3: User Story 1 - Goal description'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_of_500_failed_agent_trajectories_generated_in_ALFWor
+  kind: magnitude
+  raw_text: Generate a dataset of at least 500 failed agent trajectories in ALFWorld
+    using Llama-8B (Standard WIA).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:57:42Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Fresh cohort of 500 failed trajectories generated for Degraded condition
+  claim_id: c_3b29cbd2
+  context: 'Phase 4: User Story 2 - Goal description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a fresh cohort of 500 failed trajectories for the Degraded condition.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:58:14Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: 'Three independent cohorts generated separately: Baseline, Degraded,
+    Intervention'
+  claim_id: c_8c0ac078
+  context: Notes - Cohorts
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Three_independent_cohorts_generated_separately:_Baseline,_De
+  kind: entity_fact
+  raw_text: Three independent cohorts (Baseline, Degraded, Intervention) must be generated
+    separately.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:58:42Z'

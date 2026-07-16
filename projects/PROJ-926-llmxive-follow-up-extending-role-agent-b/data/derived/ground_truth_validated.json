@@ -1,0 +1,16 @@
+{
+  "data": [],
+  "metadata": {
+    "generated_at": "2024-01-01T00:00:00.000000",
+    "seed": 42,
+    "source_raw_checksum": null,
+    "source_raw_log": "data/raw/ground_truth_raw.json",
+    "type": "validated_ground_truth",
+    "version": "1.0"
+  },
+  "validation_summary": {
+    "invalid_count": 0,
+    "total_entries": 0,
+    "valid_count": 0
+  }
+}
