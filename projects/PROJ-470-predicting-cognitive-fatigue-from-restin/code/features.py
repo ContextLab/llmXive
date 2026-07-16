@@ -1,385 +1,295 @@
-"""
-Feature extraction module for EEG complexity metrics.
-
-Calculates Lempel-Ziv Complexity (LZC) and Permutation Entropy (PE)
-per channel for preprocessed EEG segments.
-"""
 import os
 import sys
 import yaml
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import List, Tuple, Optional, Dict, Any
+from typing import List, Tuple, Dict, Any
 
-# Add parent directory to path for imports if running as script
-if 'code' in os.getcwd():
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-else:
-    sys.path.insert(0, os.path.join(os.getcwd(), 'code'))
-    
+# Importing local utilities
+sys.path.insert(0, str(Path(__file__).parent))
 from utils.logging import get_logger
 from models.complexity_metric import MetricType, ComplexityMetric
-from models.eeg_segment import EEGSegment
 
-# Try to import lempel-ziv-complexity package, fallback to manual implementation
+# Try to import lempel-ziv-complexity, fallback to manual implementation if missing
 try:
     from lempel_ziv_complexity import lempel_ziv_complexity
     HAS_LZC_PKG = True
 except ImportError:
     HAS_LZC_PKG = False
-    pass  # Will implement manual LZC below
-
-# Try to import npe (Permutation Entropy) package
-try:
-    from npe import permutation_entropy
-    HAS_NPE_PKG = True
-except ImportError:
-    HAS_NPE_PKG = False
-    pass  # Will implement manual PE below
-
-# Add manual implementations if packages are missing
-if not HAS_LZC_PKG:
-    def lempel_ziv_complexity(sequence, base=2):
+    # Manual implementation of Lempel-Ziv Complexity for binary sequences
+    def calculate_lzc_manual(binary_seq: List[int]) -> float:
         """
-        Calculate Lempel-Ziv Complexity for a binary or integer sequence.
-        
-        Args:
-            sequence: Input sequence (will be binarized if not already)
-            base: Base for complexity calculation (default 2)
-        
-        Returns:
-            float: Normalized LZC value
+        Calculates the Lempel-Ziv complexity of a binary sequence.
+        This is a fallback if the 'lempel-ziv-complexity' package is not installed.
         """
-        # Convert to string if not already
-        if not isinstance(sequence, str):
-            # Binarize: 1 if above median, 0 if below or equal
-            median_val = np.median(sequence)
-            binary_seq = ['1' if x > median_val else '0' for x in sequence]
-            sequence = ''.join(binary_seq)
+        if not binary_seq:
+            return 0.0
         
-        # LZC algorithm
-        n = len(sequence)
-        lzc = 0
-        i = 0
-        j = 1
-        k = 0
-        
-        while i + k < n:
-            if sequence[i:i+k+1] in sequence[j:i+k+1]:
-                k += 1
-            else:
-                if k == 0:
-                    lzc += 1
-                    i = j
-                    j = i + 1
-                    k = 0
-                else:
-                    lzc += 1
-                    j = i + k + 1
-                    i = j
-                    k = 0
-        
-        # Normalize
+        # Normalize complexity by length
+        n = len(binary_seq)
         if n == 0:
             return 0.0
-        c_max = n / np.log(base, n) if n > 1 else 1
-        return lzc / c_max if c_max > 0 else 0.0
-
-if not HAS_NPE_PKG:
-    def permutation_entropy(signal, order=3, delay=1):
-        """
-        Calculate Permutation Entropy of a time series.
         
-        Args:
-            signal: Input time series (1D array)
-            order: Embedding dimension (default 3)
-            delay: Time delay (default 1)
+        # LZ76 algorithm implementation
+        c = 1
+        l = 1
+        i = 0
+        j = 0
         
-        Returns:
-            float: Permutation entropy value (0 to log2(order!))
-        """
-        n = len(signal)
-        if n < order + (order - 1) * delay:
+        # Convert to string for easier slicing if not already
+        s = "".join(str(x) for x in binary_seq)
+        
+        while i + j + 1 < n:
+            # Check if s[i:i+j+1] is in s[0:i+j]
+            sub = s[i:i+j+1]
+            if sub in s[0:i+j]:
+                j += 1
+            else:
+                c += 1
+                i = i + j + 1
+                j = 0
+        
+        # Handle the last part
+        if j > 0:
+            c += 1
+        
+        # Normalization factor
+        # For binary sequences, the normalization factor is n / log2(n)
+        # However, standard LZC often uses a slightly different normalization
+        # to bound it between 0 and 1.
+        # Standard formula: LZC = c / (n / log2(n))
+        
+        if n <= 1:
             return 0.0
-        
-        # Count ordinal patterns
-        pattern_counts = {}
-        num_patterns = 0
-        
-        for i in range(n - (order - 1) * delay):
-            # Extract pattern
-            pattern = [signal[i + j * delay] for j in range(order)]
             
-            # Get ordinal pattern (ranks)
-            # Use argsort to get ranks
-            ranks = np.argsort(np.argsort(pattern))
-            pattern_tuple = tuple(ranks)
-            
-            pattern_counts[pattern_tuple] = pattern_counts.get(pattern_tuple, 0) + 1
-            num_patterns += 1
-        
-        if num_patterns == 0:
-            return 0.0
-        
-        # Calculate probabilities
-        probs = [count / num_patterns for count in pattern_counts.values()]
-        
-        # Calculate entropy
-        entropy = 0.0
-        for p in probs:
-            if p > 0:
-                entropy -= p * np.log2(p)
-        
-        return entropy
+        norm_factor = n / np.log2(n)
+        return c / norm_factor
 
 def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
     """Load configuration from YAML file."""
-    with open(config_path, 'r') as f:
+    with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-def calculate_lzc(signal: np.ndarray, base: int = 2) -> float:
+def calculate_lzc(signal: np.ndarray, threshold: float = None) -> float:
     """
-    Calculate Lempel-Ziv Complexity for a signal.
+    Calculate Lempel-Ziv Complexity for a given signal.
     
     Args:
-        signal: 1D numpy array of EEG values
-        base: Base for complexity calculation
+        signal: 1D numpy array of EEG data.
+        threshold: Threshold for binarization. If None, uses median.
     
     Returns:
-        float: Normalized LZC value
+        Normalized Lempel-Ziv complexity value.
     """
     if len(signal) == 0:
         return 0.0
     
-    try:
-        return lempel_ziv_complexity(signal, base)
-    except Exception as e:
-        logger = get_logger(__name__)
-        logger.warning(f"Error calculating LZC: {e}")
-        return float('nan')
+    # Binarize the signal
+    if threshold is None:
+        threshold = np.median(signal)
+    
+    binary_seq = (signal > threshold).astype(int).tolist()
+    
+    if HAS_LZC_PKG:
+        # Use the library function if available
+        # lempel_ziv_complexity returns a tuple (complexity, normalized_complexity)
+        # depending on version, but usually we want the normalized one
+        try:
+            lzc_val = lempel_ziv_complexity(binary_seq)
+            # The library might return a tuple or a single float depending on version
+            if isinstance(lzc_val, tuple):
+                return float(lzc_val[1]) # Return normalized
+            return float(lzc_val)
+        except Exception:
+            # Fallback to manual if library fails
+            return calculate_lzc_manual(binary_seq)
+    else:
+        return calculate_lzc_manual(binary_seq)
 
 def calculate_permutation_entropy(signal: np.ndarray, order: int = 3, delay: int = 1) -> float:
     """
-    Calculate Permutation Entropy for a signal.
+    Calculate Permutation Entropy for a given signal.
     
     Args:
-        signal: 1D numpy array of EEG values
-        order: Embedding dimension
-        delay: Time delay
+        signal: 1D numpy array of EEG data.
+        order: Order of permutation (number of elements in each pattern).
+        delay: Time delay between elements.
     
     Returns:
-        float: Permutation entropy value
+        Permutation entropy value.
     """
-    if len(signal) == 0:
+    if len(signal) < order * delay:
         return 0.0
     
-    try:
-        return permutation_entropy(signal, order, delay)
-    except Exception as e:
-        logger = get_logger(__name__)
-        logger.warning(f"Error calculating Permutation Entropy: {e}")
-        return float('nan')
+    n = len(signal)
+    # Number of patterns
+    num_patterns = n - (order - 1) * delay
+    
+    if num_patterns <= 0:
+        return 0.0
+    
+    # Extract patterns
+    patterns = []
+    for i in range(num_patterns):
+        pattern = [signal[i + j * delay] for j in range(order)]
+        # Get the rank order (permutation)
+        rank = sorted(range(order), key=lambda k: pattern[k])
+        patterns.append(tuple(rank))
+    
+    # Count frequencies
+    from collections import Counter
+    counts = Counter(patterns)
+    total = sum(counts.values())
+    
+    # Calculate entropy
+    entropy = 0.0
+    for count in counts.values():
+        if count > 0:
+            p = count / total
+            entropy -= p * np.log2(p)
+    
+    # Normalize by max entropy (log2(order!))
+    max_entropy = np.log2(np.math.factorial(order))
+    if max_entropy == 0:
+        return 0.0
+    
+    return entropy / max_entropy
 
-def process_eeg_segments(
-    eeg_data: np.ndarray,
-    metadata: Dict[str, Any],
-    config: Dict[str, Any],
-    logger: Any
-) -> Tuple[List[ComplexityMetric], List[ComplexityMetric]]:
+def process_eeg_segments(data_path: str, config: Dict[str, Any], logger) -> List[ComplexityMetric]:
     """
-    Process EEG segments to calculate LZC and Permutation Entropy.
+    Process EEG segments from a preprocessed data file.
     
     Args:
-        eeg_data: 2D numpy array (n_channels, n_samples)
-        metadata: Dictionary with channel names, participant IDs, etc.
-        config: Configuration dictionary
-        logger: Logger instance
+        data_path: Path to the preprocessed EEG data file (.npy).
+        config: Configuration dictionary.
+        logger: Logger instance.
     
     Returns:
-        Tuple of (LZC metrics list, PE metrics list)
+        List of ComplexityMetric objects.
     """
-    lzc_metrics = []
-    pe_metrics = []
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Preprocessed data file not found: {data_path}")
     
-    # Get parameters from config
-    lzc_base = config.get('lzc_base', 2)
-    pe_order = config.get('pe_order', 3)
-    pe_delay = config.get('pe_delay', 1)
+    logger.info(f"Loading preprocessed EEG data from {data_path}")
+    data = np.load(data_path, allow_pickle=True)
     
-    channel_names = metadata.get('channel_names', [f'CH{i}' for i in range(eeg_data.shape[0])])
-    participant_id = metadata.get('participant_id', 'unknown')
-    session_id = metadata.get('session_id', 'unknown')
+    # Expected format: dictionary or structured array with keys:
+    # 'data': (n_epochs, n_channels, n_samples)
+    # 'info': metadata (ch_names, sfreq, etc.)
+    # 'metadata': participant IDs, etc.
     
-    for i, channel_name in enumerate(channel_names):
-        if i >= eeg_data.shape[0]:
-            break
-        
-        channel_data = eeg_data[i, :]
-        
-        # Calculate LZC
-        lzc_value = calculate_lzc(channel_data, lzc_base)
-        lzc_metric = ComplexityMetric(
-            participant_id=participant_id,
-            session_id=session_id,
-            channel=channel_name,
-            metric_type=MetricType.LZC,
-            value=lzc_value,
-            parameters={'base': lzc_base}
-        )
-        lzc_metrics.append(lzc_metric)
-        
-        # Calculate Permutation Entropy
-        pe_value = calculate_permutation_entropy(channel_data, pe_order, pe_delay)
-        pe_metric = ComplexityMetric(
-            participant_id=participant_id,
-            session_id=session_id,
-            channel=channel_name,
-            metric_type=MetricType.PE,
-            value=pe_value,
-            parameters={'order': pe_order, 'delay': pe_delay}
-        )
-        pe_metrics.append(pe_metric)
-        
-        logger.info(f"Calculated metrics for {participant_id}/{channel_name}: "
-                   f"LZC={lzc_value:.4f}, PE={pe_value:.4f}")
+    if isinstance(data, dict):
+        eeg_data = data.get('data')
+        ch_names = data.get('ch_names', [f'CH{i}' for i in range(eeg_data.shape[1])])
+        sfreq = data.get('sfreq', 250.0)
+        metadata = data.get('metadata', {})
+    else:
+        # Fallback for simple numpy array
+        raise ValueError("Data must be a dictionary with 'data', 'ch_names', 'sfreq' keys.")
     
-    return lzc_metrics, pe_metrics
+    if eeg_data is None:
+        raise ValueError("No EEG data found in the file.")
+    
+    logger.info(f"Processing {eeg_data.shape[0]} epochs with {eeg_data.shape[1]} channels")
+    
+    metrics = []
+    lzc_order = config.get('features', {}).get('lzc_threshold', None)
+    pe_order = config.get('features', {}).get('pe_order', 3)
+    pe_delay = config.get('features', {}).get('pe_delay', 1)
+    
+    for epoch_idx in range(eeg_data.shape[0]):
+        epoch_data = eeg_data[epoch_idx] # (n_channels, n_samples)
+        
+        # Determine participant ID for this epoch
+        # Assuming metadata is a list of dicts or similar
+        if isinstance(metadata, list) and epoch_idx < len(metadata):
+            pid = metadata[epoch_idx].get('participant_id', f'S{epoch_idx}')
+        else:
+            pid = f'S{epoch_idx}'
+        
+        for ch_idx, ch_name in enumerate(ch_names):
+            signal = epoch_data[ch_idx]
+            
+            # Calculate LZC
+            lzc_val = calculate_lzc(signal, threshold=lzc_order)
+            metrics.append(ComplexityMetric(
+                participant_id=pid,
+                channel=ch_name,
+                epoch=epoch_idx,
+                metric_type=MetricType.LZC,
+                value=lzc_val
+            ))
+            
+            # Calculate PE
+            pe_val = calculate_permutation_entropy(signal, order=pe_order, delay=pe_delay)
+            metrics.append(ComplexityMetric(
+                participant_id=pid,
+                channel=ch_name,
+                epoch=epoch_idx,
+                metric_type=MetricType.PE,
+                value=pe_val
+            ))
+    
+    logger.info(f"Generated {len(metrics)} complexity metrics")
+    return metrics
 
-def save_metrics_to_csv(
-    metrics: List[ComplexityMetric],
-    output_path: str,
-    metric_type: MetricType
-) -> bool:
+def save_metrics_to_csv(metrics: List[ComplexityMetric], output_path: str, metric_type: MetricType):
     """
-    Save complexity metrics to a CSV file.
+    Save a list of ComplexityMetrics to a CSV file.
     
     Args:
-        metrics: List of ComplexityMetric objects
-        output_path: Path to output CSV file
-        metric_type: Type of metric being saved
-    
-    Returns:
-        bool: True if successful, False otherwise
+        metrics: List of ComplexityMetric objects.
+        output_path: Path to the output CSV file.
+        metric_type: Type of metric to filter (LZC or PE).
     """
-    if not metrics:
-        logger = get_logger(__name__)
-        logger.warning(f"No metrics to save for {metric_type}")
-        return False
+    filtered_metrics = [m for m in metrics if m.metric_type == metric_type]
     
-    # Create DataFrame
-    data = []
-    for m in metrics:
-        data.append({
-            'participant_id': m.participant_id,
-            'session_id': m.session_id,
-            'channel': m.channel,
-            'metric_type': m.metric_type.value,
-            'value': m.value,
-            **m.parameters
-        })
+    if not filtered_metrics:
+        raise ValueError(f"No metrics of type {metric_type} found to save.")
+    
+    data = {
+        'participant_id': [m.participant_id for m in filtered_metrics],
+        'channel': [m.channel for m in filtered_metrics],
+        'epoch': [m.epoch for m in filtered_metrics],
+        'value': [m.value for m in filtered_metrics]
+    }
     
     df = pd.DataFrame(data)
-    
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-    
-    # Save to CSV
     df.to_csv(output_path, index=False)
-    
-    logger = get_logger(__name__)
-    logger.info(f"Saved {len(metrics)} {metric_type.value} metrics to {output_path}")
-    
-    return True
+    print(f"Saved {len(filtered_metrics)} {metric_type.value} metrics to {output_path}")
 
 def main():
-    """Main entry point for feature extraction pipeline."""
-    logger = get_logger(__name__)
+    """Main entry point for feature extraction."""
+    config = load_config()
+    logger = get_logger("features")
+    
+    input_path = config.get('paths', {}).get('preprocessed_data', 'data/processed/preprocessed_eeg.npy')
+    lzc_output = config.get('paths', {}).get('lzc_metrics', 'data/processed/lzc_metrics.csv')
+    pe_output = config.get('paths', {}).get('pe_metrics', 'data/processed/pe_metrics.csv')
+    
     logger.info("Starting feature extraction pipeline")
-    
-    # Load configuration
-    try:
-        config = load_config()
-    except Exception as e:
-        logger.error(f"Failed to load config: {e}")
-        sys.exit(1)
-    
-    # Input and output paths
-    input_path = config.get('preprocessed_eeg_path', 'data/processed/preprocessed_eeg.npy')
-    lzc_output_path = config.get('lzc_output_path', 'data/processed/lzc_metrics.csv')
-    pe_output_path = config.get('pe_output_path', 'data/processed/pe_metrics.csv')
-    metadata_path = config.get('metadata_path', 'data/processed/metadata.json')
-    
     logger.info(f"Input: {input_path}")
-    logger.info(f"Output LZC: {lzc_output_path}")
-    logger.info(f"Output PE: {pe_output_path}")
-    
-    # Load preprocessed EEG data
-    if not os.path.exists(input_path):
-        logger.error(f"Data file not found: {input_path}")
-        sys.exit(1)
+    logger.info(f"Output LZC: {lzc_output}")
+    logger.info(f"Output PE: {pe_output}")
     
     try:
-        eeg_data = np.load(input_path, allow_pickle=True)
-        # Handle case where data is stored as object array
-        if eeg_data.ndim == 0 or (eeg_data.ndim == 1 and isinstance(eeg_data[0], dict)):
-            # Try to extract from object array
-            if eeg_data.ndim == 0:
-                data_obj = eeg_data.item()
-                eeg_data = data_obj.get('data')
-                metadata = data_obj.get('metadata', {})
-            else:
-                # Array of dicts
-                first_item = eeg_data[0]
-                eeg_data = first_item.get('data') if isinstance(first_item, dict) else None
-                metadata = first_item.get('metadata', {}) if isinstance(first_item, dict) else {}
-        else:
-            metadata = {}
+        metrics = process_eeg_segments(input_path, config, logger)
+        
+        # Save LZC metrics
+        save_metrics_to_csv(metrics, lzc_output, MetricType.LZC)
+        
+        # Save PE metrics
+        save_metrics_to_csv(metrics, pe_output, MetricType.PE)
+        
+        logger.info("Feature extraction completed successfully")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data file not found: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Failed to load EEG data: {e}")
+        logger.error(f"Error during feature extraction: {e}")
         sys.exit(1)
-    
-    if eeg_data is None or eeg_data.size == 0:
-        logger.error("No valid EEG data found")
-        sys.exit(1)
-    
-    logger.info(f"Loaded EEG data: shape={eeg_data.shape}")
-    
-    # Load metadata if available
-    if os.path.exists(metadata_path):
-        try:
-            with open(metadata_path, 'r') as f:
-                metadata.update(json.load(f))
-        except Exception as e:
-            logger.warning(f"Failed to load metadata: {e}")
-    else:
-        logger.info("No metadata file found, using defaults")
-    
-    # Ensure channel names exist in metadata
-    if 'channel_names' not in metadata:
-        metadata['channel_names'] = [f'CH{i}' for i in range(eeg_data.shape[0])]
-    
-    if 'participant_id' not in metadata:
-        metadata['participant_id'] = 'unknown'
-    
-    if 'session_id' not in metadata:
-        metadata['session_id'] = 'unknown'
-    
-    # Process segments
-    lzc_metrics, pe_metrics = process_eeg_segments(eeg_data, metadata, config, logger)
-    
-    # Save results
-    if not save_metrics_to_csv(lzc_metrics, lzc_output_path, MetricType.LZC):
-        logger.error("Failed to save LZC metrics")
-        sys.exit(1)
-    
-    if not save_metrics_to_csv(pe_metrics, pe_output_path, MetricType.PE):
-        logger.error("Failed to save PE metrics")
-        sys.exit(1)
-    
-    logger.info("Feature extraction completed successfully")
 
 if __name__ == "__main__":
     main()
