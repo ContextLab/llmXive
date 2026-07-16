@@ -1,13 +1,12 @@
 T003:
   c: true
-  h: 209246acbe12e9339122b4ce4205da76fb03a77177be4b1df927e026da6eeb1a
-  r: "The file `code/.pre-commit-config.yaml` exists, is non\u2011empty, and configures\
-    \ Black for formatting and Ruff (a linting tool that can replace Flake8) with\
-    \ fixing and formatting hooks, satisfying the requested linting/formatting setup.\
-    \ No required artifact is missing."
+  h: ea750582f84ae8e36f9185222e6d72c9aef4339b8835ae12d783921e88c0325d
+  r: "The file `code/.pre-commit-config.yaml` exists (272\u202Fbytes) and contains\
+    \ Black and Ruff hook configurations, fulfilling the requirement to set up linting\
+    \ (ruff) and formatting (black) tools. No missing or placeholder content was found."
 T003a:
   c: true
-  h: 209246acbe12e9339122b4ce4205da76fb03a77177be4b1df927e026da6eeb1a
+  h: ea750582f84ae8e36f9185222e6d72c9aef4339b8835ae12d783921e88c0325d
   r: "The file `code/.pre-commit-config.yaml` is present, non\u2011empty, and correctly\
     \ defines black and ruff hooks as required. No missing or placeholder content\
     \ was found."

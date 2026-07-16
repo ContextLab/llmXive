@@ -1,18 +1,17 @@
 {
   "project_id": "PROJ-332-exploring-the-influence-of-network-topol",
   "ok": false,
-  "reason": "3 command(s) failed: python code/main.py --run-single --seed 42 (rc=1); python code/main.py --run-grid (rc=1); python code/main.py --sensitivity-only (rc=1)",
+  "reason": "2 command(s) failed: python code/main.py --run-single --seed 42 (rc=1); python code/main.py --run-grid (rc=1); 1 declared deliverable(s) absent: data/processed/simulation_results.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py --run-single --seed 42 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 13, in <module>\n    from generate_networks import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/generate_networks.py\", line 63, in <module>\n    def generate_network_grid(N_values: List[int], p_values: List[float], degree_values: List[int], seeds: List[int]) -> List[Dict[str, Any]]:\n                                        ^^^^",
-    "python code/main.py --run-grid -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 13, in <module>\n    from generate_networks import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/generate_networks.py\", line 63, in <module>\n    def generate_network_grid(N_values: List[int], p_values: List[float], degree_values: List[int], seeds: List[int]) -> List[Dict[str, Any]]:\n                                        ^^^^\nNameError: ",
-    "python code/main.py --sensitivity-only -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 13, in <module>\n    from generate_networks import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/generate_networks.py\", line 63, in <module>\n    def generate_network_grid(N_values: List[int], p_values: List[float], degree_values: List[int], seeds: List[int]) -> List[Dict[str, Any]]:\n                                        ^^^^\nNam"
+    "python code/main.py --run-single --seed 42 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 223, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 200, in main\n    result = run_single_simulation(config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 97, in run_single_si",
+    "python code/main.py --run-grid -> rc=1\n    0606 to achieve target degree 6 for N=100\n2026-07-16 00:11:52,820 - generate_networks - INFO - Adjusting p=0.0606 to achieve target degree 6 for N=100\n2026-07-16 00:11:52,821 - generate_networks - INFO - Adjusting p=0.0606 to achieve target degree 6 for N=100\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 223, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-15T23:40:03Z"
+  "updated_at": "2026-07-16T00:11:55Z"
 }

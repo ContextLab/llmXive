@@ -17,6 +17,7 @@ class SimulationConfig:
     material: str = "Si"
     bulk_conductivity: float = 149.0
     diameter: float = 50.0  # nm
+    length: float = 200.0   # nm
     N_values: List[int] = field(default_factory=lambda: [50, 100])
     p_values: List[float] = field(default_factory=lambda: [0.05, 0.1, 0.2])
     degree_values: List[int] = field(default_factory=lambda: [2, 4, 6])
@@ -59,7 +60,8 @@ def load_config(config_path: Optional[str] = None) -> SimulationConfig:
         'SIM_TARGET_DEGREE': 'target_degree',
         'SIM_MATERIAL': 'material',
         'SIM_BULK_K': 'bulk_conductivity',
-        'SIM_DIAMETER': 'diameter'
+        'SIM_DIAMETER': 'diameter',
+        'SIM_LENGTH': 'length'
     }
     
     for env_key, attr_key in env_map.items():
@@ -87,5 +89,6 @@ def get_simulation_parameters(config: SimulationConfig) -> Dict[str, Any]:
         'target_degree': config.target_degree,
         'material': config.material,
         'bulk_conductivity': config.bulk_conductivity,
-        'diameter': config.diameter
+        'diameter': config.diameter,
+        'length': config.length
     }
