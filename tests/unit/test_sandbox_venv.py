@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from llmxive import sandbox
 
 
@@ -84,3 +86,36 @@ def test_ensure_venv_tolerates_a_bad_requirement_line(tmp_path: Path) -> None:
     )
     assert res.ok, res.stderr
     assert "venv-ok" in res.stdout
+
+
+@pytest.mark.slow
+def test_ensure_venv_installs_abi_consistent_scipy_stack(tmp_path: Path) -> None:
+    """Issue #1139 RC-C: an unpinned scientific stack alongside a bad line must
+    land an ABI-CONSISTENT numpy/pandas set — the old per-package fallback could
+    install numpy 2.x next to a pandas wheel built for numpy 1.x, breaking with
+    `cannot import name '__version__' from numpy` / `pandas.compat.numpy` (the
+    PROJ-262/300 ABI stall). Prune-and-rebatch reconciles the survivors in one
+    resolver pass. Real install; verifies numpy and pandas import AND interoperate.
+    """
+    proj = tmp_path / "projects" / "PROJ-ABICONSISTENT"
+    (proj / "code").mkdir(parents=True)
+    (proj / "code" / "requirements.txt").write_text(
+        "numpy\npandas\nllmxive-nonexistent-package-zzz999  # bogus, must be skipped\n",
+        encoding="utf-8",
+    )
+    py = sandbox.ensure_venv(proj)  # must not raise despite the bad line
+    assert py.exists()
+    # numpy AND pandas import and INTEROPERATE — proves the ABI is consistent
+    # (a numpy/pandas ABI skew raises on `import pandas` or on DataFrame creation).
+    res = sandbox.run_in_venv(
+        project_dir=proj,
+        args=[
+            "-c",
+            "import numpy, pandas; "
+            "df = pandas.DataFrame(numpy.arange(6).reshape(2, 3)); "
+            "print('abi-ok', df.to_numpy().sum())",
+        ],
+        timeout_s=600,
+    )
+    assert res.ok, res.stderr
+    assert "abi-ok 15" in res.stdout
