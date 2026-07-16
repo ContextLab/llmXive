@@ -1,0 +1,14 @@
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+scikit-learn>=1.2.0
+pyyaml>=6.0
+requests>=2.28.0
+biom-format>=2.1.14
+datasets>=2.14.0
+huggingface_hub>=0.16.0
+python-dotenv>=1.0.0
+ruff>=0.0.280
+black>=23.0.0
+pytest>=7.0.0
+pytest-cov>=4.0.0

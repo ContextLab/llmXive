@@ -1,0 +1,1151 @@
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Fetch data from HuggingFace dataset biothings/srp053178_processed for
+    accession SRP053178
+  claim_id: c_ba11d29b
+  context: 'Task T011a: Implement Strategy A: Fetch pre-processed OTU table and serology
+    metadata from HuggingFace dataset biothings/srp053178_processed (files: ''otutable.csv'',
+    ''metadata.csv'') for accession SRP053178.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_data_from_HuggingFace_dataset_biothings/srp053178_proc
+  kind: entity_fact
+  raw_text: 'Fetch pre-processed OTU table and serology metadata from HuggingFace
+    dataset ''biothings/srp053178_processed'' (files: ''otutable.csv'', ''metadata.csv'')
+    for accession SRP053178.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:50:00Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Download raw FASTQ files from NCBI SRA for accession SRP053178
+  claim_id: c_f88bf8e2
+  context: 'Task T011b: Implement Strategy B: Download raw FASTQ files from NCBI SRA
+    for SRP053178 by fetching all run IDs associated with the accession if Strategy
+    A fails.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_raw_FASTQ_files_from_NCBI_SRA_for_accession_SRP0531
+  kind: entity_fact
+  raw_text: Download raw FASTQ files from NCBI SRA for SRP053178 by fetching all run
+    IDs associated with the accession if Strategy A fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:50:22Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Run 16S pipeline with truncLen=240 and chimeraMethod=pooled on raw FASTQ
+  claim_id: c_77fb0247
+  context: 'Task T011c: Implement Strategy B: Run 16S processing pipeline (QIIME2
+    or DADA2 via Docker bioconductor/dada2 with parameters truncLen=240, chimeraMethod=pooled)
+    on raw FASTQ to generate OTU table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 16S processing pipeline (QIIME2 or DADA2 via Docker bioconductor/dada2)
+    with parameters truncLen=240 and chimeraMethod=pooled on raw FASTQ to generate
+    OTU table.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:50:57Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with titer_hai below 1:10
+  claim_id: c_cf226605
+  context: 'Task T013: Implement exclusion logic for subjects with titers below limit
+    of detection (value = 1:10, column = titer_hai) in code/01_ingest.py and log the
+    exclusion count and choice in the documentation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude subjects with titers below limit of detection (value = 1:10, column
+    = titer_hai).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:51:16Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Raise error if sample size N is less than 50
+  claim_id: c_e95924a0
+  context: 'Task T014: Implement sample size validation in code/01_ingest.py: Calculate
+    N (count of subjects with complete data), log N, and raise ValueError(''ERR_NO_DATA:
+    Insufficient Sample Size (N < 50)'') if N < 50.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_error_if_sample_size_N_is_less_than_50
+  kind: magnitude
+  raw_text: Raise ValueError if N < 50 where N is the count of subjects with complete
+    data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:52:07Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Use pseudocount 1e-6 for CLR transformation
+  claim_id: c_42ec99a1
+  context: 'Task T020: Implement Centered Log-Ratio (CLR) transformation in code/02_preprocess.py
+    (handle zeros with pseudocount = 1e-6).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle zeros with pseudocount = 1e-6 in Centered Log-Ratio (CLR) transformation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:52:22Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Define seroconversion as 4-fold rise in titer
+  claim_id: c_326a6c09
+  context: "Task T030a: Implement seroconversion logic (\u22654-fold rise in titer)\
+    \ in code/04_modeling.py using columns titer_baseline and titer_post with formula\
+    \ post / pre >= 4."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define seroconversion as a \u22654-fold rise in titer using formula post\
+    \ / pre >= 4."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:52:55Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Define absolute titer threshold as HAI 40
+  claim_id: c_ad9d0969
+  context: "Task T030b: Implement absolute titer logic (e.g., HAI \u2265 40) in code/04_modeling.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define absolute titer threshold as HAI \u2265 40."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:52:55Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Generate null distribution with 1000 permutations and seed 42
+  claim_id: c_4c688c74
+  context: 'Task T034a: Implement permutation baseline testing: Generate null distribution
+    of accuracy scores by permuting microbiome rows relative to serology labels (feature
+    permutation) 1000 times with random_seed=42 in code/04_modeling.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate null distribution of accuracy scores by permuting microbiome
+    rows relative to serology labels 1000 times with random_seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:53:10Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Tasks must run on CPU-only runners with 7GB RAM and 6h limit
+  claim_id: c_ea3887cd
+  context: "Notes: Critical Constraint: All tasks must run on CPU-only GitHub Actions\
+    \ free-tier runners (\u22647GB RAM, \u22646h). No GPU, no 8-bit quantization."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_must_run_on_CPU-only_runners_with_7GB_RAM_and_6h_limit
+  kind: entity_fact
+  raw_text: "All tasks must run on CPU-only GitHub Actions free-tier runners with\
+    \ \u22647GB RAM and \u22646h duration."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:53:41Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Fetch data from biothings/srp053178_processed for accession SRP053178
+  claim_id: c_72c7d241
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation. Strategy A: Primary
+    Data Fetch.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_data_from_biothings/srp053178_processed_for_accession
+  kind: entity_fact
+  raw_text: 'Implement Strategy A: Fetch pre-processed OTU table and serology metadata
+    from HuggingFace dataset ''biothings/srp053178_processed'' (files: ''otutable.csv'',
+    ''metadata.csv'') for accession SRP053178.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:57:47Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Download raw FASTQ files from NCBI SRA for accession SRP053178
+  claim_id: c_7d08fb0e
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation. Strategy A: Primary
+    Data Fetch.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_raw_FASTQ_files_from_NCBI_SRA_for_accession_SRP0531
+  kind: entity_fact
+  raw_text: 'Implement Strategy B: Download raw FASTQ files from NCBI SRA for SRP053178
+    by fetching all run IDs associated with the accession if Strategy A fails.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:58:11Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Run 16S pipeline with truncLen=240 and chimeraMethod=pooled
+  claim_id: c_476b14fd
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation. Strategy A: Primary
+    Data Fetch.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement Strategy B: Run 16S processing pipeline (QIIME2 or DADA2 via
+    Docker ''bioconductor/dada2'' with parameters ''truncLen=240'', ''chimeraMethod=pooled'')
+    on raw FASTQ to generate OTU table.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:58:32Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Define seroconversion as 4-fold rise in titer
+  claim_id: c_5052fc38
+  context: 'Phase 5: User Story 3 - Predictive Modeling and Nested Cross-Validation.
+    Implementation for User Story 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement seroconversion logic (\u22654-fold rise in titer) using columns\
+    \ 'titer_baseline' and 'titer_post' with formula 'post / pre >= 4'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:59:13Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Define absolute titer responder threshold as HAI >= 40
+  claim_id: c_8b764e62
+  context: 'Phase 5: User Story 3 - Predictive Modeling and Nested Cross-Validation.
+    Implementation for User Story 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement absolute titer logic (e.g., HAI \u2265 40) in 'code/04_modeling.py'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:59:13Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Generate null distribution with 1000 permutations and seed 42
+  claim_id: c_98d56dbe
+  context: 'Phase 5: User Story 3 - Predictive Modeling and Nested Cross-Validation.
+    Implementation for User Story 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement permutation baseline testing: Generate null distribution of
+    accuracy scores by permuting microbiome rows relative to serology labels (feature
+    permutation) 1000 times with ''random_seed=42''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:59:29Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Perform threshold sweep with +/- 10% variation
+  claim_id: c_b2304d7a
+  context: 'Phase 5: User Story 3 - Predictive Modeling and Nested Cross-Validation.
+    Implementation for User Story 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate threshold sweep (\xB110% of defined cutoff) and re-run model\
+    \ training for each threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:59:29Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Tasks must run on CPU-only GitHub Actions runners with <= 7GB RAM and
+    <= 6 hours duration
+  claim_id: c_a3643765
+  context: Notes section of the document.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU-only GitHub Actions free-tier runners (\u2264\
+    7GB RAM, \u22646h)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:59:29Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Fetch SRP053178 data from biothings/srp053178_processed on HuggingFace
+  claim_id: c_774d1b17
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation, Strategy A: Primary
+    Data Fetch'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_SRP053178_data_from_biothings/srp053178_processed_on_H
+  kind: entity_fact
+  raw_text: 'Fetch pre-processed OTU table and serology metadata from HuggingFace
+    dataset ''biothings/srp053178_processed'' (files: ''otutable.csv'', ''metadata.csv'')
+    for accession SRP053178.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:08:53Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Download SRP053178 raw FASTQ files from NCBI SRA
+  claim_id: c_57e1d3c3
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation, Strategy A: Primary
+    Data Fetch'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_SRP053178_raw_FASTQ_files_from_NCBI_SRA
+  kind: entity_fact
+  raw_text: Download raw FASTQ files from NCBI SRA for SRP053178 by fetching all run
+    IDs associated with the accession if Strategy A fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:08:55Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Run DADA2 pipeline with truncLen=240 and chimeraMethod=pooled
+  claim_id: c_b035b2df
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation, Strategy A: Primary
+    Data Fetch'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 16S processing pipeline (QIIME2 or DADA2 via Docker 'bioconductor/dada2'
+    with parameters 'truncLen=240', 'chimeraMethod=pooled') on raw FASTQ to generate
+    OTU table.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:09:12Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Verify output CSV contains at least 50 rows with no nulls
+  claim_id: c_965f3661
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation, Independent Test
+    description'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_CSV_contains_at_least_50_rows_with_no_nulls
+  kind: magnitude
+  raw_text: "Verify the output CSV contains exactly N rows (N \u2265 50) with no nulls\
+    \ in required columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:10:03Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with titer_hai below 1:10
+  claim_id: c_b00dbcdd
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation, Strategy B: Dynamic
+    Sampling & Filtering'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude subjects with titers below limit of detection (value = 1:10, column
+    = 'titer_hai').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:10:03Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Raise error if sample size is less than 50
+  claim_id: c_d0e49660
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation, Strategy B: Dynamic
+    Sampling & Filtering'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_error_if_sample_size_is_less_than_50
+  kind: magnitude
+  raw_text: Raise ValueError if N < 50 after filtering and before sampling.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:10:51Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Use 1e-6 pseudocount for CLR transformation
+  claim_id: c_9af77610
+  context: 'Phase 4: User Story 2 - Correlation Analysis and Multiple Testing Correction,
+    Implementation for User Story 2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle zeros with pseudocount = 1e-6 in Centered Log-Ratio (CLR) transformation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:10:51Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Define seroconversion as 4-fold rise in titer
+  claim_id: c_d482b6d5
+  context: 'Phase 5: User Story 3 - Predictive Modeling and Nested Cross-Validation,
+    Implementation for User Story 3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement seroconversion logic (\u22654-fold rise in titer) using formula\
+    \ 'post / pre >= 4'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:11:08Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Define responder as HAI titer greater than or equal to 40
+  claim_id: c_418c25a7
+  context: 'Phase 5: User Story 3 - Predictive Modeling and Nested Cross-Validation,
+    Implementation for User Story 3'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_responder_as_HAI_titer_greater_than_or_equal_to_40
+  kind: magnitude
+  raw_text: "Implement absolute titer logic (e.g., HAI \u2265 40)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:11:31Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Generate null distribution with 1000 permutations using random seed 42
+  claim_id: c_b4a6ce0f
+  context: 'Phase 5: User Story 3 - Predictive Modeling and Nested Cross-Validation,
+    Implementation for User Story 3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate null distribution of accuracy scores by permuting microbiome
+    rows relative to serology labels 1000 times with 'random_seed=42'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:11:31Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Perform threshold sweep of plus or minus 10 percent
+  claim_id: c_b8779f03
+  context: 'Phase 5: User Story 3 - Predictive Modeling and Nested Cross-Validation,
+    Implementation for User Story 3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate threshold sweep (\xB110% of defined cutoff) and re-run model\
+    \ training for each threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:11:31Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Run on GitHub Actions free-tier with 7GB RAM and 6 hour time limit
+  claim_id: c_87c95ba1
+  context: Notes section, Critical Constraint
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU-only GitHub Actions free-tier runners (\u2264\
+    7GB RAM, \u22646h)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:11:31Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Fetch data from HuggingFace dataset biothings/srp053178_processed for
+    accession SRP053178
+  claim_id: c_74d41490
+  context: 'Implement Strategy A: Fetch pre-processed OTU table and serology metadata
+    from HuggingFace dataset biothings/srp053178_processed (files: otutable.csv, metadata.csv)
+    for accession SRP053178.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_data_from_HuggingFace_dataset_biothings/srp053178_proc
+  kind: entity_fact
+  raw_text: 'Fetch pre-processed OTU table and serology metadata from HuggingFace
+    dataset biothings/srp053178_processed (files: otutable.csv, metadata.csv) for
+    accession SRP053178.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:13:02Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Download raw FASTQ files from NCBI SRA for accession SRP053178
+  claim_id: c_31ea9aec
+  context: 'Implement Strategy B: Download raw FASTQ files from NCBI SRA for SRP053178
+    by fetching all run IDs associated with the accession if Strategy A fails.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_raw_FASTQ_files_from_NCBI_SRA_for_accession_SRP0531
+  kind: entity_fact
+  raw_text: Download raw FASTQ files from NCBI SRA for SRP053178 by fetching all run
+    IDs associated with the accession.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:13:33Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Run 16S processing pipeline with truncLen=240 and chimeraMethod=pooled
+    on raw FASTQ
+  claim_id: c_37019589
+  context: 'Implement Strategy B: Run 16S processing pipeline (QIIME2 or DADA2 via
+    Docker bioconductor/dada2 with parameters truncLen=240, chimeraMethod=pooled)
+    on raw FASTQ to generate OTU table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 16S processing pipeline (QIIME2 or DADA2 via Docker bioconductor/dada2
+    with parameters truncLen=240, chimeraMethod=pooled) on raw FASTQ to generate OTU
+    table.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:13:33Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Sample size validation requires N >= 50
+  claim_id: c_e2403bc4
+  context: 'Implement sample size validation in code/01_ingest.py: Calculate N (count
+    of subjects with complete data), log N, and raise ValueError("ERR_NO_DATA: Insufficient
+    Sample Size (N < 50)") if N < 50.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement sample size validation: Calculate N (count of subjects with
+    complete data), log N, and raise ValueError if N < 50.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:13:33Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with titers below 1:10 in titer_hai column
+  claim_id: c_8db28092
+  context: Implement exclusion logic for subjects with titers below limit of detection
+    (value = 1:10, column = titer_hai) in code/01_ingest.py and log the exclusion
+    count and choice in the documentation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude subjects with titers below limit of detection (value = 1:10, column
+    = titer_hai).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:13:34Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: CLR transformation uses pseudocount 1e-6
+  claim_id: c_ea9772de
+  context: Implement Centered Log-Ratio (CLR) transformation in code/02_preprocess.py
+    (handle zeros with pseudocount = 1e-6).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle zeros with pseudocount = 1e-6 in Centered Log-Ratio (CLR) transformation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:13:34Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Seroconversion defined as post/pre >= 4
+  claim_id: c_638f8b6e
+  context: "Implement seroconversion logic (\u22654-fold rise in titer) in code/04_modeling.py\
+    \ using columns titer_baseline and titer_post with formula post / pre >= 4."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement seroconversion logic (\u22654-fold rise in titer) using formula\
+    \ post / pre >= 4."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:13:34Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Absolute titer logic uses threshold HAI >= 40
+  claim_id: c_15bca9ff
+  context: "Implement absolute titer logic (e.g., HAI \u2265 40) in code/04_modeling.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement absolute titer logic (e.g., HAI \u2265 40)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:13:34Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Generate null distribution via 1000 permutations with random_seed=42
+  claim_id: c_85ad7e1a
+  context: 'Implement permutation baseline testing: Generate null distribution of
+    accuracy scores by permuting microbiome rows relative to serology labels (feature
+    permutation) 1000 times with random_seed=42 in code/04_modeling.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate null distribution of accuracy scores by permuting microbiome
+    rows relative to serology labels 1000 times with random_seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:13:34Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Runtime must be less than 21600 seconds
+  claim_id: c_affe99b0
+  context: Implement runtime monitoring in code/utils.py to log total runtime to data/results/resource_usage.json
+    and assert < 21600s
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_must_be_less_than_21600_seconds
+  kind: magnitude
+  raw_text: Assert runtime < 21600s in runtime monitoring.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:13:55Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Ingestion script must produce at least 50 rows with no nulls in required
+    columns
+  claim_id: c_8e621df3
+  context: "Independent Test: The system can be tested by running the ingestion script\
+    \ against a known valid subset and verifying the output CSV contains exactly N\
+    \ rows (N \u2265 50) with no nulls in required columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingestion_script_must_produce_at_least_50_rows_with_no_nulls
+  kind: magnitude
+  raw_text: "The system can be tested by running the ingestion script against a known\
+    \ valid subset and verifying the output CSV contains exactly N rows (N \u2265\
+    \ 50) with no nulls in required columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:19:04Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pre-processed data available at biothings/srp053178_processed for accession
+    SRP053178
+  claim_id: c_69c72957
+  context: 'Implement Strategy A: Fetch pre-processed OTU table and serology metadata
+    from HuggingFace dataset biothings/srp053178_processed (files: otutable.csv, metadata.csv)
+    for accession SRP053178.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pre-processed_data_available_at_biothings/srp053178_processe
+  kind: entity_fact
+  raw_text: 'Fetch pre-processed OTU table and serology metadata from HuggingFace
+    dataset biothings/srp053178_processed (files: otutable.csv, metadata.csv) for
+    accession SRP053178.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:19:06Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Raw FASTQ files for accession SRP053178 available from NCBI SRA
+  claim_id: c_d02c4997
+  context: 'Implement Strategy B: Download raw FASTQ files from NCBI SRA for SRP053178
+    by fetching all run IDs associated with the accession if Strategy A fails.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raw_FASTQ_files_for_accession_SRP053178_available_from_NCBI
+  kind: entity_fact
+  raw_text: Download raw FASTQ files from NCBI SRA for SRP053178 by fetching all run
+    IDs associated with the accession if Strategy A fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:19:08Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: 16S processing parameters truncLen=240 and chimeraMethod=pooled for DADA2
+  claim_id: c_89a382a0
+  context: 'Implement Strategy B: Run 16S processing pipeline (QIIME2 or DADA2 via
+    Docker bioconductor/dada2 with parameters truncLen=240, chimeraMethod=pooled)
+    on raw FASTQ to generate OTU table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 16S processing pipeline (QIIME2 or DADA2 via Docker bioconductor/dada2
+    with parameters truncLen=240, chimeraMethod=pooled) on raw FASTQ to generate OTU
+    table.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:19:08Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Limit of detection for titer_hai is 1:10
+  claim_id: c_2f42ffe2
+  context: Implement exclusion logic for subjects with titers below limit of detection
+    (value = 1:10, column = titer_hai) in code/01_ingest.py and log the exclusion
+    count and choice in the documentation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exclusion logic for subjects with titers below limit of detection
+    (value = 1:10, column = titer_hai) in code/01_ingest.py and log the exclusion
+    count and choice in the documentation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:19:21Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Minimum sample size required is 50 subjects
+  claim_id: c_bae58bef
+  context: 'Implement sample size validation in code/01_ingest.py: Calculate N (count
+    of subjects with complete data), log N, and raise ValueError(''ERR_NO_DATA: Insufficient
+    Sample Size (N < 50)'') if N < 50. Note: This check occurs AFTER filtering and
+    BEFORE any sampling logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement sample size validation in code/01_ingest.py: Calculate N (count
+    of subjects with complete data), log N, and raise ValueError(''ERR_NO_DATA: Insufficient
+    Sample Size (N < 50)'') if N < 50.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:19:59Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Zero-variance taxa excluded before transformation
+  claim_id: c_d7c6a013
+  context: 'Implement zero-variance taxa exclusion in code/02_preprocess.py: Filter
+    out taxa with negligible variance across all subjects BEFORE transformation to
+    avoid division-by-zero.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zero-variance_taxa_excluded_before_transformation
+  kind: entity_fact
+  raw_text: 'Implement zero-variance taxa exclusion in code/02_preprocess.py: Filter
+    out taxa with negligible variance across all subjects BEFORE transformation to
+    avoid division-by-zero.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:20:24Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: CLR transformation uses pseudocount of 1e-6
+  claim_id: c_af047aa7
+  context: Implement Centered Log-Ratio (CLR) transformation in code/02_preprocess.py
+    (handle zeros with pseudocount = 1e-6).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Centered Log-Ratio (CLR) transformation in code/02_preprocess.py
+    (handle zeros with pseudocount = 1e-6).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:20:42Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Seroconversion defined as 4-fold rise in titer
+  claim_id: c_c480a031
+  context: "Implement seroconversion logic (\u22654-fold rise in titer) in code/04_modeling.py\
+    \ using columns titer_baseline and titer_post with formula post / pre >= 4."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement seroconversion logic (\u22654-fold rise in titer) in code/04_modeling.py\
+    \ using columns titer_baseline and titer_post with formula post / pre >= 4."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:20:59Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Absolute titer threshold for HAI is 40
+  claim_id: c_a8796afa
+  context: "Implement absolute titer logic (e.g., HAI \u2265 40) in code/04_modeling.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement absolute titer logic (e.g., HAI \u2265 40) in code/04_modeling.py."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:21:00Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Permutation baseline testing runs 1000 iterations with random_seed=42
+  claim_id: c_2a459209
+  context: 'Implement permutation baseline testing: Generate null distribution of
+    accuracy scores by permuting microbiome rows relative to serology labels (feature
+    permutation) 1000 times with random_seed=42 in code/04_modeling.py. Output data/results/null_distribution.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement permutation baseline testing: Generate null distribution of
+    accuracy scores by permuting microbiome rows relative to serology labels (feature
+    permutation) 1000 times with random_seed=42 in code/04_modeling.py.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:21:17Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Maximum runtime limit is 21600 seconds
+  claim_id: c_21e6d896
+  context: Implement runtime monitoring in code/utils.py to log total runtime to data/results/resource_usage.json
+    and assert < 21600s.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement runtime monitoring in code/utils.py to log total runtime to
+    data/results/resource_usage.json and assert < 21600s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:21:17Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: 'Execution environment limits: 7GB RAM, 6 hours'
+  claim_id: c_ceedeccd
+  context: "Critical Constraint: All tasks must run on CPU-only GitHub Actions free-tier\
+    \ runners (\u22647GB RAM, \u22646h). No GPU, no 8-bit quantization."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU-only GitHub Actions free-tier runners (\u2264\
+    7GB RAM, \u22646h)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:21:17Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Ingestion output must contain at least 50 rows with no nulls in required
+    columns
+  claim_id: c_a386a688
+  context: 'Independent Test for User Story 1: Data Ingestion and Validation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingestion_output_must_contain_at_least_50_rows_with_no_nulls
+  kind: magnitude
+  raw_text: "The system can be tested by running the ingestion script against a known\
+    \ valid subset and verifying the output CSV contains exactly N rows (N \u2265\
+    \ 50) with no nulls in required columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:21:44Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Data fetched from HuggingFace dataset biothings/srp053178_processed for
+    accession SRP053178
+  claim_id: c_65a6b7dd
+  context: 'Strategy A: Primary Data Fetch for User Story 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_fetched_from_HuggingFace_dataset_biothings/srp053178_pr
+  kind: entity_fact
+  raw_text: 'Fetch pre-processed OTU table and serology metadata from HuggingFace
+    dataset biothings/srp053178_processed (files: otutable.csv, metadata.csv) for
+    accession SRP053178.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:21:46Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: '16S processing pipeline parameters: truncLen=240, chimeraMethod=pooled'
+  claim_id: c_013ce6f7
+  context: 'Strategy B: Dynamic Sampling & Filtering for User Story 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 16S processing pipeline (QIIME2 or DADA2 via Docker bioconductor/dada2
+    with parameters truncLen=240, chimeraMethod=pooled) on raw FASTQ to generate OTU
+    table.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:21:47Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Exclusion limit of detection for titer_hai is 1:10
+  claim_id: c_741efdb5
+  context: 'Strategy B: Dynamic Sampling & Filtering for User Story 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exclusion logic for subjects with titers below limit of detection
+    (value = 1:10, column = titer_hai).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:22:03Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Error raised if sample size N is less than 50
+  claim_id: c_0dcd04fa
+  context: Sample size validation in code/01_ingest.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Error_raised_if_sample_size_N_is_less_than_50
+  kind: magnitude
+  raw_text: 'Raise ValueError(''ERR_NO_DATA: Insufficient Sample Size (N < 50)'')
+    if N < 50.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:22:57Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: CLR transformation pseudocount set to 1e-6
+  claim_id: c_2288c737
+  context: Implementation for User Story 2 - Correlation Analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Centered Log-Ratio (CLR) transformation (handle zeros with pseudocount
+    = 1e-6).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:23:16Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Seroconversion defined as 4-fold rise in titer
+  claim_id: c_d859f3cf
+  context: Implementation for User Story 3 - Predictive Modeling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement seroconversion logic (\u22654-fold rise in titer) using columns\
+    \ titer_baseline and titer_post with formula post / pre >= 4."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:23:16Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Absolute titer threshold set to 40
+  claim_id: c_5dda9f32
+  context: Implementation for User Story 3 - Predictive Modeling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement absolute titer logic (e.g., HAI \u2265 40)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:23:17Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Permutation baseline testing performed 1000 times with random seed 42
+  claim_id: c_63daf680
+  context: Implementation for User Story 3 - Predictive Modeling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate null distribution of accuracy scores by permuting microbiome
+    rows relative to serology labels (feature permutation) 1000 times with random_seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:23:17Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Threshold sweep calculated at plus or minus 10 percent of defined cutoff
+  claim_id: c_c7514b58
+  context: Statistical comparison and orchestration in code/04_modeling.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate threshold sweep (\xB110% of defined cutoff) and re-run model\
+    \ training for each threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:23:17Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Runtime must be less than 21600 seconds
+  claim_id: c_617b31f8
+  context: Implement runtime monitoring in code/utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_must_be_less_than_21600_seconds
+  kind: magnitude
+  raw_text: Assert runtime < 21600s.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T18:23:40Z'

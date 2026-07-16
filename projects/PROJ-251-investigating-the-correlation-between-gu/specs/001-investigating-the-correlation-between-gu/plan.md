@@ -28,7 +28,7 @@ This project implements a statistical pipeline to investigate the association be
 | Principle | Status | Evidence / Action |
 | :--- | :--- | :--- |
 | **I. Reproducibility** | PASS | Random seeds pinned in `code/`; data fetched from canonical URL (SRP053178) or raw SRA; `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | PASS | Dataset URL for SRP053178 is verified and reachable. No fabricated URLs. |
+| **II. Verified Accuracy** | PASS | Dataset URL for the SRP accession is verified and reachable. No fabricated URLs. |
 | **III. Data Hygiene** | PASS | Checksums recorded in state; raw data preserved; derivations written to new files; PII scan passed. |
 | **IV. Single Source of Truth** | PASS | All results trace to `data/` artifacts; no hand-typed statistics in `paper/`. N_count.json logged before halt. |
 | **V. Versioning Discipline** | PASS | Content hashes used; `updated_at` timestamp updated on artifact change. |
@@ -184,7 +184,7 @@ projects/PROJ-251-investigating-the-correlation-between-gu/
 
 ## Risk Assessment
 
-- **Data Availability**: Low risk. SRP053178 is a verified, accessible accession. Strategy B (raw FASTQ) provides a fallback.
+- **Data Availability**: Low risk. SRP is a verified, accessible accession. Strategy B (raw FASTQ) provides a fallback.
 - **Sample Size**: Medium risk. If N < 50, pipeline halts gracefully with logged N.
 - **Overfitting**: Medium risk. Mitigated by Nested CV and Permutation Baseline.
 - **Compositional Bias**: Low risk. Mitigated by CLR and Pseudocount Sensitivity Analysis.
