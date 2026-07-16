@@ -1,0 +1,37 @@
+project_id: PROJ-780-openthoughts-agent-data-recipes-for-agen
+round: 3
+revision_kind: paper_writing
+from_stage: paper_review
+to_stage: paper_tasked
+worst_severity: writing
+seed_action_items:
+- id: auditdef00000
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 4, saw section 6", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    36}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/paper/source/
+  location: page 36
+kickback_reason: 'spec 023 / FR-023: compile/audit repair round'
+kickback_artifact_links:
+- projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 1 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-07-16T13:50:12.921189+00:00'

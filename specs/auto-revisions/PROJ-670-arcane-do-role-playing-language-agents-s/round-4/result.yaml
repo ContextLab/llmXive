@@ -1,0 +1,87 @@
+project_id: PROJ-670-arcane-do-role-playing-language-agents-s
+round: 4
+revision_kind: paper_writing
+from_stage: paper_review
+to_stage: paper_tasked
+worst_severity: writing
+seed_action_items:
+- id: auditdef00000
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 7, saw section 13", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    64}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: page 64
+- id: auditdef00001
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 14, saw section 19", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    64'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: page 64
+- id: auditdef00002
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 20, saw section 23", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    64'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: page 64
+- id: auditdef00003
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 25, saw section 27", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    64'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: page 64
+- id: auditdef00004
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 28, saw section 29", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    64'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: page 64
+- id: auditdef00005
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 32, saw section 41", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    64'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+  location: page 64
+kickback_reason: 'spec 023 / FR-023: compile/audit repair round'
+kickback_artifact_links:
+- projects/PROJ-670-arcane-do-role-playing-language-agents-s/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 6 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-07-16T13:47:19.450378+00:00'

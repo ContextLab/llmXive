@@ -1,0 +1,177 @@
+project_id: PROJ-634-https-arxiv-org-abs-2605-27367
+round: 4
+revision_kind: paper_writing
+from_stage: paper_review
+to_stage: paper_tasked
+worst_severity: writing
+seed_action_items:
+- id: auditdef00000
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 7, saw section 8", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00001
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 9, saw section 10", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00002
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 11, saw section 12", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00003
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 16, saw section 18", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00004
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 20, saw section 21", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00005
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 25, saw section 26", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00006
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 30, saw section 33", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00007
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 34, saw section 36", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00008
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 37, saw section 38", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00009
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 40, saw section 41", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00010
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 45, saw section 46", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00011
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 49, saw section 50", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00012
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 51, saw section 52", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00013
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 58, saw section 60", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+- id: auditdef00014
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 63, saw section 64", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    88'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+  location: page 88
+kickback_reason: 'spec 023 / FR-023: compile/audit repair round'
+kickback_artifact_links:
+- projects/PROJ-634-https-arxiv-org-abs-2605-27367/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 15 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-07-16T13:45:20.633454+00:00'

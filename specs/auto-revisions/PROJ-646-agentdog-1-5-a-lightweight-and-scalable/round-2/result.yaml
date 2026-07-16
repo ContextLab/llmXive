@@ -1,0 +1,37 @@
+project_id: PROJ-646-agentdog-1-5-a-lightweight-and-scalable
+round: 2
+revision_kind: paper_writing
+from_stage: paper_review
+to_stage: paper_tasked
+worst_severity: writing
+seed_action_items:
+- id: auditdef00000
+  text: 'Rendering-audit defect (section_number_gap): {"kind": "section_number_gap",
+    "evidence": "expected section 9, saw section 80", "class": "unsupported_construct",
+    "recommendation": "check for stray \\setcounter or \\section* in source", "page":
+    92}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/source/
+  location: page 92
+kickback_reason: 'spec 023 / FR-023: compile/audit repair round'
+kickback_artifact_links:
+- projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 1 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-07-16T13:45:56.116482+00:00'

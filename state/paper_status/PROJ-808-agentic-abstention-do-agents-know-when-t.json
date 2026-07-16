@@ -11,12 +11,12 @@
         "page": 44
       }
     ],
-    "audited_at": "2026-07-16T13:10:11.277455+00:00"
+    "audited_at": "2026-07-16T13:51:14.665426+00:00"
   },
-  "repair_rounds": 1,
+  "repair_rounds": 2,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-808-agentic-abstention-do-agents-know-when-t",
-  "updated_at": "2026-07-16T13:10:11.328347+00:00"
+  "updated_at": "2026-07-16T13:51:14.774218+00:00"
 }
