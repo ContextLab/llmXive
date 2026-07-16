@@ -1,0 +1,5 @@
+# Extend the pyproject.toml configuration for specific overrides if needed.
+# Currently, all configuration is in pyproject.toml.
+# This file exists to ensure black finds the config if pyproject.toml is not in the root.
+[tool.black]
+extend = "./pyproject.toml"

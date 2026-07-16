@@ -1,0 +1,8 @@
+T020:
+  c: false
+  h: cbe1ddc67bc452a559f70faeb84939645c26ad1a5b645cc0377bc5a19485eef3
+  r: "The provided `preprocessing.py` contains only graph\u2011feature extraction\
+    \ and conversion utilities; it does not implement Murcko scaffold splitting, does\
+    \ not use `GetScaffoldForMol`, nor read a similarity cutoff from an environment\
+    \ variable. Moreover, the required input file `code/data/processed/polymers.h5`\
+    \ is absent. Both the core logic and the necessary data artifact are missing."

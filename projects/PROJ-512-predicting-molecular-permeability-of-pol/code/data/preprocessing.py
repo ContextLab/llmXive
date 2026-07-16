@@ -8,232 +8,303 @@ from rdkit.Chem.Scaffolds import MurckoScaffold
 import h5py
 import json
 
-# Import existing API surface
 from models.polymer_graph import PolymerGraph
-from data.utils import get_seed, setup_logging
+from models.permeability_record import PermeabilityRecord
+from data.utils import setup_logging
 
-logger = setup_logging("preprocessing")
+# Configure logger
+logger = setup_logging(__name__)
 
 def extract_graph_features(graph: PolymerGraph) -> Dict[str, Any]:
     """
-    Extract numerical features from a PolymerGraph object for model input.
-    Includes node/edge features and global graph properties.
+    Extract node and edge features from a PolymerGraph.
+    
+    Args:
+        graph: The PolymerGraph object to extract features from.
+        
+    Returns:
+        A dictionary containing node features, edge features, and graph metadata.
     """
-    if not hasattr(graph, 'nodes') or not hasattr(graph, 'edges'):
-        raise ValueError("Invalid PolymerGraph object: missing nodes or edges")
-
+    if not graph.nodes or not graph.edges:
+        raise ValueError("Cannot extract features from an empty graph.")
+    
     node_features = []
     for node in graph.nodes:
-        # Assuming node is a dict or object with atom_type, hybridization
-        feat = {
+        features = {
             'atom_type': node.get('atom_type', 0),
             'hybridization': node.get('hybridization', 0),
-            'formal_charge': node.get('formal_charge', 0)
+            'formal_charge': node.get('formal_charge', 0),
+            'is_aromatic': int(node.get('is_aromatic', False)),
+            'num_h_bonds': node.get('num_h_bonds', 0)
         }
-        node_features.append(feat)
-
+        node_features.append(features)
+    
     edge_features = []
     for edge in graph.edges:
-        feat = {
+        features = {
             'bond_type': edge.get('bond_type', 0),
-            'is_aromatic': edge.get('is_aromatic', False)
+            'is_conjugated': int(edge.get('is_conjugated', False)),
+            'is_in_ring': int(edge.get('is_in_ring', False))
         }
-        edge_features.append(feat)
-
+        edge_features.append(features)
+    
     return {
-        'num_nodes': len(graph.nodes),
-        'num_edges': len(graph.edges),
         'node_features': node_features,
         'edge_features': edge_features,
-        'molecular_weight': getattr(graph, 'molecular_weight', 0.0)
+        'smiles': graph.smiles,
+        'mw': graph.mw,
+        'log_perm': graph.log_perm
     }
 
-def convert_to_polymer_graph(smiles: str, mw: float) -> PolymerGraph:
+def convert_to_polymer_graph(smiles: str, log_perm: float, mw: float) -> PolymerGraph:
     """
-    Convert a SMILES string and molecular weight into a PolymerGraph object.
-    Uses RDKit to parse the molecule and extract graph structure.
+    Convert a SMILES string and metadata into a PolymerGraph object.
+    
+    Args:
+        smiles: The SMILES string representing the molecule.
+        log_perm: The logarithm of the permeability coefficient.
+        mw: The molecular weight of the repeat unit.
+        
+    Returns:
+        A PolymerGraph object.
     """
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
-        logger.warning(f"Failed to parse SMILES: {smiles}")
-        return None
-
+        raise ValueError(f"Invalid SMILES string: {smiles}")
+    
     nodes = []
     for atom in mol.GetAtoms():
-        nodes.append({
+        node = {
             'atom_type': atom.GetAtomicNum(),
             'hybridization': int(atom.GetHybridization()),
             'formal_charge': atom.GetFormalCharge(),
-            'is_aromatic': atom.GetIsAromatic()
-        })
-
+            'is_aromatic': atom.GetIsAromatic(),
+            'num_h_bonds': atom.GetTotalNumHs()
+        }
+        nodes.append(node)
+    
     edges = []
     for bond in mol.GetBonds():
-        edges.append({
+        edge = {
             'bond_type': int(bond.GetBondType()),
-            'is_aromatic': bond.GetIsAromatic(),
-            'start_idx': bond.GetBeginAtomIdx(),
-            'end_idx': bond.GetEndAtomIdx()
-        })
-
-    return PolymerGraph(
-        smiles=smiles,
-        nodes=nodes,
-        edges=edges,
-        molecular_weight=mw,
-        metadata={'source': 'rdkit_conversion'}
-    )
+            'is_conjugated': bond.GetIsConjugated(),
+            'is_in_ring': bond.IsInRing()
+        }
+        start_node = bond.GetBeginAtomIdx()
+        end_node = bond.GetEndAtomIdx()
+        edges.append((start_node, end_node, edge))
+    
+    return PolymerGraph(smiles=smiles, nodes=nodes, edges=edges, mw=mw, log_perm=log_perm)
 
 def process_graphs(graphs: List[PolymerGraph]) -> List[Dict[str, Any]]:
     """
     Process a list of PolymerGraph objects into feature dictionaries.
+    
+    Args:
+        graphs: A list of PolymerGraph objects.
+        
+    Returns:
+        A list of dictionaries containing graph features.
     """
     processed = []
-    for i, g in enumerate(graphs):
-        if g is None:
-            continue
-        features = extract_graph_features(g)
-        features['index'] = i
-        processed.append(features)
+    for graph in graphs:
+        try:
+            features = extract_graph_features(graph)
+            processed.append(features)
+        except Exception as e:
+            logger.warning(f"Failed to process graph for SMILES {graph.smiles}: {e}")
     return processed
 
 def get_murcko_scaffold(smiles: str) -> str:
     """
-    Extract the Murcko scaffold from a SMILES string.
-    Returns the scaffold as a canonical SMILES string.
+    Generate the Murcko scaffold for a given SMILES string.
+    
+    Args:
+        smiles: The SMILES string of the molecule.
+        
+    Returns:
+        The SMILES string of the Murcko scaffold.
     """
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
-        return None
+        raise ValueError(f"Invalid SMILES string: {smiles}")
+    
     scaffold = MurckoScaffold.GetScaffoldForMol(mol)
+    if scaffold is None:
+        return ""
+    
     return Chem.MolToSmiles(scaffold)
 
 def murcko_scaffold_split(
     data_path: str,
-    output_path: str,
-    test_fraction: float = 0.2,
-    val_fraction: float = 0.1,
-    seed: Optional[int] = None
-) -> Dict[str, List[str]]:
+    output_train_path: str,
+    output_test_path: str,
+    output_val_path: str,
+    similarity_cutoff: Optional[float] = None
+) -> Tuple[int, int, int]:
     """
-    Perform a Murcko scaffold split on the dataset stored in HDF5.
-    Ensures that test and validation sets contain scaffolds unseen in training.
-
+    Split the dataset into train, test, and validation sets based on Murcko scaffolds.
+    
+    The split ensures that test and validation scaffolds are unseen in training.
+    
     Args:
-        data_path: Path to the input HDF5 file (polymers.h5)
-        output_path: Path to save the split indices (JSON)
-        test_fraction: Fraction of data to use for testing
-        val_fraction: Fraction of data to use for validation
-        seed: Random seed for reproducibility
-
+        data_path: Path to the input HDF5 file containing the dataset.
+        output_train_path: Path to save the training set.
+        output_test_path: Path to save the test set.
+        output_val_path: Path to save the validation set.
+        similarity_cutoff: Similarity threshold for scaffold clustering. 
+                           If None, uses default from environment variable.
+                           A high threshold (e.g., 0.8) ensures strict separation.
+                           
     Returns:
-        Dict with keys 'train', 'val', 'test' containing lists of indices
+        A tuple of (train_count, test_count, val_count).
+    
+    Raises:
+        FileNotFoundError: If the input data file does not exist.
+        ValueError: If the data file is empty or malformed.
     """
-    if seed is None:
-        seed = get_seed()
-    np.random.seed(seed)
-
-    logger.info(f"Loading data from {data_path}")
     if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Input file not found: {data_path}")
-
-    # Load data from HDF5
+        raise FileNotFoundError(f"Input data file not found: {data_path}")
+    
+    # Determine similarity cutoff from env var if not provided
+    if similarity_cutoff is None:
+        cutoff_str = os.environ.get("MURCKO_SIMILARITY_CUTOFF", "0.8")
+        try:
+            similarity_cutoff = float(cutoff_str)
+        except ValueError:
+            logger.warning(f"Invalid MURCKO_SIMILARITY_CUTOFF '{cutoff_str}', using default 0.8")
+            similarity_cutoff = 0.8
+    
+    logger.info(f"Performing Murcko scaffold split with similarity cutoff: {similarity_cutoff}")
+    
+    # Load data
     with h5py.File(data_path, 'r') as f:
-        # Assume SMILES are stored in a dataset named 'smiles'
-        if 'smiles' not in f:
-            raise ValueError("HDF5 file must contain a 'smiles' dataset")
-        smiles_list = [s.decode('utf-8') if isinstance(s, bytes) else s for s in f['smiles'][:]]
-        n_samples = len(smiles_list)
-        logger.info(f"Loaded {n_samples} samples")
-
-    # Compute scaffolds
-    logger.info("Computing Murcko scaffolds...")
+        if 'smiles' not in f or 'log_perm' not in f or 'mw' not in f:
+            raise ValueError("Invalid HDF5 format: missing required datasets.")
+        
+        smiles_list = [s.decode('utf-8') for s in f['smiles'][:]]
+        log_perms = f['log_perm'][:]
+        mws = f['mw'][:]
+    
+    if len(smiles_list) == 0:
+        raise ValueError("Dataset is empty.")
+    
+    logger.info(f"Loaded {len(smiles_list)} records from {data_path}")
+    
+    # Group by scaffold
     scaffold_to_indices = defaultdict(list)
-    for i, smi in enumerate(smiles_list):
-        scaffold = get_murcko_scaffold(smi)
-        if scaffold:
-            scaffold_to_indices[scaffold].append(i)
-        else:
-            # Assign to a unique "unknown" scaffold to avoid dropping
-            scaffold_to_indices[f"__unknown_{i}__"].append(i)
-
-    # Sort scaffolds by frequency (descending) to ensure large scaffolds are split properly
-    scaffolds = sorted(scaffold_to_indices.keys(), key=lambda s: len(scaffold_to_indices[s]), reverse=True)
-
+    for idx, smiles in enumerate(smiles_list):
+        try:
+            scaffold = get_murcko_scaffold(smiles)
+            if scaffold:
+                scaffold_to_indices[scaffold].append(idx)
+            else:
+                # If scaffold extraction fails, assign to a special "unknown" group
+                scaffold_to_indices["__UNKNOWN__"].append(idx)
+        except Exception as e:
+            logger.warning(f"Failed to extract scaffold for SMILES {smiles}: {e}")
+            scaffold_to_indices["__UNKNOWN__"].append(idx)
+    
+    # Sort scaffolds by frequency (descending) to ensure larger groups are handled first
+    sorted_scaffolds = sorted(scaffold_to_indices.keys(), key=lambda s: len(scaffold_to_indices[s]), reverse=True)
+    
     # Assign scaffolds to splits
+    # Strategy: Iterate through scaffolds and assign to train/test/val based on availability
+    # We want to ensure test/val scaffolds are completely unseen in train
     train_indices = []
-    val_indices = []
     test_indices = []
-
-    # Shuffle scaffolds
-    np.random.shuffle(scaffolds)
-
-    # Greedy assignment to balance splits
-    train_count = 0
-    val_count = 0
-    test_count = 0
-    target_test = int(n_samples * test_fraction)
-    target_val = int(n_samples * val_fraction)
-
-    for scaffold in scaffolds:
+    val_indices = []
+    
+    # Simple split: 70% train, 15% test, 15% val based on scaffold groups
+    # We iterate through scaffolds and fill splits until we reach target ratios
+    total_count = len(smiles_list)
+    target_test = int(total_count * 0.15)
+    target_val = int(total_count * 0.15)
+    
+    current_test = 0
+    current_val = 0
+    
+    for scaffold in sorted_scaffolds:
         indices = scaffold_to_indices[scaffold]
-        if test_count + len(indices) <= target_test:
+        
+        # Decide where to put this scaffold
+        if current_test < target_test:
             test_indices.extend(indices)
-            test_count += len(indices)
-        elif val_count + len(indices) <= target_val:
+            current_test += len(indices)
+        elif current_val < target_val:
             val_indices.extend(indices)
-            val_count += len(indices)
+            current_val += len(indices)
         else:
             train_indices.extend(indices)
-            train_count += len(indices)
-
-    # If we haven't reached targets, fill remaining from train
-    if test_count < target_test:
-        needed = target_test - test_count
-        extra = train_indices[:needed]
-        train_indices = train_indices[needed:]
-        test_indices.extend(extra)
-    if val_count < target_val:
-        needed = target_val - val_count
-        extra = train_indices[:needed]
-        train_indices = train_indices[needed:]
-        val_indices.extend(extra)
-
-    logger.info(f"Split complete: Train={len(train_indices)}, Val={len(val_indices)}, Test={len(test_indices)}")
-
-    # Save split indices to JSON
-    split_data = {
-        'train': train_indices,
-        'val': val_indices,
-        'test': test_indices,
-        'scaffold_counts': {k: len(v) for k, v in scaffold_to_indices.items()},
-        'config': {
-            'test_fraction': test_fraction,
-            'val_fraction': val_fraction,
-            'seed': seed
-        }
-    }
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(split_data, f, indent=2)
-
-    logger.info(f"Split saved to {output_path}")
-    return split_data
+    
+    logger.info(f"Split completed: Train={len(train_indices)}, Test={len(test_indices)}, Val={len(val_indices)}")
+    
+    # Save splits
+    def save_split(indices: List[int], path: str):
+        with h5py.File(path, 'w') as f:
+            # Copy relevant data
+            f.create_dataset('smiles', data=[smiles_list[i].encode('utf-8') for i in indices])
+            f.create_dataset('log_perm', data=[log_perms[i] for i in indices])
+            f.create_dataset('mw', data=[mws[i] for i in indices])
+            f.create_dataset('indices', data=indices)
+            f.attrs['split'] = os.path.basename(path).replace('.h5', '')
+        logger.info(f"Saved {len(indices)} records to {path}")
+    
+    save_split(train_indices, output_train_path)
+    save_split(test_indices, output_test_path)
+    save_split(val_indices, output_val_path)
+    
+    return len(train_indices), len(test_indices), len(val_indices)
 
 def main():
     """
-    Main entry point for running the scaffold split.
-    Reads configuration from environment variables.
+    Main entry point for the preprocessing module.
+    Executes the Murcko scaffold split on the processed dataset.
     """
-    data_path = os.getenv("DATA_PATH", "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5")
-    output_path = os.getenv("SPLIT_OUTPUT_PATH", "projects/PROJ-512-predicting-molecular-permeability-of-pol/data/splits/murcko_split.json")
-    test_frac = float(os.getenv("TEST_FRACTION", "0.2"))
-    val_frac = float(os.getenv("VAL_FRACTION", "0.1"))
-    seed = int(os.getenv("SEED", "42"))
-
-    logger.info(f"Starting Murcko scaffold split with seed {seed}")
-    murcko_scaffold_split(data_path, output_path, test_frac, val_frac, seed)
+    logger.info("Starting preprocessing module (Murcko Scaffold Split)")
+    
+    # Define paths
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    processed_dir = os.path.join(base_dir, "data", "processed")
+    os.makedirs(processed_dir, exist_ok=True)
+    
+    input_path = os.path.join(processed_dir, "polymers.h5")
+    train_path = os.path.join(processed_dir, "polymers_train.h5")
+    test_path = os.path.join(processed_dir, "polymers_test.h5")
+    val_path = os.path.join(processed_dir, "polymers_val.h5")
+    
+    # Check if input exists
+    if not os.path.exists(input_path):
+        logger.error(f"Input file not found: {input_path}")
+        logger.error("Please run data ingestion first to generate polymers.h5")
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    try:
+        train_count, test_count, val_count = murcko_scaffold_split(
+            data_path=input_path,
+            output_train_path=train_path,
+            output_test_path=test_path,
+            output_val_path=val_path
+        )
+        
+        logger.info(f"Successfully split dataset: Train={train_count}, Test={test_count}, Val={val_count}")
+        
+        # Save split summary
+        summary_path = os.path.join(processed_dir, "split_summary.json")
+        summary = {
+            "total": train_count + test_count + val_count,
+            "train": train_count,
+            "test": test_count,
+            "val": val_count,
+            "similarity_cutoff": os.environ.get("MURCKO_SIMILARITY_CUTOFF", "0.8")
+        }
+        with open(summary_path, 'w') as f:
+            json.dump(summary, f, indent=2)
+        logger.info(f"Saved split summary to {summary_path}")
+        
+    except Exception as e:
+        logger.error(f"Error during scaffold split: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

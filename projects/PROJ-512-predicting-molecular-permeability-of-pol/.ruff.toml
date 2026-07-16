@@ -1,3 +1,24 @@
-# Extends pyproject.toml but allows for project-specific overrides if needed.
-# Currently, we rely on the configuration in pyproject.toml.
-extend = "pyproject.toml"
+# Ruff configuration for PROJ-512
+# This file is a legacy alias; prefer [tool.ruff] in pyproject.toml
+# Keeping this for compatibility with older CI runners that might look for .ruff.toml
+
+target-version = "py311"
+line-length = 100
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+
+ignore = [
+    "E501",
+    "B008",
+]
+
+[per-file-ignores]
+"tests/*" = ["S101"]
