@@ -60,7 +60,7 @@
 - [X] T006 [P] Setup `tests/contract/` schema validators for dataset and model output
 - [X] T007 [P] Create base data loading utilities in `code/data/loader.py` with functions `load_batch(filepath, batch_size)` and `iterate_smiles(filepath)` yielding (smiles, target) tuples; include input validation for SMILES format.
 - [X] T008 [P] Configure error handling and logging infrastructure in `code/utils/logging_config.py` using `RotatingFileHandler` for `logs/app.log` with JSON format and specific log level configuration.
-- [ ] T007b [P] Create orchestration script `code/main.py` with entry point for the full pipeline to ensure file exists before T019.
+- [X] T007b [P] Create orchestration script `code/main.py` with entry point for the full pipeline to ensure file exists before T019.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,19 +76,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`
-- [ ] T011 [P] [US1] Unit test for 3D exclusion in `tests/unit/test_3d_exclusion.py` (asserts no 3D calls)
-- [ ] T012 [P] [US1] Unit test for NaN handling in `tests/unit/test_nan_handling.py`
+- [X] T010 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`
+- [X] T011 [P] [US1] Unit test for 3D exclusion in `tests/unit/test_3d_exclusion.py` (asserts no 3D calls)
+- [X] T012 [P] [US1] Unit test for NaN handling in `tests/unit/test_nan_handling.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/data/download_qm9.py` to fetch QM9 from verified URL (Maxwell/Zenodo) with checksum validation and SMILES format validation.
-- [ ] T014 [US1] Implement `code/data/preprocess_2d.py` to compute 2D descriptors (rdkit.Descriptors) excluding TPSA, TPSA_E, and SMARTS patterns. **Include inline runtime assertions** to verify no 3D conformer generation functions are called during execution. **Note**: This task implements the core pipeline; see T015 for the spec-mandated target-correlation filter.
+- [X] T013 [US1] Implement `code/data/download_qm9.py` to fetch QM9 from verified URL (Maxwell/Zenodo) with checksum validation and SMILES format validation.
+- [X] T014 [US1] Implement `code/data/preprocess_2d.py` to compute 2D descriptors (rdkit.Descriptors) excluding TPSA, TPSA_E, and SMARTS patterns. **Include inline runtime assertions** to verify no 3D conformer generation functions are called during execution. **Note**: This task implements the core pipeline; see T015 for the spec-mandated target-correlation filter.
 - [X] T015 [US1] Implement target-correlation filtering in `code/data/preprocess_2d.py` to exclude features with |r| > 0.85 correlation to the target dipole moment. **Conflict Note**: This task implements spec FR-001(c) which contradicts the current plan.md stance. The code must explicitly document this deviation from the plan to satisfy the spec's functional requirement.
 - [X] T016 [US1] Implement NaN handling in `code/data/preprocess_2d.py` with deterministic logic: If >5% missing values in a column, drop the record; otherwise, impute with column median. Log the action taken.
 - [X] T017 [US1] Implement batch processing logic in `code/data/preprocess_2d.py` to ensure <6GB RAM usage by processing `data/raw/` in chunks.
 - [ ] T018 [US1] Save processed feature matrix to `data/processed/descriptors.parquet`.
-- [~] T019 [US1] Add runtime assertion in `code/main.py` to verify the orchestration pipeline executes without 3D calls and that `data/processed/descriptors.parquet` is valid before downstream tasks.
+- [ ] T019 [US1] Add runtime assertion in `code/main.py` to verify the orchestration pipeline executes without 3D calls and that `data/processed/descriptors.parquet` is valid before downstream tasks.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,7 +108,7 @@
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement `code/data/split_data.py` for standard random train/test split (no target stratification) using `data/processed/descriptors.parquet`.
+- [X] T022 [US2] Implement `code/data/split_data.py` for standard random train/test split (no target stratification) using `data/processed/descriptors.parquet`.
 - [X] T023 [US2] Implement `code/models/train_lightgbm.py` with LightGBM Regressor.
 - [X] T024 [US2] Implement k-fold cross-validation loop in `code/models/train_lightgbm.py` for hyperparameter tuning.
 - [X] T025 [US2] Implement logging of optimal parameters (`num_leaves`, `learning_rate`) to `code/config.yaml`.
@@ -134,13 +134,13 @@
 
 - [X] T031a [US3] Implement `code/data/feature_clustering.py` to compute VIF and group correlated features (|r| > 0.8) into clusters for DIAGNOSTIC PURPOSES ONLY. **NO features are removed** based on VIF thresholds (per plan.md FR-007).
 - [X] T031b [US3] Implement `code/data/feature_clustering.py` iterative VIF-based feature removal loop (remove feature with highest VIF if VIF > 5.0 until all VIF ≤ 5.0). **Conflict Note**: This task implements spec FR-007 which contradicts the plan.md FR-007 "diagnostic only" stance. The code must explicitly document this deviation to satisfy the spec's functional requirement.
-- [~] T032 [US3] Implement `code/models/interpret.py` with Cluster-Aware SHAP analysis using `data/processed/descriptors.parquet` and `data/processed/model.pkl`.
-- [ ] T033a [US3] Implement two-stage bootstrap in `code/models/interpret.py` (SHAP-only resampling as per plan.md Complexity Tracking): resample SHAP values without re-training.
-- [ ] T033b [US3] Implement full dataset bootstrapping in `code/models/interpret.py` (resample dataset multiple times, re-train model, compute SHAP) to verify feature-set stability as per spec FR-005. **Conflict Note**: This task implements spec FR-005 which contradicts the plan.md "SHAP-only" approach.
+- [ ] T032 [US3] Implement `code/models/interpret.py` with Cluster-Aware SHAP analysis using `data/processed/descriptors.parquet` and `data/processed/model.pkl`.
+- [X] T033a [US3] Implement two-stage bootstrap in `code/models/interpret.py` (SHAP-only resampling as per plan.md Complexity Tracking): resample SHAP values without re-training.
+- [X] T033b [US3] Implement full dataset bootstrapping in `code/models/interpret.py` (resample dataset multiple times, re-train model, compute SHAP) to verify feature-set stability as per spec FR-005. **Conflict Note**: This task implements spec FR-005 which contradicts the plan.md "SHAP-only" approach.
 - [ ] T034a [US3] Calculate Jaccard similarity of top feature clusters across multiple bootstrap resamples (from T033a/T033b).
 - [ ] T034b [US3] Calculate Jaccard similarity of top individual SHAP features across multiple bootstrap resamples to satisfy spec SC-003. **Conflict Note**: This task implements spec SC-003 which contradicts the plan.md "cluster" metric.
 - [ ] T035 [US3] Generate stability report verifying Jaccard ≥ 0.7 (log failure if < 0.7 for both cluster and individual metrics).
-- [ ] T036 [US3] Generate SHAP summary plot and feature importance report distinguishing collinear clusters.
+- [~] T036 [US3] Generate SHAP summary plot and feature importance report distinguishing collinear clusters.
 - [ ] T037 [US3] Save all analysis artifacts (plots, reports, SHAP values) to `data/processed/analysis/`.
 
 **Checkpoint**: All user stories should now be independently functional

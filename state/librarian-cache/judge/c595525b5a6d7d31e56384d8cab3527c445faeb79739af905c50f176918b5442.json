@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.02228",
+  "judged_at": "2026-07-16T13:06:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"weak-to-strong generalization via direct on-policy distillation\" computer science",
+  "rationale": "The paper investigates \"unlearning\" (removing skills via fine-tuning on random labels) and the generalization of that removal, which is a distinct mechanism from \"Weak-to-Strong Generalization via Direct On-Policy Distillation\" (transferring capabilities from a weak model to a strong one). While both involve generalization phenomena in LMs, the candidate paper does not measure the same causal mechanism, variables, or empirical setting required for the user's specific distillation-based research ",
+  "relevant": false
+}

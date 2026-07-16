@@ -85,7 +85,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin untilthis phase is complete
 
-- [X] T003 [P] Create `projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py` defining constants: `LAG_WINDOW_MIN=30 `, `LAG_WINDOW_MAX=90 `, `LAG_STEP=5 `, `{{claim:c_f9c59f03}} `, `TAIL_DISTANCE_RE=60 `, `BOOTSTRAP_ITERATIONS=1000 `, `{{claim:c_255f7 (OEIS A000796, https://oeis.org/A000796) cda}} `. The file path must be explicitly stated in the docstring.
+- [X] T003 [P] Create `projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py` defining constants: `LAG_WINDOW_MIN=30 `, `LAG_WINDOW_MAX=90 `, `LAG_STEP=5 `, `{{claim:c_f9c59f03}} `, `TAIL_DISTANCE_RE=60 `, `BOOTSTRAP_ITERATIONS=1000 `, `{{claim:c_255f7 ({{claim:c_017e90ea}}, https://oeis.org/A000796) cda}} `. The file path must be explicitly stated in the docstring.
 - [X] T004a [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py`function `fetch_omni_sw(date_range)` to fetch solar wind data (Vsw, Bz) from NASA OMNIWeb API v2 via `requests` (FR-001).
  - **Deliverable**: Function returning a `pandas.DataFrame` with columns `[timestamp, Vsw, Bz]`.
  - **Verification**: Run a unit test to verify the function returns a DataFrame with the correct columns for a 1-day range.
@@ -111,10 +111,10 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 - [X] T012 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_scatter` to generate scatter plot of lag-adjusted Vsw vs. Ey with regression line (FR-008a).
 - [X] T013 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_timeseries` to generate dual-axis time-series overlay of Vsw and Ey (FR-008b).
 - [X] T014 [P] Add docstring to `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py` documenting the multiple-comparison correction method (permutation test) and total lag candidate count (FR-011).
-- [ ] T015 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to insert the FR-013 narrative note into the "notes" field of the JSON report **only if** the permutation test (FR-005) was successfully executed. The exact string must be: "Note: Bonferroni correction is conservative for autocorrelated lag searches; the permutation test (FR-005) is the primary method for significance testing. Future work should consider adaptive FDR control." (FR-013). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T016 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to log data-quality warnings to `projects/PROJ-300-exploring-the-relationship-between-solar/data/processed/quality_log.json` in JSON format (FR-009).
-- [ ] T017 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to calculate and report `|L* - L_phys|` (SC-002) using the optimal lag L* from FR-010 and L_phys from FR-012.
-- [ ] T018 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to generate sensitivity table and append to JSON report (SC-003). <!-- FAILED: unspecified --> <!-- SKIPPED: non-mapping output --> <!-- FAILED: unspecified -->
+- [X] T015 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to insert the FR-013 narrative note into the "notes" field of the JSON report **only if** the permutation test (FR-005) was successfully executed. The exact string must be: "Note: Bonferroni correction is conservative for autocorrelated lag searches; the permutation test (FR-005) is the primary method for significance testing. Future work should consider adaptive FDR control." (FR-013). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T016 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to log data-quality warnings to `projects/PROJ-300-exploring-the-relationship-between-solar/data/processed/quality_log.json` in JSON format (FR-009).
+- [X] T017 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to calculate and report `|L* - L_phys|` (SC-002) using the optimal lag L* from FR-010 and L_phys from FR-012.
+- [X] T018 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to generate sensitivity table and append to JSON report (SC-003). <!-- FAILED: unspecified --> <!-- SKIPPED: non-mapping output --> <!-- FAILED: unspecified -->
 - [X] T019 [P] Ensure all plots in `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` include correct axis labels, units, and optimal lag annotation (SC-005).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -129,7 +129,7 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 
 ### Implementation for User Story 1
 
-- [ ] T020 [US1] Integrate `data/clean.py`, `data/lag.py`, and `analysis/correlation.py` into a cohesive pipeline for US-1 in `main.py`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T020 [US1] Integrate `data/clean.py`, `data/lag.py`, and `analysis/correlation.py` into a cohesive pipeline for US-1 in `main.py`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Deliverable**: `results/us1_correlation.json` containing keys: `pearson`, `spearman`, `p_val_permutation`, `significant_flag`.
 - [X] T021 [US1] Execute the pipeline on a sample date range to verify output includes numeric correlation coefficients and empirical p-values (US-1 Acceptance Scenario 1).
  - **Verification**: Run `pytest tests/integration/test_us1.py`.

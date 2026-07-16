@@ -4,11 +4,11 @@
   "reason": "run-book completed but produced no data/figure artifacts",
   "artifacts": [],
   "failures": [],
-  "fix_rounds": 10,
+  "fix_rounds": 11,
   "model_tier": 0,
-  "total_attempts": 10,
+  "total_attempts": 11,
   "replan_rounds": 0,
   "failure_class": "unknown",
   "evidence": [],
-  "updated_at": "2026-07-16T09:34:25Z"
+  "updated_at": "2026-07-16T12:57:33Z"
 }

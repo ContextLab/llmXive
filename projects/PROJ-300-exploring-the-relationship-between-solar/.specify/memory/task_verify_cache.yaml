@@ -1,0 +1,14 @@
+T016:
+  c: true
+  h: 10605e4b0ad8c5d0be01680231ffd8999abf012296dbc75aec3c6bb52d847226
+  r: The provided `code/main.py` contains a `log_quality_warnings` function that writes
+    a list of warning dictionaries to `data/processed/quality_log.json` in proper
+    JSON format, matching the required behavior. The absence of the JSON file on disk
+    is acceptable because it is generated at runtime by this implementation.
+T020:
+  c: false
+  h: 7e99a0531a072880e318cfe9d0beffd9fe9c3c4ed01dd74ebccdb82d900406b7
+  r: "The required source files `data/clean.py` and `data/lag.py` are missing from\
+    \ the repository, and there is no evidence that `main.py` has been updated to\
+    \ integrate these modules with `analysis/correlation.py`. Without these files\
+    \ and the integration code, the pipeline for US\u20111 cannot be executed."

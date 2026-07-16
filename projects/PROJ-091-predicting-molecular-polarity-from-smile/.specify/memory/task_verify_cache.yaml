@@ -1,0 +1,44 @@
+T019:
+  c: false
+  h: eb3eb78419a7cf11f38ae3fa601aafacda9c8ca4d48dde7f9b8a5fed88c0df1f
+  r: The `code/main.py` file does not show any explicit runtime assertion that checks
+    for 3D calls or validates the existence/contents of `data/processed/descriptors.parquet`,
+    and the required `descriptors.parquet` file is missing from the repository. Both
+    the assertion and the valid descriptor file are needed to satisfy the task.
+T022:
+  c: true
+  h: cb148377dd81f34bfb57d8687237988429590599c5dc2a57908e1fcf13d9a227
+  r: "The `code/data/split_data.py` file exists, is non\u2011empty, and contains a\
+    \ full implementation of a standard random train/test split (no stratification)\
+    \ that reads `data/processed/descriptors.parquet`, shuffles indices with a fixed\
+    \ seed, creates the splits, and writes them to parquet files. The missing `descriptors.parquet`\
+    \ is an input, not an artifact the task required to produce."
+T032:
+  c: false
+  h: 32135cbfad080cf29271c843bee24578acd1b1b5f42d94488b062e9984e5ca66
+  r: "The repository contains a partially\u2011written `code/models/interpret.py`\
+    \ (the file ends abruptly and the `get_cluster_aware_importance` function is incomplete),\
+    \ and the required input artifacts `data/processed/descriptors.parquet` and `data/processed/model.pkl`\
+    \ are absent, so the script cannot perform the intended Cluster\u2011Aware SHAP\
+    \ analysis. The task\u2019s core requirements are therefore not satisfied."
+T034a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., script, notebook, data file, or result table) showing the
+    computed Jaccard similarity of top feature clusters across multiple bootstrap
+    resamples is present; the claim provides only a description without any concrete
+    output. The required evidence is missing.
+T034b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no code, data, or results showing that Jaccard similarity\
+    \ of top SHAP features across bootstrap resamples was computed; there is no artifact\
+    \ (script, output file, or figure) demonstrating compliance with spec SC\u2011\
+    003. Consequently the required deliverable is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No stability report, Jaccard scores, or log files are present in the provided\
+    \ evidence; the implementer supplied no artifact demonstrating that Jaccard \u2265\
+    \u202F0.7 was verified or that failures would be logged for either cluster or\
+    \ individual metrics. The required output is missing."

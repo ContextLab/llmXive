@@ -1,207 +1,311 @@
 """
-Orchestration script for the molecular polarity prediction pipeline.
+Main orchestration script for the Molecular Polarity Prediction Pipeline.
 
-This script provides the entry point for the full pipeline execution.
-It validates prerequisites, ensures 2D compliance, checks for required
-artifacts, and executes the pipeline steps in the correct order.
+This script coordinates the full pipeline execution:
+1. Check prerequisites (directories, config, dependencies)
+2. Validate 2D-only compliance (no 3D conformer generation)
+3. Validate that the descriptor file exists before proceeding
+4. Execute the preprocessing and training pipeline steps
+
+Entry point: python -m main or python main.py
 """
+
 import sys
 import os
-import pyarrow.parquet as pq
+import argparse
+import logging
 from pathlib import Path
+from typing import Optional
+
+# Local imports matching the project API surface
 from utils.logging_config import get_logger, set_log_level
 from utils.validators import assert_no_3d_calls
 from data.loader import iterate_smiles
 from data.preprocess_2d import preprocess_2d
-from data.split_data import split_data
-from models.train_lightgbm import train_lightgbm
-from models.evaluate import evaluate_model
+from data.save_descriptors import main as save_descriptors_main
+from data.split_data import main as split_data_main
+from models.train_lightgbm import main as train_lightgbm_main
+from models.evaluate import main as evaluate_main
 
-# Project root path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DIR = DATA_DIR / "raw"
-PROCESSED_DIR = DATA_DIR / "processed"
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).parent.parent.resolve()
+
+# Output paths as defined in tasks.md
+DESCRIPTORS_PATH = PROJECT_ROOT / "data" / "processed" / "descriptors.parquet"
+RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw" / "qm9_smiles.csv"
 LOGS_DIR = PROJECT_ROOT / "logs"
+CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
 
-# Ensure directories exist
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+logger = get_logger(__name__)
 
-logger = get_logger("main")
-set_log_level("INFO")
 
-# Hardcoded seeds for reproducibility (per T004 constraint)
-GLOBAL_SEED = 42
-
-def check_prerequisites():
+def check_prerequisites() -> bool:
     """
-    Check that all required directories and initial files exist.
-    Returns True if all prerequisites are met, False otherwise.
+    Verify that all necessary directories and configuration files exist.
+
+    Returns:
+        bool: True if all prerequisites are met, False otherwise.
     """
     logger.info("Checking prerequisites...")
-    
-    required_dirs = [RAW_DIR, PROCESSED_DIR, LOGS_DIR]
-    for d in required_dirs:
-        if not d.exists():
-            logger.error(f"Required directory missing: {d}")
-            return False
-    
-    # Check for QM9 data file (expected location)
-    qm9_file = RAW_DIR / "qm9_smiles.csv"
-    if not qm9_file.exists():
-        logger.warning(f"QM9 data file not found at {qm9_file}. "
-                     "This is expected if data has not been downloaded yet.")
-        return False
-    
-    logger.info("Prerequisites check passed.")
-    return True
+    success = True
 
-def validate_2d_compliance():
+    # Check required directories
+    required_dirs = [
+        PROJECT_ROOT / "code",
+        PROJECT_ROOT / "tests",
+        PROJECT_ROOT / "data",
+        PROJECT_ROOT / "data" / "raw",
+        PROJECT_ROOT / "data" / "processed",
+        PROJECT_ROOT / "data" / "processed" / "analysis",
+        LOGS_DIR,
+    ]
+
+    for dir_path in required_dirs:
+        if not dir_path.exists():
+            logger.error(f"Required directory missing: {dir_path}")
+            success = False
+        else:
+            logger.debug(f"Directory exists: {dir_path}")
+
+    # Check config file
+    if not CONFIG_PATH.exists():
+        logger.error(f"Configuration file missing: {CONFIG_PATH}")
+        success = False
+    else:
+        logger.debug(f"Configuration file exists: {CONFIG_PATH}")
+
+    # Check requirements file
+    requirements_path = PROJECT_ROOT / "code" / "requirements.txt"
+    if not requirements_path.exists():
+        logger.error(f"Requirements file missing: {requirements_path}")
+        success = False
+    else:
+        logger.debug(f"Requirements file exists: {requirements_path}")
+
+    if success:
+        logger.info("All prerequisites met.")
+    else:
+        logger.error("Prerequisites check failed.")
+
+    return success
+
+
+def validate_2d_compliance() -> bool:
     """
-    Validate that no 3D conformer generation functions are called.
-    Uses the validator utility to check the current execution context.
+    Validate that the pipeline enforces 2D-only constraints.
+
+    This function uses the validator module to ensure no 3D conformer
+    generation functions are accessible in the descriptor computation context.
+
+    Returns:
+        bool: True if 2D compliance is validated, False otherwise.
     """
-    logger.info("Validating 2D compliance...")
+    logger.info("Validating 2D-only compliance...")
     try:
+        # This will raise an AssertionError if 3D functions are detected
         assert_no_3d_calls()
-        logger.info("2D compliance validation passed.")
+        logger.info("2D-only compliance validated successfully.")
         return True
     except AssertionError as e:
         logger.error(f"2D compliance validation failed: {e}")
         return False
 
-def validate_descriptors_file():
+
+def validate_descriptors_file() -> bool:
     """
-    Validate that the processed descriptors file exists and is valid.
-    This is the key check before proceeding to model training (T019).
-    
+    Verify that the processed descriptors file exists before proceeding to training.
+
+    This is a critical check for task T019 dependency.
+
     Returns:
-        bool: True if file exists and is valid, False otherwise.
+        bool: True if the descriptors file exists and is valid, False otherwise.
     """
-    logger.info("Validating descriptors file...")
-    
-    descriptors_file = PROCESSED_DIR / "descriptors.parquet"
-    
-    if not descriptors_file.exists():
-        logger.error(f"Descriptors file not found: {descriptors_file}")
-        logger.error("Please run the preprocessing pipeline first.")
-        return False
-    
-    try:
-        # Try to read the file to ensure it's valid
-        table = pq.read_table(descriptors_file)
-        num_rows = table.num_rows
-        num_cols = table.num_columns
-        
-        if num_rows == 0:
-            logger.error("Descriptors file is empty.")
-            return False
-        
-        logger.info(f"Descriptors file validated: {num_rows} rows, {num_cols} columns")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Error reading descriptors file: {e}")
+    logger.info(f"Validating descriptors file: {DESCRIPTORS_PATH}")
+
+    if not DESCRIPTORS_PATH.exists():
+        logger.error(
+            f"Descriptors file not found: {DESCRIPTORS_PATH}. "
+            "Please run the preprocessing pipeline first."
+        )
         return False
 
-def run_pipeline():
+    try:
+        # Attempt to read the file to verify it's not corrupted
+        import pyarrow.parquet as pq
+        table = pq.read_table(DESCRIPTORS_PATH)
+        num_rows = table.num_rows
+        num_columns = table.num_columns
+        logger.info(
+            f"Descriptors file validated: {num_rows} rows, {num_columns} columns."
+        )
+        return True
+    except Exception as e:
+        logger.error(f"Failed to validate descriptors file: {e}")
+        return False
+
+
+def run_data_preprocessing(raw_path: Optional[Path] = None) -> bool:
     """
-    Execute the full pipeline:
-    1. Download data (if not present)
-    2. Preprocess 2D descriptors
-    3. Split data
-    4. Train model
-    5. Evaluate model
-    
+    Execute the data preprocessing pipeline.
+
+    Args:
+        raw_path: Optional path to raw SMILES data. Defaults to RAW_DATA_PATH.
+
     Returns:
-        bool: True if pipeline completed successfully, False otherwise.
+        bool: True if preprocessing completed successfully, False otherwise.
     """
-    logger.info("Starting pipeline execution...")
-    
+    if raw_path is None:
+        raw_path = RAW_DATA_PATH
+
+    logger.info(f"Starting data preprocessing from: {raw_path}")
+
+    if not raw_path.exists():
+        logger.error(f"Raw data file not found: {raw_path}")
+        logger.info("Hint: Run code/data/download_qm9.py to fetch the dataset.")
+        return False
+
+    try:
+        # Call the preprocessing function which handles:
+        # - Descriptor computation
+        # - High correlation filtering
+        # - NaN handling
+        # - Batch processing for memory efficiency
+        preprocess_2d(input_path=raw_path, output_path=DESCRIPTORS_PATH)
+        logger.info("Data preprocessing completed successfully.")
+        return True
+    except Exception as e:
+        logger.error(f"Data preprocessing failed: {e}", exc_info=True)
+        return False
+
+
+def run_pipeline(args: argparse.Namespace) -> int:
+    """
+    Execute the full pipeline orchestration.
+
+    Args:
+        args: Parsed command line arguments.
+
+    Returns:
+        int: Exit code (0 for success, non-zero for failure).
+    """
+    logger.info("Starting Molecular Polarity Prediction Pipeline")
+    logger.info(f"Project root: {PROJECT_ROOT}")
+
     # Step 1: Check prerequisites
     if not check_prerequisites():
         logger.error("Prerequisites check failed. Aborting.")
-        return False
-    
+        return 1
+
     # Step 2: Validate 2D compliance
     if not validate_2d_compliance():
         logger.error("2D compliance validation failed. Aborting.")
-        return False
-    
-    # Step 3: Run preprocessing (T013-T018)
-    logger.info("Running preprocessing...")
+        return 1
+
+    # Step 3: Preprocess data if --preprocess flag is set or if descriptors missing
+    if args.preprocess or not DESCRIPTORS_PATH.exists():
+        if not run_data_preprocessing():
+            logger.error("Data preprocessing failed. Aborting.")
+            return 1
+
+        # Re-validate descriptors file after preprocessing
+        if not validate_descriptors_file():
+            logger.error("Descriptors file validation failed after preprocessing. Aborting.")
+            return 1
+    else:
+        # Explicitly validate before training as per T019 requirement
+        if not validate_descriptors_file():
+            logger.error(
+                "Descriptors file missing or invalid. "
+                "Run with --preprocess to generate it."
+            )
+            return 1
+
+    # Step 4: Split data
+    logger.info("Splitting data into train/test sets...")
     try:
-        preprocess_2d(
-            input_path=RAW_DIR / "qm9_smiles.csv",
-            output_path=PROCESSED_DIR / "descriptors.parquet"
-        )
+        split_data_main()
+        logger.info("Data splitting completed.")
     except Exception as e:
-        logger.error(f"Preprocessing failed: {e}")
-        return False
-    
-    # Step 4: Validate descriptors file (T019 check)
-    if not validate_descriptors_file():
-        logger.error("Descriptors validation failed. Aborting.")
-        return False
-    
-    # Step 5: Split data (T022)
-    logger.info("Splitting data...")
-    try:
-        split_data(
-            input_path=PROCESSED_DIR / "descriptors.parquet",
-            output_dir=PROCESSED_DIR
-        )
-    except Exception as e:
-        logger.error(f"Data splitting failed: {e}")
-        return False
-    
-    # Step 6: Train model (T023-T026)
-    logger.info("Training model...")
-    try:
-        train_lightgbm(
-            data_dir=PROCESSED_DIR,
-            output_path=PROCESSED_DIR / "model.pkl"
-        )
-    except Exception as e:
-        logger.error(f"Model training failed: {e}")
-        return False
-    
-    # Step 7: Evaluate model (T027)
-    logger.info("Evaluating model...")
-    try:
-        evaluate_model(
-            model_path=PROCESSED_DIR / "model.pkl",
-            data_dir=PROCESSED_DIR
-        )
-    except Exception as e:
-        logger.error(f"Model evaluation failed: {e}")
-        return False
-    
-    logger.info("Pipeline completed successfully!")
-    return True
+        logger.error(f"Data splitting failed: {e}", exc_info=True)
+        return 1
+
+    # Step 5: Train model
+    if not args.skip_training:
+        logger.info("Training LightGBM model...")
+        try:
+            train_lightgbm_main()
+            logger.info("Model training completed.")
+        except Exception as e:
+            logger.error(f"Model training failed: {e}", exc_info=True)
+            return 1
+
+    # Step 6: Evaluate model
+    if not args.skip_evaluation:
+        logger.info("Evaluating model performance...")
+        try:
+            evaluate_main()
+            logger.info("Model evaluation completed.")
+        except Exception as e:
+            logger.error(f"Model evaluation failed: {e}", exc_info=True)
+            return 1
+
+    # Step 7: Run interpretation (SHAP) if requested
+    if args.run_interpretation:
+        logger.info("Running SHAP interpretation analysis...")
+        try:
+            from models.interpret import main as interpret_main
+            interpret_main()
+            logger.info("Interpretation analysis completed.")
+        except Exception as e:
+            logger.error(f"Interpretation analysis failed: {e}", exc_info=True)
+            return 1
+
+    logger.info("Pipeline completed successfully.")
+    return 0
+
 
 def main():
-    """
-    Main entry point for the pipeline.
-    Parses command line arguments and executes the appropriate action.
-    """
-    if len(sys.argv) > 1:
-        command = sys.argv[1]
-        if command == "run":
-            success = run_pipeline()
-            sys.exit(0 if success else 1)
-        elif command == "validate":
-            success = validate_descriptors_file()
-            sys.exit(0 if success else 1)
-        else:
-            logger.error(f"Unknown command: {command}")
-            print("Usage: python main.py [run|validate]")
-            sys.exit(1)
-    else:
-        # Default to running the pipeline
-        success = run_pipeline()
-        sys.exit(0 if success else 1)
+    """Main entry point for the pipeline."""
+    parser = argparse.ArgumentParser(
+        description="Orchestrate the Molecular Polarity Prediction Pipeline"
+    )
+    parser.add_argument(
+        "--preprocess",
+        action="store_true",
+        help="Force data preprocessing step"
+    )
+    parser.add_argument(
+        "--skip-training",
+        action="store_true",
+        help="Skip model training step"
+    )
+    parser.add_argument(
+        "--skip-evaluation",
+        action="store_true",
+        help="Skip model evaluation step"
+    )
+    parser.add_argument(
+        "--run-interpretation",
+        action="store_true",
+        help="Run SHAP interpretation analysis"
+    )
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Set logging level"
+    )
+
+    args = parser.parse_args()
+
+    # Configure logging
+    set_log_level(args.log_level)
+
+    # Run the pipeline
+    exit_code = run_pipeline(args)
+    sys.exit(exit_code)
+
 
 if __name__ == "__main__":
     main()

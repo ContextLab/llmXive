@@ -1,0 +1,594 @@
+{
+  "fetched_at": "2026-07-16T13:06:25Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy Distillation\"",
+      "target_n": 5
+    },
+    "duration_seconds": 70.304,
+    "ended_at": "2026-07-16T13:06:25Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "weak-to-strong generalization in language models"
+        ],
+        [
+          2,
+          "on-policy distillation for LLMs"
+        ],
+        [
+          3,
+          "teacher-student alignment with stronger models"
+        ],
+        [
+          4,
+          "distillation from weak to strong models"
+        ],
+        [
+          5,
+          "policy distillation in large language models"
+        ],
+        [
+          6,
+          "improving LLM performance via weak supervision"
+        ],
+        [
+          7,
+          "generative model distillation techniques"
+        ],
+        [
+          8,
+          "self-improvement in language models"
+        ],
+        [
+          9,
+          "iterative distillation for model enhancement"
+        ],
+        [
+          10,
+          "knowledge transfer from weak to strong models"
+        ],
+        [
+          11,
+          "direct on-policy training for LLMs"
+        ],
+        [
+          12,
+          "aligning language models via distillation"
+        ],
+        [
+          13,
+          "weak supervision for strong model generation"
+        ],
+        [
+          14,
+          "model distillation with on-policy data"
+        ],
+        [
+          15,
+          "enhancing LLMs through teacher-student frameworks"
+        ],
+        [
+          16,
+          "recursive self-improvement in language models"
+        ],
+        [
+          17,
+          "distillation strategies for generative AI"
+        ],
+        [
+          18,
+          "bridging weak and strong model capabilities"
+        ],
+        [
+          19,
+          "on-policy learning for language model alignment"
+        ],
+        [
+          20,
+          "transfer learning from weak to strong policy models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy Distillation\" computer science": 0,
+        "weak-to-strong generalization in language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "on-policy distillation self-training reward modeling",
+      "Weak-to-Strong Generalization LLM fine-tuning alignment",
+      "student-teacher model knowledge transfer synthetic data",
+      "generalization gap held-out evaluation calibration metrics",
+      "policy gradient reinforcement learning from human feedback"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2410.04571"
+      ]
+    },
+    "per_query_hit_count": {
+      "Weak-to-Strong Generalization LLM fine-tuning alignment": 3,
+      "generalization gap held-out evaluation calibration metrics": 3,
+      "llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy Distillation\" computer science": 3,
+      "on-policy distillation self-training reward modeling": 3,
+      "policy gradient reinforcement learning from human feedback": 3,
+      "student-teacher model knowledge transfer synthetic data": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2409.02228",
+          "rationale": "The paper investigates \"unlearning\" (removing skills via fine-tuning on random labels) and the generalization of that removal, which is a distinct mechanism from \"Weak-to-Strong Generalization via Direct On-Policy Distillation\" (transferring capabilities from a weak model to a strong one). While both involve generalization phenomena in LMs, the candidate paper does not measure the same causal mechanism, variables, or empirical setting required for the user's specific distillation-based research ",
+          "title": "Unforgettable Generalization in Language Models"
+        },
+        {
+          "primary_pointer": "2511.22904",
+          "rationale": "The paper focuses on language-conditioned world models and policy generalization in reinforcement learning environments, which is a distinct construct from the user's specific question about \"Weak-to-Strong Generalization via Direct On-Policy Distillation\" in Large Language Models. While both involve \"generalization,\" the mechanisms (world model dynamics vs. distillation), domains (RL agents vs. LLMs), and specific methodologies do not satisfy the criteria for same-mechanism evidence, shared var",
+          "title": "Language-conditioned world model improves policy generalization by reading environmental descriptions"
+        },
+        {
+          "primary_pointer": "2602.07546",
+          "rationale": "The paper focuses on a specific architectural limitation of Diffusion Language Models (variable-length generation) and proposes a length-regularization framework, which is a distinct mechanism from the \"Weak-to-Strong Generalization via Direct On-Policy Distillation\" methodology the user is investigating. It does not measure the same causal mechanism, share the same independent/dependent variables, or serve as a foundational reference for the specific distillation-based generalization technique ",
+          "title": "Improving Variable-Length Generation in Diffusion Language Models via Length Regularization"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-16T13:05:15Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"weak-to-strong generalization via direct on-policy distillation\" computer science",
+      "raw": "llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy Distillation\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating the value of a hypothetical target policy with only a logged dataset is important but challenging. On the one hand, it brings opportunities for safe policy improvement under high-stakes scenarios like clinical guidelines. On the other hand, such opportunities raise a need for precise off-policy evaluation (OPE). While previous work on OPE focused on improving the algorithm in value estimation, in this work, we emphasize the importance of the offline dataset, hence putting forward a data-centric framework for evaluating OPE problems. We propose DataCOPE, a data-centric framework for evaluating OPE, that answers the questions of whether and to what extent we can evaluate a target policy given a dataset. DataCOPE (1) forecasts the overall performance of OPE algorithms without access to the environment, which is especially useful before real-world deployment where evaluating OPE is impossible; (2) identifies the sub-group in the dataset where OPE can be inaccurate; (3) permits evaluations of datasets or data-collection strategies for OPE problems. Our empirical analysis of DataCOPE in the logged contextual bandit settings using healthcare datasets confirms its ability to evaluate both machine-learning and human expert policies like clinical guidelines. Finally, we apply DataCOPE to the task of reward modeling in Large Language Model alignment to demonstrate its scalability in real-world applications.",
+          "claimed_authors": [
+            "Hao Sun",
+            "Alex J. Chan",
+            "Nabeel Seedat",
+            "Alihan Hüyük",
+            "Mihaela van der Schaar"
+          ],
+          "claimed_title": "When is Off-Policy Evaluation (Reward Modeling) Useful in Contextual Bandits? A Data-Centric Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.14110"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='When is Off-Policy Evaluation (Reward Modeling) Useful in Contextual Bandits? A Data-Centric Perspective')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning from human feedback (RLHF) has emerged as the primary method for aligning large language models (LLMs) with human preferences. The RLHF process typically starts by training a reward model (RM) using human preference data. Conventional RMs are trained on pairwise responses to the same user request, with relative ratings indicating which response humans prefer. The trained RM serves as a proxy for human preferences. However, due to the black-box nature of RMs, their outputs lack interpretability, as humans cannot intuitively understand why an RM thinks a response is good or not. As RMs act as human preference proxies, we believe they should be human-interpretable to ensure that their internal decision processes are consistent with human preferences and to prevent reward hacking in LLM alignment. To build RMs with interpretable preferences, we propose a two-stage approach: i) train an Absolute-Rating Multi-Objective Reward Model (ArmoRM) with multi-dimensional absolute-rating data, each dimension corresponding to a human-interpretable objective (e.g., honesty, verbosity, safety); ii) employ a Mixture-of-Experts (MoE) strategy with a gating network that automatically selects the most suitable reward objectives based on the context. We efficiently trained an ArmoRM with Llama-3 8B and a gating network consisting of a shallow MLP on top of the ArmoRM. Our trained model, ArmoRM-Llama3-8B, obtains state-of-the-art performance on RewardBench, a benchmark evaluating RMs for language modeling. Notably, the performance of our model surpasses the LLM-as-a-judge method with GPT-4 judges by a margin, and approaches the performance of the much larger Nemotron-4 340B reward model.",
+          "claimed_authors": [
+            "Haoxiang Wang",
+            "Wei Xiong",
+            "Tengyang Xie",
+            "Han Zhao",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.12845"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In response to the trade-off between control performance and computational burden hindering the deployment of Deep Reinforcement Learning (DRL) in power inverters, this paper presents a novel model-free control framework leveraging policy distillation. To handle the convergence instability and steady-state errors inherent in model-free agents, an error energy-guided hybrid reward mechanism is established to theoretically constrain the exploration space. More specifically, an adaptive importance weighting mechanism is integrated into the distillation architecture to amplify the significance of fluctuation regions, ensuring high-quality transfer of transient control logic by mitigating the observational bias dominated by steady-state data. This approach efficiently compresses the heavy DRL policy into a lightweight neural network, retaining the desired control performance while overcoming the computational bottleneck during deployment. The proposed method is validated through a hardware-based kilowatt-level experimental platform. Experimental comparison results with traditional methods demonstrate that the proposed technique reduces inference time to the microsecond level and achieves superior transient response speed and parameter robustness.",
+          "claimed_authors": [
+            "Yang Yang",
+            "Chenggang Cui",
+            "Xitong Niu",
+            "Jiaming Liu",
+            "Chuanlin Zhang"
+          ],
+          "claimed_title": "Model-Free DRL Control for Power Inverters: From Policy Learning to Real-Time Implementation via Knowledge Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.07964"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Model-Free DRL Control for Power Inverters: From Policy Learning to Real-Time Implementation via Knowledge Distillation')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in large language models (LLMs) have underscored their vulnerability to safety alignment jailbreaks, particularly when subjected to downstream fine-tuning. However, existing mitigation strategies primarily focus on reactively addressing jailbreak incidents after safety guardrails have been compromised, removing harmful gradients during fine-tuning, or continuously reinforcing safety alignment throughout fine-tuning. As such, they tend to overlook a critical upstream factor: the role of the original safety-alignment data. This paper therefore investigates the degradation of safety guardrails through the lens of representation similarity between upstream alignment datasets and downstream fine-tuning tasks. Our experiments demonstrate that high similarity between these datasets significantly weakens safety guardrails, making models more susceptible to jailbreaks. Conversely, low similarity between these two types of datasets yields substantially more robust models and thus reduces harmfulness score by up to 10.33%. By highlighting the importance of upstream dataset design in the building of durable safety guardrails and reducing real-world vulnerability to jailbreak attacks, these findings offer actionable insights for fine-tuning service providers.",
+          "claimed_authors": [
+            "Lei Hsiung",
+            "Tianyu Pang",
+            "Yung-Chen Tang",
+            "Linyue Song",
+            "Tsung-Yi Ho",
+            "Pin-Yu Chen",
+            "Yaoqing Yang"
+          ],
+          "claimed_title": "Why LLM Safety Guardrails Collapse After Fine-tuning: A Similarity Analysis Between Alignment and Fine-tuning Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.05346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Why LLM Safety Guardrails Collapse After Fine-tuning: A Similarity Analysis Between Alignment and Fine-tuning Datasets')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have demonstrated remarkable capabilities, yet their performance in low-resource languages (LRLs), such as Swahili, often lags due to data scarcity and underrepresentation in pre-training. A key challenge is achieving robust cross-lingual lexical alignment, crucial for tasks like translation and cross-lingual information retrieval. This paper introduces Targeted Lexical Injection (TLI), a novel and efficient fine-tuning approach. We first demonstrate that Lugha-Llama-8B-wura, a Swahili-centric LLM, exhibits strong, near-perfect lexical alignment for Swahili-English word pairs in its early internal layers (specifically Layer 2, with ~0.99998 average cosine similarity based on a pilot study), a capability not fully reflected in its final output representations (baseline ~0.32 similarity on our evaluation set). TLI leverages this insight by using Low-Rank Adaptation (LoRA) and a contrastive learning objective to fine-tune the model, specifically targeting embeddings from this empirically identified optimal early layer. Our experiments show that TLI significantly improves the output-level lexical alignment for 623 trained Swahili-English word pairs, increasing average cosine similarity from 0.3211 to 0.4113 (+28.08%, p < 1.33 x 10^-240). More importantly, these improvements generalize remarkably well to 63 unseen control word pairs, with similarity increasing from 0.3143 to 0.4033 (+28.32%, p < 7.17 x 10^-27). These findings suggest TLI enhances the model's ability to preserve and propagate its inherent early-layer cross-lingual knowledge, offering a parameter-efficient and effective strategy for improving lexical alignment in LRL-focused LLMs.",
+          "claimed_authors": [
+            "Stanley Ngugi"
+          ],
+          "claimed_title": "Targeted Lexical Injection: Unlocking Latent Cross-Lingual Alignment in Lugha-Llama via Early-Layer LoRA Fine-Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.15415"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Targeted Lexical Injection: Unlocking Latent Cross-Lingual Alignment in Lugha-Llama via Early-Layer LoRA Fine-Tuning')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fine-tuning large language models (LLMs) on resource-constrained clients remains a challenging problem. Recent works have fused low-rank adaptation (LoRA) techniques with federated fine-tuning to mitigate challenges associated with client model sizes and data scarcity. Still, the heterogeneity of resources remains a critical bottleneck: while higher-rank modules generally enhance performance, varying client capabilities constrain LoRA's feasible rank range. Existing approaches attempting to resolve this issue either lack analytical justification or impose additional computational overhead, leaving a wide gap for efficient and theoretically-grounded solutions. To address these challenges, we propose federated sketching LoRA (FSLoRA), which leverages a sketching mechanism to enable clients to selectively update submatrices of global LoRA modules maintained by the server. By adjusting the sketching ratios, which determine the ranks of the submatrices on the clients, FSLoRA flexibly adapts to client-specific communication and computational constraints. We provide a rigorous convergence analysis of FSLoRA that characterizes how the sketching ratios affect the convergence rate. Through extensive experiments, we demonstrate that FSLoRA outperforms baselines and significantly improves training efficiency while preserving stable convergence.",
+          "claimed_authors": [
+            "Wenzhi Fang",
+            "Dong-Jun Han",
+            "Liangqi Yuan",
+            "Seyyedali Hosseinalipour",
+            "Christopher G. Brinton"
+          ],
+          "claimed_title": "Federated Sketching LoRA: A Flexible Framework for Heterogeneous Collaborative Fine-Tuning of LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.19389"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Federated Sketching LoRA: A Flexible Framework for Heterogeneous Collaborative Fine-Tuning of LLMs')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a data model describing the structure of spectrophotometric datasets with spectral and temporal coordinates and associated metadata. This data model may be used to represent spectra, time series data, segments of SED (Spectral Energy Distributions) and other spectral or temporal associations.",
+          "claimed_authors": [
+            "Jonathan McDowell",
+            "Doug Tody",
+            "Tamas Budavari",
+            "Markus Dolensky",
+            "Inga Kamp",
+            "Kelly McCusker",
+            "Pavlos Protopapas",
+            "Arnold Rots",
+            "Randy Thompson",
+            "Frank Valdes",
+            "Petr Skoda",
+            "Bruno Rino",
+            "Sebastien Derriere",
+            "Jesus Salgado",
+            "Omar Laurino",
+            "the IVOA Data Access Layer",
+            "Data Model Working Groups"
+          ],
+          "claimed_title": "IVOA Recommendation: Spectrum Data Model 1.1",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1204.3055"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='IVOA Recommendation: Spectrum Data Model 1.1')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic data (SD) have garnered attention as a privacy enhancing technology. Unfortunately, there is no standard for quantifying their degree of privacy protection. In this paper, we discuss proposed quantification approaches. This contributes to the development of SD privacy standards; stimulates multi-disciplinary discussion; and helps SD researchers make informed modeling and evaluation decisions.",
+          "claimed_authors": [
+            "Alexander Boudewijn",
+            "Andrea Filippo Ferraris",
+            "Daniele Panfilo",
+            "Vanessa Cocca",
+            "Sabrina Zinutti",
+            "Karel De Schepper",
+            "Carlo Rossi Chauvenet"
+          ],
+          "claimed_title": "Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17453"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Semantic caching cuts LLM inference costs by serving a cached response to semantically similar queries. Standard practice evaluates these systems using PR-AUC, a metric that only measures how well scores rank and ignores whether they are usable at a fixed threshold. We show this mismatch leads to systematically poor deployment choices, as models with the highest PR-AUC are often the worst in operation. We introduce Precision-Cache Hit Ratio (P-CHR) AUC, a cache-aware metric that measures precision across cache utilization levels, and Calibration Retention Rate (CRR), which captures how much offline ranking quality survives at deployment. We decompose the operational gap between offline and deployed quality into a recoverable calibration component and an irreducible structural component fixed by the dataset's positive rate. Our experiments show that the calibration gap is governed by the training objective rather than data scale, and post-hoc calibration only partially closes it. Ultimately, model selection for semantic caching is a calibration problem, not a ranking one, and measuring it is the first step to closing the gap.",
+          "claimed_authors": [
+            "Aditeya Baral",
+            "Radoslav Ralev",
+            "Iliya Sotirov Zhechev",
+            "Srijith Rajamohan",
+            "Jen Agarwal"
+          ],
+          "claimed_title": "Closing the Calibration Gap in Semantic Caching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.19719"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Closing the Calibration Gap in Semantic Caching')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_authors": [
+            "Dayananda Herurkar",
+            "Ahmad Ali",
+            "Andreas Dengel"
+          ],
+          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20900"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Classifier calibration has received recent attention from the machine learning community due both to its practical utility in facilitating decision making, as well as the observation that modern neural network classifiers are poorly calibrated. Much of this focus has been towards the goal of learning classifiers such that their output with largest magnitude (the \"predicted class\") is calibrated. However, this narrow interpretation of classifier outputs does not adequately capture the variety of practical use cases in which classifiers can aid in decision making. In this work, we argue that more expressive metrics must be developed that accurately measure calibration error for the specific context in which a classifier will be deployed. To this end, we derive a number of different metrics using a generalization of Expected Calibration Error (ECE) that measure calibration error under different definitions of reliability. We then provide an extensive empirical evaluation of commonly used neural network architectures and calibration techniques with respect to these metrics. We find that: 1) definitions of ECE that focus solely on the predicted class fail to accurately measure calibration error under a selection of practically useful definitions of reliability and 2) many common calibration techniques fail to improve calibration performance uniformly across ECE metrics derived from these diverse definitions of reliability.",
+          "claimed_authors": [
+            "John Kirchenbauer",
+            "Jacob Oaks",
+            "Eric Heim"
+          ],
+          "claimed_title": "What is Your Metric Telling You? Evaluating Classifier Calibration under Context-Specific Definitions of Reliability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.11454"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='What is Your Metric Telling You? Evaluating Classifier Calibration under Context-Specific Definitions of Reliability')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many currently deployed Reinforcement Learning agents work in an environment shared with humans, be them co-workers, users or clients. It is desirable that these agents adjust to people's preferences, learn faster thanks to their help, and act safely around them. We argue that most current approaches that learn from human feedback are unsafe: rewarding or punishing the agent a-posteriori cannot immediately prevent it from wrong-doing. In this paper, we extend Policy Gradient to make it robust to external directives, that would otherwise break the fundamentally on-policy nature of Policy Gradient. Our technique, Directed Policy Gradient (DPG), allows a teacher or backup policy to override the agent before it acts undesirably, while allowing the agent to leverage human advice or directives to learn faster. Our experiments demonstrate that DPG makes the agent learn much faster than reward-based approaches, while requiring an order of magnitude less advice.",
+          "claimed_authors": [
+            "Hélène Plisnier",
+            "Denis Steckelmacher",
+            "Tim Brys",
+            "Diederik M. Roijers",
+            "Ann Nowé"
+          ],
+          "claimed_title": "Directed Policy Gradient for Safe Reinforcement Learning with Human Advice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.04096"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Directed Policy Gradient for Safe Reinforcement Learning with Human Advice')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To use reinforcement learning from human feedback (RLHF) in practical applications, it is crucial to learn reward models from diverse sources of human feedback and to consider human factors involved in providing feedback of different types. However, the systematic study of learning from diverse types of feedback is held back by limited standardized tooling available to researchers. To bridge this gap, we propose RLHF-Blender, a configurable, interactive interface for learning from human feedback. RLHF-Blender provides a modular experimentation framework and implementation that enables researchers to systematically investigate the properties and qualities of human feedback for reward learning. The system facilitates the exploration of various feedback types, including demonstrations, rankings, comparisons, and natural language instructions, as well as studies considering the impact of human factors on their effectiveness. We discuss a set of concrete research opportunities enabled by RLHF-Blender. More information is available at https://rlhfblender.info/.",
+          "claimed_authors": [
+            "Yannick Metz",
+            "David Lindner",
+            "Raphaël Baur",
+            "Daniel Keim",
+            "Mennatallah El-Assady"
+          ],
+          "claimed_title": "RLHF-Blender: A Configurable Interactive Interface for Learning from Diverse Human Feedback",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.04332"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='RLHF-Blender: A Configurable Interactive Interface for Learning from Diverse Human Feedback')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We argue for the epistemic and ethical advantages of pluralism in Reinforcement Learning from Human Feedback (RLHF) in the context of Large Language Models (LLM). Drawing on social epistemology and pluralist philosophy of science, we suggest ways in which RHLF can be made more responsive to human needs and how we can address challenges along the way. The paper concludes with an agenda for change, i.e. concrete, actionable steps to improve LLM development.",
+          "claimed_authors": [
+            "Kristian González Barman",
+            "Simon Lohse",
+            "Henk de Regt"
+          ],
+          "claimed_title": "Reinforcement Learning from Human Feedback: Whose Culture, Whose Values, Whose Perspectives?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.17482"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Weak-to-Strong Generalization via Direct On-Policy', candidate_title='Reinforcement Learning from Human Feedback: Whose Culture, Whose Values, Whose Perspectives?')",
+        "failed_at": "2026-07-16T13:05:47Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aakriti Agrawal",
+            "Mucong Ding",
+            "Zora Che",
+            "Chenghao Deng",
+            "Anirudh Satheesh",
+            "Bang An",
+            "Bayan Bruss",
+            "John Langford",
+            "Furong Huang"
+          ],
+          "title": "EnsemW2S: Enhancing Weak-to-Strong Generalization with Large Language Model Ensembles",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.04571",
+        "summary": "With Large Language Models (LLMs) rapidly approaching and potentially surpassing human-level performance, it has become imperative to develop approaches capable of effectively supervising and enhancing these powerful models using smaller, human-level models exposed to only human-level data. We address this critical weak-to-strong (W2S) generalization challenge by proposing a novel method aimed at improving weak experts, by training on the same limited human-level data, enabling them to generalize to complex, super-human-level tasks. Our approach, called **EnsemW2S**, employs a token-level ensemble strategy that iteratively combines multiple weak experts, systematically addressing the shortcomings identified in preceding iterations. By continuously refining these weak models, we significantly enhance their collective ability to supervise stronger student models. We extensively evaluate the generalization performance of both the ensemble of weak experts and the subsequent strong student model across in-distribution (ID) and out-of-distribution (OOD) datasets. For OOD, we specifically introduce question difficulty as an additional dimension for defining distributional shifts. Our empirical results demonstrate notable improvements, achieving 4%, and 3.2% improvements on ID datasets and, upto 6% and 2.28% on OOD datasets for experts and student models respectively, underscoring the effectiveness of our proposed method in advancing W2S generalization.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.04571",
+          "http_status": 200,
+          "pdf_sample_score": 0.2799,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T13:05:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.21676",
+        "summary": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.21676",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T13:06:01Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"weak-to-strong generalization via direct on-policy distillation\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

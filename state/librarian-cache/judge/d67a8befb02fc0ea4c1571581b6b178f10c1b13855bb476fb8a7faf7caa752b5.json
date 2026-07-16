@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.22904",
+  "judged_at": "2026-07-16T13:06:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"weak-to-strong generalization via direct on-policy distillation\" computer science",
+  "rationale": "The paper focuses on language-conditioned world models and policy generalization in reinforcement learning environments, which is a distinct construct from the user's specific question about \"Weak-to-Strong Generalization via Direct On-Policy Distillation\" in Large Language Models. While both involve \"generalization,\" the mechanisms (world model dynamics vs. distillation), domains (RL agents vs. LLMs), and specific methodologies do not satisfy the criteria for same-mechanism evidence, shared var",
+  "relevant": false
+}

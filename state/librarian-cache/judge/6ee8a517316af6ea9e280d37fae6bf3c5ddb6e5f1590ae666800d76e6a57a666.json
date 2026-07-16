@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.21676",
+  "judged_at": "2026-07-16T13:06:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"weak-to-strong generalization via direct on-policy distillation\" computer science",
+  "rationale": "This paper satisfies criterion (a) by investigating the underlying learning dynamics and mechanistic circuits (attention-based) of knowledge acquisition in LLMs, which is the same biological/algorithmic mechanism relevant to understanding how \"Weak-to-Strong\" generalization and on-policy distillation function. It also meets criterion (b) by measuring the dependent variable of knowledge retention and the impact of data distribution, which are critical components for evaluating the efficacy of any",
+  "relevant": true
+}

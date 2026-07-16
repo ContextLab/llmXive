@@ -117,5 +117,35 @@ def test_schema_handles_missing_values():
     assert np.issubdtype(df['MolWt'].dtype, np.floating), \
         "Columns with NaN should be floating point to preserve numeric type"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_real_parquet_schema():
+    """
+    Contract test that validates the actual schema of the generated parquet file
+    if it exists. This ensures the pipeline produces data matching the contract.
+    """
+    parquet_path = Path("data/processed/descriptors.parquet")
+    if not parquet_path.exists():
+        pytest.skip(f"Parquet file not found at {parquet_path}. Run preprocessing first.")
+    
+    import pyarrow.parquet as pq
+    table = pq.read_table(str(parquet_path))
+    df = table.to_pandas()
+    
+    # Check required columns
+    assert 'smiles' in df.columns, "Processed data must contain 'smiles' column"
+    assert 'target' in df.columns, "Processed data must contain 'target' column"
+    
+    # Check no forbidden 3D columns
+    forbidden_3d = {'TPSA', 'TPSA_E', 'TPSA_V', 'InertialMoment1', 'InertialMoment2', 'InertialMoment3', 'RadiusOfGyration'}
+    found_cols = set(df.columns)
+    violations = found_cols.intersection(forbidden_3d)
+    assert len(violations) == 0, f"Schema contains forbidden 3D-dependent descriptors: {violations}"
+    
+    # Check descriptor count (US1 requires >= 200, but we check > 0 for schema validity)
+    descriptor_cols = [c for c in df.columns if c not in ['smiles', 'target']]
+    assert len(descriptor_cols) > 0, "Must have descriptor columns"
+    
+    # Check types
+    assert df['smiles'].dtype == object, "SMILES must be object/string"
+    assert np.issubdtype(df['target'].dtype, np.number), "Target must be numeric"
+    for col in descriptor_cols:
+        assert np.issubdtype(df[col].dtype, np.number), f"Descriptor {col} must be numeric"

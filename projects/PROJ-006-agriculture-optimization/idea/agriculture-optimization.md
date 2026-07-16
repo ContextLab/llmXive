@@ -11,11 +11,11 @@ submitter: legacy:llmxive-automation
 
 ## Research question
 
-How does the adoption of specific climate-smart agricultural (CSA) practices (e.g., regenerative soil management, precision irrigation) correlate with yield stability and household food security metrics in smallholder farming systems, independent of access to credit?
+How does the adoption of specific climate-smart agricultural practices, as verified by remote sensing or agronomic extension records, correlate with yield stability and household food security metrics in smallholder farming systems, independent of access to credit?
 
 ## Motivation
 
-Smallholder farmers face increasing climate volatility that threatens global food security, yet the specific contribution of CSA practices to yield stability remains confounded by socioeconomic factors like access to finance. This research addresses the gap in quantifying the direct agronomic and livelihood benefits of CSA while controlling for financial constraints, providing evidence for targeted policy interventions.
+Smallholder farmers face increasing climate volatility that threatens global food security, yet the specific contribution of climate-smart agricultural (CSA) practices to yield stability remains confounded by socioeconomic factors like access to finance. This research addresses the gap in quantifying the direct agronomic and livelihood benefits of CSA while controlling for financial constraints, providing evidence for targeted policy interventions that distinguish between financial enablement and agronomic efficacy.
 
 ## Literature gap analysis
 
@@ -43,22 +43,23 @@ We expect to find a statistically significant positive correlation between the i
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the FAO's "Global Information and Early Warning System on Food and Agriculture" (GIEWS) microdata or the World Bank's "LSMS-ISA" (Living Standards Measurement Study - Integrated Surveys on Agriculture) dataset for a specific region (e.g., Sub-Saharan Africa) from the official repositories (e.g., `data.worldbank.org` or `fao.org`).
+- **Data Acquisition**: Download the World Bank's "LSMS-ISA" (Living Standards Measurement Study - Integrated Surveys on Agriculture) dataset for a specific region (e.g., Malawi or Tanzania) from `datacatalog.worldbank.org`. Ensure the dataset includes household panels, crop production records, and financial access indicators.
 - **Variable Construction**:
-    - *Predictor*: Construct a "CSA Adoption Index" based on binary indicators for practices like crop rotation, conservation tillage, and drought-resistant varieties found in the survey.
-    - *Outcome*: Define "Yield Stability" as the coefficient of variation (CV) of crop yields over a 5-year period (if panel data exists) or the deviation from regional mean yield for a cross-section.
-    - *Confounder*: Extract "Access to Finance" as a binary or continuous variable (e.g., loan received, savings account).
+    - *Predictor*: Construct a "CSA Adoption Index" based on binary indicators for practices like crop rotation, conservation tillage, and drought-resistant varieties found in the survey. *Note: Since remote sensing verification is often unavailable in public microdata, we will use the survey's "extension service visit" variable as a proxy for verified adoption, ensuring the predictor is distinct from the outcome.*
+    - *Outcome*: Define "Yield Stability" as the inverse of the coefficient of variation (CV) of crop yields over the available panel years (or the deviation from regional mean yield if only cross-section is available).
+    - *Confounder*: Extract "Access to Finance" as a binary or continuous variable (e.g., loan received, savings account balance).
 - **Statistical Analysis**:
-    - Perform a multiple linear regression: `Yield Stability ~ CSA Index + Access to Finance + Control Variables (Land Size, Education, Rainfall)`.
-    - To address the "circular validation" concern, ensure the outcome (Yield Stability) is derived from historical production records in the dataset, while the predictor (CSA Index) is derived from reported practices in the same survey; verify that the statistical test (regression) assesses the association without using the outcome to construct the predictor.
+    - Perform a multiple linear regression: `Yield Stability ~ CSA Index + Access to Finance + Control Variables (Land Size, Education, Rainfall, Household Size)`.
+    - Use robust standard errors to account for heteroskedasticity common in agricultural data.
 - **Power Analysis & Effect Size Justification**:
-    - Instead of assuming a standardized mean difference (d=0.30) without basis, calculate the observed standard deviation of yields from the downloaded dataset.
+    - Calculate the observed standard deviation of yields from the downloaded dataset.
     - Define the "hypothesized effect" as a 10% increase in mean yield relative to the dataset's baseline mean.
-    - Convert this 10% absolute change into a standardized effect size (Cohen's d) using the calculated sample standard deviation: $d = \frac{0.10 \times \text{Mean}}{\text{SD}}$.
-    - Use this empirically derived $d$ to perform a power analysis (using `pwr` package in R or `statsmodels` in Python) to confirm if the available sample size (N) supports 80% power. If N is insufficient, the scope will be adjusted to an exploratory correlation analysis rather than a hypothesis test.
+    - Convert this 10% absolute change into a standardized effect size (Cohen's d) using the calculated sample standard deviation.
+    - Use this empirically derived $d$ to perform a power analysis (using `statsmodels` in Python) to confirm if the available sample size supports 80% power. If N is insufficient, the scope will be adjusted to an exploratory correlation analysis.
 - **Validation Independence Check**:
-    - Ensure the validation metric (e.g., model fit or significance of the CSA coefficient) does not rely on the same variables used to construct the CSA index.
-    - Use a hold-out set or bootstrapping (if data volume permits within 6h/7GB limits) to verify robustness, ensuring the evaluation target (predictive accuracy of yield stability) is not a mathematical identity of the input features.
+    - Ensure the validation metric (significance of the CSA coefficient) does not rely on the same variables used to construct the CSA index.
+    - The outcome (Yield Stability) is derived from historical production records, while the predictor (CSA Index) is derived from reported practices and extension visits; these are distinct measurements within the survey.
+    - Use a bootstrapping approach (1,000 iterations) to verify the robustness of the coefficient estimates, ensuring the result is not an artifact of specific sample outliers.
 - **Output Generation**: Produce a summary report containing regression coefficients, p-values, and a visual plot of the relationship between CSA intensity and yield stability, controlling for finance.
 
 ## Duplicate-check
@@ -70,7 +71,7 @@ We expect to find a statistically significant positive correlation between the i
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T07:05:10Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-16T12:46:05Z
 **Outcome**: exhausted
 **Original term**: Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security agriculture
 **Verified citation count**: 4
