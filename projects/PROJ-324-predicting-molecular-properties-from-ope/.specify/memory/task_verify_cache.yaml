@@ -1,0 +1,23 @@
+T015:
+  c: false
+  h: 9651e8f5b931d0546515fd0097983f107df948118408b81a5ebe60858c8779f5
+  r: The `code/analysis/stats.py` file exists and contains functions to load predictions
+    and compute MAE/RMSE, but the required output artifact `data/derived/baseline_residuals.png`
+    is missing, indicating the script does not generate (or at least did not produce)
+    the residual distribution plot. The task therefore is not fully satisfied.
+T022:
+  c: false
+  h: 8c82ffa02b8acac19868270100b77bd902ca5647365d496cc716b03173dc2ba2
+  r: "The required output file `data/derived/model_comparison.png` does not exist,\
+    \ and the shown portion of `code/analysis/stats.py` contains only data loading\
+    \ and metric calculations with no code that creates or saves the comparison plot.\
+    \ Consequently the task\u2019s core requirement (generating and saving the plot)\
+    \ is not satisfied."
+T027:
+  c: false
+  h: c5960ec077d3dc9336cb9205670a5cae38359b09cbe45e08bab8a91b6295cec6
+  r: The `code/analysis/explainability.py` file is truncated and does not contain
+    the logic to compute SHAP interaction values, select top interacting fingerprint
+    bit pairs, create a heatmap, or save it as `data/derived/shap_interactions.png`.
+    Moreover, the required PNG file is absent from the repository. Both the implementation
+    and the output artifact are missing.

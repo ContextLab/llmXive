@@ -1,0 +1,31 @@
+# Ruff configuration for PROJ-324
+# See: https://docs.astral.sh/ruff/configuration/
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "ARG", "SIM"]
+ignore = [
+  "E501",  # Line too long (handled by black)
+  "B008",  # Do not perform function call in argument defaults (common in data classes)
+]
+
+# Exclude generated files and virtual environments
+extend-exclude = [
+  "__pycache__",
+  "*.pyc",
+  ".git",
+  ".venv",
+  "venv",
+  "data",
+  "build",
+  "dist",
+]
+
+[lint.per-file-ignores]
+# Allow unused imports in __init__.py for public API re-exports
+"__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = ["code"]
+force-single-line = true
+lines-after-imports = 2

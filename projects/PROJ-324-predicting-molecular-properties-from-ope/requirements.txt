@@ -1,0 +1,11 @@
+rdkit
+scikit-learn
+shap
+pandas
+numpy
+datasets
+requests
+obabel-wrapper
+ruff
+black
+tomllib

@@ -1,0 +1,125 @@
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: diverse dataset of at least 5000 molecules with SMILES and experimental
+    properties
+  claim_id: c_af8f8dab
+  context: "T008 [P] [US1] Implement code/data/download.py to fetch a diverse dataset\
+    \ (\u22655,000 molecules) with SMILES and experimental logP, solubility, boiling\
+    \ point from verified sources (e.g., HuggingFace 'chembl' or 'molecule-net'),\
+    \ ensuring real data only."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Diverse_dataset_of_at_least_5000_molecules_with_SMILES_and_e
+  kind: magnitude
+  raw_text: "fetch a diverse dataset (\u22655,000 molecules) with SMILES and experimental\
+    \ logP, solubility, boiling point from verified sources (e.g., HuggingFace 'chembl'\
+    \ or 'molecule-net')"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:18:30Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: diverse subset selection with Tanimoto similarity less than 0.7
+  claim_id: c_be758496
+  context: T010 [P] [US1] Implement code/data/preprocess.py to define the MaxMin sampling
+    strategy for calculating Tanimoto similarity. This task must define the algorithm
+    to select a diverse subset (Tanimoto < 0.7) from the preprocessed data to ensure
+    computational feasibility (O(N) or O(N log N) complexity) on the 2-core runner.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Diverse_subset_selection_with_Tanimoto_similarity_less_than
+  kind: magnitude
+  raw_text: select a diverse subset (Tanimoto < 0.7) from the preprocessed data
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:19:20Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: final diverse dataset of at least 5000 molecules
+  claim_id: c_35c702cd
+  context: "T011 [P] [US1] Implement code/data/preprocess.py to execute the diversity\
+    \ filtering using the strategy defined in T010, producing the final diverse dataset\
+    \ of \u22655,000 molecules. This task consumes the output of T009."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_diverse_dataset_of_at_least_5000_molecules
+  kind: magnitude
+  raw_text: "produce the final diverse dataset of \u22655,000 molecules"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:19:53Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Open Babel fingerprints generated include MACCS, ECFP4, and FP2
+  claim_id: c_9f3b866f
+  context: T019 [US2] Implement code/data/fingerprints.py to generate Open Babel fingerprints
+    (MACCS, ECFP4, FP2) by invoking the obabel command-line tool via subprocess (per
+    FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Open_Babel_fingerprints_generated_include_MACCS,_ECFP4,_and
+  kind: entity_fact
+  raw_text: generate Open Babel fingerprints (MACCS, ECFP4, FP2)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:20:14Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: dataset sampling limit of 5000 molecules
+  claim_id: c_55f17f1b
+  context: "T020 [US2] Implement code/models/random_forest.py to train RF regressors\
+    \ using the Nested CV structure (T019.5) with hyperparameter tuning via 3-fold\
+    \ cross-validation, ensuring max_depth limits and dataset sampling (\u22645k)\
+    \ to fit CPU constraints (FR-004)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "dataset sampling (\u22645k)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:20:14Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: stability analysis sweeping interaction strength cutoffs at 0.01, 0.05,
+    and 0.1
+  claim_id: c_2e37ec99
+  context: T028 [US3] Implement code/analysis/explainability.py to perform a stability
+    analysis on the interaction strength cutoff (sweeping {0.01, 0.05, 0.1}), calculate
+    the Jaccard similarity of identified sets across thresholds, and report results
+    to data/derived/stability_analysis.csv (per SC-005 and FR-006).
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: perform a stability analysis on the interaction strength cutoff (sweeping
+    {0.01, 0.05, 0.1})
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T15:20:14Z'
