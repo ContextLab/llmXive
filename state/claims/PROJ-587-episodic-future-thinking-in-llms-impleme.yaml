@@ -681,25 +681,6 @@
   status: not_enough_info
   updated_at: '2026-07-05T13:07:52Z'
 - artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
-  attempts: 2
-  canonical: top-5 retrieval precision 0.80 with cosine similarity 0.75 within 500ms
-    on CPU for 100 trajectories
-  claim_id: c_b4bf1061
-  context: "Independent Test: Record 100 planning trajectories, store them, and verify\
-    \ top-5 retrieval precision \u2265 0.80 with cosine similarity \u2265 0.75 within\
-    \ 500ms on CPU."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Record 100 planning trajectories, store them, and verify top-5 retrieval\
-    \ precision \u2265 0.80 with cosine similarity \u2265 0.75 within 500ms on CPU."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T01:05:47Z'
-- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
   attempts: 1
   canonical: power analysis report with 10 variants, power 0.80, and effect size 0.8
   claim_id: c_5cc803a2
@@ -734,46 +715,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T01:08:35Z'
-- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
-  attempts: 1
-  canonical: recruit at least 3 human raters
-  claim_id: c_bb50ec4f
-  context: "Implement protocol for recruiting \u2265 3 human raters and managing the\
-    \ evaluation interface in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/evaluation_protocol.md`."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Recruit_at_least_3_human_raters
-  kind: magnitude
-  raw_text: "implement protocol for recruiting \u2265 3 human raters"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T01:09:23Z'
-- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
-  attempts: 1
-  canonical: index build time less than 10s for 10000 entries
-  claim_id: c_4400bdbc
-  context: 'Performance optimization: Tune FAISS HNSW parameters in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py`
-    to achieve index build time < 10s for 10k entries.'
-  evidence:
-    candidates:
-    - - Index build time less than 10s for
-      - 10000.0
-    - - Look for Index build time less than
-      - 10.0
-    ordering_correct: false
-    source_url: https://en.wikipedia.org/wiki/Index_build_time_less_than_10s_for_10000_entries
-  kind: magnitude
-  raw_text: tune FAISS HNSW parameters to achieve index build time < 10s for 10k entries.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: refuted
-  updated_at: '2026-07-07T01:11:02Z'
 - artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
   attempts: 1
   canonical: retrieval latency < 0.5s for 1k entries
@@ -1190,3 +1131,169 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T15:52:07Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 3
+  canonical: top-5 retrieval precision 0.80 with cosine similarity 0.75 within 500ms
+    on CPU for 100 trajectories
+  claim_id: c_b4bf1061
+  context: "Independent Test: Record 100 planning trajectories, store them, and verify\
+    \ top-5 retrieval precision \u2265 0.80 with cosine similarity \u2265 0.75 within\
+    \ 500ms on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Record 100 planning trajectories, store them, and verify top-5 retrieval\
+    \ precision \u2265 0.80 with cosine similarity \u2265 0.75 within 500ms on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:34:27Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: effect size d 0.8 for 50 held-out tasks against baseline
+  claim_id: c_84e7f2e4
+  context: "Independent Test: Generate plans for 50 held-out tasks; measure accuracy\
+    \ against baseline; report effect size d\u22650.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate plans for 50 held-out tasks; measure accuracy against baseline;\
+    \ report effect size d\u22650.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:42:26Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: power analysis report with n 10 variants, power 0.80, d 0.8
+  claim_id: c_7de7e8ed
+  context: Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py`
+    function `run_power_analysis()` to generate a pre-registered power analysis report
+    (n=10 variants, power=0.80, d=0.8) and save to `data/reports/power_analysis_report.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `run_power_analysis()` to generate a pre-registered power analysis
+    report (n=10 variants, power=0.80, d=0.8).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:47:22Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: models and data processing fit within 7GB RAM on 2 CPU cores
+  claim_id: c_fb490de7
+  context: '**CPU Constraint**: All models and data processing MUST fit within 7GB
+    RAM and run on 2 CPU cores. No CUDA, no 8-bit quantization, no large LLMs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All models and data processing MUST fit within 7GB RAM and run on 2 CPU
+    cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:47:41Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: memory footprint less than 7GB during index construction
+  claim_id: c_64388c90
+  context: Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/profile_memory.py`
+    to verify memory footprint < 7GB during index construction.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_footprint_less_than_7GB_during_index_construction
+  kind: magnitude
+  raw_text: verify memory footprint < 7GB during index construction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:47:58Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: retrieval latency less than 0.5s and memory usage less than 7GB
+  claim_id: c_39471d4b
+  context: Write test `test_retrieval_latency_10k` ... that loads real entries from
+    `data/processed/trajectories.parquet` ... and asserts `latency < 0.5s` and `memory_usage
+    < 7GB`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Retrieval_latency_less_than_0.5s_and_memory_usage_less_than
+  kind: magnitude
+  raw_text: assert latency < 0.5s and memory_usage < 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:48:20Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 1
+  canonical: conflict flagged if similarity difference less than 0.15
+  claim_id: c_d919a6b0
+  context: 'Logic: Flag conflict if similarity difference < 0.15; default to most
+    recent.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Conflict_flagged_if_similarity_difference_less_than_0.15
+  kind: magnitude
+  raw_text: Flag conflict if similarity difference < 0.15; default to most recent.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:48:42Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 2
+  canonical: index build time less than 10s for 10000 entries
+  claim_id: c_4400bdbc
+  context: 'Performance optimization: Tune FAISS HNSW parameters in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py`
+    to achieve index build time < 10s for 10k entries.'
+  evidence:
+    candidates:
+    - - Index build time less than 10s for
+      - 10000.0
+    - - Look for Index build time less than
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Index_build_time_less_than_10s_for_10000_entries
+  kind: magnitude
+  raw_text: tune FAISS HNSW parameters to achieve index build time < 10s for 10k entries.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-16T04:48:58Z'
+- artifact_path: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/specs/001-episodic-future-thinking-in-llms-impleme/tasks.md
+  attempts: 2
+  canonical: recruit at least 3 human raters
+  claim_id: c_bb50ec4f
+  context: "Implement protocol for recruiting \u2265 3 human raters and managing the\
+    \ evaluation interface in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/evaluation_protocol.md`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recruit_at_least_3_human_raters
+  kind: magnitude
+  raw_text: "implement protocol for recruiting \u2265 3 human raters"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:49:16Z'

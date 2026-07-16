@@ -1,1 +1,2 @@
-# This directory holds intermediate processed data.
+# This directory stores intermediate preprocessed data.
+# Ensure .gitkeep exists to track the directory in git.

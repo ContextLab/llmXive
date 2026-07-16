@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T03:17:55.666659Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-070-quantifying-the-information-content-of-q
-last_run_id: 8c0dede8-9de1-43f0-a92c-49834d17bfb2
+last_run_id: ed558524-a0ac-4ed4-b0e7-617cfb2779c8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Quantifying the Information Content of Quantum Entanglement in Many-Body Systems
-updated_at: '2026-06-16T20:42:52.402330Z'
+updated_at: '2026-07-16T04:31:54.464398Z'

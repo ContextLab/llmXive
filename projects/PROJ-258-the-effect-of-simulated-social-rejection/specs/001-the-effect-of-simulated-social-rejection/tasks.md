@@ -71,8 +71,8 @@
 
 ### Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T010 [P] [US1] Contract test in `tests/test_ingest.py::test_schema_validates_single_cohort` to assert `exit_code == 0` when single-cohort data is found
-- [ ] T011 [P] [US1] Integration test in `tests/test_ingest.py::test_download_and_validate_composite` to verify successful ingestion and design switching when single-cohort is missing
+- [X] T010 [P] [US1] Contract test in `tests/test_ingest.py::test_schema_validates_single_cohort` to assert `exit_code == 0` when single-cohort data is found
+- [X] T011 [P] [US1] Integration test in `tests/test_ingest.py::test_download_and_validate_composite` to verify successful ingestion and design switching when single-cohort is missing
 
 ### Implementation for User Story 1
 
@@ -119,15 +119,15 @@
 
 ### Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T025 [P] [US3] Contract test in `tests/test_analysis.py::test_anova_selection_logic` to assert correct ANOVA type selection
-- [ ] T026 [P] [US3] Integration test in `tests/test_analysis.py::test_fdr_and_sensitivity` to verify FDR correction and sensitivity sweep
+- [X] T025 [P] [US3] Contract test in `tests/test_analysis.py::test_anova_selection_logic` to assert correct ANOVA type selection
+- [X] T026 [P] [US3] Integration test in `tests/test_analysis.py::test_fdr_and_sensitivity` to verify FDR correction and sensitivity sweep
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `code/analysis.py` with `run_anova(df, design_type)` to select Mixed ANOVA (Within) or One-Way ANOVA (Between). **If design_type is Between-Subjects, explicitly drop the "modulation" claim and flag the inability to test it.**
-- [ ] T028 [US3] Implement `apply_fdr(p_values)` in `code/analysis.py` using Benjamini-Hochberg method (FR-004)
-- [ ] T029 [US3] Implement `sensitivity_sweep(df, alpha_set={0.01, 0.05, 0.1})` in `code/analysis.py` (FR-006)
-- [ ] T030 [US3] Implement `generate_report_logic(results, design_type)` in `code/report.py`. **MUST enforce "associational" phrasing in Limitations when design_type is Between-Subjects.**
+- [X] T027 [P] [US3] Implement `code/analysis.py` with `run_anova(df, design_type)` to select Mixed ANOVA (Within) or One-Way ANOVA (Between). **If design_type is Between-Subjects, explicitly drop the "modulation" claim and flag the inability to test it.**
+- [X] T028 [US3] Implement `apply_fdr(p_values)` in `code/analysis.py` using Benjamini-Hochberg method (FR-004)
+- [X] T029 [US3] Implement `sensitivity_sweep(df, alpha_set={0.01, 0.05, 0.1})` in `code/analysis.py` (FR-006)
+- [X] T030 [US3] Implement `generate_report_logic(results, design_type)` in `code/report.py`. **MUST enforce "associational" phrasing in Limitations when design_type is Between-Subjects.**
 - [ ] T031 [US3] Add convergence warning logic for small N (N < 30) and report effect size confidence intervals
 - [ ] T033 [US3] Implement `save_final_results(results, design_type)` in `code/report.py` to write `data/processed/final_results.json` ensuring the `p_fdr` column is present (SC-003) and `design_type` is recorded (FR-008).
 - [ ] T034 [US3] Implement `verify_report_constraints()` in `tests/test_report.py` to assert that `reports/final_report.md` contains the exact phrase "associational" in Limitations and excludes "causal" in Results (FR-003).

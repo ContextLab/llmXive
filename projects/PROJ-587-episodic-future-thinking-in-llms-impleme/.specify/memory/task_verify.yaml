@@ -1,11 +1,2 @@
-? 'T006 [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/reference_validator.py`
-  and pre-commit hook for citation verification (Constitution Principle II). Note:
-  Updated scope to validate `plan.md` as it is the `implementation-plan` artifact.'
-: 2
-? 'T007b [P] Create `FutureScenario` Pydantic model in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/future_scenario.py`
-  with fields: `scenario_id`, `generated_plan`, `episodic_references`, `counterfactual_details`,
-  `confidence_scores`.'
-: 1
-? T008a [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/logging.py`
-  with JSON formatter, file output, and `fallback_event` logger.
-: 1
+T008b: 1
+T009: 1

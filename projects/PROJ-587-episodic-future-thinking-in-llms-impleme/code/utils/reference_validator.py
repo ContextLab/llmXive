@@ -1,9 +1,9 @@
 """
 Reference Validator for Constitution Principle II.
 
-This module validates that the implementation plan (plan.md) correctly cites
-the design documents and data sources specified in the project specifications.
-It also provides a pre-commit hook entry point to enforce citation verification.
+This module validates that the implementation plan (`plan.md`) contains
+the required citations and references to foundational literature and
+specific artifacts as mandated by the project's constitutional principles.
 """
 
 import os
@@ -12,191 +12,200 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 
-# Configuration
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-PLAN_PATH = PROJECT_ROOT / "plan.md"
-SPECS_DIR = PROJECT_ROOT / "specs"
-DATA_DIR = PROJECT_ROOT / "data"
-
-# Required citations pattern (Constitution Principle II)
-# Must cite at least one design doc from specs/ and one data source
+# Configuration: Required patterns for citations in the plan
+# These correspond to the "Cellular Alphabet" and "Statistical Retrieval"
+# distinctions raised by reviewers (e.g., Kandel, Krakauer).
 REQUIRED_CITATION_PATTERNS = [
-    r"specs/[\w-]+",          # Design documents
-    r"data/[\w/-]+\.(csv|json|parquet|txt)", # Data files
-    r"ALFWorld|TextWorld",    # Dataset names
+    r"Kandel",           # Eric Kandel - Synaptic basis of memory
+    r"Krakauer",         # David Krakauer - Entropy/Negotiation
+    r"Kahneman",         # Daniel Kahneman - System 1/2, WYSIATI
+    r"Tversky",          # Amos Tversky - Heuristics
+    r"ALFWorld",         # Dataset reference
+    r"TextWorld",        # Dataset reference
+    r"FAISS",            # Retrieval mechanism
+    r"Constitution.*Principle", # Internal constitutional references
+]
+
+# Configuration: Required file references
+REQUIRED_FILE_REFS = [
+    r"specs/001-episodic-future-thinking",
+    r"data-model\.md",
+    r"plan\.md",
 ]
 
 class ReferenceValidationError(Exception):
-    """Raised when citation validation fails."""
+    """Raised when citation or reference validation fails."""
     pass
 
-def load_plan_content() -> str:
-    """Load the content of plan.md."""
-    if not PLAN_PATH.exists():
-        raise FileNotFoundError(f"Plan file not found: {PLAN_PATH}")
-    return PLAN_PATH.read_text(encoding="utf-8")
+
+def load_plan_content(plan_path: Path) -> str:
+    """
+    Load the content of the implementation plan.
+
+    Args:
+        plan_path: Path to the plan.md file.
+
+    Returns:
+        The full text content of the plan.
+
+    Raises:
+        FileNotFoundError: If the plan file does not exist.
+    """
+    if not plan_path.exists():
+        raise FileNotFoundError(f"Plan file not found: {plan_path}")
+    return plan_path.read_text(encoding="utf-8")
+
 
 def extract_citations(text: str) -> List[str]:
     """
-    Extract all potential citations from text.
-    Looks for patterns like 'specs/...', 'data/...', or dataset names.
-    """
-    citations = []
-    # Match file paths and dataset names
-    patterns = [
-        r"specs/[\w/-]+",
-        r"data/[\w/-]+\.(csv|json|parquet|txt)",
-        r"(?i)ALFWorld",
-        r"(?i)TextWorld",
-        r"(?i)commit_hashes\.txt",
-    ]
-    
-    for pattern in patterns:
-        matches = re.findall(pattern, text)
-        citations.extend(matches)
-    
-    return list(set(citations))
+    Extract potential citation mentions from text.
+    Looks for capitalized names followed by potential context or just capitalized names
+    in specific contexts.
 
-def extract_file_references(text: str) -> Dict[str, List[str]]:
-    """
-    Extract file references and their context from the plan.
-    Returns a dict mapping file path to list of context lines.
-    """
-    references = {}
-    lines = text.split('\n')
-    
-    for i, line in enumerate(lines):
-        # Look for file references in the line
-        if 'specs/' in line or 'data/' in line:
-            # Extract the file path
-            match = re.search(r'(specs/[\w/-]+|data/[\w/-]+\.\w+)', line)
-            if match:
-                file_path = match.group(1)
-                if file_path not in references:
-                    references[file_path] = []
-                # Add context (previous and next lines)
-                context = []
-                if i > 0:
-                    context.append(lines[i-1].strip())
-                context.append(line.strip())
-                if i < len(lines) - 1:
-                    context.append(lines[i+1].strip())
-                references[file_path].append('\n'.join(context))
-    
-    return references
+    Args:
+        text: The text to scan.
 
-def validate_citations(citations: List[str]) -> Tuple[bool, List[str]]:
+    Returns:
+        A list of matched citation strings.
     """
-    Validate that all citations point to existing files or valid sources.
-    Returns (is_valid, list_of_errors).
-    """
-    errors = []
-    
-    for citation in citations:
-        # Check if it's a file path
-        if citation.startswith('specs/') or citation.startswith('data/'):
-            full_path = PROJECT_ROOT / citation
-            if not full_path.exists():
-                errors.append(f"Missing referenced file: {citation}")
-        # Check for dataset names
-        elif 'ALFWorld' in citation or 'TextWorld' in citation:
-            # These are expected to be downloaded, so we just check they are mentioned
-            pass
-        elif 'commit_hashes.txt' in citation:
-            # This should exist in data/
-            expected_path = PROJECT_ROOT / "data" / "commit_hashes.txt"
-            if not expected_path.exists():
-                errors.append(f"Missing commit hashes file: {citation}")
-    
-    return len(errors) == 0, errors
+    # Simple heuristic: Look for capitalized words that might be names
+    # or specific keywords defined in the project context.
+    # A more robust NLP approach could be used, but regex suffices for
+    # the constitutional requirement of "mentioning" the key figures.
+    pattern = r"\b(Kandel|Krakauer|Kahneman|Tversky|ALFWorld|TextWorld|FAISS|Constitution)\b"
+    matches = re.findall(pattern, text, re.IGNORECASE)
+    return matches
 
-def validate_plan_references() -> Tuple[bool, List[str]]:
+
+def extract_file_references(text: str) -> List[str]:
     """
-    Main validation function for Constitution Principle II.
-    Checks that plan.md contains required citations and they are valid.
+    Extract file path references from text.
+
+    Args:
+        text: The text to scan.
+
+    Returns:
+        A list of matched file path strings.
     """
+    # Matches paths like specs/001-episodic-future-thinking, data-model.md, etc.
+    pattern = r"[\w/-]+\.\w+|specs/[\w/-]+"
+    matches = re.findall(pattern, text)
+    return matches
+
+
+def validate_citations(text: str, required_patterns: List[str]) -> Tuple[bool, List[str]]:
+    """
+    Validate that the text contains all required citation patterns.
+
+    Args:
+        text: The text to validate.
+        required_patterns: List of regex patterns that must be found.
+
+    Returns:
+        Tuple of (is_valid, list_of_missing_patterns).
+    """
+    missing = []
+    for pattern in required_patterns:
+        if not re.search(pattern, text, re.IGNORECASE):
+            missing.append(pattern)
+    return len(missing) == 0, missing
+
+
+def validate_plan_references(text: str, required_refs: List[str]) -> Tuple[bool, List[str]]:
+    """
+    Validate that the text references required project files.
+
+    Args:
+        text: The text to validate.
+        required_refs: List of regex patterns for file paths.
+
+    Returns:
+        Tuple of (is_valid, list_of_missing_refs).
+    """
+    missing = []
+    for pattern in required_refs:
+        if not re.search(pattern, text, re.IGNORECASE):
+            missing.append(pattern)
+    return len(missing) == 0, missing
+
+
+def pre_commit_hook(plan_path: Optional[Path] = None) -> int:
+    """
+    Entry point for the pre-commit hook.
+
+    Validates the plan.md file against constitutional requirements.
+    Exits with code 1 if validation fails, 0 otherwise.
+
+    Args:
+        plan_path: Optional override for the plan path. Defaults to 'plan.md'
+                   in the project root.
+
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    if plan_path is None:
+        # Default to plan.md in the project root (relative to code/ or root?)
+        # Based on tasks.md, plan.md is at the project root.
+        # We assume the script is run from the project root or code/ directory.
+        # Let's try relative to current working directory first, then project root.
+        cwd = Path.cwd()
+        potential_paths = [
+            cwd / "plan.md",
+            cwd.parent / "plan.md",
+            Path("plan.md")
+        ]
+        found = False
+        for p in potential_paths:
+            if p.exists():
+                plan_path = p
+                found = True
+                break
+        
+        if not found:
+            print("ERROR: Could not locate plan.md. Ensure you are in the project root or specify --path.")
+            return 1
+
     try:
-        content = load_plan_content()
+        content = load_plan_content(plan_path)
     except FileNotFoundError as e:
-        return False, [str(e)]
-    
-    # Extract citations
-    citations = extract_citations(content)
-    
-    if not citations:
-        return False, ["No citations found in plan.md"]
-    
-    # Validate citations
-    is_valid, errors = validate_citations(citations)
-    
-    # Check for minimum required citations
-    has_specs = any('specs/' in c for c in citations)
-    has_data = any('data/' in c or 'ALFWorld' in c or 'TextWorld' in c for c in citations)
-    
-    if not has_specs:
-        errors.append("Missing reference to specs/ directory (design documents)")
-    if not has_data:
-        errors.append("Missing reference to data sources (ALFWorld/TextWorld)")
-    
-    return len(errors) == 0, errors
-
-def pre_commit_hook() -> int:
-    """
-    Pre-commit hook entry point.
-    Returns 0 if validation passes, 1 if it fails.
-    """
-    print("Running Constitution Principle II citation validation...")
-    
-    is_valid, errors = validate_plan_references()
-    
-    if is_valid:
-        print("✓ All citations validated successfully.")
-        return 0
-    else:
-        print("✗ Citation validation failed:")
-        for error in errors:
-            print(f"  - {error}")
+        print(f"ERROR: {e}")
         return 1
+
+    # Validate Citations
+    citations_valid, missing_citations = validate_citations(content, REQUIRED_CITATION_PATTERNS)
+    if not citations_valid:
+        print("❌ Citation Validation Failed:")
+        for pattern in missing_citations:
+            print(f"   - Missing reference to: {pattern}")
+        print("\nConstitution Principle II requires explicit citations to foundational works (Kandel, Krakauer, etc.) and data sources.")
+        return 1
+
+    # Validate File References
+    refs_valid, missing_refs = validate_plan_references(content, REQUIRED_FILE_REFS)
+    if not refs_valid:
+        print("❌ File Reference Validation Failed:")
+        for pattern in missing_refs:
+            print(f"   - Missing reference to: {pattern}")
+        print("\nConstitution Principle II requires references to core specification artifacts.")
+        return 1
+
+    print("✅ Constitution Principle II Validation Passed.")
+    print(f"   - Verified citations for: {', '.join(REQUIRED_CITATION_PATTERNS)}")
+    print(f"   - Verified file references for: {', '.join(REQUIRED_FILE_REFS)}")
+    return 0
+
 
 def main():
     """Command-line entry point."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Validate plan.md citations")
-    parser.add_argument("--verbose", "-v", action="store_true", help="Show detailed output")
+    parser = argparse.ArgumentParser(description="Validate plan.md for Constitution Principle II")
+    parser.add_argument("--path", type=Path, help="Path to plan.md")
     args = parser.parse_args()
-    
-    try:
-        content = load_plan_content()
-        citations = extract_citations(content)
-        references = extract_file_references(content)
-        
-        print(f"Found {len(citations)} citations in plan.md")
-        if args.verbose:
-            print("\nCitations found:")
-            for c in citations:
-                print(f"  - {c}")
-            
-            print("\nFile references with context:")
-            for file_path, contexts in references.items():
-                print(f"\n  File: {file_path}")
-                for ctx in contexts:
-                    print(f"    {ctx}")
-        
-        is_valid, errors = validate_plan_references()
-        
-        if is_valid:
-            print("\n✓ Validation PASSED")
-            sys.exit(0)
-        else:
-            print("\n✗ Validation FAILED")
-            for error in errors:
-                print(f"  - {error}")
-            sys.exit(1)
-            
-    except Exception as e:
-        print(f"Error during validation: {e}")
-        sys.exit(1)
+
+    exit_code = pre_commit_hook(args.path)
+    sys.exit(exit_code)
+
 
 if __name__ == "__main__":
     main()

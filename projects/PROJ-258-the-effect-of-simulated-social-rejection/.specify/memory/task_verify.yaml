@@ -1,8 +1,4 @@
-T001 Create project structure per implementation plan (`code/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`): 2
-T003 [P] Configure linting (flake8) and formatting (black) tools: 2
-? T010 [P] [US1] Contract test in `tests/test_ingest.py::test_schema_validates_single_cohort`
-  to assert `exit_code == 0` when single-cohort data is found
-: 1
-? T011 [P] [US1] Integration test in `tests/test_ingest.py::test_download_and_validate_composite`
-  to verify successful ingestion and design switching when single-cohort is missing
-: 1
+T001: 1
+T003: 1
+T016: 1
+T031: 1

@@ -1,0 +1,22 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory tree (`code/`, `data/raw/`, `data/interim/`,
+    `data/processed/`, `tests/`) is present in the provided artifacts; the implementer
+    did not supply any files or folder listings to confirm the project structure was
+    created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml\
+    \ with black settings, pre\u2011commit hooks, or related scripts) are present,\
+    \ and the provided artifacts pertain only to a behavioral data analysis feature,\
+    \ not to configuring flake8/black. The required linting/formatting setup is missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided showing that convergence\u2011\
+    warning logic for N\u202F<\u202F30 was added, nor any implementation that reports\
+    \ effect\u2011size confidence intervals. Without concrete artifacts (e.g., modified\
+    \ analysis module, unit tests, or example output), the requirement cannot be verified\
+    \ as satisfied."

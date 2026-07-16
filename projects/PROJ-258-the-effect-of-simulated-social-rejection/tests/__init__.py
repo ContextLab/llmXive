@@ -1,2 +1,3 @@
-# Tests package for llmXive project
-pass
+"""
+Test suite for PROJ-258-the-effect-of-simulated-social-rejection
+"""

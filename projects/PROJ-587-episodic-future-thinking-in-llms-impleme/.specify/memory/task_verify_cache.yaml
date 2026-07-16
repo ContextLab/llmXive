@@ -1,0 +1,13 @@
+T008b:
+  c: false
+  h: d3068a2d42bd6109f250724e2fb74bdf4d6981b38b95649bac40eed859f90c2d
+  r: "The required file `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config.yaml`\
+    \ does not exist; only a `code/config.yaml` is present. Because the artifact at\
+    \ the specified location is missing, the task\u2019s requirement is not satisfied."
+T009:
+  c: false
+  h: 4820d22938ef01acae450a12b40e257c78ff5d2f9538929d3b90c812eacf86c1
+  r: The required `.env.example` file does not exist, and the `config.yaml` is missing
+    from the specified `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/`
+    directory. Moreover, the existing config file uses a `data_paths` section instead
+    of the required `dataset_paths` key, so it does not meet the specification.

@@ -7,7 +7,7 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-16T04:03:18.206075Z'
+reviewed_at: '2026-07-16T04:19:06.871170Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_logical_consistency
 score: 0.5
@@ -17,11 +17,11 @@ verdict: accept
 The paper's argument structure is logically sound and internally consistent. The central thesis—that the structural isomorphism between function calls and agent steps justifies a function-aware FIM mid-training stage—is clearly stated in the Introduction (Section 2) and Method (Section 3), and the experimental design in Section 4 directly tests this hypothesis.
 
 The logical flow from premises to conclusions holds:
-1.  **Premise:** Agent steps (context $\to$ action $\to$ observation $\to$ continuation) mirror function calls (context $\to$ call $\to$ return $\to$ usage).
-2.  **Method:** The authors construct a training objective (FIM) that explicitly targets this structure using program dependency graphs and complexity/inferability scores.
-3.  **Evidence:** Table 1 (Main Results) and Table 2 (Capability Preservation) show that models trained with this objective outperform baselines on agent benchmarks and recover capabilities eroded by standard post-training.
-4.  **Conclusion:** The gains are attributed to the structural prior, a claim supported by the ablation studies (Table 3) which isolate the FIM structure from CoT distillation and show that the effect persists across different base models and post-training pipelines.
+1.  **Premise:** Agent steps (action $\to$ observation $\to$ continuation) mirror function calls (call $\to$ return $\to$ usage).
+2.  **Method:** Therefore, training on function-level FIM (masking the "return" body given context) should instill the necessary inductive bias.
+3.  **Evidence:** Table 1 (Main Results) and Table 2 (Capability Preservation) show consistent gains on agent benchmarks and recovery on non-agent benchmarks.
+4.  **Conclusion:** The gains are attributed to the structural prior, not just CoT distillation, supported by the ablation in Table 3 (Block A) which shows gains persist without external CoT.
 
-There are no contradictions between sections. The limitations section (Section 7) accurately scopes the claims made in the conclusion, explicitly noting the Python-only corpus and the single non-Qwen base model configuration, which aligns perfectly with the experimental setup described in Section 4. The numerical values in the text (e.g., the $+2.8$ and $+3.0$ gains in the Abstract and Introduction) match the data presented in Table 1. The ablation text in Section 4.3 correctly interprets the data in Table 3, identifying the "Full" selection algorithm as the dominant factor, which is consistent with the table's ranking.
+There are no contradictions between sections. The limitations (Section 7) accurately reflect the scope of the claims made in the results (e.g., acknowledging the Python-only corpus and the confound in the Qwen3-8B experiment). The numbers are consistent across the Abstract, Introduction, Results, and Appendix (e.g., the 968 repositories, 2.6B tokens, and specific benchmark gains like +2.8/+3.0 for 7B/14B on Verified). The ablation text correctly interprets the data in Table 3, noting that the "Full" selection algorithm outperforms partial variants, matching the table's rankings.
 
-The argument does not overreach; causal language is appropriately hedged where the evidence is correlational (e.g., "suggests," "evidence for"), and the distinction between the structural analogy and the empirical transfer is maintained throughout. No logical gaps, non-sequiturs, or internal contradictions were found.
+The argument does not overreach; causal language regarding the "structural prior" is appropriately hedged as a hypothesis supported by the specific experimental setup (Python-only corpus transferring to non-Python tool-use benchmarks), and the authors explicitly distinguish between correlation and the proposed mechanism in the analysis section. No logical gaps or non-sequiturs were found.

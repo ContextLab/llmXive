@@ -1,1 +1,2 @@
-# This directory holds final processed results.
+# This directory stores final processed results.
+# Ensure .gitkeep exists to track the directory in git.
