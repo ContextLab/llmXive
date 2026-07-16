@@ -1,0 +1,40 @@
+name: Lint and Format Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort mypy
+
+      - name: Check formatting with Black
+        run: |
+          black --check --line-length 88 code/
+
+      - name: Check import sorting with isort
+        run: |
+          isort --check-only --profile black code/
+
+      - name: Run linter with flake8
+        run: |
+          flake8 code/ --max-line-length=88 --ignore=E203,W503 --exclude=.git,__pycache__,build,dist
+
+      - name: Run type checking with mypy
+        run: |
+          mypy code/ --ignore-missing-imports --no-strict-optional

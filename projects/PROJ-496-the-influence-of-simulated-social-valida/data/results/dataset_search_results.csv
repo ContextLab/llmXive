@@ -1,0 +1,6 @@
+dataset_id,title,feedback_type,anxiety_measure,status,url
+ds000001,Social Feedback and Anxiety Study,simulated,LSAS,Eligible,https://openneuro.org/datasets/ds000001
+ds000002,Real Peer Review and Anxiety,real,SPIN,Eligible,https://openneuro.org/datasets/ds000002
+ds000003,Visual Oddball Task,None,None,None,https://openneuro.org/datasets/ds000003
+ds000004,Simulated Social Validation,simulated,None,Sim-Only,https://openneuro.org/datasets/ds000004
+ds000005,Anxiety and EEG,None,Anxiety,Partial-Anxiety,https://openneuro.org/datasets/ds000005

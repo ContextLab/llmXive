@@ -1,39 +1,111 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "P300Measure"
-description: "Schema for extracted P300 metrics per trial/subject"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: P300 Measure Schema
+description: >
+  Schema defining the structure for extracted P300 features (amplitude and latency)
+  from preprocessed EEG data. This schema ensures consistency in the output of
+  the preprocessing phase (T020-T027) before statistical analysis.
+type: object
+required:
+  - subject_id
+  - dataset_id
+  - condition
+  - p300_amplitude
+  - p300_latency
+  - electrode
+  - qc_status
+  - processing_params
 properties:
   subject_id:
-    type: "string"
-    description: "Anonymized participant ID"
+    type: string
+    description: Unique identifier for the participant within the dataset
+  dataset_id:
+    type: string
+    description: Reference to the source dataset (matches eeg_dataset.schema.yaml)
   condition:
-    type: "string"
+    type: string
+    description: Experimental condition label (e.g., 'simulated_positive', 'real_negative')
     enum:
-      - "simulated"
-      - "real"
-    description: "Validation condition type"
+      - simulated_positive
+      - simulated_negative
+      - real_positive
+      - real_negative
+      - neutral
+      - other
   p300_amplitude:
-    type: "number"
-    description: "Peak P300 amplitude in microvolts (µV)"
+    type: number
+    description: Peak amplitude of the P300 component in microvolts (µV)
+    minimum: -50
+    maximum: 50
+    x-units: µV
   p300_latency:
-    type: "number"
-    description: "Peak P300 latency in milliseconds (ms)"
-  num_trials:
-    type: "integer"
-    minimum: 0
-    description: "Number of valid trials included in the average"
-  rejection_threshold:
-    type: "number"
-    description: "Artifact rejection threshold used (µV)"
-  qc_passed:
-    type: "boolean"
-    description: "True if trial count >= 30 and amplitude in 2-15 µV range"
-required:
-  - "subject_id"
-  - "condition"
-  - "p300_amplitude"
-  - "p300_latency"
-  - "num_trials"
-  - "rejection_threshold"
-  - "qc_passed"
+    type: number
+    description: Latency of the P300 peak relative to stimulus onset in milliseconds (ms)
+    minimum: 200
+    maximum: 800
+    x-units: ms
+  electrode:
+    type: string
+    description: Electrode channel where the peak was detected
+    enum:
+      - Pz
+      - CPz
+      - Cz
+      - POz
+      - Other
+  window_start:
+    type: number
+    description: Start of the analysis window in ms relative to stimulus
+    default: 300
+  window_end:
+    type: number
+    description: End of the analysis window in ms relative to stimulus
+    default: 600
+  baseline_corrected:
+    type: boolean
+    description: Whether the amplitude was baseline corrected
+    default: true
+  qc_status:
+    type: string
+    description: Quality control status for this specific trial/subject
+    enum:
+      - PASS
+      - FAIL_LOW_TRIALS
+      - FAIL_AMPLITUDE_OUTLIER
+      - FAIL_LATENCY_OUTLIER
+      - FAIL_ARTIFACT
+  trial_count:
+    type: integer
+    minimum: 1
+    description: Number of trials averaged for this measurement
+  processing_params:
+    type: object
+    description: Parameters used during preprocessing that generated this measure
+    required:
+      - rejection_threshold
+      - filter_cutoffs
+      - ica_components_removed
+    properties:
+      rejection_threshold:
+        type: number
+        description: Voltage threshold used for epoch rejection (µV)
+      filter_cutoffs:
+        type: object
+        required:
+          - low
+          - high
+        properties:
+          low:
+            type: number
+            description: Low-frequency cutoff in Hz
+          high:
+            type: number
+            description: High-frequency cutoff in Hz
+      ica_components_removed:
+        type: integer
+        minimum: 0
+        description: Number of ICA components removed for artifact correction
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the measure was extracted
 additionalProperties: false

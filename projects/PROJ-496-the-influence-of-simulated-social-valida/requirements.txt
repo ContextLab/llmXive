@@ -1,0 +1,27 @@
+# Core dependencies
+mne==1.6.1
+numpy==1.26.4
+pandas==2.2.1
+scipy==1.13.0
+scikit-learn==1.4.2
+statsmodels==0.14.2
+pingouin==0.5.4
+
+# Data handling and API
+openneuro-py==2.4.2
+requests==2.31.0
+pyyaml==6.0.1
+
+# Visualization
+matplotlib==3.8.4
+seaborn==0.13.2
+
+# Reporting
+reportlab==4.1.0
+
+# Testing
+pytest==8.1.1
+
+# Code quality
+flake8==7.0.0
+black==24.3.0

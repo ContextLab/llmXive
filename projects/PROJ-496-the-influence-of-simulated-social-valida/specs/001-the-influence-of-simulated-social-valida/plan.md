@@ -13,7 +13,7 @@ This project implements a computational pipeline to analyze EEG data investigati
 1.  **Primary Path**: Search for a single dataset containing both social feedback manipulation and anxiety measures. If found, perform a Linear Mixed-Effects Model (LMM) with interaction terms.
 2.  **Negative Finding Path (Revised Fallback)**: If no single eligible dataset is found (the expected outcome based on verified sources), the pipeline **aborts** the statistical analysis phase. It generates a "Negative Finding" report documenting the data gap. The project is considered **successfully completed** with a valid negative result, rather than attempting an invalid meta-analysis.
 
-The implementation is constrained to CPU-only execution on GitHub Actions free-tier (2 CPU, ~7 GB RAM) and relies exclusively on verified dataset sources.
+The implementation is constrained to CPU-only execution on GitHub Actions free-tier (limited CPU resources, ~7 GB RAM) and relies exclusively on verified dataset sources.
 
 ## Technical Context
 

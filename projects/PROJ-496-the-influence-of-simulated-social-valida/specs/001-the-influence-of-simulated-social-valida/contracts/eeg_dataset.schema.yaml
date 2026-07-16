@@ -1,44 +1,123 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "EEGDataset"
-description: "Schema for a candidate public EEG study dataset"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: EEG Dataset Metadata Schema
+description: >
+  Schema defining the metadata structure for EEG datasets used in the
+  "Influence of Simulated Social Validation on Neural Responses" study.
+  This schema ensures consistent tracking of dataset provenance,
+  experimental design, and data quality metrics.
+type: object
+required:
+  - dataset_id
+  - title
+  - source
+  - url
+  - subjects_count
+  - recording_details
+  - task_details
+  - feedback_classification
 properties:
   dataset_id:
-    type: "string"
-    description: "Unique identifier for the dataset (e.g., ds000117)"
-  task_description:
-    type: "string"
-    description: "Brief description of the experimental task"
-  feedback_type:
-    type: "string"
+    type: string
+    description: Unique identifier for the dataset (e.g., OpenNeuro ID 'ds00XXXX')
+    pattern: ^[a-zA-Z0-9_-]+$
+  title:
+    type: string
+    description: Human-readable title of the dataset
+  source:
+    type: string
+    description: Repository or database where the dataset is hosted (e.g., OpenNeuro, PhysioNet)
     enum:
-      - "simulated"
-      - "real"
-      - "mixed"
-      - "unknown"
-    description: "Type of social feedback manipulation"
-  anxiety_measure:
-    type: "string"
-    description: "Name of the social anxiety scale used (e.g., LSAS, SPIN) or 'None'"
-  file_urls:
-    type: "array"
-    items:
-      type: "string"
-      format: "uri"
-    description: "List of verified URLs for dataset files"
-  status:
-    type: "string"
-    enum:
-      - "eligible"
-      - "partial_eeg"
-      - "partial_anxiety"
-      - "ineligible"
-    description: "Eligibility status for the study requirements"
-required:
-  - "dataset_id"
-  - "task_description"
-  - "feedback_type"
-  - "anxiety_measure"
-  - "file_urls"
-  - "status"
+      - OpenNeuro
+      - PhysioNet
+      - Zenodo
+      - Other
+  url:
+    type: string
+    format: uri
+    description: Direct link to the dataset page
+  version:
+    type: string
+    description: Dataset version string (e.g., '1.0.0')
+    default: "1.0.0"
+  license:
+    type: string
+    description: License under which the data is shared
+  subjects_count:
+    type: integer
+    minimum: 1
+    description: Total number of participants in the study
+  recording_details:
+    type: object
+    required:
+      - sampling_frequency
+      - channels
+      - montage
+    properties:
+      sampling_frequency:
+        type: number
+        minimum: 1
+        description: Sampling frequency in Hz
+      channels:
+        type: array
+        items:
+          type: string
+        description: List of channel names used in the recording
+      montage:
+        type: string
+        description: Standard montage used (e.g., '10-20', '10-10')
+      reference:
+        type: string
+        description: Reference scheme used (e.g., 'Cz', 'Average', 'Linked Masts')
+  task_details:
+    type: object
+    required:
+      - task_name
+      - event_codes
+    properties:
+      task_name:
+        type: string
+        description: Name of the experimental task
+      event_codes:
+        type: object
+        description: Mapping of event codes to their semantic meaning
+        additionalProperties:
+          type: string
+  feedback_classification:
+    type: object
+    required:
+      - feedback_type
+      - social_anxiety_measure
+    properties:
+      feedback_type:
+        type: string
+        description: Classification of the social feedback manipulation
+        enum:
+          - simulated
+          - real
+          - mixed
+          - none
+        x-search: "Used to filter datasets for eligibility"
+      social_anxiety_measure:
+        type: string
+        description: Specific scale used to measure social anxiety (e.g., LSAS, SPIN, SIAS)
+        enum:
+          - LSAS
+          - SPIN
+          - SIAS
+          - FNE
+          - None
+          - Unknown
+        x-search: "Used to filter datasets for eligibility"
+  quality_metrics:
+    type: object
+    description: Pre-computed quality metrics if available
+    properties:
+      average_epochs_per_subject:
+        type: number
+      rejection_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+      snr_estimate:
+        type: number
 additionalProperties: false

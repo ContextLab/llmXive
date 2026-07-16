@@ -1,0 +1,4 @@
+# This directory is reserved for raw, processed, and results data.
+# It is intentionally kept empty in version control to prevent
+# large binary files from bloating the repository.
+# Data should be downloaded or generated at runtime.

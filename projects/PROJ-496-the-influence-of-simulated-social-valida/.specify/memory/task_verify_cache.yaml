@@ -1,0 +1,65 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-496-the-influence-of-simulated-social-valida/code/`
+    directory (or any files within it) was provided; the implementer did not supply
+    the requested directory structure.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or proof that `projects/PROJ-496-the-influence-of-simulated-social-valida/data/`
+    was created is provided; the claim lacks any tangible artifact confirming the
+    required folder structure exists.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-496-the-influence-of-simulated-social-valida/tests/`
+    directory (or any files within it) is provided; the claim is unsupported by any
+    artifact listing or content. The implementer must create and show the actual directory
+    structure.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-496-the-influence-of-simulated-social-valida/docs/`
+    directory (or any files within it) was provided; the claim lacks any artifact
+    to verify that the directory structure was actually created.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or `.gitkeep` files are presented in the provided evidence;
+    without visible `data/raw`, `data/processed`, and `data/results` folders (each
+    containing a `.gitkeep`), the requirement cannot be confirmed as satisfied. The
+    implementer must add the actual directory tree and placeholder files as proof.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or in\u2011memory data structures were provided that implement\
+    \ the required categorization logic or produce the six named lists. Without such\
+    \ artifacts we cannot confirm that the \u201CEligible\u201D, \u201CSim\u2011Only\u201D\
+    , \u201CReal\u2011Only\u201D, \u201CPartial\u2011EEG\u201D, \u201CPartial\u2011\
+    Anxiety\u201D, and \u201CNone\u201D categories are actually generated. The implementer\
+    \ must supply the implementation (e.g., a Python module or notebook) and evidence\
+    \ (e.g., printed lists or unit\u2011test output) showing the categories populated\
+    \ as specified."
+T016b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No PDF or HTML \u201CNegative Finding Report\u201D was supplied; there is no\
+    \ file containing the required summary, list of \u201CNone\u201D status datasets,\
+    \ and data\u2011gap statement, nor any indication that it was generated conditionally\
+    \ on T015\u2019s output. The task\u2019s core artifact is therefore missing."
+T016c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No PDF or HTML \u201CNegative Finding Report\u201D was supplied; the required\
+    \ document listing the identified \u201CSim\u2011Only\u201D and \u201CReal\u2011\
+    Only\u201D dataset IDs, titles, and URLs is absent, so the task\u2019s content\
+    \ and format requirements are not met. The implementer must provide the actual\
+    \ report file with the specified details."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file implementing the required error\u2011handling (logging\
+    \ missing anxiety\u2011measure dataset IDs, categorizing them per T014, and aborting\
+    \ per T015) is present; the claim cannot be verified against any concrete artifact.\
+    \ The task therefore lacks the necessary implementation artifact."

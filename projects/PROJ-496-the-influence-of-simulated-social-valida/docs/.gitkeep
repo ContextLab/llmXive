@@ -1,0 +1,8 @@
+# This file ensures the docs directory is tracked by git.
+# This directory is reserved for project documentation, including:
+# - Research design documents
+# - Methodology notes
+# - Final reports and whitepapers
+# - API documentation (if generated)
+
+# No content yet.
