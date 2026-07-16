@@ -785,6 +785,47 @@ def _write_execution_feedback(
     (mem_dir / _FEEDBACK_FILENAME).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+# Path segments that mark an INSTALLED-dependency frame (the per-project venv),
+# NOT the project's own analysis. A traceback through pandas/numpy lives under
+# ``code/.venv/.../site-packages/...`` — whose path also contains ``code/`` — so a
+# naive scan would harvest library files. Exclude them (issue #1139 B1).
+_VENV_PATH_MARKERS = (".venv/", "/venv/", "site-packages/", "dist-packages/")
+
+
+def _code_paths_in_text(text: str) -> set[str]:
+    """Project-owned ``code/<pkg>/<mod>.py`` files named anywhere in *text* — a
+    command line OR a traceback tail.
+
+    Handles BOTH the filesystem-frame form (``File
+    ".../code/simulation/output_writer.py"``) and the dotted-module form
+    (``No module named 'code.simulation.output_writer'`` / ``from
+    code.simulation.output_writer import ...``). The dotted form is where a
+    transitive-import bug's ROOT module is named — the failing COMMAND only ever
+    names the entrypoint (``python code/main.py``), so before this the buggy
+    module's task stayed ``[X]`` and the implementer oscillated on the entrypoint
+    forever (the live PROJ-341 import-chain stall). Installed-dependency frames
+    under the per-project venv are excluded (issue #1139 B1)."""
+    out: set[str] = set()
+    if not text:
+        return out
+    # a) filesystem path form — anchor at the ``code/`` dir boundary. A leading
+    #    path separator is fine; a preceding WORD char (``decode/x.py``,
+    #    ``encode/...``) would make ``code`` part of another identifier, so reject
+    #    that with a word-char lookbehind.
+    for m in re.finditer(r"(?<!\w)(code/[\w./-]+\.py)", text):
+        rel = m.group(1)
+        if not any(mark in rel for mark in _VENV_PATH_MARKERS):
+            out.add(rel)
+    # b) dotted-module form — ``code.<pkg>.<mod>`` → ``code/<pkg>/<mod>.py``. Not
+    #    preceded by a word char or dot (so ``mypkg.code.x`` is not mistaken for
+    #    our top-level ``code`` package).
+    for m in re.finditer(r"(?<![\w.])(code(?:\.[A-Za-z_]\w*)+)", text):
+        rel = m.group(1).replace(".", "/") + ".py"
+        if not any(mark in rel for mark in _VENV_PATH_MARKERS):
+            out.add(rel)
+    return out
+
+
 def _reopen_failing_tasks(
     project_dir: Path, res: AnalysisRunResult, contract_issues: list | None = None,
     data_contract_issues: list | None = None,
@@ -822,9 +863,16 @@ def _reopen_failing_tasks(
     for r in res.commands:
         if r.ok:
             continue
-        m = re.search(r"\b(code/[\w./-]+\.py)\b", r.command)
-        if m:
-            rel = m.group(1)
+        # The failing COMMAND names only the ENTRYPOINT (``python code/main.py``);
+        # a transitive-import / deep-module bug is named ONLY in the traceback TAIL
+        # (issue #1139 B1 — the live PROJ-341 import-chain stall: main.py was
+        # reopened every round while the real bug in
+        # code/simulation/output_writer.py kept its task [X], so the implementer
+        # oscillated on the entrypoint forever). Reopen EVERY project-owned
+        # code/*.py named in the command AND the tail.
+        cmd_paths = _code_paths_in_text(r.command)
+        tail_paths = _code_paths_in_text(r.tail or "")
+        for rel in cmd_paths | tail_paths:
             targets.add(rel)
             # The FILENAME (``download.py``) — not the bare stem. A stem like
             # "analysis" / "download" / "main" is an ordinary English word that
@@ -833,8 +881,9 @@ def _reopen_failing_tasks(
             # it). The filename still catches the same script under a different
             # directory, which IS the likely owner of a path mismatch.
             targets.add(Path(rel).name)
-            if r.script_missing:
-                missing_scripts.append(rel)
+        # script_missing is a property of the run-book command's OWN script.
+        if r.script_missing:
+            missing_scripts.extend(cmd_paths)
     for d in res.declared_missing:
         targets.add(d)
         targets.add(Path(d).name)
