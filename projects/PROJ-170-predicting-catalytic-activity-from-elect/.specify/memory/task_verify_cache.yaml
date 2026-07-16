@@ -1,0 +1,23 @@
+T026:
+  c: false
+  h: c8b55aed0414e916cd351008eca0c6796c645188d7a5daff7130313a1cb5a57d
+  r: "The repository contains a `code/train.py` file, but it is truncated and does\
+    \ not demonstrate the required nested cross\u2011validation or saving of the best\
+    \ XGBoost model. Moreover, the expected output file `code/models/best_xgboost.json`\
+    \ is absent. The task\u2019s core requirements are therefore not satisfied."
+T028a:
+  c: false
+  h: 97230bb33bea33340f1446fd115c62ce3a20d2147560c0d2ccc8174a0a487752
+  r: "The `code/evaluate.py` file is truncated and does not contain the logic to compute\
+    \ paired absolute\u2011error differences, run a Shapiro\u2011Wilk test, or write\
+    \ the decision to `outputs/normality_check.json`. Moreover, the required `outputs/normality_check.json`\
+    \ file is absent. The task\u2019s core functionality and output are therefore\
+    \ missing."
+T035:
+  c: false
+  h: a5f9229810e85609893a4652f72057e2c5b64b1e6a31246134e2726720433705
+  r: "The repository contains a partially\u2011written `code/evaluate.py` that stops\
+    \ mid\u2011function and never implements the SHAP calculation or the bar\u2011\
+    plot generation. Moreover, the required output file `outputs/feature_importance.png`\
+    \ is absent. Consequently the task of generating the top\u20115 descriptor importance\
+    \ plot has not been fulfilled."
