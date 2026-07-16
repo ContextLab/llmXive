@@ -32,7 +32,16 @@ name: Pipeline — Advance (deterministic matrix workers)
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # every 30 minutes (was */15; issue #1139 lost-work race)
+    # Hourly (was */30). issue #1139 round 2: a matrix JOB runs 60-90 min (setup +
+    # the multi-tick loop + a single convergence step observed at ~77 min + commit)
+    # — LONGER than a 30-min interval. Under the per-worker `cancel-in-progress:
+    # false` group, GitHub keeps at most one running + one pending and CANCELS the
+    # older pending when a third fire arrives, so ~2/3 of */30 fires cancelled (did
+    # no work) — polluting history and skipping ticks. At hourly cadence most jobs
+    # (setup + a few quick ticks ≈ 15-45 min) finish BEFORE the next fire, so no
+    # pending accumulates and nothing is evicted. Effective throughput RISES:
+    # ~24 productive fires/day beats ~16 (48 fires × ~1/3 surviving).
+    - cron: '0 * * * *'      # top of every hour
   workflow_dispatch:
     inputs:
       workers:
@@ -60,9 +69,12 @@ jobs:
       group: advance-${{ matrix.worker }}
       cancel-in-progress: false
     # Fits the worst single convergence step (a live tasked/review panel
-    # convergence was observed at ~77 min); the wall budget breaks the
-    # multi-tick loop early so the final step + commit always land.
-    timeout-minutes: 150
+    # convergence was observed at ~77 min) + setup/commit slack; the 2400s wall
+    # budget breaks the multi-tick loop early so the final step + commit always
+    # land. Lowered 150→90 (issue #1139 round 2) so a job cannot outlive the
+    # hourly cadence by more than one interval — bounding the concurrency-eviction
+    # window (a 150-min hang used to cancel up to 4 intervening scheduled ticks).
+    timeout-minutes: 90
     strategy:
       fail-fast: false            # preserved (issue #1139): one worker failing
                                   # must NOT abort the rest of the matrix.

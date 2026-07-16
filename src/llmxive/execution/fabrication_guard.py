@@ -64,12 +64,28 @@ _RNG_DRAW_FUNCS = {
     "lognormvariate", "expovariate", "standard_normal",
 }
 # Result/metric-ish names: when an RNG draw is assigned to (or returned as) one of
-# these, the reported number IS the random draw.
-_METRIC_NAME_RE = re.compile(
-    r"speedup|throughput|latency|accuracy|score|fps|memory|mem_|"
-    r"reduction|improvement|gain|ratio|perf|time_ms|metric|result",
-    re.IGNORECASE,
-)
+# these, the reported number IS the random draw. Matched against the identifier's
+# TOKENS (snake_case + camelCase split), NOT as a substring — a substring match on
+# "ratio" wrongly flagged "concentration"/"duration"/"iteration" (simulated INPUT
+# quantities, not reported metrics; the live PROJ-475 false positive), while
+# "throughput_ratio"/"memUsage" still tokenise to a metric word (issue #1139 F3).
+_METRIC_WORDS = frozenset({
+    "speedup", "throughput", "latency", "accuracy", "score", "fps", "memory",
+    "mem", "ms", "reduction", "improvement", "gain", "ratio", "perf", "metric",
+    "result", "auc", "precision", "recall", "loss", "rmse", "mae", "mse", "r2",
+})
+
+
+def _identifier_tokens(name: str) -> set[str]:
+    """Lowercase token set of an identifier, splitting snake_case AND camelCase
+    (``throughput_ratio`` / ``throughputRatio`` → ``{throughput, ratio}``)."""
+    snake = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", name)
+    return {t.lower() for t in re.split(r"[^A-Za-z0-9]+", snake) if t}
+
+
+def _is_metric_name(name: str) -> bool:
+    """True iff any TOKEN of ``name`` is a reported-metric word (not a substring)."""
+    return bool(_identifier_tokens(name) & _METRIC_WORDS)
 _RESULT_SINK_RE = re.compile(r"to_csv|to_json|to_parquet|json\.dump|savefig|DataFrame")
 
 
@@ -145,7 +161,7 @@ def _scan_code_rng_metrics(code_text: str, *, source: str) -> list[str]:
             continue
         for tgt in node.targets:
             name = getattr(tgt, "id", None)
-            if name and _METRIC_NAME_RE.search(name):
+            if name and _is_metric_name(name):
                 how = "an RNG draw" if from_rng else f"fabricator `{rhs.func.id}()`"
                 out.append(
                     f"{source}: metric `{name}` assigned from {how} (line {node.lineno})"
@@ -266,25 +282,46 @@ _AVOIDANCE_RE = re.compile(
 )
 
 
+#: A SIMULATION-METHODOLOGY study legitimately generates its own data AS the
+#: research method (a statistics paper whose whole point is Monte-Carlo estimation
+#: of Type-I error, power, or estimator bias under a known ground truth). Such an
+#: idea describes the design in methods vocabulary and often never writes the
+#: literal "synthetic data" noun phrase, so the narrow :data:`_SYNTHETIC_DATA_RE`
+#: authorizer failed and the study was wrongly fabrication-blocked (live PROJ-427).
+#: These patterns key on genuine simulation-STUDY INTENT — not a passing mention of
+#: the word "simulate" — so a real-world-data project is not accidentally
+#: authorized (issue #1139 F2).
+_SIMULATION_STUDY_RE = re.compile(
+    r"monte[\s-]*carlo|simulation\s+study|simulation\s+results|"
+    r"simulation\s+batch(?:es)?|simulation\s+iterations?|simulated\s+datasets?|"
+    r"power\s+analysis|type\s*(?:i{1,2}|1|2)\s+error|under\s+the\s+null|"
+    r"null\s+hypothesis|known\s+ground\s+truth",
+    re.IGNORECASE,
+)
+
+
 def _synthetic_data_authorized(project_dir: Path) -> bool:
     """True iff the project's ORIGINAL research intent explicitly calls for
-    synthetic or simulated data (the research question is about it).
+    synthetic or simulated data (the research question is about it), OR the idea
+    describes a SIMULATION-METHODOLOGY study whose method IS generating its own
+    data (Monte-Carlo / power analysis / Type-I error / under-the-null).
 
     Scans the ``idea/`` dir ONLY — the genuine, pre-implementation intent.
     Deliberately NOT the spec/plan/tasks: those are BACK-FILLED from the code for
     reprocessed papers, so they mention synthetic data merely BECAUSE the code
     uses it (circular self-authorization). A real-world-insight project's idea
-    never frames itself around synthetic data, so synthetic data in its code is an
-    unauthorized shortcut, not the design."""
+    never frames itself around synthetic data or a simulation methodology, so
+    synthetic data in its code is an unauthorized shortcut, not the design."""
     d = project_dir / "idea"
     if not d.is_dir():
         return False
     for f in d.rglob("*.md"):
         try:
-            if _SYNTHETIC_DATA_RE.search(f.read_text(encoding="utf-8", errors="ignore")):
-                return True
+            text = f.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
+        if _SYNTHETIC_DATA_RE.search(text) or _SIMULATION_STUDY_RE.search(text):
+            return True
     return False
 
 

@@ -66,9 +66,11 @@ jobs:
             texlive-luatex texlive-latex-recommended texlive-latex-extra \
             texlive-fonts-recommended texlive-fonts-extra texlive-science \
             texlive-bibtex-extra texlive-pictures texlive-plain-generic \
-            texlive-lang-english fonts-noto-core
+            texlive-lang-english fonts-noto-core \
+            poppler-utils
           lualatex --version | head -1
           bibtex --version | head -1
+          pdftotext -v 2>&1 | head -1   # poppler, for the pdf_auditor unit tests
 
       # Install the house fonts (Fraunces serif + JetBrains Mono) so
       # fontspec resolves them and the real-call compile renders the true
@@ -104,6 +106,22 @@ jobs:
       # The contract suite validates every schema in contracts/.
       - name: Contract tests
         run: pytest tests/contract -v
+
+      # issue #1139 round 2: the offline unit suite was NOT run by ANY workflow,
+      # so unit regressions (e.g. the fix-loop task-reopen, fabrication-guard
+      # precision, intake throttle, and the research-wall crossing contract) never
+      # gated a PR. Run the FAST offline subset here (slow venv/build tests stay
+      # nightly), fail-fast BEFORE the real-LLM minutes.
+      - name: Unit tests (fast offline subset)
+        # Force TRUE offline mode: the job sets LLMXIVE_REAL_TESTS=1 + a Dartmouth
+        # key for the real-call gate, but the unit suite must be DETERMINISTIC —
+        # with the key present some agent tests (flesh_out_reviser, implement
+        # batching, task_verifier) take the real-LLM path and their canned-output
+        # assertions flake. Unset both so conftest's offline stubs apply.
+        env:
+          LLMXIVE_REAL_TESTS: ""
+          DARTMOUTH_CHAT_API_KEY: ""
+        run: pytest tests/unit -q -m "not slow"
 
       # The real-call suite is the canonical Constitution III gate. The per-PR
       # gate runs the FAST subset (connectivity + backend fallback + the

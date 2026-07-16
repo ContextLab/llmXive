@@ -104,42 +104,54 @@ def _resilient_pip_install(py: Path, req: Path) -> None:
     those names auto-added to requirements.txt as if they were PyPI packages,
     so `pip install -r` failed and the real deps never landed).
 
-    Try the fast batch install first; on failure, fall back to installing each
-    requirement INDIVIDUALLY so the GOOD deps land and only the genuinely
-    un-installable lines are skipped (logged, never fatal — a missing real dep
-    still resurfaces as a script ModuleNotFoundError for the bounded fix loop).
+    Try the fast batch install first; on failure, DIAGNOSE which individual
+    requirement lines are un-installable, then RE-RUN the batch on the survivors
+    so the resolver picks a MUTUALLY-CONSISTENT set. The old fallback left each
+    package installed by a SEPARATE ``pip install`` invocation, so pip could land
+    ABI-incompatible binaries (an unpinned ``numpy`` 2.x next to a ``pandas`` /
+    ``scipy`` wheel built for numpy 1.x) → ``cannot import name '__version__' from
+    numpy`` / ``pandas.compat.numpy`` import breaks that no fix-round can repair
+    (the live PROJ-262/300 ABI stall). A single batch install of the survivors
+    keeps the whole scientific stack version-consistent (issue #1139 RC-C).
     """
-    batch = subprocess.run(
-        [str(py), "-m", "pip", "install", "-q", "-r", str(req)],
+    if _pip_install(py, ["-r", str(req)]).returncode == 0:
+        return
+    lines = [
+        raw.split("#", 1)[0].strip()
+        for raw in req.read_text(encoding="utf-8", errors="replace").splitlines()
+    ]
+    lines = [ln for ln in lines if ln]
+    # Diagnose the genuinely un-installable line(s) individually (a local module
+    # or a namespace submodule wrongly auto-added — the PROJ-262 bad-line case).
+    failed = [pkg for pkg in lines if _pip_install(py, [pkg]).returncode != 0]
+    survivors = [ln for ln in lines if ln not in failed]
+    if failed:
+        logger.warning(
+            "batch `pip install -r %s` failed; skipped %d un-installable line(s): "
+            "%s", req, len(failed), failed,
+        )
+    # RECONCILE: one final BATCH install of the survivors so pip's resolver
+    # selects a single ABI-consistent version set (never the per-package mix that
+    # broke the numpy/pandas/scipy ABI). Best-effort — each survivor already
+    # installed individually above, so this only reconciles versions.
+    if survivors:
+        recon = _pip_install(py, survivors)
+        if recon.returncode != 0:
+            logger.warning(
+                "pip: survivor reconcile install returned rc=%s (deps landed "
+                "per-package; a residual version skew may remain). tail: %s",
+                recon.returncode, (recon.stderr or "")[-300:],
+            )
+
+
+def _pip_install(py: Path, args: list[str]) -> subprocess.CompletedProcess:
+    """Run ``<py> -m pip install -q <args>`` (never raises; caller checks rc)."""
+    return subprocess.run(
+        [str(py), "-m", "pip", "install", "-q", *args],
         check=False,
         capture_output=True,
         text=True,
     )
-    if batch.returncode == 0:
-        return
-    logger.warning(
-        "batch `pip install -r %s` failed (rc=%s); falling back to per-package "
-        "install so good deps still land. tail: %s",
-        req, batch.returncode, (batch.stderr or "")[-300:],
-    )
-    failed: list[str] = []
-    for raw in req.read_text(encoding="utf-8", errors="replace").splitlines():
-        pkg = raw.split("#", 1)[0].strip()
-        if not pkg:
-            continue
-        r = subprocess.run(
-            [str(py), "-m", "pip", "install", "-q", pkg],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        if r.returncode != 0:
-            failed.append(pkg)
-    if failed:
-        logger.warning(
-            "pip: skipped %d un-installable requirement line(s): %s",
-            len(failed), failed,
-        )
 
 
 def _ensure_code_package(project_dir: Path) -> None:

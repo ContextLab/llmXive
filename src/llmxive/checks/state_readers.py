@@ -77,9 +77,16 @@ ALLOWLIST: dict[str, str] = {
     # round contract, agents/implementer.py ~L2208) — consumed by a directory glob,
     # so it is never named literally for a by-name static reader to see.
     "analyze-report.md": "read by implementer via round_dir.glob('*.md') (spec-012)",
-    # Human reproduction guide for a reprocessed code paper; surfaced as a project
-    # artifact link in web/data/projects.json (dashboard), read by humans.
-    "reproduction.md": "human reproduction guide; surfaced as a dashboard artifact",
+    # Human reproduction guide for a reprocessed code paper, committed to git
+    # (e.g. projects/PROJ-615/idea/reproduction.md, projects/PROJ-638/idea/
+    # reproduction.md) and read by humans from the repo. It is NOT surfaced by
+    # name on the dashboard: web_data._build_artifact_links only picks the FIRST
+    # idea/*.md as the generic "idea" link and never references `reproduction`.
+    # So its consumer is git + human readers, not non-test src.
+    "reproduction.md": (
+        "git-committed human reproduction guide (projects/**/idea/reproduction.md); "
+        "consumer is git + human readers, not non-test src or the dashboard"
+    ),
     # Documented human-facing deliverable of the arXiv/reprocess intake bundle
     # (paper_reprocess/__init__ lists it); the actionable code-resource data is
     # threaded via metadata.json (consumed by paper_reprocess/classify.py).

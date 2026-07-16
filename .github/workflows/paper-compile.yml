@@ -79,6 +79,31 @@ jobs:
         # drain rate so no PDF-less backlog accumulates in the dashboard tab.
         run: python3 scripts/build_missing_preprint_pdfs.py --max 30
 
+      - name: Audit restyled papers (non-failing)
+        # Flip paper_status `restyled_unaudited` -> `audited` (spec 010 / 023
+        # FR-023). The deterministic PDF audit (`llmxive pdf-pipeline audit`)
+        # calls record_audit_result, but NO other workflow ever invoked it, so
+        # restyled papers were stranded at `restyled_unaudited`. Audit each
+        # canonical restyled main PDF here, right after compile, so the updated
+        # state/paper_status/*.json + state/audit/pdf/*.json get committed below.
+        #
+        # SAFE in CI: the audit never moves or deletes a PDF — the only file
+        # mutation is on a render CRASH, where it COPIES the PDF into a
+        # quarantine dir (audit.py ~L263, shutil.copy2). Per-paper failures never
+        # fail the sweep (the CLI exits 1 on defects — swallowed by set +e), and
+        # the loop is bounded to 200 papers/tick.
+        run: |
+          set +e
+          n=0
+          for pdf in projects/PROJ-*/paper/pdf/main-llmxive.pdf; do
+            [ -f "$pdf" ] || continue
+            if [ "$n" -ge 200 ]; then break; fi
+            python3 -m llmxive pdf-pipeline audit "$pdf"
+            n=$((n + 1))
+          done
+          echo "[paper-compile] audited $n restyled paper PDF(s)"
+          exit 0
+
       - name: Commit + push
         id: commit
         # Robust concurrent-safe commit+push (scripts/ci/commit-and-push.sh):

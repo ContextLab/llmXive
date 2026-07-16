@@ -97,6 +97,46 @@ def _data_unavailable_failures(failures: list[str]) -> list[str]:
     return out
 
 
+#: argparse's own rejection lines when a run-book command's ARGS don't match the
+#: script's CLI — the quickstart invokes ``python code/x.py --icc 0.1`` but x.py's
+#: argparse never declared ``--icc`` (``unrecognized arguments``), or invokes it
+#: with NO args while x.py marks flags ``required`` (``the following arguments are
+#: required``). Re-running the identical command can NEVER pass and editing the
+#: script BODY won't help — the run-book command and the script's argparse have
+#: DRIFTED and must be reconciled (the live PROJ-148/239/585 stalls at fr=2-7).
+_ARGPARSE_ERROR_RE = re.compile(
+    r":\s*error:\s+(?:the following arguments are required|unrecognized arguments|"
+    r"argument\s+[^\n:]+:|invalid choice|expected (?:one|at least one) argument|"
+    r"ambiguous option|not allowed with argument)",
+    re.IGNORECASE,
+)
+_USAGE_RE = re.compile(r"^usage:\s*(.+)$", re.MULTILINE)
+
+
+def _runbook_cli_mismatches(res: AnalysisRunResult) -> list[tuple[str, str, str]]:
+    """Failing commands where the RUN-BOOK invocation doesn't match the script's
+    own argparse CLI. argparse prints ``usage: <prog> ...`` then ``<prog>: error:
+    the following arguments are required: --input`` / ``unrecognized arguments:
+    --icc`` — BOTH already in the captured tail, so the real CLI is recovered
+    without re-running ``--help``. Returns ``(command, usage, error_line)`` per
+    mismatch so the implementer is told to reconcile the quickstart command and the
+    script's argparse (not pointlessly edit the body)."""
+    out: list[tuple[str, str, str]] = []
+    for r in getattr(res, "commands", None) or []:
+        if r.ok or not r.tail:
+            continue
+        if not _ARGPARSE_ERROR_RE.search(r.tail):
+            continue
+        err_line = next(
+            (ln.strip() for ln in r.tail.splitlines() if _ARGPARSE_ERROR_RE.search(ln)),
+            "",
+        )
+        um = _USAGE_RE.search(r.tail)
+        usage = " ".join(um.group(1).split()) if um else ""
+        out.append((r.command, usage, err_line))
+    return out
+
+
 def _needs_verified_source(res: AnalysisRunResult, failures: list[str]) -> bool:
     """True when the failure signals the project lacks a REAL, programmatically
     reachable data source — the exact case data-source discovery exists to fix.
@@ -528,26 +568,37 @@ def _poll_offload(project_dir: Path, repo: Path) -> bool:
                 project_id, len(real),
             )
             return True
+        # Capture WHY the completed bundle failed so the durable offload
+        # sub-record carries the diagnosis (issue #1139 AP4), not just "failed".
         if real and gate is not None:
+            fail_reason = gate.reason()
+            fail_evidence = [
+                *gate.fabrication[:5], *gate.hollow[:5],
+                *gate.undurable[:5], *gate.declared_missing[:5],
+            ]
             logger.warning(
                 "offload %s completed but the retrieved bundle FAILED the semantic "
                 "gate — NOT advancing (%s); falling back to a local pass",
-                project_id, gate.reason(),
+                project_id, fail_reason,
             )
         else:
+            fail_reason = "offload retrieved no real (non-empty) artifacts"
+            fail_evidence = []
             logger.warning(
                 "offload %s completed but retrieved no real artifacts; falling back",
                 project_id,
             )
         execution_status.record_offload(
-            project_id, status="failed", kernel_ref=kernel_ref, repo_root=repo,
+            project_id, status="failed", kernel_ref=kernel_ref,
+            reason=fail_reason, evidence=fail_evidence, repo_root=repo,
         )
         return _run_local_after_failed_offload(project_dir, repo)
 
     # error / cancelAcknowledged / unknown-terminal → failed, then local fallback.
     logger.warning("offload %s ended status=%s; falling back to local path", project_id, status)
     execution_status.record_offload(
-        project_id, status="failed", kernel_ref=kernel_ref, repo_root=repo,
+        project_id, status="failed", kernel_ref=kernel_ref,
+        reason=f"offload kernel ended in terminal status={status}", repo_root=repo,
     )
     return _run_local_after_failed_offload(project_dir, repo)
 
@@ -645,6 +696,29 @@ def _write_execution_feedback(
             *(f"- `{c}`" for c in regressions),
             "",
         ]
+    cli_mismatches = _runbook_cli_mismatches(res)
+    if cli_mismatches:
+        lines += [
+            "## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments",
+            "",
+            "These commands did not crash on a code bug — the script's own argparse "
+            "REJECTED the arguments the quickstart passed (it required flags the "
+            "quickstart omitted, or the quickstart passed flags the script never "
+            "declared). Re-running the identical command can NEVER pass, and editing "
+            "the script's logic will NOT help: the run-book command and the script's "
+            "CLI have DRIFTED. Reconcile them — either change the quickstart command "
+            "to match the script's real usage, OR change the script's argparse to "
+            "accept the quickstart's arguments (whichever is correct for the "
+            "analysis). The script's REAL usage is shown so you can see the exact gap:",
+            "",
+        ]
+        for cmd, usage, err in cli_mismatches:
+            lines.append(f"- run-book command: `{cmd}`")
+            if usage:
+                lines.append(f"  - script usage: `{usage}`")
+            if err:
+                lines.append(f"  - argparse error: `{err}`")
+        lines.append("")
     infra = _compute_infra_failures(failures)
     if infra:
         lines += [
@@ -785,6 +859,47 @@ def _write_execution_feedback(
     (mem_dir / _FEEDBACK_FILENAME).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+# Path segments that mark an INSTALLED-dependency frame (the per-project venv),
+# NOT the project's own analysis. A traceback through pandas/numpy lives under
+# ``code/.venv/.../site-packages/...`` — whose path also contains ``code/`` — so a
+# naive scan would harvest library files. Exclude them (issue #1139 B1).
+_VENV_PATH_MARKERS = (".venv/", "/venv/", "site-packages/", "dist-packages/")
+
+
+def _code_paths_in_text(text: str) -> set[str]:
+    """Project-owned ``code/<pkg>/<mod>.py`` files named anywhere in *text* — a
+    command line OR a traceback tail.
+
+    Handles BOTH the filesystem-frame form (``File
+    ".../code/simulation/output_writer.py"``) and the dotted-module form
+    (``No module named 'code.simulation.output_writer'`` / ``from
+    code.simulation.output_writer import ...``). The dotted form is where a
+    transitive-import bug's ROOT module is named — the failing COMMAND only ever
+    names the entrypoint (``python code/main.py``), so before this the buggy
+    module's task stayed ``[X]`` and the implementer oscillated on the entrypoint
+    forever (the live PROJ-341 import-chain stall). Installed-dependency frames
+    under the per-project venv are excluded (issue #1139 B1)."""
+    out: set[str] = set()
+    if not text:
+        return out
+    # a) filesystem path form — anchor at the ``code/`` dir boundary. A leading
+    #    path separator is fine; a preceding WORD char (``decode/x.py``,
+    #    ``encode/...``) would make ``code`` part of another identifier, so reject
+    #    that with a word-char lookbehind.
+    for m in re.finditer(r"(?<!\w)(code/[\w./-]+\.py)", text):
+        rel = m.group(1)
+        if not any(mark in rel for mark in _VENV_PATH_MARKERS):
+            out.add(rel)
+    # b) dotted-module form — ``code.<pkg>.<mod>`` → ``code/<pkg>/<mod>.py``. Not
+    #    preceded by a word char or dot (so ``mypkg.code.x`` is not mistaken for
+    #    our top-level ``code`` package).
+    for m in re.finditer(r"(?<![\w.])(code(?:\.[A-Za-z_]\w*)+)", text):
+        rel = m.group(1).replace(".", "/") + ".py"
+        if not any(mark in rel for mark in _VENV_PATH_MARKERS):
+            out.add(rel)
+    return out
+
+
 def _reopen_failing_tasks(
     project_dir: Path, res: AnalysisRunResult, contract_issues: list | None = None,
     data_contract_issues: list | None = None,
@@ -822,9 +937,16 @@ def _reopen_failing_tasks(
     for r in res.commands:
         if r.ok:
             continue
-        m = re.search(r"\b(code/[\w./-]+\.py)\b", r.command)
-        if m:
-            rel = m.group(1)
+        # The failing COMMAND names only the ENTRYPOINT (``python code/main.py``);
+        # a transitive-import / deep-module bug is named ONLY in the traceback TAIL
+        # (issue #1139 B1 — the live PROJ-341 import-chain stall: main.py was
+        # reopened every round while the real bug in
+        # code/simulation/output_writer.py kept its task [X], so the implementer
+        # oscillated on the entrypoint forever). Reopen EVERY project-owned
+        # code/*.py named in the command AND the tail.
+        cmd_paths = _code_paths_in_text(r.command)
+        tail_paths = _code_paths_in_text(r.tail or "")
+        for rel in cmd_paths | tail_paths:
             targets.add(rel)
             # The FILENAME (``download.py``) — not the bare stem. A stem like
             # "analysis" / "download" / "main" is an ordinary English word that
@@ -833,8 +955,9 @@ def _reopen_failing_tasks(
             # it). The filename still catches the same script under a different
             # directory, which IS the likely owner of a path mismatch.
             targets.add(Path(rel).name)
-            if r.script_missing:
-                missing_scripts.append(rel)
+        # script_missing is a property of the run-book command's OWN script.
+        if r.script_missing:
+            missing_scripts.extend(cmd_paths)
     for d in res.declared_missing:
         targets.add(d)
         targets.add(Path(d).name)

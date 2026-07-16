@@ -79,18 +79,63 @@ def test_declared_deliverables_excludes_gitkeep() -> None:
     assert declared_deliverables(tasks) == set()
 
 
+# A checked-in, STABLE quickstart fixture — a multi-step run-book with setup noise
+# (cd / venv / pip / source) that must be filtered, a line-continuation to join, and
+# a `python -c` smoke line. Decoupled from any live project file (issue #1139).
+_QUICKSTART_FIXTURE = """# Quickstart
+## Setup
+```bash
+cd code
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+## Run the analysis
+```bash
+cd code
+python download_data.py --out data/raw
+python preprocess.py --in data/raw --out data/processed
+python analyze.py \\
+    --in data/processed --out results/metrics.json
+python make_figures.py --in results/metrics.json --out figures/
+python -c "import json; print(json.load(open('results/metrics.json')))"
+```
+"""
+
+
+def test_extract_run_commands_filters_setup_keeps_python() -> None:
+    """extract_run_commands keeps ONLY runnable `python` commands (joining
+    line-continuations) and drops the venv/pip/cd/source setup lines. Exercised on
+    a fixed fixture so the assertion never drifts with live project state."""
+    cmds = extract_run_commands(_QUICKSTART_FIXTURE)
+    assert cmds == [
+        "python download_data.py --out data/raw",
+        "python preprocess.py --in data/raw --out data/processed",
+        "python analyze.py  --in data/processed --out results/metrics.json",
+        "python make_figures.py --in results/metrics.json --out figures/",
+        "python -c \"import json; print(json.load(open('results/metrics.json')))\"",
+    ]
+    assert not any("pip" in c or c.startswith("cd ") or "venv" in c for c in cmds)
+
+
 def test_extract_run_commands_on_real_552_quickstart() -> None:
-    """Regression: the live PROJ-552 quickstart yields runnable commands
-    (the hollow-implementation finding — code existed, nothing ran it)."""
+    """Regression: the live PROJ-552 quickstart yields RUNNABLE commands (the
+    hollow-implementation finding — code existed, nothing ran it).
+
+    The exact command COUNT is intentionally NOT asserted: the pipeline rewrites
+    this quickstart as the project advances, so a hard-coded `>= 5` (plus a
+    'download' step) from an older, longer version went red when the run-book
+    legitimately got leaner (issue #1139 CI2). Only stable properties are checked.
+    """
     repo = Path(__file__).resolve().parents[2]
     qs = repo / ("projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/"
                  "specs/010-quantifying-the-complexity-of-knot-diagr/quickstart.md")
     if not qs.is_file():
         return  # 552 spec dir may be renamed later; skip gracefully
     cmds = extract_run_commands(qs.read_text(encoding="utf-8"))
-    assert len(cmds) >= 5
+    assert cmds, "the real quickstart must yield >=1 runnable command (not zero)"
     assert all(c.startswith(("python ", "python3 ")) for c in cmds)
-    assert any("download" in c for c in cmds)  # the data-download step is present
+    assert any("main.py" in c for c in cmds)  # the analysis entrypoint is present
 
 
 def test_resolve_script_token_set(tmp_path) -> None:
