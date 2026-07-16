@@ -1,180 +1,296 @@
 """
-Edge case handler for detecting and logging exclusions based on FR-006 and FR-007.
+Edge Case Handler for the Linguistic Cues Research Pipeline.
 
-FR-006: Exclude conversations with fewer than 5 words.
-FR-007: Exclude records with missing authenticity ratings.
+This module implements FR-007 by detecting:
+1. Empty or short texts (< 5 words)
+2. Missing ratings in the dataset
+
+Upon detection of missing ratings, the handler logs a structured error and
+triggers a pipeline HALT (sys.exit) rather than attempting auto-annotation.
 """
+
 import logging
 import os
+import sys
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+
 import pandas as pd
 
-# Configure logging
+# Configure logging for this module
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
-# Ensure log directory exists
-LOG_DIR = Path("data/derived")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+# Minimum word count threshold for valid text
+MIN_WORD_COUNT = 5
 
-LOG_FILE = LOG_DIR / "exclusion_log.csv"
 
-def log_exclusions(exclusions: List[Dict[str, Any]]) -> None:
+def log_exclusions(
+    exclusions: List[Dict[str, Any]],
+    log_dir: Path,
+    prefix: str = "edge_case_exclusions"
+) -> Path:
     """
-    Log excluded records to a CSV file and print summary to logger.
-    
+    Write a structured log of excluded records to a JSON file.
+
     Args:
-        exclusions: List of dictionaries containing exclusion details
-            (conversation_id, reason, original_data)
-    """
-    if not exclusions:
-        logger.info("No records excluded.")
-        return
+        exclusions: List of dictionaries containing exclusion details.
+        log_dir: Directory where the log file will be saved.
+        prefix: Prefix for the log filename.
 
-    # Convert to DataFrame
-    df_exclusions = pd.DataFrame(exclusions)
-    
-    # Append to existing log if it exists
-    if LOG_FILE.exists():
-        existing_df = pd.read_csv(LOG_FILE)
-        combined_df = pd.concat([existing_df, df_exclusions], ignore_index=True)
-    else:
-        combined_df = df_exclusions
-    
-    # Save to CSV
-    combined_df.to_csv(LOG_FILE, index=False)
-    
-    # Log summary
-    exclusion_counts = df_exclusions['reason'].value_counts()
-    logger.info(f"Excluded {len(exclusions)} records:")
-    for reason, count in exclusion_counts.items():
-        logger.info(f"  - {reason}: {count}")
-
-def detect_empty_or_short_texts(df: pd.DataFrame, text_column: str = 'text', min_words: int = 5) -> List[Dict[str, Any]]:
-    """
-    Detect conversations with empty or short texts (<5 words).
-    
-    Args:
-        df: DataFrame containing conversation data
-        text_column: Name of the column containing text data
-        min_words: Minimum number of words required (default: 5)
-    
     Returns:
-        List of dictionaries with exclusion details
+        Path to the created log file.
     """
-    exclusions = []
-    
-    if text_column not in df.columns:
-        logger.warning(f"Column '{text_column}' not found in DataFrame. Skipping text length check.")
-        return exclusions
-    
-    for idx, row in df.iterrows():
-        text = row.get(text_column, "")
-        
-        if pd.isna(text) or str(text).strip() == "":
-            exclusions.append({
-                'conversation_id': row.get('conversation_id', f'row_{idx}'),
-                'reason': 'empty_text',
-                'original_data': str(text)[:100]  # Truncate for log
-            })
-        else:
-            word_count = len(str(text).split())
-            if word_count < min_words:
-                exclusions.append({
-                    'conversation_id': row.get('conversation_id', f'row_{idx}'),
-                    'reason': f'short_text_{word_count}_words',
-                    'original_data': str(text)[:100]
-                })
-    
-    return exclusions
+    log_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = log_dir / f"{prefix}_{timestamp}.json"
 
-def detect_missing_ratings(df: pd.DataFrame, rating_column: str = 'authenticity_score') -> List[Dict[str, Any]]:
-    """
-    Detect records with missing authenticity ratings.
-    
-    Args:
-        df: DataFrame containing conversation and rating data
-        rating_column: Name of the column containing ratings
-    
-    Returns:
-        List of dictionaries with exclusion details
-    """
-    exclusions = []
-    
-    if rating_column not in df.columns:
-        logger.warning(f"Column '{rating_column}' not found in DataFrame. Skipping rating check.")
-        return exclusions
-    
-    for idx, row in df.iterrows():
-        rating = row.get(rating_column)
-        
-        if pd.isna(rating):
-            exclusions.append({
-                'conversation_id': row.get('conversation_id', f'row_{idx}'),
-                'reason': 'missing_rating',
-                'original_data': None
-            })
-    
-    return exclusions
+    import json
+    with open(log_file, "w", encoding="utf-8") as f:
+        json.dump(exclusions, f, indent=2, default=str)
 
-def handle_edge_cases(
-    df: pd.DataFrame, 
-    text_column: str = 'text', 
-    rating_column: str = 'authenticity_score',
-    min_words: int = 5,
-    log_to_file: bool = True
+    logger.info(f"Exclusion log written to: {log_file}")
+    return log_file
+
+
+def detect_empty_or_short_texts(
+    df: pd.DataFrame,
+    text_column: str = "text_content"
 ) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
     """
-    Main function to handle all edge cases: empty/short texts and missing ratings.
-    
-    Args:
-        df: Input DataFrame
-        text_column: Column name for text data
-        rating_column: Column name for rating data
-        min_words: Minimum word count threshold
-        log_to_file: Whether to write exclusions to CSV log file
-    
-    Returns:
-        Tuple of (filtered DataFrame, list of all exclusions)
-    """
-    all_exclusions = []
-    
-    # Check for empty/short texts
-    text_exclusions = detect_empty_or_short_texts(df, text_column, min_words)
-    all_exclusions.extend(text_exclusions)
-    
-    # Check for missing ratings
-    rating_exclusions = detect_missing_ratings(df, rating_column)
-    all_exclusions.extend(rating_exclusions)
-    
-    # Create mask for valid records
-    valid_mask = pd.Series(True, index=df.index)
-    
-    # Filter by text length
-    if text_column in df.columns:
-        text_lengths = df[text_column].apply(lambda x: len(str(x).split()) if pd.notna(x) and str(x).strip() != "" else 0)
-        valid_mask &= (text_lengths >= min_words)
-    
-    # Filter by rating presence
-    if rating_column in df.columns:
-        valid_mask &= df[rating_column].notna()
-    
-    filtered_df = df[valid_mask].reset_index(drop=True)
-    
-    # Log exclusions
-    if log_to_file and all_exclusions:
-        log_exclusions(all_exclusions)
-    
-    return filtered_df, all_exclusions
+    Detect rows where the text column is empty or contains fewer than MIN_WORD_COUNT words.
 
-def get_exclusion_summary() -> Optional[pd.DataFrame]:
-    """
-    Load and return the exclusion log if it exists.
-    
+    Args:
+        df: Input DataFrame containing conversation text.
+        text_column: Name of the column containing text data.
+
     Returns:
-        DataFrame with exclusion details or None if log doesn't exist
+        Tuple of (valid_df, exclusions_list)
+        - valid_df: DataFrame with short/empty texts removed.
+        - exclusions_list: List of dicts with details about excluded rows.
     """
-    if LOG_FILE.exists():
-        return pd.read_csv(LOG_FILE)
-    return None
+    if text_column not in df.columns:
+        logger.warning(f"Column '{text_column}' not found in DataFrame. Skipping text length check.")
+        return df, []
+
+    def count_words(text):
+        if pd.isna(text) or not isinstance(text, str) or text.strip() == "":
+            return 0
+        return len(text.split())
+
+    word_counts = df[text_column].apply(count_words)
+    mask = word_counts >= MIN_WORD_COUNT
+    valid_df = df[mask].copy()
+    excluded_df = df[~mask]
+
+    exclusions = []
+    for idx, row in excluded_df.iterrows():
+        exclusions.append({
+            "index": int(idx),
+            "reason": "short_or_empty_text",
+            "word_count": int(word_counts.loc[idx]),
+            "text_preview": str(row[text_column])[:100] if row[text_column] else None
+        })
+
+    if exclusions:
+        logger.warning(f"Detected {len(exclusions)} rows with text length < {MIN_WORD_COUNT} words.")
+    else:
+        logger.info("No short or empty texts detected.")
+
+    return valid_df, exclusions
+
+
+def detect_missing_ratings(
+    df: pd.DataFrame,
+    ratings_df: Optional[pd.DataFrame] = None,
+    text_id_column: str = "conversation_id",
+    rating_id_column: str = "conversation_id",
+    rating_value_column: str = "authenticity_score"
+) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
+    """
+    Detect rows in the main DataFrame that are missing corresponding ratings.
+
+    If ratings_df is provided, it checks for existence of the ID in ratings.
+    If ratings_df is None, it checks if the rating column exists in the main df.
+
+    Args:
+        df: Main DataFrame (e.g., extracted features).
+        ratings_df: Optional DataFrame containing human ratings.
+        text_id_column: Column name in df for conversation ID.
+        rating_id_column: Column name in ratings_df for conversation ID.
+        rating_value_column: Column name in ratings_df for the score.
+
+    Returns:
+        Tuple of (valid_df, exclusions_list)
+        - valid_df: DataFrame with rows that have valid ratings.
+        - exclusions_list: List of dicts with details about missing ratings.
+    """
+    exclusions = []
+
+    # Case 1: Ratings provided in a separate DataFrame
+    if ratings_df is not None:
+        if rating_id_column not in ratings_df.columns:
+            raise ValueError(f"Rating ID column '{rating_id_column}' not found in ratings_df.")
+        if rating_value_column not in ratings_df.columns:
+            raise ValueError(f"Rating value column '{rating_value_column}' not found in ratings_df.")
+
+        if text_id_column not in df.columns:
+            raise ValueError(f"Text ID column '{text_id_column}' not found in main DataFrame.")
+
+        # Get set of available ratings
+        available_ids = set(ratings_df[rating_id_column].dropna().unique())
+
+        # Identify missing
+        missing_mask = ~df[text_id_column].isin(available_ids)
+        missing_df = df[missing_mask]
+
+        for idx, row in missing_df.iterrows():
+            exclusions.append({
+                "index": int(idx),
+                "conversation_id": str(row[text_id_column]),
+                "reason": "missing_rating"
+            })
+
+        valid_df = df[~missing_mask].copy()
+
+    # Case 2: Ratings are a column in the main DataFrame (e.g., merged already)
+    else:
+        if rating_value_column not in df.columns:
+            raise ValueError(f"Rating value column '{rating_value_column}' not found in DataFrame and no ratings_df provided.")
+
+        missing_mask = df[rating_value_column].isna()
+        missing_df = df[missing_mask]
+
+        for idx, row in missing_df.iterrows():
+            cid = row.get(text_id_column, "unknown")
+            exclusions.append({
+                "index": int(idx),
+                "conversation_id": str(cid),
+                "reason": "missing_rating"
+            })
+
+        valid_df = df[~missing_mask].copy()
+
+    if exclusions:
+        logger.error(f"CRITICAL: Detected {len(exclusions)} rows missing ratings.")
+    else:
+        logger.info("All rows have valid ratings.")
+
+    return valid_df, exclusions
+
+
+def handle_edge_cases(
+    text_df: pd.DataFrame,
+    ratings_df: Optional[pd.DataFrame] = None,
+    log_dir: Optional[Path] = None,
+    min_words: int = MIN_WORD_COUNT
+) -> pd.DataFrame:
+    """
+    Orchestrates edge case detection.
+    1. Detects short/empty texts.
+    2. Detects missing ratings.
+    3. Logs exclusions if log_dir is provided.
+    4. HALTS the pipeline if missing ratings are found (FR-007).
+
+    Args:
+        text_df: DataFrame with text data (and potentially ratings).
+        ratings_df: Optional separate DataFrame with ratings.
+        log_dir: Directory to write exclusion logs.
+        min_words: Minimum word count threshold.
+
+    Returns:
+        Cleaned DataFrame (only if no missing ratings found).
+
+    Raises:
+        SystemExit: If missing ratings are detected.
+    """
+    global MIN_WORD_COUNT
+    original_min = MIN_WORD_COUNT
+    MIN_WORD_COUNT = min_words
+
+    try:
+        # 1. Check for short texts
+        text_df, text_exclusions = detect_empty_or_short_texts(text_df, text_column="text_content")
+
+        # 2. Check for missing ratings
+        # If ratings_df is provided, we assume we need to merge or check IDs.
+        # If not, we check if 'authenticity_score' exists in text_df.
+        clean_df, rating_exclusions = detect_missing_ratings(
+            text_df,
+            ratings_df=ratings_df,
+            text_id_column="conversation_id",
+            rating_id_column="conversation_id",
+            rating_value_column="authenticity_score"
+        )
+
+        # 3. Log exclusions
+        if log_dir:
+            all_exclusions = text_exclusions + rating_exclusions
+            if all_exclusions:
+                log_exclusions(all_exclusions, log_dir)
+
+        # 4. HALT if missing ratings
+        if rating_exclusions:
+            logger.error("Pipeline HALT: Missing ratings detected. Aborting execution.")
+            sys.exit(1)
+
+        return clean_df
+
+    finally:
+        MIN_WORD_COUNT = original_min
+
+
+def get_exclusion_summary(exclusions: List[Dict[str, Any]]) -> Dict[str, int]:
+    """
+    Generate a summary count of exclusion reasons.
+
+    Args:
+        exclusions: List of exclusion dictionaries.
+
+    Returns:
+        Dictionary mapping reason to count.
+    """
+    summary: Dict[str, int] = {}
+    for item in exclusions:
+        reason = item.get("reason", "unknown")
+        summary[reason] = summary.get(reason, 0) + 1
+    return summary
+
+
+def main():
+    """
+    CLI entry point for testing the edge case handler.
+    Expects a CSV file with text and optional ratings.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Edge Case Handler")
+    parser.add_argument("--input", type=str, required=True, help="Path to input CSV")
+    parser.add_argument("--ratings", type=str, required=False, help="Path to ratings CSV (optional)")
+    parser.add_argument("--log-dir", type=str, default="data/logs", help="Directory for logs")
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+    try:
+        df = pd.read_csv(args.input)
+        ratings = pd.read_csv(args.ratings) if args.ratings else None
+        log_dir = Path(args.log_dir)
+
+        logger.info(f"Loaded {len(df)} rows from {args.input}")
+        if ratings is not None:
+            logger.info(f"Loaded {len(ratings)} ratings from {args.ratings}")
+
+        result_df = handle_edge_cases(df, ratings_df=ratings, log_dir=log_dir)
+        logger.info(f"Pipeline continued. Remaining rows: {len(result_df)}")
+
+    except SystemExit as e:
+        logger.critical(f"Pipeline halted with code {e.code}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        raise
+
+
+if __name__ == "__main__":
+    main()

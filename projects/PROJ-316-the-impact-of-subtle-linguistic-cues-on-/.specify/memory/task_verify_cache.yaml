@@ -1,0 +1,21 @@
+T001e:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The task T001e is explicitly marked as removed and not authorized by the specification,
+    so no artifacts or output are required. Consequently, there is nothing missing
+    or incorrect to verify.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or `__init__.py` files are presented in the provided evidence;
+    the claim that the required folders (`src/`, `tests/`, `data/raw`, `data/processed`,
+    `data/derived`, `code/`) and empty `__init__.py` files exist cannot be verified.
+    The implementer must supply a concrete listing or screenshot showing these directories
+    and files.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no linting or formatting configuration files (e.g.,
+    `.flake8`, `pyproject.toml` with Black settings, or a Makefile/CI script invoking
+    flake8/black). No evidence of the tools being set up or integrated into the project
+    is present, so the requirement to configure flake8 and Black is not satisfied.

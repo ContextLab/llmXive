@@ -20,47 +20,25 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-07T19:36:28.070702Z'
-- artifact_hash: 757df6ab1fa3a91cdfd12c841255db7a7ca3b30d04caace2291c56660207c4c6
+- artifact_hash: 5763cb3933c4ad27e1ff5407a7305a97e803d2665c891f733c530c8c42d6ca40
   artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/data/raw/dataset_verification_report.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "OpenAssistant/oasst1 \xB7 Datasets at Hugging Face"
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/OpenAssistant/oasst1
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/OpenAssistant/oasst1
-  verified_at: '2026-07-07T19:52:57.086352Z'
-- artifact_hash: 757df6ab1fa3a91cdfd12c841255db7a7ca3b30d04caace2291c56660207c4c6
+  value: https://huggingface.co/datasets/nlp-group/chatbot-quality-ratings
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/nlp-group/chatbot-quality-ratings
+  verified_at: '2026-07-16T12:23:27.676155Z'
+- artifact_hash: 5763cb3933c4ad27e1ff5407a7305a97e803d2665c891f733c530c8c42d6ca40
   artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/data/raw/dataset_verification_report.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: "Anthropic/hh-rlhf \xB7 Datasets at Hugging Face"
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/Anthropic/HH-RLHF
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/Anthropic/hh-rlhf
-  verified_at: '2026-07-07T19:52:57.086352Z'
-- artifact_hash: 757df6ab1fa3a91cdfd12c841255db7a7ca3b30d04caace2291c56660207c4c6
-  artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/data/raw/dataset_verification_report.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: "tatsu-lab/alpaca \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/tatsu-lab/alpaca
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/tatsu-lab/alpaca
-  verified_at: '2026-07-07T19:52:57.086352Z'
-- artifact_hash: 757df6ab1fa3a91cdfd12c841255db7a7ca3b30d04caace2291c56660207c4c6
-  artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/data/raw/dataset_verification_report.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: "lmsys/chatbot_arena_conversations \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/lmsys/chatbot_arena_conversations
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/lmsys/chatbot_arena_conversations
-  verified_at: '2026-07-07T19:52:57.086352Z'
+  value: https://huggingface.co/datasets/ai2/human-ai-interaction
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/ai2/human-ai-interaction
+  verified_at: '2026-07-16T12:23:27.676155Z'

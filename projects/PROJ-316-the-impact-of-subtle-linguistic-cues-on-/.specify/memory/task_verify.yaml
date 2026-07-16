@@ -1,12 +1,6 @@
-? 'T002 Create project structure per implementation plan. **Deliverable**: Create
-  directories `src/`, `tests/`, `data/raw`, `data/processed`, `data/derived`, `code/`.
-  Create empty `__init__.py` files in all `src/` subfolders.'
-: 2
-T004 [P] Configure linting (flake8) and formatting (black) tools: 2
-T005 [P] Setup data directory structure (`data/raw`, `data/processed`, `data/derived`): 1
-? 'T006 [Phase2] Implement `src/utils/data_loader.py`. **Deliverable**: Implement
-  functions `fetch_text()` (returns DataFrame), `load_ratings()` (returns DataFrame),
-  and `validate_schemas()` (raises exception if `ratings.csv` is missing or schema
-  mismatched). **Note**: This task depends on Phase 0 completion (T001c) and must
-  halt if `ratings.csv` is missing.'
-: 1
+T002: 2
+T004: 2
+T005: 2
+T005a: 2
+T006: 2
+T007: 2

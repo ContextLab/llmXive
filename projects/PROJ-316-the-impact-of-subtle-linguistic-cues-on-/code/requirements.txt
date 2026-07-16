@@ -1,21 +1,16 @@
-# Core dependencies
-spacy==3.5.0
-nltk==3.8.0
-vaderSentiment==3.3.2
+nltk
+vaderSentiment
 pandas
 scikit-learn
 statsmodels
 scipy
 matplotlib
 seaborn
-krippendorff
-requests
-numpy
-
-# Testing
+pyyaml
 pytest
-
-# Utilities
-black
-flake8
-en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl
+datasets
+krippendorff
+spacy
+tqdm
+# Additional dependencies required by the project
+# (versions are intentionally left unpinned for flexibility)

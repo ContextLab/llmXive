@@ -1,168 +1,226 @@
 """
-Configuration management for the linguistic cues research pipeline.
+Configuration management for the llmXive research pipeline.
 
 This module manages random seeds for reproducibility and runtime limits
-to ensure CPU-only execution and bounded timeouts as per project constraints.
+(CPU-only enforcement, bounded timeouts) as required by the project constraints.
 """
 import os
 import random
+import sys
+import signal
 from typing import Optional, Union
-
-# Default random seed for reproducibility
-DEFAULT_SEED = 42
-
-# Default runtime limits (seconds)
-DEFAULT_TIMEOUT_SECONDS = 3600  # 1 hour limit
-
-# Flag for CPU-only execution (no GPU acceleration)
-CPU_ONLY_DEFAULT = True
-
-# Environment variable names
-ENV_SEED = "LLMXIVE_RANDOM_SEED"
-ENV_TIMEOUT = "LLMXIVE_TIMEOUT_SECONDS"
-ENV_CPU_ONLY = "LLMXIVE_CPU_ONLY"
-
-
-def get_seed() -> int:
-    """
-    Retrieve the random seed from environment or use default.
-    
-    Returns:
-        int: The random seed to use for all random number generators.
-    """
-    seed_str = os.getenv(ENV_SEED)
-    if seed_str is not None:
-        try:
-            return int(seed_str)
-        except ValueError:
-            raise ValueError(f"Invalid seed value in {ENV_SEED}: {seed_str}")
-    return DEFAULT_SEED
-
-
-def set_seed(seed: Optional[int] = None) -> None:
-    """
-    Set the random seed for reproducibility across libraries.
-    
-    Args:
-        seed: The seed value. If None, uses the value from environment or default.
-    """
-    if seed is None:
-        seed = get_seed()
-    
-    random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
-    
-    # Attempt to set numpy seed if available
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
-    
-    # Attempt to set torch seed if available (CPU only)
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            # Force CPU-only execution as per constraints
-            os.environ["CUDA_VISIBLE_DEVICES"] = ""
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-    except ImportError:
-        pass
-
-
-def get_timeout_seconds() -> int:
-    """
-    Retrieve the runtime timeout limit from environment or use default.
-    
-    Returns:
-        int: The maximum allowed runtime in seconds.
-    """
-    timeout_str = os.getenv(ENV_TIMEOUT)
-    if timeout_str is not None:
-        try:
-            return int(timeout_str)
-        except ValueError:
-            raise ValueError(f"Invalid timeout value in {ENV_TIMEOUT}: {timeout_str}")
-    return DEFAULT_TIMEOUT_SECONDS
-
-
-def is_cpu_only() -> bool:
-    """
-    Check if CPU-only execution is enforced.
-    
-    Returns:
-        bool: True if execution should be restricted to CPU.
-    """
-    cpu_env = os.getenv(ENV_CPU_ONLY)
-    if cpu_env is not None:
-        return cpu_env.lower() in ("true", "1", "yes", "on")
-    return CPU_ONLY_DEFAULT
-
-
-def enforce_cpu_only() -> None:
-    """
-    Enforce CPU-only execution by setting environment variables and library configs.
-    
-    This function should be called early in the pipeline initialization.
-    """
-    if is_cpu_only():
-        os.environ["CUDA_VISIBLE_DEVICES"] = ""
-        os.environ["PYTORCH_NO_CUDA"] = "1"
-        
-        # Disable GPU for common libraries
-        try:
-            import torch
-            torch.set_num_threads(1)  # Limit threads for CPU-only
-        except ImportError:
-            pass
-        
-        try:
-            import tensorflow as tf
-            tf.config.set_visible_devices([], 'GPU')
-        except ImportError:
-            pass
-        except RuntimeError:
-            pass  # TF might not be initialized yet
 
 
 class Config:
     """
-    Configuration container for the research pipeline.
+    Central configuration manager for the research pipeline.
     
     Attributes:
-        seed (int): Random seed for reproducibility.
-        timeout_seconds (int): Maximum runtime in seconds.
-        cpu_only (bool): Whether to enforce CPU-only execution.
+        seed (int): Random seed for reproducibility (default: 42).
+        timeout_seconds (Optional[int]): Maximum runtime in seconds (default: None).
+        cpu_only (bool): If True, forces CPU-only execution (default: True).
     """
+    _instance: Optional['Config'] = None
     
-    def __init__(self, seed: Optional[int] = None, 
-                 timeout_seconds: Optional[int] = None,
-                 cpu_only: Optional[bool] = None):
-        """
-        Initialize configuration.
-        
-        Args:
-            seed: Random seed. If None, uses environment or default.
-            timeout_seconds: Runtime limit. If None, uses environment or default.
-            cpu_only: CPU-only flag. If None, uses environment or default.
-        """
-        self.seed = get_seed() if seed is None else seed
-        self.timeout_seconds = get_timeout_seconds() if timeout_seconds is None else timeout_seconds
-        self.cpu_only = is_cpu_only() if cpu_only is None else cpu_only
+    def __init__(self):
+        self._seed: int = 42
+        self._timeout_seconds: Optional[int] = None
+        self._cpu_only: bool = True
+        self._setup_signals()
     
-    def __repr__(self) -> str:
-        return (f"Config(seed={self.seed}, "
-                f"timeout_seconds={self.timeout_seconds}, "
-                f"cpu_only={self.cpu_only})")
+    def _setup_signals(self):
+        """Setup signal handlers for timeout enforcement."""
+        if self._timeout_seconds is not None:
+            # Use SIGALRM on Unix-like systems
+            if hasattr(signal, 'SIGALRM'):
+                signal.signal(signal.SIGALRM, self._timeout_handler)
+                signal.alarm(self._timeout_seconds)
+            else:
+                # Fallback for Windows: use threading timer
+                import threading
+                self._timeout_timer = threading.Timer(
+                    self._timeout_seconds, 
+                    self._timeout_handler_threaded
+                )
+                self._timeout_timer.daemon = True
+                self._timeout_timer.start()
     
-    def apply(self) -> None:
-        """
-        Apply this configuration to the runtime environment.
-        
-        This sets random seeds and enforces CPU-only execution.
-        """
-        set_seed(self.seed)
-        if self.cpu_only:
-            enforce_cpu_only()
+    def _timeout_handler(self, signum, frame):
+        """Handle timeout signal."""
+        raise TimeoutError(f"Execution exceeded the time limit of {self._timeout_seconds} seconds")
+    
+    def _timeout_handler_threaded(self):
+        """Handle timeout for Windows (threaded fallback)."""
+        raise TimeoutError(f"Execution exceeded the time limit of {self._timeout_seconds} seconds")
+    
+    @property
+    def seed(self) -> int:
+        """Get the current random seed."""
+        return self._seed
+    
+    @seed.setter
+    def seed(self, value: int):
+        """Set the random seed and propagate to all random number generators."""
+        self._seed = value
+        random.seed(value)
+        if 'numpy' in sys.modules:
+            import numpy as np
+            np.random.seed(value)
+    
+    @property
+    def timeout_seconds(self) -> Optional[int]:
+        """Get the timeout limit in seconds."""
+        return self._timeout_seconds
+    
+    @timeout_seconds.setter
+    def timeout_seconds(self, value: Optional[int]):
+        """Set the timeout limit and reconfigure signal handlers."""
+        self._timeout_seconds = value
+        # Re-setup signals with new timeout
+        if hasattr(signal, 'SIGALRM'):
+            signal.alarm(0)  # Cancel previous alarm
+            if value is not None:
+                signal.signal(signal.SIGALRM, self._timeout_handler)
+                signal.alarm(value)
+    
+    @property
+    def cpu_only(self) -> bool:
+        """Get the CPU-only flag."""
+        return self._cpu_only
+    
+    @cpu_only.setter
+    def cpu_only(self, value: bool):
+        """Set the CPU-only flag and configure libraries accordingly."""
+        self._cpu_only = value
+        if value:
+            # Force CPU-only for common ML libraries
+            if 'torch' in sys.modules:
+                import torch
+                torch.set_num_threads(1)
+            if 'tensorflow' in sys.modules:
+                import tensorflow as tf
+                tf.config.set_visible_devices([], 'GPU')
+            if 'jax' in sys.modules:
+                import jax
+                jax.config.update('jax_platform_name', 'cpu')
+    
+    def reset(self):
+        """Reset configuration to defaults."""
+        self._seed = 42
+        self._timeout_seconds = None
+        self._cpu_only = True
+        random.seed(42)
+        if hasattr(signal, 'SIGALRM'):
+            signal.alarm(0)
+
+
+# Global configuration instance
+_config = Config()
+
+
+def get_seed() -> int:
+    """
+    Get the current random seed.
+    
+    Returns:
+        int: The current random seed value.
+    """
+    return _config.seed
+
+
+def set_seed(seed: int):
+    """
+    Set the random seed for reproducibility.
+    
+    Args:
+        seed (int): The seed value to use.
+    """
+    _config.seed = seed
+
+
+def get_timeout_seconds() -> Optional[int]:
+    """
+    Get the current timeout limit.
+    
+    Returns:
+        Optional[int]: The timeout in seconds, or None if no limit is set.
+    """
+    return _config.timeout_seconds
+
+
+def is_cpu_only() -> bool:
+    """
+    Check if CPU-only mode is enabled.
+    
+    Returns:
+        bool: True if CPU-only mode is active.
+    """
+    return _config.cpu_only
+
+
+def enforce_cpu_only():
+    """
+    Enforce CPU-only execution by setting the flag and configuring libraries.
+    """
+    _config.cpu_only = True
+
+
+def reset_config():
+    """Reset all configuration values to defaults."""
+    _config.reset()
+
+
+def configure_from_env():
+    """
+    Configure the pipeline from environment variables.
+    
+    Environment variables:
+        RESEARCH_SEED: Random seed (default: 42)
+        RESEARCH_TIMEOUT: Timeout in seconds (default: None)
+        RESEARCH_CPU_ONLY: 'true'/'false' (default: 'true')
+    """
+    seed_str = os.environ.get('RESEARCH_SEED', '42')
+    timeout_str = os.environ.get('RESEARCH_TIMEOUT', None)
+    cpu_only_str = os.environ.get('RESEARCH_CPU_ONLY', 'true')
+    
+    try:
+        _config.seed = int(seed_str)
+    except ValueError:
+        _config.seed = 42
+    
+    if timeout_str:
+        try:
+            _config.timeout_seconds = int(timeout_str)
+        except ValueError:
+            _config.timeout_seconds = None
+    
+    _config.cpu_only = cpu_only_str.lower() in ('true', '1', 'yes')
+
+
+if __name__ == '__main__':
+    # Demonstrate configuration functionality
+    print("Initial configuration:")
+    print(f"  Seed: {get_seed()}")
+    print(f"  Timeout: {get_timeout_seconds()}")
+    print(f"  CPU-only: {is_cpu_only()}")
+    
+    # Test seed setting
+    set_seed(123)
+    print(f"\nAfter set_seed(123):")
+    print(f"  Seed: {get_seed()}")
+    print(f"  Random value: {random.random()}")
+    
+    # Reset
+    reset_config()
+    print(f"\nAfter reset:")
+    print(f"  Seed: {get_seed()}")
+    
+    # Test environment configuration
+    os.environ['RESEARCH_SEED'] = '999'
+    os.environ['RESEARCH_TIMEOUT'] = '60'
+    os.environ['RESEARCH_CPU_ONLY'] = 'true'
+    configure_from_env()
+    print(f"\nAfter configure_from_env:")
+    print(f"  Seed: {get_seed()}")
+    print(f"  Timeout: {get_timeout_seconds()}")
+    print(f"  CPU-only: {is_cpu_only()}")

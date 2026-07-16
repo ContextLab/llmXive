@@ -1,26 +1,3 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "llmxive-authenticity"
-version = "0.1.0"
-description = "Impact of subtle linguistic cues on perceived authenticity in AI chatbots"
-requires-python = ">=3.11"
-dependencies = [
-    "spaCy==3.5.0",
-    "nltk==3.8.0",
-    "vaderSentiment==3.3.2",
-    "pandas",
-    "scikit-learn",
-    "statsmodels",
-    "scipy",
-    "matplotlib",
-    "seaborn",
-    "krippendorff",
-    "requests",
-]
-
 [tool.black]
 line-length = 88
 target-version = ['py311']
@@ -36,19 +13,11 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | data
-  | figures
-  | docs
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-skip = [".git", "data", "figures", "docs", ".venv", "venv"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+known_first_party = ["src", "tests", "code"]
+skip = [".git", "__pycache__", "build", "dist", ".eggs"]

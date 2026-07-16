@@ -1,0 +1,9 @@
+status: sufficient
+required_sample_size_N: 158
+achieved_power_at_N: 0.8002
+assumed_effect_size_f2: 0.05
+num_predictors: 6
+alpha: 0.05
+target_power: 0.8
+budget_N: 1000
+note: Sample size calculated for multiple linear regression with specified predictors.
