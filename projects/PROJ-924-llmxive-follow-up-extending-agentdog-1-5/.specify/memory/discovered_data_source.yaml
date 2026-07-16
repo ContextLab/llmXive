@@ -1,0 +1,15 @@
+status: none
+intent: AgentDoG 1.5 safety taxonomy dataset download huggingface python package dataset
+required_fields:
+- log_id
+- prompt_text
+- response_text
+- agent_name_or_id
+- timestamp
+- category_id
+- category_name
+- category_definition
+- category_example_prompts
+cache_key: 4b9fb00821b2d05967f82d1d92a5bc67cff1e45dfe864ff5e97eb75120aa14a0
+searched_at: '2026-07-16T06:34:14.731422+00:00'
+retry_count: 1

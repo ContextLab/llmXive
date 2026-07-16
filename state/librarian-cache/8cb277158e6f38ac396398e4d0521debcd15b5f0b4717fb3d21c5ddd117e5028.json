@@ -1,0 +1,634 @@
+{
+  "fetched_at": "2026-07-16T06:27:10Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Ag\"",
+      "target_n": 5
+    },
+    "duration_seconds": 58.822,
+    "ended_at": "2026-07-16T06:27:10Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "lightweight AI agent alignment frameworks"
+        ],
+        [
+          2,
+          "scalable alignment methods for autonomous agents"
+        ],
+        [
+          3,
+          "AgentDoG framework extensions and improvements"
+        ],
+        [
+          4,
+          "efficient alignment techniques for large language model agents"
+        ],
+        [
+          5,
+          "scalable reinforcement learning from human feedback for agents"
+        ],
+        [
+          6,
+          "lightweight fine-tuning strategies for AI agents"
+        ],
+        [
+          7,
+          "alignment challenges in multi-agent systems"
+        ],
+        [
+          8,
+          "resource-efficient alignment for generative AI agents"
+        ],
+        [
+          9,
+          "modular alignment architectures for LLM-based agents"
+        ],
+        [
+          10,
+          "scalable preference optimization for autonomous systems"
+        ],
+        [
+          11,
+          "lightweight instruction tuning for agent behaviors"
+        ],
+        [
+          12,
+          "distributed alignment protocols for AI agents"
+        ],
+        [
+          13,
+          "efficient safety alignment in large-scale agent deployments"
+        ],
+        [
+          14,
+          "AgentDoG 1.5 architecture analysis"
+        ],
+        [
+          15,
+          "next-generation alignment frameworks for embodied AI"
+        ],
+        [
+          16,
+          "scalable human-in-the-loop alignment for agents"
+        ],
+        [
+          17,
+          "lightweight constraint satisfaction in agent alignment"
+        ],
+        [
+          18,
+          "iterative alignment improvements for LLM agents"
+        ],
+        [
+          19,
+          "cost-effective alignment strategies for autonomous agents"
+        ],
+        [
+          20,
+          "adaptive alignment mechanisms for dynamic agent environments"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "lightweight AI agent alignment frameworks": 3,
+        "llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Ag\" computer science": 0,
+        "scalable alignment methods for autonomous agents": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "AI alignment lightweight scalable framework",
+      "AgentDoG 1.5 alignment architecture",
+      "RLHF parameter-efficient alignment",
+      "AI agent alignment robustness benchmarks",
+      "reward modeling scalable alignment methods"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2602.04518"
+      ]
+    },
+    "per_query_hit_count": {
+      "AI agent alignment robustness benchmarks": 2,
+      "AI alignment lightweight scalable framework": 3,
+      "AgentDoG 1.5 alignment architecture": 3,
+      "RLHF parameter-efficient alignment": 2,
+      "llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Ag\" computer science": 3,
+      "reward modeling scalable alignment methods": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2601.16513",
+          "rationale": "The paper focuses on the sociological analysis of ethical discourse and rhetoric within a specific organization (OpenAI), which is a distinct construct from the user's question regarding the technical extension of a specific lightweight AI alignment framework (\"AgentDoG 1.5\"). While both mention \"alignment,\" the paper does not measure the same mechanism, provide an empirical baseline for the framework's performance, or offer the foundational methodology for the technical system the user is resea",
+          "title": "Competing Visions of Ethical AI: A Case Study of OpenAI"
+        },
+        {
+          "primary_pointer": "2305.09349",
+          "rationale": "The paper focuses on establishing shared query understanding and communication protocols between autonomous agents in an open multi-agent system, which is a distinct construct from the user's question regarding \"alignment frameworks\" for AI agents (typically referring to RLHF, safety, or value alignment). While both involve \"agents,\" the paper does not measure the same biological, physical, or algorithmic mechanism (alignment) nor does it address the specific domain of alignment frameworks, fail",
+          "title": "Establishing Shared Query Understanding in an Open Multi-Agent System"
+        },
+        {
+          "primary_pointer": "2504.00727",
+          "rationale": "The candidate paper focuses on \"personality-driven decision-making\" and \"deceptive agents\" using the OCEAN model, which does not address the user's specific question regarding the \"AgentDoG 1.5\" alignment framework or its lightweight/scalable mechanisms. There is no overlap in the specific mechanism, variables, or empirical population (alignment frameworks vs. personality simulation) required by the inclusion criteria (a-f), and the paper appears to be off-domain relative to the specific technic",
+          "title": "Personality-Driven Decision-Making in LLM-Based Autonomous Agents"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-16T06:26:11Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"agentdog 1.5: a lightweight and scalable alignment framework for ai ag\" computer science",
+      "raw": "llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Ag\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-16T06:26:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-16T06:26:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-16T06:26:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence (AI) predictions are increasingly used to inform human decisions. Here, using a behavioral implementation of the classic Newcomb's paradox in 1,305 participants, we show that AI predictions can also shape the reasoning people use to make a decision. In this paradigm, perceived predictive authority can alter how people reason about their future actions, leading them to forgo a guaranteed reward. Over 40% of participants treated AI as such a predictive authority about their own behavior, significantly increasing the odds of forgoing the guaranteed reward by a factor of 3.39 (95% CI: 2.45-4.70) and reducing earnings by 10.7-42.9%. The effect appeared across AI presentations and decision contexts and remained detectable even when predictions repeatedly failed. When people perceive AI as capable of predicting their personal behavior, the mere presence of AI predictions may shape their decision-making, narrowing the futures they consider.",
+          "claimed_authors": [
+            "Aoi Naito",
+            "Hirokazu Shirado"
+          ],
+          "claimed_title": "Faith in AI can narrow the futures individuals consider",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28944"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Faith in AI can narrow the futures individuals consider')",
+        "failed_at": "2026-07-16T06:26:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI systems are increasingly embedded in multi-user social environments, yet most alignment frameworks conceptualize interaction as a dyadic relationship between a single user and an AI system. Livestreaming platforms challenge this assumption: interaction unfolds among streamers and audiences in real time, producing dynamic affective and social feedback loops. In this paper, we introduce the Triadic Loop, a conceptual framework that reconceptualizes alignment in AI co-hosted livestreaming as a temporally reinforced process of bidirectional adaptation among three actors: streamer $\\leftrightarrow$ AI co-host, AI co-host $\\leftrightarrow$ audience, and streamer $\\leftrightarrow$ audience. Unlike instruction-following paradigms, bidirectional alignment requires each actor to continuously reshape the others, meaning misalignment in any sub-loop can destabilize the broader system. Drawing on literature from multi-party interaction, collaborative AI, and relational agents, we articulate how AI co-hosts function not only as mediators but as performative participants and community members shaping collective meaning-making. We further propose \"strategic misalignment\" as a mechanism for sustaining community engagement and introduce three relational evaluation constructs grounded in established instruments. The framework contributes a model of dynamic multi-party alignment, an account of cross-loop reinforcement, and design implications for AI co-hosts that sustain social coherence in participatory media environments.",
+          "claimed_authors": [
+            "Katherine Wang",
+            "Nadia Berthouze",
+            "Aneesha Singh"
+          ],
+          "claimed_title": "The Triadic Loop: A Framework for Negotiating Alignment in AI Co-hosted Livestreaming",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.18850"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='The Triadic Loop: A Framework for Negotiating Alignment in AI Co-hosted Livestreaming')",
+        "failed_at": "2026-07-16T06:26:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Introduction. AI Ethics is framed distinctly across actors and stakeholder groups. We report results from a case study of OpenAI analysing ethical AI discourse. Method. Research addressed: How has OpenAI's public discourse leveraged 'ethics', 'safety', 'alignment' and adjacent related concepts over time, and what does discourse signal about framing in practice? A structured corpus, differentiating between communication for a general audience and communication with an academic audience, was assembled from public documentation. Analysis. Qualitative content analysis of ethical themes combined inductively derived and deductively applied codes. Quantitative analysis leveraged computational content analysis methods via NLP to model topics and quantify changes in rhetoric over time. Visualizations report aggregate results. For reproducible results, we have released our code at https://github.com/famous-blue-raincoat/AI_Ethics_Discourse. Results. Results indicate that safety and risk discourse dominate OpenAI's public communication and documentation, without applying academic and advocacy ethics frameworks or vocabularies. Conclusions. Implications for governance are presented, along with discussion of ethics-washing practices in industry.",
+          "claimed_authors": [
+            "Melissa Wilfley",
+            "Mengting Ai",
+            "Madelyn Rose Sanfilippo"
+          ],
+          "claimed_title": "Competing Visions of Ethical AI: A Case Study of OpenAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.16513"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Competing Visions of Ethical AI: A Case Study of OpenAI')",
+        "failed_at": "2026-07-16T06:26:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph neural networks (GNN) represent an emerging line of deep learning models that operate on graph structures. It is becoming more and more popular due to its high accuracy achieved in many graph-related tasks. However, GNN is not as well understood in the system and architecture community as its counterparts such as multi-layer perceptrons and convolutional neural networks. This work tries to introduce the GNN to our community. In contrast to prior work that only presents characterizations of GCNs, our work covers a large portion of the varieties for GNN workloads based on a general GNN description framework. By constructing the models on top of two widely-used libraries, we characterize the GNN computation at inference stage concerning general-purpose and application-specific architectures and hope our work can foster more system and architecture research for GNNs.",
+          "claimed_authors": [
+            "Zhihui Zhang",
+            "Jingwen Leng",
+            "Lingxiao Ma",
+            "Youshan Miao",
+            "Chao Li",
+            "Minyi Guo"
+          ],
+          "claimed_title": "Architectural Implications of Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.00804"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Architectural Implications of Graph Neural Networks')",
+        "failed_at": "2026-07-16T06:26:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For humanity to maintain and expand its agency into the future, the most powerful systems we create must be those which act to align the future with the will of humanity. The most powerful systems today are massive institutions like governments, firms, and NGOs. Deliberative technology is already being used across these institutions to help align governance and diplomacy with human will, and modern AI is poised to make this technology significantly better. At the same time, the race to superhuman AGI is already underway, and the AI systems it gives rise to may become the most powerful systems of the future. Failure to align the impact of such powerful AI with the will of humanity may lead to catastrophic consequences, while success may unleash abundance. Right now, there is a window of opportunity to use deliberative technology to align the impact of powerful AI with the will of humanity. Moreover, it may be possible to engineer a symbiotic coupling between powerful AI and deliberative alignment systems such that the quality of alignment improves as AI capabilities increase.",
+          "claimed_authors": [
+            "Andrew Konya",
+            "Deger Turan",
+            "Aviv Ovadya",
+            "Lina Qui",
+            "Daanish Masood",
+            "Flynn Devine",
+            "Lisa Schirch",
+            "Isabella Roberts",
+            "Deliberative Alignment Forum"
+          ],
+          "claimed_title": "Deliberative Technology for Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.03893"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Deliberative Technology for Alignment')",
+        "failed_at": "2026-07-16T06:26:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper studies the alignment process of generative models with Reinforcement Learning from Human Feedback (RLHF). We first identify the primary challenges of existing popular methods like offline PPO and offline DPO as lacking in strategical exploration of the environment. Then, to understand the mathematical principle of RLHF, we consider a standard mathematical formulation, the reverse-KL regularized contextual bandit for RLHF. Despite its widespread practical application, a rigorous theoretical analysis of this formulation remains open. We investigate its behavior in three distinct settings -- offline, online, and hybrid -- and propose efficient algorithms with finite-sample theoretical guarantees.\n  Moving towards practical applications, our framework, with a robust approximation of the information-theoretical policy improvement oracle, naturally gives rise to several novel RLHF algorithms. This includes an iterative version of the Direct Preference Optimization (DPO) algorithm for online settings, and a multi-step rejection sampling strategy for offline scenarios. Our empirical evaluations on real-world alignment experiment of large language model demonstrate that these proposed methods significantly surpass existing strong baselines, such as DPO and Rejection Sampling Optimization (RSO), showcasing the connections between solid theoretical foundations and their potent practical implementations.",
+          "claimed_authors": [
+            "Wei Xiong",
+            "Hanze Dong",
+            "Chenlu Ye",
+            "Ziqi Wang",
+            "Han Zhong",
+            "Heng Ji",
+            "Nan Jiang",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Iterative Preference Learning from Human Feedback: Bridging Theory and Practice for RLHF under KL-Constraint",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.11456"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Iterative Preference Learning from Human Feedback: Bridging Theory and Practice for RLHF under KL-Constraint')",
+        "failed_at": "2026-07-16T06:26:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in pre-trained vision transformers have shown promise in parameter-efficient audio-visual learning without audio pre-training. However, few studies have investigated effective methods for aligning multimodal features in parameter-efficient audio-visual transformers. In this paper, we propose MA-AVT, a new parameter-efficient audio-visual transformer employing deep modality alignment for corresponding multimodal semantic features. Specifically, we introduce joint unimodal and multimodal token learning for aligning the two modalities with a frozen modality-shared transformer. This allows the model to learn separate representations for each modality, while also attending to the cross-modal relationships between them. In addition, unlike prior work that only aligns coarse features from the output of unimodal encoders, we introduce blockwise contrastive learning to align coarse-to-fine-grain hierarchical features throughout the encoding phase. Furthermore, to suppress the background features in each modality from foreground matched audio-visual features, we introduce a robust discriminative foreground mining scheme. Through extensive experiments on benchmark AVE, VGGSound, and CREMA-D datasets, we achieve considerable performance improvements over SOTA methods.",
+          "claimed_authors": [
+            "Tanvir Mahmud",
+            "Shentong Mo",
+            "Yapeng Tian",
+            "Diana Marculescu"
+          ],
+          "claimed_title": "MA-AVT: Modality Alignment for Parameter-Efficient Audio-Visual Transformers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.04930"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='MA-AVT: Modality Alignment for Parameter-Efficient Audio-Visual Transformers')",
+        "failed_at": "2026-07-16T06:26:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Our ability to build autonomous agents that leverage Generative AI continues to increase by the day. As builders and users of such agents it is unclear what parameters we need to align on before the agents start performing tasks on our behalf. To discover these parameters, we ran a qualitative empirical research study about designing agents that can negotiate during a fictional yet relatable task of selling a camera online. We found that for an agent to perform the task successfully, humans/users and agents need to align over 6 dimensions: 1) Knowledge Schema Alignment 2) Autonomy and Agency Alignment 3) Operational Alignment and Training 4) Reputational Heuristics Alignment 5) Ethics Alignment and 6) Human Engagement Alignment. These empirical findings expand previous work related to process and specification alignment and the need for values and safety in Human-AI interactions. Subsequently we discuss three design directions for designers who are imagining a world filled with Human-Agent collaborations.",
+          "claimed_authors": [
+            "Nitesh Goyal",
+            "Minsuk Chang",
+            "Michael Terry"
+          ],
+          "claimed_title": "Designing for Human-Agent Alignment: Understanding what humans want from their agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.04289"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Designing for Human-Agent Alignment: Understanding what humans want from their agents')",
+        "failed_at": "2026-07-16T06:26:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Agentic AI systems -- Large Language Models (LLMs) augmented with planning, tool use, memory, and long-horizon interactions -- can execute complex tasks autonomously, but their multi-step trajectories introduce new failure modes that challenge trustworthiness. This survey provides a focused examination of trustworthy agentic AI through two core dimensions that are critical for high-risk deployments: Safety and Robustness, and Privacy and System Security. For each dimension, we clarify key concepts, identify where risks emerge along the agent workflow, and summarize stage-targeted mitigation strategies. Other trustworthiness aspects (value alignment, transparency, fairness, and accountability) are discussed as relevant context rather than parallel chapters. To support consistent comparison and deployment decisions, we consolidate evaluation into a unified metrics-and-benchmarks hub, emphasizing both outcome and process signals (e.g., constraint violations, trace completeness, and adversarial success rates) and offering scenario-to-metric guidance for release gating. We conclude by outlining open challenges such as self-evolving agents, runtime monitoring and verification, privacy-preserving personalization, and the trust-utility trade-off, and present a case study of real-world security failures in open-source agentic systems. Our goal is to serve as a practical reference for researchers and practitioners building trustworthy agentic systems in high-stakes environments.",
+          "claimed_authors": [
+            "Jinhu Qi",
+            "Muzhi Li",
+            "Jiahong Liu",
+            "Yuqin Shu",
+            "Dianzhi Yu",
+            "Shicheng Ma",
+            "Wenqian Cui",
+            "Yiyang Zhao",
+            "Yiyi Chen",
+            "Ruoxi Jiang",
+            "Irwin King",
+            "Zenglin Xu"
+          ],
+          "claimed_title": "Towards trustworthy agentic AI: a comprehensive survey of safety, robustness, privacy, and system security",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.23989"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Towards trustworthy agentic AI: a comprehensive survey of safety, robustness, privacy, and system security')",
+        "failed_at": "2026-07-16T06:26:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In natural human-to-human conversations, participants often receive feedback signals from one another based on their follow-up reactions. These reactions can include verbal responses, facial expressions, changes in emotional state, and other non-verbal cues. Similarly, in human-machine interactions, the machine can leverage the user's follow-up utterances as feedback signals to assess whether it has appropriately addressed the user's request. Therefore, we propose using the likelihood of follow-up utterances as rewards to differentiate preferred responses from less favored ones, without relying on human or commercial LLM-based preference annotations. Our proposed reward mechanism, ``Follow-up Likelihood as Reward\" (FLR), matches the performance of strong reward models trained on large-scale human or GPT-4 annotated data on 8 pairwise-preference and 4 rating-based benchmarks. Building upon the FLR mechanism, we propose to automatically mine preference data from the online generations of a base policy model. The preference data are subsequently used to boost the helpfulness of the base model through direct alignment from preference (DAP) methods, such as direct preference optimization (DPO). Lastly, we demonstrate that fine-tuning the language model that provides follow-up likelihood with natural language feedback significantly enhances FLR's performance on reward modeling benchmarks and effectiveness in aligning the base policy model's helpfulness.",
+          "claimed_authors": [
+            "Chen Zhang",
+            "Dading Chong",
+            "Feng Jiang",
+            "Chengguang Tang",
+            "Anningzhe Gao",
+            "Guohua Tang",
+            "Haizhou Li"
+          ],
+          "claimed_title": "Aligning Language Models Using Follow-up Likelihood as Reward Signal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.13948"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Aligning Language Models Using Follow-up Likelihood as Reward Signal')",
+        "failed_at": "2026-07-16T06:26:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Supervised Fine-Tuning (SFT) on response demonstrations combined with Reinforcement Learning from Human Feedback (RLHF) constitutes a powerful paradigm for aligning LLM-based AI agents. However, a significant limitation of such an approach is its dependency on high-quality human annotations, making its application to intricate tasks challenging due to difficulties in obtaining consistent response demonstrations and in-distribution response preferences. This paper presents a novel approach, namely SALMON, to align base language models with minimal human supervision, using only a small set of human-defined principles, yet achieving superior performance. Central to our approach is an instructable reward model. Trained on synthetic preference data, this model can generate reward scores based on arbitrary human-defined principles. By merely adjusting these principles during the RL training phase, we gain full control over the preferences with the instructable reward model, subsequently influencing the behavior of the RL-trained policy models, and reducing the reliance on the collection of online human preferences. Applying our method to the LLaMA-2-70b base language model, we developed an AI assistant named Dromedary-2. With only 6 exemplars for in-context learning and 31 human-defined principles, Dromedary-2 significantly surpasses the performance of several state-of-the-art AI systems, including LLaMA-2-Chat-70b, on various benchmark datasets. We have open-sourced the code and model weights to encourage further research into aligning LLM-based AI agents with enhanced supervision efficiency, improved controllability, and scalable oversight.",
+          "claimed_authors": [
+            "Zhiqing Sun",
+            "Yikang Shen",
+            "Hongxin Zhang",
+            "Qinhong Zhou",
+            "Zhenfang Chen",
+            "David Cox",
+            "Yiming Yang",
+            "Chuang Gan"
+          ],
+          "claimed_title": "SALMON: Self-Alignment with Instructable Reward Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.05910"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='SALMON: Self-Alignment with Instructable Reward Models')",
+        "failed_at": "2026-07-16T06:26:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning from human feedback (RLHF) has emerged as the primary method for aligning large language models (LLMs) with human preferences. The RLHF process typically starts by training a reward model (RM) using human preference data. Conventional RMs are trained on pairwise responses to the same user request, with relative ratings indicating which response humans prefer. The trained RM serves as a proxy for human preferences. However, due to the black-box nature of RMs, their outputs lack interpretability, as humans cannot intuitively understand why an RM thinks a response is good or not. As RMs act as human preference proxies, we believe they should be human-interpretable to ensure that their internal decision processes are consistent with human preferences and to prevent reward hacking in LLM alignment. To build RMs with interpretable preferences, we propose a two-stage approach: i) train an Absolute-Rating Multi-Objective Reward Model (ArmoRM) with multi-dimensional absolute-rating data, each dimension corresponding to a human-interpretable objective (e.g., honesty, verbosity, safety); ii) employ a Mixture-of-Experts (MoE) strategy with a gating network that automatically selects the most suitable reward objectives based on the context. We efficiently trained an ArmoRM with Llama-3 8B and a gating network consisting of a shallow MLP on top of the ArmoRM. Our trained model, ArmoRM-Llama3-8B, obtains state-of-the-art performance on RewardBench, a benchmark evaluating RMs for language modeling. Notably, the performance of our model surpasses the LLM-as-a-judge method with GPT-4 judges by a margin, and approaches the performance of the much larger Nemotron-4 340B reward model.",
+          "claimed_authors": [
+            "Haoxiang Wang",
+            "Wei Xiong",
+            "Tengyang Xie",
+            "Han Zhao",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.12845"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"AgentDoG 1.5: A Lightweight and Scalable Alignment', candidate_title='Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts')",
+        "failed_at": "2026-07-16T06:26:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dongrui Liu",
+            "Yu Li",
+            "Zhonghao Yang",
+            "Peng Wang",
+            "Guanxu Chen",
+            "Yuejin Xie",
+            "Qinghua Mao",
+            "Wanying Qu",
+            "Yanxu Zhu",
+            "Tianyi Zhou",
+            "Leitao Yuan",
+            "Zhijie Zheng",
+            "Qihao Lin",
+            "Yimin Wang",
+            "Haoyu Luo",
+            "Shuai Shao",
+            "Chen Qian",
+            "Qingyu Liu",
+            "Ling Tang",
+            "Ruiyang Qin",
+            "Qihan Ren",
+            "Junxiao Yang",
+            "Kun Wang",
+            "Zhiheng Xi",
+            "Linfeng Zhang",
+            "Ranjie Duan",
+            "Bo Zhang",
+            "Wenjie Wang",
+            "Wen Shen",
+            "Qiaosheng Zhang",
+            "Yan Teng",
+            "Chaochao Lu",
+            "Rui Mei",
+            "Man Li",
+            "Jialing Tao",
+            "Xi Lin",
+            "Tianhang Zheng",
+            "Yong Liu",
+            "Quanshi Zhang",
+            "Lei Zhu",
+            "Xingjun Ma",
+            "Junhua Liu",
+            "Hui Xue",
+            "Xiaoxiang Zuo",
+            "Xiangnan He",
+            "Chao Shen",
+            "Xianglong Liu",
+            "Minlie Huang",
+            "Jing Shao",
+            "Xia Hu"
+          ],
+          "title": "AgentDoG 1.5: A Lightweight and Scalable Alignment Framework for AI Agent Safety and Security",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.29801",
+        "summary": "Modern open-world agents such as OpenClaw exhibit powerful cross-environment execution capabilities yet introduce broad new safety risk sources. Meanwhile, advanced frontier AI models drastically lower attack barriers, rendering current agent alignment frameworks inadequate for real-world deployment. To tackle these emerging threats, we propose a lightweight and scalable agent safety alignment framework. Specifically, we update the agent safety taxonomy to accommodate emergent risks from Codex and OpenClaw execution scenarios. We further build a taxonomy-guided data engine with influence-function purification to train lightweight AgentDoG 1.5 variants (0.8B, 2B, 4B, and 8B parameters) using only around 1k samples, achieving comparable performance with leading closed-source models (e.g., GPT-5.4). Based on AgentDoG 1.5, we construct a highly efficient agentic safety SFT and RL training environment, which reduces deployment overhead in Docker-level environments by two orders of magnitude. Finally, we deploy AgentDoG 1.5 as a training-free online guardrail for real-time safety moderation. Extensive experimental results indicate that AgentDoG 1.5 achieves state-of-the-art performance in diverse and complex interactive agentic scenarios. All models and datasets are openly released.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.29801",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T06:26:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nitesh Goyal",
+            "Minsuk Chang",
+            "Michael Terry"
+          ],
+          "title": "Designing for Human-Agent Alignment: Understanding what humans want from their agents",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.04289",
+        "summary": "Our ability to build autonomous agents that leverage Generative AI continues to increase by the day. As builders and users of such agents it is unclear what parameters we need to align on before the agents start performing tasks on our behalf. To discover these parameters, we ran a qualitative empirical research study about designing agents that can negotiate during a fictional yet relatable task of selling a camera online. We found that for an agent to perform the task successfully, humans/users and agents need to align over 6 dimensions: 1) Knowledge Schema Alignment 2) Autonomy and Agency Alignment 3) Operational Alignment and Training 4) Reputational Heuristics Alignment 5) Ethics Alignment and 6) Human Engagement Alignment. These empirical findings expand previous work related to process and specification alignment and the need for values and safety in Human-AI interactions. Subsequently we discuss three design directions for designers who are imagining a world filled with Human-Agent collaborations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.04289",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T06:26:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Katherine Wang",
+            "Nadia Berthouze",
+            "Aneesha Singh"
+          ],
+          "title": "The Triadic Loop: A Framework for Negotiating Alignment in AI Co-hosted Livestreaming",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.18850",
+        "summary": "AI systems are increasingly embedded in multi-user social environments, yet most alignment frameworks conceptualize interaction as a dyadic relationship between a single user and an AI system. Livestreaming platforms challenge this assumption: interaction unfolds among streamers and audiences in real time, producing dynamic affective and social feedback loops. In this paper, we introduce the Triadic Loop, a conceptual framework that reconceptualizes alignment in AI co-hosted livestreaming as a temporally reinforced process of bidirectional adaptation among three actors: streamer $\\leftrightarrow$ AI co-host, AI co-host $\\leftrightarrow$ audience, and streamer $\\leftrightarrow$ audience. Unlike instruction-following paradigms, bidirectional alignment requires each actor to continuously reshape the others, meaning misalignment in any sub-loop can destabilize the broader system. Drawing on literature from multi-party interaction, collaborative AI, and relational agents, we articulate how AI co-hosts function not only as mediators but as performative participants and community members shaping collective meaning-making. We further propose \"strategic misalignment\" as a mechanism for sustaining community engagement and introduce three relational evaluation constructs grounded in established instruments. The framework contributes a model of dynamic multi-party alignment, an account of cross-loop reinforcement, and design implications for AI co-hosts that sustain social coherence in participatory media environments.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.18850",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T06:26:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrés Holgado-Sánchez",
+            "Holger Billhardt",
+            "Alberto Fernández",
+            "Sascha Ossowski"
+          ],
+          "title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.04518",
+        "summary": "Agreement Technologies refer to open computer systems in which autonomous software agents interact with one another, typically on behalf of humans, in order to come to mutually acceptable agreements. With the advance of AI systems in recent years, it has become apparent that such agreements, in order to be acceptable to the involved parties, must remain aligned with ethical principles and moral values. However, this is notoriously difficult to ensure, especially as different human users (and their software agents) may hold different value systems, i.e. they may differently weigh the importance of individual moral values. Furthermore, it is often hard to specify the precise meaning of a value in a particular context in a computational manner. Methods to estimate value systems based on human-engineered specifications, e.g. based on value surveys, are limited in scale due to the need for intense human moderation. In this article, we propose a novel method to automatically \\emph{learn} value systems from observations and human demonstrations. In particular, we propose a formal model of the \\emph{value system learning} problem, its instantiation to sequential decision-making domains based on multi-objective Markov decision processes, as well as tailored preference-based and inverse reinforcement learning algorithms to infer value grounding functions and value systems. The approach is illustrated and evaluated by two simulated use cases.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.04518",
+          "http_status": 200,
+          "pdf_sample_score": 0.2767,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T06:26:52Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"agentdog 1.5: a lightweight and scalable alignment framework for ai ag\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.29801",
+  "judged_at": "2026-07-16T06:26:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"agentdog 1.5: a lightweight and scalable alignment framework for ai ag\" computer science",
+  "rationale": "This paper is the foundational work (category d) and the direct empirical baseline (category c) for the user's \"llmXive follow-up\" question, as it introduces the specific \"AgentDoG 1.5\" framework that the user explicitly seeks to extend.",
+  "relevant": true
+}

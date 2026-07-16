@@ -1455,6 +1455,10 @@
     "classified_at": "2026-07-10T10:18:27Z",
     "verdict": false
   },
+  "PROJ-924-llmxive-follow-up-extending-agentdog-1-5::1.6.0": {
+    "classified_at": "2026-07-16T06:26:42Z",
+    "verdict": false
+  },
   "PROJ-927-llmxive-follow-up-extending-openrath-ses::1.6.0": {
     "classified_at": "2026-07-09T10:50:45Z",
     "verdict": false

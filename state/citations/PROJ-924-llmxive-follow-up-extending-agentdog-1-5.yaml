@@ -1,0 +1,22 @@
+- artifact_hash: de6393583c2900ac2ef0cd132897b8ead5d6160c1b6f0485d0456240ce82e5c6
+  artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/agentdog/taxonomy-v1.5`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/agentdog/taxonomy-v1.5
+  verified_at: '2026-07-16T06:41:33.989737Z'
+- artifact_hash: de6393583c2900ac2ef0cd132897b8ead5d6160c1b6f0485d0456240ce82e5c6
+  artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: OWASP Top 10 for Large Language Model Applications | OWASP Foundation
+  kind: url
+  value: https://owasp.org/www-project-top-10-for-large-language-model-applications/`
+  verification_status: pending
+  verified_against_url: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+  verified_at: '2026-07-16T06:41:33.989737Z'
