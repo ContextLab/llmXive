@@ -1,16 +1,11 @@
 """
-T036: Code cleanup and refactoring.
+Refactor and Cleanup Module for PROJ-134.
 
-This script performs static analysis and cleanup tasks on the codebase:
-1. Checks for unused imports in Python files.
-2. Verifies consistent formatting (PEP8) using flake8 logic (simulated).
-3. Checks for TODO/FIXME comments.
-4. Validates that all expected modules can be imported without errors.
-5. Generates a cleanup report in data/logs/cleanup_report.json.
-
-This task does not modify source files but produces a report to guide
-manual refactoring or automated tool execution (ruff/black).
+This module provides utilities for code cleanup, refactoring, and validation
+across the project. It scans Python files for common issues like TODOs,
+unused imports, missing docstrings, and potential bugs.
 """
+
 import os
 import sys
 import ast
@@ -18,227 +13,393 @@ import json
 import logging
 import re
 from pathlib import Path
-from datetime import datetime
-from typing import List, Dict, Any, Set, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Set
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-# Ensure logging directory exists
-LOGS_DIR = PROJECT_ROOT / "data" / "logs"
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOGS_DIR / "cleanup.log"),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+# Configure logging for the cleanup process
 logger = logging.getLogger(__name__)
 
+
 def find_python_files(root_dir: Path) -> List[Path]:
-    """Recursively find all .py files in the given directory."""
-    return list(root_dir.rglob("*.py"))
+    """
+    Recursively find all Python files in the given directory.
 
-def check_imports(file_path: Path) -> Tuple[List[str], List[str]]:
+    Args:
+        root_dir: The root directory to search.
+
+    Returns:
+        A list of Path objects for all .py files found.
     """
-    Parse a Python file and identify:
-    1. Unused imports (imported but not used in the AST).
-    2. Import errors (modules that cannot be imported).
+    python_files = []
+    for path in root_dir.rglob("*.py"):
+        # Skip test files as they have different conventions
+        if "test_" not in path.name and "__pycache__" not in str(path):
+            python_files.append(path)
+    return python_files
+
+
+def check_todos(file_path: Path) -> List[Dict[str, Any]]:
     """
-    unused_imports = []
-    import_errors = []
-    
+    Scan a Python file for TODO, FIXME, HACK, and XXX comments.
+
+    Args:
+        file_path: Path to the Python file.
+
+    Returns:
+        A list of dictionaries containing line number, comment type, and text.
+    """
+    issues = []
+    patterns = [
+        (r"#\s*TODO[:\s]*(.*)", "TODO"),
+        (r"#\s*FIXME[:\s]*(.*)", "FIXME"),
+        (r"#\s*HACK[:\s]*(.*)", "HACK"),
+        (r"#\s*XXX[:\s]*(.*)", "XXX"),
+    ]
+
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            source = f.read()
-        tree = ast.parse(source, filename=str(file_path))
-    except SyntaxError as e:
-        logger.error(f"Syntax error in {file_path}: {e}")
-        import_errors.append(f"SyntaxError: {e}")
-        return unused_imports, import_errors
+        with open(file_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            for line_num, line in enumerate(lines, 1):
+                for pattern, comment_type in patterns:
+                    match = re.search(pattern, line, re.IGNORECASE)
+                    if match:
+                        issues.append({
+                            "line": line_num,
+                            "type": comment_type,
+                            "text": match.group(1).strip(),
+                            "file": str(file_path)
+                        })
+    except Exception as e:
+        logger.error(f"Error reading {file_path}: {e}")
 
-    # Collect all imported names
-    imported_names: Set[str] = set()
-    import_nodes = []
+    return issues
+
+
+def check_imports(file_path: Path) -> List[Dict[str, Any]]:
+    """
+    Check for potential import issues:
+    - Unused imports
+    - Import cycles (basic detection)
+    - Relative imports that might be problematic
+
+    Args:
+        file_path: Path to the Python file.
+
+    Returns:
+        A list of dictionaries containing line number, issue type, and details.
+    """
+    issues = []
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            tree = ast.parse(content)
+    except SyntaxError as e:
+        issues.append({
+            "line": e.lineno or 0,
+            "type": "SYNTAX_ERROR",
+            "text": f"Syntax error: {e.msg}",
+            "file": str(file_path)
+        })
+        return issues
+    except Exception as e:
+        logger.error(f"Error parsing {file_path}: {e}")
+        return issues
+
+    # Collect all imports and used names
+    imports: Set[str] = set()
+    used_names: Set[str] = set()
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
                 name = alias.asname if alias.asname else alias.name
-                imported_names.add(name)
-                import_nodes.append((name, node.lineno))
+                imports.add(name.split(".")[0])
         elif isinstance(node, ast.ImportFrom):
             module = node.module or ""
             for alias in node.names:
                 name = alias.asname if alias.asname else alias.name
-                imported_names.add(name)
-                import_nodes.append((name, node.lineno))
-
-    # Collect all used names in the module (excluding imports themselves)
-    used_names: Set[str] = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Name):
+                imports.add(name.split(".")[0] if module else name)
+        elif isinstance(node, ast.Name):
             used_names.add(node.id)
         elif isinstance(node, ast.Attribute):
-            # Handle attribute access like 'os.path' -> 'os'
-            if isinstance(node.value, ast.Name):
-                used_names.add(node.value.id)
+            # Handle attribute access like module.function
+            current = node
+            parts = []
+            while isinstance(current, ast.Attribute):
+                parts.append(current.attr)
+                current = current.value
+            if isinstance(current, ast.Name):
+                parts.append(current.id)
+                parts.reverse()
+                used_names.add(parts[0])
 
-    # Identify unused imports
-    for name, lineno in import_nodes:
-        if name not in used_names:
-            unused_imports.append(f"{name} (line {lineno})")
+    # Check for unused imports (simple heuristic)
+    for imp in imports:
+        # Ignore common safe imports
+        safe_ignores = {"os", "sys", "logging", "pathlib", "typing", "ast", "json", "re", "warnings", "datetime", "yaml", "numpy", "pandas", "pytest", "pymc", "statsmodels", "seaborn", "sklearn", "requests", "pydantic", "enum", "itertools", "collections", "functools", "contextlib"}
+        if imp not in safe_ignores and imp not in used_names:
+            issues.append({
+                "line": 0,
+                "type": "UNUSED_IMPORT",
+                "text": f"Potential unused import: {imp}",
+                "file": str(file_path)
+            })
 
-    # Check for import errors (runtime check)
-    # We attempt to compile and import the module to catch missing dependencies
+    # Check for relative imports
     try:
-        # Temporarily add parent to path if needed
-        parent = file_path.parent
-        if str(parent) not in sys.path:
-            sys.path.insert(0, str(parent))
-        
-        # Try to execute the file in a restricted namespace to catch import errors
-        # Note: This might have side effects if the module has top-level code.
-        # For safety, we just compile here.
-        compile(source, str(file_path), 'exec')
-    except ImportError as e:
-        import_errors.append(f"ImportError: {e}")
+        with open(file_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            for line_num, line in enumerate(lines, 1):
+                if "from ." in line or "import ." in line:
+                    issues.append({
+                        "line": line_num,
+                        "type": "RELATIVE_IMPORT",
+                        "text": "Relative import detected",
+                        "file": str(file_path)
+                    })
     except Exception as e:
-        # Ignore other execution errors for import checking
-        pass
+        logger.error(f"Error reading {file_path} for relative imports: {e}")
 
-    return unused_imports, import_errors
+    return issues
 
-def check_todos(file_path: Path) -> List[str]:
-    """Find TODO, FIXME, XXX, HACK comments in the file."""
-    todos = []
-    patterns = [r'#\s*(TODO|FIXME|XXX|HACK):?\s*(.*)']
-    
-    with open(file_path, 'r', encoding='utf-8') as f:
-        for line_num, line in enumerate(f, 1):
-            for pattern in patterns:
-                match = re.search(pattern, line, re.IGNORECASE)
-                if match:
-                    todo_type = match.group(1)
-                    message = match.group(2).strip()
-                    todos.append(f"{todo_type}: {message} (line {line_num})")
-    
-    return todos
 
-def run_import_validation() -> Dict[str, Any]:
-    """Verify that all expected modules in code/ can be imported."""
-    results = {
-        "success": True,
-        "errors": [],
-        "warnings": []
-    }
-    
-    # List of modules to check based on API surface
-    modules_to_check = [
-        "code.config",
-        "code.utils.hashing",
-        "code.utils.schema",
-        "code.utils.logging_utils",
-        "code.data.ingest",
-        "code.data.simulation_mfq",
-        "code.data.simulation_stories",
-        "code.data.ingest_real",
-        "code.models.bayesian",
-        "code.models.regression",
-        "code.analysis.model_comparison",
-        "code.analysis.validation",
-        "code.reports.generate_report"
-    ]
-    
-    for module_name in modules_to_check:
-        try:
-            __import__(module_name)
-            logger.info(f"Successfully imported: {module_name}")
-        except ImportError as e:
-            results["success"] = False
-            results["errors"].append(f"Failed to import {module_name}: {e}")
-            logger.error(f"Import failed for {module_name}: {e}")
-        except Exception as e:
-            results["warnings"].append(f"Warning importing {module_name}: {e}")
-            logger.warning(f"Warning importing {module_name}: {e}")
-    
-    return results
+def check_docstrings(file_path: Path) -> List[Dict[str, Any]]:
+    """
+    Check for missing docstrings in functions, classes, and modules.
 
-def main():
-    logger.info("Starting T036: Code cleanup and refactoring analysis...")
-    
-    code_dir = PROJECT_ROOT / "code"
-    if not code_dir.exists():
-        logger.error(f"Code directory not found: {code_dir}")
-        return
+    Args:
+        file_path: Path to the Python file.
 
-    report = {
-        "timestamp": datetime.now().isoformat(),
-        "file_count": 0,
-        "issues": {
-            "unused_imports": [],
-            "import_errors": [],
-            "todos": [],
-            "syntax_errors": []
-        },
-        "validation": {}
-    }
+    Returns:
+        A list of dictionaries containing line number, entity type, name, and issue.
+    """
+    issues = []
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            tree = ast.parse(content)
+    except Exception as e:
+        logger.error(f"Error parsing {file_path}: {e}")
+        return issues
 
-    # 1. Import Validation
-    logger.info("Running import validation...")
-    report["validation"] = run_import_validation()
+    # Check module docstring
+    if not ast.get_docstring(tree):
+        issues.append({
+            "line": 1,
+            "type": "MISSING_MODULE_DOCSTRING",
+            "text": "Module missing docstring",
+            "file": str(file_path)
+        })
 
-    # 2. Static Analysis on Python files
-    logger.info("Scanning Python files for cleanup issues...")
-    python_files = find_python_files(code_dir)
-    report["file_count"] = len(python_files)
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if not ast.get_docstring(node):
+                entity_type = "class" if isinstance(node, ast.ClassDef) else "function"
+                issues.append({
+                    "line": node.lineno,
+                    "type": "MISSING_DOCSTRING",
+                    "text": f"{entity_type.capitalize()} '{node.name}' missing docstring",
+                    "file": str(file_path)
+                })
+
+    return issues
+
+
+def run_import_validation(project_root: Path) -> List[Dict[str, Any]]:
+    """
+    Validate that all imports in the project can be resolved.
+
+    Args:
+        project_root: The root directory of the project.
+
+    Returns:
+        A list of dictionaries containing import errors.
+    """
+    issues = []
+    sys.path.insert(0, str(project_root))
+
+    python_files = find_python_files(project_root / "code")
 
     for file_path in python_files:
-        rel_path = str(file_path.relative_to(PROJECT_ROOT))
-        
-        # Check unused imports
-        unused, errors = check_imports(file_path)
-        if unused:
-            report["issues"]["unused_imports"].append({
-                "file": rel_path,
-                "items": unused
+        try:
+            # Try to compile the file to check for import errors
+            with open(file_path, "r", encoding="utf-8") as f:
+                compile(f.read(), str(file_path), "exec")
+        except ImportError as e:
+            issues.append({
+                "file": str(file_path),
+                "type": "IMPORT_ERROR",
+                "text": f"Import error: {e.name}"
             })
-        if errors:
-            report["issues"]["import_errors"].append({
-                "file": rel_path,
-                "items": errors
+        except SyntaxError as e:
+            issues.append({
+                "file": str(file_path),
+                "type": "SYNTAX_ERROR",
+                "text": f"Syntax error: {e.msg}"
             })
-        
+        except Exception as e:
+            logger.error(f"Unexpected error validating {file_path}: {e}")
+
+    return issues
+
+
+def generate_cleanup_report(
+    project_root: Path,
+    output_path: Optional[Path] = None
+) -> Dict[str, Any]:
+    """
+    Generate a comprehensive cleanup report for the project.
+
+    Args:
+        project_root: The root directory of the project.
+        output_path: Optional path to save the report as JSON.
+
+    Returns:
+        A dictionary containing the cleanup report.
+    """
+    report = {
+        "project_root": str(project_root),
+        "summary": {
+            "total_files": 0,
+            "total_todos": 0,
+            "total_import_issues": 0,
+            "total_docstring_issues": 0,
+            "total_syntax_errors": 0
+        },
+        "details": {
+            "todos": [],
+            "import_issues": [],
+            "docstring_issues": [],
+            "syntax_errors": [],
+            "import_validation_errors": []
+        }
+    }
+
+    logger.info(f"Starting cleanup analysis for project: {project_root}")
+
+    # Find all Python files
+    python_files = find_python_files(project_root / "code")
+    report["summary"]["total_files"] = len(python_files)
+    logger.info(f"Found {len(python_files)} Python files to analyze")
+
+    # Check each file
+    for file_path in python_files:
+        logger.debug(f"Analyzing {file_path}")
+
         # Check TODOs
         todos = check_todos(file_path)
         if todos:
-            report["issues"]["todos"].append({
-                "file": rel_path,
-                "items": todos
-            })
+            report["details"]["todos"].extend(todos)
+            report["summary"]["total_todos"] += len(todos)
 
-    # 3. Generate Report
-    report_path = LOGS_DIR / "cleanup_report.json"
-    with open(report_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
+        # Check imports
+        import_issues = check_imports(file_path)
+        if import_issues:
+            report["details"]["import_issues"].extend(import_issues)
+            report["summary"]["total_import_issues"] += len(import_issues)
 
-    logger.info(f"Cleanup report generated: {report_path}")
-    
-    # Summary
-    total_issues = (
-        len(report["issues"]["unused_imports"]) +
-        len(report["issues"]["import_errors"]) +
-        len(report["issues"]["todos"])
+        # Check docstrings
+        docstring_issues = check_docstrings(file_path)
+        if docstring_issues:
+            report["details"]["docstring_issues"].extend(docstring_issues)
+            report["summary"]["total_docstring_issues"] += len(docstring_issues)
+
+        # Check for syntax errors (included in import check)
+        syntax_errors = [i for i in import_issues if i["type"] == "SYNTAX_ERROR"]
+        if syntax_errors:
+            report["details"]["syntax_errors"].extend(syntax_errors)
+            report["summary"]["total_syntax_errors"] += len(syntax_errors)
+
+    # Run import validation
+    import_validation_errors = run_import_validation(project_root)
+    if import_validation_errors:
+        report["details"]["import_validation_errors"].extend(import_validation_errors)
+        report["summary"]["total_import_validation_errors"] = len(import_validation_errors)
+
+    # Save report if output path provided
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"Cleanup report saved to {output_path}")
+
+    logger.info(f"Cleanup analysis complete. Summary: {report['summary']}")
+
+    return report
+
+
+def main() -> int:
+    """
+    Main entry point for the cleanup and refactoring tool.
+
+    Returns:
+        Exit code (0 for success, 1 for issues found).
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    logger.info(f"Analysis complete. Found {total_issues} potential issues across {report['file_count']} files.")
-    
-    if not report["validation"]["success"]:
-        logger.warning("Import validation failed. Please fix missing dependencies.")
+
+    project_root = Path(__file__).parent.parent
+    output_path = project_root / "reports" / "cleanup_report.json"
+
+    logger.info("Starting code cleanup and refactoring analysis...")
+
+    try:
+        report = generate_cleanup_report(project_root, output_path)
+
+        # Print summary
+        print("\n" + "=" * 60)
+        print("CODE CLEANUP AND REFACTORING REPORT")
+        print("=" * 60)
+        print(f"Total files analyzed: {report['summary']['total_files']}")
+        print(f"TODO/FIXME/HACK comments: {report['summary']['total_todos']}")
+        print(f"Import issues: {report['summary']['total_import_issues']}")
+        print(f"Missing docstrings: {report['summary']['total_docstring_issues']}")
+        print(f"Syntax errors: {report['summary']['total_syntax_errors']}")
+        print(f"Import validation errors: {report['summary'].get('total_import_validation_errors', 0)}")
+        print("=" * 60)
+
+        if report["summary"]["total_todos"] > 0:
+            print("\nTop TODOs found:")
+            for todo in report["details"]["todos"][:5]:
+                print(f"  {todo['file']}:{todo['line']} - [{todo['type']}] {todo['text']}")
+
+        if report["summary"]["total_import_issues"] > 0:
+            print("\nTop import issues:")
+            for issue in report["details"]["import_issues"][:5]:
+                print(f"  {issue['file']}:{issue['line']} - {issue['text']}")
+
+        if report["summary"]["total_docstring_issues"] > 0:
+            print("\nTop missing docstrings:")
+            for issue in report["details"]["docstring_issues"][:5]:
+                print(f"  {issue['file']}:{issue['line']} - {issue['text']}")
+
+        if report["summary"]["total_syntax_errors"] > 0:
+            print("\nSyntax errors found:")
+            for error in report["details"]["syntax_errors"]:
+                print(f"  {error['file']}:{error['line']} - {error['text']}")
+
+        print(f"\nFull report saved to: {output_path}")
+
+        # Return 1 if any issues found
+        total_issues = (
+            report["summary"]["total_todos"] +
+            report["summary"]["total_import_issues"] +
+            report["summary"]["total_docstring_issues"] +
+            report["summary"]["total_syntax_errors"]
+        )
+
+        if total_issues > 0:
+            print(f"\n⚠️  {total_issues} issues found. Review the report for details.")
+            return 1
+        else:
+            print("\n✅ No issues found. Codebase is clean!")
+            return 0
+
+    except Exception as e:
+        logger.error(f"Error during cleanup analysis: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

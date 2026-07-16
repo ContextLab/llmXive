@@ -1,14 +1,3 @@
-"""
-Quickstart Validation Script for PROJ-134.
-
-This script validates the pipeline execution as per quickstart.md:
-1. Runs the full simulation and ingestion pipeline.
-2. Verifies that all expected output artifacts exist.
-3. Calculates and verifies SHA-256 checksums for all derived data.
-4. Updates the state/...yaml file with the latest checksums.
-5. Runs the Bayesian model and validation pipeline.
-6. Generates the final report.
-"""
 import os
 import sys
 import logging
@@ -16,161 +5,168 @@ import subprocess
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Import existing hashing utilities
+from utils.hashing import calculate_sha256, update_state_yaml, verify_artifact, checksum_derived_datasets, main as hash_main
 
-from config import ensure_directories
-from utils.hashing import calculate_sha256, update_state_yaml, checksum_derived_datasets
-from utils.logging_utils import log_pipeline_step, get_logger
-from data.simulation_mfq import main as run_mfq_sim
-from data.simulation_stories import main as run_stories_sim
-from data.ingest import main as run_ingest
-from models.bayesian import main as run_bayesian
-from analysis.validation import run_validation_pipeline
-from reports.generate_report import main as run_report_gen
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
+# Define the execution order based on tasks.md dependencies
+SCRIPTS_TO_RUN = [
+    "code/setup_directories.py",
+    "code/setup_subdirectories.py",
+    "code/data/simulation_mfq.py",
+    "code/data/simulation_stories.py",
+    "code/data/ingest.py",
+    "code/data/preprocess.py",
+    "code/models/bayesian.py",
+    "code/models/regression.py",
+    "code/analysis/validation.py",
+    "code/analysis/model_comparison.py",
+    "code/reports/generate_report.py"
+]
 
-def run_script(script_name: str, module_path: str) -> bool:
-    """Execute a specific script module."""
-    logger.info(f"Running {script_name}...")
+def run_script(script_path: str) -> Tuple[bool, str]:
+    """
+    Executes a Python script and returns success status and output/error.
+    """
+    logger.info(f"Executing script: {script_path}")
     try:
-        # Import and run the main function directly to ensure execution
-        # This avoids shell escaping issues and ensures we use the current environment
-        if module_path == "data.simulation_mfq":
-            run_mfq_sim()
-        elif module_path == "data.simulation_stories":
-            run_stories_sim()
-        elif module_path == "data.ingest":
-            run_ingest()
-        elif module_path == "models.bayesian":
-            run_bayesian()
-        elif module_path == "analysis.validation":
-            run_validation_pipeline()
-        elif module_path == "reports.generate_report":
-            run_report_gen()
+        result = subprocess.run(
+            [sys.executable, script_path],
+            capture_output=True,
+            text=True,
+            timeout=3600, # 1 hour timeout per script
+            check=True
+        )
+        if result.returncode == 0:
+            logger.info(f"Script {script_path} completed successfully.")
+            return True, result.stdout
         else:
-            logger.error(f"Unknown module path: {module_path}")
-            return False
-        
-        logger.info(f"{script_name} completed successfully.")
-        return True
+            logger.error(f"Script {script_path} failed with return code {result.returncode}")
+            return False, result.stderr
+    except subprocess.TimeoutExpired:
+        logger.error(f"Script {script_path} timed out.")
+        return False, "Timeout expired"
     except Exception as e:
-        logger.error(f"Error running {script_name}: {e}")
-        import traceback
-        logger.error(traceback.format_exc())
+        logger.error(f"Error running {script_path}: {str(e)}")
+        return False, str(e)
+
+def verify_artifacts(expected_outputs: List[str]) -> Dict[str, bool]:
+    """
+    Verifies that expected output files exist in the filesystem.
+    """
+    results = {}
+    for path in expected_outputs:
+        full_path = Path(path)
+        exists = full_path.exists()
+        results[path] = exists
+        if exists:
+            logger.info(f"Artifact found: {path}")
+        else:
+            logger.warning(f"Artifact missing: {path}")
+    return results
+
+def validate_checksums(state_file: str = "state/checksums.yaml") -> bool:
+    """
+    Validates that the state file exists and contains checksums for derived datasets.
+    """
+    state_path = Path(state_file)
+    if not state_path.exists():
+        logger.error(f"State file {state_file} does not exist.")
         return False
 
-def verify_artifacts(expected_files: List[str]) -> Tuple[bool, List[str]]:
-    """Verify that all expected files exist."""
-    missing = []
-    for rel_path in expected_files:
-        full_path = PROJECT_ROOT / rel_path
-        if not full_path.exists():
-            missing.append(rel_path)
-            logger.warning(f"Missing artifact: {rel_path}")
-        else:
-            logger.info(f"Found artifact: {rel_path}")
-    
-    if missing:
-        return False, missing
-    return True, []
-
-def validate_checksums() -> bool:
-    """Run checksum validation on derived datasets and update state."""
-    logger.info("Validating checksums for derived datasets...")
+    # Run the checksumming utility to ensure state is updated and valid
+    # This function reads the state, verifies existing checksums, and updates if needed
     try:
-        # This function updates state.yaml and verifies existing checksums
+        # We call the main function of hashing module which handles state updates
+        # Note: We are calling it directly here to ensure the state is consistent
+        # after the pipeline run.
         checksum_derived_datasets()
-        logger.info("Checksum validation successful.")
+        
+        # Verify the state file now contains entries
+        import yaml
+        with open(state_path, 'r') as f:
+            state_data = yaml.safe_load(f)
+        
+        if not state_data or 'artifacts' not in state_data:
+            logger.error("State file exists but contains no artifact checksums.")
+            return False
+        
+        logger.info(f"Validated checksums in {state_file}: {len(state_data.get('artifacts', {}))} entries.")
         return True
     except Exception as e:
-        logger.error(f"Checksum validation failed: {e}")
+        logger.error(f"Error validating checksums: {str(e)}")
         return False
 
 def main():
-    """Main validation entry point."""
-    print("=== Starting Quickstart Validation ===")
-    logger.info("Starting Quickstart Validation Pipeline")
+    """
+    Main entry point for quickstart validation.
+    1. Runs all pipeline scripts in order.
+    2. Verifies expected output artifacts exist.
+    3. Validates checksums in state file.
+    """
+    logger.info("Starting Quickstart Validation Pipeline (T040)")
     
-    # Ensure directories exist
-    ensure_directories()
+    project_root = Path(__file__).parent.parent
+    os.chdir(project_root)
     
-    # Define expected artifacts based on pipeline execution
+    all_success = True
+    
+    # 1. Run Scripts
+    for script in SCRIPTS_TO_RUN:
+        success, output = run_script(script)
+        if not success:
+            all_success = False
+            logger.error(f"Pipeline halted due to failure in {script}")
+            # We continue to log, but the final verdict will be failure
+            # In a strict pipeline, we might exit here.
+            # For validation, we report all failures.
+    
+    if not all_success:
+        logger.error("Pipeline execution failed. Check logs for details.")
+        print("VALIDATION FAILED: Pipeline execution errors detected.")
+        return 1
+
+    # 2. Verify Artifacts
+    # Based on the pipeline, these are the expected outputs
     expected_artifacts = [
-        "data/simulated/mfq_data.csv",
-        "data/simulated/stories_data.csv",
-        "data/simulated/vr_logs.csv",
-        "data/processed/merged_dataset.csv",
-        "data/processed/validation_results.json",
-        "state/pipeline_state.yaml",
-        "reports/final_report.txt"
+        "data/raw/mfq_data.csv",
+        "data/raw/stories_data.csv",
+        "data/raw/vr_logs.csv",
+        "data/processed/merged_data.csv",
+        "data/processed/preprocessed_data.csv",
+        "reports/validation_results.json",
+        "reports/final_report.txt",
+        "state/checksums.yaml"
     ]
     
-    # Step 1: Run Simulation
-    logger.info("--- Step 1: Generating Synthetic Data ---")
-    if not run_script("MFQ Simulation", "data.simulation_mfq"):
-        logger.error("MFQ Simulation failed. Aborting.")
-        return False
+    artifact_status = verify_artifacts(expected_artifacts)
+    missing_artifacts = [k for k, v in artifact_status.items() if not v]
     
-    if not run_script("Stories Simulation", "data.simulation_stories"):
-        logger.error("Stories Simulation failed. Aborting.")
-        return False
+    if missing_artifacts:
+        logger.error(f"Missing expected artifacts: {missing_artifacts}")
+        all_success = False
     
-    # Step 2: Run Ingestion
-    logger.info("--- Step 2: Ingesting and Merging Data ---")
-    if not run_script("Data Ingestion", "data.ingest"):
-        logger.error("Data Ingestion failed. Aborting.")
-        return False
-    
-    # Verify ingestion artifacts
-    ingestion_files = [
-        "data/simulated/mfq_data.csv",
-        "data/simulated/stories_data.csv",
-        "data/simulated/vr_logs.csv",
-        "data/processed/merged_dataset.csv"
-    ]
-    success, missing = verify_artifacts(ingestion_files)
-    if not success:
-        logger.error(f"Missing ingestion artifacts: {missing}")
-        return False
-    
-    # Step 3: Run Bayesian Model
-    logger.info("--- Step 3: Running Bayesian Model ---")
-    if not run_script("Bayesian Model", "models.bayesian"):
-        logger.error("Bayesian Model execution failed. Aborting.")
-        return False
-    
-    # Step 4: Run Validation
-    logger.info("--- Step 4: Running Validation Pipeline ---")
-    if not run_script("Validation Pipeline", "analysis.validation"):
-        logger.error("Validation Pipeline failed. Aborting.")
-        return False
-    
-    # Step 5: Validate Checksums
-    logger.info("--- Step 5: Validating Checksums ---")
-    if not validate_checksums():
-        logger.error("Checksum validation failed. Aborting.")
-        return False
-    
-    # Step 6: Generate Report
-    logger.info("--- Step 6: Generating Final Report ---")
-    if not run_script("Report Generation", "reports.generate_report"):
-        logger.error("Report Generation failed. Aborting.")
-        return False
-    
-    # Final Verification
-    logger.info("--- Final Verification ---")
-    success, missing = verify_artifacts(expected_artifacts)
-    if not success:
-        logger.error(f"Final verification failed. Missing: {missing}")
-        return False
-    
-    logger.info("=== Quickstart Validation PASSED ===")
-    print("Quickstart Validation PASSED: All artifacts generated and checksummed.")
-    return True
+    # 3. Validate Checksums
+    checksum_valid = validate_checksums()
+    if not checksum_valid:
+        logger.error("Checksum validation failed.")
+        all_success = False
+
+    # Final Verdict
+    if all_success:
+        logger.info("Quickstart Validation PASSED: All scripts ran, artifacts present, checksums valid.")
+        print("VALIDATION PASSED: All checks successful.")
+        return 0
+    else:
+        logger.error("Quickstart Validation FAILED.")
+        print("VALIDATION FAILED: See logs for details.")
+        return 1
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    sys.exit(main())

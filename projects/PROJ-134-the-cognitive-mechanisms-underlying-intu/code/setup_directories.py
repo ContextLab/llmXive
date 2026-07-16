@@ -2,41 +2,34 @@ import os
 import sys
 from pathlib import Path
 
-def main():
+def create_required_directories():
     """
-    Create root directories required for the project structure.
-    Implements T001a: Create root directories: code/, data/, tests/, state/
+    Create the required directory structure for the project data.
+    Specifically creates: data/raw/, data/processed/, data/logs/
     """
-    # Define the root directory (project root)
-    # We assume the script is run from the project root or we resolve relative to this file's parent
-    root_dir = Path(__file__).resolve().parent.parent
+    base_path = Path(__file__).resolve().parent.parent
+    data_root = base_path / "data"
 
-    # Directories to create
-    root_dirs = [
-        "code",
-        "data",
-        "tests",
-        "state"
+    required_dirs = [
+        data_root / "raw",
+        data_root / "processed",
+        data_root / "logs",
     ]
 
     created = []
-    skipped = []
-
-    for dir_name in root_dirs:
-        dir_path = root_dir / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(dir_path))
-            print(f"Created directory: {dir_path}")
-        else:
-            skipped.append(str(dir_path))
-            print(f"Directory already exists: {dir_path}")
-
-    print(f"\nSummary: Created {len(created)} directories.")
-    if skipped:
-        print(f"Skipped {len(skipped)} existing directories.")
+    for directory in required_dirs:
+        directory.mkdir(parents=True, exist_ok=True)
+        created.append(str(directory.relative_to(base_path)))
     
-    return 0
+    return created
+
+def main():
+    """Entry point to create directories."""
+    print("Creating required data directories...")
+    created_dirs = create_required_directories()
+    for d in created_dirs:
+        print(f"  Created: {d}")
+    print("Directory setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

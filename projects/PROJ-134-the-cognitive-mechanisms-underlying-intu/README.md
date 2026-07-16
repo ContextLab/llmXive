@@ -1,336 +1,225 @@
 # The Cognitive Mechanisms Underlying Intuitive Moral Judgments in Virtual Environments
 
-**Project ID**: PROJ-134-the-cognitive-mognitive-mechanisms-underlying-intu
+A research pipeline to simulate and analyze moral decision-making data using Bayesian inference and mixed-effects regression, validated against psychometric norms.
 
-This project implements an automated science pipeline to investigate the cognitive mechanisms underlying intuitive moral judgments using simulated and real VR data. It combines Moral Foundations Questionnaire (MFQ) data, moral story scenarios, and VR interaction logs to test hypotheses about visual salience effects on moral judgment.
+## Project Overview
 
-## Table of Contents
-
-- [Installation](#installation)
-- [Usage](#usage)
-- [Project Structure](#project-structure)
-- [Data Schema Reference](#data-schema-reference)
-- [Running the Pipeline](#running-the-pipeline)
-- [Configuration](#configuration)
-- [Testing](#testing)
-- [Contributing](#contributing)
-
----
+This project implements a computational pipeline to investigate how visual salience in virtual environments affects intuitive moral judgments. The pipeline:
+1. Ingests synthetic Moral Foundations Questionnaire (MFQ) and Moral Stories data
+2. Maps text scenarios to VR scenes with controlled salience levels
+3. Executes Bayesian models to estimate salience effects
+4. Validates results against known psychometric norms and ground-truth parameters
+5. Generates comprehensive validation reports
 
 ## Installation
 
 ### Prerequisites
 
 - Python 3.11 or higher
-- pip (Python package manager)
-- Git
+- pip package manager
+- A Unix-like environment (Linux/macOS) recommended for path compatibility
 
-### Step-by-Step Installation
+### Setup Steps
 
-1. **Clone the repository**:
+1. Clone the repository:
  ```bash
  git clone <repository-url>
- cd <project-directory>
+ cd PROJ-134-the-cognitive-mechanisms-underlying-intu
  ```
 
-2. **Create a virtual environment** (recommended):
+2. Create a virtual environment:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
- The `requirements.txt` file includes:
+ **Required Dependencies**:
  - `pymc>=5.0.0`: Bayesian modeling
  - `pandas`: Data manipulation
- - `numpy`: Numerical computing
+ - `numpy`: Numerical operations
  - `scikit-learn`: Machine learning utilities
- - `pyyaml`: YAML configuration parsing
+ - `pyyaml`: Configuration parsing
  - `requests`: HTTP requests for data fetching
  - `seaborn`: Statistical visualization
- - `statsmodels`: Statistical modeling
+ - `statsmodels`: Statistical modeling (mixed-effects)
  - `pydantic`: Data validation
  - `pytest`: Testing framework
 
-4. **Initialize project directories**:
+4. Verify installation:
  ```bash
- python code/setup_directories.py
- python code/setup_subdirectories.py
+ python -c "import pymc; import pandas; print('Dependencies OK')"
  ```
 
-5. **Configure random seeds and paths** (optional, defaults are provided):
- Edit `code/config.py` if custom paths or seeds are needed.
+## Usage Examples
 
----
+### Running the Full Pipeline
 
-## Usage
-
-### Quick Start
-
-To run the full pipeline from data simulation to report generation:
+The pipeline consists of three main stages: Data Ingestion, Model Execution, and Validation.
 
 ```bash
-# Step 1: Generate synthetic MFQ data
+# 1. Generate Synthetic Data (Simulation Mode)
 python code/data/simulation_mfq.py
-
-# Step 2: Generate synthetic moral stories and VR logs
 python code/data/simulation_stories.py
 
-# Step 3: Ingest and merge datasets
+# 2. Ingest and Merge Data
 python code/data/ingest.py
 
-# Step 4: Preprocess data (map stories to VR scenes)
+# 3. Preprocess Data (Salience Mapping)
 python code/data/preprocess.py
 
-# Step 5: Run Bayesian model
+# 4. Run Bayesian Model
 python code/models/bayesian.py
 
-# Step 6: Run regression analysis
+# 5. Run Regression Analysis
 python code/models/regression.py
 
-# Step 7: Validate results
+# 6. Run Validation Pipeline
 python code/analysis/validation.py
 
-# Step 8: Generate final report
+# 7. Generate Final Report
 python code/reports/generate_report.py
 ```
 
-### Simulation Mode
+### Running Individual Components
 
-By default, the pipeline runs in `simulation` mode using synthetic data. To switch to real data mode (requires real data sources configured):
+#### Data Simulation
+```bash
+# Generate MFQ data based on Gervais et al. (2011) norms
+python code/data/simulation_mfq.py
 
-1. Set `RUN_MODE = 'real'` in `code/config.py`
-2. Ensure real data is available at the configured paths or API endpoints
+# Generate Moral Stories and VR logs with known ground truth
+python code/data/simulation_stories.py
+```
 
----
+#### Model Execution
+```bash
+# Run Bayesian analysis with parameter recovery validation
+python code/models/bayesian.py
+
+# Run mixed-effects regression with Bonferroni correction
+python code/models/regression.py
+```
+
+#### Validation
+```bash
+# Check parameter recovery and sensitivity analysis
+python code/analysis/validation.py
+```
+
+### Configuration
+
+All configuration is managed via `code/config.py`. Key settings include:
+- `RANDOM_SEED`: Reproducibility seed (default: 42)
+- `RUN_MODE`: 'simulation' or 'real'
+- `DATA_PATHS`: Locations for raw and processed data
+
+To modify settings, edit `code/config.py` directly or set environment variables.
+
+## Data Schema Reference
+
+The project uses Pydantic models for strict data validation. Below are the core schemas.
+
+### MFQ Dataset (`code/utils/schema.py`)
+
+**MFQResponse**:
+| Field | Type | Description |
+|-------|------|-------------|
+| `respondent_id` | str | Unique identifier |
+| `foundation` | str | One of: Care, Fairness, Loyalty, Authority, Purity |
+| `score` | float | 0-5 Likert scale score |
+| `item_text` | str | Question text |
+
+**MFQDataset**:
+| Field | Type | Description |
+|-------|------|-------------|
+| `metadata` | dict | Dataset metadata (source, date, n) |
+| `responses` | List[MFQResponse] | List of responses |
+
+### Moral Stories Dataset
+
+**MoralStory**:
+| Field | Type | Description |
+|-------|------|-------------|
+| `story_id` | str | Unique identifier |
+| `scenario_text` | str | The moral dilemma description |
+| `foundation_violated` | str | Primary foundation violated |
+| `severity` | float | 1-10 severity rating |
+
+**VRInteractionLog**:
+| Field | Type | Description |
+|-------|------|-------------|
+| `log_id` | str | Unique identifier |
+| `story_id` | str | Reference to story |
+| `response_time` | float | Reaction time in ms |
+| `gaze_dwell_time` | float | Visual attention duration |
+| `judgment` | float | Moral judgment score |
+| `salience_level` | str | 'low' or 'high' |
+
+### Merged Dataset
+
+The final processed dataset merges MFQ scores with story judgments:
+| Field | Type | Description |
+|-------|------|-------------|
+| `respondent_id` | str | Linked ID |
+| `story_id` | str | Linked ID |
+| `foundation_score` | float | Aggregated foundation score |
+| `salience_level` | str | 'low' or 'high' |
+| `judgment` | float | Moral judgment |
+| `response_time` | float | Reaction time |
 
 ## Project Structure
 
 ```
 .
 ├── code/
-│ ├── config.py # Configuration: paths, seeds, constants
-│ ├── setup_directories.py # Root directory initialization
-│ ├── setup_subdirectories.py # Subdirectory initialization
+│ ├── config.py # Configuration and constants
 │ ├── utils/
-│ │ ├── hashing.py # SHA-256 checksums and state management
-│ │ ├── logging_utils.py # Logging infrastructure
-│ │ ├── norms.py # Psychometric norms reference
-│ │ └── schema.py # Pydantic data schemas
+│ │ ├── schema.py # Pydantic data models
+│ │ ├── norms.py # Psychometric norm handling
+│ │ ├── hashing.py # Checksum and state management
+│ │ └── logging_utils.py # Logging infrastructure
 │ ├── data/
-│ │ ├── simulation_mfq.py # Synthetic MFQ data generation
-│ │ ├── simulation_stories.py # Synthetic moral stories & VR logs
-│ │ ├── ingest.py # Data loading and merging
-│ │ ├── ingest_real.py # Real data fetch architecture
-│ │ └── preprocess.py # VR scene mapping and salience assignment
+│ │ ├── simulation_mfq.py # Synthetic MFQ generator
+│ │ ├── simulation_stories.py # Synthetic stories/VR logs
+│ │ ├── ingest.py # Data merging pipeline
+│ │ ├── preprocess.py # Salience mapping
+│ │ └── unity_verification.py # Fidelity checks
 │ ├── models/
-│ │ ├── bayesian.py # PyMC Bayesian model
+│ │ ├── bayesian.py # PyMC3 Bayesian models
 │ │ └── regression.py # Mixed-effects regression
 │ ├── analysis/
-│ │ ├── model_comparison.py # AIC/WAIC and PPC
-│ │ └── validation.py # Parameter recovery and sensitivity
+│ │ ├── model_comparison.py # AIC/WAIC calculations
+│ │ └── validation.py # Parameter recovery checks
 │ ├── reports/
 │ │ └── generate_report.py # Final report generation
-│ └── tests/
-│ ├── test_ingest_mfq.py # MFQ generator tests
-│ ├── test_ingest_stories.py# Story norms tests
-│ ├── test_schema.py # Schema validation tests
-│ ├── test_model.py # Regression tests
-│ ├── test_model_convergence.py # Convergence tests
-│ └── test_model_recovery.py # Parameter recovery tests
+│ └── tests/ # Unit tests
 ├── data/
 │ ├── raw/ # Raw input data
-│ ├── processed/ # Preprocessed datasets
-│ └── logs/ # Pipeline execution logs
-├── state/ # Pipeline state and checksums
-├── reports/ # Generated reports
-├── requirements.txt # Python dependencies
-├── README.md # This file
-└── docs/ # Additional documentation
+│ ├── processed/ # Processed datasets
+│ └── logs/ # Execution logs
+├── state/ # Pipeline state checksums
+├── requirements.txt # Dependencies
+└── README.md # This file
 ```
 
----
+## Validation & Testing
 
-## Data Schema Reference
-
-The pipeline uses Pydantic models for strict data validation. Below are the key schemas:
-
-### MFQ Dataset (`MFQDataset`)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `participant_id` | str | Unique participant identifier |
-| `responses` | List[`MFQResponse`] | List of MFQ item responses |
-| `timestamp` | datetime | Data collection timestamp |
-
-### MFQ Response (`MFQResponse`)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `item_id` | str | MFQ item identifier (e.g., "mfq_01") |
-| `score` | int | Likert score (0-5) |
-| `foundation` | str | Moral foundation (care, fairness, loyalty, authority, purity) |
-
-### Moral Story (`MoralStory`)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `story_id` | str | Unique story identifier |
-| `text` | str | Moral scenario text |
-| `foundation` | str | Primary moral foundation |
-| `intended_judgment` | float | Ground truth judgment score |
-
-### VR Interaction Log (`VRInteractionLog`)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `log_id` | str | Unique log identifier |
-| `participant_id` | str | Participant identifier |
-| `story_id` | str | Associated story |
-| `response_time` | float | Reaction time in seconds |
-| `gaze_data` | Dict | Gaze tracking coordinates |
-| `judgment` | float | Moral judgment score |
-| `salience_level` | `SalienceLevel` | Low or high visual salience |
-
-### Salience Level (`SalienceLevel`)
-
-- `LOW`: Minimal visual cues (baseline condition)
-- `HIGH`: Enhanced visual cues (experimental condition)
-
----
-
-## Running the Pipeline
-
-### Full Pipeline Execution
-
+Run the test suite:
 ```bash
-# Execute all steps in sequence
-bash scripts/run_pipeline.sh # If available, or run scripts individually
-```
-
-### Individual Module Execution
-
-Each module can be run independently:
-
-```bash
-# Data Generation
-python code/data/simulation_mfq.py --output data/raw/synthetic_mfq.csv
-python code/data/simulation_stories.py --output data/raw/synthetic_stories.csv
-
-# Ingestion
-python code/data/ingest.py --input data/raw/ --output data/processed/merged.csv
-
-# Preprocessing
-python code/data/preprocess.py --input data/processed/merged.csv --output data/processed/preprocessed.csv
-
-# Modeling
-python code/models/bayesian.py --input data/processed/preprocessed.csv --output state/bayesian_results.json
-python code/models/regression.py --input data/processed/preprocessed.csv --output state/regression_results.json
-
-# Validation
-python code/analysis/validation.py --input state/ --output state/validation_results.json
-
-# Reporting
-python code/reports/generate_report.py --input state/ --output reports/final_report.md
-```
-
-### Checksum Verification
-
-To verify data integrity using SHA-256 checksums:
-
-```bash
-python code/utils/hashing.py --verify
-```
-
----
-
-## Configuration
-
-### `code/config.py`
-
-Key configuration options:
-
-- `RUN_MODE`: `'simulation'` (default) or `'real'`
-- `RANDOM_SEED`: Integer for reproducibility (default: 42)
-- `DATA_PATHS`: Dictionary of input/output directories
-- `MODEL_PARAMS`: Bayesian model hyperparameters
-- `VALIDATION_THRESHOLDS`: Sensitivity analysis thresholds {2, 10, 20}
-
-Example:
-
-```python
-# code/config.py
-RUN_MODE = 'simulation'
-RANDOM_SEED = 42
-DATA_PATHS = {
- 'raw': 'data/raw/',
- 'processed': 'data/processed/',
- 'logs': 'data/logs/'
-}
-```
-
----
-
-## Testing
-
-Run the test suite using pytest:
-
-```bash
-# Run all tests
 pytest code/tests/ -v
-
-# Run specific test module
-pytest code/tests/test_schema.py -v
-
-# Run with coverage
-pytest code/tests/ --cov=code --cov-report=html
 ```
 
-### Test Coverage
-
-- **Data Generation**: Validates synthetic data against psychometric norms
-- **Schema Validation**: Ensures data conforms to Pydantic models
-- **Model Convergence**: Checks MCMC convergence (R-hat < 1.05)
-- **Parameter Recovery**: Verifies ground truth effects are recovered within 95% CI
-- **Sensitivity Analysis**: Tests robustness across decision thresholds
-
----
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Coding Standards
-
-- Use `black` for formatting
-- Use `ruff` or `flake8` for linting
-- Write tests for new features
-- Update documentation as needed
-
----
+Key validation metrics:
+- **Parameter Recovery**: Ground truth effect within 95% CI
+- **Psychometric Norms**: Synthetic data within 1 SD of Gervais et al. (2011)
+- **Model Fit**: Posterior Predictive Checks (PPC)
+- **Statistical Significance**: Bonferroni-corrected p-values
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-## Acknowledgments
-
-- Gervais et al. (2011) for MFQ psychometric norms
-- PyMC team for Bayesian modeling tools
-- Open Science Framework (OSF) for data hosting infrastructure
-
----
-
-## Support
-
-For issues, questions, or contributions, please open an issue on the repository or contact the maintainers.
+This project is for research purposes. See LICENSE file for details.

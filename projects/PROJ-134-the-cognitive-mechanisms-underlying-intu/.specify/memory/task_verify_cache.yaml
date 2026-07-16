@@ -1,0 +1,7 @@
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided only a feature specification and user stories; there
+    is no evidence of running a `quickstart.md` validation, nor any checksum files
+    or logs confirming that all artifacts have been checksummed. The required validation
+    and checksum verification artifacts are missing.

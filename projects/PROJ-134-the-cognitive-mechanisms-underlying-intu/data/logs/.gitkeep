@@ -1,1 +1,2 @@
-# This directory stores log files.
+# Logs directory for T008a/T009
+# Contains exclusion logs (exclusion.log) and VR mapping logs (vr_mapping.log)

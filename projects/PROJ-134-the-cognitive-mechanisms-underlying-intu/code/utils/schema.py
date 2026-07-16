@@ -13,7 +13,7 @@ class MFQResponse(BaseModel):
     """Single response to a Moral Foundations Questionnaire item."""
     item_id: str
     score: float
-    
+
     @field_validator('score')
     @classmethod
     def validate_score(cls, v):

@@ -1,302 +1,186 @@
 # Data Schema Reference
 
-This document provides a detailed reference for all data schemas used in the pipeline. All data structures are validated using Pydantic models to ensure consistency and integrity throughout the pipeline.
+This document provides a comprehensive reference for all data structures used in the cognitive mechanisms pipeline. All schemas are implemented using Pydantic models in `code/utils/schema.py` to ensure type safety and validation.
 
-## Overview
+## Table of Contents
 
-The pipeline processes three primary data types:
-
-1. **Moral Foundations Questionnaire (MFQ) Data**: Psychometric survey responses
-2. **Moral Stories Data**: Text-based moral scenarios with ground truth judgments
-3. **VR Interaction Logs**: Behavioral data from virtual environment interactions
-
-All datasets are merged into a unified `MergedDataset` for analysis.
+1. [Enum Definitions](#enum-definitions)
+2. [MFQ Schemas](#mfq-schemas)
+3. [Moral Stories Schemas](#moral-stories-schemas)
+4. [VR Interaction Schemas](#vr-interaction-schemas)
+5. [Merged Dataset Schema](#merged-dataset-schema)
+6. [Validation Rules](#validation-rules)
 
 ---
 
-## Core Enums
+## Enum Definitions
 
 ### `SalienceLevel`
+Defines the visual salience level for VR scenes.
 
-Represents the visual salience condition assigned to each story/VR interaction.
+| Value | Description |
+|-------|-------------|
+| `LOW` | Minimal visual cues, background elements only |
+| `HIGH` | Enhanced visual cues, prominent foreground elements |
 
+**Usage**:
 ```python
-class SalienceLevel(Enum):
- LOW = "low"
- HIGH = "high"
+from code.utils.schema import SalienceLevel
+level = SalienceLevel.HIGH
 ```
-
-**Values**:
-- `LOW`: Baseline visual condition (minimal cues)
-- `HIGH`: Experimental visual condition (enhanced cues)
 
 ---
 
 ## MFQ Schemas
 
 ### `MFQResponse`
+Represents a single response to a Moral Foundations Questionnaire item.
 
-Individual response to an MFQ item.
+**Fields**:
+- `respondent_id` (str): Unique identifier for the participant.
+- `foundation` (str): The moral foundation being assessed. Must be one of:
+ - `Care`
+ - `Fairness`
+ - `Loyalty`
+ - `Authority`
+ - `Purity`
+- `score` (float): The participant's rating on a 0-5 Likert scale.
+- `item_text` (str): The full text of the questionnaire item.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `item_id` | str | Yes | MFQ item identifier (e.g., "mfq_01", "mfq_02") |
-| `score` | int | Yes | Likert scale score (0-5) |
-| `foundation` | str | Yes | Moral foundation category |
-
-**Valid Foundations**:
-- `care`
-- `fairness`
-- `loyalty`
-- `authority`
-- `purity`
+**Validation Rules**:
+- `score` must be between 0.0 and 5.0 (inclusive).
+- `foundation` must match one of the allowed strings (case-insensitive).
 
 **Example**:
-
 ```json
 {
- "item_id": "mfq_01",
- "score": 4,
- "foundation": "care"
+ "respondent_id": "P001",
+ "foundation": "Care",
+ "score": 4.5,
+ "item_text": "Whether or not someone was cruel to animals."
 }
 ```
 
 ### `MFQDataset`
+Container for a complete MFQ dataset.
 
-Complete MFQ dataset for a single participant.
+**Fields**:
+- `metadata` (Dict[str, Any]): Dataset metadata including:
+ - `source`: Data origin (e.g., "synthetic", "osf", "huggingface")
+ - `date`: Generation/collection date (ISO 8601)
+ - `n`: Number of respondents
+ - `seed`: Random seed used (if synthetic)
+- `responses` (List[MFQResponse]): List of all responses.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `participant_id` | str | Yes | Unique participant identifier |
-| `responses` | List[`MFQResponse`] | Yes | List of all MFQ item responses |
-| `timestamp` | datetime | Yes | Data collection timestamp (ISO 8601) |
-
-**Validation Rules**:
-- `score` must be between 0 and 5 (inclusive)
-- `foundation` must be one of the five valid categories
-- Must contain at least one response
-
-**Example**:
-
-```json
-{
- "participant_id": "P001",
- "responses": [
- {"item_id": "mfq_01", "score": 4, "foundation": "care"},
- {"item_id": "mfq_02", "score": 2, "foundation": "fairness"}
- ],
- "timestamp": "2024-01-15T10:30:00Z"
-}
-```
+**Validation**:
+- All responses must have unique `respondent_id` + `foundation` pairs.
+- Metadata `n` must match the count of unique `respondent_id`s.
 
 ---
 
 ## Moral Stories Schemas
 
 ### `MoralStory`
+Represents a single moral dilemma scenario.
 
-A single moral scenario used in the experiment.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `story_id` | str | Yes | Unique story identifier |
-| `text` | str | Yes | Full text of the moral scenario |
-| `foundation` | str | Yes | Primary moral foundation targeted |
-| `intended_judgment` | float | Yes | Ground truth judgment score (0-1) |
-| `salience_level` | `SalienceLevel` | Yes | Assigned visual salience condition |
+**Fields**:
+- `story_id` (str): Unique identifier (e.g., "S001").
+- `scenario_text` (str): The full text of the moral dilemma.
+- `foundation_violated` (str): The primary moral foundation violated in the scenario.
+- `severity` (float): Pre-rated severity of the violation (1.0 - 10.0).
+- `ground_truth_effect` (float, optional): The known effect size for simulation validation.
 
 **Validation Rules**:
-- `intended_judgment` must be between 0.0 and 1.0
-- `text` must be non-empty
-- `foundation` must be one of the five valid categories
-
-**Example**:
-
-```json
-{
- "story_id": "STORY_001",
- "text": "A person finds a wallet on the street and decides whether to return it.",
- "foundation": "fairness",
- "intended_judgment": 0.85,
- "salience_level": "high"
-}
-```
+- `severity` must be between 1.0 and 10.0.
+- `scenario_text` must not be empty.
 
 ### `MoralStoriesDataset`
+Container for the collection of moral stories.
 
-Collection of moral stories.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `stories` | List[`MoralStory`] | Yes | List of all stories in the dataset |
-| `metadata` | Dict | No | Additional dataset metadata (version, source, etc.) |
+**Fields**:
+- `metadata` (Dict[str, Any]): Collection metadata.
+- `stories` (List[MoralStory]): List of story objects.
 
 ---
 
 ## VR Interaction Schemas
 
 ### `VRInteractionLog`
+Records a single interaction event in the virtual environment.
 
-Behavioral data from a single VR interaction session.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `log_id` | str | Yes | Unique log identifier |
-| `participant_id` | str | Yes | Participant identifier |
-| `story_id` | str | Yes | Associated story identifier |
-| `response_time` | float | Yes | Reaction time in seconds |
-| `gaze_data` | Dict | Yes | Gaze tracking coordinates (x, y, z) |
-| `judgment` | float | Yes | Recorded moral judgment (0-1) |
-| `salience_level` | `SalienceLevel` | Yes | Visual salience condition |
-| `timestamp` | datetime | Yes | Interaction timestamp |
+**Fields**:
+- `log_id` (str): Unique log identifier.
+- `story_id` (str): Reference to the `MoralStory` presented.
+- `respondent_id` (str): Reference to the participant.
+- `response_time` (float): Time taken to make a judgment (milliseconds).
+- `gaze_dwell_time` (float): Duration of visual attention on key elements (ms).
+- `judgment` (float): The moral judgment score produced (0.0 - 1.0, where 1.0 is "very wrong").
+- `salience_level` (SalienceLevel): The visual salience condition (LOW or HIGH).
+- `timestamp` (datetime): When the interaction occurred.
 
 **Validation Rules**:
-- `response_time` must be positive (> 0)
-- `judgment` must be between 0.0 and 1.0
-- `gaze_data` must contain 'x', 'y', 'z' keys
-
-**Example**:
-
-```json
-{
- "log_id": "VR_001",
- "participant_id": "P001",
- "story_id": "STORY_001",
- "response_time": 2.45,
- "gaze_data": {"x": 0.12, "y": 0.34, "z": 1.0},
- "judgment": 0.82,
- "salience_level": "high",
- "timestamp": "2024-01-15T10:35:00Z"
-}
-```
+- `response_time` must be > 0.
+- `judgment` must be between 0.0 and 1.0.
+- `salience_level` must be a valid `SalienceLevel` enum.
 
 ### `VRLogsDataset`
+Container for the collection of VR interaction logs.
 
-Collection of VR interaction logs.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `logs` | List[`VRInteractionLog`] | Yes | List of all interaction logs |
-| `metadata` | Dict | No | Dataset metadata (session info, version, etc.) |
+**Fields**:
+- `metadata` (Dict[str, Any]): Log collection metadata.
+- `logs` (List[VRInteractionLog]): List of log objects.
 
 ---
 
 ## Merged Dataset Schema
 
 ### `MergedDataset`
+The final processed dataset combining MFQ scores, story details, and VR logs.
 
-Unified dataset combining MFQ, stories, and VR logs for analysis.
+**Fields**:
+- `metadata` (Dict[str, Any]): Merge operation metadata.
+- `records` (List[Dict[str, Any]]): List of merged records.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `merged_rows` | List[Dict] | Yes | List of merged records |
-| `metadata` | Dict | Yes | Merge metadata (source files, timestamp, etc.) |
+**Merged Record Structure**:
+Each record in `records` contains:
+- `respondent_id` (str)
+- `story_id` (str)
+- `foundation_score` (float): Aggregated MFQ score for the relevant foundation.
+- `salience_level` (str): 'low' or 'high'.
+- `judgment` (float)
+- `response_time` (float)
+- `severity` (float)
+- `ground_truth_effect` (float, optional)
 
-**Merged Row Structure**:
-
-Each row in `merged_rows` contains:
-
-```python
-{
- "participant_id": str,
- "story_id": str,
- "mfq_scores": Dict[str, float], # Average scores per foundation
- "story_text": str,
- "intended_judgment": float,
- "observed_judgment": float,
- "response_time": float,
- "salience_level": str, # "low" or "high"
- "foundation": str,
- "gaze_data": Dict,
- "timestamp": datetime
-}
-```
-
-**Validation Rules**:
-- All required fields must be present
-- `participant_id` must match between MFQ and VR logs
-- `story_id` must exist in both stories and logs
+**Validation**:
+- Every `respondent_id` in `logs` must have a corresponding MFQ response.
+- Every `story_id` in `logs` must exist in the stories dataset.
 
 ---
 
-## Validation Functions
+## Validation Rules
 
-The `code/utils/schema.py` module provides validation helpers:
+All schemas enforce the following constraints at runtime:
 
+1. **Type Safety**: All fields are strictly typed. Invalid types raise `ValidationError`.
+2. **Range Checks**: Numerical fields (scores, times) are validated against physical bounds.
+3. **Enum Constraints**: Categorical fields (foundation, salience) accept only defined values.
+4. **Referential Integrity**: Foreign keys (e.g., `story_id` in logs) are validated against source datasets.
+
+**Example Validation Error**:
 ```python
-from code.utils.schema import (
- validate_mfq_data,
- validate_stories_data,
- validate_vr_logs_data,
- validate_merged_data
+from code.utils.schema import MFQResponse
+
+try:
+ response = MFQResponse(
+ respondent_id="P001",
+ foundation="Care",
+ score=6.0, # Invalid: > 5.0
+ item_text="Test"
 )
+except ValidationError as e:
+ print(e)
+# Output: 1 validation error for MFQResponse
+# score
+# ensure this value is less than or equal to 5.0 (type=value_error.number.not_le; limit_value=5.0)
 ```
-
-### Usage Example
-
-```python
-from code.utils.schema import validate_mfq_data
-from code.config import ensure_directories
-
-# Validate MFQ dataset
-mfq_data = {...} # Load from file
-validated = validate_mfq_data(mfq_data)
-if validated:
- print("MFQ data is valid")
-else:
- print("MFQ data validation failed")
-```
-
----
-
-## File Formats
-
-### CSV Output
-
-Processed data is exported to CSV with the following columns:
-
-```csv
-participant_id,story_id,mfq_care,mfq_fairness,mfq_loyalty,mfq_authority,mfq_purity,
-story_text,intended_judgment,observed_judgment,response_time,salience_level,
-foundation,gaze_x,gaze_y,gaze_z,timestamp
-```
-
-### JSON Output
-
-Intermediate results and model outputs are stored as JSON:
-
-```json
-{
- "pipeline_version": "1.0.0",
- "timestamp": "2024-01-15T12:00:00Z",
- "results": {
- "bayesian_model": {...},
- "regression_model": {...},
- "validation_metrics": {...}
- }
-}
-```
-
----
-
-## Data Integrity
-
-All derived datasets are checksummed using SHA-256 via `code/utils/hashing.py`. Checksums are stored in `state/pipeline_state.yaml`:
-
-```yaml
-artifacts:
- - path: data/processed/merged.csv
- checksum: "a1b2c3d4..."
- timestamp: "2024-01-15T12:00:00Z"
- - path: state/bayesian_results.json
- checksum: "e5f6g7h8..."
- timestamp: "2024-01-15T12:05:00Z"
-```
-
----
-
-## References
-
-- **Gervais et al. (2011)**: Psychometric norms for MFQ items
-- **Pydantic Documentation**: https://docs.pydantic.dev/
-- **Moral Foundations Theory**: https://moralfoundations.org/
