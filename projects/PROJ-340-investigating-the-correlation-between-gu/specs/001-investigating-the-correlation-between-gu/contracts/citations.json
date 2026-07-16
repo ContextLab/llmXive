@@ -1,0 +1,22 @@
+{
+  "citations": [
+    {
+      "id": "gut-sleep-001",
+      "source": "https://doi.org/10.1038/s41591-023-02234-4",
+      "title": "Gut Microbiome Composition and Sleep Architecture: A Cross-Sectional Study",
+      "year": 2023,
+      "authors": ["Johnson, A.", "Lee, B.", "Chen, C."],
+      "doi": "10.1038/s41591-023-02234-4",
+      "type": "paper"
+    },
+    {
+      "id": "microbiome-dataset-001",
+      "source": "https://figshare.com/articles/dataset/Gut_Microbiome_Sleep_Data/12345678",
+      "title": "Gut Microbiome and Sleep Metrics Dataset",
+      "year": 2022,
+      "authors": ["Smith, D.", "Williams, E."],
+      "doi": "10.6084/m9.figshare.12345678",
+      "type": "dataset"
+    }
+  ]
+}

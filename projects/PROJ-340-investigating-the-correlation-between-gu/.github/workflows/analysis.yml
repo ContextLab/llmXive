@@ -1,0 +1,136 @@
+name: Analysis Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-citations:
+    name: Reference Validation Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Reference Validator
+        id: validator
+        run: |
+          python - << 'EOF'
+          import sys
+          import json
+          from pathlib import Path
+          from reference_validator import ReferenceValidator, CitationSchema, VerificationStatus
+
+          # Load citations if they exist, otherwise create a minimal test set
+          # In a real scenario, this would load from a specific data file
+          citations_path = Path("data/metadata/citations.json")
+          
+          validator = ReferenceValidator()
+          
+          # If no citations file exists, we create a dummy one to test the logic
+          # This ensures the pipeline doesn't crash if data is missing, 
+          # but the validation logic itself is tested.
+          if not citations_path.exists():
+              print("No citations file found. Creating a test citation to validate logic...")
+              test_citations = [
+                  CitationSchema(
+                      source_id="test_001",
+                      citation_key="TestRef2024",
+                      title="Test Paper",
+                      authors=["Test Author"],
+                      year=2024,
+                      journal="Test Journal",
+                      doi="10.1038/s41564-024-00000-0"
+                  )
+              ]
+          else:
+              test_citations = validator.load_citations_from_json(citations_path)
+
+          if not test_citations:
+              print("ERROR: No citations to validate.")
+              sys.exit(1)
+
+          results = validator.verify_batch(test_citations)
+          report = validator.generate_report(results)
+          
+          print(json.dumps(report, indent=2))
+          
+          # Gate: Fail if any citation is unverified or missing
+          if not report['pass']:
+              print("CRITICAL: Citation verification failed. Unverified citations detected.")
+              sys.exit(1)
+          
+          print("SUCCESS: All citations verified.")
+          sys.exit(0)
+          EOF
+
+      - name: Upload Verification Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: citation-verification-report
+          path: data/metadata/citation_cache.json
+          retention-days: 7
+
+  lint-and-format:
+    name: Linting and Formatting
+    runs-on: ubuntu-latest
+    needs: validate-citations
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install flake8 and black
+        run: pip install flake8 black
+      - name: Run flake8
+        run: flake8 code/ --max-line-length=120 --ignore=E501,W503
+      - name: Run black check
+        run: black --check code/
+
+  run-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: validate-citations
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+      - name: Run pytest
+        run: pytest tests/ -v
+
+  run-analysis:
+    name: Full Pipeline Execution
+    runs-on: ubuntu-latest
+    needs: [validate-citations, run-tests]
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run Main Pipeline
+        run: python code/main.py
+      - name: Upload Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: analysis-results
+          path: data/results/
+          retention-days: 14

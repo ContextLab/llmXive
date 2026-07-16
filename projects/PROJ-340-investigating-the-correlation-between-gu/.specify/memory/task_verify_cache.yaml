@@ -1,0 +1,24 @@
+T012:
+  c: false
+  h: 82b585bf9cf2eb979bd68e0df1e89ff74253b0afd8e143e8a2fd87eb7ca4ae30
+  r: "The `validate_variables` function in `code/ingest.py` is truncated and never\
+    \ writes the computed metrics to `data/results/variable_load_metrics.json`. The\
+    \ JSON file present is a placeholder with zero counts and mismatched field names,\
+    \ and the required `dataset.schema.yaml` (or `schema.yaml`) is missing, so the\
+    \ function cannot even read the variable definitions. The task\u2019s core requirements\
+    \ are therefore not satisfied."
+T014b:
+  c: false
+  h: c08812b49f79b1fa81fd7b348e3d4602502207aba5143325d1dd20bd3ab1d71d
+  r: "The repository lacks the required `data/processed/filtered_data.parquet` file\
+    \ and the `state.yaml` file, and the shown portion of `code/ingest.py` does not\
+    \ contain any logic for filtering outliers, writing a Parquet file, or recording\
+    \ a checksum. Consequently, the task\u2019s core requirements are not met."
+T016:
+  c: false
+  h: 050430f364afa15675f30ff0783d60445548733d953d750f6d4a2a22ef6c6977
+  r: "The `code/main.py` snippet does not contain any logic that records start/end\
+    \ timestamps, checks the total runtime against a 6\u2011hour limit, or writes\
+    \ a JSON file to `data/results/timing_evidence.json`. Moreover, the required `data/results/timing_evidence.json`\
+    \ file is absent from the repository. Both the implementation and the evidence\
+    \ artifact are missing, so the task is not satisfied."

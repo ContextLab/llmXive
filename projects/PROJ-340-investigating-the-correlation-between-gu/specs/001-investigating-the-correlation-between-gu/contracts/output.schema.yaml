@@ -1,48 +1,222 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "CorrelationResultSchema"
-description: "Schema for the output of the correlation analysis."
-type: "object"
-properties:
-  taxon_name:
-    type: "string"
-    description: "Name of the microbial taxon."
-  sleep_metric:
-    type: "string"
-    description: "Name of the sleep metric."
-  method_used:
-    type: "string"
-    enum:
-      - "Pearson"
-      - "Spearman"
-      - "ZINB"
-    description: "Statistical method used for correlation."
-  correlation_coefficient:
-    type: "number"
-    description: "Estimated correlation coefficient."
-  p_value_raw:
-    type: "number"
-    description: "Raw p-value."
-    minimum: 0
-    maximum: 1
-  p_value_adjusted:
-    type: "number"
-    description: "Benjamini-Hochberg adjusted p-value."
-    minimum: 0
-    maximum: 1
-  is_significant:
-    type: "boolean"
-    description: "True if adjusted p-value <= 0.05."
-  interpretation:
-    type: "string"
-    description: "Human-readable interpretation."
-    pattern: "Associational"
+# Output Schema for Gut Microbiome - Sleep Architecture Correlation Analysis
+# Defines the structure of the CorrelationResult artifact produced by the pipeline.
+#
+# This schema ensures reproducibility, auditability, and strict adherence to
+# associational (non-causal) language requirements (Constitution Principle II).
+#
+# Version: 1.0.0
+# Last Updated: 2023-10-27
+
+$schema: http://json-schema.org/draft-07/schema#
+title: CorrelationResult
+description: >
+  The final structured output of the correlation analysis pipeline,
+  containing method selection details, statistical results, and metadata.
+
+type: object
 required:
-  - taxon_name
-  - sleep_metric
-  - method_used
-  - correlation_coefficient
-  - p_value_raw
-  - p_value_adjusted
-  - is_significant
-  - interpretation
-additionalProperties: false
+  - metadata
+  - method_selection
+  - correlations
+  - diagnostics
+  - limitations
+
+properties:
+  metadata:
+    type: object
+    description: "High-level information about the analysis run."
+    required:
+      - analysis_id
+      - timestamp
+      - pipeline_version
+      - data_source
+      - sample_size
+      - total_tests
+    properties:
+      analysis_id:
+        type: string
+        description: "Unique identifier for this specific analysis run."
+      timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of when the analysis was completed."
+      pipeline_version:
+        type: string
+        description: "Version of the analysis pipeline used."
+      data_source:
+        type: string
+        description: "Path or identifier of the input data file (e.g., filtered_data.parquet)."
+      sample_size:
+        type: integer
+        minimum: 1
+        description: "Number of samples (N) included in the final analysis."
+      total_tests:
+        type: integer
+        minimum: 1
+        description: "Total number of correlation tests performed (before FDR)."
+
+  method_selection:
+    type: object
+    description: "Details on how the correlation method was selected per variable pair."
+    required:
+      - global_method
+      - criteria
+    properties:
+      global_method:
+        type: string
+        enum:
+          - pearson
+          - spearman
+          - zinb
+          - sparcc
+          - spiec_easi
+        description: "The primary correlation method applied across the dataset."
+      criteria:
+        type: object
+        description: "The specific conditions that triggered the method selection."
+        required:
+          - zero_inflation_threshold
+          - normality_threshold
+          - compositionality_detected
+        properties:
+          zero_inflation_threshold:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+            description: "Proportion of zeros above which ZINB is triggered."
+          normality_threshold:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+            description: "Shapiro-Wilk p-value threshold below which non-normality is assumed."
+          compositionality_detected:
+            type: boolean
+            description: "Whether compositional constraints required SparCC/SpiecEasi."
+
+  correlations:
+    type: array
+    description: "List of all pairwise correlation results."
+    items:
+      type: object
+      required:
+        - predictor
+        - outcome
+        - method
+        - coefficient
+        - p_value
+        - q_value
+        - significant
+      properties:
+        predictor:
+          type: string
+          description: "Name of the gut microbiome taxa (e.g., 'Bacteroides_fragilis')."
+        outcome:
+          type: string
+          description: "Name of the sleep metric (e.g., 'SWS_duration')."
+        method:
+          type: string
+          enum:
+            - pearson
+            - spearman
+            - zinb
+            - sparcc
+          description: "Specific method used for this pair."
+        coefficient:
+          type: number
+          description: "Correlation coefficient (r) or ZINB incidence rate ratio (IRR)."
+        p_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Raw p-value from the statistical test."
+        q_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Benjamini-Hochberg adjusted p-value (FDR)."
+        significant:
+          type: boolean
+          description: "True if q_value <= 0.05."
+        ci_lower:
+          type: number
+          description: "Lower bound of the 95% confidence interval."
+        ci_upper:
+          type: number
+          description: "Upper bound of the 95% confidence interval."
+        interpretation:
+          type: string
+          description: "Associational interpretation text (e.g., 'Higher abundance of X is associated with...')."
+
+  diagnostics:
+    type: object
+    description: "Collinearity and stability diagnostics."
+    required:
+      - multicollinearity_check
+      - stability_metrics
+    properties:
+      multicollinearity_check:
+        type: object
+        description: "Results of the multicollinearity detection."
+        required:
+          - perfect_multicollinearity_found
+          - vif_max
+        properties:
+          perfect_multicollinearity_found:
+            type: boolean
+            description: "True if definitionally related taxa caused rank deficiency."
+          vif_max:
+            type: number
+            description: "Maximum Variance Inflation Factor observed among predictors."
+      stability_metrics:
+        type: object
+        description: "Results from the sensitivity analysis."
+        properties:
+          threshold_variations:
+            type: array
+            items:
+              type: object
+              properties:
+                threshold:
+                  type: number
+                significant_count:
+                  type: integer
+                change_percent:
+                  type: number
+
+  limitations:
+    type: array
+    description: "List of known limitations and warnings (mandatory for report generation)."
+    items:
+      type: object
+      required:
+        - type
+        - message
+      properties:
+        type:
+          type: string
+          enum:
+            - causal_language_warning
+            - sample_size_warning
+            - power_limitation
+            - data_quality_warning
+        message:
+          type: string
+          description: "Detailed warning message (e.g., 'Power analysis indicates N < required for r=0.3')."
+
+  provenance:
+    type: object
+    description: "Chain of custody and reproducibility metadata."
+    required:
+      - code_hash
+      - config_snapshot
+      - coc_log_ref
+    properties:
+      code_hash:
+        type: string
+        description: "SHA-256 hash of the analysis code version used."
+      config_snapshot:
+        type: object
+        description: "Snapshot of configuration parameters used."
+      coc_log_ref:
+        type: string
+        description: "Reference to the chain-of-custody log file (e.g., data/metadata/coc_log.json)."
