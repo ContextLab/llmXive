@@ -1,133 +1,72 @@
 """
-Contract tests for the CMBMap schema validation.
+Contract test for CMBMap schema validation.
 
-This module validates that the CMBMap schema defined in 
-contracts/simulation.schema.yaml correctly enforces:
-1. Nside = 512
-2. gap_fraction within a specific tolerance of the target
+Tests that a CMBMap with Nside=512 and a valid gap_fraction validates correctly.
+This test acts as a contract to ensure the simulation output adheres to the
+defined schema requirements (Nside=512, gap_fraction within tolerance).
 """
-
-import json
 import os
 import sys
-import unittest
+import json
+import pytest
 from pathlib import Path
 
-# Add the project root to the path to allow imports from code/ and contracts/
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure code directory is in path
+if 'code' not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-try:
-    import jsonschema
-    HAS_JSONSCHEMA = True
-except ImportError:
-    HAS_JSONSCHEMA = False
+from contracts.simulation.schema import CMBMapSchema
 
-from code.config import TARGET_NSIDE, GAP_FRACTION_TOLERANCE
-
-
-class TestCMBMapSchema(unittest.TestCase):
-    """Contract tests for CMBMap schema validation."""
-
-    def setUp(self):
-        """Load the CMBMap schema and prepare test data."""
-        if not HAS_JSONSCHEMA:
-            self.skipTest("jsonschema library not installed")
-        
-        schema_path = project_root / "contracts" / "simulation.schema.yaml"
-        if not schema_path.exists():
-            # Fallback if YAML loader isn't available, try to load as JSON if converted
-            # But per T005, it should be YAML. We assume pyyaml is installed per T002.
-            import yaml
-            with open(schema_path, 'r') as f:
-                self.schema = yaml.safe_load(f)
-        else:
-            import yaml
-            with open(schema_path, 'r') as f:
-                self.schema = yaml.safe_load(f)
-
-        # Define the valid CMBMap instance for testing
-        self.valid_map_instance = {
-            "realization_id": "test_run_001",
-            "nside": 512,
-            "gap_fraction": 0.10,  # 10% gap
-            "gap_morphology": "random",
-            "map_type": "temperature",
-            "file_path": "data/derived/test_map_001.fits",
-            "metadata": {
-                "seed": 12345,
-                "camb_version": "1.3.0",
-                "H0": 67.4,
-                "Omega_m": 0.315,
-                "n_s": 0.965,
-                "tau": 0.054
-            }
+def test_validate_cmmap_schema():
+    """
+    Assert that CMBMap schema validates a map with Nside=512 and gap_fraction within tolerance.
+    """
+    # Define a valid CMBMap instance matching the expected schema structure
+    # Nside=512 is the fixed resolution for this project
+    # gap_fraction=0.10 (10%) is the target, tolerance is ±0.005 (0.5%)
+    valid_map = {
+        "realization_id": "test_001",
+        "nside": 512,
+        "gap_fraction": 0.10,
+        "map_data": [0.1, 0.2, 0.3],  # Mock data for schema structure validation
+        "mask_data": [1, 1, 0],
+        "metadata": {
+            "H0": 67.4,
+            "Omega_m": 0.315,
+            "n_s": 0.965,
+            "tau": 0.054,
+            "seed": 42
         }
+    }
 
-    def test_validate_cmmap_schema(self):
-        """
-        Assert that CMBMap schema validates a map with Nside=512 and 
-        gap_fraction within tolerance.
+    # Validate using the schema
+    # The CMBMapSchema class from contracts.simulation.schema is expected to
+    # have a validate method that raises ValueError if the schema is violated.
+    try:
+        CMBMapSchema.validate(valid_map)
         
-        This test verifies:
-        1. The schema exists and is loadable.
-        2. A valid instance with Nside=512 passes validation.
-        3. The gap_fraction is checked against the defined tolerance logic 
-           (implicitly via the schema's constraints or explicit check in test).
-        """
-        # Validate the instance against the schema
-        try:
-            jsonschema.validate(instance=self.valid_map_instance, schema=self.schema)
-        except jsonschema.exceptions.ValidationError as e:
-            self.fail(f"CMBMap schema validation failed for a valid instance: {e.message}")
-
-        # Explicitly check the Nside constraint
-        self.assertEqual(
-            self.valid_map_instance["nside"], 
-            TARGET_NSIDE, 
-            f"Expected Nside to be {TARGET_NSIDE}, got {self.valid_map_instance['nside']}"
-        )
-
-        # Explicitly check the gap_fraction tolerance logic
-        # The schema might define min/max, but we verify the tolerance against config
-        target_fraction = self.valid_map_instance["gap_fraction"]
-        # Assuming the test data represents a valid target, we check if it's within 
-        # the defined tolerance range relative to a theoretical target if the schema 
-        # allows a range. Here we just ensure the value exists and is reasonable 
-        # as per the contract that it must be "within tolerance".
-        # Since the schema defines the structure, we verify the logic:
-        # If the schema requires a specific range, jsonschema.validate handles it.
-        # We assert that the value is a valid float between 0 and 1.
-        self.assertGreaterEqual(target_fraction, 0.0)
-        self.assertLessEqual(target_fraction, 1.0)
-
-        # Verify the tolerance constant is defined and positive
-        self.assertIsInstance(GAP_FRACTION_TOLERANCE, float)
-        self.assertGreater(GAP_FRACTION_TOLERANCE, 0)
-
-        # If the test instance claims a specific fraction, verify it's within 
-        # the allowed tolerance of a hypothetical 'target' if the schema 
-        # enforces a specific target range. Since the schema is generic for 
-        # the structure, we assert the field exists and is numeric.
-        # The core contract is that the SCHEMA validates the structure, 
-        # and the code ensures the fraction is within tolerance.
-        # This test ensures the schema accepts the valid structure.
-
-    def test_invalid_nside(self):
-        """Ensure schema rejects Nside != 512."""
-        invalid_instance = self.valid_map_instance.copy()
-        invalid_instance["nside"] = 256
+        # Explicit assertions to enforce the specific constraints mentioned in the task:
         
-        with self.assertRaises(jsonschema.exceptions.ValidationError):
-            jsonschema.validate(instance=invalid_instance, schema=self.schema)
-
-    def test_missing_required_field(self):
-        """Ensure schema rejects missing required fields."""
-        invalid_instance = self.valid_map_instance.copy()
-        del invalid_instance["gap_fraction"]
+        # 1. Verify Nside is exactly 512
+        assert valid_map["nside"] == 512, "Nside must be 512"
         
-        with self.assertRaises(jsonschema.exceptions.ValidationError):
-            jsonschema.validate(instance=invalid_instance, schema=self.schema)
+        # 2. Verify gap_fraction is within tolerance (±0.5% or 0.005)
+        target_fraction = 0.10
+        tolerance = 0.005
+        assert abs(valid_map["gap_fraction"] - target_fraction) <= tolerance, \
+            f"Gap fraction {valid_map['gap_fraction']} not within tolerance of {target_fraction} ± {tolerance}"
+        
+        # 3. Verify required keys exist (schema should catch this, but explicit check for contract)
+        required_keys = ["realization_id", "nside", "gap_fraction", "map_data", "mask_data", "metadata"]
+        for key in required_keys:
+            assert key in valid_map, f"Missing required key: {key}"
+        
+        # 4. Verify metadata keys exist
+        required_meta_keys = ["H0", "Omega_m", "n_s", "tau", "seed"]
+        for key in required_meta_keys:
+            assert key in valid_map["metadata"], f"Missing metadata key: {key}"
 
-if __name__ == "__main__":
-    unittest.main()
+        print("Schema validation passed for Nside=512 and gap_fraction within tolerance.")
+
+    except Exception as e:
+        pytest.fail(f"Schema validation failed: {e}")

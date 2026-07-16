@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-07-16T07:12:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery degradation from public cycling data with recurrent neural networks materials science",
+  "rationale": "The paper discusses general risks of changing data sources in machine learning for official statistics (e.g., concept drift, bias) but does not address the specific domain of battery degradation, cycling data, or the application of recurrent neural networks to materials science. It fails to meet any inclusion criteria (a-f) as it lacks the necessary mechanism, variables, or empirical population connection to the user's specific research question.",
+  "relevant": false
+}

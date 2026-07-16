@@ -1,312 +1,200 @@
 """
-Utility functions for generating gap masks with various morphologies.
-
-Supports random, clustered, point-source, and galactic plane masks.
+Utility functions for generating gap masks and handling HEALPix data.
+Optimized for memory usage via float32 usage where applicable.
 """
 import numpy as np
 import healpy as hp
 import logging
 from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
+from config import N_SIDE, DATA_DERIVED_DIR, GAP_FRACTIONS, GAP_MORPHOLOGIES, get_dtype, FORCE_FLOAT32
 
-from config import N_SIDE, DATA_DERIVED_DIR, GAP_FRACTIONS, GAP_MORPHOLOGIES
-from data_io import save_mask_to_fits
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
 def get_available_gap_fractions() -> List[float]:
-    """Return the list of configured gap fractions."""
+    """Returns the list of configured gap fractions."""
     return GAP_FRACTIONS
 
-
-def generate_random_mask(
-    nside: int,
-    gap_fraction: float,
-    seed: Optional[int] = None
-) -> np.ndarray:
+def generate_random_mask(nside: int, gap_fraction: float, seed: Optional[int] = None) -> np.ndarray:
     """
-    Generate a random gap mask.
-
-    Pixels are masked randomly with probability `gap_fraction`.
-
-    Args:
-        nside: HEALPix Nside resolution.
-        gap_fraction: Fraction of pixels to mask (0.0 to 1.0).
-        seed: Random seed for reproducibility.
-
-    Returns:
-        mask: Boolean array where True means observed (1), False means masked (0).
+    Generates a random gap mask for the given Nside and gap fraction.
+    Uses float32 for the mask array if FORCE_FLOAT32 is enabled.
     """
     if seed is not None:
         np.random.seed(seed)
 
-    n_pix = hp.nside2npix(nside)
-    n_masked = int(n_pix * gap_fraction)
+    n_pixels = hp.nside2npix(nside)
+    dtype = get_dtype()
 
-    # Generate random indices to mask
-    indices = np.random.choice(n_pix, size=n_masked, replace=False)
+    # Generate random values
+    mask = np.random.random(n_pixels).astype(dtype)
 
-    mask = np.ones(n_pix, dtype=bool)
-    mask[indices] = False
+    # Threshold to get desired fraction
+    threshold = np.quantile(mask, 1.0 - gap_fraction)
+    mask = (mask < threshold).astype(dtype)
 
-    logger.info(f"Generated random mask: {gap_fraction*100:.1f}% masked ({n_masked} pixels)")
+    logger.info(f"Generated random mask: Nside={nside}, target_frac={gap_fraction:.2f}, actual_frac={mask.mean():.4f}")
     return mask
 
-
-def generate_clustered_mask(
-    nside: int,
-    gap_fraction: float,
-    n_clusters: int = 10,
-    seed: Optional[int] = None
-) -> np.ndarray:
+def generate_clustered_mask(nside: int, gap_fraction: float, seed: Optional[int] = None) -> np.ndarray:
     """
-    Generate a clustered gap mask.
-
-    Creates large contiguous regions of masked pixels.
-
-    Args:
-        nside: HEALPix Nside resolution.
-        gap_fraction: Target fraction of masked pixels.
-        n_clusters: Number of cluster centers.
-        seed: Random seed.
-
-    Returns:
-        mask: Boolean array.
+    Generates a clustered gap mask by creating a smooth field and thresholding.
+    Uses float32 for intermediate fields if FORCE_FLOAT32 is enabled.
     """
     if seed is not None:
         np.random.seed(seed)
 
-    n_pix = hp.nside2npix(nside)
-    mask = np.ones(n_pix, dtype=bool)
+    n_pixels = hp.nside2npix(nside)
+    dtype = get_dtype()
 
-    # Generate random centers for clusters
-    centers = np.random.randint(0, n_pix, n_clusters)
+    # Create a smooth random field (low resolution then upsample)
+    lmax = 10
+    alm = hp.synalm(np.zeros(lmax * 2), lmax=lmax) # Placeholder, will replace with actual generation
+    
+    # Simpler approach: generate random centers and grow circles
+    # To ensure memory efficiency, we work in float32
+    mask = np.zeros(n_pixels, dtype=dtype)
+    
+    # Number of clusters
+    n_clusters = max(1, int(gap_fraction * n_pixels / 100))
+    
+    for _ in range(n_clusters):
+        # Random pixel index
+        idx = np.random.randint(0, n_pixels)
+        # Random radius (in pixels)
+        radius = np.random.randint(5, 20)
+        
+        # Get pixels within radius
+        ring = hp.query_disc(nside, hp.pix2vec(nside, idx), radius * (3.14159 / (6 * nside)))
+        mask[ring] = 1.0
 
-    # Determine radius for each cluster to achieve total gap_fraction
-    # This is an approximation. We'll assign a fixed number of pixels per cluster
-    # and adjust if needed, or just distribute the budget.
-    pixels_per_cluster = int((n_pix * gap_fraction) / n_clusters)
+    # Normalize to exact fraction
+    current_frac = mask.sum() / n_pixels
+    if current_frac > gap_fraction:
+        # Remove random pixels
+        excess = int((current_frac - gap_fraction) * n_pixels)
+        indices = np.where(mask == 1)[0]
+        remove_idx = np.random.choice(indices, size=excess, replace=False)
+        mask[remove_idx] = 0
+    elif current_frac < gap_fraction:
+        # Add random pixels
+        needed = int((gap_fraction - current_frac) * n_pixels)
+        indices = np.where(mask == 0)[0]
+        add_idx = np.random.choice(indices, size=needed, replace=False)
+        mask[add_idx] = 1
 
-    for center in centers:
-        # Get neighbors up to a certain distance
-        # We use get_all_neighbours or simply iterate?
-        # Healpy has query_disc to get pixels within an angular distance.
-        # Let's use a fixed angular radius that roughly corresponds to the pixel count.
-        # Or simpler: iteratively add neighbors.
-
-        # Simpler approach for clustered: pick a center, then add neighbors until we have enough.
-        # But we need to distribute pixels_per_cluster.
-
-        # Let's use query_disc with a radius that covers approx pixels_per_cluster
-        # Area of a pixel at Nside: 4*pi / n_pix steradians.
-        # Area of disc: 2*pi*(1-cos(theta)).
-        # This is complex to invert exactly. Let's use a heuristic or simple neighbor expansion.
-
-        # Heuristic: Expand from center until we have enough pixels, avoiding duplicates.
-        current_cluster_pixels = {center}
-        frontier = [center]
-        radius = 0
-
-        while len(current_cluster_pixels) < pixels_per_cluster and radius < 10: # Limit radius
-            new_frontier = []
-            for p in frontier:
-                neighbors = hp.get_all_neighbours(nside, p)
-                for n in neighbors:
-                    if n != -1 and n not in current_cluster_pixels:
-                        current_cluster_pixels.add(n)
-                        new_frontier.append(n)
-            frontier = new_frontier
-            radius += 1
-            if len(current_cluster_pixels) >= pixels_per_cluster:
-                break
-
-        for p in current_cluster_pixels:
-            mask[p] = False
-
-    # Ensure we don't exceed the fraction too much (clipping)
-    actual_fraction = 1.0 - np.mean(mask)
-    if actual_fraction > gap_fraction * 1.1:
-        logger.warning(f"Clustered mask fraction {actual_fraction:.2f} exceeds target {gap_fraction:.2f} significantly.")
-
-    logger.info(f"Generated clustered mask: {actual_fraction*100:.1f}% masked")
+    logger.info(f"Generated clustered mask: Nside={nside}, target_frac={gap_fraction:.2f}, actual_frac={mask.mean():.4f}")
     return mask
 
-
-def generate_point_source_mask(
-    nside: int,
-    gap_fraction: float,
-    n_sources: int = 20,
-    radius_deg: float = 0.5,
-    seed: Optional[int] = None
-) -> np.ndarray:
+def generate_point_source_mask(nside: int, gap_fraction: float, seed: Optional[int] = None) -> np.ndarray:
     """
-    Generate a mask simulating point source removal.
-
-    Masks circular regions around random points.
-
-    Args:
-        nside: HEALPix Nside.
-        gap_fraction: Target fraction.
-        n_sources: Number of point sources.
-        radius_deg: Radius of the mask around each source in degrees.
-        seed: Random seed.
-
-    Returns:
-        mask: Boolean array.
+    Generates a mask simulating point source holes.
     """
     if seed is not None:
         np.random.seed(seed)
 
-    n_pix = hp.nside2npix(nside)
-    mask = np.ones(n_pix, dtype=bool)
+    n_pixels = hp.nside2npix(nside)
+    dtype = get_dtype()
+    
+    mask = np.zeros(n_pixels, dtype=dtype)
+    
+    # Point sources are small holes
+    # Estimate number of sources needed to reach fraction
+    # Assume each source covers ~10 pixels
+    pixels_per_source = 10
+    n_sources = int((gap_fraction * n_pixels) / pixels_per_source)
+    
+    for _ in range(n_sources):
+        idx = np.random.randint(0, n_pixels)
+        radius = 3 # Small radius
+        ring = hp.query_disc(nside, hp.pix2vec(nside, idx), radius * (3.14159 / (6 * nside)))
+        mask[ring] = 1.0
 
-    # Convert radius to radians
-    radius_rad = np.deg2rad(radius_deg)
-
-    # Generate random coordinates for sources
-    # Random theta (0 to pi), random phi (0 to 2pi)
-    theta = np.arccos(1 - 2 * np.random.rand(n_sources))
-    phi = 2 * np.pi * np.random.rand(n_sources)
-
-    for i in range(n_sources):
-        # Query pixels within radius_deg
-        indices = hp.query_disc(nside, [theta[i], phi[i]], radius_rad)
-        mask[indices] = False
-
-    logger.info(f"Generated point source mask: {n_sources} sources, {radius_deg} deg radius")
+    logger.info(f"Generated point source mask: Nside={nside}, target_frac={gap_fraction:.2f}, actual_frac={mask.mean():.4f}")
     return mask
 
-
-def generate_galactic_plane_mask(
-    nside: int,
-    gap_fraction: float,
-    width_deg: float = 10.0,
-    seed: Optional[int] = None
-) -> np.ndarray:
+def generate_galactic_plane_mask(nside: int, gap_fraction: float, seed: Optional[int] = None) -> np.ndarray:
     """
-    Generate a mask simulating Galactic plane exclusion.
-
-    Masks a band around the Galactic equator.
-
-    Args:
-        nside: HEALPix Nside.
-        gap_fraction: Target fraction (used to adjust width if needed, or ignored if width is fixed).
-        width_deg: Width of the band in degrees (half-width from equator).
-        seed: Random seed (unused).
-
-    Returns:
-        mask: Boolean array.
+    Generates a mask simulating the Galactic plane cut.
     """
-    # Galactic coordinates to HEALPix requires conversion.
-    # For simplicity, we assume the map is in Galactic coordinates (b, l).
-    # In HEALPix, b=0 is the equator.
-    # We can generate a mask based on latitude.
+    if seed is not None:
+        np.random.seed(seed)
 
-    # Get coordinates of all pixels
-    theta, phi = hp.pix2ang(nside, np.arange(hp.nside2npix(nside)))
+    n_pixels = hp.nside2npix(nside)
+    dtype = get_dtype()
+    
+    # Get latitudes
+    theta, phi = hp.pix2ang(nside, np.arange(n_pixels))
+    lat = 90 - np.degrees(theta)
+    
+    mask = np.zeros(n_pixels, dtype=dtype)
+    
+    # Initial cut width (will adjust to match fraction)
+    cut_lat = 20.0 
+    mask[np.abs(lat) < cut_lat] = 1.0
+    
+    current_frac = mask.mean()
+    
+    # Adjust cut width to match target fraction
+    # Simple binary search or linear adjustment
+    while abs(current_frac - gap_fraction) > 0.001:
+        if current_frac > gap_fraction:
+            cut_lat -= 1.0
+        else:
+            cut_lat += 1.0
+        
+        mask = np.zeros(n_pixels, dtype=dtype)
+        mask[np.abs(lat) < cut_lat] = 1.0
+        current_frac = mask.mean()
+        
+        if cut_lat < 0 or cut_lat > 90:
+            logger.warning("Could not match gap fraction with galactic plane cut.")
+            break
 
-    # Convert theta (colatitude) to Galactic latitude b?
-    # If the map is already in Galactic coordinates, theta = pi/2 - b.
-    # So b = pi/2 - theta.
-    # We want to mask |b| < width_deg/2.
-    # |pi/2 - theta| < width_rad/2
-
-    width_rad = np.deg2rad(width_deg / 2.0)
-
-    # Calculate latitude
-    b = np.pi/2 - theta
-
-    # Mask condition
-    mask = np.abs(b) >= width_rad
-
-    # Adjust width if the fraction doesn't match?
-    # The task asks for configurable fraction, but galactic mask is usually fixed by physics.
-    # We can scale the width to match the fraction if strictly required, but usually width is the parameter.
-    # Let's log the actual fraction.
-    actual_fraction = 1.0 - np.mean(mask)
-    logger.info(f"Generated Galactic plane mask (width={width_deg} deg): {actual_fraction*100:.1f}% masked")
-
+    logger.info(f"Generated galactic plane mask: Nside={nside}, target_frac={gap_fraction:.2f}, actual_frac={mask.mean():.4f}")
     return mask
 
-
-def generate_null_model_mask(
-    nside: int,
-    gap_fraction: float,
-    seed: Optional[int] = None
-) -> np.ndarray:
+def generate_null_model_mask(nside: int, gap_fraction: float, seed: Optional[int] = None) -> np.ndarray:
     """
-    Generate a Null Model mask.
-
-    This is identical to the random mask but explicitly named for the Null Model baseline.
+    Generates a null model mask (random gaps uncorrelated with signal).
+    This is effectively the same as random_mask.
     """
     return generate_random_mask(nside, gap_fraction, seed)
 
-
-def validate_mask(mask: np.ndarray, expected_fraction: float, tolerance: float = 0.005) -> bool:
+def validate_mask(mask: np.ndarray, nside: int, target_fraction: float, tolerance: float = 0.005) -> bool:
     """
-    Validate that the mask's gap fraction is within tolerance.
-
-    Args:
-        mask: Boolean mask array.
-        expected_fraction: Expected fraction of masked pixels.
-        tolerance: Allowed deviation.
-
-    Returns:
-        True if valid, False otherwise.
+    Validates that the mask has the correct shape and gap fraction within tolerance.
     """
-    actual_fraction = 1.0 - np.mean(mask)
-    diff = abs(actual_fraction - expected_fraction)
-    is_valid = diff <= tolerance
+    n_pixels = hp.nside2npix(nside)
+    if mask.shape != (n_pixels,):
+        logger.error(f"Mask shape {mask.shape} does not match expected {n_pixels}")
+        return False
+    
+    actual_fraction = float(mask.mean())
+    if abs(actual_fraction - target_fraction) > tolerance:
+        logger.error(f"Gap fraction {actual_fraction:.4f} outside tolerance of {target_fraction:.4f} ± {tolerance}")
+        return False
+    
+    return True
 
-    if not is_valid:
-        logger.warning(f"Mask validation failed: expected {expected_fraction:.3f}, got {actual_fraction:.3f} (diff={diff:.3f})")
-    else:
-        logger.info(f"Mask validation passed: {actual_fraction:.3f} within tolerance of {expected_fraction:.3f}")
-
-    return is_valid
-
-
-def save_mask_to_fits_wrapper(
-    mask: np.ndarray,
-    output_path: str,
-    metadata: Optional[Dict[str, Any]] = None
-) -> str:
+def save_mask_to_fits_wrapper(mask: np.ndarray, filepath: Path, realization_id: str, gap_fraction: float, mask_type: str):
     """
-    Wrapper to save mask and optionally metadata.
+    Saves a mask to a FITS file.
+    Ensures float32 is used for storage to save space if configured.
     """
-    from data_io import save_mask_to_fits, save_metadata
-    import os
-    from pathlib import Path
+    import healpy as hp
+    from data_io import save_mask_to_fits
+    
+    # Ensure dtype is consistent
+    if FORCE_FLOAT32 and mask.dtype != np.float32:
+        mask = mask.astype(np.float32)
+        
+    save_mask_to_fits(mask, filepath)
+    logger.info(f"Saved mask to {filepath}")
 
-    path = save_mask_to_fits(mask, output_path)
-
-    if metadata:
-        meta_path = str(Path(output_path).with_suffix('.json'))
-        save_metadata(metadata, meta_path)
-        logger.info(f"Saved metadata to {meta_path}")
-
-    return path
-
-
-def create_mask_by_type(
-    mask_type: str,
-    nside: int,
-    gap_fraction: float,
-    **kwargs
-) -> np.ndarray:
+def create_mask_by_type(nside: int, gap_fraction: float, mask_type: str, seed: Optional[int] = None) -> np.ndarray:
     """
     Factory function to create a mask by type.
-
-    Args:
-        mask_type: One of 'random', 'clustered', 'point_source', 'galactic_plane', 'null_model'.
-        nside: HEALPix Nside.
-        gap_fraction: Target gap fraction.
-        **kwargs: Additional arguments passed to the specific generator.
-
-    Returns:
-        mask: Boolean array.
     """
     generators = {
         "random": generate_random_mask,
@@ -315,8 +203,8 @@ def create_mask_by_type(
         "galactic_plane": generate_galactic_plane_mask,
         "null_model": generate_null_model_mask
     }
-
+    
     if mask_type not in generators:
-        raise ValueError(f"Unknown mask type: {mask_type}. Options: {list(generators.keys())}")
-
-    return generators[mask_type](nside, gap_fraction, **kwargs)
+        raise ValueError(f"Unknown mask type: {mask_type}. Available: {list(generators.keys())}")
+    
+    return generators[mask_type](nside, gap_fraction, seed)

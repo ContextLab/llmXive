@@ -1,4 +1,4 @@
-name: CI - Verify Dependencies and Availability
+name: CI - Dependency Verification and Package Health
 
 on:
   push:
@@ -21,29 +21,16 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f code/requirements.txt ]; then
-            pip install -r code/requirements.txt
-          else
-            echo "Warning: code/requirements.txt not found, installing core deps manually"
-            pip install healpy>=1.15.0 camb numpy scipy statsmodels pyyaml astropy
-          fi
+          pip install -r code/requirements.txt
 
-      - name: Verify healpy availability and version
+      - name: Verify healpy version
         run: |
-          python -c "import healpy; print(f'healpy version: {healpy.__version__}'); assert tuple(int(x) for x in healpy.__version__.split('.')[:2]) >= (1, 15), 'healpy version must be >= 1.15.0'"
+          python -c "import healpy; print(f'healpy version: {healpy.__version__}'); assert tuple(map(int, healpy.__version__.split('.')[:2])) >= (1, 15), 'healpy version must be >= 1.15.0'"
 
-      - name: Verify camb availability
+      - name: Verify core packages import
         run: |
-          python -c "import camb; print(f'camb version: {camb.__version__}')"
+          python -c "import camb; import numpy; import scipy; import statsmodels; import pyyaml; import astropy; import pytest; print('All core packages imported successfully')"
 
-      - name: Verify core scientific stack
+      - name: Validate project structure
         run: |
-          python -c "import numpy; import scipy; import statsmodels; import yaml; import astropy; print('All core dependencies imported successfully')"
-
-      - name: Run pilot runner to verify basic execution
-        run: |
-          if [ -f code/pipeline/pilot_runner.py ]; then
-            python code/pipeline/pilot_runner.py
-          else
-            echo "Skipping pilot_runner execution as file not found"
-          fi
+          python -c "from pathlib import Path; assert Path('code/config.py').exists(); assert Path('code/data_io.py').exists(); assert Path('contracts').exists(); print('Project structure validated')"

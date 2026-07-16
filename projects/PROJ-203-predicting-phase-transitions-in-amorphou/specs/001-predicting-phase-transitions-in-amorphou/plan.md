@@ -120,8 +120,8 @@ projects/PROJ-203-predicting-phase-transitions-in-amorphou/
 - **T031.1 [US3]**: **Implement Multiple-Comparison Correction Logic**. Explicitly implement Bonferroni/FDR correction for feature importance comparisons across families, mapping to FR-005.
 - **T032 [US3]**: **Generate Collinearity Report**. Calculate VIF for all predictors. If VIF > 5, flag feature. Output `collinearity_report.json`.
 - **T032.1 [US3]**: **Implement Collinearity Diagnostics**. Explicitly calculate and report VIF values for correlated predictors, mapping to FR-007.
-- **T033 [US3]**: **Implement Sensitivity Analysis**. Vary threshold [K, 50K, 75K, 100K]. Report FPR and class balance for each. If FPR varies >10%, flag threshold as unstable. Output `sensitivity_report.json`.
-- **T033.1 [US3]**: **Implement Sensitivity Analysis Logic**. Explicitly perform sensitivity analysis on the crystallization threshold using a defined range (25K, 50K, 75K, 100K), mapping to FR-006.
+- **T033 [US3]**: **Implement Sensitivity Analysis**. Vary threshold across a range of magnitudes. Report FPR and class balance for each. If FPR varies >10%, flag threshold as unstable. Output `sensitivity_report.json`.
+- **T033.1 [US3]**: **Implement Sensitivity Analysis Logic**. Explicitly perform sensitivity analysis on the crystallization threshold using a defined range of representative temperature increments., mapping to FR-006.
 - **T034 [US3]**: **Implement Null Model & Permutation Test**. Train mean predictor. Run permutation test (1000 shuffles, p<0.05). Output `permutation_p_value`.
 - **T034.1 [US3]**: **Implement Null Model & Permutation Test Logic**. Explicitly implement a Null Model and Permutation Test, mapping to the scientific soundness requirement for small sample size.
 

@@ -1,0 +1,46 @@
+T007:
+  c: false
+  h: 81c3cff54eedab326f953772147be6adb7aa47bdce95e2b10e0ebd5437f1dfd5
+  r: "The `code/pipeline/pilot_runner.py` file exists, but the provided snippet never\
+    \ writes the execution time to `data/results/pilot_log.json`, and that JSON file\
+    \ is missing from the repository. Consequently the task\u2019s requirement to\
+    \ record the pilot\u2019s runtime in `pilot_log.json` is not fulfilled."
+T011:
+  c: false
+  h: d133942fa1bb44c00cf68ff727cbce0725a76549be51bc868e09a01843de1d44
+  r: "The provided `generate_maps.py` exists but relies on a non\u2011existent `code/config.py`,\
+    \ so it cannot import required parameters (including Nside=512). It only generates\
+    \ a temperature map (no polarization) and never records metadata or saves the\
+    \ map, contrary to the task specification. The missing config file and incomplete\
+    \ functionality must be added."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation was presented showing that corrupted\u2011file\
+    \ handling was added (i.e., logging the error, skipping the realization, and continuing).\
+    \ Without any artifact demonstrating this behavior, the requirement is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No JSON metadata files were presented in the evidence, and there is no code\
+    \ or output showing that the required `data/metadata/{realization_id}_algo_{name}.json`\
+    \ files are created with the keys `algo_name`, `algo_version`, `exec_time_sec`,\
+    \ and `timestamp`. The implementer\u2019s claim cannot be verified without these\
+    \ artifacts."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, log files, or documentation were provided that demonstrate\
+    \ the implementation of convergence\u2011failure handling (logging the failure,\
+    \ recording the gap configuration, and excluding the case from downstream analysis).\
+    \ Without these artifacts, the requirement cannot be verified as met."
+T026:
+  c: false
+  h: effcced12dd76edad97d52161ca29556e7b92192422e5a7f4aa71b065e10257b
+  r: "The provided `tests/integration/test_bias_pipeline.py` is truncated and never\
+    \ reaches any assertion that checks for `data/results/bias_summary.csv` or validates\
+    \ its rows. Moreover, the required `bias_summary.csv` file is absent, indicating\
+    \ the test does not actually generate or verify it. The integration test must\
+    \ contain code that runs the full pipeline (or a suitable mini\u2011pipeline)\
+    \ and then asserts the CSV\u2019s existence and that it contains valid data rows.\
+    \ This is currently missing."

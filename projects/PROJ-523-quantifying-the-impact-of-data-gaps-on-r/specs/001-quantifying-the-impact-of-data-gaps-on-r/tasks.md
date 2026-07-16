@@ -60,13 +60,13 @@
 - [X] T006 [P] Implement `code/data_io.py` for loading/saving HEALPix `.fits` and JSON metadata with checksums (Constitution III, V).
 - [ ] T007 [P] Create `code/pipeline/pilot_runner.py` to execute a fixed minimal subset (1 realization, 1 algorithm, 1 gap fraction) for runtime estimation. Verify the pilot completes successfully and records the execution time in `data/results/pilot_log.json` for budget calculation. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T008 Setup CI workflow (`.github/workflows/ci.yml`) to install dependencies and verify package availability (healpy>=1.15.0) before analysis (Assumption: CI).
-- [ ] T033 [P] Implement `code/pipeline/budget_check.py` (Dynamic Budget Check logic per FR-006):
+- [X] T033 [P] Implement `code/pipeline/budget_check.py` (Dynamic Budget Check logic per FR-006):
  - Run pilot (T007) to estimate runtime.
  - Calculate max N.
  - **Explicit Reduction Logic**: If N < 30, reduce N_fractions first, then N_algos, then N_realizations (down to 30 minimum if budget allows, else halt).
  - Log specific configuration changes (original vs. final N_fractions, N_algos, N_realizations) to `data/results/run_log.yaml`.
  - Output the final configuration (N_realizations, N_fractions, N_algos) for downstream tasks.
-- [ ] T034 [P] Integrate `generate_maps.py` with `pilot_runner.py` and `budget_check.py` via a wrapper script `code/pipeline/integration_hook.py` that orchestrates the budget check and triggers the main analysis with the determined configuration.
+- [X] T034 [P] Integrate `generate_maps.py` with `pilot_runner.py` and `budget_check.py` via a wrapper script `code/pipeline/integration_hook.py` that orchestrates the budget check and triggers the main analysis with the determined configuration.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,12 +82,12 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Contract test in `tests/contract/test_simulation_schema.py`: Function `test_validate_cmmap_schema` must assert that `CMBMap` schema validates a map with `Nside=512` and `gap_fraction` within tolerance.
-- [ ] T010 [P] [US1] Unit test in `tests/unit/test_mask_generation.py`: Function `test_gap_fraction_tolerance` must assert that generated mask pixel count matches target fraction ±0.5%.
+- [X] T009 [P] [US1] Contract test in `tests/contract/test_simulation_schema.py`: Function `test_validate_cmmap_schema` must assert that `CMBMap` schema validates a map with `Nside=512` and `gap_fraction` within tolerance.
+- [X] T010 [P] [US1] Unit test in `tests/unit/test_mask_generation.py`: Function `test_gap_fraction_tolerance` must assert that generated mask pixel count matches target fraction ±0.5%.
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/simulation/generate_maps.py` using `camb` to create ground-truth temperature/polarization maps with Nside=512. **Note**: Ground truth parameters are defined in `code/config.py` and recorded in metadata, not derived from external Planck data.
+- [ ] T011 [US1] Implement `code/simulation/generate_maps.py` using `camb` to create ground-truth temperature/polarization maps with Nside=512. **Note**: Ground truth parameters are defined in `code/config.py` and recorded in metadata, not derived from external Planck data.
 - [X] T012 [US1] Implement `code/simulation/utils.py` to generate gap masks with configurable fraction, spatial distribution (random, clustered), and morphology (point-source, Galactic plane). **Define gap fractions explicitly as a range of discrete thresholds (e.g., 5%, 10%, 15%, [deferred]) to evaluate model sensitivity across varying levels of data sparsity.** to ensure measurable success criteria.
 - [ ] T013 [US1] Implement logic to write ground-truth parameters to `data/metadata/{realization_id}.json`. Read ground-truth values from `code/config.py` or CAMB generation log. Schema MUST include keys: `realization_id`, `H0`, `Omega_m`, `n_s`, `tau`, `seed`, `camb_version`.
 - [ ] T014a1 [US1] Implement function `generate_random_mask` to create random gap masks for standard realizations.
@@ -95,7 +95,7 @@
 - [ ] T014a3 [US1] Implement function `generate_morphology_masks` to create point-source and Galactic plane masks.
 - [ ] T014b1 [US1] Implement function `generate_null_model` to generate Null Model realizations (random gaps uncorrelated with signal).
 - [ ] T014b2 [US1] Implement verification logic to ensure Null Model baseline is correctly established and output to `data/derived/null_model/`.
-- [~] T015 [US1] Add error handling for corrupted files: log error, skip realization, and continue (Edge Case: corrupted files).
+- [ ] T015 [US1] Add error handling for corrupted files: log error, skip realization, and continue (Edge Case: corrupted files).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -118,8 +118,8 @@
 - [X] T020 [P] [US2] Implement `code/gap_filling/wiener_filter.py` (Wiener Filtering) ensuring no NaNs in output.
 - [X] T021 [P] [US2] Implement `code/gap_filling/iterative_synthesis.py` (Iterative Harmonic Synthesis) ensuring no NaNs in output.
 - [X] T022 [US2] Implement `code/analysis/power_spectra.py` using `healpy.anafast` to compute Cℓ for ℓ ≤ 2000.
-- [~] T023 [US2] Implement logic to record algorithm name, version, and execution time in `data/metadata/{realization_id}_algo_{name}.json`. Schema MUST include keys: `algo_name`, `algo_version`, `exec_time_sec`, `timestamp`.
-- [~] T024 [US2] Add convergence failure handling: log failure, record gap config, exclude from analysis (FR-008).
+- [ ] T023 [US2] Implement logic to record algorithm name, version, and execution time in `data/metadata/{realization_id}_algo_{name}.json`. Schema MUST include keys: `algo_name`, `algo_version`, `exec_time_sec`, `timestamp`.
+- [ ] T024 [US2] Add convergence failure handling: log failure, record gap config, exclude from analysis (FR-008).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,12 +134,12 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T025 [P] [US3] Contract test in `tests/contract/test_analysis_schema.py`: Function `test_validate_parameter_posterior` must assert `ParameterPosterior` schema includes `median`, `ci_68`, `ci_95`, `ground_truth`.
-- [~] T026 [P] [US3] Integration test in `tests/integration/test_bias_pipeline.py`: Function `test_full_bias_pipeline` must assert that running the full pipeline produces `data/results/bias_summary.csv` with valid rows.
+- [ ] T026 [P] [US3] Integration test in `tests/integration/test_bias_pipeline.py`: Function `test_full_bias_pipeline` must assert that running the full pipeline produces `data/results/bias_summary.csv` with valid rows.
 
 ### Implementation for User Story 3
 
 - [X] T027a [US3] Implement `code/analysis/custom_likelihood.py` to provide a custom likelihood correction path (alternative to mode-coupling) per FR-009.
-- [ ] T027 [US3] Implement `code/analysis/mode_coupling.py` to calculate the Mode-Coupling (Leakage) Matrix from the gap mask (FR-009). Output to `data/derived/leakage_matrix_{realization_id}.npy`.
+- [X] T027 [US3] Implement `code/analysis/mode_coupling.py` to calculate the Mode-Coupling (Leakage) Matrix from the gap mask (FR-009). Output to `data/derived/leakage_matrix_{realization_id}.npy`.
 - [X] T028c [US3] **Prerequisite**: Implement `code/analysis/generate_grid.py` to generate a **Pre-computed CAMB Likelihood Grid**. This task MUST use the CAMB/CosmoMC pipeline (Constitution VII) to generate a grid of likelihoods for a range of parameters (H₀, Ωₘ, nₛ, τ) and save it to `data/derived/camb_grid.pkl`. This grid will serve as the fast estimator for the main analysis (satisfying Spec FR-004 runtime).
 - [X] T028a [US3] Implement `code/analysis/parameter_est.py` Step 1: Load leakage matrix from T027.
 - [X] T028b [US3] Implement `code/analysis/parameter_est.py` Step 2: Apply leakage matrix to theoretical spectrum to correct the input, then estimate parameters (H₀, Ωₘ, nₛ, τ) by querying the **Pre-computed CAMB Likelihood Grid** (from T028c). Record ground-truth vs. recovered. **Note**: CosmoMC is reserved for spot-checking ≤ 5 realizations as per FR-004. <!-- FAILED: unspecified -->
@@ -160,10 +160,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] Documentation updates in `quickstart.md` with environment setup and pilot run instructions.
+- [~] T035 [P] Documentation updates in `quickstart.md` with environment setup and pilot run instructions.
 - [ ] T036 Code cleanup and refactoring of `code/pipeline/run_analysis.py` to use a generator pattern for memory safety, ensuring peak RAM < 7GB.
-- [ ] T037 Performance optimization: ensure float32 usage where precision allows to fit within 7GB RAM.
-- [ ] T038 [P] Additional unit tests for `mode_coupling.py` and `parameter_est.py` in `tests/unit/`.
+- [~] T037 Performance optimization: ensure float32 usage where precision allows to fit within 7GB RAM.
+- [~] T038 [P] Additional unit tests for `mode_coupling.py` and `parameter_est.py` in `tests/unit/`.
 - [ ] T039 Run full pipeline on a small subset to verify memory and time constraints (Task 3.2).
 - [ ] T040 Run `quickstart.md` validation to ensure reproducibility.
 

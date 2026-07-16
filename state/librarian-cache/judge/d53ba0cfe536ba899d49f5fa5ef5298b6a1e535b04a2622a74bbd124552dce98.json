@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2103.07492",
+  "judged_at": "2026-07-16T07:12:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery degradation from public cycling data with recurrent neural networks materials science",
+  "rationale": "The paper focuses on the general methodology of continual learning for recurrent neural networks across abstract benchmarks (like NLP and robotics) and does not measure battery degradation, analyze public cycling data, or address the specific materials science domain required by the user's question. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific dependent variable (battery degradation), the specific data domain (cycling/battery), and the specific application context, r",
+  "relevant": false
+}

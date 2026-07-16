@@ -1,0 +1,389 @@
+{
+  "fetched_at": "2026-07-16T07:12:10Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 47.202,
+    "ended_at": "2026-07-16T07:12:10Z",
+    "expansion": null,
+    "extracted_queries": [
+      "capacity fade state-of-health estimation lithium-ion",
+      "public EV charging station telemetry BMS logs",
+      "battery health prognostics RNN LSTM GRU",
+      "cycle life prediction accuracy RMSE degradation curve",
+      "electrochemical impedance spectroscopy machine learning surrogate models"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2503.23858"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Networks materials science": 3,
+      "battery health prognostics RNN LSTM GRU": 3,
+      "capacity fade state-of-health estimation lithium-ion": 3,
+      "cycle life prediction accuracy RMSE degradation curve": 3,
+      "electrochemical impedance spectroscopy machine learning surrogate models": 3,
+      "public EV charging station telemetry BMS logs": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2502.01654",
+          "rationale": "The paper focuses on predicting air pollutant concentrations using meteorological data, which is an entirely different domain (environmental science) from the user's question about battery degradation in materials science. While both papers utilize recurrent neural networks (RNNs) and transfer learning, the paper does not measure the same biological pathway, physical observable, or causal mechanism (battery degradation) nor does it study the same empirical population (cycling data related to bat",
+          "title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper proposes a theoretical framework for improving Deep Artificial Neural Networks using polynomial chaos theory but does not address the specific domain of battery degradation, cycling data, or materials science. It fails to meet any inclusion criteria as it lacks the necessary empirical variables, population, or mechanism connection to the user's specific research question, representing only a generic methodological paper without application to the target domain.",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "2103.07492",
+          "rationale": "The paper focuses on the general methodology of continual learning for recurrent neural networks across abstract benchmarks (like NLP and robotics) and does not measure battery degradation, analyze public cycling data, or address the specific materials science domain required by the user's question. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific dependent variable (battery degradation), the specific data domain (cycling/battery), and the specific application context, r",
+          "title": "Continual Learning for Recurrent Neural Networks: an Empirical Evaluation"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper discusses general risks of changing data sources in machine learning for official statistics (e.g., concept drift, bias) but does not address the specific domain of battery degradation, cycling data, or the application of recurrent neural networks to materials science. It fails to meet any inclusion criteria (a-f) as it lacks the necessary mechanism, variables, or empirical population connection to the user's specific research question.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-16T07:11:23Z",
+    "term_input": {
+      "normalized": "predicting battery degradation from public cycling data with recurrent neural networks materials science",
+      "raw": "Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Networks materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Effective thermal management is critical for lithium-ion battery packs' safe and efficient operations, particularly in applications such as drones, where compact designs and varying airflow conditions present unique challenges. This study investigates the thermal performance of a 16-cell lithium-ion battery pack by optimizing cooling airflow configurations and integrating phase change materials (PCMs) for enhanced heat dissipation. Seven geometric configurations were evaluated under airflow speeds ranging from 0 to 15 m/s, reflecting the operational conditions of civilian drones. A comprehensive 3D simulation approach was used to analyze the effects of inlet and outlet configurations, airflow dynamics, and PCM phase transition behavior. Results indicate that the trapezoidal (wide-base) configuration, paired with a 5-inlet and 1-outlet setup, achieves the most balanced performance, effectively maintaining optimal operating temperatures across low and high-speed airflow conditions. PCM integration further stabilized thermal behavior, with phase change durations extending to 12.5 min under tested conditions. These findings highlight the importance of geometric optimization and material integration in advancing compact and reliable thermal management systems for energy-dense battery packs. This study provides a foundation for designing efficient cooling strategies tailored to lightweight applications such as drones and portable energy storage systems.",
+          "claimed_authors": [
+            "Xuguang Zhang",
+            "Hexiang Zhang",
+            "Amjad Almansour",
+            "Mrityunjay Singh",
+            "Hengling Zhu",
+            "Michael C. Halbig",
+            "Yi Zheng"
+          ],
+          "claimed_title": "Comprehensive Analysis of Thermal Dissipation in Lithium-Ion Battery Packs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.07070"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='Comprehensive Analysis of Thermal Dissipation in Lithium-Ion Battery Packs')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper investigates a decentralized optimization methodology to coordinate Electric Vehicles (EV) charging in order to contribute to the voltage control on a residential electrical distribution feeder. This aims to maintain the voltage level in function of the EV's power injection using the sensitivity matrix approach. The decentralized optimization is tested with two different methods, respectively global and local, when EV take into account their impact on all the nodes of the network or only on a local neighborhood of their connection point. EV can also update their decisions asynchronously or synchronously. While only the global approach with asynchronous update is theoretically proven to converge, using results from game theory, simulations show the potential of other algorithms for which fewer iterations or fewer informations are necessary. Finally, using Monte Carlo simulations over a wide range of EV localization configurations, the first analysis have also shown a promising performance in comparison with uncoordinated charging or with a \"voltage droop charging control\" recently proposed in the literature.",
+          "claimed_authors": [
+            "Olivier Beaude",
+            "Yujun He",
+            "Martin Hennebel"
+          ],
+          "claimed_title": "Introducing Decentralized EV Charging Coordination for the Voltage Regulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1509.08497"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='Introducing Decentralized EV Charging Coordination for the Voltage Regulation')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "During the past twelve years, NASA's Fermi Gamma-ray Space Telescope has supported a wide range of Education and Public Outreach (E/PO) activities, targeting K-14 students and the general public. The purpose of the Fermi E/PO program is to increase student and public understanding of the science of the high-energy Universe, through inspiring, engaging and educational activities linked to the mission's science objectives. The E/PO program has additional more general goals, including increasing the diversity of students in the Science, Technology, Engineering and Mathematics (STEM) pipeline, and increasing public awareness and understanding of Fermi science and technology. Fermi's multi-faceted E/PO program includes elements in each major outcome category: Higher Education; Elementary and Secondary Education; Informal Education and Public Outreach.",
+          "claimed_authors": [
+            "Lynn Cominsky",
+            "Kevin McLin",
+            "Aurore Simonnet",
+            "the Fermi Education",
+            "Public Outreach Team"
+          ],
+          "claimed_title": "Twelve Years of Education and Public Outreach with the Fermi Gamma-ray Space Telescope",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0042"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='Twelve Years of Education and Public Outreach with the Fermi Gamma-ray Space Telescope')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing RHCP and LHCP outputs from the antennas vertical (V) and horizontal (H) dipoles in the resonant cavity within the antenna feeds is the current practice of ground-based station receivers in aeronautical telemetry. The equalizers on the market, operate on either LHCP or RHCP alone, or a combined signal created by co-phasing and adding the RHCP and LHCP outputs. In this paper, we show how to optimally combine the V and H dipole outputs and demonstrate that an equalizer operating on this optimally-combined signal outperforms an equalizer operating on the RHCP, LHCP, or the combined signals. Finally, we show how to optimally combine the RHCP and LHCP outputs for equalization, where this optimal combination performs as good as the optimally combined V and H signals.",
+          "claimed_authors": [
+            "Farah Arabian",
+            "Michael Rice"
+          ],
+          "claimed_title": "Polarization diversity and equalization of frequency selective channels in telemetry environment for 16APSK",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.06001"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='Polarization diversity and equalization of frequency selective channels in telemetry environment for 16APSK')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the field of Prognostics and Health Management (PHM), recent years have witnessed a significant surge in the application of machine learning (ML). Despite this growth, the field grapples with a lack of unified guidelines and systematic approaches for effectively implementing these ML techniques and comprehensive analysis regarding industrial open-source data across varied scenarios. To address these gaps, this paper provides a comprehensive review of ML approaches for diagnostics and prognostics of industrial systems using open-source datasets from PHM Data Challenge Competitions held between 2018 and 2023 by PHM Society and IEEE Reliability Society and summarizes a unified ML framework. This review systematically categorizes and scrutinizes the problems, challenges, methodologies, and advancements demonstrated in these competitions, highlighting the evolving role of both conventional machine learning and deep learning in tackling complex industrial tasks related to detection, diagnosis, assessment, and prognosis. Moreover, this paper delves into the common challenges in PHM data challenge competitions by emphasizing data-related and model-related issues and evaluating the limitations of these competitions. The potential solutions to address these challenges are also summarized. Finally, we identify key themes and potential directions for future research, providing opportunities and prospects for next-generation ML-PHM development in PHM domain.",
+          "claimed_authors": [
+            "Hanqi Su",
+            "Jay Lee"
+          ],
+          "claimed_title": "Machine Learning Approaches for Diagnostics and Prognostics of Industrial Systems Using Open Source Data from PHM Data Challenges: A Review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.16810"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='Machine Learning Approaches for Diagnostics and Prognostics of Industrial Systems Using Open Source Data from PHM Data Challenges: A Review')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Advancements in sensing and computing technologies, the development of human and computer interaction frameworks, big data storage capabilities, and the emergence of cloud storage and could computing have resulted in an abundance of data in the modern industry. This data availability has encouraged researchers and industry practitioners to rely on data-based machine learning, especially deep learning, models for fault diagnostics and prognostics more than ever. These models provide unique advantages, however, their performance is heavily dependent on the training data and how well that data represents the test data. This issue mandates fine-tuning and even training the models from scratch when there is a slight change in operating conditions or equipment. Transfer learning is an approach that can remedy this issue by keeping portions of what is learned from previous training and transferring them to the new application. In this paper, a unified definition for transfer learning and its different types is provided, Prognostics and Health Management (PHM) studies that have used transfer learning are reviewed in detail, and finally, a discussion on transfer learning application considerations and gaps is provided for improving the applicability of transfer learning in PHM.",
+          "claimed_authors": [
+            "Ramin Moradi",
+            "Katrina M. Groth"
+          ],
+          "claimed_title": "On the application of transfer learning in prognostics and health management",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.01965"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='On the application of transfer learning in prognostics and health management')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nowadays, prognostics-aware systems are increasingly used in many systems and it is critical for sustaining autonomy. All engineering systems, especially robots, are not perfect. Absence of failures in a certain time is the perfect system and it is impossible practically. In all engineering works, we must try to predict or minimize/prevent failures in the system. Failures in the systems are generally unknown, so prediction of these failures and reliability of the system is made by prediction process. Reliability analysis is important for the improving the system performance, extending system lifetime, etc. Prognostic and Health Management (PHM) includes reliability, safety, predictive fault detection / isolation, advanced diagnostics / prognostics, component lifecycle tracking, health reporting and information management, etc. This study proposes an open source robot prognostic and health management tool using model-based methodology namely \"Prognostics and Health Management tool for ROS\". This tool is a generic tool for using with any kind of robot (mobile robot, robot arm, drone etc.) with compatible with ROS. Some features of this tool are managing / monitoring robots' health, RUL, probability of task completion (PoTC) etc. User is able to enter the necessary equations and components information (hazard rates, robot configuration etc.) to the PHM tool and the other sensory data like temperature, humidity, pressure, load etc. In addition to these, a case study is conducted for the mobile robots (OTA) using this tool.",
+          "claimed_authors": [
+            "Hakan Gencturk",
+            "Elcin Erdogan",
+            "Mustafa Karaca",
+            "Ugur Yayan"
+          ],
+          "claimed_title": "Prognostic and Health Management (PHM) tool for Robot Operating System (ROS)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.09222"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='Prognostic and Health Management (PHM) tool for Robot Operating System (ROS)')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Aims: Optical interferometry from space for the purpose of detecting and characterising exoplanets is seeing a revival, specifically from missions such as the proposed Large Interferometer For Exoplanets (LIFE). A default assumption since the design studies of Darwin and TPF-I has been that the Emma X-array configuration is the optimal architecture for this goal. Here, we examine whether new advances in the field of nulling interferometry, such as the concept of kernel nulling, challenge this assumption.\n  Methods: We develop a tool designed to derive the photon-limited signal to noise ratio of a large sample of simulated planets for different architecture configurations and beam combination schemes. We simulate four basic configurations: the double Bracewell/X-array, and kernel nullers with three, four and five telescopes respectively.\n  Results: We find that a configuration of five telescopes in a pentagonal shape, using a five aperture kernel nulling scheme, outperforms the X-array design in both search (finding more planets) and characterisation (obtaining better signal, faster) when total collecting area is conserved. This is especially the case when trying to detect Earth twins (temperate, rocky planets in the habitable zone), showing a 23% yield increase over the X-array. On average, we find that a five telescope design receives 1.2 times the signal over the X-array design.\n  Conclusions: With the results of this simulation, we conclude that the Emma X-array configuration may not be the best architecture choice for the upcoming LIFE mission, and that a five telescope design utilising kernel nulling concepts will likely provide better scientific return for the same collecting area, provided that technical solutions for the required achromatic phase shifts can be implemented.",
+          "claimed_authors": [
+            "Jonah T. Hansen",
+            "Michael J. Ireland",
+            "the LIFE Collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): IV. Ideal kernel-nulling array architectures for a space-based mid-infrared nulling interferometer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.04891"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='Large Interferometer For Exoplanets (LIFE): IV. Ideal kernel-nulling array architectures for a space-based mid-infrared nulling interferometer')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Following the recommendations to NASA and ESA, the search for life on exoplanets will be a priority in the next decades. Two direct imaging space mission concepts are being developed: the Habitable Worlds Observatory (HWO) and the Large Interferometer for Exoplanets (LIFE). HWO focuses on reflected light spectra in the ultraviolet/visible/near-infrared (UV/VIS/NIR), while LIFE captures the mid-infrared (MIR) emission of temperate exoplanets. We assess the potential of HWO and LIFE in characterizing a cloud-free Earth twin orbiting a Sun-like star at 10 pc, both separately and synergistically, aiming to quantify the increase in information from joint atmospheric retrievals on a habitable planet. We perform Bayesian retrievals on simulated data from an HWO-like and a LIFE-like mission separately, then jointly, considering the baseline spectral resolutions currently assumed for these concepts and using two increasingly complex noise simulations. HWO would constrain H$_2$O, O$_2$, and O$_3$, in the atmosphere, with ~ 100 K uncertainty on the temperature profile. LIFE would constrain CO$_2$, H$_2$O, O$_3$ and provide constraints on the thermal atmospheric structure and surface temperature (~ 10 K uncertainty). Both missions would provide an upper limit on CH$_4$. Joint retrievals on HWO and LIFE data would accurately define the atmospheric thermal profile and planetary parameters, decisively constrain CO$_2$, H$_2$O, O$_2$, and O$_3$, and weakly constrain CO and CH$_4$. The detection significance is greater or equal to single-instrument retrievals. Both missions provide specific information to characterize a terrestrial habitable exoplanet, but the scientific yield is maximized with synergistic UV/VIS/NIR+MIR observations. Using HWO and LIFE together will provide stronger constraints on biosignatures and life indicators, potentially transforming the search for life in the universe.",
+          "claimed_authors": [
+            "E. Alei",
+            "S. P. Quanz",
+            "B. S. Konrad",
+            "E. O. Garvin",
+            "V. Kofman",
+            "A. Mandell",
+            "D. Angerhausen",
+            "P. Mollière",
+            "M. R. Meyer",
+            "T. Robinson",
+            "S. Rugheimer",
+            "the LIFE Collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): XIII. The Value of Combining Thermal Emission and Reflected Light for the Characterization of Earth Twins",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.13037"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='Large Interferometer For Exoplanets (LIFE): XIII. The Value of Combining Thermal Emission and Reflected Light for the Characterization of Earth Twins')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Large Interferometer For Exoplanets (LIFE) initiative aims to develop a space based mid-infrared (MIR) nulling interferometer to measure the thermal emission spectra of temperate terrestrial exoplanets.\n  We investigate how well LIFE could characterize a cloudy Venus-twin exoplanet to: (1) test our retrieval routine on a realistic non-Earth-like MIR spectrum of a known planet, (2) investigate how clouds impact retrievals, (3) refine the LIFE requirements derived in previous Earth-centered studies.\n  We run retrievals for simulated LIFE observations of a Venus-twin exoplanet orbiting a Sun-like star located 10 pc from the observer. By assuming different models (cloudy and cloud-free) we analyze the performance as a function of the quality of the LIFE observation. This allows us to determine how well atmosphere and clouds are characterizable depending on the quality of the spectrum.\n  Our study shows that the current minimal resolution ($R=50$) and signal-to-noise ($S/N=10$ at $11.2μ$m) requirements for LIFE suffice to characterize the structure and composition of a Venus-like atmosphere above the cloud deck if an adequate model is chosen. However, we cannot infer cloud properties. The accuracy of the retrieved planet radius ($R_{pl}$), equilibrium temperature ($T_{eq}$), and Bond albedo ($A_B$) depend on the choice of model. Generally, a cloud-free model performs best and thus the presence of clouds cannot be inferred. This model dependence of retrieval results emphasizes the importance of developing a community-wide best-practice for atmospheric retrieval studies. If we consider higher quality spectra (especially $S/N=20$), we can infer the presence of clouds and pose first constraints on their structure.",
+          "claimed_authors": [
+            "B. S. Konrad",
+            "E. Alei",
+            "S. P. Quanz",
+            "P. Mollière",
+            "D. Angerhausen",
+            "J. J. Fortney",
+            "K. Hakim",
+            "S. Jordan",
+            "D. Kitzmann",
+            "S. Rugheimer",
+            "O. Shorttle",
+            "R. Wordsworth",
+            "the LIFE Collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): IX. Assessing the Impact of Clouds on Atmospheric Retrievals at Mid-Infrared Wavelengths with a Venus-Twin Exoplanet",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.04727"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='Large Interferometer For Exoplanets (LIFE): IX. Assessing the Impact of Clouds on Atmospheric Retrievals at Mid-Infrared Wavelengths with a Venus-Twin Exoplanet')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Ne', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-07-16T07:11:54Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vijay A. Sethuraman"
+          ],
+          "title": "Capacity Fade due to Side-reactions in Silicon Anodes in Lithium-ion Batteries",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1201.1429",
+        "summary": "It is shown that continuously occurring electrolyte-reduction reaction on freshly-exposed electrode surfaces during lithiation/delithiation cycles causes the lowering of cycling efficiency, and hence, capacity fade in well-cycled silicon anodes in lithium-ion batteries. Using galvanostatic lithiation/delithiation data from multiple cycles on a Li/Si half-cell, a methodology to separate the charge due to the main reaction (lithiation/delithiation of Si) from the side-reaction (electrolyte-reduction) is presented. The rate of this parasitic side reaction is estimated on well-cycled amorphous silicon thin-film electrodes at ambient temperature for the following three commonly-used lithium-ion electrolyte formulations: mixtures of ethylene carbonate and diethylene carbonate (EC:DEC) with and without a fluoroethylene carbonate (FEC) additive, and propylene carbonate (PC), all containing 1.2 M lithium hexafluorophosphate. Among the three formulations, the electrolyte containing EC:DEC with the FEC additive exhibits the lowest coulombic losses due to side-reactions, followed by PC, and EC:DEC without the FEC additive (i.e., EC:DEC + FEC > PC > EC:DEC). The importance of estimating side-reaction rates on a well-cycled electrode is discussed in the context of self-discharge, capacity fade, development of battery management system algorithms and precise mathematical modeling of lithium-ion batteries.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1201.1429",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T07:11:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chenyu Jia",
+            "Guangshu Xia",
+            "Yuanhao Shi",
+            "Jianfang Jia",
+            "Jie Wen",
+            "Jianchao Zeng"
+          ],
+          "title": "Incremental capacity-based multi-feature fusion model for predicting state-of-health of lithium-ion batteries",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.23858",
+        "summary": "Lithium-ion batteries have become an indispensable part of human industrial production and daily life. For the safe use, management and maintenance of lithium-ion batteries, the state of health (SOH) of lithium-ion batteries is an important indicator so that the SOH estimation is of significant practical value. In order to accurately predict SOH, this paper proposes a fusion prediction model which combines particle swarm optimization (PSO) algorithm, bi-directional long-short time memory network (BiLSTM) and adaptive boosting (AdaBoost) algorithm. In the proposed prediction model, indirect health indicators (HIs), which characterize battery degradation, are obtained with the help of incremental capacity analysis (ICA), and is fed into BiLSTM to extract time-series features, whose parameters are optimized by employing PSO algorithm. On this basis, the AdaBoost algorithm is applied to reduce the risk of overfitting the PSO-BiLSTM model. The study based on lithium-ion battery data from Center for Advanced Life Cycle Engineering (CALCE) shows that the PSO-BiLSTM-AdaBoost model has higher accuracy, better robustness, and generalization ability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.23858",
+          "http_status": 200,
+          "pdf_sample_score": 0.2355,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T07:11:54Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting battery degradation from public cycling data with recurrent neural networks materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

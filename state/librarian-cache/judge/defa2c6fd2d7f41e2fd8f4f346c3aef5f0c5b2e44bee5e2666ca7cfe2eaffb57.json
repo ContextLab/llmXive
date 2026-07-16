@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-07-16T07:12:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery degradation from public cycling data with recurrent neural networks materials science",
+  "rationale": "The paper proposes a theoretical framework for improving Deep Artificial Neural Networks using polynomial chaos theory but does not address the specific domain of battery degradation, cycling data, or materials science. It fails to meet any inclusion criteria as it lacks the necessary empirical variables, population, or mechanism connection to the user's specific research question, representing only a generic methodological paper without application to the target domain.",
+  "relevant": false
+}

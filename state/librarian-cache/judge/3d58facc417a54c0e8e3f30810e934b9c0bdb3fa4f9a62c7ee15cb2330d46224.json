@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1201.1429",
+  "judged_at": "2026-07-16T07:12:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery degradation from public cycling data with recurrent neural networks materials science",
+  "rationale": "This paper satisfies criterion (a) by providing direct evidence on the specific biological/physical mechanism of battery degradation (capacity fade due to side-reactions in silicon anodes) and criterion (b) by measuring the dependent variable (capacity fade) on the user's domain (lithium-ion batteries), serving as essential foundational material for the \"materials science\" aspect of the user's literature review.",
+  "relevant": true
+}

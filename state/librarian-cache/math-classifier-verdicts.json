@@ -219,6 +219,10 @@
     "classified_at": "2026-06-16T08:26:08Z",
     "verdict": false
   },
+  "PROJ-193-predicting-battery-degradation-from-publ::1.6.0": {
+    "classified_at": "2026-07-16T07:11:52Z",
+    "verdict": false
+  },
   "PROJ-196-the-role-of-temporal-discounting-in-proc::1.6.0": {
     "classified_at": "2026-06-28T21:45:50Z",
     "verdict": false

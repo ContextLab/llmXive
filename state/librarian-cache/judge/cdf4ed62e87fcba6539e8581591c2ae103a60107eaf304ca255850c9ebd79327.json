@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.23858",
+  "judged_at": "2026-07-16T07:12:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery degradation from public cycling data with recurrent neural networks materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same biological/physical mechanism (battery degradation/state-of-health) and dependent variable (SOH prediction) using a recurrent neural network architecture (BiLSTM), which is the core methodological component of the user's question, even though the specific data source (CALCE lab data vs. public cycling data) differs.",
+  "relevant": true
+}

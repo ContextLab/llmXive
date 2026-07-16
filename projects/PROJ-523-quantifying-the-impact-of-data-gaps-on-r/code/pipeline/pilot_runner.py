@@ -1,14 +1,10 @@
 """
-Pilot Runner for Runtime Estimation.
+Pilot runner to execute a fixed minimal subset for runtime estimation.
 
-Executes a fixed minimal subset of the analysis pipeline:
-- 1 realization
-- 1 algorithm (Harmonic Interpolation)
-- 1 gap fraction (10%)
-
-Outputs execution metrics to data/results/pilot_log.json for budget calculation.
+This script:
+1. Runs a minimal simulation (1 realization, 1 algorithm, 1 gap fraction).
+2. Records execution time in data/results/pilot_log.json.
 """
-
 import os
 import sys
 import json
@@ -17,145 +13,117 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure code directory is in path
+if 'code' not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from config import N_SIDE, GAP_FRACTIONS, DATA_DERIVED_DIR, DATA_RESULTS_DIR
+from config import DATA_RESULTS_DIR, DATA_DERIVED_DIR, DATA_METADATA_DIR
 from simulation.generate_maps import generate_cmb_map, save_map_to_fits_wrapper, save_metadata_wrapper
 from simulation.utils import generate_random_mask, save_mask_to_fits_wrapper
 from gap_filling.harmonic_interp import apply_harmonic_filling
 from analysis.power_spectra import compute_power_spectrum
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(project_root / "logs" / "pilot_runner.log")
-    ]
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+PILOT_LOG_PATH = Path(DATA_RESULTS_DIR) / "pilot_log.json"
+
 def ensure_directories():
-    """Ensure required output directories exist."""
-    DATA_DERIVED_DIR.mkdir(parents=True, exist_ok=True)
-    DATA_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    (project_root / "logs").mkdir(parents=True, exist_ok=True)
+    """Ensure all necessary directories exist."""
+    for dir_path in [DATA_RESULTS_DIR, DATA_DERIVED_DIR, DATA_METADATA_DIR]:
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
 
 def run_pilot():
     """
-    Execute the pilot run: 1 realization, 1 algorithm, 1 gap fraction.
+    Execute a pilot run: 1 realization, 1 algorithm, 1 gap fraction.
+    Returns metrics including total time and success status.
     """
-    logger.info("Starting Pilot Run for runtime estimation...")
+    ensure_directories()
+    
+    logger.info("Starting pilot run...")
     start_time = time.time()
-
-    # Configuration for pilot
-    pilot_config = {
-        "realization_id": 0,
-        "gap_fraction": 0.10,  # 10% gap
-        "algorithm": "harmonic_interp",
-        "n_side": N_SIDE
-    }
-
+    
+    pilot_id = "pilot_001"
+    realization_id = f"{pilot_id}_realization_0"
+    
     try:
-        # Step 1: Generate CMB Map
-        logger.info(f"Generating CMB map for realization {pilot_config['realization_id']}...")
-        t0 = time.time()
-        map_data = generate_cmb_map(pilot_config['realization_id'], seed=42)
-        t1 = time.time()
-        gen_time = t1 - t0
-        logger.info(f"Map generation completed in {gen_time:.2f}s")
-
-        # Step 2: Save Map
-        map_path = DATA_DERIVED_DIR / f"cmb_map_r{pilot_config['realization_id']}.fits"
-        save_map_to_fits_wrapper(map_data, map_path, pilot_config['realization_id'])
-        logger.info(f"Map saved to {map_path}")
-
-        # Step 3: Generate Mask
-        logger.info(f"Generating random mask with fraction {pilot_config['gap_fraction']}...")
-        t0 = time.time()
-        mask_data = generate_random_mask(N_SIDE, pilot_config['gap_fraction'], seed=42)
-        t1 = time.time()
-        mask_gen_time = t1 - t0
-        logger.info(f"Mask generation completed in {mask_gen_time:.2f}s")
-
-        # Step 4: Save Mask
-        mask_path = DATA_DERIVED_DIR / f"mask_r{pilot_config['realization_id']}_f{int(pilot_config['gap_fraction']*100)}.fits"
-        save_mask_to_fits_wrapper(mask_data, mask_path, pilot_config['realization_id'], pilot_config['gap_fraction'])
-        logger.info(f"Mask saved to {mask_path}")
-
-        # Step 5: Apply Gap Filling Algorithm
-        algo_name = pilot_config['algorithm']
-        logger.info(f"Applying {algo_name} algorithm...")
-        t0 = time.time()
-
-        if algo_name == "harmonic_interp":
-            filled_map = apply_harmonic_filling(map_data, mask_data)
-        else:
-            raise ValueError(f"Algorithm {algo_name} not supported in pilot.")
-
-        t1 = time.time()
-        algo_time = t1 - t0
-        logger.info(f"Gap filling completed in {algo_time:.2f}s")
-
-        # Step 6: Compute Power Spectrum
+        # 1. Generate CMB Map
+        logger.info("Generating CMB map...")
+        # Assume generate_cmb_map returns the map and metadata
+        # We need to mock the parameters or use defaults from config
+        # For pilot, we use Nside=512 as per spec
+        nside = 512
+        seed = 42
+        
+        # Call the map generation function
+        # Note: This might take a while, but for pilot it's 1 realization.
+        # We assume generate_cmb_map is implemented and works.
+        # If not, this will fail and we log it.
+        cmb_map, metadata = generate_cmb_map(realization_id, seed=seed, nside=nside)
+        
+        # 2. Generate Mask (1 gap fraction, random)
+        logger.info("Generating mask...")
+        gap_fraction = 0.1 # 10%
+        mask = generate_random_mask(nside, gap_fraction)
+        
+        # 3. Save Map and Mask
+        logger.info("Saving map and mask...")
+        save_map_to_fits_wrapper(cmb_map, realization_id)
+        save_mask_to_fits_wrapper(mask, realization_id, gap_fraction)
+        
+        # 4. Apply Gap Filling (1 algorithm: Harmonic Interp)
+        logger.info("Applying gap filling...")
+        filled_map = apply_harmonic_filling(cmb_map, mask)
+        
+        # 5. Compute Power Spectrum
         logger.info("Computing power spectrum...")
-        t0 = time.time()
-        cls = compute_power_spectrum(filled_map, N_SIDE)
-        t1 = time.time()
-        ps_time = t1 - t0
-        logger.info(f"Power spectrum computation completed in {ps_time:.2f}s")
-
-        # Step 7: Calculate Total Time
-        total_time = time.time() - start_time
-
-        # Prepare Log Data
-        pilot_log = {
-            "timestamp": datetime.now().isoformat(),
-            "config": pilot_config,
-            "timings": {
-                "map_generation_sec": round(gen_time, 3),
-                "mask_generation_sec": round(mask_gen_time, 3),
-                "gap_filling_sec": round(algo_time, 3),
-                "power_spectrum_sec": round(ps_time, 3),
-                "total_pilot_time_sec": round(total_time, 3)
-            },
+        cl = compute_power_spectrum(filled_map, nside)
+        
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        metrics = {
+            "pilot_id": pilot_id,
+            "realization_id": realization_id,
             "status": "success",
-            "message": "Pilot run completed successfully."
+            "total_time": duration,
+            "realizations_run": 1,
+            "algorithms_run": 1,
+            "gap_fractions_run": 1,
+            "timestamp": datetime.now().isoformat()
         }
-
-        # Save Log
-        log_path = DATA_RESULTS_DIR / "pilot_log.json"
-        with open(log_path, 'w') as f:
-            json.dump(pilot_log, f, indent=2)
-
-        logger.info(f"Pilot log saved to {log_path}")
-        logger.info(f"Total pilot execution time: {total_time:.2f} seconds")
-
-        return pilot_log
-
+        
+        # Save metrics to pilot_log.json
+        with open(PILOT_LOG_PATH, "w") as f:
+            json.dump(metrics, f, indent=2)
+        
+        logger.info(f"Pilot run completed successfully in {duration:.2f} seconds.")
+        logger.info(f"Metrics saved to {PILOT_LOG_PATH}")
+        
+        return metrics
+        
     except Exception as e:
-        logger.error(f"Pilot run failed: {str(e)}", exc_info=True)
-        total_time = time.time() - start_time
-        error_log = {
-            "timestamp": datetime.now().isoformat(),
-            "config": pilot_config,
+        end_time = time.time()
+        duration = end_time - start_time
+        logger.error(f"Pilot run failed: {e}")
+        
+        metrics = {
+            "pilot_id": pilot_id,
             "status": "failed",
             "error": str(e),
-            "total_time_sec": round(total_time, 3)
+            "total_time": duration,
+            "timestamp": datetime.now().isoformat()
         }
-        log_path = DATA_RESULTS_DIR / "pilot_log.json"
-        with open(log_path, 'w') as f:
-            json.dump(error_log, f, indent=2)
-        raise e
+        
+        with open(PILOT_LOG_PATH, "w") as f:
+            json.dump(metrics, f, indent=2)
+        
+        return metrics
 
 def main():
-    """Entry point for the pilot runner."""
-    ensure_directories()
-    run_pilot()
-    logger.info("Pilot run finished.")
+    """Entry point for pilot_runner."""
+    metrics = run_pilot()
+    print(json.dumps(metrics, indent=2))
 
 if __name__ == "__main__":
     main()

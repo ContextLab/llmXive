@@ -1,25 +1,10 @@
-? 'T007 [P] Create `code/pipeline/pilot_runner.py` to execute a fixed minimal subset
-  (1 realization, 1 algorithm, 1 gap fraction) for runtime estimation. Verify the
-  pilot completes successfully and records the execution time in `data/results/pilot_log.json`
-  for budget calculation. <!-- ATOMIZE: requested -->'
-: 1
-? 'T007 [P] Create `code/pipeline/pilot_runner.py` to execute a fixed minimal subset
-  (1 realization, 1 algorithm, 1 gap fraction) for runtime estimation. Verify the
-  pilot completes successfully and records the execution time in `data/results/pilot_log.json`
-  for budget calculation. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
-: 2
-? 'T008 Setup CI workflow (`.github/workflows/ci.yml`) to install dependencies and
-  verify package availability (healpy>=1.15.0) before analysis (Assumption: CI).'
-: 1
-? 'T009 [P] [US1] Contract test in `tests/contract/test_simulation_schema.py`: Function
-  `test_validate_cmmap_schema` must assert that `CMBMap` schema validates a map with
-  `Nside=512` and `gap_fraction` within tolerance.'
-: 1
-? "T010 [P] [US1] Unit test in `tests/unit/test_mask_generation.py`: Function `test_gap_fraction_tolerance`\
-  \ must assert that generated mask pixel count matches target fraction \xB10.5%."
-: 1
-'T033 [P] Implement `code/pipeline/budget_check.py` (Dynamic Budget Check logic per FR-006):': 1
-? T034 [P] Integrate `generate_maps.py` with `pilot_runner.py` and `budget_check.py`
-  via a wrapper script `code/pipeline/integration_hook.py` that orchestrates the budget
-  check and triggers the main analysis with the determined configuration.
-: 1
+T007: 1
+T008: 1
+T011: 1
+T013: 1
+T015: 1
+T023: 1
+T024: 1
+T026: 1
+T030: 1
+T036: 1
