@@ -1,0 +1,195 @@
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Empty log returns drift score of 1.0
+  claim_id: c_a18c15e0
+  context: 'Unit test for empty/whitespace log handling: implement test_empty_log_returns_drift_score_1_0
+    in ... using data/test_empty_log.json and asserting result[''drift_score''] ==
+    1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement unit test for empty/whitespace log handling... asserting result['drift_score']
+    == 1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:53:19Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Batch processing of 5000 logs uses less than 4GB peak memory
+  claim_id: c_2a98696d
+  context: 'Integration test for batch processing memory limits: implement test_batch_memory_limit_4gb
+    in ... using a dataset of 5000 logs and asserting peak_memory < 4GB'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_processing_of_5000_logs_uses_less_than_4GB_peak_memory
+  kind: magnitude
+  raw_text: Implement integration test for batch processing memory limits... using
+    a dataset of 5000 logs and asserting peak_memory < 4GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:57:00Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Batch processing handles large datasets within 7GB RAM
+  claim_id: c_0eb310ad
+  context: Implement batch_process_logs function in drift_scoring.py with memory limits
+    to handle large datasets within 7GB RAM
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_processing_handles_large_datasets_within_7GB_RAM
+  kind: entity_fact
+  raw_text: Implement batch_process_logs function in drift_scoring.py with memory
+    limits to handle large datasets within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:57:12Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Empty logs assigned drift score of 1.0
+  claim_id: c_782f471e
+  context: Add logic to handle empty/whitespace logs by assigning a Drift Score of
+    1.0 and explicitly adding a 'review_flag' column to the output CSV set to 'true'
+    for these records
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add logic to handle empty/whitespace logs by assigning a Drift Score of
+    1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:57:14Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Inter-annotator agreement kappa greater than 0.6
+  claim_id: c_d42d629d
+  context: Implement inter-annotator agreement (Kappa) calculation in validation.py
+    using sklearn.metrics.cohen_kappa_score on merged annotations (using T021c output),
+    with verification step assert kappa > 0.6
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inter-annotator_agreement_kappa_greater_than_0.6
+  kind: magnitude
+  raw_text: Implement inter-annotator agreement (Kappa) calculation... with verification
+    step assert kappa > 0.6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:57:21Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Local zero-shot classifier uses all-MiniLM-L6-v2
+  claim_id: c_16724a70
+  context: Implement comparison.py in ... to run a local zero-shot classifier using
+    all-MiniLM-L6-v2 with a fixed prompt template from contracts/safety_prompt_v1.txt
+    on data/processed/merged_annotations.csv
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Local_zero-shot_classifier_uses_all-MiniLM-L6-v2
+  kind: entity_fact
+  raw_text: Implement comparison.py to run a local zero-shot classifier using all-MiniLM-L6-v2
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:57:28Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Flag computationally efficient alternative if AUC difference is less
+    than or equal to 0.10
+  claim_id: c_96d49df3
+  context: "Add logic to flag 'computationally efficient alternative' if |AUC_drift\
+    \ - AUC_llm| \u2264 0.10"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_computationally_efficient_alternative_if_AUC_difference
+  kind: magnitude
+  raw_text: "Add logic to flag 'computationally efficient alternative' if |AUC_drift\
+    \ - AUC_llm| \u2264 0.10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:57:40Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Large-scale log benchmark of 500 logs completes in 30 minutes
+  claim_id: c_38f309e0
+  context: "Implement benchmark_performance.py in ... to run a large-scale log benchmark\
+    \ (500 logs) and assert completion time \u2264 30 minutes (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run a large-scale log benchmark (500 logs) and assert completion time\
+    \ \u2264 30 minutes"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:57:47Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: AgentDoG 1.5 taxonomy downloaded from Hugging Face agentdog/taxonomy-v1.5
+  claim_id: c_715c866a
+  context: Implement fetch_taxonomy function in data_loader.py to download the AgentDoG
+    1.5 taxonomy definition from the verified Hugging Face dataset source (e.g., agentdog/taxonomy-v1.5
+    or the specific URL provided in plan.md)
+  evidence:
+    asserted: '1.5'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Download the AgentDoG 1.5 taxonomy definition from the verified Hugging
+    Face dataset source (e.g., agentdog/taxonomy-v1.5)
+  resolved_value: '2.7'
+  resolver: approximate
+  source_hash: a9ca6a5760937360ff7089e18ec199bd13bfdabbc3e1d7e4c21fb58e03340b79
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T16:57:47Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Centroid embeddings generated using all-MiniLM-L6-v2 fitting under 100MB
+    RAM
+  claim_id: c_400454ca
+  context: Implement taxonomy_builder.py in ... to generate centroid embeddings using
+    all-MiniLM-L6-v2 (CPU-first, batched to fit <100MB RAM) using the taxonomy fetched
+    by T005d
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Centroid_embeddings_generated_using_all-MiniLM-L6-v2_fitting
+  kind: entity_fact
+  raw_text: Generate centroid embeddings using all-MiniLM-L6-v2 (CPU-first, batched
+    to fit <100MB RAM)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:57:55Z'

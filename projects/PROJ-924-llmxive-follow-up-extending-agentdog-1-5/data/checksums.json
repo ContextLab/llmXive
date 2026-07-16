@@ -1,0 +1,23 @@
+{
+  "advbench": {
+    "file": "data/raw/advbench.json",
+    "algorithm": "sha256",
+    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "source": "datasets.load_dataset('advbench')"
+  },
+  "hf4": {
+    "file": "data/raw/hf4.json",
+    "algorithm": "sha256",
+    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "source": "datasets.load_dataset('agentdog/hf4')"
+  },
+  "taxonomy": {
+    "file": "data/raw/taxonomy.json",
+    "algorithm": "sha256",
+    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "source": "datasets.load_dataset('agentdog/taxonomy-v1.5')"
+  }
+}

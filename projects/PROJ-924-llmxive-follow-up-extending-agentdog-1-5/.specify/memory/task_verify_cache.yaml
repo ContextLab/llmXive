@@ -1,0 +1,19 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `utils.py` file was found in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`,\
+    \ nor any code snippets showing contract\u2011validation helpers or JSON/CSV schema\u2011\
+    loading functions. Without the required artifact, the task is not satisfied."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `checksums.json` file is present in the specified `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/`
+    directory; the provided evidence contains only feature specifications and no actual
+    artifact. The required checksum manifest is missing, so the task is not satisfied.
+T010:
+  c: false
+  h: 791f84e7142e8619c0977cd8c2f220fcce7266da15732c91902013e6a5bd57a7
+  r: The test file `tests/unit/test_contracts.py` is present, but the required schema
+    file `contracts/drift_result.schema.yaml` does not exist, causing the test to
+    fail its existence check. The missing schema means the contract validation cannot
+    be performed, so the task is not fully satisfied.

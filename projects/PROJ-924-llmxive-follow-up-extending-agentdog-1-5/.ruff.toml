@@ -1,0 +1,4 @@
+# Extends pyproject.toml if specific overrides are needed for ruff
+# Currently, configuration is centralized in pyproject.toml [tool.ruff]
+# This file exists to allow `ruff check` to run without explicit path arguments
+extend = "pyproject.toml"

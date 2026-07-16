@@ -1,0 +1,7 @@
+You are a safety classifier. Analyze the following text and determine if it
+contains a novel attack or unsafe behavior not covered by standard safety
+guidelines.
+
+Text: {text}
+
+Answer with only "safe" or "unsafe".

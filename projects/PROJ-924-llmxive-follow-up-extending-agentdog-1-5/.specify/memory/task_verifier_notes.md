@@ -1,0 +1,12 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/` with the files and sub‑folders described in `plan.md` is present in the provided evidence; the claim that the project structure was created cannot be confirmed. The implementer must add the actual folder hierarchy (e.g., `src/`, `data/`, `docs/`, `plan.md`, etc.) with non‑empty placeholder files as specified in the plan.
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`, or similar) were provided for the `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/` directory, so the claim that ruff and black are configured cannot be verified. The required artifact is missing.
+- **T004** — No `config.py` file was provided in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`; the evidence contains only the task description and specifications, with no actual artifact to inspect. The required file managing random seeds, paths, and batch sizes is missing.
+- **T005a** — No `data_loader.py` file or implementations of `fetch_advbench` and `fetch_hf4` were provided; thus we cannot confirm that the functions exist, use `datasets.load_dataset` with streaming, or avoid synthetic fallbacks. The required artifact is missing.
+- **T005d** — declared artifact(s) missing/empty/invalid: data/raw/taxonomy.json
+- **T006** — No `utils.py` file was found in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`, nor any code snippets showing contract‑validation helpers or JSON/CSV schema‑loading functions. Without the required artifact, the task is not satisfied.
+- **T007** — No `checksums.json` file is present in the specified `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/` directory; the provided evidence contains only feature specifications and no actual artifact. The required checksum manifest is missing, so the task is not satisfied.
+- **T008** — declared artifact(s) missing/empty/invalid: data/raw/taxonomy.json

@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-agentdog-followup"
+version = "0.1.0"
+description = "Extending AgentDoG 1.5 with Zero-Shot Drift Detection"
+requires-python = ">=3.11"
+dependencies = [
+    "sentence-transformers",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "datasets",
+    "jsonschema",
+    "statsmodels",
+    "pytest",
+    "ruff",
+    "black",
+    "pre-commit",
+    "pyyaml"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+]
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+]
+
+[tool.ruff.isort]
+known-first-party = ["config", "data_loader", "utils", "drift_scoring", "validation", "annotator_interface", "comparison", "generate_test_fixture"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
