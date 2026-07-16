@@ -1,0 +1,13 @@
+rdkit
+torch
+torch-geometric
+scikit-learn
+pandas
+numpy
+pyyaml
+requests
+pytest
+ruff
+black
+matplotlib
+seaborn

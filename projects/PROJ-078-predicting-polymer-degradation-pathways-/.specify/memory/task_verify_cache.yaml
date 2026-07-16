@@ -1,0 +1,51 @@
+T009:
+  c: false
+  h: 2a525523383cc1bc2d5bfbd6e9d0d7e288e23ffaff2884f60867c65a8fcc431f
+  r: "The required unit test file `tests/unit/test_ingest.py` does not exist, so the\
+    \ specific test `test_smiles_validation_rejects_invalid` cannot be present or\
+    \ verified. Without the file and test implementation, the task\u2019s requirement\
+    \ is unmet."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `ingest.py` script or any code, data, or logs were provided; therefore we\
+    \ cannot confirm that records are downloaded with rate\u2011limit backoff or that\
+    \ the required functionality (FR\u2011001, FR\u2011008) is implemented. The required\
+    \ artifact is missing."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `ingest.py` script or any code snippet was presented, so there is no evidence\
+    \ that a file exists, contains logic to check for explicit \u201Cdegradation pathway\u201D\
+    \ labels, and excludes records lacking them. The required artifact is missing,\
+    \ preventing verification that the task\u2019s requirement was met."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `preprocess.py` script (or any code) is presented, and there is no log file
+    showing excluded records; thus the required artifact that converts SMILES to RDKit
+    graphs, filters out missing temperature/pH/UV entries, and logs those exclusions
+    is missing. The implementer must provide the actual script and a sample log demonstrating
+    the exclusion behavior.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `preprocess.py` script or any code implementing SMILES\u2011based polyester\
+    \ detection was provided, nor any example input/output showing that non\u2011\
+    polyester records are filtered out. Without the actual artifact, the requirement\
+    \ cannot be verified."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The task requires saving raw and processed datasets to `data/raw/` and `data/processed/`
+    with checksums. However, there are no artifacts present on disk to verify this
+    claim. The provided evidence consists only of the task description and project
+    requirements, and no actual data files or checksums are available for inspection.
+    Therefore, it's impossible to confirm whether the datasets were saved as requested
+    or if checksums were generated.
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `model.py` file or any code defining a GNN architecture is provided; the\
+    \ evidence contains no artifact showing \u22643\u2011layer, hidden\u2011dim \u2264\
+    128, CPU\u2011only model implementation, so the requirement is not satisfied."

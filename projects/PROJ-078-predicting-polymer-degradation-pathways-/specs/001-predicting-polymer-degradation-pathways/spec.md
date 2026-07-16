@@ -49,7 +49,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** the model's predictions on the test set, **When** a permutation test is performed by shuffling input motifs 1000 times, **Then** the report includes the calculated p-value comparing the observed motif importance against the permuted null distribution.
+1. **Given** the model's predictions on the test set, **When** a permutation test is performed by shuffling input motifs a sufficient number of times, **Then** the report includes the calculated p-value comparing the observed motif importance against the permuted null distribution.
 2. **Given** the model has identified feature importances, **When** the reporting script aggregates these across the dataset, **Then** the output report lists at least 3 distinct structural motifs (e.g., "aromatic ring proximity to ester bond") with their correlation strength to specific degradation types.
 3. **Given** the model identifies a potential degradation pathway, **When** the confidence score is below a defined threshold (e.g., <0.6), **Then** the report flags this prediction as "low confidence" to prevent over-interpretation of uncertain results.
 
