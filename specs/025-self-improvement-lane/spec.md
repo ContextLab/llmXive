@@ -17,7 +17,7 @@ Governed by the constitution ([.specify/memory/constitution.md](../../.specify/m
 
 **In scope**: the two discovery crons; the candidate lifecycle and transactional store; the pre-implementation proposal gate; the isolated implementation executor; the trusted evaluation + promotion path (shadow → canary branch); post-merge monitoring + auto-revert + circuit breakers; the default-off live-main flag; About-page/docs; the GitHub App setup walkthrough.
 
-**Out of scope (separate prerequisite work)**: the **platform-wide model-selection consolidation**. Re-pointing *every* model-selection site (registry defaults, router peer chains `MODEL_FALLBACKS`, the execution tier-ladder, catalog filtering, and the many direct model pins) is a broad refactor not required to deliver the two crons. This spec **defines and consumes** a minimal `select(requirement) -> ModelChain` interface (FR-001–FR-004); the full migration of existing call sites is deferred to its **own spec** (provisionally `026-model-selection-consolidation`) and is an independently-releasable slice. *Packaging (same PR vs. separate) is a delivery decision, flagged for the maintainer.*
+**Out of scope (separate prerequisite work)**: the **platform-wide model-selection consolidation**. Re-pointing *every* model-selection site (registry defaults, router peer chains `MODEL_FALLBACKS`, the execution tier-ladder, catalog filtering, and the many direct model pins) is a broad refactor not required to deliver the two crons. This spec **consumes** a minimal `select(requirement) -> ModelChain` interface (FR-001–FR-004); the full migration of existing call sites is deferred to its **own spec `026-model-selection-consolidation` with its own PR, which lands first** (maintainer decision, 2026-07-16). Spec 025 depends on 026: the lane's model calls use the consolidated `select()` mechanism delivered by 026.
 
 **Reuse (Constitution I — do NOT reinvent)**: failure fingerprinting `advance_ledger.classify_message`; severity `web_data._activity_severity`; run-log reader `web_data._recent_activity`; GitHub `gh` wrapper pattern (`integrations/issues.py`); model router `backends/router.chat_with_model_fallback`; credit guard `backends/credits.paid_opt_in_enabled()`; the in-host lease `pipeline/project_lease.py`; the CAS persistence script `scripts/ci/commit-and-push.sh`.
 
@@ -242,7 +242,7 @@ Promotion targets `main` only when: the `LLMXIVE_SELF_IMPROVEMENT_LIVE` flag is 
 4. **Trusted promotion into canary** — typed evaluation contract; trusted-App required checks from pinned main SHA; promotion by App token; merge to canary branch. (US4)
 5. **Post-merge monitoring** — concrete thresholds; attribution; ancestry; injected-regression auto-revert; circuit breakers. (US5)
 6. **Live-main promotion** — enabled ONLY after shadow precision/retention/false-revert thresholds are met AND flag on AND App+protection configured; else fail closed. (US6)
-7. **Model-selection consolidation** — the platform-wide 4-site migration, as a separate spec / independently-releasable slice (dependency of the lane's model calls, not built here).
+7. **Model-selection consolidation** — the platform-wide multi-site migration, delivered as **separate spec 026 + its own PR that lands before this lane** (a prerequisite dependency of the lane's model calls, not built here).
 
 ## Assumptions
 
