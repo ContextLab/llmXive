@@ -2,7 +2,7 @@
 
 **Feature Branch**: `025-self-improvement-lane`
 **Created**: 2026-07-16
-**Status**: Draft (revision 6 — rev-5 + maintainer governance ruling: judgment reviews route through the shared `run_convergence` mechanism)
+**Status**: Draft (revision 7 — rev-6 + review cleanup: proposal-vs-patch producers, `active_attempt_id`, per-metric CI registry, replay-miss fail-closed, saga aborts + `PromotionReenabled`, explicit cooldown counting)
 **Input**: GitHub issue [#1242](https://github.com/ContextLab/llmXive/issues/1242) and its [design comment](https://github.com/ContextLab/llmXive/issues/1242#issuecomment-4987730544). Add two cron jobs: (1) learn from recurring errors and suggest an improvement *to llmXive* that can be planned/implemented/tested; (2) peruse open issues and submit high-value work to the pipeline. Unlike sandboxed research projects, success in these jobs changes **llmXive itself**.
 
 ## Overview
@@ -34,7 +34,7 @@ Governed by the constitution ([.specify/memory/constitution.md](../../.specify/m
 - **Availability**: absence from a successfully-fetched live catalog = unavailable for new selection; `resolved_at`/`catalog_digest` make availability timestamped, re-checked per call. When `independent_of` cannot be honored (no distinct provider/model available), the lane **fails closed** (no LLM verification → the Attempt does not promote).
 - **Slice sequencing**: slices 1–2's *deterministic* parts (clustering, filtering/ranking/pagination, store, transaction protocol) need no model and MAY precede 026; LLM parts (proposer, assessor, implementer, verifier) are blocked on 026 and MUST use this contract, never the router directly.
 
-**Constitution Compatibility (governance — RESOLVED by maintainer ruling 2026-07-16: route via `run_convergence`)**: Constitution VI governs "every step that produces reviewable work," including code patches. Per the ruling, the lane's two **judgment reviews** — (1) the **proposal** ("is this a valid, worthwhile improvement to pursue?", before implementation) and (2) the **implemented patch** ("does this diff correctly and safely implement it?", before promotion) — route through the **shared `run_convergence`** mechanism (Constitution I + VI), NOT a bespoke assessor. The lane registers a self-improvement `ReviewSpec` (a new reviewable stage) with a code-patch reviewer panel; `run_convergence(spec, artifacts={proposal, diff, evidence}, producer=<implementer>)` returns `converged` (unanimous panel acceptance within the round cap, self-review prevented) as the review gate. The **deterministic policy pre-gates** (diff envelope, blast-radius, base-failure, evidence floor) and the **empirical trusted-evaluation harness** (offline paired tests + canary + trusted-App checks) are NOT "reviewable work" — they are mechanical/empirical guards that run alongside and compose with the convergence review. This satisfies Constitution VI with no category exception.
+**Constitution Compatibility (governance — RESOLVED by maintainer ruling 2026-07-16: route via `run_convergence`)**: Constitution VI governs "every step that produces reviewable work," including code patches. Per the ruling, the lane's two **judgment reviews** — (1) the **proposal** ("is this a valid, worthwhile improvement to pursue?", before implementation) and (2) the **implemented patch** ("does this diff correctly and safely implement it?", before promotion) — route through the **shared `run_convergence`** mechanism (Constitution I + VI), NOT a bespoke assessor. The lane registers a self-improvement `ReviewSpec` (a new reviewable stage) with a code-patch reviewer panel; the **proposal** review calls `run_convergence(spec, artifacts={proposal, evidence}, producer=<proposer>)` and the **patch** review calls `run_convergence(spec, artifacts={proposal, diff, evidence}, producer=<implementer>)`, each returning `converged` (unanimous panel acceptance within the round cap, self-review prevented) as its review gate. The **deterministic policy pre-gates** (diff envelope, blast-radius, base-failure, evidence floor) and the **empirical trusted-evaluation harness** (offline paired tests + canary + trusted-App checks) are NOT "reviewable work" — they are mechanical/empirical guards that run alongside and compose with the convergence review. This satisfies Constitution VI with no category exception.
 Separately, v1 evaluation is **offline-only** (FR-024): candidate code is exercised only against recorded response fixtures. Any change that cannot be exercised offline — notably changes to live model/provider-calling paths, or anything requiring a live external call to reproduce — is **`unsupported_scope`** in v1 (routed to humans), not merely "credential-touching source files." A trusted external-call broker is deferred to a future version.
 
 **Reuse (Constitution I)**: `advance_ledger.classify_message`; `web_data._activity_severity`/`_recent_activity`; the `gh` wrapper; `credits.paid_opt_in_enabled()`; `project_lease.py` (in-host contention only — NOT cross-runner correctness); `scripts/ci/commit-and-push.sh` (append-only event/blob writes only — NOT the CAS mechanism).
@@ -53,7 +53,7 @@ Both crons produce **proposal-verified candidate attempts** — clustering real 
 1. **Given** a hard failure across ≥3 projects, **When** the error cron runs, **Then** one `ImprovementProblem` (`problem_id = SHA256(canonical_json(schema_version, "errors", "<fingerprint>@<fp_schema_version>"))`) + one `proposed` Attempt, evidence as append-only events.
 2. **Given** the cluster grows/reorders, **When** re-run, **Then** `problem_id` unchanged; `evidence_digest` = SHA-256 of the deduplicated, canonically-sorted, normalized evidence set (order-independent).
 3. **Given** only `StagePanelKickback`, **Then** no Problem; **Given** a `StagePanelEscalation` (hard), **Then** eligible.
-4. **Given** a proposal below any policy threshold, **When** the independent assessor runs, **Then** `rejected` with a machine-readable reason.
+4. **Given** a proposal failing a deterministic policy pre-gate, **Then** `rejected` with a machine-readable reason (pre-review); **Given** a proposal that clears the pre-gates but the **proposal `run_convergence` panel** does not accept within the round cap, **Then** it does not reach `claimed`.
 
 ---
 
@@ -184,7 +184,7 @@ Promotion targets `main` only when the flag is on, an App + branch protection ar
 - **FR-023**: High-severity sentinels (`InvariantEvent` from the `invariant` class; explicitly-defined deterministic `SecurityEvent`/`DataIntegrityEvent` sources) MAY ONLY block promotion, trip a breaker, quarantine an Attempt, revert a causally-attributed change, or notify/escalate — NEVER bypass the proposal/implementation/evaluation/merge gates.
 
 ### Operational canary (paired-run)
-- **FR-024**: The operational canary MUST be a **paired-run** controlled from a trusted workflow on `main` (not by "creating a branch" — GitHub schedules run on the default branch, so the controller checks out/dispatches the recorded SHAs). v1 evaluation is **offline-only**: the controller (1) materializes an **immutable workload bundle W** = recorded real inputs + **recorded model/provider responses** harvested by the trusted controller from real recent runs (candidate code makes NO live external calls); (2) runs W against the **control SHA** and the **candidate SHA** via offline replay; (3) writes results to an **isolated per-Attempt namespace** (`state/self-improvement/canary/<attempt-id>/{control,candidate}/`) that MUST NOT mutate production/project state; (4) performs a **trusted paired comparison**. Control and candidate MUST see identical W.
+- **FR-024**: The operational canary MUST be a **paired-run** controlled from a trusted workflow on `main` (not by "creating a branch" — GitHub schedules run on the default branch, so the controller checks out/dispatches the recorded SHAs). v1 evaluation is **offline-only**: the controller (1) materializes an **immutable workload bundle W** = recorded real inputs + **recorded model/provider responses** harvested by the trusted controller from real recent runs (candidate code makes NO live external calls); (2) runs W against the **control SHA** and the **candidate SHA** via offline replay; (3) writes results to an **isolated per-Attempt namespace** (`state/self-improvement/canary/<attempt-id>/{control,candidate}/`) that MUST NOT mutate production/project state; (4) performs a **trusted paired comparison**. Control and candidate MUST see identical W. Replay fixtures MUST be keyed by a **canonical request digest** with **exact-match** replay by default; a missing request digest is a **replay miss** that fails closed (no fabricated response); a candidate that changes live-call request construction (so recorded responses no longer match) is `unsupported_scope`.
 - **FR-025**: The canary MUST use **immutable per-Attempt refs** `self-improvement/canary/<attempt-id>` (NOT one shared, reset branch — that would delete a still-monitored revision and make "revert" ambiguous). Monitoring targets the recorded candidate SHA; the ref is deleted only after the Attempt reaches `retained`/`reverted`. In live mode, paired monitoring uses the immutable base/candidate SHAs while `main` advances. **Retention** statistics come ONLY from `mirrored_workload` runs where W is **successively refreshed** across the window from real recent inputs (a single static corpus repeated for 30 days is NOT retention evidence); `deterministic_replay` is used ONLY for pre-merge base/head evaluation and MUST NOT count as retention. An Attempt whose change is exercisable only via a change to live-call paths (not reproducible offline) is `unsupported_scope` in v1.
 
 ### Rollback, attribution & rollout
@@ -197,7 +197,7 @@ Promotion targets `main` only when the flag is on, an App + branch protection ar
 - **FR-032**: The Policy Contract is a **versioned, protected module** (`policy_version`); candidate branches MUST NOT modify it; changes are normal reviewed human PRs.
 
 ### Key Entities
-- **LaneCoordinator** (singleton): `lane_revision`, `active_problem_id`, `monitored_attempts[]`, `promotion_enabled`, `last_autonomous_merge_at`, `policy_version`.
+- **LaneCoordinator** (singleton): `lane_revision`, `active_problem_id`, `active_attempt_id`, `monitored_attempts[]`, `promotion_enabled`, `last_autonomous_merge_at`, `policy_version`.
 - **ImprovementProblem**: `schema_version`, `problem_id`, `source_kind`, `canonical_source_key`, `title`, `evidence_digest`, evidence (via events), `current_disposition`, `revision`, timestamps, `cooldown_until`.
 - **ImprovementAttempt**: fields per FR-005 + `proposer`/`verifier` {model, backend, prompt_digest, context_digest, identity}, rubric scores, `blast_radius`, `budget`/`budget_usage`, `promotion_mode` (`shadow`|`live`|`observational`), `unsupported_reason`, `exposure_interval`, timestamps.
 - **Event** (append-only): fields per FR-011.
@@ -227,14 +227,17 @@ External side effects use **saga** (intent → side effect → observed) so a cr
 |claimed/implementing|FreshnessStale †|superseded → new Attempt|`(attempt_id,"stale")`|close old; `ClaimReleased`; create + re-claim fresh Attempt|—|
 |implementing|EvaluationPassed|promoting|`(attempt_id,"eval",head_sha)`|—|—|
 |promoting|PromotionRequested|promotion_requested|`(attempt_id,"promo-req",head_sha)`|record intent (App merge side effect follows)|on crash, observe whether merge landed by head_sha|
-|promotion_requested|PromotionObserved|merged+monitoring|`(attempt_id,"promo-obs",head_sha)`|**one coordinator CAS**: verify merge landed → clear active slot **and** add to `monitored_attempts` + record exposure interval|if merge did not land, retry/abort|
+|promotion_requested|PromotionObserved|merged+monitoring|`(attempt_id,"promo-obs",head_sha)`|**one coordinator CAS**: verify merge landed → clear active slot **and** add to `monitored_attempts` + record exposure interval|if merge did not land, retry|
+|promotion_requested|PromotionAborted †|promotion_aborted|`(attempt_id,"promo-abort")`|merge permanently cannot land → `ClaimReleased`; escalate|—|
 |monitoring|RevertRequested|revert_requested|`(attempt_id,"revert-req",reason)`|record intent (App revert side effect follows)|observe whether revert landed|
-|revert_requested|RevertObserved|reverted|`(attempt_id,"revert-obs")`|verify revert landed; remove from `monitored_attempts`; delete canary ref|retry/abort|
+|revert_requested|RevertObserved|reverted|`(attempt_id,"revert-obs")`|verify revert landed; remove from `monitored_attempts`; delete canary ref|retry|
+|revert_requested|RevertAborted|monitoring (quarantined)|`(attempt_id,"revert-abort")`|revert cannot safely land → return to monitoring/quarantine; escalate|—|
 |monitoring|Retained|retained|`(attempt_id,"retain")`|remove from `monitored_attempts`; delete canary ref|—|
 |any pre-merge|BreakerTripped †|circuit_broken|`(attempt_id,"breaker")`|`promotion_enabled=false`; `ClaimReleased`|—|
-|rejected/reverted / M failures per Problem|Cooldown|cooldown|`(problem_id,"cooldown")`|set `cooldown_until`|—|
+|circuit_broken|PromotionReenabled (manual)|promotion resumes|`(coordinator,"reenable")`|`promotion_enabled=true` (manual re-enable after a breaker)|—|
+|(M counted failures per Problem)|Cooldown|cooldown|`(problem_id,"cooldown")`|set `cooldown_until`|—|
 
-`unsupported_scope`, `*_failed`, `retained`, `reverted`, `cooldown`, `circuit_broken` are terminal for that Attempt; a genuinely new proposal is a new Attempt (never a back-edge). `attempt_count` increments at `Implementing` and each `*_failed` counts toward the per-Problem failure cap. The intent/observed split closes the crash gap between the App merge/revert side effect and the recorded state; `PromotionObserved` merges "clear active slot" + "add to monitoring" into a single coordinator CAS.
+`unsupported_scope`, `*_failed`, `promotion_aborted`, `retained`, `reverted`, `cooldown`, `circuit_broken` are terminal for that Attempt; a genuinely new proposal is a new Attempt (never a back-edge). `attempt_count` increments at `Implementing`. **Counted** toward the per-Problem failure cap (→ cooldown): `impl_failed`, `publish_failed`, `test_failed`, `eval_failed`, `reverted`; **not counted**: `rejected`, `unsupported_scope`, `superseded`. The intent/observed split closes the crash gap between the App merge/revert side effect and the recorded state; `PromotionObserved` merges "clear active slot" + "add to monitoring" into a single coordinator CAS.
 
 ## Policy Contract v1 (protected; `policy_version = 1`)
 
@@ -269,7 +272,7 @@ Concrete defaults, immutable by candidate branches (FR-032); tunable only via re
 |Controller / monitoring cadence|paired controller runs every 6 h (and on dispatch)|
 |Health window (the SC-006 "v1 window")|max(24 h, next 3 mirrored-workload controller ticks)|
 |Retention windows|7 days and 30 days (censored until matured)|
-|Confidence-interval method|95% Wilson score interval on paired per-run rates; withhold if the interval is undefined (zero denominator)|
+|CI / estimator by `metric_kind` (versioned registry)|**binary paired** → Newcombe matched-pair (or exact discordant-pair) 95% CI; **counts/rates** → paired bootstrap over workload units (95%); **runtime/cost** → paired bootstrap of the median difference/ratio (95%); withhold if the CI is undefined (zero/insufficient denominator)|
 
 **Live-eligibility (shadow → live)**
 |Parameter|Default|
@@ -295,7 +298,7 @@ Term definitions (all deterministic; NO model in the ranking):
 
 - **SC-001**: `problem_id` invariant under evidence growth/reorder while `evidence_digest`/`revision` change; recurrence after `retained` yields a new Attempt under the same `problem_id`.
 - **SC-002**: Two workers claiming **different** Problems serialize on the singleton coordinator (exactly one wins; the other recomputes); kill-between-commit-and-label reconciles idempotently; every pre-merge off-ramp (reject/unsupported/stale/`*_failed`/breaker) releases the coordinator so the lane is never permanently occupied; a crash between the App merge/revert side effect and its recorded event reconciles via the saga's observed step.
-- **SC-003**: No Attempt is implemented before the independent assessor accepts it vs the Policy AND (unless `observational`) an allowlisted `base_reproducer` fails at the control SHA.
+- **SC-003**: No Attempt is implemented before the deterministic policy pre-gates pass AND the **proposal `run_convergence` panel** accepts it, AND (unless `observational`) an allowlisted `base_reproducer` fails at the control SHA.
 - **SC-004**: Candidate code runs non-root, read-only-root, `--network none`, resource-capped, no secrets/socket/creds; the publisher pushes the exact validated tree without executing candidate code; a free-form `base_reproducer` and a spoofed/stale check are refused.
 - **SC-005**: Promotion occurs only on **paired** base-fails/head-passes with no material paired regression and all required checks passing the full verification algorithm.
 - **SC-006**: A causally-attributed harmful change is auto-reverted within the v1 window (provider outages without corroboration excluded; candidate-caused transient failures with corroboration included) with ancestry checks; two Attempts monitor concurrently; repeated failures trip the breaker.
@@ -307,7 +310,7 @@ Term definitions (all deterministic; NO model in the ranking):
 
 ## Delivery Slices
 
-1. **Observation-only** — store + events + optimistic-concurrency + singleton coordinator; error mining; issue ranking/pagination; proposer + independent assessor; discovery/persistence domains; NO labels/branches/merges. (US1)
+1. **Observation-only** — store + events + optimistic-concurrency + singleton coordinator; error mining; issue ranking/pagination; proposer + deterministic pre-gates + proposal `run_convergence`; discovery/persistence domains; NO labels/branches/merges. (US1)
 2. **Global claiming** — coordinator CAS transaction, reconciliation, label/comment. (US2)
 3. **Bounded draft PRs** — implementation + candidate-publisher domains; hardened-container tests; diff policy + budgets; `unsupported_scope` routing. (US3)
 4. **Trusted paired promotion** — controller + immutable workload + paired comparison; `EvaluationContract`; allowlisted `base_reproducer`; full check-verification; App-token merge to canary. (US4)
