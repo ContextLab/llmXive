@@ -8,277 +8,199 @@ from typing import Dict, List, Optional, Tuple, Any
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 import numpy as np
 
-from config import get_stimuli_dir, get_stimuli_metadata_dir, get_logs_dir, get_manipulation_error_log_path
-from utils.logging import get_logger, setup_logging
+from config import get_data_dir, get_stimuli_dir, get_stimuli_metadata_dir, get_logs_dir
+from utils.logging import get_logger, get_manipulation_error_log_path, sanitize_message
 from data.image import Image as ImageEntity
 
-# Initialize logger for this module
+# Initialize logger
 logger = get_logger(__name__)
 
-def add_minor_objects(base_image: Image.Image, num_objects: int = 5) -> Image.Image:
-    """
-    Overlay a small number of minor object PNG assets onto the base image.
-    
-    Args:
-        base_image: The PIL Image to enhance.
-        num_objects: Number of minor objects to add.
-        
-    Returns:
-        Modified PIL Image with added objects.
-        
-    Raises:
-        ValueError: If the image mode is not compatible or assets cannot be loaded.
-        RuntimeError: If compositing fails.
-    """
-    if base_image.mode != 'RGB':
-        base_image = base_image.convert('RGB')
-    
-    width, height = base_image.size
-    draw = ImageDraw.Draw(base_image, 'RGBA')
-    
-    # Mock asset pool for demonstration (in production, load from real assets directory)
-    # Using simple geometric shapes as placeholders for "minor objects"
-    asset_colors = [(255, 0, 0, 180), (0, 255, 0, 180), (0, 0, 255, 180), (255, 255, 0, 180), (255, 165, 0, 180)]
-    
-    for i in range(num_objects):
-        # Random position within image bounds
-        x = random.randint(20, width - 20)
-        y = random.randint(20, height - 20)
-        
-        # Random size (small objects)
-        size = random.randint(10, 30)
-        
-        # Random color from pool
-        color = asset_colors[i % len(asset_colors)]
-        
-        # Draw a simple shape (circle) to represent the object
-        draw.ellipse(
-            [x - size/2, y - size/2, x + size/2, y + size/2],
-            fill=color,
-            outline=(0, 0, 0, 255)
-        )
-    
-    return base_image
+# Constants for manipulation
+MINOR_OBJECT_SIZES = [(10, 10), (15, 15), (20, 20)]
+MINOR_OBJECT_COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255)]
+BLUR_RADIUS = 5
+MINOR_OBJECT_COUNT = 5
 
-def remove_minor_elements(base_image: Image.Image, blur_radius: int = 5) -> Image.Image:
+def add_minor_objects(image: Image.Image, count: int = MINOR_OBJECT_COUNT) -> Image.Image:
     """
-    Remove minor elements from the image using Gaussian blur or masking.
-    
-    Args:
-        base_image: The PIL Image to reduce detail for.
-        blur_radius: Radius for Gaussian blur.
-        
-    Returns:
-        Modified PIL Image with reduced detail.
-        
-    Raises:
-        ValueError: If the image mode is not compatible.
-        RuntimeError: If manipulation fails.
+    Overlay a small number of minor object shapes (rectangles/circles) onto the image
+    to simulate increased visual detail.
     """
-    if base_image.mode != 'RGB':
-        base_image = base_image.convert('RGB')
-    
-    # Apply Gaussian blur to reduce fine details
-    # This effectively "removes" minor elements by smoothing them out
-    modified_image = base_image.filter(ImageFilter.GaussianBlur(radius=blur_radius))
-    
-    return modified_image
+    width, height = image.size
+    draw = ImageDraw.Draw(image)
+
+    for _ in range(count):
+        # Random size
+        size = random.choice(MINOR_OBJECT_SIZES)
+        # Random position ensuring it stays within bounds
+        x = random.randint(0, width - size[0])
+        y = random.randint(0, height - size[1])
+        # Random color
+        color = random.choice(MINOR_OBJECT_COLORS)
+
+        # Draw a simple shape (rectangle) to represent a minor object
+        draw.rectangle([x, y, x + size[0], y + size[1]], fill=color)
+
+    return image
+
+def remove_minor_elements(image: Image.Image) -> Image.Image:
+    """
+    Apply Gaussian blur and/or masking to remove minor elements from the image.
+    """
+    # Apply Gaussian blur to smooth out minor details
+    blurred = image.filter(ImageFilter.GaussianBlur(radius=BLUR_RADIUS))
+    return blurred
 
 def calculate_complexity_score(image: Image.Image) -> float:
     """
-    Calculate a complexity score for the image based on variance and edges.
-    
-    Args:
-        image: The PIL Image to score.
-        
-    Returns:
-        Float complexity score between 0.0 and 1.0.
+    Calculate a simple complexity score based on pixel variance and edge density.
     """
-    if image.mode != 'RGB':
-        image = image.convert('RGB')
-    
-    img_array = np.array(image)
-    
-    # Calculate variance across channels
+    img_array = np.array(image.convert('L'))
     variance = np.var(img_array)
-    
-    # Normalize to 0-1 range (assuming typical variance range)
-    # This is a heuristic; in production, use calibrated metrics
-    score = min(1.0, max(0.0, variance / 10000.0))
-    
+    # Normalize variance to a 0-1 range (assuming typical 0-255 range)
+    score = min(1.0, variance / (255 ** 2))
     return score
 
 def process_single_image(
-    input_path: Path, 
-    output_dir: Path, 
-    metadata_dir: Path, 
+    input_path: Path,
+    output_dir: Path,
     image_id: str,
-    manipulate_type: str = 'enhance'
+    enhance: bool = True
 ) -> Optional[Dict[str, Any]]:
     """
-    Process a single image: manipulate it and generate metadata.
-    
-    Args:
-        input_path: Path to the input image.
-        output_dir: Directory to save manipulated image.
-        metadata_dir: Directory to save metadata.
-        image_id: Unique identifier for the image.
-        manipulate_type: Type of manipulation ('enhance' or 'reduce').
-        
-    Returns:
-        Dictionary with metadata if successful, None if skipped.
-        
-    Raises:
-        Exception: Propagated if manipulation fails and should not be skipped.
+    Process a single image: load, manipulate, and save.
+    Returns metadata dict on success, None on failure.
     """
-    logger.info(f"Processing image: {image_id} ({manipulate_type})")
-    
     try:
         # Load image
-        base_image = Image.open(input_path)
-        
-        # Perform manipulation
-        if manipulate_type == 'enhance':
-            manipulated_image = add_minor_objects(base_image, num_objects=5)
-            complexity_change = 0.1  # Expected increase
-        elif manipulate_type == 'reduce':
-            manipulated_image = remove_minor_elements(base_image, blur_radius=5)
-            complexity_change = -0.1  # Expected decrease
+        img = Image.open(input_path).convert('RGB')
+        original_size = img.size
+        original_complexity = calculate_complexity_score(img)
+
+        # Apply manipulation
+        if enhance:
+            manipulated_img = add_minor_objects(img.copy())
+            manipulation_type = "enhanced"
         else:
-            raise ValueError(f"Unknown manipulation type: {manipulate_type}")
-        
+            manipulated_img = remove_minor_elements(img.copy())
+            manipulation_type = "reduced"
+
         # Save manipulated image
-        output_path = output_dir / f"{image_id}_{manipulate_type}.png"
-        manipulated_image.save(output_path, 'PNG')
-        
-        # Calculate new complexity score
-        new_complexity = calculate_complexity_score(manipulated_image)
-        
-        # Prepare metadata record
-        metadata_record = {
-            'image_id': image_id,
-            'manipulation_type': manipulate_type,
-            'output_path': str(output_path),
-            'original_path': str(input_path),
-            'original_complexity': calculate_complexity_score(base_image),
-            'new_complexity': new_complexity,
-            'complexity_change': complexity_change,
-            'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
+        output_filename = f"{image_id}_{manipulation_type}.png"
+        output_path = output_dir / output_filename
+        manipulated_img.save(output_path)
+
+        # Calculate new complexity
+        new_complexity = calculate_complexity_score(manipulated_img)
+
+        metadata = {
+            "id": image_id,
+            "original_path": str(input_path),
+            "manipulated_path": str(output_path),
+            "manipulation_type": manipulation_type,
+            "original_size": original_size,
+            "original_complexity": original_complexity,
+            "new_complexity": new_complexity,
+            "timestamp": time.time()
         }
-        
-        logger.info(f"Successfully processed {image_id}: {output_path}")
-        return metadata_record
-        
+
+        logger.info(f"Successfully processed image {image_id} ({manipulation_type})")
+        return metadata
+
     except Exception as e:
-        # Log the error to the specific manipulation error log file
-        error_log_path = get_manipulation_error_log_path()
-        error_log_path.parent.mkdir(parents=True, exist_ok=True)
+        # CRITICAL: Log the error and return None to trigger skip logic
+        error_msg = sanitize_message(f"Failed to process image {image_id} from {input_path}: {str(e)}")
+        logger.error(error_msg)
         
-        with open(error_log_path, 'a', encoding='utf-8') as log_file:
-            log_entry = f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] ERROR processing {image_id}: {str(e)}\n"
-            log_file.write(log_entry)
+        # Write to the specific manipulation error log file
+        log_path = get_manipulation_error_log_path()
+        log_path.parent.mkdir(parents=True, exist_ok=True)
         
-        logger.error(f"Skipping image {image_id} due to manipulation failure: {str(e)}")
-        # Return None to indicate skip - caller should not attempt metadata generation
+        with open(log_path, 'a', encoding='utf-8') as f:
+            timestamp_str = time.strftime("%Y-%m-%d %H:%M:%S")
+            f.write(f"[{timestamp_str}] ERROR: {error_msg}\n")
+        
         return None
 
 def process_directory(
-    input_dir: Path, 
-    output_dir: Path, 
-    metadata_dir: Path,
-    manipulate_type: str = 'enhance'
+    input_dir: Path,
+    output_dir: Path,
+    metadata_output_dir: Path,
+    enhance: bool = True
 ) -> List[Dict[str, Any]]:
     """
-    Process all images in a directory.
-    
-    Args:
-        input_dir: Directory containing input images.
-        output_dir: Directory to save manipulated images.
-        metadata_dir: Directory to save metadata files.
-        manipulate_type: Type of manipulation to apply.
-        
-    Returns:
-        List of metadata records for successfully processed images.
+    Process all images in the input directory.
+    Implements 'skip and log' logic: if an image fails, it is skipped entirely.
     """
+    input_dir = Path(input_dir)
+    output_dir = Path(output_dir)
+    metadata_output_dir = Path(metadata_output_dir)
+
+    # Ensure output directories exist
     output_dir.mkdir(parents=True, exist_ok=True)
-    metadata_dir.mkdir(parents=True, exist_ok=True)
-    
-    successful_records = []
-    
-    # Find all image files
+    metadata_output_dir.mkdir(parents=True, exist_ok=True)
+
+    all_metadata = []
+    processed_count = 0
+    skipped_count = 0
+
+    # Get list of image files
     image_extensions = {'.png', '.jpg', '.jpeg', '.bmp', '.tiff'}
     image_files = [f for f in input_dir.iterdir() if f.suffix.lower() in image_extensions]
-    
-    logger.info(f"Found {len(image_files)} images to process in {input_dir}")
-    
+
+    if not image_files:
+        logger.warning(f"No image files found in {input_dir}")
+        return all_metadata
+
     for image_file in image_files:
         image_id = image_file.stem
         
-        # Process single image - returns None if skipped due to error
-        record = process_single_image(
-            input_path=image_file,
-            output_dir=output_dir,
-            metadata_dir=metadata_dir,
-            image_id=image_id,
-            manipulate_type=manipulate_type
-        )
+        # Attempt processing
+        result = process_single_image(image_file, output_dir, image_id, enhance)
         
-        if record is not None:
-            successful_records.append(record)
-        
-        # Small delay to prevent CPU overload
-        time.sleep(0.1)
-    
-    logger.info(f"Successfully processed {len(successful_records)} images.")
-    return successful_records
+        if result is None:
+            # Skip logic: do not attempt metadata generation, just increment counter
+            skipped_count += 1
+            logger.warning(f"Skipping image {image_id} due to processing failure.")
+        else:
+            all_metadata.append(result)
+            processed_count += 1
+
+    logger.info(f"Processing complete. Success: {processed_count}, Skipped: {skipped_count}")
+    return all_metadata
 
 def main():
-    """Main entry point for running the manipulation pipeline."""
-    setup_logging()
+    """
+    CLI entry point for running the manipulation pipeline.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Manipulate stimuli images")
+    parser.add_argument("--input", type=str, required=True, help="Input directory containing baseline images")
+    parser.add_argument("--output", type=str, required=True, help="Output directory for manipulated images")
+    parser.add_argument("--metadata-output", type=str, required=True, help="Output directory for metadata files")
+    parser.add_argument("--enhance", action="store_true", default=False, help="If set, enhance detail; otherwise reduce detail")
     
-    # Get directories from config
-    input_dir = get_stimuli_dir()
-    output_enhance_dir = input_dir / "enhanced"
-    output_reduce_dir = input_dir / "reduced"
-    metadata_dir = get_stimuli_metadata_dir()
-    
-    logger.info(f"Input directory: {input_dir}")
-    logger.info(f"Output directories: {output_enhance_dir}, {output_reduce_dir}")
-    
+    args = parser.parse_args()
+
+    input_dir = Path(args.input)
+    output_dir = Path(args.output)
+    metadata_output_dir = Path(args.metadata_output)
+
     if not input_dir.exists():
         logger.error(f"Input directory does not exist: {input_dir}")
         return 1
-    
-    # Process enhanced detail
-    logger.info("--- Processing Enhanced Detail ---")
-    enhance_records = process_directory(
-        input_dir=input_dir,
-        output_dir=output_enhance_dir,
-        metadata_dir=metadata_dir,
-        manipulate_type='enhance'
-    )
-    
-    # Process reduced detail
-    logger.info("--- Processing Reduced Detail ---")
-    reduce_records = process_directory(
-        input_dir=input_dir,
-        output_dir=output_reduce_dir,
-        metadata_dir=metadata_dir,
-        manipulate_type='reduce'
-    )
-    
-    logger.info(f"Total enhanced: {len(enhance_records)}, Total reduced: {len(reduce_records)}")
-    
-    # Check for error log existence
-    error_log_path = get_manipulation_error_log_path()
-    if error_log_path.exists():
-        logger.info(f"Error log created at: {error_log_path}")
-        with open(error_log_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            if lines:
-                logger.warning(f"{len(lines)} manipulation errors logged.")
-    
+
+    # Setup logging
+    setup_logging()
+
+    # Run processing
+    metadata_list = process_directory(input_dir, output_dir, metadata_output_dir, enhance=args.enhance)
+
+    # Note: Metadata generation is handled separately by metadata.py task (T017)
+    # This task focuses strictly on the manipulation and error handling logic.
+
     return 0
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     exit(main())

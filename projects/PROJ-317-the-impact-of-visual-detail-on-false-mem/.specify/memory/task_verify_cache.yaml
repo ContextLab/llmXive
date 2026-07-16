@@ -1,0 +1,33 @@
+T032:
+  c: false
+  h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
+  r: "The required artifact `tests/unit/test_stats.py` does not exist on disk, so\
+    \ no unit test for the ANOVA calculation is present. The task\u2019s core deliverable\
+    \ is missing."
+T033:
+  c: false
+  h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
+  r: "The required artifact `tests/unit/test_stats.py` does not exist on disk, so\
+    \ no unit test for multiple-comparison correction is present. The task\u2019s\
+    \ primary deliverable is missing."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no actual files or code in `tests/unit/` and no evidence of
+    added unit tests covering dropout or network timeout edge cases. Without concrete
+    test artifacts, the requirement is not satisfied.
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence only contains a feature specification for image manipulation\
+    \ and participant testing, with no code, configuration, logs, or documentation\
+    \ related to security hardening or preventing PII leakage. Consequently, the required\
+    \ security\u2011hardening artifact is missing and the task\u2019s requirement\
+    \ is not addressed."
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no artifact (e.g., validation logs, pass/fail report,
+    or corrected quickstart.md) to demonstrate that the quickstart.md file was validated
+    successfully. Consequently, there is no evidence that the required validation
+    was performed.

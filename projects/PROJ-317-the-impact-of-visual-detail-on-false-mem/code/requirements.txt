@@ -3,16 +3,13 @@ numpy>=1.24.0
 scipy>=1.10.0
 pandas>=2.0.0
 matplotlib>=3.7.0
-Pillow>=9.5.0
-PyYAML>=6.0
-
-# Statistical analysis
-statsmodels>=0.13.0
-
-# Utilities
+pillow>=9.5.0
+pyyaml>=6.0
+statsmodels>=0.14.0
 ruff>=0.1.0
 black>=23.0.0
 pytest>=7.3.0
-
-# Data handling
-requests>=2.31.0
+pytest-cov>=4.1.0
+datasets>=2.14.0
+huggingface_hub>=0.16.0
+tqdm>=4.65.0

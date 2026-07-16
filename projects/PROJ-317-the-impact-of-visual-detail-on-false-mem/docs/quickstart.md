@@ -1,119 +1,71 @@
-# Quick Start Guide
+# Quickstart Guide
 
-This guide provides a step-by-step walkthrough to get the Visual Detail and False Memory research pipeline up and running.
+## Getting Started
 
-## Prerequisites
+1. **Clone the repository**
+ ```bash
+ git clone <repository-url>
+ cd PROJ-317-the-impact-of-visual-detail-on-false-mem
+ ```
 
-- Python 3.11+
-- pip
-- Git (optional, for cloning)
+2. **Install dependencies**
+ ```bash
+ cd code
+ pip install -r requirements.txt
+ ```
 
-## Step 1: Clone and Setup
+3. **Set up project structure**
+ Run the setup script to create necessary directories:
+ ```bash
+ python code/setup_project_structure.py
+ ```
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd PROJ-317-the-impact-of-visual-detail-on-false-mem
+4. **Generate ethics artifacts**
+ Create ethics documentation:
+ ```bash
+ python code/data/ethics_generator.py
+ ```
 
-# Install dependencies
-cd code
-pip install -r requirements.txt
-cd..
-```
+5. **Run power analysis**
+ Calculate required sample size:
+ ```bash
+ python code/analysis/stats.py power
+ ```
 
-## Step 2: Create Project Structure
+6. **Generate stimuli**
+ Create manipulated images (mock data by default):
+ ```bash
+ python code/cli.py manipulate
+ ```
 
-Run the setup script to create all necessary directories:
+7. **Run simulated sessions**
+ Simulate participant interactions:
+ ```bash
+ python code/cli.py simulate --n-sessions 50
+ ```
 
-```bash
-python code/setup_project_structure.py
-```
+8. **Perform analysis**
+ Run statistical analysis and generate visualizations:
+ ```bash
+ python code/cli.py analyze
+ ```
 
-This creates:
-- `data/stimuli/`
-- `data/stimuli_metadata/`
-- `data/responses/`
-- `data/processed/`
-- `data/ethics/`
-- `data/logs/`
-- `figures/`
+## Verification
 
-## Step 3: Generate Mock Stimuli
-
-Since we are using mock data for development, generate synthetic images:
-
-```bash
-python code/cli.py manipulate --input code/data/sample_images --output data/stimuli
-```
-
-*Note: If `code/data/sample_images` is empty, the script will use the internal mock generator to create images.*
-
-This will:
-- Create enhanced and reduced detail versions of each image.
-- Save manipulated images to `data/stimuli/`.
-- Generate YAML metadata files in `data/stimuli_metadata/`.
-
-## Step 4: Run Power Analysis
-
-Calculate the required sample size:
-
-```bash
-python code/cli.py power-analysis
-```
-
-Check the output:
-```bash
-cat data/processed/power_analysis.json
-```
-
-## Step 5: Simulate Participant Sessions
-
-Run a simulation with 10 participants:
-
-```bash
-python code/cli.py simulate --n-sessions 10 --output data/responses
-```
-
-This generates:
-- Response data in `data/responses/`.
-- Logs in `data/logs/`.
-
-## Step 6: Analyze Data
-
-Run the statistical analysis and generate visualizations:
-
-```bash
-python code/cli.py analyze --input data/responses --output data/processed
-```
-
-This produces:
-- `data/processed/anova_results.json`
-- `data/processed/bonferroni_results.json`
-- `figures/false_memory_rates.png`
-
-## Step 7: View Results
-
-Open the generated visualization:
-
-```bash
-# On Linux
-xdg-open figures/false_memory_rates.png
-
-# On macOS
-open figures/false_memory_rates.png
-
-# On Windows
-start figures/false_memory_rates.png
-```
-
-## Troubleshooting
-
-- **Import Errors**: Ensure you are running scripts from the project root or adjust `PYTHONPATH`.
-- **Missing Files**: Verify that `data/stimuli/` contains images before running the analyze command.
-- **Log Files**: Check `data/logs/system.log` for detailed error messages.
+After completing the steps above, verify that the following files exist:
+- `data/stimuli/manipulated/` (manipulated images)
+- `data/stimuli_metadata/` (metadata YAML files)
+- `data/responses/` (participant response data)
+- `data/processed/power_analysis.json` (power analysis results)
+- `data/processed/results/` (analysis outputs and visualizations)
+- `data/ethics/informed_consent.md` (ethics documentation)
 
 ## Next Steps
+- Replace mock data with real dataset if desired (see `code/config.py`).
+- Customize analysis parameters in `code/config.py`.
+- Run the full test suite: `pytest tests/`.
 
-- Read the [Analysis Guide](analysis_guide.md) to understand the statistical methods.
-- Review the [Ethics Guidelines](ethics/ethics_guidelines.md) before planning human subject studies.
-- Explore the [API Reference](api_reference.md) for detailed function documentation.
+## Troubleshooting
+- **Missing dependencies:** Ensure you are using Python 3.11+ and have installed all requirements.
+- **Log errors:** Check `data/logs/manipulation_errors.log` for any processing failures.
+- **Configuration issues:** Verify `code/config.py` settings match your environment.

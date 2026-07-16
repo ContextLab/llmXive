@@ -1,63 +1,54 @@
 # Informed Consent Form
 
-**Study Title:** The Impact of Visual Detail on False Memory Susceptibility
-**Principal Investigator:** [PI Name]
-**Institution:** [Institution Name]
-**Contact Information:** [Email] | [Phone]
-**IRB Protocol Number:** [IRB-XXXX-XX] (Pending Approval)
+## Study Title: The Impact of Visual Detail on False Memory Susceptibility
 
----
+## Principal Investigator
+[Researcher Name]
+[Institution]
+[Contact Information]
 
-## 1. Introduction
-You are invited to participate in a research study investigating how visual detail in images influences the formation of false memories. This document explains the purpose, procedures, risks, and benefits of the study. Please read it carefully. Your participation is voluntary.
+## Introduction
+You are invited to participate in a research study investigating how visual detail in images affects the formation of false memories. This document explains the purpose, procedures, risks, and benefits of the study. Please read it carefully and ask questions if anything is unclear.
 
-## 2. Purpose of the Study
-The goal of this research is to understand the cognitive mechanisms underlying false memory formation. Specifically, we aim to determine whether images with higher levels of visual detail increase or decrease a participant's susceptibility to remembering details that were not actually present.
+## Purpose of the Study
+The goal of this research is to understand how the level of visual detail in stimuli influences susceptibility to false memories. This study contributes to the broader understanding of memory construction and distortion.
 
-## 3. Procedures
+## Procedures
 If you agree to participate, you will be asked to:
-1. **View Images:** You will be presented with a series of baseline images. Some images will be manipulated to have enhanced detail, while others will have reduced detail.
-2. **Distractor Task:** Between image viewing sessions, you will complete a brief arithmetic distractor task to clear short-term memory.
-3. **Recognition Task:** You will answer questions about the images, identifying whether specific details were present or absent. Some questions will refer to "lure" details that were never shown.
-4. **Demographics:** You will provide basic demographic information (age, gender, education) for classification purposes.
+1. View a series of images with varying levels of visual detail.
+2. Complete a brief distractor task (arithmetic questions).
+3. Answer recognition questions about the images, including both true and false details.
+4. Provide demographic information (optional).
 
-The total time commitment is approximately 20–30 minutes.
+The entire session will take approximately 15-20 minutes.
 
-## 4. Potential Risks and Discomforts
-- **Psychological Discomfort:** You may experience mild frustration during the distractor task or confusion when answering recognition questions.
-- **Privacy:** While we take extensive precautions, there is a minimal risk of data breach. All data will be anonymized and stored securely.
-- **False Memory:** The study intentionally induces false memories for research purposes. You will be fully debriefed at the end of the session to clarify that some details you "remembered" were not real.
+## Potential Risks
+The risks associated with this study are minimal. You may experience mild fatigue from the visual tasks. If you feel uncomfortable at any point, you may pause or withdraw from the study without penalty.
 
-## 5. Potential Benefits
-There are no direct benefits to you as a participant. However, the knowledge gained may contribute to a better understanding of human memory, with potential implications for eyewitness testimony and cognitive psychology.
+## Potential Benefits
+While there are no direct benefits to you, your participation will help advance scientific understanding of memory processes.
 
-## 6. Confidentiality and Data Protection (GDPR Compliance)
-In accordance with the General Data Protection Regulation (GDPR):
-- **Data Minimization:** We collect only the data strictly necessary for the research.
-- **Anonymization:** Your name and contact information will not be stored with your experimental data. You will be assigned a unique Participant ID (e.g., P-001).
-- **Right to Withdraw:** You may withdraw from the study at any time without penalty. If you withdraw before data processing, your data will be destroyed immediately.
-- **Data Storage:** All data will be stored on encrypted, password-protected servers accessible only to the research team.
-- **Right to Access/Rectify:** You have the right to request access to your personal data or request correction of inaccurate data.
+## Voluntary Participation
+Your participation is entirely voluntary. You may choose not to participate or withdraw at any time without any negative consequences.
 
-## 7. Voluntary Participation
-Your participation is entirely voluntary. You may refuse to participate or withdraw at any time without consequence.
+## Data Confidentiality
+All data collected will be anonymized. Your responses will be stored securely and accessed only by the research team. No personally identifiable information (PII) will be published or shared.
 
-## 8. Contact Information
+## Data Retention
+Data will be retained for [X] years in accordance with institutional policies, after which it will be securely deleted.
+
+## Contact Information
 If you have questions about the study, please contact:
-- **Researcher:** [Name] at [Email]
-- **Institutional Review Board (IRB):** [IRB Contact Info]
+- [Researcher Name]: [Email]
+- [Institutional Review Board]: [Email/Phone]
 
-If you have questions about your rights as a research participant, please contact the IRB office.
+## Consent Statement
+By proceeding, you confirm that:
+- You have read and understood this consent form.
+- You are at least 18 years of age.
+- You voluntarily agree to participate in this study.
 
-## 9. Consent Statement
-I have read (or had read to me) the information provided above. I understand the procedures, risks, and benefits described. I voluntarily agree to participate in this study.
-
-________________________________________
-**Participant Signature** | **Date**
-
-________________________________________
-**Researcher Signature** | **Date**
+[ ] I consent to participate in this study.
 
 ---
-*Template Version: 1.0 | Last Updated: [Date]*
-*Note: This document is a placeholder pending final IRB approval.*
+*This template is compliant with GDPR requirements for data protection and informed consent.*

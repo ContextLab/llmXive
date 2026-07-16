@@ -39,11 +39,11 @@ This project implements a computational pipeline to investigate the impact of vi
 ```text
 specs/001-visual-detail-false-memory/
 ├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
+├── research.md          # Phase output
+├── data-model.md        # Phase output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (not created here)
+└── tasks.md             # Phase output (not created here)
 ```
 
 ### Source Code (repository root)
