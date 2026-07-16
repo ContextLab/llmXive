@@ -1,223 +1,187 @@
-"""
-Hyperparameter Logging Module
-
-This module handles the logging and management of hyperparameter search results.
-It reads the hyperparameter log generated during training, formats entries for
-readability, and provides functionality to regenerate the log from training results.
-"""
 import os
 import sys
 import json
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from config import ensure_dirs
+# Import from sibling modules using exact API surface names
 from utils.logger import setup_logging, get_logger
+from config import TrainingConfig, DataConfig, AnalysisConfig, ensure_dirs
 
-# Constants
-HYPERPARAMETER_LOG_PATH = "artifacts/hyperparameter_search.log"
-TRAINING_RESULTS_PATH = "artifacts/training_results.json"
-BEST_MODEL_PATH = "artifacts/best_model.pt"
-METRICS_PATH = "artifacts/metrics.json"
-
-def load_hyperparameter_log(log_path: str = HYPERPARAMETER_LOG_PATH) -> List[Dict[str, Any]]:
+def load_hyperparameter_log(log_path: str) -> List[Dict[str, Any]]:
     """
-    Load the hyperparameter search log from a JSON file.
-
+    Load the hyperparameter search results from a JSON file.
+    
     Args:
-        log_path: Path to the hyperparameter log file
-
+        log_path: Path to the JSON file containing search results.
+        
     Returns:
-        List of dictionaries containing hyperparameter configurations and scores
+        List of dictionaries, each containing hyperparameters and metrics.
     """
-    path = Path(log_path)
-    if not path.exists():
-        logger = get_logger(__name__)
-        logger.warning(f"Hyperparameter log not found at {log_path}")
+    logger = get_logger(__name__)
+    
+    if not os.path.exists(log_path):
+        logger.error(f"Hyperparameter log file not found: {log_path}")
+        return []
+    
+    try:
+        with open(log_path, 'r') as f:
+            data = json.load(f)
+            return data
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse JSON file {log_path}: {e}")
+        return []
+    except Exception as e:
+        logger.error(f"Unexpected error loading {log_path}: {e}")
         return []
 
-    with open(path, 'r') as f:
-        try:
-            data = json.load(f)
-            if isinstance(data, list):
-                return data
-            else:
-                logger.warning(f"Unexpected log format at {log_path}, expected list")
-                return []
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse hyperparameter log: {e}")
-            return []
-
-def format_hyperparameter_entry(entry: Dict[str, Any], max_width: int = 80) -> str:
+def format_hyperparameter_entry(entry: Dict[str, Any], rank: int) -> str:
     """
-    Format a single hyperparameter entry for logging to file.
-
+    Format a single hyperparameter configuration entry for the log file.
+    
     Args:
-        entry: Dictionary containing hyperparameters and scores
-        max_width: Maximum width for the formatted string
-
+        entry: Dictionary containing hyperparameters and metrics.
+        rank: Rank of this configuration (1-based).
+        
     Returns:
-        Formatted string representation of the entry
+        Formatted string representation of the entry.
     """
     lines = []
-    lines.append("-" * max_width)
-
-    # Extract key metrics
-    config = entry.get('config', {})
+    lines.append(f"Rank: {rank}")
+    lines.append("-" * 40)
+    
+    # Extract and sort hyperparameters for consistent output
+    hyperparams = entry.get('hyperparameters', {})
     metrics = entry.get('metrics', {})
-
-    # Header with validation score
-    val_score = metrics.get('val_r2', float('nan'))
-    val_mae = metrics.get('val_mae', float('nan'))
-    lines.append(f"Config {entry.get('config_id', 'N/A')}: Val R²={val_score:.4f}, Val MAE={val_mae:.4f}")
-
-    # Hyperparameters
-    lines.append("Hyperparameters:")
-    for key, value in sorted(config.items()):
+    
+    # Sort hyperparameters alphabetically
+    for key in sorted(hyperparams.keys()):
+        value = hyperparams[key]
+        lines.append(f"  {key}: {value}")
+    
+    lines.append("  Metrics:")
+    for key in sorted(metrics.keys()):
+        value = metrics[key]
         if isinstance(value, float):
-            lines.append(f"  {key}: {value:.4f}")
+            lines.append(f"    {key}: {value:.6f}")
         else:
-            lines.append(f"  {key}: {value}")
-
-    # Training metrics
-    lines.append("Training Metrics:")
-    for key, value in sorted(metrics.items()):
-        if key not in ['config']:
-            if isinstance(value, float):
-                lines.append(f"  {key}: {value:.4f}")
-            else:
-                lines.append(f"  {key}: {value}")
-
+            lines.append(f"    {key}: {value}")
+    
     lines.append("")
     return "\n".join(lines)
 
 def generate_hyperparameter_log(
-    results_path: str = TRAINING_RESULTS_PATH,
-    output_path: str = HYPERPARAMETER_LOG_PATH
-) -> List[Dict[str, Any]]:
+    input_path: str,
+    output_path: str,
+    top_n: int = 10
+) -> None:
     """
-    Generate the hyperparameter search log from training results.
-
-    This function reads the training results JSON, extracts the hyperparameter
-    configurations and their corresponding validation scores, and writes them
-    to the log file in a human-readable format.
-
+    Generate a formatted log file of the top N hyperparameter configurations.
+    
     Args:
-        results_path: Path to the training results JSON file
-        output_path: Path where the log file should be written
-
-    Returns:
-        List of hyperparameter entries
+        input_path: Path to the JSON file containing all search results.
+        output_path: Path where the formatted log file will be saved.
+        top_n: Number of top configurations to include (default: 10).
     """
     logger = get_logger(__name__)
-
-    # Ensure output directory exists
-    ensure_dirs()
-
-    # Load training results
-    if not Path(results_path).exists():
-        logger.error(f"Training results not found at {results_path}")
-        # Create a placeholder log if no results exist
+    
+    # Load all results
+    results = load_hyperparameter_log(input_path)
+    
+    if not results:
+        logger.warning("No hyperparameter results found. Creating empty log file.")
         with open(output_path, 'w') as f:
-            f.write("# No training results found\n")
-        return []
-
-    with open(results_path, 'r') as f:
-        results = json.load(f)
-
-    # Ensure results is a list
-    if not isinstance(results, list):
-        logger.error(f"Expected list of results in {results_path}, got {type(results)}")
-        return []
-
-    # Sort results by validation R² (descending)
+            f.write("# Hyperparameter Search Log - No Results\n")
+        return
+    
+    # Sort by validation R² (descending)
     sorted_results = sorted(
         results,
-        key=lambda x: x.get('metrics', {}).get('val_r2', float('-inf')),
+        key=lambda x: x.get('metrics', {}).get('val_r2', 0),
         reverse=True
     )
-
-    # Write formatted log
+    
+    # Select top N
+    top_results = sorted_results[:top_n]
+    
+    # Generate formatted log content
+    logger.info(f"Generating log for top {len(top_results)} configurations...")
+    
+    lines = []
+    lines.append(f"# Hyperparameter Search Log - Top {len(top_results)} Configurations")
+    lines.append(f"# Generated from: {input_path}")
+    lines.append(f"# Sorted by: Validation R² (descending)")
+    lines.append("")
+    
+    for i, entry in enumerate(top_results, 1):
+        lines.append(format_hyperparameter_entry(entry, i))
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
+    # Write to file
     with open(output_path, 'w') as f:
-        f.write(f"# Hyperparameter Search Results\n")
-        f.write(f"# Total configurations tested: {len(sorted_results)}\n")
-        f.write(f"# Best validation R²: {sorted_results[0].get('metrics', {}).get('val_r2', 'N/A'):.4f}\n")
-        f.write(f"# Generated from: {results_path}\n")
-        f.write("#" + "=" * 79 + "\n\n")
+        f.write("\n".join(lines))
+    
+    logger.info(f"Hyperparameter log saved to: {output_path}")
 
-        for i, entry in enumerate(sorted_results):
-            # Add rank
-            entry['rank'] = i + 1
-            formatted = format_hyperparameter_entry(entry)
-            f.write(formatted)
-
-    logger.info(f"Hyperparameter log written to {output_path}")
-    return sorted_results
-
-def main(args=None):
-    """
-    Main entry point for the hyperparameter logging script.
-
-    Usage:
-        python -m models.log_hyperparameters --results artifacts/training_results.json
-    """
+def main():
+    """Main entry point for the hyperparameter logging script."""
     parser = argparse.ArgumentParser(
-        description="Generate hyperparameter search log from training results"
+        description="Log top hyperparameter configurations and their validation scores."
     )
     parser.add_argument(
-        '--results',
+        "--input",
         type=str,
-        default=TRAINING_RESULTS_PATH,
-        help=f"Path to training results JSON (default: {TRAINING_RESULTS_PATH})"
+        default="artifacts/hyperparameter_search_results.json",
+        help="Path to JSON file containing hyperparameter search results"
     )
     parser.add_argument(
-        '--output',
+        "--output",
         type=str,
-        default=HYPERPARAMETER_LOG_PATH,
-        help=f"Path for output log file (default: {HYPERPARAMETER_LOG_PATH})"
+        default="artifacts/hyperparameter_search.log",
+        help="Path for the output log file"
     )
     parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help="Enable verbose logging"
+        "--top-n",
+        type=int,
+        default=10,
+        help="Number of top configurations to log (default: 10)"
     )
-
-    parsed_args = parser.parse_args(args)
-
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Logging level"
+    )
+    
+    args = parser.parse_args()
+    
     # Setup logging
-    log_level = logging.DEBUG if parsed_args.verbose else logging.INFO
-    setup_logging(level=log_level)
-
+    setup_logging(level=args.log_level)
     logger = get_logger(__name__)
-    logger.info("Starting hyperparameter log generation")
-
-    try:
-        results = generate_hyperparameter_log(
-            results_path=parsed_args.results,
-            output_path=parsed_args.output
-        )
-
-        if results:
-            logger.info(f"Successfully logged {len(results)} hyperparameter configurations")
-            # Print top 5 to console
-            logger.info("Top 5 configurations:")
-            for entry in results[:5]:
-                val_r2 = entry.get('metrics', {}).get('val_r2', 0)
-                config = entry.get('config', {})
-                logger.info(f"  {entry.get('rank')}: R²={val_r2:.4f} - {config}")
-        else:
-            logger.warning("No hyperparameter configurations found in results")
-
-        return 0
-
-    except Exception as e:
-        logger.error(f"Failed to generate hyperparameter log: {e}", exc_info=True)
-        return 1
+    
+    logger.info(f"Starting hyperparameter log generation...")
+    logger.info(f"Input file: {args.input}")
+    logger.info(f"Output file: {args.output}")
+    logger.info(f"Top N: {args.top_n}")
+    
+    # Ensure output directories exist
+    ensure_dirs()
+    
+    # Generate the log
+    generate_hyperparameter_log(
+        input_path=args.input,
+        output_path=args.output,
+        top_n=args.top_n
+    )
+    
+    logger.info("Hyperparameter log generation complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

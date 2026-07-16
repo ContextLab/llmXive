@@ -1,16 +1,23 @@
-type: object
-required:
-  - row_index
-  - reason
-  - original_smiles
-properties:
-  row_index:
+schema: exclusion_report
+version: 1.0.0
+description: Schema for the exclusion report generated during data cleaning and descriptor calculation.
+fields:
+  - name: row_index
     type: integer
-  reason:
+    description: The original index of the row in the input dataset.
+    required: true
+  - name: reason
     type: string
-    enum:
-      - parsing_error
-      - missing_rate
-      - invalid_substrate
-  original_smiles:
+    description: The standardized error code or reason for exclusion.
+    allowed_values:
+      - canonicalization_error
+      - gasteiger_convergence_error
+      - steric_hindrance_exceeded
+      - primary_substrate
+      - missing_rate_constant
+      - invalid_smiles
+    required: true
+  - name: original_smiles
     type: string
+    description: The original SMILES string of the excluded molecule.
+    required: true

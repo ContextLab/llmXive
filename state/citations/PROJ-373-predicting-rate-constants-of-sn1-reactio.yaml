@@ -31,3 +31,14 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65c0701868f575c4c07fafd7/b809681581812a09292fdbefbaa39409f4c1fe643310749ee8f05c2b10170ecb?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00033-128aba00cc1f11e1.parquet%3B+filename%3D%22train-00000-of-00033-128aba00cc1f11e1.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1782985102&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVjMDcwMTg2OGY1NzVjNGMwN2ZhZmQ3L2I4MDk2ODE1ODE4MTJhMDkyOTJmZGJlZmJhYTM5NDA5ZjRjMWZlNjQzMzEwNzQ5ZWU4ZjA1YzJiMTAxNzBlY2JcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMzMtMTI4YWJhMDBjYzFmMTFlMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMzMtMTI4YWJhMDBjYzFmMTFlMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI5ODUxMDJ9fX1dfQ__&Signature=MEQCIDjCudPOt-oaObTkO%7EosMO%7EgRkMO97jFee5gox-vyf8qAiBMXs69V-qA8tJdNUhjQt3OoeHx0EM-VozPs6Q31WO3IA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-02T08:38:19.354629Z'
+- artifact_hash: a3a309febb19f05500f39bbab1a4abed81faf00c15999fb18744d62bad9c9ec6
+  artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-16T23:08:48.948097Z'

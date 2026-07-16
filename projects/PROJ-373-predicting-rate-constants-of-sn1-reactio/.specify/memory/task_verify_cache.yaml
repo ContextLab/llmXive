@@ -1,7 +1,8 @@
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., a report, script output, or updated `quickstart.md` showing
-    that the steps run successfully) was provided; the implementer gave no evidence
-    that the quickstart guide was executed and validated. The required validation
-    is therefore missing.
+  r: "The implementer supplied no artifact showing that `quickstart.md` was executed\
+    \ and its steps/outcomes compared to the generated results from T033. There is\
+    \ no validation report, diff, or updated documentation confirming the instructions\
+    \ match the actual execution. Consequently, the task\u2019s requirement is not\
+    \ satisfied."

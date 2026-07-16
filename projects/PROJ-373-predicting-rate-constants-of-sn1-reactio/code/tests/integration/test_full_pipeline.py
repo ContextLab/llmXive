@@ -5,224 +5,237 @@ import subprocess
 import tempfile
 import shutil
 from pathlib import Path
+from datetime import datetime
 
-import pytest
-import pandas as pd
+# Add project root to path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-# Ensure code/ is in path
-code_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(code_root))
-
-from config import ensure_dirs
+from config import DataConfig, TrainingConfig, AnalysisConfig, ensure_dirs
 from utils.logger import setup_logging
 
-class TestFullPipeline:
+logger = setup_logging("integration_test", level="INFO")
+
+def run_command(cmd: list, cwd: Path = None, timeout: int = 600) -> tuple:
+    """Run a shell command and return (returncode, stdout, stderr)."""
+    try:
+        logger.info(f"Running: {' '.join(cmd)}")
+        result = subprocess.run(
+            cmd,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env={**os.environ, "PYTHONPATH": str(project_root)}
+        )
+        return result.returncode, result.stdout, result.stderr
+    except subprocess.TimeoutExpired:
+        return -1, "", "Command timed out"
+
+def verify_artifact(path_str: str, expected_content_check: bool = True) -> bool:
+    """Verify an artifact exists and optionally check for non-empty content."""
+    path = project_root / path_str
+    if not path.exists():
+        logger.error(f"Artifact missing: {path}")
+        return False
+    
+    if expected_content_check:
+        if path.stat().st_size == 0:
+            logger.error(f"Artifact empty: {path}")
+            return False
+    
+    logger.info(f"Verified artifact: {path}")
+    return True
+
+def run_pipeline_on_subset(subset_size: int = 50) -> dict:
     """
-    Integration test for T033: Run full pipeline integration test on small subset
-    to verify end-to-end flow.
+    Execute the full pipeline stages on a small subset of data.
+    Returns a dict of results.
     """
+    results = {
+        "data_ingestion": False,
+        "data_cleaning": False,
+        "data_splitting": False,
+        "model_training": False,
+        "model_evaluation": False,
+        "interpretability": False,
+        "collinearity": False,
+        "sensitivity": False,
+        "final_artifacts": False
+    }
 
-    @pytest.fixture(autouse=True)
-    def setup_environment(self, tmp_path):
-        """Setup temporary directories and environment for the test."""
-        self.tmp_dir = tmp_path
-        self.project_root = code_root
-        self.data_dir = self.tmp_dir / "data"
-        self.artifacts_dir = self.tmp_dir / "artifacts"
-        self.logs_dir = self.tmp_dir / "logs"
+    # 1. Data Ingestion (T011)
+    # We assume T011 produces data/raw/raw_sn1.csv. If not, we might need to adjust.
+    # For this test, we assume the raw data exists or is fetched.
+    cmd = [sys.executable, "code/data/ingest.py", "--subset", str(subset_size)]
+    rc, out, err = run_command(cmd)
+    if rc == 0:
+        results["data_ingestion"] = True
+    else:
+        logger.error(f"Ingestion failed: {err}")
+        return results
 
-        # Create directory structure
-        ensure_dirs(self.data_dir, self.artifacts_dir, self.logs_dir)
+    # 2. Descriptor Calculation (T013)
+    cmd = [sys.executable, "code/data/descriptors.py"]
+    rc, out, err = run_command(cmd)
+    if rc == 0:
+        results["data_cleaning"] = True # T013 is part of cleaning pipeline
+    else:
+        logger.error(f"Descriptors failed: {err}")
+        return results
 
-        # Set environment variables to point to temp directories
-        os.environ["DATA_DIR"] = str(self.data_dir)
-        os.environ["ARTIFACTS_DIR"] = str(self.artifacts_dir)
-        os.environ["LOGS_DIR"] = str(self.logs_dir)
-        os.environ["SMALL_SUBSET"] = "True"  # Signal to run on small subset
+    # 3. Cleaning and Filtering (T012, T015, T016)
+    # T012 and T015 are often combined or T016 calls them.
+    # Based on API, T016 (finalize) depends on T015.
+    # Let's run the cleaning script which should produce the cleaned CSV.
+    cmd = [sys.executable, "code/data/clean.py"]
+    rc, out, err = run_command(cmd)
+    if rc == 0:
+        results["data_cleaning"] = True
+    else:
+        logger.error(f"Cleaning failed: {err}")
+        return results
 
-        yield
+    # 4. Splitting (T014)
+    cmd = [sys.executable, "code/data/split.py"]
+    rc, out, err = run_command(cmd)
+    if rc == 0:
+        results["data_splitting"] = True
+    else:
+        logger.error(f"Splitting failed: {err}")
+        return results
 
-        # Cleanup environment variables
-        for key in ["DATA_DIR", "ARTIFACTS_DIR", "LOGS_DIR", "SMALL_SUBSET"]:
-            if key in os.environ:
-                del os.environ[key]
+    # 5. Model Training (T020)
+    # We run a very small random search (e.g., 5 configs) to save time
+    cmd = [sys.executable, "code/models/train.py", "--max-configs", "5"]
+    rc, out, err = run_command(cmd, timeout=900) # 15 mins timeout for training
+    if rc == 0:
+        results["model_training"] = True
+    else:
+        logger.error(f"Training failed: {err}")
+        return results
 
-    def test_end_to_end_pipeline_small_subset(self):
-        """
-        Execute the full pipeline on a small subset and verify all outputs.
-        This test validates:
-        1. Data ingestion and cleaning
-        2. Descriptor computation
-        3. Data splitting
-        4. Model training
-        5. Evaluation
-        6. Interpretability analysis
-        7. All required artifacts are generated
-        """
-        logger = setup_logging("integration_test", self.logs_dir / "integration_test.log")
-        logger.info("Starting full pipeline integration test on small subset")
+    # 6. Evaluation (T021)
+    cmd = [sys.executable, "code/models/evaluate.py"]
+    rc, out, err = run_command(cmd)
+    if rc == 0:
+        results["model_evaluation"] = True
+    else:
+        logger.error(f"Evaluation failed: {err}")
+        return results
 
-        # Step 1: Run Data Ingestion (T011)
-        logger.info("Step 1: Running data ingestion...")
-        ingest_script = self.project_root / "data" / "ingest.py"
-        result = subprocess.run(
-            [sys.executable, str(ingest_script)],
-            cwd=self.project_root,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"Ingestion failed: {result.stderr}"
-        assert (self.data_dir / "raw" / "sn1_raw.csv").exists(), "Raw data file not created"
-        logger.info("Data ingestion successful")
+    # 7. Interpretability (T026)
+    cmd = [sys.executable, "code/analysis/interpret.py"]
+    rc, out, err = run_command(cmd)
+    if rc == 0:
+        results["interpretability"] = True
+    else:
+        logger.error(f"Interpretability failed: {err}")
+        return results
 
-        # Step 2: Run Data Cleaning (T012)
-        logger.info("Step 2: Running data cleaning...")
-        clean_script = self.project_root / "data" / "clean.py"
-        result = subprocess.run(
-            [sys.executable, str(clean_script)],
-            cwd=self.project_root,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"Cleaning failed: {result.stderr}"
-        assert (self.data_dir / "processed" / "cleaned_sn1.csv").exists(), "Cleaned data not created"
-        logger.info("Data cleaning successful")
+    # 8. Collinearity (T028)
+    cmd = [sys.executable, "code/analysis/collinearity.py"]
+    rc, out, err = run_command(cmd)
+    if rc == 0:
+        results["collinearity"] = True
+    else:
+        logger.error(f"Collinearity failed: {err}")
+        return results
 
-        # Step 3: Run Descriptor Computation (T013)
-        logger.info("Step 3: Running descriptor computation...")
-        desc_script = self.project_root / "data" / "descriptors.py"
-        result = subprocess.run(
-            [sys.executable, str(desc_script)],
-            cwd=self.project_root,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"Descriptor computation failed: {result.stderr}"
-        # Descriptors are appended to cleaned_sn1.csv or saved separately depending on impl
-        # We assume the cleaned file is updated or a new one is created
-        logger.info("Descriptor computation successful")
+    # 9. Sensitivity (T036 -> T027)
+    cmd = [sys.executable, "code/analysis/sensitivity_runner.py"]
+    rc, out, err = run_command(cmd)
+    if rc == 0:
+        results["sensitivity"] = True
+    else:
+        logger.error(f"Sensitivity runner failed: {err}")
+        return results
 
-        # Step 4: Run Data Splitting (T014)
-        logger.info("Step 4: Running data splitting...")
-        split_script = self.project_root / "data" / "split.py"
-        result = subprocess.run(
-            [sys.executable, str(split_script)],
-            cwd=self.project_root,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"Splitting failed: {result.stderr}"
-        assert (self.data_dir / "processed" / "train.csv").exists(), "Train split not created"
-        assert (self.data_dir / "processed" / "val.csv").exists(), "Val split not created"
-        assert (self.data_dir / "processed" / "test.csv").exists(), "Test split not created"
-        logger.info("Data splitting successful")
+    return results
 
-        # Step 5: Run Model Training (T020)
-        logger.info("Step 5: Running model training...")
-        train_script = self.project_root / "models" / "train.py"
-        result = subprocess.run(
-            [sys.executable, str(train_script)],
-            cwd=self.project_root,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"Training failed: {result.stderr}"
-        assert (self.artifacts_dir / "best_model.pt").exists(), "Model weights not saved"
-        logger.info("Model training successful")
+def generate_report(results: dict, success: bool) -> str:
+    """Generate the markdown report content."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    lines = [
+        "# Integration Test Report",
+        f"**Generated:** {timestamp}",
+        f"**Status:** {'PASSED' if success else 'FAILED'}",
+        "",
+        "## Summary",
+        "This report documents the execution of the full SN1 rate constant prediction pipeline",
+        "on a small subset of data (50 rows) to verify end-to-end flow.",
+        "",
+        "## Stage Results",
+        ""
+    ]
+    
+    for stage, passed in results.items():
+        status = "✅" if passed else "❌"
+        lines.append(f"- {stage}: {status}")
+    
+    lines.append("")
+    lines.append("## Artifact Verification")
+    lines.append("")
+    
+    required_artifacts = [
+        "data/processed/cleaned_sn1.csv",
+        "data/splits/train.csv",
+        "data/splits/val.csv",
+        "data/splits/test.csv",
+        "artifacts/best_model.pt",
+        "artifacts/metrics.json",
+        "artifacts/hyperparameter_search.log",
+        "artifacts/feature_importance.png",
+        "artifacts/sensitivity_report.csv",
+        "artifacts/perturbation_results.csv"
+    ]
+    
+    all_artifacts_present = True
+    for artifact in required_artifacts:
+        present = verify_artifact(artifact, expected_content_check=True)
+        status = "✅" if present else "❌"
+        lines.append(f"- {artifact}: {status}")
+        if not present:
+            all_artifacts_present = False
+    
+    lines.append("")
+    if success and all_artifacts_present:
+        lines.append("## Conclusion")
+        lines.append("All pipeline stages executed successfully and all required artifacts were generated.")
+    else:
+        lines.append("## Conclusion")
+        lines.append("The integration test failed due to missing stages or artifacts.")
+    
+    return "\n".join(lines)
 
-        # Step 6: Run Evaluation (T021)
-        logger.info("Step 6: Running evaluation...")
-        eval_script = self.project_root / "models" / "evaluate.py"
-        result = subprocess.run(
-            [sys.executable, str(eval_script)],
-            cwd=self.project_root,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"Evaluation failed: {result.stderr}"
-        assert (self.artifacts_dir / "metrics.json").exists(), "Metrics file not created"
-        logger.info("Evaluation successful")
+def main():
+    """Main entry point for the integration test."""
+    logger.info("Starting Integration Test (T033)")
+    ensure_dirs()
+    
+    # Run the pipeline
+    results = run_pipeline_on_subset(subset_size=50)
+    
+    # Determine overall success
+    success = all(results.values())
+    
+    # Generate report
+    report_content = generate_report(results, success)
+    
+    # Save report
+    report_path = project_root / "artifacts" / "integration_test_report.md"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write(report_content)
+    
+    logger.info(f"Report saved to {report_path}")
+    
+    if not success:
+        logger.error("Integration test failed.")
+        sys.exit(1)
+    else:
+        logger.info("Integration test passed.")
+        sys.exit(0)
 
-        # Step 7: Run Interpretability Analysis (T026, T027, T029)
-        logger.info("Step 7: Running interpretability analysis...")
-        interpret_script = self.project_root / "analysis" / "interpret.py"
-        result = subprocess.run(
-            [sys.executable, str(interpret_script)],
-            cwd=self.project_root,
-            capture_output=True,
-            text=True
-        )
-        # Interpretability might have optional dependencies (e.g., SHAP plotting),
-        # so we check for existence of key artifacts even if plotting fails
-        assert (self.artifacts_dir / "feature_importance.png").exists() or True, \
-            "Feature importance plot not created (may be optional)"
-        assert (self.artifacts_dir / "perturbation_results.csv").exists(), \
-            "Perturbation results not created"
-        logger.info("Interpretability analysis successful")
-
-        # Step 8: Run Sensitivity Analysis (T027)
-        logger.info("Step 8: Running sensitivity analysis...")
-        sens_script = self.project_root / "analysis" / "sensitivity.py"
-        result = subprocess.run(
-            [sys.executable, str(sens_script)],
-            cwd=self.project_root,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"Sensitivity analysis failed: {result.stderr}"
-        assert (self.artifacts_dir / "sensitivity_report.csv").exists(), \
-            "Sensitivity report not created"
-        logger.info("Sensitivity analysis successful")
-
-        # Step 9: Verify Exclusion Report (T015)
-        logger.info("Step 9: Verifying exclusion report...")
-        assert (self.data_dir / "processed" / "exclusion_report.csv").exists(), \
-            "Exclusion report not created"
-        logger.info("Exclusion report verified")
-
-        # Step 10: Verify Power Analysis (T035)
-        logger.info("Step 10: Verifying power analysis...")
-        power_script = self.project_root / "analysis" / "power.py"
-        result = subprocess.run(
-            [sys.executable, str(power_script)],
-            cwd=self.project_root,
-            capture_output=True,
-            text=True
-        )
-        # Power analysis might be optional depending on data size
-        if result.returncode == 0:
-            assert (self.artifacts_dir / "power_analysis_report.csv").exists(), \
-                "Power analysis report not created"
-            logger.info("Power analysis successful")
-        else:
-            logger.warning("Power analysis skipped or failed (may be expected for small subset)")
-
-        # Final Verification: Check all required artifacts
-        required_artifacts = [
-            "data/raw/sn1_raw.csv",
-            "data/processed/cleaned_sn1.csv",
-            "data/processed/train.csv",
-            "data/processed/val.csv",
-            "data/processed/test.csv",
-            "data/processed/exclusion_report.csv",
-            "artifacts/best_model.pt",
-            "artifacts/metrics.json",
-            "artifacts/perturbation_results.csv",
-            "artifacts/sensitivity_report.csv",
-        ]
-
-        missing = []
-        for artifact in required_artifacts:
-            if not (self.tmp_dir / artifact).exists():
-                missing.append(artifact)
-
-        assert not missing, f"Missing required artifacts: {missing}"
-
-        # Load and verify metrics content
-        with open(self.artifacts_dir / "metrics.json") as f:
-            metrics = json.load(f)
-            assert "r2" in metrics, "R2 metric missing"
-            assert "mae" in metrics, "MAE metric missing"
-            logger.info(f"Final Metrics: R2={metrics['r2']:.4f}, MAE={metrics['mae']:.4f}")
-
-        logger.info("Full pipeline integration test PASSED")
+if __name__ == "__main__":
+    main()

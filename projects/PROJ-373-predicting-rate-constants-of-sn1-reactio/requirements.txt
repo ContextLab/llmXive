@@ -5,6 +5,7 @@ shap
 pandas
 pyyaml
 datasets
-jsonschema
 pytest
-pytest-cov
+numpy
+matplotlib
+seaborn

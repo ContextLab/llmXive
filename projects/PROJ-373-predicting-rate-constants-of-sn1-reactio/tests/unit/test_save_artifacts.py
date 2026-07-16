@@ -1,79 +1,70 @@
-import os
-import sys
 import json
-import tempfile
-import torch
-from pathlib import Path
+import os
 import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from models.save_artifacts import save_best_model, save_metrics, load_best_training_result
-from models.mpnn import MPNN, MPNNConfig
+from models.save_artifacts import load_best_training_result, validate_metrics_against_schema, save_metrics
 
-class TestSaveArtifacts:
-    @pytest.fixture
-    def temp_dirs(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            model_dir = Path(tmpdir) / "models"
-            metrics_dir = Path(tmpdir) / "metrics"
-            results_dir = Path(tmpdir) / "results"
-            model_dir.mkdir()
-            metrics_dir.mkdir()
-            results_dir.mkdir()
-            yield model_dir, metrics_dir, results_dir
+def test_load_best_training_result():
+    """Test loading the best training result from a JSON file."""
+    # Create a temporary results file
+    results_data = [
+        {"val_r2": 0.5, "val_mae": 0.2, "config": {"lr": 0.01}},
+        {"val_r2": 0.8, "val_mae": 0.1, "config": {"lr": 0.001}}
+    ]
+    results_path = Path("test_results.json")
+    with open(results_path, 'w') as f:
+        json.dump(results_data, f)
 
-    def test_save_best_model_torch(self, temp_dirs):
-        model_dir, _, _ = temp_dirs
-        model = MPNN(input_dim=10, hidden_dim=32, output_dim=1, num_layers=2)
-        path = save_best_model(model, model_dir, "test_model.pt")
-        
-        assert path.exists()
-        # Verify it's a valid torch file
-        state = torch.load(path, map_location='cpu')
-        assert 'encoder.weight' in state or len(list(state.keys())) > 0
+    result = load_best_training_result(results_path)
+    assert result is not None
+    assert result['val_r2'] == 0.8
+    assert result['config']['lr'] == 0.001
 
-    def test_save_metrics(self, temp_dirs):
-        _, metrics_dir, _ = temp_dirs
-        metrics = {
-            "r2": 0.85,
-            "mae": 0.12,
-            "test_r2": 0.82,
-            "test_mae": 0.15
-        }
-        path = save_metrics(metrics, metrics_dir, "test_metrics.json")
-        
-        assert path.exists()
-        with open(path, 'r') as f:
-            loaded = json.load(f)
-        assert loaded["r2"] == 0.85
-        assert loaded["mae"] == 0.12
+    # Clean up
+    os.remove(results_path)
 
-    def test_load_best_training_result_missing(self, temp_dirs):
-        _, _, results_dir = temp_dirs
-        with pytest.raises(FileNotFoundError):
-            load_best_training_result(results_dir)
+def test_validate_metrics_against_schema():
+    """Test validation of metrics against schema."""
+    valid_metrics = {
+        "model_id": "test_model",
+        "hyperparameters": {"lr": 0.01},
+        "metrics": {"r2": 0.9, "mae": 0.1},
+        "weights_path": "artifacts/best_model.pt"
+    }
+    assert validate_metrics_against_schema(valid_metrics) is True
 
-    def test_load_best_training_result_success(self, temp_dirs):
-        _, _, results_dir = temp_dirs
-        best_data = {
-            "model_id": "test-1",
-            "val_r2": 0.9,
-            "val_mae": 0.05,
-            "config": {
-                "input_dim": 10,
-                "hidden_dim": 32,
-                "output_dim": 1,
-                "num_layers": 2,
-                "dropout": 0.1
-            }
-        }
-        
-        result_file = results_dir / "best_result.json"
-        with open(result_file, 'w') as f:
-            json.dump(best_data, f)
-        
-        loaded = load_best_training_result(results_dir)
-        assert loaded["val_r2"] == 0.9
-        assert loaded["config"]["hidden_dim"] == 32
+    invalid_metrics = {
+        "model_id": "test_model",
+        "hyperparameters": {"lr": 0.01},
+        "metrics": {"r2": 0.9},  # Missing 'mae'
+        "weights_path": "artifacts/best_model.pt"
+    }
+    assert validate_metrics_against_schema(invalid_metrics) is False
+
+    invalid_metrics = {
+        "model_id": "test_model",
+        "hyperparameters": {"lr": 0.01},
+        "metrics": {"r2": 0.9, "mae": 0.1},
+        # Missing 'weights_path'
+    }
+    assert validate_metrics_against_schema(invalid_metrics) is False
+
+def test_save_metrics():
+    """Test saving metrics to a JSON file."""
+    metrics = {
+        "model_id": "test_model",
+        "hyperparameters": {"lr": 0.01},
+        "metrics": {"r2": 0.9, "mae": 0.1},
+        "weights_path": "artifacts/best_model.pt"
+    }
+    output_path = Path("test_metrics.json")
+    assert save_metrics(metrics, output_path) is True
+    assert output_path.exists()
+
+    # Clean up
+    os.remove(output_path)

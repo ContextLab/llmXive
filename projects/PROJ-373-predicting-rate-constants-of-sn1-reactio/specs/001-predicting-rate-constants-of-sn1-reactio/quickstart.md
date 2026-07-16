@@ -1,232 +1,252 @@
-# Quickstart Guide: Predicting SN1 Rate Constants
+# Quickstart Guide: Predicting Rate Constants of SN1 Reactions
 
-This guide walks you through setting up the environment, running the full data pipeline, training the model, and generating interpretability reports.
+This guide provides step-by-step instructions to run the full pipeline for
+predicting SN1 reaction rate constants from molecular structure.
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip` (Python package installer)
-- Access to the HuggingFace dataset `chemistry/dts-sn1` (for real data ingestion)
+- Python 3.11 or higher
+- pip (Python package manager)
+- 8GB+ RAM (for full dataset processing)
+- CPU-only execution (no GPU required)
 
-## 1. Setup Environment
+## 1. Installation
 
 Clone the repository and install dependencies:
 
 ```bash
-git clone <repository-url>
+# Navigate to project root
 cd PROJ-373-predicting-rate-constants-of-sn1-reactio
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-Ensure the following tools are available for linting and testing (optional but recommended):
-- `ruff` (or `flake8`)
-- `black`
-- `pytest`
+**Required Dependencies**:
+- `rdkit`: Molecular descriptor calculation
+- `torch`: Model training (CPU-only)
+- `scikit-learn`: Baseline models and metrics
+- `shap`: Interpretability analysis
+- `pandas`: Data manipulation
+- `pyyaml`: Configuration and schema handling
+- `datasets`: HuggingFace dataset loading
+- `pytest`: Testing framework
 
-## 2. Directory Structure
+## 2. Data Pipeline
 
-The project uses the following structure:
+The data pipeline ingests public SN1 kinetic datasets, computes molecular
+descriptors, and produces a clean, stratified dataset.
 
-```
-.
-├── code/ # Source code
-│ ├── config.py # Hyperparameters and paths
-│ ├── utils/ # Logging, checksum utilities
-│ ├── data/ # Ingestion, cleaning, descriptors, splitting
-│ ├── models/ # MPNN architecture, training, evaluation
-│ ├── analysis/ # SHAP, sensitivity, collinearity, power analysis
-│ └── main.py # Orchestration script
-├── data/ # Data storage
-│ ├── raw/ # Raw downloaded data
-│ └── processed/ # Cleaned and split datasets
-├── artifacts/ # Model weights, metrics, reports
-├── specs/ # Design documents and schemas
-└── tests/ # Unit and integration tests
-```
+### 2.1 Ingest Data
 
-## 3. Run the Data Pipeline (User Story 1)
-
-The data pipeline ingests real SN1 kinetic data, cleans SMILES, computes descriptors, and splits the dataset.
-
-**Step 3.1: Ingest Data**
-
-Fetches data from the HuggingFace dataset `chemistry/dts-sn1`.
+Fetch SN1 kinetic data from HuggingFace:
 
 ```bash
 python code/data/ingest.py
 ```
 
-*Output*: `data/raw/sn1_raw.csv`, `data/processed/exclusion_report.csv`
+**Output**: `data/raw/sn1_kinetics.csv`
 
-**Step 3.2: Clean and Filter**
+### 2.2 Compute Descriptors
 
-Canonicalizes SMILES and removes primary alkyl halides.
-
-```bash
-python code/data/clean.py
-```
-
-*Output*: `data/processed/cleaned_sn1.csv` (intermediate)
-
-**Step 3.3: Compute Descriptors**
-
-Calculates Gasteiger charges and topological indices using RDKit.
+Calculate Gasteiger partial charges and topological indices:
 
 ```bash
 python code/data/descriptors.py
 ```
 
-*Output*: `data/processed/descriptors_added.csv`
+**Output**: Augmented dataset with descriptor columns
 
-**Step 3.4: Split Dataset**
+### 2.3 Clean and Filter
 
-Performs a stratified split by substrate class.
+Canonicalize SMILES and filter out primary alkyl halides:
+
+```bash
+python code/data/clean.py
+```
+
+**Output**: `data/processed/cleaned_sn1.csv`, `data/processed/exclusion_report.csv`
+
+### 2.4 Split Dataset
+
+Perform stratified split by substrate class:
 
 ```bash
 python code/data/split.py
 ```
 
-*Output*: `data/processed/train.csv`, `data/processed/val.csv`, `data/processed/test.csv`
+**Output**: `data/processed/train.csv`, `data/processed/val.csv`, `data/processed/test.csv`
 
-**Step 3.5: Finalize Dataset**
+## 3. Model Training
 
-Combines splits and saves checksums.
+Train a Message Passing Neural Network (MPNN) with hyperparameter optimization.
 
-```bash
-python code/data/finalize_dataset.py
-```
+### 3.1 Train Model
 
-*Output*: `data/processed/cleaned_sn1.csv` (final), `data/processed/cleaned_sn1.csv.sha256`
-
-## 4. Train the Model (User Story 2)
-
-Trains a Message Passing Neural Network (MPNN) with hyperparameter optimization.
-
-**Step 4.1: Train with Hyperparameter Search**
-
-Runs random search over up to 50 configurations.
+Run random search hyperparameter optimization:
 
 ```bash
 python code/models/train.py
 ```
 
-*Output*: `artifacts/best_model.pt`, `artifacts/hyperparameter_search.log`
+**Output**: `artifacts/hyperparameter_search.log`
 
-**Step 4.2: Evaluate Model**
+### 3.2 Evaluate Model
 
-Compares MPNN against a linear regression baseline using bootstrap.
+Calculate R² and MAE, compare with linear baseline:
 
 ```bash
 python code/models/evaluate.py
 ```
 
-*Output*: `artifacts/metrics.json`
+**Output**: `artifacts/metrics.json`
 
-**Step 4.3: Save Artifacts**
+### 3.3 Save Best Model
 
-Consolidates best model and logs.
+Save the best model weights and metrics:
 
 ```bash
 python code/models/save_artifacts.py
 ```
 
-*Output*: `artifacts/best_model.pt`, `artifacts/metrics.json`, `artifacts/hyperparameter_search.log`
+**Output**: `artifacts/best_model.pt`, `artifacts/metrics.json`
 
-## 5. Interpretability and Analysis (User Story 3)
+## 4. Interpretability and Analysis
 
-Generates SHAP values, sensitivity reports, and perturbation studies.
+Generate SHAP values, perform sensitivity analysis, and validate findings.
 
-**Step 5.1: Run Interpretability Analysis**
+### 4.1 Interpretability
 
-Computes SHAP values and performs perturbation studies.
+Generate SHAP rankings and perturbation study:
 
 ```bash
 python code/analysis/interpret.py
 ```
 
-*Output*: `artifacts/feature_importance.png`, `artifacts/perturbation_results.csv`
+**Output**: `artifacts/shap_rankings.json`, `artifacts/perturbation_results.csv`
 
-**Step 5.2: Sensitivity Analysis**
+### 4.2 Sensitivity Analysis
 
-Sweeps descriptor cutoffs to assess robustness.
+Analyze model sensitivity to descriptor inclusion:
 
 ```bash
+python code/analysis/sensitivity_runner.py
 python code/analysis/sensitivity.py
 ```
 
-*Output*: `artifacts/sensitivity_report.csv`
+**Output**: `artifacts/sensitivity_report.csv`
 
-**Step 5.3: Collinearity Diagnostics**
+### 4.3 Consistency Analysis
 
-Calculates VIF and performs PCA if needed.
+Verify stability across random seeds:
+
+```bash
+python code/analysis/consistency.py
+```
+
+**Output**: `artifacts/shap_consistency_report.md`
+
+### 4.4 Collinearity Diagnostics
+
+Calculate VIF and perform PCA if needed:
 
 ```bash
 python code/analysis/collinearity.py
 ```
 
-*Output*: `artifacts/collinearity_report.csv`
+**Output**: `artifacts/collinearity_report.json`
 
-**Step 5.4: Power Analysis**
+### 4.5 Generate Reports
 
-Calculates Minimum Detectable Effect (MDE) and sample size requirements.
-
-```bash
-python code/analysis/power.py
-```
-
-*Output*: `artifacts/power_analysis_report.csv`
-
-**Step 5.5: Generate Final Reports**
-
-Consolidates all analysis outputs.
+Aggregate all analysis results:
 
 ```bash
 python code/analysis/generate_reports.py
 ```
 
-*Output*: `artifacts/feature_importance.png`, `artifacts/sensitivity_report.csv`, `artifacts/perturbation_results.csv`
+**Output**: `artifacts/feature_importance.png`, `artifacts/sensitivity_report.csv`, `artifacts/perturbation_results.csv`
 
-## 6. Running Tests
+## 5. Expected Outputs
 
-Run the full test suite to verify correctness:
+After running the full pipeline, the following artifacts should exist:
+
+### Data Files
+- `data/processed/cleaned_sn1.csv`: Cleaned dataset with descriptors
+- `data/processed/exclusion_report.csv`: Log of excluded rows
+- `data/processed/train.csv`, `val.csv`, `test.csv`: Stratified splits
+
+### Model Artifacts
+- `artifacts/best_model.pt`: Trained MPNN weights
+- `artifacts/metrics.json`: Model performance metrics (R², MAE)
+- `artifacts/hyperparameter_search.log`: Top hyperparameter configurations
+
+### Analysis Reports
+- `artifacts/feature_importance.png`: SHAP summary plot
+- `artifacts/sensitivity_report.csv`: Sensitivity analysis results
+- `artifacts/perturbation_results.csv`: Perturbation study results
+- `artifacts/shap_consistency_report.md`: Consistency across seeds
+- `artifacts/collinearity_report.json`: VIF and PCA diagnostics
+
+## 6. Validation
+
+Validate that the quickstart instructions match actual execution:
 
 ```bash
-pytest tests/
+python code/validation/validate_quickstart.py
 ```
 
-Specific test categories:
-- **Contract Tests**: `tests/contract/` (validates YAML schemas)
-- **Unit Tests**: `tests/unit/` (individual function logic)
-- **Integration Tests**: `tests/integration/` (end-to-end flows)
+This script verifies:
+- All expected artifacts exist and are non-empty
+- `quickstart.md` contains required sections
+- Paths in documentation match actual file locations
 
-## 7. Full Pipeline Execution
+## 7. Testing
 
-To run the entire pipeline from ingestion to analysis:
+Run the test suite:
 
 ```bash
-python code/main.py --stage all
+pytest tests/ -v --cov=code
 ```
 
-This will sequentially execute all stages defined in `code/main.py`.
+Run specific test categories:
+- Unit tests: `pytest tests/unit/ -v`
+- Integration tests: `pytest tests/integration/ -v`
+- Contract tests: `pytest tests/contract/ -v`
 
-## Troubleshooting
+## 8. Troubleshooting
 
-- **Missing Dependencies**: Ensure all packages in `requirements.txt` are installed.
-- **Data Fetch Failures**: If the HuggingFace dataset is unreachable, check your internet connection or network proxy settings. The script will fail loudly without synthetic fallbacks.
-- **Memory Errors**: For large datasets, ensure sufficient RAM or use the streaming option in `code/data/ingest.py` if implemented.
-- **CUDA Errors**: This project is CPU-only. If you see CUDA errors, ensure `torch` is installed with CPU support only (`torch-cpu`).
+### Common Issues
 
-## Configuration
+**1. Missing Dependencies**
+```bash
+pip install -r requirements.txt --upgrade
+```
 
-Edit `code/config.py` to modify:
-- Random seeds
-- File paths
-- Hyperparameter search ranges
-- Data split ratios
+**2. Data Fetch Failures**
+Ensure internet connectivity and check HuggingFace dataset availability:
+```bash
+python -c "from datasets import load_dataset; load_dataset('chemistry/dts-sn1', split='train[:1]')"
+```
 
-## Contributing
+**3. Out of Memory**
+Reduce batch size in `config.py` or use a subset of the data for testing.
 
-When adding new features:
-1. Update `tasks.md` with new tasks.
-2. Write unit tests first (TDD).
-3. Ensure new data artifacts follow the schemas in `specs/001-predict-sn1-rate-constants/contracts/`.
+**4. CUDA Errors**
+This project is CPU-only. Ensure PyTorch is installed without CUDA support:
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+```
+
+## 9. Next Steps
+
+- Review `artifacts/metrics.json` for model performance
+- Examine `artifacts/feature_importance.png` for key structural features
+- Read `artifacts/shap_consistency_report.md` for stability analysis
+- Explore `specs/001-predict-sn1-rate-constants/` for detailed documentation
+
+## 10. References
+
+- Project Specification: `specs/001-predict-sn1-rate-constants/spec.md`
+- Implementation Plan: `specs/001-predict-sn1-rate-constants/plan.md`
+- Dataset Schema: `specs/001-predict-sn1-rate-constants/contracts/dataset.schema.yaml`
+- Model Output Schema: `specs/001-predict-sn1-rate-constants/contracts/model_output.schema.yaml`

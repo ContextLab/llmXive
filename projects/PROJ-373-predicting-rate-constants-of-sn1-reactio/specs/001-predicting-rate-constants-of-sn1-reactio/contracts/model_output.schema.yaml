@@ -1,18 +1,6 @@
-type: object
-required:
-  - model_id
-  - metrics
-properties:
-  model_id:
-    type: string
-  hyperparameters:
-    type: object
-  metrics:
-    type: object
-    properties:
-      r2:
-        type: number
-      mae:
-        type: number
-  weights_path:
-    type: string
+model_id: string
+hyperparameters: object
+metrics:
+  r2: number
+  mae: number
+weights_path: string

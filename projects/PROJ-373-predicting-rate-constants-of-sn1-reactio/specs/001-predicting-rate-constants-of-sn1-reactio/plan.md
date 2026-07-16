@@ -105,7 +105,7 @@ tests/
 | :--- | :--- | :--- |
 | **FR-001** | Ingest NIST/Reaxys/UCI, parse SMILES, Gasteiger, no GPU | `data/ingest.py`, `data/descriptors.py`. Uses verified DTS-SN1 URL. |
 | **FR-002** | /15/15 Stratified Split | `data/split.py` using `stratify` on substrate class. |
-| **FR-003** | MPNN (layers), CPU, Random Search (≤50) | `models/mpnn.py` (shallow), `models/train.py` (random search loop). *Note: Spec FR-003 contains a typo 'MPNN with -4 layers'; plan interprets this as 4 layers.* |
+| **FR-003** | MPNN (layers), CPU, Random Search (≤50) | `models/mpnn.py` (shallow), `models/train.py` (random search loop). *Note: Spec FR-003 contains a typo 'MPNN with layers'; plan interprets this as 4 layers.* |
 | **FR-004** | R²/MAE, Bootstrap Comparison (k resamples) | `models/evaluate.py` (scikit-learn `bootstrap` logic). |
 | **FR-005** | SHAP/Attention Feature Importance | `analysis/interpret.py` (SHAP library, applied to Model A only). |
 | **FR-006** | Sensitivity Sweep (low to high ranges)

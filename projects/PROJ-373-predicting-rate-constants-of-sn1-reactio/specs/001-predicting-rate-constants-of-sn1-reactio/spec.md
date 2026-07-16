@@ -88,7 +88,7 @@ The system MUST generate feature importance analysis (using SHAP or attention we
 ## Assumptions
 
 - The public SN1 kinetic datasets (NIST, Reaxys open subsets, UCI) contain all necessary variables: molecular structure (SMILES), experimental rate constants, and substrate classification.
-- The Gasteiger partial charge method and topological indices are computationally tractable on a 2-core CPU runner for the expected dataset size (≤14 GB disk usage), whereas PM is too expensive for the 6-hour limit.
+- The Gasteiger partial charge method and topological indices are computationally tractable on a 2-core CPU runner for the expected dataset size (≤14 GB disk usage), whereas PM is too expensive for the imposed time limit.
 - The relationship between molecular structure and SN1 rate constants is primarily driven by electronic and steric features that can be captured by graph-based descriptors and MPNNs.
 - The dataset size is sufficient to train a shallow MPNN without severe overfitting., or regularization techniques (dropout) will be sufficient to mitigate overfitting.
 - The SN1 reaction mechanism is the dominant pathway for the majority of the dataset entries; entries with competing mechanisms (e.g., SN2) will be filtered or flagged during preprocessing using independent chemical rules.
