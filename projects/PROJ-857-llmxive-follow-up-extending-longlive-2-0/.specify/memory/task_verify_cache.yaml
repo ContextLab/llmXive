@@ -1,0 +1,41 @@
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `simulation/training_loop.py` file or any code implementing a CPU\u2011only\
+    \ forward/backward pass with stochastic rounding is present in the provided evidence.\
+    \ The required artifact is missing, so the task has not been fulfilled."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided that implements a factory or\
+    \ re\u2011instantiation mechanism to change the simulated bit\u2011width (2,\u202F\
+    4,\u202F8) at runtime, nor any test showing the quantization rounding logic can\
+    \ be re\u2011initialized without restarting the program. The required artifact\
+    \ is missing."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, test, or documentation was provided showing that error handling for
+    NaN/Inf model collapse was added and that a "Collapse" status is recorded. The
+    required implementation artifact is missing, so the task is not satisfied.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, data file, or result report) showing the N=10,000\
+    \ noise samples, the computed KL\u2011divergence, or verification that it is \u2264\
+    5\u202F% of the theoretical uniform distribution was provided. The claim lacks\
+    \ any concrete evidence of the required analysis."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `evaluation/metrics.py` file or any code implementing temporal coherence\
+    \ scoring is present; without the required module the task of calculating per\u2011\
+    clip coherence scores cannot be verified. The implementer must add a non\u2011\
+    empty `evaluation/metrics.py` that defines the metric logic as specified."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation showing that `evaluation/clip_evaluator.py`
+    has been imported and called from the training loop, nor any output logs or results
+    demonstrating generated videos being scored, were provided. The required integration
+    artifact is missing.

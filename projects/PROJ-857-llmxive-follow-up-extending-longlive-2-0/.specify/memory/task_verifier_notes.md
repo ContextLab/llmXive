@@ -1,0 +1,19 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T002** — The required file `projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/code/requirements.txt` does not exist, even though a similarly named `code/requirements.txt` with the correct dependencies is present elsewhere. The task specifically demanded the file at the given project path, which is missing.
+- **T003** — No configuration files (e.g., pyproject.toml, .flake8, .isort.cfg, or pre‑commit hooks) or any other artifact showing that black, flake8, and isort have been set up is present. Without such files, the requirement to configure the linting/formatting tools is not satisfied. The implementer must add the appropriate configuration files and demonstrate they are active.
+- **T004** — No `config.py` file or its contents were provided; therefore the required constants for seeds, the three bit‑width values, and the path configurations are missing, so the task is not satisfied.
+- **T005** — declared artifact(s) missing/empty/invalid: data/loader.py
+- **T005a** — declared artifact(s) missing/empty/invalid: data/downsampler.py
+- **T007** — No `simulation/quantization_emulator.py` file or any code implementing stochastic rounding is provided; without the file we cannot verify that the required core logic, bit‑width handling, or KL‑divergence validation exists. The implementer must add the actual Python module with the specified functionality.
+- **T008** — No `simulation/student_model.py` file or any code implementing the CPU‑only wrapper is present in the provided evidence; without the actual file we cannot confirm that a functional wrapper for the simplified diffusion model exists. The required artifact is missing.
+- **T009** — No `evaluation/clip_evaluator.py` file or its contents were provided; without the script we cannot confirm that a frozen CLIP‑ViT model is loaded without gradients or that it produces temporal coherence scores as required. The required artifact is missing.
+- **T038** — declared artifact(s) missing/empty/invalid: data/discontinuity_generator.py
+- **T012** — No `simulation/training_loop.py` file or any code implementing a CPU‑only forward/backward pass with stochastic rounding is present in the provided evidence. The required artifact is missing, so the task has not been fulfilled.
+- **T013** — declared artifact(s) missing/empty/invalid: data/downsampler.py
+- **T014** — No code, script, or documentation was provided that implements a factory or re‑instantiation mechanism to change the simulated bit‑width (2, 4, 8) at runtime, nor any test showing the quantization rounding logic can be re‑initialized without restarting the program. The required artifact is missing.
+- **T015** — No code, test, or documentation was provided showing that error handling for NaN/Inf model collapse was added and that a "Collapse" status is recorded. The required implementation artifact is missing, so the task is not satisfied.
+- **T017** — No artifact (e.g., script, data file, or result report) showing the N=10,000 noise samples, the computed KL‑divergence, or verification that it is ≤5 % of the theoretical uniform distribution was provided. The claim lacks any concrete evidence of the required analysis.
+- **T021** — No code, script, or documentation showing that `evaluation/clip_evaluator.py` has been imported and called from the training loop, nor any output logs or results demonstrating generated videos being scored, were provided. The required integration artifact is missing.

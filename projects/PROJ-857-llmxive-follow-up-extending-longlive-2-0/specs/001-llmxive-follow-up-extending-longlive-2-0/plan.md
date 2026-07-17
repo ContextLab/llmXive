@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a CPU-only simulation loop to model the effects of NVFP4 (and lower) precision on video generation models. The approach uses **true integer quantization emulation** (`torch.quantize_per_tensor`) on standard 32-bit floats to simulate the *reduced dynamic range, underflow, and integer-accumulation behavior* of low-bit arithmetic (2-bit, 3-bit, 4-bit, 5-bit, and 6-bit). The system evaluates generated video clips using a frozen CLIP-ViT model to measure temporal coherence, aggregating results across the mandated 5 bit-widths (2, 3, 4, 5, 6) and seeds to identify the non-linear degradation threshold where narrative consistency collapses. The simulation explicitly emulates hardware-level quantization effects, acknowledging it as a proxy for hardware behavior rather than an exact replica.
+This project implements a CPU-only simulation loop to model the effects of NVFP4 (and lower) precision on video generation models. The approach uses **true integer quantization emulation** (`torch.quantize_per_tensor`) on standard 32-bit floats to simulate the *reduced dynamic range, underflow, and integer-accumulation behavior* of low-bit arithmetic (2-bit, 3-bit, 4-bit, 5-bit, and 6-bit). The system evaluates generated video clips using a frozen CLIP-ViT model to measure temporal coherence, aggregating results across the mandated A set of bit-widths spanning the range from 2 to 6 and seeds to identify the non-linear degradation threshold where narrative consistency collapses. The simulation explicitly emulates hardware-level quantization effects, acknowledging it as a proxy for hardware behavior rather than an exact replica.
 
 ## Technical Context
 
@@ -86,6 +86,6 @@ No violations detected. The complexity is managed by:
 1.  **CPU-Only Constraint**: By emulating precision via `torch.quantize_per_tensor` rather than actual low-bit hardware, we avoid complex CUDA kernels and stay within the 7GB RAM limit.
 2.  **Data Streaming**: Using `datasets.load_dataset(..., streaming=True)` avoids loading the full Kinetics-400 dataset into memory, addressing the 14GB disk constraint.
 3.  **Simplified Model**: The "student" model is a simplified diffusion architecture sufficient for the simulation, avoiding the computational cost of training a full-scale video model.
-4.  **Statistical Robustness**: Bayesian Model Comparison is used to handle the low sample size (5 data points) for non-linear threshold detection.
+4.  **Statistical Robustness**: Bayesian Model Comparison is used to handle the low sample size for non-linear threshold detection.
 5.  **Synthetic Ground Truth**: The validation protocol (FR-007) uses programmatically generated labels (frame swaps/cuts) rather than external human annotations, ensuring feasibility.
 6.  **Bit-width Scope**: The plan now covers 5 bit-widths (2, 3, 4, 5, 6) as required by the spec, necessitating a more aggressive clip sampling strategy to fit within the 6-hour window.

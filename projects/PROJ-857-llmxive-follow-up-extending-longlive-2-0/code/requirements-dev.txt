@@ -1,0 +1,6 @@
+# Development dependencies for linting and formatting
+# Install these in addition to requirements.txt for development
+
+black>=23.0.0
+flake8>=6.0.0
+isort>=5.12.0
