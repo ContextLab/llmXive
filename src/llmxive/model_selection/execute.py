@@ -49,7 +49,11 @@ from llmxive.backends.router import (
     disposition_of,
     make_backend,
 )
-from llmxive.model_selection.ledger_transport import LedgerConfig, LedgerError
+from llmxive.model_selection.ledger_transport import (
+    LedgerConfig,
+    LedgerError,
+    ledger_config_from_env,
+)
 from llmxive.model_selection.reservations import (
     CreditObservation,
     ReservationLease,
@@ -209,15 +213,20 @@ def execute(
     :class:`ExecutionResult`.
 
     ``backend_factory`` / ``credit_observer`` / ``balance_fetch`` are the supported
-    injection seams (FR-015). Paid candidates require ``ledger_repo``; in PRODUCTION
-    the caller MUST pass ``ledger_config=ledger_transport.ledger_config_from_env()``
-    (the single sanctioned source of the authoritative remote + pinned bootstrap
-    anchor, R5-1) — it fails closed until the anchor is configured, so paid stays
-    disabled rather than reserving against an unverified ledger. Without a
-    ``ledger_repo`` (or when the config/ledger read fails) paid candidates are
-    skipped (fail closed). Raises :class:`ChainExhausted` if no candidate succeeds,
-    or re-raises a request-level permanent refusal (abort) unchanged; raises
-    ``ValueError`` on the fail-fast budget check before any call.
+    injection seams (FR-015). Paid candidates require ``ledger_repo``.
+
+    **Ledger config resolution (R5-1 / finding-3).** ``ledger_config`` defaults to
+    ``None`` = the PRODUCTION config, resolved via
+    ``ledger_transport.ledger_config_from_env()`` (the single sanctioned source of
+    the authoritative remote + pinned bootstrap anchor) the first time a paid
+    reservation is needed. It FAILS CLOSED — if the anchor is not pinned, every paid
+    candidate is skipped (never a silent LOCAL-only reservation). A caller opts into
+    local/single-runner/test mode by passing an EXPLICIT ``LedgerConfig`` (e.g.
+    ``LedgerConfig(remote=None)``). Free-only chains never touch the env or the
+    ledger. Without a ``ledger_repo`` (or when the config/ledger read fails) paid
+    candidates are skipped (fail closed). Raises :class:`ChainExhausted` if no
+    candidate succeeds, or re-raises a request-level permanent refusal (abort)
+    unchanged; raises ``ValueError`` on the fail-fast budget check before any call.
     """
     now = now or datetime.now(UTC)
     call_id = call_id or uuid.uuid4().hex[:12]
@@ -231,6 +240,22 @@ def execute(
     if not ok:
         raise ValueError(f"execute: fail-fast budget check failed — {reason}")
 
+    # Resolve the effective ledger config ONCE, up front, so reserve / lease / settle
+    # all use the SAME config. Default (None) → the PRODUCTION config (fail-closed on
+    # a missing anchor); an explicit LedgerConfig (incl. remote=None) is the opt-in
+    # local/test mode. Only touched when the chain actually contains a paid candidate
+    # (a free-only chain never reads the env and never fails closed on the anchor).
+    ledger_config_error: str | None = None
+    if (
+        ledger_config is None
+        and ledger_repo is not None
+        and any(not c.pricing.is_free for c in chain.candidates)
+    ):
+        try:
+            ledger_config = ledger_config_from_env()
+        except LedgerError as exc:
+            ledger_config_error = str(exc)  # paid candidates fail closed (skip) below
+
     notes: list[str] = []
     for candidate in chain.candidates:
         ref = candidate.model_ref
@@ -238,6 +263,12 @@ def execute(
         reserved_credits = 0.0
 
         if not candidate.pricing.is_free:
+            if ledger_config_error is not None:
+                notes.append(
+                    f"paid {ref.model_id!r} skipped: production ledger not configured "
+                    f"({ledger_config_error}) — fail closed"
+                )
+                continue
             reservation_id, reserved_credits, skip = _open_paid_reservation(
                 candidate, chain, options=options, retries=retries,
                 ledger_repo=ledger_repo, ledger_config=ledger_config,

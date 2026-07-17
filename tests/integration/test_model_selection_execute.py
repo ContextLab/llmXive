@@ -285,3 +285,63 @@ def test_reserve_unexpected_error_surfaces(repo, monkeypatch):
     be = _PaidBackend("ok")
     with pytest.raises(ValueError, match="programmer bug"):
         _exec(_paid_chain(), repo, be, monkeypatch=monkeypatch)
+
+
+# --------------------------------------------------------------------------- #
+# Finding-3 (round 2): execute() resolves the PRODUCTION ledger config by default.
+# The default (ledger_config omitted) must NEVER silently open a LOCAL-only paid
+# reservation — a missing/unreachable production config fails closed (skip).
+# --------------------------------------------------------------------------- #
+
+
+def _exec_production(repo, backend, monkeypatch, *, call_id="cprod"):
+    """execute() with a ledger_repo but NO explicit ledger_config → production
+    resolution (the path a forgetful caller would hit)."""
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    return execute(
+        _paid_chain(), MSG,
+        options=ExecutionOptions(max_tokens=512, deadline_s=30.0),
+        backend_factory=lambda name: backend,
+        retries=1,
+        ledger_repo=repo,  # NOTE: ledger_config OMITTED → production default
+        credit_observer=_observer(), balance_fetch=_balance(), now=NOW, call_id=call_id,
+    )
+
+
+def test_missing_production_config_fails_closed_not_local(repo, monkeypatch):
+    from llmxive.model_selection.ledger_transport import LEDGER_ANCHOR_ENV, LEDGER_REMOTE_ENV
+
+    monkeypatch.delenv(LEDGER_ANCHOR_ENV, raising=False)  # anchor NOT pinned
+    monkeypatch.delenv(LEDGER_REMOTE_ENV, raising=False)
+    be = _PaidBackend("ok")
+    with pytest.raises(ChainExhausted) as ei:
+        _exec_production(repo, be, monkeypatch)
+    assert "production ledger not configured" in str(ei.value)
+    assert be.calls == []           # never called
+    assert read_events(repo) == []  # NOT silently reserved on a local ledger
+
+
+def test_production_config_unreachable_remote_fails_closed(repo, monkeypatch):
+    # Anchor pinned but the configured remote does not hold the ledger → fail closed
+    # (skip), never a local reservation.
+    from llmxive.model_selection.ledger_transport import LEDGER_ANCHOR_ENV, LEDGER_REMOTE_ENV
+
+    monkeypatch.setenv(LEDGER_ANCHOR_ENV, "deadbeefdeadbeef")
+    monkeypatch.setenv(LEDGER_REMOTE_ENV, "no-such-remote")
+    be = _PaidBackend("ok")
+    with pytest.raises(ChainExhausted):
+        _exec_production(repo, be, monkeypatch)
+    assert be.calls == []
+    assert read_events(repo) == []
+
+
+def test_explicit_local_config_is_the_opt_in_for_paid(repo, monkeypatch):
+    # The opt-in local/test mode: an EXPLICIT LedgerConfig(remote=None) reserves
+    # locally even with no anchor env — how tests + single-runner mode work.
+    from llmxive.model_selection.ledger_transport import LEDGER_ANCHOR_ENV
+
+    monkeypatch.delenv(LEDGER_ANCHOR_ENV, raising=False)
+    be = _PaidBackend("ok")
+    res = _exec(_paid_chain(), repo, be, monkeypatch=monkeypatch)  # _exec passes LOCAL_CFG
+    assert res.response.text == f"paid:{CLAUDE}"
+    assert res.reserved_credits > 0

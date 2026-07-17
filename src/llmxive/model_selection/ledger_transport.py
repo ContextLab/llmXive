@@ -208,8 +208,9 @@ def ledger_config_from_env(*, remote: str | None = None, require_anchor: bool = 
     (post-bootstrap), rather than running without the ancestry check that guards
     against a wrong/divergent ledger. The ref MUST additionally be protected
     server-side (fast-forward-only, writable only by the ledger identity); that is a
-    deploy-time operation, not enforceable in-repo (documented in ``bootstrap_ledger``
-    + this project's ops runbook).
+    deploy-time operation, not enforceable in-repo — see the runbook
+    ``infra/credit-ledger-ops.md`` (bootstrap, required env, ref protection, token
+    identity/permissions).
     """
     resolved_remote = (remote or os.environ.get(LEDGER_REMOTE_ENV, "").strip() or "origin")
     anchor = os.environ.get(LEDGER_ANCHOR_ENV, "").strip() or None
