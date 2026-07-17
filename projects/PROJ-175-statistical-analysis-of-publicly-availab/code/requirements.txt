@@ -8,6 +8,4 @@ scipy
 requests
 tqdm
 huggingface_hub
-matplotlib
 psutil
-seaborn

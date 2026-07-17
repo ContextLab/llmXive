@@ -107,3 +107,43 @@ class TestIntegrationPreprocess:
         assert mapping['Banana'] == 'Unknown'
         assert mapping['Apple'] == 'A'
         assert mapping['Cherry'] == 'C'
+
+    def test_levenshtein_normalization(self):
+        """
+        Test the specific Levenshtein normalization logic required by FR-002.
+        Verifies that ingredient names are mapped to canonical IDs based on
+        edit distance thresholds.
+        """
+        # Setup: Create a realistic scenario with variations
+        recipe_df = pd.DataFrame({
+            'recipe_id': [1, 2, 3, 4, 5],
+            'ingredient_name': [
+                'Fresh Apple',       # Should normalize to 'apple', match 'Apple'
+                'Apples',            # Should match 'Apple' (distance 1)
+                'Green Apple',       # Should normalize to 'green apple', no match
+                'Banana',            # No match
+                'Strawberry'         # No match
+            ]
+        })
+        
+        flavordb_df = pd.DataFrame({
+            'canonical_name': ['Apple', 'Strawberry'],
+            'id': ['FLAV_001', 'FLAV_002']
+        })
+        
+        mapping = build_canonical_map(recipe_df, flavordb_df)
+        
+        # Verify exact/normalized matches
+        assert mapping['Fresh Apple'] == 'FLAV_001'
+        assert mapping['Apples'] == 'FLAV_001'  # Levenshtein match
+        
+        # Verify no matches (distance too high or no canonical name)
+        assert mapping['Green Apple'] == 'Unknown'
+        assert mapping['Banana'] == 'Unknown'
+        assert mapping['Strawberry'] == 'FLAV_002'
+        
+        # Verify threshold behavior
+        # "Appel" is distance 1 from "Apple" -> should match
+        recipe_df_test = pd.DataFrame({'ingredient_name': ['Appel']})
+        mapping_test = build_canonical_map(recipe_df_test, flavordb_df)
+        assert mapping_test['Appel'] == 'FLAV_001'

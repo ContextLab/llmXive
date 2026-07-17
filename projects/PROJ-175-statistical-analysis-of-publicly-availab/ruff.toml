@@ -1,0 +1,33 @@
+# Linting configuration for llmXive project
+# Enforces: E4 (Import errors), E7 (Syntax errors), E9 (Runtime errors), F (Pyflakes)
+# Aligns with Constitution Principle I and FR-001 for code quality and reproducibility
+
+select = ["E4", "E7", "E9", "F"]
+
+# Ignore specific rules if necessary (currently none)
+ignore = []
+
+# Allow unused variables in specific cases (e.g., function arguments)
+# extend-ignore = []
+
+# Line length configuration (consistent with Black default)
+line-length = 88
+
+# Target Python version
+target-version = "py311"
+
+# Exclude generated or third-party code
+exclude = [
+  ".git",
+  "__pycache__",
+  ".eggs",
+  "*.egg-info",
+  "build",
+  "dist",
+  "venv",
+  ".venv",
+]
+
+# Per-file ignores (if any)
+# [per-file-ignores]
+# "__init__.py": ["F401"]

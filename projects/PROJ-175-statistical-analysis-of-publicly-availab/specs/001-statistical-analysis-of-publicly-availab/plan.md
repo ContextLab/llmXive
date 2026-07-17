@@ -92,7 +92,7 @@ projects/PROJ-175-statistical-analysis-of-publicly-availab/
 | **Orthogonalized Role** | Required to prevent tautology between 'Role' and 'Frequency' (Constitution VI). | Using raw rank/frequency creates collinearity, invalidating the LRT for independent effects. |
 | **Hard Fail on Unverified Data** | Required by Constitution II (Verified Accuracy) and VI (Independence). | Proceeding with unverified/fabricated data renders results scientifically invalid. |
 | **Hierarchical Bayesian Model** | Required by FR-002 to capture uncertainty in ingredient-level effects. | Simple logistic regression alone cannot quantify posterior distributions for effect sizes. |
-| **Downsampling Strategy** | Required to meet 7 GB RAM / 6h CPU constraint on Recipe1M (1M+ recipes). | Running full 1M corpus on free-tier CPU would exceed time/memory limits, causing CI failure. |
+| **Downsampling Strategy** | Required to meet 7 GB RAM / 6h CPU constraint on RecipeM (1M+ recipes). | Running full 1M corpus on free-tier CPU would exceed time/memory limits, causing CI failure. |
 
 ## Implementation Phases
 
@@ -107,7 +107,7 @@ projects/PROJ-175-statistical-analysis-of-publicly-availab/
 - **Output**: `data/verification_report.json`.
 
 ### Phase 0.5: Power Analysis
-- **Task**: Calculate required sample size for effect size ≥ 0.1 (logistic regression, 3 predictors).
+- **Task**: Calculate required sample size for effect size ≥ 0.1 (logistic regression, predictors).
 - **Action**: Use `statsmodels.stats.power` to estimate N.
 - **Decision**: If N > RAM limit, downsample to max feasible N and record achieved power as a limitation.
 
