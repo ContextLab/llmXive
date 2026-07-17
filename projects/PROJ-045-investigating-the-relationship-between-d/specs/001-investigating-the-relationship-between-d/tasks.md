@@ -122,9 +122,9 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T028 [US2] Add logging for atom counts, calculation status, and convergence results in `code/dft_runner.py`
 - [X] T029 [US2] Implement NEB method for several representative defect configurations PER SYSTEM with force convergence checks in `code/dft_runner.py`
 - [X] T030 [US2] Implement timeout detection and partial result preservation for jobs exceeding h limit in `code/dft_runner.py`
-- [ ] T031 [US2] **REVISE**: Implement supercell size validation in `code/dft_runner.py` to ensure minimum 2x2x2 conventional cells are used for the high-fidelity subset (as authorized by T024a). If 2x2x2 fails convergence, fallback to 3x3x3 and log the reason. (Addressing Linus Pauling review on spurious interactions).
-- [ ] T032 [US2] **REVISE**: Implement oxygen-anion position constraint logic in `code/dft_runner.py` to optionally constrain O-anion positions within 0.05 Å of crystallographic positions during relaxation (addressing Linus Pauling review).
-- [ ] T033 [US2] **REVISE**: Implement defect density quantification method in `code/dft_runner.py` to explicitly calculate and log defect concentration (defects/volume = 1 / supercell_volume) for every configuration, ensuring reproducibility of the "quantitative effect" claim (addressing Marie Curie review).
+- [X] T031 [US2] **REVISE**: Implement supercell size validation in `code/dft_runner.py` to ensure minimum 2x2x2 conventional cells are used for the high-fidelity subset (as authorized by T024a). If 2x2x2 fails convergence, fallback to 3x3x3 and log the reason. (Addressing Linus Pauling review on spurious interactions).
+- [X] T032 [US2] **REVISE**: Implement oxygen-anion position constraint logic in `code/dft_runner.py` to optionally constrain O-anion positions within 0.05 Å of crystallographic positions during relaxation (addressing Linus Pauling review).
+- [X] T033 [US2] **REVISE**: Implement defect density quantification method in `code/dft_runner.py` to explicitly calculate and log defect concentration (defects/volume = 1 / supercell_volume) for every configuration, ensuring reproducibility of the "quantitative effect" claim (addressing Marie Curie review).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -138,14 +138,14 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T034 [P] [US3] Contract test for R² and p-value outputs in `tests/test_analysis.py`
-- [ ] T035 [P] [US3] Integration test for multiple-comparison correction (Bonferroni/BH) in `tests/test_analysis.py`
+- [X] T034 [P] [US3] Contract test for R² and p-value outputs in `tests/test_analysis.py`
+- [X] T035 [P] [US3] Integration test for multiple-comparison correction (Bonferroni/BH) in `tests/test_analysis.py`
 
 ### Implementation for User Story 3
 
 - [ ] T045 [US3] **REVISE**: Integrate defect density (from T033) as a primary predictor variable in the regression model to explicitly link concentration to conductivity (addressing Marie Curie review). **MUST precede T037.**
-- [ ] T036 [US3] Implement calculation of Total Activation Energy (Ea = Ef + Em) for regression input in `code/analysis.py`
-- [ ] T037 [P] [US3] Implement `analysis.py` to perform linear regression between defect energies and conductivity using scikit-learn in `code/analysis.py`. **Must include defect density as a predictor (from T045).**
+- [X] T036 [US3] Implement calculation of Total Activation Energy (Ea = Ef + Em) for regression input in `code/analysis.py`
+- [X] T037 [P] [US3] Implement `analysis.py` to perform linear regression between defect energies and conductivity using scikit-learn in `code/analysis.py`. **Must include defect density as a predictor (from T045).**
 - [ ] T038 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) for >1 hypothesis test in `code/analysis.py`
 - [ ] T039 [US3] Implement variance inflation factor (VIF) diagnostic to detect collinearity between defect types in `code/analysis.py`
 - [ ] T040 [US3] Implement threshold sensitivity analysis (sweep p < 0.01, 0.05, 0.1) and report mean false-positive rate in `code/analysis.py`

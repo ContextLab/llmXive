@@ -1,0 +1,2 @@
+# This file ensures the data/results directory exists in git.
+# Checkpoints and evaluation results will be saved here.

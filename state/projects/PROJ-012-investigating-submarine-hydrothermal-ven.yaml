@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: ocean science
 human_escalation_reason: null
 id: PROJ-012-investigating-submarine-hydrothermal-ven
-last_run_id: e0d0e935-f06a-4e34-b08b-5e1fd018c902
+last_run_id: ba2ead46-73e1-4e15-b57a-0abb9de0b06f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Submarine Hydrothermal Vent Microbial Communities as Indicators of Ocean Acidification
-updated_at: '2026-06-16T22:30:12.276741Z'
+updated_at: '2026-07-17T00:47:42.194226Z'

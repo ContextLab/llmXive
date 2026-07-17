@@ -26,8 +26,8 @@
 
 **⚠️ CRITICAL**: No implementation can begin until Phase 0 is complete.
 
-- [ ] T000 [P] Execute Reference-Validator Agent on Lee & See (2004) and Langer (1975) citations. [UNRESOLVED-CLAIM: c_45544998 — status=not_enough_info] Input: BibTeX or inline citations from spec/plan. Output: `research/validation_report.json` with validation status and title overlap scores.
-- [ ] T001 [P] Generate `research.md` artifact documenting power analysis targets (≥0.80 power, f=0.25) [UNRESOLVED-CLAIM: c_74d2e44b — status=not_enough_info] and literature review findings. Schema: Must include a table with columns: Effect Size (f), Alpha, Target Power, Required N, and Calculated N. [UNRESOLVED-CLAIM: c_9fb912ce — status=not_enough_info]
+- [ ] T000 [P] Execute Reference-Validator Agent on Lee & See (2004) and Langer (1975) citations. Input: BibTeX or inline citations from spec/plan. Output: `research/validation_report.json` with validation status and title overlap scores.
+- [ ] T001 [P] Generate `research.md` artifact documenting power analysis targets (≥0.80 power, f=0.25) and literature review findings. Schema: Must include a table with columns: Effect Size (f), Alpha, Target Power, Required N, and Calculated N.
 - [ ] T002 [P] Execute pre-study power analysis calculation using `pwr` (R) or `statsmodels` (Python) with parameters f=0.25, alpha=0.05, power=0.80. Output the calculated N to `research/power_calculation.json`.
 - [ ] T003 [P] Validate `research.md` and `research/power_calculation.json` against `plan.md` Phase 0 requirements.
 
@@ -71,7 +71,7 @@
 - [ ] T013 [P] [US1] Implement "Control" condition interface in `code/experiment/app.py` (static AI display)
 - [ ] T014 [US1] Implement adherence tracking logic in `code/experiment/app.py` (calculate % of AI recommendations followed)
 - [ ] T015 [US1] Implement attention check questions and straight-lining detection in `code/experiment/app.py`
-- [ ] T016 [US1] Implement Lee & See (2004) Trust Scale items in `code/experiment/app.py` survey section. Requirement: Must include the full 12-item scale covering dimensions of reliability, competence, and predictability (verbatim from source), not a subset. [UNRESOLVED-CLAIM: c_7b8e0c1a — status=not_enough_info] Use a 7-point Likert scale (1=Strongly Disagree, 7=Strongly Agree). [UNRESOLVED-CLAIM: c_3dcce375 — status=not_enough_info]
+- [ ] T016 [US1] Implement Lee & See (2004) Trust Scale items in `code/experiment/app.py` survey section. Requirement: Must include the full 12-item scale covering dimensions of reliability, competence, and predictability (verbatim from source), not a subset. Use a 7-point Likert scale (1=Strongly Disagree, 7=Strongly Agree).
 - [ ] T017 [US1] Implement data export logic to `data/raw/` with checksum generation and filename timestamping
 - [ ] T018 [US1] Implement manipulation check question for "Perceived Agency" to validate the illusion of control
 
@@ -121,7 +121,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Implement sensitivity analysis in `code/analysis/sensitivity.py` (sweep participant exclusion threshold defined by attention check pass rate from 0.75 to 0.90 [UNRESOLVED-CLAIM: c_0508dbd7 — status=not_enough_info] and re-run primary analysis to report stability of findings). **Include**: Post-hoc power calculation logic here to explicitly state limitations if N < target.
+- [ ] T030 [P] [US3] Implement sensitivity analysis in `code/analysis/sensitivity.py` (sweep participant exclusion threshold defined by attention check pass rate from 0.75 to 0.90 and re-run primary analysis to report stability of findings). **Include**: Post-hoc power calculation logic here to explicitly state limitations if N < target.
 - [ ] T031 [US3] Implement final report generation in `code/analysis/report.py` (compile ANOVA, contrasts, post-hoc, effect sizes, pre-study power results from T002, and sensitivity analysis) to generate a Markdown report at `docs/report.md`.
 - [ ] T032 [US3] Add null result handling logic in `code/analysis/report.py` (explicitly report null findings and observed effect sizes)
 

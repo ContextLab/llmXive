@@ -275,3 +275,173 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T22:43:02Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 Trust Scale has 12 items
+  claim_id: c_2925728b
+  context: 'Requirement: Must include the full 12-item scale covering dimensions of
+    reliability, competence, and predictability (verbatim from source), not a subset.
+    Use a 7-point Likert scale (1=Strongly Disagree, 7=Strongly Agree).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) Trust Scale consists of 12 items covering dimensions
+    of reliability, competence, and predictability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T01:00:36Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Power analysis targets power 0.80 effect size 0.25 alpha 0.05
+  claim_id: c_24782932
+  context: "Generate `research.md` artifact documenting power analysis targets (\u2265\
+    0.80 power, f=0.25) and literature review findings."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis targets a power of 0.80 with an effect size of f=0.25
+    and alpha of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T01:03:49Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High Agency condition mean perceived agency score greater than 4.0
+  claim_id: c_7fe89d34
+  context: Analyze manipulation check data from T018 to verify the 'illusory control'
+    assumption (mean perceived agency score > 4.0 for High Agency condition).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_Agency_condition_mean_perceived_agency_score_greater_th
+  kind: magnitude
+  raw_text: The manipulation check for perceived agency expects a mean score greater
+    than 4.0 for the High Agency condition.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T01:04:13Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps attention check pass rate from 0.75 to 0.90
+  claim_id: c_e9be5b8b
+  context: Implement sensitivity analysis in `code/analysis/sensitivity.py` (sweep
+    participant exclusion threshold defined by attention check pass rate from 0.75
+    to 0.90 and re-run primary analysis to report stability of findings).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the participant exclusion threshold for
+    attention check pass rate from 0.75 to 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T01:04:30Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: Lee and See 2004 established trust in automation as critical determinant
+    of system reliance and performance
+  claim_id: c_73ae8324
+  context: The seminal work by Lee and See (2004) establishes that trust in automation
+    is a critical determinant of system reliance and performance. Their framework
+    identifies three dimensions of trust
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lee_and_See_2004_established_trust_in_automation_as_critical
+  kind: entity_fact
+  raw_text: Lee and See (2004) establishes that trust in automation is a critical
+    determinant of system reliance and performance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T01:08:52Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: Langer 1975 demonstrated individuals perceive greater control with minimal
+    involvement
+  claim_id: c_78b85bc6
+  context: Langer's classic research on the 'illusion of control' demonstrates that
+    individuals often perceive greater control over outcomes when they have even minimal
+    involvement in a process. This psychological phenomenon is central to our experimental
+    design
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Langer's classic research on the 'illusion of control' demonstrates that
+    individuals often perceive greater control over outcomes when they have even minimal
+    involvement in a process.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T01:08:52Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: Study uses 12-item trust scale to measure perceived agency influence
+    on trust dimensions
+  claim_id: c_03cdb8f6
+  context: Our study operationalizes these dimensions through the 12-item trust scale,
+    measuring how perceived agency (the illusion of control) influences these trust
+    dimensions in AI-mediated decision-making.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study uses a 12-item trust scale to measure how perceived agency influences
+    trust dimensions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T01:10:29Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: Meta-analytic estimates of illusion-of-control effects in HCI show r
+    between 0.25 and 0.30
+  claim_id: c_abda14d2
+  context: "Effect Size: Based on meta-analytic estimates of illusion-of-control effects\
+    \ in HCI (r \u2248 0.25-0.30, translating to f \u2248 0.25)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Meta-analytic estimates of illusion-of-control effects in HCI suggest\
+    \ an effect size of r \u2248 0.25-0.30."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T01:10:32Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: 52 participants per group 156 total required for 80 percent power to
+    detect medium effect f 0.25 with alpha 0.05 in one-way ANOVA with 3 groups
+  claim_id: c_40cb316a
+  context: 'Using the FTestAnovaPower solver from statsmodels, we calculated the required
+    sample size: Required N (per group) 52, Calculated N (Total) 156.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A sample size of 52 participants per group (156 total) is required to
+    achieve 80% power to detect a medium effect size (f=0.25) with alpha=0.05 in a
+    one-way ANOVA with 3 groups.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T01:11:25Z'

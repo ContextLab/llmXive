@@ -1,10 +1,3 @@
-"""
-Reference Validator Agent for llmXive Project PROJ-286.
-
-This module validates academic citations (Lee & See, 2004 and Langer, 1975)
-against real bibliographic sources (Crossref API) to confirm existence,
-retrieve titles, and calculate title overlap scores against expected strings.
-"""
 import json
 import os
 import sys
@@ -12,163 +5,184 @@ import time
 from typing import Any, Dict, List, Optional
 from difflib import SequenceMatcher
 
-# Try to use requests, fallback to urllib if not available
 try:
     import requests
-    HAS_REQUESTS = True
 except ImportError:
-    HAS_REQUESTS = False
-    from urllib.request import urlopen
-    from urllib.error import URLError, HTTPError
-    import json as json_lib
+    raise ImportError("The 'requests' library is required. Please install it via 'pip install requests' to run reference validation.")
 
-# Expected citations to validate
-EXPECTED_CITATIONS = [
-    {
-        "key": "lee_see_2004",
-        "authors": ["Lee", "J. D.", "See", "K. A."],
-        "year": 2004,
-        "expected_title_keywords": ["trust", "automation", "human"],
-        "full_title_hint": "Trust in Automation: Designing for Appropriate Reliance"
-    },
-    {
-        "key": "langer_1975",
-        "authors": ["Langer", "E. J."],
-        "year": 1975,
-        "expected_title_keywords": ["illusion", "control", "human"],
-        "full_title_hint": "The Illusion of Control"
-    }
-]
-
-CROSSREF_BASE_URL = "https://api.crossref.org/works"
 
 def calculate_similarity(str1: str, str2: str) -> float:
-    """Calculate similarity ratio between two strings using SequenceMatcher."""
+    """
+    Calculate the similarity ratio between two strings using SequenceMatcher.
+    Returns a float between 0.0 and 1.0.
+    """
     return SequenceMatcher(None, str1.lower(), str2.lower()).ratio()
 
-def fetch_crossref_data(query: str) -> Optional[Dict[str, Any]]:
-    """Fetch bibliographic data from Crossref API."""
-    params = {
-        "query": query,
-        "rows": 5,
-        "sort": "score",
-        "order": "desc"
-    }
 
-    if HAS_REQUESTS:
-        try:
-            response = requests.get(CROSSREF_BASE_URL, params=params, timeout=10)
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            print(f"Error fetching from Crossref: {e}", file=sys.stderr)
+def fetch_crossref_data(citation: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """
+    Fetches metadata for a citation from the Crossref API.
+    
+    Args:
+        citation: A dictionary containing 'author', 'title', 'year', and 'journal' keys.
+        
+    Returns:
+        The best matching metadata dictionary from Crossref, or None if no match found.
+    """
+    url = "https://api.crossref.org/works"
+    
+    # Construct query parameters
+    params = {
+        "query.author": citation.get("author", ""),
+        "query.title": citation.get("title", ""),
+        "rows": 1
+    }
+    
+    if citation.get("year"):
+        params["filter"] = f"published-print.date-parts:{citation['year']}"
+    
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        items = data.get("message", {}).get("items", [])
+        if not items:
             return None
-    else:
-        try:
-            url = CROSSREF_BASE_URL + "?" + "&".join(f"{k}={v}" for k, v in params.items())
-            with urlopen(url, timeout=10) as resp:
-                data = json_lib.load(resp)
-            return data
-        except Exception as e:
-            print(f"Error fetching from Crossref (urllib): {e}", file=sys.stderr)
-            return None
+        
+        # Return the first (best) match
+        return items[0]
+        
+    except requests.RequestException as e:
+        print(f"Error fetching data from Crossref: {e}", file=sys.stderr)
+        return None
+
 
 def validate_citation(citation: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Validate a single citation against Crossref.
-    Returns a validation report for that citation.
-    """
-    query = f"{citation['authors'][0]} {citation['year']}"
-    data = fetch_crossref_data(query)
-
-    result = {
-        "key": citation["key"],
-        "status": "failed",
-        "message": "No API access or network error",
-        "found": False,
-        "title": None,
-        "title_overlap_score": 0.0,
-        "matched_citation": None
-    }
-
-    if not data or "message" not in data or "items" not in data["message"]:
-        return result
-
-    items = data["message"]["items"]
-    best_match = None
-    best_score = 0.0
-
-    for item in items:
-        # Check year match (approximate)
-        item_year = item.get("published-print", {}).get("date-parts", [[None]])[0][0]
-        if item_year and item_year != citation["year"]:
-            continue
-
-        title = item.get("title", [""])[0]
-        if not title:
-            continue
-
-        # Check keyword overlap in title
-        title_lower = title.lower()
-        keyword_matches = sum(1 for kw in citation["expected_title_keywords"] if kw in title_lower)
+    Validates a single citation against Crossref and calculates overlap scores.
+    
+    Args:
+        citation: Dictionary with author, title, year, journal.
         
-        if keyword_matches > 0:
-            score = calculate_similarity(title, citation["full_title_hint"])
-            if score > best_score:
-                best_score = score
-                best_match = item
-
-    if best_match:
-        result["status"] = "validated"
-        result["found"] = True
-        result["title"] = best_match.get("title", [""])[0]
-        result["title_overlap_score"] = round(best_score, 4)
-        result["matched_citation"] = {
-            "doi": best_match.get("DOI"),
-            "publisher": best_match.get("publisher"),
-            "author": best_match.get("author", [])
-        }
+    Returns:
+        Dictionary containing validation status, found title, and overlap score.
+    """
+    result = {
+        "input": citation,
+        "status": "not_found",
+        "found_title": None,
+        "title_overlap_score": 0.0,
+        "message": ""
+    }
+    
+    crossref_data = fetch_crossref_data(citation)
+    
+    if not crossref_data:
+        result["message"] = "No matching record found in Crossref."
+        return result
+    
+    # Extract metadata from Crossref response
+    # Crossref structure: message -> items[0] -> title (list), author (list), etc.
+    crossref_title = crossref_data.get("title", [""])[0]
+    crossref_authors = crossref_data.get("author", [])
+    crossref_year = None
+    
+    # Try to extract year from 'published-print' or 'published-online'
+    pub_info = crossref_data.get("published-print", crossref_data.get("published-online", {}))
+    date_parts = pub_info.get("date-parts", [])
+    if date_parts and len(date_parts[0]) > 0:
+        crossref_year = date_parts[0][0]
+    
+    # Calculate overlap scores
+    title_score = calculate_similarity(citation.get("title", ""), crossref_title)
+    author_score = 0.0
+    
+    if crossref_authors:
+        # Compare first author
+        input_first_author = citation.get("author", "").split(",")[0].strip() if citation.get("author") else ""
+        crossref_first_author = crossref_authors[0].get("family", "") or crossref_authors[0].get("given", "")
+        author_score = calculate_similarity(input_first_author, crossref_first_author)
+    
+    # Determine status based on thresholds
+    if title_score > 0.85 and author_score > 0.7:
+        status = "verified"
+    elif title_score > 0.6:
+        status = "partial_match"
     else:
-        result["status"] = "unverified"
-        result["message"] = "No matching title found with expected keywords"
-
+        status = "low_confidence"
+    
+    result["status"] = status
+    result["found_title"] = crossref_title
+    result["title_overlap_score"] = round(title_score, 4)
+    result["author_overlap_score"] = round(author_score, 4)
+    result["crossref_year"] = crossref_year
+    result["message"] = f"Found match with {title_score:.2%} title similarity."
+    
     return result
 
+
 def main():
-    """Main entry point to validate references and write report."""
-    print("Starting Reference Validation Agent...")
+    """
+    Main entry point to validate specific citations: Lee & See (2004) and Langer (1975).
+    Outputs results to research/validation_report.json.
+    """
+    # Define the target citations based on the task requirements
+    citations = [
+        {
+            "author": "Lee, J. D., & See, K. A.",
+            "title": "Trust in Automation: Designing for Appropriate Reliance",
+            "year": 2004,
+            "journal": "Human Factors"
+        },
+        {
+            "author": "Langer, E. J.",
+            "title": "The Power of Mindful Learning",
+            "year": 1975,
+            "journal": "Journal of Personality and Social Psychology"
+        }
+    ]
+    
+    # Fallback for Langer 1975 if the specific title above doesn't match exactly in DB
+    # Langer has a famous 1975 paper on the "illusion of control"
+    # We will try the specific title first, but the validator handles partial matches.
+    # If the above fails, we might need to adjust, but let's run the validator against the canonical titles.
+    
+    # Actually, Langer (1975) "The power of mindful learning" is a book chapter or later.
+    # The famous 1975 paper is "The illusion of control". Let's use the classic citation for the experiment context.
+    # Task mentions "Langer (1975)" in the context of agency/trust. 
+    # Let's try the classic "The illusion of control" title which is the most cited 1975 work.
+    # However, the task description implies we are validating the citations *as provided* in the spec.
+    # Since I don't have the spec text, I will use the most likely canonical titles for these authors/years.
+    
+    # Correction for Langer 1975: "The illusion of control" is the seminal paper.
+    citations[1]["title"] = "The illusion of control"
+    citations[1]["journal"] = "Journal of Personality and Social Psychology"
+
+    reports = []
+    
+    print("Starting reference validation...")
+    
+    for citation in citations:
+        print(f"Validating: {citation['author']} ({citation['year']}) - {citation['title']}")
+        result = validate_citation(citation)
+        reports.append(result)
+        
+        # Rate limiting for Crossref API
+        time.sleep(0.5)
     
     # Ensure output directory exists
     output_dir = "research"
     os.makedirs(output_dir, exist_ok=True)
+    
     output_path = os.path.join(output_dir, "validation_report.json")
-
-    validation_results = []
-    all_validated = True
-
-    for citation in EXPECTED_CITATIONS:
-        print(f"Validating: {citation['key']}...")
-        result = validate_citation(citation)
-        validation_results.append(result)
-        if result["status"] != "validated":
-            all_validated = False
-        # Be polite to the API
-        time.sleep(1)
-
-    report = {
-        "project": "PROJ-286-the-influence-of-perceived-agency-in-ai-",
-        "task_id": "T000",
-        "validation_timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "overall_status": "completed" if all_validated else "partial",
-        "citations_validated": len(validation_results),
-        "results": validation_results
-    }
-
+    
     with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-
+        json.dump(reports, f, indent=2)
+        
     print(f"Validation report written to: {output_path}")
-    return 0
+    return reports
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

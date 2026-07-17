@@ -1,11 +1,3 @@
-"""
-Statistical Analysis Module for Defect Chemistry and Ionic Conductivity.
-
-This module performs linear regression analysis between defect formation energies
-and experimental ionic conductivity, incorporating defect density as a primary
-predictor variable to address the quantitative effect of concentration (Marie Curie review).
-"""
-
 import json
 import logging
 import os
@@ -15,433 +7,396 @@ from typing import Dict, List, Any, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error
-from statsmodels.stats.power import TTestIndPower
-from statsmodels.stats.multitest import multipletests
 from scipy import stats
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Import project utilities and models
-from utils import setup_logging, load_config
 from models import AnalysisResult
-from semi_empirical import load_dft_results
-from validate import validate_bvs, validate_crystallographic_constraints
+from utils import setup_logging, load_config
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-def load_processed_data(data_dir: Path) -> pd.DataFrame:
-    """
-    Load processed defect energy and conductivity data.
+def load_processed_data(data_path: Path) -> pd.DataFrame:
+    """Load processed data from JSON/CSV."""
+    if not data_path.exists():
+        raise FileNotFoundError(f"Processed data not found at {data_path}")
     
-    Args:
-        data_dir: Path to the data/processed directory.
-        
-    Returns:
-        DataFrame containing defect energies, conductivity, and defect density.
-    """
-    processed_file = data_dir / "defect_energies_conductivity.csv"
-    
-    if not processed_file.exists():
-        # Try to load from DFT results if direct file doesn't exist
-        dft_results = load_dft_results(data_dir)
-        if not dft_results:
-            raise FileNotFoundError(f"No processed data found at {processed_file}")
-        
-        # Convert DFT results to DataFrame if needed
-        df = pd.DataFrame(dft_results)
-        df.to_csv(processed_file, index=False)
-        return df
-    
-    return pd.read_csv(processed_file)
-
-def calculate_activation_energy(ef: float, em: float) -> float:
-    """
-    Calculate Total Activation Energy (Ea = Ef + Em).
-    
-    Args:
-        ef: Defect formation energy (eV)
-        em: Migration barrier (eV)
-        
-    Returns:
-        Total activation energy (eV)
-    """
-    return ef + em
-
-def validate_data_quality(df: pd.DataFrame, data_dir: Path) -> pd.DataFrame:
-    """
-    Validate data quality by rejecting points where BVS constraints were violated.
-    This ensures only chemically valid structures enter the statistical model.
-    
-    Args:
-        df: DataFrame with composition data
-        data_dir: Path to data directory
-        
-    Returns:
-        Filtered DataFrame with only valid structures
-    """
-    logger.info("Validating data quality against BVS and crystallographic constraints...")
-    
-    # Load validation results if available
-    validation_file = data_dir / "validation_results.json"
-    
-    if validation_file.exists():
-        with open(validation_file, 'r') as f:
-            validation_data = json.load(f)
-        
-        # Create a set of valid composition IDs
-        valid_ids = set()
-        for comp_id, results in validation_data.items():
-            if results.get('bvs_valid', False) and results.get('crystallographic_valid', False):
-                valid_ids.add(comp_id)
-        
-        # Filter DataFrame to only include valid compositions
-        if 'composition_id' in df.columns:
-            initial_count = len(df)
-            df = df[df['composition_id'].isin(valid_ids)]
-            filtered_count = len(df)
-            logger.info(f"Data validation: {initial_count - filtered_count} invalid structures removed. {filtered_count} valid structures remain.")
-        else:
-            logger.warning("No composition_id column found in data. Skipping validation filtering.")
+    if data_path.suffix == '.json':
+        with open(data_path, 'r') as f:
+            data = json.load(f)
+        return pd.DataFrame(data)
+    elif data_path.suffix == '.csv':
+        return pd.read_csv(data_path)
     else:
-        logger.warning(f"Validation results file not found at {validation_file}. Proceeding without filtering.")
+        raise ValueError(f"Unsupported file format: {data_path.suffix}")
+
+def calculate_activation_energy(defect_energy: float, migration_barrier: float) -> float:
+    """Calculate total activation energy: Ea = Ef + Em."""
+    return defect_energy + migration_barrier
+
+def validate_data_quality(df: pd.DataFrame) -> Tuple[bool, List[str]]:
+    """Validate data quality for regression analysis."""
+    issues = []
     
-    return df
+    required_cols = ['defect_energy', 'conductivity', 'defect_density', 'migration_barrier']
+    for col in required_cols:
+        if col not in df.columns:
+            issues.append(f"Missing required column: {col}")
+    
+    if issues:
+        return False, issues
+    
+    # Check for NaN values
+    nan_counts = df[required_cols].isna().sum()
+    if nan_counts.any():
+        issues.append(f"NaN values found: {nan_counts[nan_counts > 0].to_dict()}")
+    
+    # Check for valid ranges
+    if (df['defect_energy'] < 0).any():
+        issues.append("Negative defect energies detected")
+    
+    if (df['conductivity'] <= 0).any():
+        issues.append("Non-positive conductivity values detected")
+    
+    if (df['defect_density'] <= 0).any():
+        issues.append("Non-positive defect density values detected")
+    
+    return len(issues) == 0, issues
 
 def perform_regression_with_density(
     df: pd.DataFrame,
-    target_col: str = 'conductivity',
-    predictor_cols: List[str] = None
-) -> Tuple[Dict[str, Any], LinearRegression]:
+    target_col: str = 'conductivity'
+) -> Dict[str, Any]:
     """
-    Perform linear regression with defect density as a primary predictor variable.
+    Perform linear regression between defect energies and conductivity
+    using defect density as a primary predictor.
     
-    This addresses the Marie Curie review by explicitly linking defect concentration
-    to conductivity through a multi-variable regression model.
-    
-    Args:
-        df: DataFrame with defect data
-        target_col: Column name for conductivity (log10 transformed)
-        predictor_cols: List of predictor columns including defect density
-        
-    Returns:
-        Tuple of (results_dict, fitted_model)
+    Model: log(conductivity) ~ defect_energy + defect_density + migration_barrier
     """
-    if predictor_cols is None:
-        predictor_cols = ['defect_density', 'activation_energy', 'vacancy_concentration']
+    # Prepare features
+    X = df[['defect_energy', 'defect_density', 'migration_barrier']].values
+    y = np.log(df[target_col].values)  # Log-transform conductivity for linear relationship
     
-    # Ensure required columns exist
-    missing_cols = [col for col in predictor_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required predictor columns: {missing_cols}")
-    
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in data")
-    
-    # Prepare features and target
-    X = df[predictor_cols].values
-    y = df[target_col].values
-    
-    # Handle missing values
-    mask = ~np.isnan(X).any(axis=1) & ~np.isnan(y)
-    X = X[mask]
-    y = y[mask]
-    
-    if len(X) < 2:
-        raise ValueError("Insufficient data points for regression after filtering")
-    
-    # Fit linear regression model
+    # Fit model
     model = LinearRegression()
     model.fit(X, y)
     
-    # Calculate metrics
+    # Predictions
     y_pred = model.predict(X)
+    
+    # Metrics
     r2 = r2_score(y, y_pred)
     mse = mean_squared_error(y, y_pred)
+    rmse = np.sqrt(mse)
     
-    # Calculate p-values for coefficients using scipy
-    n_samples, n_features = X.shape
+    # P-values using scipy
+    n, p = X.shape
     residuals = y - y_pred
-    ss_res = np.sum(residuals**2)
-    ss_tot = np.sum((y - np.mean(y))**2)
+    dof = n - p - 1
     
-    # Calculate standard errors and t-statistics
-    mse_res = ss_res / (n_samples - n_features - 1)
-    var_covar = mse_res * np.linalg.inv(np.dot(X.T, X))
-    se = np.sqrt(np.diag(var_covar))
-    t_stats = model.coef_ / se
-    p_values = 2 * (1 - stats.t.cdf(np.abs(t_stats), n_samples - n_features - 1))
+    # Calculate standard errors and t-statistics for coefficients
+    X_with_intercept = np.column_stack([np.ones(n), X])
+    XtX_inv = np.linalg.inv(X_with_intercept.T @ X_with_intercept)
+    sigma2 = np.sum(residuals**2) / dof
+    se = np.sqrt(np.diag(sigma2 * XtX_inv))
+    
+    t_stats = model.coef_ / se[1:]  # Skip intercept
+    p_values = 2 * (1 - stats.t.cdf(np.abs(t_stats), dof))
     
     results = {
-        'r_squared': r2,
-        'mean_squared_error': mse,
-        'coefficients': dict(zip(predictor_cols, model.coef_.tolist())),
-        'intercept': float(model.intercept_),
-        'p_values': dict(zip(predictor_cols, p_values.tolist())),
-        'sample_size': n_samples,
-        'feature_names': predictor_cols,
-        'target_variable': target_col
+        'r2': r2,
+        'rmse': rmse,
+        'coefficients': {
+            'intercept': model.intercept_,
+            'defect_energy': model.coef_[0],
+            'defect_density': model.coef_[1],
+            'migration_barrier': model.coef_[2]
+        },
+        'p_values': {
+            'defect_energy': p_values[0],
+            'defect_density': p_values[1],
+            'migration_barrier': p_values[2]
+        },
+        'standard_errors': {
+            'defect_energy': se[1],
+            'defect_density': se[2],
+            'migration_barrier': se[3]
+        },
+        'n_samples': n,
+        'degrees_of_freedom': dof
     }
     
-    logger.info(f"Regression complete: R² = {r2:.4f}, Sample size = {n_samples}")
-    logger.info(f"Coefficients: {model.coef_}")
-    logger.info(f"P-values: {p_values}")
+    logger.info(f"Regression R²: {r2:.4f}")
+    logger.info(f"Regression RMSE: {rmse:.4f}")
+    logger.info(f"Defect density coefficient: {model.coef_[1]:.6f} (p={p_values[1]:.4f})")
     
-    return results, model
+    return results
 
 def apply_multiple_comparison_correction(
     p_values: Dict[str, float],
-    alpha: float = 0.05,
     method: str = 'bonferroni'
-) -> Dict[str, Any]:
+) -> Dict[str, float]:
     """
     Apply multiple-comparison correction to p-values.
     
     Args:
         p_values: Dictionary of variable names to p-values
-        alpha: Significance threshold
-        method: Correction method ('bonferroni' or 'benjamini-hochberg')
-        
+        method: 'bonferroni' or 'bh' (Benjamini-Hochberg)
+    
     Returns:
-        Dictionary with corrected p-values and significance flags
+        Dictionary of corrected p-values
     """
     variables = list(p_values.keys())
-    p_vals = list(p_values.values())
+    raw_p = np.array([p_values[v] for v in variables])
+    n_tests = len(raw_p)
     
     if method == 'bonferroni':
-        corrected_p = multipletests(p_vals, alpha=alpha, method='bonferroni')[1]
-        significant = multipletests(p_vals, alpha=alpha, method='bonferroni')[0]
-    elif method == 'benjamini-hochberg':
-        corrected_p = multipletests(p_vals, alpha=alpha, method='fdr_bh')[1]
-        significant = multipletests(p_vals, alpha=alpha, method='fdr_bh')[0]
+        corrected_p = np.minimum(raw_p * n_tests, 1.0)
+    elif method == 'bh':
+        # Benjamini-Hochberg procedure
+        sorted_indices = np.argsort(raw_p)
+        sorted_p = raw_p[sorted_indices]
+        ranks = np.arange(1, n_tests + 1)
+        corrected_sorted_p = np.minimum(sorted_p * n_tests / ranks, 1.0)
+        # Ensure monotonicity
+        for i in range(n_tests - 2, -1, -1):
+            corrected_sorted_p[i] = min(corrected_sorted_p[i], corrected_sorted_p[i + 1])
+        corrected_p = np.empty(n_tests)
+        corrected_p[sorted_indices] = corrected_sorted_p
     else:
         raise ValueError(f"Unknown correction method: {method}")
     
-    return {
-        'original_p_values': p_values,
-        'corrected_p_values': dict(zip(variables, corrected_p.tolist())),
-        'significant': dict(zip(variables, significant.tolist())),
-        'method': method,
-        'alpha': alpha
-    }
+    corrected_p_values = dict(zip(variables, corrected_p))
+    
+    logger.info(f"Applied {method} correction to {n_tests} hypothesis tests")
+    for var, p in corrected_p_values.items():
+        logger.info(f"  {var}: {p:.4f}")
+    
+    return corrected_p_values
 
 def calculate_statistical_power(
-    effect_size: float = 0.1,
-    alpha: float = 0.05,
-    target_power: float = 0.8,
-    sample_size: int = None
-) -> Dict[str, float]:
+    n_samples: int,
+    effect_size: float,
+    alpha: float = 0.05
+) -> float:
     """
-    Calculate statistical power using statsmodels.
+    Calculate statistical power for the regression model.
     
-    Args:
-        effect_size: Expected effect size (Cohen's d)
-        alpha: Significance level
-        target_power: Target power level
-        sample_size: Actual sample size (if None, calculates required n)
-        
-    Returns:
-        Dictionary with power analysis results
+    Uses the F-test power approximation for multiple regression.
     """
-    power_analysis = TTestIndPower()
+    from statsmodels.stats.power import FTestPower
     
-    if sample_size:
-        # Calculate power for given sample size
-        power = power_analysis.solve_power(
-            effect_size=effect_size,
-            nobs1=sample_size,
-            alpha=alpha,
-            ratio=1.0
-        )
-        return {
-            'power': power,
-            'sample_size': sample_size,
-            'effect_size': effect_size,
-            'alpha': alpha,
-            'meets_target': power >= target_power
-        }
-    else:
-        # Calculate required sample size
-        n_required = power_analysis.solve_power(
-            effect_size=effect_size,
-            power=target_power,
-            alpha=alpha,
-            ratio=1.0
-        )
-        return {
-            'required_sample_size': int(np.ceil(n_required)),
-            'effect_size': effect_size,
-            'alpha': alpha,
-            'target_power': target_power
-        }
+    # Number of predictors
+    k = 3  # defect_energy, defect_density, migration_barrier
+    
+    # Non-centrality parameter approximation
+    f2 = effect_size ** 2
+    ncp = f2 * n_samples
+    
+    # Critical F value
+    df1 = k
+    df2 = n_samples - k - 1
+    f_crit = stats.f.ppf(1 - alpha, df1, df2)
+    
+    # Power calculation (approximation)
+    power = 1 - stats.ncf.cdf(f_crit, df1, df2, ncp)
+    
+    logger.info(f"Statistical power (n={n_samples}, effect_size={effect_size}): {power:.4f}")
+    return power
 
 def generate_regression_plot(
     df: pd.DataFrame,
-    predictor_col: str,
-    target_col: str,
-    model: LinearRegression,
+    regression_results: Dict[str, Any],
     output_path: Path
-) -> Path:
-    """
-    Generate correlation plot with statistical significance markers.
+) -> None:
+    """Generate correlation plot with statistical significance markers."""
+    plt.figure(figsize=(12, 10))
     
-    Args:
-        df: DataFrame with data
-        predictor_col: Predictor variable column name
-        target_col: Target variable column name
-        model: Fitted regression model
-        output_path: Path to save the plot
-        
-    Returns:
-        Path to the saved plot
-    """
-    plt.figure(figsize=(10, 8))
+    # Create subplots
+    fig, axes = plt.subplots(2, 2, figsize=(14, 12))
     
-    # Scatter plot
-    sns.scatterplot(
-        x=df[predictor_col],
-        y=df[target_col],
-        alpha=0.7,
-        edgecolors='w',
-        s=100
-    )
+    # Plot 1: Defect Energy vs Conductivity
+    ax1 = axes[0, 0]
+    ax1.scatter(df['defect_energy'], df['conductivity'], alpha=0.6, edgecolors='w')
+    ax1.set_xlabel('Defect Energy (eV)')
+    ax1.set_ylabel('Conductivity (S/cm)')
+    ax1.set_title(f'Defect Energy vs Conductivity\n(R² = {regression_results["r2"]:.3f})')
+    ax1.grid(True, alpha=0.3)
     
-    # Regression line
-    x_line = np.linspace(df[predictor_col].min(), df[predictor_col].max(), 100)
-    y_line = model.predict(x_line.reshape(-1, 1))
-    plt.plot(x_line, y_line, 'r-', linewidth=2, label='Regression Line')
+    # Plot 2: Defect Density vs Conductivity
+    ax2 = axes[0, 1]
+    ax2.scatter(df['defect_density'], df['conductivity'], alpha=0.6, edgecolors='w', c='orange')
+    ax2.set_xlabel('Defect Density (defects/Å³)')
+    ax2.set_ylabel('Conductivity (S/cm)')
+    ax2.set_title('Defect Density vs Conductivity')
+    ax2.grid(True, alpha=0.3)
     
-    # Add R² and p-value annotations
-    r2 = r2_score(df[target_col], model.predict(df[predictor_col].values.reshape(-1, 1)))
-    plt.annotate(
-        f'R² = {r2:.3f}',
-        xy=(0.05, 0.95),
-        xycoords='axes fraction',
-        fontsize=12,
-        verticalalignment='top',
-        bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    )
+    # Plot 3: Migration Barrier vs Conductivity
+    ax3 = axes[1, 0]
+    ax3.scatter(df['migration_barrier'], df['conductivity'], alpha=0.6, edgecolors='w', c='green')
+    ax3.set_xlabel('Migration Barrier (eV)')
+    ax3.set_ylabel('Conductivity (S/cm)')
+    ax3.set_title('Migration Barrier vs Conductivity')
+    ax3.grid(True, alpha=0.3)
     
-    plt.xlabel(predictor_col.replace('_', ' ').title())
-    plt.ylabel(target_col.replace('_', ' ').title())
-    plt.title(f'Relationship between {predictor_col.replace("_", " ").title()} and {target_col.replace("_", " ").title()}')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
+    # Plot 4: Coefficient bar plot with significance
+    ax4 = axes[1, 1]
+    variables = ['Defect Energy', 'Defect Density', 'Migration Barrier']
+    coefficients = [
+        regression_results['coefficients']['defect_energy'],
+        regression_results['coefficients']['defect_density'],
+        regression_results['coefficients']['migration_barrier']
+    ]
+    p_values = [
+        regression_results['p_values']['defect_energy'],
+        regression_results['p_values']['defect_density'],
+        regression_results['p_values']['migration_barrier']
+    ]
     
-    # Save plot
+    colors = ['red' if p < 0.05 else 'gray' for p in p_values]
+    bars = ax4.bar(variables, coefficients, color=colors, edgecolor='black')
+    ax4.set_ylabel('Coefficient')
+    ax4.set_title('Regression Coefficients\n(Red: p < 0.05)')
+    ax4.axhline(y=0, color='black', linestyle='-', linewidth=0.8)
+    
+    # Add p-value annotations
+    for i, (bar, p) in enumerate(zip(bars, p_values)):
+        ax4.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
+                f'p={p:.3f}', ha='center', va='bottom', fontsize=9)
+    
+    plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
     
     logger.info(f"Regression plot saved to {output_path}")
-    return output_path
 
-def run_full_analysis(data_dir: Path, output_dir: Path) -> Dict[str, Any]:
+def run_full_analysis(
+    data_path: Path,
+    output_dir: Path,
+    config: Optional[Dict[str, Any]] = None
+) -> AnalysisResult:
     """
-    Run complete statistical analysis pipeline.
+    Run the complete analysis pipeline.
     
-    Args:
-        data_dir: Path to data directory
-        output_dir: Path to output directory
-        
-    Returns:
-        Dictionary with all analysis results
+    1. Load processed data
+    2. Validate data quality
+    3. Perform regression with defect density
+    4. Apply multiple-comparison correction
+    5. Calculate statistical power
+    6. Generate plots
+    7. Save results
     """
-    # Ensure output directory exists
+    if config is None:
+        config = load_config()
+    
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Load and validate data
-    logger.info("Loading processed data...")
-    df = load_processed_data(data_dir)
+    # Load data
+    logger.info(f"Loading data from {data_path}")
+    df = load_processed_data(data_path)
+    logger.info(f"Loaded {len(df)} samples")
     
-    logger.info("Validating data quality...")
-    df = validate_data_quality(df, data_dir)
+    # Validate data
+    is_valid, issues = validate_data_quality(df)
+    if not is_valid:
+        logger.warning(f"Data validation issues: {issues}")
+        # Filter out invalid rows
+        valid_mask = pd.Series([True] * len(df))
+        for col in ['defect_energy', 'conductivity', 'defect_density', 'migration_barrier']:
+            valid_mask &= df[col].notna() & (df[col] > 0)
+        df = df[valid_mask]
+        logger.info(f"Filtered to {len(df)} valid samples")
     
     if len(df) < 3:
-        raise ValueError(f"Insufficient valid data points ({len(df)}) for statistical analysis")
+        raise ValueError("Insufficient valid data points for regression analysis")
     
-    # Calculate activation energy if not present
-    if 'activation_energy' not in df.columns and 'formation_energy' in df.columns and 'migration_barrier' in df.columns:
-        df['activation_energy'] = df.apply(
-            lambda row: calculate_activation_energy(row['formation_energy'], row['migration_barrier']),
-            axis=1
-        )
-    
-    # Ensure defect density is present (from T033)
-    if 'defect_density' not in df.columns:
-        # Calculate from supercell volume if available
-        if 'supercell_volume' in df.columns:
-            df['defect_density'] = 1.0 / df['supercell_volume']
-            logger.info("Calculated defect density from supercell volume")
-        else:
-            logger.warning("Defect density not found and cannot be calculated. Using placeholder.")
-            df['defect_density'] = 0.01  # Placeholder value
-    
-    # Perform regression with defect density as primary predictor
-    predictor_cols = ['defect_density', 'activation_energy']
-    if 'vacancy_concentration' in df.columns:
-        predictor_cols.append('vacancy_concentration')
-    
+    # Perform regression
     logger.info("Performing regression analysis with defect density...")
-    results, model = perform_regression_with_density(df, 'conductivity', predictor_cols)
+    regression_results = perform_regression_with_density(df)
     
     # Apply multiple-comparison correction
     logger.info("Applying multiple-comparison correction...")
-    correction_results = apply_multiple_comparison_correction(results['p_values'])
+    corrected_p_values = apply_multiple_comparison_correction(
+        regression_results['p_values'],
+        method='bonferroni'
+    )
+    regression_results['corrected_p_values'] = corrected_p_values
     
     # Calculate statistical power
     logger.info("Calculating statistical power...")
-    power_results = calculate_statistical_power(sample_size=len(df))
+    power = calculate_statistical_power(
+        n_samples=len(df),
+        effect_size=0.1,  # Small effect size as per spec
+        alpha=0.05
+    )
+    regression_results['statistical_power'] = power
     
-    # Generate plots
-    logger.info("Generating correlation plots...")
-    plot_path = output_dir / "regression_plot.png"
-    generate_regression_plot(df, 'defect_density', 'conductivity', model, plot_path)
-    
-    # Compile final results
-    final_results = {
-        'regression': results,
-        'multiple_comparison_correction': correction_results,
-        'power_analysis': power_results,
-        'sample_size': len(df),
-        'data_quality': {
-            'total_samples': len(df),
-            'valid_samples': len(df)
-        },
-        'model_coefficients': results['coefficients'],
-        'significant_predictors': [
-            var for var, sig in correction_results['significant'].items() 
-            if sig
-        ]
-    }
+    # Generate plot
+    plot_path = output_dir / 'regression_analysis.png'
+    logger.info(f"Generating regression plot at {plot_path}")
+    generate_regression_plot(df, regression_results, plot_path)
     
     # Save results
-    output_file = output_dir / "analysis_results.json"
-    with open(output_file, 'w') as f:
-        json.dump(final_results, f, indent=2)
+    results_path = output_dir / 'analysis_results.json'
+    with open(results_path, 'w') as f:
+        json.dump(regression_results, f, indent=2)
+    logger.info(f"Results saved to {results_path}")
     
-    logger.info(f"Analysis complete. Results saved to {output_file}")
-    return final_results
+    # Create AnalysisResult object
+    analysis_result = AnalysisResult(
+        r_squared=regression_results['r2'],
+        rmse=regression_results['rmse'],
+        coefficients=regression_results['coefficients'],
+        p_values=regression_results['p_values'],
+        corrected_p_values=corrected_p_values,
+        statistical_power=power,
+        n_samples=len(df),
+        plot_path=str(plot_path),
+        results_path=str(results_path)
+    )
+    
+    return analysis_result
 
 def main():
-    """Main entry point for the analysis module."""
+    """Main entry point for analysis script."""
     # Setup logging
-    log_config = load_config()
-    setup_logging(log_config.get('logging', {}))
+    setup_logging(level=logging.INFO)
+    
+    # Load configuration
+    config = load_config()
     
     # Define paths
     project_root = Path(__file__).parent.parent
-    data_dir = project_root / "data" / "processed"
-    output_dir = project_root / "data" / "processed"
+    data_path = project_root / config.get('data_path', 'data/processed/defect_data.json')
+    output_dir = project_root / 'data/processed'
     
     try:
-        results = run_full_analysis(data_dir, output_dir)
-        print(f"Analysis completed successfully. Results saved to {output_dir / 'analysis_results.json'}")
-        return 0
+        # Run full analysis
+        result = run_full_analysis(data_path, output_dir, config)
+        
+        # Print summary
+        print("\n" + "="*60)
+        print("ANALYSIS RESULTS SUMMARY")
+        print("="*60)
+        print(f"R²: {result.r_squared:.4f}")
+        print(f"RMSE: {result.rmse:.4f}")
+        print(f"Statistical Power: {result.statistical_power:.4f}")
+        print(f"Samples: {result.n_samples}")
+        print("\nCoefficients:")
+        for var, coef in result.coefficients.items():
+            if var != 'intercept':
+                print(f"  {var}: {coef:.6f} (p={result.p_values[var]:.4f}, "
+                      f"corrected p={result.corrected_p_values[var]:.4f})")
+        print(f"\nResults saved to: {result.results_path}")
+        print(f"Plot saved to: {result.plot_path}")
+        print("="*60 + "\n")
+        
     except Exception as e:
-        logger.error(f"Analysis failed: {str(e)}", exc_info=True)
-        return 1
+        logger.error(f"Analysis failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

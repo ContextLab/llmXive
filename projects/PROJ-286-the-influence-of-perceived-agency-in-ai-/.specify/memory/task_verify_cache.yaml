@@ -1,0 +1,16 @@
+T000:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research/validation_report.json` file or any other evidence of a reference\u2011\
+    validation run is present. The task required executing the Reference\u2011Validator\
+    \ Agent on the Lee & See (2004) and Langer (1975) citations and producing a JSON\
+    \ report with validation status and title\u2011overlap scores, but no such artifact\
+    \ or its contents are available. The implementer must generate and provide the\
+    \ specified JSON file."
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file was provided, and there is no evidence of a table containing\
+    \ the required columns (Effect Size (f), Alpha, Target Power, Required N, Calculated\
+    \ N) or any documented power analysis or literature review. The task\u2019s core\
+    \ artifact is missing."

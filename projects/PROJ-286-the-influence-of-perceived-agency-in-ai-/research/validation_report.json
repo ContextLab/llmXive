@@ -1,52 +1,30 @@
-{
-  "project": "PROJ-286-the-influence-of-perceived-agency-in-ai-",
-  "task_id": "T000",
-  "validation_timestamp": "2023-10-27T10:00:00Z",
-  "overall_status": "completed",
-  "citations_validated": 2,
-  "results": [
-    {
-      "key": "lee_see_2004",
-      "status": "validated",
-      "message": "Citation found and verified.",
-      "found": true,
-      "title": "Trust in automation: Designing for appropriate reliance",
-      "title_overlap_score": 0.95,
-      "matched_citation": {
-        "doi": "10.1207/s15327566ijhc4301_5",
-        "publisher": "Human Factors and Ergonomics Society",
-        "author": [
-          {
-            "given": "John D.",
-            "family": "Lee",
-            "sequence": "first"
-          },
-          {
-            "given": "Katherine A.",
-            "family": "See",
-            "sequence": "additional"
-          }
-        ]
-      }
+[
+  {
+    "input": {
+      "author": "Lee, J. D., & See, K. A.",
+      "title": "Trust in Automation: Designing for Appropriate Reliance",
+      "year": 2004,
+      "journal": "Human Factors"
     },
-    {
-      "key": "langer_1975",
-      "status": "validated",
-      "message": "Citation found and verified.",
-      "found": true,
+    "status": "verified",
+    "found_title": "Trust in automation: Designing for appropriate reliance",
+    "title_overlap_score": 0.9821,
+    "author_overlap_score": 0.8571,
+    "crossref_year": 2004,
+    "message": "Found match with 98.21% title similarity."
+  },
+  {
+    "input": {
+      "author": "Langer, E. J.",
       "title": "The illusion of control",
-      "title_overlap_score": 0.98,
-      "matched_citation": {
-        "doi": "10.1037/0022-3514.32.2.318",
-        "publisher": "American Psychological Association",
-        "author": [
-          {
-            "given": "Ellen J.",
-            "family": "Langer",
-            "sequence": "first"
-          }
-        ]
-      }
-    }
-  ]
-}
+      "year": 1975,
+      "journal": "Journal of Personality and Social Psychology"
+    },
+    "status": "verified",
+    "found_title": "The illusion of control",
+    "title_overlap_score": 1.0,
+    "author_overlap_score": 1.0,
+    "crossref_year": 1975,
+    "message": "Found match with 100.00% title similarity."
+  }
+]

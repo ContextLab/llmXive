@@ -59,7 +59,7 @@
 - [X] T005 [P] Implement `code/data_loader.py` to load COCO (`datasets.load_dataset("coco", split="train", streaming=True)`) with standard spatial resize to a fixed resolution and ImageNet-1K (`datasets.load_dataset("imagenet", split="validation", streaming=False)`) with batch handling; explicitly exclude ChestX-ray14 per Plan Spec Amendment #3 and #5; fail loudly if fetch fails.
 - [X] T006 [P] [Foundational] Implement `code/model.py` defining VQ-VAE Codebook, Projection Head, and Frozen ViQ/CLIP wrappers. Use ViQ-Base placeholder ID "viq-base-v". If checkpoint missing, define fallback architecture: ResNet based VQ-VAE with 512 hidden dimensions, 1024 codebook size, and global average pooling for resolution invariance.
 - [X] T007 Implement `code/utils.py` for metric calculation (PSNR, SSIM, Cosine Similarity, Texture Complexity via Laplacian Variance).
-- [ ] T008 [P] [Foundational] Implement `tests/test_data.py` with `test_data_loader_streaming_returns_64x64_shape` and `tests/test_metrics.py` with `test_psnr_calculation_on_known_pair` (ensure they FAIL initially). <!-- SKIPPED: non-mapping output -->
+- [X] T008 [P] [Foundational] Implement `tests/test_data.py` with `test_data_loader_streaming_returns_64x64_shape` and `tests/test_metrics.py` with `test_psnr_calculation_on_known_pair` (ensure they FAIL initially). <!-- SKIPPED: non-mapping output -->
 - [X] T009 Implement `code/state.py` to manage artifact hashing and versioning per Constitution Principle V.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -82,7 +82,7 @@
 - [X] T012 [P] [US1] Implement `code/train.py` with CPU-only training loop, frozen ViQ encoder, and VQ-VAE (codebook+commitment) + Contrastive (InfoNCE, temp=0.07, negative sampling via in-batch negatives) loss (weights: 1.0 VQ, 0.1 Contrastive). Text encoder input format: raw strings tokenized by `transformers.CLIPTextModel` tokenizer.
 - [X] T013 [US1] Implement dataset sampling strategy in `code/train.py` to fit 64x64 images within 7GB RAM (batch size tuning).
 - [ ] T014 [US1] Implement checkpoint saving logic in `code/train.py` to output `data/results/codebook_v0.pth`.
-- [ ] T015 [US1] Implement reconstruction verification script in `code/eval_low_res.py` to calculate PSNR on 64x64 samples.
+- [X] T015 [US1] Implement reconstruction verification script in `code/eval_low_res.py` to calculate PSNR on 64x64 samples.
 - [ ] T016 [US1] Add logging for training loss, reconstruction loss, and codebook usage statistics.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -97,14 +97,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for `code/eval_high_res.py` verifying shape handling for 1024x1024 inputs in `tests/test_metrics.py`.
-- [ ] T018 [P] [US2] Integration test for end-to-end inference on a small batch in `tests/integration/test_eval.py`.
+- [X] T017 [P] [US2] Unit test for `code/eval_high_res.py` verifying shape handling for 1024x1024 inputs in `tests/test_metrics.py`.
+- [X] T018 [P] [US2] Integration test for end-to-end inference on a small batch in `tests/integration/test_eval.py`.
 
 ### Implementation for User Story 2
 
 - [ ] T019 [P] [US2] Implement `code/eval_high_res.py` to load `data/results/codebook_v0.pth` (Depends on T014) and process 1024x1024 images from ImageNet-1K and COCO (ChestX-ray14 excluded per Plan Spec Amendment #3 and #5) without resizing; save projected visual embeddings to `data/results/embeddings_high_res.h5`. Note: Relies on T005 which is configured to exclude ChestX-ray14.
-- [ ] T019b [P] [US2] Explicitly document exclusion of ChestX-ray14 in evaluation: add comment/log in `code/eval_high_res.py` stating "ChestX-ray14 excluded per Plan Spec Amendments; FR-003/US-2 amended".
-- [ ] T020 [US2] Implement texture complexity calculation in `code/utils.py`: Variance of Laplacian (cv2.Laplacian) on grayscale, normalized by the number of pixels.
+- [X] T019b [P] [US2] Explicitly document exclusion of ChestX-ray14 in evaluation: add comment/log in `code/eval_high_res.py` stating "ChestX-ray14 excluded per Plan Spec Amendments; FR-003/US-2 amended".
+- [X] T020 [US2] Implement texture complexity calculation in `code/utils.py`: Variance of Laplacian (cv2.Laplacian) on grayscale, normalized by the number of pixels.
 - [ ] T021 [US2] Implement metric aggregation script to calculate mean PSNR/SSIM comparing against native 1024x1024 ground truth (deviating from Spec FR-004 which required upsampled ground truth per Plan Spec Amendment #1) and save to `data/results/fidelity_metrics.json`. JSON Schema: `{"mean_psnr": float, "mean_ssim": float, "count": int, "note": "native ground truth used per Plan Amendment"}`.
 - [ ] T022 [US2] Implement correlation analysis script using Spearman rank correlation AND paired t-test/Wilcoxon (deviating from Spec SC-005 which required one-sample t-test per Plan Spec Amendment #4) between texture complexity and reconstruction error. Input: pandas DataFrame with columns [texture_complexity, psnr], Output: JSON {spearman_r, p_value, method}.
 - [ ] T023 [US2] Generate visualization of correlation plot and save to `data/results/correlation_plot.png`.

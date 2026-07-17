@@ -14,11 +14,11 @@ T003:
     are missing, so the task is not satisfied.
 T014:
   c: false
-  h: f377d6e928eeab2a71f3bc0b26224c86509dc5e75e2c7172ed3b093c18c6e08a
-  r: "The repository contains `code/train.py`, but the shown portion ends before any\
-    \ checkpoint\u2011saving code and the expected output file `data/results/codebook_v0.pth`\
-    \ is absent. Consequently, the required checkpoint\u2011saving logic is not present\
-    \ and the artifact the task demanded does not exist."
+  h: f0513c86276bf117004b679d27284e32a32bd265e058f200be5abd5e0b16eb5d
+  r: The repository contains `code/train.py`, but the file does not include any code
+    that writes a checkpoint to `data/results/codebook_v0.pth`, and the expected checkpoint
+    file is absent from the `data/results` directory. Without the actual saved checkpoint,
+    the task requirement is not satisfied.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,3 +26,20 @@ T016:
     reconstruction loss, and codebook usage statistics are now being logged. The required
     artifact (e.g., updated training script with logging statements or sample log
     files) is missing, so the task is not satisfied.
+T019:
+  c: false
+  h: bbb8a509c04fbb7dfa1e52bffbcf60d716114f0be17f126abc3745126428a4a4
+  r: "The `code/eval_high_res.py` file exists but its content is truncated and does\
+    \ not show the full logic for loading 1024\xD71024 images, encoding them, and\
+    \ writing projected embeddings to `data/results/embeddings_high_res.h5`. Additionally,\
+    \ the required checkpoint `data/results/codebook_v0.pth` (and the output H5 file)\
+    \ are missing, so the script cannot be verified as functional. The implementation\
+    \ must be completed and the necessary artifacts provided."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script implementing the Spearman rank correlation and paired t\u2011test/Wilcoxon\
+    \ (or the required one\u2011sample t\u2011test) is present, nor is there any JSON\
+    \ output `{spearman_r, p_value, method}` produced from a pandas DataFrame. The\
+    \ claim lacks the actual code file and example output, so the task requirements\
+    \ are not met."

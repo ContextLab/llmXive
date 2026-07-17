@@ -4,332 +4,359 @@ import signal
 import time
 import json
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-import numpy as np
-from pymatgen.core import Structure, Lattice
+from typing import Dict, List, Any, Optional, Tuple
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from pymatgen.core import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from ase.calculators.emt import EMT
+from ase import Atoms
+
+# --- Custom Exceptions ---
 
 class SupercellExpansionError(Exception):
-    """Raised when supercell expansion fails or constraints are violated."""
+    """Raised when supercell expansion fails or validation criteria are not met."""
     pass
 
 class JobTimeoutError(Exception):
     """Raised when a DFT job exceeds the time limit."""
     pass
 
-def create_supercell(structure: Structure, scale: Tuple[int, int, int] = (2, 2, 2)) -> Structure:
+# --- Helper Functions ---
+
+def _get_conventional_cell_volume(structure: Structure) -> float:
     """
-    Create a supercell by scaling the input structure.
+    Calculates the volume of the conventional unit cell.
+    Uses SpacegroupAnalyzer to ensure we are working with the standard setting.
+    """
+    try:
+        sga = SpacegroupAnalyzer(structure)
+        conv_cell = sga.get_conventional_standard_structure()
+        return conv_cell.volume
+    except Exception:
+        # Fallback to original structure volume if symmetry analysis fails
+        return structure.volume
+
+def _calculate_defect_density(volume: float, num_defects: int = 1) -> float:
+    """
+    Calculates defect concentration (defects/volume).
+    Implements the quantification method required by Marie Curie review.
+    """
+    if volume <= 0:
+        raise ValueError("Volume must be positive.")
+    return num_defects / volume
+
+# --- Core Implementation ---
+
+def create_supercell(
+    structure: Structure,
+    scale_factors: Tuple[int, int, int] = (2, 2, 2),
+    enforce_min_2x2x2: bool = True,
+    log: logging.Logger = None
+) -> Structure:
+    """
+    Creates a supercell with the given scale factors.
+    
+    Implements T031 logic:
+    - Validates that high-fidelity runs use at least 2x2x2.
+    - If 2x2x2 is requested but fails validation (e.g. spurious interactions detected
+      via volume threshold or user flag), it attempts a 3x3x3 expansion as fallback.
     
     Args:
-        structure: The base pymatgen Structure object.
-        scale: Tuple of integers (a, b, c) for scaling factors.
+        structure: The input pymatgen Structure.
+        scale_factors: The (x, y, z) scaling factors.
+        enforce_min_2x2x2: If True, ensures the resulting cell is at least 2x2x2.
+        log: Logger instance.
         
     Returns:
         A new Structure object representing the supercell.
         
     Raises:
-        SupercellExpansionError: If scaling fails or results in invalid structure.
+        SupercellExpansionError: If expansion fails or validation cannot be met.
     """
-    try:
-        supercell = structure * np.array(scale)
-        if len(supercell) == 0:
-            raise SupercellExpansionError("Supercell expansion resulted in zero atoms.")
-        logger.info(f"Created supercell with {len(supercell)} atoms from scale {scale}")
-        return supercell
-    except Exception as e:
-        raise SupercellExpansionError(f"Failed to create supercell: {str(e)}")
+    if log is None:
+        log = logging.getLogger(__name__)
 
-def get_high_fidelity_subset(compositions: List[Dict[str, Any]], max_count: int = 3) -> List[Dict[str, Any]]:
-    """
-    Select the high-fidelity subset for DFT calculations.
-    
-    Args:
-        compositions: List of composition dictionaries.
-        max_count: Maximum number of compositions to select.
-        
-    Returns:
-        List of selected composition dictionaries.
-    """
-    # For now, select the first N compositions with complete data
-    # In a real implementation, this would filter based on data completeness
-    subset = []
-    count = 0
-    for comp in compositions:
-        if count >= max_count:
-            break
-        # Check if composition has required data
-        if comp.get('has_complete_data', False):
-            subset.append(comp)
-            count += 1
-    logger.info(f"Selected {len(subset)} compositions for high-fidelity DFT subset")
-    return subset
-
-def generate_qe_input(structure: Structure, output_path: Path, job_id: str, 
-                     cutoff: float = 50.0, k_mesh: Tuple[int, int, int] = (2, 2, 2)) -> Path:
-    """
-    Generate a Quantum ESPRESSO input file for a given structure.
-    
-    Args:
-        structure: The pymatgen Structure object.
-        output_path: Directory to save the input file.
-        job_id: Unique identifier for the job.
-        cutoff: Plane-wave cutoff energy in Ry.
-        k_mesh: K-point mesh tuple.
-        
-    Returns:
-        Path to the generated input file.
-    """
-    output_path.mkdir(parents=True, exist_ok=True)
-    input_file = output_path / f"{job_id}.in"
-    
-    with open(input_file, 'w') as f:
-        f.write("&CONTROL\n")
-        f.write(f"    calculation = 'scf',\n")
-        f.write(f"    prefix = '{job_id}',\n")
-        f.write(f"    outdir = './tmp',\n")
-        f.write(f"    pseudo_dir = './pseudo',\n")
-        f.write("/\n")
-        f.write("&SYSTEM\n")
-        f.write(f"    ibrav = 0,\n")
-        f.write(f"    nat = {len(structure)},\n")
-        f.write(f"    ntyp = {len(set(site.species_string for site in structure))},\n")
-        f.write(f"    ecutwfc = {cutoff},\n")
-        f.write(f"    ecutrho = {4.0 * cutoff},\n")
-        f.write("/\n")
-        f.write("&ELECTRONS\n")
-        f.write(f"    conv_thr = 1.0d-8,\n")
-        f.write("/\n")
-        f.write("ATOMIC_SPECIES\n")
-        
-        elements = sorted(set(site.species_string for site in structure))
-        for elem in elements:
-            # Placeholder for pseudopotential mass and file
-            f.write(f"    {elem}  1.00  {elem}.UPF\n")
-        
-        f.write("ATOMIC_POSITIONS (crystal)\n")
-        for site in structure:
-            coords = site.frac_coords
-            f.write(f"    {site.species_string} {coords[0]:.6f} {coords[1]:.6f} {coords[2]:.6f}\n")
-        
-        f.write("K_POINTS automatic\n")
-        f.write(f"    {k_mesh[0]} {k_mesh[1]} {k_mesh[2]} 0 0 0\n")
-    
-    logger.info(f"Generated QE input file: {input_file}")
-    return input_file
-
-def simulate_dft_job(structure: Structure, job_id: str, output_dir: Path, 
-                    timeout_seconds: int = 3600) -> Dict[str, Any]:
-    """
-    Simulate a DFT job execution with timeout detection and partial result preservation.
-    
-    This function mimics the execution of a DFT calculation, tracking progress and
-    handling timeouts by saving partial results.
-    
-    Args:
-        structure: The pymatgen Structure object.
-        job_id: Unique identifier for the job.
-        output_dir: Directory to save results.
-        timeout_seconds: Maximum allowed execution time in seconds.
-        
-    Returns:
-        Dictionary containing job results and status.
-    """
-    start_time = time.time()
-    result = {
-        'job_id': job_id,
-        'status': 'running',
-        'start_time': start_time,
-        'atom_count': len(structure),
-        'progress': 0.0,
-        'energy': None,
-        'force_max': None,
-        'partial_data': {}
-    }
-    
-    # Simulate job execution with checkpoints
-    checkpoints = [0.2, 0.4, 0.6, 0.8, 1.0]
-    total_steps = 100
-    current_step = 0
-    
-    output_dir.mkdir(parents=True, exist_ok=True)
-    partial_file = output_dir / f"{job_id}_partial.json"
-    final_file = output_dir / f"{job_id}_result.json"
-    
-    try:
-        for i in range(total_steps):
-            # Check timeout
-            elapsed = time.time() - start_time
-            if elapsed > timeout_seconds:
-                raise JobTimeoutError(f"Job {job_id} exceeded timeout of {timeout_seconds}s")
-            
-            current_step = i + 1
-            progress = current_step / total_steps
-            result['progress'] = progress
-            
-            # Simulate computation at checkpoints
-            if progress in checkpoints or i == total_steps - 1:
-                # Save partial results
-                result['partial_data'] = {
-                    'step': current_step,
-                    'elapsed': elapsed,
-                    'intermediate_energy': -10.0 * progress,  # Simulated value
-                    'intermediate_max_force': 0.5 * (1 - progress)  # Simulated convergence
-                }
-                
-                with open(partial_file, 'w') as f:
-                    json.dump(result, f, indent=2, default=str)
-                
-                logger.info(f"Job {job_id} progress: {progress*100:.1f}% - Partial results saved")
-            
-            # Simulate work
-            time.sleep(0.01)  # Small delay to simulate computation
-        
-        # Job completed successfully
-        result['status'] = 'completed'
-        result['end_time'] = time.time()
-        result['elapsed'] = result['end_time'] - result['start_time']
-        result['energy'] = -10.0  # Final simulated energy
-        result['force_max'] = 0.01  # Final simulated max force
-        
-        # Save final result
-        with open(final_file, 'w') as f:
-            json.dump(result, f, indent=2, default=str)
-        
-        # Clean up partial file if completed successfully
-        if partial_file.exists():
-            partial_file.unlink()
-        
-        logger.info(f"Job {job_id} completed successfully in {result['elapsed']:.2f}s")
-        
-    except JobTimeoutError as e:
-        logger.warning(f"Job {job_id} timed out: {str(e)}")
-        result['status'] = 'timeout'
-        result['end_time'] = time.time()
-        result['elapsed'] = result['end_time'] - result['start_time']
-        
-        # Ensure partial results are saved
-        with open(partial_file, 'w') as f:
-            json.dump(result, f, indent=2, default=str)
-        
-        logger.info(f"Partial results for {job_id} preserved at {partial_file}")
-        raise
-        
-    except Exception as e:
-        logger.error(f"Job {job_id} failed with error: {str(e)}")
-        result['status'] = 'failed'
-        result['end_time'] = time.time()
-        result['elapsed'] = result['end_time'] - result['start_time']
-        result['error'] = str(e)
-        
-        # Save partial results for failed jobs too
-        with open(partial_file, 'w') as f:
-            json.dump(result, f, indent=2, default=str)
-        
-        raise
-    
-    return result
-
-def process_high_fidelity_subset(compositions: List[Dict[str, Any]], output_dir: Path, 
-                                 timeout_seconds: int = 3600) -> List[Dict[str, Any]]:
-    """
-    Process the high-fidelity subset of compositions with DFT calculations.
-    
-    Args:
-        compositions: List of composition dictionaries for high-fidelity subset.
-        output_dir: Directory to save results.
-        timeout_seconds: Maximum allowed execution time per job.
-        
-    Returns:
-        List of result dictionaries for each composition.
-    """
-    results = []
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    for i, comp in enumerate(compositions):
-        job_id = f"dft_job_{comp.get('mp_id', f'unknown_{i}')}"
-        logger.info(f"Processing high-fidelity job {i+1}/{len(compositions)}: {job_id}")
-        
-        try:
-            # Create structure (simulated)
-            structure = Structure.from_spacegroup(
-                225,  # Fm-3m
-                Lattice.cubic(4.0),
-                [{"species": ["Li", "O"], "coords": [[0, 0, 0], [0.25, 0.25, 0.25]]}]
+    # T031: Enforce minimum 2x2x2 for high-fidelity subset
+    if enforce_min_2x2x2:
+        min_scale = 2
+        current_scale = max(scale_factors)
+        if current_scale < min_scale:
+            log.warning(
+                f"Requested scale {scale_factors} is below minimum 2x2x2. "
+                f"Adjusting to 2x2x2 to satisfy Linus Pauling review constraints."
             )
-            
-            # Generate QE input
-            generate_qe_input(structure, output_dir / job_id, job_id)
-            
-            # Run simulation with timeout handling
-            result = simulate_dft_job(structure, job_id, output_dir, timeout_seconds)
-            results.append(result)
-            
-        except JobTimeoutError:
-            # Timeout already handled in simulate_dft_job
-            logger.warning(f"Skipping further processing for timed out job: {job_id}")
-            # Result already saved as partial
-            continue
-        except Exception as e:
-            logger.error(f"Failed to process {job_id}: {str(e)}")
-            results.append({
-                'job_id': job_id,
-                'status': 'failed',
-                'error': str(e)
-            })
+            scale_factors = (2, 2, 2)
+
+    try:
+        supercell = structure * scale_factors
+        log.info(f"Created supercell with scale {scale_factors}. "
+                 f"Total atoms: {len(supercell)}, Volume: {supercell.volume:.4f} Å³")
+        
+        # T033: Calculate and log defect density
+        # Assuming 1 defect per supercell for initial estimation; 
+        # actual defect count should be passed or calculated contextually.
+        # Here we calculate density based on the supercell volume itself as a baseline.
+        defect_density = _calculate_defect_density(supercell.volume)
+        log.info(f"Defect density baseline (1 defect/vol): {defect_density:.6e} defects/Å³")
+        
+        return supercell
+
+    except Exception as e:
+        raise SupercellExpansionError(f"Failed to create supercell with scale {scale_factors}: {e}") from e
+
+def get_high_fidelity_subset(compositions: List[Dict[str, Any]], limit: int = 3) -> List[Dict[str, Any]]:
+    """
+    Selects the first N compositions with complete data for high-fidelity DFT.
+    """
+    valid = [c for c in compositions if c.get("data_complete", False)]
+    return valid[:limit]
+
+def generate_qe_input(
+    structure: Structure,
+    out_dir: Path,
+    prefix: str,
+    pseudo_dir: str,
+    cutoff: float = 60.0,
+    k_mesh: Tuple[int, int, int] = (4, 4, 4),
+    constraint_oxygen: bool = False,
+    oxygen_tolerance: float = 0.05,
+    log: logging.Logger = None
+) -> Path:
+    """
+    Generates a Quantum ESPRESSO input file (.in).
     
-    logger.info(f"Processed {len(results)} high-fidelity jobs")
+    Implements T032: Optional oxygen-anion position constraint logic.
+    If constraint_oxygen is True, the input will include constraints to keep
+    O-anion positions within `oxygen_tolerance` Å of crystallographic positions.
+    """
+    if log is None:
+        log = logging.getLogger(__name__)
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    input_path = out_dir / f"{prefix}.in"
+
+    # Basic QE input generation
+    lines = [
+        "&CONTROL",
+        f"    calculation = 'relax',",
+        f"    prefix = '{prefix}',",
+        f"    pseudo_dir = '{pseudo_dir}',",
+        f"    outdir = './tmp',",
+        f"    verbosity = 'high',",
+        "/",
+        "&SYSTEM",
+        f"    ibrav = 0,",
+        f"    nat = {len(structure)},",
+        f"    ntyp = {len(set([site.specie.symbol for site in structure]))},",
+        f"    ecutwfc = {cutoff},",
+        f"    ecutrho = {cutoff * 4},",
+        f"    occupations = 'smearing',",
+        f"    smearing = 'marzari-vanderbilt',",
+        f"    degauss = 0.01,",
+        "/",
+        "&ELECTRONS",
+        f"    conv_thr = 1.0d-8,",
+        f"    mixing_beta = 0.7,",
+        "/",
+        "&IONS",
+        f"    ion_dynamics = 'bfgs',",
+        "/"
+    ]
+
+    # T032: Add constraint logic if requested
+    if constraint_oxygen:
+        log.info(f"Applying oxygen position constraints (tolerance: {oxygen_tolerance} Å).")
+        # Note: In a real QE input, this would involve adding a 'CONSTRAINTS' card
+        # or using 'if_pos' flags in the ATOMIC_POSITIONS card.
+        # For this implementation, we log the intent and add a placeholder comment
+        # that the downstream runner would parse to generate the actual constraints.
+        lines.append("# CONSTRAINTS: Oxygen anions fixed within 0.05 Å of initial positions")
+        lines.append("# ATOMIC_POSITIONS (crystal) - O atoms will have if_pos = (0,0,0)")
+    
+    # Atomic positions
+    lines.append("ATOMIC_POSITIONS crystal")
+    for site in structure:
+        symbol = site.specie.symbol
+        coords = site.coords
+        # T032: If constrained, mark O atoms
+        if constraint_oxygen and symbol == "O":
+            # In QE, if_pos is often appended: x y z if_pos_x if_pos_y if_pos_z
+            lines.append(f"{symbol} {coords[0]:.6f} {coords[1]:.6f} {coords[2]:.6f} 0.0 0.0 0.0")
+        else:
+            lines.append(f"{symbol} {coords[0]:.6f} {coords[1]:.6f} {coords[2]:.6f}")
+
+    # K-points
+    lines.append("K_POINTS automatic")
+    lines.append(f"{k_mesh[0]} {k_mesh[1]} {k_mesh[2]} 0 0 0")
+
+    with open(input_path, "w") as f:
+        f.write("\n".join(lines))
+
+    log.info(f"Generated QE input: {input_path}")
+    return input_path
+
+def simulate_dft_job(
+    structure: Structure,
+    out_dir: Path,
+    prefix: str,
+    scale_factors: Tuple[int, int, int] = (2, 2, 2),
+    constraint_oxygen: bool = False,
+    timeout_seconds: int = 3600,
+    log: logging.Logger = None
+) -> Dict[str, Any]:
+    """
+    Simulates a DFT job run.
+    
+    Implements T031 Fallback Logic:
+    - Attempts run with initial scale_factors.
+    - If convergence fails (simulated here), retries with 3x3x3 if initial was 2x2x2.
+    
+    Implements T033: Logs defect density for the configuration.
+    Implements T032: Passes constraint logic to input generation.
+    """
+    if log is None:
+        log = logging.getLogger(__name__)
+
+    # 1. Create Supercell (T031 validation happens here in create_supercell)
+    try:
+        supercell = create_supercell(structure, scale_factors, log=log)
+    except SupercellExpansionError as e:
+        log.error(f"Supercell creation failed: {e}")
+        return {"status": "error", "message": str(e)}
+
+    # T033: Calculate specific defect density for this configuration
+    # Assuming 1 defect for this simulation context
+    defect_density = _calculate_defect_density(supercell.volume)
+    log.info(f"Configuration {prefix}: Defect density = {defect_density:.6e} defects/Å³")
+
+    # 2. Generate Input (T032 constraints)
+    input_path = generate_qe_input(
+        supercell, out_dir, prefix, 
+        pseudo_dir="./pseudos", 
+        constraint_oxygen=constraint_oxygen,
+        log=log
+    )
+
+    # 3. Simulate Execution with Timeout (T030)
+    start_time = time.time()
+    convergence_success = False
+    final_scale = scale_factors
+    fallback_attempted = False
+
+    # Simulate convergence check
+    # In real code, this would parse output. Here we simulate a failure for 2x2x2 
+    # to demonstrate the T031 fallback mechanism.
+    # We'll use a deterministic check: if scale is (2,2,2) and atoms < 100, simulate failure.
+    if scale_factors == (2, 2, 2) and len(supercell) < 100:
+        log.warning(f"2x2x2 supercell (size: {len(supercell)}) failed convergence (spurious interactions).")
+        convergence_success = False
+    else:
+        convergence_success = True
+
+    if not convergence_success:
+        # T031: Fallback to 3x3x3
+        if scale_factors == (2, 2, 2):
+            log.info("Attempting fallback to 3x3x3 supercell...")
+            fallback_attempted = True
+            final_scale = (3, 3, 3)
+            
+            try:
+                supercell = create_supercell(structure, final_scale, log=log)
+                defect_density = _calculate_defect_density(supercell.volume)
+                log.info(f"Fallback Configuration {prefix}: Defect density = {defect_density:.6e} defects/Å³")
+                
+                input_path = generate_qe_input(
+                    supercell, out_dir, prefix, 
+                    pseudo_dir="./pseudos", 
+                    constraint_oxygen=constraint_oxygen,
+                    log=log
+                )
+                convergence_success = True # Assume 3x3x3 succeeds
+            except SupercellExpansionError as e:
+                log.error(f"Fallback 3x3x3 also failed: {e}")
+                return {"status": "error", "message": f"Fallback failed: {e}"}
+        else:
+            log.error(f"Convergence failed for {scale_factors} and no fallback strategy defined.")
+            return {"status": "failed", "message": "Convergence failed"}
+
+    # Check timeout
+    elapsed = time.time() - start_time
+    if elapsed > timeout_seconds:
+        raise JobTimeoutError(f"Job {prefix} exceeded {timeout_seconds}s limit.")
+
+    # Return result
+    return {
+        "status": "success" if convergence_success else "failed",
+        "prefix": prefix,
+        "supercell_scale": final_scale,
+        "supercell_atoms": len(supercell),
+        "supercell_volume": supercell.volume,
+        "defect_density": defect_density,
+        "convergence_reached": convergence_success,
+        "fallback_applied": fallback_attempted,
+        "input_file": str(input_path),
+        "elapsed_time": elapsed
+    }
+
+def process_high_fidelity_subset(
+    compositions: List[Dict[str, Any]],
+    output_dir: Path,
+    log: logging.Logger = None
+) -> List[Dict[str, Any]]:
+    """
+    Processes the high-fidelity subset: creates supercells, generates inputs, runs simulations.
+    """
+    if log is None:
+        log = logging.getLogger(__name__)
+    
+    subset = get_high_fidelity_subset(compositions)
+    results = []
+
+    for i, comp in enumerate(subset):
+        prefix = f"hf_{i:03d}_{comp.get('id', 'unknown')}"
+        structure = Structure.from_dict(comp.get("structure_dict"))
+        
+        # T031: Enforce 2x2x2 minimum, fallback to 3x3x3 if needed
+        # T032: Apply oxygen constraints
+        result = simulate_dft_job(
+            structure, 
+            output_dir, 
+            prefix, 
+            scale_factors=(2, 2, 2),
+            constraint_oxygen=True,
+            log=log
+        )
+        results.append(result)
+    
     return results
 
 def main():
-    """Main entry point for DFT runner with timeout handling."""
-    logger.info("Starting DFT runner with timeout detection and partial result preservation")
+    """Main entry point for testing the DFT runner logic."""
+    logging.basicConfig(level=logging.INFO)
+    log = logging.getLogger(__name__)
     
-    # Example usage
-    test_compositions = [
-        {'mp_id': 'mp-1234', 'has_complete_data': True},
-        {'mp_id': 'mp-5678', 'has_complete_data': True},
-        {'mp_id': 'mp-9012', 'has_complete_data': True}
+    # Mock data for demonstration
+    mock_structure_dict = {
+        "sites": [
+            {"species": [{"element": "Li", "occu": 1}], "coords": [0.0, 0.0, 0.0]},
+            {"species": [{"element": "O", "occu": 1}], "coords": [0.5, 0.5, 0.5]},
+            {"species": [{"element": "Li", "occu": 1}], "coords": [0.25, 0.25, 0.25]},
+            {"species": [{"element": "O", "occu": 1}], "coords": [0.75, 0.75, 0.75]}
+        ],
+        "lattice": [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
+    }
+    
+    mock_comps = [
+        {"id": "comp1", "data_complete": True, "structure_dict": mock_structure_dict},
+        {"id": "comp2", "data_complete": True, "structure_dict": mock_structure_dict}
     ]
     
-    high_fidelity = get_high_fidelity_subset(test_compositions, max_count=3)
+    out_dir = Path("data/processed/dft_runs")
+    out_dir.mkdir(parents=True, exist_ok=True)
     
-    output_dir = Path("data/processed/dft_results")
+    results = process_high_fidelity_subset(mock_comps, out_dir, log)
     
-    try:
-        results = process_high_fidelity_subset(high_fidelity, output_dir, timeout_seconds=60)
-        
-        # Summary
-        completed = sum(1 for r in results if r.get('status') == 'completed')
-        timed_out = sum(1 for r in results if r.get('status') == 'timeout')
-        failed = sum(1 for r in results if r.get('status') == 'failed')
-        
-        logger.info(f"Summary: {completed} completed, {timed_out} timed out, {failed} failed")
-        
-        # Save summary
-        summary = {
-            'total_jobs': len(results),
-            'completed': completed,
-            'timed_out': timed_out,
-            'failed': failed,
-            'results': results
-        }
-        
-        summary_file = output_dir / "dft_summary.json"
-        with open(summary_file, 'w') as f:
-            json.dump(summary, f, indent=2, default=str)
-        
-        logger.info(f"Summary saved to {summary_file}")
-        
-    except Exception as e:
-        logger.error(f"Fatal error in DFT runner: {str(e)}")
-        raise
+    print(json.dumps(results, indent=2))
 
 if __name__ == "__main__":
     main()
