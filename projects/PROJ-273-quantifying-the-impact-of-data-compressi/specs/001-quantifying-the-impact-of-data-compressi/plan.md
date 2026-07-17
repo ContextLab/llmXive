@@ -90,7 +90,7 @@ data/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Bilby/Dynesty (Fast PE)** | Required by CI constraints (2-core/7GB). Full LALInference is infeasible. | Using full LALInference on CI would result in non-converged posteriors or job timeouts, invalidating the bias metric. |
+| **Bilby/Dynesty (Fast PE)** | Required by CI constraints (-core/7GB). Full LALInference is infeasible. | Using full LALInference on CI would result in non-converged posteriors or job timeouts, invalidating the bias metric. |
 | **Synthetic Injection** | Required by FR-010/SC-003 for ground truth. Public GWOSC archives lack injection campaigns. | Using detected events (inferred parameters) would make it impossible to calculate `Bias` against a known truth, violating the core research question. |
 | **External Baseline** | Required to decouple PE uncertainty from compression artifacts. CI cannot produce converged `Bias_Original`. | Running `Bias_Original` on CI would introduce PE algorithm uncertainty into the baseline, confounding the `Delta_Bias` metric. |
 | **JPEG2000 Folding** | Required by FR-003 to test JPEG2000. | Standard JPEG2000 is for 2D. We implement a 1D-to-2D folding transformation to satisfy the spec, while explicitly acknowledging the transformation artifact in `research.md`. |

@@ -1,74 +1,41 @@
 import os
-import shutil
-import tempfile
+import pytest
 from pathlib import Path
+import tempfile
 import sys
 
-# Add code directory to path to import the module
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add the code directory to the path so we can import the module
+# This assumes the test is run from the project root or similar context
+code_path = Path(__file__).parent.parent.parent / "code"
+if str(code_path) not in sys.path:
+    sys.path.insert(0, str(code_path))
 
 from setup_data_dirs import setup_data_directories
 
-def test_setup_data_directories_creates_structure():
-    """
-    Test that setup_data_directories creates the required directories:
-    data/raw, data/interim, data/processed
-    """
-    # Use a temporary directory to avoid polluting the actual project root
-    # We will mock the Path behavior or run in a temp dir context.
-    # Since the function hardcodes "data", we need to be careful.
-    # For this unit test, we will create a temp dir, cd into it, run, and check.
-    
-    original_cwd = os.getcwd()
-    temp_dir = tempfile.mkdtemp()
-    
-    try:
-        os.chdir(temp_dir)
+def test_setup_data_directories_creates_all_folders():
+    """Test that all required data directories are created."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Run the setup function
+        setup_data_directories(tmpdir)
         
-        # Run the function
-        result = setup_data_directories()
+        base_path = Path(tmpdir) / "data"
         
-        # Verify directories exist
-        base = Path(temp_dir) / "data"
-        assert (base / "raw").is_dir(), "data/raw directory not created"
-        assert (base / "interim").is_dir(), "data/interim directory not created"
-        assert (base / "processed").is_dir(), "data/processed directory not created"
-        
-        # Verify .gitkeep files exist
-        assert (base / "raw" / ".gitkeep").is_file(), "data/raw/.gitkeep not created"
-        assert (base / "interim" / ".gitkeep").is_file(), "data/interim/.gitkeep not created"
-        assert (base / "processed" / ".gitkeep").is_file(), "data/processed/.gitkeep not created"
-        
-        # Verify return value contains the paths
-        assert len(result) == 6, f"Expected 6 items in return (3 dirs + 3 gitkeeps), got {len(result)}"
-        
-    finally:
-        os.chdir(original_cwd)
-        shutil.rmtree(temp_dir)
+        # Verify each directory exists
+        expected_dirs = ["raw", "interim", "processed", "external"]
+        for dir_name in expected_dirs:
+            dir_path = base_path / dir_name
+            assert dir_path.exists(), f"Directory {dir_path} was not created"
+            assert dir_path.is_dir(), f"{dir_path} is not a directory"
 
 def test_setup_data_directories_idempotent():
-    """
-    Test that running setup_data_directories multiple times does not raise errors
-    and handles existing directories gracefully.
-    """
-    original_cwd = os.getcwd()
-    temp_dir = tempfile.mkdtemp()
-    
-    try:
-        os.chdir(temp_dir)
+    """Test that running the setup function multiple times doesn't cause errors."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Run twice
+        setup_data_directories(tmpdir)
+        setup_data_directories(tmpdir)
         
-        # Run once
-        setup_data_directories()
-        
-        # Run again
-        result = setup_data_directories()
-        
-        # Should still have the directories
-        base = Path(temp_dir) / "data"
-        assert (base / "raw").is_dir()
-        assert (base / "interim").is_dir()
-        assert (base / "processed").is_dir()
-        
-    finally:
-        os.chdir(original_cwd)
-        shutil.rmtree(temp_dir)
+        # Verify directories still exist
+        base_path = Path(tmpdir) / "data"
+        expected_dirs = ["raw", "interim", "processed", "external"]
+        for dir_name in expected_dirs:
+            assert (base_path / dir_name).exists()

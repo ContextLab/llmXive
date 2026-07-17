@@ -1,0 +1,2 @@
+# This directory stores provenance records, deviation logs, and amendment records.
+# Files are not tracked by git but are required for pipeline execution.

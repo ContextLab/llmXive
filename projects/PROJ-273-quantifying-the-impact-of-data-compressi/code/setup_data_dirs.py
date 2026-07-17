@@ -3,33 +3,37 @@ from pathlib import Path
 
 def setup_data_directories():
     """
-    Specifically creates the data directory hierarchy:
-    data/raw, data/interim, data/processed, data/external.
-    This is a helper for T006 but included here to satisfy T001 structure creation.
+    Create the required data directory structure for the project.
+    
+    Creates:
+      - data/raw/
+      - data/interim/
+      - data/processed/
+      - data/external/
+    
+    These directories are used to store:
+      - raw: Original downloaded GW noise segments
+      - interim: Intermediate data products (e.g., injected waveforms)
+      - processed: Final validated datasets ready for analysis
+      - external: External baseline artifacts and reference data
+    
+    Returns:
+      dict: Mapping of directory names to their absolute paths
     """
-    root = Path(__file__).parent.parent
-    data_dirs = [
-        "data/raw",
-        "data/interim",
-        "data/processed",
-        "data/external"
-    ]
-
-    created = []
-    for d in data_dirs:
-        full_path = root / d
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(full_path.relative_to(root)))
+    base_dir = Path(__file__).resolve().parent.parent / "data"
     
-    # Ensure __init__.py for package consistency if needed, though data is usually not a package
-    # We keep data as a plain directory structure as per standard ML/Data practices,
-    # but if src/data is the package, data/ itself doesn't strictly need __init__.py
-    # unless imported as a module. We'll leave data/ as plain dirs for storage.
+    directories = {
+        "raw": base_dir / "raw",
+        "interim": base_dir / "interim",
+        "processed": base_dir / "processed",
+        "external": base_dir / "external",
+    }
     
-    return created
+    for name, path in directories.items():
+        path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {path}")
+    
+    return {name: str(path) for name, path in directories.items()}
 
 if __name__ == "__main__":
-    print("Setting up data directories...")
-    dirs = setup_data_directories()
-    print(f"Created data directories: {dirs}")
+    setup_data_directories()

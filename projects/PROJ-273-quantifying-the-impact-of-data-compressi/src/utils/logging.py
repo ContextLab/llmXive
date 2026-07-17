@@ -1,37 +1,41 @@
 """
-Structured logging utilities for the llmXive GW Compression pipeline.
+Structured logging utilities for the GW Compression Impact pipeline.
 
-Provides a consistent logging configuration and helper functions to log
-pipeline steps, data validation events, and error conditions in a structured
-format suitable for CI/CD pipelines and log aggregation systems.
+This module provides a centralized logging configuration that ensures:
+- Consistent log formatting across all pipeline stages.
+- Structured JSON output for CI/CD integration and log aggregation.
+- Level-based filtering (INFO by default, DEBUG for troubleshooting).
+- File and console handlers for persistent and immediate visibility.
 """
 
 import logging
 import sys
 import json
-from datetime import datetime
-from typing import Any, Dict, Optional
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Optional, Dict, Any
 
-# Default log level can be overridden via environment variable LOG_LEVEL
-DEFAULT_LEVEL = logging.INFO
+# Constants
+DEFAULT_LOG_LEVEL = logging.INFO
+DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+DEFAULT_JSON_FORMAT = "json"
+LOG_FILE_NAME = "pipeline.log"
+LOG_DIR = Path("logs")
 
-# Custom log format for structured output
-# We use a JSON-like structure for machine parsing if required, or standard
-# timestamped text for human readability. Here we implement a standard
-# formatter that includes context.
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+# Global logger instance cache
+_configured = False
+_logger: Optional[logging.Logger] = None
 
 
 class StructuredFormatter(logging.Formatter):
     """
-    A custom formatter that outputs log records as JSON for structured logging.
-    This is useful for cloud logging (CloudWatch, Stackdriver) or log aggregators.
+    Custom formatter that outputs logs as JSON lines for structured parsing.
+    Includes timestamp, level, logger name, message, and optional extra fields.
     """
 
     def format(self, record: logging.LogRecord) -> str:
-        log_entry: Dict[str, Any] = {
-            "timestamp": datetime.utcfromtimestamp(record.created).isoformat(),
+        log_data: Dict[str, Any] = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -42,123 +46,117 @@ class StructuredFormatter(logging.Formatter):
 
         # Include exception info if present
         if record.exc_info:
-            log_entry["exception"] = self.formatException(record.exc_info)
+            log_data["exception"] = self.formatException(record.exc_info)
 
-        # Include extra context if provided
+        # Include extra fields if present
         if hasattr(record, "extra_data"):
-            log_entry["context"] = record.extra_data
+            log_data.update(record.extra_data)
 
-        return json.dumps(log_entry)
+        return json.dumps(log_data)
 
 
 def setup_logging(
-    name: str = "gw_compression",
-    level: int = DEFAULT_LEVEL,
+    log_level: int = DEFAULT_LOG_LEVEL,
+    log_dir: Optional[Path] = None,
     use_json: bool = False,
-    log_file: Optional[str] = None
 ) -> logging.Logger:
     """
-    Configure and return a logger with the specified settings.
+    Configure the root logger and return a named logger for the pipeline.
 
     Args:
-        name: The name of the logger (usually __name__ of the module).
-        level: The logging level (e.g., logging.DEBUG, logging.INFO).
-        use_json: If True, output logs as JSON. If False, use standard text format.
-        log_file: Optional path to a log file. If provided, logs are written to file.
+        log_level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        log_dir: Directory to store log files. Defaults to 'logs' in project root.
+        use_json: If True, output logs in JSON format. If False, use standard text format.
 
     Returns:
-        A configured logger instance.
-    """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
+        A configured logger instance named 'gw_compression_pipeline'.
 
-    # Avoid adding duplicate handlers if setup is called multiple times
-    if logger.handlers:
-        return logger
+    Raises:
+        ValueError: If log_dir is provided but cannot be created.
+    """
+    global _configured, _logger
+
+    if _configured:
+        return _logger
+
+    # Ensure log directory exists
+    if log_dir is None:
+        log_dir = LOG_DIR
+    else:
+        log_dir = Path(log_dir)
+
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as e:
+        raise ValueError(f"Failed to create log directory {log_dir}: {e}")
+
+    log_file_path = log_dir / LOG_FILE_NAME
+
+    # Create logger
+    logger = logging.getLogger("gw_compression_pipeline")
+    logger.setLevel(log_level)
+    logger.propagate = False  # Prevent duplicate logs if root is also configured
+
+    # Clear existing handlers to avoid duplication on re-calls
+    logger.handlers.clear()
 
     # Console Handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
+    console_handler.setLevel(log_level)
 
     if use_json:
-        console_handler.setFormatter(StructuredFormatter())
+        console_formatter = StructuredFormatter()
     else:
-        console_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
+        console_formatter = logging.Formatter(DEFAULT_LOG_FORMAT)
 
+    console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
 
-    # File Handler (optional)
-    if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        if use_json:
-            file_handler.setFormatter(StructuredFormatter())
-        else:
-            file_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-        logger.addHandler(file_handler)
+    # File Handler
+    file_handler = logging.FileHandler(log_file_path)
+    file_handler.setLevel(log_level)
+    file_handler.setFormatter(console_formatter)
+    logger.addHandler(file_handler)
 
-    # Prevent propagation to root logger to avoid double logging
-    logger.propagate = False
+    _configured = True
+    _logger = logger
 
+    logger.info("Logging initialized", extra={"extra_data": {"log_file": str(log_file_path), "level": logging.getLevelName(log_level)}})
     return logger
 
 
-def log_step_start(logger: logging.Logger, step_name: str, details: Optional[Dict[str, Any]] = None) -> None:
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Log the beginning of a pipeline step.
+    Retrieve a child logger from the pipeline logger.
 
     Args:
-        logger: The logger instance to use.
-        step_name: Name of the pipeline step (e.g., "download_noise", "inject_signal").
-        details: Optional dictionary of context (e.g., event_id, parameters).
+        name: Optional sub-name for the logger (e.g., "data.download").
+
+    Returns:
+        A logger instance.
     """
-    extra = {"extra_data": details} if details else {}
-    logger.info(f"Starting step: {step_name}", extra=extra)
+    if _logger is None:
+        # Auto-initialize if not explicitly set up yet
+        setup_logging()
+
+    if name:
+        return _logger.getChild(name)
+    return _logger
 
 
-def log_step_complete(logger: logging.Logger, step_name: str, duration_seconds: float, details: Optional[Dict[str, Any]] = None) -> None:
-    """
-    Log the successful completion of a pipeline step.
-
-    Args:
-        logger: The logger instance to use.
-        step_name: Name of the pipeline step.
-        duration_seconds: Time taken to complete the step.
-        details: Optional dictionary of context.
-    """
-    extra = {"extra_data": details} if details else {}
-    extra_data = extra.get("extra_data", {})
-    extra_data["duration_seconds"] = duration_seconds
-    extra["extra_data"] = extra_data
-
-    logger.info(f"Completed step: {step_name}", extra=extra)
+def log_step_start(step_name: str, **kwargs) -> None:
+    """Log the beginning of a pipeline step."""
+    logger = get_logger(step_name)
+    logger.info(f"Step '{step_name}' started", extra={"extra_data": {"step": step_name, **kwargs}})
 
 
-def log_step_error(logger: logging.Logger, step_name: str, error: Exception, details: Optional[Dict[str, Any]] = None) -> None:
-    """
-    Log an error occurring during a pipeline step.
-
-    Args:
-        logger: The logger instance to use.
-        step_name: Name of the pipeline step.
-        error: The exception that was raised.
-        details: Optional dictionary of context.
-    """
-    extra = {"extra_data": details} if details else {}
-    logger.error(f"Error in step: {step_name} - {str(error)}", extra=extra, exc_info=True)
+def log_step_success(step_name: str, **kwargs) -> None:
+    """Log the successful completion of a pipeline step."""
+    logger = get_logger(step_name)
+    logger.info(f"Step '{step_name}' completed successfully", extra={"extra_data": {"step": step_name, **kwargs}})
 
 
-def log_validation_result(logger: logging.Logger, check_name: str, passed: bool, details: Optional[Dict[str, Any]] = None) -> None:
-    """
-    Log the result of a validation check.
-
-    Args:
-        logger: The logger instance to use.
-        check_name: Name of the validation check.
-        passed: Boolean indicating if the check passed.
-        details: Optional dictionary of context.
-    """
-    level = logging.INFO if passed else logging.WARNING
-    status = "PASSED" if passed else "FAILED"
-    extra = {"extra_data": details} if details else {}
-    logger.log(level, f"Validation Check: {check_name} - {status}", extra=extra)
+def log_step_failure(step_name: str, error: Exception, **kwargs) -> None:
+    """Log the failure of a pipeline step."""
+    logger = get_logger(step_name)
+    logger.error(f"Step '{step_name}' failed: {str(error)}", extra={"extra_data": {"step": step_name, "error": str(error), **kwargs}}, exc_info=True)

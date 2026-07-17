@@ -3,86 +3,129 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quantifying-the-impact-of-data-compressi"
+name = "llmxive-gw-compression"
 version = "0.1.0"
 description = "Quantifying the Impact of Data Compression on Gravitational Wave Event Reconstruction"
-readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
-authors = [
-    {name = "llmXive Research Team"}
-]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Topic :: Scientific/Engineering :: Physics",
-]
 dependencies = [
-    "numpy>=1.24.0",
-    "scipy>=1.10.0",
-    "pandas>=2.0.0",
-    "h5py>=3.8.0",
-    "lalsimulation>=7.0.0",
-    "bilby>=2.0.0",
-    "dynesty>=2.1.0",
-    "gwosc>=0.7.0",
-    "lz4>=4.3.0",
-    "pywavelets>=1.4.0",
-    "astropy>=5.2.0",
-    "pillow>=9.5.0",
-    "pytest>=7.3.0",
+    "numpy",
+    "scipy",
+    "pandas",
+    "h5py",
+    "lalsimulation",
+    "bilby",
+    "dynesty",
+    "gwosc",
+    "lz4",
+    "pywavelets",
+    "astropy",
+    "pillow",
+    "pytest",
+    "pytest-timeout",
+    "pytest-cov",
+    "ruff",
+    "black"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest-cov>=4.1.0",
-    "pytest-timeout>=2.2.0",
+    "pytest",
+    "pytest-timeout",
+    "pytest-cov",
+    "ruff",
+    "black"
 ]
-
-[project.scripts]
-setup-data-dirs = "code.setup_data_dirs:main"
-setup-project-structure = "code.setup_project_structure:main"
 
 [tool.setuptools.packages.find]
-where = ["code"]
-
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults
-]
-
-[tool.ruff.isort]
-known-first-party = ["code", "tests"]
+where = ["."]
+include = ["src*", "tests*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short --strict-markers"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = [
+    "--strict-markers",
+    "--tb=short",
+    "--maxfail=1",
+    "--timeout=300",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-fail-under=70"
+]
 timeout = 300
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
+    "integration: marks tests as integration tests",
+    "contract: marks tests as contract tests"
 ]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/conftest.py"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod"
+]
+fail_under = 70
+precision = 2
+show_missing = true
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["S101", "E712"]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["src", "tests"]
+known_third_party = ["numpy", "scipy", "pandas", "h5py", "lalsimulation", "bilby", "dynesty", "gwosc", "lz4", "pywavelets", "astropy", "pillow", "pytest"]

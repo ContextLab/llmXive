@@ -1,16 +1,46 @@
-T008:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration file (e.g., pytest.ini, pyproject.toml, or similar)\
-    \ containing coverage thresholds and a 300\u2011second timeout setting was provided,\
-    \ nor any CI workflow showing these settings. Without such artifacts, the requirement\
-    \ cannot be verified as met."
+  r: "The submission provides no evidence that the listed directories (e.g., `src/data`,\
+    \ `src/compression`, `tests/unit`, `data/raw`, etc.) were actually created; no\
+    \ file\u2011system snapshot, command output, or directory listing is present to\
+    \ verify the required project structure. Consequently the task requirement is\
+    \ not satisfied."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`)\
+    \ or scripts setting up ruff linting and black formatting are present; the only\
+    \ artifacts shown relate to a data\u2011compression feature, not to linting/formatting\
+    \ setup. Consequently the required linting/formatting configuration is missing."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file containing the exact amended text for FR\u2011005\
+    \ and Constitution Principle VII is provided; without the artifact we cannot confirm\
+    \ the required formal amendment was made. The implementer must supply the modified\
+    \ `spec.md` with the new wording authorizing Bilby/Dynesty as the Parameter Estimation\
+    \ engine."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directories (`data/raw/`, `data/interim/`,
+    `data/processed/`, `data/external/`) actually exist; the response contains no
+    file listings, screenshots, or code creating them. The implementer must add the
+    directory structure to the repository (or provide proof of its presence).
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/` directory or its required subfolders (`unit/`, `integration/`,
+    `contract/`) is present in the provided artifacts; the implementer did not supply
+    any file listings or screenshots confirming the structure.
 T009:
   c: true
-  h: 3f27a849474f402b58150182f6a5bbef820642a652c6471a8e848a13f0c90cfd
-  r: "The repository contains `tests/unit/test_inject.py`, a non\u2011empty test file\
-    \ that imports `inject_synthetic_signal` and includes `assert snr > 8.0` as required.\
-    \ The presence of the test satisfies the task specification."
+  h: 910b1ff19aefba13dd156f74838d7cded8bdbaeea374164169d2c95cb4f839e4
+  r: "The repository contains a non\u2011empty `tests/unit/test_inject.py` (\u2248\
+    3\u202FKB) that imports `inject_synthetic_signal` from `src/data/inject.py` and\
+    \ includes the required assertion `assert snr > 8.0`. This satisfies the task\
+    \ of writing the unit test."
 T010:
   c: false
   h: 6d83dcaa0a0612fefe5a6b0183ea8115a55fb589767f27f8892d22dd5c32f473

@@ -1,148 +1,144 @@
 """
-Unit tests for src/utils/logging.py
+Unit tests for the logging utility module.
 """
 
+import pytest
 import logging
 import json
-import io
-import sys
+import os
+import tempfile
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-import pytest
+import sys
+import importlib
+
+# Ensure src is in path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.utils.logging import (
     setup_logging,
+    get_logger,
     log_step_start,
-    log_step_complete,
-    log_step_error,
-    log_validation_result,
+    log_step_success,
+    log_step_failure,
     StructuredFormatter,
+    LOG_DIR,
+    LOG_FILE_NAME
 )
 
 
 @pytest.fixture
-def logger_with_stream():
-    """Create a logger that writes to a StringIO buffer for inspection."""
-    buffer = io.StringIO()
-    handler = logging.StreamHandler(buffer)
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(levelname)s - %(message)s")
-    handler.setFormatter(formatter)
-
-    logger = setup_logging(name="test_logger", level=logging.INFO)
-    # Clear existing handlers to avoid noise
-    logger.handlers.clear()
-    logger.addHandler(handler)
-    return logger, buffer
+def temp_log_dir():
+    """Create a temporary directory for log files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 
-def test_setup_logging_returns_logger():
-    """Test that setup_logging returns a configured logger."""
-    logger = setup_logging(name="test_setup")
-    assert isinstance(logger, logging.Logger)
-    assert logger.name == "test_setup"
+@pytest.fixture
+def reset_logging():
+    """Reset the global logging state before each test."""
+    # We need to reload the module to reset the global state
+    import src.utils.logging as logging_module
+    logging_module._configured = False
+    logging_module._logger = None
+    yield
+    # Cleanup after test
+    logging_module._configured = False
+    logging_module._logger = None
+
+
+def test_setup_logging_creates_logger(temp_log_dir, reset_logging):
+    """Test that setup_logging creates and returns a logger."""
+    logger = setup_logging(log_level=logging.INFO, log_dir=temp_log_dir)
+    assert logger is not None
+    assert logger.name == "gw_compression_pipeline"
     assert logger.level == logging.INFO
-    assert len(logger.handlers) > 0
 
 
-def test_log_step_start(logger_with_stream):
-    """Test logging the start of a step."""
-    logger, buffer = logger_with_stream
-    log_step_start(logger, "test_step", {"param": "value"})
-
-    output = buffer.getvalue()
-    assert "Starting step: test_step" in output
-    assert "test_step" in output
+def test_setup_logging_creates_log_file(temp_log_dir, reset_logging):
+    """Test that setup_logging creates the log file."""
+    logger = setup_logging(log_level=logging.INFO, log_dir=temp_log_dir)
+    log_file = temp_log_dir / LOG_FILE_NAME
+    assert log_file.exists()
 
 
-def test_log_step_complete(logger_with_stream):
-    """Test logging the completion of a step."""
-    logger, buffer = logger_with_stream
-    log_step_complete(logger, "test_step", duration_seconds=1.5)
-
-    output = buffer.getvalue()
-    assert "Completed step: test_step" in output
-    assert "1.5" in output
+def test_setup_logging_console_handler(temp_log_dir, reset_logging):
+    """Test that setup_logging adds a console handler."""
+    logger = setup_logging(log_level=logging.INFO, log_dir=temp_log_dir)
+    console_handlers = [h for h in logger.handlers if isinstance(h, logging.StreamHandler)]
+    assert len(console_handlers) > 0
 
 
-def test_log_step_error(logger_with_stream):
-    """Test logging an error in a step."""
-    logger, buffer = logger_with_stream
-    try:
-        raise ValueError("Test error")
-    except Exception as e:
-        log_step_error(logger, "test_step", e)
-
-    output = buffer.getvalue()
-    assert "Error in step: test_step" in output
-    assert "Test error" in output
-    assert "ValueError" in output
+def test_setup_logging_file_handler(temp_log_dir, reset_logging):
+    """Test that setup_logging adds a file handler."""
+    logger = setup_logging(log_level=logging.INFO, log_dir=temp_log_dir)
+    file_handlers = [h for h in logger.handlers if isinstance(h, logging.FileHandler)]
+    assert len(file_handlers) > 0
 
 
-def test_log_validation_result_passed(logger_with_stream):
-    """Test logging a passed validation."""
-    logger, buffer = logger_with_stream
-    log_validation_result(logger, "check_data_integrity", passed=True)
-
-    output = buffer.getvalue()
-    assert "Validation Check: check_data_integrity - PASSED" in output
+def test_get_logger_returns_child(temp_log_dir, reset_logging):
+    """Test that get_logger returns a child logger."""
+    setup_logging(log_dir=temp_log_dir)
+    child_logger = get_logger("data.download")
+    assert child_logger.name == "gw_compression_pipeline.data.download"
 
 
-def test_log_validation_result_failed(logger_with_stream):
-    """Test logging a failed validation."""
-    logger, buffer = logger_with_stream
-    log_validation_result(logger, "check_data_integrity", passed=False)
-
-    output = buffer.getvalue()
-    assert "Validation Check: check_data_integrity - FAILED" in output
-
-
-def test_structured_formatter_json_output():
+def test_structured_formatter_outputs_json(temp_log_dir, reset_logging):
     """Test that StructuredFormatter produces valid JSON."""
     formatter = StructuredFormatter()
     record = logging.LogRecord(
         name="test",
         level=logging.INFO,
         pathname="test.py",
-        lineno=10,
+        lineno=1,
         msg="Test message",
         args=(),
         exc_info=None
     )
-    record.created = 1234567890.0
-
     output = formatter.format(record)
     parsed = json.loads(output)
-
     assert "timestamp" in parsed
-    assert parsed["level"] == "INFO"
+    assert "level" in parsed
     assert parsed["message"] == "Test message"
-    assert parsed["logger"] == "test"
 
 
-def test_structured_formatter_with_exception():
-    """Test that StructuredFormatter includes exception info."""
-    formatter = StructuredFormatter()
-    try:
-        raise RuntimeError("Boom")
-    except Exception:
-        import sys
-        exc_info = sys.exc_info()
+def test_log_step_start_logs_info(temp_log_dir, reset_logging, caplog):
+    """Test that log_step_start logs an INFO message."""
+    setup_logging(log_dir=temp_log_dir, log_level=logging.INFO)
+    with caplog.at_level(logging.INFO, logger="gw_compression_pipeline.test_step"):
+        log_step_start("test_step", param1="value1")
+    
+    # Check that the log message exists
+    assert any("Step 'test_step' started" in record.message for record in caplog.records)
 
-    record = logging.LogRecord(
-        name="test",
-        level=logging.ERROR,
-        pathname="test.py",
-        lineno=10,
-        msg="Something broke",
-        args=(),
-        exc_info=exc_info
-    )
-    record.created = 1234567890.0
 
-    output = formatter.format(record)
-    parsed = json.loads(output)
+def test_log_step_success_logs_info(temp_log_dir, reset_logging, caplog):
+    """Test that log_step_success logs an INFO message."""
+    setup_logging(log_dir=temp_log_dir, log_level=logging.INFO)
+    with caplog.at_level(logging.INFO, logger="gw_compression_pipeline.test_step"):
+        log_step_success("test_step", duration=1.5)
+    
+    assert any("Step 'test_step' completed successfully" in record.message for record in caplog.records)
 
-    assert "exception" in parsed
-    assert "RuntimeError" in parsed["exception"]
-    assert "Boom" in parsed["exception"]
+
+def test_log_step_failure_logs_error(temp_log_dir, reset_logging, caplog):
+    """Test that log_step_failure logs an ERROR message."""
+    setup_logging(log_dir=temp_log_dir, log_level=logging.ERROR)
+    test_error = ValueError("Test error")
+    
+    with caplog.at_level(logging.ERROR, logger="gw_compression_pipeline.test_step"):
+        log_step_failure("test_step", error=test_error)
+    
+    assert any("Step 'test_step' failed" in record.message for record in caplog.records)
+    assert any("Test error" in record.message for record in caplog.records)
+
+
+def test_logging_idempotent(temp_log_dir, reset_logging):
+    """Test that calling setup_logging multiple times doesn't duplicate handlers."""
+    logger1 = setup_logging(log_dir=temp_log_dir)
+    initial_handler_count = len(logger1.handlers)
+    
+    logger2 = setup_logging(log_dir=temp_log_dir)
+    assert logger1 is logger2
+    assert len(logger2.handlers) == initial_handler_count

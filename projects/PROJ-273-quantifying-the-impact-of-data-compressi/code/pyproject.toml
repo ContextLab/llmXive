@@ -3,91 +3,53 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quantifying-compression-impact-gw"
+name = "quantifying-compression-gw"
 version = "0.1.0"
 description = "Quantifying the Impact of Data Compression on Gravitational Wave Event Reconstruction"
-readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "numpy",
-    "scipy",
-    "pandas",
-    "h5py",
-    "lalsimulation",
-    "bilby",
-    "dynesty",
-    "gwosc",
-    "lz4",
-    "pywavelets",
-    "astropy",
-    "pillow",
-    "pytest",
-    "pytest-timeout",
-    "pytest-cov",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "pandas>=2.0.0",
+    "h5py>=3.8.0",
+    "bilby>=2.0.0",
+    "dynesty>=2.1.0",
+    "gwosc>=0.7.0",
+    "lz4>=4.3.0",
+    "pywavelets>=1.4.0",
+    "astropy>=5.2.0",
+    "pillow>=9.5.0",
+    "pytest>=7.3.0",
+    "pytest-cov>=4.1.0",
+    "pytest-timeout>=2.2.0",
+    "lalsuite>=7.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff",
-    "black",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pre-commit>=3.3.0",
 ]
 
 [tool.setuptools.packages.find]
 where = ["code"]
 
 [tool.ruff]
-line-length = 88
-target-version = "py311"
-src = ["code/src", "code/tests"]
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "W", "N", "D", "UP", "B", "C4", "SIM"]
-ignore = ["E501", "D100", "D104", "D107"]
-fixable = ["ALL"]
-unfixable = []
-
-[tool.ruff.lint.per-file-ignores]
-"code/tests/*" = ["D100", "D101", "D102", "D103", "D104", "D105"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["src", "tests"]
-force-single-line = true
-lines-after-imports = 2
-
-[tool.ruff.lint.pydocstyle]
-convention = "google"
+line-length = 100
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | data
-)/
-'''
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
-addopts = [
-    "--strict-markers",
-    "--cov=src",
-    "--cov-report=term-missing",
-    "--cov-report=xml",
-    "--timeout=300",
-]
 timeout = 300
+addopts = "--cov=code/src --cov-report=term-missing --strict-markers"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "unit: unit tests",
-    "integration: integration tests",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests"
 ]
