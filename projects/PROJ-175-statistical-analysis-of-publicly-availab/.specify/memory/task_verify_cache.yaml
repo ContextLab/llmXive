@@ -28,3 +28,17 @@ T038:
   r: The `download.py` still uses a generic `except Exception` block and does not
     show specific HTTP error handling or logging of the URL and error code to `data/download_errors.log`.
     Moreover, the required `data/download_errors.log` file is missing.
+T043:
+  c: false
+  h: 4c52e205ed3e0f06cd4885e8beff327f3cdf1913d6d79cc9ecd366edac6de1e2
+  r: "The required artifact `data/final_execution_log.json` is missing, so there is\
+    \ no evidence of runtime, memory usage, or success status from the end\u2011to\u2011\
+    end pipeline execution. The task\u2019s deliverable has not been provided."
+T044:
+  c: false
+  h: 901fd35c67e86a1e51c9d01d66cc443675648292d368972d9dd2ebc0623dbdfd
+  r: The `docs/final_report.md` file does not exist, and two of the required JSON
+    inputs (`data/auc_delta_metrics.json` and `data/final_execution_log.json`) are
+    missing. The only present JSON (`data/lrt_result_vif_corrected.json`) contains
+    placeholder values (all zeros and empty lists) rather than real aggregated results.
+    Consequently, the report cannot be generated as specified.

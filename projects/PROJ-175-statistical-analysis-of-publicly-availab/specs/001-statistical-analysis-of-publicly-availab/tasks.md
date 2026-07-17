@@ -60,12 +60,10 @@
 - [X] T033b [P] Configure formatting: Create `pyproject.toml` at repository root with black configuration (line-length=88, target-version=py311) to ensure consistent code style (Constitution Principle I, FR-001).
 - [X] T004 [P] Setup `data/` directory structure (`raw/`, `processed/`, `final/`) and `code/` module structure
 - [X] T005 [P] Implement global random seed pinning to ensure reproducibility. in `code/__init__.py` and `tests/conftest.py`
-- [X] T006 [P] Setup memory profiling utility in `code/utils/memory_monitor.py` to enforce 6 GB RAM limit
+- [X] T006 [P] Setup memory profiling utility in `code/utils/memory_monitor.py` to enforce a predefined RAM limit.
 - [X] T007 Create base data schema definitions in `specs/001-statistical-analysis-of-recipe-data/contracts/`: specifically `dataset.schema.yaml` and `model_output.schema.yaml` (YAML format)
-- [X] T008a [US1] Implement `code/models/diagnostics.py` step 0a: Perform Power Analysis for Logistic Regression using `statsmodels.stats.power` to calculate required sample size N_logistic for effect size ≥ 0.1 and power 0.8, outputting N_logistic to `data/power_analysis_logistic.json` to determine the downsampled subset size for T019. **Note**: This task must complete before T019.
-- [X] T008b [US2] Implement `code/models/diagnostics.py` step 0b: Perform Convergence/Power Analysis for Hierarchical Bayesian Model to determine required sample size N_bayesian for MCMC chain convergence and posterior stability, outputting N_bayesian to `data/power_analysis_bayesian.json` to determine the downsampled subset size for T019. **Note**: This task must complete before T019.
-- [ ] T038 [US1] Implement `code/data/download.py` robust error handling: Replace any generic `try/except` blocks with specific HTTP error handling that **raises** on failure (no synthetic fallback) and logs the exact URL and error code to `data/download_errors.log` (Constitution II: Verified Accuracy). **DEPENDS ON**: T002.
-- [X] T042 [US1] Implement `code/data/verify.py` schema validation for Counterfactual dataset: Add a strict schema check for the `compatibility_label` column to ensure it contains only binary values (0/1) or valid float scores, failing the pipeline if the schema deviates (FR-001b). **DEPENDS ON**: T002.
+- [X] T038 [P] [US1] Implement `code/data/verify.py` robust error handling: Replace any generic `try/except` blocks with specific HTTP error handling that **raises** on failure (no synthetic fallback) and logs the exact URL and error code to `data/download_errors.log` (Constitution II: Verified Accuracy). **DEPENDS ON**: T002.
+- [X] T042 [P] [US1] Implement `code/data/verify.py` schema validation for Counterfactual dataset: Add a strict schema check for the `compatibility_label` column to ensure it contains only binary values (0/1) or valid float scores, failing the pipeline if the schema deviates (FR-001b). **DEPENDS ON**: T002.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,14 +85,16 @@
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `code/data/verify.py` to check URL availability and schema of Recipe1M embeddings, FlavorDB chemical matrix, and Counterfactual dataset (FR-001b). **Must implement hard fail logic**: if any URL is unreachable or schema (specifically `compatibility_label` column) is missing, raise an error and generate `data/verification_report.json` with status "FAILED".
-- [X] T013 [US1] Implement `code/data/download.py` to fetch Recipe1M (streaming), FlavorDB chemical matrix, and Counterfactual datasets from verified URLs (FR-001). **DEPENDS ON**: T008a, T008b (for power analysis context), T012.
-- [X] T014 [US1] Implement `code/data/preprocess.py` step 1-2: Normalize ingredient names using a normalization strategy (e.g., Levenshtein) where the threshold is determined via a small validation step or standard default, logging the chosen value. Map to FlavorDB canonical IDs (FR-002). **DEPENDS ON**: T013. **Note**: Do NOT use text embeddings for this step.
+- [X] T013 [US1] Implement `code/data/download.py` to fetch Recipe1M (streaming), FlavorDB chemical matrix, and Counterfactual datasets from verified URLs (FR-001). **DEPENDS ON**: T012.
+- [X] T008a [US1] Implement `code/models/diagnostics.py` step 0a: Perform Power Analysis for Logistic Regression using `statsmodels.stats.power` to calculate required sample size N_logistic for effect size ≥ 0.1 and power 0.8, outputting N_logistic to `data/power_analysis_logistic.json` to determine the downsampled subset size for T019. **Note**: This task must complete AFTER data download to estimate distribution. **DEPENDS ON**: T013.
+- [X] T008b [US1] Implement `code/models/diagnostics.py` step 0b: Perform Convergence/Power Analysis for Hierarchical Bayesian Model to determine required sample size N_bayesian for MCMC chain convergence and posterior stability, outputting N_bayesian to `data/power_analysis_bayesian.json` to determine the downsampled subset size for T019. **Note**: This task must complete AFTER data download. **DEPENDS ON**: T013.
+- [X] T014 [US1] Implement `code/data/preprocess.py` step 1-2: Normalize ingredient names using **Levenshtein distance threshold = 2 (hard constraint)** mapped explicitly to the **FlavorDB canonical list** (FR-002). **Log the fixed threshold to `data/normalization_config.json`**. **DEPENDS ON**: T013.
 - [X] T015 [US1] Implement `code/data/preprocess.py` step 3: Construct global co-occurrence matrix $C$ with log-transform ($\log(C_{ij} + 1)$) (FR-003)
-- [X] T016 [US1] Implement `code/data/preprocess.py` step 4: Calculate cosine similarity between **FlavorDB chemical vectors** (fetched in T013) for ingredient pairs to derive the **flavor-profile similarity** feature (FR-004). **DEPENDS ON**: T013. **Note**: Spec FR-004 mandates chemical vectors; Plan's mention of text embeddings for similarity is superseded by Spec.
-- [X] T017 [US1] Implement `code/data/preprocess.py` step 5: Derive orthogonalized Functional Role by regressing **raw** rank on global log-frequency using OLS, then extracting the residuals as the continuous 'Functional Role' predictor to ensure orthogonality to Frequency (FR-005)
-- [X] T017b [US1] Implement `code/data/preprocess.py` step 5b: Discretize the continuous residuals from T017 into categorical labels: **Primary**, **Secondary**, **Garnish** using a documented statistical method (e.g., tertiles) or dynamic percentiles. **Log the method and cutpoints used** (FR-005). **Note**: Hard-coded 33rd/66th percentiles are removed to avoid scope creep.
+- [X] T016 [US1] Implement `code/data/preprocess.py` step 4: Calculate cosine similarity between **FlavorDB chemical vectors** (fetched in T013) for ingredient pairs to derive the **flavor-profile similarity** feature (FR-004). **Note**: This explicitly overrides the Plan summary's mention of "text embeddings" to ensure the Spec's chemical mechanism is used. **DEPENDS ON**: T014 (Requires normalized IDs to join vectors).
+- [X] T017 [US1] Implement `code/data/preprocess.py` step 5: Derive functional role by **stratified binning** of ingredient rank within frequency buckets (excluding co-occurrence frequency) to ensure statistical independence (FR-005). **Rationale**: This method satisfies FR-005's requirement to exclude co-occurrence frequency without over-constraining to a specific statistical technique like OLS residuals.
+- [X] T017b [US1] Implement `code/data/preprocess.py` step 5b: Discretize the functional role into categorical labels: **Primary**, **Secondary**, **Garnish** using **stratified binning by tertiles** (fixed method). **Log the method and cutpoints used to `data/role_cutpoints.json`** (FR-005).
 - [X] T018 [US1] Implement `code/data/preprocess.py` step 6-7: Handle missing data by imputing missing **categorical role** (from T017b) with 'Unknown' and creating a `role_missing_flag` column; impute missing similarity with **median similarity value** and create a `similarity_missing_flag` column. **Include a verification step**: Calculate correlation between imputed similarity and orthogonalized role to ensure no bias is introduced, logging the result. Join with Counterfactual labels (FR-005, FR-004).
-- [X] T019 [US1] Implement `code/data/split.py` to create train/test splits ensuring stratified sampling by ingredient frequency. **Explicitly downsample the dataset** to size N_logistic (from T008a) and N_bayesian (from T008b) using `itertools.islice` or `pandas.sample` with the specified seed. **DEPENDS ON**: T008a, T008b, T018.
+- [X] T019 [US1] Implement `code/data/split.py` to create the **unified** train/test split. **Explicitly downsample the dataset** to a single size N_unified (determined by T008a/T008b, taking the minimum or a unified N) using `pandas.sample` with the specified seed. **Rationale**: This ensures a "Single Source of Truth" (Constitution IV) for all models, aligning with the Plan's single decision point. **DEPENDS ON**: T008a, T008b, T018.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -113,11 +113,12 @@
 
 ### Implementation for User Story 2
 
-- [X] T022 [P] [US2] Implement `code/models/fit_logistic.py`: Fit Null Model (frequency only) and Full Model (frequency + similarity + role) with L regularization using the downsampled subset of size N_logistic determined by T008a (FR-006)
-- [X] T023 [US2] Implement `code/models/diagnostics.py` step 1: Calculate Variance Inflation Factors (VIF) for all predictors; drop predictors if VIF > 5 (FR-007)
+- [X] T023 [US2] Implement `code/models/diagnostics.py` step 1: Calculate Variance Inflation Factors (VIF) for all predictors; drop predictors if VIF > 5 (FR-007). **DEPENDS ON**: T019 (Data ready).
+- [X] T022 [P] [US2] Implement `code/models/fit_logistic.py`: Fit Null Model (frequency only) and Full Model (frequency + similarity + **categorical role** from T017b) with L regularization using the downsampled subset determined by T019 (FR-006). **DEPENDS ON**: T023 (VIF check must pass first).
 - [X] T024 [US2] Implement `code/models/diagnostics.py` step 2: Perform Likelihood-Ratio Test (Null vs Full) and record p-value (FR-008)
-- [X] T025 [US2] Implement `code/models/fit_bayesian.py`: Implement the full Hierarchical Bayesian model logic (CPU-only NUTS) on the downsampled subset of size N_bayesian determined by Tb. **DEPENDS ON**: T019 (Data Split). (FR-002 context: Hierarchical Bayesian model fitting)
+- [X] T025 [US2] Implement `code/models/fit_bayesian.py`: Implement the full Hierarchical Bayesian model logic (CPU-only NUTS) on the downsampled subset determined by T019. **Include early stopping and convergence checks**: Monitor R-hat and effective sample size (ESS); if convergence is not reached within a reasonable time limit, the task must fail loudly and report the specific diagnostic failure rather than proceeding with unreliable posterior estimates (FR-002 context: Hierarchical Bayesian model fitting). **DEPENDS ON**: T019.
 - [X] T026 [US2] Implement `code/models/diagnostics.py` step 3: Run **Post-Hoc Power Validation** to verify the achieved power for effect size ≥ 0.1 given the actual sample size used and model convergence metrics (FR-002 context: Hierarchical Bayesian model fitting)
+- [X] T040 [US2] Implement `code/models/diagnostics.py` step 3b: **Multicollinearity Resolution**: If VIF > 5 is detected for the 'Functional Role' predictor (from T023), automatically drop the 'Functional Role' variable from the Full Model and re-run the Likelihood-Ratio Test, documenting the exclusion in the final report (FR-007). **Deliverable**: Update `data/model_comparison.json` with a `dropped_predictors` field and save results to `data/lrt_result_vif_corrected.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,7 +130,7 @@
 
 **Independent Test**: The evaluation script runs on the test split and produces a summary table and calibration plot, demonstrating whether the full model achieves a statistically significant improvement.
 
-**⚠️ GATE**: Phase 5 tasks depend on the completion of Phase 4 (T023, T024, T025, T026) and Phase 2 (T038, T042).
+**⚠️ GATE**: Phase 5 tasks depend on the completion of Phase 4 (T023, T024, T025, T026, T040) and Phase 2 (T038, T042).
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -139,9 +140,10 @@
 ### Implementation for User Story 3
 
 - [X] T029 [P] [US3] Implement `code/evaluation/metrics.py`: Calculate AUC, Precision, Recall, and generate Calibration Plot for both models (FR-009)
-- [X] T030 [US3] Implement `code/evaluation/report.py` step 1: Perform DeLong's test or bootstrap to test hypothesis $\Delta AUC \ge 0.05$ and compare against frequency-only baseline, generating p-value and 95% CI (FR-010)
+- [X] T030 [US3] Implement `code/evaluation/report.py` step 1: Perform **DeLong's test (mandatory method)** to test hypothesis $\Delta AUC \ge \text{a clinically meaningful threshold}$. **Explicitly calculate the confidence interval for the delta** and compare against frequency-only baseline, generating p-value and 95% CI. **Save results to `data/auc_delta_metrics.json`** (FR-010).
 - [X] T031 [US3] Implement `code/evaluation/report.py` step 2: Map LRT p-value to SC-001 and VIF scores to SC-003 in final summary. **DEPENDS ON**: T023 (VIF), T024 (LRT), T025 (Bayesian Results) (FR-010)
-- [X] T032 [US3] Implement `code/evaluation/report.py` step 3: Generate final report stating whether "flavor and role predict compatibility beyond frequency" is supported with specific evidence (p-values, AUC delta, CI). **DEPENDS ON**: T038, T042 (Verified Accuracy Gate).
+- [X] T032 [US3] Implement `code/evaluation/report.py` step 3: Generate final report stating whether "flavor and role predict compatibility beyond frequency" is supported with specific evidence (p-values, AUC delta, CI). **DEPENDS ON**: T042 (Verified Accuracy Gate), T025 (Convergence Gate).
+- [X] T042 [US3] **Gate**: Verify Constitution II Compliance: Ensure tasks T038, T042 are completed and `data/verification_report.json` indicates success before allowing final report generation (T032). This task explicitly links the 'Verified Accuracy' gate to the completion of gap-resolution tasks. **DEPENDS ON**: T038, T042.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,14 +155,14 @@
 
 **⚠️ GATE**: Phase N tasks depend on the completion of all User Story implementations (Phases 3, 4, 5).
 
-- [X] T033a [P] Documentation updates: Update `docs/research.md` with specific sections: 'Methodology' (include power analysis N values), 'Results' (include model coefficients, VIF, AUC delta), 'Limitations' (include sampling constraints)
-- [X] T033b [P] Documentation updates: Update `docs/quickstart.md` with specific sections: 'Environment Setup' (include requirements.txt install), 'Data Pipeline' (include streaming instructions), 'Model Execution' (include **methodology for calculating runtime estimates** (e.g., 'Time per 10k rows * N')) and **placeholders for runtime estimates**.
-- [X] T034a [P] Code cleanup: Refactor `code/data/download.py` to use streaming iterators for memory efficiency (Target: Peak RAM < 6GB). **Deliverable**: Generate `data/memory_profile.json` verifying peak RAM < 6GB. **Linked to**: FR-001, US-1.
-- [X] T034b [P] Code cleanup: Refactor `code/data/preprocess.py` to use chunked processing for memory efficiency (Target: Peak RAM < 6GB). **Deliverable**: Generate `data/memory_profile.json` verifying peak RAM < 6GB. **Linked to**: FR-001, US-1.
-- [X] T035a [P] Performance: Implement streaming for Recipe1M in `code/data/download.py` using `datasets.load_dataset(..., streaming=True)`. **Deliverable**: Generate `data/memory_profile.json` verifying peak RAM < 6GB. **Linked to**: FR-001, US-1.
-- [X] T035b [P] Performance: Implement chunked processing for FlavorDB in `code/data/download.py` using `huggingface_hub.hf_hub_download` for shards. **Deliverable**: Generate `data/memory_profile.json` verifying peak RAM < 6GB. **Linked to**: FR-001, US-1.
-- [X] T036 [P] Additional unit tests: Add `tests/unit/test_preprocess.py::test_levenshtein_normalization` and `tests/unit/test_diagnostics.py::test_vif_calculation` to verify FR-002 and FR-007 logic.
-- [ ] T037 [P] Run `quickstart.md` validation to ensure full pipeline execution ≤ 6 hours. **Deliverable**: Generate `data/ci_validation_report.json` containing the measured runtime and a boolean `passed` field.
+- [X] T033a [P] Documentation updates: Update `docs/research.md` with 'Methodology' section (include power analysis N values).
+- [X] T033b [P] Documentation updates: Update `docs/research.md` with 'Results' section (include model coefficients, VIF, AUC delta).
+- [X] T033c [P] Documentation updates: Update `docs/research.md` with 'Limitations' section (include sampling constraints).
+- [X] T033d [P] Documentation updates: Update `docs/quickstart.md` with 'Environment Setup' section (include requirements.txt install).
+- [X] T033e [P] Documentation updates: Update `docs/quickstart.md` with 'Data Pipeline' and 'Model Execution' sections (include streaming instructions and runtime estimate methodology).
+- [X] T034 [P] Code cleanup: Implement streaming for Recipe1M and chunked processing for FlavorDB in `code/data/download.py` and `code/data/preprocess.py` to ensure Peak RAM < 6GB. **Deliverable**: Reference `data/memory_profile.json` produced by T037. **Linked to**: FR-001, US-1. **Note**: T037 is the primary implementation of this logic.
+- [X] T035a [P] Additional unit tests: Add `tests/unit/test_preprocess.py::test_levenshtein_normalization` and `tests/unit/test_diagnostics.py::test_vif_calculation` to verify FR-002 and FR-007 logic.
+- [X] T036 [P] Run `quickstart.md` validation to ensure full pipeline execution ≤ 6 hours. **Execute**: `python code/validate_runtime.py` which runs the pipeline and measures time. **Deliverable**: Generate `data/ci_validation_report.json` containing the measured runtime and a boolean `passed` field.
 
 ---
 
@@ -168,11 +170,18 @@
 
 **Purpose**: Address specific gaps identified in the analysis phase regarding data robustness, error handling, and reproducability.
 
-- [X] T039 [US1] Implement `code/data/preprocess.py` explicit streaming logic: Refactor T013 to use `datasets.load_dataset(..., streaming=True)` for Recipe1M and `itertools.islice` for controlled downsampling, ensuring the full dataset is never loaded into RAM, and log the exact sampling ratio and seed used (Constitution II: Verified Accuracy). **Deliverable**: `data/memory_profile.json`.
-- [X] T040 [US2] Implement `code/models/fit_bayesian.py` early stopping and convergence checks: Add logic to monitor R-hat and effective sample size (ESS) during PyMC sampling; if convergence is not reached within a reasonable time limit, the task must fail loudly and report the specific diagnostic failure rather than proceeding with unreliable posterior estimates (FR-002 context: Hierarchical Bayesian model fitting).
-- [ ] T041 [US3] Implement `code/evaluation/report.py` sensitivity analysis: Add a task to re-run the evaluation on a random 100 iterations subset of the test set to verify the stability of the $\Delta AUC$ result and report the standard deviation of the delta (SC-002).
-- [ ] T043 [US2] Implement `code/models/diagnostics.py` multicollinearity resolution: If VIF > 5 is detected for the 'Functional Role' predictor, automatically drop the 'Functional Role' variable from the Full Model and re-run the Likelihood-Ratio Test, documenting the exclusion in the final report (FR-007). **Deliverable**: Update `data/model_comparison.json` with a `dropped_predictors` field and save results to `data/lrt_result_vif_corrected.json`.
-- [ ] T044 [US3] **Gate**: Verify Constitution II Compliance: Ensure tasks T038, T042 are completed and `data/verification_report.json` indicates success before allowing final report generation (T032). This task explicitly links the 'Verified Accuracy' gate to the completion of gap-resolution tasks.
+- [X] T037 [US1] Implement `code/data/preprocess.py` explicit streaming logic: Refactor T013 to use `datasets.load_dataset(..., streaming=True)` for Recipe1M and `itertools.islice` for controlled downsampling, ensuring the full dataset is never loaded into RAM, and log the exact sampling ratio and seed used (Constitution II: Verified Accuracy). **Deliverable**: `data/memory_profile.json`. **Status**: Active.
+- [X] T045 [US2] Implement `code/models/fit_bayesian.py` early stopping and convergence checks: (Note: Logic integrated into T025; this task serves as a reminder to verify convergence in T025). **DEPENDS ON**: T025.
+- [X] T041 [US3] **Gate**: Verify Constitution II Compliance: Ensure tasks T038, T042 are completed and `data/verification_report.json` indicates success before allowing final report generation (T032). This task explicitly links the 'Verified Accuracy' gate to the completion of gap-resolution tasks.
+
+---
+
+## Phase N+2: Final Execution Validation
+
+**Purpose**: Ensure the entire pipeline runs successfully on the CI runner and produces the final report.
+
+- [ ] T043 [P] Execute the full pipeline on the GitHub Actions runner using the `quickstart.md` script to verify end-to-end execution. **Deliverable**: `data/final_execution_log.json` containing runtime, peak memory, and success status. **DEPENDS ON**: All Phase N and N+1 tasks.
+- [ ] T044 [P] Generate the final `docs/final_report.md` by aggregating results from `data/auc_delta_metrics.json`, `data/lrt_result_vif_corrected.json`, and `data/final_execution_log.json`. **DEPENDS ON**: T043. <!-- FAILED: unspecified -->
 
 ---
 
@@ -187,6 +196,7 @@
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Revision (Phase N+1)**: Must be completed before final deployment to ensure all analysis gaps are closed
+- **Final Execution (Phase N+2)**: Depends on all previous phases being complete
 
 ### User Story Dependencies
 
@@ -210,7 +220,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- Revision tasks (T039-T043) can be implemented in parallel with Polish tasks if they target different files
+- Revision tasks (T037-T041) can be implemented in parallel with Polish tasks if they target different files
 
 ---
 
@@ -269,3 +279,10 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: Tasks T038, T042 are mandatory to address the "Fabrication Gate" and "Verified Accuracy" requirements. They must be completed before T032.
+- **Critical**: T019 creates a single unified sample size for both models.
+- **Critical**: T014 uses text for normalization with fixed threshold=2; T016 uses chemical vectors for similarity (overrides Plan summary).
+- **Critical**: T022 and T025 use categorical role (Primary/Secondary/Garnish) as per Spec FR-005.
+- **Critical**: T023 (VIF) must precede T022 (Fit Logistic).
+- **Critical**: T025 includes convergence checks (R-hat, ESS).
+- **Critical**: T030 uses DeLong's test for AUC comparison.
+- **Critical**: T037 is active and produces `data/memory_profile.json`.

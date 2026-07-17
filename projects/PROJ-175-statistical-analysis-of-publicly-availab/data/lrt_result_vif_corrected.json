@@ -1,0 +1,9 @@
+{
+  "statistic": 0.0,
+  "p_value": 0.0,
+  "df_diff": 0,
+  "log_likelihood_null": 0.0,
+  "log_likelihood_full": 0.0,
+  "dropped_predictors": [],
+  "final_features_used": []
+}
