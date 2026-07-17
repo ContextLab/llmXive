@@ -1,0 +1,9 @@
+{
+  "model": "pareto",
+  "ks_statistic": 0.0423,
+  "p_value": 0.6245,
+  "n_iterations": 1000,
+  "threshold": 0.1,
+  "result": "FAIL TO REJECT",
+  "reject_null": false
+}

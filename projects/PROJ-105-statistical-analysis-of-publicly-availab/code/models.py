@@ -6,543 +6,374 @@ import warnings
 import json
 import logging
 from pathlib import Path
+import pandas as pd
 
-# Import from config if needed, though paths are usually handled in main
-# Assuming config.py exists as per task list
-import config
+from config import get_bts_url, RANDOM_SEED
+from utils import setup_logging, check_memory_limit
+from preprocessing import load_large_csv
 
-logger = logging.getLogger(__name__)
+# Ensure logging is configured
+logger = setup_logging()
 
 class ConvergenceError(Exception):
     """Raised when distribution fitting fails to converge."""
     pass
 
-def fit_distribution(
-    data: np.ndarray,
-    dist_name: str,
-    fit_kwargs: Optional[Dict[str, Any]] = None
-) -> Tuple[object, Dict[str, float]]:
+def fit_distribution(data: np.ndarray, dist_name: str) -> Tuple[Dict[str, Any], bool]:
     """
     Fit a distribution to data using MLE.
-
+    
     Args:
-        data: 1D array of data points
-        dist_name: Name of the scipy distribution (e.g., 'expon', 'gamma', 'norm', 'weibull_min')
-        fit_kwargs: Additional arguments for the fit method (e.g., floc=0)
-
+        data: 1D numpy array of data points.
+        dist_name: Name of the distribution ('expon', 'gamma', 'lognorm', 'weibull_min', 'pareto').
+        
     Returns:
-        Tuple of (distribution object, params dict)
-
-    Raises:
-        ConvergenceError: If fitting fails or returns invalid parameters
+        Tuple of (params_dict, success_bool).
+        params_dict contains 'dist', 'frozen', 'params', 'args'.
     """
-    if fit_kwargs is None:
-        fit_kwargs = {}
+    if len(data) == 0:
+        raise ValueError("Cannot fit distribution to empty data.")
+        
+    data = data[data > 0] # Ensure positive for most distributions
+    if len(data) == 0:
+        raise ValueError("No positive data remaining after filtering.")
 
     try:
         dist = getattr(stats, dist_name)
+        # Fit using MLE
+        params = dist.fit(data)
         
-        # Handle special cases for parameterization
-        if dist_name == 'weibull_min':
-            # scipy.stats.weibull_min uses c, loc, scale
-            # We want standard Pareto-like or Weibull parameterization
-            # Fit with loc fixed at 0 for delay data (delays >= 0)
-            fit_kwargs.setdefault('floc', 0)
-            params = dist.fit(data, **fit_kwargs)
-        elif dist_name in ['expon', 'gamma', 'lognorm']:
-            # Fix location at 0 for delay data
-            fit_kwargs.setdefault('floc', 0)
-            params = dist.fit(data, **fit_kwargs)
-        else:
-            params = dist.fit(data, **fit_kwargs)
-
-        # Validate parameters
-        if any(np.isnan(p) or np.isinf(p) for p in params if p != 0):
-            raise ConvergenceError(f"Invalid parameters for {dist_name}: {params}")
-
-        # Create frozen distribution with fitted parameters
-        # For scipy, we need to pass params correctly
-        # params usually (shape, loc, scale) or (loc, scale) depending on dist
-        if dist_name == 'weibull_min':
-            c, loc, scale = params
-            frozen_dist = dist(c, loc=loc, scale=scale)
-        elif dist_name == 'lognorm':
-            s, loc, scale = params
-            frozen_dist = dist(s, loc=loc, scale=scale)
-        elif dist_name == 'gamma':
-            a, loc, scale = params
-            frozen_dist = dist(a, loc=loc, scale=scale)
-        elif dist_name == 'expon':
-            loc, scale = params
-            frozen_dist = dist(loc=loc, scale=scale)
-        else:
-            frozen_dist = dist(*params)
-
-        return frozen_dist, params
-
+        # Create frozen distribution
+        frozen = dist(*params)
+        
+        return {
+            'dist': dist_name,
+            'frozen': frozen,
+            'params': params,
+            'args': params
+        }, True
     except Exception as e:
-        raise ConvergenceError(f"Failed to fit {dist_name}: {str(e)}") from e
+        logger.warning(f"Failed to fit {dist_name}: {e}")
+        return {}, False
 
-def get_fitted_distribution(
-    data: np.ndarray,
-    dist_name: str
-) -> Tuple[object, Dict[str, float]]:
-    """Convenience wrapper for fit_distribution."""
-    return fit_distribution(data, dist_name)
+def get_fitted_distribution(fitted_dict: Dict[str, Any]) -> Any:
+    """Return the frozen distribution object."""
+    return fitted_dict.get('frozen')
 
-def fit_all_base_distributions(
-    data: np.ndarray,
-    exclude_pareto: bool = True
-) -> Dict[str, Tuple[object, Dict[str, float]]]:
-    """
-    Fit all base distributions to the full cleaned data.
-
-    Args:
-        data: 1D array of delay data
-        exclude_pareto: Whether to exclude Pareto from this fit (Pareto is fitted on tail)
-
-    Returns:
-        Dict mapping dist_name -> (frozen_dist, params)
-    """
+def fit_all_base_distributions(data: np.ndarray) -> Dict[str, Dict[str, Any]]:
+    """Fit all base distributions to the data."""
     distributions = ['expon', 'gamma', 'lognorm', 'weibull_min']
-    if not exclude_pareto:
-        distributions.append('pareto')
-
     results = {}
+    
     for dist_name in distributions:
         try:
-            frozen_dist, params = fit_distribution(data, dist_name)
-            results[dist_name] = (frozen_dist, params)
-            logger.info(f"Fitted {dist_name}: params={params}")
-        except ConvergenceError as e:
-            logger.warning(f"Skipping {dist_name} due to convergence error: {e}")
+            result, success = fit_distribution(data, dist_name)
+            if success:
+                results[dist_name] = result
+            else:
+                logger.warning(f"Skipped {dist_name} due to fit failure.")
         except Exception as e:
-            logger.error(f"Unexpected error fitting {dist_name}: {e}")
-
+            logger.error(f"Error fitting {dist_name}: {e}")
+            
     return results
 
-def fit_all_base_distributions_tail(
-    data: np.ndarray,
-    x_min: float,
-    exclude_pareto: bool = True
-) -> Dict[str, Tuple[object, Dict[str, float]]]:
-    """
-    Fit base distributions to the tail subset (data >= x_min).
-
-    Args:
-        data: Full 1D array of delay data
-        x_min: Threshold for tail analysis
-        exclude_pareto: Whether to exclude Pareto from this fit
-
-    Returns:
-        Dict mapping dist_name -> (frozen_dist, params)
-    """
+def fit_all_base_distributions_tail(data: np.ndarray, x_min: float) -> Dict[str, Dict[str, Any]]:
+    """Fit base distributions to tail data (x >= x_min)."""
     tail_data = data[data >= x_min]
-    if len(tail_data) < 10:
-        logger.warning(f"Tail data too small (n={len(tail_data)}) for fitting")
+    if len(tail_data) == 0:
+        raise ValueError("No data points above x_min for tail fitting.")
+    return fit_all_base_distributions(tail_data)
+
+def fit_pareto_tail(data: np.ndarray, x_min: float) -> Dict[str, Any]:
+    """Fit Pareto distribution to tail data."""
+    tail_data = data[data >= x_min]
+    if len(tail_data) == 0:
+        raise ValueError("No data points above x_min for Pareto fitting.")
+    
+    # Fix x_min for Pareto fitting (scipy pareto uses b, scale)
+    # We want to fit the tail starting at x_min
+    try:
+        # Fit Pareto with fixed x_min (scale parameter)
+        # scipy.stats.pareto(b, loc, scale)
+        # We fix loc=0, scale=x_min, and estimate b
+        # Actually, standard approach: fit full pareto to tail_data
+        # pareto.fit returns (b, loc, scale)
+        # We want to enforce that the distribution starts at x_min
+        
+        # Method: Fit to tail_data, but ensure loc is near x_min
+        # Or simpler: fit to tail_data - x_min + min(tail_data) ? No.
+        # Standard: fit pareto to tail_data directly.
+        # The resulting scale will be close to min(tail_data) ~ x_min.
+        
+        params = stats.pareto.fit(tail_data, floc=x_min) # Fix location to x_min
+        frozen = stats.pareto(*params)
+        
+        return {
+            'dist': 'pareto',
+            'frozen': frozen,
+            'params': params,
+            'args': params
+        }
+    except Exception as e:
+        logger.error(f"Pareto fit failed: {e}")
         return {}
 
-    logger.info(f"Fitting distributions to tail data (n={len(tail_data)}, x_min={x_min})")
-    return fit_all_base_distributions(tail_data, exclude_pareto=exclude_pareto)
-
-def fit_pareto_tail(
-    data: np.ndarray,
-    x_min: float
-) -> Tuple[object, Dict[str, float]]:
+def estimate_x_min_ks(data: np.ndarray) -> float:
     """
-    Fit Pareto distribution to tail subset (data >= x_min).
-
-    Args:
-        data: Full 1D array of delay data
-        x_min: Threshold for tail analysis
-
-    Returns:
-        Tuple of (frozen_dist, params)
+    Estimate x_min via Kolmogorov-Smirnov minimization.
+    Searches for the x_min that minimizes the KS distance between the empirical
+    tail distribution and the fitted Pareto distribution.
     """
-    tail_data = data[data >= x_min]
-    if len(tail_data) < 10:
-        raise ConvergenceError(f"Tail data too small (n={len(tail_data)}) for Pareto fitting")
-
-    logger.info(f"Fitting Pareto to tail data (n={len(tail_data)}, x_min={x_min})")
+    data = np.sort(data)
+    data = data[data > 0]
     
-    # For Pareto, we shift data by x_min and fit standard Pareto
-    # scipy.stats.pareto uses b (shape), loc, scale
-    # We want Pareto with scale=x_min, so we fit on (data - x_min) with floc=0
-    shifted_data = tail_data - x_min
+    # Search range: 5th percentile to 95th percentile
+    min_val = np.percentile(data, 5)
+    max_val = np.percentile(data, 95)
     
-    try:
-        frozen_dist, params = fit_distribution(shifted_data, 'pareto', {'floc': 0})
-        # Adjust params: the fitted scale should be close to 1 if we did it right
-        # But we want to report the actual Pareto parameters for the original data
-        # Pareto PDF: f(x) = b * x_min^b / x^(b+1) for x >= x_min
-        # In scipy: pareto(b, loc=x_min, scale=1) gives same shape
-        # So we return the frozen distribution with loc=x_min
-        b, loc, scale = params
-        # Reconstruct with correct loc
-        final_dist = stats.pareto(b, loc=x_min, scale=1.0)
-        return final_dist, {'b': b, 'x_min': x_min}
-    except Exception as e:
-        raise ConvergenceError(f"Failed to fit Pareto: {e}") from e
-
-def estimate_x_min_ks(
-    data: np.ndarray,
-    grid_min: Optional[float] = None,
-    grid_max: Optional[float] = None,
-    grid_points: int = 50
-) -> float:
-    """
-    Estimate x_min via KS minimization over a grid.
-
-    Args:
-        data: 1D array of delay data
-        grid_min: Minimum value for grid search (default: 5th percentile)
-        grid_max: Maximum value for grid search (default: 95th percentile)
-        grid_points: Number of points in grid
-
-    Returns:
-        Estimated x_min value
-    """
-    if grid_min is None:
-        grid_min = np.percentile(data, 5)
-    if grid_max is None:
-        grid_max = np.percentile(data, 95)
-
-    # Ensure grid_min > 0 for delay data
-    grid_min = max(grid_min, 1.0)
-
-    grid = np.linspace(grid_min, grid_max, grid_points)
-    best_x_min = grid[0]
-    best_ks_stat = float('inf')
-
-    logger.info(f"Estimating x_min via KS minimization on grid [{grid_min}, {grid_max}]")
-
+    # Grid search
+    grid = np.linspace(min_val, max_val, 50)
+    best_x_min = min_val
+    min_ks = float('inf')
+    
     for x_min in grid:
         tail_data = data[data >= x_min]
         if len(tail_data) < 10:
             continue
-
+            
         try:
             # Fit Pareto to tail
-            shifted_data = tail_data - x_min
-            fitted_dist, _ = fit_distribution(shifted_data, 'pareto', {'floc': 0})
+            params = stats.pareto.fit(tail_data, floc=x_min)
+            cdf_vals = stats.pareto.cdf(tail_data, *params)
+            empirical_cdf = np.arange(1, len(tail_data) + 1) / len(tail_data)
+            ks_stat = np.max(np.abs(empirical_cdf - cdf_vals))
             
-            # Calculate KS statistic
-            ks_stat, _ = stats.kstest(shifted_data, fitted_dist.cdf)
-            
-            if ks_stat < best_ks_stat:
-                best_ks_stat = ks_stat
+            if ks_stat < min_ks:
+                min_ks = ks_stat
                 best_x_min = x_min
-        except Exception as e:
-            logger.debug(f"KS estimation failed at x_min={x_min}: {e}")
+        except:
             continue
-
-    logger.info(f"Estimated x_min: {best_x_min:.2f} (KS stat: {best_ks_stat:.4f})")
+            
+    logger.info(f"Estimated x_min via KS minimization: {best_x_min:.2f}")
     return best_x_min
 
-def save_x_min_estimate(x_min: float, output_path: str = "data/results/x_min_estimate.json") -> None:
-    """Save x_min estimate to JSON file."""
+def save_x_min_estimate(x_min: float, output_path: str):
+    """Save x_min estimate to JSON."""
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    result = {
-        "x_min": float(x_min),
-        "description": "Estimated threshold for Pareto tail fitting via KS minimization"
-    }
-    
     with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    logger.info(f"Saved x_min estimate to {output_path}")
+        json.dump({'x_min': float(x_min)}, f, indent=2)
 
-def calculate_aic(
-    data: np.ndarray,
-    frozen_dist: object,
-    num_params: int
-) -> float:
-    """Calculate AIC for a fitted distribution."""
+def calculate_aic(data: np.ndarray, frozen_dist: Any) -> float:
+    """Calculate Akaike Information Criterion."""
+    k = len(frozen_dist.args)
+    n = len(data)
     log_likelihood = np.sum(frozen_dist.logpdf(data))
-    return 2 * num_params - 2 * log_likelihood
+    return 2 * k - 2 * log_likelihood
 
-def calculate_bic(
-    data: np.ndarray,
-    frozen_dist: object,
-    num_params: int
-) -> float:
-    """Calculate BIC for a fitted distribution."""
+def calculate_bic(data: np.ndarray, frozen_dist: Any) -> float:
+    """Calculate Bayesian Information Criterion."""
+    k = len(frozen_dist.args)
+    n = len(data)
     log_likelihood = np.sum(frozen_dist.logpdf(data))
-    return num_params * np.log(len(data)) - 2 * log_likelihood
+    return k * np.log(n) - 2 * log_likelihood
 
-def calculate_ks_statistic(
-    data: np.ndarray,
-    frozen_dist: object
-) -> Tuple[float, float]:
-    """Calculate KS statistic and p-value."""
-    return stats.kstest(data, frozen_dist.cdf)
+def calculate_ks_statistic(data: np.ndarray, frozen_dist: Any) -> float:
+    """Calculate Kolmogorov-Smirnov statistic."""
+    cdf_vals = frozen_dist.cdf(data)
+    empirical_cdf = np.arange(1, len(data) + 1) / len(data)
+    return np.max(np.abs(empirical_cdf - cdf_vals))
 
-def calculate_ad_statistic(
-    data: np.ndarray,
-    frozen_dist: object
-) -> float:
+def calculate_ad_statistic(data: np.ndarray, frozen_dist: Any) -> float:
     """Calculate Anderson-Darling statistic."""
-    # Note: scipy.stats.anderson is for specific distributions only
-    # For general case, we use ks_statistic or implement AD manually
-    # Here we use ks_statistic as a proxy since AD requires distribution-specific critical values
-    ks_stat, _ = stats.kstest(data, frozen_dist.cdf)
-    return ks_stat * np.sqrt(len(data))  # Approximate scaling
+    # Anderson-Darling is not directly available for all distributions in scipy
+    # Approximation using CDF values
+    n = len(data)
+    cdf_vals = frozen_dist.cdf(data)
+    # Sort data
+    sorted_data = np.sort(data)
+    sorted_cdf = frozen_dist.cdf(sorted_data)
+    
+    # AD statistic formula
+    # A^2 = -n - (1/n) * sum( (2i-1) * [ln(F(x_i)) + ln(1-F(x_{n-i+1}))] )
+    i = np.arange(1, n + 1)
+    term1 = np.log(sorted_cdf + 1e-10) # Avoid log(0)
+    term2 = np.log(1 - sorted_cdf[::-1] + 1e-10)
+    ad_stat = -n - (1/n) * np.sum((2*i - 1) * (term1 + term2))
+    return ad_stat
 
-def calculate_tail_metrics(
-    data: np.ndarray,
-    fitted_results: Dict[str, Tuple[object, Dict[str, float]]],
-    x_min: float
-) -> Dict[str, Dict[str, float]]:
-    """
-    Calculate AIC, BIC, KS, AD for all fitted models on tail data.
-
-    Args:
-        data: Full data array
-        fitted_results: Dict of dist_name -> (frozen_dist, params)
-        x_min: Threshold for tail analysis
-
-    Returns:
-        Dict mapping dist_name -> metrics dict
-    """
-    tail_data = data[data >= x_min]
+def calculate_tail_metrics(data: np.ndarray, fitted_models: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, float]]:
+    """Calculate AIC, BIC, KS, AD for all models."""
     metrics = {}
-
-    for dist_name, (frozen_dist, params) in fitted_results.items():
-        # Count parameters
-        num_params = len(params) - 2  # Exclude loc and scale if they were fixed
-        if dist_name == 'pareto':
-            num_params = 1  # Only shape parameter b
-        elif dist_name == 'lognorm':
-            num_params = 1  # Only shape parameter s (loc and scale fixed)
-        else:
-            num_params = max(1, num_params)
-
-        try:
-            aic = calculate_aic(tail_data, frozen_dist, num_params)
-            bic = calculate_bic(tail_data, frozen_dist, num_params)
-            ks_stat, ks_p = calculate_ks_statistic(tail_data, frozen_dist)
-            ad_stat = calculate_ad_statistic(tail_data, frozen_dist)
-
-            metrics[dist_name] = {
-                'aic': float(aic),
-                'bic': float(bic),
-                'ks_statistic': float(ks_stat),
-                'ks_p_value': float(ks_p),
-                'ad_statistic': float(ad_stat),
-                'num_params': num_params
-            }
-        except Exception as e:
-            logger.error(f"Error calculating metrics for {dist_name}: {e}")
-            continue
-
+    for name, model_data in fitted_models.items():
+        frozen = model_data['frozen']
+        metrics[name] = {
+            'aic': calculate_aic(data, frozen),
+            'bic': calculate_bic(data, frozen),
+            'ks': calculate_ks_statistic(data, frozen),
+            'ad': calculate_ad_statistic(data, frozen)
+        }
     return metrics
 
-def save_model_comparison(
-    metrics: Dict[str, Dict[str, float]],
-    x_min: float,
-    output_path: str = "data/results/model_comparison.json"
-) -> None:
-    """Save model comparison metrics to JSON file."""
+def save_model_comparison(metrics: Dict[str, Dict[str, float]], output_path: str):
+    """Save model comparison metrics to JSON."""
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-    result = {
-        "x_min": float(x_min),
-        "models": metrics,
-        "ranking_by_aic": sorted(metrics.keys(), key=lambda k: metrics[k]['aic'])
-    }
-
     with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
+        json.dump(metrics, f, indent=2)
 
-    logger.info(f"Saved model comparison to {output_path}")
-
-def perform_vuong_test(
-    data: np.ndarray,
-    model1: object,
-    model2: object,
-    x_min: float
-) -> Dict[str, float]:
+def perform_vuong_test(model1_data: Dict[str, Any], model2_data: Dict[str, Any], data: np.ndarray) -> Dict[str, float]:
     """
     Perform Vuong test to compare two non-nested models.
-
-    Args:
-        data: Full data array
-        model1: First fitted distribution
-        model2: Second fitted distribution
-        x_min: Threshold for tail analysis
-
-    Returns:
-        Dict with vuong_z and p_value
+    Returns p-value and test statistic.
     """
-    tail_data = data[data >= x_min]
+    frozen1 = model1_data['frozen']
+    frozen2 = model2_data['frozen']
     
-    # Calculate log-likelihoods
-    ll1 = np.sum(model1.logpdf(tail_data))
-    ll2 = np.sum(model2.logpdf(tail_data))
-    
-    # Calculate pointwise log-likelihood differences
-    log_likelihoods_1 = model1.logpdf(tail_data)
-    log_likelihoods_2 = model2.logpdf(tail_data)
-    diff = log_likelihoods_1 - log_likelihoods_2
+    # Log-likelihood ratios
+    ll1 = frozen1.logpdf(data)
+    ll2 = frozen2.logpdf(data)
+    lr = ll1 - ll2
     
     # Vuong statistic
-    n = len(tail_data)
-    mean_diff = np.mean(diff)
-    std_diff = np.std(diff, ddof=1)
+    mean_lr = np.mean(lr)
+    std_lr = np.std(lr, ddof=1)
+    n = len(data)
     
-    if std_diff == 0:
-        vuong_z = 0.0
-    else:
-        vuong_z = mean_diff * np.sqrt(n) / std_diff
-    
-    # Two-tailed p-value
-    p_value = 2 * (1 - stats.norm.cdf(abs(vuong_z)))
+    if std_lr == 0:
+        return {'statistic': 0.0, 'p_value': 1.0}
+        
+    vuong_stat = mean_lr * np.sqrt(n) / std_lr
+    p_value = 2 * (1 - stats.norm.cdf(abs(vuong_stat)))
     
     return {
-        "vuong_z": float(vuong_z),
-        "p_value": float(p_value),
-        "interpretation": "model1_better" if vuong_z > 1.96 else ("model2_better" if vuong_z < -1.96 else "no_difference")
+        'statistic': float(vuong_stat),
+        'p_value': float(p_value)
     }
 
-def save_vuong_test_results(
-    results: Dict[str, float],
-    model1_name: str,
-    model2_name: str,
-    output_path: str = "data/results/vuong_test_results.json"
-) -> None:
-    """Save Vuong test results to JSON file."""
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-    result = {
-        "model1": model1_name,
-        "model2": model2_name,
-        **results
-    }
-
-    with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
-
-    logger.info(f"Saved Vuong test results to {output_path}")
-
-def compare_component_distributions(
-    total_delay: np.ndarray,
-    arr_delay: np.ndarray,
-    dep_delay: np.ndarray,
-    output_path: str = "data/results/component_comparison.json"
-) -> Dict[str, Any]:
-    """
-    Compare sum distribution (total_delay) vs components (ArrDelay, DepDelay)
-    via KS test and descriptive statistics.
-
-    Args:
-        total_delay: Array of total delays (ArrDelay + DepDelay)
-        arr_delay: Array of arrival delays
-        dep_delay: Array of departure delays
-        output_path: Path to save results
-
-    Returns:
-        Dict containing comparison results
-    """
-    logger.info("Comparing component distributions (total vs arrival vs departure delays)")
-    
-    # Filter out negative values for analysis (as per preprocessing rules)
-    valid_mask = (total_delay >= 0) & (arr_delay >= 0) & (dep_delay >= 0)
-    total_valid = total_delay[valid_mask]
-    arr_valid = arr_delay[valid_mask]
-    dep_valid = dep_delay[valid_mask]
-
-    if len(total_valid) < 10:
-        raise ValueError("Insufficient valid data for component comparison")
-
-    results = {
-        "sample_sizes": {
-            "total_delay": int(len(total_valid)),
-            "arr_delay": int(len(arr_valid)),
-            "dep_delay": int(len(dep_valid))
-        },
-        "descriptive_statistics": {}
-    }
-
-    for name, data in [("total_delay", total_valid), ("arr_delay", arr_valid), ("dep_delay", dep_valid)]:
-        results["descriptive_statistics"][name] = {
-            "mean": float(np.mean(data)),
-            "median": float(np.median(data)),
-            "std": float(np.std(data)),
-            "min": float(np.min(data)),
-            "max": float(np.max(data)),
-            "percentile_90": float(np.percentile(data, 90)),
-            "percentile_95": float(np.percentile(data, 95)),
-            "percentile_99": float(np.percentile(data, 99))
-        }
-
-    # KS tests
-    ks_results = {}
-    
-    # Total vs Arrival
-    ks_arr, p_arr = stats.ks_2samp(total_valid, arr_valid)
-    ks_results["total_vs_arrival"] = {
-        "ks_statistic": float(ks_arr),
-        "p_value": float(p_arr),
-        "significant_at_0.05": bool(p_arr < 0.05)
-    }
-
-    # Total vs Departure
-    ks_dep, p_dep = stats.ks_2samp(total_valid, dep_valid)
-    ks_results["total_vs_departure"] = {
-        "ks_statistic": float(ks_dep),
-        "p_value": float(p_dep),
-        "significant_at_0.05": bool(p_dep < 0.05)
-    }
-
-    # Arrival vs Departure
-    ks_arr_dep, p_arr_dep = stats.ks_2samp(arr_valid, dep_valid)
-    ks_results["arrival_vs_departure"] = {
-        "ks_statistic": float(ks_arr_dep),
-        "p_value": float(p_arr_dep),
-        "significant_at_0.05": bool(p_arr_dep < 0.05)
-    }
-
-    results["ks_tests"] = ks_results
-
-    # Correlation analysis
-    corr_total_arr = np.corrcoef(total_valid, arr_valid)[0, 1]
-    corr_total_dep = np.corrcoef(total_valid, dep_valid)[0, 1]
-    corr_arr_dep = np.corrcoef(arr_valid, dep_valid)[0, 1]
-
-    results["correlations"] = {
-        "total_delay_vs_arrival": float(corr_total_arr),
-        "total_delay_vs_departure": float(corr_total_dep),
-        "arrival_vs_departure": float(corr_arr_dep)
-    }
-
-    # Save to file
+def save_vuong_test_results(results: Dict[str, float], output_path: str):
+    """Save Vuong test results to JSON."""
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
 
-    logger.info(f"Saved component comparison results to {output_path}")
+def compare_component_distributions(data_path: str, output_path: str):
+    """
+    Compare sum distribution (total_delay) vs components (ArrDelay, DepDelay).
+    Performs KS test and generates histograms.
+    Saves results to JSON.
     
+    Args:
+        data_path: Path to the cleaned CSV file containing delay data.
+        output_path: Path to save the component_comparison.json file.
+    """
+    logger.info(f"Loading data from {data_path} for component comparison")
+    
+    # Load data
+    df = load_large_csv(data_path)
+    
+    # Ensure required columns exist
+    required_cols = ['total_delay', 'ArrDelay', 'DepDelay']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in data: {missing}")
+    
+    # Filter out NaN and negative values for valid comparison
+    # Use only rows where all three are valid and positive (or zero for total)
+    mask = df['total_delay'].notna() & df['ArrDelay'].notna() & df['DepDelay'].notna()
+    valid_df = df[mask]
+    
+    total_delays = valid_df['total_delay'].values
+    arr_delays = valid_df['ArrDelay'].values
+    dep_delays = valid_df['DepDelay'].values
+    
+    # Filter positive values for distribution fitting (delays are typically >= 0)
+    # But for KS test, we can include zeros if they exist
+    # Remove extreme outliers (> 1440 min) if not already done
+    total_delays = total_delays[total_delays <= 1440]
+    arr_delays = arr_delays[arr_delays <= 1440]
+    dep_delays = dep_delays[dep_delays <= 1440]
+    
+    logger.info(f"Comparing distributions: Total={len(total_delays)}, Arr={len(arr_delays)}, Dep={len(dep_delays)}")
+    
+    # Perform KS tests
+    # Total vs Arr
+    ks_total_arr, p_total_arr = stats.ks_2samp(total_delays, arr_delays)
+    # Total vs Dep
+    ks_total_dep, p_total_dep = stats.ks_2samp(total_delays, dep_delays)
+    # Arr vs Dep
+    ks_arr_dep, p_arr_dep = stats.ks_2samp(arr_delays, dep_delays)
+    
+    # Generate histogram data
+    # Use same bins for fair comparison
+    all_data = np.concatenate([total_delays, arr_delays, dep_delays])
+    bins = np.histogram_bin_edges(all_data, bins=50, range=(0, 600)) # Focus on first 10 hours
+    
+    hist_total, _ = np.histogram(total_delays, bins=bins)
+    hist_arr, _ = np.histogram(arr_delays, bins=bins)
+    hist_dep, _ = np.histogram(dep_delays, bins=bins)
+    
+    # Normalize for comparison
+    hist_total_norm = hist_total / len(total_delays)
+    hist_arr_norm = hist_arr / len(arr_delays)
+    hist_dep_norm = hist_dep / len(dep_delays)
+    
+    # Prepare results
+    results = {
+        'ks_tests': {
+            'total_vs_arr': {
+                'statistic': float(ks_total_arr),
+                'p_value': float(p_total_arr),
+                'interpretation': 'different' if p_total_arr < 0.05 else 'similar'
+            },
+            'total_vs_dep': {
+                'statistic': float(ks_total_dep),
+                'p_value': float(p_total_dep),
+                'interpretation': 'different' if p_total_dep < 0.05 else 'similar'
+            },
+            'arr_vs_dep': {
+                'statistic': float(ks_arr_dep),
+                'p_value': float(p_arr_dep),
+                'interpretation': 'different' if p_arr_dep < 0.05 else 'similar'
+            }
+        },
+        'histograms': {
+            'bins': bins.tolist(),
+            'total_delay': hist_total_norm.tolist(),
+            'arrival_delay': hist_arr_norm.tolist(),
+            'departure_delay': hist_dep_norm.tolist()
+        },
+        'sample_sizes': {
+            'total': int(len(total_delays)),
+            'arrival': int(len(arr_delays)),
+            'departure': int(len(dep_delays))
+        }
+    }
+    
+    # Save results
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+        
+    logger.info(f"Component comparison results saved to {output_path}")
     return results
 
 def main():
-    """Main entry point for model fitting and analysis."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler('data/logs/pipeline.log')
-        ]
-    )
+    """Main entry point for component comparison."""
+    # Default paths
+    data_path = 'data/processed/cleaned_delays.csv'
+    output_path = 'data/results/component_comparison.json'
+    
+    # Check if data exists
+    if not Path(data_path).exists():
+        logger.error(f"Data file not found: {data_path}")
+        logger.error("Please run Stage 1 (data preprocessing) first.")
+        return
+        
+    try:
+        compare_component_distributions(data_path, output_path)
+        logger.info("Component comparison completed successfully.")
+    except Exception as e:
+        logger.error(f"Component comparison failed: {e}")
+        raise
 
-    logger.info("Starting model fitting and analysis...")
-
-    # This function is typically called from main.py stage 2
-    # For standalone execution, we would need to load data first
-    # which is handled by preprocessing.py stage 1
-
-    logger.info("Model fitting module loaded successfully.")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

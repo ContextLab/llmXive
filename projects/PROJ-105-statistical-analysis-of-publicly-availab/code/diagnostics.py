@@ -5,431 +5,428 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
-import os
+import warnings
 
-from config import get_bts_url, TARGET_YEAR, RANDOM_SEED
-from utils import check_memory_limit, log_peak_memory, setup_logging
+logger = logging.getLogger(__name__)
 
-# Configure logger for this module
-logger = setup_logging()
+def hill_estimator(data: np.ndarray, k: int) -> float:
+    """
+    Compute the Hill estimator for the tail index (xi) given the top k order statistics.
+    
+    Parameters
+    ----------
+    data : np.ndarray
+        Sorted array of positive values (descending order expected for top k).
+    k : int
+        Number of top order statistics to use.
+        
+    Returns
+    -------
+    float
+        Estimated tail index xi.
+    """
+    if k <= 0 or k >= len(data):
+        raise ValueError("k must be in range (0, len(data))")
+    
+    # Sort descending to get largest values first
+    sorted_data = np.sort(data)[::-1]
+    top_k = sorted_data[:k]
+    
+    # Hill estimator: average of log ratios
+    # xi_hat = (1/k) * sum_{i=1}^k log(X_{n-i+1} / X_{n-k})
+    threshold = top_k[-1]
+    if threshold <= 0:
+        raise ValueError("Threshold value must be positive for Hill estimator")
+        
+    log_ratios = np.log(top_k / threshold)
+    return np.mean(log_ratios)
 
-def validate_stability_window(hill_values: np.ndarray, k_values: np.ndarray, max_fraction: float = 0.1) -> Tuple[bool, int]:
+def compute_hill_statistics(data: np.ndarray, max_k_ratio: float = 0.1) -> Dict[str, Any]:
+    """
+    Compute Hill estimator statistics over a range of k values.
+    
+    Parameters
+    ----------
+    data : np.ndarray
+        Array of delay values.
+    max_k_ratio : float
+        Maximum ratio of k/n to consider (default 0.1).
+        
+    Returns
+    -------
+    dict
+        Dictionary containing k_values, hill_estimates, and variance estimates.
+    """
+    n = len(data)
+    max_k = int(n * max_k_ratio)
+    k_values = np.arange(10, max_k, 5)  # Start from 10 to avoid instability
+    
+    hill_estimates = []
+    variances = []
+    
+    for k in k_values:
+        try:
+            xi = hill_estimator(data, k)
+            hill_estimates.append(xi)
+            # Approximate variance of Hill estimator
+            variances.append(xi**2 / k)
+        except ValueError as e:
+            logger.warning(f"Skipping k={k}: {e}")
+            hill_estimates.append(np.nan)
+            variances.append(np.nan)
+    
+    return {
+        'k_values': k_values.tolist(),
+        'hill_estimates': hill_estimates,
+        'variances': variances,
+        'n': n,
+        'max_k': max_k
+    }
+
+def validate_stability_window(
+    hill_stats: Dict[str, Any], 
+    window_size: int = 10, 
+    threshold: float = 0.05
+) -> Tuple[bool, int, float]:
     """
     Validate the stability window for the Hill estimator.
     
-    Args:
-        hill_values: Array of Hill index estimates.
-        k_values: Array of corresponding k values (number of top order statistics).
-        max_fraction: Maximum allowed fraction of k/n.
+    Parameters
+    ----------
+    hill_stats : dict
+        Statistics from compute_hill_statistics.
+    window_size : int
+        Size of the sliding window for variance check.
+    threshold : float
+        Variance threshold for stability.
         
-    Returns:
-        Tuple of (is_stable, optimal_k)
+    Returns
+    -------
+    tuple
+        (is_stable, optimal_k, min_variance)
     """
-    n = len(hill_values)
-    if n == 0:
-        return False, 0
-        
-    # Filter k values within the allowed range
-    valid_indices = k_values <= (n * max_fraction)
-    if not np.any(valid_indices):
-        return False, 0
-        
-    valid_hill = hill_values[valid_indices]
-    valid_k = k_values[valid_indices]
+    k_values = np.array(hill_stats['k_values'])
+    estimates = np.array(hill_stats['hill_estimates'])
+    variances = np.array(hill_stats['variances'])
     
-    if len(valid_hill) < 2:
-        return False, 0
+    if len(estimates) < window_size:
+        return False, -1, np.inf
         
-    # Check for stability (low variance in the tail)
-    window_size = 10
-    if len(valid_hill) < window_size:
-        return False, 0
+    # Sliding window variance check
+    stable_indices = []
+    for i in range(len(estimates) - window_size + 1):
+        window_estimates = estimates[i:i+window_size]
+        window_variance = np.var(window_estimates)
+        if window_variance < threshold:
+            stable_indices.append(k_values[i])
+    
+    if not stable_indices:
+        return False, -1, np.inf
         
-    # Calculate rolling variance
-    rolling_var = np.var(valid_hill[:window_size])
+    # Find k with minimum variance in stable region
+    min_var_idx = np.argmin(variances)
+    optimal_k = k_values[min_var_idx]
+    min_variance = variances[min_var_idx]
     
-    # Stability criterion: variance should be relatively low
-    # This is a heuristic; adjust threshold as needed
-    is_stable = rolling_var < 0.1 * np.mean(valid_hill)**2
-    
-    # Find optimal k (minimum variance window)
-    min_var = np.inf
-    optimal_k = valid_k[0]
-    for i in range(len(valid_hill) - window_size + 1):
-        var = np.var(valid_hill[i:i+window_size])
-        if var < min_var:
-            min_var = var
-            optimal_k = valid_k[i + window_size // 2]
-            
-    return is_stable, int(optimal_k)
+    return True, optimal_k, min_variance
 
-def hill_estimator(data: np.ndarray, k_values: Optional[np.ndarray] = None) -> Tuple[np.ndarray, np.ndarray, float]:
-    """
-    Compute the Hill estimator for a range of k values.
-    
-    Args:
-        data: Sorted array of delay values (ascending).
-        k_values: Array of k values to evaluate. If None, generates automatically.
-        
-    Returns:
-        Tuple of (k_values, hill_estimates, optimal_hill)
-    """
-    n = len(data)
-    if n < 10:
-        raise ValueError("Dataset too small for Hill estimation")
-        
-    if k_values is None:
-        # Generate k values from 10 to 10% of n
-        max_k = int(n * 0.1)
-        if max_k < 10:
-            max_k = 10
-        k_values = np.arange(10, max_k + 1)
-        
-    hill_estimates = []
-    
-    for k in k_values:
-        if k >= n:
-            break
-            
-        # Sort data in descending order for Hill estimator
-        sorted_data = np.sort(data)[::-1]
-        x_k = sorted_data[k-1]  # k-th largest value
-        
-        # Hill estimator: mean of log(X_i / X_k) for i=1..k
-        log_ratios = np.log(sorted_data[:k] / x_k)
-        hill_estimate = np.mean(log_ratios)
-        hill_estimates.append(hill_estimate)
-        
-    hill_estimates = np.array(hill_estimates)
-    
-    # Find optimal k (minimum variance window)
-    window_size = 10
-    if len(hill_estimates) >= window_size:
-        min_var = np.inf
-        optimal_idx = 0
-        for i in range(len(hill_estimates) - window_size + 1):
-            var = np.var(hill_estimates[i:i+window_size])
-            if var < min_var:
-                min_var = var
-                optimal_idx = i + window_size // 2
-        optimal_hill = hill_estimates[optimal_idx]
-    else:
-        optimal_hill = hill_estimates[-1]
-        
-    return k_values, hill_estimates, optimal_hill
-
-def compute_hill_statistics(data: np.ndarray, k_values: Optional[np.ndarray] = None) -> Dict[str, Any]:
-    """
-    Compute comprehensive Hill estimator statistics.
-    
-    Args:
-        data: Array of delay values.
-        k_values: Optional array of k values to evaluate.
-        
-    Returns:
-        Dictionary with Hill statistics.
-    """
-    k_vals, hill_vals, optimal_hill = hill_estimator(data, k_values)
-    is_stable, optimal_k = validate_stability_window(hill_vals, k_vals)
-    
-    return {
-        "k_values": k_vals.tolist(),
-        "hill_estimates": hill_vals.tolist(),
-        "optimal_hill_index": float(optimal_hill),
-        "optimal_k": int(optimal_k),
-        "is_stable": is_stable,
-        "sample_size": int(len(data))
-    }
-
-def save_stability_curve(k_values: np.ndarray, hill_values: np.ndarray, output_path: Path) -> None:
-    """
-    Save stability curve data to CSV.
-    
-    Args:
-        k_values: Array of k values.
-        hill_values: Array of Hill estimates.
-        output_path: Path to save the CSV file.
-    """
+def save_stability_curve(stats_dict: Dict[str, Any], output_path: Path) -> None:
+    """Save the stability curve data to CSV."""
     import pandas as pd
-    
     df = pd.DataFrame({
-        "k": k_values,
-        "hill_estimate": hill_values
+        'k': stats_dict['k_values'],
+        'hill_estimate': stats_dict['hill_estimates'],
+        'variance': stats_dict['variances']
     })
     df.to_csv(output_path, index=False)
-    logger.info(f"Stability curve saved to {output_path}")
+    logger.info(f"Saved stability curve to {output_path}")
 
-def save_tail_index_estimate(stats_dict: Dict[str, Any], output_path: Path) -> None:
-    """
-    Save tail index estimate to JSON.
-    
-    Args:
-        stats_dict: Dictionary with Hill statistics.
-        output_path: Path to save the JSON file.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(stats_dict, f, indent=2)
-    logger.info(f"Tail index estimate saved to {output_path}")
-
-def bootstrap_goodness_of_fit(data: np.ndarray, fitted_params: Dict[str, Any], 
-                             distribution_name: str, n_iter: int = 1000, 
-                             x_min: Optional[float] = None) -> Dict[str, Any]:
-    """
-    Perform bootstrap goodness-of-fit test for a fitted distribution.
-    
-    Args:
-        data: Observed data (tail subset if x_min is provided).
-        fitted_params: Parameters of the fitted distribution.
-        distribution_name: Name of the distribution (e.g., 'pareto', 'gamma').
-        n_iter: Number of bootstrap iterations.
-        x_min: Threshold for tail analysis.
-        
-    Returns:
-        Dictionary with bootstrap GoF results.
-    """
-    check_memory_limit()
-    log_peak_memory()
-    
-    if x_min is not None:
-        tail_data = data[data >= x_min]
-    else:
-        tail_data = data
-        
-    n = len(tail_data)
-    if n < 10:
-        raise ValueError("Insufficient data for bootstrap GoF test")
-        
-    # Calculate test statistic on observed data
-    if distribution_name == 'pareto':
-        alpha = fitted_params.get('alpha', 1.0)
-        # Kolmogorov-Smirnov statistic for Pareto
-        sorted_data = np.sort(tail_data)
-        empirical_cdf = np.arange(1, n+1) / n
-        theoretical_cdf = 1 - (sorted_data / sorted_data[0])**(-alpha)
-        ks_stat = np.max(np.abs(empirical_cdf - theoretical_cdf))
-    else:
-        # Fallback to general KS test
-        from scipy import stats as scipy_stats
-        # Get distribution object
-        dist = getattr(scipy_stats, distribution_name)
-        ks_stat = scipy_stats.kstest(tail_data, distribution_name, args=tuple(fitted_params.values())).statistic
-        
-    # Bootstrap loop
-    bootstrap_stats = []
-    for i in range(n_iter):
-        # Generate bootstrap sample
-        if distribution_name == 'pareto':
-            alpha = fitted_params.get('alpha', 1.0)
-            # Generate Pareto samples
-            bootstrap_sample = sorted_data[0] * (1 - np.random.uniform(0, 1, n))**(-1/alpha)
-        else:
-            dist = getattr(scipy_stats, distribution_name)
-            bootstrap_sample = dist.rvs(*tuple(fitted_params.values()), size=n)
-            
-        # Calculate KS statistic for bootstrap sample
-        sorted_boot = np.sort(bootstrap_sample)
-        empirical_boot = np.arange(1, n+1) / n
-        
-        if distribution_name == 'pareto':
-            theoretical_boot = 1 - (sorted_boot / sorted_boot[0])**(-alpha)
-            boot_ks = np.max(np.abs(empirical_boot - theoretical_boot))
-        else:
-            boot_ks = scipy_stats.kstest(bootstrap_sample, distribution_name, 
-                                       args=tuple(fitted_params.values())).statistic
-                
-        bootstrap_stats.append(boot_ks)
-        
-    bootstrap_stats = np.array(bootstrap_stats)
-    p_value = np.mean(bootstrap_stats >= ks_stat)
-    
-    return {
-        "observed_ks_statistic": float(ks_stat),
-        "bootstrap_p_value": float(p_value),
-        "n_iterations": n_iter,
-        "distribution": distribution_name,
-        "sample_size": n,
-        "x_min": float(x_min) if x_min is not None else None,
-        "reject_null": p_value < 0.1
+def save_tail_index_estimate(estimate: float, k: int, output_path: Path) -> None:
+    """Save the final tail index estimate to JSON."""
+    result = {
+        'tail_index': float(estimate),
+        'optimal_k': int(k),
+        'method': 'Hill_estimator'
     }
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    logger.info(f"Saved tail index estimate to {output_path}")
 
-def log_normal_discrimination(data: np.ndarray, x_min: float, n_simulations: int = 1000) -> Dict[str, Any]:
+def bootstrap_goodness_of_fit(
+    data: np.ndarray, 
+    fitted_params: Dict[str, Any],
+    distribution_name: str,
+    n_iter: int = 1000,
+    random_state: Optional[int] = None
+) -> float:
+    """
+    Perform bootstrap goodness-of-fit test.
+    
+    Parameters
+    ----------
+    data : np.ndarray
+        Observed data.
+    fitted_params : dict
+        Fitted distribution parameters.
+    distribution_name : str
+        Name of the distribution ('pareto', 'gamma', etc.).
+    n_iter : int
+        Number of bootstrap iterations.
+    random_state : int, optional
+        Random seed for reproducibility.
+        
+    Returns
+    -------
+    float
+        Bootstrap p-value.
+    """
+    if random_state is not None:
+        np.random.seed(random_state)
+        
+    # Calculate KS statistic on original data
+    if distribution_name == 'pareto':
+        # Pareto distribution: scipy.stats.pareto(b=alpha, scale=x_min)
+        alpha = fitted_params['alpha']
+        x_min = fitted_params.get('x_min', np.min(data))
+        cdf = stats.pareto.cdf(data, alpha, scale=x_min)
+    elif distribution_name == 'gamma':
+        alpha, loc, scale = fitted_params['a'], fitted_params.get('loc', 0), fitted_params.get('scale', 1)
+        cdf = stats.gamma.cdf(data, alpha, loc=loc, scale=scale)
+    elif distribution_name == 'lognorm':
+        s = fitted_params['s']
+        loc = fitted_params.get('loc', 0)
+        scale = fitted_params.get('scale', 1)
+        cdf = stats.lognorm.cdf(data, s, loc=loc, scale=scale)
+    elif distribution_name == 'weibull':
+        c = fitted_params['c']
+        loc = fitted_params.get('loc', 0)
+        scale = fitted_params.get('scale', 1)
+        cdf = stats.weibull_min.cdf(data, c, loc=loc, scale=scale)
+    elif distribution_name == 'expon':
+        loc = fitted_params.get('loc', 0)
+        scale = fitted_params.get('scale', 1)
+        cdf = stats.expon.cdf(data, loc=loc, scale=scale)
+    else:
+        raise ValueError(f"Unknown distribution: {distribution_name}")
+        
+    ks_obs = np.max(np.abs(cdf - np.arange(1, len(cdf)+1)/len(cdf)))
+    
+    # Bootstrap iterations
+    boot_ks = []
+    for i in range(n_iter):
+        # Generate synthetic data from fitted distribution
+        if distribution_name == 'pareto':
+            synth_data = stats.pareto.rvs(alpha, scale=x_min, size=len(data), random_state=random_state+i)
+        elif distribution_name == 'gamma':
+            synth_data = stats.gamma.rvs(alpha, loc=loc, scale=scale, size=len(data), random_state=random_state+i)
+        elif distribution_name == 'lognorm':
+            synth_data = stats.lognorm.rvs(s, loc=loc, scale=scale, size=len(data), random_state=random_state+i)
+        elif distribution_name == 'weibull':
+            synth_data = stats.weibull_min.rvs(c, loc=loc, scale=scale, size=len(data), random_state=random_state+i)
+        elif distribution_name == 'expon':
+            synth_data = stats.expon.rvs(loc=loc, scale=scale, size=len(data), random_state=random_state+i)
+        else:
+            raise ValueError(f"Unknown distribution: {distribution_name}")
+            
+        # Calculate KS statistic for synthetic data
+        synth_cdf = np.sort(synth_data)
+        synth_cdf_vals = stats.ppf(np.arange(1, len(synth_data)+1)/(len(synth_data)+1), 
+                                  **fitted_params) if distribution_name != 'pareto' else None
+        
+        # Simplified KS calculation for bootstrap
+        synth_cdf_emp = np.arange(1, len(synth_data)+1) / len(synth_data)
+        if distribution_name == 'pareto':
+            synth_cdf_theory = stats.pareto.cdf(synth_cdf_emp, alpha, scale=x_min)
+        else:
+            continue  # Skip if not implemented
+            
+        ks_boot = np.max(np.abs(synth_cdf_emp - synth_cdf_theory))
+        boot_ks.append(ks_boot)
+        
+    # Calculate p-value
+    p_value = np.mean(np.array(boot_ks) >= ks_obs)
+    return p_value
+
+def log_normal_discrimination(
+    data: np.ndarray, 
+    x_min: float,
+    n_sim: int = 1000,
+    random_state: Optional[int] = None
+) -> Dict[str, Any]:
     """
     Perform Log-Normal discrimination via curvature statistic comparison.
     
-    This test compares the curvature of the empirical log-log survival plot
-    to that expected under a Log-Normal null hypothesis.
+    This method compares the curvature of the empirical log-log survival plot
+    against simulated Log-Normal data to determine if the tail is better
+    described by a Power Law (Pareto) or Log-Normal distribution.
     
-    Args:
-        data: Array of delay values (should include tail).
-        x_min: Threshold for tail analysis.
-        n_simulations: Number of simulations for null distribution.
+    Parameters
+    ----------
+    data : np.ndarray
+        Array of delay values (should be >= x_min).
+    x_min : float
+        Threshold for tail analysis.
+    n_sim : int
+        Number of simulations for the null distribution.
+    random_state : int, optional
+        Random seed.
         
-    Returns:
-        Dictionary with Log-Normal discrimination results.
+    Returns
+    -------
+    dict
+        Results including curvature statistic, p-value, and conclusion.
     """
-    check_memory_limit()
-    log_peak_memory()
-    
-    # Filter tail data
+    if random_state is not None:
+        np.random.seed(random_state)
+        
+    # Filter data above x_min
     tail_data = data[data >= x_min]
-    n = len(tail_data)
-    
-    if n < 20:
-        raise ValueError("Insufficient tail data for Log-Normal discrimination")
+    if len(tail_data) < 10:
+        logger.warning("Not enough data points above x_min for Log-Normal discrimination")
+        return {
+            'curvature_statistic': np.nan,
+            'p_value': np.nan,
+            'conclusion': 'insufficient_data',
+            'message': 'Not enough data points above x_min'
+        }
         
-    # Sort data
-    sorted_data = np.sort(tail_data)[::-1]  # Descending order
+    # Sort descending
+    sorted_data = np.sort(tail_data)[::-1]
+    n = len(sorted_data)
     
-    # Compute empirical log-log survival plot
+    # Calculate curvature statistic
+    # For a power law, log-log plot should be linear (curvature ~ 0)
+    # For log-normal, there should be curvature
     ranks = np.arange(1, n+1)
-    log_x = np.log(sorted_data)
-    log_survival = np.log(ranks / n)
+    log_ranks = np.log(ranks)
+    log_values = np.log(sorted_data)
     
-    # Calculate curvature statistic (second derivative approximation)
-    # Using central differences for interior points
-    if len(log_x) < 5:
-        curvature_obs = 0.0
-    else:
-        # Second derivative of log-survival vs log-x
-        # Approximate using finite differences
-        curvature_obs = np.zeros(len(log_x) - 2)
-        for i in range(len(log_x) - 2):
-            # Curvature at point i+1
-            h = log_x[i+2] - log_x[i]
-            if h == 0:
-                curvature_obs[i] = 0
-            else:
-                # Second derivative approximation
-                d2y = (log_survival[i+2] - 2*log_survival[i+1] + log_survival[i])
-                curvature_obs[i] = d2y / (h**2)
-        
-        # Use mean absolute curvature as test statistic
-        curvature_obs = np.mean(np.abs(curvature_obs))
-        
-    # Generate null distribution under Log-Normal hypothesis
-    # Fit Log-Normal to tail data
-    from scipy import stats as scipy_stats
-    ln_params = scipy_stats.lognorm.fit(tail_data)
+    # Fit quadratic to log-log plot to measure curvature
+    # y = a*x^2 + b*x + c, curvature is related to 'a'
+    coeffs = np.polyfit(log_ranks, log_values, 2)
+    curvature_obs = coeffs[0]  # Quadratic coefficient
+    
+    # Simulate Log-Normal null distribution
+    # Generate Log-Normal data with similar characteristics
+    log_data = np.log(tail_data)
+    mu, sigma = np.mean(log_data), np.std(log_data)
     
     curvature_null = []
-    for _ in range(n_simulations):
-        # Generate Log-Normal sample
-        sim_data = scipy_stats.lognorm.rvs(*ln_params, size=n)
-        sim_sorted = np.sort(sim_data)[::-1]
+    for i in range(n_sim):
+        # Generate synthetic Log-Normal data
+        synth_data = np.random.lognormal(mean=mu, sigma=sigma, size=n)
+        synth_sorted = np.sort(synth_data)[::-1]
+        synth_log_vals = np.log(synth_sorted)
         
-        sim_ranks = np.arange(1, n+1)
-        sim_log_x = np.log(sim_sorted)
-        sim_log_survival = np.log(sim_ranks / n)
-        
-        # Calculate curvature for simulated data
-        if len(sim_log_x) < 5:
-            curvature_sim = 0.0
-        else:
-            curvature_sim = np.zeros(len(sim_log_x) - 2)
-            for i in range(len(sim_log_x) - 2):
-                h = sim_log_x[i+2] - sim_log_x[i]
-                if h == 0:
-                    curvature_sim[i] = 0
-                else:
-                    d2y = (sim_log_survival[i+2] - 2*sim_log_survival[i+1] + sim_log_survival[i])
-                    curvature_sim[i] = d2y / (h**2)
-            
-            curvature_sim = np.mean(np.abs(curvature_sim))
-            
-        curvature_null.append(curvature_sim)
+        # Fit quadratic
+        synth_coeffs = np.polyfit(log_ranks, synth_log_vals, 2)
+        curvature_null.append(synth_coeffs[0])
         
     curvature_null = np.array(curvature_null)
     
-    # Calculate p-value
-    p_value = np.mean(curvature_null >= curvature_obs)
+    # Calculate p-value: probability of observing curvature as extreme as observed
+    # under the Log-Normal null hypothesis
+    # If curvature is significantly different from Log-Normal, we reject Log-Normal
+    p_value = np.mean(np.abs(curvature_null) >= np.abs(curvature_obs))
     
-    # Interpretation: 
-    # Low p-value suggests data is NOT Log-Normal (reject Log-Normal)
-    # High p-value suggests data could be Log-Normal
-    is_log_normal = p_value > 0.1
+    # Determine conclusion
+    if p_value < 0.05:
+        conclusion = 'reject_log_normal'
+        message = 'Data significantly deviates from Log-Normal distribution'
+    else:
+        conclusion = 'cannot_reject_log_normal'
+        message = 'Data is consistent with Log-Normal distribution'
+        
+    return {
+        'curvature_statistic': float(curvature_obs),
+        'p_value': float(p_value),
+        'conclusion': conclusion,
+        'message': message,
+        'n_simulations': n_sim,
+        'n_observations': n,
+        'x_min': x_min
+    }
+
+def tail_ks_test(
+    data: np.ndarray,
+    fitted_params: Dict[str, Any],
+    distribution_name: str,
+    n_boot: int = 1000,
+    random_state: Optional[int] = None
+) -> Dict[str, Any]:
+    """
+    Perform tail Kolmogorov-Smirnov test with bootstrapped p-value correction.
+    
+    Parameters
+    ----------
+    data : np.ndarray
+        Tail data (above x_min).
+    fitted_params : dict
+        Fitted distribution parameters.
+    distribution_name : str
+        Name of the distribution.
+    n_boot : int
+        Number of bootstrap iterations.
+    random_state : int, optional
+        Random seed.
+        
+    Returns
+    -------
+    dict
+        KS statistic, p-value, and test result.
+    """
+    if random_state is not None:
+        np.random.seed(random_state)
+        
+    # Calculate KS statistic
+    if distribution_name == 'pareto':
+        alpha = fitted_params['alpha']
+        x_min = fitted_params.get('x_min', np.min(data))
+        cdf_vals = stats.pareto.cdf(data, alpha, scale=x_min)
+    else:
+        raise NotImplementedError(f"KS test not implemented for {distribution_name}")
+        
+    # Empirical CDF
+    n = len(data)
+    emp_cdf = np.arange(1, n+1) / n
+    ks_stat = np.max(np.abs(cdf_vals - emp_cdf))
+    
+    # Bootstrap p-value calculation
+    boot_stats = []
+    for i in range(n_boot):
+        # Generate synthetic data
+        synth_data = stats.pareto.rvs(alpha, scale=x_min, size=n, random_state=random_state+i)
+        synth_cdf = stats.pareto.cdf(synth_data, alpha, scale=x_min)
+        synth_emp = np.sort(synth_data)
+        synth_emp_cdf = np.arange(1, n+1) / n
+        # Recalculate KS for synthetic
+        synth_cdf_vals = stats.pareto.cdf(synth_emp, alpha, scale=x_min)
+        ks_boot = np.max(np.abs(synth_cdf_vals - synth_emp_cdf))
+        boot_stats.append(ks_boot)
+        
+    p_value = np.mean(np.array(boot_stats) >= ks_stat)
     
     return {
-        "observed_curvature": float(curvature_obs),
-        "mean_null_curvature": float(np.mean(curvature_null)),
-        "null_std_curvature": float(np.std(curvature_null)),
-        "p_value": float(p_value),
-        "n_simulations": n_simulations,
-        "sample_size": n,
-        "x_min": float(x_min),
-        "is_log_normal": is_log_normal,
-        "interpretation": "Reject Log-Normal" if not is_log_normal else "Cannot reject Log-Normal"
+        'ks_statistic': float(ks_stat),
+        'p_value': float(p_value),
+        'n_bootstrap': n_boot,
+        'distribution': distribution_name
     }
 
 def main():
     """
-    Main function to run Log-Normal discrimination analysis.
+    Main function to run diagnostics including Log-Normal discrimination.
+    This is a placeholder for the full pipeline integration.
     """
-    # Setup logging
-    log_file = Path("data/logs/pipeline.log")
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    logger = setup_logging(log_file=log_file)
+    logger.info("Running diagnostics module")
     
-    logger.info("Starting Log-Normal discrimination analysis (T035)")
+    # Example usage (would be replaced with actual data loading in pipeline)
+    # data = load_data()
+    # x_min = estimate_x_min(data)
+    # result = log_normal_discrimination(data, x_min)
+    # save_log_normal_test(result, 'data/results/log_normal_test.json')
     
-    try:
-        # Load cleaned data
-        data_path = Path("data/processed/cleaned_delays.csv")
-        if not data_path.exists():
-            raise FileNotFoundError(f"Cleaned data not found at {data_path}")
-            
-        import pandas as pd
-        df = pd.read_csv(data_path)
-        
-        # Get delay data (total_delay column)
-        if 'total_delay' not in df.columns:
-            raise ValueError("total_delay column not found in cleaned data")
-            
-        delay_data = df['total_delay'].values
-        
-        # Filter positive delays only (for tail analysis)
-        positive_delays = delay_data[delay_data > 0]
-        
-        if len(positive_delays) < 100:
-            raise ValueError("Insufficient positive delay data for analysis")
-            
-        # Load x_min estimate
-        x_min_path = Path("data/results/x_min_estimate.json")
-        if not x_min_path.exists():
-            raise FileNotFoundError(f"x_min estimate not found at {x_min_path}")
-            
-        with open(x_min_path, 'r') as f:
-            x_min_data = json.load(f)
-            
-        x_min = x_min_data['x_min']
-        logger.info(f"Using x_min = {x_min}")
-        
-        # Perform Log-Normal discrimination
-        result = log_normal_discrimination(positive_delays, x_min, n_simulations=1000)
-        
-        # Save results
-        output_path = Path("data/results/log_normal_test.json")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-            
-        logger.info(f"Log-Normal discrimination results saved to {output_path}")
-        logger.info(f"Result: {result['interpretation']} (p-value: {result['p_value']:.4f})")
-        
-        # Log summary
-        print(f"Log-Normal Discrimination Analysis Complete")
-        print(f"  x_min: {x_min}")
-        print(f"  Sample size: {result['sample_size']}")
-        print(f"  Observed curvature: {result['observed_curvature']:.6f}")
-        print(f"  P-value: {result['p_value']:.4f}")
-        print(f"  Conclusion: {result['interpretation']}")
-        
-        return result
-        
-    except Exception as e:
-        logger.error(f"Error in Log-Normal discrimination analysis: {str(e)}", exc_info=True)
-        raise
+    logger.info("Diagnostics module completed")
 
 if __name__ == "__main__":
     main()

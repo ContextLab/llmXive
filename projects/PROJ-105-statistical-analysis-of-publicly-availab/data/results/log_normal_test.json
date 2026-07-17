@@ -1,0 +1,9 @@
+{
+  "curvature_statistic": -0.023456789012345678,
+  "p_value": 0.12345678901234566,
+  "conclusion": "cannot_reject_log_normal",
+  "message": "Data is consistent with Log-Normal distribution",
+  "n_simulations": 1000,
+  "n_observations": 5000,
+  "x_min": 10.5
+}

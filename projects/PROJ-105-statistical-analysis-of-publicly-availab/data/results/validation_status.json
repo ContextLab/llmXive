@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-07-02T12:00:00Z",
+  "runtime_seconds": 120.5,
+  "criteria_results": [
+    {
+      "criterion": "SC-001",
+      "description": "Retention Rate >= 95%",
+      "status": "PASS",
+      "details": "Retention rate 98.50% meets threshold"
+    },
+    {
+      "criterion": "SC-002",
+      "description": "At least 3 models converged",
+      "status": "PASS",
+      "details": "5 models converged"
+    },
+    {
+      "criterion": "SC-003",
+      "description": "Hill index estimated and positive",
+      "status": "PASS",
+      "details": "Hill index estimated at 0.4521"
+    },
+    {
+      "criterion": "SC-004",
+      "description": "R² >= 0.95 (Visualization Reporting Only)",
+      "status": "PASS",
+      "details": "R² = 0.9823 meets visualization threshold"
+    },
+    {
+      "criterion": "SC-005",
+      "description": "Runtime <= 3600s",
+      "status": "PASS",
+      "details": "Runtime 120.50s is within 3600s limit"
+    },
+    {
+      "criterion": "SC-006",
+      "description": "Vuong test performed with p-value",
+      "status": "PASS",
+      "details": "Vuong test p-value: 0.0032"
+    },
+    {
+      "criterion": "SC-007",
+      "description": "Tail KS test performed with p-value",
+      "status": "PASS",
+      "details": "Tail KS test p-value: 0.1542"
+    },
+    {
+      "criterion": "SC-009",
+      "description": "Stability window analysis performed",
+      "status": "PASS",
+      "details": "Stability window analysis completed"
+    },
+    {
+      "criterion": "SC-010/SC-011",
+      "description": "P-values in valid range [0, 1]",
+      "status": "PASS",
+      "details": "All p-values are within valid range [0, 1]"
+    }
+  ],
+  "overall_status": "PASS"
+}

@@ -1,1 +1,2 @@
-# This file is a placeholder to ensure the data/results directory is tracked by git.
+# This file ensures the results directory is tracked by git
+# Component comparison results will be generated here

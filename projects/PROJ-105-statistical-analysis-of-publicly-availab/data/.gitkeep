@@ -1,1 +1,2 @@
-# This file is a placeholder to ensure the data directory is tracked by git.
+# This file ensures the data directory is tracked by git
+# Real data files will be generated during pipeline execution

@@ -4,154 +4,176 @@ import json
 import time
 import logging
 from pathlib import Path
+from typing import Dict, Any, Optional
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from preprocessing import main as preprocessing_main
-from models import (
-    estimate_x_min_ks,
-    save_x_min_estimate,
-    fit_all_base_distributions,
-    fit_all_base_distributions_tail,
-    fit_pareto_tail,
-    calculate_tail_metrics,
-    save_model_comparison,
-    perform_vuong_test,
-    save_vuong_test_results,
-    compare_component_distributions,
-    ConvergenceError
-)
-from utils import setup_logging, check_memory_limit, log_peak_memory
-import config
+from utils import setup_logging, log_peak_memory, check_memory_limit
+from config import RANDOM_SEED
+from preprocessing import main as run_stage1
+from models import main as run_stage2
+from diagnostics import main as run_stage3
 
-logger = logging.getLogger(__name__)
+# Configure logging
+logger = setup_logging()
 
-def run_stage1():
-    """Run Stage 1: Data acquisition and preprocessing."""
-    logger.info("=== Stage 1: Data Acquisition and Preprocessing ===")
-    preprocessing_main()
-    logger.info("Stage 1 completed successfully.")
+def load_json_safe(path: Path) -> Optional[Dict[str, Any]]:
+    """Load a JSON file if it exists, return None otherwise."""
+    if path.exists():
+        try:
+            with open(path, 'r') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError) as e:
+            logger.warning(f"Could not load {path}: {e}")
+            return None
+    return None
 
-def run_stage2():
-    """Run Stage 2: Model fitting and goodness-of-fit evaluation.
-    
-    Orchestrates the fitting of 5 distributions, calculation of metrics (AIC/BIC/KS/AD),
-    and performance of the Vuong test. Ensures at least 3 models converge successfully.
+def run_stage4(results_dir: Path) -> Dict[str, Any]:
     """
-    logger.info("=== Stage 2: Model Fitting and Evaluation ===")
-    
-    # Load cleaned data
-    data_path = Path("data/processed/cleaned_delays.csv")
-    if not data_path.exists():
-        logger.error(f"Cleaned data not found at {data_path}. Run Stage 1 first.")
-        sys.exit(1)
+    Stage 4: Compile final summary report.
+    Aggregates results from Stages 1, 2, and 3 into a single summary_report.json.
+    """
+    start_time = time.time()
+    logger.info("Starting Stage 4: Final Report Compilation")
 
-    import pandas as pd
-    df = pd.read_csv(data_path)
-    
-    # Extract arrays
-    total_delay = df['total_delay'].values
-    arr_delay = df['ArrDelay'].values
-    dep_delay = df['DepDelay'].values
+    # Ensure results directory exists
+    results_dir.mkdir(parents=True, exist_ok=True)
 
-    # Check memory
-    check_memory_limit(config.MEMORY_LIMIT_GB)
+    # Load outputs from previous stages
+    # Stage 1 outputs
+    summary_report_path = results_dir / "summary_report.json"
+    stage1_data = load_json_safe(results_dir / "summary_report.json")
+    if stage1_data is None:
+        # Fallback if the file was named differently or not found immediately
+        # Try to find the most recent summary report if it exists
+        logger.warning("Stage 1 summary_report.json not found. Attempting to proceed with defaults.")
+        stage1_data = {"retention_rate": 0.0, "valid_records": 0}
 
-    # Estimate x_min
-    logger.info("Estimating x_min via KS minimization...")
-    x_min = estimate_x_min_ks(total_delay)
-    save_x_min_estimate(x_min)
-    logger.info(f"Estimated x_min: {x_min:.4f}")
+    # Stage 2 outputs
+    model_comparison = load_json_safe(results_dir / "model_comparison.json")
+    vuong_results = load_json_safe(results_dir / "vuong_test_results.json")
+    x_min_estimate = load_json_safe(results_dir / "x_min_estimate.json")
 
-    # Fit distributions on full data (excluding Pareto)
-    logger.info("Fitting base distributions on full data...")
-    full_fits = fit_all_base_distributions(total_delay, exclude_pareto=True)
+    # Stage 3 outputs
+    tail_index = load_json_safe(results_dir / "tail_index_estimate.json")
+    bootstrap_gof = load_json_safe(results_dir / "bootstrap_gof.json")
+    log_normal_test = load_json_safe(results_dir / "log_normal_test.json")
+    tail_ks = load_json_safe(results_dir / "tail_ks.json")
 
-    # Fit distributions on tail data
-    logger.info("Fitting distributions on tail data...")
-    tail_fits = fit_all_base_distributions_tail(total_delay, x_min, exclude_pareto=True)
-    
-    # Fit Pareto on tail data
-    logger.info("Fitting Pareto on tail data...")
-    try:
-        pareto_dist, pareto_params = fit_pareto_tail(total_delay, x_min)
-        tail_fits['pareto'] = (pareto_dist, pareto_params)
-        logger.info("Pareto fitting successful.")
-    except ConvergenceError as e:
-        logger.warning(f"Pareto fitting failed due to convergence error: {e}")
-    except Exception as e:
-        logger.warning(f"Pareto fitting failed with unexpected error: {e}")
+    # Compile model rankings
+    model_rankings = []
+    if model_comparison and "models" in model_comparison:
+        # Sort by AIC (lower is better)
+        models = model_comparison["models"]
+        sorted_models = sorted(models, key=lambda m: m.get("aic", float('inf')))
+        model_rankings = [
+            {
+                "rank": i + 1,
+                "model": m["name"],
+                "aic": m.get("aic"),
+                "bic": m.get("bic"),
+                "ks_stat": m.get("ks_stat"),
+                "ad_stat": m.get("ad_stat")
+            }
+            for i, m in enumerate(sorted_models)
+        ]
 
-    # Validate convergence count
-    # We need at least 3 models to converge. 
-    # tail_fits contains the base distributions (Exponential, Gamma, Log-Normal, Weibull) + potentially Pareto.
-    # The task requires at least 3 to converge.
-    converged_count = len(tail_fits)
-    logger.info(f"Total models converged on tail data: {converged_count}")
-    
-    if converged_count < 3:
-        logger.error(f"Stage 2 Failed: Only {converged_count} models converged. Requirement: >= 3.")
-        sys.exit(1)
+    best_model = model_rankings[0]["model"] if model_rankings else "None"
 
-    # Calculate metrics
-    logger.info("Calculating model metrics...")
-    metrics = calculate_tail_metrics(total_delay, tail_fits, x_min)
-    save_model_comparison(metrics, x_min)
-    logger.info("Model metrics saved to data/results/model_comparison.json")
+    # Compile p-values
+    p_values = {}
+    if vuong_results:
+        p_values["vuong"] = vuong_results.get("p_value")
+    if tail_ks:
+        p_values["tail_ks"] = tail_ks.get("p_value")
+    if bootstrap_gof:
+        p_values["bootstrap_gof"] = bootstrap_gof.get("p_value")
 
-    # Perform Vuong test (best heavy-tail vs best short-tail)
-    logger.info("Performing Vuong test...")
-    if len(tail_fits) >= 2:
-        # Simple heuristic: Pareto is heavy-tail, Exponential is short-tail
-        if 'pareto' in tail_fits and 'expon' in tail_fits:
-            vuong_results = perform_vuong_test(total_delay, tail_fits['pareto'][0], tail_fits['expon'][0], x_min)
-            save_vuong_test_results(vuong_results, 'pareto', 'expon')
-            logger.info("Vuong test completed and saved.")
-        else:
-            # Fallback: try to find any heavy vs short tail pair if Pareto/Expon missing but others exist
-            # For this implementation, we strictly follow the heuristic or log warning if specific pair missing
-            logger.warning("Insufficient specific models (Pareto/Expon) for standard Vuong test heuristic.")
-            if len(tail_fits) >= 2:
-                # Attempt a generic Vuong between the first two fitted models if heuristic fails
-                keys = list(tail_fits.keys())
-                dist1_name, dist1 = keys[0], tail_fits[keys[0]]
-                dist2_name, dist2 = keys[1], tail_fits[keys[1]]
-                vuong_results = perform_vuong_test(total_delay, dist1[0], dist2[0], x_min)
-                save_vuong_test_results(vuong_results, dist1_name, dist2_name)
-                logger.info(f"Vuong test completed for {dist1_name} vs {dist2_name}.")
-    else:
-        logger.warning("Not enough models fitted for Vuong test")
+    # Calculate runtime
+    runtime_seconds = time.time() - start_time
 
-    # Component comparison (T028)
-    logger.info("Comparing component distributions (T028)...")
-    component_results = compare_component_distributions(total_delay, arr_delay, dep_delay)
-    
+    # Construct final report
+    final_report = {
+        "runtime_seconds": round(runtime_seconds, 2),
+        "retention_rate": stage1_data.get("retention_rate", 0.0),
+        "valid_records": stage1_data.get("valid_records", 0),
+        "total_records": stage1_data.get("total_records", 0),
+        "model_rankings": model_rankings,
+        "best_model": best_model,
+        "x_min_estimate": x_min_estimate.get("x_min") if x_min_estimate else None,
+        "tail_index": tail_index.get("tail_index") if tail_index else None,
+        "p_values": p_values,
+        "diagnostics": {
+            "bootstrap_gof_pass": bootstrap_gof.get("pass", False) if bootstrap_gof else False,
+            "log_normal_rejected": log_normal_test.get("rejected", False) if log_normal_test else False,
+            "stability_window_valid": tail_index.get("stable", False) if tail_index else False
+        },
+        "causality_disclaimer": (
+            "This analysis identifies statistical distributions of flight delays. "
+            "Correlation with specific factors (weather, mechanical) is not inferred "
+            "from distribution shape alone. Heavy tails indicate a higher probability "
+            "of extreme events than short-tailed models, but do not specify the root "
+            "cause of those events."
+        ),
+        "metadata": {
+            "random_seed": RANDOM_SEED,
+            "pipeline_version": "1.0.0",
+            "stages_completed": [1, 2, 3, 4]
+        }
+    }
+
+    # Save final report
+    output_path = results_dir / "summary_report.json"
+    with open(output_path, 'w') as f:
+        json.dump(final_report, f, indent=2)
+
+    logger.info(f"Final summary report saved to {output_path}")
     log_peak_memory()
-    logger.info("Stage 2 completed successfully.")
+
+    return final_report
 
 def main():
-    """Main entry point for the pipeline."""
-    setup_logging()
-    
-    start_time = time.time()
-    
+    """
+    Main entry point for the pipeline.
+    Executes Stages 1 through 4 sequentially.
+    """
+    logger.info("Starting Flight Delay Analysis Pipeline")
+
+    # Define paths
+    data_dir = PROJECT_ROOT / "data"
+    raw_dir = data_dir / "raw"
+    processed_dir = data_dir / "processed"
+    results_dir = data_dir / "results"
+
+    # Ensure directories exist
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    results_dir.mkdir(parents=True, exist_ok=True)
+
     try:
-        # Run Stage 1 if not already done
-        if not Path("data/processed/cleaned_delays.csv").exists():
-            run_stage1()
-        
-        # Run Stage 2
+        # Stage 1: Data Acquisition and Pre-processing
+        logger.info("Executing Stage 1: Data Acquisition and Pre-processing")
+        run_stage1()
+
+        # Stage 2: Parametric Model Fitting
+        logger.info("Executing Stage 2: Parametric Model Fitting")
         run_stage2()
-        
-        elapsed = time.time() - start_time
-        logger.info(f"Pipeline completed in {elapsed:.2f} seconds")
-        
-    except ConvergenceError as e:
-        logger.error(f"Pipeline failed due to model convergence error: {e}")
-        sys.exit(1)
+
+        # Stage 3: Heavy-Tail Diagnostics
+        logger.info("Executing Stage 3: Heavy-Tail Diagnostics")
+        run_stage3()
+
+        # Stage 4: Final Report Compilation
+        logger.info("Executing Stage 4: Final Report Compilation")
+        final_report = run_stage4(results_dir)
+
+        logger.info("Pipeline completed successfully.")
+        print(json.dumps(final_report, indent=2))
+
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logger.error(f"Pipeline failed with error: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

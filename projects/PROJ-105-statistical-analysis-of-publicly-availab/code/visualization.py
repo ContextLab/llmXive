@@ -1,376 +1,316 @@
-"""
-Visualization module for flight delay distribution analysis.
-Generates diagnostic plots including log-log survival plots and QQ-plots.
-"""
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, Callable
+from typing import Dict, Any, Optional, Tuple
 from scipy import stats
-from scipy.special import ndtr
-
-# Import from local modules
-from models import get_fitted_distribution, ConvergenceError
-from config import RANDOM_SEED
+from scipy.stats import probplot
+import os
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def calculate_r2(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+def calculate_r2(observed: np.ndarray, predicted: np.ndarray) -> float:
     """
-    Calculate R-squared (coefficient of determination) for visualization.
+    Calculate R-squared value for observed vs predicted data.
     
     Args:
-        y_true: Actual values
-        y_pred: Predicted values
+        observed: Array of observed values
+        predicted: Array of predicted values
         
     Returns:
         R-squared value
     """
-    ss_res = np.sum((y_true - y_pred) ** 2)
-    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+    if len(observed) != len(predicted):
+        raise ValueError("Observed and predicted arrays must have the same length")
+    
+    ss_res = np.sum((observed - predicted) ** 2)
+    ss_tot = np.sum((observed - np.mean(observed)) ** 2)
     
     if ss_tot == 0:
         return 0.0
         
-    return 1.0 - (ss_res / ss_tot)
+    return 1 - (ss_res / ss_tot)
 
-def empirical_survival_function(data: np.ndarray, x_min: Optional[float] = None) -> Tuple[np.ndarray, np.ndarray]:
+def empirical_survival_function(data: np.ndarray, x_values: Optional[np.ndarray] = None) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Calculate empirical survival function (1 - CDF) for log-log plot.
+    Calculate the empirical survival function (1 - CDF) for given data.
     
     Args:
-        data: Array of delay values
-        x_min: Minimum value to consider (tail threshold)
+        data: Array of data values
+        x_values: Optional array of x values to evaluate at. If None, uses unique sorted values from data.
         
     Returns:
-        Tuple of (sorted unique values, survival probabilities)
+        Tuple of (x_values, survival_probabilities)
     """
-    if x_min is not None:
-        data = data[data >= x_min]
+    data = np.sort(data)
+    n = len(data)
     
-    if len(data) == 0:
-        raise ValueError("No data points remain after filtering")
-        
-    data_sorted = np.sort(data)
-    n = len(data_sorted)
+    if x_values is None:
+        x_values = np.unique(data)
     
-    # Survival function: P(X > x)
-    # For each unique value x, S(x) = (number of points > x) / n
-    unique_vals = np.unique(data_sorted)
-    survival_probs = np.array([np.sum(data_sorted > x) / n for x in unique_vals])
+    # Calculate survival probabilities
+    survival_probs = np.array([1 - (np.searchsorted(data, x, side='right') / n) for x in x_values])
     
-    return unique_vals, survival_probs
+    return x_values, survival_probs
 
 def plot_loglog_survival(
     data: np.ndarray,
-    fitted_dists: Dict[str, Any],
-    x_min: Optional[float] = None,
+    fitted_data: Optional[np.ndarray] = None,
+    model_name: str = "Unknown",
     output_path: Optional[Path] = None,
-    title: str = "Log-Log Survival Plot: Empirical vs Fitted Distributions"
-) -> Tuple[float, Dict[str, float]]:
+    x_min: Optional[float] = None
+) -> Dict[str, Any]:
     """
-    Generate log-log survival plot comparing empirical data to fitted distributions.
-    Calculates R² for visualization purposes only.
+    Generate a log-log survival plot comparing empirical data to fitted model.
     
     Args:
-        data: Array of delay values
-        fitted_dists: Dictionary of fitted distributions from models.py
-        x_min: Tail threshold (optional)
-        output_path: Path to save the figure (optional)
-        title: Plot title
+        data: Array of empirical data
+        fitted_data: Optional array of fitted model values
+        model_name: Name of the model for the plot title
+        output_path: Path to save the plot
+        x_min: Optional x_min threshold for tail analysis
         
     Returns:
-        Tuple of (overall R², dict of R² per distribution)
+        Dictionary with R-squared value and plot statistics
     """
-    if len(data) == 0:
-        raise ValueError("Cannot plot empty data")
-        
-    # Set style
-    sns.set_style("whitegrid")
-    fig, ax = plt.subplots(figsize=(12, 8))
+    logger.info(f"Generating log-log survival plot for {model_name}")
     
     # Calculate empirical survival function
-    emp_x, emp_s = empirical_survival_function(data, x_min)
+    x_emp, surv_emp = empirical_survival_function(data)
     
-    # Plot empirical data
-    ax.loglog(emp_x, emp_s, 'b-', linewidth=2, label='Empirical', alpha=0.7)
+    # Filter to positive values for log-log plot
+    mask = x_emp > 0
+    x_emp = x_emp[mask]
+    surv_emp = surv_emp[mask]
     
-    # Calculate R² values
-    r2_values = {}
+    # Calculate R-squared if fitted data is provided
+    r2 = None
+    if fitted_data is not None:
+        x_fit, surv_fit = empirical_survival_function(fitted_data)
+        mask_fit = x_fit > 0
+        x_fit = x_fit[mask_fit]
+        surv_fit = surv_fit[mask_fit]
+        
+        # Interpolate fitted values to match empirical x values for comparison
+        surv_fit_interp = np.interp(x_emp, x_fit, surv_fit, left=1.0, right=0.0)
+        r2 = calculate_r2(surv_emp, surv_fit_interp)
     
-    # Plot fitted distributions
-    colors = ['r', 'g', 'm', 'c', 'orange', 'purple']
+    # Create plot
+    plt.figure(figsize=(10, 8))
+    plt.loglog(x_emp, surv_emp, 'b.', label='Empirical Data', alpha=0.5)
     
-    for idx, (dist_name, dist_info) in enumerate(fitted_dists.items()):
-        try:
-            # Get distribution parameters
-            dist_obj = dist_info.get('distribution')
-            params = dist_info.get('params', ())
-            
-            if dist_obj is None:
-                logger.warning(f"Skipping {dist_name}: no distribution object found")
-                continue
-                
-            # Generate fitted survival curve
-            # Use a grid of x values from min(data) to max(data)
-            x_grid = np.linspace(emp_x[0], emp_x[-1], 1000)
-            
-            # Calculate CDF and then survival
-            cdf_vals = dist_obj.cdf(x_grid, *params)
-            surv_vals = 1 - cdf_vals
-            
-            # Filter out zero or negative survival probabilities for log plot
-            valid_mask = surv_vals > 0
-            if np.sum(valid_mask) < 10:
-                logger.warning(f"Skipping {dist_name}: insufficient valid points for plotting")
-                continue
-                
-            x_plot = x_grid[valid_mask]
-            s_plot = surv_vals[valid_mask]
-            
-            # Plot
-            color = colors[idx % len(colors)]
-            ax.loglog(x_plot, s_plot, color=color, linewidth=1.5, 
-                     label=f"{dist_name} (fit)", alpha=0.8)
-            
-            # Calculate R² for this distribution
-            # Interpolate empirical data to match grid
-            interp_emp_s = np.interp(x_plot, emp_x, emp_s, left=1.0, right=0.0)
-            r2 = calculate_r2(interp_emp_s, s_plot)
-            r2_values[dist_name] = r2
-            
-        except Exception as e:
-            logger.warning(f"Error plotting {dist_name}: {e}")
-            continue
+    if fitted_data is not None:
+        plt.loglog(x_fit, surv_fit, 'r-', label=f'Fitted {model_name}', linewidth=2)
     
-    # Add legend and labels
-    ax.set_xlabel('Delay (minutes)', fontsize=12)
-    ax.set_ylabel('Survival Probability P(X > x)', fontsize=12)
-    ax.set_title(title, fontsize=14)
-    ax.legend(loc='lower left', fontsize=10)
+    if x_min is not None:
+        plt.axvline(x=x_min, color='g', linestyle='--', label=f'x_min = {x_min:.2f}')
     
-    # Add R² annotation
-    if r2_values:
-        r2_text = "\n".join([f"{name}: R² = {r2:.4f}" for name, r2 in r2_values.items()])
-        ax.text(0.05, 0.95, f"R² (visualization only):\n{r2_text}",
-               transform=ax.transAxes, fontsize=10, verticalalignment='top',
-               bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+    plt.xlabel('Delay (minutes)')
+    plt.ylabel('Survival Probability P(X > x)')
+    plt.title(f'Log-Log Survival Plot: {model_name}')
+    plt.legend()
+    plt.grid(True, which="both", ls="-", alpha=0.2)
     
-    plt.tight_layout()
-    
-    # Save if path provided
+    # Save plot if path provided
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         logger.info(f"Saved log-log survival plot to {output_path}")
     
-    # Calculate overall R² (average of all valid distributions)
-    overall_r2 = np.mean(list(r2_values.values())) if r2_values else 0.0
+    plt.close()
     
-    return overall_r2, r2_values
+    result = {
+        'model_name': model_name,
+        'num_points': len(x_emp),
+        'r_squared': r2,
+        'x_min': x_min
+    }
+    
+    return result
 
 def plot_qq_plot(
     data: np.ndarray,
-    fitted_dist_name: str,
-    fitted_params: Tuple,
+    fitted_distribution: Any,
+    model_name: str = "Unknown",
     output_path: Optional[Path] = None,
-    title: str = "Q-Q Plot: Empirical vs Fitted Distribution"
-):
+    x_min: Optional[float] = None
+) -> Dict[str, Any]:
     """
-    Generate Q-Q plot for a fitted distribution.
+    Generate a QQ-plot comparing empirical data to a fitted distribution.
     
     Args:
-        data: Array of delay values
-        fitted_dist_name: Name of the fitted distribution
-        fitted_params: Parameters of the fitted distribution
-        output_path: Path to save the figure (optional)
-        title: Plot title
+        data: Array of empirical data
+        fitted_distribution: Fitted distribution object from scipy.stats
+        model_name: Name of the model for the plot title
+        output_path: Path to save the plot
+        x_min: Optional x_min threshold for tail analysis
+        
+    Returns:
+        Dictionary with QQ-plot statistics
     """
-    if len(data) == 0:
-        raise ValueError("Cannot plot empty data")
-        
-    sns.set_style("whitegrid")
-    fig, ax = plt.subplots(figsize=(10, 8))
+    logger.info(f"Generating QQ-plot for {model_name}")
     
-    # Get the distribution object
-    dist_map = {
-        'Exponential': stats.expon,
-        'Gamma': stats.gamma,
-        'Log-Normal': stats.lognorm,
-        'Weibull': stats.weibull_min,
-        'Pareto': stats.pareto
-    }
+    # Filter to positive values if needed
+    data = data[data > 0]
     
-    if fitted_dist_name not in dist_map:
-        raise ValueError(f"Unknown distribution: {fitted_dist_name}")
-        
-    dist_obj = dist_map[fitted_dist_name]
+    # Calculate theoretical quantiles
+    theoretical_quantiles, sample_quantiles = probplot(data, dist=fitted_distribution, plot=None)
     
-    # Generate theoretical quantiles
-    n = len(data)
-    probs = (np.arange(1, n + 1) - 0.5) / n
-    theoretical_quantiles = dist_obj.ppf(probs, *fitted_params)
-    empirical_quantiles = np.sort(data)
+    # Calculate R-squared for the QQ-plot
+    r2 = calculate_r2(sample_quantiles, theoretical_quantiles)
     
-    # Plot
-    ax.scatter(theoretical_quantiles, empirical_quantiles, alpha=0.5, s=20)
+    # Create plot
+    plt.figure(figsize=(10, 8))
+    plt.scatter(theoretical_quantiles, sample_quantiles, alpha=0.5, s=10)
     
     # Add reference line
-    min_val = min(theoretical_quantiles.min(), empirical_quantiles.min())
-    max_val = max(theoretical_quantiles.max(), empirical_quantiles.max())
-    ax.plot([min_val, max_val], [min_val, max_val], 'r--', linewidth=2, label='Reference Line')
+    min_val = min(theoretical_quantiles.min(), sample_quantiles.min())
+    max_val = max(theoretical_quantiles.max(), sample_quantiles.max())
+    plt.plot([min_val, max_val], [min_val, max_val], 'r--', label='Reference Line')
     
-    ax.set_xlabel('Theoretical Quantiles', fontsize=12)
-    ax.set_ylabel('Empirical Quantiles', fontsize=12)
-    ax.set_title(title, fontsize=14)
-    ax.legend()
+    plt.xlabel('Theoretical Quantiles')
+    plt.ylabel('Sample Quantiles')
+    plt.title(f'QQ-Plot: {model_name}')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
     
-    plt.tight_layout()
+    # Add x_min line if provided
+    if x_min is not None:
+        plt.axvline(x=x_min, color='g', linestyle=':', alpha=0.7, label=f'x_min = {x_min:.2f}')
     
+    # Save plot if path provided
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        logger.info(f"Saved Q-Q plot to {output_path}")
+        logger.info(f"Saved QQ-plot to {output_path}")
+    
+    plt.close()
+    
+    result = {
+        'model_name': model_name,
+        'num_points': len(data),
+        'r_squared': r2,
+        'x_min': x_min
+    }
+    
+    return result
 
-def save_r2_results(r2_values: Dict[str, float], output_path: Path):
+def save_r2_results(results: Dict[str, Any], output_path: Path) -> None:
     """
-    Save R² values to JSON file.
+    Save R-squared results to a JSON file.
     
     Args:
-        r2_values: Dictionary of distribution names to R² values
+        results: Dictionary of R-squared results
         output_path: Path to save the JSON file
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    result = {
-        "description": "R² values for log-log survival plot (visualization only)",
-        "note": "R² is calculated for visualization reporting only and is NOT used for model rejection",
-        "r2_values": r2_values
-    }
-    
     with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    logger.info(f"Saved R² results to {output_path}")
+        json.dump(results, f, indent=2)
+    logger.info(f"Saved R-squared results to {output_path}")
 
 def main():
     """
-    Main function to generate visualization outputs.
-    This function should be called by main.py Stage 3.
+    Main function to generate visualization artifacts for User Story 3.
+    This function assumes that cleaned data and model fits are available from previous stages.
     """
-    # Set random seed for reproducibility
-    np.random.seed(RANDOM_SEED)
+    logger.info("Starting visualization stage (T037)")
     
-    # Paths
-    data_path = Path("data/processed/cleaned_delays.csv")
-    model_results_path = Path("data/results/model_comparison.json")
-    x_min_path = Path("data/results/x_min_estimate.json")
-    output_plot_path = Path("data/results/loglog_survival_plot.png")
-    output_qq_path = Path("data/results/qq_plot_best_model.png")
-    r2_output_path = Path("data/results/visualization_r2.json")
+    # Define paths
+    project_root = Path(__file__).parent.parent
+    data_dir = project_root / "data"
+    results_dir = data_dir / "results"
+    figures_dir = data_dir / "figures"
     
-    # Check if required files exist
-    if not data_path.exists():
-        logger.error(f"Data file not found: {data_path}")
-        raise FileNotFoundError(f"Data file not found: {data_path}")
-        
-    if not model_results_path.exists():
-        logger.error(f"Model results not found: {model_results_path}")
-        raise FileNotFoundError(f"Model results not found: {model_results_path}")
+    # Ensure directories exist
+    results_dir.mkdir(parents=True, exist_ok=True)
+    figures_dir.mkdir(parents=True, exist_ok=True)
     
-    # Load data
-    logger.info(f"Loading data from {data_path}")
-    data = np.loadtxt(data_path, delimiter=',', skiprows=1)
+    # Load cleaned data
+    cleaned_data_path = data_dir / "cleaned_delays.csv"
+    if not cleaned_data_path.exists():
+        logger.error(f"Cleaned data file not found: {cleaned_data_path}")
+        return
     
-    # Load model comparison results
-    logger.info(f"Loading model results from {model_results_path}")
-    with open(model_results_path, 'r') as f:
-        model_results = json.load(f)
-    
-    # Load x_min if available
-    x_min = None
-    if x_min_path.exists():
-        with open(x_min_path, 'r') as f:
-            x_min_data = json.load(f)
-            x_min = x_min_data.get('x_min')
-        logger.info(f"Using x_min = {x_min}")
-    
-    # Reconstruct fitted distributions from model results
-    # The model_comparison.json contains metrics but we need to re-fit to get distribution objects
-    # We'll use the best model from the results
-    
-    # For now, we'll create a placeholder for fitted distributions
-    # In a real implementation, this would load the actual fitted models
-    fitted_dists = {}
-    
-    # Re-fit distributions for visualization
-    from models import fit_distribution, ConvergenceError
-    
-    distributions_to_fit = [
-        ('Exponential', stats.expon),
-        ('Gamma', stats.gamma),
-        ('Log-Normal', stats.lognorm),
-        ('Weibull', stats.weibull_min),
-        ('Pareto', stats.pareto)
-    ]
-    
-    for name, dist_obj in distributions_to_fit:
-        try:
-            params, info = fit_distribution(data, dist_obj, x_min)
-            fitted_dists[name] = {
-                'distribution': dist_obj,
-                'params': params,
-                'info': info
-            }
-        except ConvergenceError as e:
-            logger.warning(f"Failed to fit {name}: {e}")
-        except Exception as e:
-            logger.warning(f"Error fitting {name}: {e}")
-    
-    if not fitted_dists:
-        logger.error("No distributions could be fitted for visualization")
-        raise RuntimeError("No distributions fitted for visualization")
-    
-    # Generate log-log survival plot
-    logger.info("Generating log-log survival plot...")
-    overall_r2, r2_values = plot_loglog_survival(
-        data=data,
-        fitted_dists=fitted_dists,
-        x_min=x_min,
-        output_path=output_plot_path,
-        title="Log-Log Survival Plot: Flight Delays"
-    )
-    
-    logger.info(f"Overall R² (visualization only): {overall_r2:.4f}")
-    for name, r2 in r2_values.items():
-        logger.info(f"{name} R²: {r2:.4f}")
-    
-    # Save R² results
-    save_r2_results(r2_values, r2_output_path)
-    
-    # Generate Q-Q plot for best model
-    # Find best model based on AIC from model results
-    best_model_name = model_results.get('best_model', 'Gamma')
-    best_model_params = model_results.get('best_model_params', ())
-    
-    logger.info(f"Generating Q-Q plot for best model: {best_model_name}")
     try:
-        plot_qq_plot(
-            data=data,
-            fitted_dist_name=best_model_name,
-            fitted_params=best_model_params,
-            output_path=output_qq_path,
-            title=f"Q-Q Plot: {best_model_name} Fit"
-        )
+        import pandas as pd
+        df = pd.read_csv(cleaned_data_path)
+        
+        # Extract delay values (assuming 'total_delay' column exists)
+        if 'total_delay' in df.columns:
+            delay_data = df['total_delay'].values
+        elif 'ArrDelay' in df.columns:
+            delay_data = df['ArrDelay'].values
+        else:
+            logger.error("No delay column found in cleaned data")
+            return
+        
+        delay_data = delay_data[delay_data > 0]  # Filter positive values
+        
+        if len(delay_data) == 0:
+            logger.error("No positive delay values found")
+            return
+        
+        logger.info(f"Loaded {len(delay_data)} delay values")
+        
+        # Load model comparison results to identify best model
+        model_comparison_path = results_dir / "model_comparison.json"
+        if model_comparison_path.exists():
+            with open(model_comparison_path, 'r') as f:
+                model_results = json.load(f)
+            
+            # Find best model based on AIC
+            best_model = min(model_results['models'], key=lambda x: x['aic'])
+            best_model_name = best_model['name']
+            best_model_params = best_model['params']
+            
+            logger.info(f"Best model identified: {best_model_name}")
+            
+            # Fit the best distribution to data
+            dist_name = best_model_name.lower()
+            if dist_name == 'exponential':
+                fitted_dist = stats.expon
+            elif dist_name == 'gamma':
+                fitted_dist = stats.gamma
+            elif dist_name == 'lognormal':
+                fitted_dist = stats.lognorm
+            elif dist_name == 'weibull':
+                fitted_dist = stats.weibull_min
+            elif dist_name == 'pareto':
+                fitted_dist = stats.pareto
+            else:
+                logger.warning(f"Unknown distribution: {dist_name}, skipping QQ-plot")
+                return
+            
+            # Generate QQ-plot
+            qq_output_path = figures_dir / f"qq_plot_{best_model_name}.png"
+            qq_results = plot_qq_plot(
+                delay_data,
+                fitted_dist,
+                model_name=best_model_name,
+                output_path=qq_output_path
+            )
+            
+            # Save QQ-plot results
+            qq_results_path = results_dir / "qq_plot_results.json"
+            with open(qq_results_path, 'w') as f:
+                json.dump(qq_results, f, indent=2)
+            
+            logger.info(f"Generated QQ-plot: {qq_output_path}")
+            logger.info(f"Saved QQ-plot results: {qq_results_path}")
+            
+        else:
+            logger.warning("Model comparison results not found, skipping QQ-plot generation")
+            
     except Exception as e:
-        logger.warning(f"Failed to generate Q-Q plot: {e}")
-    
-    logger.info("Visualization complete")
+        logger.error(f"Error during visualization: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

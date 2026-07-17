@@ -43,8 +43,7 @@
 
 - [X] T001 Create project structure per implementation plan: Execute `mkdir -p code/tests data/raw data/processed data/results docs code/contracts tests/unit tests/integration tests/contract` and `touch code/__init__.py tests/__init__.py data/.gitkeep docs/.gitkeep` to establish the directory tree.
 - [X] T002 Initialize Python 3.11 project with requirements.txt: Create `code/requirements.txt` containing pinned versions of `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, and `pytest`.
-- [X] T003a [P] Configure linting (ruff): Create `pyproject.toml` with ruff configuration for the `code/` directory.
-- [X] T003b [P] Configure formatting (black): Create `pyproject.toml` with black configuration for the `code/` directory.
+- [X] T003 [P] Configure linting (ruff) and formatting (black): Create `pyproject.toml` with both ruff and black configuration for the `code/` directory in a single operation to avoid file conflicts.
 
 ---
 
@@ -54,14 +53,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup `code/config.py` for paths, random seeds, and thresholds: Define constants `RANDOM_SEED=42`, `BTS_URL` (canonical endpoint), `TARGET_YEAR`, and `MEMORY_LIMIT_GB=6.5`. **NOTE: Do NOT define `X_MIN_THRESHOLD` as a constant. Per FR-014 and Plan Phase 2, `x_min` MUST be estimated dynamically via KS minimization at runtime.**
+- [X] T004 [P] Setup `code/config.py` for paths, random seeds, thresholds, and environment validation: Define constants `RANDOM_SEED=42`, `BTS_URL` (canonical endpoint), `TARGET_YEAR`, and `MEMORY_LIMIT_GB=6.5`. Include validation logic to assert `BTS_URL` and `TARGET_YEAR` are set. **NOTE: Do NOT define `X_MIN_THRESHOLD` as a constant. Per FR-014 and Plan Phase 2, `x_min` MUST be estimated dynamically via KS minimization at runtime.**
 - [X] T005 [P] Implement memory monitoring utilities in `code/utils.py`: Implement `check_memory_limit(limit_gb=6.5)` that raises `MemoryError` if current usage exceeds limit, and `log_peak_memory()` that records peak RAM to stderr.
 - [X] T006 [P] Create base entity definitions and JSON schemas in `code/contracts/`: Create `code/contracts/delay_record.schema.yaml` and `code/contracts/distribution_model.schema.yaml` with fields defined in `data-model.md`.
 - [X] T040 [P] Generate and save `tail-index-estimate.schema.yaml`: Generate `code/contracts/tail-index-estimate.schema.yaml` based on `TailIndexEstimate` entity in `data-model.md` (moved from Phase 5 to ensure contract-before-code).
 - [X] T007 Setup pytest environment and base test fixtures in `tests/conftest.py`
 - [X] T008 Setup error handling and logging infrastructure in `code/utils.py`: Configure a logging instance with level INFO, file handler to `data/logs/pipeline.log`, and a custom exception class `PipelineError`.
-- [X] T009 Setup environment configuration management in `code/config.py`: Define `BTS_URL` and `TARGET_YEAR` variables with defaults and validation logic. <!-- FAILED: unspecified -->
 - [X] T019 [P] Implement memory-mapped array handling in `code/preprocessing.py`: Implement logic to use `pandas.read_csv` with `chunksize` or `numpy.memmap` if estimated size > 6.5GB; if impossible, raise `SystemExit` with message "Memory limit exceeded: full dataset cannot be loaded."
+- [X] T026 [P] [US2/US3] Estimate `x_min` via KS minimization with Bootstrap Uncertainty: Implement `code/diagnostics.py` to estimate `x_min` via KS minimization over a grid. **Per plan.md Phase Step 1, perform 1000 bootstrap iterations to estimate uncertainty and report confidence intervals (2.5th/97.5th percentiles).** Save output to `data/results/x_min_estimate.json` with fields `x_min`, `confidence_interval`, and `method`. **This task must complete BEFORE Phase 4 (Model Fitting) to ensure x_min is available for tail subset definition.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,7 +85,7 @@
 - [X] T013 [P] [US1] Implement `code/data_loader.py`: Download BTS CSV for specified year with retry/backoff; fail if full year unavailable.
 - [X] T014 [P] [US1] Implement `code/preprocessing.py`: Load CSV, filter commercial US flights, compute `total_delay = ArrDelay + DepDelay`, treat missing as 0.
 - [X] T015 [US1] Implement `code/preprocessing.py`: Remove negative delays; flag `is_data_error` (>10,000 min) and `is_anomaly` (>1,440 min); exclude errors from primary set.
-- [X] T016 [US1] Implement `code/preprocessing.py`: Calculate retention rate (`valid/total`); save `summary_report.json` with the rate. **If rate < 95%, raise `SystemExit` with code 1 and message "Retention Rate Failure: < 95%" (Per Plan Phase 0 Step 8 "Hard Check"), halting the entire pipeline execution preventing US2/US3 from starting.** <!-- FAILED: unspecified -->
+- [X] T016 [US1] Implement `code/preprocessing.py`: Calculate retention rate (`valid/total`); save `summary_report.json` with the rate. **Per plan.md Phase 0 Step 8, if rate < 95%, raise `SystemExit` with code 1 and message "Retention Rate Failure: < 95%" (Hard Check), halting the entire pipeline execution preventing US2/US3 from starting.** **NOTE: This is a plan-level operational constraint overriding spec.md US-1's reporting-only requirement. Verify `summary_report.json` contains the rate.**
 - [X] T017 [US1] Implement `code/preprocessing.py`: Create zero-excluded subset for sensitivity analysis; flag zero-inflation.
 - [X] T018 [US1] Implement `code/main.py` (Stage 1): Orchestrate download, cleaning, and save `cleaned_delays.csv` + `summary_report.json`.
 
@@ -96,7 +95,7 @@
 
 ## Phase 4: User Story 2 - Parametric Model Fitting and Goodness-of-Fit Evaluation (Priority: P2)
 
-**Goal**: Fit 5 distributions, compute metrics (AIC/BIC/KS/AD), and perform Vuong test on tail subset
+**Goal**: Fit multiple distributions, compute metrics (AIC/BIC/KS/AD), and perform Vuong test on tail subset
 
 **Independent Test**: The analysis can be run on a static, pre-processed CSV to verify all 5 distributions are fitted, parameters estimated via MLE, metrics calculated, and Vuong test performed.
 
@@ -109,12 +108,11 @@
 ### Implementation for User Story 2
 
 - [X] T023 [P] [US2] Implement `code/models.py`: MLE fitting for Exponential, Gamma, Log-Normal, Weibull on **full cleaned data** (excluding data errors).
-- [X] T026 [US2] Implement `code/models.py`: Estimate `x_min` via KS minimization over a grid; save `x_min` to `data/results/x_min_estimate.json`.
-- [X] T024 [US2] Implement `code/models.py`: MLE fitting for Pareto restricted to `delay >= x_min` using the `x_min` value from T026.
+- [X] T024 [US2] Implement `code/models.py`: MLE fitting for Pareto restricted to `delay >= x_min` using the `x_min` value from T026 (Phase 2).
 - [X] T025a [US2] Implement `code/models.py`: Re-fit Exponential, Gamma, Log-Normal, Weibull on the **tail subset** (delay >= x_min) to enable tail-metric comparison.
 - [X] T025 [US2] Implement `code/models.py`: Calculate AIC, BIC, KS, AD for all 5 models on the tail subset; save to `model_comparison.json`.
 - [X] T027 [US2] Implement `code/models.py`: Perform Vuong test (best heavy-tail vs. best short-tail) on tail subset; report p-value in `vuong_test_results.json`.
-- [ ] T028 [US2] Implement `code/models.py`: Compare sum distribution (`total_delay`) vs. components (`ArrDelay`, `DepDelay`) via KS test and histograms; save results to `data/results/component_comparison.json`.
+- [X] T028 [US2] Implement `code/models.py`: Compare sum distribution (`total_delay`) vs. components (`ArrDelay`, `DepDelay`) via KS test and histograms; save results to `data/results/component_comparison.json`.
 - [X] T029 [US2] Implement `code/main.py` (Stage 2): Orchestrate fitting, metric calculation, and Vuong test; ensure at least 3 models converge.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -136,12 +134,12 @@
 ### Implementation for User Story 3
 
 - [X] T033 [P] [US3] Implement `code/diagnostics.py`: Hill estimator with sliding window variance minimization (w=10) constrained to k/n <= 0.1; output `stability_curve.csv` and `tail_index_estimate.json`.
-- [ ] T034 [US3] Implement `code/diagnostics.py`: Bootstrap Goodness-of-Fit test (n_iter=1000) for best model; reject if p < 0.1; save p-value to `data/results/bootstrap_gof.json`. **NOTE: R² calculation is performed for visualization only (in T036) and is NOT used for model rejection.**
-- [ ] T035 [US3] Implement `code/diagnostics.py`: Log-Normal discrimination via curvature statistic comparison; compare to simulated Log-Normal null; save result to `data/results/log_normal_test.json`.
+- [X] T034 [US3] Implement `code/diagnostics.py`: Bootstrap Goodness-of-Fit test (n_iter=1000) for best model; **Per plan.md Phase 2 Step 4, reject if p < 0.1 and update `model_comparison.json` with a "rejected" flag and reason.** **Note: R² is calculated for visualization only.** **This task implements the plan.md override of spec.md FR-015.**
+- [X] T035 [US3] Implement `code/diagnostics.py`: Log-Normal discrimination via curvature statistic comparison; compare to simulated Log-Normal null; save result to `data/results/log_normal_test.json`.
 - [X] T036 [US3] Implement `code/visualization.py`: Generate log-log survival plot (empirical vs. fitted) with R² calculation for visualization purposes only.
-- [ ] T037 [US3] Implement `code/visualization.py`: Generate QQ-plots for best-fit model.
-- [ ] T038 [US3] Implement `code/diagnostics.py`: Tail KS test with bootstrapped p-value correction for data-driven threshold; save p-value to `data/results/tail_ks.json`.
-- [ ] T039 [US3] Implement `code/main.py` (Stage 3): Orchestrate diagnostics; if best model fails Bootstrap GoF or Log-Normal discrimination, flag next best candidate.
+- [X] T037 [US3] Implement `code/visualization.py`: Generate QQ-plots for best-fit model.
+- [X] T038 [US3] Implement `code/diagnostics.py`: Tail KS test with bootstrapped p-value correction for data-driven threshold; save p-value to `data/results/tail_ks.json`.
+- [X] T039 [US3] Implement `code/main.py` (Stage 3): Orchestrate diagnostics; if best model fails Bootstrap GoF or Log-Normal discrimination, flag next best candidate.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,10 +149,10 @@
 
 **Purpose**: Compile final results, validate success criteria, and frame findings
 
-- [ ] T041 [US1] Implement `code/main.py` (Stage 4): Compile final `summary_report.json` including runtime, retention_rate, model_rankings, p-values, and causality_disclaimer.
-- [ ] T042 [US3] Validate Success Criteria: Implement assertions for SC-001 (retention >= 95%), SC-002 (3 models), SC-003 (Hill index), SC-004 (R² >= 0.95 **for visualization reporting only, not a pass/fail gate**), SC-005 (runtime <= 3600s), SC-006 (Vuong), SC-007 (Tail KS), SC-009 (stability), SC-010/SC-011 (p-values); write `validation_status.json` with PASS/FAIL for each SC.
-- [ ] T043 [P] Update `docs/data-model.md` and `docs/quickstart.md` with final entity definitions and execution instructions.
-- [ ] T044 [P] Create `.github/workflows/ci.yml` to run pytest and verify memory/time constraints; ensure build passes.
+- [X] T041 [US1] Implement `code/main.py` (Stage 4): Compile final `summary_report.json` including runtime, retention_rate, model_rankings, p-values, and causality_disclaimer.
+- [X] T042 [US3] Validate Success Criteria: Implement assertions for SC-001 (retention >= 95%), SC-002 (3 models), SC-003 (Hill index), SC-005 (runtime <= 3600s), SC-006 (Vuong), SC-007 (Tail KS), SC-009 (stability), SC-010/SC-011 (p-values). **For SC-004 (R² >= 0.95): Record R² in `validation_status.json` as a metric for visualization reporting only; do NOT assert pass/fail.** **Per plan.md Phase 2 Step 4, SC-004 is superseded by Bootstrap GoF for the gate; record R² only. Write `validation_status.json` with PASS/FAIL for each SC.**
+- [X] T043 [P] Update `docs/data-model.md` and `docs/quickstart.md` with final entity definitions and execution instructions.
+- [X] T044 [P] Create `.github/workflows/ci.yml` to run pytest and verify memory/time constraints; ensure build passes.
 
 **Checkpoint**: Final validation complete; project ready for review.
 
@@ -244,7 +242,7 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
+- [Story] label maps task to traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group

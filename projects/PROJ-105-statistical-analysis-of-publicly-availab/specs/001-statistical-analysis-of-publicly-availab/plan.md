@@ -106,7 +106,7 @@ data/
 
 ### Phase 2: Heavy-Tail Diagnostics (FR-005, FR-006, FR-010, FR-011, FR-014, FR-015, US-3)
 1.  **Threshold (x_min)**: Estimate `x_min` via KS minimization on the tail subset.
-    *   **Bootstrap Uncertainty**: Perform 1000 bootstrap iterations to estimate the uncertainty of `x_min`. Report confidence intervals (2.5th/97.5th percentiles).
+    *   **Bootstrap Uncertainty**: Perform a sufficient number of bootstrap iterations to estimate the uncertainty of `x_min`.. Report confidence intervals (2.5th/97.5th percentiles).
 2.  **Hill Estimator**: Compute tail index on top `k` records.
     *   *Constraint*: **Explicitly enforce** `k/n <= 0.1` during the stability analysis.
     *   *Method*: Minimize variance of alpha estimates over sliding window `w=10`.

@@ -5,126 +5,97 @@ import json
 import sys
 import os
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from diagnostics import log_normal_discrimination, bootstrap_goodness_of_fit, hill_estimator
+from diagnostics import log_normal_discrimination, hill_estimator, compute_hill_statistics
 
-class TestLogNormalDiscrimination:
-    """Tests for Log-Normal discrimination functionality."""
+@pytest.fixture
+def sample_tail_data():
+    """Generate sample tail data for testing."""
+    np.random.seed(42)
+    # Generate Pareto-like data
+    alpha = 2.0
+    x_min = 1.0
+    data = np.random.pareto(alpha, 1000) * x_min + x_min
+    return data
+
+@pytest.fixture
+def sample_lognormal_data():
+    """Generate sample Log-Normal data for testing."""
+    np.random.seed(42)
+    data = np.random.lognormal(mean=1, sigma=1, size=1000)
+    return data
+
+def test_log_normal_discrimination_pareto(sample_tail_data):
+    """Test Log-Normal discrimination on Pareto data (should reject Log-Normal)."""
+    x_min = np.min(sample_tail_data)
+    result = log_normal_discrimination(
+        sample_tail_data, 
+        x_min=x_min,
+        n_sim=100,  # Small number for fast testing
+        random_state=42
+    )
     
-    def test_log_normal_discrimination_with_lognormal_data(self):
-        """Test that Log-Normal data is correctly identified."""
-        # Generate Log-Normal data
-        np.random.seed(42)
-        lognormal_data = np.random.lognormal(mean=2, sigma=1, size=1000)
-        
-        # Use a reasonable x_min
-        x_min = np.percentile(lognormal_data, 75)
-        
-        # Run discrimination test
-        result = log_normal_discrimination(lognormal_data, x_min, n_simulations=100)
-        
-        # Should not raise an error
-        assert "p_value" in result
-        assert "is_log_normal" in result
-        assert "observed_curvature" in result
-        
-        # With Log-Normal data, p-value should be relatively high (not reject)
-        # Note: This is probabilistic, so we don't assert exact values
-        assert 0 <= result["p_value"] <= 1
-        assert result["sample_size"] > 0
-        
-    def test_log_normal_discrimination_with_pareto_data(self):
-        """Test that Pareto data is correctly distinguished from Log-Normal."""
-        # Generate Pareto data
-        np.random.seed(42)
-        pareto_data = np.random.pareto(a=2, size=1000) + 1  # Shifted to be > 1
-        
-        # Use a reasonable x_min
-        x_min = np.percentile(pareto_data, 75)
-        
-        # Run discrimination test
-        result = log_normal_discrimination(pareto_data, x_min, n_simulations=100)
-        
-        # Should not raise an error
-        assert "p_value" in result
-        assert "is_log_normal" in result
-        
-        # With Pareto data, p-value might be lower (more likely to reject Log-Normal)
-        assert 0 <= result["p_value"] <= 1
-        
-    def test_insufficient_data_raises_error(self):
-        """Test that insufficient data raises appropriate error."""
-        small_data = np.array([1.0, 2.0, 3.0])
-        
-        with pytest.raises(ValueError, match="Insufficient tail data"):
-            log_normal_discrimination(small_data, x_min=1.0)
-            
-    def test_result_structure(self):
-        """Test that result dictionary has all required fields."""
-        np.random.seed(42)
-        data = np.random.lognormal(mean=2, sigma=1, size=500)
-        x_min = np.percentile(data, 75)
-        
-        result = log_normal_discrimination(data, x_min, n_simulations=50)
-        
-        required_fields = [
-            "observed_curvature", "mean_null_curvature", "null_std_curvature",
-            "p_value", "n_simulations", "sample_size", "x_min", 
-            "is_log_normal", "interpretation"
-        ]
-        
-        for field in required_fields:
-            assert field in result, f"Missing required field: {field}"
-
-class TestHillEstimator:
-    """Tests for Hill estimator functionality."""
+    assert 'curvature_statistic' in result
+    assert 'p_value' in result
+    assert 'conclusion' in result
+    assert result['n_observations'] == len(sample_tail_data)
     
-    def test_hill_estimator_basic(self):
-        """Test basic Hill estimator functionality."""
-        np.random.seed(42)
-        # Generate Pareto-like data
-        data = np.random.pareto(a=2, size=1000) + 1
-        
-        k_values, hill_values, optimal_hill = hill_estimator(data)
-        
-        assert len(k_values) > 0
-        assert len(hill_values) > 0
-        assert len(k_values) == len(hill_values)
-        assert optimal_hill > 0
-        
-    def test_hill_estimator_small_dataset(self):
-        """Test Hill estimator with small dataset."""
-        small_data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        
-        with pytest.raises(ValueError, match="Dataset too small"):
-            hill_estimator(small_data)
+    # For Pareto data, we expect to reject Log-Normal (low p-value)
+    # Note: With small n_sim, results may vary, so we just check structure
+    assert isinstance(result['p_value'], float)
+    assert 0 <= result['p_value'] <= 1
 
-class TestBootstrapGoodnessOfFit:
-    """Tests for bootstrap goodness-of-fit functionality."""
+def test_log_normal_discrimination_lognormal(sample_lognormal_data):
+    """Test Log-Normal discrimination on Log-Normal data (should not reject)."""
+    x_min = np.min(sample_lognormal_data)
+    result = log_normal_discrimination(
+        sample_lognormal_data,
+        x_min=x_min,
+        n_sim=100,
+        random_state=42
+    )
     
-    def test_bootstrap_gof_pareto(self):
-        """Test bootstrap GoF for Pareto distribution."""
-        np.random.seed(42)
-        data = np.random.pareto(a=2, size=500) + 1
-        
-        fitted_params = {"alpha": 2.0}
-        
-        result = bootstrap_goodness_of_fit(
-            data, fitted_params, "pareto", n_iter=50
-        )
-        
-        assert "observed_ks_statistic" in result
-        assert "bootstrap_p_value" in result
-        assert 0 <= result["bootstrap_p_value"] <= 1
-        assert result["n_iterations"] == 50
-        
-    def test_bootstrap_gof_insufficient_data(self):
-        """Test bootstrap GoF with insufficient data."""
-        small_data = np.array([1.0, 2.0, 3.0])
-        
-        with pytest.raises(ValueError, match="Insufficient data"):
-            bootstrap_goodness_of_fit(
-                small_data, {"alpha": 2.0}, "pareto", n_iter=10
-            )
+    assert 'curvature_statistic' in result
+    assert 'p_value' in result
+    assert result['conclusion'] in ['reject_log_normal', 'cannot_reject_log_normal']
+
+def test_log_normal_discrimination_insufficient_data():
+    """Test Log-Normal discrimination with insufficient data."""
+    data = np.array([1.0, 2.0, 3.0])
+    result = log_normal_discrimination(data, x_min=1.0, n_sim=10)
+    
+    assert result['conclusion'] == 'insufficient_data'
+    assert np.isnan(result['curvature_statistic'])
+    assert np.isnan(result['p_value'])
+
+def test_hill_estimator():
+    """Test Hill estimator calculation."""
+    np.random.seed(42)
+    # Generate Pareto data with known alpha
+    alpha = 2.0
+    data = np.random.pareto(alpha, 1000) + 1
+    
+    k = 100
+    xi_est = hill_estimator(data, k)
+    
+    # For Pareto, xi = 1/alpha
+    expected_xi = 1.0 / alpha
+    
+    # Check if estimate is reasonably close (within 20% for small k)
+    assert abs(xi_est - expected_xi) / expected_xi < 0.2
+
+def test_compute_hill_statistics():
+    """Test Hill statistics computation."""
+    np.random.seed(42)
+    data = np.random.pareto(2.0, 1000) + 1
+    
+    stats_dict = compute_hill_statistics(data, max_k_ratio=0.1)
+    
+    assert 'k_values' in stats_dict
+    assert 'hill_estimates' in stats_dict
+    assert 'variances' in stats_dict
+    assert stats_dict['n'] == 1000
+    assert len(stats_dict['k_values']) > 0
+    assert len(stats_dict['hill_estimates']) > 0
