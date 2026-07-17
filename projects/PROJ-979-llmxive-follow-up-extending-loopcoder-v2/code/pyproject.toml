@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-research"
+version = "0.1.0"
+description = "llmXive automated science pipeline implementation"
+requires-python = ">=3.10"
+dependencies = [
+    "transformers",
+    "torch",
+    "scikit-learn",
+    "pandas",
+    "datasets",
+    "pytest",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["code"]

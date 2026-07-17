@@ -1,0 +1,29 @@
+# Flake8 configuration for PROJ-979-llmxive-follow-up-extending-loopcoder-v2
+# Used as a secondary linter or for CI compatibility
+
+[flake8]
+# Max line length (Black handles formatting, so we align with Black's default)
+max-line-length = 88
+
+# Extend ignore to include rules handled by Black
+extend-ignore = E203, W503
+
+# Exclude directories
+exclude = 
+    .git,
+    __pycache__,
+    .eggs,
+    *.egg-info,
+    build,
+    dist,
+    .tox,
+    .venv,
+    venv,
+    env,
+
+# Per-file ignores if needed
+# per-file-ignores = 
+#     __init__.py: F401
+
+# Max complexity for cyclomatic complexity
+max-complexity = 10

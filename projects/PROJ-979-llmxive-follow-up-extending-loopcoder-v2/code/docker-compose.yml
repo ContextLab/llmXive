@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: llmxive-sandbox
+    # Security restrictions
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:./seccomp.json
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    # Read-only filesystem except for designated directories
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777,size=100M
+      - /home/sandbox/exec:mode=1777,size=50M
+      - /home/sandbox/logs:mode=1777,size=50M
+      - /home/sandbox/output:mode=1777,size=50M
+    volumes:
+      - ./scripts:/home/sandbox/scripts:ro
+    # No network access by default
+    networks:
+      - sandbox-net
+    # Restart policy
+    restart: "no"
+
+networks:
+  sandbox-net:
+    driver: bridge
+    internal: true  # No external network access

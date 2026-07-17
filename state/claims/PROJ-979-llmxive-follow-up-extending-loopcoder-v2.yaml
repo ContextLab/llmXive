@@ -1,0 +1,35 @@
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: CodeLlama-1.3b inference runtime on standard CPU within 6 hours
+  claim_id: c_bd304e6c
+  context: The project mandates CPU validation for CI/CD. CodeLlama-1.3b is one of
+    the few models capable of running inference on standard CPU resources within the
+    6-hour validation window, whereas larger LoopCoder variants (if available) would
+    be infeasible.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeLlama-1.3b is one of the few models capable of running inference on
+    standard CPU resources within the 6-hour validation window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T03:31:11Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: CodeLlama-1.3b parameter count 1.3B
+  claim_id: c_9039b735
+  context: FLOPs calculations are re-scaled based on the actual parameter count of
+    CodeLlama-1.3b (approx. 1.3B) vs. the theoretical 2B of LoopCoder-v2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeLlama-1.3b has an approximate parameter count of 1.3B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T03:31:50Z'

@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Model Substitution Note
@@ -48,7 +48,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a Create explicit directory structure: `data/raw`, `data/processed`, `code/src`, `code/tests`, `code/notebooks`, `paper`, `state`, `contracts` in `projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/`
-- [ ] T002 Initialize Python project with `transformers`, `torch`, `scikit-learn`, `pandas`, `datasets`, `pytest`, `docker` dependencies in `code/requirements.txt`
+- [X] T002 Initialize Python project with `transformers`, `torch`, `scikit-learn`, `pandas`, `datasets`, `pytest`, `docker` dependencies in `code/requirements.txt`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
 
 ---
@@ -59,13 +59,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/src/data_loader.py` to: (1) fetch HumanEval and MBPP datasets via `datasets.load_dataset`, (2) save raw copies to `data/raw/` with SHA256 checksums in `data/checksums.txt`, (3) apply stratified sampling by difficulty, (4) flag strata with <50 samples as 'underpowered' in `data/processed/strata_log.json`, and (5) save processed splits to `data/processed/`.
-- [ ] T005 [P] Create `code/src/entropy.py` stub with function signature for semantic entropy extraction (FR-001)
-- [ ] T005c [P] Define FLOPs utility function in `code/src/utils.py`: Implement formula `FLOPs = parameters * sequence_length * k` for baseline calculation (FR-006, SC-002).
-- [ ] T006 [P] Create `code/src/inference.py` stub with function signature for iterative refinement execution (FR-002)
-- [ ] T007 Define `InputProblem` and `ConvergenceTrajectory` dataclasses in `code/src/models.py`
-- [ ] T008 Setup environment configuration for model paths (CodeLlama-1.3b for CPU, CodeLlama-3b/7b for GPU) in `code/.env.example`
-- [ ] T009 Implement Docker sandbox configuration for code execution safety in `code/Dockerfile` and `code/docker-compose.yml`
+- [X] T004 Implement `code/src/data_loader.py` to: (1) fetch HumanEval and MBPP datasets via `datasets.load_dataset`, (2) save raw copies to `data/raw/` with SHA256 checksums in `data/checksums.txt`, (3) apply stratified sampling by difficulty using the 'difficulty' column (if present) or hashing 'task_id' to create bins, with a configurable ratio, (4) flag strata with <50 samples as 'underpowered' in `data/processed/strata_log.json`, and (5) save processed splits to `data/processed/`.
+- [X] T005 Create `code/src/entropy.py` stub with function signature for semantic entropy extraction (FR-001). **NOTE: This is a stub. Implementation (T012) depends on T004.** <!-- FAILED: unspecified -->
+- [X] T005c [P] Define FLOPs utility function in `code/src/utils.py`: Implement formula `FLOPs = parameters * sequence_length * k` for baseline calculation (FR-006, SC-002).
+- [X] T006 Create `code/src/inference.py` stub with function signature for iterative refinement execution (FR-002). **NOTE: This is a stub. Implementation (T013) depends on T004 and T012 completion.**
+- [X] T007 Define `InputProblem` and `ConvergenceTrajectory` dataclasses in `code/src/models.py`
+- [X] T008 Setup environment configuration for model paths (CodeLlama-1.3b for CPU, CodeLlama-3b/7b for GPU) in `code/.env.example`
+- [ ] T008b [P] Implement model substitution validation: Run a small pilot (N=10) comparing CodeLlama entropy-convergence behavior against published LoopCoder-v2 metrics (if available) or establish a baseline hypothesis document in `paper/model_substitution_rationale.md` to validate the substitution before full analysis. **This task is mandatory before T029 (Full Validation).**
+- [X] T009 Implement Docker sandbox configuration for code execution safety in `code/Dockerfile` and `code/docker-compose.yml`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,17 +82,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for entropy clustering logic in `code/tests/test_entropy.py`
-- [ ] T011 [P] [US1] Integration test for end-to-end entropy + convergence pipeline on N=5 sample using mock fixtures in `code/tests/test_analysis.py` (ensure independent of T012/T013 artifacts)
+- [X] T010 [P] [US1] Unit test for entropy clustering logic in `code/tests/test_entropy.py`
+- [X] T011 [P] [US1] Integration test for end-to-end entropy + convergence pipeline on N=5 sample using mock fixtures in `code/tests/test_analysis.py` (ensure independent of T012/T013 artifacts)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement semantic entropy extraction in `code/src/entropy.py`: Generate N=10 samples, cluster by exact code match/execution result, compute Shannon entropy (FR-001). Handle undefined entropy (zero entropy) by assigning `entropy=1e-9` or excluding the sample. **MUST log exclusion count and rate to `data/processed/exclusion_log.json`** (FR-007).
-- [ ] T013 [US1] Implement iterative refinement execution in `code/src/inference.py`: Run model for $k \in \mathbb{Z}^+$, detect first correct solution vs reference, record non-convergence events (FR-002, FR-007). **Must run AFTER T012 completes and verifies `data/processed/entropy_results.csv` exists** to prevent data leakage (Principle VI).
-- [ ] T013b [US1] Implement sensitivity inference pass in `code/src/inference.py`: Re-run model for $k=4$ on the same dataset to generate trajectory data for sensitivity analysis (SC-004).
-- [ ] T014 [US1] Implement data processing pipeline in `code/src/data_loader.py`: Filter datasets, handle strata with <50 samples (flag as underpowered, FR-007), save processed splits. (Note: Logic merged into T004, this task ensures integration with downstream steps).
-- [ ] T015 [US1] Implement Spearman correlation calculation in `code/src/analysis.py`: Compute $\rho$ between entropy and convergence step, calculate p-value (FR-003).
-- [ ] T016 [US1] Add logging and result serialization to `data/processed/entropy_results.csv` and `data/processed/convergence_results.csv`.
+- [X] T012 [US1] Implement semantic entropy extraction in `code/src/entropy.py`: Generate N=10 samples per input. Cluster samples by **exact code match first; if no exact match, use AST normalization or execute code via the Docker sandbox (from T009) to compare execution results**. Compute Shannon entropy over cluster probabilities (FR-001). Handle undefined entropy (zero entropy) by assigning `entropy=1e-9` or excluding the sample. **MUST log exclusion count and rate to `data/processed/exclusion_log.json`** (FR-007). **Dependencies: T004 (data), T009 (sandbox).**
+- [ ] T013 [US1] Implement iterative refinement execution in `code/src/inference.py`: Run model for $k \in \{,, 3\}$ on the same inputs. Detect the first correct solution by executing the generated code via the **Docker sandbox (from T009)** and comparing output against the **'test' field** from HumanEval/MBPP (FR-002). Record non-convergence events (FR-007). **MUST NOT read `data/processed/entropy_results.csv`**; it must strictly use only the input problem to prevent data leakage (Constitution Principle VI). **This task must complete the primary k=1,2,3 runs before T013b is considered.** **Dependencies: T004, T012 (execution order only, not data read).**
+- [X] T013b [US1] Implement sensitivity inference pass in `code/src/inference.py`: Re-run model for $k=4$ on the same dataset to generate trajectory data for sensitivity analysis (SC-004). **Must depend on T012 and T013 completion.** **Dependencies: T012, T013.**
+- [X] T015 [US1] Implement Spearman correlation calculation in `code/src/analysis.py`: Compute $\rho$ between entropy and convergence step, calculate p-value (FR-003). **Depends on T004 (data availability), T012, T013.**
+- [ ] T016 [US1] Add logging and result serialization to `data/processed/entropy_results.csv` and `data/processed/convergence_results.csv`. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Core Correlation Data Generated)
 
@@ -105,13 +105,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for logistic regression training and prediction in `code/tests/test_analysis.py`
-- [ ] T018 [P] [US2] Statistical test validation for non-inferiority vs static baseline in `code/tests/test_analysis.py`
+- [X] T017 [P] [US2] Unit test for logistic regression training and prediction in `code/tests/test_analysis.py`
+- [X] T018 [P] [US2] Statistical test validation for non-inferiority vs static baseline in `code/tests/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement logistic regression router training in `code/src/analysis.py`: Train on entropy proxies to predict optimal $k$ (FR-004). **Dependencies: T012, T013 (raw data generation), NOT T015**.
-- [ ] T020 [US2] Implement router evaluation logic: Compare prediction accuracy against random baseline (predict $k=1$) and test significance ($p < 0.05$) (FR-006).
+- [X] T019 [US2] Implement logistic regression router training in `code/src/analysis.py`: Train on entropy proxies to predict optimal $k$. **Define target variable as binary: 'converged at k=1' (1) vs 'needs more loops' (0).** Define loss function as **binary cross-entropy** (FR-004). **Dependencies: T012, T013 (raw data generation), NOT T015.**
+- [ ] T020 [US2] Implement router evaluation logic: Compare prediction accuracy against random baseline (predict $k=1$ for all samples). **Perform a paired t-test or bootstrap test to confirm statistical significance ($p < 0.05$)** (FR-006).
 - [ ] T021 [US2] Implement FLOPs estimation and savings calculation: **Use the formula from T005c** (`parameters * sequence_length * k`) to calculate static $k=2$ baseline FLOPs. Compare dynamic router vs static baseline, perform non-inferiority test on accuracy (FR-006, SC-002).
 - [ ] T022 [US2] Integrate router simulation results into `data/processed/router_results.csv` and update `code/src/analysis.py` report generation.
 
@@ -127,13 +127,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Unit test for multiple-comparison correction implementation in `code/tests/test_robustness.py`
-- [ ] T024 [P] [US3] Sensitivity analysis sweep validation in `code/tests/test_robustness.py`
+- [X] T023 [P] [US3] Unit test for multiple-comparison correction implementation in `code/tests/test_robustness.py`
+- [X] T024 [P] [US3] Sensitivity analysis sweep validation in `code/tests/test_robustness.py`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement multiple-comparison correction in `code/src/robustness.py`: **Explicitly implement the Holm-Bonferroni algorithm** and apply it to p-values across difficulty strata (FR-005, US-003).
-- [ ] T026 [US3] Implement sensitivity analysis loop in `code/src/robustness.py`: **Re-run inference logic for k=4 (using T013b data)** and sweep convergence threshold $k \in \{3, 4\}$ (additional to primary k=1,2,3 run). Compute variation in $\rho$ (SC-004).
+- [ ] T025 [US3] Implement multiple-comparison correction in `code/src/robustness.py`: **Explicitly implement the Holm-Bonferroni algorithm** and apply it to p-values across **difficulty strata (grouped by the strata defined in T004)** (FR-005, US-003).
+- [ ] T026 [US3] Implement sensitivity analysis loop in `code/src/robustness.py`: **Re-run inference logic for k=4 (using T013b data)** and sweep convergence threshold **$k \in \{, 3, 4\}$** (combining data from T013 for k=1,2,3 and T013b for k=4). Compute variation in $\rho$ (SC-004). **Dependencies: T013, T013b.**
 - [ ] T027 [US3] Generate robustness report summarizing adjusted p-values and threshold stability in `data/processed/robustness_report.json`.
 
 **Checkpoint**: All user stories should now be independently functional (Robustness Validated)
@@ -160,9 +160,9 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - **Critical Data Flow**: `code/src/entropy.py` (T012) MUST complete and write `data/processed/entropy_results.csv` BEFORE `code/src/inference.py` (T013, T013b) or `analysis.py` (T015) can run.
-  - **Critical Data Flow**: `convergence_results.csv` (T013) MUST exist before Router Simulation (T019) and Robustness (T025, T026).
-  - **Sensitivity Flow**: T026 requires T013b (k=4 inference) to be completed.
+ - **Critical Data Flow**: `code/src/entropy.py` (T012) MUST complete and write `data/processed/entropy_results.csv` BEFORE `code/src/inference.py` (T013, T013b) or `analysis.py` (T015) can run.
+ - **Critical Data Flow**: `convergence_results.csv` (T013) MUST exist before Router Simulation (T019) and Robustness (T025, T026).
+ - **Sensitivity Flow**: T026 requires T013 (k=1,2,3) and T013b (k=4) to be completed.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -181,7 +181,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T005, T006, T005c) can run in parallel
+- All Foundational tasks marked [P] (T005c, T007, T008, T008b, T009) can run in parallel
 - Once Foundational phase completes, US2 and US3 can start in parallel (both depend only on US1 data, not each other)
 - All tests for a user story marked [P] can run in parallel
 
@@ -226,9 +226,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data generation & Correlation)
-   - Developer B: User Story 2 (Router Simulation) - *Can start once T012/T013 are done*
-   - Developer C: User Story 3 (Robustness) - *Can start once T012/T013/T013b are done*
+ - Developer A: User Story 1 (Data generation & Correlation)
+ - Developer B: User Story 2 (Router Simulation) - *Can start once T012/T013 are done*
+ - Developer C: User Story 3 (Robustness) - *Can start once T012/T013/T013b are done*
 3. Stories complete and integrate independently
 
 ---

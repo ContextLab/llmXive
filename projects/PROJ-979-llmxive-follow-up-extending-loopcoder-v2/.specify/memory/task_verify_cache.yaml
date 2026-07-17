@@ -1,0 +1,39 @@
+T004:
+  c: false
+  h: 8b806465d0a09efcb1b1582835c43b8aec79eaee52b91aa5c614d5c4c8c645a0
+  r: "The repository contains `code/src/data_loader.py`, but the required output artifacts\
+    \ `data/checksums.txt` and `data/processed/strata_log.json` are absent, indicating\
+    \ the script has not been run to produce them. Moreover, the provided code is\
+    \ truncated before any implementation of stratified sampling, configurable ratios,\
+    \ or saving processed splits, so the core functionality is not demonstrably present.\
+    \ The next implementer must ensure the script writes the checksum file, creates\
+    \ the strata log, and fully implements the sampling and split\u2011saving steps."
+T012:
+  c: false
+  h: 4f54dc12b24f7f89f150af439068b9a4c06fc0259811d903de928367bff9a526
+  r: "The `entropy.py` file is truncated (e.g., `EXCLUSION_LOG_PATH =` is unfinished\
+    \ and core logic for sampling, clustering, entropy computation, and logging is\
+    \ absent), and the required `data/processed/exclusion_log.json` file does not\
+    \ exist. Consequently the implementation does not fulfill the task\u2019s specifications."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, results, or statistical test output were provided. The task required\
+    \ implementing router evaluation logic, comparing prediction accuracy against\
+    \ a random baseline, and reporting a paired t\u2011test or bootstrap significance\
+    \ (p\u202F<\u202F0.05). None of these artifacts (implementation, accuracy metrics,\
+    \ or significance test report) are present, so the requirement is not satisfied."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the FLOPs estimation, baseline calculation, dynamic router\
+    \ comparison, or non\u2011inferiority test results is present. The implementer\
+    \ provided only a textual description of the task, without code, data, or reported\
+    \ metrics, so the required output is missing."
+T022:
+  c: false
+  h: 0755da764c817d665f80c63ce8eedbd2260039df6dbd70874ea83069c37d34d0
+  r: "The required `data/processed/router_results.csv` file does not exist, and the\
+    \ provided `code/src/analysis.py` does not contain any logic that loads or incorporates\
+    \ router simulation results nor generates a report based on them. The implementation\
+    \ therefore fails to meet the task\u2019s stated requirements."
