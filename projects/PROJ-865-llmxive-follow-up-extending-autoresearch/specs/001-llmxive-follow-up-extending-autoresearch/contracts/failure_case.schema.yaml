@@ -1,42 +1,46 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: FailureCase
-description: "Schema for a single failure case from ARC-Bench with structural annotation."
+title: Failure Case Schema
+description: >
+  Schema for annotated failure cases extracted from ARC-Bench reasoning traces.
+  Used to validate output from annotate_failures.py before writing to data/derived/.
 type: object
-properties:
-  case_id:
-    type: string
-    description: "Unique identifier for the failure case (UUID)."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-  topic:
-    type: string
-    description: "The research topic associated with the failure."
-    minLength: 1
-  raw_error_log:
-    type: string
-    description: "The raw error message or transcript."
-    minLength: 1
-  structural_feature:
-    type: string
-    description: "The annotated structural feature of the failure."
-    enum:
-      - "Syntactic Error"
-      - "Logical Loop"
-      - "Semantic Ambiguity"
-      - "Missing Context"
-      - "Unstructured"
-  ground_truth_action:
-    type: string
-    description: "The correct pivot action (ground truth)."
-    minLength: 1
-  source_dataset:
-    type: string
-    description: "URL or ID of the source dataset."
-    format: uri
 required:
-  - case_id
-  - topic
-  - raw_error_log
-  - structural_feature
-  - ground_truth_action
-  - source_dataset
+  - task_id
+  - failure_type
+  - error_log
+  - ground_truth_resolution
+  - annotated_at
+properties:
+  task_id:
+    type: string
+    description: Unique identifier for the ARC-Bench task
+    pattern: "^arc-bench-[0-9a-f]{8}$"
+  failure_type:
+    type: string
+    enum:
+      - Syntactic
+      - Logical
+      - Semantic
+      - Missing Context
+      - Unstructured
+    description: Classification of the failure mode
+  error_log:
+    type: string
+    description: Raw error log or traceback extracted from the reasoning trace
+    minLength: 10
+  ground_truth_resolution:
+    type: string
+    description: The correct resolution or pivot action for this failure
+  annotated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of annotation
+  confidence_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Confidence score of the annotation (optional)
+  source_trace_id:
+    type: string
+    description: Reference to the original reasoning trace entry
 additionalProperties: false

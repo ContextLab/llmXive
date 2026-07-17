@@ -1,0 +1,84 @@
+T001g:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing that the `code/01_data_ingestion/` directory was actually\
+    \ created is provided; the evidence consists only of the task description, with\
+    \ no file\u2011system listing or screenshot confirming the directory\u2019s existence.\
+    \ The implementer must supply proof (e.g., a directory listing, commit showing\
+    \ the folder, or a screenshot) that the directory now exists and is non\u2011\
+    empty."
+T001h:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `code/02_annotation_distillation/` directory being\
+    \ present or populated was provided; the claim lacks any artifact confirming the\
+    \ directory\u2019s creation."
+T001i:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that a `code/03_execution/` directory actually
+    exists (e.g., a directory listing or confirmation file). Without such proof, we
+    cannot verify the required setup step was performed.
+T001j:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that a `code/04_analysis/` directory exists in the\
+    \ repository; the implementer\u2019s claim is unsubstantiated. The required directory\
+    \ must be present (and non\u2011empty if desired) for the task to be considered\
+    \ complete."
+T001k:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/utils/` directory is provided; the implementer did not
+    supply any artifact confirming its creation, nor any listing or contents of such
+    a folder. Without a visible directory or proof of its existence, the task requirement
+    is not satisfied.
+T001l:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that a `code/tests/` directory was actually
+    created; the artifact list is empty, so we cannot verify the required directory
+    exists. The implementer must add the directory (and optionally a placeholder file)
+    to satisfy the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    or `black` settings) were presented, nor any evidence that ruff and black have
+    been installed or integrated into the project. Without these artifacts, the requirement
+    to configure linting and formatting tools is not satisfied.
+T007:
+  c: false
+  h: b1fc2317da11ee85ae003d83374126c1f3983a239c6420f52a7d4297bcc57b6c
+  r: "The provided `code/utils/update_state.py` file exists and contains code for\
+    \ hashing and scanning artifacts, but the displayed excerpt ends before any logic\
+    \ that writes or updates `state.yaml` is shown, and the `state.yaml` file itself\
+    \ is missing. Without evidence that the script actually updates the state file,\
+    \ the task\u2019s requirement is not demonstrably fulfilled."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file or snippet containing rules for `data/raw/`, `data/derived/`,
+    and `data/artifacts/` was provided; without the actual file content we cannot
+    confirm the required ignore patterns exist. The implementer must supply a `.gitignore`
+    entry (e.g., `data/raw/`, `data/derived/`, `data/artifacts/`) in the repository.
+T013b:
+  c: false
+  h: b0128afd9571353a626beb480e18737243c49c2023b98b5bb07068572b490e8e
+  r: The required artifact `data/derived/scope_changes.md` does not exist, so the
+    deviation cannot be documented as specified. The implementer must create this
+    file and record the scope change details.
+T013d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, configuration, or log evidence is provided showing that `distill_rules.py`\
+    \ was re\u2011run with a smaller model when T014 coverage fell below 90% and T013b\
+    \ was triggered, nor any re\u2011validation of coverage. The required retry\u2011\
+    loop implementation and its outcomes are absent."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logging code, configuration, or sample log output was provided; there is\
+    \ no artifact demonstrating that annotation counts or rule\u2011generation metrics\
+    \ are being recorded as required. The implementer\u2019s claim cannot be verified\
+    \ without concrete files or logs."

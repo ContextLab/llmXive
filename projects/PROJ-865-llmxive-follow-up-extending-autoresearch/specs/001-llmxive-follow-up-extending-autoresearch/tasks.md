@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,10 +44,19 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [Setup] Create directory `code/` at repository root
-- [ ] T001b [Setup] Create directory `data/` with subdirectories `raw/` and `derived/` at repository root
-- [ ] T001c [Setup] Create directory `specs/001-llmxive-followup/contracts/` and `code/` subdirectories per plan.md
+- [ ] T001b [Setup] Create directory `data/` at repository root
+- [ ] T001c [Setup] Create directory `data/raw/` at repository root
+- [ ] T001d [Setup] Create directory `data/derived/` at repository root
+- [ ] T001e [Setup] Create directory `data/artifacts/` at repository root
+- [ ] T001f [Setup] Create directory `specs/001-llmxive-followup/contracts/`
+- [ ] T001g [Setup] Create directory `code/01_data_ingestion/`
+- [ ] T001h [Setup] Create directory `code/02_annotation_distillation/`
+- [ ] T001i [Setup] Create directory `code/03_execution/`
+- [ ] T001j [Setup] Create directory `code/04_analysis/`
+- [ ] T001k [Setup] Create directory `code/utils/`
+- [ ] T001l [Setup] Create directory `code/tests/`
 
-- [ ] T002 [Setup] Create `requirements.txt` at repository root with pinned versions (pandas, numpy, scikit-learn, statsmodels, pydantic, datasets, torch-cpu, transformers)
+- [X] T002 [Setup] Create `requirements.txt` at repository root with pinned versions (pandas, numpy, scikit-learn, statsmodels, pydantic, datasets, torch-cpu, transformers, psutil, scipy)
 - [ ] T003 [P] [Setup] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -59,10 +68,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 [Setup] Create schema contracts in `specs/001-llmxive-followup/contracts/` (`failure_case.schema.yaml`, `distilled_rule.schema.yaml`, `pivot_attempt.schema.yaml`)
-- [ ] T005 [Setup] Implement `utils/config.py` with environment variables, random seeds, and resource limits (a defined number of CPU cores, a specified memory allocation)
-- [ ] T006 [Setup] Implement `utils/logging.py` for structured logging of pipeline stages
-- [ ] T007 [Setup] Create `update_state.py` to calculate SHA-256 hashes of artifacts and update `state.yaml`
-- [ ] T008 [Setup] Setup `data/raw/` and `data/derived/` directory structure with `.gitignore` rules
+- [X] T005 [Setup] Implement `code/utils/config.py` with environment variables, random seeds, and explicit resource limits: `MAX_CPU_CORES=2`, `MAX_MEMORY_GB=7`
+- [X] T005c [Setup] Implement `code/utils/resource_watchdog.py` to actively monitor CPU and RAM usage at runtime; if limits (2 cores, 7GB) are exceeded, the watchdog MUST kill the process immediately. This file must be importable and usable by execution tasks.
+- [X] T006 [Setup] Implement `code/utils/logging.py` for structured logging of pipeline stages
+- [ ] T007 [Setup] Create `code/utils/update_state.py` to calculate SHA-256 hashes of artifacts and update `state.yaml`
+- [ ] T008 [Setup] Create `.gitignore` rules for `data/raw/`, `data/derived/`, and `data/artifacts/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,14 +86,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `code/download_arc_bench.py` to fetch the ARC-Bench 25-topic subset via HuggingFace `datasets`.
-- [ ] T010 [US1] Implement `code/01_data_ingestion/parse_reasoning_traces.py` to extract raw error logs and ground-truth resolutions from traces
-- [ ] T011 [US1] Implement `code/02_annotation_distillation/annotate_failures.py` to label failures as Syntactic, Logical, Semantic, Missing Context, or Unstructured
+- [X] T009 [US1] Implement `code/01_data_ingestion/download_arc_bench.py` to fetch the ARC-Bench 25-topic subset via HuggingFace `datasets`.
+- [X] T010 [US1] Implement `code/01_data_ingestion/parse_reasoning_traces.py` to extract raw error logs and ground-truth resolutions from traces
+- [X] T011 [US1] Implement `code/02_annotation_distillation/annotate_failures.py` to label failures as Syntactic, Logical, Semantic, Missing Context, or Unstructured
 - [ ] T012 [US1] Add schema validation in `annotate_failures.py` to ensure output matches `specs/001-llmxive-followup/contracts/failure_case.schema.yaml` before writing to `data/derived/`
-- [ ] T013 [US1] Implement `code/02_annotation_distillation/distill_rules.py` using a CPU-tractable small model (e.g., TinyLlama-1.1B); IF RAM usage > 6GB, switch to regex-based fallback
-- [ ] T013b [US1] If regex fallback is used in T013, document this deviation as a scope change in `data/derived/scope_changes.md` to preserve FR-002 intent
-- [ ] T014 [US1] Ensure `distill_rules.py` generates `rules_library.json` with ≥90% coverage of annotated patterns and an "Unstructured" fallback category
-- [ ] T014a [US1] Implement validation logic to calculate coverage against the validation split and assert >= 0.90; fail build if threshold not met
+- [X] T013 [US1] Implement `code/02_annotation_distillation/distill_rules.py` using a CPU-tractable small model (e.g., TinyLlama-1.1B); use `psutil` to monitor RAM; if RAM > 6GB, switch to a regex-based heuristic extraction fallback (using frequent error substrings). **This task must be executed wrapped by the ResourceWatchdog from T005c.**
+- [ ] T013b [US1] If T013 triggers the regex fallback, document this deviation as a scope change in `data/derived/scope_changes.md` to preserve FR-002 intent.
+- [X] T014 [US1] Implement validation logic to calculate coverage against the validation split and assert >= 0.90; **This task acts as the gatekeeper:** if coverage < 90%, the build fails unless T013d retry succeeds. Output `data/derived/coverage_report.json`.
+- [ ] T013d [US1] **Retry Loop**: IF T014 fails (coverage < 90%) AND T013b triggered (regex fallback), explicitly re-run `distill_rules.py` with a smaller model (e.g., TinyLlama-1.1B quantized or a simpler regex set) and re-validate coverage. Do not proceed until coverage >= 90% or all fallback options exhausted.
 - [ ] T015 [US1] Add schema validation in `distill_rules.py` to ensure output matches `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`
 - [ ] T016 [US1] Add logging to track annotation counts and rule generation metrics
 
@@ -101,13 +111,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement `code/03_execution/rule_engine.py` to parse error logs and execute pivot actions without LLM invocation
-- [ ] T018 [US2] Implement logic in `rule_engine.py` to handle "Unstructured" cases by defaulting to baseline retrieval method
-- [ ] T019 [US2] Implement `code/03_execution/run_experiments.py` to run the rule engine on a stratified random sample of unseen tasks
-- [ ] T020 [US2] Ensure `run_experiments.py` records "Time-to-Pivot" (seconds), "Success Rate of First Pivot" (binary), and `failure_type` for every task, appending rows to `data/derived/results.csv` with columns: task_id, method, time_to_pivot, success, failure_type
-- [ ] T021 [US2] Create `code/03_execution/run_baseline_external.py` script to orchestrate baseline agent execution on external resources defined as standard resources (multiple cores, sufficient RAM)
-- [ ] T022 [US2] Implement logic in `run_experiments.py` to merge CI rule-engine logs with external baseline logs from `run_baseline_external.py` into a single `data/derived/results.csv`
-- [ ] T023 [US2] Add stratification logic to ensure metrics are recorded separately for each failure type (Syntactic, Semantic, etc.)
+- [X] T017 [US2] Implement `code/03_execution/rule_engine.py` to parse error logs and execute pivot actions without LLM invocation. **This task must be executed wrapped by the ResourceWatchdog from T005c.**
+- [~] T018 [US2] Implement logic in `rule_engine.py` to handle "Unstructured" cases by defaulting to baseline retrieval method
+- [~] T019a [US2] **CRITICAL**: Implement `code/03_execution/generate_manifest.py` to create `data/derived/experiment_manifest.csv` containing exactly 100 stratified task IDs (balanced by failure type). This file is the SINGLE SOURCE OF TRUTH for both rule engine and baseline tasks.
+- [~] T019 [US2] Implement `code/03_execution/run_experiments.py` to run the rule engine on the tasks listed in `data/derived/experiment_manifest.csv`.
+- [~] T020 [US2] Ensure `run_experiments.py` records "Time-to-Pivot" (seconds), "Success Rate of First Pivot" (binary), and `failure_type` for every task, appending rows to `data/derived/results.csv` with columns: task_id, method, time_to_pivot, success, failure_type
+- [X] T021 [US2] Implement `code/03_execution/run_baseline_external.py` to orchestrate baseline agent execution on external resources. The script MUST:
+ 1. Accept `data/derived/experiment_manifest.csv` (from T019a) as input to ensure strict task ID alignment.
+ 2. Invoke the baseline agent via CLI: `python code/03_execution/run_baseline.py --manifest <path> --output data/derived/baseline_results.json`.
+ 3. Output `data/derived/baseline_results.json` with the exact same task IDs as the manifest.
+- [ ] T022 [US2] Implement logic in `run_experiments.py` to merge CI rule-engine logs with external baseline logs from `data/derived/baseline_results.json` (generated by T021) into a single `data/derived/results.csv`, ensuring strict ID matching for paired comparison using the manifest from T019a.
+- [~] T023 [US2] Add stratification logic to ensure metrics are recorded separately for each failure type (Syntactic, Semantic, etc.)
 - [ ] T024 [US2] Add validation to ensure `data/derived/results.csv` schema matches `specs/001-llmxive-followup/contracts/pivot_attempt.schema.yaml`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,12 +138,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement `code/*/statistical_model.py` to fit mixed-effects logistic regression (Success ~ FailureType * Method + (1|TaskID))
+- [X] T025 [US3] Implement `code/04_analysis/statistical_model.py` to fit mixed-effects logistic regression (Success ~ FailureType * Method + (1|TaskID))
 - [ ] T026 [US3] Ensure `statistical_model.py` outputs p-values for the interaction term and determines significance (p < 0.05); write results to `data/derived/regression_results.json` including key `interaction_p_value`
-- [ ] T029a [US3] Implement `code/04_analysis/time_diff_test.py` to perform paired t-test or Wilcoxon signed-rank test on "Time-to-Pivot" differences with confidence intervals as required by SC-001; write results to `data/derived/time_diff_results.json`
-- [ ] T027 [US3] Implement `code/04_analysis/error_taxonomy.py` to categorize failed pivots into "Coverage Gap" or "Distillation Error"
-- [ ] T028 [US3] Ensure `error_taxonomy.py` uses ground-truth resolution to arbitrate the categorization of failures
-- [ ] T029 [US3] Generate `data/derived/final_report.md` aggregating Time-to-Pivot t-test results (from T029a), Success Rate comparison (SC-002), and regression coefficients (SC-003)
+- [~] T029a [US3] Implement `code/04_analysis/time_diff_test.py` to perform paired t-test or Wilcoxon signed-rank test on "Time-to-Pivot" differences using `scipy.stats`. **Output schema must be a JSON file `data/derived/time_diff_results.json` containing keys: `p_value`, `ci_lower`, `ci_upper`, `statistic`.**
+- [~] T027 [US3] Implement `code/04_analysis/error_taxonomy.py` to categorize failed pivots. **Inputs**: `data/derived/results.csv` and `data/derived/failure_cases.json`. **Logic**: If no rule matches -> "Coverage Gap"; If rule matches but action != ground_truth -> "Distillation Error".
+- [ ] T027b [US3] **Execute & Populate**: Run `error_taxonomy.py` against `data/derived/results.csv` and `data/derived/failure_cases.json` to generate `data/derived/error_taxonomy_results.json`. **This task must complete before T029c.**
+- [~] T028 [US3] Ensure `error_taxonomy.py` uses ground-truth resolution to arbitrate the categorization of failures
+- [ ] T029b [US3] Implement `code/04_analysis/calculate_stratified_rates.py` to calculate "Success Rate of First Pivot" stratified by failure type. **Output**: `data/derived/stratified_success_rates.csv` with columns for each failure type (e.g., `syntactic_rate`, `semantic_rate`).
+- [ ] T029c [US3] Generate `data/derived/final_report.md` aggregating Time-to-Pivot t-test results (from T029a), **Stratified Success Rates from T029b**, Error Taxonomy Results (from T027b), and regression coefficients (SC-003).
 - [ ] T030 [US3] Add checks to ensure total compute time and memory usage are logged and compared against CI limits (h, memory threshold).
 
 **Checkpoint**: All user stories should now be independently functional
@@ -140,11 +156,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Write `tests/test_rule_engine.py` to validate rule matching logic and edge cases
-- [ ] T032 [P] Write `tests/test_pipeline.py` for integration tests of the full data flow
+- [ ] T031 [P] Write `code/tests/test_rule_engine.py` to validate rule matching logic and edge cases
+- [ ] T032 [P] Write `code/tests/test_pipeline.py` for integration tests of the full data flow
 - [ ] T033 Update `quickstart.md` with instructions for running the pipeline and external baseline
-- [ ] T034 Run `update_state.py` to finalize `state.yaml` with all artifact hashes
-- [ ] T035 Code cleanup and refactoring for readability
+- [ ] T034 Run `code/utils/update_state.py` to finalize `state.yaml` with all artifact hashes
+- [ ] T035a [P] Run `ruff --check` on `code/` and verify exit code 0 (linting pass)
+- [ ] T035b [P] Run `black --check` on `code/` and verify exit code 0 (formatting pass)
 
 ---
 
@@ -154,10 +171,10 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: 
-  - **User Story 1 (Phase 3)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-  - **User Story 2 (Phase 4)**: MUST wait for User Story 1 (Phase 3) completion to access `rules_library.json`
-  - **User Story 3 (Phase 5)**: MUST wait for User Story 2 (Phase 4) completion to access `results.csv`
+- **User Stories (Phase 3+)**:
+ - **User Story 1 (Phase 3)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+ - **User Story 2 (Phase 4)**: MUST wait for User Story 1 (Phase 3) completion to access `rules_library.json` and T019a manifest
+ - **User Story 3 (Phase 5)**: MUST wait for User Story 2 (Phase 4) completion to access `results.csv`
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### Parallel Opportunities
@@ -196,9 +213,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2 (MUST wait for US1 artifacts)
-   - Developer C: User Story 3 (MUST wait for US2 artifacts)
+ - Developer A: User Story 1
+ - Developer B: User Story 2 (MUST wait for US1 artifacts)
+ - Developer C: User Story 3 (MUST wait for US2 artifacts)
 3. Stories complete and integrate independently
 
 ---

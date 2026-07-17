@@ -1,42 +1,77 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: DistilledRule
-description: "Schema for a heuristic rule derived from a failure case."
+description: >
+  Schema for a single distilled rule generated from failure analysis.
+  Rules follow an "If-Condition-Then-Action" structure.
 type: object
+required:
+  - rule_id
+  - condition_type
+  - condition_pattern
+  - action_type
+  - action_description
+  - source_failures
+  - confidence_score
 properties:
   rule_id:
     type: string
-    description: "Unique identifier for the rule."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    description: "Unique identifier for the rule (e.g., 'RULE-001')"
+    pattern: "^RULE-\\d{3}$"
+  
+  condition_type:
+    type: string
+    description: "Category of the condition (e.g., 'Syntactic', 'Logical', 'Semantic')"
+    enum:
+      - Syntactic
+      - Logical
+      - Semantic
+      - Missing Context
+      - Unstructured
+  
   condition_pattern:
     type: string
-    description: "Regex or string match condition to trigger the rule."
+    description: "Regex or keyword pattern that triggers this rule"
     minLength: 1
-  pivot_action:
+  
+  action_type:
     type: string
-    description: "The action to execute when the condition matches."
+    description: "Type of pivot action to take"
+    enum:
+      - RetryWithDifferentStrategy
+      - SwitchToBaseline
+      - RequestHumanReview
+      - SkipTask
+      - ApplyHeuristic
+  
+  action_description:
+    type: string
+    description: "Human-readable description of the action"
     minLength: 1
-  derived_from_case_id:
-    type: string
-    description: "Reference to the source FailureCase."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  
+  source_failures:
+    type: array
+    description: "List of failure IDs that contributed to this rule"
+    items:
+      type: string
+    minItems: 1
+  
   confidence_score:
     type: number
-    description: "Model confidence score."
+    description: "Confidence score between 0.0 and 1.0"
     minimum: 0.0
     maximum: 1.0
-  category:
-    type: string
-    description: "The structural feature category this rule addresses."
-    enum:
-      - "Syntactic Error"
-      - "Logical Loop"
-      - "Semantic Ambiguity"
-      - "Missing Context"
-      - "Unstructured"
-required:
-  - rule_id
-  - condition_pattern
-  - pivot_action
-  - derived_from_case_id
-  - category
-additionalProperties: false
+  
+  metadata:
+    type: object
+    description: "Optional additional metadata"
+    properties:
+      distillation_method:
+        type: string
+        enum:
+          - LLM
+          - RegexHeuristic
+      created_at:
+        type: string
+        format: date-time
+      notes:
+        type: string

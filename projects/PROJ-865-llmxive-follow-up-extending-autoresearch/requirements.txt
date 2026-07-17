@@ -1,0 +1,13 @@
+# Existing dependencies
+pandas
+numpy
+scikit-learn
+statsmodels
+pydantic
+datasets
+torch-cpu
+transformers
+psutil
+scipy
+# Additional for statistical modeling (already listed, but ensuring presence)
+# Note: statsmodels is required for mixed-effects models
