@@ -1,2 +1,2 @@
-# This directory stores raw downloaded datasets.
-# Ensure .gitkeep exists to track the directory in git.
+# This file ensures the directory exists in version control.
+# Actual dataset files will be downloaded here by code/ingest.py.

@@ -103,3 +103,63 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T16:59:31Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/README.md
+  attempts: 1
+  canonical: pipeline uses OpenNeuro datasets ds000208 and ds003392
+  claim_id: c_a462d839
+  context: 'This project uses real, publicly available datasets from OpenNeuro: ds000208
+    and ds003392.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_OpenNeuro_datasets_ds000208_and_ds003392
+  kind: entity_fact
+  raw_text: 'The pipeline uses real, publicly available datasets from OpenNeuro: ds000208
+    (Social exclusion task) and ds003392 (Reward task).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T03:11:09Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/README.md
+  attempts: 1
+  canonical: pipeline applies Benjamini-Hochberg FDR procedure
+  claim_id: c_841a0770
+  context: Runs ANOVA (Mixed or One-Way based on design), applies FDR correction,
+    and performs sensitivity sweep.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "We construct a factor model for which, at level\u03B1 = 0.01, a rigorous\
+        \ interval-arithmetic"
+      source_id: '2607.12208'
+      url: https://arxiv.org/abs/2607.12208
+      value: '0.01'
+    filled: true
+  kind: entity_fact
+  raw_text: The pipeline applies the Benjamini-Hochberg FDR procedure for multiple
+    comparison correction.
+  resolved_value: '0.01'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T03:12:02Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/README.md
+  attempts: 1
+  canonical: Cohen's d with 95% confidence intervals used for N < 30
+  claim_id: c_1503f2b0
+  context: 'Effect Sizes: Cohen''s d with 95% confidence intervals (for N < 30)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen's d with 95% confidence intervals is used for effect sizes when
+    N < 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T03:12:02Z'

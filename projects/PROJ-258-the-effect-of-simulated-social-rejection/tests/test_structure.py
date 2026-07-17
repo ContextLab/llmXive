@@ -1,107 +1,82 @@
 import os
-import tempfile
 import pytest
 from pathlib import Path
 
-# Import the function to test
-# We assume create_structure.py is in the code/ directory relative to the project root
-# For testing, we will dynamically import or mock the path logic
-import sys
-import importlib.util
-
-def load_module_from_path(name, path):
-    spec = importlib.util.spec_from_file_location(name, path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    spec.loader.exec_module(module)
-    return module
-
 @pytest.fixture
 def project_root(tmp_path):
-    """Create a temporary project root for testing."""
+    """Create a temporary project root for testing structure creation."""
     return tmp_path
 
-def test_directory_creation(project_root):
+def test_required_directories_exist(project_root):
     """
-    Test that the create_structure script creates the required directories.
+    Test that the required project structure directories exist after creation.
+    
+    This test verifies that T001 (Create project structure) has been implemented
+    correctly by checking for the existence of:
+    - code/
+    - data/raw/
+    - data/interim/
+    - data/processed/
+    - tests/
     """
-    # Create the code directory manually to simulate existing structure
-    # or let the script create it.
-    
-    # We need to mock the base_dir detection in create_structure.py
-    # Since create_structure.py looks for the parent of code/, we simulate that structure.
-    
-    # Create a fake 'code' dir in tmp_path to make the script think it's in the right place
-    code_dir = project_root / "code"
-    code_dir.mkdir()
-    
-    # Create a dummy __init__.py so it looks like a real code dir
-    (code_dir / "__init__.py").touch()
-    
-    # Now import and run the logic, but we need to patch the base_dir calculation
-    # to point to project_root instead of the actual location of the file.
-    
-    script_path = os.path.join(os.path.dirname(__file__), "..", "code", "create_structure.py")
-    # Normalize path
-    script_path = os.path.normpath(script_path)
-    
-    if not os.path.exists(script_path):
-        # Fallback: construct path relative to current test file
-        script_path = os.path.join(os.getcwd(), "code", "create_structure.py")
-    
-    # If running in a real env, the file should exist.
-    # For this test, we will simulate the logic directly to avoid import path issues.
-    
+    # Define the required directories relative to project root
     required_dirs = [
         "code",
         "data/raw",
         "data/interim",
         "data/processed",
-        "tests"
+        "tests",
+        "reports",
+        "docs"
     ]
     
-    # Simulate the creation logic
-    for d in required_dirs:
-        full_path = project_root / d
-        if not full_path.exists():
-            full_path.mkdir(parents=True)
-    
-    # Assertions
-    for d in required_dirs:
-        assert (project_root / d).exists(), f"Directory {d} was not created"
-    
-    # Verify specific subdirectories
-    assert (project_root / "data" / "raw").is_dir()
-    assert (project_root / "data" / "interim").is_dir()
-    assert (project_root / "data" / "processed").is_dir()
-    assert (project_root / "tests").is_dir()
+    for dir_name in required_dirs:
+        dir_path = project_root / dir_name
+        assert dir_path.exists(), f"Directory '{dir_name}' should exist"
+        assert dir_path.is_dir(), f"'{dir_name}' should be a directory"
 
-def test_no_duplicates_on_re_run(project_root):
+def test_data_subdirectories_structure(project_root):
     """
-    Test that running the structure creation again doesn't fail or error.
+    Test that data subdirectories are properly nested.
     """
+    data_dirs = ["raw", "interim", "processed"]
+    
+    for subdir in data_dirs:
+        dir_path = project_root / "data" / subdir
+        assert dir_path.exists(), f"Directory 'data/{subdir}' should exist"
+
+def test_create_structure_script_executes(project_root, monkeypatch):
+    """
+    Test that the create_structure.py script can be executed and creates directories.
+    """
+    # Change to the temporary project root
+    monkeypatch.chdir(project_root)
+    
+    # Import and run the main function from create_structure
+    import sys
+    sys.path.insert(0, str(project_root))
+    
+    # We need to simulate the script being run from the 'code' directory context
+    # but the directories should be created relative to the project root
+    from create_structure import main
+    
+    # Run the script
+    exit_code = main()
+    
+    # Verify the script exited successfully
+    assert exit_code == 0, "create_structure.py should exit with code 0"
+    
+    # Verify directories were created
     required_dirs = [
         "code",
         "data/raw",
         "data/interim",
         "data/processed",
-        "tests"
+        "tests",
+        "reports",
+        "docs"
     ]
     
-    # First run
-    for d in required_dirs:
-        full_path = project_root / d
-        full_path.mkdir(parents=True, exist_ok=True)
-    
-    # Second run (simulating the script running again)
-    # The script uses os.makedirs which is safe if exist_ok=True or if we check first
-    # Our implementation checks os.path.exists first, so it should be safe.
-    for d in required_dirs:
-        full_path = project_root / d
-        if not full_path.exists():
-            full_path.mkdir(parents=True)
-        # If it exists, it just prints "already exists" and continues
-    
-    # Verify all still exist
-    for d in required_dirs:
-        assert (project_root / d).exists()
+    for dir_name in required_dirs:
+        dir_path = project_root / dir_name
+        assert dir_path.exists(), f"Directory '{dir_name}' should exist after script execution"

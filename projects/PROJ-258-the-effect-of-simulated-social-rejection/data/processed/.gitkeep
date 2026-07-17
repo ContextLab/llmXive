@@ -1,2 +1,2 @@
-# This directory stores final processed results.
-# Ensure .gitkeep exists to track the directory in git.
+# This file ensures the directory exists in version control.
+# Final processed datasets and metadata will be stored here.

@@ -4,147 +4,152 @@ from typing import Optional, Tuple, List
 import logging
 import json
 import os
-from config import get_path
-from data_model import DesignType
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Basic cleaning: remove rows with missing critical columns.
-    """
-    critical_cols = ['ParticipantID', 'Condition', 'Reaction Time', 'Mood']
-    available_cols = [c for c in critical_cols if c in df.columns]
-    if not available_cols:
-        raise ValueError("DataFrame missing critical columns for cleaning.")
+    Clean the data by removing rows with missing critical values.
     
-    # Drop rows where any critical column is NaN
-    df_clean = df.dropna(subset=available_cols)
-    logger.info(f"Cleaned data: {len(df)} -> {len(df_clean)} rows")
-    return df_clean
+    Args:
+        df: Input dataframe
+        
+    Returns:
+        Cleaned dataframe
+    """
+    # Remove rows with missing critical columns
+    critical_columns = ['Condition', 'Reaction Time', 'Mood']
+    df = df.dropna(subset=critical_columns)
+    
+    # Remove rows with negative reaction times
+    df = df[df['Reaction Time'] >= 0]
+    
+    return df.reset_index(drop=True)
 
 def normalize_rt(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Normalize reaction times (log transform to handle skew).
-    """
-    if 'Reaction Time' not in df.columns:
-        logger.warning("Reaction Time column missing; skipping normalization.")
-        return df
+    Normalize reaction times within each condition.
     
-    # Add small epsilon to avoid log(0)
-    epsilon = 1e-6
-    df['Reaction_Time_Log'] = np.log(df['Reaction Time'] + epsilon)
-    logger.info("Normalized Reaction Time (log transform).")
+    Args:
+        df: Input dataframe
+        
+    Returns:
+        DataFrame with normalized reaction times
+    """
+    df = df.copy()
+    
+    def z_score_normalize(group):
+        rt = group['Reaction Time']
+        mean_rt = rt.mean()
+        std_rt = rt.std()
+        if std_rt > 0:
+            group['RT_normalized'] = (rt - mean_rt) / std_rt
+        else:
+            group['RT_normalized'] = 0
+        return group
+    
+    df = df.groupby('Condition', group_keys=False).apply(z_score_normalize)
     return df
 
-def detect_outliers_iqr(df: pd.DataFrame, group_col: str = 'Condition') -> pd.DataFrame:
+def detect_outliers_iqr(df: pd.DataFrame, group_col: str = 'Condition', multiplier: float = 1.5) -> pd.DataFrame:
     """
-    Flag/cap outliers using IQR per Condition group.
-    Adds a boolean column 'is_outlier'.
+    Detect outliers using the IQR method per condition group.
+    
+    Args:
+        df: Input dataframe
+        group_col: Column to group by
+        multiplier: IQR multiplier for outlier detection
+        
+    Returns:
+        DataFrame with outlier flags
     """
-    if group_col not in df.columns or 'Reaction Time' not in df.columns:
-        logger.warning("Cannot detect outliers: missing group or RT column.")
-        df['is_outlier'] = False
-        return df
-
     df = df.copy()
     df['is_outlier'] = False
-
-    groups = df[group_col].unique()
-    for group in groups:
-        mask = df[group_col] == group
-        group_data = df.loc[mask, 'Reaction Time']
-        if len(group_data) < 2:
-            continue
-        
-        q1 = group_data.quantile(0.25)
-        q3 = group_data.quantile(0.75)
+    
+    def flag_outliers(group):
+        rt = group['Reaction Time']
+        q1 = rt.quantile(0.25)
+        q3 = rt.quantile(0.75)
         iqr = q3 - q1
-        lower_bound = q1 - 1.5 * iqr
-        upper_bound = q3 + 1.5 * iqr
-
-        outlier_mask = (df.loc[mask, 'Reaction Time'] < lower_bound) | \
-                       (df.loc[mask, 'Reaction Time'] > upper_bound)
-        df.loc[mask, 'is_outlier'] = outlier_mask
-
-    outlier_count = df['is_outlier'].sum()
-    logger.info(f"Detected {outlier_count} outliers using IQR method.")
+        lower_bound = q1 - multiplier * iqr
+        upper_bound = q3 + multiplier * iqr
+        
+        group['is_outlier'] = (rt < lower_bound) | (rt > upper_bound)
+        return group
+    
+    df = df.groupby(group_col, group_keys=False).apply(flag_outliers)
     return df
 
 def extract_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute mean_rt and avg_mood per participant/condition.
-    Returns a dataframe with one row per (ParticipantID, Condition).
-    """
-    if 'ParticipantID' not in df.columns or 'Condition' not in df.columns:
-        raise ValueError("Missing ParticipantID or Condition for feature extraction.")
-
-    agg_dict = {}
-    if 'Reaction Time' in df.columns:
-        agg_dict['Reaction Time'] = 'mean'
-    if 'Mood' in df.columns:
-        agg_dict['Mood'] = 'mean'
+    Extract summary features per participant/condition.
     
-    if not agg_dict:
-        logger.warning("No aggregatable columns found for feature extraction.")
-        return df
-
-    # Rename for clarity in output
-    feature_df = df.groupby(['ParticipantID', 'Condition']).agg(agg_dict).reset_index()
-    
-    if 'Reaction Time' in feature_df.columns:
-        feature_df = feature_df.rename(columns={'Reaction Time': 'mean_rt'})
-    if 'Mood' in feature_df.columns:
-        feature_df = feature_df.rename(columns={'Mood': 'avg_mood'})
+    Args:
+        df: Input dataframe
         
-    logger.info(f"Extracted features: {len(feature_df)} participant-condition records.")
-    return feature_df
-
-def save_preprocessed_data(df: pd.DataFrame, design_type: str) -> str:
+    Returns:
+        DataFrame with extracted features
     """
-    Save intermediate data to data/interim/preprocessed_data.csv with design_type tag.
-    """
-    output_dir = get_path('interim')
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Ensure design_type is in the dataframe
-    if 'design_type' not in df.columns:
-        df['design_type'] = design_type
-    
-    output_path = os.path.join(output_dir, 'preprocessed_data.csv')
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved preprocessed data to {output_path} with design_type={design_type}")
-    return output_path
-
-def run_preprocessing(design_type: str, input_path: Optional[str] = None, output_path: Optional[str] = None) -> str:
-    """
-    Main entry point for preprocessing pipeline.
-    Loads data, cleans, normalizes, detects outliers, extracts features, and saves.
-    """
-    if input_path is None:
-        input_path = get_path('processed', 'preprocessed_input.csv') # Assumed output of ingest or previous step
-        if not os.path.exists(input_path):
-            # Fallback to raw if processed doesn't exist (for testing flow)
-            input_path = get_path('raw', 'dataset.csv')
-    
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input data file not found: {input_path}")
-
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
-
-    logger.info("Starting preprocessing pipeline...")
-    df = clean_data(df)
-    df = normalize_rt(df)
-    df = detect_outliers_iqr(df)
-    df = extract_features(df)
-
-    if output_path is None:
-        output_path = save_preprocessed_data(df, design_type)
+    if 'Participant ID' not in df.columns:
+        # If no participant ID, group by condition only
+        features = df.groupby('Condition').agg({
+            'Reaction Time': 'mean',
+            'Mood': 'mean'
+        }).reset_index()
+        features.columns = ['Condition', 'mean_rt', 'avg_mood']
     else:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        df.to_csv(output_path, index=False)
-        logger.info(f"Saved preprocessed data to {output_path}")
+        features = df.groupby(['Participant ID', 'Condition']).agg({
+            'Reaction Time': 'mean',
+            'Mood': 'mean'
+        }).reset_index()
+        features.columns = ['Participant ID', 'Condition', 'mean_rt', 'avg_mood']
+    
+    return features
 
-    return output_path
+def save_preprocessed_data(df: pd.DataFrame, output_path: str, design_type: str):
+    """Save preprocessed data to a CSV file."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df.to_csv(output_path, index=False)
+    
+    # Save design type metadata
+    metadata = {
+        'design_type': design_type,
+        'n_rows': len(df),
+        'n_columns': len(df.columns)
+    }
+    
+    metadata_path = output_path.replace('.csv', '_metadata.json')
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+
+def run_preprocessing(input_path: str, output_path: str, design_type: str):
+    """Run the full preprocessing pipeline."""
+    logging.info(f"Loading data from {input_path}")
+    df = pd.read_csv(input_path)
+    
+    logging.info("Cleaning data")
+    df = clean_data(df)
+    
+    logging.info("Normalizing reaction times")
+    df = normalize_rt(df)
+    
+    logging.info("Detecting outliers")
+    df = detect_outliers_iqr(df)
+    
+    logging.info("Extracting features")
+    features = extract_features(df)
+    
+    logging.info(f"Saving preprocessed data to {output_path}")
+    save_preprocessed_data(features, output_path, design_type)
+    
+    return features
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) < 4:
+        print("Usage: python preprocess.py <input_path> <output_path> <design_type>")
+        sys.exit(1)
+    
+    input_path = sys.argv[1]
+    output_path = sys.argv[2]
+    design_type = sys.argv[3]
+    
+    run_preprocessing(input_path, output_path, design_type)

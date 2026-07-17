@@ -1,41 +1,58 @@
 import os
 import sys
+from pathlib import Path
 
 def main():
     """
-    Creates the project directory structure per the implementation plan.
+    Creates the project directory structure for PROJ-258.
     
-    Required directories:
+    Directories created:
     - code/
     - data/raw/
     - data/interim/
     - data/processed/
     - tests/
-    
-    This script ensures all necessary folders exist to support the pipeline.
+    - reports/
+    - docs/
+    - .github/workflows/
     """
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Define the project root (parent of this script's location or current dir)
+    # We assume this script is run from the project root or code/
+    project_root = Path.cwd()
     
-    # Define relative paths to create
+    # Define required directories relative to project root
     directories = [
         "code",
         "data/raw",
         "data/interim",
         "data/processed",
-        "tests"
+        "tests",
+        "reports",
+        "docs",
+        ".github/workflows",
+        "specs"
     ]
     
     created_count = 0
-    for rel_path in directories:
-        full_path = os.path.join(base_dir, rel_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            print(f"Created directory: {full_path}")
+    for dir_name in directories:
+        dir_path = project_root / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {full_path}")
+            print(f"Directory already exists: {dir_path}")
     
-    print(f"Project structure setup complete. {created_count} new directories created.")
+    # Create .gitkeep files in data directories to ensure they are tracked
+    data_dirs = ["data/raw", "data/interim", "data/processed"]
+    for dir_name in data_dirs:
+        dir_path = project_root / dir_name
+        gitkeep_path = dir_path / ".gitkeep"
+        if not gitkeep_path.exists():
+            gitkeep_path.touch()
+            print(f"Created .gitkeep in: {dir_path}")
+    
+    print(f"\nProject structure initialization complete. Created {created_count} new directories.")
     return 0
 
 if __name__ == "__main__":

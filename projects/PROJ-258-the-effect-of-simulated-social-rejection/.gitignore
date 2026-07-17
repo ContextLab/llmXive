@@ -21,10 +21,9 @@ wheels/
 *.egg
 
 # Virtual environments
-venv/
-.venv/
-ENV/
 env/
+venv/
+ENV/
 
 # IDE
 .idea/
@@ -32,19 +31,18 @@ env/
 *.swp
 *.swo
 
-# Data
-data/raw/*.csv
-data/raw/*.zip
-data/raw/*.tar.gz
-!data/raw/checksums.json
+# Data files (raw and large processed files)
+data/raw/*.nii
+data/raw/*.json
+data/raw/*.tsv
+data/interim/*.csv
+data/processed/*.csv
+data/processed/*.json
 
-# Reports
+# Reports and logs
 reports/*.md
-!reports/final_report.md
-
-# Logs
+reports/*.pdf
 *.log
-logs/
 
 # OS
 .DS_Store

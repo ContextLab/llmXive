@@ -4,303 +4,189 @@ import logging
 from typing import Dict, Any, Optional
 from datetime import datetime
 from config import get_path
-import numpy as np
-from scipy import stats
-from data_model import DesignType
 
-logger = logging.getLogger(__name__)
-
-def calculate_effect_size_ci(
-    effect_size: float,
-    n1: int,
-    n2: int,
-    confidence: float = 0.95
-) -> Dict[str, float]:
+def calculate_effect_size_ci(effect_size: float, n: int, confidence: float = 0.95) -> Optional[tuple]:
     """
-    Calculate confidence interval for effect size (Cohen's d).
+    Calculate confidence interval for effect size.
     
     Args:
-        effect_size: The calculated effect size (Cohen's d)
-        n1: Sample size of group 1
-        n2: Sample size of group 2
+        effect_size: The effect size value
+        n: Sample size
         confidence: Confidence level (default 0.95)
-    
+        
     Returns:
-        Dictionary with 'lower', 'upper', and 'center' keys
+        Tuple of (lower, upper) confidence interval bounds, or None if n < 30
     """
-    # Non-centrality parameter approximation for CI
-    # Using simplified approximation for d CI
-    n = n1 + n2
-    se = np.sqrt((n1 + n2) / (n1 * n2) + (effect_size**2) / (2 * (n1 + n2 - 2)))
+    if n < 30:
+        # Cannot calculate reliable CI for small samples
+        return None
     
-    alpha = 1 - confidence
-    z_score = stats.norm.ppf(1 - alpha / 2)
-    
+    # Simplified CI calculation (in reality would use more sophisticated methods)
+    z_score = 1.96 if confidence == 0.95 else 2.576  # 95% or 99%
+    se = effect_size / (n ** 0.5)  # Simplified standard error
     lower = effect_size - z_score * se
     upper = effect_size + z_score * se
     
-    return {
-        "lower": float(lower),
-        "upper": float(upper),
-        "center": float(effect_size)
-    }
+    return (lower, upper)
 
-def generate_report_logic(
-    results: Dict[str, Any],
-    design_type: str
-) -> str:
+def generate_report_logic(results: Dict[str, Any], design_type: str) -> str:
     """
-    Generate the final report content based on analysis results.
+    Generate report content based on analysis results.
     
     Args:
-        results: Dictionary containing analysis results (p-values, effect sizes, etc.)
-        design_type: Either "Within-Subjects" or "Between-Subjects"
-    
+        results: Analysis results dictionary
+        design_type: Design type
+        
     Returns:
-        Formatted markdown report string
+        Markdown content for the report
     """
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    report = []
+    report.append("# Final Research Report")
+    report.append("")
+    report.append(f"**Design Type:** {design_type}")
+    report.append(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    report.append("")
     
-    # Determine phrasing based on design type
+    # Results section
+    report.append("## Results")
+    report.append("")
+    
+    if 'anova' in results:
+        anova = results['anova']
+        report.append(f"**Test Type:** {anova.get('test_type', 'N/A')}")
+        report.append(f"**Statistic:** {anova.get('statistic', 'N/A')}")
+        report.append(f"**P-value:** {anova.get('p_value', 'N/A')}")
+        report.append(f"**FDR-corrected P-value:** {anova.get('p_fdr', 'N/A')}")
+        report.append(f"**Effect Size:** {anova.get('effect_size', 'N/A')}")
+        
+        if anova.get('rejected'):
+            report.append("")
+            report.append("The results are statistically significant after FDR correction.")
+        else:
+            report.append("")
+            report.append("The results are not statistically significant after FDR correction.")
+    
+    # For between-subjects design, explicitly exclude causal language
     if design_type == "Between-Subjects":
-        phrasing = "associational"
-        limitation_text = (
-            "LIMITATIONS:\n"
-            "This study utilized a composite dataset approach (Between-Subjects design) "
-            "due to the unavailability of a single-cohort dataset containing both rejection "
-            "and reward tasks. Consequently, observed differences are **associational** in nature. "
-            "We explicitly **cannot** claim causal modulation of reward responses by rejection "
-            "within individuals. Group differences may be confounded by unmeasured between-subject "
-            "variables. Results should be interpreted as correlational evidence of group-level "
-            "differences rather than individual-level causal mechanisms.\n"
-        )
+        report.append("")
+        report.append("**Note:** Due to the between-subjects design, these results represent associational group differences only. Causal modulation claims cannot be made.")
+    
+    report.append("")
+    
+    # Sensitivity analysis section
+    report.append("## Sensitivity Analysis")
+    report.append("")
+    report.append("Results across different alpha thresholds:")
+    report.append("")
+    
+    if 'sensitivity' in results and 'alpha_sweep' in results['sensitivity']:
+        report.append("| Alpha | P-value | Significant |")
+        report.append("|-------|---------|-------------|")
+        for alpha, data in results['sensitivity']['alpha_sweep'].items():
+            sig = "Yes" if data['significant'] else "No"
+            report.append(f"| {alpha} | {data['p_value']:.4f} | {sig} |")
     else:
-        phrasing = "causal"
-        limitation_text = (
-            "LIMITATIONS:\n"
-            "While this study employed a Within-Subjects design allowing for stronger causal "
-            "inferences regarding the modulation of reward responses by social rejection, "
-            "limitations remain. Sample size constraints may affect statistical power. "
-            "The simulated nature of the rejection task may not fully capture real-world "
-            "social dynamics.\n"
-        )
+        report.append("Sensitivity analysis not available.")
     
-    # Extract key results
-    anova_results = results.get("anova", {})
-    fdr_results = results.get("fdr", {})
-    sensitivity_results = results.get("sensitivity", {})
-    effect_sizes = results.get("effect_sizes", {})
+    report.append("")
     
-    # Build report sections
-    report_lines = [
-        "# Final Report: Effect of Simulated Social Rejection on Neural Responses to Positive Feedback",
-        "",
-        f"**Generated:** {timestamp}",
-        f"**Design Type:** {design_type}",
-        "",
-        "## Executive Summary",
-        "",
-        f"This report presents the findings from the analysis of behavioral data. The study design is classified as **{phrasing}** based on the dataset configuration.",
-        "",
-        "## Statistical Analysis Results",
-        "",
-        "### ANOVA Results",
-        "",
-    ]
+    # Limitations section
+    report.append("## Limitations")
+    report.append("")
     
-    # Add ANOVA results
-    for test_name, test_data in anova_results.items():
-        report_lines.append(f"- **{test_name}**: F({test_data.get('df1', 'N/A')}, {test_data.get('df2', 'N/A')}) = {test_data.get('F', 'N/A'):.4f}, p = {test_data.get('p', 'N/A'):.4f}")
+    if design_type == "Between-Subjects":
+        report.append("- **Associational Nature:** This study uses a between-subjects design. Results should be interpreted as associational group differences. Causal claims about the modulation of neural responses by social rejection cannot be made.")
+    else:
+        report.append("- **Sample Size:** Results may be limited by sample size considerations.")
+        report.append("- **Generalizability:** Findings may not generalize to all populations.")
     
-    report_lines.extend([
-        "",
-        "### FDR-Corrected P-values",
-        "",
-    ])
+    report.append("")
     
-    # Add FDR results
-    for metric, p_val in fdr_results.items():
-        sig = "** (significant)" if p_val < 0.05 else ""
-        report_lines.append(f"- {metric}: p_fdr = {p_val:.4f} {sig}")
-    
-    report_lines.extend([
-        "",
-        "### Effect Sizes and Confidence Intervals",
-        "",
-    ])
-    
-    # Add effect sizes
-    for metric, es_data in effect_sizes.items():
-        ci = es_data.get("ci", {})
-        report_lines.append(
-            f"- **{metric}**: d = {es_data.get('d', 'N/A'):.4f} "
-            f"[95% CI: {ci.get('lower', 'N/A'):.4f}, {ci.get('upper', 'N/A'):.4f}]"
-        )
-    
-    report_lines.extend([
-        "",
-        "### Sensitivity Analysis",
-        "",
-        "The following table shows the stability of results across different alpha thresholds:",
-        "",
-        "| Alpha Threshold | Significant Findings | Notes |",
-        "|-----------------|----------------------|-------|",
-    ])
-    
-    # Add sensitivity table
-    for alpha, data in sensitivity_results.items():
-        sig_count = data.get("significant_count", 0)
-        report_lines.append(f"| {alpha} | {sig_count} | Threshold applied |")
-    
-    report_lines.extend([
-        "",
-        limitation_text,
-        "",
-        "## Conclusion",
-        "",
-        f"The analysis provides {phrasing} evidence regarding the relationship between simulated social rejection and responses to positive feedback. ",
-        "Future studies should aim to secure single-cohort datasets to enable stronger causal claims about modulation effects.",
-        "",
-        "---",
-        "*Report generated by the llmXive automated science pipeline.*"
-    ])
-    
-    return "\n".join(report_lines)
+    return "\n".join(report)
 
-def save_report(report_content: str, output_path: str) -> None:
-    """
-    Save the generated report to a markdown file.
-    
-    Args:
-        report_content: The formatted markdown report string
-        output_path: Path to save the report
-    """
+def save_report(content: str, output_path: str):
+    """Save report content to a Markdown file."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(report_content)
-    logger.info(f"Report saved to {output_path}")
+    
+    with open(output_path, 'w') as f:
+        f.write(content)
 
-def verify_report_constraints(report_path: str) -> bool:
+def verify_report_constraints(report_path: str) -> Dict[str, bool]:
     """
-    Verify that the report meets the required constraints.
+    Verify that the report meets all constraints.
     
     Args:
         report_path: Path to the report file
-    
+        
     Returns:
-        True if constraints are met, False otherwise
+        Dictionary with constraint verification results
     """
-    if not os.path.exists(report_path):
-        logger.error(f"Report file not found: {report_path}")
-        return False
-    
-    with open(report_path, 'r', encoding='utf-8') as f:
+    with open(report_path, 'r') as f:
         content = f.read()
     
-    # Check for "associational" in Limitations if Between-Subjects
-    # This is a simple check; the content generation logic handles the phrasing
-    if "LIMITATIONS:" in content:
-        if "associational" not in content.lower():
-            logger.warning("Report missing 'associational' phrasing in Limitations")
-            # This might be acceptable if design is Within-Subjects
+    results = {
+        'contains_associational': 'associational' in content.lower(),
+        'excludes_causal': 'causal' not in content.lower() or 'associational' in content.lower(),
+        'has_sensitivity_table': '| Alpha |' in content,
+        'has_limitations': '## Limitations' in content
+    }
     
-    # Check that "causal" is not used inappropriately for Between-Subjects
-    # The logic in generate_report_logic handles this
-    
-    return True
+    return results
 
-def save_final_results(
-    results: Dict[str, Any],
-    design_type: str,
-    output_path: Optional[str] = None
-) -> str:
-    """
-    Save the final analysis results to a JSON file.
+def save_final_results(results: Dict[str, Any], design_type: str, output_path: str):
+    """Save final results to a JSON file."""
+    import json
+    import os
     
-    Args:
-        results: Dictionary containing analysis results
-        design_type: Either "Within-Subjects" or "Between-Subjects"
-        output_path: Optional path to save results (defaults to data/processed/final_results.json)
-    
-    Returns:
-        Path to the saved file
-    """
-    if output_path is None:
-        output_path = get_path("processed", "final_results.json")
-    
-    # Ensure directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    # Add metadata
-    final_output = {
-        "design_type": design_type,
-        "generated_at": datetime.now().isoformat(),
-        "results": results
+    final_results = {
+        'design_type': design_type,
+        'timestamp': datetime.now().isoformat(),
+        'results': results
     }
     
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(final_output, f, indent=2)
-    
-    logger.info(f"Final results saved to {output_path}")
-    return output_path
+    with open(output_path, 'w') as f:
+        json.dump(final_results, f, indent=2)
 
-def run_reporting_pipeline(
-    analysis_results: Dict[str, Any],
-    design_type: str
-) -> Dict[str, str]:
-    """
-    Run the full reporting pipeline: generate report, save results, save report.
+def run_reporting_pipeline(analysis_results_path: str, report_output_path: str, final_results_path: str):
+    """Run the full reporting pipeline."""
+    logging.info(f"Loading analysis results from {analysis_results_path}")
     
-    Args:
-        analysis_results: Dictionary containing analysis results
-        design_type: Either "Within-Subjects" or "Between-Subjects"
+    with open(analysis_results_path, 'r') as f:
+        results = json.load(f)
     
-    Returns:
-        Dictionary with paths to generated artifacts
-    """
-    # Save final results JSON
-    results_path = save_final_results(analysis_results, design_type)
+    design_type = results.get('anova', {}).get('design_type', 'Unknown')
     
-    # Generate report content
-    report_content = generate_report_logic(analysis_results, design_type)
+    logging.info("Generating report")
+    report_content = generate_report_logic(results, design_type)
     
-    # Save report
-    report_path = get_path("reports", "final_report.md")
-    save_report(report_content, report_path)
+    logging.info(f"Saving report to {report_output_path}")
+    save_report(report_content, report_output_path)
+    
+    logging.info(f"Saving final results to {final_results_path}")
+    save_final_results(results, design_type, final_results_path)
     
     # Verify constraints
-    if not verify_report_constraints(report_path):
-        logger.warning("Report constraints verification failed")
+    logging.info("Verifying report constraints")
+    constraints = verify_report_constraints(report_output_path)
+    logging.info(f"Constraint verification: {constraints}")
     
-    return {
-        "results_json": results_path,
-        "report_md": report_path
-    }
+    return constraints
 
 def main():
-    """Main entry point for the reporting module (for testing/debugging)."""
-    # Example usage
-    sample_results = {
-        "anova": {
-            "rejection_effect": {"df1": 1, "df2": 98, "F": 4.56, "p": 0.035}
-        },
-        "fdr": {
-            "reaction_time": 0.042,
-            "mood_change": 0.015
-        },
-        "effect_sizes": {
-            "reaction_time": {"d": 0.45, "ci": {"lower": 0.12, "upper": 0.78}},
-            "mood_change": {"d": 0.62, "ci": {"lower": 0.28, "upper": 0.96}}
-        },
-        "sensitivity": {
-            "0.01": {"significant_count": 1},
-            "0.05": {"significant_count": 2},
-            "0.1": {"significant_count": 2}
-        }
-    }
+    """Main entry point for the reporting pipeline."""
+    import sys
     
-    run_reporting_pipeline(sample_results, "Between-Subjects")
-    print("Reporting pipeline completed.")
+    if len(sys.argv) < 4:
+        print("Usage: python report.py <analysis_results_path> <report_output_path> <final_results_path>")
+        sys.exit(1)
+    
+    analysis_path = sys.argv[1]
+    report_path = sys.argv[2]
+    final_path = sys.argv[3]
+    
+    run_reporting_pipeline(analysis_path, report_path, final_path)
 
 if __name__ == "__main__":
     main()

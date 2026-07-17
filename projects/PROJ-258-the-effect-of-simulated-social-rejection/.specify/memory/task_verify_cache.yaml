@@ -26,11 +26,3 @@ T036:
     is no evidence (e.g., diff, commit log, cleaned scripts) showing that any cleanup
     or refactoring was performed. Without tangible files or changes, the requirement
     cannot be confirmed as satisfied.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, benchmark results, or documentation were provided showing that the\
-    \ analysis pipeline has been optimized to run in \u2264\u202F6\u202Fhours for\
-    \ datasets with N\u202F\u2264\u202F500. The only artifacts described are the high\u2011\
-    level user stories; there is no implementation or performance evidence to verify\
-    \ the claimed optimization."
