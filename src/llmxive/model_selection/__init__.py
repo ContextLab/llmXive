@@ -9,13 +9,28 @@ Strict separation of concerns:
 This package is the SINGLE source of truth for "which model does this call use"
 (Constitution I). See ``specs/026-model-selection-consolidation/spec.md``.
 
-Slice 1 (this commit) provides the typed contracts + ``runtime_snapshot``.
-Later slices add the pure selector, the execution adapter + credit reservation
-ledger, the independence contract, and the call-site migrations.
+Slice 1 provides the typed contracts + ``runtime_snapshot``. Slice 2 (this
+commit) adds the pure ``select`` selector, the versioned ``CapabilityPolicy``,
+and the named requirement ``profiles``. Later slices add the execution adapter +
+credit reservation ledger, the full independence integration, and the call-site
+migrations.
 """
 
 from __future__ import annotations
 
+from llmxive.model_selection.policy import (
+    CAPABILITY_POLICY,
+    SELECTION_POLICY_VERSION,
+    CapabilityPolicy,
+    PolicyEntry,
+)
+from llmxive.model_selection.profiles import (
+    PROFILES,
+    RequirementProfile,
+    build_requirement,
+    profile,
+)
+from llmxive.model_selection.select import select
 from llmxive.model_selection.types import (
     CallBudget,
     Candidate,
@@ -31,8 +46,12 @@ from llmxive.model_selection.types import (
 )
 
 __all__ = [
+    "CAPABILITY_POLICY",
+    "PROFILES",
+    "SELECTION_POLICY_VERSION",
     "CallBudget",
     "Candidate",
+    "CapabilityPolicy",
     "CreditGuardSnapshot",
     "ExecutionOptions",
     "IndependenceBaseline",
@@ -40,9 +59,14 @@ __all__ = [
     "ModelRef",
     "ModelRequirement",
     "ModelUnavailable",
+    "PolicyEntry",
+    "RequirementProfile",
     "RuntimeSnapshot",
     "SnapshotProvenance",
+    "build_requirement",
+    "profile",
     "runtime_snapshot",
+    "select",
 ]
 
 
