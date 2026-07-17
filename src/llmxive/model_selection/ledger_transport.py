@@ -389,9 +389,18 @@ def _sync_and_verify(repo: Path, config: LedgerConfig) -> None:
             "(run `credits-ledger-bootstrap` once); failing closed"
         )
     _fetch_authoritative(repo, config.remote)
-    if config.expected_anchor is not None and not _is_ancestor(repo, config.expected_anchor, remote_oid):
+    # Verify the LOCAL tip AFTER the fetch — not the ls-remote OID captured before it
+    # (TOCTOU hardening): a force-rewrite between ls-remote and fetch could otherwise
+    # leave us operating on a tip we never verified. This checks the exact commit we
+    # will project/append onto.
+    local_tip = _rev(repo, LEDGER_REF)
+    if local_tip is None:
         raise LedgerAuthError(
-            f"remote {LEDGER_REF} tip {remote_oid} does not descend from the pinned anchor "
+            f"ledger ref {LEDGER_REF} vanished from {config.remote!r} mid-operation; failing closed"
+        )
+    if config.expected_anchor is not None and not _is_ancestor(repo, config.expected_anchor, local_tip):
+        raise LedgerAuthError(
+            f"remote {LEDGER_REF} tip {local_tip} does not descend from the pinned anchor "
             f"{config.expected_anchor} — wrong/divergent ledger; failing closed"
         )
 

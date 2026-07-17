@@ -323,8 +323,14 @@ def settle(
 
     def prepare(events: list[dict]) -> dict | None:
         cur = project(events).get(reservation_id)
-        if cur is None or cur.state in (STATE_SETTLING, STATE_RECONCILED):
-            return None  # nothing to settle / already settled — idempotent no-op
+        if cur is None:
+            # An UNKNOWN id is a caller/config bug (settling something never reserved,
+            # or the wrong ledger) — fail closed to surface it, matching this
+            # function's contract. Append-only means a real reservation never vanishes,
+            # so this is unreachable for a genuine open→settling transition.
+            raise LedgerError(f"settle: unknown reservation {reservation_id!r} (never opened / wrong ledger)")
+        if cur.state in (STATE_SETTLING, STATE_RECONCILED):
+            return None  # already settled — idempotent no-op
         if cur.state != STATE_OPEN:
             raise LedgerError(f"settle: reservation {reservation_id!r} in unexpected state {cur.state!r}")
         return {
