@@ -7,7 +7,8 @@
       "line": 22,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -16,7 +17,10 @@
       "line": 23,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -27,7 +31,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -36,7 +41,8 @@
       "line": 36,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -45,7 +51,10 @@
       "line": 37,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -56,7 +65,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -65,7 +75,8 @@
       "line": 54,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -74,7 +85,10 @@
       "line": 55,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -85,7 +99,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -94,7 +109,8 @@
       "line": 68,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -103,7 +119,10 @@
       "line": 69,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -114,7 +133,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -123,7 +143,8 @@
       "line": 82,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -132,7 +153,10 @@
       "line": 83,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -143,7 +167,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -152,7 +177,8 @@
       "line": 98,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -161,7 +187,10 @@
       "line": 99,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -172,7 +201,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -181,7 +211,8 @@
       "line": 112,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -190,7 +221,10 @@
       "line": 113,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -201,7 +235,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -210,7 +245,8 @@
       "line": 126,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -219,7 +255,10 @@
       "line": 127,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -230,7 +269,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -239,7 +279,8 @@
       "line": 141,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -248,7 +289,10 @@
       "line": 142,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -259,7 +303,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -268,7 +313,8 @@
       "line": 156,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -277,7 +323,10 @@
       "line": 157,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -288,7 +337,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -297,7 +347,8 @@
       "line": 170,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -306,7 +357,10 @@
       "line": 171,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -317,7 +371,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -326,7 +381,8 @@
       "line": 186,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -335,7 +391,10 @@
       "line": 187,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -346,7 +405,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -355,7 +415,8 @@
       "line": 203,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -364,7 +425,10 @@
       "line": 204,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -375,7 +439,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -384,7 +449,8 @@
       "line": 221,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -393,7 +459,10 @@
       "line": 222,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -404,7 +473,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -413,7 +483,8 @@
       "line": 240,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -422,7 +493,10 @@
       "line": 241,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -433,7 +507,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -442,7 +517,8 @@
       "line": 257,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -451,7 +527,10 @@
       "line": 258,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -462,7 +541,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -471,7 +551,8 @@
       "line": 272,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -480,7 +561,10 @@
       "line": 273,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -491,7 +575,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -500,7 +585,8 @@
       "line": 287,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -509,7 +595,10 @@
       "line": 288,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -520,7 +609,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -529,7 +619,8 @@
       "line": 302,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -538,7 +629,10 @@
       "line": 303,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -549,7 +643,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -558,7 +653,8 @@
       "line": 317,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -567,7 +663,10 @@
       "line": 318,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -578,7 +677,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -587,7 +687,8 @@
       "line": 331,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -596,7 +697,10 @@
       "line": 332,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -607,7 +711,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -616,7 +721,8 @@
       "line": 349,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -625,7 +731,10 @@
       "line": 350,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -636,7 +745,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -645,7 +755,8 @@
       "line": 367,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -654,7 +765,10 @@
       "line": 368,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -665,7 +779,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -674,7 +789,8 @@
       "line": 384,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -683,7 +799,10 @@
       "line": 385,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -694,7 +813,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -703,7 +823,8 @@
       "line": 399,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -712,7 +833,10 @@
       "line": 400,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -723,7 +847,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -732,7 +857,8 @@
       "line": 414,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -741,7 +867,10 @@
       "line": 415,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -752,7 +881,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -761,7 +891,8 @@
       "line": 428,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -770,7 +901,10 @@
       "line": 429,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -781,7 +915,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -790,7 +925,8 @@
       "line": 444,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -799,7 +935,10 @@
       "line": 445,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -810,7 +949,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -819,7 +959,8 @@
       "line": 459,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -828,7 +969,10 @@
       "line": 460,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -839,7 +983,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -848,7 +993,8 @@
       "line": 476,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -857,7 +1003,10 @@
       "line": 477,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -868,7 +1017,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -877,7 +1027,8 @@
       "line": 493,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -886,7 +1037,10 @@
       "line": 494,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -897,7 +1051,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -906,7 +1061,8 @@
       "line": 508,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -915,7 +1071,10 @@
       "line": 509,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -926,7 +1085,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -935,7 +1095,8 @@
       "line": 524,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -944,7 +1105,10 @@
       "line": 525,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -955,7 +1119,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -964,7 +1129,8 @@
       "line": 540,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -973,7 +1139,10 @@
       "line": 541,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -984,7 +1153,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -993,7 +1163,8 @@
       "line": 556,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1002,7 +1173,10 @@
       "line": 557,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1013,7 +1187,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1022,7 +1197,8 @@
       "line": 572,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1031,7 +1207,10 @@
       "line": 573,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1042,7 +1221,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1051,7 +1231,8 @@
       "line": 588,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1060,7 +1241,10 @@
       "line": 589,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1071,7 +1255,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1080,7 +1265,8 @@
       "line": 604,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1089,7 +1275,10 @@
       "line": 605,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1100,7 +1289,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1109,7 +1299,8 @@
       "line": 620,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1118,7 +1309,10 @@
       "line": 621,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1129,7 +1323,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1138,7 +1333,8 @@
       "line": 636,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1147,7 +1343,10 @@
       "line": 637,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1158,7 +1357,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1167,7 +1367,8 @@
       "line": 652,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1176,7 +1377,10 @@
       "line": 653,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1187,7 +1391,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1196,7 +1401,8 @@
       "line": 668,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1205,7 +1411,10 @@
       "line": 669,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1216,7 +1425,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1225,7 +1435,8 @@
       "line": 684,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1234,7 +1445,10 @@
       "line": 685,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1245,7 +1459,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1254,7 +1469,8 @@
       "line": 700,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1263,7 +1479,10 @@
       "line": 701,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1274,7 +1493,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1283,7 +1503,8 @@
       "line": 716,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1292,7 +1513,10 @@
       "line": 717,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1303,7 +1527,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1312,7 +1537,8 @@
       "line": 732,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1321,7 +1547,10 @@
       "line": 733,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1332,7 +1561,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1341,7 +1571,8 @@
       "line": 748,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1350,7 +1581,10 @@
       "line": 749,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1361,7 +1595,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1370,7 +1605,8 @@
       "line": 764,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1379,7 +1615,10 @@
       "line": 765,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1390,7 +1629,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1399,7 +1639,8 @@
       "line": 780,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1408,7 +1649,10 @@
       "line": 781,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1419,7 +1663,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1428,7 +1673,8 @@
       "line": 796,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1437,7 +1683,10 @@
       "line": 797,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1448,7 +1697,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1457,7 +1707,8 @@
       "line": 814,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1466,7 +1717,10 @@
       "line": 815,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1477,7 +1731,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1486,7 +1741,8 @@
       "line": 832,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1495,7 +1751,10 @@
       "line": 833,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1506,7 +1765,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1515,7 +1775,8 @@
       "line": 849,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1524,7 +1785,10 @@
       "line": 850,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": [
+        "local"
+      ]
     },
     {
       "category": "registry",
@@ -1535,7 +1799,8 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": 7,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "qwen.qwen3.5-122b"
     },
     {
       "category": "registry",
@@ -1544,7 +1809,8 @@
       "line": 864,
       "models": [],
       "owning_slice": 7,
-      "symbol": "default_backend"
+      "symbol": "default_backend",
+      "value": "dartmouth"
     },
     {
       "category": "registry",
@@ -1553,7 +1819,8 @@
       "line": 865,
       "models": [],
       "owning_slice": 7,
-      "symbol": "fallback_backends"
+      "symbol": "fallback_backends",
+      "value": []
     },
     {
       "category": "exempt",
@@ -1562,7 +1829,8 @@
       "line": 866,
       "models": [],
       "owning_slice": null,
-      "symbol": "default_model"
+      "symbol": "default_model",
+      "value": "deterministic-no-llm"
     },
     {
       "category": "migration_target",
@@ -5697,13 +5965,35 @@
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
+      "symbol": "test_scan_registry_extracts_agent_fields_with_lines"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 299,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
       "symbol": "models"
     },
     {
       "category": "test_double",
       "file": "tests/unit/test_model_selection_inventory.py",
       "kind": "model_id_literal",
-      "line": 385,
+      "line": 334,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "value"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 400,
       "models": [
         "qwen.qwen3.5-122b"
       ],

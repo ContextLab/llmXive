@@ -86,11 +86,19 @@ _FIELD_NAMES = frozenset({"default_model", "default_backend", "fallback_backends
 #: drops the schema entries and trips the frozen manifest test (a reviewed event).
 _SCHEMA_CLASSES = frozenset({"AgentRegistryEntry"})
 
-#: The sanctioned mechanism — pins here are the single source of truth, never a
-#: migration target (Constitution I). Slice 8 enforcement permits pins ONLY here.
-_CANONICAL_PREFIX = "src/llmxive/model_selection/"
+#: The sanctioned canonical policy/catalog layer — an EXPLICIT file allowlist,
+#: NOT the whole model_selection package (spec FR-014: literals are permitted only
+#: in the canonical policy/catalog layer). A stray model pin anywhere else in the
+#: package (execute.py, reservations.py, ...) must fall through to migration_target
+#: so slice-8 enforcement rejects it. Extend this set only for a genuinely
+#: canonical table, in a reviewed PR.
+_CANONICAL_FILES = frozenset({"src/llmxive/model_selection/policy.py"})
 _TESTS_PREFIX = "tests/"
 _REGISTRY_PATH = "agents/registry.yaml"
+#: The registry sentinel for scaffolding agents that make NO LLM call (spec 015 /
+#: test_config_consistency.NO_LLM). Exemption requires this EXACT literal — an
+#: empty/unknown default_model is a data error, not a silent exemption.
+_NO_LLM_SENTINEL = "deterministic-no-llm"
 #: Path → owning migration slice for production pins outside the canonical layer.
 #: Advisory (later slices confirm ownership); the *category* is the binding part.
 _ROUTER_PATH = "src/llmxive/backends/router.py"
@@ -106,13 +114,13 @@ def categorize(entry: dict) -> tuple[str, int | None]:
     a production pin/consumer to migrate). ``owning_slice`` is advisory.
     """
     rel = entry["file"]
-    if rel.startswith(_CANONICAL_PREFIX):
+    if rel in _CANONICAL_FILES:
         return ("canonical_layer", None)
     if rel.startswith(_TESTS_PREFIX):
         return ("test_double", None)
     if rel == _REGISTRY_PATH:
-        # A default_model that resolves to no model id is the no-llm sentinel.
-        if entry["symbol"] == "default_model" and not entry["models"]:
+        # Exempt ONLY the exact no-llm sentinel (not merely an unresolvable value).
+        if entry["symbol"] == "default_model" and entry.get("value") == _NO_LLM_SENTINEL:
             return ("exempt", None)
         return ("registry", 7)
     if entry["kind"] == "agentspec_field":
@@ -361,6 +369,17 @@ def _registry_field_models(value_node: yaml.Node) -> list[str]:
     return []
 
 
+def _registry_field_value(value_node: yaml.Node):
+    """The raw literal value of a registry field (a string, or a list for
+    ``fallback_backends``) — recorded so ``categorize`` can check the exact no-llm
+    sentinel rather than inferring exemption from empty models (review finding 7b)."""
+    if isinstance(value_node, yaml.ScalarNode):
+        return value_node.value
+    if isinstance(value_node, yaml.SequenceNode):
+        return [i.value for i in value_node.value if isinstance(i, yaml.ScalarNode)]
+    return None
+
+
 def scan_registry(path, rel: str) -> list[dict]:
     """Scan ``registry.yaml`` for every agent's model-selection fields.
 
@@ -388,6 +407,7 @@ def scan_registry(path, rel: str) -> list[dict]:
                         "kind": "registry_field",
                         "symbol": field_key.value,
                         "models": _registry_field_models(field_value),
+                        "value": _registry_field_value(field_value),
                     }
                 )
 

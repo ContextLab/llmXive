@@ -289,18 +289,31 @@ def test_scan_registry_extracts_agent_fields_with_lines(tmp_path):
     assert sorted(m for e in entries for m in e["models"]) == ["qwen.qwen3.5-122b"]
     dm = next(e for e in entries if e["symbol"] == "default_model" and e["models"])
     assert dm["line"] == 7
+    # The raw value is recorded so categorize() can verify the exact no-llm
+    # sentinel (review finding 7b) rather than inferring exemption from empty models.
+    assert dm["value"] == "qwen.qwen3.5-122b"
+    sentinel = next(e for e in entries if e["symbol"] == "default_model" and not e["models"])
+    assert sentinel["value"] == "deterministic-no-llm"
 
 
-def _cat(file, kind="model_id_literal", symbol="x", models=("qwen.qwen3.5-122b",)):
+def _cat(file, kind="model_id_literal", symbol="x", models=("qwen.qwen3.5-122b",), value=None):
     return categorize(
-        {"file": file, "kind": kind, "symbol": symbol, "models": list(models)}
+        {
+            "file": file, "kind": kind, "symbol": symbol,
+            "models": list(models), "value": value,
+        }
     )
 
 
 def test_categorize_maps_paths_to_categories():
-    """The canonical layer is sanctioned; router/execution_status/other prod pins
-    are migration targets owned by slices 5/6/7; the no-llm sentinel is exempt."""
+    """Canonical = an explicit FILE allowlist (NOT the whole package); router/
+    execution_status/other prod pins are migration targets (slices 5/6/7); the
+    no-llm sentinel is exempt ONLY on the exact literal."""
     assert _cat("src/llmxive/model_selection/policy.py") == ("canonical_layer", None)
+    # Review finding 7a: a model_selection module NOT in the canonical allowlist
+    # (execute.py, reservations.py, ...) is NOT sanctioned — a stray pin there must
+    # be a migration target so slice-8 enforcement rejects it.
+    assert _cat("src/llmxive/model_selection/execute.py") == ("migration_target", 7)
     assert _cat("tests/unit/test_foo.py") == ("test_double", None)
     assert _cat("src/llmxive/backends/router.py", symbol="DEFAULT_MODEL") == (
         "migration_target",
@@ -317,20 +330,22 @@ def test_categorize_maps_paths_to_categories():
         "src/llmxive/types.py", kind="agentspec_field", symbol="default_model", models=()
     ) == ("schema", 7)
     assert _cat(
-        "agents/registry.yaml", kind="registry_field", symbol="default_model"
+        "agents/registry.yaml", kind="registry_field", symbol="default_model",
+        value="qwen.qwen3.5-122b",
     ) == ("registry", 7)
-    # The deterministic-no-llm sentinel: a default_model with no resolvable model.
+    # Review finding 7b: exempt requires the EXACT deterministic-no-llm literal ...
     assert _cat(
-        "agents/registry.yaml",
-        kind="registry_field",
-        symbol="default_model",
-        models=(),
+        "agents/registry.yaml", kind="registry_field", symbol="default_model",
+        models=(), value="deterministic-no-llm",
     ) == ("exempt", None)
+    # ... an empty/unknown default_model that is NOT the sentinel is NOT exempted.
     assert _cat(
-        "agents/registry.yaml",
-        kind="registry_field",
-        symbol="default_backend",
-        models=(),
+        "agents/registry.yaml", kind="registry_field", symbol="default_model",
+        models=(), value="mystery-model",
+    ) == ("registry", 7)
+    assert _cat(
+        "agents/registry.yaml", kind="registry_field", symbol="default_backend",
+        value="dartmouth",
     ) == ("registry", 7)
 
 
