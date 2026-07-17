@@ -1,0 +1,74 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/`\
+    \ directory (or any files within it) is provided; the claim lacks the required\
+    \ project\u2011structure artifact, so the task is not satisfied."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `.flake8` files) or related setup scripts are present
+    in the provided evidence, so the requirement to configure ruff/flake8 and Black
+    is not satisfied. The implementer has not supplied any artifact demonstrating
+    that these tools are configured.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other evidence was provided showing that the required
+    folders (`data/raw`, `data/processed`, `data/interim`, `data/results`, `code/`,
+    `tests/`) actually exist in the project. Without concrete proof of these directories,
+    the task cannot be considered completed.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation for an error\u2011handling framework\
+    \ (e.g., retry logic for dataset download or timeout handling for inference) is\
+    \ present; the only artifacts described relate to data ingestion, feature extraction,\
+    \ and modeling, not to the required error\u2011handling setup. The required implementation\
+    \ is missing."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No environment\u2011variable or secrets\u2011management artifacts (e.g., .env\
+    \ files, configuration scripts, documentation of key handling for HuggingFace\
+    \ or Prolific) are present; the only evidence shown relates to unrelated data\u2011\
+    processing specifications, so the required setup for API keys is missing."
+T013:
+  c: false
+  h: c8c264a8d2c1e72d5c7619b0f152b3f4bf27731e38b669a86c8c50be449a3e9c
+  r: "The required output files `data/raw/medmis_subset.csv` and `state/artifact_hashes.yaml`\
+    \ are not present, and the provided `code/ingestion.py` (truncated) does not show\
+    \ the logic that writes the SHA\u2011256 checksum to the YAML file. Without these\
+    \ artifacts the task\u2019s requirements are not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was presented that implements the required\
+    \ data\u2011validation logic, nor any test or example showing prompts being flagged\
+    \ when the total sentence count is zero. Without an actual artifact, the task\u2019\
+    s requirement is not satisfied."
+T017a:
+  c: false
+  h: 7e07c1db1c7e5b350699c5805b42e517a75e7753733ee345ba86c963f9fb58fd
+  r: "The required `data/interim/recruitment_log_us1.json` file is absent, and the\
+    \ provided `code/annotation.py` does not implement a recruitment script (it handles\
+    \ data loading/merging for annotations, not recruiting \u226550 raters). The task\u2019\
+    s core requirement\u2014setting up rater recruitment and generating the JSON log\u2014\
+    is therefore unmet."
+T017c:
+  c: false
+  h: a41408d5ae209bb3685b38edfefa2ed8868151942eb08f64150fe6521863a820
+  r: "The repository lacks the required `data/interim/annotation_pilot_us1.csv` file,\
+    \ and the provided `code/annotation.py` only contains loader utilities\u2014it\
+    \ does not perform the aggregation of raw rater responses nor write the CSV with\
+    \ the specified columns. The core task of creating the annotation dataset is therefore\
+    \ unfulfilled."
+T017d:
+  c: false
+  h: c35d1d29eb57823f9ff0516daede6f8abfe25d8b00653ba5cf3c51d49caa25a1
+  r: "The provided `code/annotation.py` is truncated and does not contain the logic\
+    \ that computes the correlations and writes them to `data/interim/annotation_correlation_raw.json`.\
+    \ Moreover, the expected output file `data/interim/annotation_correlation_raw.json`\
+    \ is absent from the repository. The task\u2019s core requirement\u2014producing\
+    \ the raw correlation JSON\u2014is therefore not satisfied."

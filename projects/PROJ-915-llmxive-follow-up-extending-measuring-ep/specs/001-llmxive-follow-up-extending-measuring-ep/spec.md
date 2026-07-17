@@ -45,7 +45,7 @@ The system must perform two separate logistic regression analyses (Adherence vs.
 
 **Why this priority**: This delivers the scientific conclusion (the "Expected Results" from the idea). It transforms raw data into a statistically defensible claim about linguistic determinants of safety failures.
 
-**Independent Test**: Can be tested by running the analysis script on the labeled dataset and verifying that the output includes two regression tables (one for Adherence, one for Refusal) with p-values, a corrected significance flag, and a sensitivity report showing result variation across probability thresholds {0.01, 0.05, 0.1}.
+**Independent Test**: Can be tested by running the analysis script on the labeled dataset and verifying that the output includes two regression tables (one for Adherence, one for Refusal) with p-values, a corrected significance flag, and a sensitivity report showing result variation across probability thresholds.
 
 **Acceptance Scenarios**:
 
@@ -72,7 +72,7 @@ The system must perform two separate logistic regression analyses (Adherence vs.
 - **FR-004**: System MUST automatically label each model response as a three-state classification: 1 ("Adherent"), 0 ("Resilient-Correct"), or 2 ("Resilient-Refusal") by comparing the output against a static, external medical fact check independent of the linguistic features (See US-2).
 - **FR-005**: System MUST perform two separate logistic regression analyses: Model A (dependent variable: Adherent vs. Non-Adherent) and Model B (dependent variable: Refusal vs. Non-Refusal), using the extracted linguistic features as independent variables, ensuring the labeling logic is decoupled from the features (See US-3).
 - **FR-006**: System MUST apply a multiple-comparison correction (e.g., Holm-Bonferroni) to all p-values generated in both regression models (See US-3).
-- **FR-007**: System MUST execute a sensitivity analysis sweeping the predicted probability threshold (p_adhere) for "high authority density" risk over the set {0.01, 0.05, 0.1} and report the resulting variation in Attack Success Rate (ASR) and Refusal Rate (See US-3).
+- **FR-007**: System MUST execute a sensitivity analysis sweeping the predicted probability threshold (p_adhere) for "high authority density" risk over a range of low-value thresholds. and report the resulting variation in Attack Success Rate (ASR) and Refusal Rate (See US-3).
 - **FR-008**: System MUST handle perfect separation in logistic regression by switching to Firth's penalized regression or logging a specific convergence warning (See US-3).
 - **FR-009**: System MUST conduct a manual annotation pilot with human raters on a subset of n≥50 prompts to validate the correlation between automated linguistic features and human-perceived authority density (See US-1).
 

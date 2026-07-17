@@ -106,7 +106,7 @@ projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/
 | SC ID | Metric | Source | Target |
 | :--- | :--- | :--- | :--- |
 | SC-001 | Processed prompts | `data/processed/features.csv` | ≥ 95% completion |
-| SC-002 | ASR vs Baseline | `data/results/baseline_asr.yaml` | Compare to prior work (ACL 2023). |
+| SC-002 | ASR vs Baseline | `data/results/baseline_asr.yaml` | Compare to prior work (ACL). |
 | SC-003 | Statistical Significance | `data/results/regression_results.csv` | p < 0.05 (corrected) |
 | SC-004 | ASR Stability | `data/results/sensitivity_analysis.csv` | Variance ≤ 5% |
 | SC-005 | Compute Time | `pipeline_log.json` | ≤ 6 hours (Constitution Principle VII) |

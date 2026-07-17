@@ -1,0 +1,13 @@
+datasets
+scikit-learn
+statsmodels
+sentence-transformers
+llama-cpp-python
+pandas
+numpy
+tqdm
+biopython
+scipy
+python-dotenv
+pyyaml
+nltk

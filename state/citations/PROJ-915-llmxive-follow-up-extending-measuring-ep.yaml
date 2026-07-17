@@ -32,3 +32,25 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.18653/v1/2023.acl-long.123
   verified_at: '2026-07-15T06:05:13.425997Z'
+- artifact_hash: 6035cf75cf7f8ab46ba78ff30ad3d9d8c2adc0fce4143653a6a41f73de18b891
+  artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/docs/secrets.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Hugging Face \u2013 The AI community building the future."
+  kind: url
+  value: https://huggingface.co/settings/tokens
+  verification_status: pending
+  verified_against_url: https://huggingface.co/login?next=%2Fsettings%2Ftokens
+  verified_at: '2026-07-17T02:23:01.480322Z'
+- artifact_hash: 6035cf75cf7f8ab46ba78ff30ad3d9d8c2adc0fce4143653a6a41f73de18b891
+  artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/docs/secrets.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Prolific
+  kind: url
+  value: https://app.prolific.com/api
+  verification_status: pending
+  verified_against_url: https://app.prolific.com/api
+  verified_at: '2026-07-17T02:23:01.480322Z'

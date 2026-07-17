@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T00:55:32.909528Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-915-llmxive-follow-up-extending-measuring-ep
-last_run_id: 5e2286eb-b2b7-4755-8566-54021ffc3393
+last_run_id: 3297c2ad-c2e1-44cf-9768-8147f45cc0e3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep
 title: 'llmXive follow-up: extending "Measuring Epistemic Resilience of LLMs Under
   Misleading Medical Contex"'
-updated_at: '2026-07-15T06:05:27.402582Z'
+updated_at: '2026-07-17T02:16:19.758883Z'
