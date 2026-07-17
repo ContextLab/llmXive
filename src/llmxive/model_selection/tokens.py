@@ -63,40 +63,47 @@ def _role_content(message: Any) -> tuple[str, str]:
 
 
 def estimate_message_tokens(messages: Iterable[Any]) -> int:
-    """Conservative UPPER-bound token estimate for a chat request: the char/÷4
-    estimate of every message's role + content, plus fixed per-message and
-    per-request overhead."""
+    """TELEMETRY-ONLY average estimate (char/÷4 x margin) — NOT authoritative and NOT
+    a hard bound. Do NOT size budgets or reservations with this (R3-3): char/4 is the
+    average ratio, and token-dense/multi-byte text tokenizes to MORE. Budgeting and
+    the fail-fast use :func:`max_input_tokens_upper_bound` instead; this stays for
+    logging / rough displays only."""
     total = _REQUEST_OVERHEAD_TOKENS
     for m in messages:
         role, content = _role_content(m)
         total += _PER_MESSAGE_OVERHEAD_TOKENS + estimate_tokens(role) + estimate_tokens(content)
-    return math.ceil(total * _SAFETY_MARGIN)  # conservative headroom (C2) — over-, not under-count
+    return math.ceil(total * _SAFETY_MARGIN)
 
 
 def max_input_tokens_upper_bound(messages: Iterable[Any]) -> int:
-    """A HARD, tokenizer-independent upper bound on the input token count (FR-010,
-    #6): every BPE/char token consumes AT LEAST one character, so ``len(text)`` is a
-    guaranteed ceiling on the number of tokens. Slice-3 reservation sizing
-    (``worst_case_credits``) MUST size against THIS — never the char/÷4
-    ``estimate_message_tokens`` (an average, not a bound) — so a paid call can never
-    be charged for more input than it reserved. Deliberately over-conservative
-    (~4x the average); acceptable because paid calls are opt-in and rare."""
+    """The SINGLE authoritative input-size estimator (FR-010, R3-3) — a HARD,
+    tokenizer-independent upper bound used by BOTH :func:`call_budget_for` (which
+    prices the reservation) and :func:`fits_budget` (execute's fail-fast), so
+    selection and execution agree on the same ceiling and a paid call can NEVER be
+    charged for more input than it reserved.
+
+    Basis: a token is at least one UTF-8 BYTE (byte-level BPE tokenizes the byte
+    stream, and multi-byte Unicode can fall back to one token PER byte), so the
+    UTF-8 byte length is a true ceiling on the token count — ``len(text)`` in Python
+    CHARACTERS is NOT (one char can be several bytes/tokens). Deliberately
+    over-conservative (~4x the average); acceptable because paid calls are opt-in
+    and rare, and oversized inputs are reduced by the summarize primitive upstream."""
     total = _REQUEST_OVERHEAD_TOKENS
     for m in messages:
         role, content = _role_content(m)
-        total += _PER_MESSAGE_OVERHEAD_TOKENS + len(role) + len(content)
+        total += _PER_MESSAGE_OVERHEAD_TOKENS + len(role.encode("utf-8")) + len(content.encode("utf-8"))
     return total
 
 
 def call_budget_for(messages: Iterable[Any], max_output_tokens: int) -> CallBudget:
     """Build the :class:`CallBudget` to price a call, from its ACTUAL messages.
 
-    ``max_input_tokens`` is the conservative over-estimate of the input (so a
-    selected candidate is guaranteed to fit), paired with the caller's requested
-    ``max_output_tokens``. Called by the selection caller BEFORE ``select`` (which
-    only reads the resulting budget)."""
+    ``max_input_tokens`` is the HARD upper bound (:func:`max_input_tokens_upper_bound`)
+    so a selected candidate is guaranteed to fit and the reservation is never
+    under-sized. Called by the selection caller BEFORE ``select`` (which only reads
+    the resulting budget)."""
     return CallBudget(
-        max_input_tokens=estimate_message_tokens(messages),
+        max_input_tokens=max_input_tokens_upper_bound(messages),
         max_output_tokens=max_output_tokens,
     )
 
@@ -104,15 +111,14 @@ def call_budget_for(messages: Iterable[Any], max_output_tokens: int) -> CallBudg
 def fits_budget(
     messages: Iterable[Any], requested_output_tokens: int, budget: CallBudget
 ) -> tuple[bool, str | None]:
-    """``execute``'s fail-fast re-check against the priced budget: the actual
-    messages' estimated input must not exceed ``budget.max_input_tokens`` AND the
-    requested output must not exceed ``budget.max_output_tokens``. Returns
-    ``(ok, reason)`` — ``reason`` is a human-readable breach description or
-    ``None`` when it fits."""
-    estimated_input = estimate_message_tokens(messages)
+    """``execute``'s fail-fast re-check against the priced budget, using the SAME
+    hard upper bound as :func:`call_budget_for`: the actual messages' bounded input
+    must not exceed ``budget.max_input_tokens`` AND the requested output must not
+    exceed ``budget.max_output_tokens``. Returns ``(ok, reason)``."""
+    estimated_input = max_input_tokens_upper_bound(messages)
     if estimated_input > budget.max_input_tokens:
         return False, (
-            f"estimated input {estimated_input} exceeds "
+            f"bounded input {estimated_input} exceeds "
             f"call_budget.max_input_tokens {budget.max_input_tokens}"
         )
     if requested_output_tokens > budget.max_output_tokens:

@@ -48,8 +48,11 @@ def remote_and_clones(tmp_path: Path):
 
 
 def _event(rid: str, credits: float) -> dict:
+    # a COMPLETE open event (the ledger now strict-validates the full schema)
     return {"event_id": f"{rid}-open", "reservation_id": rid, "type": "open",
-            "worst_case_credits": credits}
+            "worst_case_credits": credits, "model": "m", "budget_epoch": "E",
+            "settlement_baseline": 0.0, "created_at": "2026-07-16T12:00:00+00:00",
+            "lease_expires_at": "2026-07-16T12:07:00+00:00", "ts": "2026-07-16T12:00:00+00:00"}
 
 
 def test_cold_start_has_no_events(remote_and_clones):
@@ -145,6 +148,42 @@ def test_remote_write_requires_bootstrap(tmp_path):
     assert [e["reservation_id"] for e in read_events(clone)] == ["r1"]
 
 
+def test_bootstrap_refuses_divergent_local_vs_empty_remote(tmp_path):
+    """R3-4: a LOCAL ledger + an EMPTY (wrong/misconfigured) remote must NOT produce
+    a divergent ledger — bootstrap AND append both fail closed; the wrong remote
+    never receives a ledger ref."""
+    from llmxive.model_selection.ledger_transport import (
+        LedgerAuthError,
+        _remote_ledger_oid,
+        bootstrap_ledger,
+    )
+
+    local = tmp_path / "local"
+    _git(["init", "-b", "main", str(local)], tmp_path)
+    append_event(local, _event("r1", 5.0))  # local-only ledger exists
+    wrong = tmp_path / "wrong.git"
+    _git(["init", "--bare", "-b", "main", str(wrong)], tmp_path)
+    _git(["remote", "add", "origin", str(wrong)], local)
+
+    with pytest.raises(LedgerAuthError):
+        bootstrap_ledger(local, remote="origin")  # local exists, remote empty → refuse
+    with pytest.raises(LedgerAuthError):
+        append_event(local, _event("r2", 5.0), remote="origin")  # not bootstrapped on remote
+    assert _remote_ledger_oid(local, "origin") is None  # wrong remote stayed empty
+
+
+def test_expected_anchor_gates_remote_identity(remote_and_clones):
+    """R3-4: pinning the trusted anchor rejects a remote whose tip does not descend
+    from it (an unrelated/divergent ledger)."""
+    from llmxive.model_selection.ledger_transport import LEDGER_REF, LedgerAuthError, _rev
+
+    _remote, clone_a, _clone_b = remote_and_clones
+    anchor = _rev(clone_a, LEDGER_REF)  # the real bootstrap anchor
+    append_event(clone_a, _event("r1", 5.0), remote="origin", expected_anchor=anchor)  # ok
+    with pytest.raises(LedgerAuthError):
+        append_event(clone_a, _event("r2", 5.0), remote="origin", expected_anchor="a" * 40)
+
+
 def test_bootstrap_is_idempotent(tmp_path):
     from llmxive.model_selection.ledger_transport import bootstrap_ledger
 
@@ -220,12 +259,61 @@ def test_corrupt_event_fails_closed(remote_and_clones):
         read_events(clone_a)
 
 
+def test_open_event_missing_worst_case_rejected_at_write(remote_and_clones):
+    """R3-1: an `open` event without worst_case_credits must be REJECTED at write
+    (it would otherwise project as a phantom 0-credit counting reservation)."""
+    _remote, clone_a, _clone_b = remote_and_clones
+    bad = {"event_id": "X-open", "reservation_id": "X", "type": "open", "model": "m",
+           "budget_epoch": "E", "settlement_baseline": 0.0, "created_at": "2026-07-16T12:00:00+00:00",
+           "lease_expires_at": "2026-07-16T12:07:00+00:00", "ts": "2026-07-16T12:00:00+00:00"}
+    with pytest.raises(ValueError):
+        append_event(clone_a, bad)
+    assert read_events(clone_a) == []
+
+
+def test_read_fails_closed_on_schema_invalid_event(remote_and_clones):
+    """R3-1: a valid-JSON but schema-INVALID event on the ref fails closed on READ
+    (not just at write) — a manually-corrupted/older malformed event can't slip in."""
+    _remote, clone_a, _clone_b = remote_and_clones
+    from llmxive.model_selection.ledger_transport import LedgerError
+
+    # valid JSON, but an `open` missing worst_case_credits (bypasses write validation)
+    _commit_raw_event(
+        clone_a, "Z-open.json",
+        '{"event_id":"Z-open","reservation_id":"Z","type":"open","budget_epoch":"E","ts":"2026-07-16T12:00:00+00:00"}',
+    )
+    with pytest.raises(LedgerError):
+        read_events(clone_a)
+
+
+def test_read_fails_closed_on_path_payload_id_mismatch(remote_and_clones):
+    """R3-1: a renamed event file (path != payload event_id) is tampering → fail closed."""
+    _remote, clone_a, _clone_b = remote_and_clones
+    from llmxive.model_selection.ledger_transport import LedgerError
+
+    _commit_raw_event(clone_a, "renamed.json", _canonical_full("r9"))
+    with pytest.raises(LedgerError):
+        read_events(clone_a)
+
+
+def _canonical_full(rid: str) -> str:
+    import json
+
+    return json.dumps({
+        "event_id": f"{rid}-open", "reservation_id": rid, "type": "open", "model": "m",
+        "worst_case_credits": 1.0, "budget_epoch": "E", "settlement_baseline": 0.0,
+        "created_at": "2026-07-16T12:00:00+00:00", "lease_expires_at": "2026-07-16T12:07:00+00:00",
+        "ts": "2026-07-16T12:00:00+00:00",
+    })
+
+
 def test_append_event_rejects_unsafe_ids(remote_and_clones):
     """C9: ids that aren't a single safe path component are rejected (e.g. slice-3
     model-derived ids containing '/')."""
     _remote, clone_a, _clone_b = remote_and_clones
-    with pytest.raises(ValueError):
-        append_event(clone_a, {"event_id": "a/b", "reservation_id": "r", "type": "open"})
-    with pytest.raises(ValueError):
-        append_event(clone_a, {"event_id": "e", "reservation_id": "Qwen/Qwen2.5", "type": "open"})
+    ts = "2026-07-16T12:00:00+00:00"
+    with pytest.raises(ValueError):  # unsafe event_id
+        append_event(clone_a, {"event_id": "a/b", "reservation_id": "r", "type": "settling", "ts": ts})
+    with pytest.raises(ValueError):  # unsafe reservation_id (e.g. a model-derived id)
+        append_event(clone_a, {"event_id": "e", "reservation_id": "Qwen/Qwen2.5", "type": "settling", "ts": ts})
     assert read_events(clone_a) == []  # nothing was written

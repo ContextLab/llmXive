@@ -83,11 +83,23 @@ _PUSH_DENY_MARKERS = ("pre-receive hook declined", "protected branch", "protecte
 #: Event/reservation ids become git path segments (reservations/<rev>/<id>.json), so
 #: they must be a single safe path component — no "/" (nesting/collision) or "..".
 _SAFE_ID = re.compile(r"^[A-Za-z0-9._-]+$")
-#: The reservation-event schema this ledger accepts.
+#: The reservation-event schema this ledger accepts (this IS the credit-reservation
+#: ledger — the full per-type schema lives here so it is enforced on EVERY read and
+#: write, with NO downstream defaults for safety-critical fields).
 _KNOWN_EVENT_TYPES = frozenset({"open", "heartbeat", "settling", "reconciled"})
-#: Credit-amount fields that MUST be finite and non-negative when present (a
-#: negative or NaN amount would corrupt counting_total → phantom headroom → overspend).
+#: Fields REQUIRED for each event type (beyond the universal event_id/reservation_id/
+#: type/ts). Missing → fail closed (a missing worst_case_credits would otherwise
+#: project as a phantom 0-credit counting reservation → overspend).
+_REQUIRED_BY_TYPE = {
+    "open": ("worst_case_credits", "model", "budget_epoch", "settlement_baseline", "created_at", "lease_expires_at"),
+    "heartbeat": ("lease_expires_at",),
+    "settling": (),
+    "reconciled": (),
+}
+#: Credit-amount fields that MUST be finite and non-negative when present.
 _AMOUNT_FIELDS = ("worst_case_credits", "settlement_baseline")
+#: Fields that, when present, MUST parse as an ISO-8601 timestamp.
+_TIMESTAMP_FIELDS = ("ts", "created_at", "lease_expires_at", "settled_at")
 
 
 def _canonical(event: dict) -> str:
@@ -96,22 +108,25 @@ def _canonical(event: dict) -> str:
 
 
 def _validate_event(event: dict) -> None:
-    """Generic write-boundary schema validation (fixes #1) — the invariants that
-    keep the projection sound, independent of reservation semantics: required
-    ``event_id``/``reservation_id``/``type`` (safe-charset ids, known type) and
-    every credit-amount field, WHEN PRESENT, finite and non-negative (a negative or
-    NaN amount would corrupt ``counting_total`` → phantom headroom → overspend).
-    Reservation-specific required fields (e.g. ``open`` needs ``worst_case_credits``
-    + ``budget_epoch``) are validated by :mod:`reservations` where the events are built.
-    """
-    for key in ("event_id", "reservation_id", "type"):
+    """STRICT schema validation for a reservation-ledger event — enforced BOTH at
+    the write boundary (append) AND on every read (fixes R3-1). Rejects any event
+    that could corrupt the projection: missing universal fields; unsafe/known-type
+    violations; missing per-type required fields (e.g. an ``open`` without
+    ``worst_case_credits`` would project as a phantom 0-credit counting reservation);
+    non-finite/negative amounts; unparseable timestamps; an empty ``budget_epoch``
+    on an ``open`` (would silently drop out of every epoch's counting)."""
+    for key in ("event_id", "reservation_id", "type", "ts"):
         if key not in event:
             raise ValueError(f"ledger event missing required field {key!r}")
     for key in ("event_id", "reservation_id"):
         if not _SAFE_ID.match(str(event[key])):
             raise ValueError(f"ledger {key}={event[key]!r} must match {_SAFE_ID.pattern}")
-    if event["type"] not in _KNOWN_EVENT_TYPES:
-        raise ValueError(f"ledger event type {event['type']!r} not in {sorted(_KNOWN_EVENT_TYPES)}")
+    etype = event["type"]
+    if etype not in _KNOWN_EVENT_TYPES:
+        raise ValueError(f"ledger event type {etype!r} not in {sorted(_KNOWN_EVENT_TYPES)}")
+    for field in _REQUIRED_BY_TYPE[etype]:
+        if field not in event:
+            raise ValueError(f"ledger {etype!r} event missing required field {field!r}")
     for field in _AMOUNT_FIELDS:
         if field in event:
             val = event[field]
@@ -119,6 +134,14 @@ def _validate_event(event: dict) -> None:
                 raise ValueError(f"ledger event {field}={val!r} must be a finite number")
             if val < 0:
                 raise ValueError(f"ledger event {field}={val!r} must be non-negative")
+    for field in _TIMESTAMP_FIELDS:
+        if field in event:
+            try:
+                datetime.fromisoformat(str(event[field]))
+            except ValueError as exc:
+                raise ValueError(f"ledger event {field}={event[field]!r} is not an ISO timestamp") from exc
+    if etype == "open" and not str(event.get("budget_epoch", "")).strip():
+        raise ValueError("ledger 'open' event has an empty budget_epoch")
 
 
 def _read_event_blob(repo: Path, event_id: str, tip: str) -> str | None:
@@ -183,13 +206,27 @@ def read_events(repo: Path, *, ref: str = LEDGER_REF) -> list[dict]:
     for path in filter(None, (line.strip() for line in listing.splitlines())):
         blob = _git(["cat-file", "blob", f"{tip}:{path}"], cwd=repo).stdout
         try:
-            events.append(json.loads(blob))
+            event = json.loads(blob)
         except json.JSONDecodeError as exc:
             # FAIL CLOSED (C4): this is the AUTHORITATIVE financial ledger, not a
-            # cache. Skipping a corrupt event could drop a COUNTING (open/settling)
-            # reservation from the projection → counting_total under-counts →
-            # phantom headroom → overspend. Refuse to read rather than under-count.
+            # cache. Skipping a corrupt event could drop a COUNTING reservation from
+            # the projection → under-count → phantom headroom → overspend.
             raise LedgerError(f"corrupt ledger event {path!r}: {exc}") from exc
+        # Re-validate on READ too (R3-1): a manually-corrupted or older malformed
+        # event on the authoritative ref must NOT slip past write-time validation.
+        if not isinstance(event, dict):
+            raise LedgerError(f"ledger event {path!r} is not an object")
+        try:
+            _validate_event(event)
+        except ValueError as exc:
+            raise LedgerError(f"invalid ledger event {path!r}: {exc}") from exc
+        # The filename MUST match the payload id (a rename/mismatch is tampering).
+        if Path(path).stem != str(event["event_id"]):
+            raise LedgerError(
+                f"ledger event path {path!r} does not match payload event_id "
+                f"{event['event_id']!r}"
+            )
+        events.append(event)
     return events
 
 
@@ -251,18 +288,58 @@ def _fetch_authoritative(repo: Path, remote: str) -> None:
         raise LedgerAuthError(f"ledger fetch from {remote!r} failed: {proc.stderr.strip()}")
 
 
+def _remote_ledger_oid(repo: Path, remote: str) -> str | None:
+    """The OID the ledger ref points at ON THE REMOTE (via ``ls-remote``), or
+    ``None`` if the remote genuinely has no such ref. Fails closed (LedgerAuthError)
+    if the remote cannot be queried — a missing ref must never be inferred from an
+    auth/network failure. Checking the REMOTE (not the possibly-stale LOCAL ref) is
+    what stops a pre-existing local ledger + empty/wrong remote from being treated
+    as bootstrapped (R3-4)."""
+    proc = _git(["ls-remote", remote, LEDGER_REF], cwd=repo, check=False)
+    if proc.returncode != 0:
+        raise LedgerAuthError(
+            f"cannot query {remote!r} for {LEDGER_REF}: {proc.stderr.strip()} — failing closed"
+        )
+    line = proc.stdout.strip()
+    return line.split()[0] if line else None
+
+
+def _is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
+    """True iff ``ancestor`` is reachable from ``descendant`` (shared ledger history)."""
+    return (
+        _git(["merge-base", "--is-ancestor", ancestor, descendant], cwd=repo, check=False).returncode
+        == 0
+    )
+
+
 def bootstrap_ledger(repo: Path, remote: str | None = None) -> str:
-    """Create the authoritative ledger ref with an empty anchor commit — the ONLY
-    sanctioned way to bring a ledger into existence (#7). Idempotent: a no-op if the
-    ref already exists (locally or, when ``remote`` is given, on the remote). Every
-    other write path fails closed when the ref is absent, so a fork / misconfigured
-    origin cannot silently spawn a DIVERGENT ledger; a one-time bootstrap (setup or
-    the maintenance workflow) must run first. Returns the anchor commit OID."""
+    """Bring the authoritative ledger into existence with an empty anchor commit —
+    the ONE-TIME, EXPLICIT administrative operation (R3-4). NOT part of the routine
+    sweep. Every other write path fails closed when the remote ref is absent, so this
+    is the only sanctioned creator. Returns the anchor commit OID.
+
+    Divergence guard (R3-4): when ``remote`` is given, the REMOTE (not the possibly
+    stale local ref) is authoritative. If the remote already has the ledger it is
+    adopted (no-op). If the remote is EMPTY but a LOCAL ledger already exists, that is
+    a wrong/misconfigured remote — bootstrapping would push a divergent ledger — so it
+    FAILS CLOSED rather than create one. Production should additionally protect the ref
+    server-side (a protected ref / branch-protection rule allowing only fast-forward
+    appends by the ledger identity) and pin the anchor for the ancestry check that the
+    write path performs (see ``append_event(expected_anchor=...)``)."""
     if remote is not None:
-        _fetch_authoritative(repo, remote)
-    existing = _rev(repo, LEDGER_REF)
-    if existing is not None:
-        return existing
+        remote_oid = _remote_ledger_oid(repo, remote)
+        if remote_oid is not None:
+            _fetch_authoritative(repo, remote)  # already bootstrapped remotely — adopt it
+            return _rev(repo, LEDGER_REF) or remote_oid
+        if _rev(repo, LEDGER_REF) is not None:
+            raise LedgerAuthError(
+                f"refusing to bootstrap {remote!r}: a LOCAL ledger exists but the remote has "
+                "none — a wrong/misconfigured remote would receive a DIVERGENT ledger. Verify "
+                "the remote (or clear the local ref if this is a deliberate re-init)."
+            )
+    elif _rev(repo, LEDGER_REF) is not None:
+        return _rev(repo, LEDGER_REF)
+
     with tempfile.TemporaryDirectory() as td:
         env = {"GIT_INDEX_FILE": os.path.join(td, "index")}
         empty_tree = _git(["write-tree"], cwd=repo, extra_env=env).stdout.strip()  # empty index → empty tree
@@ -317,6 +394,7 @@ def append_event(
     remote: str | None = None,
     predicate: Callable[[list[dict]], tuple[bool, str]] | None = None,
     allow_cold_start: bool = False,
+    expected_anchor: str | None = None,
     max_retries: int = 8,
 ) -> str:
     """Append ONE event to the authoritative ledger under strict CAS.
@@ -339,13 +417,26 @@ def append_event(
 
     for _attempt in range(max_retries):
         if remote is not None:
-            _fetch_authoritative(repo, remote)
-            # #7: a REMOTE write requires the ledger to already exist (bootstrapped).
-            # Refuse to create a divergent ledger against a fork/misconfigured origin.
-            if not allow_cold_start and _rev(repo, LEDGER_REF) is None:
+            # R3-4: check the REMOTE ref (not the possibly-stale local ref). A remote
+            # write requires the ledger to ALREADY exist on the remote (bootstrapped),
+            # else a pre-existing local ledger + empty/wrong remote would spawn a
+            # divergent ledger there.
+            remote_oid = _remote_ledger_oid(repo, remote)
+            if not allow_cold_start and remote_oid is None:
                 raise LedgerAuthError(
                     f"ledger ref {LEDGER_REF} absent on {remote!r} — not bootstrapped; "
-                    "refusing to create a divergent ledger (call bootstrap_ledger first)"
+                    "refusing to create a divergent ledger (run `credits-ledger-bootstrap` once)"
+                )
+            _fetch_authoritative(repo, remote)
+            # Pinned-anchor identity (R3-4): if the caller pins the trusted bootstrap
+            # anchor, the remote tip MUST descend from it — else it is an UNRELATED
+            # ledger on a wrong remote, and we fail closed rather than operate on it.
+            if expected_anchor is not None and remote_oid is not None and not _is_ancestor(
+                repo, expected_anchor, remote_oid
+            ):
+                raise LedgerAuthError(
+                    f"remote {LEDGER_REF} tip {remote_oid} does not descend from the pinned "
+                    f"anchor {expected_anchor} — wrong/divergent ledger; failing closed"
                 )
         events = read_events(repo)
         if prepare is not None:

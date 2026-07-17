@@ -323,10 +323,9 @@ def _cmd_credits_ledger_sweep(args: argparse.Namespace) -> int:
 
     balance = credits_mod.fetch_credit_balance()  # FRESH, cache-bypassing
     remote = None if args.no_remote else args.remote
-    if remote is not None:
-        from llmxive.model_selection.ledger_transport import bootstrap_ledger
-
-        bootstrap_ledger(repo_root(), remote=remote)  # #7: idempotent; the sanctioned creator
+    # NOTE (R3-4): the sweep does NOT bootstrap — bootstrap is a one-time explicit
+    # admin op (`llmxive credits-ledger-bootstrap`). A sweep before bootstrap is a
+    # safe no-op (empty ledger); it never creates a divergent ledger on a wrong remote.
     result = reservations.sweep(
         repo_root(),
         observed_spend=balance.spend,
@@ -335,6 +334,21 @@ def _cmd_credits_ledger_sweep(args: argparse.Namespace) -> int:
     )
     for phase, ids in result.items():
         print(f"{phase}: {len(ids)}" + (f" ({', '.join(ids)})" if ids else ""))
+    return 0
+
+
+def _cmd_credits_ledger_bootstrap(args: argparse.Namespace) -> int:
+    """One-time ADMIN op (R3-4): create the authoritative credit-reservation ledger
+    ref. Run ONCE by a maintainer with push access — NOT part of the routine sweep.
+    Refuses to bootstrap a remote that has no ledger while a local one exists (a
+    wrong-remote guard). Idempotent: adopts an already-bootstrapped remote ledger."""
+    from llmxive.config import repo_root
+    from llmxive.model_selection.ledger_transport import bootstrap_ledger
+
+    remote = None if args.no_remote else args.remote
+    anchor = bootstrap_ledger(repo_root(), remote=remote)
+    print(f"credit-ledger bootstrapped (anchor {anchor[:12]}) on {remote or 'local-only'}")
+    print("PIN this anchor in production wiring (expected_anchor) + protect the ref server-side.")
     return 0
 
 
@@ -1079,6 +1093,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="operate on the local ledger ref only (no fetch/push)",
     )
     p_ledger_sweep.set_defaults(func=_cmd_credits_ledger_sweep)
+
+    p_ledger_bootstrap = subs.add_parser(
+        "credits-ledger-bootstrap",
+        help="ONE-TIME admin op: create the credit-reservation ledger ref (spec 026 / R3-4)",
+    )
+    p_ledger_bootstrap.add_argument("--remote", default="origin", help="git remote (default: origin)")
+    p_ledger_bootstrap.add_argument("--no-remote", action="store_true", help="local ledger only")
+    p_ledger_bootstrap.set_defaults(func=_cmd_credits_ledger_bootstrap)
 
     p_auth = subs.add_parser("auth", help="manage local Dartmouth Chat credentials")
     auth_subs = p_auth.add_subparsers(dest="auth_cmd", required=True)

@@ -41,9 +41,11 @@ def test_call_budget_for_bounds_input_and_carries_output() -> None:
     budget = call_budget_for(msgs, max_output_tokens=512)
     assert isinstance(budget, CallBudget)
     assert budget.max_output_tokens == 512
-    # max_input_tokens is an upper bound on the actual estimated input.
-    assert budget.max_input_tokens >= estimate_tokens(msgs[0].content)
-    assert budget.max_input_tokens == estimate_message_tokens(msgs)
+    # R3-3: the budget uses the HARD upper bound (not the char/4 telemetry estimate),
+    # so it is >= both the raw char count and the average estimate.
+    assert budget.max_input_tokens == max_input_tokens_upper_bound(msgs)
+    assert budget.max_input_tokens >= estimate_message_tokens(msgs)
+    assert budget.max_input_tokens >= len(msgs[0].content)
 
 
 def test_fits_budget_accepts_within_bounds() -> None:
@@ -74,6 +76,10 @@ def test_hard_upper_bound_exceeds_estimate_and_actual_chars() -> None:
     hard = max_input_tokens_upper_bound(msgs)
     assert hard >= estimate_message_tokens(msgs)
     assert hard >= sum(len(m.content) for m in msgs)
+    # UTF-8 byte basis (R3-3): a multi-byte char contributes MORE than one char, so
+    # the bound exceeds a naive character count for non-ASCII content.
+    emoji = [ChatMessage(role="user", content="😀" * 10)]  # 1 char = 4 UTF-8 bytes each
+    assert max_input_tokens_upper_bound(emoji) >= len("😀" * 10 + "user") + 4 * 10
 
 
 def test_estimator_handles_dict_and_str_messages() -> None:

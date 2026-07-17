@@ -79,12 +79,12 @@ def test_project_duplicate_open_does_not_regress_settling():
     """C12: a duplicate `open` event (cross-runner stale-local retry) must NOT
     overwrite an already-`settling` reservation nor reset its baseline/created_at."""
     events = [
-        {"type": "open", "reservation_id": "X", "event_id": "X-open",
+        {"type": "open", "reservation_id": "X", "event_id": "X-open", "model": "m",
          "ts": "2026-07-16T12:00:00", "worst_case_credits": 10, "budget_epoch": "E",
          "settlement_baseline": 0, "created_at": "2026-07-16T12:00:00", "lease_expires_at": "z"},
         {"type": "settling", "reservation_id": "X", "event_id": "X-settling",
          "ts": "2026-07-16T12:01:00"},
-        {"type": "open", "reservation_id": "X", "event_id": "X-open2",
+        {"type": "open", "reservation_id": "X", "event_id": "X-open2", "model": "m",
          "ts": "2026-07-16T12:02:00", "worst_case_credits": 10, "budget_epoch": "E",
          "settlement_baseline": 99, "created_at": "2026-07-16T12:02:00", "lease_expires_at": "z"},
     ]
@@ -238,21 +238,26 @@ def test_sweep_fetches_authoritative_ref_before_projecting(remote_and_two_clones
     assert out["reconciled"] == ["r1"]  # fetched, saw r1, reconciled it
 
 
-def test_sweep_settlement_timeout_force_reconciles(repo):
-    """#9: a settling hold attribution can't reconcile is force-reconciled once it
-    has been settling past the settlement timeout (its charge is by now in spend)."""
+def test_sweep_settlement_timeout_retains_hold_and_flags(repo):
+    """R3-2: a settling hold past the timeout with NO observed spend is FLAGGED but
+    RETAINED — releasing it would free headroom for an unobserved charge (overspend).
+    It is only ever released by attribution or the daily reset."""
     _reserve(repo, "r1", 10.0, cap=1000.0, spend=0.0)  # created + settled at T0
     settle(repo, "r1", now=T0)
-    # within the timeout: NOT force-reconciled
+    # within the timeout: not flagged, still counting
     soon = T0 + timedelta(seconds=1800)
     out_early = sweep(repo, observed_spend=0.0, current_epoch=EPOCH, now=soon, settlement_timeout_s=3600.0)
-    assert out_early["settlement_timed_out"] == []
-    assert project(read_events(repo))["r1"].state == STATE_SETTLING
-    # past the timeout: force-reconciled (attribution still can't — spend is 0)
+    assert out_early["settlement_overdue"] == []
+    assert project(read_events(repo))["r1"].counts
+    # past the timeout, spend STILL 0: flagged for attention but the hold is RETAINED
     later = T0 + timedelta(seconds=7200)
     out = sweep(repo, observed_spend=0.0, current_epoch=EPOCH, now=later, settlement_timeout_s=3600.0)
-    assert out["reconciled"] == [] and out["settlement_timed_out"] == ["r1"]
-    assert project(read_events(repo))["r1"].state == STATE_RECONCILED
+    assert out["reconciled"] == [] and out["settlement_overdue"] == ["r1"]
+    r = project(read_events(repo))["r1"]
+    assert r.state == STATE_SETTLING and r.counts  # NOT released
+    # once the charge finally lands, attribution releases it normally
+    assert sweep(repo, observed_spend=10.0, current_epoch=EPOCH, now=later)["reconciled"] == ["r1"]
+    assert not project(read_events(repo))["r1"].counts
 
 
 def test_sweep_discards_prior_epoch_reservation(repo):

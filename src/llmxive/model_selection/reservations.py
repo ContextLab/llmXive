@@ -144,15 +144,18 @@ def project(events: Iterable[dict]) -> dict[str, Reservation]:
             # overwrite an already-advanced reservation — a later-ts open would
             # otherwise regress `settling`→`open` and reset created_at/baseline,
             # corrupting reconciliation attribution.
+            # NO defaults for safety-critical fields (R3-1): read_events has already
+            # STRICT-validated every open event to carry these, so a direct read is a
+            # fail-closed guarantee (a missing field would raise, never undercount).
             state[rid] = {
                 "reservation_id": rid,
-                "worst_case_credits": float(e.get("worst_case_credits", 0.0)),
+                "worst_case_credits": float(e["worst_case_credits"]),
                 "state": STATE_OPEN,
-                "model": str(e.get("model", "")),
-                "budget_epoch": str(e.get("budget_epoch", "")),
-                "settlement_baseline": float(e.get("settlement_baseline", 0.0)),
-                "created_at": str(e.get("created_at", e.get("ts", ""))),
-                "lease_expires_at": str(e.get("lease_expires_at", "")),
+                "model": str(e["model"]),
+                "budget_epoch": str(e["budget_epoch"]),
+                "settlement_baseline": float(e["settlement_baseline"]),
+                "created_at": str(e["created_at"]),
+                "lease_expires_at": str(e["lease_expires_at"]),
                 "last_heartbeat_at": str(e.get("ts", "")),
                 "settled_at": "",
             }
@@ -471,11 +474,11 @@ def sweep(
        is discarded (finalized as ``reconciled``) so it no longer counts.
     3. **reconcile** — the current-epoch ``settling`` batch is reconciled against
        the freshly-observed spend via the attribution-prefix rule.
-    4. **settlement timeout (#9)** — a current-epoch ``settling`` hold that the
-       attribution rule could NOT reconcile and that has been settling longer than
-       ``settlement_timeout_s`` is force-reconciled: its charge (if any) has by now
-       landed in the observed spend, so retaining the worst-case residue would lock
-       headroom until the daily reset for no safety benefit.
+    4. **settlement timeout (#9)** — a current-epoch ``settling`` hold older than
+       ``settlement_timeout_s`` that attribution still could NOT cover is FLAGGED for
+       attention (warning/escalation) but the hold is RETAINED; it is released ONLY
+       by attribution or the daily reset (never on a bare timeout — that would free
+       headroom for an unobserved charge → overspend).
 
     Returns the ids affected per phase.
     """
@@ -502,9 +505,15 @@ def sweep(
         repo, observed_spend=observed_spend, epoch=current_epoch, now=now, remote=remote
     )
 
-    # 4. Settlement timeout (#9): force-reconcile current-epoch settling holds that
-    #    attribution left behind and that have been settling past the timeout.
-    timed_out: list[str] = []
+    # 4. Settlement timeout (#9, corrected R3-2): a settling hold older than the
+    #    timeout that attribution still could NOT cover is FLAGGED for
+    #    attention/escalation — but the hold is RETAINED, never released. Releasing
+    #    it here (as an earlier version wrongly did) would free headroom for a charge
+    #    that has not been observed; a delayed provider settlement could then land
+    #    AFTER a new call consumed that headroom → overspend. A timed-out hold is
+    #    only ever released by attribution (observed spend covers it) or the daily
+    #    epoch reset (FR-016 conservative handling).
+    settlement_overdue: list[str] = []
     for r in project(read_events(repo)).values():
         if (
             r.state == STATE_SETTLING
@@ -512,14 +521,20 @@ def sweep(
             and r.settled_at
             and (now - _parse(r.settled_at)).total_seconds() > settlement_timeout_s
         ):
-            _reconcile_one(repo, r.reservation_id, now=now, remote=remote)
-            timed_out.append(r.reservation_id)
+            settlement_overdue.append(r.reservation_id)
+    if settlement_overdue:
+        logger.warning(
+            "credit-ledger: %d reservation(s) settling past the %.0fs settlement timeout "
+            "with no matching spend observed — retaining the hold(s) (NOT releasing) and "
+            "flagging for attention: %s",
+            len(settlement_overdue), settlement_timeout_s, settlement_overdue,
+        )
 
     return {
         "conservatively_settled": conservatively_settled,
         "discarded_prior_epoch": discarded,
         "reconciled": reconciled,
-        "settlement_timed_out": timed_out,
+        "settlement_overdue": settlement_overdue,
     }
 
 
