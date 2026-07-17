@@ -1,2 +1,7 @@
-# Standalone Ruff configuration (redundant if using pyproject.toml, but explicit for IDEs)
+# Standalone ruff configuration for CLI usage
+# This file mirrors settings in pyproject.toml for editor integration
+
 extend = "pyproject.toml"
+
+# Explicitly set src for linter to resolve imports correctly
+src = ["code"]

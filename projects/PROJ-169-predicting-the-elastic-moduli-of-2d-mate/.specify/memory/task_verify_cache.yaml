@@ -1,0 +1,25 @@
+T013:
+  c: true
+  h: 2e979e9015206f485a4db9fa9ddc6229724c8c0c3bc8a491bdfab90ed43ee75b
+  r: "The repository contains a non\u2011trivial `code/ingest/pipeline.py` (\u2248\
+    7\u202FKB) that defines a full orchestration function (`run_pipeline`) importing\
+    \ the download, parse, filter, bias\u2011check, and serialization modules and\
+    \ writes a Parquet file to `data/processed/`. The script therefore fulfills the\
+    \ requirement to implement the download \u2192 parse \u2192 filter \u2192 save\
+    \ pipeline; the absence of the generated `graphs_v1.parquet` file is expected\
+    \ because the task only demanded the script, not its execution."
+T018:
+  c: false
+  h: 3c3a60b66fcb74117a8d64e2fc12c8a33cd73bde255302ef18acdc5aaecf5ba8
+  r: "The required `code/model/train.py` file is missing entirely, and the existing\
+    \ `training_logs.json` contains only placeholder values with no actual training\
+    \ metrics. Consequently, there is no training loop, early\u2011stopping logic,\
+    \ CPU\u2011only execution, logging, or the required surrogate\u2011model warning.\
+    \ The task is not satisfied."
+T027:
+  c: false
+  h: 0f2e98a27c9ab5c3d6f473daf760652317040e2c920dd35722a1a9cd98efdb29
+  r: The repository contains `code/analysis/report_generator.py` which implements
+    the required synthesis and markdown generation, but the expected output file `data/results/feature_importance_report.md`
+    is absent, so the final report was never produced. The missing report must be
+    generated and saved at the specified location.

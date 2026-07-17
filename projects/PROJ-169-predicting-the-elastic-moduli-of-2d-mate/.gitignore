@@ -1,37 +1,46 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
-
-# C extensions
+$py.class
 *.so
-
-# Distribution / packaging
-.eggs/
-*.egg-info/
-dist/
+.Python
 build/
-
-# PyCharm
-.idea/
-
-# VS Code
-.vscode/
-
-# Environment
-.env
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
 venv/
-.venv/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Data (Raw data is excluded, processed is versioned but large)
-data/raw/
-data/processed/*.parquet
-data/results/*.json
+# Data
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/results/*
 !data/results/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
 
 # Logs
 *.log
 logs/
+
+# Environment
+.env
+.env.local
 
 # OS
 .DS_Store

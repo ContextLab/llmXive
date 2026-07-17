@@ -1,22 +1,6 @@
-# Ruff Configuration for PROJ-169
-line-length = 100
-target-version = "py311"
-
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
-]
-
-[lint.isort]
-known-first-party = ["data_models", "ingest", "model", "utils", "analysis"]
-known-third-party = ["pymatgen", "torch", "numpy", "pandas", "sklearn"]
+# Global configuration for Ruff
+# This file is a symlink to code/pyproject.toml's [tool.ruff] section
+# but provided separately for editor integration if needed.
+# The actual configuration lives in code/pyproject.toml.
+extend = "code/pyproject.toml"
+line-length = 88
