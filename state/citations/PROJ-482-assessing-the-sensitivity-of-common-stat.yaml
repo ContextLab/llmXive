@@ -1,1 +1,33 @@
-[]
+- artifact_hash: 553b6b76369a30bc8ead168c975a430d212f3405fe9a1c21bb8b6649db0f992c
+  artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: MD5 - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q185235
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q185235
+  verified_at: '2026-07-17T11:22:30.259308Z'
+- artifact_hash: 553b6b76369a30bc8ead168c975a430d212f3405fe9a1c21bb8b6649db0f992c
+  artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Fisher - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Fisher
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Fisher
+  verified_at: '2026-07-17T11:22:30.259308Z'
+- artifact_hash: 553b6b76369a30bc8ead168c975a430d212f3405fe9a1c21bb8b6649db0f992c
+  artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[hep-lat/0202016] Thermodynamics from Monte Carlo Hamiltonian'
+  kind: url
+  value: https://arxiv.org/abs/hep-lat/0202016
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/hep-lat/0202016
+  verified_at: '2026-07-17T11:22:30.259308Z'

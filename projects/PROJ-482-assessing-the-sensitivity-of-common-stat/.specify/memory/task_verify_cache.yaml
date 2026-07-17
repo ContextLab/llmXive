@@ -6,31 +6,52 @@ T014:
     is absent. Consequently the required dataset with the specified schema and validation
     checks is not present. The implementer must provide a complete script that generates
     the CSV and include the generated `sample_validation.csv` file.
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No log entry or any other artifact confirming that the ground\u2011truth validation\
+    \ routine from T013 was executed and passed (exit code\u202F0) is present. The\
+    \ required evidence\u2014a non\u2011empty log confirming verification of the current\
+    \ configuration batch\u2014is missing, so the task is not satisfied."
 T021b:
   c: false
-  h: fcc5164582cbca30438ed49200cdb3b00d46a4639acfeab843efb49778c42ded
-  r: "The repository lacks the required `data/processed/raw_pvalues.csv` file, and\
-    \ the `code/simulation_engine.py` source is truncated (e.g., the `generate_data`\
-    \ function is incomplete and there is no visible logic that writes raw p\u2011\
-    values to a CSV with the specified schema). Consequently the task\u2019s output\
-    \ and storage requirements are not met."
+  h: 894dfe94c372b9d3ad4fbcbc12781b5cf64989df46be751d608cdf521af8dad3
+  r: "The provided `code/simulation_engine.py` is truncated (e.g., `sample_siz` cut\
+    \ off) and contains no code that streams or writes raw p\u2011values to `data/processed/raw_pvalues.csv`.\
+    \ Moreover, the required CSV file does not exist. Consequently, the task\u2019\
+    s output and integration requirements are not met."
+T021c:
+  c: false
+  h: 4918e42abf222c2f4fcdaa3a382e983b2721ade3bd212113cf629419bacb2c5b
+  r: "The `validation_report.csv` file is absent, and the provided `simulation_engine.py`\
+    \ is truncated and contains no explicit validation routine comparing observed\
+    \ Type\u202FI error rates to the nominal alpha level. The required deliverable\
+    \ is therefore missing."
+T022:
+  c: false
+  h: 74b500477026a09fa15f34831d4d0b93cad136a0178cb840f3d5c19599f0ded4
+  r: The provided `code/run_simulation.py` is truncated (ends with an unfinished line)
+    and never reads the required inputs (`raw_pvalues.csv`, `error_counts.csv`, `validation_report.csv`).
+    Moreover, the three required output files are missing from `data/processed/`.
+    The script therefore does not fulfill the orchestration and consumption requirements
+    of T022.
 T026b:
   c: false
-  h: 535e35ba6462a38d511e43046bb4083700beb5be6c369b3e3f07d6956140ba19
-  r: "The `code/analyzer.py` only contains placeholder functions (`analyze_stability_trend`\
-    \ is empty) and a variance calculator, not the required per\u2011sample\u2011\
-    size Type\u202FI error computation, regression trend analysis, CSV export, or\
-    \ plot generation. Moreover, the expected output file `data/processed/stability_trend.csv`\
-    \ does not exist."
+  h: bd982f1c62487b55edc4058c5629d9fb54ad5f53f0964a8a04aa78d3227e4f3b
+  r: "The repository lacks the required `data/processed/stability_trend.csv` file\
+    \ and the analyzer code does not perform the regression trend analysis or generate\
+    \ the requested plot. Moreover, the `aggregate_results` function contains a bug\
+    \ (returns undefined `group`) and never writes results or creates a visualization,\
+    \ so the task\u2019s output specifications are not met."
 T027b:
   c: false
-  h: 59dc1e61c222562f7439b5228e569de90abebb8f91152a0b7f927d0316af3d6c
-  r: "The repository contains a new `analyze_log_pvalue_regression` stub in `code/analyzer.py`,\
-    \ but the required input file `data/processed/raw_pvalues.csv` is absent, so the\
-    \ function cannot be exercised. Moreover, the posted code is truncated before\
-    \ showing the epsilon\u2011adjusted log\u2011transform, model fitting, and reporting\
-    \ of regression coefficients, indicating the implementation is incomplete. The\
-    \ missing CSV and incomplete function must be provided to satisfy T027b."
+  h: 5865e46521c6f4b32f2e6d0de30caaef955e38ecda01f22aaf6a336ca91b0309
+  r: "The repository lacks the required `data/processed/raw_pvalues.csv` file, and\
+    \ `code/analyzer.py` does not contain a data\u2011preparation function that applies\
+    \ `config.LOG_EPSILON` to p\u2011values during a log\u2011transform (the existing\
+    \ functions only load and aggregate data, and contain bugs such as returning an\
+    \ undefined variable). Both the needed artifact and the specified functionality\
+    \ are missing."
 T029:
   c: true
   h: a9dc4bab6d0351957b6ca0939b4befec7673979c2336654f3bff80672696c023
