@@ -15,7 +15,7 @@ This project implements a statistical analysis pipeline to investigate whether g
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `lifelines`, `seaborn`, `matplotlib`, `pyyaml`, `pingouin` (for Cronbach's α), `scipy`
 **Storage**: Local CSV/Parquet files (intermediate), final artifacts in `data/processed/`
 **Testing**: `pytest` (unit tests for data aggregation, model convergence checks, contract validation)
-**Target Platform**: Linux (GitHub Actions Free Runner: 2 CPU, 7GB RAM)
+**Target Platform**: Linux (GitHub Actions Free Runner: Limited CPU, 7GB RAM)
 **Project Type**: Computational Research Pipeline / Data Analysis
 **Performance Goals**: Complete analysis of ~100-500 users with 52 weeks of data in < 30 minutes.
 **Constraints**: No GPU usage; no deep learning models; memory usage < 6GB; strict handling of missing data and censoring.

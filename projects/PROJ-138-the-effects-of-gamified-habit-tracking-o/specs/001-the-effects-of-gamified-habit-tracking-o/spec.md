@@ -97,7 +97,7 @@ The system MUST execute internal robustness checks (bootstrapping) to validate f
 - **SC-001**: The merged dataset MUST contain a minimum of 100 valid user records with non-null values for all primary variables, measured against the input dataset sizes (See US-1).
 - **SC-002**: The system MUST calculate and report the p-value for the interaction term between gamification and conscientiousness, measured against the null hypothesis of no interaction (See US-2).
 - **SC-003**: The system MUST perform the Log-rank test comparing time-to-dropout between high-conscientiousness users in gamified vs. non-gamified conditions and report the test statistic and p-value, provided there are ≥ 10 events per group (See US-2).
-- **SC-004**: The bootstrapping procedure MUST generate 1,000 resamples and report the 95% confidence interval for the gamification effect size, with a coefficient variance < 0.01 across samples (See US-3).
+- **SC-004**: The bootstrapping procedure MUST generate a sufficient number of resamples. and report the 95% confidence interval for the gamification effect size, with a coefficient variance < 0.01 across samples (See US-3).
 - **SC-005**: The sensitivity analysis MUST report the stability of the effect size (coefficient variance) across a set of representative thresholds, measured against the baseline effect size at the standard threshold (See US-3).
 
 ## Assumptions

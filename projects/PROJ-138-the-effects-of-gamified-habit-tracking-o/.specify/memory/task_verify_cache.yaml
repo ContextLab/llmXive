@@ -1,0 +1,21 @@
+T012a:
+  c: true
+  h: e4ece021f117ba3fb79ccd2a3b9739727ef282f482e3ff178509c6f433af1a5a
+  r: "The `code/data/validation.py` file contains a fully implemented `check_consent()`\
+    \ that ensures the `data/consent/` directory exists, raises an error when real\
+    \ data lacks consent, and creates a `synthetic_consent_record.json` with explicit\
+    \ synthetic\u2011data metadata when `USE_SYNTHETIC_DATA=true`. No placeholder\
+    \ or stub remains."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or quickstart.md files were presented, and there is no evidence
+    that either document was updated to include a project overview or execution instructions
+    with synthetic data generation and consent verification steps. The required documentation
+    artifacts are missing.
+T038:
+  c: false
+  h: 0a35ad2b764485e5a2608e59fd51ed747deddd75c24eaac0c43ed078bd07f36d
+  r: "The required artifact `data/processed/merged_data.csv` does not exist, and there\
+    \ is no evidence that `bash quickstart.sh` was run successfully with exit code\u202F\
+    0. The task\u2019s core validation step is therefore unmet."

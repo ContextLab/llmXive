@@ -1,9 +1,2 @@
-? 'T007 [P] Implement classes `User`, `BehavioralLog`, and `WeeklyAggregation` in
-  `code/data/models.py` with attributes: `user_id` (str), `gamification_status` (bool),
-  `conscientiousness_score` (float), `date` (datetime), `event_type` (str), `week_number`
-  (int), `adherence_flag` (int), matching the Key Entities in spec.md. **Verification**:
-  Assert `import code.data.models` succeeds and class attributes match spec.'
-: 2
-? T009 [P] Setup `contracts/dataset.schema.yaml` defining required columns (User_ID,
-  Gamified, Adherence, etc.) for validation
-: 1
+T034: 2
+T038: 2

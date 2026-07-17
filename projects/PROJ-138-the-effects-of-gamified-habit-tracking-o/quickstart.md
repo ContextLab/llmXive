@@ -1,110 +1,132 @@
-# Quickstart Guide
+# Quick Start Guide
+
+This guide provides step-by-step instructions to execute the full analysis pipeline for "The Effects of Gamified Habit Tracking on Long-Term Behavioral Change."
 
 ## Prerequisites
 
 - Python 3.11 or higher
-- `pip` package manager
-- (Optional) `venv` or `conda` for environment management
+- pip package manager
+- Access to the project root directory
 
-## 1. Environment Setup
+## Step 1: Install Dependencies
 
-Create and activate a virtual environment:
-
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
-
-Install dependencies:
+Install all required Python packages:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 2. Data Preparation
+## Step 2: Verify Project Structure
 
-### Option A: Use Synthetic Data (Default for Testing)
+Ensure the required directories exist. If not, run the setup script:
 
-If no real dataset is available, the pipeline can generate synthetic data that mimics the expected structure.
+```bash
+python code/setup_project_structure.py
+```
 
-1. **Consent Verification**:
- The pipeline requires a consent artifact before processing. If using synthetic data, run:
+This creates:
+- `data/raw/`, `data/processed/`, `data/consent/`
+- `code/data/`, `code/analysis/`, `code/reports/`, `code/utils/`, `code/tests/`
 
- ```bash
- python code/data/validation.py
- ```
+## Step 3: Generate Synthetic Data & Consent
 
- This will automatically generate a `data/consent/synthetic_consent_record.json` if one does not exist, stating that the data is synthetic and approved for research.
+If you do not have real longitudinal data, the pipeline will generate a synthetic dataset.
 
-2. **Generate Synthetic Dataset**:
- Execute the synthetic data generator:
+### Consent Verification
 
- ```bash
- python code/data/synthetic_generator.py
- ```
+The pipeline requires a consent record in `data/consent/`.
+- For **real data**: Place your IRB-approved consent documentation here.
+- For **synthetic data**: The pipeline automatically generates `data/consent/synthetic_consent_record.json` confirming the data is synthetic and approved for research.
 
- This produces `data/raw/synthetic_data.csv` with 100 users (70 gamified, 30 non-gamified), including personality scores and adherence logs. [UNRESOLVED-CLAIM: c_18209dd4 — status=not_enough_info]
+To generate synthetic data explicitly:
 
-### Option B: Use Real Data
+```bash
+python code/data/synthetic_generator.py
+```
 
-1. Place your raw CSV file (e.g., `habitica_data.csv`) in `data/raw/`.
-2. Ensure the file contains required columns: `User_ID`, `Gamified`, `Adherence`, `Conscientiousness`, `Need_for_Achievement`, `Date`, `Event_Type`.
-3. Ensure a valid consent record exists in `data/consent/`. If using real data without a record, the pipeline will halt.
+This creates `data/raw/synthetic_data.csv` with N=100 users (70% gamified, 30% non-gamified). [UNRESOLVED-CLAIM: c_c440ea01 — status=not_enough_info]
 
-## 3. Run the Pipeline
+## Step 4: Run the Full Pipeline
 
-The pipeline consists of sequential stages. You can run the full analysis or individual components.
+Execute the main analysis script:
 
-### Full Analysis Pipeline
+```bash
+python code/scripts/run_quickstart_validation.py
+```
 
-To run the entire workflow (Ingestion -> Aggregation -> Modeling -> Survival -> Robustness -> Report):
+Alternatively, run individual stages:
 
+### 4.1 Data Ingestion & Validation
+```bash
+python code/data/ingestion.py
+```
+- Loads data (real or synthetic)
+- Validates schema against `contracts/dataset.schema.yaml`
+- Checks consent status
+- Ensures group sizes (≥30 non-gamified)
+
+### 4.2 Data Aggregation
+```bash
+python code/data/aggregation.py
+```
+- Converts daily logs to weekly bins
+- Calculates `weekly_adherence_flag`
+
+### 4.3 Merging Datasets
+```bash
+python code/data/merge.py
+```
+- Produces `data/processed/merged_data.csv`
+
+### 4.4 Statistical Modeling
+```bash
+python code/analysis/modeling.py
+```
+- Calculates VIF and handles collinearity
+- Fits mixed-effects logistic regression
+- Applies Benjamini-Hochberg FDR correction
+
+### 4.5 Survival Analysis
+```bash
+python code/analysis/survival.py
+```
+- Counts dropout events
+- Runs Kaplan-Meier and Cox models (if events ≥ 10)
+
+### 4.6 Robustness Checks
+```bash
+python code/analysis/robustness.py
+```
+- Performs bootstrapping for confidence intervals
+
+### 4.7 Report Generation
 ```bash
 python code/reports/generate_report.py
 ```
+- Generates `data/reports/final_analysis.html`
 
-This script orchestrates the following steps:
-1. **Data Ingestion & Validation**: Loads data, checks consent, validates schema.
-2. **Weekly Aggregation**: Converts daily logs to weekly adherence flags.
-3. **Modeling**: Fits mixed-effects logistic regression with interaction terms.
-4. **Survival Analysis**: Analyzes dropout events using Kaplan-Meier and Cox models.
-5. **Robustness Check**: Performs bootstrapping for confidence intervals.
-6. **Report Generation**: Creates `data/reports/final_analysis.html`.
+## Step 5: Verify Outputs
 
-### Individual Stages
+Check that the following artifacts exist:
+- `data/processed/merged_data.csv`
+- `data/reports/final_analysis.html`
+- `state.yaml` (updated with artifact hashes)
 
-- **Ingestion**: `python code/data/ingestion.py`
-- **Aggregation**: `python code/data/aggregation.py`
-- **Modeling**: `python code/analysis/modeling.py`
-- **Survival**: `python code/analysis/survival.py`
-- **Robustness**: `python code/analysis/robustness.py`
-- **Report**: `python code/reports/generate_report.py`
+## Step 6: Run Tests (Optional)
 
-## 4. Verify Outputs
-
-After completion, verify the following artifacts:
-
-- `data/processed/merged_data.csv`: Aggregated dataset.
-- `data/reports/final_analysis.html`: Final report with visualizations and statistical tables.
-- `logs/pipeline.log`: Execution logs for debugging.
-- `state.yaml`: Artifact hashes for version control.
-
-## 5. Running Tests
-
-To validate the implementation:
+Execute the test suite to validate logic:
 
 ```bash
 pytest code/tests/ -v
 ```
 
-This runs contract and integration tests for ingestion, aggregation, modeling, survival, and report generation.
-
 ## Troubleshooting
 
-- **Missing Consent**: If the pipeline halts with "Missing Consent", check `data/consent/`. If using synthetic data, ensure `synthetic_consent_record.json` is generated.
-- **Data Insufficiency**: If the non-gamified group has fewer than 30 users, the pipeline will halt. [UNRESOLVED-CLAIM: c_33af73c3 — status=not_enough_info] This is enforced to ensure statistical power.
-- **Model Convergence**: If mixed-effects models fail to converge, {{claim:c_1b4f2672}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)
+- **Missing Consent**: Ensure `data/consent/` exists. The synthetic generator will create a consent record if needed.
+- **Group Imbalance**: If the non-gamified group has < 30 users, the pipeline will halt with a "Group Imbalance" error.
+- **Low Dropout Events**: If survival events < 10 per group, the survival analysis will generate a descriptive report and halt.
+- **Memory Errors**: The robustness module uses chunked processing; if issues persist, reduce bootstrap iterations in `code/utils/config.py`.
 
-## Support
+## Next Steps
 
-For issues or questions, refer to the project specification in `specs/` or contact the research team.
+After successful execution, review the generated `final_analysis.html` for visualizations, model coefficients, and sensitivity analysis results.

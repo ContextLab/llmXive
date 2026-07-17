@@ -1,208 +1,77 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Gamified Habit Tracking Dataset Schema"
-description: |
-  Schema definition for the longitudinal dataset used in the study of
-  gamified habit tracking effects. Defines required columns, types,
-  and validation constraints for data ingestion (FR-001a, FR-001b).
-
+$schema: http://json-schema.org/draft-07/schema#
+title: Gamified Habit Tracking Dataset Schema
+description: >
+  Schema definition for the raw and processed datasets used in the
+  "Effects of Gamified Habit Tracking on Long-Term Behavioral Change" study.
+  Used by code/data/validation.py to validate ingestion artifacts.
 type: object
 required:
-  - properties
-  - requiredColumns
-
+  - User_ID
+  - Gamified
+  - Adherence
+  - Conscientiousness_Score
+  - Need_for_Achievement
+  - Week_Number
+  - Date
 properties:
-  version:
+  User_ID:
     type: string
-    const: "1.0.0"
+    description: Unique identifier for the participant.
+    pattern: "^U[0-9]+$"
+    example: "U001"
   
-  requiredColumns:
-    type: array
-    items:
-      type: string
-    description: "List of column names that must be present in the dataset."
-    
-  properties:
-    type: object
-    description: "Detailed definitions for each column."
-    properties:
-      User_ID:
-        type: object
-        description: "Unique identifier for each participant."
-        properties:
-          type:
-            type: string
-            const: "string"
-          description:
-            type: string
-            const: "Unique identifier for the user (UUID or anonymized ID)."
-          required:
-            type: boolean
-            const: true
-        required:
-          - type
-          - description
-          - required
+  Gamified:
+    type: integer
+    description: Binary flag indicating if the user was in the gamified group.
+    enum: [0, 1]
+    example: 1
+  
+  Adherence:
+    type: integer
+    description: Binary flag indicating adherence for the specific log entry (1=adherent, 0=non-adherent).
+    enum: [0, 1]
+    example: 1
+  
+  Conscientiousness_Score:
+    type: number
+    description: Continuous score for the personality trait Conscientiousness.
+    minimum: 0.0
+    maximum: 100.0
+    example: 75.5
+  
+  Need_for_Achievement:
+    type: number
+    description: Continuous score for the personality trait Need for Achievement.
+    minimum: 0.0
+    maximum: 100.0
+    example: 82.0
+  
+  Week_Number:
+    type: integer
+    description: Sequential week number of the study (1-based index).
+    minimum: 1
+    example: 1
+  
+  Date:
+    type: string
+    description: ISO 8601 date string (YYYY-MM-DD) of the log entry.
+    format: date
+    example: "2023-01-15"
+  
+  # Optional columns that may appear in processed data
+  Weekly_Adherence_Flag:
+    type: integer
+    description: Aggregated weekly adherence flag (1 if adherent all week, 0 otherwise).
+    enum: [0, 1]
+    required: false
+    example: 1
+  
+  Gamified_App_Usage:
+    type: string
+    description: Specific gamified app name if applicable, otherwise null/empty.
+    required: false
+    example: "Habitica"
 
-      Gamified:
-        type: object
-        description: "Binary indicator of whether the user uses gamified habit tracking apps."
-        properties:
-          type:
-            type: string
-            const: "boolean"
-          description:
-            type: string
-            const: "True if the user reported using gamified apps, False otherwise."
-          required:
-            type: boolean
-            const: true
-          validation:
-            type: object
-            properties:
-              min_group_size:
-                type: integer
-                const: 30
-                description: "Minimum required count for the False (non-gamified) group (FR-008)."
-        required:
-          - type
-          - description
-          - required
-
-      Adherence:
-        type: object
-        description: "Binary flag indicating adherence to the habit for a specific observation period."
-        properties:
-          type:
-            type: string
-            const: "integer"
-          description:
-            type: string
-            const: "Binary flag (1 = adhered, 0 = did not adhere)."
-          required:
-            type: boolean
-            const: true
-          validation:
-            type: object
-            properties:
-              allowed_values:
-                type: array
-                items:
-                  type: integer
-                const: [0, 1]
-        required:
-          - type
-          - description
-          - required
-
-      Date:
-        type: object
-        description: "Date of the observation."
-        properties:
-          type:
-            type: string
-            const: "datetime"
-          format:
-            type: string
-            const: "YYYY-MM-DD"
-          description:
-            type: string
-            const: "Date of the log entry."
-          required:
-            type: boolean
-            const: true
-        required:
-          - type
-          - format
-          - description
-          - required
-
-      Week_Number:
-        type: object
-        description: "Sequential week number derived from the date."
-        properties:
-          type:
-            type: string
-            const: "integer"
-          description:
-            type: string
-            const: "Sequential week number (1-based)."
-          required:
-            type: boolean
-            const: true
-        required:
-          - type
-          - description
-          - required
-
-      Conscientiousness_Score:
-        type: object
-        description: "Personality trait score for Conscientiousness."
-        properties:
-          type:
-            type: string
-            const: "float"
-          description:
-            type: string
-            const: "Continuous score representing Conscientiousness level."
-          required:
-            type: boolean
-            const: true
-          validation:
-            type: object
-            properties:
-              min:
-                type: number
-                const: 0.0
-              max:
-                type: number
-                const: 100.0
-        required:
-          - type
-          - description
-          - required
-
-      Need_For_Achievement:
-        type: object
-        description: "Personality trait score for Need for Achievement."
-        properties:
-          type:
-            type: string
-            const: "float"
-          description:
-            type: string
-            const: "Continuous score representing Need for Achievement."
-          required:
-            type: boolean
-            const: true
-          validation:
-            type: object
-            properties:
-              min:
-                type: number
-                const: 0.0
-              max:
-                type: number
-                const: 100.0
-        required:
-          - type
-          - description
-          - required
-
-      Event_Type:
-        type: object
-        description: "Type of behavioral event logged."
-        properties:
-          type:
-            type: string
-          description:
-            type: string
-            const: "Category of the event (e.g., 'log_in', 'task_complete')."
-          required:
-            type: boolean
-            const: true
-        required:
-          - type
-          - description
-          - required
-
-additionalProperties: false
+additionalProperties: true
+# Strict validation ensures these core columns exist in the DataFrame
+# before any analysis proceeds.

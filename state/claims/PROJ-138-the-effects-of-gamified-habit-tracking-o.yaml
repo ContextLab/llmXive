@@ -255,3 +255,22 @@
   source_type: external
   status: verified
   updated_at: '2026-07-07T13:21:54Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/quickstart.md
+  attempts: 1
+  canonical: synthetic dataset contains 100 users with 70% gamified and 30% non-gamified
+    distribution
+  claim_id: c_c440ea01
+  context: 'To generate synthetic data explicitly: python code/data/synthetic_generator.py.
+    This creates `data/raw/synthetic_data.csv` with N=100 users (70% gamified, 30%
+    non-gamified).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This creates `data/raw/synthetic_data.csv` with N=100 users (70% gamified,
+    30% non-gamified).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:28:49Z'
