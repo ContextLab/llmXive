@@ -1,2 +1,4 @@
-# Utils package for llmXive follow-up project
-# This directory contains shared utility functions for entropy and heuristics calculations.
+"""
+Utils package for llmXive research pipeline.
+Contains utility modules for entropy calculations, heuristics, and other common functions.
+"""

@@ -1,11 +1,3 @@
-"""
-FeatureSet class for managing selected features for modeling.
-
-This class represents a subset of features (genes) selected for
-predictive modeling, including their associated metadata and
-pathway information.
-"""
-
 import pandas as pd
 from typing import Optional, List, Dict, Any
 from pathlib import Path
@@ -17,241 +9,107 @@ logger = logging.getLogger(__name__)
 
 class FeatureSet:
     """
-    A class to represent a set of selected features.
+    Represents a filtered set of features (genes) selected for modeling.
+    This typically results from pathway filtering and zero-variance removal.
     
     Attributes:
-        feature_ids (List[str]): List of feature identifiers included in the set.
-        feature_info (Dict[str, Any]): Metadata for each feature (e.g., pathway, gene_name).
-        source_expression_matrix (Optional[str]): Reference to the source expression matrix.
-        selection_method (Optional[str]): Method used for feature selection (e.g., 'KEGG_pathway').
-        description (Optional[str]): Description of the feature set.
+        data: DataFrame containing the selected feature expression values.
+        feature_info: Dictionary mapping feature IDs to metadata (e.g., KEGG pathway).
+        source_matrix_id: Identifier of the source ExpressionMatrix.
     """
     
     def __init__(
         self,
-        feature_ids: Optional[List[str]] = None,
-        feature_info: Optional[Dict[str, Any]] = None,
-        source_expression_matrix: Optional[str] = None,
-        selection_method: Optional[str] = None,
-        description: Optional[str] = None
+        data: Optional[pd.DataFrame] = None,
+        feature_info: Optional[Dict[str, Dict[str, Any]]] = None,
+        source_matrix_id: Optional[str] = None
     ):
-        """
-        Initialize a FeatureSet instance.
+        self.data = data if data is not None else pd.DataFrame()
+        self.feature_info = feature_info if feature_info is not None else {}
+        self.source_matrix_id = source_matrix_id
         
-        Args:
-            feature_ids: List of feature identifiers.
-            feature_info: Dictionary mapping feature_id to metadata.
-            source_expression_matrix: Identifier of the source expression matrix.
-            selection_method: Method used for feature selection.
-            description: Description of the feature set.
-        """
-        self.feature_ids = feature_ids or []
-        self.feature_info = feature_info or {}
-        self.source_expression_matrix = source_expression_matrix
-        self.selection_method = selection_method
-        self.description = description
-        
-        logger.info(f"Initialized FeatureSet with {len(self.feature_ids)} features")
+        if not self.data.empty:
+            self._validate_features()
     
-    def add_feature(self, feature_id: str, **kwargs) -> None:
-        """
-        Add a feature to the set.
+    def _validate_features(self):
+        """Ensure features are valid."""
+        if self.data.empty:
+            raise ValueError("FeatureSet data cannot be empty.")
         
-        Args:
-            feature_id: The feature identifier.
-            **kwargs: Feature metadata key-value pairs.
-        """
-        if feature_id not in self.feature_ids:
-            self.feature_ids.append(feature_id)
-        if feature_id not in self.feature_info:
-            self.feature_info[feature_id] = {}
-        self.feature_info[feature_id].update(kwargs)
+        if len(self.data.columns) == 0:
+            raise ValueError("FeatureSet must have at least one sample column.")
     
-    def remove_feature(self, feature_id: str) -> bool:
-        """
-        Remove a feature from the set.
-        
-        Args:
-            feature_id: The feature identifier to remove.
-        
-        Returns:
-            True if the feature was removed, False if not found.
-        """
-        if feature_id in self.feature_ids:
-            self.feature_ids.remove(feature_id)
-            if feature_id in self.feature_info:
-                del self.feature_info[feature_id]
-            return True
-        return False
+    def get_feature_ids(self) -> List[str]:
+        """Return list of feature identifiers (index)."""
+        return list(self.data.index)
     
-    def get_features_by_pathway(self, pathway: str) -> List[str]:
-        """
-        Get all features belonging to a specific pathway.
-        
-        Args:
-            pathway: The pathway name to filter by.
-        
-        Returns:
-            List of feature IDs in the pathway.
-        """
-        return [
-            fid for fid in self.feature_ids
-            if self.feature_info.get(fid, {}).get('pathway') == pathway
-        ]
+    def get_sample_ids(self) -> List[str]:
+        """Return list of sample identifiers (columns)."""
+        return list(self.data.columns)
     
-    def get_features_by_species(self, species: str) -> List[str]:
-        """
-        Get all features belonging to a specific species.
-        
-        Args:
-            species: The species name to filter by.
-        
-        Returns:
-            List of feature IDs in the species.
-        """
-        return [
-            fid for fid in self.feature_ids
-            if self.feature_info.get(fid, {}).get('species') == species
-        ]
+    def get_dimensions(self) -> tuple:
+        """Return (n_features, n_samples)."""
+        return self.data.shape
     
-    def to_dataframe(self) -> pd.DataFrame:
-        """
-        Convert the feature set to a DataFrame.
+    def get_pathway_info(self, feature_id: str) -> Optional[Dict[str, Any]]:
+        """Get metadata for a specific feature."""
+        return self.feature_info.get(feature_id)
+    
+    def filter_samples(self, sample_ids: List[str]) -> 'FeatureSet':
+        """Return a new FeatureSet filtered to only include specified samples."""
+        available = set(self.data.columns)
+        requested = set(sample_ids)
+        missing = requested - available
         
-        Returns:
-            DataFrame with feature metadata.
-        """
-        rows = []
-        for fid in self.feature_ids:
-            row = {'feature_id': fid}
-            row.update(self.feature_info.get(fid, {}))
-            rows.append(row)
-        return pd.DataFrame(rows)
+        if missing:
+            logger.warning(f"Samples not found in FeatureSet: {len(missing)}")
+        
+        filtered_data = self.data[list(available.intersection(requested))]
+        return FeatureSet(
+            data=filtered_data,
+            feature_info=self.feature_info.copy(),
+            source_matrix_id=self.source_matrix_id
+        )
+    
+    def to_csv(self, filepath: Path) -> None:
+        """Save the feature set matrix to a CSV file."""
+        filepath = Path(filepath)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        self.data.to_csv(filepath)
+        logger.info(f"FeatureSet saved to {filepath}")
+    
+    @classmethod
+    def from_csv(cls, filepath: Path) -> 'FeatureSet':
+        """Load a FeatureSet from a CSV file."""
+        filepath = Path(filepath)
+        if not filepath.exists():
+            raise FileNotFoundError(f"FeatureSet file not found: {filepath}")
+        
+        data = pd.read_csv(filepath, index_col=0)
+        return cls(data=data)
     
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the feature set to a dictionary for serialization.
-        
-        Returns:
-            Dictionary representation of the feature set.
-        """
+        """Convert the FeatureSet to a dictionary representation."""
         return {
-            'feature_ids': self.feature_ids,
-            'feature_info': self.feature_info,
-            'source_expression_matrix': self.source_expression_matrix,
-            'selection_method': self.selection_method,
-            'description': self.description
+            "data": self.data.to_dict(orient="split"),
+            "feature_info": self.feature_info,
+            "source_matrix_id": self.source_matrix_id
         }
     
     @classmethod
     def from_dict(cls, data_dict: Dict[str, Any]) -> 'FeatureSet':
-        """
-        Create a FeatureSet from a dictionary.
-        
-        Args:
-            data_dict: Dictionary representation of the feature set.
-        
-        Returns:
-            FeatureSet instance.
-        """
-        return cls(
-            feature_ids=data_dict.get('feature_ids', []),
-            feature_info=data_dict.get('feature_info', {}),
-            source_expression_matrix=data_dict.get('source_expression_matrix'),
-            selection_method=data_dict.get('selection_method'),
-            description=data_dict.get('description')
+        """Reconstruct a FeatureSet from a dictionary."""
+        data = pd.DataFrame(
+            data_dict["data"]["data"],
+            index=data_dict["data"]["index"],
+            columns=data_dict["data"]["columns"]
         )
-    
-    def save_json(self, filepath: Path) -> None:
-        """
-        Save the feature set to a JSON file.
-        
-        Args:
-            filepath: Path to the output file.
-        """
-        filepath = Path(filepath)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        with open(filepath, 'w') as f:
-            json.dump(self.to_dict(), f, indent=2)
-        logger.info(f"Saved FeatureSet to {filepath}")
-    
-    @classmethod
-    def load_json(cls, filepath: Path) -> 'FeatureSet':
-        """
-        Load a FeatureSet from a JSON file.
-        
-        Args:
-            filepath: Path to the input file.
-        
-        Returns:
-            FeatureSet instance.
-        """
-        filepath = Path(filepath)
-        with open(filepath, 'r') as f:
-            data_dict = json.load(f)
-        return cls.from_dict(data_dict)
-    
-    def save_csv(self, filepath: Path) -> None:
-        """
-        Save the feature set to a CSV file.
-        
-        Args:
-            filepath: Path to the output file.
-        """
-        filepath = Path(filepath)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        df = self.to_dataframe()
-        df.to_csv(filepath, index=False)
-        logger.info(f"Saved FeatureSet to {filepath}")
-    
-    @classmethod
-    def load_csv(
-        cls,
-        filepath: Path,
-        source_expression_matrix: Optional[str] = None,
-        selection_method: Optional[str] = None,
-        description: Optional[str] = None
-    ) -> 'FeatureSet':
-        """
-        Load a FeatureSet from a CSV file.
-        
-        Args:
-            filepath: Path to the input file.
-            source_expression_matrix: Optional source identifier.
-            selection_method: Optional selection method.
-            description: Optional description.
-        
-        Returns:
-            FeatureSet instance.
-        """
-        filepath = Path(filepath)
-        df = pd.read_csv(filepath)
-        
-        feature_ids = df['feature_id'].tolist()
-        feature_info = {}
-        
-        for _, row in df.iterrows():
-            fid = row['feature_id']
-            feature_info[fid] = row.to_dict()
-            # Remove the feature_id from the metadata dict as it's the key
-            feature_info[fid].pop('feature_id', None)
-        
         return cls(
-            feature_ids=feature_ids,
-            feature_info=feature_info,
-            source_expression_matrix=source_expression_matrix,
-            selection_method=selection_method,
-            description=description
+            data=data,
+            feature_info=data_dict.get("feature_info", {}),
+            source_matrix_id=data_dict.get("source_matrix_id")
         )
-    
-    def __len__(self) -> int:
-        return len(self.feature_ids)
-    
-    def __contains__(self, feature_id: str) -> bool:
-        return feature_id in self.feature_ids
     
     def __repr__(self) -> str:
-        return (
-            f"FeatureSet(features={len(self.feature_ids)}, "
-            f"method={self.selection_method or 'unknown'})"
-        )
+        n_features, n_samples = self.get_dimensions()
+        return f"FeatureSet(features={n_features}, samples={n_samples})"

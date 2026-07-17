@@ -3,15 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-plant-defense-pipeline"
+name = "proj-503-predicting-plant-defense"
 version = "0.1.0"
-description = "Predicting Plant Defense Compound Production from Genomic and Transcriptomic Data"
-readme = "README.md"
+description = "Predicting Plant Defense Compound Production from Publicly Available Genomic and Transcriptomic Data"
 requires-python = ">=3.11"
-license = {text = "MIT"}
-authors = [
-    {name = "llmXive Research Team"}
-]
 dependencies = [
     "pandas",
     "numpy",
@@ -24,18 +19,12 @@ dependencies = [
     "pytest",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "black>=23.0.0",
-    "flake8>=6.0.0",
-    "isort>=5.12.0",
-    "mypy>=1.0.0",
-    "pytest-cov>=4.0.0",
-]
+[tool.setuptools.packages.find]
+where = ["code"]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -48,30 +37,45 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | __pycache__
+    | \.eggs
+    | \.cache
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["code"]
-skip = [".git", "__pycache__", ".eggs", "build", "dist"]
+known_first_party = ["models", "exceptions", "data_download", "data_search", "pairing_logic", "logging_utils", "power_analysis", "error_handler", "checksum_utils", "create_expression_matrix", "data_aggregation", "fallback_pairing", "validate_pairing", "main", "setup_project", "power_analysis_runner", "run_geo_arabidopsis_search", "run_geo_solanum_search", "run_pairing_feasibility", "run_power_analysis", "utils"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning"
+addopts = "-v --strict-markers"
+markers = [
+    "contract: Contract tests",
+    "integration: Integration tests",
+    "unit: Unit tests",
+    "slow: Slow running tests",
 ]
 
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
-disallow_untyped_defs = false
-strict_optional = true
+[tool.coverage.run]
+source = ["code"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+precision = 2
+show_missing = true

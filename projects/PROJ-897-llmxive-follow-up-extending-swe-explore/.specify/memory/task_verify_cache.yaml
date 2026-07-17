@@ -1,0 +1,44 @@
+T014b:
+  c: false
+  h: 9773979e5aab83859b2cc22cf7e4548108643542ff80e34f845331690f5126f7
+  r: "The repository contains `code/data/curate.py`, but the shown portion only implements\
+    \ loading ground truth and filtering hard instances; there is no visible logic\
+    \ for mutating code, generating up to 50 synthetic ambiguous issues, or writing\
+    \ `data/curated/synthetic_issues_meta.json`. Moreover, the required metadata file\
+    \ is absent. The task\u2019s core requirements are therefore unmet."
+T015:
+  c: false
+  h: 63766646ee7f0cf4f9248a4f0b0eb42f6a6df70c3000c6d466f1de88388b40ae
+  r: "The required `data/curated/validation_report.md` file does not exist, and the\
+    \ provided `code/data/validate_hard.py` (as shown) contains only loading and validation\
+    \ logic without any implementation that writes a markdown table with the specified\
+    \ columns. The task\u2019s core output is therefore missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `hash_artifacts.py` being invoked or integrated into the pipeline
+    is provided, and there is no script, configuration, or log showing that files
+    in `data/curated/` are hashed after they are generated. The required artifact
+    (the integration code or demonstration of its effect) is missing.
+T022:
+  c: false
+  h: d4758a54bb7256fd2adfc837a4fd9caebe7a34e586e24636b792f0d388c3ff1a
+  r: "The provided `code/agent/base.py` is truncated and does not show that it actually\
+    \ writes log entries containing the required fields (`issue_id`, `query_count`,\
+    \ `retrieved_context_ids`, `coverage_score`) in the format defined by `agent_log_schema.yaml`.\
+    \ Moreover, the schema file itself is missing from the repository, so compatibility\
+    \ cannot be verified. The implementation therefore does not demonstrably satisfy\
+    \ the task\u2019s requirements."
+T024:
+  c: false
+  h: afa94b501c560b96c01db674460bf2578b5dc7e6e0a21db0b5be42ee4e65cfef
+  r: "The repository contains a non\u2011empty `code/main.py`, but the required output\
+    \ file `data/results/paired_metrics.json` is absent, so the orchestration does\
+    \ not produce the mandated merged results. The missing JSON file means the task\u2019\
+    s primary deliverable is not satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `hash_artifacts.py` being integrated or any generated hash files
+    for `data/results/agent_logs/` is present; the required artifact (the updated
+    script or resulting hash outputs) is missing.

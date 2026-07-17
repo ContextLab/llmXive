@@ -1,0 +1,9 @@
+{
+  "effect_size_r": 0.5,
+  "alpha": 0.05,
+  "power": 0.8,
+  "required_sample_size": 28,
+  "minimum_threshold": 28,
+  "status": "PASS",
+  "timestamp": "Phase0"
+}

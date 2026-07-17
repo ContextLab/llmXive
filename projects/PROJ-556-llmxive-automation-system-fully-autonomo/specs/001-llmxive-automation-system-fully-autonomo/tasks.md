@@ -83,9 +83,10 @@
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement `src/agents/brainstorm.py` to generate hypotheses using CPU-tractable LLM (distilled model or API) with configurable temperature
-- [ ] T014 [US1] Implement `src/agents/scorer.py` to compute cosine similarity against the frozen literature index; include logic to handle empty corpus (default score 0.5, flag 'non_novel')
-- [ ] T015 [US1] Implement static plausibility check (perplexity/variable existence) in `src/agents/scorer.py` to filter gibberish
-- [ ] T016 [US1] Add logging for hypothesis generation and novelty scoring outcomes
+- [ ] T014 [US1] Implement `src/agents/scorer.py` to compute cosine similarity against the frozen literature index; include logic to handle empty corpus (default score 0.5, flag 'non_novel'). **Depends on T010 completion.**
+- [ ] T015 [P] [US1] Implement static plausibility check in `src/agents/scorer.py` to verify variable existence against dataset schema and logical plausibility (e.g., preventing "correlate X with itself") as mandated by FR-010
+- [ ] T015b [US1] Implement explicit variable existence validation in `src/agents/scorer.py` to ensure all variables in generated hypotheses exist in the dataset schema, enabling SC-001 measurement of hallucinated citations. **Depends on T008 and T007.**
+- [ ] T016 [P] [US1] Create and populate `data/manual_hypotheses.csv` with human-authored hypotheses to serve as input for the human baseline task
 - [ ] T017 [US1] Implement "Human Baseline" generator (FR-008): read 5 manual hypotheses from `data/manual_hypotheses.csv`, score them using the same novelty metric, and append results to `results.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -106,8 +107,8 @@
 ### Implementation for User Story 2
 
 - [ ] T020 [P] [US2] Implement `src/agents/coder.py` to generate Python scripts using standard libraries (pandas, scipy, sklearn)
-- [ ] T021 [US2] Implement pre-execution static analysis in `src/core/executor.py` (FR-010) to verify variable existence and logical plausibility
-- [ ] T022 [US2] Implement `src/core/executor.py` with 60s timeout, `MemoryError` retry logic (sample data), and error categorization
+- [ ] T021 [P] [US2] Implement pre-execution static analysis in `src/core/executor.py` (FR-010) to verify variable existence and logical plausibility. **Depends on T007, T008.**
+- [ ] T022 [US2] Implement `src/core/executor.py` with a configurable timeout, `MemoryError` retry logic (sample data), and error categorization
 - [ ] T023 [US2] Implement "Turing Verifier" logic in `src/core/executor.py` to detect non-deterministic outputs via repeated runs (3x)
 - [ ] T024 [US2] Add logging for all execution outcomes (Pass, Fail, DependencyError, RuntimeError, NonDeterministic, ResourceExceeded)
 
@@ -130,7 +131,7 @@
 
 - [ ] T027 [P] [US3] Implement `src/core/stats.py` with Shapiro-Wilk normality check and fallback to non-parametric methods (Kruskal-Wallis)
 - [ ] T028 [US3] Implement Linear Mixed-Effects Models (LMM) in `src/core/stats.py` with random intercepts per dataset and fixed effects for ArchConfig
-- [ ] T029 [US3] Implement Bonferroni correction for multiple comparisons as mandated by FR-007 (replacing any FDR logic)
+- [ ] T029 [US3] Implement Benjamini-Hochberg FDR correction for multiple comparisons as mandated by plan.md (replacing Bonferroni) to control false discovery rate
 - [ ] T030 [US3] Implement sensitivity analysis module (FR-009) to vary embedding models/thresholds and report correlation shifts
 - [ ] T031 [US3] **Aggregate Metrics**: Compute SC-002 (Reproducibility Failure Rate) from execution logs and SC-003 (Statistical Significance) from LMM results; write to `data/aggregated_metrics.json`
 - [ ] T032 [US3] Generate final report with p-values, confidence intervals, and explicit "No significant correlation found" statements where applicable
@@ -147,10 +148,26 @@
 
 ### Implementation for User Story 4
 
-- [ ] T033 [US4] Implement manual annotation workflow script: select a representative subset of hypotheses via stratified random sampling (proportional allocation per dataset) and output to `data/annotation_queue.jsonl`
+- [ ] T033 [US4] Implement manual annotation workflow script: select a representative subset of hypotheses via stratified random sampling (proportional allocation per dataset) from the full pipeline results and output to `data/annotation_queue.jsonl` with schema: `{hypothesis_id, dataset_id, source_text}`
 - [ ] T034 [US4] Implement Cohen's Kappa calculator in `src/utils/metrics.py` to compare annotator agreement
-- [ ] T035 [US4] Run full pipeline smoke test on 5 datasets: execute `python -m src.cli.main --full-run --datasets 5` and verify `runtime_log.json` shows CPU seconds per hypothesis within 6-hour limit (SC-005)
+- [ ] T035 [US4] Run single-dataset smoke test: execute `python -m src.cli.main --smoke-test --dataset uci_breast_cancer` and verify `runtime_log.json` shows CPU seconds within limits (SC-005). **Note: Spec defines single dataset for validation.**
 - [ ] T036 [US4] Validate all outputs against `contracts/*.schema.yaml` and checksum raw data
+
+---
+
+## Phase 7: Philosophical & Architectural Safeguards (Priority: P5)
+
+**Goal**: Implement advanced validation layers (Lovelace, Turing, Feedback, etc.) to ensure system robustness and detect epistemic drift.
+
+- [ ] T037 [P] [US5] Implement "Lovelace Distinction" check in `src/agents/origin_tracker.py` to verify hypotheses are not mere rephrasings of training data. **Depends on T013, T014.**
+- [ ] T038 [P] [US5] Implement "Turing Verifier" extended check in `src/agents/origin_tracker.py` to detect non-deterministic outputs and logical inconsistencies across runs. **Depends on T022, T023.**
+- [ ] T039 [P] [US5] Implement "Feedback Monitor" in `src/agents/feedback_monitor.py` to detect epistemic drift by tracking the semantic distance of generated hypotheses over time. **Depends on T013, T014.**
+- [ ] T040 [P] [US5] Implement "Dyson Scaling" check in `src/agents/scaling_analyzer.py` to evaluate performance degradation with increasing dataset complexity. **Depends on T013.**
+- [ ] T041 [P] [US5] Implement "West Scaling Analysis" in `src/agents/scaling_analyzer.py` to correlate model size with novelty scores. **Depends on T031.**
+- [ ] T042 [P] [US5] Implement "Wolfram Empirical Mining" in `src/agents/mining_agent.py` to identify patterns in failure modes. **Depends on T013-T032.**
+- [ ] T043 [P] [US5] Implement "Exaptation Detector" in `src/agents/exaptation_detector.py` to find unexpected utility in generated hypotheses. **Depends on T013, T014.**
+
+**Checkpoint**: Advanced validation layers complete.
 
 ---
 
@@ -158,12 +175,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `docs/` and `quickstart.md`
-- [ ] T038 Code cleanup and refactoring
-- [ ] T039 Performance optimization for CPU-only constraints
-- [ ] T040 [P] Additional unit tests in `tests/unit/`
-- [ ] T041 Security hardening (dependency pinning, sandbox isolation verification)
-- [ ] T042 Run quickstart.md validation
+- [ ] T044 [P] Documentation updates in `docs/` and `quickstart.md`
+- [ ] T045 Code cleanup and refactoring
+- [ ] T046 Performance optimization for CPU-only constraints
+- [ ] T047 Additional unit tests in `tests/unit/`
+- [ ] T048 Security hardening (dependency pinning, sandbox isolation verification)
+- [ ] T049 Run quickstart.md validation
 
 ---
 
@@ -177,6 +194,7 @@
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
 - **Manual Annotation (Phase 6)**: Depends on US1 and US2 completion
+- **Philosophical Safeguards (Phase 7)**: Depends on US1, US2, US3 completion
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies

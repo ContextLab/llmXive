@@ -60,7 +60,7 @@
 - [X] T005 [P] Implement `code/utils/hash_artifacts.py` for automated SHA256 hashing of `data/` artifacts (Constitution Principle V)
 - [X] T006 [P] Create `contracts/` directory with `dataset_schema.yaml`, `agent_log_schema.yaml`, `result_schema.yaml`
 - [X] T007 Implement `code/utils/validation.py` for JSONL/Parquet schema validation against contracts
-- [ ] T008 Setup `pytest` configuration and `tests/contract/test_schemas.py` skeleton
+- [X] T008 Setup `pytest` configuration and `tests/contract/test_schemas.py` skeleton
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,20 +76,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (Depends on T006 schema output)
-- [ ] T010 [P] [US1] Unit test for mutation logic (variable rename, comment removal) in `tests/unit/test_mutation.py`
-- [ ] T011 [P] [US1] Unit test for synthetic issue validity (AST parse check) in `tests/unit/test_synthetic_validity.py`
+- [X] T009 [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (Depends on T006 schema output)
+- [X] T010 [P] [US1] Unit test for mutation logic (variable rename, comment removal) in `tests/unit/test_mutation.py`
+- [X] T011 [P] [US1] Unit test for synthetic issue validity (AST parse check) in `tests/unit/test_synthetic_validity.py`
 
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `code/data/download.py` to fetch `bench.final.public.jsonl` from HuggingFace
-- [ ] T013 [P] [US1] Implement `code/data/derive_gt.py` to parse solution patches and generate `ground_truth_lines` lists
-- [ ] T014a [US1] Implement `code/data/curate.py` Part A: **Filter** the bottom [deferred] of issues based on existing **`initial_coverage`** scores (read `HARD_INSTANCE_PERCENTILE` from `config.py`) to identify "Hard" instances per FR-001. Do NOT use complexity. Ensure this consumes `ground_truth_lines` from T013.
-- [~] T014b [US1] Implement `code/data/curate.py` Part B: Generate **up to 50** synthetic ambiguous issues by mutating variable names, removing comments, and applying **structural obfuscations (control flow reordering, API signature changes)** per FR-009. **Fallback Logic**: If the pool of solvable tasks is insufficient, proceed with N < 50, log a warning, and save the actual count in `data/curated/synthetic_issues_meta.json`. Ensure synthetic issues are syntactically valid (AST parseable). Save `ground_truth_lines` from original code for synthetic issues (FR-008). **Versioning**: Record original code hash and mutation parameters in metadata.
+- [X] T013 [P] [US1] Implement `code/data/derive_gt.py` to parse solution patches and generate `ground_truth_lines` lists
+- [X] T014a [US1] Implement `code/data/curate.py` Part A: **Filter** the bottom [deferred] of issues based on existing **`initial_coverage`** scores (read `HARD_INSTANCE_PERCENTILE` from `config.py`) to identify "Hard" instances per FR-001. Do NOT use complexity. Ensure this consumes `ground_truth_lines` from T013.
+- [ ] T014b [US1] Implement `code/data/curate.py` Part B: Generate **up to 50** synthetic ambiguous issues by mutating variable names, removing comments, and applying **structural obfuscations (control flow reordering, API signature changes)** per FR-009. **Fallback Logic**: If the pool of solvable tasks is insufficient, proceed with N < 50, log a warning, and save the actual count in `data/curated/synthetic_issues_meta.json`. Ensure synthetic issues are syntactically valid (AST parseable). Save `ground_truth_lines` from original code for synthetic issues (FR-008). **Versioning**: Record original code hash and mutation parameters in metadata.
 - [X] T014c [US1] Implement `code/data/curate.py` Part C: Validation logic to skip invalid mutations and log warnings.
 - [X] T015a [US1] Implement `code/config.py` update to define `VALIDATION_SAMPLE_SIZE` (default N=20) and `HARD_INSTANCE_PERCENTILE` (default) to resolve "[deferred]" values before execution.
-- [~] T015 [US1] Implement `code/data/validate_hard.py` to generate `data/curated/validation_report.md` with manual inspection guide for the **`VALIDATION_SAMPLE_SIZE`** subset defined in `config.py`. **Logic**: Read `VALIDATION_SAMPLE_SIZE` from config. **Output format**: Markdown table with columns [IssueID, CoverageScore, MutationType, ValidityStatus, Notes].
-- [~] T016 [US1] Integrate `hash_artifacts.py` to hash `data/curated/` files after generation
+- [ ] T015 [US1] Implement `code/data/validate_hard.py` to generate `data/curated/validation_report.md` with manual inspection guide for the **`VALIDATION_SAMPLE_SIZE`** subset defined in `config.py`. **Logic**: Read `VALIDATION_SAMPLE_SIZE` from config. **Output format**: Markdown table with columns [IssueID, CoverageScore, MutationType, ValidityStatus, Notes].
+- [ ] T016 [US1] Integrate `hash_artifacts.py` to hash `data/curated/` files after generation
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,16 +110,16 @@
 
 - [X] T020 [P] [US2] Implement `code/agent/static_analysis.py` wrapper for `pylint`/`ast` to detect "missing import", "undefined variable", parse errors
 - [X] T021 [P] [US2] Implement `code/agent/prompts.py` with templates for query reformulation based on static analysis signals
-- [~] T022 [US2] Implement `code/agent/base.py` for Static Multi-Query Baseline. **Requirement**: Run **3 parallel queries** per issue (matching iterative budget). Must operate on the same curated subset as T023 and produce output compatible with `agent_log_schema.yaml` for T031 pairing. Explicitly log `issue_id`, `query_count`, `retrieved_context_ids`, and `coverage_score` to enable 1:1 pairing with iterative results for the Wilcoxon signed-rank test.
-- [ ] T023 [US2] Implement `code/agent/iterative.py`:
+- [ ] T022 [US2] Implement `code/agent/base.py` for Static Multi-Query Baseline. **Requirement**: Run **3 parallel queries** per issue (matching iterative budget). Must operate on the same curated subset as T023 and produce output compatible with `agent_log_schema.yaml` for T031 pairing. Explicitly log `issue_id`, `query_count`, `retrieved_context_ids`, and `coverage_score` to enable 1:1 pairing with iterative results for the Wilcoxon signed-rank test.
+- [X] T023 [US2] Implement `code/agent/iterative.py`:
  - Enforce 3-turn limit (FR-003)
  - Turn logic: Query -> Retrieve -> Static Analysis -> Reformulate (if error)
  - Detect repeated queries to break loops early
  - Log `query_history`, `static_analysis_signals`, `turn_reasons`
  - **Requirement**: Must operate on the same curated subset as T022 and produce output compatible with `agent_log_schema.yaml` for T031 pairing. Explicitly log the `issue_id` to enable 1:1 pairing with baseline results.
-- [~] T024 [US2] Implement `code/main.py` orchestration to run Baseline and Iterative agent on curated dataset. Output: `data/results/paired_metrics.json` containing merged results for T031, ensuring strict pairing by `issue_id`.
+- [ ] T024 [US2] Implement `code/main.py` orchestration to run Baseline and Iterative agent on curated dataset. Output: `data/results/paired_metrics.json` containing merged results for T031, ensuring strict pairing by `issue_id`.
 - [ ] T025 [US2] Implement turn-limit sweep logic: Reuse T023/T024 logic to execute **N=20 issues** (random sample from `data/curated/hard_subset.jsonl`) with **4 turns** per SC-006. Record results in `data/results/sweep_results.json` for stability comparison.
-- [~] T026 [US2] Integrate `hash_artifacts.py` to hash `data/results/agent_logs/`
+- [ ] T026 [US2] Integrate `hash_artifacts.py` to hash `data/results/agent_logs/`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

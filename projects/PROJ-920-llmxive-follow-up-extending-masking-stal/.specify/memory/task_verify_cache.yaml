@@ -1,0 +1,38 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/raw/` directory inside `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`
+    is provided; the implementer did not supply any artifact confirming the directory
+    was created. The required folder is missing.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `data/processed/` directory being created in the specified
+    project path is provided; the response contains only the task description and
+    no filesystem artifact. The required directory is missing.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was presented showing that the directory `output/plots/` was created\
+    \ inside the specified project path; the response contains no file\u2011system\
+    \ listing or confirmation of the folder\u2019s existence."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/` directory inside `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`
+    is provided; the implementer did not supply any artifact confirming the directory
+    was created.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that a `code/utils/` directory exists within
+    `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`; the claim is unsubstantiated.
+    The required directory must be created and its presence verified.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that the directories `tests/unit/`, `tests/integration/`,\
+    \ and `tests/contract/` actually exist in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`.\
+    \ The implementer\u2019s claim lacks any file\u2011system listing, screenshots,\
+    \ or other artifacts confirming the creation of these folders. The required directories\
+    \ are therefore missing."

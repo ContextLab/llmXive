@@ -1,129 +1,172 @@
 """
-Unit tests for checksum_utils.py
+Unit tests for checksum_utils module.
 """
+
 import json
+import os
 import tempfile
 from pathlib import Path
 import pytest
 
-from checksum_utils import (
-    calculate_sha256,
-    validate_checksums,
-    generate_checksums,
-    main
-)
-from exceptions import E_DATASET
+# Import the module under test
+# Adjust import path based on project structure if running from root
+try:
+    from code.checksum_utils import calculate_sha256, generate_checksums, validate_checksums
+except ImportError:
+    # Fallback for running tests from project root
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+    from checksum_utils import calculate_sha256, generate_checksums, validate_checksums
 
 
-@pytest.fixture
-def temp_data_dir():
-    """Create a temporary directory with test files."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        data_dir = Path(tmpdir)
-        # Create test files
-        (data_dir / "file1.txt").write_text("Hello, World!")
-        (data_dir / "file2.txt").write_text("Test data for checksums")
-        (data_dir / "file3.bin").write_bytes(b"\x00\x01\x02\x03")
-        yield data_dir
+class TestCalculateSha256:
+    def test_calculate_sha256_known_file(self):
+        """Test calculation against a known file content."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Hello, World!")
+            temp_path = f.name
 
+        try:
+            # "Hello, World!" SHA-256
+            expected_hash = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
+            actual_hash = calculate_sha256(temp_path)
+            assert actual_hash == expected_hash
+        finally:
+            os.unlink(temp_path)
 
-@pytest.fixture
-def checksums_manifest(temp_data_dir):
-    """Create a valid checksum manifest."""
-    manifest_path = temp_data_dir.parent / "checksums.json"
-    checksums = {}
-    for f in temp_data_dir.iterdir():
-        checksums[f.name] = calculate_sha256(f)
-    with open(manifest_path, "w") as mf:
-        json.dump(checksums, mf)
-    return manifest_path
+    def test_calculate_sha256_empty_file(self):
+        """Test calculation on an empty file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            temp_path = f.name
 
+        try:
+            # Empty file SHA-256
+            expected_hash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            actual_hash = calculate_sha256(temp_path)
+            assert actual_hash == expected_hash
+        finally:
+            os.unlink(temp_path)
 
-def test_calculate_sha256(temp_data_dir):
-    """Test SHA-256 calculation for a known string."""
-    file_path = temp_data_dir / "file1.txt"
-    hash_val = calculate_sha256(file_path)
-    assert len(hash_val) == 64  # SHA-256 hex length
-    assert all(c in "0123456789abcdef" for c in hash_val)
-
-
-def test_calculate_sha256_missing_file():
-    """Test that missing file raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        calculate_sha256(Path("/nonexistent/file.txt"))
-
-
-def test_validate_checksums_success(checksums_manifest, temp_data_dir):
-    """Test successful validation of all files."""
-    result = validate_checksums(checksums_manifest, temp_data_dir, expected_coverage=1.0)
-    assert result["success"] is True
-    assert len(result["passed"]) == 3
-    assert len(result["failed"]) == 0
-    assert len(result["missing"]) == 0
-    assert result["coverage"] == 1.0
-
-
-def test_validate_checksums_corrupted_file(checksums_manifest, temp_data_dir):
-    """Test validation fails when a file is corrupted."""
-    # Corrupt a file
-    (temp_data_dir / "file1.txt").write_text("Corrupted content")
-
-    result = validate_checksums(checksums_manifest, temp_data_dir, expected_coverage=0.6)
-    assert result["success"] is False
-    assert "file1.txt" in result["failed"]
-    assert len(result["passed"]) == 2
-
-
-def test_validate_checksums_missing_file(checksums_manifest, temp_data_dir):
-    """Test validation handles missing files."""
-    # Remove a file
-    (temp_data_dir / "file2.txt").unlink()
-
-    result = validate_checksums(checksums_manifest, temp_data_dir, expected_coverage=0.6)
-    assert result["success"] is False
-    assert "file2.txt" in result["missing"]
-    assert len(result["passed"]) == 2
-
-
-def test_validate_checksums_missing_manifest():
-    """Test that missing manifest raises E_DATASET."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with pytest.raises(E_DATASET):
-            validate_checksums(Path(tmpdir) / "missing.json", Path(tmpdir))
-
-
-def test_validate_checksums_invalid_manifest(temp_data_dir):
-    """Test that invalid JSON manifest raises E_DATASET."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-        f.write("not valid json")
-        invalid_manifest = Path(f.name)
-
-    try:
-        with pytest.raises(E_DATASET):
-            validate_checksums(invalid_manifest, temp_data_dir)
-    finally:
-        invalid_manifest.unlink()
-
-
-def test_generate_checksums(temp_data_dir):
-    """Test generation of checksums manifest."""
-    output_path = temp_data_dir.parent / "generated_checksums.json"
-    checksums = generate_checksums(temp_data_dir, output_path)
-
-    assert output_path.exists()
-    assert len(checksums) == 3
-    assert "file1.txt" in checksums
-    assert "file2.txt" in checksums
-    assert "file3.bin" in checksums
-
-    # Verify content matches
-    with open(output_path) as f:
-        saved = json.load(f)
-    assert saved == checksums
-
-
-def test_generate_checksums_nonexistent_dir():
-    """Test generation fails for non-existent directory."""
-    with tempfile.TemporaryDirectory() as tmpdir:
+    def test_calculate_sha256_file_not_found(self):
+        """Test that FileNotFoundError is raised for missing file."""
         with pytest.raises(FileNotFoundError):
-            generate_checksums(Path(tmpdir) / "nonexistent", Path(tmpdir) / "out.json")
+            calculate_sha256("/nonexistent/path/file.txt")
+
+class TestGenerateChecksums:
+    def test_generate_checksums_single_file(self):
+        """Test generating checksums for a single file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Test content")
+            temp_path = f.name
+
+        try:
+            checksums = generate_checksums([temp_path])
+            assert temp_path in checksums
+            assert len(checksums[temp_path]) == 64  # SHA-256 hex length
+        finally:
+            os.unlink(temp_path)
+
+    def test_generate_checksums_multiple_files(self):
+        """Test generating checksums for multiple files."""
+        temp_paths = []
+        try:
+            for i in range(3):
+                with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+                    f.write(f"Content {i}")
+                    temp_paths.append(f.name)
+
+            checksums = generate_checksums(temp_paths)
+            assert len(checksums) == 3
+            for path in temp_paths:
+                assert path in checksums
+                assert len(checksums[path]) == 64
+        finally:
+            for path in temp_paths:
+                os.unlink(path)
+
+    def test_generate_checksums_with_output_file(self):
+        """Test generating checksums and saving to a file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Save test")
+            temp_path = f.name
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "checksums.json")
+            try:
+                checksums = generate_checksums([temp_path], output_path)
+                
+                # Verify file was created
+                assert os.path.exists(output_path)
+                
+                # Verify content
+                with open(output_path, 'r') as f:
+                    saved_checksums = json.load(f)
+                
+                assert temp_path in saved_checksums
+                assert saved_checksums[temp_path] == checksums[temp_path]
+            finally:
+                os.unlink(temp_path)
+
+class TestValidateChecksums:
+    def test_validate_checksums_success(self):
+        """Test successful validation."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Validate me")
+            temp_path = f.name
+
+        try:
+            expected = {temp_path: calculate_sha256(temp_path)}
+            valid, calculated, errors = validate_checksums([temp_path], expected_checksums=expected)
+            
+            assert valid[temp_path] is True
+            assert temp_path in calculated
+            assert temp_path not in errors
+        finally:
+            os.unlink(temp_path)
+
+    def test_validate_checksums_failure(self):
+        """Test validation failure with mismatched hash."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Wrong hash")
+            temp_path = f.name
+
+        try:
+            # Provide a wrong hash
+            expected = {temp_path: "a" * 64}
+            valid, calculated, errors = validate_checksums([temp_path], expected_checksums=expected)
+            
+            assert valid[temp_path] is False
+            assert temp_path in errors
+            assert "Mismatch" in errors[temp_path]
+        finally:
+            os.unlink(temp_path)
+
+    def test_validate_checksums_from_file(self):
+        """Test validation using a checksum file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("From file")
+            temp_path = f.name
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            checksum_file = os.path.join(tmpdir, "expected.json")
+            try:
+                # Create expected checksums file
+                expected = {temp_path: calculate_sha256(temp_path)}
+                with open(checksum_file, 'w') as f:
+                    json.dump(expected, f)
+
+                valid, calculated, errors = validate_checksums(
+                    [temp_path], 
+                    checksum_file=checksum_file
+                )
+                
+                assert valid[temp_path] is True
+            finally:
+                os.unlink(temp_path)
+                # checksum_file is cleaned up by TemporaryDirectory
+
+    def test_validate_checksums_missing_file(self):
+        """Test validation when expected checksum file is missing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with pytest.raises(FileNotFoundError):
+                validate_checksums(["/fake/file.txt"], checksum_file=os.path.join(tmpdir, "missing.json"))

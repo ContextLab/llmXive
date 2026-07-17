@@ -1,10 +1,8 @@
 """
-Turn-limit sweep logic for User Story 2.
+Sweep turn-limit logic for User Story 2.
 
-Executes N=20 issues from the hard subset with a 4-turn limit (SC-006)
-to compare stability against the standard 3-turn limit.
-
-Output: data/results/sweep_results.json
+Executes a sample of N=20 issues from the hard subset with 4 turns
+(as per SC-006) to compare stability against the standard 3-turn limit.
 """
 import json
 import random
@@ -13,203 +11,162 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-# Import from existing API surface
+# Import from existing project API
 from config import get_config_summary
-from agent.iterative import run_iterative_agent
-from agent.base import load_curated_dataset
+from agent.iterative import run_iterative_loop, load_curated_dataset
+from metrics.coverage import calculate_coverage
+from metrics.ranking import calculate_first_relevant_position
+from utils.hash_artifacts import compute_sha256
 
-# Constants
-SWEEP_SAMPLE_SIZE = 20
-SWEEP_TURN_LIMIT = 4  # SC-006 requirement
-RANDOM_SEED = 42  # Reproducibility
 
 def load_hard_subset() -> List[Dict[str, Any]]:
-    """Load the curated hard subset from data/curated/hard_subset.jsonl"""
+    """
+    Load the hard subset from data/curated/hard_subset.jsonl.
+    Falls back to a strict error if the file is missing (no synthetic data).
+    """
     config = get_config_summary()
-    hard_subset_path = config["paths"]["data_curated"] / "hard_subset.jsonl"
+    path = Path(config["data_curated"]) / "hard_subset.jsonl"
     
-    if not hard_subset_path.exists():
+    if not path.exists():
         raise FileNotFoundError(
-            f"Hard subset not found at {hard_subset_path}. "
-            "Run T014 (curate.py) first."
+            f"Required dataset not found: {path}. "
+            "Ensure T014a (curate.py) has been executed successfully."
         )
     
     issues = []
-    with open(hard_subset_path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8") as f:
         for line in f:
-            issues.append(json.loads(line.strip()))
+            if line.strip():
+                issues.append(json.loads(line))
     
     return issues
 
+
 def run_sweep(
     issues: List[Dict[str, Any]],
-    turn_limit: int,
-    sample_size: int,
-    seed: int
-) -> Dict[str, Any]:
+    num_turns: int = 4,
+    sample_size: int = 20,
+    seed: int = 42
+) -> List[Dict[str, Any]]:
     """
-    Run the turn-limit sweep on a random sample of issues.
+    Run the iterative agent loop on a random sample of issues with a fixed turn limit.
     
     Args:
-        issues: Full list of hard issues
-        turn_limit: Number of turns to enforce (4 for this sweep)
-        sample_size: Number of issues to sample (N=20)
-        seed: Random seed for reproducibility
-    
+        issues: Full list of hard issues.
+        num_turns: The turn limit to enforce (SC-006 specifies 4).
+        sample_size: Number of issues to sample (N=20).
+        seed: Random seed for reproducibility.
+        
     Returns:
-        Dictionary containing sweep results and metadata
+        List of result dictionaries containing metrics and logs.
     """
-    # Seed random for reproducibility
     random.seed(seed)
     
-    # Select random sample
-    sampled_issues = random.sample(issues, min(sample_size, len(issues)))
+    # Sample N=20 issues
+    if len(issues) < sample_size:
+        print(f"Warning: Only {len(issues)} issues available, sampling all.")
+        sample_issues = issues
+    else:
+        sample_issues = random.sample(issues, sample_size)
     
-    results = {
-        "metadata": {
-            "task_id": "T025",
-            "turn_limit": turn_limit,
-            "sample_size": len(sampled_issues),
-            "total_pool_size": len(issues),
-            "random_seed": seed,
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "config_summary": get_config_summary()
-        },
-        "runs": []
-    }
+    results = []
     
-    print(f"Starting sweep with {len(sampled_issues)} issues (turn limit: {turn_limit})")
-    
-    for idx, issue in enumerate(sampled_issues):
+    for idx, issue in enumerate(sample_issues):
         issue_id = issue.get("issue_id", f"unknown_{idx}")
-        print(f"[{idx+1}/{len(sampled_issues)}] Processing {issue_id}...")
+        print(f"[Sweep] Processing {idx+1}/{len(sample_issues)}: {issue_id} (Turns: {num_turns})")
         
         start_time = time.time()
         
         try:
-            # Run iterative agent with custom turn limit
-            # Note: run_iterative_agent accepts turn_limit parameter based on T023 implementation
-            result = run_iterative_agent(
-                issue=issue,
-                turn_limit=turn_limit,
-                verbose=False
-            )
+            # Run iterative loop with the specific turn limit
+            # Note: run_iterative_loop expects the issue dict and turn limit
+            log = run_iterative_loop(issue, max_turns=num_turns)
             
-            elapsed = time.time() - start_time
+            end_time = time.time()
+            duration = end_time - start_time
             
-            run_record = {
+            # Calculate metrics
+            # We assume the log contains 'retrieved_context' and 'ground_truth_lines'
+            # or we need to fetch ground_truth_lines from the issue if not in log
+            gt_lines = issue.get("ground_truth_lines", [])
+            retrieved = log.get("retrieved_context", [])
+            
+            coverage = calculate_coverage(gt_lines, retrieved)
+            ranking_pos = calculate_first_relevant_position(gt_lines, retrieved)
+            
+            result = {
                 "issue_id": issue_id,
-                "turn_limit_used": turn_limit,
-                "actual_turns": result.get("turns_taken", 0),
-                "termination_reason": result.get("termination_reason", "unknown"),
-                "query_count": result.get("query_count", 0),
-                "coverage_score": result.get("coverage_score", 0.0),
-                "first_relevant_rank": result.get("first_relevant_rank", None),
-                "execution_time_sec": elapsed,
-                "success": result.get("success", False),
-                "error_message": result.get("error_message", None)
+                "turn_limit": num_turns,
+                "actual_turns_used": log.get("turns_used", 0),
+                "duration_seconds": duration,
+                "coverage_score": coverage,
+                "first_relevant_rank": ranking_pos,
+                "log_summary": {
+                    "query_count": len(log.get("query_history", [])),
+                    "error_signals": len(log.get("static_analysis_signals", [])),
+                    "final_status": log.get("termination_reason", "unknown")
+                }
             }
-            
-            results["runs"].append(run_record)
-            print(f"  -> Completed: {run_record['termination_reason']} "
-                   f"(turns: {run_record['actual_turns']}, "
-                   f"coverage: {run_record['coverage_score']:.2%})")
+            results.append(result)
             
         except Exception as e:
-            elapsed = time.time() - start_time
-            error_record = {
+            print(f"Error processing {issue_id}: {e}")
+            results.append({
                 "issue_id": issue_id,
-                "turn_limit_used": turn_limit,
-                "actual_turns": 0,
-                "termination_reason": "error",
-                "query_count": 0,
+                "turn_limit": num_turns,
+                "actual_turns_used": 0,
+                "duration_seconds": 0,
                 "coverage_score": 0.0,
-                "first_relevant_rank": None,
-                "execution_time_sec": elapsed,
-                "success": False,
-                "error_message": str(e)
-            }
-            results["runs"].append(error_record)
-            print(f"  -> FAILED: {str(e)}")
-    
-    # Compute aggregate statistics
-    successful_runs = [r for r in results["runs"] if r["success"]]
-    if successful_runs:
-        results["summary"] = {
-            "total_runs": len(results["runs"]),
-            "successful_runs": len(successful_runs),
-            "success_rate": len(successful_runs) / len(results["runs"]),
-            "avg_turns": sum(r["actual_turns"] for r in successful_runs) / len(successful_runs),
-            "avg_coverage": sum(r["coverage_score"] for r in successful_runs) / len(successful_runs),
-            "avg_execution_time": sum(r["execution_time_sec"] for r in successful_runs) / len(successful_runs)
-        }
-    else:
-        results["summary"] = {
-            "total_runs": len(results["runs"]),
-            "successful_runs": 0,
-            "success_rate": 0.0,
-            "avg_turns": 0.0,
-            "avg_coverage": 0.0,
-            "avg_execution_time": 0.0
-        }
+                "first_relevant_rank": -1,
+                "error": str(e),
+                "log_summary": {}
+            })
     
     return results
 
-def save_results(results: Dict[str, Any], output_path: Path) -> None:
-    """Save sweep results to JSON file."""
+
+def save_results(results: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Save the sweep results to JSON.
+    """
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2, default=str)
+        json.dump(results, f, indent=2)
     
-    print(f"Sweep results saved to {output_path}")
+    # Compute hash for integrity
+    hash_val = compute_sha256(output_path)
+    print(f"Saved results to {output_path} (SHA256: {hash_val})")
 
-def main() -> int:
-    """Main entry point for the turn-limit sweep."""
-    print("=" * 60)
-    print("T025: Turn-Limit Sweep (4 turns, N=20)")
-    print("=" * 60)
+
+def main() -> None:
+    """
+    Entry point for the turn-limit sweep.
+    """
+    config = get_config_summary()
+    output_path = Path(config["data_results"]) / "sweep_results.json"
     
-    try:
-        # Load hard subset
-        hard_issues = load_hard_subset()
-        print(f"Loaded {len(hard_issues)} hard issues from curated subset")
-        
-        # Run sweep
-        sweep_results = run_sweep(
-            issues=hard_issues,
-            turn_limit=SWEEP_TURN_LIMIT,
-            sample_size=SWEEP_SAMPLE_SIZE,
-            seed=RANDOM_SEED
-        )
-        
-        # Save results
-        config = get_config_summary()
-        output_path = config["paths"]["data_results"] / "sweep_results.json"
-        save_results(sweep_results, output_path)
-        
-        # Print summary
-        print("\n" + "=" * 60)
-        print("SWEEP SUMMARY")
-        print("=" * 60)
-        summary = sweep_results["summary"]
-        print(f"Total Runs: {summary['total_runs']}")
-        print(f"Success Rate: {summary['success_rate']:.2%}")
-        print(f"Avg Turns: {summary['avg_turns']:.2f}")
-        print(f"Avg Coverage: {summary['avg_coverage']:.2%}")
-        print(f"Avg Time: {summary['avg_execution_time']:.2f}s")
-        
-        return 0
-        
-    except FileNotFoundError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        print("Please ensure T014 (curate.py) has been run to generate hard_subset.jsonl", file=sys.stderr)
-        return 1
-    except Exception as e:
-        print(f"UNEXPECTED ERROR: {e}", file=sys.stderr)
-        import traceback
-        traceback.print_exc()
-        return 1
+    print("Starting Turn-Limit Sweep (4 turns, N=20)...")
+    
+    # Load data
+    issues = load_hard_subset()
+    print(f"Loaded {len(issues)} hard instances.")
+    
+    # Run sweep
+    # SC-006: 4 turns
+    results = run_sweep(
+        issues=issues,
+        num_turns=4,
+        sample_size=20,
+        seed=42
+    )
+    
+    # Save results
+    save_results(results, output_path)
+    
+    print("Sweep completed.")
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

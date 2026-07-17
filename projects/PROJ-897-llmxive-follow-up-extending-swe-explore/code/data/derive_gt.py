@@ -1,304 +1,416 @@
 """
-Derive ground truth line numbers from solution patches.
+Derive Ground Truth from SWE-Explore solution patches.
 
-This module parses the solution patches from the SWE-Explore benchmark dataset
-to identify the specific line numbers in the original file that were modified
-or added. These lines constitute the 'ground truth' for retrieval evaluation.
+This module parses the solution patches (unified diff format) from the
+SWE-Explore benchmark dataset to extract the specific lines of code
+that constitute the 'ground truth' fix for each issue.
 
-The output is a JSONL file where each record contains:
-- issue_id: The unique identifier for the issue
-- file_path: The path to the file being modified
-- ground_truth_lines: A list of 1-based line numbers that represent the fix.
-- original_hash: SHA256 hash of the original file content (for verification)
-- patch_hash: SHA256 hash of the patch content (for versioning)
+It produces a JSONL file where each record contains:
+- issue_id
+- file_path
+- ground_truth_lines (list of line numbers, 1-indexed)
+- original_hash (SHA256 of the file before patch)
+- patch_hash (SHA256 of the patch content)
 """
 
 import json
 import hashlib
 import sys
+import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-# Import from project config
 from config import get_config_summary
-from utils.validation import validate_jsonl_against_schema, load_schema
-
-# Attempt to import diff parsing library; fallback to manual parsing if needed
-try:
-    import unidiff
-    HAS_UNIDIFF = True
-except ImportError:
-    HAS_UNIDIFF = False
-    # Fallback: We will implement a basic patch parser if unidiff is missing
-    # This ensures the script runs even if the dependency isn't strictly pinned yet
-    # though T002 should have included it.
-    pass
+from utils.hash_artifacts import compute_sha256
 
 
-def compute_sha256(content: str) -> str:
+# --- Helper Functions ---
+
+def compute_sha256(data: str) -> str:
     """Compute SHA256 hash of a string."""
-    return hashlib.sha256(content.encode('utf-8')).hexdigest()
+    return hashlib.sha256(data.encode('utf-8')).hexdigest()
 
 
-def parse_patch_basic(patch_text: str, original_lines: List[str]) -> List[int]:
+def parse_patch_basic(patch_text: str) -> Tuple[Optional[str], List[int]]:
     """
-    Fallback parser for unified diffs if unidiff is not available.
-    Parses + lines to determine 1-based line numbers in the original file.
-    
-    Note: This is a simplified parser. It assumes standard unified diff format.
-    It maps added lines to the nearest original line context or calculates
-    based on hunk headers.
-    """
-    if HAS_UNIDIFF:
-        return [] # Should not happen if unidiff is available
+    Parse a unified diff patch to identify the target file and modified line numbers.
 
-    ground_truth_lines = set()
+    This is a robust, regex-based parser for standard unified diffs.
+    It extracts:
+    1. The target file path (from the `---` or `+++` header).
+    2. The line numbers in the ORIGINAL file that are modified (added or changed).
+
+    Args:
+        patch_text: The raw unified diff string.
+
+    Returns:
+        Tuple of (file_path, list_of_modified_line_numbers).
+        Returns (None, []) if the patch cannot be parsed.
+    """
+    if not patch_text or not isinstance(patch_text, str):
+        return None, []
+
     lines = patch_text.splitlines()
-    current_orig_line = 0
+    file_path = None
+    modified_lines = []
+
+    # Regex for file headers: --- a/path/to/file or +++ b/path/to/file
+    # We look for the '+++ ' line to get the new file path (usually the target)
+    # or the '--- ' line if '+++' is missing or standard.
+    # Standard SWE-bench/SWE-Explore patches usually have:
+    # --- a/...
+    # +++ b/...
+    
+    current_hunk_start = 0
+    current_hunk_len = 0
+    current_file = None
+
+    # Regex for hunk header: @@ -start,len +start,len @@
+    hunk_regex = re.compile(r'^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@')
+
+    for i, line in enumerate(lines):
+        # Detect file header
+        if line.startswith('+++ '):
+            # Extract path after +++ b/ or just +++
+            path_part = line[4:].strip()
+            # Remove common prefixes like 'b/' if present
+            if path_part.startswith('b/'):
+                path_part = path_part[2:]
+            current_file = path_part
+            file_path = current_file
+            continue
+        
+        if line.startswith('--- '):
+            # Fallback or source file, usually ignored for target path in diff
+            continue
+
+        # Detect hunk header
+        if line.startswith('@@'):
+            match = hunk_regex.match(line)
+            if match:
+                # original_start = int(match.group(1))
+                # original_len = int(match.group(2)) if match.group(2) else 1
+                # We don't strictly need these for the simple logic below,
+                # but we need to track the current line number in the original file.
+                pass
+            continue
+
+        # Parse hunk content
+        if current_file and not line.startswith('@@') and not line.startswith('diff') and not line.startswith('index') and not line.startswith('---') and not line.startswith('+++'):
+            # Determine if this line is a modification in the original file
+            # Lines starting with '-' are deletions (exist in original)
+            # Lines starting with '+' are additions (do not exist in original)
+            # Lines starting with ' ' are context (exist in original)
+            
+            # We are interested in lines that are part of the *fix*.
+            # In the context of "Ground Truth Lines", we usually want the lines
+            # that were ADDED or CHANGED.
+            # If a line is deleted, it's part of the patch, but the "fix" is often the replacement.
+            # However, for coverage metrics, we often care about the lines that the agent
+            # should have touched.
+            
+            # Let's capture lines that are ADDED (+) or CHANGED (context followed by - and +).
+            # For a simple parser:
+            # If line starts with '+', it's a new line.
+            # If line starts with '-', it's a removed line.
+            
+            # We need to map these back to original line numbers.
+            # This requires tracking the line counter.
+            pass
+
+    # --- Robust Line Number Calculation ---
+    # We need to simulate the diff application to map '+' lines to original line numbers.
+    # Actually, the requirement is "ground_truth_lines" which are the lines in the ORIGINAL file
+    # that correspond to the changes.
+    
+    # Let's restart the parsing logic with a state machine for line numbers.
+    original_line_counter = 0
+    modified_line_numbers = []
+    file_path = None
+    
+    # Reset for second pass logic
     in_hunk = False
     
-    # Basic state machine to track original line numbers
-    # This is fragile but sufficient for simple patches if unidiff fails
-    i = 0
-    while i < len(lines):
-        line = lines[i]
+    for line in lines:
+        if line.startswith('+++ '):
+            path_part = line[4:].strip()
+            if path_part.startswith('b/'):
+                path_part = path_part[2:]
+            file_path = path_part
+            in_hunk = False
+            original_line_counter = 0 # Reset per file? Usually patches are per file.
+            continue
         
+        if line.startswith('--- '):
+            continue
+
         if line.startswith('@@'):
-            # Parse hunk header: @@ -old_start,old_count +new_start,new_count @@
-            try:
-                parts = line.split()
-                # Extract -old_start,old_count
-                old_part = parts[1] # e.g., "-10,5"
-                if ',' in old_part:
-                    start_str, count_str = old_part.split(',')
-                else:
-                    start_str = old_part.lstrip('-')
-                    count_str = "1" # Default count 1 if not specified
-                
-                current_orig_line = int(start_str) - 1 # 0-indexed
-                in_hunk = True
-            except (ValueError, IndexError):
-                in_hunk = False
-        elif in_hunk and line.startswith('+'):
-            # This is an added line.
-            # In a unified diff, added lines don't advance the original line counter.
-            # However, they are associated with the context.
-            # For "ground truth lines" (the fix), we usually want the lines
-            # that were changed or added. If a line is added, it's part of the fix.
-            # We map it to the original line it follows, or the next original line.
-            # A common convention for "lines touched" includes the context line 
-            # before the addition or the added line itself (mapped to new index).
-            # Here, we will mark the line number in the ORIGINAL file where this
-            # insertion happens. If inserted at line N, it's often considered 
-            # modifying line N (replacing it) or inserting after N.
-            # Let's capture the context line number (current_orig_line + 1).
-            if current_orig_line < len(original_lines):
-                ground_truth_lines.add(current_orig_line + 1) # 1-based
-            # If we are at the end, we might add a new line number.
-            # But strictly, ground_truth_lines usually refers to existing lines
-            # that were touched or the specific lines of the fix.
-            # For added lines, we'll record the line index where the insertion
-            # logically occurred in the original file structure.
-        elif in_hunk and line.startswith('-'):
-            # Deleted line: definitely part of ground truth
-            ground_truth_lines.add(current_orig_line + 1)
-            current_orig_line += 1
-        elif in_hunk and line.startswith(' '):
-            # Context line: advance original counter
-            current_orig_line += 1
+            in_hunk = True
+            match = hunk_regex.match(line)
+            if match:
+                original_line_counter = int(match.group(1))
+            continue
+
+        if in_hunk and file_path:
+            if line.startswith('-'):
+                # Deletion: This line existed in the original file.
+                # It is part of the change set.
+                modified_line_numbers.append(original_line_counter)
+                original_line_counter += 1
+            elif line.startswith('+'):
+                # Addition: This line is new. It corresponds to the line *after* the last deletion/context
+                # in the original file context? No, it doesn't exist in the original.
+                # However, for "Ground Truth" of a fix, we often want the lines that were *changed*.
+                # If we are measuring "lines retrieved", we usually mean the lines in the original file
+                # that the agent identified as needing change.
+                # If a line is added, it's not in the original.
+                # But often, the "fix" is the replacement of a block.
+                # Let's include the line number of the context line where the addition happens?
+                # Or simply the line number of the *next* line in the original file?
+                # Standard practice: The "ground truth lines" for an addition are often considered
+                # the line number where the insertion happens (i.e., the line number of the context
+                # line before it, or the line number of the next context line).
+                # Let's assume we want the lines in the original file that are *affected*.
+                # A deletion affects line N. An addition affects line N (the insertion point).
+                # Let's track the current original line number.
+                # If we see a '+', we haven't consumed an original line yet.
+                # So the addition happens at the current original_line_counter (or the one after context).
+                # Let's just track the lines that are DELETED or CHANGED.
+                # For a pure addition, it's tricky.
+                # Let's stick to: lines that are removed (---) or changed (context -> -/+).
+                # If the patch is purely additions, we might need to infer.
+                # But for SWE-bench, patches usually involve changes.
+                # Let's include the line number of the context line immediately preceding the '+' if any.
+                # Actually, the simplest robust definition for "lines to check" is the lines that are
+                # DIFFERENT.
+                # Let's record the original line number for deletions.
+                # For additions, we can record the line number of the *next* context line or the current one.
+                # Let's just record the line number of the context line before the addition if it exists.
+                # If it's the very first line, maybe 1?
+                # To be safe and consistent with "lines in original file", we only record lines that existed.
+                # So '+' lines don't get a line number in the original file.
+                # BUT, the task says "generate ground_truth_lines lists".
+                # If the fix is purely adding a line, the "ground truth" is the location.
+                # Let's assume the "ground truth" is the set of lines in the original file that are
+                # either removed or are the context for an addition.
+                # Let's just capture the `original_line_counter` for deletions.
+                # For additions, we will capture the `original_line_counter` (which points to the next line).
+                pass
+            elif line.startswith(' '):
+                # Context: Advance counter
+                original_line_counter += 1
+            elif line.startswith('\\'):
+                # No newline at end of file marker
+                continue
+
+    # Refinement: The standard "ground truth" for SWE-bench is the set of lines in the original file
+    # that are modified (deleted) or the lines immediately following a deletion where an addition occurs.
+    # Let's implement a slightly more robust tracking:
+    # We want the set of line numbers in the ORIGINAL file that are touched.
+    # Touched = Deleted OR is the line immediately preceding an Addition (if the addition is not at the very start).
+    
+    # Let's re-parse with a focus on "touched original lines".
+    touched_lines = set()
+    current_file = None
+    orig_line = 0
+    in_hunk = False
+    
+    # We need to know the hunk start to reset orig_line?
+    # Yes, @@ -start,len +start,len @@
+    
+    for line in lines:
+        if line.startswith('+++ '):
+            path_part = line[4:].strip()
+            if path_part.startswith('b/'):
+                path_part = path_part[2:]
+            current_file = path_part
+            orig_line = 0
+            in_hunk = False
+            continue
         
-        i += 1
+        if line.startswith('--- '):
+            continue
 
-    return sorted(list(ground_truth_lines))
+        if line.startswith('@@'):
+            in_hunk = True
+            match = hunk_regex.match(line)
+            if match:
+                orig_line = int(match.group(1))
+            continue
+
+        if in_hunk and current_file:
+            if line.startswith('-'):
+                # This line is being removed. It is definitely a "ground truth line".
+                touched_lines.add(orig_line)
+                orig_line += 1
+            elif line.startswith('+'):
+                # This line is being added.
+                # It is inserted *after* the current orig_line (which is the line after the last context/deletion).
+                # So the "location" in the original file is effectively the line number `orig_line`
+                # (if we consider 1-based indexing and insertion before the line at `orig_line`).
+                # Or if we consider insertion after the previous line.
+                # Let's assume the "ground truth" includes the line number where the change happens.
+                # If we add a line after line 5, the "location" is 5.
+                # If we add a line at the start (orig_line=1), the location is 1?
+                # Let's add `orig_line` if it's valid (>=1).
+                if orig_line >= 1:
+                    touched_lines.add(orig_line)
+                # Note: We do NOT increment orig_line for '+' lines.
+            elif line.startswith(' '):
+                # Context
+                orig_line += 1
+            elif line.startswith('\\'):
+                continue
+
+    if not current_file:
+        return None, []
+        
+    # Sort and return
+    return current_file, sorted(list(touched_lines))
 
 
-def parse_patch_unidiff(patch_text: str, original_lines: List[str]) -> List[int]:
+def parse_patch_unidiff(patch_text: str) -> Tuple[Optional[str], List[int]]:
     """
-    Parse a unified diff using the unidiff library to extract ground truth lines.
+    Parse using a more strict unidiff approach if needed.
+    Currently delegates to parse_patch_basic which handles standard unidiff.
+    """
+    return parse_patch_basic(patch_text)
+
+
+def derive_ground_truth(input_path: Path, output_path: Path) -> None:
+    """
+    Main function to derive ground truth from the benchmark dataset.
     
-    Returns a sorted list of 1-based line numbers from the original file
-    that were modified (added, removed, or changed).
-    """
-    if not HAS_UNIDIFF:
-        return parse_patch_basic(patch_text, original_lines)
-
-    try:
-        patch = unidiff.PatchSet(patch_text)
-    except unidiff.errors.PatchParseError:
-        # If the patch is malformed, return empty or fallback
-        return parse_patch_basic(patch_text, original_lines)
-
-    ground_truth_lines = set()
-
-    for patched_file in patch:
-        # We expect one file per patch usually, but iterate just in case
-        for hunk in patched_file:
-            # Hunk header gives us the starting line in the original file
-            # hunk.source_start is 1-based
-            current_orig_line = hunk.source_start - 1
-            
-            for line in hunk:
-                if line.line_type == '-':
-                    # Deleted line: it is part of the ground truth
-                    ground_truth_lines.add(current_orig_line + 1)
-                    current_orig_line += 1
-                elif line.line_type == '+':
-                    # Added line: It is part of the fix.
-                    # We associate it with the line in the original file 
-                    # where the insertion occurred.
-                    # If we are inserting at the very end, we might not have a
-                    # corresponding original line index if current_orig_line >= len.
-                    # However, usually, we want to know which lines in the 
-                    # original file were "touched".
-                    # For the purpose of "retrieving the fix", if an agent
-                    # retrieves the line *before* the insertion, that's valid.
-                    # We'll add the line number corresponding to the insertion point.
-                    if current_orig_line < len(original_lines):
-                        ground_truth_lines.add(current_orig_line + 1)
-                    else:
-                        # Insertion at end of file. Mark the last line or a virtual line?
-                        # We'll mark the last existing line as the context.
-                        if len(original_lines) > 0:
-                            ground_truth_lines.add(len(original_lines))
-                    # Added lines do not advance the original line counter
-                elif line.line_type == '\\':
-                    # Empty line at end of file marker, ignore
-                    pass
-                else:
-                    # Context line (' ')
-                    current_orig_line += 1
-    
-    return sorted(list(ground_truth_lines))
-
-
-def derive_ground_truth(issue_record: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """
-    Process a single issue record to extract ground truth lines.
+    Reads the benchmark JSONL, parses the 'solution' or 'patch' field,
+    extracts the modified lines, and writes the result to a new JSONL file.
     
     Args:
-        issue_record: A dictionary from the JSONL dataset containing 'patch',
-                      'file', 'original_file', etc.
-                      
-    Returns:
-        A dictionary with issue_id, file_path, ground_truth_lines, and hashes,
-        or None if parsing fails.
+        input_path: Path to the input benchmark JSONL (e.g., bench.final.public.jsonl)
+        output_path: Path to write the ground truth JSONL
     """
-    issue_id = issue_record.get('issue_id') or issue_record.get('id')
-    if not issue_id:
-        return None
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input benchmark file not found: {input_path}")
 
-    # Extract relevant fields
-    patch_text = issue_record.get('patch', '')
-    original_content = issue_record.get('original_file', '')
-    file_path = issue_record.get('file', '')
-    
-    if not patch_text:
-        # No patch provided, cannot derive ground truth
-        return None
-
-    # Split original content into lines for context
-    original_lines = original_content.splitlines() if original_content else []
-
-    # Parse the patch
-    try:
-        gt_lines = parse_patch_unidiff(patch_text, original_lines)
-    except Exception as e:
-        # Log error but don't crash the whole pipeline
-        print(f"Warning: Failed to parse patch for {issue_id}: {e}", file=sys.stderr)
-        return None
-
-    if not gt_lines:
-        # Patch might be empty or only whitespace changes?
-        # We still return it but with empty lines if that's the reality
-        pass
-
-    # Compute hashes for versioning
-    original_hash = compute_sha256(original_content)
-    patch_hash = compute_sha256(patch_text)
-
-    return {
-        "issue_id": str(issue_id),
-        "file_path": file_path,
-        "ground_truth_lines": gt_lines,
-        "original_hash": original_hash,
-        "patch_hash": patch_hash,
-        "line_count": len(gt_lines)
-    }
-
-
-def main():
-    """
-    Main entry point for the ground truth derivation script.
-    
-    Reads from data/raw/bench.final.public.jsonl (or the path in config)
-    and writes to data/curated/ground_truth.jsonl
-    """
-    config = get_config_summary()
-    raw_data_path = Path(config['paths']['raw']) / 'bench.final.public.jsonl'
-    output_path = Path(config['paths']['curated']) / 'ground_truth.jsonl'
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    if not raw_data_path.exists():
-        print(f"Error: Raw dataset not found at {raw_data_path}. "
-              f"Please run `code/data/download.py` first.", file=sys.stderr)
-        sys.exit(1)
-
-    print(f"Reading dataset from {raw_data_path}...")
-    
-    processed_count = 0
-    error_count = 0
     results = []
+    errors = []
 
-    with open(raw_data_path, 'r', encoding='utf-8') as f_in:
-        for line_num, line in enumerate(f_in, 1):
+    with open(input_path, 'r', encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
             line = line.strip()
             if not line:
                 continue
             
             try:
                 record = json.loads(line)
+                issue_id = record.get('issue_id') or record.get('id')
+                patch_content = record.get('solution') or record.get('patch')
+                
+                if not issue_id:
+                    errors.append(f"Line {line_num}: Missing issue_id")
+                    continue
+                
+                if not patch_content:
+                    # Some records might not have a patch (e.g., unresolved)
+                    # We skip them or record empty ground truth?
+                    # Let's skip for now, or record with empty list.
+                    # For a "hard subset" derivation, we likely only care about solved instances.
+                    continue
+
+                # Compute hashes
+                patch_hash = compute_sha256(patch_content)
+                
+                # Parse patch
+                file_path, gt_lines = parse_patch_unidiff(patch_content)
+                
+                if not file_path:
+                    errors.append(f"Line {line_num}: Failed to parse patch for issue {issue_id}")
+                    # We might still want to record the issue with empty GT?
+                    # Let's skip to avoid noise, or record with empty GT.
+                    # For now, record with empty GT to maintain count.
+                    gt_record = {
+                        "issue_id": issue_id,
+                        "file_path": None,
+                        "ground_truth_lines": [],
+                        "patch_hash": patch_hash,
+                        "original_hash": None, # We don't have original code here
+                        "status": "parse_failed"
+                    }
+                    results.append(gt_record)
+                    continue
+
+                # Note: We don't have the original file content to compute original_hash
+                # unless the dataset includes it. The SWE-bench dataset usually has
+                # 'repo', 'instance_id', 'base_commit', but not the full file content in the JSONL.
+                # We will leave original_hash as null or compute it if available in record.
+                original_hash = record.get('base_commit') # Placeholder if file content not present
+                
+                gt_record = {
+                    "issue_id": issue_id,
+                    "file_path": file_path,
+                    "ground_truth_lines": gt_lines,
+                    "patch_hash": patch_hash,
+                    "original_hash": original_hash,
+                    "status": "ok"
+                }
+                results.append(gt_record)
+
             except json.JSONDecodeError:
-                print(f"Warning: Invalid JSON at line {line_num}, skipping.", file=sys.stderr)
-                error_count += 1
-                continue
+                errors.append(f"Line {line_num}: Invalid JSON")
+            except Exception as e:
+                errors.append(f"Line {line_num}: Error processing issue {record.get('issue_id', 'unknown')}: {str(e)}")
 
-            result = derive_ground_truth(record)
-            if result:
-                results.append(result)
-                processed_count += 1
-            else:
-                error_count += 1
+    # Write output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        for record in results:
+            f.write(json.dumps(record) + '\n')
 
-    # Write results
-    print(f"Writing {processed_count} ground truth records to {output_path}...")
-    with open(output_path, 'w', encoding='utf-8') as f_out:
-        for res in results:
-            f_out.write(json.dumps(res) + '\n')
+    # Log summary
+    total = len(results)
+    success = sum(1 for r in results if r.get('status') == 'ok')
+    failed = total - success
+    
+    print(f"Derive GT Summary:")
+    print(f"  Total records processed: {total}")
+    print(f"  Successfully parsed: {success}")
+    print(f"  Failed/Parsed with errors: {failed}")
+    
+    if errors:
+        print(f"  Errors encountered: {len(errors)}")
+        # Print first 5 errors
+        for err in errors[:5]:
+            print(f"    - {err}")
+        if len(errors) > 5:
+            print(f"    ... and {len(errors) - 5} more")
 
-    print(f"Derivation complete.")
-    print(f"  Total processed: {processed_count}")
-    print(f"  Failed/Skipped: {error_count}")
-    print(f"  Output: {output_path}")
+    if not results:
+        print("WARNING: No records were written to the output file.")
 
-    # Validate output against schema if available
+
+def main():
+    """Entry point for the derive_gt script."""
+    config = get_config_summary()
+    
+    # Define paths based on config or defaults
+    # T012 downloads to data/raw/bench.final.public.jsonl
+    input_file = Path(config.get('data_raw_dir', 'data/raw')) / 'bench.final.public.jsonl'
+    output_file = Path(config.get('data_curated_dir', 'data/curated')) / 'ground_truth.jsonl'
+    
+    print(f"Starting ground truth derivation...")
+    print(f"Input: {input_file}")
+    print(f"Output: {output_file}")
+    
     try:
-        schema_path = Path(config['paths']['contracts']) / 'dataset_schema.yaml'
-        if schema_path.exists():
-            print(f"Validating output against schema {schema_path}...")
-            # The schema might be for the input dataset, but we check if a
-            # specific GT schema exists or just validate structure loosely.
-            # For now, we assume the validation module can handle the new file
-            # if we define the schema properly in T006.
-            # If a specific ground_truth schema is not defined, we skip strict
-            # validation here to avoid blocking, but log success.
-            print("Validation skipped (schema for ground_truth not explicitly defined in contracts yet).")
+        derive_ground_truth(input_file, output_file)
+        print("Ground truth derivation completed successfully.")
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}")
+        print("Please ensure the benchmark dataset has been downloaded (T012) before running this task.")
+        sys.exit(1)
     except Exception as e:
-        print(f"Warning: Validation check failed: {e}", file=sys.stderr)
-
-    return 0
+        print(f"ERROR: Unexpected error during derivation: {e}")
+        sys.exit(1)
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()

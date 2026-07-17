@@ -43,3 +43,48 @@ T010:
     \ do not satisfy the checksum utility requirement. A functional utility (e.g.,\
     \ a script or library that computes and verifies SHA\u2011256 hashes for files)\
     \ is missing."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No search results, data files, or documentation were provided showing that Metabolomics\
+    \ Workbench was queried for terpenoid, alkaloid, or phenylpropanoid defense\u2011\
+    metabolite experiments. The required artifact\u2014a list or CSV of relevant experiment\
+    \ IDs (with metadata) \u2013 is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a CSV, JSON log, or summary report) showing the result of\
+    \ the metadata comparison and the \u226595\u202F% sample\u2011level match rate\
+    \ is present; the implementer supplied only the task description and specifications\
+    \ without any concrete output. The required evidence of pairing feasibility is\
+    \ missing."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing the power\u2011analysis utility was executed, the required\
+    \ sample size\u202Fn logged, or the abort condition (E\u2011POWER) triggered when\
+    \ n\u202F<\u202F28 is present. The provided project specification concerns data\
+    \ acquisition and modelling, not the power\u2011analysis step, so the task\u2019\
+    s requirement is unmet."
+T016:
+  c: false
+  h: c87d5d313397d31e18607b61fc802dc9cbe6d55cd470d925a1bed4d17bd38338
+  r: The required artifact `projects/PROJ-503-predicting-plant-defense-compound-produc/data/sources.yaml`
+    does not exist, even though a `data/sources.yaml` file is shown elsewhere. The
+    task demands the file at the specified project path with accession IDs and version/release
+    dates, which is missing.
+T016b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log output implementing the required fallback to condition\u2011\
+    level aggregation is present; the claim provides only a textual description of\
+    \ the task and specifications, but no artifact (e.g., a function/module, unit\
+    \ tests, or example logs) that demonstrates the warning\u2011logging and abort\
+    \ behavior based on the aggregated sample size. The required implementation is\
+    \ therefore missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file containing dataset citations and availability status for\
+    \ Phase\u202F0 was found in the provided artifacts; thus the required document\
+    \ is missing."

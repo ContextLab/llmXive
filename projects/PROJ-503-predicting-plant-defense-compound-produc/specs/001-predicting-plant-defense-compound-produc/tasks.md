@@ -80,17 +80,17 @@
 
 - [X] T012 [P] [US1] Search GEO for Solanum herbivore-stress series with explicit treatment annotations (`projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py`)
 
-- [~] T013 [P] [US1] Search Metabolomics Workbench for defense metabolite experiments (terpenoids, alkaloids, phenylpropanoids)
+- [ ] T013 [P] [US1] Search Metabolomics Workbench for defense metabolite experiments (terpenoids, alkaloids, phenylpropanoids)
 
-- [~] T014 [US1] Verify sample-level pairing feasibility (≥95% match rate per FR-009) using metadata comparison <!-- ATOMIZE: requested -->
+- [ ] T014 [US1] Verify sample-level pairing feasibility (≥95% match rate per FR-009) using metadata comparison <!-- ATOMIZE: requested -->
 
-- [~] T015 [US1] Run power analysis utility (T009) to log required sample size (n) for r=0.5; **ABORT with E-POWER if n < 28** (Plan T009/T015, FR-009). If n >= 28, proceed to T016.
+- [ ] T015 [US1] Run power analysis utility (T009) to log required sample size (n) for r=0.5; **ABORT with E-POWER if n < 28** (Plan T009/T015, FR-009). If n >= 28, proceed to T016.
 
-- [~] T016 [US1] Document verified dataset sources in `projects/PROJ-503-predicting-plant-defense-compound-produc/data/sources.yaml` with accession IDs + version/release date (VI. Dataset Version Traceability)
+- [ ] T016 [US1] Document verified dataset sources in `projects/PROJ-503-predicting-plant-defense-compound-produc/data/sources.yaml` with accession IDs + version/release date (VI. Dataset Version Traceability)
 
-- [~] T016b [US1] Implement fallback to condition-level aggregation if sample-level pairing <95% but condition-level aggregation yields sufficient n (Plan T016 mitigation strategy). **MUST log a warning and proceed ONLY if aggregated n >= 28; otherwise ABORT with E-PAIRING.**
+- [ ] T016b [US1] Implement fallback to condition-level aggregation if sample-level pairing <95% but condition-level aggregation yields sufficient n (Plan T016 mitigation strategy). **MUST log a warning and proceed ONLY if aggregated n >= 28; otherwise ABORT with E-PAIRING.**
 
-- [~] T017 [US1] Create research.md with dataset citations and availability status for Phase 0
+- [ ] T017 [US1] Create research.md with dataset citations and availability status for Phase 0
 
 **Checkpoint**: Phase 0 complete - datasets verified OR project aborted with E-DATASET
 
@@ -115,9 +115,9 @@
 - [~] T023 [US1] Implement sample-level pairing logic using biological sample identifiers (not condition IDs alone) (FR-002)
 - [~] T027 [US1] Implement validation to halt with E-PAIRING if <95% samples have matched pairs (FR-009, SC-005). **MUST precede T024/T025. If T016b fallback was triggered, this task validates the aggregated pairing rate.**
 - [~] T024 [US1] Create expression CSV with normalized TPM/FPKM values for each sample. Rule: Prefer TPM; if missing, calculate from raw counts using standard formula. If neither available, log error and skip sample (US-1 acceptance scenario 1). **Conditional on T027 passing.**
-- [ ] T025 [US1] Create metabolite CSV with log‑transformed concentrations aligned by experimental sample identifier (US-1 acceptance scenario 2). **Conditional on T027 passing.**
-- [ ] T026 [US1] Log mismatches to `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/data_pairing.json` with fields {sample_id, expression_source, metabolite_source, reason: "no_sample_level_pair"} (edge case handling)
-- [ ] T028 [US1] Verify downloaded files match expected SHA-256 checksums for ≥99% of requested IDs (SC-004)
+- [~] T025 [US1] Create metabolite CSV with log‑transformed concentrations aligned by experimental sample identifier (US-1 acceptance scenario 2). **Conditional on T027 passing.**
+- [~] T026 [US1] Log mismatches to `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/data_pairing.json` with fields {sample_id, expression_source, metabolite_source, reason: "no_sample_level_pair"} (edge case handling)
+- [~] T028 [US1] Verify downloaded files match expected SHA-256 checksums for ≥99% of requested IDs (SC-004)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

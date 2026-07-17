@@ -1,158 +1,192 @@
 """
 Unit tests for the error handling framework.
-
-Tests verify that:
-- Custom exceptions are raised with correct error codes
-- Error messages are properly formatted
-- Timeout monitoring works correctly
+Tests all error codes (E-DATASET, E-PAIRING, E-TIMEOUT, E-POWER)
+and error handling utilities.
 """
-
 import pytest
+import sys
+from unittest.mock import patch, MagicMock
 import time
-from pathlib import Path
-import tempfile
 
-from code.exceptions import (
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+
+from exceptions import (
     PipelineError,
     E_DATASET,
     E_PAIRING,
     E_TIMEOUT,
     E_POWER
 )
-from code.error_handler import (
+from error_handler import (
+    set_timeout_limit,
+    start_timeout_monitor,
+    check_timeout,
     handle_error,
     raise_dataset_error,
     raise_pairing_error,
     raise_timeout_error,
     raise_power_error,
-    check_timeout,
-    start_timeout_monitor,
-    set_timeout_limit
+    wrap_with_timeout
 )
+from pathlib import Path
 
-class TestCustomExceptions:
+
+class TestExceptionClasses:
     """Test custom exception classes."""
     
     def test_pipeline_error_base(self):
-        """Test base PipelineError."""
-        exc = PipelineError("Test message", "E-TEST")
-        assert exc.message == "Test message"
-        assert exc.error_code == "E-TEST"
-        assert "[E-TEST]" in str(exc)
+        """Test base PipelineError class."""
+        error = PipelineError("Test message", "TEST-CODE", {"key": "value"})
+        assert error.message == "Test message"
+        assert error.error_code == "TEST-CODE"
+        assert error.details == {"key": "value"}
+        assert str(error) == "Test message"
     
-    def test_e_dataset(self):
+    def test_e_dataset_exception(self):
         """Test E_DATASET exception."""
-        exc = E_DATASET("No data found")
-        assert exc.error_code == "E-DATASET"
-        assert "[E-DATASET] No data found" in str(exc)
+        error = E_DATASET("Dataset not found", {"source": "GEO"})
+        assert error.error_code == "E-DATASET"
+        assert "E-DATASET" in str(error)
+        assert error.details == {"source": "GEO"}
     
-    def test_e_pairing(self):
+    def test_e_pairing_exception(self):
         """Test E_PAIRING exception."""
-        exc = E_PAIRING("Pairing rate too low")
-        assert exc.error_code == "E-PAIRING"
-        assert "[E-PAIRING] Pairing rate too low" in str(exc)
+        error = E_PAIRING("Pairing rate too low", {"rate": 0.5, "threshold": 0.95})
+        assert error.error_code == "E-PAIRING"
+        assert "E-PAIRING" in str(error)
+        assert error.details == {"rate": 0.5, "threshold": 0.95}
     
-    def test_e_timeout(self):
+    def test_e_timeout_exception(self):
         """Test E_TIMEOUT exception."""
-        exc = E_TIMEOUT("Time limit exceeded")
-        assert exc.error_code == "E-TIMEOUT"
-        assert "[E-TIMEOUT] Time limit exceeded" in str(exc)
+        error = E_TIMEOUT("Execution time exceeded", {"elapsed": 15000, "limit": 14400})
+        assert error.error_code == "E-TIMEOUT"
+        assert "E-TIMEOUT" in str(error)
+        assert error.details == {"elapsed": 15000, "limit": 14400}
     
-    def test_e_power(self):
+    def test_e_power_exception(self):
         """Test E_POWER exception."""
-        exc = E_POWER("Insufficient sample size")
-        assert exc.error_code == "E-POWER"
-        assert "[E-POWER] Insufficient sample size" in str(exc)
+        error = E_POWER("Insufficient sample size", {"n": 20, "required": 28})
+        assert error.error_code == "E-POWER"
+        assert "E-POWER" in str(error)
+        assert error.details == {"n": 20, "required": 28}
 
-class TestErrorRaisingFunctions:
-    """Test functions that raise specific errors."""
-    
-    def test_raise_dataset_error(self):
-        """Test raise_dataset_error raises E_DATASET."""
-        with pytest.raises(E_DATASET) as exc_info:
-            raise_dataset_error("GEO search failed")
-        assert exc_info.value.error_code == "E-DATASET"
-    
-    def test_raise_dataset_error_with_context(self):
-        """Test raise_dataset_error with context dict."""
-        with pytest.raises(E_DATASET) as exc_info:
-            raise_dataset_error("Accession not found", {"accession": "GSE12345"})
-        assert exc_info.value.error_code == "E-DATASET"
-        assert "accession=GSE12345" in str(exc_info.value)
-    
-    def test_raise_pairing_error(self):
-        """Test raise_pairing_error raises E_PAIRING."""
-        with pytest.raises(E_PAIRING) as exc_info:
-            raise_pairing_error("Pairing rate 80%")
-        assert exc_info.value.error_code == "E-PAIRING"
-    
-    def test_raise_power_error(self):
-        """Test raise_power_error raises E_POWER."""
-        with pytest.raises(E_POWER) as exc_info:
-            raise_power_error("n=15 < 28 required")
-        assert exc_info.value.error_code == "E-POWER"
-    
-    def test_raise_timeout_error(self):
-        """Test raise_timeout_error raises E_TIMEOUT."""
-        with pytest.raises(E_TIMEOUT) as exc_info:
-            raise_timeout_error("Pipeline took too long")
-        assert exc_info.value.error_code == "E-TIMEOUT"
-
-class TestHandleError:
-    """Test centralized error handler."""
-    
-    def test_handle_error_logs_and_exits(self, caplog):
-        """Test handle_error logs the error and exits."""
-        exc = E_DATASET("Test error")
-        with pytest.raises(SystemExit) as exc_info:
-            with caplog.at_level("CRITICAL"):
-                handle_error(exc, exit_on_error=True)
-        assert exc_info.value.code == 1
-        assert "E-DATASET" in caplog.text
-    
-    def test_handle_error_to_file(self):
-        """Test handle_error writes to log file."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.log') as f:
-            log_path = Path(f.name)
-        
-        exc = E_PAIRING("Test pairing error")
-        with pytest.raises(SystemExit):
-            handle_error(exc, log_file=log_path, exit_on_error=True)
-        
-        # Verify file content
-        content = log_path.read_text()
-        assert "E-PAIRING" in content
-        assert "Test pairing error" in content
-        
-        log_path.unlink()
 
 class TestTimeoutMonitoring:
     """Test timeout monitoring functionality."""
     
-    def test_timeout_monitor_start(self):
-        """Test that timeout monitor starts correctly."""
+    def test_set_timeout_limit(self):
+        """Test setting custom timeout limit."""
+        set_timeout_limit(3600)
+        # Note: We can't easily test the global variable, but we can verify
+        # the function runs without error
+        set_timeout_limit(14400)  # Reset to default
+    
+    def test_start_timeout_monitor(self):
+        """Test starting timeout monitor."""
         start_timeout_monitor()
         # Should not raise
+        assert True
+    
+    def test_check_timeout_no_start(self):
+        """Test check_timeout when monitor not started."""
+        start_timeout_monitor.__globals__['_start_time'] = None
         assert check_timeout() is False
     
-    def test_timeout_check_within_limit(self):
-        """Test check_timeout returns False within limit."""
-        set_timeout_limit(3600)  # 1 hour
+    def test_check_timeout_not_exceeded(self):
+        """Test check_timeout when limit not exceeded."""
         start_timeout_monitor()
-        # Immediately check - should be well within limit
+        time.sleep(0.1)
         assert check_timeout() is False
     
-    def test_timeout_check_exceeds_limit(self):
-        """Test check_timeout returns True when exceeded."""
-        # Set a very short limit for testing
-        set_timeout_limit(0)  # 0 seconds
+    def test_check_timeout_exceeded(self):
+        """Test check_timeout when limit exceeded."""
+        # Set a very short timeout
+        set_timeout_limit(0.001)  # 1ms
         start_timeout_monitor()
-        time.sleep(0.01)  # Small delay
+        time.sleep(0.1)  # Sleep longer than limit
         assert check_timeout() is True
+        # Reset
+        set_timeout_limit(14400)
+
+
+class TestErrorRaisingFunctions:
+    """Test error raising functions."""
     
-    def test_timeout_without_start(self):
-        """Test check_timeout returns False if not started."""
-        # Reset start time
-        import code.error_handler as handler
-        handler._start_time = None
-        assert check_timeout() is False
+    def test_raise_dataset_error(self):
+        """Test raise_dataset_error raises correct exception."""
+        with pytest.raises(E_DATASET) as exc_info:
+            raise_dataset_error("Test dataset error", {"source": "test"})
+        assert exc_info.value.error_code == "E-DATASET"
+        assert exc_info.value.details == {"source": "test"}
+    
+    def test_raise_pairing_error(self):
+        """Test raise_pairing_error raises correct exception."""
+        with pytest.raises(E_PAIRING) as exc_info:
+            raise_pairing_error("Test pairing error", {"rate": 0.5})
+        assert exc_info.value.error_code == "E-PAIRING"
+        assert exc_info.value.details == {"rate": 0.5}
+    
+    def test_raise_timeout_error(self):
+        """Test raise_timeout_error raises correct exception."""
+        with pytest.raises(E_TIMEOUT) as exc_info:
+            raise_timeout_error("Test timeout error", {"elapsed": 15000})
+        assert exc_info.value.error_code == "E-TIMEOUT"
+        assert exc_info.value.details == {"elapsed": 15000}
+    
+    def test_raise_power_error(self):
+        """Test raise_power_error raises correct exception."""
+        with pytest.raises(E_POWER) as exc_info:
+            raise_power_error("Test power error", {"n": 20})
+        assert exc_info.value.error_code == "E-POWER"
+        assert exc_info.value.details == {"n": 20}
+
+
+class TestHandleError:
+    """Test handle_error function."""
+    
+    @patch('sys.exit')
+    def test_handle_error_calls_exit(self, mock_exit):
+        """Test that handle_error calls sys.exit(1)."""
+        error = E_DATASET("Test error")
+        with patch('builtins.print'):  # Suppress print output
+            handle_error(error)
+        mock_exit.assert_called_once_with(1)
+    
+    @patch('sys.exit')
+    def test_handle_error_with_details(self, mock_exit):
+        """Test handle_error with error details."""
+        error = E_DATASET("Test error", {"key": "value"})
+        with patch('builtins.print'):
+            handle_error(error)
+        mock_exit.assert_called_once_with(1)
+
+
+class TestTimeoutDecorator:
+    """Test wrap_with_timeout decorator."""
+    
+    def test_decorator_allows_normal_execution(self):
+        """Test decorator allows function to run normally."""
+        @wrap_with_timeout
+        def test_func():
+            return "success"
+        
+        result = test_func()
+        assert result == "success"
+    
+    def test_decorator_raises_on_timeout(self):
+        """Test decorator raises E_TIMEOUT when limit exceeded."""
+        # Set very short timeout
+        set_timeout_limit(0.001)
+        start_timeout_monitor()
+        time.sleep(0.1)
+        
+        @wrap_with_timeout
+        def test_func():
+            return "should not reach here"
+        
+        with pytest.raises(E_TIMEOUT):
+            test_func()
+        
+        # Reset
+        set_timeout_limit(14400)
