@@ -1,0 +1,37 @@
+T012:
+  c: false
+  h: 3901afc96271d248b56ed875487409e9329086db4feddbb36981310e2a6e1986
+  r: "The required unit test file `code/tests/unit/test_composition_parser.py` is\
+    \ missing from the repository, so no test code exists to verify that the composition\
+    \ parser correctly converts \"Co2MnGa\" to atomic fractions. The task\u2019s primary\
+    \ artifact is absent."
+T018:
+  c: true
+  h: f5c49809ba6af735b9ae4f37e18f2c09a72e70114a0e2924ba7debfc016d3d69
+  r: "The `code/src/ingestion/manual_curator.py` file is present, non\u2011empty,\
+    \ and contains a `load_manual_curated_data` function that checks for the existence\
+    \ of `data/raw/manual_curated.csv`, logs a warning when the file is missing, and\
+    \ returns an empty DataFrame (0 entries), fulfilling the task\u2019s specification."
+T027:
+  c: true
+  h: 684909dfb0f920a84728ea86d42220e5b4416d88dceff5f9e0c0ac2b82846210
+  r: "The repository contains a non\u2011empty `code/src/preprocessing/preprocess_pipeline.py`\
+    \ (8\u202FKB) that imports and orchestrates composition standardization, unit\
+    \ normalization, imputation via the orchestrator, filtering, and validation, matching\
+    \ the task description. The required output CSV is a runtime product of this script,\
+    \ not a pre\u2011generated artifact, so its absence does not indicate incompleteness."
+T028b:
+  c: false
+  h: 2c32872096e2df878f8564586ed35a78ec4c76eed5d84e6ad329fc05239c1005
+  r: The `scarcity_checker.py` script is present, but the required input file `data/processed/alloys_raw.csv`
+    does not exist, so the checker cannot count rows or trigger T046. The missing
+    (or empty) CSV must be added for the task to be fulfilled.
+T032:
+  c: false
+  h: 49933d9a1a74638b128176b08c07431b35ebfea65787a60e01d1b7e85372c632
+  r: "The provided `feature_engineering_pipeline.py` is truncated (e.g., an unfinished\
+    \ `process_row` function and no code that writes `alloys_features.csv`). Moreover,\
+    \ the required input file `data/processed/alloys_raw.csv` and the expected output\
+    \ `data/processed/alloys_features.csv` are absent from the repository. Consequently\
+    \ the task\u2019s requirement\u2014to read the raw CSV, compute descriptors, and\
+    \ save the enriched CSV\u2014is not satisfied."

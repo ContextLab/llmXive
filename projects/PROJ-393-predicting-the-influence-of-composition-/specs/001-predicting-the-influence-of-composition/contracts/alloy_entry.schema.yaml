@@ -1,47 +1,110 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "AlloyEntry"
-description: "Schema for a single experimental Heusler alloy measurement."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Alloy Entry Schema
+description: >
+  Canonical schema for experimental Heusler alloy entries used in the 
+  composition-hysteresis prediction pipeline. Defines the structure for 
+  raw and processed alloy data including composition, magnetic properties,
+  and metadata.
+type: object
 required:
-  - "id"
-  - "composition"
-  - "hysteresis_coercivity"
-  - "hysteresis_saturation"
-  - "source_type"
-  - "is_dft"
+  - alloy_id
+  - composition
+  - h_coercivity
+  - h_saturation_magnetization
+  - source_type
 properties:
-  id:
-    type: "string"
-    description: "Unique identifier for the alloy entry."
+  alloy_id:
+    type: string
+    description: Unique identifier for the alloy entry
+    pattern: "^[A-Z0-9_-]+$"
+  
   composition:
-    type: "object"
-    description: "Atomic fractions of constituent elements. Sum must be 1.0."
-    additionalProperties:
-      type: "number"
-      minimum: 0
-      maximum: 1
-  hysteresis_coercivity:
-    type: "number"
-    description: "Coercivity in Oersted (Oe)."
-  hysteresis_saturation:
-    type: "number"
-    description: "Saturation magnetization in emu/g."
+    type: object
+    description: Atomic fractions of constituent elements
+    required:
+      - elements
+      - fractions
+    properties:
+      elements:
+        type: array
+        items:
+          type: string
+          pattern: "^[A-Z][a-z]?$"
+        description: List of element symbols (e.g., ["Co", "Mn", "Ga"])
+      fractions:
+        type: array
+        items:
+          type: number
+          minimum: 0
+          maximum: 1
+        description: Corresponding atomic fractions (sum should be ~1.0)
+  
+  h_coercivity:
+    type: object
+    description: Coercivity measurement
+    required:
+      - value
+      - unit
+    properties:
+      value:
+        type: number
+        minimum: 0
+      unit:
+        type: string
+        enum: ["Oe", "A/m", "kOe"]
+        description: Unit of coercivity
+  
+  h_saturation_magnetization:
+    type: object
+    description: Saturation magnetization measurement
+    required:
+      - value
+      - unit
+    properties:
+      value:
+        type: number
+        minimum: 0
+      unit:
+        type: string
+        enum: ["emu/g", "A/m", "Tesla", "emu/cm3"]
+        description: Unit of saturation magnetization
+  
   source_type:
-    type: "string"
-    enum:
-      - "NIST"
-      - "Journal"
-      - "Manual"
-    description: "Origin of the data point."
+    type: string
+    enum: ["Experimental", "DFT", "Calculated", "Simulation", "Literature"]
+    description: Type of data source
+  
+  target_source:
+    type: string
+    description: Specific source database or paper (e.g., "NIST", "Materials Project")
+    nullable: true
+  
   synthesis_method:
-    type: "string"
-    description: "Method used to synthesize the alloy (e.g., 'Arc-melted')."
-  crystal_structure:
-    type: "string"
-    description: "Crystal phase (e.g., 'L2_1')."
-  is_dft:
-    type: "boolean"
-    description: "True if the data is from DFT calculation. Must be False for training targets."
-  raw_source:
-    type: "string"
-    description: "Citation or URL of the original source."
+    type: string
+    description: Method used to synthesize the alloy (e.g., "Arc melting", "Sputtering")
+    nullable: true
+  
+  temperature:
+    type: object
+    description: Measurement temperature
+    required:
+      - value
+      - unit
+    properties:
+      value:
+        type: number
+      unit:
+        type: string
+        enum: ["K", "C", "F"]
+    nullable: true
+  
+  reference:
+    type: string
+    description: Citation or DOI reference
+    nullable: true
+  
+  notes:
+    type: string
+    description: Additional notes or comments
+    nullable: true
+additionalProperties: false
