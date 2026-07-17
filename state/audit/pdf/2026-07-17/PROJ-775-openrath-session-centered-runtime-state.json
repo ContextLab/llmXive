@@ -1,0 +1,139 @@
+{
+  "pdf_path": "projects/PROJ-775-openrath-session-centered-runtime-state/paper/pdf/main-llmxive.pdf",
+  "paper_id": "PROJ-775-openrath-session-centered-runtime-state",
+  "audited_at": "2026-07-17T00:05:25Z",
+  "total_pages": 24,
+  "pages": [
+    {
+      "page": 1,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 2,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 3,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 4,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 5,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 6,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 7,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 8,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 9,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 10,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 11,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 12,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 13,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 14,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 15,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 16,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 17,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 18,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 19,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 20,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 21,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 22,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 23,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 24,
+      "status": "pass",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "total_failures": 0,
+    "failure_classes": {
+      "source_fixable": 0,
+      "unsupported_construct": 0,
+      "source_missing": 0,
+      "audit_tool_crash": 0
+    },
+    "passed_pages": 24,
+    "failed_pages": 0
+  }
+}
