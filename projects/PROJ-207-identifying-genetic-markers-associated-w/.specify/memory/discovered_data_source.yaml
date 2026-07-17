@@ -1,0 +1,18 @@
+status: none
+intent: NCBI BioProject PRJNA639195 PRJNA566029 BeeBase download python package dataset
+required_fields:
+- chromosome
+- position
+- reference_allele
+- alternate_allele
+- QUAL
+- depth
+- allele_frequency
+- p_value
+- odds_ratio
+- sample_id
+- phenotype
+- geographic_region
+cache_key: ec3d3cd5b456a94fbb4c551ea63d577c3b621bfade4bae185c7d40b76d8f3632
+searched_at: '2026-07-17T01:38:46.394081+00:00'
+retry_count: 1

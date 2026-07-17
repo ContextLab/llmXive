@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T017** — The provided `code/03_gwas.sh` is truncated (ends mid‑line and lacks a proper script termination), so it is not a complete, runnable implementation. Additionally, the required output file `data/interim/gwas_raw.tsv` does not exist, indicating the script has not successfully produced the expected result. The script must be finished and verified to generate the raw GWAS statistics file.
+- **T022** — The repository contains a non‑empty `code/04_apply_fdr.sh`, but the required input `data/interim/gwas_raw.tsv` is missing, the script never invokes PLINK (it just calls the Python utility), and the expected output `data/processed/gwas_results_fdr.tsv` was not generated. The task’s core requirement—to pipe PLINK output through the FDR correction script and produce the processed results file—is therefore not satisfied.
