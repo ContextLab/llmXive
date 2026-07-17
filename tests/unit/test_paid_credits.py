@@ -169,3 +169,79 @@ class TestCreditBalanceValue:
     def test_remaining_never_negative(self):
         b = _balance(spend=9999.0)
         assert b.remaining == 0.0
+
+
+class TestReservationAwareGuard:
+    """spec 026 FR-011: the twice-checked paid gate — the guard owns the full
+    ``spend + outstanding + estimated_cost ≤ cap`` comparison, reusing the ONE
+    canonical ``reservations.admits`` predicate."""
+
+    def test_fits_within_cap(self, monkeypatch):
+        monkeypatch.setenv(credits.PAID_OPT_IN_ENV, "1")
+        # cap = 0.75*2000 = 1500; 100 + 1000 + 300 = 1400 ≤ 1500
+        allowed, _ = credits.paid_call_allowed(
+            "anthropic.claude-haiku-4-5-20251001",
+            fetch=lambda: _balance(spend=100.0),
+            estimated_cost_credits=300.0,
+            outstanding_reservation_credits=1000.0,
+        )
+        assert allowed is True
+
+    def test_boundary_equal_cap_admitted(self, monkeypatch):
+        monkeypatch.setenv(credits.PAID_OPT_IN_ENV, "1")
+        # exactly at the cap is admitted (predicate is ≤)
+        allowed, _ = credits.paid_call_allowed(
+            "m", fetch=lambda: _balance(spend=500.0),
+            estimated_cost_credits=500.0, outstanding_reservation_credits=500.0,
+        )
+        assert allowed is True  # 1500 ≤ 1500
+
+    def test_outstanding_reservations_push_over_cap(self, monkeypatch):
+        monkeypatch.setenv(credits.PAID_OPT_IN_ENV, "1")
+        # the SAME call that passes the plain cap (spend 100 < 1500) is refused once
+        # outstanding reservations are counted: 100 + 1000 + 500 = 1600 > 1500.
+        allowed, reason = credits.paid_call_allowed(
+            "m", fetch=lambda: _balance(spend=100.0),
+            estimated_cost_credits=500.0, outstanding_reservation_credits=1000.0,
+        )
+        assert allowed is False
+        assert "outstanding reservations" in reason
+
+    def test_reservation_mode_bypasses_cache(self, monkeypatch):
+        monkeypatch.setenv(credits.PAID_OPT_IN_ENV, "1")
+        calls = {"n": 0}
+
+        def counting_fetch() -> credits.CreditBalance:
+            calls["n"] += 1
+            return _balance(spend=10.0)
+
+        for _ in range(3):
+            credits.paid_call_allowed(
+                "m", fetch=counting_fetch, estimated_cost_credits=1.0,
+            )
+        assert calls["n"] == 3  # fresh read every time (no 30s cache reuse)
+
+    def test_negative_inputs_refused(self, monkeypatch):
+        monkeypatch.setenv(credits.PAID_OPT_IN_ENV, "1")
+        allowed, _ = credits.paid_call_allowed(
+            "m", fetch=lambda: _balance(), estimated_cost_credits=-1.0,
+        )
+        assert allowed is False
+
+    def test_opt_in_off_refuses_in_reservation_mode(self):
+        allowed, _ = credits.paid_call_allowed(
+            "m", fetch=lambda: _balance(), estimated_cost_credits=1.0,
+        )
+        assert allowed is False
+
+    def test_fetch_failure_refuses_in_reservation_mode(self, monkeypatch):
+        monkeypatch.setenv(credits.PAID_OPT_IN_ENV, "1")
+
+        def boom() -> credits.CreditBalance:
+            raise RuntimeError("balance endpoint down")
+
+        allowed, reason = credits.paid_call_allowed(
+            "m", fetch=boom, estimated_cost_credits=1.0,
+        )
+        assert allowed is False
+        assert "failing closed" in reason

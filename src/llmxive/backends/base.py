@@ -175,8 +175,11 @@ class BaseBackend(abc.ABC):
         model: str,
         max_tokens: int | None = None,
         temperature: float | None = None,
+        deadline_s: float | None = None,
     ) -> ChatResponse:
-        """Issue a chat completion request."""
+        """Issue a chat completion request. ``deadline_s`` is an optional per-call
+        wall-clock deadline (spec 026 ExecutionOptions); backends that cannot
+        enforce it (e.g. local CPU generation) treat it as advisory."""
 
     @abc.abstractmethod
     def healthcheck(self) -> bool:

@@ -23,9 +23,10 @@ collectively exceed the fractional cap. The reservation state machine:
   carried into the new day's headroom).
 
 The headroom predicate ``spend + counting + worst_case ≤ effective_cap`` lives in
-:func:`_admits` here (the ONE home of the reservation formula). Slice 3 wires this
+:func:`admits` here (the ONE home of the reservation formula). Slice 3 wires this
 together with the pre-call ``credits.paid_call_allowed`` check (twice-checked
-paid, FR-011) — the guard is extended to own it there, not duplicated.
+paid, FR-011): the guard is extended to REUSE :func:`admits` (Constitution I —
+the formula is imported, never re-implemented).
 """
 
 from __future__ import annotations
@@ -183,10 +184,11 @@ def counting_total(reservations: Iterable[Reservation], *, epoch: str) -> float:
     return sum(r.worst_case_credits for r in reservations if r.counts and r.budget_epoch == epoch)
 
 
-def _admits(*, effective_cap: float, fresh_spend: float, counting: float, worst_case: float) -> bool:
+def admits(*, effective_cap: float, fresh_spend: float, counting: float, worst_case: float) -> bool:
     """THE reservation headroom formula (FR-011): a new reservation fits iff fresh
     spend + already-counting reservations + this call's worst case stays within the
-    fractional cap."""
+    fractional cap. The ONE home of this predicate — ``reserve`` (below) AND the
+    pre-call ``credits.paid_call_allowed`` guard both call it (Constitution I)."""
     return fresh_spend + counting + worst_case <= effective_cap
 
 
@@ -252,7 +254,7 @@ def reserve(
                 )
             return None  # matching reservation already present — idempotent no-op
         counting = counting_total(current.values(), epoch=obs.budget_epoch)
-        if not _admits(
+        if not admits(
             effective_cap=obs.effective_cap, fresh_spend=obs.spend,
             counting=counting, worst_case=worst_case_credits,
         ):
@@ -591,6 +593,7 @@ __all__ = [
     "LedgerDenied",
     "Reservation",
     "ReservationLease",
+    "admits",
     "counting_total",
     "heartbeat",
     "lease_duration_for",

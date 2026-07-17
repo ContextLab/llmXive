@@ -114,6 +114,7 @@ def _chat_one_model(
     model: str | None,
     max_tokens: int | None,
     temperature: float | None,
+    deadline_s: float | None = None,
 ) -> ChatResponse:
     """``backend.chat`` for ONE model, degrading for fakes/legacy signatures.
 
@@ -126,9 +127,11 @@ def _chat_one_model(
     peer-model fallback chain AND the injected-fake reviewer/reviser tests.
 
     ``model=None`` is honored (omitted from the call) so callers that don't pin
-    a model still work. This NEVER catches backend errors — Transient/Permanent
-    propagate to the chain walker; only ``TypeError`` (signature mismatch) is
-    handled here.
+    a model still work. ``deadline_s`` (spec 026 execute's ``ExecutionOptions``)
+    is passed to real backends that accept it and degraded away first for fakes /
+    backends without a deadline param. This NEVER catches backend errors —
+    Transient/Permanent propagate to the chain walker; only ``TypeError``
+    (signature mismatch) is handled here.
     """
     base: dict[str, object] = {}
     if model is not None:
@@ -139,9 +142,15 @@ def _chat_one_model(
         full["max_tokens"] = max_tokens
     if temperature is not None:
         full["temperature"] = temperature
+    if deadline_s is not None:
+        full["deadline_s"] = deadline_s
     attempts.append(full)
-    # Degrade temperature first (keep the load-bearing reasoning budget longest),
-    # then max_tokens, then a bare model-only / no-kwarg call.
+    # Degrade deadline_s FIRST (newest/most-optional kwarg; fakes + backends without
+    # a deadline param don't accept it), keeping max_tokens/temperature; then drop
+    # temperature (keep the load-bearing reasoning budget longest), then max_tokens,
+    # then a bare model-only / no-kwarg call.
+    if deadline_s is not None:
+        attempts.append({k: v for k, v in full.items() if k != "deadline_s"})
     if temperature is not None and ("max_tokens" in full):
         attempts.append({**base, "max_tokens": max_tokens})
     attempts.append(dict(base))
@@ -200,6 +209,7 @@ def chat_one_candidate(
     model: str | None,
     max_tokens: int | None = None,
     temperature: float | None = None,
+    deadline_s: float | None = None,
     retries: int = 3,
 ) -> ChatResponse:
     """Run EXACTLY ONE model with the router's per-model safeguards but NO
@@ -231,7 +241,8 @@ def chat_one_candidate(
     msg_list = list(messages)
     if model is None:
         return _chat_one_model(
-            backend, msg_list, model=None, max_tokens=max_tokens, temperature=temperature
+            backend, msg_list, model=None, max_tokens=max_tokens,
+            temperature=temperature, deadline_s=deadline_s,
         )
     last_transient: TransientBackendError | None = None
     for attempt in range(max(1, retries)):
@@ -239,7 +250,8 @@ def chat_one_candidate(
             _time.sleep(2.0 * attempt)
         try:
             return _chat_one_model(
-                backend, msg_list, model=model, max_tokens=max_tokens, temperature=temperature
+                backend, msg_list, model=model, max_tokens=max_tokens,
+                temperature=temperature, deadline_s=deadline_s,
             )
         except ModelDownError:
             raise  # model down/deadline/302 — retrying the same model is futile

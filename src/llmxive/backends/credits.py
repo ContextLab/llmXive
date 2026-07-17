@@ -182,6 +182,8 @@ def paid_call_allowed(
     model: str,
     *,
     fetch: Callable[[], CreditBalance] | None = None,
+    estimated_cost_credits: float | None = None,
+    outstanding_reservation_credits: float = 0.0,
 ) -> tuple[bool, str]:
     """Decide whether a paid-model call to ``model`` may proceed right now.
 
@@ -189,6 +191,18 @@ def paid_call_allowed(
     balance unreachable, budget cap reached, nonsensical budget) refuses.
     Free models never reach this function — the backend consults it only
     after :func:`llmxive.backends.dartmouth.is_free_model` says False.
+
+    **Reservation-aware mode (spec 026 FR-011, the twice-checked paid gate).**
+    When ``estimated_cost_credits`` is given, the guard OWNS the full headroom
+    comparison ``spend + outstanding_reservation_credits + estimated_cost_credits
+    ≤ effective_cap`` — NOT merely "spend below cap" — reusing the ONE canonical
+    predicate :func:`llmxive.model_selection.reservations.admits` (Constitution I,
+    never re-implemented here). ``outstanding_reservation_credits`` is the caller's
+    :func:`reservations.outstanding_headroom_consumption` (the ``open``+``settling``
+    holds bridging Dartmouth's settlement lag). In this mode the balance is read
+    **fresh, cache-bypassing** (the legacy ~30s cache is used ONLY for the plain
+    "spend below cap" mode) so a concurrent burst cannot slip past a stale spend.
+    A failed fetch → refuse (a non-live credit observation fails closed, C6).
     """
     if not paid_opt_in_enabled():
         return (
@@ -196,8 +210,21 @@ def paid_call_allowed(
             f"paid model {model!r} refused: {PAID_OPT_IN_ENV} is not set "
             "(Constitution IV: paid credits are opt-in only)",
         )
+    reserving = estimated_cost_credits is not None
+    if reserving and (
+        estimated_cost_credits < 0 or outstanding_reservation_credits < 0
+    ):
+        return (
+            False,
+            f"paid model {model!r} refused: estimated_cost_credits="
+            f"{estimated_cost_credits!r} / outstanding_reservation_credits="
+            f"{outstanding_reservation_credits!r} must be non-negative",
+        )
     try:
-        balance = _cached_balance(fetch or fetch_credit_balance)
+        # Reservation-aware mode reads FRESH (cache-bypassing) spend; the plain
+        # mode keeps the brief cache to avoid hammering the endpoint on bursts.
+        source = fetch or fetch_credit_balance
+        balance = source() if reserving else _cached_balance(source)
     except Exception as exc:
         return (
             False,
@@ -211,6 +238,30 @@ def paid_call_allowed(
             f"{balance.max_budget!r} (no paid budget on this account)",
         )
     cap = budget_fraction() * balance.max_budget
+    if reserving:
+        from llmxive.model_selection.reservations import admits
+
+        if not admits(
+            effective_cap=cap,
+            fresh_spend=balance.spend,
+            counting=outstanding_reservation_credits,
+            worst_case=estimated_cost_credits,
+        ):
+            return (
+                False,
+                f"paid model {model!r} refused: fresh spend {balance.spend:.2f} + "
+                f"outstanding reservations {outstanding_reservation_credits:.2f} + this "
+                f"call {estimated_cost_credits:.2f} exceeds cap {cap:.2f} "
+                f"(= {budget_fraction():.0%} of max_budget {balance.max_budget:.2f}; "
+                f"resets at {balance.budget_reset_at})",
+            )
+        return (
+            True,
+            f"paid model {model!r} allowed: fresh spend {balance.spend:.2f} + "
+            f"outstanding {outstanding_reservation_credits:.2f} + call "
+            f"{estimated_cost_credits:.2f} ≤ cap {cap:.2f} "
+            f"(resets at {balance.budget_reset_at})",
+        )
     if balance.spend >= cap:
         return (
             False,

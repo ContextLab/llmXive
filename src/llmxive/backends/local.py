@@ -43,7 +43,13 @@ class LocalBackend(BaseBackend):
         model: str,
         max_tokens: int | None = None,
         temperature: float | None = None,
+        deadline_s: float | None = None,
     ) -> ChatResponse:
+        # ``deadline_s`` (spec 026 execute's ExecutionOptions) is accepted for a
+        # uniform backend signature but is ADVISORY here: local CPU generation is a
+        # single blocking ``generate`` bounded by ``max_new_tokens`` and cannot be
+        # abandoned mid-call, so there is no wall-clock enforcement to apply.
+        _ = deadline_s
         try:
             from transformers import (  # type: ignore[import-not-found]
                 AutoModelForCausalLM,

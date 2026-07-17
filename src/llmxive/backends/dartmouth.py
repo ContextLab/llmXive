@@ -748,6 +748,7 @@ class DartmouthBackend(BaseBackend):
         model: str,
         max_tokens: int | None = None,
         temperature: float | None = None,
+        deadline_s: float | None = None,
     ) -> ChatResponse:
         try:
             from langchain_core.messages import (
@@ -757,6 +758,14 @@ class DartmouthBackend(BaseBackend):
             )
         except ImportError as exc:
             raise PermanentBackendError("langchain-core is not installed") from exc
+
+        # spec 026 execute() may pass an explicit per-call wall-clock deadline
+        # (from ExecutionOptions.deadline_s); it OVERRIDES the per-model default
+        # for the hard invoke_with_deadline enforcement. A non-positive/None value
+        # falls back to the reasoning-aware per-model deadline.
+        effective_deadline = (
+            deadline_s if deadline_s and deadline_s > 0 else _deadline_for_model(model)
+        )
 
         # Free-first guard (Constitution Principle IV). Dartmouth's catalog
         # mixes free self-hosted models with paid external providers (gpt-5,
@@ -808,7 +817,7 @@ class DartmouthBackend(BaseBackend):
             # re-create the hang.
             return invoke_with_deadline(
                 lambda: client.invoke(msg_objs, **call_kwargs),
-                timeout=_deadline_for_model(model),
+                timeout=effective_deadline,
                 description=f"Dartmouth model {model!r}",
             )
 

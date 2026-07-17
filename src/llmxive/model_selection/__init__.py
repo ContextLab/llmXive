@@ -18,6 +18,7 @@ migrations.
 
 from __future__ import annotations
 
+from llmxive.model_selection.execute import ChainExhausted, ExecutionResult, execute
 from llmxive.model_selection.policy import (
     CAPABILITY_POLICY,
     SELECTION_POLICY_VERSION,
@@ -52,8 +53,10 @@ __all__ = [
     "CallBudget",
     "Candidate",
     "CapabilityPolicy",
+    "ChainExhausted",
     "CreditGuardSnapshot",
     "ExecutionOptions",
+    "ExecutionResult",
     "IndependenceBaseline",
     "ModelChain",
     "ModelRef",
@@ -64,13 +67,13 @@ __all__ = [
     "RuntimeSnapshot",
     "SnapshotProvenance",
     "build_requirement",
+    "execute",
     "profile",
     "runtime_snapshot",
     "select",
 ]
 
-
-def __getattr__(name: str):  # lazy: keep import of the networked layer optional
+def __getattr__(name: str):  # lazy: keep the networked snapshot layer optional
     if name == "runtime_snapshot":
         from llmxive.model_selection.snapshot import runtime_snapshot
 
