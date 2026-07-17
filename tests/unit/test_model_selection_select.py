@@ -447,3 +447,51 @@ def test_chain_provenance_fields():
     assert chain.selection_policy_version == 1
     assert set(chain.snapshot_provenance) == {"catalog", "local", "credit"}
     assert chain.call_budget == cb
+
+
+# --------------------------------------------------------------------------- #
+# SC-007 / US5: golden-chain model-ID PROJECTIONS (behavior preservation).
+# The legacy router chain MODEL_FALLBACKS["qwen.qwen3.5-122b"] =
+# [gemma-3, gpt-oss, claude(guarded)]. The consolidated policy reproduces it as a
+# model-ID projection with the maintainer-approved gemma-3 -> gemma-4 correction.
+# (a) paid off  -> free peers qwen -> gemma-4 -> gpt-oss (claude guarded off).
+# (b) paid on   -> that sequence + the guarded paid claude tail.
+# (c) local backend fallback ordering verified separately (appended last, free).
+# --------------------------------------------------------------------------- #
+
+# The Dartmouth text catalog (no local) — the legacy per-backend peer set. gemma-3
+# is present in the catalog but absent from the policy (approved correction).
+_DARTMOUTH_TEXT = [QWEN, GEMMA4, GPT_OSS, GEMMA3, CLAUDE]
+
+
+def test_sc007_golden_chain_paid_off():
+    chain = select(
+        build_requirement("standard_generation", _cb()),
+        _snapshot(model_ids=_DARTMOUTH_TEXT, paid_opt_in=False),
+    )
+    assert _ids(chain) == [QWEN, GEMMA4, GPT_OSS]
+
+
+def test_sc007_golden_chain_paid_on_with_headroom_appends_guarded_paid_tail():
+    chain = select(
+        build_requirement("standard_generation", _cb(), allow_paid=True),
+        _snapshot(model_ids=_DARTMOUTH_TEXT, paid_opt_in=True, available_headroom=1400.0),
+    )
+    assert _ids(chain) == [QWEN, GEMMA4, GPT_OSS, CLAUDE]
+
+
+def test_sc007_gemma3_excluded_even_though_present_in_catalog():
+    chain = select(
+        build_requirement("standard_generation", _cb()),
+        _snapshot(model_ids=_DARTMOUTH_TEXT, paid_opt_in=False),
+    )
+    assert GEMMA3 not in _ids(chain)
+
+
+def test_sc007_local_backend_fallback_ordered_last_free():
+    chain = select(
+        build_requirement("standard_generation", _cb()),
+        _snapshot(model_ids=[QWEN, GEMMA4, GPT_OSS, LOCAL], paid_opt_in=False),
+    )
+    assert _ids(chain) == [QWEN, GEMMA4, GPT_OSS, LOCAL]
+    assert chain.candidates[-1].model_ref.backend == "local"
