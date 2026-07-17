@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for the correlation_results.csv output file. Validates the statistical output of the analysis pipeline."
+type: "object"
+properties:
+  metric:
+    type: "string"
+    description: "Name of the network metric tested (e.g., 'modularity', 'participation_coeff')."
+    enum:
+      - "modularity"
+      - "participation_coeff"
+      - "within_module_degree"
+      - "global_efficiency"
+  correlation_coefficient:
+    type: "number"
+    description: "Pearson or Spearman correlation coefficient (r)."
+    minimum: -1.0
+    maximum: 1.0
+  p_value:
+    type: "number"
+    description: "Uncorrected p-value from the correlation test."
+    minimum: 0.0
+    maximum: 1.0
+  p_value_corrected:
+    type: "number"
+    description: "FDR-corrected p-value (q-value)."
+    minimum: 0.0
+    maximum: 1.0
+  significant:
+    type: "boolean"
+    description: "True if p_value_corrected < 0.05."
+  covariate_controlled:
+    type: "boolean"
+    description: "True if Framewise Displacement (FD) was controlled for in the analysis."
+    const: true
+required:
+  - metric
+  - correlation_coefficient
+  - p_value
+  - p_value_corrected
+  - significant
+  - covariate_controlled
+additionalProperties: false

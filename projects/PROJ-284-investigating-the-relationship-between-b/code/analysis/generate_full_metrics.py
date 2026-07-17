@@ -1,49 +1,34 @@
+"""
+Generate Full Metrics script to ensure T023b outputs are generated.
+This script merges raw metrics with PCA scores.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.analysis.correlations import load_metrics_data, run_pca_on_metrics, generate_full_metrics
 from code.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def generate_full_metrics(metrics_path: Path, pca_scores_path: Path, output_path: Path):
-    """
-    Merges individual metrics with PCA factor scores into a single output DataFrame.
-    """
-    logger.log("generate_full_metrics", metrics=str(metrics_path), pca=str(pca_scores_path))
-    
-    if not metrics_path.exists():
-        logger.log("generate_full_metrics", status="failed", error=f"Metrics file not found: {metrics_path}")
-        return
-    if not pca_scores_path.exists():
-        logger.log("generate_full_metrics", status="failed", error=f"PCA scores file not found: {pca_scores_path}")
-        return
-    
-    df_metrics = pd.read_csv(metrics_path)
-    df_pca = pd.read_csv(pca_scores_path)
-    
-    # Merge on subject_id
-    df_full = pd.merge(df_metrics, df_pca, on='subject_id', how='left')
-    
-    # Save output
-    df_full.to_csv(output_path / "full_metrics.csv", index=False)
-    
-    logger.log("generate_full_metrics", status="completed", path=str(output_path))
-
 def main():
-    """
-    Main entry point for full metrics generation.
-    """
-    logger.log("generate_full_metrics_main", status="started")
-    
-    metrics_path = Path("data/processed/aggregated_metrics.csv")
-    pca_scores_path = Path("data/analysis/factor_scores.csv")
-    output_path = Path("data/analysis")
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    generate_full_metrics(metrics_path, pca_scores_path, output_path)
+    logger.log("start_generate_full_metrics")
+    try:
+        df = load_metrics_data()
+        # Run PCA if not already done (or load existing scores)
+        # The run_pca_on_metrics function writes the files, so we can just call it
+        # or load the existing files if they exist.
+        # For robustness, we call it.
+        loadings, scores = run_pca_on_metrics(df)
+        generate_full_metrics(df, scores)
+        logger.log("generate_full_metrics_success")
+    except Exception as e:
+        logger.log("generate_full_metrics_failed", error=str(e))
+        raise
 
 if __name__ == "__main__":
     main()

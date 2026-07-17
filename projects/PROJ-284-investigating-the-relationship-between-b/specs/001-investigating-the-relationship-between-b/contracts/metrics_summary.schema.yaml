@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Summary Schema"
+description: "Schema for the metrics_summary.csv file containing subject-level network metrics and behavioral data."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique HCP subject identifier."
+    pattern: "^[0-9]+$"
+  modularity:
+    type: "number"
+    description: "Global modularity value (Louvain algorithm)."
+  participation_coeff:
+    type: "number"
+    description: "Mean participation coefficient across all nodes."
+  within_module_degree:
+    type: "number"
+    description: "Mean within-module degree across all nodes."
+  global_efficiency:
+    type: "number"
+    description: "Global efficiency metric derived from the connectivity matrix."
+  motor_score:
+    type: "number"
+    description: "Motor Task Performance composite score (proxy for proprioception)."
+  fd_mean:
+    type: "number"
+    description: "Mean Framewise Displacement (motion metric)."
+  tsnr_mean:
+    type: "number"
+    description: "Mean temporal signal-to-noise ratio."
+  age:
+    type: "integer"
+    description: "Subject age in years."
+  sex:
+    type: "string"
+    description: "Subject sex."
+    enum:
+      - "M"
+      - "F"
+  random_seed:
+    type: "integer"
+    description: "Random seed used for the Louvain algorithm to ensure reproducibility."
+  algorithm_version:
+    type: "string"
+    description: "Version of the bctpy/algorithm used to compute modularity."
+required:
+  - subject_id
+  - modularity
+  - participation_coeff
+  - within_module_degree
+  - global_efficiency
+  - motor_score
+  - fd_mean
+  - tsnr_mean
+  - random_seed
+  - algorithm_version
+additionalProperties: false

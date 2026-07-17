@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T00:57:12.981974Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-284-investigating-the-relationship-between-b
-last_run_id: eb22a742-b439-44eb-b8be-8ba0715f8294
+last_run_id: 943fb3a7-4996-4820-b9b3-b17c8b15a78d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-284-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b
 title: Investigating the Relationship Between Brain Network Dynamics and Individual
   Differences in Proprioceptive Accuracy
-updated_at: '2026-06-29T20:41:47.962783Z'
+updated_at: '2026-07-17T12:15:11.783378Z'

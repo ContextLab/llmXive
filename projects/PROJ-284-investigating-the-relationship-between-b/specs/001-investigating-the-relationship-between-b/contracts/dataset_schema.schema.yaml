@@ -14,7 +14,7 @@ properties:
     description: "Sex of the subject (M/F)."
   motor_task_score:
     type: number
-    description: "Motor Task Performance composite score (proxy for proprioceptive accuracy)."
+    description: "Motor Task Performance composite score (measure of motor execution)."
   fd_mean:
     type: number
     description: "Mean Framewise Displacement (motion covariate)."
