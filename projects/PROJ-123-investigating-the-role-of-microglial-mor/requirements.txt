@@ -5,7 +5,5 @@ pandas
 opencv-python-headless
 scikit-image
 pyyaml
-ruff
-black
+scipy
 pytest
-pytest-cov

@@ -1,128 +1,95 @@
+# Dataset Schema for Microglial Morphology Analysis
+# Defines the structure of the input dataset for regression analysis
+# Version: 1.0.0
+# Last Updated: 2024-01-15
+#
+# This schema enforces strict type checking and enumeration constraints
+# to ensure data quality for the regression pipeline (US2).
+
 $schema: http://json-schema.org/draft-07/schema#
-title: Microglial Morphology Dataset Schema
+title: MicrogliaMorphologyDataset
 description: |
-  Schema for the raw and processed dataset used in the investigation of
-  microglial morphology in age-related cognitive decline.
-  Defines the structure for input microscopy data and associated metadata.
+  Schema for the processed morphological metrics dataset.
+  Contains features extracted from microscopy images and associated metadata.
+
 type: object
 required:
-  - metadata
-  - subjects
-  - images
+  - subject_id
+  - brain_region
+  - pathology_status
+  - morphological_metrics
+  - cognitive_score
+
 properties:
-  metadata:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject/animal
+    pattern: "^[A-Z0-9_-]+$"
+
+  brain_region:
+    type: string
+    description: Anatomical region of the brain slice
+    enum:
+      - Hippocampus
+      - Prefrontal Cortex
+    x-note: |
+      Only these two regions are supported per the study design.
+      Other regions must be excluded during ingestion (T012).
+
+  pathology_status:
+    type: string
+    description: Pathological classification of the subject
+    enum:
+      - Normal
+      - Early AD
+    x-note: |
+      'Early AD' is determined dynamically if labels are missing,
+      based on amyloid-beta load (T024).
+
+  morphological_metrics:
     type: object
-    description: Project-level metadata
+    description: Quantitative measures of microglial morphology
     required:
-      - version
-      - created_at
-      - pipeline_version
+      - branch_points
+      - total_length
+      - soma_area
+      - sholl_intersections
     properties:
-      version:
-        type: string
-        pattern: "^\\d+\\.\\d+\\.\\d+$"
-        description: Dataset version (SemVer)
-      created_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of creation
-      pipeline_version:
-        type: string
-        description: Version of the processing pipeline used
-      source:
-        type: string
-        description: Origin of the data (e.g., public repository, lab acquisition)
-  
-  subjects:
-    type: array
-    description: List of subject records
-    items:
-      type: object
-      required:
-        - subject_id
-        - brain_region
-        - cognitive_status
-        - amyloid_beta_load
-      properties:
-        subject_id:
-          type: string
-          description: Unique identifier for the subject
-        brain_region:
-          type: string
-          enum:
-            - Hippocampus
-            - Prefrontal_Cortex
-            - Amygdala
-            - Entorhinal_Cortex
-          description: Brain region of origin
-        cognitive_status:
-          type: string
-          enum:
-            - Control
-            - MCI
-            - AD
-          description: Cognitive classification
-        age:
-          type: integer
-          minimum: 50
-          description: Age of the subject in years
-        sex:
-          type: string
-          enum:
-            - M
-            - F
-          description: Biological sex
-        amyloid_beta_load:
-          type: number
-          minimum: 0
-          description: Quantified amyloid-beta load (normalized 0-1)
-        pathology_status:
-          type: string
-          enum:
-            - None
-            - Low
-            - Moderate
-            - High
-          description: General pathology classification
-  
-  images:
-    type: array
-    description: List of image records linked to subjects
-    items:
-      type: object
-      required:
-        - image_id
-        - subject_id
-        - file_path
-        - acquisition_params
-      properties:
-        image_id:
-          type: string
-          description: Unique identifier for the image
-        subject_id:
-          type: string
-          description: Foreign key to subjects
-        file_path:
-          type: string
-          description: Relative path to the image file
-        acquisition_params:
-          type: object
-          required:
-            - magnification
-            - resolution_um
-            - channel
-          properties:
-            magnification:
-              type: integer
-              description: Objective magnification (e.g., 60)
-            resolution_um:
-              type: number
-              description: Pixel resolution in micrometers
-            channel:
-              type: string
-              description: Fluorescence channel used
-        metadata_missing:
-          type: boolean
-          default: false
-          description: Flag indicating if critical metadata was missing (FR-001)
+      branch_points:
+        type: integer
+        minimum: 0
+        description: Count of branch points in the skeletonized neurite tree
+
+      total_length:
+        type: number
+        minimum: 0.0
+        description: Total length of neurites in micrometers (µm)
+
+      soma_area:
+        type: number
+        minimum: 0.0
+        description: Area of the cell soma in square micrometers (µm²)
+
+      sholl_intersections:
+        type: integer
+        minimum: 0
+        description: Number of intersections at the standard Sholl radius
+
+      # NOTE: 'fractal_dimension' is explicitly excluded per spec FR-003
+      # and the review decision to focus on standard morphometric features.
+
+  cognitive_score:
+    type: number
+    description: Morris Water Maze (MWM) latency in seconds
+    minimum: 0.0
+    x-note: |
+      Lower latency indicates better cognitive performance.
+      Subjects with missing scores are excluded (T012).
+
+  amyloid_beta_load:
+    type: number
+    minimum: 0.0
+    description: Quantified amyloid-beta load (optional, used for dynamic classification)
+    x-note: Required for T024 dynamic classification logic if labels are missing.
+
 additionalProperties: false

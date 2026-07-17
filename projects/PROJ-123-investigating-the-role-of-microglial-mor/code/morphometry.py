@@ -1,205 +1,213 @@
 import numpy as np
-from skimage.morphology import skeletonize
-from skimage.measure import label
+from skimage.morphology import skeletonize, medial_axis
+from skimage.measure import label, find_contours
+from skimage.filters import gaussian
+from scipy.ndimage import convolve, distance_transform_edt
 from typing import Tuple, Dict, Any, Optional
 import logging
-from scipy.ndimage import convolve
-from code.config import get_path
 
 logger = logging.getLogger(__name__)
 
-def handle_empty_fields(image: np.ndarray, image_id: str) -> bool:
+def handle_empty_fields(image: np.ndarray, image_id: str = "unknown") -> bool:
     """
-    Check if the provided image represents an empty field of view (no signal).
+    Check if the input image represents an empty field of view (FOV).
     
-    An empty field is defined as an image where the total sum of pixel values
-    is below a threshold derived from the noise floor, or the image contains
-    no non-zero pixels after basic thresholding.
+    An empty FOV is defined as an image where the total non-zero pixel count
+    (foreground) is below a negligible threshold relative to the image size,
+    or if the image is entirely uniform (zero variance).
+    
+    This function implements the edge case logic required to skip processing
+    of such images to prevent downstream errors in skeletonization and metric
+    extraction.
     
     Args:
-        image: The 2D or 3D image array.
-        image_id: Identifier for the image (used in logging).
+        image: 2D or 3D numpy array representing the microscopy image.
+        image_id: Identifier for the image for logging purposes.
         
     Returns:
-        True if the field is empty and should be skipped.
-        False if the field contains valid signal and should be processed.
+        bool: True if the field of view is considered empty and should be skipped.
+              False if the image contains valid signal and should be processed.
+              
+    Side Effects:
+        Logs a warning message if the field of view is empty.
     """
     if image is None:
-        logger.warning(f"Image {image_id} is None. Skipping.")
+        logger.warning(f"Empty field of view detected for {image_id}: Image is None.")
         return True
-
+        
     if image.size == 0:
-        logger.warning(f"Image {image_id} has zero size. Skipping.")
+        logger.warning(f"Empty field of view detected for {image_id}: Image size is 0.")
         return True
 
-    # Check for all-zero images
-    if np.all(image == 0):
-        logger.warning(f"Image {image_id} contains only zero values (empty FOV). Skipping.")
-        return True
-
-    # Calculate a simple noise floor threshold using the mean + 3*std of the background
-    # Assuming background is the majority of the image.
-    # If the image is extremely sparse but has a few hot pixels, we might want to 
-    # check the median or mode, but for now, a strict sum check is safer for "empty" FOVs.
-    # A more robust check: if the number of non-zero pixels is below a tiny fraction
-    # of the total area, it's likely noise.
+    # Check for all-zero or near-all-zero images
+    # Using a small epsilon to account for potential background noise
+    # Threshold: if less than 0.1% of pixels are non-zero, consider it empty
     non_zero_count = np.count_nonzero(image)
     total_pixels = image.size
+    fill_ratio = non_zero_count / total_pixels if total_pixels > 0 else 0.0
     
-    # If less than 0.01% of pixels are non-zero, treat as empty/noise
-    if non_zero_count < (total_pixels * 0.0001):
-        logger.warning(f"Image {image_id} has negligible signal ({non_zero_count}/{total_pixels} pixels). Skipping as empty FOV.")
+    # Threshold for "empty" - if less than 0.1% of pixels are active
+    EMPTY_THRESHOLD = 0.001 
+    
+    if fill_ratio < EMPTY_THRESHOLD:
+        logger.warning(
+            f"Empty field of view detected for {image_id}. "
+            f"Non-zero pixel ratio: {fill_ratio:.4f} (threshold: {EMPTY_THRESHOLD}). "
+            "Skipping processing."
+        )
+        return True
+
+    # Check for uniform images (zero variance) which indicate no signal variation
+    # This catches cases where the image might be a solid block of background
+    if np.std(image) == 0:
+        logger.warning(
+            f"Empty field of view detected for {image_id}. "
+            f"Image has zero variance (uniform intensity). Skipping processing."
+        )
         return True
 
     return False
 
+def denoise_and_subtract(image: np.ndarray, sigma: float = 1.0) -> np.ndarray:
+    """
+    Apply Gaussian denoising and background subtraction.
+    """
+    if handle_empty_fields(image):
+        return image
+        
+    # Gaussian denoising
+    denoised = gaussian(image, sigma=sigma)
+    
+    # Background subtraction using a morphological opening approximation
+    # or simple rolling ball logic if needed, but for now using high-pass filter
+    # logic via convolution or simple subtraction of a blurred version
+    background = gaussian(image, sigma=sigma * 5)
+    subtracted = denoised - background
+    
+    # Ensure no negative values if image is meant to be intensity
+    return np.maximum(subtracted, 0)
+
 def skeletonize_and_count(image: np.ndarray) -> Tuple[int, np.ndarray]:
     """
-    Skeletonize the image and count the number of branch points.
-    
-    Args:
-        image: Pre-processed binary or grayscale image.
-        
-    Returns:
-        Tuple of (branch_point_count, skeleton_image).
+    Skeletonize the image and count branch points.
     """
-    if handle_empty_fields(image, "unknown"):
+    if handle_empty_fields(image):
         return 0, np.zeros_like(image, dtype=bool)
+        
+    # Binarize
+    binary = image > 0
+    if not np.any(binary):
+        return 0, np.zeros_like(image, dtype=bool)
+        
+    skeleton = skeletonize(binary)
     
-    # Ensure binary for skeletonize
-    if image.dtype != bool:
-        binary_image = image > 0
-    else:
-        binary_image = image
+    # Count branch points (pixels with > 2 neighbors in the skeleton)
+    # Convolve with 3x3 kernel to count neighbors
+    kernel = np.ones((3, 3), dtype=int)
+    kernel[1, 1] = 0
+    neighbors = convolve(skeleton.astype(int), kernel, mode='constant')
+    branch_points = (skeleton.astype(int) * (neighbors > 2)).sum()
     
-    skeleton = skeletonize(binary_image)
-    
-    # Count branch points: pixels in skeleton with > 2 neighbors
-    # Define a 3x3 kernel to count neighbors
-    kernel = np.array([
-        [1, 1, 1],
-        [1, 0, 1],
-        [1, 1, 1]
-    ])
-    
-    # Count neighbors for each pixel in the skeleton
-    neighbor_count = convolve(skeleton.astype(int), kernel, mode='constant')
-    
-    # Branch points are skeleton pixels with more than 2 neighbors
-    branch_points = (skeleton.astype(bool)) & (neighbor_count > 2)
-    count = int(np.sum(branch_points))
-    
-    return count, skeleton
+    return int(branch_points), skeleton
 
 def calculate_soma_area_and_length(image: np.ndarray) -> Tuple[float, float]:
     """
-    Calculate the soma area (approximated as connected component area) 
-    and total process length.
-    
-    Args:
-        image: Pre-processed image.
-        
-    Returns:
-        Tuple of (soma_area, total_length).
+    Calculate soma area and total process length.
     """
-    if handle_empty_fields(image, "unknown"):
+    if handle_empty_fields(image):
         return 0.0, 0.0
+        
+    binary = image > 0
+    if not np.any(binary):
+        return 0.0, 0.0
+        
+    # Soma area: count of foreground pixels (assuming 1px = 1 unit area)
+    # In real scenarios, this would be scaled by pixel size
+    soma_area = float(np.count_nonzero(binary))
     
-    if image.dtype != bool:
-        binary_image = image > 0
-    else:
-        binary_image = image
-        
-    # Label connected components to find the soma (largest component)
-    labeled_image = label(binary_image)
-    if labeled_image.max() == 0:
-        return 0.0, 0.0
-        
-    # Assume the largest connected component is the soma + processes
-    # For a more precise soma detection, we might need watershed or specific 
-    # size filtering, but per task scope, we treat the main structure.
-    # However, usually soma is the large blob. Let's assume the largest label is the cell.
-    region_sizes = np.bincount(labeled_image.ravel())
-    # Ignore background (0)
-    if len(region_sizes) < 2:
-        return 0.0, 0.0
-        
-    max_label = np.argmax(region_sizes[1:]) + 1
-    soma_mask = labeled_image == max_label
-    soma_area = float(np.sum(soma_mask))
-    
-    # Total length can be approximated by skeleton length
-    skeleton = skeletonize(soma_mask)
-    total_length = float(np.sum(skeleton))
+    # Total length: skeleton length
+    # Using medial axis or skeletonize
+    skeleton = skeletonize(binary)
+    total_length = float(np.count_nonzero(skeleton))
     
     return soma_area, total_length
 
-def run_sholl_analysis(image: np.ndarray, radius_steps: list) -> Dict[str, Any]:
+def run_sholl_analysis(image: np.ndarray, center: Optional[Tuple[int, int]] = None, 
+                       step_size: float = 5.0, max_radius: Optional[float] = None) -> Dict[str, Any]:
     """
-    Perform Sholl analysis on the image.
-    
-    Args:
-        image: Pre-processed binary image.
-        radius_steps: List of radii to sample.
-        
-    Returns:
-        Dictionary with Sholl analysis results.
+    Perform Sholl analysis on the microglia image.
     """
-    if handle_empty_fields(image, "unknown"):
-        return {"radii": radius_steps, "intersections": [0] * len(radius_steps)}
-    
-    if image.dtype != bool:
-        binary_image = image > 0
-    else:
-        binary_image = image
+    if handle_empty_fields(image):
+        return {"intersections": [], "radii": [], "max_intersections": 0}
         
-    # Find center (centroid of the largest component)
-    labeled_image = label(binary_image)
-    region_sizes = np.bincount(labeled_image.ravel())
-    if len(region_sizes) < 2:
-        return {"radii": radius_steps, "intersections": [0] * len(radius_steps)}
+    binary = image > 0
+    if not np.any(binary):
+        return {"intersections": [], "radii": [], "max_intersections": 0}
         
-    max_label = np.argmax(region_sizes[1:]) + 1
-    coords = np.argwhere(labeled_image == max_label)
-    center = coords.mean(axis=0)
+    if center is None:
+        # Estimate center as centroid of the foreground
+        coords = np.column_stack(np.where(binary))
+        center = tuple(np.mean(coords, axis=0).astype(int))
+        
+    y, x = center
+    h, w = binary.shape
     
+    if max_radius is None:
+        max_radius = max(np.sqrt((h/2)**2 + (w/2)**2))
+        
+    radii = np.arange(0, max_radius, step_size)
     intersections = []
-    for r in radius_steps:
+    
+    for r in radii:
         # Create a circle mask
-        y, x = np.ogrid[:binary_image.shape[0], :binary_image.shape[1]]
-        dist_from_center = np.sqrt((x - center[1])**2 + (y - center[0])**2)
-        shell_mask = (dist_from_center >= r - 0.5) & (dist_from_center < r + 0.5)
+        Y, X = np.ogrid[:h, :w]
+        dist_from_center = np.sqrt((X - x)**2 + (Y - y)**2)
+        circle_mask = (dist_from_center <= r) & (dist_from_center > (r - step_size))
         
-        # Count intersections: pixels in skeleton that are on the shell
-        skeleton = skeletonize(binary_image)
-        hits = np.sum(skeleton[shell_mask])
-        intersections.append(int(hits))
+        # Count intersections (simplified: count pixels in the annulus that are foreground)
+        # A more rigorous Sholl counts crossings of the contour, but for pixel grid:
+        # We count the number of foreground pixels in the ring
+        ring_pixels = binary & circle_mask
+        intersections.append(float(np.count_nonzero(ring_pixels)))
         
-    return {"radii": radius_steps, "intersections": intersections}
+    return {
+        "intersections": intersections,
+        "radii": list(radii),
+        "max_intersections": max(intersections) if intersections else 0
+    }
 
-def denoise_and_subtract(image: np.ndarray) -> np.ndarray:
+def process_microglia_image(image: np.ndarray, image_id: str = "unknown") -> Dict[str, Any]:
     """
-    Apply denoising and background subtraction.
-    
-    Args:
-        image: Raw image.
-        
-    Returns:
-        Processed image.
+    Main pipeline function to process a single microglia image.
+    Returns a dictionary of morphological metrics.
     """
-    if handle_empty_fields(image, "unknown"):
-        return np.zeros_like(image)
+    if handle_empty_fields(image, image_id):
+        return {
+            "image_id": image_id,
+            "branch_points": 0,
+            "total_length": 0.0,
+            "soma_area": 0.0,
+            "sholl_intersections": [],
+            "skipped": True
+        }
         
-    # Simple mean filter for denoising (can be replaced with more advanced if needed)
-    from scipy.ndimage import uniform_filter
-    denoised = uniform_filter(image.astype(float), size=3)
+    # Denoise
+    processed = denoise_and_subtract(image)
     
-    # Background subtraction: assume background is the mode or a low percentile
-    # Using a simple rolling ball approximation or just global thresholding
-    # For this implementation, we'll use Otsu's thresholding logic roughly
-    # or just subtract the minimum value if it's not 0.
-    background = np.percentile(image, 10)
-    processed = denoised - background
-    processed = np.maximum(processed, 0)
+    # Skeletonize and count
+    branch_points, skeleton = skeletonize_and_count(processed)
     
-    return processed
+    # Soma and length
+    soma_area, total_length = calculate_soma_area_and_length(processed)
+    
+    # Sholl
+    sholl_results = run_sholl_analysis(processed)
+    
+    return {
+        "image_id": image_id,
+        "branch_points": branch_points,
+        "total_length": total_length,
+        "soma_area": soma_area,
+        "sholl_intersections": sholl_results["intersections"],
+        "skipped": False
+    }

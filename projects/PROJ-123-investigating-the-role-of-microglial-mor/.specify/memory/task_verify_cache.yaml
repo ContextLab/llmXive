@@ -1,13 +1,13 @@
-T001:
+T026:
+  c: false
+  h: 67fb9ad3cd363ade5ac50e244d70874640cad2cb1ae55565b618c2194e77f066
+  r: "The required artifact `data/intermediates/vif_check.json` does not exist, so\
+    \ the VIF scores and `trigger_pca` flag were never written. Consequently the task\u2019\
+    s deliverable is missing."
+T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `projects/PROJ-123-investigating-the-role-of-microglial-mor/`\
-    \ directory or any of its expected sub\u2011folders/files is provided; the claim\
-    \ lacks any tangible artifact to confirm the required project structure was created."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `config.py` file or its contents were presented; thus there is no evidence\
-    \ that paths, random seeds, and CPU\u2011only constants have been defined as required.\
-    \ The implementer must supply a non\u2011empty `config.py` implementing those\
-    \ settings."
+  r: No code, configuration, or output examples were provided showing that a `causality_warning`
+    flag was set to `true` and that the required disclaimer was appended to text outputs
+    (with the exception logic for randomization metadata). Without such artifacts,
+    we cannot confirm the task was fulfilled.
