@@ -6,7 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "socratic-transformers"
 version = "0.1.0"
 description = "Dialogue-Based Self-Teaching Through Adversarial Questioning"
-readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "transformers",
@@ -16,63 +15,87 @@ dependencies = [
     "scikit-learn",
     "pandas",
     "pytest",
+    "ruff",
+    "black"
 ]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-]
-
-[tool.black]
-line-length = 100
-target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-    \.git
-    | \.venv
-    | venv
-    | __pycache__
-    | build
-    | dist
-)/
-'''
 
 [tool.ruff]
-line-length = 100
+# Same as Black.
+line-length = 88
+indent-width = 4
 target-version = "py39"
-src = ["src", "tests"]
-extend-exclude = [
-    ".git",
-    ".venv",
-    "venv",
-    "__pycache__",
-    "build",
-    "dist",
-]
 
 [tool.ruff.lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`) codes.
+select = ["E4", "E7", "E9", "F", "I", "UP"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
 ]
 
-[tool.ruff.lint.isort]
-known-first-party = ["src"]
-force-sort-within-sections = true
-combine-as-imports = true
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | node_modules
+  | venv
+)/
+'''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

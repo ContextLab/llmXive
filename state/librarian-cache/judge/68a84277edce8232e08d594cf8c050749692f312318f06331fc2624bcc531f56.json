@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.02770",
+  "judged_at": "2026-07-17T15:38:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"gemma 4 technical report\" linguistics",
+  "rationale": "This paper is the foundational technical report for the \"Gemma 4\" model explicitly mentioned in the user's question, satisfying category (d) as the canonical reference for the model's architecture, capabilities, and design choices that any follow-up study on its linguistics must cite.",
+  "relevant": true
+}

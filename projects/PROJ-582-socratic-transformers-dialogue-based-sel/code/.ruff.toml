@@ -1,15 +1,4 @@
-# Ruff configuration file (legacy format for compatibility, prefer pyproject.toml)
-# This file is kept for tools that look for .ruff.toml specifically.
-# Primary configuration is in pyproject.toml under [tool.ruff].
-
-line-length = 100
-target-version = "py39"
-
-[lint]
-select = ["E", "W", "F", "I", "C", "B"]
-ignore = ["E501", "B008", "C901"]
-
-[lint.isort]
-known-first-party = ["src"]
-force-sort-within-sections = true
-combine-as-imports = true
+# Extend the pyproject.toml configuration for specific overrides if needed,
+# or use this as a standalone config if preferred.
+# Currently, we rely on pyproject.toml for the main configuration.
+extend = "pyproject.toml"

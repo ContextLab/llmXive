@@ -1,3 +1,2 @@
-"""
-Test suite for Socratic Transformers project.
-"""
+# Test package for the Socratic Transformers research pipeline.
+pass

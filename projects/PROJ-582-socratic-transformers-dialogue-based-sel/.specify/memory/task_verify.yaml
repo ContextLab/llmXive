@@ -1,15 +1,15 @@
-? 'T001 Create project structure per implementation plan: create directories `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/`,
-  `src/data/`, `src/train/`, `src/eval/`, `src/analyze/`, `src/utils/`, `tests/`,
-  `tests/contract/`, `tests/integration/` and files `requirements.txt`, `src/__init__.py`,
-  `tests/__init__.py`.'
-: 2
-? T003 [P] Configure linting and formatting tools (ruff/black) in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/`
-: 2
-T004 Setup data directory structure (`data/raw/`, `data/processed/`, `data/results/`) and `.gitkeep` files: 2
-? T005 [P] Implement structured logging utility in `src/utils/logging.py` to handle
-  `DEGENERATE_DIALOGUE_TRUNCATED` events as JSON lines (Edge Case requirement)
-: 2
-T006 [P] Setup environment configuration management for random seeds and model paths in `src/utils/config.py`: 2
-? T007 Create base model loader utility in `src/utils/model_loader.py` supporting
-  Low-bit quantization (GGUF or `bitsandbytes` CPU backend) to fit Limited RAM constraint.
-: 1
+T001: 1
+T003: 1
+T004: 1
+T005: 1
+T006: 1
+T007: 1
+T008: 1
+T012: 1
+T013: 1
+T014: 1
+T015: 1
+T029: 1
+T032: 1
+T033: 1
+T034: 1

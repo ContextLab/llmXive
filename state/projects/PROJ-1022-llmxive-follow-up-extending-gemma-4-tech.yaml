@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-09T04:28:33.239145Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-1022-llmxive-follow-up-extending-gemma-4-tech
-last_run_id: null
+last_run_id: 2b6ca4a3-1a11-4821-8f95-59d9402544c8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Gemma 4 Technical Report"'
-updated_at: '2026-07-09T04:28:33.239145Z'
+updated_at: '2026-07-17T15:39:00.047715Z'

@@ -1,13 +1,26 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`projects/PROJ-068-evaluating-the-performance-of-different-/code/`,
+    `tests/`, `data/`, `results/`) or of the `tools/setup_verify.py` script execution
+    is present; the claim is unsupported by any actual artifacts.
+T006:
+  c: false
+  h: 01356f4a5d6a5c6f51b7aff8b92ce53ae7d53e880ec873b91a69ec76f95a79d2
+  r: "The repository contains `code/benchmarks/generator.py`, but the file is truncated\
+    \ and does not include logic to stream generated samples to `data/processed/`\
+    \ as CSVs nor to write SHA\u2011256 checksums to `data/checksums.manifest`. Moreover,\
+    \ the required `data/checksums.manifest` file is absent. Consequently, the task\u2019\
+    s full requirements are not satisfied."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/processed/` and `results/benchmarks/` directories,
+    the `tools/pre-commit-checksum.py` script, or the git hook symlink is provided.
+    The implementer did not supply the artifacts needed to satisfy task T007.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No CSV files were presented in `results/benchmarks/`, nor any code showing aggregation
     logic, header formatting, or the required `query_count > 0` validation and abort
     behavior. Consequently the required artifact is missing.
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CSV files or code implementing the theoretical baseline calculation are present\
-    \ in `results/benchmarks/`, and there is no evidence that the formula `bits =\
-    \ n * log2(1/p) / ln(2)^2` was applied to produce per\u2011element memory or latency\
-    \ values. Consequently the required artifact is missing."

@@ -1,184 +1,142 @@
-"""
-Dataset Downloader for Socratic Transformers Project.
-
-Fetches GSM8K and MATH datasets from HuggingFace datasets.
-Produces real data files in data/processed/ for downstream processing.
-"""
-
 import os
 import sys
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
-# Ensure project root is in path for imports if run as script
-_project_root = Path(__file__).resolve().parent.parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
-
 from datasets import load_dataset
-from src.utils.config import get_config
+from src.utils.config import get_config, SocraticConfig
 from src.utils.logging import get_logger
 
+# Initialize logger for this module
 logger = get_logger(__name__)
-
-DATASET_CONFIGS = {
-    "gsm8k": {
-        "name": "gsm8k",
-        "config": "main",
-        "split": "train",
-        "output_file": "gsm8k_train.jsonl",
-        "description": "Grade School Math 8K dataset for reasoning tasks."
-    },
-    "math": {
-        "name": "competition_math",
-        "config": "main",
-        "split": "train",
-        "output_file": "math_train.jsonl",
-        "description": "MATH dataset (competition math problems)."
-    }
-}
 
 def download_dataset(
     dataset_name: str,
-    output_dir: Optional[Path] = None,
-    max_samples: Optional[int] = None
-) -> Path:
+    split: str = "train",
+    cache_dir: Optional[str] = None,
+    streaming: bool = False
+) -> Any:
     """
-    Download a specific dataset from HuggingFace and save to JSONL.
+    Download a dataset from Hugging Face Hub.
+
+    This function fetches real data from the Hugging Face datasets library.
+    It does NOT generate synthetic data or fall back to mock data.
+    If the dataset is unavailable, it will raise an exception (fail loudly).
 
     Args:
-        dataset_name: Key in DATASET_CONFIGS (e.g., 'gsm8k', 'math')
-        output_dir: Directory to save the output file. Defaults to config data path.
-        max_samples: If provided, limit the dataset to this many samples.
+        dataset_name (str): The HuggingFace dataset identifier (e.g., "gsm8k").
+        split (str): The dataset split to load (e.g., "train", "test").
+        cache_dir (str, optional): Directory to cache the dataset.
+        streaming (bool): If True, stream the dataset instead of loading fully into memory.
 
     Returns:
-        Path to the saved JSONL file.
+        The loaded dataset (Dataset or DatasetDict).
+
+    Raises:
+        Exception: If the dataset cannot be fetched from the real source.
     """
-    config = get_config()
-    if output_dir is None:
-        output_dir = Path(config.data_processed_dir)
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    if dataset_name not in DATASET_CONFIGS:
-        raise ValueError(f"Unknown dataset: {dataset_name}. Available: {list(DATASET_CONFIGS.keys())}")
-
-    ds_config = DATASET_CONFIGS[dataset_name]
-    output_file = output_dir / ds_config["output_file"]
-
-    logger.info(f"Loading dataset: {ds_config['name']} (config: {ds_config['config']})")
-    logger.info(f"Description: {ds_config['description']}")
+    logger.info(f"Attempting to download dataset: {dataset_name} (split: {split}, streaming: {streaming})")
 
     try:
         dataset = load_dataset(
-            ds_config["name"],
-            ds_config["config"],
-            split=ds_config["split"]
+            dataset_name,
+            split=split,
+            cache_dir=cache_dir,
+            streaming=streaming
         )
+        logger.info(f"Successfully loaded dataset: {dataset_name}")
+        return dataset
     except Exception as e:
-        logger.error(f"Failed to load dataset {ds_config['name']}: {e}")
-        raise
-
-    if max_samples and max_samples > 0:
-        logger.info(f"Limiting dataset to {max_samples} samples.")
-        dataset = dataset.select(range(min(max_samples, len(dataset))))
-
-    logger.info(f"Saving {len(dataset)} samples to {output_file}")
-
-    # Determine column mapping based on dataset structure
-    # GSM8K: question, answer
-    # MATH: problem, solution (sometimes split differently depending on HF version)
-    # We normalize to a standard schema: question, answer, source_dataset
-    normalized_data = []
-
-    for item in dataset:
-        record = {
-            "source_dataset": ds_config["name"],
-            "original_index": item.get("id", None)
-        }
-
-        if dataset_name == "gsm8k":
-            # GSM8K format: question, answer (contains final answer and reasoning)
-            record["question"] = item.get("question", "")
-            record["answer"] = item.get("answer", "")
-        elif dataset_name == "math":
-            # MATH format: problem, solution
-            record["question"] = item.get("problem", "")
-            record["answer"] = item.get("solution", "")
-        else:
-            # Fallback for unexpected structures
-            record["question"] = str(item)
-            record["answer"] = ""
-
-        normalized_data.append(record)
-
-    # Write to JSONL
-    with open(output_file, "w", encoding="utf-8") as f:
-        for record in normalized_data:
-            import json
-            f.write(json.dumps(record, ensure_ascii=False) + "\n")
-
-    logger.info(f"Successfully downloaded and saved {dataset_name} to {output_file}")
-    return output_file
+        logger.error(f"Failed to download dataset {dataset_name}: {e}")
+        # Fail loudly as per constraints: do not catch and return synthetic data
+        raise e
 
 
 def download_all_datasets(
-    output_dir: Optional[Path] = None,
-    max_samples: Optional[int] = None
-) -> Dict[str, Path]:
+    output_dir: Optional[str] = None,
+    cache_dir: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Download all configured datasets.
+    Download all required datasets for the Socratic Transformers project.
+
+    Currently downloads:
+    - GSM8K (Grade School Math 8K)
+    - MATH (MATH dataset for competition mathematics)
 
     Args:
-        output_dir: Directory to save output files.
-        max_samples: Limit for each dataset.
+        output_dir (str, optional): Directory to save processed datasets (not used for raw download here,
+                                    but used to log where they should go).
+        cache_dir (str, optional): Directory to cache HuggingFace datasets.
 
     Returns:
-        Dictionary mapping dataset_name to output file path.
+        Dict[str, Any]: A dictionary mapping dataset names to their loaded datasets.
     """
-    results = {}
-    for name in DATASET_CONFIGS.keys():
+    config: SocraticConfig = get_config()
+    if cache_dir is None:
+        cache_dir = str(config.data_dir / "raw" / ".cache")
+
+    datasets_to_download = [
+        "gsm8k",
+        "math_dataset"  # Using 'math_dataset' as the HF ID for MATH
+    ]
+
+    downloaded_data = {}
+
+    for ds_name in datasets_to_download:
         try:
-            path = download_dataset(name, output_dir, max_samples)
-            results[name] = path
+            # GSM8K has a 'train' and 'test' split. We fetch train for generation.
+            # MATH has 'train' and 'test'.
+            if ds_name == "gsm8k":
+                # GSM8K is often loaded with a config 'main' or just default
+                ds = download_dataset(ds_name, split="train", cache_dir=cache_dir)
+                downloaded_data[ds_name] = ds
+            elif ds_name == "math_dataset":
+                # MATH dataset
+                ds = download_dataset(ds_name, split="train", cache_dir=cache_dir)
+                downloaded_data[ds_name] = ds
+            else:
+                logger.warning(f"Unknown dataset {ds_name}, skipping.")
+
         except Exception as e:
-            logger.error(f"Skipping {name} due to error: {e}")
-            results[name] = None
-    return results
+            logger.error(f"Critical failure downloading {ds_name}: {e}")
+            # Re-raise to ensure the pipeline fails loudly if a required dataset is missing
+            raise e
+
+    logger.info(f"All datasets downloaded successfully. Count: {len(downloaded_data)}")
+    return downloaded_data
 
 
 def main():
     """
-    Entry point for script execution.
-    Downloads GSM8K and MATH datasets to data/processed/.
+    Main entry point for the dataset downloader script.
+    Downloads GSM8K and MATH datasets to the configured cache directory.
     """
+    logger.info("Starting dataset download process for Socratic Transformers project.")
+
     config = get_config()
-    output_dir = Path(config.data_processed_dir)
+    # Ensure raw data directory exists
+    raw_dir = config.data_dir / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Starting dataset download. Output dir: {output_dir}")
+    try:
+        datasets = download_all_datasets(cache_dir=str(raw_dir))
+        logger.info(f"Downloaded datasets keys: {list(datasets.keys())}")
 
-    # Default: download full datasets.
-    # For quick testing, users can set MAX_SAMPLES env var.
-    max_samples = None
-    if "MAX_SAMPLES" in os.environ:
-        try:
-            max_samples = int(os.environ["MAX_SAMPLES"])
-            logger.info(f"Using MAX_SAMPLES limit: {max_samples}")
-        except ValueError:
-            logger.warning("Invalid MAX_SAMPLES value, ignoring limit.")
+        # Log basic info about the datasets
+        for name, ds in datasets.items():
+            logger.info(f"Dataset '{name}' loaded. Type: {type(ds)}")
+            # If it's a DatasetDict (common for some HF datasets), inspect splits
+            if hasattr(ds, 'keys'):
+                logger.info(f"  Splits available: {list(ds.keys())}")
+            elif hasattr(ds, 'num_rows'):
+                logger.info(f"  Number of rows: {ds.num_rows}")
 
-    results = download_all_datasets(output_dir, max_samples)
+        logger.info("Dataset download completed successfully.")
 
-    success_count = sum(1 for v in results.values() if v is not None)
-    total_count = len(results)
-
-    if success_count == total_count:
-        logger.info(f"Download complete. All {total_count} datasets saved.")
-        return 0
-    else:
-        logger.warning(f"Download incomplete. {success_count}/{total_count} datasets saved.")
-        return 1
+    except Exception as e:
+        logger.critical(f"Dataset download failed: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

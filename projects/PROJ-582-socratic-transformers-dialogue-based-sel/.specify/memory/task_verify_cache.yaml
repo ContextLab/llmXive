@@ -1,0 +1,41 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files (e.g., `pyproject.toml`, `ruff.toml`, or Black settings)
+    or scripts enabling ruff/black linting/formatting are present in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/`.
+    Without these artifacts, the task of configuring the tools cannot be confirmed
+    as completed.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `data/results/`)\
+    \ or the `.gitkeep` placeholder files is provided; the implementer\u2019s claim\
+    \ is unsubstantiated. The next implementer must create the three data sub\u2011\
+    directories and add a `.gitkeep` file in each to satisfy the task."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or results showing a sensitivity\u2011analysis sweep over the\
+    \ specified error\u2011threshold values (0.01,\u202F0.05,\u202F0.1) are present.\
+    \ The implementer supplied no artifact (e.g., script, log, or figure) that demonstrates\
+    \ the sweep or its robustness validation, so the requirement is unmet."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No research.md file or its contents were provided, so we cannot confirm that\
+    \ it was updated to distinguish the two concepts and address Ada Lovelace\u2019\
+    s concerns. The required artifact is missing."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` or excerpt showing the problem statement rewritten to use\
+    \ \u201Cevolutionary pressure\u201D / \u201Cnegative selection on belief\u201D\
+    \ and to address David Krakauer\u2019s review is provided; without that artifact\
+    \ we cannot confirm the requirement was met. The implementer must supply the revised\
+    \ specification file (or its relevant section) demonstrating the changes."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting reports, diff logs, or updated source files are provided
+    to demonstrate that `ruff check` and `black --check` were run and that all violations
+    were fixed. The required evidence of zero linting/formatting errors is missing.

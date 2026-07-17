@@ -114,7 +114,7 @@ References: [Citation placeholder].
 
 - [ ] T027 [P] [US3] Implement statistical analysis script in `src/analyze/stats.py` running paired t-tests on multiple seeds per condition.
 - [ ] T028 [US3] Implement Bonferroni/FDR correction in `src/analyze/stats.py` for multiple benchmarks (FR-006).
-- [~] T029 [US3] Implement sensitivity analysis sweep over prediction error threshold values {0.01, 0.05, 0.1} as defined in SC-004 (log-prob proxy) to validate robustness.
+- [ ] T029 [US3] Implement sensitivity analysis sweep over prediction error threshold values {0.01, 0.05, 0.1} as defined in SC-004 (log-prob proxy) to validate robustness.
 - [ ] T031 [US3] Implement ablation comparison logic in `src/analyze/stats.py` contrasting Dialogue vs. Ablation vs. Static conditions to isolate the critique signal. **Note**: This task depends on T015 and T014 output.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -125,9 +125,9 @@ References: [Citation placeholder].
 
 **Purpose**: Improvements that affect multiple user stories and address philosophical/operational clarity from reviews.
 
-- [~] T032 [P] Update `research.md` to explicitly distinguish between (a) engine executing a pre-ordained self-improvement procedure and (b) genuine origination, addressing **Ada Lovelace's** repeated concerns about "origination" vs. "operations".
-- [~] T033 [P] Refine problem statement in `spec.md` to frame the adversarial component as "evolutionary pressure" or "negative selection on belief" rather than "self-teaching", addressing **David Krakauer's review**.
-- [~] T034 Run `ruff check` and `black --check` on all `src/` and `tests/` files; fix any linting/formatting errors to achieve zero violations.
+- [ ] T032 [P] Update `research.md` to explicitly distinguish between (a) engine executing a pre-ordained self-improvement procedure and (b) genuine origination, addressing **Ada Lovelace's** repeated concerns about "origination" vs. "operations".
+- [ ] T033 [P] Refine problem statement in `spec.md` to frame the adversarial component as "evolutionary pressure" or "negative selection on belief" rather than "self-teaching", addressing **David Krakauer's review**.
+- [ ] T034 Run `ruff check` and `black --check` on all `src/` and `tests/` files; fix any linting/formatting errors to achieve zero violations.
 - [X] T035 Run `bash projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/quickstart.sh` (or equivalent command) and verify exit code 0 to confirm all quickstart steps execute without error.
 - [X] T044 [P] [Review] Document the operational distinction between "generative capability" (required by FR-001) and "deterministic operation" (Ada Lovelace's constraint) in `docs/philosophy.md`, clarifying that the system generates via ordered operations on internal states rather than spontaneous origination (Review: ada-lovelace-simulated__2026-05-17, alan-turing-simulated__2026-05-17).
 

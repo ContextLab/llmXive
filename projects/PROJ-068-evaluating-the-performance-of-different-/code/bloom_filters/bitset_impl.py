@@ -1,6 +1,10 @@
 """
-Implementation of BloomFilter using the bitarray library for specialized bitset storage.
+BitsetBloomFilter implementation using the bitarray library.
+
+This module provides a memory-efficient Bloom Filter implementation
+utilizing the third-party `bitarray` library for compact bit storage.
 """
+
 from typing import Union, Iterable, List, Tuple, Optional
 import math
 import struct
@@ -8,183 +12,245 @@ import struct
 from .base import BloomFilter, calculate_optimal_parameters
 from .hash_utils import get_k_hashes, hash_murmur3_32
 
+# Attempt to import bitarray; fail loudly if missing as per project constraints
 try:
     from bitarray import bitarray
 except ImportError:
     raise ImportError(
         "The 'bitarray' library is required for BitsetBloomFilter. "
-        "Please install it via: pip install bitarray"
+        "Install it via 'pip install bitarray'."
     )
 
 
 class BitsetBloomFilter(BloomFilter):
     """
-    A Bloom Filter implementation using the bitarray library for memory-efficient
-    bit-level storage.
+    A Bloom Filter implementation using the bitarray library for storage.
+
+    This implementation offers superior memory efficiency compared to
+    native Python lists or bytearrays by packing bits tightly (1 bit per flag).
 
     Attributes:
-        size (int): Total number of bits in the filter.
-        num_hashes (int): Number of hash functions (k) used.
-        elements_added (int): Count of elements inserted.
-        fpr_target (float): Target false positive rate.
-        _bit_array (bitarray): The underlying bit storage.
+        m (int): Total number of bits in the filter.
+        k (int): Number of hash functions to use.
+        n (int): Expected number of elements (for parameter calculation).
+        fpr (float): Target false positive rate.
+        bit_array (bitarray): The underlying bit storage.
     """
 
     def __init__(
         self,
-        n_elements: int,
-        fpr_target: float,
-        hash_seed: int = 42
+        n: int,
+        fpr: float,
+        name: str = "BitsetBloomFilter"
     ):
         """
-        Initializes the BitsetBloomFilter with optimal parameters calculated
-        based on the expected number of elements and target FPR.
+        Initialize the BitsetBloomFilter with optimal parameters.
 
         Args:
-            n_elements (int): Expected number of elements to insert (n).
-            fpr_target (float): Target false positive rate (p).
-            hash_seed (int): Seed for the hash functions.
+            n: Expected number of items to insert.
+            fpr: Desired false positive rate (0 < fpr < 1).
+            name: Identifier for this instance.
         """
-        # Validate inputs
-        if n_elements <= 0:
-            raise ValueError("n_elements must be a positive integer.")
-        if not (0 < fpr_target < 1):
-            raise ValueError("fpr_target must be between 0 and 1.")
+        if not (0 < fpr < 1):
+            raise ValueError("fpr must be between 0 and 1")
+        if n <= 0:
+            raise ValueError("n must be a positive integer")
 
-        # Calculate optimal m (bits) and k (hashes) using inherited logic
-        m, k = calculate_optimal_parameters(n_elements, fpr_target)
+        # Calculate optimal m and k based on n and fpr
+        m, k = calculate_optimal_parameters(n, fpr)
 
-        self.size = m
-        self.num_hashes = k
-        self.elements_added = 0
-        self.fpr_target = fpr_target
-        self.hash_seed = hash_seed
+        self.m = m
+        self.k = k
+        self.n = n
+        self.fpr = fpr
+        self.name = name
+        self.count = 0
 
-        # Initialize bitarray with m bits, all set to 0
-        self._bit_array = bitarray(m)
-        self._bit_array.setall(0)
+        # Initialize bitarray with all bits set to 0
+        self.bit_array = bitarray(m)
+        self.bit_array.setall(0)
 
-    def insert(self, item: Union[str, bytes, int, float]) -> None:
+    def insert(self, item: Union[str, bytes, int]) -> None:
         """
-        Inserts an item into the Bloom filter.
+        Insert an item into the Bloom Filter.
 
         Args:
-            item: The item to insert. Can be string, bytes, or hashable primitive.
+            item: The item to insert. Can be a string, bytes, or integer.
         """
         if item is None:
-            raise ValueError("Cannot insert None into the Bloom filter.")
+            raise ValueError("Cannot insert None into Bloom Filter")
 
-        # Normalize item to bytes for hashing
+        # Convert item to bytes if it isn't already
         if isinstance(item, str):
             item_bytes = item.encode('utf-8')
-        elif isinstance(item, (int, float)):
-            # Convert numeric types to a consistent byte representation
-            item_bytes = struct.pack('d', float(item))
+        elif isinstance(item, int):
+            item_bytes = struct.pack('>Q', item)
         elif isinstance(item, bytes):
             item_bytes = item
         else:
-            # Fallback for other types: use string representation
+            # Fallback for other types, convert to string then bytes
             item_bytes = str(item).encode('utf-8')
 
         # Get k hash indices
-        indices = get_k_hashes(
-            item_bytes,
-            self.num_hashes,
-            self.hash_seed
-        )
+        indices = get_k_hashes(item_bytes, self.k, self.m)
 
-        # Set bits at calculated indices
+        # Set bits to 1
         for idx in indices:
-            # Ensure index is within bounds (should be guaranteed by get_k_hashes)
-            if 0 <= idx < self.size:
-                self._bit_array[idx] = 1
+            self.bit_array[idx] = 1
 
-        self.elements_added += 1
+        self.count += 1
 
-    def contains(self, item: Union[str, bytes, int, float]) -> bool:
+    def insert_many(self, items: Iterable[Union[str, bytes, int]]) -> None:
         """
-        Checks if an item is possibly in the Bloom filter.
+        Insert multiple items into the Bloom Filter efficiently.
+
+        Args:
+            items: An iterable of items to insert.
+        """
+        for item in items:
+            self.insert(item)
+
+    def contains(self, item: Union[str, bytes, int]) -> bool:
+        """
+        Check if an item might be in the Bloom Filter.
 
         Args:
             item: The item to check.
 
         Returns:
-            bool: True if the item might be in the set, False if definitely not.
+            True if the item might be in the set (possible false positive),
+            False if the item is definitely not in the set.
         """
         if item is None:
             return False
 
-        # Normalize item to bytes for hashing
+        # Convert item to bytes
         if isinstance(item, str):
             item_bytes = item.encode('utf-8')
-        elif isinstance(item, (int, float)):
-            item_bytes = struct.pack('d', float(item))
+        elif isinstance(item, int):
+            item_bytes = struct.pack('>Q', item)
         elif isinstance(item, bytes):
             item_bytes = item
         else:
             item_bytes = str(item).encode('utf-8')
 
         # Get k hash indices
-        indices = get_k_hashes(
-            item_bytes,
-            self.num_hashes,
-            self.hash_seed
-        )
+        indices = get_k_hashes(item_bytes, self.k, self.m)
 
-        # Check if all bits at indices are set
+        # Check if all bits are set
         for idx in indices:
-            if not (0 <= idx < self.size):
-                return False # Should not happen if logic is correct
-            if self._bit_array[idx] == 0:
+            if not self.bit_array[idx]:
                 return False
 
         return True
 
+    def __contains__(self, item: Union[str, bytes, int]) -> bool:
+        """Enable 'item in filter' syntax."""
+        return self.contains(item)
+
     def false_positive_rate(self) -> float:
         """
-        Calculates the theoretical false positive rate based on current state.
+        Calculate the theoretical false positive rate.
 
         Returns:
-            float: The estimated FPR.
+            Theoretical FPR based on current m, k, and count.
         """
-        if self.elements_added == 0:
+        # Formula: (1 - e^(-k * n / m))^k
+        # Using current count as n
+        if self.count == 0:
             return 0.0
 
-        # Formula: (1 - e^(-kn/m))^k
-        # where k = num_hashes, n = elements_added, m = size
-        k = self.num_hashes
-        n = self.elements_added
-        m = self.size
+        exponent = -self.k * self.count / self.m
+        return (1 - math.exp(exponent)) ** self.k
 
-        if m == 0:
-            return 1.0
-
-        exponent = - (k * n) / m
-        prob_bit_set = 1.0 - math.exp(exponent)
-        fpr = math.pow(prob_bit_set, k)
-
-        return fpr
-
-    def get_memory_usage_bytes(self) -> int:
+    def memory_usage_bits(self) -> int:
         """
-        Calculates the memory usage of the bitarray in bytes.
+        Return the memory usage in bits.
 
         Returns:
-            int: Memory usage in bytes.
+            Total bits used (m).
         """
-        # bitarray overhead is minimal, mostly the bits themselves
-        # bitarray stores bits, so size in bytes is ceil(size / 8)
-        # plus a small object overhead, but for benchmarking we focus on the data size
-        return self._bit_array.buffer_info()[1]
+        return self.m
+
+    def memory_usage_bytes(self) -> float:
+        """
+        Return the memory usage in bytes.
+
+        Returns:
+            Memory usage in bytes (rounded up).
+        """
+        return math.ceil(self.m / 8)
+
+    def get_stats(self) -> dict:
+        """
+        Return a dictionary of current filter statistics.
+
+        Returns:
+            Dict containing m, k, n, fpr, count, and memory usage.
+        """
+        return {
+            "type": self.name,
+            "m": self.m,
+            "k": self.k,
+            "n_expected": self.n,
+            "fpr_target": self.fpr,
+            "items_inserted": self.count,
+            "theoretical_fpr": self.false_positive_rate(),
+            "memory_bits": self.memory_usage_bits(),
+            "memory_bytes": self.memory_usage_bytes()
+        }
+
+    def to_dict(self) -> dict:
+        """
+        Serialize the filter state to a dictionary.
+
+        Note: The bitarray itself is large, so we store the hex representation
+        of the bits rather than the raw object for portability.
+
+        Returns:
+            Dict containing configuration and bit state.
+        """
+        return {
+            "m": self.m,
+            "k": self.k,
+            "n": self.n,
+            "fpr": self.fpr,
+            "count": self.count,
+            "bits_hex": self.bit_array.tobytes().hex()
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'BitsetBloomFilter':
+        """
+        Reconstruct a BitsetBloomFilter from a dictionary.
+
+        Args:
+            data: Dictionary containing filter state.
+
+        Returns:
+            A new BitsetBloomFilter instance.
+        """
+        # Create an instance with the stored parameters
+        bf = cls.__new__(cls)
+        bf.m = data['m']
+        bf.k = data['k']
+        bf.n = data['n']
+        bf.fpr = data['fpr']
+        bf.count = data['count']
+        bf.name = "BitsetBloomFilter"
+
+        # Reconstruct bitarray from hex string
+        bf.bit_array = bitarray()
+        bf.bit_array.fromhex(data['bits_hex'])
+
+        return bf
 
     def __len__(self) -> int:
-        """Returns the number of elements inserted."""
-        return self.elements_added
+        """Return the number of items inserted."""
+        return self.count
 
     def __repr__(self) -> str:
         return (
-            f"BitsetBloomFilter(size={self.size}, "
-            f"k={self.num_hashes}, "
-            f"elements={self.elements_added}, "
-            f"fpr_target={self.fpr_target:.4f})"
+            f"<BitsetBloomFilter(m={self.m}, k={self.k}, "
+            f"count={self.count}, fpr={self.fpr:.4f})>"
         )

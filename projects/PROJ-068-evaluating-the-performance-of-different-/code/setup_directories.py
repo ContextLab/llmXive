@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+"""
+Directory setup and verification utilities for the project.
+
+This module provides functions to create, verify, and manage the project's
+directory structure, including checksum generation and verification.
+"""
 import os
 import sys
 import json
@@ -5,108 +12,114 @@ import hashlib
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
 
+# Project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-TARGET_PROJECT_NAME = "PROJ-068-evaluating-the-performance-of-different-"
 
-REQUIRED_SUBDIRS = [
+# Required directories
+REQUIRED_DIRS = [
     "code",
     "tests",
     "data",
-    "results",
     "data/processed",
+    "results",
     "results/benchmarks",
-    "results/figures",
+    "tools",
+    "specs",
 ]
 
 def compute_file_checksum(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        return ""
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def setup_directories(base_path: Path, subdirs: List[str]) -> List[Path]:
-    """Create all required subdirectories under base_path."""
-    created_paths = []
-    for subdir in subdirs:
-        full_path = base_path / subdir
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_paths.append(full_path)
-        print(f"Created directory: {full_path.relative_to(base_path)}")
-    return created_paths
-
-def generate_checksums(base_path: Path, checksum_file: Path) -> None:
-    """Generate a JSON file containing checksums for all created directories."""
-    checksums = {}
-    # We checksum the directory markers or just record existence
-    # Since directories don't have content to hash in the same way,
-    # we record the timestamp and existence, or hash a .gitkeep if present.
-    # For this task, we record the path and a placeholder 'created' status
-    # or hash the path string itself to ensure determinism.
-    
-    # Let's hash the relative path string to have a stable "checksum" for the structure
-    for subdir in REQUIRED_SUBDIRS:
-        full_path = base_path / subdir
-        if full_path.exists():
-            content_to_hash = f"{full_path.relative_to(base_path)}\n"
-            sha = hashlib.sha256(content_to_hash.encode()).hexdigest()
-            checksums[str(full_path.relative_to(base_path))] = {
-                "checksum": sha,
-                "exists": True,
-                "type": "directory"
-            }
-    
-    with open(checksum_file, "w") as f:
-        json.dump(checksums, f, indent=2)
-    print(f"Checksums written to: {checksum_file}")
-
-def verify_directories(base_path: Path, checksum_file: Path) -> bool:
-    """Verify directories exist against the checksum manifest."""
-    if not checksum_file.exists():
-        print("Checksum file not found. Cannot verify.")
-        return False
-
-    with open(checksum_file, "r") as f:
-        checksums = json.load(f)
-
-    all_ok = True
-    for rel_path, data in checksums.items():
-        full_path = base_path / rel_path
+def setup_directories() -> List[Path]:
+    """Create all required directories if they don't exist."""
+    created = []
+    for dir_path in REQUIRED_DIRS:
+        full_path = PROJECT_ROOT / dir_path
         if not full_path.exists():
-            print(f"[FAIL] Missing: {rel_path}")
-            all_ok = False
-        else:
-            print(f"[OK] {rel_path}")
-    
-    return all_ok
+            full_path.mkdir(parents=True, exist_ok=True)
+            created.append(full_path)
+            print(f"Created directory: {full_path}")
+    return created
 
-def main():
-    """Main entry point to setup and verify project structure."""
-    target_root = PROJECT_ROOT / TARGET_PROJECT_NAME
+def generate_checksums() -> Dict[str, str]:
+    """Generate checksums for all files in data/ and results/ directories."""
+    checksums = {}
+    directories = [PROJECT_ROOT / "data", PROJECT_ROOT / "results"]
     
-    print(f"Setting up project structure at: {target_root}")
+    for directory in directories:
+        if directory.exists():
+            for file_path in directory.rglob("*"):
+                if file_path.is_file() and file_path.name != "checksums.manifest":
+                    rel_path = str(file_path.relative_to(PROJECT_ROOT))
+                    checksums[rel_path] = compute_file_checksum(file_path)
     
-    # Create the root project directory if it doesn't exist
-    target_root.mkdir(parents=True, exist_ok=True)
+    # Save to manifest
+    manifest_path = PROJECT_ROOT / "data" / "checksums.manifest"
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        f.write("# SHA-256 checksums for data and results files\n")
+        f.write("# Format: <checksum>  <relative_path>\n")
+        for rel_path, checksum in sorted(checksums.items()):
+            f.write(f"{checksum}  {rel_path}\n")
     
-    # Create subdirectories
-    setup_directories(target_root, REQUIRED_SUBDIRS)
+    print(f"Generated checksums manifest: {manifest_path}")
+    return checksums
+
+def verify_directories() -> Tuple[bool, List[str]]:
+    """Verify that all required directories exist and checksums are valid."""
+    errors = []
     
-    # Generate checksums for verification
-    checksum_file = target_root / ".project_structure_checksum.json"
-    generate_checksums(target_root, checksum_file)
+    # Check directories
+    for dir_path in REQUIRED_DIRS:
+        full_path = PROJECT_ROOT / dir_path
+        if not full_path.exists():
+            errors.append(f"Missing directory: {full_path}")
     
-    # Verify
-    if verify_directories(target_root, checksum_file):
-        print("\n[SUCCESS] Project structure verified.")
-        sys.exit(0)
+    # Check checksums if manifest exists
+    manifest_path = PROJECT_ROOT / "data" / "checksums.manifest"
+    if manifest_path.exists():
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "  " in line:
+                    expected_checksum, rel_path = line.split("  ", 1)
+                    file_path = PROJECT_ROOT / rel_path
+                    if file_path.exists():
+                        actual_checksum = compute_file_checksum(file_path)
+                        if actual_checksum != expected_checksum:
+                            errors.append(f"Checksum mismatch for {rel_path}")
+                    else:
+                        errors.append(f"Missing file: {rel_path}")
     else:
-        print("\n[FAIL] Project structure verification failed.")
-        sys.exit(1)
+        errors.append("Checksum manifest not found")
+    
+    return len(errors) == 0, errors
+
+def main() -> int:
+    """Main entry point for directory setup and verification."""
+    print("Setting up project directories...")
+    setup_directories()
+    
+    print("\nGenerating checksums...")
+    generate_checksums()
+    
+    print("\nVerifying directories and checksums...")
+    success, errors = verify_directories()
+    
+    if not success:
+        print("\nVerification failed:")
+        for error in errors:
+            print(f"  - {error}")
+        return 1
+    
+    print("\nAll checks passed.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

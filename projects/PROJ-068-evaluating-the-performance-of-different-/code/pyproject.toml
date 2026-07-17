@@ -3,96 +3,100 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "bloom-filter-performance"
+name = "bloom-filter-benchmark"
 version = "0.1.0"
 description = "Evaluating the performance of different data structures in implementing Bloom filters"
 requires-python = ">=3.9"
 dependencies = [
-    "numpy>=1.24.0",
-    "scipy>=1.10.0",
-    "memory-profiler>=0.61.0",
-    "pytest>=7.0.0",
-    "bitarray>=2.7.0",
-    "murmurhash3>=0.1.0",
+    "numpy",
+    "scipy",
+    "memory-profiler",
+    "pytest",
+    "bitarray",
+    "mmh3",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "black>=23.0.0",
-    "isort>=5.12.0",
-    "flake8>=6.0.0",
-    "pylint>=2.17.0",
-]
-
-[tool.black]
-line-length = 88
-target-version = ["py39", "py310", "py311"]
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["bloom_filters", "benchmarks"]
-known_third_party = ["numpy", "scipy", "memory_profiler", "pytest", "bitarray", "murmurhash3"]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
-
-[tool.flake8]
-max-line-length = 88
-extend-ignore = "E203,W503"
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".venv",
-    "venv",
-]
-per-file-ignores = [
-    "__init__.py:F401",
-]
-
-[tool.pylint.messages_control]
-disable = [
-    "C0114",
-    "C0115",
-    "C0116",
-    "R0903",
-    "W0511",
-]
-max-line-length = 88
-ignore-patterns = ["^test_.*\\.py$"]
-
-[tool.pylint.format]
-max-line-length = 88
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
+    "flake8",
+    "pylint",
+    "black",
+    "isort",
+    "pytest-cov",
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["code*"]
-namespaces = false
+
+# Linting Configuration (flake8)
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203, W503"
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+]
+per-file-ignores = [
+    # Allow unused imports in __init__.py for public API exposure
+    "code/__init__.py:F401",
+]
+
+# Linting Configuration (pylint)
+[tool.pylint."MESSAGES CONTROL"]
+disable = [
+    "C0114", # Missing module docstring
+    "C0115", # Missing class docstring
+    "C0116", # Missing function or method docstring
+    "R0903", # Too few public methods
+    "W0511", # TODO (allow TODOs for now)
+]
+
+[tool.pylint.FORMAT]
+max-line-length = 88
+
+[tool.pylint.DESIGN]
+max-args = 10
+max-locals = 20
+max-returns = 6
+max-branches = 20
+max-statements = 80
+max-attributes = 15
+max-public-methods = 30
+
+# Formatting Configuration (black)
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+# Import Sorting (isort)
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+known_first_party = ["bloom_filters", "benchmarks", "setup_directories", "setup_project_structure"]
+known_third_party = ["numpy", "scipy", "pytest", "bitarray", "mmh3"]
+skip = [".git", ".venv", "build", "dist", ".eggs"]
