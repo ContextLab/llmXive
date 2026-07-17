@@ -62,7 +62,7 @@
 
 - [ ] T005 [P] Generate and validate `LEP_Exclusion_Data` schema (Plan 1.1).
 - [ ] T006 [P] Define `RelicLookupTable` schema (Plan 1.2).
-- [~] T007 [P] Define `ParameterPoint` schema (FR-001, FR-005).
+- [ ] T007 [P] Define `ParameterPoint` schema (FR-001, FR-005).
 
 **Checkpoint**: Data models defined and validated.
 

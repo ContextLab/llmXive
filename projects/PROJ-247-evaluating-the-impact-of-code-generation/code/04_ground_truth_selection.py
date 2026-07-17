@@ -1,131 +1,133 @@
-"""
-T017a: Ground Truth Selection Script
-
-Randomly selects at least 10 code blocks from the matched pairs dataset
-for manual verification and saves them to data/ground_truth/manual_labels.csv.
-
-This script assumes that `data/processed/matched_pairs.csv` has been generated
-by the previous tasks (T015).
-"""
-
 import os
 import sys
 import random
 import csv
 import json
 from pathlib import Path
-from datetime import datetime
-import logging
+from typing import List, Dict, Any
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Add the parent directory to the path to allow imports of utils
+# Assuming this script is run from the project root or code directory
+# We handle relative imports dynamically if needed, but standard practice is absolute or relative to root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.logging_config import get_logger, setup_logging
+from utils.logging_config import get_logger
 
-# Constants
-MIN_SELECTION_COUNT = 10
-INPUT_FILE = project_root / "data" / "processed" / "matched_pairs.csv"
-OUTPUT_FILE = project_root / "data" / "ground_truth" / "manual_labels.csv"
-LOG_FILE = project_root / "data" / "logs" / "ground_truth_selection.log"
+logger = get_logger(__name__)
 
 def setup_output_directories():
-    """Ensure the output directory exists."""
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    logging.info(f"Ensured output directory exists: {OUTPUT_FILE.parent}")
+    """Ensure the ground truth directory exists."""
+    output_dir = PROJECT_ROOT / "data" / "ground_truth"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured output directory exists: {output_dir}")
+    return output_dir
 
 def load_matched_pairs():
     """
-    Load the matched pairs from the CSV file.
-    Returns a list of dictionaries.
+    Load the matched pairs from the processed data.
+    Expected file: data/processed/matched_pairs.csv
     """
-    if not INPUT_FILE.exists():
-        raise FileNotFoundError(f"Input file not found: {INPUT_FILE}. "
-                                "Please run T015 (matching) first.")
+    input_file = PROJECT_ROOT / "data" / "processed" / "matched_pairs.csv"
+    if not input_file.exists():
+        raise FileNotFoundError(
+            f"Required input file not found: {input_file}. "
+            "Please ensure T015 (matching) has been completed successfully."
+        )
 
-    blocks = []
-    with open(INPUT_FILE, 'r', newline='', encoding='utf-8') as f:
+    pairs = []
+    with open(input_file, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Ensure we have the necessary fields for the ground truth file
-            # Expected fields based on typical pipeline output:
-            # repo_id, block_id, label, confidence, complexity, etc.
-            blocks.append(row)
+            pairs.append(row)
     
-    logging.info(f"Loaded {len(blocks)} blocks from {INPUT_FILE}")
-    return blocks
+    logger.info(f"Loaded {len(pairs)} matched pairs from {input_file}")
+    return pairs
 
-def select_ground_truth_blocks(blocks, count=MIN_SELECTION_COUNT):
+def select_ground_truth_blocks(pairs: List[Dict[str, Any]], sample_size: int = 10) -> List[Dict[str, Any]]:
     """
     Randomly select a subset of blocks for manual verification.
-    """
-    if len(blocks) < count:
-        logging.warning(f"Only {len(blocks)} blocks available, selecting all.")
-        count = len(blocks)
     
-    selected = random.sample(blocks, count)
-    logging.info(f"Randomly selected {len(selected)} blocks for ground truth.")
+    Args:
+        pairs: List of matched pair dictionaries.
+        sample_size: Minimum number of blocks to select (default 10).
+    
+    Returns:
+        List of selected block dictionaries.
+    """
+    if len(pairs) == 0:
+        raise ValueError("No matched pairs found to sample from.")
+    
+    # Ensure we don't sample more than available
+    actual_size = min(sample_size, len(pairs))
+    
+    # Random selection without replacement
+    selected = random.sample(pairs, actual_size)
+    
+    logger.info(f"Randomly selected {actual_size} blocks for ground truth verification.")
     return selected
 
-def save_ground_truth(selected_blocks, output_path):
+def save_ground_truth(selected_blocks: List[Dict[str, Any]], output_dir: Path):
     """
-    Save the selected blocks to the ground truth CSV file.
-    Adds metadata columns for the manual labeling process.
+    Save the selected blocks to the manual_labels.csv file.
+    
+    The file will contain the block data with an additional column 
+    'manual_label' initialized to empty, indicating it needs manual verification.
+    
+    Output: data/ground_truth/manual_labels.csv
     """
-    fieldnames = list(selected_blocks[0].keys()) + [
-        "manual_label",
-        "manual_confidence",
-        "reviewer_id",
-        "review_date"
-    ]
+    output_file = output_dir / "manual_labels.csv"
+    
+    if not selected_blocks:
+        logger.warning("No blocks selected to save.")
+        return
 
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+    # Determine fieldnames from the first block, ensuring 'manual_label' is included
+    if selected_blocks:
+        fieldnames = list(selected_blocks[0].keys())
+        if 'manual_label' not in fieldnames:
+            fieldnames.append('manual_label')
+    
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        
         for block in selected_blocks:
-            # Initialize manual fields as empty
-            row = dict(block)
-            row["manual_label"] = ""
-            row["manual_confidence"] = ""
-            row["reviewer_id"] = ""
-            row["review_date"] = ""
-            writer.writerow(row)
-
-    logging.info(f"Saved {len(selected_blocks)} blocks to {output_path}")
+            # Ensure manual_label key exists, default to empty string
+            record = dict(block)
+            record['manual_label'] = ''
+            writer.writerow(record)
+    
+    logger.info(f"Saved {len(selected_blocks)} blocks to {output_file}")
 
 def main():
-    """Main entry point for the ground truth selection task."""
-    # Setup logging
-    setup_logging(log_file=str(LOG_FILE))
-    logger = get_logger(__name__)
-    logger.info("Starting Ground Truth Selection (T017a)")
-
+    """Main entry point for ground truth selection."""
+    logger.info("Starting Ground Truth Selection (T017a)...")
+    
     try:
-        setup_output_directories()
+        # 1. Setup directories
+        output_dir = setup_output_directories()
         
-        # Load data
-        blocks = load_matched_pairs()
+        # 2. Load matched pairs
+        pairs = load_matched_pairs()
         
-        if not blocks:
-            logger.error("No blocks found in matched pairs. Cannot select ground truth.")
-            return 1
-
-        # Select blocks
-        selected = select_ground_truth_blocks(blocks, MIN_SELECTION_COUNT)
+        # 3. Select random blocks (minimum 10)
+        selected_blocks = select_ground_truth_blocks(pairs, sample_size=10)
         
-        # Save output
-        save_ground_truth(selected, OUTPUT_FILE)
+        # 4. Save to CSV
+        save_ground_truth(selected_blocks, output_dir)
         
         logger.info("Ground Truth Selection completed successfully.")
-        return 0
-
+        
     except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        return 1
+        logger.error(f"Input file missing: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Selection error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during ground truth selection: {e}")
-        return 1
+        logger.exception(f"Unexpected error during ground truth selection: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

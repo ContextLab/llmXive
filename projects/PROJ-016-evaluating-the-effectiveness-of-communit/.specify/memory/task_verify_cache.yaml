@@ -1,0 +1,45 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/data`, `code/analysis`, `code/tests`,
+    `data/raw`, `data/processed`, `docs/output`) is provided; the claim lacks any
+    artifact or directory listing to confirm they were created. The task cannot be
+    considered complete until the specified folder structure exists and is visible.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `.flake8`, or `black` settings) are present in the provided evidence, so the\
+    \ requirement to configure ruff/flake8 and black cannot be verified as fulfilled.\
+    \ The implementer must add the appropriate configuration artifacts and ensure\
+    \ they are non\u2011empty."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the required directories (`data/raw/`,
+    `data/processed/`, `docs/output/`) actually exist in the repository; the claim
+    is unsubstantiated. The implementer must add the directory structure (or a manifest
+    confirming its creation) to satisfy the task.
+T007:
+  c: false
+  h: efa237599068aca2f63f6e5614d69984846ceaaf6cd5359509a25b71c6d244a6
+  r: The `code/tests/__init__.py` file is present, but the required `conftest.py`
+    file is missing entirely, so the pytest framework setup is not fully provided.
+    The task demands both artifacts.
+T012:
+  c: false
+  h: 7e84148e62fd1b4a3bc27c287c428c15a23979acd6db651cea9999efd6eaf64e
+  r: "The `code/data/download.py` file does not contain any implementation for loading\
+    \ World Bank GDP or population density data, nor does it show logic for reading\
+    \ `data/raw/cbnrm_proxy.csv` without re\u2011fetching it. Additionally, the required\
+    \ `data/raw/cbnrm_proxy.csv` file is absent from the repository. Both the functional\
+    \ code and the proxy data file are missing, so the task is not satisfied."
+T014:
+  c: false
+  h: 3780e8c545a5db6d5c3cf33f0a6d91377cc2c0430c6c7d8d021c3a3a798a45c1
+  r: "The required metadata file `data/processed/cbnrm_proxy_metadata.json` is absent,\
+    \ so the module cannot actually load the validated thresholds. Moreover, `classify_regime`\
+    \ returns three possible labels (`'CBNRM'`, `'State-Led'`, `'Mixed'`) instead\
+    \ of a binary `regime_type`, and the script references `sys` without importing\
+    \ it, which would raise a runtime error. These issues mean the task\u2019s specification\
+    \ is not met."

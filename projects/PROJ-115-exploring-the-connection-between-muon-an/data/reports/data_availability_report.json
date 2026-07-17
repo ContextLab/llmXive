@@ -1,0 +1,34 @@
+{
+  "planck": {
+    "source_type": "constants",
+    "description": "Planck 2018 Cosmological Parameters (Omega_c h^2, etc.)",
+    "source_url": "https://pla.esac.esa.int/pla/aio/#home",
+    "local_fallback_path": "code/physics/fallback_data.py::get_planck_constants",
+    "url_status": "N/A (Constants)",
+    "local_status": "OK (Code Defined)",
+    "overall_status": "available",
+    "fallback_strategy": "Use hardcoded values from code/physics/fallback_data.py if real fetch fails"
+  },
+  "xenon1t": {
+    "source_type": "dataset",
+    "description": "Xenon1T Dark Matter Search Results",
+    "source_url": "https://xenon1t.lbl.gov/",
+    "data_paper": "Phys. Rev. D 99, 042001 (2019)",
+    "local_fallback_path": "code/physics/fallback_data.py::get_xenon1t_limits",
+    "url_status": "OK",
+    "local_status": "OK (Fallback Module Exists)",
+    "overall_status": "available_with_fallback",
+    "fallback_strategy": "Use hardcoded values from code/physics/fallback_data.py if real fetch fails"
+  },
+  "lep": {
+    "source_type": "dataset",
+    "description": "LEP Limits on Supersymmetry",
+    "source_url": "https://cds.cern.ch/",
+    "data_paper": "Phys. Lett. B 565 (2003) 61-75",
+    "local_fallback_path": "code/physics/fallback_data.py::get_lep_limits",
+    "url_status": "OK",
+    "local_status": "OK (Fallback Module Exists)",
+    "overall_status": "available_with_fallback",
+    "fallback_strategy": "Use hardcoded values from code/physics/fallback_data.py if real fetch fails"
+  }
+}

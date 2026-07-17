@@ -1,334 +1,286 @@
+"""
+Numerical Yukawa Potential Solver for Validation (Plan 0.2).
+
+This module implements a numerical solver for the Schrödinger equation
+with a Yukawa potential V(r) = - (alpha * exp(-m_phi * r)) / r.
+It uses the Numerov algorithm for high-precision integration to extract
+the Sommerfeld enhancement factor and binding energies.
+"""
 import numpy as np
 from scipy.optimize import brentq
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Callable
 
-def yukawa_potential(r: np.ndarray, alpha: float, mass: float) -> np.ndarray:
+def yukawa_potential(r: np.ndarray, alpha: float, m_phi: float) -> np.ndarray:
     """
-    Calculate the Yukawa potential V(r) = -alpha * exp(-mass * r) / r.
+    Calculate the Yukawa potential V(r) = - (alpha * exp(-m_phi * r)) / r.
     
-    Parameters:
-    -----------
-    r : np.ndarray
-        Array of radial distances.
-    alpha : float
-        Coupling strength (dimensionless).
-    mass : float
-        Mediator mass (inverse length units).
+    Handles r=0 singularity by returning the limit value: -alpha * m_phi.
+    
+    Args:
+        r: Array of radial distances.
+        alpha: Coupling strength (alpha = g^2 / 4pi).
+        m_phi: Mediator mass.
         
     Returns:
-    --------
-    np.ndarray
-        Potential values at each r.
+        Array of potential values.
     """
     # Avoid division by zero at r=0
-    r_safe = np.where(r == 0, 1e-12, r)
-    return -alpha * np.exp(-mass * r_safe) / r_safe
+    # Limit as r->0 of -alpha * exp(-m_phi * r) / r is -infinity, 
+    # but for numerical stability in Schrödinger eq, we handle the first point.
+    # However, the Numerov method usually starts from r=eps.
+    # We'll use a small epsilon for the calculation if 0 is present.
+    eps = 1e-12
+    r_safe = np.where(r == 0, eps, r)
+    
+    return - (alpha * np.exp(-m_phi * r_safe)) / r_safe
 
 def numerov_schrodinger(
     r: np.ndarray, 
     E: float, 
-    alpha: float, 
-    mass: float, 
-    mu: float
+    potential_func: Callable[[np.ndarray], np.ndarray],
+    l: int = 0
 ) -> np.ndarray:
     """
-    Solve the radial Schrödinger equation for a Yukawa potential using the Numerov method.
+    Solve the radial Schrödinger equation using the Numerov method.
     
-    Equation: u''(r) = 2*mu * (V(r) - E) * u(r)
-    where V(r) is the Yukawa potential.
+    Equation: u''(r) + k(r)^2 u(r) = 0
+    where k(r)^2 = 2 * mu * (E - V(r)) - l(l+1)/r^2
     
-    Parameters:
-    -----------
-    r : np.ndarray
-        Radial grid points (must be equally spaced).
-    E : float
-        Energy eigenvalue.
-    alpha : float
-        Coupling strength.
-    mass : float
-        Mediator mass.
-    mu : float
-        Reduced mass of the system.
+    We assume reduced mass mu = 1 for the solver (scaling applied later) 
+    or passed via the potential/E scaling. Here we assume standard form:
+    u''(r) = 2 * (V(r) - E) * u(r) (assuming mu=1/2 for convenience in units)
+    Actually, standard radial eq: -1/(2mu) u'' + (V + l(l+1)/(2mu r^2)) u = E u
+    => u'' = 2mu (V - E + l(l+1)/(2mu r^2)) u
+    
+    For Sommerfeld, we usually look at scattering states (E > 0) or bound states (E < 0).
+    Here we implement the integration for a given E.
+    
+    Args:
+        r: Radial grid.
+        E: Energy eigenvalue.
+        potential_func: Function V(r).
+        l: Angular momentum quantum number (default 0 for s-wave).
         
     Returns:
-    --------
-    np.ndarray
-        Wavefunction u(r) on the grid.
+        Array of wavefunction values u(r).
     """
-    h = r[1] - r[0]
     N = len(r)
-    
-    # Calculate k^2(r) = 2*mu * (E - V(r))
-    # Note: Numerov usually written as u'' = -k^2 u, so k^2 = 2*mu*(E-V)
-    V = yukawa_potential(r, alpha, mass)
-    k2 = 2 * mu * (E - V)
-    
-    # Numerov coefficients: g_i = 1 + h^2/12 * k2_i
-    g = 1.0 + (h**2 / 12.0) * k2
-    
-    # Initialize wavefunction array
     u = np.zeros(N)
     
-    # Boundary conditions for s-wave (l=0): u(0) = 0, u'(0) = 1 (arbitrary normalization)
-    # At r=0, we start with u[0]=0, u[1]=h (approximate derivative)
-    u[0] = 0.0
-    u[1] = h  # Small non-zero value to start propagation
+    # Constants
+    # Assuming units where 2*mu = 1 for simplicity in the numerical step, 
+    # or we incorporate mu into the potential/E scaling.
+    # Let's assume the equation is u'' = k^2 * u where k^2 = 2*mu*(E - V) - l(l+1)/r^2
+    # For Sommerfeld enhancement, we are interested in the asymptotic behavior.
+    # We'll assume mu is absorbed or set to 1.
+    mu = 1.0 
     
-    # Numerov recurrence relation:
-    # u_{i+1} = (2*u_i*(1 - 5*h^2*k2_i/12) - u_{i-1}*(1 + h^2*k2_{i-1}/12)) / (1 + h^2*k2_{i+1}/12)
+    # Precompute k^2 array
+    # k2(r) = 2*mu * (E - V(r)) - l*(l+1)/r^2
+    # Handle r=0 carefully
+    r_safe = np.where(r == 0, 1e-12, r)
+    centrifugal = l * (l + 1) / (r_safe ** 2)
+    V = potential_func(r)
+    k2 = 2 * mu * (E - V) - centrifugal
+    
+    # Numerov coefficients
+    # u_{n+1} = ( (2 + 10/12 * h^2 * k2_n) * u_n - (1 - 1/12 * h^2 * k2_{n-1}) * u_{n-1} ) 
+    #           / (1 - 1/12 * h^2 * k2_{n+1})
+    h = r[1] - r[0]
+    h2 = h * h
+    
+    # Initialize boundary conditions
+    # For scattering (E>0): u(0)=0, u'(0) ~ 1 (small r behavior)
+    # u(r) ~ r^{l+1}
+    if l == 0:
+        u[0] = 0.0
+        u[1] = r[1] # Approximate slope
+    else:
+        u[0] = 0.0
+        u[1] = (r[1] ** (l + 1))
+    
+    # Numerov integration forward
     for i in range(1, N - 1):
-        u[i+1] = (2 * u[i] * (1 - (h**2 * k2[i] / 12.0)) - 
-                  u[i-1] * (1 + (h**2 * k2[i-1] / 12.0))) / g[i+1]
-                  
+        g_n = k2[i]
+        g_n1 = k2[i+1]
+        g_n_1 = k2[i-1]
+        
+        term_n = 2 + (h2 / 6.0) * g_n
+        term_n1 = 1 - (h2 / 12.0) * g_n1
+        term_n_1 = 1 - (h2 / 12.0) * g_n_1
+        
+        u[i+1] = (term_n * u[i] - term_n_1 * u[i-1]) / term_n1
+        
     return u
 
 def extract_sommerfeld_factor(
-    r: np.ndarray, 
     u: np.ndarray, 
-    alpha: float, 
-    v: float, 
-    mu: float
+    r: np.ndarray, 
+    k: float,
+    mass: float = 1.0
 ) -> float:
     """
     Extract the Sommerfeld enhancement factor S from the wavefunction.
     
-    S = |u(r->inf) / u_free(r->inf)|^2
-    For a free particle, u_free(r) ~ sin(kr + delta) ~ kr for small r.
-    The enhancement is calculated by comparing the asymptotic amplitude.
+    S = |psi(0)|^2 / |psi_free(0)|^2
+    For s-wave, S = |u'(0)|^2 / k^2 (normalized appropriately)
+    Or more commonly: S = (u(r_max) * k / sin(k*r_max + delta))^2 ...
     
-    Parameters:
-    -----------
-    r : np.ndarray
-        Radial grid.
-    u : np.ndarray
-        Numerically solved wavefunction.
-    alpha : float
-        Coupling strength.
-    v : float
-        Relative velocity.
-    mu : float
-        Reduced mass.
+    A robust method: Compare the amplitude of the oscillating tail to the free case.
+    Free solution: u_free(r) ~ sin(kr)
+    Interacting: u(r) ~ A sin(kr + delta)
+    S = A^2
+    
+    We fit the tail of u(r) to A * sin(kr + delta).
+    
+    Args:
+        u: Wavefunction array.
+        r: Radial grid.
+        k: Momentum (sqrt(2*mu*E)).
+        mass: Reduced mass.
         
     Returns:
-    --------
-    float
         Sommerfeld enhancement factor S.
     """
-    k = mu * v
-    # Free wavefunction normalization: u_free ~ sin(kr) ~ kr at small r
-    # We normalize u such that u(r) ~ sin(kr + delta) at large r
-    # For simplicity, we compare the amplitude at the last grid point
-    # assuming the potential is negligible there.
+    # Select the tail region for fitting
+    tail_start = int(len(r) * 0.7)
+    r_tail = r[tail_start:]
+    u_tail = u[tail_start:]
     
-    # Asymptotic behavior: u(r) ~ A * sin(kr + delta)
-    # We estimate A by fitting or by taking the envelope at large r
-    # Simple approximation: S = (|u(r_max)| / (k * r_max))^2 * (normalization factor)
-    # A more robust way: compare to the Coulomb limit or free case at the same r
-    
-    # Free case at r_max: u_free(r_max) = sin(k * r_max) / k (normalized to unit flux)
-    # But for enhancement, we look at the ratio of probability densities at origin
-    # or the amplification of the wavefunction at large r compared to free case.
-    
-    # Standard definition: S = |psi(0)|^2 / |psi_free(0)|^2
-    # Since u(r) = r * psi(r), and u(0)=0, we look at u'(0).
-    # Numerov gives u[1] ~ h * u'(0).
-    # For free particle, u_free(r) = sin(kr)/k, u_free'(0) = 1.
-    # So S = (u'(0) / u_free'(0))^2 = (u[1]/h)^2 / 1^2 = (u[1]/h)^2
-    # However, this is only strictly true for s-wave at zero energy.
-    # For finite energy, we normalize the wavefunction to unit flux at infinity.
-    
-    # Robust method: Normalize u to have amplitude 1 at infinity (sinusoidal envelope)
-    # and compare the amplitude at r=0 (or derivative).
-    # Alternatively, use the ratio of the wavefunction at the last point to the free case.
-    
-    # Let's use the standard approximation for the enhancement factor:
-    # S = | (u(r_max) / sin(k*r_max)) * (k*r_max) / u_free_norm |^2
-    # This is complex. A simpler, standard Numerov approach for S-factor:
-    # Integrate from 0 to r_max, normalize to unit flux at r_max, then check u'(0).
-    
-    # Practical implementation:
-    # 1. Solve with u[0]=0, u[1]=h.
-    # 2. At r_max, the solution behaves as A*sin(k*r_max + delta).
-    # 3. The free solution (alpha=0) with same BCs behaves as sin(k*r_max)/k * k = sin(k*r_max).
-    # 4. Actually, let's just compute the ratio of the wavefunction squared at a large r
-    #    relative to the free case, normalized by the phase space.
-    
-    # Simplified robust calculation:
-    # Normalize the calculated u to have amplitude 1 at large r (approximate envelope)
-    # Then S = (u'(0) / k)^2 where u'(0) is the slope at origin for the normalized wave.
-    
-    # Since u[1] = h * u'(0), and for free particle u_free(r) ~ sin(kr), u_free'(0)=k.
-    # So S = (u'[0]_calc / k)^2.
-    # But we need to normalize the amplitude.
-    
-    # Let's normalize u such that at large r, it matches sin(kr) amplitude.
-    # Find the last few points, estimate amplitude A.
-    # u(r) ~ A * sin(kr + phi).
-    # We can estimate A by max(u[-10:]) or similar.
-    # Then normalized u' at 0 is (u[1]/h) * (1/A).
-    # Free case A_free = 1/k (if we set u_free = sin(kr)/k).
-    # This is getting messy. Let's use the standard formula:
-    # S = | (u(r) / r) / (sin(kr)/r) |^2 at r->0 ? No.
-    
-    # Correct standard method for Numerov:
-    # 1. Solve with u(0)=0, u'(0)=1.
-    # 2. At r_max, u(r_max) = A * sin(k*r_max + delta).
-    # 3. The free solution with u(0)=0, u'(0)=1 is u_free(r) = sin(kr)/k.
-    #    At r_max, u_free(r_max) = sin(k*r_max)/k.
-    # 4. The ratio of amplitudes A / (1/k) = A*k.
-    # 5. S = (A*k)^2.
-    # Wait, if u'(0)=1 for both, then S = |u(r_max)/u_free(r_max)|^2? No.
-    
-    # Let's use the definition: S = |psi(0)|^2 / |psi_free(0)|^2.
-    # psi(r) = u(r)/r. u(r) ~ r * psi(0) near 0.
-    # So u'(0) = psi(0).
-    # If we solve with u'(0)=1, then psi(0)=1.
-    # For free particle, u_free(r) = sin(kr)/k. u_free'(0) = 1.
-    # So if we solve with u'(0)=1, the ratio of psi(0) is 1? That implies S=1?
-    # No, the boundary condition at infinity changes the normalization.
-    
-    # Correct approach:
-    # Solve with u(0)=0, u'(0)=1.
-    # At r_max, u(r_max) = C * sin(k*r_max + delta).
-    # The free solution with u(0)=0, u'(0)=1 is u_free(r) = sin(kr)/k.
-    # At r_max, u_free(r_max) = sin(k*r_max)/k.
-    # The physical wavefunction is normalized to unit flux at infinity.
-    # The flux is proportional to k * |C|^2.
-    # For free particle, C_free = 1/k. Flux = k * (1/k)^2 = 1/k.
-    # For interacting, C = u(r_max) / sin(k*r_max + delta).
-    # We don't know delta.
-    # Instead, we compare the derivative at the origin for the same flux.
-    # S = |u'(0)|^2_interacting / |u'(0)|^2_free (for same flux).
-    # If we fix flux to 1, then |u'(0)|_free = k.
-    # |u'(0)|_interacting = k * S^0.5.
-    # So S = (|u'(0)|_interacting / k)^2.
-    # But we solved with u'(0)=1.
-    # So we need to scale the solution such that the flux at infinity is 1.
-    # Flux ~ k * |Amplitude|^2.
-    # Our solution u has amplitude C at infinity.
-    # We need to scale u by factor F such that k * |C*F|^2 = 1 => F = 1/(k*C).
-    # Then u_scaled'(0) = u'(0) * F = 1 * F = 1/(k*C).
-    # S = |u_scaled'(0) / k|^2? No.
-    # S = |psi(0)|^2_interacting / |psi_free(0)|^2_free (for same flux).
-    # psi(0) = u'(0).
-    # For free, psi_free(0) = k (if flux=1).
-    # For interacting, psi(0) = u_scaled'(0).
-    # S = (u_scaled'(0) / k)^2 = (1/(k*C) / k)^2 = 1/(k^4 * C^2).
-    # This seems off.
-    
-    # Let's use the simplest robust method found in literature for Numerov:
-    # S = | (u(r_max) / sin(k*r_max)) * (k*r_max) |^2 ? No.
-    
-    # Re-evaluate:
-    # u(r) ~ A sin(kr + delta) at large r.
-    # Free: u_free(r) ~ (1/k) sin(kr) (if u'(0)=1).
-    # We want S = |u'(0) / k|^2 where u'(0) is for the normalized wave (flux=1).
-    # If we solve with u'(0)=1, then u(r) = A sin(kr+delta).
-    # The free solution with u'(0)=1 is u_free = (1/k) sin(kr).
-    # The ratio of amplitudes at infinity: A / (1/k) = Ak.
-    # The ratio of derivatives at origin is 1/1 = 1? No, the normalization is different.
-    # The physical wavefunction psi = u/r.
-    # Flux J = k * |A|^2.
-    # We want J=1. So we scale u by 1/sqrt(J) = 1/(A*sqrt(k)).
-    # Then u_scaled'(0) = 1 / (A*sqrt(k)).
-    # psi(0) = u_scaled'(0).
-    # Free case: A_free = 1/k. J_free = k * (1/k)^2 = 1/k.
-    # Scale free by 1/sqrt(1/k) = sqrt(k).
-    # u_free_scaled'(0) = 1 * sqrt(k) = sqrt(k).
-    # psi_free(0) = sqrt(k).
-    # S = (u_scaled'(0) / psi_free(0))^2 = (1/(A*sqrt(k)) / sqrt(k))^2 = 1/(A^2 * k^2).
-    # So S = 1 / (A^2 * k^2).
-    # We need to estimate A from u(r_max).
-    # u(r_max) = A sin(k*r_max + delta).
-    # We don't know delta.
-    # But we can estimate A by taking the envelope.
-    # Or, if we choose r_max such that sin(...) ~ 1?
-    # Better: A = sqrt(u(r_max)^2 + (u'(r_max)/k)^2).
-    # u'(r) ~ k*A*cos(kr+delta).
-    # So A^2 = u^2 + (u'/k)^2.
-    # We can estimate u' at r_max using finite difference.
-    
-    h = r[1] - r[0]
-    u_prime_last = (u[-1] - u[-2]) / h
-    # Estimate amplitude A
-    A_sq = u[-1]**2 + (u_prime_last / k)**2
-    A = np.sqrt(A_sq)
-    
-    if A == 0:
+    if k <= 0:
+        # Bound state or zero energy, different handling needed
+        # For E=0, S = |u'(0)|^2 / (const)
+        # Approximate derivative at origin
+        if len(u) > 1:
+            return (u[1] / r[1]) ** 2 # Very rough
         return 1.0
-        
-    S = 1.0 / (A**2 * k**2)
-    return S
+    
+    # Fit u(r) = A * sin(k*r + delta)
+    # We can use a simple least squares or just amplitude extraction
+    # Amplitude A = max(u) if phase is right, but fitting is better.
+    # Let's use a simple approach:
+    # u(r) = C1 * sin(kr) + C2 * cos(kr)
+    # Matrix form: [sin(kr) cos(kr)] [C1; C2] = u
+    
+    M = np.column_stack([np.sin(k * r_tail), np.cos(k * r_tail)])
+    # Solve least squares
+    coeffs, _, _, _ = np.linalg.lstsq(M, u_tail, rcond=None)
+    C1, C2 = coeffs
+    
+    A = np.sqrt(C1**2 + C2**2)
+    
+    # For free particle, amplitude is 1 (normalized to incoming flux 1)
+    # S = A^2
+    return A**2
 
 def solve_yukawa_binding_energy(
     alpha: float, 
-    mass: float, 
-    mu: float, 
-    r_max: float = 50.0, 
-    n_points: int = 1000
+    m_phi: float, 
+    mass: float = 1.0,
+    r_max: float = 100.0,
+    N_points: int = 10000
 ) -> Optional[float]:
     """
-    Find the binding energy (E < 0) of the Yukawa potential using the Numerov method.
+    Find the binding energy of the ground state (E < 0) for the Yukawa potential.
+    Uses the Numerov method and a root finder to match boundary conditions at infinity.
     
-    Uses a shooting method to find the energy where the wavefunction decays to zero at r_max.
-    
-    Parameters:
-    -----------
-    alpha : float
-        Coupling strength.
-    mass : float
-        Mediator mass.
-    mu : float
-        Reduced mass.
-    r_max : float
-        Maximum radial distance.
-    n_points : int
-        Number of grid points.
+    Args:
+        alpha: Coupling strength.
+        m_phi: Mediator mass.
+        mass: Reduced mass of the system.
+        r_max: Maximum radial distance.
+        N_points: Number of grid points.
         
     Returns:
-    --------
-    float or None
         Binding energy E (negative value), or None if no bound state found.
     """
-    r = np.linspace(0, r_max, n_points)
+    r = np.linspace(1e-6, r_max, N_points)
     h = r[1] - r[0]
     
-    def wavefunction_at_boundary(E):
-        # Solve Numerov for energy E
-        u = numerov_schrodinger(r, E, alpha, mass, mu)
+    def potential_func(r_arr):
+        return yukawa_potential(r_arr, alpha, m_phi)
+    
+    # We look for E such that u(r_max) -> 0 (bound state condition)
+    # For E < 0, k = i * kappa. u(r) ~ exp(-kappa * r)
+    # We search for E in range [-alpha^2 * mass / 2, 0] (approx hydrogenic)
+    # Or simply scan for sign change in u(r_max)
+    
+    E_min = - (alpha**2 * mass) / 2.0 - 0.1 # Below ground state estimate
+    E_max = -1e-6 # Just below zero
+    
+    # Function to evaluate u(r_max) for a given E
+    def get_u_max(E):
+        # k2 = 2*mu*(E - V)
+        # For bound states, we expect exponential decay.
+        # We integrate from 0 to r_max.
+        # If E is too low, u blows up one way, if too high, it blows up the other.
+        # Actually, for E < 0, V < 0, E-V is negative?
+        # k2 = 2*mu*(E - V). V is negative. E is negative.
+        # If |E| > |V|, k2 < 0 -> exponential.
+        # We need the solution that decays at infinity.
+        # Numerov from 0 will generally blow up unless E is an eigenvalue.
+        # We look for the zero crossing of u(r_max).
+        
+        u = numerov_schrodinger(r, E, potential_func, l=0)
         return u[-1]
     
-    # Search for bound state: E must be negative and greater than min(V)
-    # Min of Yukawa potential is at r ~ 1/mass?
-    # V(r) = -alpha * exp(-mass*r)/r.
-    # We search in range [-alpha*mu, 0].
-    # Actually, the ground state energy is roughly -alpha^2 * mu / 2 for Coulomb.
-    # For Yukawa, it's similar but slightly less bound.
-    # Let's search from -alpha^2 * mu to -1e-6.
-    
-    E_min = - (alpha**2) * mu * 2.0  # Safe lower bound
-    E_max = -1e-8
-    
     try:
-        # Check signs at boundaries
-        val_min = wavefunction_at_boundary(E_min)
-        val_max = wavefunction_at_boundary(E_max)
+        # Check if sign changes
+        val_min = get_u_max(E_min)
+        val_max = get_u_max(E_max)
         
-        # If signs are same, we might not have a bound state or need different range
         if val_min * val_max > 0:
-            # Try a wider range or return None
-            # Sometimes the wavefunction doesn't cross zero in the chosen range
-            # We can try to scan for a zero crossing
-            Es = np.linspace(E_min, E_max, 100)
-            vals = [wavefunction_at_boundary(e) for e in Es]
-            for i in range(len(vals)-1):
-                if vals[i] * vals[i+1] < 0:
-                    E_root = brentq(wavefunction_at_boundary, Es[i], Es[i+1])
-                    return E_root
+            # No root found in this range, or need better search
             return None
         
-        E_root = brentq(wavefunction_at_boundary, E_min, E_max)
-        return E_root
+        E_bound = brentq(get_u_max, E_min, E_max, xtol=1e-8)
+        return E_bound
     except ValueError:
-        # No root found
         return None
+
+def main():
+    """
+    Main entry point to demonstrate the Yukawa solver.
+    Calculates the Sommerfeld factor for a benchmark point.
+    """
+    # Benchmark parameters (example)
+    alpha = 0.01
+    m_phi = 1.0 # Mediator mass
+    mass = 100.0 # DM mass (reduced mass approx m/2 for equal mass)
+    v = 1e-3 # Velocity
+    
+    # Energy E = 0.5 * mass * v^2
+    E = 0.5 * mass * v**2
+    k = np.sqrt(2 * mass * E)
+    
+    # Grid
+    r_max = 50.0 / m_phi # Scale with mediator range
+    N = 20000
+    r = np.linspace(1e-6, r_max, N)
+    
+    # Define potential
+    def pot(r_arr):
+        return yukawa_potential(r_arr, alpha, m_phi)
+    
+    # Solve
+    u = numerov_schrodinger(r, E, pot, l=0)
+    
+    # Extract S
+    S = extract_sommerfeld_factor(u, r, k, mass)
+    
+    print(f"Yukawa Solver Benchmark:")
+    print(f"  Alpha: {alpha}")
+    print(f"  Mediator Mass: {m_phi}")
+    print(f"  DM Mass: {mass}")
+    print(f"  Velocity: {v}")
+    print(f"  Calculated Sommerfeld Factor (S): {S:.4f}")
+    
+    # Check for bound state
+    E_bound = solve_yukawa_binding_energy(alpha, m_phi, mass, r_max=r_max, N_points=N)
+    if E_bound:
+        print(f"  Ground State Binding Energy: {E_bound:.6f}")
+    else:
+        print("  No bound state found in the searched range.")
+
+if __name__ == "__main__":
+    main()

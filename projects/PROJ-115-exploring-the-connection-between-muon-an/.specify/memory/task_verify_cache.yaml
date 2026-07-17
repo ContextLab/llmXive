@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No log, report, or output file showing that a Reference\u2011Validator Agent\
+    \ was executed on the citations in the `idea/`, `technical-design/`, `implementation-plan/`,\
+    \ and `paper/` directories is present; the claim lacks any concrete artifact confirming\
+    \ the validation was performed."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or output files (e.g., `run_scan.py`, `viable_points.csv`,\
+    \ `validate_delta_a.py`, `g2_dm_report.pdf`) are present to demonstrate a numerical\
+    \ Yukawa potential solver or any of the required user\u2011story artifacts. Consequently\
+    \ the claimed implementation cannot be verified."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided artifacts relate to muon\u202Fg\u20112 parameter scans, validation\
+    \ scripts, and report generation, with no document, code, or description defining\
+    \ an Adaptive Mesh Refinement (AMR) strategy for grid convergence as required\
+    \ by task\u202FT003. The necessary AMR strategy artifact is missing."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a report, markdown file, or script output) confirming that
+    the Planck, Xenon1T, and LEP datasets have been checked for availability or that
+    fallback strategies have been documented is present. The implementer provided
+    only the task description without any concrete evidence of verification or documentation.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No schema file, data definition, or validation script for `LEP_Exclusion_Data`\
+    \ is present in the provided artifacts; the only evidence relates to unrelated\
+    \ scan and reporting scripts, not to generating or validating the required LEP\
+    \ exclusion data schema. Consequently the task\u2019s core deliverable is missing."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `ParameterPoint` schema definition was found in the provided evidence; there\
+    \ is no code, JSON/YAML schema file, or documentation snippet that defines the\
+    \ required data structure, so the task\u2019s deliverable is missing."

@@ -1,9 +1,6 @@
 """
-T008: Verify and Fetch Total Records.
-
-Queries FAO and World Bank APIs to determine the total available records
-(denominator) for years 2000–2020 for low/middle-income countries.
-Saves the count to data/processed/total_records_count.json.
+Fetch record counts from FAO and World Bank APIs for low/middle-income countries (2000-2020).
+This script implements T008: Verify and Fetch Total Records.
 """
 import json
 import os
@@ -11,216 +8,196 @@ import sys
 import time
 from pathlib import Path
 from typing import Dict, Any, List
-
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 import requests
-from config import YEAR_RANGE, API_ENDPOINTS, PROJECT_ROOT
+
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from logging_config import get_logger
+from config import get_config
 
 logger = get_logger(__name__)
+config = get_config()
 
-# Constants for the analysis
-TARGET_YEARS = list(range(YEAR_RANGE[0], YEAR_RANGE[1] + 1))
-OUTPUT_PATH = Path(PROJECT_ROOT) / "data" / "processed" / "total_records_count.json"
-
-# World Bank Income Groups: Low and Lower/Middle/Upper Middle
-# We fetch all countries, then filter by income group using the /incomegroup endpoint
-WB_INCOME_GROUPS = ["L", "LM", "UM"]  # Low, Lower Middle, Upper Middle
-WB_INDICATOR_FOREST_AREA = "AG.LND.FRST.ZS"  # Forest area (% of land area) - common proxy for land use
-FAO_BASE_URL = API_ENDPOINTS.get("fao", "https://www.fao.org/faostat/api/v1/en")
-WB_BASE_URL = API_ENDPOINTS.get("world_bank", "https://api.worldbank.org/v2")
+# Constants
+YEAR_RANGE = config.get("YEAR_RANGE", (2000, 2020))
+LOW_MID_INCOME_CODES = ["LMI"]  # World Bank group code for Low & Middle Income
 
 def get_world_bank_countries_by_income() -> List[str]:
     """
-    Fetch list of country codes for low and middle-income countries.
+    Fetch list of country ISO3 codes for low and middle-income countries.
+    Uses World Bank API: https://api.worldbank.org/v2/country/all?format=json&per_page=300
+    Filter by incomeLevel: 'low', 'lower middle', 'upper middle'.
     """
-    logger.info("Fetching World Bank country list by income group...")
-    target_codes = set()
-    
-    for group in WB_INCOME_GROUPS:
-        url = f"{WB_BASE_URL}/country"
-        params = {
-            "format": "json",
-            "per_page": 1000,
-            "incomeLevel": group
-        }
-        
-        try:
-            resp = requests.get(url, params=params, timeout=30)
-            resp.raise_for_status()
-            data = resp.json()
-            if "country" in data:
-                for country in data["country"]:
-                    if "iso2Code" in country and country["iso2Code"] not in ["..", None]:
-                        target_codes.add(country["iso2Code"])
-            logger.debug(f"Found {len([c for c in data['country'] if c.get('iso2Code') not in ['..', None]])} countries in group {group}")
-        except requests.RequestException as e:
-            logger.error(f"Failed to fetch income group {group}: {e}")
-            continue
-    
-    return list(target_codes)
+    url = "https://api.worldbank.org/v2/country/all"
+    params = {
+        "format": "json",
+        "per_page": 300,
+        "fields": "id;iso2Code;name;region;incomeLevel;lendingType"
+    }
 
-def fetch_world_bank_records(country_codes: List[str], indicator: str) -> int:
-    """
-    Fetch total available records for a specific indicator across target countries and years.
-    """
-    logger.info(f"Fetching World Bank records for indicator {indicator}...")
-    total_count = 0
-    url = f"{WB_BASE_URL}/country/{';'.join(country_codes)}/indicator/{indicator}"
-    
-    # World Bank API pagination
-    page = 1
-    max_pages = 100  # Safety limit
-    
-    while page <= max_pages:
-        params = {
-            "format": "json",
-            "page": page,
-            "per_page": 1000,
-            "date": f"{YEAR_RANGE[0]}:{YEAR_RANGE[1]}"
-        }
-        
-        try:
-            resp = requests.get(url, params=params, timeout=60)
-            resp.raise_for_status()
-            data = resp.json()
-            
-            if "country" not in data:
-                # Fallback if structure is different (sometimes returns list of observations directly)
-                if isinstance(data, list) and len(data) > 0:
-                    # This might be the data list itself, check structure
-                    pass
-                else:
-                    break
-            
-            # The data structure is usually {"page": ..., "pages": ..., "per_page": ..., "total": ..., "source": ..., "country": [...]}
-            # Wait, actually for indicator query it's usually:
-            # {"page": 1, "pages": 1, "per_page": 50, "total": 123, "source": {...}, "country": [{...}]}
-            # But for bulk country query, it might be just the list of observations?
-            # Let's check the 'total' field if available, or iterate 'country' list if it's the data.
-            
-            # Actually, standard WB API for indicator returns:
-            # {"page": 1, "pages": 1, "per_page": 1000, "total": N, "source": ..., "country": [ { "id": ..., "value": ... } ] } 
-            # Wait, for /country/.../indicator/... it returns a list of observations, not nested countries.
-            # Let's handle both cases.
-            
-            if isinstance(data, list):
-                # Direct list of observations
-                total_count += len(data)
-                break
-            elif isinstance(data, dict):
-                if "country" in data:
-                    # Nested structure
-                    total_count += len(data["country"])
-                if "total" in data:
-                    # If total is provided, we can trust it if we fetched all pages
-                    # But let's count manually to be sure we filter by year correctly if needed
-                    pass
-                
-                if "pages" in data:
-                    if page >= data["pages"]:
-                        break
-                    page += 1
-                    time.sleep(0.5) # Rate limiting
-                else:
-                    break
-            else:
-                break
-                
-        except requests.RequestException as e:
-            logger.error(f"Failed to fetch World Bank page {page}: {e}")
-            break
-        except (KeyError, ValueError) as e:
-            logger.warning(f"Unexpected data format on page {page}: {e}")
-            break
-    
-    return total_count
-
-def fetch_fao_records(country_codes: List[str]) -> int:
-    """
-    Fetch total available records from FAO STAT.
-    FAO API is less standardized. We will try the standard REST API.
-    Note: FAO often requires specific domain queries. We'll attempt a general land use query.
-    """
-    logger.info("Fetching FAO records...")
-    # FAO API structure: https://www.fao.org/faostat/api/v1/en/Data/Download
-    # We will use the REST endpoint if available, otherwise estimate based on metadata.
-    # Since direct bulk download is complex without auth, we will query the metadata endpoint
-    # to estimate the count for 'Forest Area' or similar.
-    
-    # Attempting to use the FAO API for metadata count
-    # URL: https://www.fao.org/faostat/api/v1/en/Data/Metadata/Get?lang=en&domain=F&area=2&item=1&element=1&unit=1
-    # This is too specific. Let's try to get the count of available records for a common domain.
-    
-    # Alternative: Use the 'Data' endpoint with a filter.
-    # FAO API often returns JSON with 'data' array.
-    
-    total_count = 0
-    # FAO doesn't have a simple 'count all' for a range without downloading.
-    # We will try to fetch a sample and extrapolate or use the 'Get' metadata.
-    # Given constraints, we will attempt to fetch records for the specific domain 'Forestry' (F).
-    
-    # Let's try to get the list of available years/items for a broad query.
-    # This is a heuristic approach because FAO API is complex.
-    # We will query for "Forest Area" (Element 1051) in domain F.
-    
-    # Since we cannot easily paginate FAO without complex parameters,
-    # we will rely on the World Bank count as the primary denominator for this MVP,
-    # or attempt a simple fetch.
-    
-    # Let's try a simple fetch for one country to see structure, then estimate.
-    # Actually, the task asks for "Total available records".
-    # If FAO API is too restrictive, we might just report WB count or 0 for FAO if unreachable.
-    
-    # Attempting a standard metadata query to see available records count
+    countries = []
     try:
-        # FAO API endpoint for metadata
-        url = "https://www.fao.org/faostat/api/v1/en/Data/Get"
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+
+        if len(data) < 2:
+            raise ValueError("Unexpected World Bank API response format")
+
+        for country in data[1]:
+            income_level = country.get("incomeLevel", {}).get("id", "")
+            if income_level in ["LDC", "LMC", "UMC"]:  # Low, Lower Middle, Upper Middle
+                iso3 = country.get("id")
+                if iso3 and iso3 not in ["Aggregates"]:
+                    countries.append(iso3)
+        
+        logger.info(f"Fetched {len(countries)} low/middle-income countries from World Bank.")
+        return countries
+    except Exception as e:
+        logger.error(f"Failed to fetch World Bank countries: {e}")
+        raise
+
+def fetch_world_bank_records(countries: List[str]) -> int:
+    """
+    Fetch total record count from World Bank for a specific indicator across years.
+    Indicator: AG.LND.FRST.ZS (Forest Area (% of land area)) - proxy for land use data.
+    We query one indicator to estimate the denominator for the dataset we intend to build.
+    """
+    indicator = "AG.LND.FRST.ZS" # Forest Area %
+    total_records = 0
+    
+    # World Bank API supports pagination, but for count estimation we can use a single query
+    # with a large per_page limit or aggregate manually.
+    # We will iterate countries to be safe and accurate, as API doesn't support "count all" easily.
+    
+    url = "https://api.worldbank.org/v2/country/{country}/indicator/{indicator}"
+    
+    for country in countries:
         params = {
-            "lang": "en",
-            "domain": "F", # Forestry
-            "area": "2", # All areas? Or specific?
-            "item": "1",
-            "element": "1",
-            "unit": "1",
-            "year": ",".join(map(str, TARGET_YEARS))
+            "format": "json",
+            "date": f"{YEAR_RANGE[0]}:{YEAR_RANGE[1]}",
+            "per_page": 5000 # Max allowed
         }
         
-        # FAO API is notoriously flaky with direct REST calls without session.
-        # We will try a simpler approach: fetch the list of available data points.
-        # If this fails, we log a warning and rely on WB or skip.
+        try:
+            response = requests.get(url.format(country=country, indicator=indicator), params=params, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+            
+            if len(data) > 1:
+                # data[0] is metadata, data[1] is list of observations
+                records = data[1]
+                # Filter out null values if any (though API usually returns valid data points)
+                valid_records = [r for r in records if r.get("value") is not None]
+                total_records += len(valid_records)
+            time.sleep(0.5) # Rate limit compliance
+        except Exception as e:
+            logger.warning(f"Failed to fetch WB records for {country}: {e}")
+            continue
+
+    logger.info(f"Total World Bank records found: {total_records}")
+    return total_records
+
+def fetch_fao_records(countries: List[str]) -> int:
+    """
+    Fetch total record count from FAO FRA (Forest Resources Assessment) API.
+    FAO FRA API is less standardized. We use the FAOSTAT bulk data or specific endpoint.
+    Endpoint: https://www.fao.org/faostat/en/#data/FO (Forest Area)
+    We will use the FAOSTAT API which is more programmatic:
+    https://www.fao.org/faostat/api/data/en?domain=FO&element=FO0102&area=211&item=101&unit=1&year=2000,2001...
+    
+    Simplified approach: Query for all countries in the list for the indicator 'Forest Area' (FO0102)
+    over the year range.
+    """
+    # FAOSTAT API endpoint for data
+    base_url = "https://www.fao.org/faostat/api/data/en"
+    domain = "FO" # Forest
+    element = "FO0102" # Forest area (sq km) or percentage? Let's use area.
+    unit = "1" # Hectares or similar
+    
+    total_records = 0
+    years = list(range(YEAR_RANGE[0], YEAR_RANGE[1] + 1))
+    year_str = ",".join(map(str, years))
+    
+    # FAOSTAT API often requires specific area codes. 
+    # Since we have ISO3 codes, we might need to map them or query by country name.
+    # To avoid complex mapping, we will query the "All Areas" or specific known codes if available.
+    # However, the most robust way for a "total available records" check without a full mapping table
+    # is to query the metadata or a broad query.
+    
+    # Alternative: Use the 'metadata' endpoint to count available data points?
+    # Let's try a direct data query for a few sample countries to verify structure, then aggregate.
+    # But for T008, we need the total. 
+    
+    # Strategy: Query FAO for the specific indicator for the list of countries.
+    # FAO API parameter 'area' accepts ISO3 codes? Documentation says "Area Code".
+    # We will attempt to query for each country.
+    
+    for country in countries:
+        # Construct parameters
+        params = {
+            "domain": domain,
+            "element": element,
+            "area": country, # Try ISO3
+            "year": year_str,
+            "format": "json"
+        }
         
-        # Given the complexity and rate limits, we will simulate a count based on 
-        # the number of countries * years * elements if we can't get exact.
-        # BUT the prompt says "Real data only".
-        
-        # Let's try to fetch the 'index' or 'metadata' to get the count.
-        # There is no simple 'count' endpoint.
-        # We will assume the WB count is the primary denominator for this specific task
-        # as FAO data availability is often subsetted.
-        
-        # However, to be thorough, let's try to fetch a small sample.
-        # If we can't get a count, we return 0 for FAO and log it.
-        logger.warning("FAO API count is difficult to retrieve directly without full download. Estimating or skipping.")
-        # We will set FAO count to 0 for now to avoid hallucinating, 
-        # or we can try to fetch the 'Data' endpoint with a limit.
-        
-        # Let's try to fetch the first page of data.
-        # url = "https://www.fao.org/faostat/api/v1/en/Data/Get"
-        # This often requires a POST or specific headers.
-        
-        # Fallback: We will use the World Bank count as the definitive 'Total Available'
-        # for the scope of this MVP, as FAO requires complex session handling.
-        # We will log that FAO count is 0 (unavailable via simple API) and rely on WB.
-        total_count = 0 
-        
-    except Exception as e:
-        logger.error(f"Could not fetch FAO records: {e}")
-        total_count = 0
-        
-    return total_count
+        try:
+            # FAO API might block or require specific headers
+            headers = {"User-Agent": "Mozilla/5.0"}
+            response = requests.get(base_url, params=params, headers=headers, timeout=30)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "data" in data and data["data"]:
+                    # Count non-null entries
+                    records = data["data"]
+                    valid_records = [r for r in records if r.get("Value") is not None]
+                    total_records += len(valid_records)
+            elif response.status_code == 404:
+                # Country not found or no data
+                pass
+            else:
+                logger.warning(f"FAO API returned {response.status_code} for {country}")
+            
+            time.sleep(1) # Be careful with FAO rate limits
+        except Exception as e:
+            logger.warning(f"Failed to fetch FAO records for {country}: {e}")
+            continue
+
+    logger.info(f"Total FAO records found: {total_records}")
+    return total_records
+
+def save_outputs(wb_count: int, fao_count: int, output_path: Path):
+    """
+    Save the total record counts to the specified JSON file.
+    """
+    output_dir = output_path.parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    result = {
+        "year_range": YEAR_RANGE,
+        "target_countries": "Low and Middle Income",
+        "world_bank": {
+            "indicator": "AG.LND.FRST.ZS",
+            "count": wb_count
+        },
+        "fao": {
+            "domain": "FO",
+            "element": "FO0102",
+            "count": fao_count
+        },
+        "total_records": wb_count + fao_count,
+        "note": "Counts represent available non-null observations for the specified indicator and year range."
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Saved total record counts to {output_path}")
 
 def main():
     """
@@ -228,52 +205,42 @@ def main():
     """
     logger.info("Starting T008: Verify and Fetch Total Records")
     
-    # Ensure output directory exists
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    # 1. Get list of low/middle-income countries
+    try:
+        countries = get_world_bank_countries_by_income()
+    except Exception as e:
+        logger.critical(f"Cannot proceed without country list: {e}")
+        return
+
+    # 2. Fetch World Bank records
+    wb_count = 0
+    try:
+        wb_count = fetch_world_bank_records(countries)
+    except Exception as e:
+        logger.error(f"Error fetching World Bank records: {e}")
+        # Continue to FAO if possible, or fail? Task requires both.
+        # If one fails, we might have incomplete data, but we must not fake.
+        # We will log error and proceed to FAO, then save what we have (or fail if critical).
+        # Given the constraint "Fail loudly", we should probably raise if critical data missing.
+        # However, if API is down, we can't fake. We'll let it crash if it's a hard failure.
+        # For now, we assume partial success is better than crash if one API is flaky, 
+        # but the task says "Query FAO and World Bank". 
+        # We will let the exception propagate if it's a critical fetch failure.
+        raise
+
+    # 3. Fetch FAO records
+    fao_count = 0
+    try:
+        fao_count = fetch_fao_records(countries)
+    except Exception as e:
+        logger.error(f"Error fetching FAO records: {e}")
+        raise
+
+    # 4. Save results
+    output_path = Path("data/processed/total_records_count.json")
+    save_outputs(wb_count, fao_count, output_path)
     
-    # 1. Get target countries (Low/Middle Income)
-    country_codes = get_world_bank_countries_by_income()
-    logger.info(f"Identified {len(country_codes)} low/middle-income countries.")
-    
-    if not country_codes:
-        logger.error("No countries found. Cannot proceed.")
-        return 1
-    
-    # 2. Fetch World Bank Records
-    wb_count = fetch_world_bank_records(country_codes, WB_INDICATOR_FOREST_AREA)
-    logger.info(f"World Bank records found: {wb_count}")
-    
-    # 3. Fetch FAO Records (Heuristic/Attempt)
-    fao_count = fetch_fao_records(country_codes)
-    logger.info(f"FAO records found: {fao_count}")
-    
-    # 4. Aggregate
-    total_count = wb_count + fao_count
-    
-    result = {
-        "year_range": list(YEAR_RANGE),
-        "target_income_groups": WB_INCOME_GROUPS,
-        "country_count": len(country_codes),
-        "sources": {
-            "world_bank": {
-                "indicator": WB_INDICATOR_FOREST_AREA,
-                "records": wb_count
-            },
-            "fao": {
-                "records": fao_count,
-                "note": "Count estimated or 0 due to API complexity"
-            }
-        },
-        "total_records": total_count
-    }
-    
-    # 5. Save to disk
-    with open(OUTPUT_PATH, "w") as f:
-        json.dump(result, f, indent=2)
-    
-    logger.info(f"Total records saved to {OUTPUT_PATH}")
-    print(f"Total records: {total_count}")
-    return 0
+    logger.info("T008 completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,283 +1,408 @@
 """
 Adaptive Mesh Refinement (AMR) Strategy for Grid Convergence.
 
-This module implements the logic to dynamically refine the parameter grid
-based on the gradients of the physics observables (specifically the relic density
-and Sommerfeld enhancement factors). It ensures that narrow viable bands
-and resonance regions are captured with high precision without wasting
-computation on flat regions.
+Implements the strategy defined in Plan 0.3 to dynamically refine the parameter
+grid (m_V, g) based on the gradient of the relic density and the presence of
+resonances (Sommerfeld enhancement peaks).
 
-Implements Plan 0.3 requirements.
+This module defines the configuration, data structures, and the generator logic
+to produce a non-uniform grid that captures narrow viable bands efficiently.
 """
 import numpy as np
 from typing import List, Tuple, Dict, Any, Optional
 from dataclasses import dataclass, field
-from physics.yukawa_solver import numerov_schrodinger, extract_sommerfeld_factor
-from schemas.parameter_point import ParameterPoint, validate_parameter_point
 import logging
 
+# Import from existing project API surface
+from physics.yukawa_solver import numerov_schrodinger, extract_sommerfeld_factor
+from schemas.parameter_point import ParameterPoint, validate_parameter_point
+
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 @dataclass
 class GridPoint:
-    """Represents a single point in the parameter space."""
-    m_chi: float       # Dark matter mass in MeV
-    m_V: float         # Vector mediator mass in MeV
-    g: float           # Coupling constant
-    omega_h2: Optional[float] = None  # Calculated relic density
-    S_factor: Optional[float] = None  # Sommerfeld enhancement
+    """Represents a single point in the parameter grid."""
+    m_V: float  # Mediator mass in MeV
+    g: float    # Coupling constant
     is_refined: bool = False
     error_estimate: float = 0.0
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "m_chi": self.m_chi,
-            "m_V": self.m_V,
-            "g": self.g,
-            "omega_h2": self.omega_h2,
-            "S_factor": self.S_factor,
-            "is_refined": self.is_refined,
-            "error_estimate": self.error_estimate
-        }
 
 @dataclass
 class AMRConfig:
     """Configuration for the Adaptive Mesh Refinement strategy."""
-    max_depth: int = 5
-    tolerance_rel: float = 0.05  # 5% relative error tolerance
-    tolerance_abs: float = 1e-4
-    min_grid_spacing: float = 0.01  # Minimum spacing in log space
-    refinement_threshold: float = 0.1  # Gradient threshold for refinement
-    initial_resolution: int = 20  # Initial points per dimension
-    max_points: int = 50000  # Safety cap on total points
+    # Initial coarse grid bounds
+    m_V_min: float = 1.0       # MeV
+    m_V_max: float = 1000.0    # MeV
+    g_min: float = 1e-5        # Coupling
+    g_max: float = 1e-1        # Coupling
+    
+    # Initial coarse grid resolution
+    initial_m_V_steps: int = 20
+    initial_g_steps: int = 20
+    
+    # Refinement thresholds
+    max_depth: int = 4         # Maximum recursion depth
+    gradient_threshold: float = 0.1  # Threshold for relic density gradient
+    resonance_threshold: float = 0.5 # Threshold for Sommerfeld peak detection
+    
+    # Minimum spacing to avoid infinite recursion
+    min_spacing_m_V: float = 0.01
+    min_spacing_g: float = 1e-6
 
 class AdaptiveGridGenerator:
     """
-    Generates a parameter grid with Adaptive Mesh Refinement.
-
-    The strategy:
+    Generates an adaptive grid for the muon g-2 dark matter parameter scan.
+    
+    Strategy:
     1. Generate a coarse initial grid.
-    2. Evaluate the physics observable (relic density/Sommerfeld) at grid points.
-    3. Estimate local error/gradient between neighbors.
-    4. Refine regions where the error exceeds the threshold.
-    5. Repeat until convergence or max depth reached.
+    2. Evaluate the Sommerfeld factor (S) and relic density (Omega) at each point.
+    3. Identify regions with high gradients in S or Omega (indicating resonances).
+    4. Subdivide these regions recursively until max_depth or min_spacing is reached.
+    5. Return the flattened list of all unique grid points.
     """
-
+    
     def __init__(self, config: AMRConfig):
         self.config = config
         self.grid_points: List[GridPoint] = []
-        self.refinement_history: List[int] = []
+        self._processed_cache: Dict[Tuple[float, float], float] = {}
 
-    def _log_space_range(self, start: float, end: float, num: int) -> np.ndarray:
-        """Generate a log-spaced array."""
-        if num < 2:
-            return np.array([start, end])
-        return np.logspace(np.log10(start), np.log10(end), num)
-
-    def _generate_coarse_grid(self, 
-                              m_chi_range: Tuple[float, float], 
-                              m_V_range: Tuple[float, float], 
-                              g_range: Tuple[float, float]) -> List[GridPoint]:
-        """Generate the initial coarse grid."""
-        m_chi_vals = self._log_space_range(*m_chi_range, self.config.initial_resolution)
-        m_V_vals = self._log_space_range(*m_V_range, self.config.initial_resolution)
-        g_vals = self._log_space_range(*g_range, self.config.initial_resolution)
-
-        points = []
-        for m_chi in m_chi_vals:
-            for m_V in m_V_vals:
-                for g in g_vals:
-                    # Validate parameter point physically
-                    try:
-                        validate_parameter_point({"m_chi": m_chi, "m_V": m_V, "g": g})
-                        points.append(GridPoint(m_chi=m_chi, m_V=m_V, g=g))
-                    except ValueError:
-                        continue
-        return points
-
-    def _estimate_error(self, p1: GridPoint, p2: GridPoint, observable: str) -> float:
+    def _evaluate_physics(self, point: ParameterPoint) -> float:
         """
-        Estimate the local error between two adjacent points.
-        Uses the difference in the observable normalized by the distance in parameter space.
-        """
-        v1 = getattr(p1, observable, None)
-        v2 = getattr(p2, observable, None)
-
-        if v1 is None or v2 is None:
-            return float('inf')
-
-        diff = abs(v1 - v2)
-        avg = (abs(v1) + abs(v2)) / 2.0
+        Evaluates the Sommerfeld factor for a given point.
+        Used as the proxy for 'interestingness' to drive refinement.
         
-        if avg < self.config.tolerance_abs:
-            return diff
+        In a full implementation, this would call relic_density.py,
+        but for grid generation, the Sommerfeld peak location is the primary
+        driver for AMR.
+        """
+        try:
+            # Simplified check: calculate S. If S is large or changing rapidly, refine.
+            # We use the Yukawa solver to estimate binding/resonance behavior.
+            # Note: This is a proxy. The actual relic density calculation is expensive.
+            # For AMR strategy definition, we look for the resonance condition:
+            # m_V / m_chi ~ alpha / n^2 (approx)
+            
+            # We return the Sommerfeld factor magnitude as the metric to refine
+            # around peaks.
+            s_factor = extract_sommerfeld_factor(
+                m_chi=point.m_chi,
+                m_V=point.m_V,
+                g=point.g,
+                v=1e-3
+            )
+            return s_factor
+        except Exception as e:
+            logger.warning(f"Physics evaluation failed for {point}: {e}")
+            return 0.0
+
+    def _should_refine(self, p1: GridPoint, p2: GridPoint, p3: GridPoint, p4: GridPoint) -> bool:
+        """
+        Determines if a cell (defined by 4 corners) needs refinement.
+        Criteria:
+        1. Gradient of the physics metric exceeds threshold.
+        2. Cell size is larger than minimum spacing.
+        """
+        # Check minimum spacing constraints first
+        dx = abs(p2.m_V - p1.m_V)
+        dy = abs(p4.g - p1.g)
         
-        return diff / avg
+        if dx < self.config.min_spacing_m_V or dy < self.config.min_spacing_g:
+            return False
 
-    def _refine_region(self, base_points: List[GridPoint], observable: str) -> List[GridPoint]:
-        """
-        Refine the grid in regions where the error estimate exceeds the threshold.
-        Inserts new points between existing points that show high gradients.
-        """
-        new_points = []
-        refined_count = 0
-
-        # Sort points to find neighbors (simple 1D projection for demo, 
-        # in 3D this would use a spatial tree, but we iterate pairs for simplicity here)
-        # For a full 3D AMR, we would check neighbors in m_chi, m_V, and g directions.
-        # Here we assume we are refining based on a specific dimension or a scalar field gradient.
+        # Calculate metrics for corners (simplified: use center if available, else average)
+        # For simplicity in this strategy definition, we assume we have evaluated the corners
+        # and stored them in the points' error_estimate (which we will populate).
         
-        # Simplified refinement: Check adjacent points in the list (assuming sorted by m_chi for this pass)
-        base_points.sort(key=lambda p: p.m_chi)
-
-        for i in range(len(base_points) - 1):
-            p1 = base_points[i]
-            p2 = base_points[i+1]
-
-            error = self._estimate_error(p1, p2, observable)
-
-            if error > self.config.refinement_threshold:
-                # Insert mid-point
-                mid_m_chi = np.sqrt(p1.m_chi * p2.m_chi) # Geometric mean for log space
-                mid_m_V = (p1.m_V + p2.m_V) / 2.0
-                mid_g = np.sqrt(p1.g * p2.g)
-
-                # Check spacing constraints
-                if mid_m_chi - p1.m_chi < self.config.min_grid_spacing:
-                    continue
-
-                new_pt = GridPoint(m_chi=mid_m_chi, m_V=mid_m_V, g=mid_g)
-                new_pt.is_refined = True
-                new_pt.error_estimate = error
-                new_points.append(new_pt)
-                refined_count += 1
-
-        return new_points
-
-    def _compute_physics(self, points: List[GridPoint]) -> List[GridPoint]:
-        """
-        Compute the physics observables for a list of points.
-        Uses the Yukawa solver for Sommerfeld enhancement.
-        """
-        computed_points = []
-        for pt in points:
-            try:
-                # Calculate Sommerfeld factor
-                # Using the Yukawa solver from the existing API
-                # Parameters: mass of DM, mass of mediator, coupling
-                # Note: The solver expects specific units, assuming MeV and dimensionless g
-                s_factor, _ = extract_sommerfeld_factor(
-                    m_chi=pt.m_chi, 
-                    m_V=pt.m_V, 
-                    g=pt.g
-                )
-                
-                pt.S_factor = s_factor
-                
-                # Simple analytic relic density estimate for AMR guidance
-                # In full implementation, this would call the RK4 integrator
-                # Here we use a proxy: Omega ~ 1 / (S_factor * g^2)
-                # This is a placeholder for the actual calculation logic to drive refinement
-                if s_factor > 0:
-                    pt.omega_h2 = 0.12 / (s_factor * (pt.g ** 2) * 1e8) 
-                else:
-                    pt.omega_h2 = 0.0
-                
-                computed_points.append(pt)
-            except Exception as e:
-                logger.warning(f"Physics calculation failed for point {pt}: {e}")
-                # Keep point but mark as invalid or with error
-                pt.omega_h2 = np.nan
-                pt.S_factor = np.nan
-                computed_points.append(pt)
+        vals = [p.error_estimate for p in [p1, p2, p3, p4]]
+        max_val = max(vals)
+        min_val = min(vals)
         
-        return computed_points
-
-    def generate_adaptive_grid(self, 
-                               m_chi_range: Tuple[float, float], 
-                               m_V_range: Tuple[float, float], 
-                               g_range: Tuple[float, float],
-                               observable: str = "omega_h2") -> List[GridPoint]:
-        """
-        Main entry point to generate the AMR grid.
+        # If the range is significant relative to the values, the gradient is high
+        if max_val > 0:
+            relative_change = (max_val - min_val) / max_val
+            if relative_change > self.config.gradient_threshold:
+                return True
         
-        Args:
-            m_chi_range: (min, max) for DM mass
-            m_V_range: (min, max) for mediator mass
-            g_range: (min, max) for coupling
-            observable: The physics observable to drive refinement
+        # Check for resonance: if any point has a very high S-factor
+        if max_val > self.config.resonance_threshold:
+            return True
+        
+        return False
 
+    def _refine_cell(self, p1: GridPoint, p2: GridPoint, p3: GridPoint, p4: GridPoint, depth: int) -> List[GridPoint]:
+        """
+        Recursively refines a cell by adding midpoints.
+        """
+        if depth >= self.config.max_depth:
+            return [p1, p2, p3, p4]
+
+        # Midpoints
+        mid_m_V = (p1.m_V + p2.m_V) / 2
+        mid_g = (p1.g + p4.g) / 2
+
+        # Create new points
+        mid_bottom = GridPoint(m_V=mid_m_V, g=p1.g)
+        mid_top = GridPoint(m_V=mid_m_V, g=p4.g)
+        mid_left = GridPoint(m_V=p1.m_V, g=mid_g)
+        mid_right = GridPoint(m_V=p2.m_V, g=mid_g)
+        center = GridPoint(m_V=mid_m_V, g=mid_g)
+
+        new_points = [mid_bottom, mid_top, mid_left, mid_right, center]
+
+        # Evaluate physics for new points
+        for pt in new_points:
+            param = ParameterPoint(m_V=pt.m_V, g=pt.g, m_chi=10.0) # Default m_chi for grid gen
+            pt.error_estimate = self._evaluate_physics(param)
+            pt.is_refined = True
+
+        # Check sub-cells
+        # Cell 1: p1, mid_bottom, center, mid_left
+        sub1 = self._refine_cell(p1, mid_bottom, center, mid_left, depth + 1)
+        # Cell 2: mid_bottom, p2, mid_right, center
+        sub2 = self._refine_cell(mid_bottom, p2, mid_right, center, depth + 1)
+        # Cell 3: mid_left, center, mid_top, p4
+        sub3 = self._refine_cell(mid_left, center, mid_top, p4, depth + 1)
+        # Cell 4: center, mid_right, p3, mid_top
+        sub4 = self._refine_cell(center, mid_right, p3, mid_top, depth + 1)
+
+        # Deduplicate
+        all_sub = sub1 + sub2 + sub3 + sub4
+        unique_points = []
+        seen = set()
+        for pt in all_sub:
+            key = (round(pt.m_V, 6), round(pt.g, 8))
+            if key not in seen:
+                seen.add(key)
+                unique_points.append(pt)
+        
+        return unique_points
+
+    def generate_grid(self) -> List[ParameterPoint]:
+        """
+        Generates the full adaptive grid.
+        
         Returns:
-            List of GridPoint objects representing the refined grid.
+            List[ParameterPoint]: The list of parameter points to be scanned.
         """
-        logger.info(f"Starting AMR grid generation for ranges: m_chi={m_chi_range}, m_V={m_V_range}, g={g_range}")
+        logger.info(f"Generating AMR grid: [{self.config.m_V_min}, {self.config.m_V_max}] x [{self.config.g_min}, {self.config.g_max}]")
         
-        # Step 1: Coarse Grid
-        current_grid = self._generate_coarse_grid(m_chi_range, m_V_range, g_range)
-        self.grid_points = current_grid
-        self.refinement_history.append(len(current_grid))
+        # 1. Initial Coarse Grid
+        m_V_vals = np.linspace(self.config.m_V_min, self.config.m_V_max, self.config.initial_m_V_steps)
+        g_vals = np.linspace(self.config.g_min, self.config.g_max, self.config.initial_g_steps)
         
-        logger.info(f"Initial coarse grid size: {len(current_grid)}")
-
-        # Step 2: Iterate refinement
+        initial_points = []
+        for m_V in m_V_vals:
+            for g in g_vals:
+                pt = GridPoint(m_V=m_V, g=g)
+                param = ParameterPoint(m_V=m_V, g=g, m_chi=10.0)
+                pt.error_estimate = self._evaluate_physics(param)
+                initial_points.append(pt)
+        
+        # 2. Refinement Loop
+        # We treat the initial grid as a set of cells.
+        # Since the grid is 2D, we iterate over cells defined by (i, j), (i+1, j), (i, j+1), (i+1, j+1)
+        
+        refined_points = list(initial_points)
+        
+        # We need to reconstruct the grid structure to check cells.
+        # For simplicity in this implementation, we will re-evaluate the "should_refine" logic
+        # by checking the initial points and adding midpoints where needed, then re-checking.
+        
+        # Simplified AMR approach for this task:
+        # 1. Evaluate all initial points.
+        # 2. Identify cells that need refinement.
+        # 3. Add midpoints for those cells.
+        # 4. Repeat until convergence or max depth.
+        
+        current_points = initial_points
+        # Organize into a grid for cell iteration
+        # Note: This assumes the initial points are sorted.
+        # We will use a set to accumulate unique points and then rebuild.
+        
+        all_points_set = set()
+        for pt in current_points:
+            all_points_set.add((round(pt.m_V, 6), round(pt.g, 8), pt.error_estimate))
+        
+        # Iterative refinement
         for depth in range(self.config.max_depth):
-            if len(self.grid_points) > self.config.max_points:
-                logger.warning(f"Reached max points limit ({self.config.max_points}) at depth {depth}")
-                break
-
-            # Compute physics on current grid
-            current_grid = self._compute_physics(self.grid_points)
+            logger.info(f"AMR Refinement Pass {depth+1}")
             
-            # Estimate errors and find regions to refine
-            new_points = self._refine_region(current_grid, observable)
+            # Reconstruct grid list
+            points_list = []
+            # We need to sort to identify neighbors
+            # Sort by m_V then g
+            unique_keys = sorted(list(all_points_set), key=lambda x: (x[0], x[1]))
             
-            if not new_points:
-                logger.info(f"Convergence reached at depth {depth}. No further refinement needed.")
-                break
-
-            # Merge new points
-            self.grid_points = current_grid + new_points
-            self.refinement_history.append(len(self.grid_points))
-            logger.info(f"Depth {depth}: Added {len(new_points)} points. Total: {len(self.grid_points)}")
-
-        logger.info(f"Final grid size: {len(self.grid_points)}")
-        return self.grid_points
-
-    def get_grid_dataframe(self) -> 'pd.DataFrame':
-        """Convert the grid to a pandas DataFrame for easy analysis."""
-        import pandas as pd
-        data = [pt.to_dict() for pt in self.grid_points]
-        return pd.DataFrame(data)
+            # Rebuild GridPoint objects
+            grid_map = {} # (m_V, g) -> GridPoint
+            for k in unique_keys:
+                gp = GridPoint(m_V=k[0], g=k[1], error_estimate=k[2])
+                grid_map[(k[0], k[1])] = gp
+                points_list.append(gp)
+            
+            # Identify cells to refine
+            points_to_add = []
+            
+            # Iterate over potential cells
+            # We need to find neighbors. A simple heuristic:
+            # If we have a point at (x, y), check if (x+dx, y), (x, y+dy) exist.
+            
+            # To avoid complex neighbor finding, we use the initial coarse structure
+            # and assume we are refining the initial cells.
+            # However, for a true adaptive grid, we check all adjacent points.
+            
+            # Simplified: Check every pair of points that are "close" in m_V and g
+            # and see if the midpoint is missing and the gradient is high.
+            
+            # Better approach for this specific task:
+            # Iterate over the initial coarse grid cells and refine them if needed.
+            # Then, for the new points, check if their sub-cells need refinement.
+            
+            # Let's implement a recursive cell check on the initial grid first.
+            # We will collect all points that should be in the final grid.
+            
+            # Re-initialize the refinement logic for the initial grid cells
+            # This is a simplified AMR that refines the initial coarse grid cells.
+            
+            # We will use a queue of cells to process
+            # Cell defined by (m_V_idx, g_idx) in the initial grid
+            # But since we are adding points, we need a dynamic structure.
+            
+            # Given the complexity of a full dynamic grid in one file,
+            # we will implement a "Multi-Resolution" approach:
+            # 1. Coarse grid.
+            # 2. Medium grid (midpoints of coarse).
+            # 3. Fine grid (midpoints of medium).
+            # We select points based on the physics metric.
+            
+            # Let's stick to the recursive cell refinement defined in _refine_cell
+            # but apply it to the initial coarse grid cells.
+            
+            # Re-create initial grid points as GridPoints
+            initial_grid_points = []
+            for i, m_V in enumerate(m_V_vals):
+                for j, g in enumerate(g_vals):
+                    gp = GridPoint(m_V=m_V, g=g)
+                    param = ParameterPoint(m_V=m_V, g=g, m_chi=10.0)
+                    gp.error_estimate = self._evaluate_physics(param)
+                    initial_grid_points.append(gp)
+            
+            # Organize into 2D array
+            grid_2d = []
+            idx = 0
+            for i in range(self.config.initial_m_V_steps):
+                row = []
+                for j in range(self.config.initial_g_steps):
+                    row.append(initial_grid_points[idx])
+                    idx += 1
+                grid_2d.append(row)
+            
+            final_points = []
+            
+            # Recursive refinement function for the grid
+            def process_cell(r1, r2, c1, c2, depth):
+                p1 = grid_2d[r1][c1]
+                p2 = grid_2d[r1][c2]
+                p3 = grid_2d[r2][c2]
+                p4 = grid_2d[r2][c1]
+                
+                if self._should_refine(p1, p2, p3, p4):
+                    if depth >= self.config.max_depth:
+                        return [p1, p2, p3, p4]
+                    
+                    # Refine
+                    # We need to split the cell into 4 sub-cells
+                    # This requires creating new points and adding them to the grid structure
+                    # This is getting complex for a single file.
+                    # Let's use a simpler "Add Midpoints" strategy.
+                    
+                    # Create midpoints
+                    mid_m_V = (p1.m_V + p2.m_V) / 2
+                    mid_g = (p1.g + p4.g) / 2
+                    
+                    mid_bottom = GridPoint(m_V=mid_m_V, g=p1.g)
+                    mid_top = GridPoint(m_V=mid_m_V, g=p4.g)
+                    mid_left = GridPoint(m_V=p1.m_V, g=mid_g)
+                    mid_right = GridPoint(m_V=p2.m_V, g=mid_g)
+                    center = GridPoint(m_V=mid_m_V, g=mid_g)
+                    
+                    new_pts = [mid_bottom, mid_top, mid_left, mid_right, center]
+                    for pt in new_pts:
+                        param = ParameterPoint(m_V=pt.m_V, g=pt.g, m_chi=10.0)
+                        pt.error_estimate = self._evaluate_physics(param)
+                    
+                    # Add to a global set
+                    all_points_set.add((round(mid_bottom.m_V, 6), round(mid_bottom.g, 8), mid_bottom.error_estimate))
+                    all_points_set.add((round(mid_top.m_V, 6), round(mid_top.g, 8), mid_top.error_estimate))
+                    all_points_set.add((round(mid_left.m_V, 6), round(mid_left.g, 8), mid_left.error_estimate))
+                    all_points_set.add((round(mid_right.m_V, 6), round(mid_right.g, 8), mid_right.error_estimate))
+                    all_points_set.add((round(center.m_V, 6), round(center.g, 8), center.error_estimate))
+                    
+                    # We cannot easily recurse on the 2D array now that points are added.
+                    # Instead, we will do a fixed number of passes over the initial cells.
+                    # This is a "Static AMR" based on the initial grid.
+                    return []
+                else:
+                    return [p1, p2, p3, p4]
+            
+            # Process initial cells
+            for i in range(self.config.initial_m_V_steps - 1):
+                for j in range(self.config.initial_g_steps - 1):
+                    p1 = grid_2d[i][j]
+                    p2 = grid_2d[i][j+1]
+                    p3 = grid_2d[i+1][j+1]
+                    p4 = grid_2d[i+1][j]
+                    
+                    if self._should_refine(p1, p2, p3, p4):
+                        # Add midpoints
+                        mid_m_V = (p1.m_V + p2.m_V) / 2
+                        mid_g = (p1.g + p4.g) / 2
+                        
+                        mid_bottom = GridPoint(m_V=mid_m_V, g=p1.g)
+                        mid_top = GridPoint(m_V=mid_m_V, g=p4.g)
+                        mid_left = GridPoint(m_V=p1.m_V, g=mid_g)
+                        mid_right = GridPoint(m_V=p2.m_V, g=mid_g)
+                        center = GridPoint(m_V=mid_m_V, g=mid_g)
+                        
+                        new_pts = [mid_bottom, mid_top, mid_left, mid_right, center]
+                        for pt in new_pts:
+                            param = ParameterPoint(m_V=pt.m_V, g=pt.g, m_chi=10.0)
+                            pt.error_estimate = self._evaluate_physics(param)
+                            all_points_set.add((round(pt.m_V, 6), round(pt.g, 8), pt.error_estimate))
+                    
+            # Convert set to list
+            final_points = []
+            for k in all_points_set:
+                final_points.append(GridPoint(m_V=k[0], g=k[1], error_estimate=k[2]))
+            
+            return [ParameterPoint(m_V=pt.m_V, g=pt.g, m_chi=10.0) for pt in final_points]
 
 def main():
     """
-    Demonstration of the AMR strategy.
-    Generates a grid and prints statistics.
+    Main entry point to generate and save the AMR grid.
+    Outputs: data/amr_grid_points.csv
     """
-    config = AMRConfig(
-        max_depth=4,
-        tolerance_rel=0.05,
-        refinement_threshold=0.1,
-        initial_resolution=10
-    )
-    
+    config = AMRConfig()
     generator = AdaptiveGridGenerator(config)
     
-    # Define search space (MeV, dimensionless)
-    m_chi_range = (10.0, 1000.0)
-    m_V_range = (10.0, 1000.0)
-    g_range = (1e-4, 1e-1)
+    points = generator.generate_grid()
     
-    grid = generator.generate_adaptive_grid(m_chi_range, m_V_range, g_range)
+    logger.info(f"Generated {len(points)} grid points.")
     
-    print(f"Generated {len(grid)} grid points.")
-    print(f"Refinement history: {generator.refinement_history}")
+    # Save to CSV
+    output_path = Path("data/amr_grid_points.csv")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Save to CSV for inspection
-    df = generator.get_grid_dataframe()
-    output_path = "data/amr_grid_sample.csv"
+    data = {
+        "m_V": [p.m_V for p in points],
+        "g": [p.g for p in points],
+        "m_chi": [p.m_chi for p in points]
+    }
+    
+    df = pd.DataFrame(data)
     df.to_csv(output_path, index=False)
-    print(f"Grid saved to {output_path}")
+    logger.info(f"Saved grid to {output_path}")
 
 if __name__ == "__main__":
     main()

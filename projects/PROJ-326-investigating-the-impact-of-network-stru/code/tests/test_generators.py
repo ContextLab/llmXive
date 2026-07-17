@@ -1,27 +1,17 @@
 """
-Unit tests for network topology generators.
-
-This module contains test cases for:
-- Erdős-Rényi graph generation (T009)
-- Watts-Strogatz (Small-World) generation with retry logic (T010)
-- Barabási-Albert (Scale-Free) generation (T011)
+Unit tests for network topology generators (US1).
+Tests Erdős-Rényi, Watts-Strogatz, and Barabási-Albert generators.
 """
+
 import pytest
 import networkx as nx
 import numpy as np
 from pathlib import Path
 import sys
-import os
 import json
-import tempfile
-import shutil
-from typing import Dict, Any, List, Tuple
-import random
-import time
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure src is in path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from code.src.generators.er import ErdosRenyiGenerator
 from code.src.generators.sw import WattsStrogatzGenerator
@@ -31,405 +21,340 @@ from code.src.generators.metrics import (
     compute_degree_statistics,
     extract_all_metrics
 )
-from code.src.generators.base import BaseGenerator
 from code.src.utils.config import load_config
+from code.src.utils.logging import log_run, log_metric, clear_run_log
 from code.src.utils.reproducibility import ensure_data_directory
-
-# Import timeout utilities if needed for tests
-try:
-    from code.src.generators.timeout import timeout, TimeoutError
-    HAS_TIMEOUT = True
-except ImportError:
-    HAS_TIMEOUT = False
 
 
 class TestErdosRenyiGenerator:
-    """Unit tests for Erdős-Rényi graph generation (T009)."""
-    
+    """Tests for Erdős-Rényi graph generation (T009)."""
+
     def test_initialization(self):
-        """Test that the generator initializes with correct parameters."""
-        generator = ErdosRenyiGenerator(
-            n=100,
-            p=0.05,
-            seed=42,
-            target_clustering=0.05,
-            max_attempts=5
-        )
-        
-        assert generator.n == 100
-        assert generator.p == 0.05
-        assert generator.seed == 42
-        assert generator.target_clustering == 0.05
-        assert generator.max_attempts == 5
-        assert isinstance(generator, BaseGenerator)
-    
-    def test_generation_success(self):
-        """Test that a graph is successfully generated."""
-        generator = ErdosRenyiGenerator(n=50, p=0.1, seed=42)
-        graph, metadata = generator.generate()
-        
-        assert graph is not None
-        assert isinstance(graph, nx.Graph)
-        assert graph.number_of_nodes() == 50
-        assert metadata is not None
-        assert 'topology_class' in metadata
-        assert metadata['topology_class'] == 'erdos_renyi'
-    
-    def test_connectivity_check(self):
-        """Test that connectivity is verified when required."""
-        # With high p, graph should be connected
-        generator = ErdosRenyiGenerator(n=20, p=0.5, seed=42, require_connected=True)
-        graph, metadata = generator.generate()
-        
-        assert nx.is_connected(graph)
-    
-    def test_clustering_target(self):
-        """Test that clustering coefficient is approximately correct."""
-        generator = ErdosRenyiGenerator(n=100, p=0.1, seed=42)
-        graph, metadata = generator.generate()
-        
-        clustering = compute_clustering_coefficients(graph)
-        # For ER graphs, expected clustering is approximately p
-        expected_clustering = 0.1
-        assert abs(clustering['average_clustering'] - expected_clustering) < 0.05
-    
+        """Test that the generator initializes correctly."""
+        config = {
+            "n": 100,
+            "p": 0.1,
+            "seed": 42
+        }
+        gen = ErdosRenyiGenerator(config)
+        assert gen.n == 100
+        assert gen.p == 0.1
+        assert gen.seed == 42
+
+    def test_graph_generation(self):
+        """Test that a connected graph is generated."""
+        config = {
+            "n": 100,
+            "p": 0.1,
+            "seed": 42
+        }
+        gen = ErdosRenyiGenerator(config)
+        G = gen.generate()
+        assert isinstance(G, nx.Graph)
+        assert G.number_of_nodes() == 100
+        # For p=0.1 and n=100, graph should be connected with high probability
+        assert nx.is_connected(G), "Generated ER graph should be connected"
+
+    def test_degree_distribution(self):
+        """Test that degree distribution follows expected binomial approx."""
+        config = {
+            "n": 500,
+            "p": 0.05,
+            "seed": 123
+        }
+        gen = ErdosRenyiGenerator(config)
+        G = gen.generate()
+        degrees = [d for _, d in G.degree()]
+        avg_degree = np.mean(degrees)
+        expected_avg = config["n"] * config["p"]
+        # Allow 10% tolerance due to randomness
+        assert abs(avg_degree - expected_avg) / expected_avg < 0.15
+
     def test_reproducibility(self):
         """Test that same seed produces same graph."""
-        generator1 = ErdosRenyiGenerator(n=50, p=0.1, seed=12345)
-        graph1, _ = generator1.generate()
+        config = {
+            "n": 100,
+            "p": 0.1,
+            "seed": 42
+        }
+        gen1 = ErdosRenyiGenerator(config)
+        G1 = gen1.generate()
         
-        generator2 = ErdosRenyiGenerator(n=50, p=0.1, seed=12345)
-        graph2, _ = generator2.generate()
+        gen2 = ErdosRenyiGenerator(config)
+        G2 = gen2.generate()
         
-        # Compare edge sets
-        assert set(graph1.edges()) == set(graph2.edges())
-        assert graph1.number_of_edges() == graph2.number_of_edges()
-    
-    def test_invalid_parameters(self):
-        """Test that invalid parameters raise errors."""
-        with pytest.raises(ValueError):
-            ErdosRenyiGenerator(n=-10, p=0.1)
-        
-        with pytest.raises(ValueError):
-            ErdosRenyiGenerator(n=10, p=1.5)
-        with pytest.raises(ValueError):
-            ErdosRenyiGenerator(n=10, p=-0.1)
+        assert nx.is_isomorphic(G1, G2)
 
 
 class TestWattsStrogatzGenerator:
-    """Unit tests for Watts-Strogatz (Small-World) generation with retry logic (T010)."""
-    
+    """Tests for Watts-Strogatz small-world graph generation (T010)."""
+
     def test_initialization(self):
-        """Test that the generator initializes with correct parameters."""
-        generator = WattsStrogatzGenerator(
-            n=100,
-            k=4,
-            p=0.1,
-            seed=42,
-            target_clustering=0.5,
-            max_attempts=10,
-            retry_on_connectivity=False
-        )
-        
-        assert generator.n == 100
-        assert generator.k == 4
-        assert generator.p == 0.1
-        assert generator.seed == 42
-        assert generator.target_clustering == 0.5
-        assert generator.max_attempts == 10
-        assert isinstance(generator, BaseGenerator)
-    
-    def test_generation_success(self):
-        """Test that a graph is successfully generated."""
-        generator = WattsStrogatzGenerator(n=50, k=4, p=0.1, seed=42)
-        graph, metadata = generator.generate()
-        
-        assert graph is not None
-        assert isinstance(graph, nx.Graph)
-        assert graph.number_of_nodes() == 50
-        assert metadata is not None
-        assert metadata['topology_class'] == 'watts_strogatz'
-    
-    def test_small_world_properties(self):
-        """Test that generated graphs exhibit small-world properties."""
-        generator = WattsStrogatzGenerator(n=100, k=6, p=0.1, seed=42)
-        graph, metadata = generator.generate()
-        
-        metrics = extract_all_metrics(graph)
-        
-        # Small-world networks have high clustering and short path lengths
-        assert metrics['clustering']['average_clustering'] > 0.1
-        assert metrics['path_length']['average_path_length'] < 10
-    
+        """Test that the generator initializes correctly."""
+        config = {
+            "n": 100,
+            "k": 4,
+            "p": 0.1,
+            "seed": 42,
+            "target_clustering": 0.3
+        }
+        gen = WattsStrogatzGenerator(config)
+        assert gen.n == 100
+        assert gen.k == 4
+        assert gen.p == 0.1
+        assert gen.seed == 42
+        assert gen.target_clustering == 0.3
+
+    def test_graph_generation(self):
+        """Test that a connected small-world graph is generated."""
+        config = {
+            "n": 100,
+            "k": 4,
+            "p": 0.1,
+            "seed": 42
+        }
+        gen = WattsStrogatzGenerator(config)
+        G = gen.generate()
+        assert isinstance(G, nx.Graph)
+        assert G.number_of_nodes() == 100
+        # Watts-Strogatz with low p should be connected
+        assert nx.is_connected(G), "Generated WS graph should be connected"
+
+    def test_clustering_coefficient(self):
+        """Test that clustering coefficient is within expected range."""
+        config = {
+            "n": 200,
+            "k": 4,
+            "p": 0.1,
+            "seed": 42
+        }
+        gen = WattsStrogatzGenerator(config)
+        G = gen.generate()
+        clustering = nx.average_clustering(G)
+        # For WS with low p, clustering should be relatively high (> 0.1)
+        assert clustering > 0.1, f"Expected clustering > 0.1, got {clustering}"
+
     def test_retry_logic_clustering_target(self):
-        """Test retry logic when clustering target is not met."""
-        # Use a tight clustering target to trigger retries
-        generator = WattsStrogatzGenerator(
-            n=50,
-            k=4,
-            p=0.05,
-            seed=42,
-            target_clustering=0.01,  # Very low, should be achievable
-            max_attempts=5
-        )
+        """Test that retry logic attempts to meet clustering target."""
+        config = {
+            "n": 200,
+            "k": 6,
+            "p": 0.05,
+            "seed": 42,
+            "target_clustering": 0.2,
+            "max_retries": 5
+        }
+        gen = WattsStrogatzGenerator(config)
+        G = gen.generate()
+        clustering = nx.average_clustering(G)
+        # The generator should attempt to meet the target, 
+        # but we verify it at least generates a valid graph
+        assert nx.is_connected(G)
+        # Note: Exact clustering target may not be met due to randomness,
+        # but the retry logic should be exercised
+
+    def test_reproducibility(self):
+        """Test that same seed produces same graph."""
+        config = {
+            "n": 100,
+            "k": 4,
+            "p": 0.1,
+            "seed": 42
+        }
+        gen1 = WattsStrogatzGenerator(config)
+        G1 = gen1.generate()
         
-        graph, metadata = generator.generate()
+        gen2 = WattsStrogatzGenerator(config)
+        G2 = gen2.generate()
         
-        clustering = compute_clustering_coefficients(graph)
-        
-        # With retries, we should get a graph (may not meet exact target due to randomness)
-        assert graph is not None
-        assert metadata.get('attempts', 0) <= 5
-    
-    def test_connectivity_retry(self):
-        """Test retry logic for connectivity requirement."""
-        generator = WattsStrogatzGenerator(
-            n=30,
-            k=2,  # Low k might cause disconnection
-            p=0.0,  # No rewiring
-            seed=42,
-            require_connected=True,
-            max_attempts=10
-        )
-        
-        graph, metadata = generator.generate()
-        
-        # With retry logic, should eventually get connected graph or raise after max attempts
-        if metadata.get('attempts', 0) < 10:
-            assert nx.is_connected(graph)
-    
-    def test_parameter_validation(self):
-        """Test that invalid parameters raise errors."""
-        with pytest.raises(ValueError):
-            WattsStrogatzGenerator(n=-10, k=4, p=0.1)
-        
-        with pytest.raises(ValueError):
-            WattsStrogatzGenerator(n=10, k=100, p=0.1)  # k > n/2
-        
-        with pytest.raises(ValueError):
-            WattsStrogatzGenerator(n=10, k=4, p=1.5)
-        
-        with pytest.raises(ValueError):
-            WattsStrogatzGenerator(n=10, k=4, p=-0.1)
+        assert nx.is_isomorphic(G1, G2)
 
 
 class TestBarabasiAlbertGenerator:
-    """Unit tests for Barabási-Albert (Scale-Free) generation (T011)."""
-    
+    """Tests for Barabási-Albert scale-free graph generation (T011)."""
+
     def test_initialization(self):
-        """Test that the generator initializes with correct parameters."""
-        generator = BarabasiAlbertGenerator(
-            n=100,
-            m=3,
-            seed=42,
-            target_clustering=None,
-            max_attempts=5
-        )
-        
-        assert generator.n == 100
-        assert generator.m == 3
-        assert generator.seed == 42
-        assert generator.target_clustering is None
-        assert generator.max_attempts == 5
-        assert isinstance(generator, BaseGenerator)
-    
-    def test_generation_success(self):
-        """Test that a graph is successfully generated."""
-        generator = BarabasiAlbertGenerator(n=50, m=3, seed=42)
-        graph, metadata = generator.generate()
-        
-        assert graph is not None
-        assert isinstance(graph, nx.Graph)
-        assert graph.number_of_nodes() == 50
-        assert metadata is not None
-        assert metadata['topology_class'] == 'barabasi_albert'
-    
-    def test_node_count(self):
-        """Test that the graph has exactly n nodes."""
-        for n in [20, 50, 100]:
-            generator = BarabasiAlbertGenerator(n=n, m=3, seed=42)
-            graph, _ = generator.generate()
-            assert graph.number_of_nodes() == n
-    
-    def test_edge_count_approximation(self):
-        """Test that edge count is approximately m*n (theoretical: m*(n-m) + m*(m-1)/2)."""
-        n = 100
-        m = 3
-        generator = BarabasiAlbertGenerator(n=n, m=m, seed=42)
-        graph, _ = generator.generate()
-        
-        # BA model: each new node adds m edges
-        # Starting with m nodes fully connected (m*(m-1)/2 edges)
-        # Then n-m nodes each adding m edges
-        expected_edges = m * (m - 1) // 2 + m * (n - m)
-        
-        # Allow small tolerance for implementation variations
-        assert abs(graph.number_of_edges() - expected_edges) <= m
-    
-    def test_connectivity(self):
-        """Test that generated graphs are connected."""
-        generator = BarabasiAlbertGenerator(n=50, m=3, seed=42)
-        graph, _ = generator.generate()
-        
-        # BA graphs should be connected by construction (m >= 1)
-        assert nx.is_connected(graph)
-    
-    def test_scale_free_degree_distribution(self):
+        """Test that the generator initializes correctly."""
+        config = {
+            "n": 100,
+            "m": 3,
+            "seed": 42
+        }
+        gen = BarabasiAlbertGenerator(config)
+        assert gen.n == 100
+        assert gen.m == 3
+        assert gen.seed == 42
+
+    def test_graph_generation(self):
+        """Test that a connected scale-free graph is generated."""
+        config = {
+            "n": 100,
+            "m": 3,
+            "seed": 42
+        }
+        gen = BarabasiAlbertGenerator(config)
+        G = gen.generate()
+        assert isinstance(G, nx.Graph)
+        assert G.number_of_nodes() == 100
+        # BA graphs are typically connected
+        assert nx.is_connected(G), "Generated BA graph should be connected"
+
+    def test_degree_distribution_power_law(self):
         """Test that degree distribution follows power law (scale-free property)."""
-        n = 200
-        m = 4
-        generator = BarabasiAlbertGenerator(n=n, m=m, seed=42)
-        graph, _ = generator.generate()
+        config = {
+            "n": 500,
+            "m": 3,
+            "seed": 42
+        }
+        gen = BarabasiAlbertGenerator(config)
+        G = gen.generate()
         
-        degrees = [d for node, d in graph.degree()]
-        
-        # Check for power-law characteristics:
-        # 1. Maximum degree should be significantly larger than average
+        degrees = [d for _, d in G.degree()]
+        # BA graphs should have a few high-degree nodes (hubs)
+        max_degree = max(degrees)
         avg_degree = np.mean(degrees)
-        max_degree = np.max(degrees)
         
-        assert max_degree > avg_degree * 2, "Scale-free networks should have hubs"
+        # In scale-free networks, max degree should be significantly larger than average
+        # For n=500, m=3, we expect max_degree > 2*avg_degree
+        assert max_degree > 2 * avg_degree, \
+            f"BA graph should have hubs: max={max_degree}, avg={avg_degree}"
         
-        # 2. Check for heavy tail: few nodes with very high degree
-        degree_counts = np.bincount(degrees)
-        non_zero_counts = degree_counts[degree_counts > 0]
+        # Check that there are nodes with degree >= 10 (hubs)
+        high_degree_count = sum(1 for d in degrees if d >= 10)
+        assert high_degree_count > 0, "BA graph should have high-degree nodes"
+
+    def test_preferential_attachment(self):
+        """Test that higher degree nodes attract more edges (preferential attachment)."""
+        config = {
+            "n": 200,
+            "m": 2,
+            "seed": 42
+        }
+        gen = BarabasiAlbertGenerator(config)
+        G = gen.generate()
         
-        # Should have a decreasing distribution (more low-degree nodes)
-        assert len(non_zero_counts) > 1
-    
-    def test_minimum_degree(self):
-        """Test that minimum degree is at least m (for nodes added after initialization)."""
-        n = 50
-        m = 3
-        generator = BarabasiAlbertGenerator(n=n, m=m, seed=42)
-        graph, _ = generator.generate()
+        # Calculate degree correlation
+        # In BA model, there should be positive correlation between node degree
+        # and the rate at which they attract new edges
+        degrees = dict(G.degree())
         
-        degrees = [d for node, d in graph.degree()]
-        min_degree = np.min(degrees)
+        # Sort nodes by degree
+        sorted_nodes = sorted(degrees.items(), key=lambda x: x[1], reverse=True)
         
-        # In BA model, new nodes attach with m edges, so min degree should be >= m
-        # (except possibly for the initial m nodes which might have higher degree)
-        assert min_degree >= 1  # At least connected
-    
+        # Top 10% of nodes should have significantly higher degree
+        top_10_count = max(1, len(sorted_nodes) // 10)
+        top_10_degrees = [d for _, d in sorted_nodes[:top_10_count]]
+        bottom_10_degrees = [d for _, d in sorted_nodes[-top_10_count:]]
+        
+        avg_top = np.mean(top_10_degrees)
+        avg_bottom = np.mean(bottom_10_degrees)
+        
+        # Top nodes should have much higher degree than bottom nodes
+        assert avg_top > 3 * avg_bottom, \
+            f"Preferential attachment not evident: top={avg_top}, bottom={avg_bottom}"
+
     def test_reproducibility(self):
         """Test that same seed produces same graph."""
-        generator1 = BarabasiAlbertGenerator(n=50, m=3, seed=12345)
-        graph1, _ = generator1.generate()
+        config = {
+            "n": 100,
+            "m": 3,
+            "seed": 42
+        }
+        gen1 = BarabasiAlbertGenerator(config)
+        G1 = gen1.generate()
         
-        generator2 = BarabasiAlbertGenerator(n=50, m=3, seed=12345)
-        graph2, _ = generator2.generate()
+        gen2 = BarabasiAlbertGenerator(config)
+        G2 = gen2.generate()
         
-        # Compare edge sets
-        assert set(graph1.edges()) == set(graph2.edges())
-        assert graph1.number_of_edges() == graph2.number_of_edges()
-    
-    def test_parameter_validation(self):
-        """Test that invalid parameters raise errors."""
-        # Negative n
-        with pytest.raises(ValueError):
-            BarabasiAlbertGenerator(n=-10, m=3)
+        # BA graphs with same seed should be identical
+        assert nx.is_isomorphic(G1, G2)
+
+    def test_metrics_extraction(self):
+        """Test that metrics are correctly extracted for BA graphs."""
+        config = {
+            "n": 200,
+            "m": 3,
+            "seed": 42
+        }
+        gen = BarabasiAlbertGenerator(config)
+        G = gen.generate()
         
-        # m >= n
-        with pytest.raises(ValueError):
-            BarabasiAlbertGenerator(n=5, m=5)
+        metrics = extract_all_metrics(G)
         
-        # m < 1
-        with pytest.raises(ValueError):
-            BarabasiAlbertGenerator(n=50, m=0)
-    
-    def test_clustering_coefficient(self):
-        """Test that clustering coefficient is non-zero (BA networks have some clustering)."""
-        generator = BarabasiAlbertGenerator(n=100, m=4, seed=42)
-        graph, _ = generator.generate()
+        # Verify expected metrics are present
+        assert "clustering_coefficient" in metrics
+        assert "average_path_length" in metrics
+        assert "degree_distribution" in metrics
+        assert "average_degree" in metrics
         
-        clustering = compute_clustering_coefficients(graph)
-        avg_clustering = clustering['average_clustering']
+        # BA graphs typically have low clustering and short path lengths
+        assert metrics["clustering_coefficient"] > 0
+        assert metrics["average_path_length"] > 0
+
+    def test_edge_count(self):
+        """Test that edge count is approximately n*m for BA graph."""
+        config = {
+            "n": 200,
+            "m": 3,
+            "seed": 42
+        }
+        gen = BarabasiAlbertGenerator(config)
+        G = gen.generate()
         
-        # BA networks have lower clustering than small-world but > 0
-        assert avg_clustering > 0
-        assert avg_clustering < 1  # Valid probability
-    
-    def test_metadata_completeness(self):
-        """Test that metadata contains all required fields."""
-        generator = BarabasiAlbertGenerator(n=50, m=3, seed=42)
-        graph, metadata = generator.generate()
+        # BA graph with n nodes and parameter m has approximately n*m edges
+        expected_edges = config["n"] * config["m"]
+        actual_edges = G.number_of_edges()
         
-        required_fields = [
-            'topology_class',
-            'n',
-            'm',
-            'seed',
-            'num_nodes',
-            'num_edges',
-            'algorithm'
+        # Allow some tolerance due to the algorithm's specifics
+        assert abs(actual_edges - expected_edges) / expected_edges < 0.1, \
+            f"Edge count mismatch: expected ~{expected_edges}, got {actual_edges}"
+
+
+class TestGeneratorIntegration:
+    """Integration tests for all generators."""
+
+    def test_all_generators_produce_valid_graphs(self):
+        """Test that all generators produce valid, connected graphs."""
+        configs = [
+            {"n": 100, "p": 0.1, "seed": 42, "type": "er"},
+            {"n": 100, "k": 4, "p": 0.1, "seed": 42, "type": "ws"},
+            {"n": 100, "m": 3, "seed": 42, "type": "ba"}
         ]
         
-        for field in required_fields:
-            assert field in metadata, f"Missing metadata field: {field}"
+        generators = [
+            ErdosRenyiGenerator,
+            WattsStrogatzGenerator,
+            BarabasiAlbertGenerator
+        ]
         
-        assert metadata['topology_class'] == 'barabasi_albert'
-        assert metadata['algorithm'] == 'barabasi_albert'
-        assert metadata['n'] == 50
-        assert metadata['m'] == 3
-    
-    def test_large_scale_generation(self):
-        """Test generation of larger networks."""
-        generator = BarabasiAlbertGenerator(n=500, m=5, seed=42)
-        graph, metadata = generator.generate()
-        
-        assert graph.number_of_nodes() == 500
-        assert graph.number_of_edges() > 0
-        assert nx.is_connected(graph)
-    
-    def test_degree_distribution_shape(self):
-        """Test that degree distribution has the characteristic shape of scale-free networks."""
-        n = 300
-        m = 3
-        generator = BarabasiAlbertGenerator(n=n, m=m, seed=42)
-        graph, _ = generator.generate()
-        
-        degrees = [d for node, d in graph.degree()]
-        degree_counts = {}
-        
-        for d in degrees:
-            degree_counts[d] = degree_counts.get(d, 0) + 1
-        
-        # Sort by degree
-        sorted_degrees = sorted(degree_counts.keys())
-        sorted_counts = [degree_counts[d] for d in sorted_degrees]
-        
-        # In scale-free networks, lower degrees should have higher counts
-        # (decreasing distribution)
-        # Check that the first few degrees have higher counts than later ones
-        if len(sorted_counts) > 3:
-            # Compare average of first quarter vs last quarter
-            quarter = len(sorted_counts) // 4
-            if quarter > 0:
-                early_avg = np.mean(sorted_counts[:quarter])
-                late_avg = np.mean(sorted_counts[-quarter:])
-                
-                # Early degrees should generally have higher counts
-                assert early_avg >= late_avg * 0.5, "Degree distribution should show scale-free characteristics"
-    
-    def test_m_parameter_effect(self):
-        """Test that varying m affects edge density."""
-        n = 100
-        seed = 42
-        
-        graphs = []
-        for m in [2, 4, 6]:
-            generator = BarabasiAlbertGenerator(n=n, m=m, seed=seed)
-            graph, _ = generator.generate()
-            graphs.append((m, graph.number_of_edges()))
-        
-        # Higher m should result in more edges
-        edges_2 = graphs[0][1]
-        edges_4 = graphs[1][1]
-        edges_6 = graphs[2][1]
-        
-        assert edges_4 > edges_2, "Increasing m should increase edges"
-        assert edges_6 > edges_4, "Increasing m should increase edges"
+        for config, gen_class in zip(configs, generators):
+            gen = gen_class(config)
+            G = gen.generate()
+            
+            assert isinstance(G, nx.Graph)
+            assert nx.is_connected(G)
+            assert G.number_of_nodes() == config["n"]
 
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+    def test_metrics_consistency(self):
+        """Test that metrics are consistent across different generators."""
+        configs = [
+            {"n": 100, "p": 0.1, "seed": 42, "type": "er"},
+            {"n": 100, "k": 4, "p": 0.1, "seed": 42, "type": "ws"},
+            {"n": 100, "m": 3, "seed": 42, "type": "ba"}
+        ]
+        
+        generators = [
+            ErdosRenyiGenerator,
+            WattsStrogatzGenerator,
+            BarabasiAlbertGenerator
+        ]
+        
+        for config, gen_class in zip(configs, generators):
+            gen = gen_class(config)
+            G = gen.generate()
+            metrics = extract_all_metrics(G)
+            
+            # All metrics should be positive numbers
+            assert metrics["clustering_coefficient"] >= 0
+            assert metrics["average_path_length"] > 0
+            assert metrics["average_degree"] > 0

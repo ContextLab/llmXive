@@ -8,72 +8,75 @@ import tempfile
 import shutil
 from pathlib import Path
 import pytest
+import json
 
-# Ensure the code directory is in the path so imports work
+# Add parent directory to path to resolve imports like `from config import ...`
 @pytest.fixture(autouse=True)
 def add_code_to_path():
-    """Automatically add the code directory to sys.path for imports."""
-    # Get the project root (parent of 'code')
-    current_dir = Path(__file__).parent
-    project_root = current_dir.parent
-    code_dir = project_root / "code"
-    
+    code_dir = Path(__file__).parent.parent
     if str(code_dir) not in sys.path:
         sys.path.insert(0, str(code_dir))
-    
     yield
-    
-    # Cleanup if necessary (though path insertion is usually safe to leave)
-    if str(code_dir) in sys.path:
-        sys.path.remove(str(code_dir))
 
 @pytest.fixture
 def temp_data_dir():
-    """Create a temporary directory for data processing tests."""
-    temp_dir = tempfile.mkdtemp()
-    yield Path(temp_dir)
-    shutil.rmtree(temp_dir, ignore_errors=True)
+    """Create a temporary directory for data artifacts during tests."""
+    tmp_dir = tempfile.mkdtemp()
+    yield tmp_dir
+    # Cleanup
+    shutil.rmtree(tmp_dir, ignore_errors=True)
 
 @pytest.fixture
 def temp_logs_dir():
-    """Create a temporary directory for log file tests."""
-    temp_dir = tempfile.mkdtemp()
-    yield Path(temp_dir)
-    shutil.rmtree(temp_dir, ignore_errors=True)
+    """Create a temporary directory for log files during tests."""
+    tmp_dir = tempfile.mkdtemp()
+    yield tmp_dir
+    shutil.rmtree(tmp_dir, ignore_errors=True)
 
 @pytest.fixture
-def sample_config():
-    """Provide a sample configuration dictionary for testing."""
-    return {
+def sample_config(temp_data_dir):
+    """Generate a sample configuration dictionary for testing."""
+    config = {
         "year_range": (2000, 2020),
         "api_endpoints": {
-            "fao": "https://www.fao.org",
-            "world_bank": "https://api.worldbank.org"
+            "fao": "https://www.fao.org/api",
+            "world_bank": "https://api.worldbank.org/v2"
         },
-        "data_dirs": {
-            "raw": "data/raw",
-            "processed": "data/processed"
+        "data_paths": {
+            "raw": os.path.join(temp_data_dir, "raw"),
+            "processed": os.path.join(temp_data_dir, "processed")
         }
     }
+    # Ensure directories exist
+    Path(config["data_paths"]["raw"]).mkdir(parents=True, exist_ok=True)
+    Path(config["data_paths"]["processed"]).mkdir(parents=True, exist_ok=True)
+    return config
 
 @pytest.fixture
 def mock_logger(temp_logs_dir):
-    """Create a mock logger for testing logging functionality."""
-    log_file = temp_logs_dir / "test.log"
-    logger = logging.getLogger("test_logger")
+    """Create a temporary logger for testing logging functionality."""
+    logger_name = "test_logger"
+    logger = logging.getLogger(logger_name)
     logger.setLevel(logging.DEBUG)
     
-    # Remove existing handlers
+    # Clear existing handlers
     logger.handlers.clear()
     
-    # Add file handler
-    handler = logging.FileHandler(log_file)
-    handler.setLevel(logging.DEBUG)
+    # File handler
+    log_file = os.path.join(temp_logs_dir, "test.log")
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
     
-    yield logger, log_file
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
     
-    logger.removeHandler(handler)
-    handler.close()
+    yield logger
+    
+    # Cleanup
+    logger.handlers.clear()

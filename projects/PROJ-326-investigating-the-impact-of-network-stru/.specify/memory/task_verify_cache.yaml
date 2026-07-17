@@ -1,33 +1,43 @@
+T018a:
+  c: false
+  h: 9b6985b5e44d333fa75659f6670a947f66eaf2e9bf25ebd99955dbd19fc9d642
+  r: "The repository contains `aggregate_batch.py`, but the file is truncated and\
+    \ shows no code that writes a combined global batch or creates `data/raw/global_batch_manifest.json`.\
+    \ Moreover, the required manifest file is absent from the `data/raw` directory,\
+    \ so the script\u2019s output and the \u2265100\u2011graph verification are not\
+    \ demonstrated."
 T029a:
   c: false
   h: ba50c23989d8a8848887384c011d463a22534740d30183250985b62eebb78b20
-  r: The required artifact `data/analysis/simulation_results.json` does not exist,
-    so no JSON schema could be defined or validated against the `SimulationRun` entity,
-    and the required fields are not verified. The task therefore remains unfinished.
+  r: "The required artifact `data/analysis/simulation_results.json` does not exist,\
+    \ so no JSON schema or validation against the `SimulationRun` entity can be verified.\
+    \ The task\u2019s core deliverable is missing."
+T035:
+  c: false
+  h: 058bbd70793ee68aea18fb1571877bb2e94298fd0f40439dbed8c05a9fc7dc50
+  r: "The required output file `data/analysis/sensitivity_sweep.json` does not exist,\
+    \ so the sweep results are not saved. Moreover, the provided `sensitivity.py`\
+    \ is incomplete (truncated) and does not show the actual sweep logic or writing\
+    \ of \u22655 cutoff results. The task therefore remains unfinished."
+T037:
+  c: false
+  h: 1fc6ee77fa4d54a479a690234e077bd8e1321d5550b82f60c14c96942b8db2db
+  r: "The `run_analysis.py` script exists but the provided excerpt does not show it\
+    \ performing the required aggregation, executing the specific tests (T033\u2011\
+    T035), invoking the plotting module, or writing `data/analysis/final_results.json`.\
+    \ Moreover, the expected output file `data/analysis/final_results.json` is missing\
+    \ from the repository. The task is therefore not fully satisfied."
 T043:
   c: true
   h: 2cc29ca26622578245308608c230be2f3d7fc904c18ba06f3a2a419579cee16c
-  r: The `code/README.md` file is present and contains a detailed **Configuration**
-    section that explains the purpose and structure of `config.yaml`, fulfilling the
-    update requirement.
-T045:
+  r: "The `code/README.md` file exists (8\u202FKB) and its **Configuration** section\
+    \ now contains a detailed explanation of `config.yaml`, including its structure\
+    \ and key settings. This matches the task\u2019s requirement to update the README\
+    \ with a `config.yaml` explanation."
+T044:
   c: false
-  h: a6d5ecc993dc69d1389f1e9c6d738fcf55e571984a3acbcf2c46095543f0dc49
-  r: "The repository contains the validation script, but the required `data/analysis/sensitivity_sweep.json`\
-    \ file is absent, so SC\u2011005 cannot be checked. Moreover, there is no evidence\
-    \ (e.g., console output or exit\u2011code log) that the script was actually executed\
-    \ and returned exit code\u202F0. The task therefore remains unfinished."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer supplied only a feature specification for synthetic network generation
-    and simulation, with no code, configuration, or generated coverage report related
-    to adding a `pytest` coverage report. There is no evidence of pytest integration,
-    a coverage configuration file, or an actual coverage output, so the task requirement
-    is not met.
-T047:
-  c: false
-  h: 972599fb4c5febe875a4f7f304d39c2ed064c3a99386988dfe1bccfaaef9ab98
-  r: The required artifact `config.yaml` does not exist on disk, so the documentation
-    cannot be verified and reproducibility of random seeds cannot be assessed. The
-    missing file must be added and populated appropriately.
+  h: 97abd86c586bc468668359eab658dee7cb74e9909e8e37b3ccfbf7a9e2e8515b
+  r: "The required output file `data/analysis/power_analysis_report.json` is missing,\
+    \ and the provided `power.py` snippet ends abruptly without showing any logic\
+    \ that writes such a report or fully consumes T033/T034 results. Consequently\
+    \ the task\u2019s deliverables are not present."

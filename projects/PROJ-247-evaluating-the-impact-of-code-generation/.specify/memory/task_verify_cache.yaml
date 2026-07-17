@@ -1,0 +1,44 @@
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files, scripts, or modules implementing the required extraction logic
+    are present; the only evidence is the task description and project specifications,
+    which do not include the actual implementation of a parser for Python/JavaScript
+    files to extract functions or classes. The artifact needed to satisfy the task
+    is missing.
+T012b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, logs, or any other artifact implementing the `git mv` detection
+    and exclusion logic was provided. The claim cannot be verified because the required
+    implementation and its verification output are missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or output files were provided that implement the \u201C\
+    exclude repos with <5 LLM and <5 Human blocks after tagging\u201D rule. The claim\
+    \ lacks any artifact (e.g., a script, pipeline step, or resulting CSV) demonstrating\
+    \ that repositories are filtered according to the specified inclusion criteria.\
+    \ The required implementation and evidence are missing."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the bug\u2011fix\u2011latency\
+    \ calculation is present; the claim provides only a textual description without\
+    \ any artifact (e.g., a Python module, CLI tool, or test suite) that parses commit\
+    \ messages, matches file paths to issue descriptions, or prioritizes issues. Consequently\
+    \ the required implementation is missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or other artifact implementing the required code\
+    \ churn calculation is present. The claim lacks any concrete implementation that\
+    \ aggregates lines added/deleted per block over a multi\u2011month window (excluding\
+    \ the initial commit), so the task\u2019s deliverable is missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, log output, or documentation was provided that demonstrates
+    handling of null latency pairs, exclusion from latency analysis, retention for
+    churn analysis, or logging of exclusion reasons. The required artifact is missing,
+    so the task is not satisfied.

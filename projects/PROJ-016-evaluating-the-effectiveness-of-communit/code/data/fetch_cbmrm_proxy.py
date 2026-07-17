@@ -1,30 +1,3 @@
-"""
-Fetch CBNRM Proxy indicator from World Bank API.
-
-Task: T009
-Description: Query the World Bank API for the specific CBNRM proxy indicator.
-Validate the indicator code. Save raw data to data/raw/cbnrm_proxy.csv
-and metadata to data/processed/cbnrm_proxy_metadata.json.
-
-Indicator Strategy:
-The World Bank does not have a single "CBNRM" indicator. We use the
-closest available proxy: "Forest area (% of land area)" (AG.LND.FRST.ZS)
-as a foundational metric often used in CBNRM analysis, combined with
-"Forest area change" if available.
-
-However, per the task description "Community Forestry area share", we will
-attempt to fetch the specific indicator 'AG.LND.FRST.ZS' (Forest Area %).
-If a more specific "Community Forestry" indicator exists in the World Bank
-catalog, it would be preferred, but AG.LND.FRST.ZS is the standard global
-proxy for land under forest management which CBNRM targets.
-
-We will also check for 'EG.FEC.RNEW.ZS' (Renewable energy...) or similar
-if the spec implies a broader definition, but the primary target is Forest Area.
-
-To be precise with the "Proxy" requirement: We will fetch 'AG.LND.FRST.ZS'
-as the baseline forest metric.
-"""
-
 import json
 import os
 import sys
@@ -35,231 +8,167 @@ from typing import Dict, Any, List, Optional
 import requests
 import pandas as pd
 
-# Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add parent to path for imports if running as script
+if "code" not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import get_config
 from logging_config import get_logger
 
-# Indicator Code for Forest Area (% of land area) - Primary Proxy for CBNRM
-# Note: If a specific "Community Forestry" indicator code is discovered,
-# it should replace this. This is the standard global proxy.
-CBNRM_PROXY_INDICATOR = "AG.LND.FRST.ZS"
-INDICATOR_NAME = "Forest area (% of land area)"
-SOURCE_URL = "https://api.worldbank.org/v2/country/all/indicator/AG.LND.FRST.ZS"
+logger = get_logger(__name__)
 
-def fetch_world_bank_indicator(
-    indicator_code: str,
-    year_start: int,
-    year_end: int,
-    max_retries: int = 3,
-    backoff_factor: float = 2.0
-) -> List[Dict[str, Any]]:
+# Configuration for the CBNRM proxy
+# Based on World Bank EdStats: "Forest area (% of land area)" is often used as a proxy
+# but specifically for CBNRM, we look for indicators related to community forestry or
+# protected areas managed by communities.
+# Since a direct "Community Forestry" indicator is often not globally standardized in WB,
+# we will use "Forest area (% of land area)" (AG.LND.FRST.ZS) as the primary proxy
+# mentioned in the prompt's example, but strictly validate it exists.
+# If the project spec defined a specific code, it would be used here.
+# For this implementation, we use AG.LND.FRST.ZS as the proxy for "Forest Area Share"
+# which correlates with the potential for community forestry management in many models.
+# NOTE: If a specific "Community Forestry" code exists in the project spec (not visible here),
+# it should replace 'AG.LND.FRST.ZS'.
+CBNRM_INDICATOR_CODE = "AG.LND.FRST.ZS"
+WB_API_URL = "https://api.worldbank.org/v2/country/all/indicator"
+YEAR_START = 2000
+YEAR_END = 2020
+
+def fetch_world_bank_indicator(indicator_code: str, start_year: int, end_year: int) -> List[Dict[str, Any]]:
     """
-    Fetch data for a specific indicator from the World Bank API.
-    
-    Args:
-        indicator_code: The World Bank indicator code (e.g., 'AG.LND.FRST.ZS')
-        year_start: Start year (inclusive)
-        year_end: End year (inclusive)
-        max_retries: Maximum number of retry attempts
-        backoff_factor: Exponential backoff multiplier
-    
-    Returns:
-        List of dictionaries containing country, year, and value.
-    
-    Raises:
-        RuntimeError: If API is unreachable after retries.
+    Fetches data for a specific indicator from the World Bank API.
+    Implements retry logic with exponential backoff.
     """
-    base_url = "https://api.worldbank.org/v2/country/all/indicator"
-    url = f"{base_url}/{indicator_code}"
-    
+    url = f"{WB_API_URL}/{indicator_code}"
     params = {
+        "date": f"{start_year}:{end_year}",
         "format": "json",
-        "date": f"{year_start}:{year_end}",
-        "per_page": 30000, # Request max results to handle pagination if needed
-        "page": 1
+        "per_page": 10000,  # Request max page size
+        "source": 2  # World Development Indicators
     }
-    
-    retries = 0
-    data = []
-    
-    while retries <= max_retries:
+
+    max_retries = 5
+    base_delay = 1
+
+    for attempt in range(max_retries):
         try:
+            logger.info(f"Fetching {indicator_code} from World Bank API (Attempt {attempt + 1})...")
             response = requests.get(url, params=params, timeout=30)
             response.raise_for_status()
-            
-            result = response.json()
-            if isinstance(result, list) and len(result) >= 2:
-                page_data = result[1]
-                if isinstance(page_data, list):
-                    data.extend(page_data)
+            data = response.json()
+
+            if isinstance(data, list) and len(data) > 1:
+                records = data[1]  # First element is metadata, second is data
+                if records:
+                    logger.info(f"Successfully retrieved {len(records)} records for {indicator_code}")
+                    return records
                 else:
-                    # Handle pagination if necessary (unlikely for single indicator)
-                    pass
-                break
+                    logger.warning(f"No data records found for {indicator_code} in the specified range.")
+                    return []
             else:
-                raise ValueError("Unexpected API response structure")
-                
+                logger.error(f"Unexpected API response format for {indicator_code}: {data}")
+                return []
+
         except requests.exceptions.RequestException as e:
-            retries += 1
-            if retries > max_retries:
-                raise RuntimeError(f"Failed to fetch data from World Bank after {max_retries} retries: {e}")
-            time.sleep(backoff_factor ** retries)
-            logger = get_logger(__name__)
-            logger.warning(f"Retry {retries}/{max_retries} for World Bank API: {e}")
-    
-    return data
+            delay = base_delay * (2 ** attempt)
+            logger.warning(f"Request failed: {e}. Retrying in {delay} seconds...")
+            time.sleep(delay)
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to decode JSON response: {e}")
+            return []
+
+    logger.error(f"Failed to fetch {indicator_code} after {max_retries} attempts.")
+    return []
 
 def validate_indicator_code(indicator_code: str) -> bool:
     """
-    Validate that the indicator code exists and returns data.
-    
-    Args:
-        indicator_code: The indicator code to validate.
-    
-    Returns:
-        True if valid, False otherwise.
+    Validates that the indicator code exists and returns data.
     """
-    # Quick sanity check: fetch one year of data
-    try:
-        test_data = fetch_world_bank_indicator(
-            indicator_code, 
-            year_start=2020, 
-            year_end=2020,
-            max_retries=1
-        )
-        if not test_data:
+    logger.info(f"Validating indicator code: {indicator_code}")
+    # Try to fetch a small sample to validate
+    sample_data = fetch_world_bank_indicator(indicator_code, YEAR_START, YEAR_END)
+    if sample_data:
+        # Check if at least one non-null value exists
+        non_null_count = sum(1 for r in sample_data if r.get("value") is not None)
+        if non_null_count > 0:
+            logger.info(f"Indicator {indicator_code} is valid. Found {non_null_count} non-null values.")
+            return True
+        else:
+            logger.warning(f"Indicator {indicator_code} exists but contains no non-null values in {YEAR_START}-{YEAR_END}.")
             return False
-        # Check if we have non-null values
-        has_value = any(d.get('value') is not None for d in test_data)
-        return has_value
-    except Exception:
-        return False
+    return False
 
-def save_outputs(
-    data: List[Dict[str, Any]],
-    indicator_code: str,
-    indicator_name: str,
-    source_url: str,
-    output_csv: Path,
-    output_metadata: Path
-):
+def save_outputs(raw_data: List[Dict[str, Any]], indicator_code: str, source_url: str, output_dir_raw: Path, output_dir_processed: Path):
     """
-    Save the fetched data to CSV and metadata to JSON.
-    
-    Args:
-        data: List of raw data records.
-        indicator_code: The indicator code used.
-        indicator_name: Human readable name.
-        source_url: Source API URL.
-        output_csv: Path for the CSV output.
-        output_metadata: Path for the JSON metadata output.
+    Saves the raw data to CSV and metadata to JSON.
     """
-    # Ensure directories exist
-    output_csv.parent.mkdir(parents=True, exist_ok=True)
-    output_metadata.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Process data for CSV
+    if not raw_data:
+        logger.warning("No data to save. Skipping output generation.")
+        return
+
+    # Prepare DataFrame
     records = []
-    for entry in data:
-        country = entry.get('country', {})
-        country_name = country.get('value', '')
-        country_code = country.get('id', '')
-        year = entry.get('date')
-        value = entry.get('value')
-        
-        # Skip if no value
-        if value is None:
-            continue
-        
-        records.append({
-            'country_code': country_code,
-            'country_name': country_name,
-            'year': int(year) if year else None,
-            'value': float(value),
-            'indicator_code': indicator_code,
-            'indicator_name': indicator_name
-        })
-    
+    for entry in raw_data:
+        if entry.get("value") is not None:
+            records.append({
+                "country_iso3": entry.get("countryiso3code"),
+                "country_name": entry.get("country").get("value") if isinstance(entry.get("country"), dict) else entry.get("country"),
+                "year": entry.get("date"),
+                "value": entry.get("value")
+            })
+
     df = pd.DataFrame(records)
-    
-    if df.empty:
-        logger = get_logger(__name__)
-        logger.warning("No data records found to save.")
-        # Still create empty file to satisfy contract
-        df.to_csv(output_csv, index=False)
-    else:
-        # Sort by country and year
-        df = df.sort_values(by=['country_code', 'year'])
-        df.to_csv(output_csv, index=False)
-    
-    # Save metadata
+
+    # Ensure output directories exist
+    output_dir_raw.mkdir(parents=True, exist_ok=True)
+    output_dir_processed.mkdir(parents=True, exist_ok=True)
+
+    # Save Raw CSV
+    csv_path = output_dir_raw / "cbnrm_proxy.csv"
+    df.to_csv(csv_path, index=False)
+    logger.info(f"Saved raw data to {csv_path}")
+
+    # Save Metadata JSON
     metadata = {
-        'indicator_code': indicator_code,
-        'indicator_name': indicator_name,
-        'source_url': source_url,
-        'fetched_at': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        'record_count': len(records),
-        'year_range': {
-            'min': int(df['year'].min()) if not df.empty else None,
-            'max': int(df['year'].max()) if not df.empty else None
-        }
+        "indicator_code": indicator_code,
+        "source": "World Bank Open Data",
+        "source_url": source_url,
+        "description": "Forest Area (% of Land Area) used as a proxy for CBNRM potential",
+        "year_range": f"{YEAR_START}-{YEAR_END}",
+        "total_records": len(df),
+        "fetched_at": time.strftime("%Y-%m-%d %H:%M:%S")
     }
-    
-    with open(output_metadata, 'w') as f:
+    json_path = output_dir_processed / "cbnrm_proxy_metadata.json"
+    with open(json_path, "w") as f:
         json.dump(metadata, f, indent=2)
+    logger.info(f"Saved metadata to {json_path}")
 
 def main():
-    """Main entry point for T009."""
-    logger = get_logger(__name__)
-    config = get_config()
-    
-    year_start, year_end = config['YEAR_RANGE']
-    
-    logger.info(f"Starting CBNRM Proxy fetch for indicator: {CBNRM_PROXY_INDICATOR}")
-    logger.info(f"Year range: {year_start} - {year_end}")
-    
-    # Validate indicator
-    if not validate_indicator_code(CBNRM_PROXY_INDICATOR):
-        logger.error(f"Indicator {CBNRM_PROXY_INDICATOR} validation failed or returned no data.")
-        # We fail loudly as per constraints if we can't get real data
-        # However, we must still produce the files if possible, or exit with error
-        # The task requires saving metadata with the code even if empty? 
-        # Let's try to fetch anyway, if it fails we raise.
-        raise RuntimeError(f"Indicator {CBNRM_PROXY_INDICATOR} could not be validated.")
-    
-    # Fetch data
-    logger.info("Fetching data from World Bank API...")
-    raw_data = fetch_world_bank_indicator(
-        CBNRM_PROXY_INDICATOR,
-        year_start,
-        year_end
-    )
-    
-    logger.info(f"Fetched {len(raw_data)} raw records.")
-    
-    # Define output paths relative to project root
+    logger.info("Starting CBNRM Proxy Fetch (T009)")
+
+    # Define paths relative to project root
+    # Assuming script runs from code/data/, we go up to project root
     project_root = Path(__file__).parent.parent.parent
-    data_raw_dir = project_root / "data" / "raw"
-    data_processed_dir = project_root / "data" / "processed"
-    
-    csv_path = data_raw_dir / "cbnrm_proxy.csv"
-    metadata_path = data_processed_dir / "cbnrm_proxy_metadata.json"
-    
+    raw_dir = project_root / "data" / "raw"
+    processed_dir = project_root / "data" / "processed"
+
+    source_url = f"{WB_API_URL}/{CBNRM_INDICATOR_CODE}"
+
+    # Validate first
+    if not validate_indicator_code(CBNRM_INDICATOR_CODE):
+        logger.error(f"Indicator {CBNRM_INDICATOR_CODE} validation failed. Aborting.")
+        sys.exit(1)
+
+    # Fetch full data
+    data = fetch_world_bank_indicator(CBNRM_INDICATOR_CODE, YEAR_START, YEAR_END)
+
+    if not data:
+        logger.error("No data fetched. Aborting.")
+        sys.exit(1)
+
     # Save outputs
-    save_outputs(
-        data=raw_data,
-        indicator_code=CBNRM_PROXY_INDICATOR,
-        indicator_name=INDICATOR_NAME,
-        source_url=SOURCE_URL,
-        output_csv=csv_path,
-        output_metadata=metadata_path
-    )
-    
-    logger.info(f"Saved raw data to {csv_path}")
-    logger.info(f"Saved metadata to {metadata_path}")
-    logger.info("Task T009 completed successfully.")
+    save_outputs(data, CBNRM_INDICATOR_CODE, source_url, raw_dir, processed_dir)
+
+    logger.info("T009 completed successfully.")
 
 if __name__ == "__main__":
     main()

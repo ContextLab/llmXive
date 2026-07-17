@@ -86,102 +86,102 @@
   verification_status: verified
   verified_against_url: https://semver.org/spec/v2.0.0.html
   verified_at: '2026-07-15T17:45:23.375176Z'
-- artifact_hash: 32de6982b0f98c30e4c8ca8d1a176d0f558efb6e511a1e14143ff50abcd1e62b
+- artifact_hash: 8dbcc93c8475e180148dcdfe4afcf14bdc69dfc02d6ba9f69c0131cf99b006b0
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: wine.data
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data`
+  value: https://archive.ics.uci.edu/ml/datasets/Wine+Quality`
   verification_status: pending
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
-  verified_at: '2026-07-16T20:18:50.451793Z'
-- artifact_hash: 32de6982b0f98c30e4c8ca8d1a176d0f558efb6e511a1e14143ff50abcd1e62b
+  verified_against_url: https://archive.ics.uci.edu/dataset/186/wine+quality
+  verified_at: '2026-07-17T07:35:34.560159Z'
+- artifact_hash: 8dbcc93c8475e180148dcdfe4afcf14bdc69dfc02d6ba9f69c0131cf99b006b0
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: abalone.data
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data`
+  value: https://archive.ics.uci.edu/ml/datasets/Abalone`
   verification_status: pending
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data
-  verified_at: '2026-07-16T20:18:50.451793Z'
-- artifact_hash: 32de6982b0f98c30e4c8ca8d1a176d0f558efb6e511a1e14143ff50abcd1e62b
+  verified_against_url: https://archive.ics.uci.edu/dataset/1/abalone
+  verified_at: '2026-07-17T07:35:34.560159Z'
+- artifact_hash: 8dbcc93c8475e180148dcdfe4afcf14bdc69dfc02d6ba9f69c0131cf99b006b0
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: breast-cancer-wisconsin.data
+  fetched_title: null
   kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data`
-  verification_status: pending
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data
-  verified_at: '2026-07-16T20:18:50.451793Z'
-- artifact_hash: 32de6982b0f98c30e4c8ca8d1a176d0f558efb6e511a1e14143ff50abcd1e62b
+  value: https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+
+  verified_at: '2026-07-17T07:35:34.560159Z'
+- artifact_hash: 8dbcc93c8475e180148dcdfe4afcf14bdc69dfc02d6ba9f69c0131cf99b006b0
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/student/student-por.csv`
-  verification_status: mismatch
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/student/student-por.csv
-  verified_at: '2026-07-16T20:18:50.451793Z'
-- artifact_hash: 32de6982b0f98c30e4c8ca8d1a176d0f558efb6e511a1e14143ff50abcd1e62b
+  value: https://archive.ics.uci.edu/ml/datasets/Student+Performance`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/dataset/320/student+performance
+  verified_at: '2026-07-17T07:35:34.560159Z'
+- artifact_hash: 8dbcc93c8475e180148dcdfe4afcf14bdc69dfc02d6ba9f69c0131cf99b006b0
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-005
   cited_authors: []
   cited_title: null
-  fetched_title: AirQualityUCI.zip
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/00360/AirQualityUCI.zip`
+  value: https://archive.ics.uci.edu/ml/datasets/Air+Quality`
   verification_status: pending
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00360/AirQualityUCI.zip
-  verified_at: '2026-07-16T20:18:50.451793Z'
-- artifact_hash: 32de6982b0f98c30e4c8ca8d1a176d0f558efb6e511a1e14143ff50abcd1e62b
+  verified_against_url: https://archive.ics.uci.edu/dataset/360/air+quality
+  verified_at: '2026-07-17T07:35:34.560159Z'
+- artifact_hash: 8dbcc93c8475e180148dcdfe4afcf14bdc69dfc02d6ba9f69c0131cf99b006b0
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-006
   cited_authors: []
   cited_title: null
-  fetched_title: Concrete_Data.xls
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/Concrete_Data.xls`
+  value: https://archive.ics.uci.edu/ml/datasets/Concrete+Compressive+Strength`
   verification_status: pending
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/Concrete_Data.xls
-  verified_at: '2026-07-16T20:18:50.451793Z'
-- artifact_hash: 32de6982b0f98c30e4c8ca8d1a176d0f558efb6e511a1e14143ff50abcd1e62b
+  verified_against_url: https://archive.ics.uci.edu/dataset/165/concrete+compressive+strength
+  verified_at: '2026-07-17T07:35:34.560159Z'
+- artifact_hash: 8dbcc93c8475e180148dcdfe4afcf14bdc69dfc02d6ba9f69c0131cf99b006b0
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-007
   cited_authors: []
   cited_title: null
-  fetched_title: parkinsons.data
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/parkinsons/parkinsons.data`
+  value: https://archive.ics.uci.edu/ml/datasets/Parkinsons`
   verification_status: pending
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/parkinsons/parkinsons.data
-  verified_at: '2026-07-16T20:18:50.451793Z'
-- artifact_hash: 32de6982b0f98c30e4c8ca8d1a176d0f558efb6e511a1e14143ff50abcd1e62b
+  verified_against_url: https://archive.ics.uci.edu/dataset/174/parkinsons
+  verified_at: '2026-07-17T07:35:34.560159Z'
+- artifact_hash: 8dbcc93c8475e180148dcdfe4afcf14bdc69dfc02d6ba9f69c0131cf99b006b0
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-008
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/00228/`
-  verification_status: mismatch
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00228
-  verified_at: '2026-07-16T20:18:50.451793Z'
-- artifact_hash: 32de6982b0f98c30e4c8ca8d1a176d0f558efb6e511a1e14143ff50abcd1e62b
+  value: https://archive.ics.uci.edu/ml/datasets/Libras`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/dataset/181/libras+movement
+  verified_at: '2026-07-17T07:35:34.560159Z'
+- artifact_hash: 8dbcc93c8475e180148dcdfe4afcf14bdc69dfc02d6ba9f69c0131cf99b006b0
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-009
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/isolet/`
-  verification_status: mismatch
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/isolet
-  verified_at: '2026-07-16T20:18:50.451793Z'
+  value: https://archive.ics.uci.edu/ml/datasets/Isolet`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/dataset/54/isolet
+  verified_at: '2026-07-17T07:35:34.560159Z'

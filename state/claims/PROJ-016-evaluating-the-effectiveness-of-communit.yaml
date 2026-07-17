@@ -1,0 +1,260 @@
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: FAO and World Bank APIs total available records for low/middle-income
+    countries 2000-2020
+  claim_id: c_f3e09721
+  context: "Task T008: Verify and Fetch Total Records. Query FAO and World Bank APIs\
+    \ to determine the **total available records** (denominator) for years 2000\u2013\
+    2020 for low/middle-income countries. Save the count to `data/processed/total_records_count.json`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Query FAO and World Bank APIs to determine the total available records\
+    \ (denominator) for years 2000\u20132020 for low/middle-income countries."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:47:30Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: CBNRM proxy indicator is Community Forestry area share
+  claim_id: c_34c28432
+  context: 'Task T009: Fetch CBNRM Proxy. Query the World Bank API for the specific
+    CBNRM proxy indicator (e.g., Community Forestry area share) identified in the
+    data model.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CBNRM_proxy_indicator_is_Community_Forestry_area_share
+  kind: entity_fact
+  raw_text: The specific CBNRM proxy indicator is Community Forestry area share.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:48:13Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset seed 42 beta 0.15 sigma 0.1
+  claim_id: c_82b679a4
+  context: "Independent Test for User Story 2: Run regression script on synthetic\
+    \ dataset (seed=42, \u03B2=0.15, \u03C3=0.1). Verify output coefficient matches\
+    \ synthetic truth within 1% tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The regression model uses a synthetic dataset with seed=42, \u03B2=0.15,\
+    \ and \u03C3=0.1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:48:28Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Regression coefficient matches synthetic truth within 1% tolerance
+  claim_id: c_e9cdf7b2
+  context: "Independent Test for User Story 2: Run regression script on synthetic\
+    \ dataset (seed=42, \u03B2=0.15, \u03C3=0.1). Verify output coefficient matches\
+    \ synthetic truth within 1% tolerance and output is labeled 'associational'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regression output coefficient must match the synthetic truth within
+    1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:48:28Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction applied if test count >= 2
+  claim_id: c_37bf7188
+  context: 'Task T051: Implement Benjamini-Hochberg FDR correction. **If count >=
+    2**, aggregate p-values from Primary (T023), Sensitivity (T024), and Non-linearity
+    (T025) tests and apply correction.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_correction_applied_if_test_count_%3E=_2
+  kind: magnitude
+  raw_text: The Benjamini-Hochberg FDR correction is applied if the count of distinct
+    hypothesis tests is greater than or equal to 2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:48:43Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Country excluded if >20% of years missing for primary variable
+  claim_id: c_de743134
+  context: 'Task T016: Implement data cleaning and filtering logic. If >20% of a country''s
+    years are missing for a primary variable, exclude the entire country.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Country_excluded_if_%3E20%25_of_years_missing_for_primary_variab
+  kind: magnitude
+  raw_text: If a country has more than 20% of its years missing for a primary variable,
+    the entire country is excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:49:31Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Ingestion script produces CSV with >=50 rows
+  claim_id: c_59bd975b
+  context: "Independent Test for User Story 1: Run the ingestion script in isolation.\
+    \ Verify it produces a CSV with \u226550 rows (or all available if <50) containing\
+    \ non-null `land_use_change_rate`, `regime_type`, `gdp_per_capita`, and `population_density`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 1 verifies the ingestion script produces
+    a CSV with 50 or more rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:49:52Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Python project version 3.11
+  claim_id: c_1c4b7564
+  context: 'Task T002: Initialize Python 3.11 project: Create `code/requirements.txt`
+    containing: `pandas==2.0.3`, `numpy==1.24.3`, `statsmodels==0.14.0`, `matplotlib==3.7.2`,
+    `requests==2.31.0`, `pyyaml==6.0.1`, `pytest==7.4.0`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python project is initialized using version 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:50:19Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Pandas library version 2.0.3
+  claim_id: c_ff9b9e4f
+  context: 'Task T002: Initialize Python 3.11 project: Create `code/requirements.txt`
+    containing: `pandas==2.0.3`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pandas library version used is 2.0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:50:34Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Numpy library version 1.24.3
+  claim_id: c_842ed473
+  context: 'Task T002: Initialize Python 3.11 project: Create `code/requirements.txt`
+    containing: ... `numpy==1.24.3` ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The numpy library version used is 1.24.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:50:48Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Statsmodels library version 0.14.0
+  claim_id: c_52c7a4b6
+  context: 'Task T002: Initialize Python 3.11 project: Create `code/requirements.txt`
+    containing: ... `statsmodels==0.14.0` ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statsmodels library version used is 0.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:51:01Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Matplotlib library version 3.7.2
+  claim_id: c_09da07cb
+  context: 'Task T002: Initialize Python 3.11 project: Create `code/requirements.txt`
+    containing: ... `matplotlib==3.7.2` ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The matplotlib library version used is 3.7.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:51:14Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Requests library version 2.31.0
+  claim_id: c_bc59dd26
+  context: 'Task T002: Initialize Python 3.11 project: Create `code/requirements.txt`
+    containing: ... `requests==2.31.0` ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requests library version used is 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:51:34Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: PyYAML library version 6.0.1
+  claim_id: c_bdc1c558
+  context: 'Task T002: Initialize Python 3.11 project: Create `code/requirements.txt`
+    containing: ... `pyyaml==6.0.1` ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pyyaml library version used is 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:51:51Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Pytest library version 7.4.0
+  claim_id: c_fd07f5e4
+  context: 'Task T002: Initialize Python 3.11 project: Create `code/requirements.txt`
+    containing: ... `pytest==7.4.0`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pytest library version used is 7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:52:09Z'
