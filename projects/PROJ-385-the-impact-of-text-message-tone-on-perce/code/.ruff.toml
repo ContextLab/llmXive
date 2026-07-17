@@ -1,0 +1,4 @@
+# Extends pyproject.toml settings if needed, or provides local overrides
+# Current project relies on [tool.ruff] in pyproject.toml.
+# This file exists to satisfy IDE discovery or future local overrides.
+extend = "pyproject.toml"

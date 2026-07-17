@@ -1,0 +1,2 @@
+# This file ensures the data directory is tracked by git.
+# Subdirectories (raw, processed, consent) are created by code/setup_data_dirs.py.

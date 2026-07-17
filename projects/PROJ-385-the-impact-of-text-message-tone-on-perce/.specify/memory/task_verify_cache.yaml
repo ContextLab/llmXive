@@ -1,0 +1,29 @@
+T014:
+  c: false
+  h: 31a491ee92131b14662c32b5cd330df4932b908eebbbe17099b3de7380b64a6d
+  r: "The repository contains the simulation script with the correct regex and logic\
+    \ to read the target N, but the required output file `data/raw/ratings.csv` is\
+    \ not present (the file is missing). Without the generated CSV, the task\u2019\
+    s core deliverable is not satisfied."
+T016:
+  c: false
+  h: 8d809d5031c2b0c8e454874b41a4784f381978e8a120ab352ed7e8075001eb96
+  r: "The required input files `data/raw/stimuli.csv` and `data/raw/ratings.csv` are\
+    \ absent, and the expected output `data/processed/cleaning_log.csv` was not generated.\
+    \ Moreover, the provided `code/03_clean_data.py` is truncated and does not contain\
+    \ the full straight\u2011lining detection logic or the code to write the exclusion\
+    \ flags. These missing artifacts prevent the task from being considered complete."
+T019:
+  c: false
+  h: b8e93d066fbae223db472f45caba8f6de148ac7ace7d148b52e7489130d4cfb1
+  r: The required integration test file `tests/integration/test_lmm_pipeline.py` does
+    not exist, so the claimed implementation provides no evidence of a functional
+    test for the full LMM pipeline. The task cannot be considered completed until
+    this file is created with appropriate test code.
+T020:
+  c: true
+  h: 8002693646a420b051281e78dfac67c717d0940034c4bd11525526153f599a31
+  r: The `code/04_run_lmm.py` file contains functions that load `data/processed/cleaning_log.csv`
+    and apply listwise deletion of participants flagged as excluded, fulfilling the
+    requested preprocessing step. The required code artifact is present and implements
+    the specified behavior.

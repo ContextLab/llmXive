@@ -1,37 +1,107 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Result Schema"
-description: "Schema for LMM and sensitivity analysis output (FR-003, FR-005)."
-type: "object"
+title: Analysis Result Schema
+description: |
+  Schema for Linear Mixed-Effects Model analysis results.
+  Contains fixed effects estimates, random effects variance components,
+  p-values, and post-hoc test results.
+type: object
 required:
-  - "model_id"
-  - "term"
-  - "estimate"
-  - "std_err"
-  - "p_value"
-  - "ci_lower"
-  - "ci_upper"
+  - analysis_id
+  - model_formula
+  - fixed_effects
+  - random_effects
+  - p_values
+  - n_observations
+  - n_participants
+  - n_stimuli
+  - run_timestamp
 properties:
-  model_id:
-    type: "string"
-    description: "Identifier for the model run (e.g., 'lmm_primary', 'sensitivity_A')."
-  term:
-    type: "string"
-    description: "The fixed effect term (e.g., 'relationship', 'interaction')."
-  estimate:
-    type: "number"
-    description: "Coefficient estimate."
-  std_err:
-    type: "number"
-    description: "Standard error of the estimate."
-  p_value:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "P-value for the term."
-  ci_lower:
-    type: "number"
-    description: "Lower bound of the confidence interval."
-  ci_upper:
-    type: "number"
-    description: "Upper bound of the confidence interval."
+  analysis_id:
+    type: string
+    description: Unique identifier for the analysis run
+    pattern: "^A[0-9]{4}$"
+  model_formula:
+    type: string
+    description: The R-style formula used for the LMM
+  fixed_effects:
+    type: array
+    description: List of fixed effect estimates
+    items:
+      type: object
+      required:
+        - term
+        - estimate
+        - std_error
+        - t_value
+      properties:
+        term:
+          type: string
+        estimate:
+          type: number
+        std_error:
+          type: number
+        t_value:
+          type: number
+  random_effects:
+    type: object
+    description: Variance components for random effects
+    required:
+      - participant
+      - stimulus
+    properties:
+      participant:
+        type: number
+        description: Variance of the random intercept for participants
+      stimulus:
+        type: number
+        description: Variance of the random intercept for stimuli
+      residual:
+        type: number
+        description: Residual variance
+  p_values:
+    type: object
+    description: P-values for fixed effects
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  n_observations:
+    type: integer
+    description: Total number of observations used
+    minimum: 1
+  n_participants:
+    type: integer
+    description: Number of unique participants
+    minimum: 1
+  n_stimuli:
+    type: integer
+    description: Number of unique stimuli
+    minimum: 1
+  run_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the analysis run
+  post_hoc_results:
+    type: array
+    description: Tukey-corrected pairwise comparisons (optional)
+    items:
+      type: object
+      required:
+        - comparison
+        - estimate
+        - p_value
+        - adjusted
+      properties:
+        comparison:
+          type: string
+        estimate:
+          type: number
+        p_value:
+          type: number
+        adjusted:
+          type: boolean
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
 additionalProperties: false
