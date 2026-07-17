@@ -1,0 +1,97 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Static Features Schema
+description: |
+  Schema for static input features used to predict DelTA coefficients.
+  Features include n-gram statistics, POS tags, and semantic similarity vectors.
+  This file is used by T020 to validate the output of extract_features.py.
+type: object
+required:
+  - features
+  - metadata
+properties:
+  metadata:
+    type: object
+    required:
+      - source_dataset
+      - feature_types
+      - embedding_model
+      - nlp_model
+      - generated_at
+      - total_tokens
+      - oov_count
+    properties:
+      source_dataset:
+        type: string
+        description: Source dataset identifier (e.g., 'gsm8k_verified')
+      feature_types:
+        type: array
+        items:
+          type: string
+        description: List of feature types included (e.g., ['ngrams', 'pos', 'semantic'])
+      embedding_model:
+        type: string
+        description: Sentence-transformer model used for semantic similarity
+      nlp_model:
+        type: string
+        description: SpaCy model used for POS tagging
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      total_tokens:
+        type: integer
+        minimum: 0
+        description: Total number of tokens processed
+      oov_count:
+        type: integer
+        minimum: 0
+        description: Number of out-of-vocabulary tokens handled
+  features:
+    type: array
+    description: List of feature records per token
+    items:
+      type: object
+      required:
+        - example_id
+        - token_id
+        - token_text
+        - feature_vector
+      properties:
+        example_id:
+          type: string
+          description: Unique identifier for the GSM8K example
+        token_id:
+          type: integer
+          description: Position index of the token in the example
+        token_text:
+          type: string
+          description: The actual token text
+        feature_vector:
+          type: object
+          required:
+            - ngrams
+            - pos
+            - semantic
+          properties:
+            ngrams:
+              type: object
+              description: N-gram frequency features (key: ngram string, value: count)
+              additionalProperties:
+                type: integer
+                minimum: 0
+            pos:
+              type: array
+              items:
+                type: integer
+              description: One-hot or integer-encoded POS tag vector
+              minItems: 1
+            semantic:
+              type: array
+              items:
+                type: number
+              description: Semantic similarity embedding vector
+              minItems: 1
+        is_oov:
+          type: boolean
+          description: Whether this token was out-of-vocabulary
+additionalProperties: false

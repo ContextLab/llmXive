@@ -1,0 +1,12 @@
+torch
+transformers
+datasets
+scikit-learn
+pandas
+numpy
+spacy
+sentence-transformers
+pyarrow
+ruff
+black
+# Install spaCy model separately: python -m spacy download en_core_web_sm

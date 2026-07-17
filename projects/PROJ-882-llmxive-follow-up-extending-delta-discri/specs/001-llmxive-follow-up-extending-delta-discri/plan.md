@@ -17,7 +17,7 @@ This project extends the "DelTA" algorithm by investigating whether the discrimi
 **Project Type**: Research pipeline / CLI tool.  
 **Performance Goals**: End-to-end pipeline execution < 6 hours; memory footprint < 7 GB RAM.  
 **Constraints**: No GPU/CUDA usage; no 8-bit/4-bit quantization requiring CUDA; strict separation between Oracle (DelTA generation using Phi-3-mini) and Predictor (Static features using sentence-transformers) to prevent data leakage.  
-**Scale/Scope**: Subset of GSMK (200 examples); token-level analysis for each prompt, aggregated to example level for evaluation.
+**Scale/Scope**: Subset of GSMK (a representative sample of examples); token-level analysis for each prompt, aggregated to example level for evaluation.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -96,13 +96,13 @@ projects/PROJ-882-llmxive-follow-up-extending-delta-descri/
 
 ## Compute Feasibility
 
-**Hardware**: GitHub Actions Free Tier (limited CPU, ~ GB RAM, ~14 GB disk, no GPU).
+**Hardware**: GitHub Actions Free Tier (limited CPU, ~ GB RAM, limited disk, no GPU).
 
 **Deterministic Subset**: N=200 examples (reduced from 500 in original spec to ensure feasibility).
 
 **Time Budget**:
 - Download/Filter: < 10 min
-- Oracle Generation (Phi-mini, a representative set of examples): ~–3 hours
+- Oracle Generation (Phi-mini, a representative set of examples): Several hours
 - Feature Extraction (sentence-transformers): < 30 min
 - Training (2-layer MLP): < 10 min
 - Evaluation (Spearman, permutation test, SHAP): < 10 min
@@ -111,12 +111,12 @@ projects/PROJ-882-llmxive-follow-up-extending-delta-descri/
 **Memory Budget**:
 - Phi-mini in full precision: ~ GB (peak)
 - sentence-transformers/all-MiniLM-L-v: compact model size
-- Feature matrices (a representative sample of examples × a moderate sequence length × a moderate number of features): approximately 1.5 GB
+- Feature matrices (a representative sample of examples × a moderate sequence length × a moderate number of features): a moderate data volume
 - MLP training: moderate memory footprint
 
 The research question remains: What is the optimal architecture for the given task?
 The method remains: Multi-layer perceptron training with standard backpropagation.
 References remain: [Citation placeholder]
-- **Total peak**: ~8 GB (acceptable with careful memory management)
+- **Total peak**: Within acceptable limits for standard high-performance computing environments with careful memory management.
 
 **No Fallback Strategy**: The pipeline is deterministic. If runtime or memory constraints are exceeded, the pipeline fails explicitly with an error message, ensuring reproducibility. No partial-data fallbacks or adaptive timeouts are used.

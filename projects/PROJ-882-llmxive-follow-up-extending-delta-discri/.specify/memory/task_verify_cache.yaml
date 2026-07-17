@@ -1,0 +1,8 @@
+T022:
+  c: false
+  h: da2da0d85c39c611e023baf49b2a487c61f59775030bd30e4ba418054f0cef5f
+  r: "The provided `code/models/train.py` is truncated and does not show a complete\
+    \ training loop, nor any code that saves the trained model to `data/processed/mlp_model.pt`.\
+    \ Additionally, the expected output file `mlp_model.pt` is missing. The implementation\
+    \ must include the full training procedure, enforce CPU\u2011only execution, and\
+    \ write the model checkpoint to the specified path."
