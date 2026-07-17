@@ -1,8 +1,8 @@
 status: none
-intent: openml python package dataset UCI wine abalone breast cancer student performance
-  python package dataset
+intent: download UCI Machine Learning Repository OpenML python package dataset
 required_fields:
-- continuous_variable_columns
-cache_key: 20b7e075982d363a3cb79826d9b2b5a57d270d8002bf015db85dbe3967c8f774
-searched_at: '2026-07-16T19:38:01.832808+00:00'
+- at least 20 numeric continuous feature columns
+- optional target/label column
+cache_key: 17b81767b8cf52d00eb192a7954faddbb14eaf187a7bb184569cd51806ff3c43
+searched_at: '2026-07-17T12:38:46.197359+00:00'
 retry_count: 1

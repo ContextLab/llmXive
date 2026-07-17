@@ -4,76 +4,51 @@ from typing import List, Tuple, Optional, Dict, Any
 import requests
 from io import StringIO
 import os
-import json
 import hashlib
+import json
 import logging
 import sys
-
-# Configure logging for the loader module
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('output/logs/loader.log', mode='a')
-    ]
-)
-logger = logging.getLogger(__name__)
+from pathlib import Path
 
 # Import config for paths and dataset definitions
+# We assume config.py is in the same directory or PYTHONPATH
 try:
     from config import get_config, ensure_dirs
 except ImportError:
-    # Fallback for direct execution or missing config import context
-    def get_config():
-        return {
-            'paths': {
-                'raw': 'data/raw',
-                'processed': 'data/processed',
-                'results': 'output/results',
-                'plots': 'output/plots',
-                'reports': 'output/reports',
-                'exploratory': 'output/exploratory',
-                'logs': 'output/logs'
-            },
-            'datasets': {
-                'wine': {
-                    'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data',
-                    'filename': 'wine.data'
-                },
-                'abalone': {
-                    'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data',
-                    'filename': 'abalone.data'
-                },
-                'breast_cancer': {
-                    'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data',
-                    'filename': 'breast-cancer-wisconsin.data'
-                },
-                'student_performance': {
-                    'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/student/student-por.csv',
-                    'filename': 'student-por.csv'
-                },
-                'air_quality': {
-                    'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/00360/AirQualityUCI.zip',
-                    'filename': 'AirQualityUCI.zip' # Note: Actual ingestion might need unzip logic, simplified here to URL fetch
-                },
-                'concrete': {
-                    'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/strength.csv',
-                    'filename': 'strength.csv'
-                }
-            },
-            'random_seed': 42
-        }
+    # Fallback for direct execution or different import structure
+    import config
+    get_config = config.get_config
+    ensure_dirs = config.ensure_dirs
 
-def ensure_dirs(paths: Dict[str, str]) -> None:
-    """Ensure all required directories exist."""
-    for path in paths.values():
-        os.makedirs(path, exist_ok=True)
+# --- Logging Setup ---
+# Fix for T061/Execution Failure: Ensure log directory exists before creating handler
+def setup_loader_logging():
+    config = get_config()
+    log_dir = Path(config['paths']['logs'])
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / 'loader.log'
+    
+    logger = logging.getLogger('loaders')
+    logger.setLevel(logging.INFO)
+    
+    # Clear existing handlers to avoid duplicates in interactive environments
+    if not logger.handlers:
+        fh = logging.FileHandler(log_file, mode='a')
+        fh.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+    
+    return logger
 
-def compute_file_hash(filepath: str, algorithm: str = 'sha256') -> str:
+logger = setup_loader_logging()
+
+# --- Checksum Utilities (T035 Implementation) ---
+
+def compute_file_hash(file_path: str, algorithm: str = 'sha256') -> str:
     """Compute SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
@@ -85,247 +60,251 @@ def load_checksums(checksum_file: str) -> Dict[str, str]:
             return json.load(f)
     return {}
 
-def save_checksums(checksums: Dict[str, str], checksum_file: str) -> None:
+def save_checksums(checksums: Dict[str, str], checksum_file: str):
     """Save checksums to JSON file."""
+    Path(checksum_file).parent.mkdir(parents=True, exist_ok=True)
     with open(checksum_file, 'w') as f:
         json.dump(checksums, f, indent=2)
 
-def verify_checksum(filepath: str, expected_hash: str) -> bool:
+def verify_checksum(file_path: str, expected_hash: str) -> bool:
     """Verify file integrity against expected hash."""
-    if not os.path.exists(filepath):
+    if not os.path.exists(file_path):
         return False
-    actual_hash = compute_file_hash(filepath)
+    actual_hash = compute_file_hash(file_path)
     return actual_hash == expected_hash
 
-def fetch_uci_dataset(dataset_name: str, raw_dir: str) -> str:
+# --- Dataset Definitions (From T004) ---
+# These are the verified URLs for the 6 specific UCI datasets
+DATASETS = {
+    'wine': {
+        'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data',
+        'name': 'Wine',
+        'has_header': False,
+        'delimiter': ','
+    },
+    'abalone': {
+        'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data',
+        'name': 'Abalone',
+        'has_header': False,
+        'delimiter': ','
+    },
+    'breast_cancer': {
+        'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data',
+        'name': 'Breast Cancer Wisconsin (Diagnostic)',
+        'has_header': False,
+        'delimiter': ','
+    },
+    'student_performance': {
+        'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/00295/student-mat.csv',
+        'name': 'Student Performance',
+        'has_header': True,
+        'delimiter': ';'
+    },
+    'air_quality': {
+        'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/00360/AirQualityUCI.zip',
+        'name': 'Air Quality',
+        'has_header': True,
+        'delimiter': ';',
+        'note': 'Requires unzipping and processing specific file inside'
+    },
+    'concrete': {
+        'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/Concrete_Data.xls',
+        'name': 'Concrete Compressive Strength',
+        'has_header': True,
+        'delimiter': ',' # Excel file, handled differently
+    }
+}
+
+FALLBACK_DATASETS = {
+    'parkinsons': {
+        'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/parkinsons/parkinsons.data',
+        'name': 'Parkinsons',
+        'has_header': True,
+        'delimiter': ','
+    },
+    'libras': {
+        'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/libras/movement_libras.data',
+        'name': 'Libras',
+        'has_header': False,
+        'delimiter': ','
+    },
+    'isolet': {
+        'url': 'https://archive.ics.uci.edu/ml/machine-learning-databases/isolet/isolet_data.txt',
+        'name': 'Isolet',
+        'has_header': False,
+        'delimiter': ' '
+    }
+}
+
+def fetch_uci_dataset(dataset_key: str, force_download: bool = False) -> str:
     """
-    Fetch a dataset from a verified UCI URL.
+    Fetch a dataset from UCI and save to data/raw.
+    Returns the path to the downloaded file.
     Raises FileNotFoundError if download fails.
     """
     config = get_config()
-    if dataset_name not in config['datasets']:
-        raise ValueError(f"Dataset {dataset_name} not found in config.")
-
-    dataset_info = config['datasets'][dataset_name]
-    url = dataset_info['url']
-    filename = dataset_info['filename']
-    filepath = os.path.join(raw_dir, filename)
-
-    if os.path.exists(filepath):
-        logger.info(f"Dataset {dataset_name} already exists at {filepath}")
-        # Optional: Verify checksum if available
-        checksums = load_checksums(os.path.join(raw_dir, 'checksums.json'))
+    raw_dir = Path(config['paths']['raw'])
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Select dataset source
+    if dataset_key in DATASETS:
+        ds_info = DATASETS[dataset_key]
+    elif dataset_key in FALLBACK_DATASETS:
+        ds_info = FALLBACK_DATASETS[dataset_key]
+    else:
+        raise ValueError(f"Unknown dataset key: {dataset_key}")
+    
+    url = ds_info['url']
+    filename = url.split('/')[-1]
+    # Handle .zip or .xls by keeping extension, but we might need to rename for CSV processing
+    local_path = raw_dir / filename
+    
+    # Check if already downloaded and valid
+    if not force_download and local_path.exists():
+        # Verify checksum if we have one
+        checksums = load_checksums(str(raw_dir / 'checksums.json'))
         if filename in checksums:
-            if verify_checksum(filepath, checksums[filename]):
-                logger.info(f"Checksum verified for {filename}")
-            else:
-                logger.warning(f"Checksum mismatch for {filename}, re-downloading...")
-                os.remove(filepath)
+            if verify_checksum(str(local_path), checksums[filename]):
+                logger.info(f"Using cached valid file: {filename}")
+                return str(local_path)
         else:
-            logger.warning(f"No checksum found for {filename}, skipping verification")
-        return filepath
-
-    logger.info(f"Downloading {dataset_name} from {url}...")
+            logger.info(f"File exists but no checksum found: {filename}")
+    
+    logger.info(f"Downloading {ds_info['name']} from {url}")
     try:
         response = requests.get(url, timeout=60)
         response.raise_for_status()
         
-        # Handle different content types
-        if 'text' in response.headers.get('Content-Type', '') or 'csv' in filename:
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(response.text)
-        else:
-            # Binary write for zips or other formats
-            with open(filepath, 'wb') as f:
-                f.write(response.content)
+        with open(local_path, 'wb') as f:
+            f.write(response.content)
         
-        # Save checksum
-        checksums = load_checksums(os.path.join(raw_dir, 'checksums.json'))
-        new_hash = compute_file_hash(filepath)
+        # Compute and save checksum
+        new_hash = compute_file_hash(str(local_path))
+        checksums = load_checksums(str(raw_dir / 'checksums.json'))
         checksums[filename] = new_hash
-        save_checksums(checksums, os.path.join(raw_dir, 'checksums.json'))
-        logger.info(f"Successfully downloaded and saved {filename} with hash {new_hash[:16]}...")
-        return filepath
-    
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download {dataset_name}: {e}")
-        raise FileNotFoundError(f"Could not fetch dataset {dataset_name} from {url}") from e
-
-def load_dataset_from_path(filepath: str, dataset_name: str = None) -> pd.DataFrame:
-    """Load dataset from a local path, handling headers and delimiters."""
-    try:
-        # Attempt to load as CSV, auto-detect delimiter if needed
-        # UCI datasets often have specific formats
-        if dataset_name == 'wine':
-            # Wine dataset has no header, comma-separated
-            df = pd.read_csv(filepath, header=None, sep=',')
-        elif dataset_name == 'abalone':
-            # Abalone has no header, comma-separated
-            df = pd.read_csv(filepath, header=None, sep=',')
-        elif dataset_name == 'breast_cancer':
-            # Breast Cancer has no header, comma-separated
-            df = pd.read_csv(filepath, header=None, sep=',')
-        elif dataset_name == 'student_performance':
-            # Student performance has header, semicolon-separated
-            df = pd.read_csv(filepath, header=0, sep=';')
-        elif dataset_name == 'air_quality':
-            # Air Quality is complex, often needs specific parsing. 
-            # For this pipeline, we assume a simplified CSV extraction or skip if not supported.
-            # Placeholder for specific parsing logic if needed.
-            df = pd.read_csv(filepath, sep=';', decimal=',', header=0)
-        elif dataset_name == 'concrete':
-            # Concrete has header, comma-separated
-            df = pd.read_csv(filepath, header=0, sep=',')
-        else:
-            # Default attempt
-            df = pd.read_csv(filepath)
+        save_checksums(checksums, str(raw_dir / 'checksums.json'))
+        logger.info(f"Downloaded and checksummed: {filename} ({new_hash[:16]}...)")
         
-        logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns from {filepath}")
+        return str(local_path)
+        
+    except requests.RequestException as e:
+        logger.error(f"Failed to download {dataset_key}: {e}")
+        # Per Constitution VII: Fail loudly, no synthetic fallback
+        raise FileNotFoundError(f"Could not download dataset {dataset_key} from {url}: {e}")
+
+def load_dataset_from_path(file_path: str, has_header: bool = False, delimiter: str = ',') -> pd.DataFrame:
+    """Load CSV/Text file into DataFrame with basic hygiene."""
+    try:
+        if file_path.endswith('.xls') or file_path.endswith('.xlsx'):
+            df = pd.read_excel(file_path)
+        elif file_path.endswith('.zip'):
+            # Special handling for zip files if needed, currently assuming raw CSV inside
+            # For this implementation, we assume the zip is extracted or handled by fetch logic
+            # If fetch returns a zip, we need to unzip. 
+            # Simplified: assume fetch_uci_dataset returns a path to a readable CSV/Text file
+            # or we unzip here.
+            import zipfile
+            with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                # Extract to a temp location or raw dir
+                extract_path = Path(file_path).parent / (Path(file_path).stem + "_extracted")
+                extract_path.mkdir(exist_ok=True)
+                zip_ref.extractall(extract_path)
+                # Find the first CSV/Text file
+                for f in extract_path.iterdir():
+                    if f.suffix in ['.csv', '.txt', '.data']:
+                        file_path = str(f)
+                        break
+            return load_dataset_from_path(file_path, has_header, delimiter)
+        
+        df = pd.read_csv(file_path, delimiter=delimiter, header=0 if has_header else None)
         return df
     except Exception as e:
-        logger.error(f"Failed to load dataset from {filepath}: {e}")
+        logger.error(f"Failed to load dataset from {file_path}: {e}")
         raise
+
+# --- Data Hygiene (T006 Implementation) ---
 
 def drop_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """Drop rows with any missing values."""
-    initial_count = len(df)
+    initial_len = len(df)
     df_clean = df.dropna()
-    dropped_count = initial_count - len(df_clean)
-    if dropped_count > 0:
-        logger.info(f"Dropped {dropped_count} rows with missing values ({dropped_count/initial_count*100:.2f}%)")
+    dropped = initial_len - len(df_clean)
+    if dropped > 0:
+        logger.info(f"Dropped {dropped} rows with missing values.")
     return df_clean
 
 def detect_constant_variables(df: pd.DataFrame) -> List[str]:
-    """
-    Detect and log constant variables (zero variance).
-    Returns a list of column names that are constant.
-    """
-    constant_vars = []
+    """Identify columns with constant values (variance == 0)."""
+    constant_cols = []
     for col in df.columns:
-        if df[col].nunique() == 1:
-            constant_vars.append(col)
-        elif pd.api.types.is_numeric_dtype(df[col]) and df[col].var() == 0:
-            # Explicit check for zero variance on numeric types
-            constant_vars.append(col)
-    
-    if constant_vars:
-        logger.info(f"Detected {len(constant_vars)} constant variables: {', '.join(constant_vars)}")
-    else:
-        logger.info("No constant variables detected.")
-    
-    return constant_vars
+        if pd.api.types.is_numeric_dtype(df[col]):
+            if df[col].var() == 0:
+                constant_cols.append(col)
+        else:
+            # For non-numeric, check unique count
+            if df[col].nunique() == 1:
+                constant_cols.append(col)
+    return constant_cols
 
-def exclude_constant_variables(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
-    """
-    Exclude constant variables from the DataFrame.
-    Returns the cleaned DataFrame and a list of dropped column names.
-    """
-    constant_vars = detect_constant_variables(df)
-    if constant_vars:
-        df_clean = df.drop(columns=constant_vars)
-        logger.info(f"Excluded {len(constant_vars)} constant variables from analysis.")
-        return df_clean, constant_vars
-    return df, []
-
-def filter_continuous_variables(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Filter to keep only continuous (numeric) variables.
-    """
-    initial_cols = len(df.columns)
-    df_numeric = df.select_dtypes(include=[np.number])
-    dropped_cols = initial_cols - len(df_numeric.columns)
-    if dropped_cols > 0:
-        logger.info(f"Dropped {dropped_cols} non-numeric columns.")
-    return df_numeric
-
-def validate_dataset_dimensions(df: pd.DataFrame, min_rows: int = 20, min_cols: int = 2) -> bool:
-    """
-    Validate that the dataset meets minimum size requirements.
-    """
-    if len(df) < min_rows:
-        logger.error(f"Dataset has only {len(df)} rows, minimum required is {min_rows}.")
-        return False
-    if len(df.columns) < min_cols:
-        logger.error(f"Dataset has only {len(df.columns)} columns, minimum required is {min_cols}.")
-        return False
-    return True
-
-def apply_hygiene_pipeline(df: pd.DataFrame, dataset_name: str) -> pd.DataFrame:
-    """
-    Apply full data hygiene pipeline:
-    1. Drop missing values
-    2. Detect and exclude constant variables (with logging)
-    3. Filter to continuous variables
-    4. Validate dimensions
-    """
-    logger.info(f"Starting hygiene pipeline for {dataset_name}...")
-    
-    # Step 1: Drop missing
-    df = drop_missing_values(df)
-    
-    # Step 2: Exclude constant variables (T046 requirement: explicit logging)
-    df, dropped_constant = exclude_constant_variables(df)
-    
-    # Step 3: Filter continuous
-    df = filter_continuous_variables(df)
-    
-    # Step 4: Validate
-    if not validate_dataset_dimensions(df, min_rows=20, min_cols=2):
-        raise ValueError(f"Dataset {dataset_name} failed dimension validation after hygiene.")
-    
-    logger.info(f"Hygiene pipeline complete for {dataset_name}. Final shape: {df.shape}")
+def exclude_constant_variables(df: pd.DataFrame, constant_cols: List[str]) -> pd.DataFrame:
+    """Drop constant columns."""
+    if constant_cols:
+        logger.info(f"Excluding constant variables: {constant_cols}")
+        return df.drop(columns=constant_cols)
     return df
 
-def load_and_hygiene_dataset(dataset_name: str, raw_dir: str, processed_dir: str) -> pd.DataFrame:
-    """
-    Load a dataset, apply hygiene, and save to processed directory.
-    """
-    # Fetch
-    filepath = fetch_uci_dataset(dataset_name, raw_dir)
-    
-    # Load
-    df = load_dataset_from_path(filepath, dataset_name)
-    
-    # Hygiene
-    df_clean = apply_hygiene_pipeline(df, dataset_name)
-    
-    # Save
-    output_filename = f"{dataset_name}_cleaned.csv"
-    output_path = os.path.join(processed_dir, output_filename)
-    df_clean.to_csv(output_path, index=False)
-    logger.info(f"Saved cleaned dataset to {output_path}")
-    
-    return df_clean
+def filter_continuous_variables(df: pd.DataFrame, min_count: int = 20) -> pd.DataFrame:
+    """Keep only numeric columns suitable for correlation."""
+    numeric_df = df.select_dtypes(include=[np.number])
+    if len(numeric_df.columns) < min_count:
+        logger.warning(f"Dataset has only {len(numeric_df.columns)} numeric columns, filtering might be too aggressive.")
+    return numeric_df
+
+def validate_dataset_dimensions(df: pd.DataFrame, min_rows: int = 20, min_cols: int = 3):
+    """Ensure dataset is large enough for analysis."""
+    if len(df) < min_rows:
+        raise ValueError(f"Dataset has only {len(df)} rows, minimum is {min_rows}.")
+    if len(df.columns) < min_cols:
+        raise ValueError(f"Dataset has only {len(df.columns)} columns, minimum is {min_cols}.")
+
+def apply_hygiene_pipeline(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply all hygiene steps."""
+    df = drop_missing_values(df)
+    constant_cols = detect_constant_variables(df)
+    df = exclude_constant_variables(df, constant_cols)
+    df = filter_continuous_variables(df)
+    validate_dataset_dimensions(df)
+    return df
+
+def load_and_hygiene_dataset(dataset_key: str) -> pd.DataFrame:
+    """Full pipeline: fetch, load, hygiene."""
+    file_path = fetch_uci_dataset(dataset_key)
+    ds_info = DATASETS.get(dataset_key, FALLBACK_DATASETS.get(dataset_key))
+    df = load_dataset_from_path(file_path, ds_info['has_header'], ds_info['delimiter'])
+    df = apply_hygiene_pipeline(df)
+    logger.info(f"Loaded and cleaned dataset {dataset_key}: {df.shape}")
+    return df
 
 def main():
-    """
-    Main entry point for running the loader pipeline on all configured datasets.
-    Usage: python code/loaders.py --output data/processed/
-    """
+    """CLI entry point for loaders."""
     import argparse
-    
-    parser = argparse.ArgumentParser(description='Load and clean UCI datasets.')
+    parser = argparse.ArgumentParser(description='Load and process UCI datasets.')
     parser.add_argument('--output', type=str, default='data/processed/', help='Output directory for processed data.')
+    parser.add_argument('--datasets', type=str, nargs='+', default=list(DATASETS.keys()), help='Dataset keys to load.')
     args = parser.parse_args()
     
-    config = get_config()
-    ensure_dirs(config['paths'])
+    output_dir = Path(args.output)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    processed_dir = args.output
-    raw_dir = config['paths']['raw']
-    
-    logger.info(f"Starting dataset loading pipeline. Output: {processed_dir}")
-    
-    for dataset_name in config['datasets'].keys():
+    for key in args.datasets:
         try:
-            df = load_and_hygiene_dataset(dataset_name, raw_dir, processed_dir)
-            logger.info(f"Successfully processed {dataset_name}. Shape: {df.shape}")
+            df = load_and_hygiene_dataset(key)
+            out_file = output_dir / f"{key}_cleaned.csv"
+            df.to_csv(out_file, index=False)
+            logger.info(f"Saved processed data to {out_file}")
         except Exception as e:
-            logger.error(f"Failed to process {dataset_name}: {e}")
-            # Continue with other datasets, but log the failure
-            continue
-    
-    logger.info("Dataset loading pipeline completed.")
+            logger.error(f"Failed to process dataset {key}: {e}")
+            # Continue with next dataset, but the script exit code will be handled by caller if needed
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

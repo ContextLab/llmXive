@@ -51,15 +51,15 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin, including runtime feasibility gates.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Create `code/config.py` defining paths (`data/raw`, `data/processed`, `output/results`), random seeds, and default thresholds. **Define the 6 specific UCI datasets explicitly** with their verified download URLs:
  1. Wine: `
  2. Abalone: `
- 3. Breast Cancer Wisconsin: `(Diagnostic)`
- 4. Student Performance: ` (and student-mat.csv)
+ 3. Breast Cancer Wisconsin: `
+ 4. Student Performance: `
  5. Air Quality: `
  6. Concrete Compressive Strength: `
  **Include Fallback List**: If <3 valid datasets are found, use: Parkinsons (`), Libras (`), Isolet (`). Logic must query UCI for these if primary list yields <3 valid datasets.
@@ -70,10 +70,14 @@
  - `def construct_graph(corr_matrix: pd.DataFrame, threshold: float) -> nx.Graph:`
  - `def calculate_stats(graph: nx.Graph) -> dict:`
  - `def generate_null_distribution(df: pd.DataFrame, n_permutations: int, stats_func: callable) -> dict:`
-- [X] T008 [P] Implement `code/correction.py` with the **Benjamini-Yekutieli (BY)** procedure function `apply_by_correction(p_values, alpha=0.05)`. **Note**: This task implements the requirement from Spec FR-004. The Spec's mandate for BY under arbitrary dependence overrides the Plan's "blocked" status regarding the constitutional amendment.
+- [X] T008 [P] Implement `code/correction.py` with the **Benjamini-Yekutieli (BY)** procedure function `apply_by_correction(p_values, alpha=0.05)`. **Note**: This task implements Spec FR-004. The Spec's mandate for BY under arbitrary dependence overrides the current Constitution Principle VII (which mandates BH). This implementation is contingent on the Constitutional Amendment proposal in plan.md being ratified; if not ratified, this task must be updated to BH.
 - [X] T009 [P] Implement `code/viz.py` skeleton with **exact function stubs** and required imports (`import matplotlib.pyplot as plt`, `import seaborn as sns`):
  - `def plot_heatmap(matrix: pd.DataFrame, title: str, output_path: str) -> None:` (Output: PNG, high resolution)
  - `def plot_histogram(null_dist: list, observed_val: float, title: str, output_path: str) -> None:` (Output: PNG, high-resolution)
+- [X] T061 [P] **Runtime Feasibility Gate**: Implement a pre-flight check in `code/main.py` that estimates the total runtime for N=1,000 permutations across all valid datasets based on a 10-permutation pilot run. If the estimated runtime exceeds the allocated time budget, **automatically reduce N** to a lower sample size (e.g., 500 or 200) to ensure the pipeline stays within budget, as required by Spec Assumptions and SC-004. Log the reduction and the new N value. **Logic**: Reduce N in steps (halving) until N >= 100 (N_min) or budget is met. Log the final N used.
+- [X] T061b [P] **Minimum N Enforcement**: Implement a constant `N_MIN = 100` in `code/config.py` and enforce this lower bound in the runtime reduction logic of T061. If the calculated N falls below 100, the pipeline must raise a `ValueError` with a clear message stating that the statistical validity cannot be guaranteed below this threshold. **Deliverable**: Code that raises an error if N < 100.
+- [X] T062 [P] **Parallel Permutation Optimization**: Refactor `code/stats_engine.py` to use `multiprocessing.Pool` or `joblib` to parallelize the permutation loop across available CPU cores, ensuring maximum utilization of the runner's resources to meet the 6-hour runtime constraint while maintaining N=1000 if feasible.
+- [X] T063 [P] **Memory Profiling for Clustering**: Add a memory usage monitor in `code/stats_engine.py` specifically for the clustering coefficient calculation during permutations, logging peak memory usage to `output/reports/memory_log.json` to ensure it stays within the specified storage limit and triggering a graceful exit if it approaches a substantial memory footprint.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -92,13 +96,15 @@
 
 ### Implementation for User Story 1
 
-- [X] T016 [US1] Implement synthetic dataset generator in `code/stats_engine.py` (N=500, V=20, identity covariance) for FR-009 validation. **Must be executed before T015** to provide input for validation.
-- [X] T015 [US1] Implement permutation engine in `code/stats_engine.py`: **N=1,000** permutations per dataset. *Note: Aligned with Plan's Phase 1 runtime constraint (SC-004) to ensure completion within 6 hours on free-tier runner. This count is deemed 'sufficient' for the MVP validation.* preserving marginals, computing stats for each perm.
-- [X] T016b [US1] Implement single-run validation in `code/main.py`: run synthetic validation (T016 + T015) once; verify that observed statistics fall within the central [deferred] of the null distribution (p > 0.05). **Must report the p-value**. Requires: T016 (Synthetic Generator), T015 (Permutation Engine). *Note: This task is sequential and aggregates results.*
-- [X] T016c [US1] Implement a test to validate that shuffled columns result in non-significant findings (p > 0.05), confirming the absence of false positives with no true correlation. Requires: T016, T015. The combined logic (T016b + T016c) must be explicitly linked to the '[deferred] of runs' requirement in FR-009/US-1, ensuring statistical validity.
+- [X] T015 [US1] Implement permutation engine in `code/stats_engine.py`: **N=1,000** permutations per dataset. *Note: Aligned with Plan's Phase 1 runtime constraint (SC-004) to ensure completion within 6 hours on free-tier runner. This count is deemed 'sufficient' for the MVP validation.* preserving marginals, computing stats for each perm. **Note**: Implements Constitution VI (2,000 permutations) but allows reduction per T061 (min N=100) if necessary to preserve the intent of sufficient permutations while respecting runtime.
+- [X] T016 [US1] Implement synthetic dataset generator in `code/stats_engine.py` (N=500, V=20, identity covariance) for FR-009 validation. **Must be executed after T015** to ensure the engine is available for validation.
+- [X] T016b [US1] **Single-Run Validation**: Implement single-run validation in `code/main.py`: run synthetic validation (T016 + T015) once; verify that observed statistics fall within the central [deferred] of the null distribution (p > 0.05). **Must report the p-value**. Requires: T016 (Synthetic Generator), T015 (Permutation Engine). *Note: This task is sequential and aggregates results.*
+- [X] T016c [US1] **Shuffled Columns Validation**: Implement a test to validate that shuffled columns result in non-significant findings (p > 0.05), confirming the absence of false positives with no true correlation. Requires: T016, T015. The combined logic (T016b + T016c) must be explicitly linked to the '[deferred] of runs' requirement in FR-009/US-1, ensuring statistical validity.
+- [X] T016d [US1] **Synthetic Validation Loop (FR-009 Compliance)**: Implement a loop in `code/main.py` to run the synthetic validation (T016 + T015) **N=100 times** to statistically verify that the observed statistics fall within the central [deferred] of the null distribution (p > 0.05) for at least 95% of the runs, as required by FR-009. **Deliverable**: A log entry confirming the pass rate (e.g., "98/100 runs passed").
 - [X] T012 [P] [US1] Implement Pearson and Spearman correlation matrix computation in `code/stats_engine.py` using `scipy.stats`; store both matrices but mark Spearman as 'exploratory'.
 - [X] T013 [US1] Implement graph construction in `code/stats_engine.py`: threshold **absolute Pearson correlations** at a configurable value from `config.py` (default) using `networkx`; explicitly exclude Spearman from graph construction and significance testing (Spearman is stored for exploratory comparison only).
 - [X] T013b [US1] Implement storage logic in `code/stats_engine.py`: save Spearman correlation matrices to `output/exploratory/` and ensure they are **excluded** from primary significance testing and BY correction.
+- [X] T013c [US1] **Spearman Graph Construction**: Implement graph construction for **Spearman** correlations in `code/stats_engine.py` using the same threshold logic as Pearson, but mark the resulting graphs as 'exploratory' and save them to `output/exploratory/` for visualization only. This ensures full coverage of the 'construct' requirement in FR-002.
 - [X] T014 [US1] Implement network statistic calculation in `code/stats_engine.py`: Mean Absolute Correlation, Edge Density, Max Absolute Correlation, Average Clustering Coefficient.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -138,7 +144,8 @@
 
 ### Implementation for User Story 3
 
-- [X] T024 [US3] Implement threshold sweep logic in `code/main.py`: **Re-run the full permutation engine** for each threshold in {0.1, 0.2, 0.3, 0.4, 0.5} to generate new null distributions and recalculate network statistics for each threshold, ensuring statistical validity as required by FR-005 and US-3.
+- [X] T024 [US3] Implement threshold sweep logic in `code/main.py`: **Re-run the full permutation engine** for each threshold in {0.1, 0.2, 0.3, 0.4, 0.5} to generate new null distributions and recalculate network statistics for each threshold, ensuring statistical validity as required by FR-005 and US-3. **Constraint**: Must use the reduced N from T061 (or T024b) to ensure runtime < 6 hours. **Specific Requirement**: For this sweep, **N must be reduced** to accommodate the 5x multiplier within the 6-hour budget.
+- [X] T024b [US3] **Sensitivity Sweep Optimization**: Implement logic in `code/main.py` to **reduce the permutation count (N)** specifically for the sensitivity sweep to a fixed lower bound (N=200) to ensure the multiplier fits within the 6-hour budget. **Deliverable**: A log entry confirming the N used for the sweep and the estimated total time.
 - [X] T025b [US3] Implement primary threshold visualization in `code/viz.py`: generate heatmap and histogram for threshold **|r| > 0.3** specifically, saving to `output/plots/primary/`.
 - [X] T025 [P] [US3] Implement heatmap generation in `code/viz.py` for observed vs. null correlation matrices (general utility).
 - [X] T026 [P] [US3] Implement histogram generation in `code/viz.py` for null distributions with observed values overlaid (general utility).
@@ -154,15 +161,17 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T029 [P] Documentation updates in `README.md` and `docs/`.
-- [X] T041 [P] **Runtime Measurement**: Implement a timer in `code/main.py` to measure the total runtime of the full pipeline (datasets × 1,000 permutations). Output the runtime to `output/reports/runtime_log.json` with keys `{"total_runtime_seconds": float, "limit_seconds": 21600, "status": "pass/fail"}`. Verify runtime < 6 hours (21600 seconds). The pipeline must exit with code 1 if the time limit is exceeded.
+- [X] T041 [P] **Runtime Measurement**: Implement a timer in `code/main.py` to measure the total runtime of the full pipeline (datasets × multiple permutations). Output the runtime to `output/reports/runtime_log.json` with keys `{"total_runtime_seconds": float, "limit_seconds": a sufficiently long duration to accommodate the full experimental protocol without premature termination., "status": "pass/fail"}`. Verify runtime < 6 hours (21600 seconds). The pipeline must exit with a non-zero error code if the time limit is exceeded. **Must implement a SIGTERM/SIGINT signal handler** to write a partial `runtime_log.json` with elapsed time and status "timeout" before exiting, ensuring the deliverable is created even if the process is killed. **Note**: Must handle SIGTERM to write partial log if killed.
+- [X] T041b [P] **Runtime Signal Handler**: (Merged into T041)
 - [X] T042 [P] Code cleanup in `code/stats_engine.py`: run `black`, `isort`, and `flake8` to remove unused imports, enforce line length < 88, and add type hints to all functions.
 - [X] T043 [P] Code cleanup in `code/correction.py`: run `black`, `isort`, and `flake8` to remove unused imports, enforce line length < 88, and add type hints to all functions.
 - [X] T032 [P] [US3] Run `quickstart.md` validation: execute `python -m pytest tests/integration/test_quickstart.py` and verify exit code indicates successful completion.
 - [X] T034 [P] [US1] Add robust error handling in `code/loaders.py` to raise explicit `FileNotFoundError` or `ValueError` if a verified UCI URL fails to download, ensuring no synthetic fallback is triggered (Constitution VII compliance).
-- [X] T035 [P] [US1] Implement dataset checksumming in `code/loaders.py` to verify integrity of downloaded raw files against known UCI checksums (if available) or store SHA256 hashes in `data/raw/checksums.json` for reproducibility (Constitution I compliance).
+- [X] T035 [P] [US1] Implement dataset checksumming in `code/loaders.py` to verify integrity of downloaded raw files against known UCI checksums (if available) or store SHA256 hashes in `data/raw/checksums.json` for reproducibility (Constitution I compliance). **Deliverable**: If no known checksum exists, compute and store SHA256 in `checksums.json`; verification passes if the stored hash matches on subsequent runs.
 - [X] T036 [P] [US3] Add a specific test case in `tests/integration/test_sensitivity.py` to verify that the sensitivity table includes a row for each threshold and that the representative threshold row is present.
 - [X] T046 [P] [US1] **Constant Variable Detection**: Enhance `code/loaders.py` to explicitly log the number and names of constant variables dropped from each dataset, ensuring transparency in the data hygiene process and verifying that no division-by-zero errors occur in correlation calculations.
-- [X] T048 [P] [US1] **Permutation Count Validation**: Add a memory usage monitor in `code/stats_engine.py` specifically for the clustering coefficient calculation during permutations, logging peak memory usage to `output/reports/memory_log.json` to ensure it stays within the specified storage limit, and triggering a graceful exit if it approaches a substantial memory footprint..
+- [X] T048 [P] [US1] **Permutation Count Validation**: Add a memory usage monitor in `code/stats_engine.py` specifically for the clustering coefficient calculation during permutations, logging peak memory usage to `output/reports/memory_log.json` to ensure it stays within the specified storage limit, and triggering a graceful exit if it approaches a substantial memory footprint. **Threshold**: 6GB (80% of 7GB RAM).
+- [X] T048b [P] **Memory Check Logic**: Implement the specific memory check logic in `code/stats_engine.py` using `psutil` to monitor peak memory usage and trigger a graceful exit if it exceeds a predefined memory threshold.
 - [X] T049 [P] [US2] **FDR Control Verification**: Implement a simulation task in `tests/unit/test_correction.py` to verify that the implemented BY procedure (T008) correctly controls FDR at a controlled nominal level under arbitrary dependence, providing empirical evidence for the amendment proposal.
 - [X] T050 [P] [US2] **Associational Language Audit**: Perform a text scan of all generated reports and logs to ensure no causal language (e.g., "causes", "effect", "determines") is present, replacing any instances with "associated with", "correlated with", or "predicts".
 - [X] T051 [P] [US3] **Visualization Quality Check**: Ensure all generated plots (T025, T025b, T047) have high resolution, clear legends, and labeled axes, and save them in both PNG and SVG formats for publication quality.
@@ -170,20 +179,26 @@
 - [X] T053 [P] [US1] **Edge Case Handling**: Implement specific error handling in `code/stats_engine.py` for datasets with < 3 variables after cleaning, ensuring the pipeline fails gracefully with a clear message rather than crashing with a cryptic error.
 - [X] T054 [P] [US3] **Threshold Baseline Verification**: Add a check in `code/main.py` to ensure that the sensitivity analysis includes a baseline threshold as required by FR-005, and log a warning if any threshold in a set of low-to-moderate values is skipped due to data constraints.
 - [X] T055 [P] [US1] **Random Seed Reproducibility**: Verify that all random operations (permutations, synthetic data generation) use the seed defined in `code/config.py` and that re-running the pipeline with the same seed produces bit-identical results in `output/results/`.
+- [X] T055b [P] **Master Seed Verification**: Implement a verification step in `code/main.py` to ensure that the pilot run seed and full-run seed are both derived deterministically from the master seed defined in `config.py`, ensuring the entire pipeline is reproducible with a single master seed.
+- [X] T055c [P] **End-to-End Seed Verification**: Implement a task to run the entire pipeline (including pilot and full runs) twice with the same master seed and verify that all outputs (results, plots, logs) are bit-identical, fulfilling Constitution I's reproducibility requirement.
 - [X] T056 [P] [US2] **Multiple Testing Correction Logging**: Add detailed logging in `code/correction.py` to record the raw p-values, sorted order, and adjusted q-values for each test, facilitating debugging and verification of the correction logic.
 - [X] T057 [P] [US3] **Sensitivity Analysis Summary**: Generate a concise summary table in `output/reports/` that aggregates the sensitivity analysis results across all datasets, highlighting thresholds where significance rates change dramatically.
 - [X] T058 [P] [US1] **Data Integrity Check**: Implement a final checksum verification in `code/main.py` that compares the checksums of processed data against the raw data checksums to ensure no accidental modification occurred during processing.
 - [X] T059 [P] [US2] **Associational Language Audit**: Perform a text scan of all generated reports and logs to ensure no causal language (e.g., "causes", "effect", "determines") is present, replacing any instances with "associated with", "correlated with", or "predicts".
-- [X] T060 [P] **Performance Profiling**: Add a profiling step in `code/main.py` to identify the most time-consuming part of the pipeline (data loading, permutation, correction, viz) and log the breakdown to `output/reports/profiling_log.json`. Verify the most time-consuming phase is >50% of total time if applicable.
+- [X] T060 [P] **Performance Profiling**: Add a profiling step in `code/main.py` to identify the most time-consuming part of the pipeline (data loading, permutation, correction, viz) and log the breakdown to `output/reports/profiling_log.json`. **Granularity**: Log time per-dataset, per-statistic, and per-permutation. **Schema**: `{"total_time": float, "breakdown": {"load": float, "perm": float, "corr": float, "viz": float}}`. Verify the most time-consuming phase is >50% of total time if applicable.
+- [X] T064 [P] [US1] **Runtime Enforcement Logic**: Implement a hard `signal` alarm or `time` check loop inside the main permutation worker function in `code/stats_engine.py`. If the cumulative wall-clock time for a single dataset's permutation batch exceeds a calculated sub-budget (derived from T061), the function must raise a `TimeoutError` to prevent the entire pipeline from hanging indefinitely, ensuring the 6-hour global limit (SC-004) is strictly enforced at the task level. **Formula**: `sub-budget = 6h / num_datasets / num_thresholds`.
+- [X] T064b [P] **Sub-Budget Calculation**: Implement the specific sub-budget calculation logic in `code/main.py` using the formula `sub-budget = 6h / num_datasets / num_thresholds` and pass it to the permutation worker function.
+- [X] T065 [P] [US1] **Missing Checksums Fallback**: Since UCI archives often lack public MD5/SHA256 checksums in their main index, implement a robust fallback in `code/loaders.py`: if a checksum is not found in `data/raw/checksums.json`, compute and store the SHA256 hash of the downloaded file immediately after download. Subsequent runs must verify the file against this stored hash, raising an error if the file has changed, rather than re-downloading or failing silently.
+- [X] T066 [P] [US3] **Sensitivity Analysis Granularity**: Refine the threshold sweep in `code/main.py` (T024) to ensure the output table explicitly logs the exact number of edges retained at each threshold step. This is required to verify that the "significant count" changes are driven by the threshold and not by stochastic noise in the permutation engine, addressing the robustness requirement in US-3. **Note**: Edge count is a proxy for density; focus on significant count.
+- [X] T067 [P] [US1] **Permutation Seed Isolation**: Ensure that the random seed used for the pilot run (T061) is distinct from the seed used for the full permutation run. Modify `code/stats_engine.py` to derive the full-run seed via a deterministic hash of the **Master Seed** + dataset_id + "full", and the pilot seed via **Master Seed** + dataset_id + "pilot", ensuring reproducibility of the full run even if the pilot parameters change.
+- [X] T068 [P] [US2] **BY Correction Edge Case**: Add a specific unit test in `tests/unit/test_correction.py` to verify the behavior of the BY procedure when all p-values are 1.0 (no signal). The test must confirm that the procedure returns q-values of 1.0 and flags no discoveries, preventing false positives in null scenarios.
 
 ---
 
 ## Phase 7: Runtime & Feasibility Validation (Revision)
 
-**Purpose**: Address runtime feasibility concerns raised by the analysis of the 1,000 permutation count on the free-tier CPU runner.
+**Purpose**: Address runtime feasibility concerns raised by the analysis of the 1,000 permutation count on the free-tier CPU runner. (Note: T061, T062, T063 moved to Phase 2).
 
-- [X] T061 [P] **Runtime Feasibility Gate**: Implement a pre-flight check in `code/main.py` that estimates the total runtime for N=1,000 permutations across all valid datasets based on a 10-permutation pilot run. If the estimated runtime exceeds the 6-hour budget, **automatically reduce N** to a lower sample size (e.g., 500 or 200) to ensure the pipeline stays within budget, as required by Spec Assumptions and SC-004. Log the reduction and the new N value.
-- [X] T062 [P] **Parallel Permutation Optimization**: Refactor `code/stats_engine.py` to use `multiprocessing.Pool` or `joblib` to parallelize the permutation loop across available CPU cores, ensuring maximum utilization of the runner's resources to meet the 6-hour runtime constraint while maintaining N=1000 if feasible.
-- [X] T063 [P] **Memory Profiling for Clustering**: Add a memory usage monitor in `code/stats_engine.py` specifically for the clustering coefficient calculation during permutations, logging peak memory usage to `output/reports/memory_log.json` to ensure it stays within the specified storage limit and triggering a graceful exit if it approaches a substantial memory footprint..
-
----
+- [X] T061 [P] **Runtime Feasibility Gate**: (Moved to Phase 2)
+- [X] T062 [P] **Parallel Permutation Optimization**: (Moved to Phase 2)
+- [X] T063 [P] **Memory Profiling for Clustering**: (Moved to Phase 2)

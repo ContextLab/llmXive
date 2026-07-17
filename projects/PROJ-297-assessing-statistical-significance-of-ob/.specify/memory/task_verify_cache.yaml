@@ -13,17 +13,18 @@ T032:
     \ confirming successful completion. Without this artifact, the task\u2019s validation\
     \ step is not satisfied."
 T035:
-  c: true
-  h: 12a003f4bdf48ea2338547f05eb613d8e37ad0c7637ce9a4c9dd3a3eb22211bc
-  r: The `code/loaders.py` file defines SHA256 calculation, loading/saving of a `data/raw/checksums.json`
-    file, and a `_verify_checksum` routine that stores new hashes and validates existing
-    ones, fulfilling the required checksumming functionality. The checksum file will
-    be created automatically when datasets are first fetched, satisfying the storage
-    requirement.
-T060:
   c: false
-  h: 16cb0e711f01c58a514cdc6fa88c0f6bfbd14e05e64417f49315e0bd9d5887b5
-  r: The provided `code/main.py` only defines a `timer` context manager but never
-    uses it around the pipeline stages, nor does it write any timing results to `output/reports/profiling_log.json`.
-    The expected JSON log file is absent from the repository. Consequently, the profiling
-    step and required output are not implemented.
+  h: 685abb020e9e14d65ed67db18b3961218f405dcdd69b72e5723567e7bd2737b8
+  r: The `code/loaders.py` file only defines checksum helper functions but does not
+    show any logic that uses them to verify downloaded files against known UCI checksums
+    or to write SHA256 hashes to `data/raw/checksums.json`. Moreover, the required
+    `data/raw/checksums.json` file is absent from the repository. Both the integration
+    and the persisted checksum artifact are missing.
+T041:
+  c: false
+  h: 24f48b16fbe712c133cd5e4ccdfd508c52579efe6d35b8229a1aa3510afd42a2
+  r: "The repository lacks the required `output/reports/runtime_log.json` file, and\
+    \ the provided `code/main.py` does not contain code that records the total pipeline\
+    \ runtime, writes the JSON with the specified keys, or exits with code\u202F1\
+    \ when the 6\u2011hour limit is exceeded. The timer and logging functionality\
+    \ are therefore missing."

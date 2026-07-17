@@ -4,14 +4,14 @@
   "reason": "2 command(s) failed: python code/loaders.py --output data/processed/ (rc=1); python code/main.py --permutations [variable] --threshold 0.3 --sweep (rc=1)",
   "artifacts": [],
   "failures": [
-    "python code/loaders.py --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py\", line 1, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
-    "python code/main.py --permutations [variable] --threshold 0.3 --sweep -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/main.py\", line 9, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+    "python code/loaders.py --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py\", line 18, in <module>\n    logging.FileHandler('output/logs/loader.log', mode='a')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1213, in _open",
+    "python code/main.py --permutations [variable] --threshold 0.3 --sweep -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/main.py\", line 16, in <module>\n    from loaders import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py\", line 18, in <module>\n    logging.FileHandler('output/logs/loader.log', mode='a')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHa"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-16T19:33:31Z"
+  "updated_at": "2026-07-17T12:37:53Z"
 }
