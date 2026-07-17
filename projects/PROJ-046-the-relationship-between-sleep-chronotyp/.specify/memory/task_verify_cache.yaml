@@ -1,0 +1,6 @@
+T025:
+  c: false
+  h: cd87d2336f4c2c7fcca9842eb3ab85f49084ab7fcc0a11a91b03629509290584
+  r: "The required artifact `tests/test-report.R` does not exist on disk, so the validation\
+    \ test for report structure cannot be present or evaluated. The task\u2019s core\
+    \ deliverable is missing."
