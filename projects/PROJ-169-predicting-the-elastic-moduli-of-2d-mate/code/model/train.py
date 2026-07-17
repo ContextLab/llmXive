@@ -1,183 +1,293 @@
-"""Training script for Structure-Only Surrogate Model.
-
-WARNING: This model is a SURROGATE for DFT calculations. It does NOT solve
-the Schrödinger equation. It interpolates elastic properties from existing
-DFT data found in public repositories.
 """
+Training script for the Lightweight GNN surrogate model.
+
+WARNING: This model is a surrogate interpolating pre-computed DFT results.
+It does NOT solve the Schrödinger equation or perform first-principles calculations.
+"""
+
 import os
 import json
 import logging
 import argparse
 import time
+import gc
+import tracemalloc
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import List, Dict, Any, Optional
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch_geometric.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
+from torch_geometric.data import Data
 import numpy as np
 
-from model.gnn import create_model, LightweightGNN
-from model.splitter import split_by_family, save_split_manifest
+# Import project utilities
 from utils.config import Config
-from utils.logger import get_logger
+from utils.logger import get_logger, log_training_metrics
+from utils.memory_utils import get_memory_profile
+from data_models.material_graph import MaterialGraph
+from model.gnn import LightweightGNN, create_model
+from model.splitter import load_graphs_from_parquet
 
-logger = get_logger("train")
+# Configure logging
+logger = get_logger(__name__)
 
-def load_graphs_from_parquet(path: Path):
-    """Load graphs from parquet file."""
-    import pyarrow.parquet as pq
-    table = pq.read_table(path)
-    # Convert to list of dicts
-    return [row.as_py() for row in table.to_pydict()]
+# Explicit Surrogate Model Warning
+SURROGATE_WARNING = (
+    "WARNING: This model is a surrogate interpolating pre-computed DFT results. "
+    "It does NOT solve the Schrödinger equation or perform first-principles calculations. "
+    "All predictions are statistical interpolations within the chemical space of the training data."
+)
 
-def graph_to_pyg(graph_dict: Dict[str, Any]):
-    """Convert material graph dict to PyTorch Geometric Data."""
-    import torch
-    from torch_geometric.data import Data
-    import numpy as np
+class GraphDataset(Dataset):
+    """PyTorch Dataset wrapper for MaterialGraphs."""
 
-    # Create node features (simplified: atomic number)
-    nodes = graph_dict.get('nodes', [])
-    x = torch.tensor([[n['atomic_number']] for n in nodes], dtype=torch.float)
+    def __init__(self, graphs: List[MaterialGraph], transform=None):
+        self.graphs = graphs
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.graphs)
+
+    def __getitem__(self, idx):
+        graph = self.graphs[idx]
+        if self.transform:
+            graph = self.transform(graph)
+        return graph
+
+def collate_fn(batch):
+    """Custom collate function to convert list of MaterialGraphs to PyG Data."""
+    # We expect the batch to contain MaterialGraph objects or dicts that need conversion
+    pyg_batch = []
+    for item in batch:
+        if isinstance(item, MaterialGraph):
+            pyg_batch.append(graph_to_pyg(item))
+        else:
+            # Assume it's already a dict or Data object if passed differently
+            pyg_batch.append(item)
+    # PyG collate handles the rest
+    return torch.utils.data.default_collate(pyg_batch)
+
+def graph_to_pyg(graph: MaterialGraph) -> Data:
+    """Convert MaterialGraph dataclass to PyTorch Geometric Data object."""
+    # Ensure features are tensors
+    x = torch.tensor(graph.node_features, dtype=torch.float32)
+    edge_index = torch.tensor(graph.edge_index, dtype=torch.long)
+    edge_attr = torch.tensor(graph.edge_features, dtype=torch.float32) if graph.edge_features is not None else None
     
-    # Edge index
-    edge_index = graph_dict.get('edge_index', np.zeros((2, 0), dtype=int))
-    if isinstance(edge_index, list):
-        edge_index = np.array(edge_index)
-    edge_index = torch.tensor(edge_index, dtype=torch.long)
-    
-    # Batch
-    batch = torch.zeros(len(nodes), dtype=torch.long)
-    
-    # Target
-    target = graph_dict.get('target_tensor')
-    y = torch.tensor(target, dtype=torch.float) if target is not None else torch.zeros(6)
-    
-    return Data(x=x, edge_index=edge_index, y=y, batch=batch)
+    # Target: Elastic moduli (Young's, Shear, Poisson)
+    # Assuming target_moduli is a list or array of 3 values
+    y = torch.tensor(graph.target_moduli, dtype=torch.float32).view(1, -1)
 
-def train_epoch(model: LightweightGNN, loader: DataLoader, optimizer: optim.Optimizer, device: str):
-    """Train for one epoch."""
+    data = Data(x=x, edge_index=edge_index, y=y)
+    if edge_attr is not None:
+        data.edge_attr = edge_attr
+    
+    return data
+
+def train_epoch(model: nn.Module, loader: DataLoader, optimizer: torch.optim.Optimizer, device: str) -> float:
+    """Train the model for one epoch."""
     model.train()
-    total_loss = 0
+    total_loss = 0.0
+    criterion = nn.MSELoss()
+
     for batch in loader:
         batch = batch.to(device)
         optimizer.zero_grad()
-        out = model(batch.x, batch.edge_index, batch.batch)
-        loss = nn.MSELoss()(out, batch.y)
+        
+        out = model(batch)
+        # Handle output shape if necessary (model might return 1D or 2D)
+        if out.dim() == 1:
+            out = out.unsqueeze(1)
+        
+        loss = criterion(out, batch.y)
         loss.backward()
         optimizer.step()
+        
         total_loss += loss.item()
+
     return total_loss / len(loader)
 
-def evaluate(model: LightweightGNN, loader: DataLoader, device: str) -> Dict[str, float]:
-    """Evaluate model."""
+def evaluate(model: nn.Module, loader: DataLoader, device: str) -> Dict[str, float]:
+    """Evaluate the model on a dataset."""
     model.eval()
-    total_loss = 0
-    preds, targets = [], []
+    total_loss = 0.0
+    criterion = nn.MSELoss()
+    all_preds = []
+    all_targets = []
+
     with torch.no_grad():
         for batch in loader:
             batch = batch.to(device)
-            out = model(batch.x, batch.edge_index, batch.batch)
-            loss = nn.MSELoss()(out, batch.y)
+            out = model(batch)
+            if out.dim() == 1:
+                out = out.unsqueeze(1)
+            
+            loss = criterion(out, batch.y)
             total_loss += loss.item()
-            preds.extend(out.cpu().numpy())
-            targets.extend(batch.y.cpu().numpy())
+            
+            all_preds.append(out.cpu().numpy())
+            all_targets.append(batch.y.cpu().numpy())
+
+    all_preds = np.vstack(all_preds) if all_preds else np.array([])
+    all_targets = np.vstack(all_targets) if all_targets else np.array([])
+
+    # Calculate metrics
+    mse = total_loss / len(loader)
+    rmse = np.sqrt(mse)
     
-    preds = np.array(preds)
-    targets = np.array(targets)
-    
-    mape = np.mean(np.abs((preds - targets) / (targets + 1e-8))) * 100
-    rmse = np.sqrt(np.mean((preds - targets) ** 2))
-    r2 = 1 - np.sum((preds - targets) ** 2) / np.sum((targets - np.mean(targets)) ** 2)
-    
-    return {'loss': total_loss / len(loader), 'mape': mape, 'rmse': rmse, 'r2': r2}
+    # MAPE calculation (handle zeros)
+    if np.any(all_targets != 0):
+        mape = np.mean(np.abs((all_targets - all_preds) / (all_targets + 1e-8))) * 100
+    else:
+        mape = 0.0
+
+    return {
+        "loss": mse,
+        "rmse": float(rmse),
+        "mape": float(mape)
+    }
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--data', default='data/processed/graphs_v1.parquet')
-    parser.add_argument('--output', default='data/results/training_logs.json')
-    parser.add_argument('--epochs', type=int, default=50)
-    parser.add_argument('--patience', type=int, default=3)
-    parser.add_argument('--lr', type=float, default=0.001)
-    parser.add_argument('--batch_size', type=int, default=32)
+    """Main training loop with early stopping and logging."""
+    print(SURROGATE_WARNING)
+    logger.warning(SURROGATE_WARNING)
+
+    parser = argparse.ArgumentParser(description="Train Lightweight GNN Surrogate Model")
+    parser.add_argument("--data_path", type=str, default="data/processed/graphs_v1.parquet",
+                        help="Path to processed graphs parquet file")
+    parser.add_argument("--split_manifest", type=str, default="data/results/split_manifest.json",
+                        help="Path to split manifest file")
+    parser.add_argument("--output_dir", type=str, default="data/results",
+                        help="Directory to save logs and checkpoints")
+    parser.add_argument("--epochs", type=int, default=100, help="Maximum epochs")
+    parser.add_argument("--patience", type=int, default=3, help="Early stopping patience")
+    parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")
+    parser.add_argument("--batch_size", type=int, default=32, help="Batch size")
+    parser.add_argument("--hidden_dim", type=int, default=64, help="Hidden dimension")
+    parser.add_argument("--num_layers", type=int, default=3, help="Number of GNN layers")
     args = parser.parse_args()
 
     # Setup
     config = Config()
-    device = config.device
-    logger.info(f"Using device: {device}")
-    logger.warning("WARNING: This model is a SURROGATE for DFT calculations. It does NOT solve the Schrödinger equation.")
+    config.seed_everything()
+    
+    output_path = Path(args.output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    log_file = output_path / "training_logs.json"
+    log_entries = []
 
-    # Load data
-    graphs = load_graphs_from_parquet(Path(args.data))
+    device = torch.device("cpu")  # CPU execution as required
+    logger.info(f"Using device: {device}")
+
+    # Load Data
+    logger.info(f"Loading graphs from {args.data_path}")
+    graphs = load_graphs_from_parquet(args.data_path)
     logger.info(f"Loaded {len(graphs)} graphs")
 
-    # Split by family
-    split_manifest = split_by_family(graphs)
-    save_split_manifest(split_manifest, Path('data/splits/split_manifest.json'))
+    # Load Split Manifest
+    logger.info(f"Loading split manifest from {args.split_manifest}")
+    with open(args.split_manifest, 'r') as f:
+        split_data = json.load(f)
+    
+    train_indices = split_data.get("train_indices", [])
+    val_indices = split_data.get("val_indices", [])
 
-    # Convert to PyG
-    train_graphs = [g for g in graphs if g['material_id'] in split_manifest.train_ids]
-    val_graphs = [g for g in graphs if g['material_id'] in split_manifest.val_ids]
-    test_graphs = [g for g in graphs if g['material_id'] in split_manifest.test_ids]
+    train_graphs = [graphs[i] for i in train_indices]
+    val_graphs = [graphs[i] for i in val_indices]
 
-    train_loader = DataLoader([graph_to_pyg(g) for g in train_graphs], batch_size=args.batch_size, shuffle=True)
-    val_loader = DataLoader([graph_to_pyg(g) for g in val_graphs], batch_size=args.batch_size)
-    test_loader = DataLoader([graph_to_pyg(g) for g in test_graphs], batch_size=args.batch_size)
+    logger.info(f"Train size: {len(train_graphs)}, Val size: {len(val_graphs)}")
 
-    # Model
-    model = create_model(node_dim=1, hidden_dim=64, num_layers=2).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=2, factor=0.5)
+    # Create Datasets and Loaders
+    train_dataset = GraphDataset(train_graphs)
+    val_dataset = GraphDataset(val_graphs)
 
-    # Training loop with early stopping
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn)
+    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn)
+
+    # Initialize Model
+    model = create_model(hidden_dim=args.hidden_dim, num_layers=args.num_layers)
+    model = model.to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2)
+
+    # Training Loop
     best_val_loss = float('inf')
     patience_counter = 0
-    training_log = []
+    
+    logger.info("Starting training loop...")
+    tracemalloc.start()
 
     for epoch in range(args.epochs):
+        start_time = time.time()
+        
+        # Train
         train_loss = train_epoch(model, train_loader, optimizer, device)
+        
+        # Evaluate
         val_metrics = evaluate(model, val_loader, device)
-        scheduler.step(val_metrics['loss'])
+        val_loss = val_metrics["loss"]
+        
+        scheduler.step(val_loss)
 
+        # Memory Profile
+        current_mem, peak_mem = get_memory_profile()
+        memory_peak_gb = peak_mem / (1024 ** 3)
+
+        # Log Entry
         log_entry = {
-            'epoch': epoch + 1,
-            'train_loss': train_loss,
-            'val_loss': val_metrics['loss'],
-            'val_mape': val_metrics['mape'],
-            'val_rmse': val_metrics['rmse'],
-            'val_r2': val_metrics['r2']
+            "epoch": epoch + 1,
+            "loss": float(train_loss),
+            "metrics": {
+                "mape": val_metrics["mape"],
+                "rmse": val_metrics["rmse"]
+            },
+            "memory_peak": memory_peak_gb,
+            "val_loss": float(val_loss),
+            "lr": optimizer.param_groups[0]['lr'],
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
         }
-        training_log.append(log_entry)
-        logger.info(f"Epoch {epoch+1}: train_loss={train_loss:.4f}, val_mape={val_metrics['mape']:.2f}%")
+        log_entries.append(log_entry)
 
-        # Early stopping
-        if val_metrics['loss'] < best_val_loss:
-            best_val_loss = val_metrics['loss']
+        # Log to file and console
+        log_training_metrics(log_entry)
+        logger.info(f"Epoch {epoch+1}: Loss={train_loss:.4f}, Val Loss={val_loss:.4f}, "
+                    f"MAPE={val_metrics['mape']:.2f}%, RMSE={val_metrics['rmse']:.4f}, "
+                    f"Peak Mem={memory_peak_gb:.2f}GB")
+
+        # Early Stopping
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
             patience_counter = 0
-            torch.save(model.state_dict(), 'data/results/best_model.pt')
+            # Save checkpoint
+            checkpoint_path = output_path / "best_model.pth"
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'val_loss': best_val_loss,
+            }, checkpoint_path)
+            logger.info(f"Checkpoint saved to {checkpoint_path}")
         else:
             patience_counter += 1
             if patience_counter >= args.patience:
-                logger.info(f"Early stopping at epoch {epoch+1}")
+                logger.info(f"Early stopping triggered at epoch {epoch+1}")
                 break
 
-    # Final evaluation on test set
-    test_metrics = evaluate(model, test_loader, device)
-    logger.info(f"Test MAPE: {test_metrics['mape']:.2f}%, RMSE: {test_metrics['rmse']:.4f}, R2: {test_metrics['r2']:.4f}")
+        # Cleanup
+        gc.collect()
+        if device.type == 'cuda':
+            torch.cuda.empty_cache()
 
-    # Save logs
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump({
-            'training_log': training_log,
-            'test_metrics': test_metrics,
-            'config': vars(args)
-        }, f, indent=2)
-    logger.info(f"Training logs saved to {output_path}")
+    tracemalloc.stop()
 
-if __name__ == '__main__':
+    # Final Save
+    with open(log_file, 'w') as f:
+        json.dump(log_entries, f, indent=2)
+    
+    logger.info(f"Training logs saved to {log_file}")
+    logger.info("Training completed.")
+
+if __name__ == "__main__":
     main()

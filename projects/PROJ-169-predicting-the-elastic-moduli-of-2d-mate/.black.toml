@@ -1,4 +1,18 @@
-# Black configuration
-# The actual configuration lives in code/pyproject.toml under [tool.black]
-# This file is provided for explicit editor detection if needed.
-# No additional settings needed; inherits from pyproject.toml.
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+extend-exclude = "data/"

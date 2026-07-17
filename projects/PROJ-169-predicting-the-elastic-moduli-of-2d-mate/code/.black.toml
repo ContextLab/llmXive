@@ -1,4 +1,18 @@
-# Standalone black configuration for CLI usage
-# This file mirrors settings in pyproject.toml for editor integration
-
-extend = "pyproject.toml"
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+# Ensure consistency with ruff line-length

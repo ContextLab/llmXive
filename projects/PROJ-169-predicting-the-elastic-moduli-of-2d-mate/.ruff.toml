@@ -1,6 +1,12 @@
-# Global configuration for Ruff
-# This file is a symlink to code/pyproject.toml's [tool.ruff] section
-# but provided separately for editor integration if needed.
-# The actual configuration lives in code/pyproject.toml.
-extend = "code/pyproject.toml"
-line-length = 88
+[lint]
+select = ["E", "F", "W", "I"]
+ignore = []
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

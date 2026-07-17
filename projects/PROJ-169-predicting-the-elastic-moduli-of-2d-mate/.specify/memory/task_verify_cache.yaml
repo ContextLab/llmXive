@@ -1,25 +1,48 @@
-T013:
+T009a:
   c: true
-  h: 2e979e9015206f485a4db9fa9ddc6229724c8c0c3bc8a491bdfab90ed43ee75b
-  r: "The repository contains a non\u2011trivial `code/ingest/pipeline.py` (\u2248\
-    7\u202FKB) that defines a full orchestration function (`run_pipeline`) importing\
-    \ the download, parse, filter, bias\u2011check, and serialization modules and\
-    \ writes a Parquet file to `data/processed/`. The script therefore fulfills the\
-    \ requirement to implement the download \u2192 parse \u2192 filter \u2192 save\
-    \ pipeline; the absence of the generated `graphs_v1.parquet` file is expected\
-    \ because the task only demanded the script, not its execution."
-T018:
+  h: 04f9e34618998f844a0616704a5141b9b6693ead6acc31603a249ce13d2585bb
+  r: The `code/ingest/download.py` file defines a `UnifiedDatasetLoader` that tracks
+    active sources and includes a `_validate_single_source` method which raises a
+    `RuntimeError` when a second source is attempted, fulfilling the required runtime
+    source enforcement. No missing or placeholder files are needed because the enforcement
+    is implemented directly in `download.py`.
+T021:
   c: false
-  h: 3c3a60b66fcb74117a8d64e2fc12c8a33cd73bde255302ef18acdc5aaecf5ba8
-  r: "The required `code/model/train.py` file is missing entirely, and the existing\
-    \ `training_logs.json` contains only placeholder values with no actual training\
-    \ metrics. Consequently, there is no training loop, early\u2011stopping logic,\
-    \ CPU\u2011only execution, logging, or the required surrogate\u2011model warning.\
-    \ The task is not satisfied."
-T027:
+  h: ddf9041204c78f21099798519314bc69924201174298c1c7f3d266d8486bab20
+  r: "The repository contains `code/model/generalization_test.py` with a disjoint\u2011\
+    family check, but the required result file `data/results/generalization_metrics.json`\
+    \ does not exist, and the provided code snippet is truncated before showing any\
+    \ logic that computes the MAPE drop and writes the JSON with the fields `intra_family_mape`,\
+    \ `inter_family_mape`, and `drop_percentage`. The essential output artifact is\
+    \ missing."
+T027c:
   c: false
-  h: 0f2e98a27c9ab5c3d6f473daf760652317040e2c920dd35722a1a9cd98efdb29
-  r: The repository contains `code/analysis/report_generator.py` which implements
-    the required synthesis and markdown generation, but the expected output file `data/results/feature_importance_report.md`
-    is absent, so the final report was never produced. The missing report must be
-    generated and saved at the specified location.
+  h: 51ca58e53101c93ddcba976610ff668d163049276996b481d00e30791ae1807a
+  r: "The required output file `data/results/feature_importance_report.md` does not\
+    \ exist, so the report is never generated. Moreover, the markdown table defined\
+    \ in `report_generator.py` includes an extra \u201CRank\u201D column, deviating\
+    \ from the exact column set mandated by the task. The implementation therefore\
+    \ does not satisfy the stated requirements."
+T028a:
+  c: false
+  h: c9aefab7730e0f7064d0fcfc5ba70afba46f4c0b9dd6899fe8e8dedb487b122b
+  r: "The required file `data/results/feature_importance_report.md` does not exist,\
+    \ so the mandated statement cannot be verified. The implementer must create the\
+    \ markdown report at the specified path and include the exact sentence: \u201C\
+    The identified descriptors are statistical correlations learned by the surrogate\
+    \ model from DFT data, not fundamental quantum mechanical variables derived from\
+    \ the Hamiltonian.\u201D."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified\u202FREADME.md is provided; the claim that it now\
+    \ explicitly defines the project as a \u201CSurrogate Model\u201D interpolating\
+    \ DFT data and removes any mention of solving the Schr\xF6dinger equation cannot\
+    \ be verified. The required artifact (the updated README) is missing."
+T032:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided spec excerpt includes a \u201C5. Limitations\u201D section that\
+    \ explicitly notes the model cannot extrapolate beyond the chemical space of the\
+    \ training DFT data and that it does not discover new physics, satisfying the\
+    \ task requirement."

@@ -1,1 +1,1 @@
-# Code package
+# Placeholder for package initialization

@@ -1,7 +1,26 @@
-# Standalone ruff configuration for CLI usage
-# This file mirrors settings in pyproject.toml for editor integration
+[lint]
+# Enable strict rules for E (pycodestyle errors), F (Pyflakes), W (pycodestyle warnings), I (isort)
+select = ["E", "F", "W", "I"]
 
-extend = "pyproject.toml"
+# Ignore specific rules if necessary (none for strict mode)
+ignore = []
 
-# Explicitly set src for linter to resolve imports correctly
-src = ["code"]
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Line length for formatting (must match black)
+line-length = 88
+
+# Target Python version
+target-version = "py311"
+
+[lint.per-file-ignores]
+# Optional: specific ignores for test files if needed
+"tests/*" = ["S101"]
+
+[lint.isort]
+# Isort configuration
+known-first-party = ["data_models", "ingest", "model", "utils", "analysis"]
+force-sort-within-sections = true
+lines-after-imports = 2

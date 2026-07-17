@@ -1,39 +1,17 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "elastic-moduli-2d-surrogate"
-version = "0.1.0"
-description = "Structure-Only Surrogate Model for predicting elastic moduli of 2D materials"
-requires-python = ">=3.11"
-dependencies = [
-    "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "scipy>=1.10.0",
-    "torch>=2.0.0",
-    "torch-geometric>=2.3.0",
-    "pymatgen>=2023.0.0",
-    "matplotlib>=3.7.0",
-    "seaborn>=0.12.0",
-    "scikit-learn>=1.2.0",
-    "shap>=0.42.0",
-    "pyarrow>=12.0.0",
-    "rich>=13.0.0",
-    "tqdm>=4.65.0",
-]
-
 [tool.black]
-line-length = 100
-target-version = ['py311']
-
-[tool.ruff]
-line-length = 100
-target-version = "py311"
-select = ["E", "W", "F", "I", "C", "B"]
-ignore = ["E501", "B008"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

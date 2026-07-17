@@ -1,0 +1,36 @@
+- artifact_path: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/docs/methodology.md
+  attempts: 1
+  canonical: Jain et al. 2013 APL Materials 1 011002 reference for Materials Project
+  claim_id: c_dfe210fd
+  context: 'The training data is sourced from established, public DFT databases...
+    1. Materials Project - Reference: Jain, A. et al...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Jain, A. et al. ''Commentary: The Materials Project: A materials genome
+    approach to accelerating materials innovation.'' APL Materials 1, 011002 (2013).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:50:40Z'
+- artifact_path: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/docs/methodology.md
+  attempts: 1
+  canonical: Curtarolo et al. 2012 Computational Materials Science 58 227-235 reference
+    for AFLOW
+  claim_id: c_74c764d0
+  context: "2. AFLOW - Reference: Curtarolo, S. et al. 'AFLOW: An Automatic Framework\
+    \ for Large-Scale Materials Discovery.' Computational Materials Science 58, 227\u2013\
+    235 (2012)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Curtarolo, S. et al. 'AFLOW: An Automatic Framework for Large-Scale Materials\
+    \ Discovery.' Computational Materials Science 58, 227\u2013235 (2012)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:50:57Z'
