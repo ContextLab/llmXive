@@ -3,12 +3,12 @@
   "stage": "clarified",
   "class": "permanent",
   "fingerprint": "unreachable_reference",
-  "consecutive_count": 1,
+  "consecutive_count": 0,
   "first_seen": "2026-07-10T23:08:52.116012+00:00",
-  "last_seen": "2026-07-10T23:08:52.116012+00:00",
+  "last_seen": "2026-07-17T08:13:25.382058+00:00",
   "retry_after": null,
   "last_error": "research.md reference is unreachable: 'http://jaspar.genereg.net/download/data/2024/CORE/JASPAR2024_CORE_non_redundant_pfms_jaspar.txt' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
   "evidence": "research.md reference is unreachable: 'http://jaspar.genereg.net/download/data/2024/CORE/JASPAR2024_CORE_non_redundant_pfms_jaspar.txt' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
   "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
-  "status": "rerouted"
+  "status": "cleared"
 }

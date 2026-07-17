@@ -1,0 +1,60 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/raw/`, `data/derived/`,
+    `tests/`) is provided; the implementer did not supply any artifact showing that
+    the project structure has been created.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file was presented in the evidence, and therefore we cannot confirm
+    that a file exists containing the required exclusion patterns (`data/raw/*` except
+    checksums, `data/derived/*`, `__pycache__`, and `.env`). The implementer must
+    provide the actual `.gitignore` content showing these entries.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was presented showing that the `tests/unit/`, `tests/integration/`,\
+    \ and `tests/contract/` directories exist, nor that each contains an `__init__.py`\
+    \ file. The implementer\u2019s claim cannot be verified without these artifacts."
+T010:
+  c: false
+  h: 41d263da7fc7bdf8cc411734b9f9a0867c37e9a4a166e66bfe0079e725074cdd
+  r: "The provided `code/data_ingestion.py` contains generic helper functions but\
+    \ does not include logic to download the specific dbSNP VCF from the given FTP\
+    \ URL, filter for MAF\u202F>\u202F1%, or invoke a fallback (T010a) when unavailable.\
+    \ Moreover, the required log file `data/raw/source_log.txt` is absent. These missing\
+    \ pieces mean the task\u2019s core requirements are not satisfied."
+T010b:
+  c: false
+  h: 95f6a0ebd0e767f54b537901ae7c4d637f616a2f74b7d567a3cbc4ea0f76467b
+  r: The repository lacks the required `data/raw/jaspar_pwm.txt` file, and the provided
+    `code/data_ingestion.py` does not contain any logic to download the JASPAR CORE
+    collection (e.g., no function referencing the given URL or saving to the expected
+    path). The implementation focuses on SNP handling instead of the requested PWM
+    download.
+T010c:
+  c: false
+  h: 41d263da7fc7bdf8cc411734b9f9a0867c37e9a4a166e66bfe0079e725074cdd
+  r: "The repository lacks the required `data/raw/source_log.txt` file, and the shown\
+    \ portion of `code/data_ingestion.py` contains no implementation that selects\
+    \ dbSNP first and falls back to 1000\u202FGenomes when dbSNP is unavailable. The\
+    \ task\u2019s core selection and logging behavior is therefore missing."
+T013:
+  c: false
+  h: ef3a03f98ef26d0a81359079445613795c628c63fecab25b83c658cc1ab78ae3
+  r: "The `code/data_ingestion.py` file does not contain any import of `pybedtools`\
+    \ nor a complete implementation of the SNP\u2011region intersection (the `intersect_snps_with_regions`\
+    \ function is truncated and shows no use of pybedtools). Additionally, the required\
+    \ input files `data/raw/snps_raw.vcf` and `data/raw/regulatory_regions.bed` are\
+    \ missing from the repository. Both the core logic and the necessary data artifacts\
+    \ are absent."
+T013b:
+  c: false
+  h: f5f3627a478a6f705366b25632d749a4a456f3552e390e6b0e468174568ec898
+  r: "The repository contains a partially shown `code/data_ingestion.py` that stops\
+    \ after SNP\u2011region intersection and does not include any implementation for\
+    \ calculating GC content, selecting GC\u2011matched control regions, or writing\
+    \ a Parquet file. Moreover, the required output `data/derived/gc_matched_controls.parquet`\
+    \ is absent. The task\u2019s core requirement\u2014generating and saving a GC\u2011\
+    matched non\u2011regulatory control set\u2014is therefore not satisfied."

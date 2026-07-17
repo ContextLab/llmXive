@@ -57,36 +57,3 @@
   verification_status: verified
   verified_against_url: https://jaspar.elixir.no/
   verified_at: '2026-07-12T11:09:38.059810Z'
-- artifact_hash: d417184b0650a1e93183a83fa11c566ce4e9610906df99a6c38d768e6d5338c7
-  artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: http://jaspar.genereg.net/download/data/2024/CORE/JASPAR2024_CORE_human_redundant.pfm`
-  verification_status: mismatch
-  verified_against_url: https://jaspar.elixir.no/download/data/2024/CORE/JASPAR2024_CORE_human_redundant.pfm
-  verified_at: '2026-07-12T11:22:52.125010Z'
-- artifact_hash: d417184b0650a1e93183a83fa11c566ce4e9610906df99a6c38d768e6d5338c7
-  artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.encodeproject.org/files/ENCFF001DQA/`
-  verification_status: pending
-  verified_against_url: https://www.encodeproject.org/files/ENCFF001DQA/
-  verified_at: '2026-07-12T11:22:52.125010Z'
-- artifact_hash: d417184b0650a1e93183a83fa11c566ce4e9610906df99a6c38d768e6d5338c7
-  artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.encodeproject.org/files/ENCFF001DQB/`
-  verification_status: pending
-  verified_against_url: https://www.encodeproject.org/files/ENCFF001DQB/
-  verified_at: '2026-07-12T11:22:52.125010Z'

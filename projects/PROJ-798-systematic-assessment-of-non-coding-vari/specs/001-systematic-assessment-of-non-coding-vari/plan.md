@@ -19,11 +19,13 @@ This project implements a computational pipeline to assess the impact of non-cod
 **Performance Goals**: Complete full pipeline (data fetch to report) within 6 hours; memory usage < 7 GB.  
 **Constraints**: No GPU; no deep learning models; batched processing required for large datasets; strict adherence to spec-defined statistical methods (KS test, West-Stephens FDR).  
 **Scale/Scope**: 
-- **Input SNPs**: ~10M common SNPs (dbSNP b155).
-- **Filtered SNPs**: ~1-2M SNPs overlapping regulatory regions (after LD pruning).
-- **TFs**: ~500 high-confidence human motifs (filtered from JASPAR 2024 to exclude low-confidence/short motifs).
-- **Permutations**: 100 per TF (limited by runtime).
-- **Total Pairs**: ~1-2 billion (feasible with batching and C-extensions).
+- **Input SNPs**: A set of common SNPs (dbSNP (recent build)
+
+The research question remains: How do common genetic variants influence phenotypic diversity? The method employed is a genome-wide association study (GWAS) using imputed genotype data. Key references include Sherry et al. (2001) and the dbSNP project documentation.).
+- **Filtered SNPs**: A substantial number of SNPs overlapping regulatory regions (after LD pruning).
+- **TFs**: A set of high-confidence human motifs (filtered from JASPAR to exclude low-confidence/short motifs).
+- **Permutations**: per TF (limited by runtime).
+- **Total Pairs**: Scalable to billions of operations (feasible with batching and C-extensions).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -113,7 +115,7 @@ tests/
 
 No violations of the constitution detected. The complexity is managed by:
 1.  **Batching**: Processing SNPs in chunks to fit memory.
-2.  **Permutation Limit**: Capping permutations at 100 as per spec to ensure runtime feasibility.
+2.  **Permutation Limit**: Capping permutations at a feasible limit to ensure runtime feasibility.
 3.  **TF Filtering**: Limiting analysis to high-confidence TFs to reduce multiple-testing burden.
 4.  **LD Pruning & Stratification**: Reducing SNP count to independent variants and using `ld_block_id` for stratified permutation to ensure statistical validity.
 5.  **CPU-Only**: Using standard statistical libraries (`scipy`) instead of GPU-accelerated deep learning.
