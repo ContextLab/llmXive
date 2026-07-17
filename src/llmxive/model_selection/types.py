@@ -156,6 +156,13 @@ class ModelRequirement:
     max_credits: int | None = None
     max_catalog_age_s: int = 3600
     max_candidates: int = 4
+    #: High-stakes (spec-025 judgment) reviews set this True so ``max_catalog_age_s``
+    #: gates BOTH the catalog AND the credit/opt-in components (FR-007) — a stale or
+    #: unavailable credit observation fails the WHOLE selection closed
+    #: (``ModelUnavailable``), even when the resulting model is free. Ordinary
+    #: low-risk calls leave it False (they may proceed on a bounded LKG snapshot and
+    #: never consult credit freshness unless admitting paid).
+    require_fresh_snapshot: bool = False
 
 
 @dataclass(frozen=True)

@@ -85,6 +85,33 @@ def _effective_per_call_cap(req: ModelRequirement, available_headroom: float) ->
     return min(float(req.max_credits), available_headroom)
 
 
+#: Components a fresh-required (judgment) review must observe fresh-enough (FR-007):
+#: the catalog (model presence/pricing) AND the credit/opt-in observation. The local
+#: fallback inventory is NOT gated (FR-007 names catalog + credit/opt-in only).
+_FRESH_REQUIRED_COMPONENTS = ("catalog", "credit")
+
+
+def _enforce_fresh_snapshot(requirement: ModelRequirement, snapshot: RuntimeSnapshot) -> None:
+    """For a ``require_fresh_snapshot`` (spec-025 judgment) review, FAIL CLOSED
+    (``ModelUnavailable``) if the catalog OR the credit/opt-in component is
+    unavailable or older than ``max_catalog_age_s`` — the freshness limit applies to
+    BOTH components (FR-007), independent of whether the chosen model is free."""
+    for comp in _FRESH_REQUIRED_COMPONENTS:
+        prov = snapshot.sources.get(comp)
+        if prov is None or prov.source == "unavailable":
+            src = prov.source if prov is not None else "missing"
+            raise ModelUnavailable(
+                f"fresh-required review: {comp!r} component is unavailable (source={src!r}) — "
+                "a judgment review cannot rest on a stale/absent snapshot (FR-007)"
+            )
+        if prov.source == "last_known_good" and prov.age_s > requirement.max_catalog_age_s:
+            raise ModelUnavailable(
+                f"fresh-required review: {comp!r} component is stale (age {prov.age_s:.0f}s > "
+                f"max_catalog_age_s {requirement.max_catalog_age_s}s) — FR-007 requires a "
+                "fresh-enough catalog AND credit/opt-in observation"
+            )
+
+
 def select(
     requirement: ModelRequirement,
     snapshot: RuntimeSnapshot,
@@ -98,6 +125,12 @@ def select(
     :class:`ModelUnavailable` when no candidate satisfies the requirement.
     """
     pol = policy if policy is not None else CAPABILITY_POLICY
+
+    # FR-007: a judgment review fails closed on a stale/unavailable catalog OR
+    # credit/opt-in component BEFORE any per-model work (even for a free result).
+    if requirement.require_fresh_snapshot:
+        _enforce_fresh_snapshot(requirement, snapshot)
+
     credit = snapshot.credit
     cap = _effective_per_call_cap(requirement, credit.available_headroom)
     # Paid admission requires a LIVE, opted-in credit observation (FR-007 / C6):

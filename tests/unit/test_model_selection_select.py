@@ -54,6 +54,7 @@ def _snapshot(
     available_headroom: float = 1400.0,
     catalog_source: str = "live",
     catalog_age_s: float = 0.0,
+    credit_age_s: float = 0.0,
     paid_pricing: tuple[float | None, float | None] = (1e-6, 5e-6),
     now: datetime = NOW,
 ) -> RuntimeSnapshot:
@@ -85,7 +86,7 @@ def _snapshot(
     sources = {
         "catalog": SnapshotProvenance(catalog_source, now, catalog_age_s),
         "local": SnapshotProvenance("live", now, 0.0),
-        "credit": SnapshotProvenance(credit_source, now, 0.0),
+        "credit": SnapshotProvenance(credit_source, now, credit_age_s),
     }
     return RuntimeSnapshot(
         models=tuple(models),
@@ -268,6 +269,52 @@ def test_cold_start_no_models_raises():
     snap = _snapshot(model_ids=[], catalog_source="unavailable")
     with pytest.raises(ModelUnavailable):
         select(build_requirement("cheap_structured", _cb()), snap)
+
+
+# --------------------------------------------------------------------------- #
+# Fresh-required (judgment) reviews: max_catalog_age_s gates catalog AND
+# credit/opt-in (FR-007), failing the WHOLE selection closed — even for free.
+# --------------------------------------------------------------------------- #
+
+
+def test_fresh_required_review_fails_closed_on_stale_credit():
+    # independent_review has max_catalog_age_s=900; a credit LKG older than that
+    # fails closed even though the resulting model (qwen) is free.
+    snap = _snapshot(credit_source="last_known_good", credit_age_s=1000.0)
+    with pytest.raises(ModelUnavailable, match="credit"):
+        select(build_requirement("independent_review", _cb()), snap)
+
+
+def test_fresh_required_review_fails_closed_on_unavailable_credit():
+    snap = _snapshot(credit_source="unavailable")
+    with pytest.raises(ModelUnavailable, match="credit"):
+        select(build_requirement("independent_review", _cb()), snap)
+
+
+def test_fresh_required_review_fails_closed_on_stale_catalog():
+    snap = _snapshot(catalog_source="last_known_good", catalog_age_s=1000.0)
+    with pytest.raises(ModelUnavailable, match="catalog"):
+        select(build_requirement("independent_review", _cb()), snap)
+
+
+def test_fresh_required_review_succeeds_when_all_components_fresh():
+    chain = select(build_requirement("independent_review", _cb()), _snapshot())
+    assert _ids(chain) == [QWEN, GEMMA4, GPT_OSS]  # free deep chain, all live
+
+
+def test_fresh_required_review_allows_lkg_within_age():
+    # A credit LKG WITHIN the freshness window is fresh-enough (age-bounded, FR-007).
+    snap = _snapshot(credit_source="last_known_good", credit_age_s=100.0)
+    chain = select(build_requirement("independent_review", _cb()), snap)
+    assert _ids(chain) == [QWEN, GEMMA4, GPT_OSS]
+
+
+def test_ordinary_review_ignores_credit_freshness():
+    # A non-fresh-required call proceeds on free models even when credit is
+    # unavailable — no regression for low-risk calls (FR-007).
+    snap = _snapshot(credit_source="unavailable")
+    chain = select(build_requirement("deep_review", _cb()), snap)
+    assert _ids(chain) == [QWEN, GEMMA4, GPT_OSS]
 
 
 # --------------------------------------------------------------------------- #

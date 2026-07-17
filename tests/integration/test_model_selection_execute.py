@@ -246,3 +246,42 @@ def test_free_then_paid_reaches_paid_after_free_fails(repo, monkeypatch):
     assert res.reserved_credits == pytest.approx(2.5)  # x retries(1)
     (r,) = project(read_events(repo)).values()
     assert r.state == STATE_SETTLING
+
+
+def test_reserve_ledger_error_skips_not_aborts(repo, monkeypatch):
+    # Finding-2: a reserve() LedgerError AFTER the pre-check passes — sustained CAS
+    # contention (LedgerContention) or an unreachable/unauthorized ledger
+    # (LedgerAuthError) — makes the paid candidate ineligible at call time →
+    # skip-candidate (advance), NEVER an abort (FR-010). The REAL reserve() is
+    # covered by 19 ledger integration tests; here we FAULT-INJECT the rare
+    # distributed failure to assert execute's DISPOSITION of it (the same
+    # fault-injection seam the ScriptedBackend exception tests use).
+    import importlib
+    execmod = importlib.import_module("llmxive.model_selection.execute")
+    from llmxive.model_selection.ledger_transport import LedgerContention
+
+    def _contend(*_a, **_k):
+        raise LedgerContention("could not fast-forward after 8 attempts (sustained contention)")
+
+    monkeypatch.setattr(execmod, "reserve", _contend)
+    be = _PaidBackend("ok")
+    with pytest.raises(ChainExhausted) as ei:
+        _exec(_paid_chain(), repo, be, monkeypatch=monkeypatch)
+    assert "could not reserve" in str(ei.value) and "LedgerContention" in str(ei.value)
+    assert be.calls == []  # skipped before the call, not aborted mid-call
+
+
+def test_reserve_unexpected_error_surfaces(repo, monkeypatch):
+    # The reserve() catch is NARROW (LedgerError only): an unexpected programmer /
+    # data-validation error is NOT a transport failure and must SURFACE, never be
+    # swallowed as a silent skip.
+    import importlib
+    execmod = importlib.import_module("llmxive.model_selection.execute")
+
+    def _bug(*_a, **_k):
+        raise ValueError("programmer bug: reservation invariant violated")
+
+    monkeypatch.setattr(execmod, "reserve", _bug)
+    be = _PaidBackend("ok")
+    with pytest.raises(ValueError, match="programmer bug"):
+        _exec(_paid_chain(), repo, be, monkeypatch=monkeypatch)

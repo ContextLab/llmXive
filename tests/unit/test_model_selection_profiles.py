@@ -37,6 +37,8 @@ def test_independent_review_encodes_panel_independence():
     assert p.required_independence == frozenset({"family"})
     assert p.preferred_independence == frozenset({"serving_endpoint"})
     assert p.max_catalog_age_s == 900  # tighter freshness for a high-stakes review
+    assert p.require_fresh_snapshot is True  # gate catalog AND credit freshness (FR-007)
+    assert p.build(_CB).require_fresh_snapshot is True
 
 
 def test_build_produces_requirement_with_budget_and_capability():

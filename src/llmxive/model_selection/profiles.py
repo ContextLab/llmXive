@@ -50,6 +50,7 @@ class RequirementProfile:
     max_credits: int | None = None
     max_catalog_age_s: int = 3600
     max_candidates: int = 4
+    require_fresh_snapshot: bool = False
 
     def build(
         self,
@@ -77,6 +78,7 @@ class RequirementProfile:
             max_credits=self.max_credits,
             max_catalog_age_s=self.max_catalog_age_s,
             max_candidates=self.max_candidates,
+            require_fresh_snapshot=self.require_fresh_snapshot,
         )
         return replace(req, **overrides) if overrides else req
 
@@ -109,6 +111,7 @@ PROFILES: dict[str, RequirementProfile] = {
         required_independence=frozenset({"family"}),
         preferred_independence=frozenset({"serving_endpoint"}),
         max_catalog_age_s=900,  # high-stakes: require a fresh-enough snapshot (FR-007)
+        require_fresh_snapshot=True,  # gate catalog AND credit/opt-in freshness, fail closed
     ),
 }
 

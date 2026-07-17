@@ -49,7 +49,7 @@ from llmxive.backends.router import (
     disposition_of,
     make_backend,
 )
-from llmxive.model_selection.ledger_transport import LedgerConfig, LedgerDenied
+from llmxive.model_selection.ledger_transport import LedgerConfig, LedgerError
 from llmxive.model_selection.reservations import (
     CreditObservation,
     ReservationLease,
@@ -167,8 +167,12 @@ def _open_paid_reservation(
     if not allowed:
         return None, 0.0, f"paid {ref.model_id!r} skipped: {reason}"
 
-    # Atomic reservation (FR-016). A denial here (cross-runner contention lost the
-    # race) is also a skip, not an abort.
+    # Atomic reservation (FR-016). ANY LedgerError — no headroom (LedgerDenied),
+    # sustained CAS contention (LedgerContention), or an unreachable/unauthorized
+    # ledger (LedgerAuthError) — means we cannot SAFELY reserve, so the paid
+    # candidate is ineligible at call time → skip-candidate (advance), never an
+    # abort (FR-010). A ValueError (e.g. a negative amount = programmer/data bug) is
+    # NOT a LedgerError and deliberately surfaces.
     rid = _sanitize_reservation_id(ref.model_id, call_id)
     lease_expires = now + timedelta(seconds=lease_duration_for(options.deadline_s))
     try:
@@ -182,8 +186,8 @@ def _open_paid_reservation(
             now=now,
             config=ledger_config,
         )
-    except LedgerDenied as exc:
-        return None, 0.0, f"paid {ref.model_id!r} skipped: reservation denied ({exc})"
+    except LedgerError as exc:
+        return None, 0.0, f"paid {ref.model_id!r} skipped: could not reserve ({type(exc).__name__}: {exc})"
     return rid, reserve_credits, None
 
 
@@ -205,10 +209,14 @@ def execute(
     :class:`ExecutionResult`.
 
     ``backend_factory`` / ``credit_observer`` / ``balance_fetch`` are the supported
-    injection seams (FR-015). Paid candidates require ``ledger_repo`` (+ a real
-    ``ledger_config`` with a remote in production); without it they are skipped
-    (fail closed). Raises :class:`ChainExhausted` if no candidate succeeds, or
-    re-raises a request-level permanent refusal (abort) unchanged; raises
+    injection seams (FR-015). Paid candidates require ``ledger_repo``; in PRODUCTION
+    the caller MUST pass ``ledger_config=ledger_transport.ledger_config_from_env()``
+    (the single sanctioned source of the authoritative remote + pinned bootstrap
+    anchor, R5-1) — it fails closed until the anchor is configured, so paid stays
+    disabled rather than reserving against an unverified ledger. Without a
+    ``ledger_repo`` (or when the config/ledger read fails) paid candidates are
+    skipped (fail closed). Raises :class:`ChainExhausted` if no candidate succeeds,
+    or re-raises a request-level permanent refusal (abort) unchanged; raises
     ``ValueError`` on the fail-fast budget check before any call.
     """
     now = now or datetime.now(UTC)

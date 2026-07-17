@@ -189,6 +189,40 @@ class LedgerDenied(LedgerError):
     from contention: the event was NEVER appended by design."""
 
 
+#: Env vars pinning the PRODUCTION ledger location + trust anchor (R5-1). The anchor
+#: is the bootstrap commit OID printed by ``credits-ledger-bootstrap``; pinning it
+#: makes every authoritative read/write verify the remote tip descends from it.
+LEDGER_REMOTE_ENV = "LLMXIVE_CREDIT_LEDGER_REMOTE"
+LEDGER_ANCHOR_ENV = "LLMXIVE_CREDIT_LEDGER_ANCHOR"
+
+
+def ledger_config_from_env(*, remote: str | None = None, require_anchor: bool = True) -> LedgerConfig:
+    """THE single production :class:`LedgerConfig` source (R5-1): the authoritative
+    remote (``LLMXIVE_CREDIT_LEDGER_REMOTE``, default ``origin``, overridable via
+    ``remote=``) + the pinned bootstrap anchor (``LLMXIVE_CREDIT_LEDGER_ANCHOR``).
+    Both ``execute``'s paid path AND the maintenance sweep build their config here so
+    they share the SAME remote + anchor (finding-3 / the deferred R5-1 AC).
+
+    FAIL CLOSED (``require_anchor=True``): if the anchor is not pinned, RAISE
+    :class:`LedgerError` — paid fallback stays DISABLED until an operator sets it
+    (post-bootstrap), rather than running without the ancestry check that guards
+    against a wrong/divergent ledger. The ref MUST additionally be protected
+    server-side (fast-forward-only, writable only by the ledger identity); that is a
+    deploy-time operation, not enforceable in-repo (documented in ``bootstrap_ledger``
+    + this project's ops runbook).
+    """
+    resolved_remote = (remote or os.environ.get(LEDGER_REMOTE_ENV, "").strip() or "origin")
+    anchor = os.environ.get(LEDGER_ANCHOR_ENV, "").strip() or None
+    if require_anchor and anchor is None:
+        raise LedgerError(
+            f"production credit ledger not fully configured: set {LEDGER_ANCHOR_ENV} to the "
+            f"pinned bootstrap anchor OID (printed by `llmxive credits-ledger-bootstrap`) so the "
+            f"ancestry check can reject a wrong/divergent ledger — paid fallback stays disabled "
+            f"until then (fail closed)."
+        )
+    return LedgerConfig(remote=resolved_remote, expected_anchor=anchor)
+
+
 def _git(
     args: list[str], *, cwd: Path, extra_env: dict[str, str] | None = None, check: bool = True
 ) -> subprocess.CompletedProcess[str]:
@@ -513,7 +547,9 @@ def append_event(
 
 
 __all__ = [
+    "LEDGER_ANCHOR_ENV",
     "LEDGER_REF",
+    "LEDGER_REMOTE_ENV",
     "SCHEMA_REVISION",
     "LedgerAuthError",
     "LedgerConfig",
@@ -523,5 +559,6 @@ __all__ = [
     "append_event",
     "bootstrap_ledger",
     "fetch_ledger",
+    "ledger_config_from_env",
     "read_events",
 ]
