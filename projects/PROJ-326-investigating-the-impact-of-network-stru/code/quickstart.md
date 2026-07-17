@@ -1,88 +1,52 @@
 # Quickstart Guide
 
 ## Prerequisites
-
 - Python 3.9+
 - pip
 
 ## Installation
-
-1. Clone the repository
-2. Navigate to the `code/` directory
-3. Create a virtual environment:
- ```bash
- python -m venv.venv
- source.venv/bin/activate # On Windows:.venv\Scripts\activate
- ```
-4. Install dependencies:
+1. Clone the repository.
+2. Navigate to the `code` directory.
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
 ## Configuration
-
 Edit `config.yaml` to set global seeds, topology targets, and simulation parameters.
-Ensure `global_seed` is set for reproducibility (FR-007).
 
-## Execution Order
+## Execution
+The following commands run the full pipeline:
 
-The pipeline must be executed in the following order to ensure all dependencies are met and artifacts are generated correctly.
-
-### 1. Initialize Project Structure (Optional if already done)
+### 1. Generate Networks
 ```bash
-python setup_directories.py
+python src/generators/batch_runner.py --config config.yaml
 ```
 
-### 2. Verify Configuration
+### 2. Run Simulations
 ```bash
-python scripts/verify_config_reproducibility.py --config code/config.yaml
+python src/simulation/run_simulation.py --config config.yaml
 ```
 
-### 3. Inject Seeds into Run Log (T004b)
-This step ensures the specific random seeds are recorded for reproducibility.
+### 3. Run Analysis
 ```bash
-python scripts/inject_seed.py --config code/config.yaml --output data/run_log.json
+python src/analysis/run_analysis.py --config config.yaml
 ```
 
-### 4. Generate Batch of Networks (US1)
+### 4. Run Power Analysis
 ```bash
-python src/generators/batch_runner.py --config code/config.yaml
-python src/generators/aggregate_batch.py --config code/config.yaml
+python scripts/run_power_analysis.py --config config.yaml
 ```
 
-### 5. Run Simulations (US2)
+### 5. Run Sensitivity Sweep
 ```bash
-python src/simulation/run_simulation.py --config code/config.yaml
+python scripts/run_sensitivity_sweep.py --config config.yaml
 ```
 
-### 6. Run Analysis (US3)
+### 6. Validate Batch (SC-001, SC-002, SC-005)
 ```bash
-python src/analysis/run_analysis.py --config code/config.yaml
-python src/analysis/power.py --config code/config.yaml
-python src/analysis/sensitivity.py --config code/config.yaml
+python scripts/validate_batch.py --config config.yaml --output data/analysis/validation_report.json
 ```
 
-### 7. Generate Figures and Report
-```bash
-python src/analysis/plotting.py --config code/config.yaml
-python src/analysis/report.py --config code/config.yaml
-python src/analysis/verify_report.py --config code/config.yaml
-```
-
-### 8. Validate Batch (T045)
-```bash
-python scripts/validate_batch.py --config code/config.yaml
-```
-
-## Validation
-
-Run the full validation suite to ensure all success criteria are met:
-```bash
-python scripts/validate_quickstart.py
-```
-
-## Troubleshooting
-
-- If `data/run_log.json` is missing, ensure `scripts/inject_seed.py` has been run.
-- If simulation fails, check `simulation_timeout_seconds` in `config.yaml`.
-- Ensure all output directories (`data/raw`, `data/analysis`, `figures`) exist.
+## Verification
+Check `data/analysis/validation_report.json` for the results of the validation checks.

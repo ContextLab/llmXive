@@ -1,3 +1,3 @@
 """
-Simulation package.
+Simulation package for spin system dynamics.
 """

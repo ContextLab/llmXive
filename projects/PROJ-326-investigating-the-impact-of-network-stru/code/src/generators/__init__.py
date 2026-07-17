@@ -1,3 +1,3 @@
 """
-Graph generators package.
+Generators package for network topology generation.
 """

@@ -9,297 +9,193 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 import pandas as pd
 
-from code.src.analysis.regression import (
-    fit_linear_regression,
-    fit_polynomial_regression,
-    compare_models,
-    analyze_correlation,
-)
-from code.src.analysis.anova import (
-    run_one_way_anova,
-    apply_multiple_comparison_correction,
-    run_anova_on_diffusion_by_topology,
-)
-from code.src.analysis.sensitivity import (
-    run_sensitivity_sweep,
-    save_sensitivity_results,
-    load_simulation_data,
-)
-from code.src.analysis.plotting import generate_all_figures
+from code.src.analysis.regression import fit_linear_regression, fit_polynomial_regression
+from code.src.analysis.anova import run_anova_on_diffusion_by_topology, apply_multiple_comparison_correction
+from code.src.analysis.sensitivity import run_sensitivity_sweep, save_sensitivity_results
+from code.src.analysis.plotting import generate_all_figures, load_simulation_results, load_sensitivity_results
 from code.src.utils.config import load_config, get_global_config
 from code.src.utils.logging import log_run, log_metric, get_run_log
-from code.src.utils.reproducibility import ensure_data_directory
+from code.src.utils.reproducibility import ensure_data_directory, generate_run_id
 
-# Configure logging for this module
+# Import load_results from the correct location based on the API surface
+# The API surface lists it in code.src.simulation.schema
+from code.src.simulation.schema import load_results as load_simulation_results_from_schema
+
 logger = logging.getLogger(__name__)
 
-def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
-    """Configure logging for the analysis pipeline."""
-    if log_file is None:
-        log_file = Path("data/run_log.json")
-    
-    ensure_data_directory(log_file.parent)
-    
-    # Setup basic console logging
+def setup_logging(log_level: int = logging.INFO) -> None:
+    """Configure logging for the analysis run."""
     logging.basicConfig(
-        level=logging.INFO,
+        level=log_level,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[logging.StreamHandler(sys.stdout)]
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler(Path('data/analysis/analysis_run.log'))
+        ]
     )
-    
-    # Return the module logger
-    return logger
 
-def load_results(config: Dict[str, Any]) -> Dict[str, Any]:
+def load_results(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Aggregate simulation results from data/analysis/simulation_results.json.
-    Handles missing data via mean/median/variance aggregation strategies.
-    
-    Returns a dictionary containing:
-    - simulation_data: DataFrame with all simulation results
-    - summary_stats: Dict of aggregated statistics
+    Load simulation results from data/analysis/simulation_results.json.
+    Handles missing data and filters out failed runs.
     """
-    sim_results_path = Path(config.get("paths", {}).get("simulation_results", "data/analysis/simulation_results.json"))
+    results_path = Path(config.get('paths', {}).get('analysis_results', 'data/analysis/simulation_results.json'))
     
-    if not sim_results_path.exists():
-        logger.warning(f"Simulation results file not found: {sim_results_path}")
-        return {
-            "simulation_data": pd.DataFrame(),
-            "summary_stats": {},
-            "error": "Simulation results file missing"
-        }
-    
+    if not results_path.exists():
+        logger.warning(f"Simulation results file not found at {results_path}. Returning empty list.")
+        return []
+
     try:
-        with open(sim_results_path, 'r') as f:
-            raw_data = json.load(f)
-        
-        # Normalize list of results into a DataFrame
-        if isinstance(raw_data, list):
-            df = pd.DataFrame(raw_data)
-        elif isinstance(raw_data, dict) and "results" in raw_data:
-            df = pd.DataFrame(raw_data["results"])
-        else:
-            logger.warning("Unexpected simulation results format, attempting to convert")
-            df = pd.DataFrame([raw_data] if isinstance(raw_data, dict) else [])
-        
-        # Handle missing data
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(df) > 0:
-            # Fill missing numeric values with median
-            for col in numeric_cols:
-                if df[col].isnull().any():
-                    median_val = df[col].median()
-                    df[col].fillna(median_val, inplace=True)
-                    logger.info(f"Filled {df[col].isnull().sum()} missing values in '{col}' with median {median_val}")
-        
-        # Calculate summary statistics
-        summary_stats = {}
-        if len(df) > 0:
-            summary_stats = {
-                "total_records": len(df),
-                "topology_counts": df["topology_class"].value_counts().to_dict() if "topology_class" in df.columns else {},
-                "diffusion_stats": {},
-                "clustering_stats": {}
-            }
-            
-            if "diffusion_rate" in df.columns:
-                summary_stats["diffusion_stats"] = {
-                    "mean": float(df["diffusion_rate"].mean()),
-                    "std": float(df["diffusion_rate"].std()),
-                    "median": float(df["diffusion_rate"].median()),
-                    "min": float(df["diffusion_rate"].min()),
-                    "max": float(df["diffusion_rate"].max())
-                }
-            
-            if "clustering_coefficient" in df.columns:
-                summary_stats["clustering_stats"] = {
-                    "mean": float(df["clustering_coefficient"].mean()),
-                    "std": float(df["clustering_coefficient"].std()),
-                    "median": float(df["clustering_coefficient"].median()),
-                    "min": float(df["clustering_coefficient"].min()),
-                    "max": float(df["clustering_coefficient"].max())
-                }
-        
-        return {
-            "simulation_data": df,
-            "summary_stats": summary_stats
-        }
-    except Exception as e:
-        logger.error(f"Error loading simulation results: {e}")
-        return {
-            "simulation_data": pd.DataFrame(),
-            "summary_stats": {},
-            "error": str(e)
-        }
+        with open(results_path, 'r') as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Failed to load simulation results: {e}")
+        return []
 
-def run_regression_analysis(simulation_data: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Run regression analysis on simulation data.
-    Fits linear and polynomial models to correlate topology metrics with diffusion rates.
-    """
-    if simulation_data.empty:
-        logger.warning("No simulation data available for regression analysis")
-        return {"error": "No data", "models": []}
+    if isinstance(data, list):
+        results = data
+    elif isinstance(data, dict) and 'results' in data:
+        results = data['results']
+    else:
+        logger.warning("Unexpected format in simulation results. Expected list or dict with 'results' key.")
+        return []
+
+    # Filter out failed runs
+    excluded_statuses = ['[SIMULATION_DIVERGENCE]', '[DISCONNECTED_NETWORK_FAILURE]', 'FAILED']
+    valid_results = []
+    excluded_count = 0
+
+    for r in results:
+        status = r.get('status', 'UNKNOWN')
+        if status in excluded_statuses:
+            excluded_count += 1
+            logger.debug(f"Excluding run {r.get('network_id', 'unknown')} due to status: {status}")
+        else:
+            valid_results.append(r)
+
+    if excluded_count > 0:
+        logger.info(f"Excluded {excluded_count} runs due to failure status.")
     
-    results = {
-        "models": [],
-        "correlations": [],
-        "best_model": None
-    }
+    return valid_results, excluded_count
+
+def run_regression_analysis(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Run regression analysis on diffusion rates vs topology metrics.
+    """
+    if not results:
+        logger.warning("No valid results for regression analysis.")
+        return {"error": "No data", "coefficients": [], "r_squared": 0.0}
+
+    df = pd.DataFrame(results)
     
     # Ensure required columns exist
-    x_col = "clustering_coefficient"
-    y_col = "diffusion_rate"
-    
-    if x_col not in simulation_data.columns or y_col not in simulation_data.columns:
-        # Fallback to available numeric columns
-        numeric_cols = simulation_data.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) >= 2:
-            x_col, y_col = numeric_cols[0], numeric_cols[1]
-            logger.warning(f"Using fallback columns: x={x_col}, y={y_col}")
-        else:
-            logger.error("Insufficient numeric columns for regression")
-            return {"error": "Insufficient data", "models": []}
-    
-    x = simulation_data[x_col].values
-    y = simulation_data[y_col].values
-    
-    # Linear regression
+    required_cols = ['diffusion_rate', 'clustering_coefficient', 'topology_class']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        logger.error(f"Missing columns in results: {missing_cols}")
+        return {"error": f"Missing columns: {missing_cols}"}
+
+    # Prepare data
+    X = df['clustering_coefficient'].values
+    y = df['diffusion_rate'].values
+
+    # Filter out NaNs
+    valid_mask = ~(np.isnan(X) | np.isnan(y))
+    X_clean = X[valid_mask]
+    y_clean = y[valid_mask]
+
+    if len(X_clean) < 2:
+        logger.warning("Insufficient data points for regression.")
+        return {"error": "Insufficient data", "coefficients": [], "r_squared": 0.0}
+
+    # Fit linear regression
     try:
-        linear_result = fit_linear_regression(x, y)
-        results["models"].append({
-            "type": "linear",
-            "r_squared": float(linear_result.r_squared),
-            "p_value": float(linear_result.p_value),
-            "coefficients": linear_result.coefficients.tolist()
-        })
+        linear_result = fit_linear_regression(X_clean, y_clean)
     except Exception as e:
-        logger.warning(f"Linear regression failed: {e}")
-    
-    # Polynomial regression (degree 2)
+        logger.error(f"Linear regression failed: {e}")
+        return {"error": str(e)}
+
+    # Fit polynomial regression (degree 2)
     try:
-        poly_result = fit_polynomial_regression(x, y, degree=2)
-        results["models"].append({
-            "type": "polynomial_degree_2",
-            "r_squared": float(poly_result.r_squared),
-            "p_value": float(poly_result.p_value),
-            "coefficients": poly_result.coefficients.tolist()
-        })
+        poly_result = fit_polynomial_regression(X_clean, y_clean, degree=2)
     except Exception as e:
         logger.warning(f"Polynomial regression failed: {e}")
-    
-    # Compare models
-    if len(results["models"]) >= 2:
-        try:
-            comparison = compare_models(
-                [m for m in results["models"] if m["type"] != "polynomial_degree_2"],
-                [m for m in results["models"] if m["type"] == "polynomial_degree_2"]
-            )
-            results["comparison"] = comparison
-            # Determine best model
-            if comparison.get("winner"):
-                results["best_model"] = comparison["winner"]
-        except Exception as e:
-            logger.warning(f"Model comparison failed: {e}")
-    
-    # Correlation analysis
-    try:
-        corr_result = analyze_correlation(x, y)
-        results["correlations"].append({
-            "x": x_col,
-            "y": y_col,
-            "pearson_r": float(corr_result.pearson_r),
-            "p_value": float(corr_result.p_value),
-            "spearman_r": float(corr_result.spearman_r)
-        })
-    except Exception as e:
-        logger.warning(f"Correlation analysis failed: {e}")
-    
-    return results
+        poly_result = None
 
-def run_anova_analysis(simulation_data: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Run ANOVA analysis to test if diffusion rates differ significantly by topology class.
-    Applies multiple comparison correction (Bonferroni and Benjamini-Hochberg).
-    """
-    if simulation_data.empty:
-        logger.warning("No simulation data available for ANOVA analysis")
-        return {"error": "No data", "anova_results": []}
-    
-    results = {
-        "anova_results": [],
-        "corrections": {}
+    return {
+        "linear": {
+            "coefficients": linear_result.get('coefficients', []),
+            "r_squared": linear_result.get('r_squared', 0.0),
+            "p_value": linear_result.get('p_value', 1.0)
+        },
+        "polynomial": {
+            "coefficients": poly_result.get('coefficients', []) if poly_result else None,
+            "r_squared": poly_result.get('r_squared', 0.0) if poly_result else None,
+            "p_value": poly_result.get('p_value', 1.0) if poly_result else None
+        }
     }
+
+def run_anova_analysis(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Run ANOVA analysis on diffusion rates by topology class.
+    """
+    if not results:
+        logger.warning("No valid results for ANOVA analysis.")
+        return {"error": "No data"}
+
+    df = pd.DataFrame(results)
     
-    group_col = "topology_class"
-    value_col = "diffusion_rate"
+    if 'diffusion_rate' not in df.columns or 'topology_class' not in df.columns:
+        logger.error("Missing required columns for ANOVA.")
+        return {"error": "Missing columns"}
+
+    # Group by topology class
+    groups = df.groupby('topology_class')['diffusion_rate'].apply(list).to_dict()
     
-    if group_col not in simulation_data.columns or value_col not in simulation_data.columns:
-        logger.error(f"Missing required columns for ANOVA: {group_col} or {value_col}")
-        return {"error": "Missing columns", "anova_results": []}
-    
-    # Run one-way ANOVA by topology
+    if len(groups) < 2:
+        logger.warning("Insufficient topology classes for ANOVA.")
+        return {"error": "Insufficient groups"}
+
     try:
-        anova_result = run_anova_on_diffusion_by_topology(simulation_data, group_col, value_col)
-        results["anova_results"].append(anova_result)
+        f_stat, p_value = run_anova_on_diffusion_by_topology(groups)
         
-        # Extract p-values for correction
-        p_values = [res.get("p_value") for res in results["anova_results"] if res.get("p_value") is not None]
+        # Apply multiple comparison correction (Bonferroni and BH)
+        corrected = apply_multiple_comparison_correction([p_value], method='bonferroni')
+        bh_corrected = apply_multiple_comparison_correction([p_value], method='bh')
         
-        if len(p_values) > 0:
-            # Apply multiple comparison corrections
-            corrections = apply_multiple_comparison_correction(p_values)
-            results["corrections"] = {
-                "bonferroni": corrections.get("bonferroni", {}),
-                "benjamini_hochberg": corrections.get("benjamini_hochberg", {})
+        return {
+            "f_statistic": float(f_stat),
+            "p_value": float(p_value),
+            "groups_analyzed": list(groups.keys()),
+            "corrections": {
+                "bonferroni": float(corrected[0]) if corrected else None,
+                "benjamini_hochberg": float(bh_corrected[0]) if bh_corrected else None
             }
+        }
     except Exception as e:
         logger.error(f"ANOVA analysis failed: {e}")
-        results["error"] = str(e)
-    
-    return results
+        return {"error": str(e)}
 
-def run_sensitivity_analysis(config: Dict[str, Any], simulation_data: pd.DataFrame) -> Dict[str, Any]:
+def run_sensitivity_analysis(config: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Run sensitivity sweep for clustering coefficient thresholds.
+    Run sensitivity sweep on clustering coefficient thresholds.
     """
-    if simulation_data.empty:
-        logger.warning("No simulation data available for sensitivity analysis")
-        return {"error": "No data"}
-    
-    # Get thresholds from config or use defaults
-    thresholds = config.get("sensitivity", {}).get("thresholds", [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
-    
     try:
-        sweep_results = run_sensitivity_sweep(simulation_data, thresholds)
-        
-        # Save results to file
-        output_path = Path(config.get("paths", {}).get("sensitivity_results", "data/analysis/sensitivity_sweep.json"))
-        save_sensitivity_results(sweep_results, output_path)
-        
-        logger.info(f"Sensitivity results saved to {output_path}")
-        
-        return sweep_results
+        # Run the sweep and save results
+        results = run_sensitivity_sweep(config)
+        save_sensitivity_results(results, config)
+        return results
     except Exception as e:
         logger.error(f"Sensitivity analysis failed: {e}")
         return {"error": str(e)}
 
-def generate_plots(config: Dict[str, Any], simulation_data: pd.DataFrame) -> List[str]:
+def generate_plots(config: Dict[str, Any], results: List[Dict[str, Any]]) -> List[str]:
     """
-    Generate all required figures (scatter, heatmaps, etc.) at 300 DPI.
-    Returns list of generated file paths.
+    Generate all required figures.
     """
-    if simulation_data.empty:
-        logger.warning("No simulation data available for plotting")
-        return []
-    
-    figures_dir = Path(config.get("paths", {}).get("figures", "figures"))
-    ensure_data_directory(figures_dir)
-    
     try:
-        generated_files = generate_all_figures(simulation_data, figures_dir)
-        logger.info(f"Generated {len(generated_files)} figures")
-        return generated_files
+        figures = generate_all_figures(config, results)
+        return figures
     except Exception as e:
         logger.error(f"Plot generation failed: {e}")
         return []
@@ -308,36 +204,54 @@ def aggregate_final_results(
     regression_results: Dict[str, Any],
     anova_results: Dict[str, Any],
     sensitivity_results: Dict[str, Any],
-    figures_generated: List[str],
-    summary_stats: Dict[str, Any]
+    figures: List[str],
+    excluded_count: int,
+    config: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Aggregate all analysis results into the final output structure.
-    Schema: {regression_results, anova_results, sensitivity_results, figures_generated}
+    Aggregate all results into the final_results.json schema.
     """
+    run_id = generate_run_id()
+    timestamp = datetime.now().isoformat()
+
     final_output = {
-        "timestamp": datetime.now().isoformat(),
-        "status": "complete",
-        "summary": summary_stats,
+        "run_id": run_id,
+        "timestamp": timestamp,
+        "config_summary": {
+            "global_seed": config.get('global_seed'),
+            "topology_targets": config.get('topology_targets')
+        },
         "regression_results": regression_results,
         "anova_results": anova_results,
         "sensitivity_results": sensitivity_results,
-        "figures_generated": figures_generated
+        "figures_generated": figures,
+        "excluded_runs_count": excluded_count,
+        "status": "COMPLETE"
     }
+
+    # Save to disk
+    output_path = Path(config.get('paths', {}).get('final_results', 'data/analysis/final_results.json'))
+    ensure_data_directory(output_path)
     
+    with open(output_path, 'w') as f:
+        json.dump(final_output, f, indent=2)
+    
+    logger.info(f"Final results saved to {output_path}")
     return final_output
 
 def main():
-    """Main entry point for the analysis pipeline."""
-    parser = argparse.ArgumentParser(description="Run full analysis pipeline")
-    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file")
-    parser.add_argument("--output", type=str, default="data/analysis", help="Output directory")
+    parser = argparse.ArgumentParser(description='Master analysis script for network topology energy transfer study.')
+    parser.add_argument('--config', type=str, default='code/config.yaml', help='Path to config file')
+    parser.add_argument('--output', type=str, default='data/analysis', help='Output directory')
+    parser.add_argument('--log-level', type=str, default='INFO', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'])
+    
     args = parser.parse_args()
     
     # Setup logging
-    logger = setup_logging()
+    log_level = getattr(logging, args.log_level.upper())
+    setup_logging(log_level)
     
-    # Load configuration
+    # Load config
     try:
         config = load_config(args.config)
     except Exception as e:
@@ -345,70 +259,59 @@ def main():
         sys.exit(1)
     
     # Ensure output directory exists
-    output_dir = Path(args.output)
-    ensure_data_directory(output_dir)
+    ensure_data_directory(Path(args.output))
+    config['paths']['analysis_results'] = str(Path(args.output) / 'simulation_results.json')
+    config['paths']['final_results'] = str(Path(args.output) / 'final_results.json')
+    config['paths']['sensitivity_results'] = str(Path(args.output) / 'sensitivity_sweep.json')
+    config['paths']['figures'] = str(Path(args.output) / 'figures')
     
-    # Update paths in config
-    config.setdefault("paths", {})
-    config["paths"]["simulation_results"] = str(output_dir / "simulation_results.json")
-    config["paths"]["sensitivity_results"] = str(output_dir / "sensitivity_sweep.json")
-    config["paths"]["figures"] = str(output_dir.parent / "figures")
-    config["paths"]["final_results"] = str(output_dir / "final_results.json")
+    logger.info("Starting master analysis pipeline...")
     
-    logger.info("Starting analysis pipeline...")
+    # 1. Load and filter results
+    results_data, excluded_count = load_results(config)
+    logger.info(f"Loaded {len(results_data)} valid results, excluded {excluded_count} failed runs.")
     
-    # 1. Load and aggregate simulation results
-    logger.info("Loading simulation results...")
-    data = load_results(config)
-    
-    if "error" in data:
-        logger.error(f"Failed to load simulation data: {data['error']}")
-        # Continue with empty data to allow partial results
-        simulation_data = pd.DataFrame()
-    else:
-        simulation_data = data["simulation_data"]
-    
-    # 2. Run regression analysis
+    if not results_data:
+        logger.warning("No valid data to analyze. Generating empty final report.")
+        final_output = aggregate_final_results(
+            {"error": "No data"},
+            {"error": "No data"},
+            {"error": "No data"},
+            [],
+            excluded_count,
+            config
+        )
+        return final_output
+
+    # 2. Run Regression Analysis
     logger.info("Running regression analysis...")
-    regression_results = run_regression_analysis(simulation_data)
+    regression_results = run_regression_analysis(results_data)
     
-    # 3. Run ANOVA analysis
+    # 3. Run ANOVA Analysis
     logger.info("Running ANOVA analysis...")
-    anova_results = run_anova_analysis(simulation_data)
+    anova_results = run_anova_analysis(results_data)
     
-    # 4. Run sensitivity analysis
+    # 4. Run Sensitivity Analysis
     logger.info("Running sensitivity analysis...")
-    sensitivity_results = run_sensitivity_analysis(config, simulation_data)
+    sensitivity_results = run_sensitivity_analysis(config)
     
-    # 5. Generate plots
+    # 5. Generate Plots
     logger.info("Generating plots...")
-    figures = generate_plots(config, simulation_data)
+    figures = generate_plots(config, results_data)
     
-    # 6. Aggregate final results
+    # 6. Aggregate and Save Final Results
+    logger.info("Aggregating final results...")
     final_output = aggregate_final_results(
         regression_results,
         anova_results,
         sensitivity_results,
         figures,
-        data.get("summary_stats", {})
+        excluded_count,
+        config
     )
     
-    # 7. Save final results
-    final_path = Path(config["paths"]["final_results"])
-    try:
-        with open(final_path, 'w') as f:
-            json.dump(final_output, f, indent=2, default=str)
-        logger.info(f"Final results saved to {final_path}")
-    except Exception as e:
-        logger.error(f"Failed to save final results: {e}")
-        sys.exit(1)
-    
-    # Log completion
-    log_metric("analysis_status", "complete")
-    log_metric("figures_generated", len(figures))
-    
     logger.info("Analysis pipeline completed successfully.")
-    return 0
+    return final_output
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

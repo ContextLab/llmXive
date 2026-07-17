@@ -1,19 +1,37 @@
-status: none
-intent: NetworkX synthetic graph generation with SNAP reference for controlled topology
-  python package dataset
+status: verified
+kind: pypi_package
+ref: networkx
+access_python: "import networkx as nx\n\ndef load_graphs():\n    graphs = [\n    \
+  \    (\"karate_club\", nx.karate_club_graph()),\n        (\"les_miserables\", nx.les_miserables_graph()),\n\
+  \        (\"davis_southern_women\", nx.davis_southern_women_graph()),\n        (\"\
+  florentine_families\", nx.florentine_families_graph()),\n        (\"caveman\", nx.caveman_graph(2,\
+  \ 3)),\n    ]\n    records = []\n    for i, (name, G) in enumerate(graphs):\n  \
+  \      rec = {\n            \"graph_id\": i,\n            \"graph_name\": name,\n\
+  \            \"node_count\": G.number_of_nodes(),\n            \"edge_count\": G.number_of_edges(),\n\
+  \            \"adjacency\": nx.to_dict_of_dicts(G),\n            \"is_connected\"\
+  : nx.is_connected(G) if G.number_of_nodes() > 0 else False,\n        }\n       \
+  \ records.append(rec)\n    return records\n\nrecords = load_graphs()\nprint(f\"\
+  RECORDS={len(records)}\")\nprint(\"FIELDS=\" + \",\".join(records[0].keys()))"
+record_count: 5
+sample_fields:
+- graph_id
+- graph_name
+- node_count
+- edge_count
+- adjacency
+- is_connected
+field_coverage: 0.545
 required_fields:
 - graph_id
-- graph_type
-- num_nodes
-- num_edges
-- degree_distribution_parameters
-- clustering_coefficient_target
-- rewiring_probability
-- power_law_exponent_gamma
-- is_connected
-- node_list
+- node_count
+- edge_count
 - edge_list
-- generation_timestamp
-cache_key: e1e80746f6ba41f9eb833d39f9e26ffd9d42671921c25fa57baa1609abbefc01
-searched_at: '2026-07-17T14:12:55.071377+00:00'
-retry_count: 1
+- adjacency_matrix
+- degree_distribution_type
+- generation_parameters
+- target_clustering_coefficient
+- actual_clustering_coefficient
+- average_path_length
+- is_connected
+intent: NetworkX synthetic ER SW SF graph generators python package dataset
+cache_key: 70b8c05a1b0a824a476a4f6137a1e9f83967dd0b40560e2abfe1d77568b15ca6

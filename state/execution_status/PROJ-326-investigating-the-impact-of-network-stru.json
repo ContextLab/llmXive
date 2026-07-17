@@ -1,16 +1,16 @@
 {
   "project_id": "PROJ-326-investigating-the-impact-of-network-stru",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/main.py --config code/config.yaml --output data/; 6 declared deliverable(s) absent: data/analysis/final_results.json; data/analysis/power_analysis_report.json; data/analysis/sensitivity_sweep.json",
+  "reason": "1 command(s) failed: python code/main.py --config code/config.yaml --output data/ (rc=1); 5 declared deliverable(s) absent: data/analysis/final_results.json; data/analysis/power_analysis_report.json; data/analysis/sensitivity_sweep.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py --config code/config.yaml --output data/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/main.py': [Errno 2] No such file or directory"
+    "python code/main.py --config code/config.yaml --output data/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/main.py\", line 15, in <module>\n    from code.src.analysis.run_analysis import main as run_analysis\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/src/analysis/__init__.py\", line 6, in <module>\n    from .sensitivity import run_sensitivity_sweep\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impac"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-17T14:12:38Z"
+  "updated_at": "2026-07-17T15:15:29Z"
 }

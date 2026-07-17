@@ -1,13 +1,13 @@
 """
-Script to run power analysis.
-This script is invoked by the main pipeline to generate power_analysis_report.json.
+Script to run the full analysis pipeline.
+This script is invoked by the main pipeline to generate final_results.json.
 """
 import argparse
 import logging
 import sys
 from pathlib import Path
 
-from code.src.analysis.power import main as power_main
+from code.src.analysis.run_analysis import main as run_analysis_main
 
 def setup_logging():
     """Setup basic logging configuration."""
@@ -17,23 +17,23 @@ def setup_logging():
     )
 
 def main():
-    """Main entry point for power analysis script."""
+    """Main entry point for analysis script."""
     setup_logging()
     logger = logging.getLogger(__name__)
-    logger.info("Running power analysis via wrapper script...")
+    logger.info("Running analysis via wrapper script...")
 
-    # Simulate command line arguments for the power module
+    # Simulate command line arguments for the analysis module
     sys.argv = [
-        'run_power_analysis',
+        'run_analysis',
         '--config', 'code/config.yaml',
         '--output', 'data'
     ]
 
     try:
-        power_main()
-        logger.info("Power analysis completed successfully")
+        run_analysis_main()
+        logger.info("Analysis completed successfully")
     except Exception as e:
-        logger.error(f"Power analysis failed: {e}", exc_info=True)
+        logger.error(f"Analysis failed: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

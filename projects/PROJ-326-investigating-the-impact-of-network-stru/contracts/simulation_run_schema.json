@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SimulationRun",
+  "description": "Schema for a single simulation run result entry as defined in US2.",
+  "type": "object",
+  "required": [
+    "network_id",
+    "seed",
+    "diffusion_rate",
+    "topology_class",
+    "steps_run",
+    "status"
+  ],
+  "properties": {
+    "network_id": {
+      "type": "string",
+      "description": "Unique identifier for the network graph used in the simulation."
+    },
+    "seed": {
+      "type": "integer",
+      "description": "Random seed used for this specific simulation run."
+    },
+    "diffusion_rate": {
+      "type": "number",
+      "format": "float",
+      "description": "Calculated rate of change of spatial variance (finite difference)."
+    },
+    "topology_class": {
+      "type": "string",
+      "description": "Class of the network topology (e.g., 'Erdos-Renyi', 'Watts-Strogatz', 'Barabasi-Albert')."
+    },
+    "steps_run": {
+      "type": "integer",
+      "description": "Number of time steps executed in the simulation."
+    },
+    "status": {
+      "type": "string",
+      "description": "Execution status of the simulation (e.g., 'SUCCESS', 'SIMULATION_DIVERGENCE', 'DISCONNECTED_NETWORK_FAILURE')."
+    }
+  },
+  "additionalProperties": false
+}

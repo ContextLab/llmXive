@@ -1,3 +1,11 @@
+T004b:
+  c: false
+  h: 57e632337789c2b36540056393e527ea2194e3230bbdca5320d5c5ac753b35ba
+  r: "The `data/run_log.json` file exists but only contains a generic `global_seed`\
+    \ entry and no verification logs checking that the seed matches a value from `config.yaml`.\
+    \ Moreover, `config.yaml` is missing entirely, so the required verification step\
+    \ cannot be performed. The task\u2019s requirement to inject seeds and verify\
+    \ them against the config is not satisfied."
 T005:
   c: false
   h: ff62d8687f350bb375e09fa57b5b0c1bc5965238762da4a6500f62ab9bd7c859
@@ -7,38 +15,15 @@ T005:
     \ logging output is not being produced. The task\u2019s requirement to capture\
     \ seeds, parameters, and metrics and write them to `data/run_log.json` is therefore\
     \ not satisfied."
-T018a:
+T035b:
   c: false
-  h: 072a0867b756d467939e17021dbfcf80cd15933977945b31b423c41db8ef51ea
-  r: "The repository contains an `aggregate_batch.py` script, but it does not show\
-    \ code that writes `data/raw/global_batch_manifest.json`, reads a `config.yaml`\
-    \ (which is absent), or implements the required 10\u2011attempt retry loop and\
-    \ exit\u2011code logic. Both the manifest file and the configuration file are\
-    \ missing, so the script cannot verify the target count as specified."
-T029a:
-  c: false
-  h: ba50c23989d8a8848887384c011d463a22534740d30183250985b62eebb78b20
-  r: The required `data/analysis/simulation_results.json` file (and any accompanying
-    JSON schema) is missing, so no schema definition or validation can be verified.
-    Without the file, the task of defining and validating the schema against the `SimulationRun`
-    entity cannot be satisfied.
-T035:
-  c: false
-  h: 746e479b450ec33d9e262a74429b87329f426682619e2587d22f49097d3aa1d9
-  r: "The required output `data/analysis/sensitivity_sweep.json` does not exist, and\
-    \ the `config.yaml` file needed for configurable cutoffs is missing. Moreover,\
-    \ the provided unit test file is truncated and lacks concrete assertions verifying\
-    \ threshold validation, so the test suite does not fully satisfy the task\u2019\
-    s requirements."
-T037:
-  c: false
-  h: cc21d4cb9071ef7126ea08f31a2c9a8bf3dec97e5037c9829fd2473aa0333ffa
-  r: "The `run_analysis.py` script exists but the provided excerpt is truncated and\
-    \ shows no code that actually writes `data/analysis/final_results.json` or invokes\
-    \ the test suites (T033\u2011T035) and plotting module. Moreover, the required\
-    \ output file `data/analysis/final_results.json` is missing from the repository.\
-    \ Without the final results file and evidence of the full pipeline execution,\
-    \ the task is not genuinely completed."
+  h: 5bb41ed3996cee55d4ced4c2d15fe261ec7e459fd34be94ddad5b473edc9ee77
+  r: "The required `data/analysis/sensitivity_sweep.json` file does not exist, and\
+    \ the provided `sensitivity.py` does not implement saving the sweep results nor\
+    \ ensure \u22655 distinct thresholds. Moreover, the unit test expects function\
+    \ signatures (e.g., `filter_by_clustering_threshold(df, 0.5, '>=')`) that are\
+    \ not present in the implementation, so the test would fail. The task\u2019s core\
+    \ requirements are therefore unmet."
 T043:
   c: true
   h: 2cc29ca26622578245308608c230be2f3d7fc904c18ba06f3a2a419579cee16c
@@ -46,20 +31,14 @@ T043:
     \ now contains a detailed explanation of `config.yaml`, including its structure\
     \ and key settings. This matches the task\u2019s requirement to update the README\
     \ with a `config.yaml` explanation."
-T044:
+T045a:
   c: false
-  h: 5b45ae29512569097a9e6a19b31c2478f5905a0b8949f566fcd1d788c7fc2127
-  r: The `code/src/analysis/power.py` does not use `statsmodels.stats.power` as required
-    and the implementation for generating the design validation report is absent;
-    moreover, the expected output file `data/analysis/power_analysis_report.json`
-    is missing from the repository.
-T045:
-  c: false
-  h: a6d5ecc993dc69d1389f1e9c6d738fcf55e571984a3acbcf2c46095543f0dc49
-  r: "The repository contains the validation script, but the required `data/analysis/sensitivity_sweep.json`\
-    \ file is absent, so SC\u2011005 cannot be checked. Moreover, there is no evidence\
-    \ (e.g., console output or exit\u2011code log) that the script was actually executed\
-    \ and returned exit code\u202F0. The task therefore remains unfinished."
+  h: 72b91784142ce6fbb0c9f39d6e2c10fa20cbc8741de8607166cb759bbbead6b6
+  r: "The repository lacks the required `data/analysis/sensitivity_sweep.json` file,\
+    \ so SC\u2011005 cannot be validated, and the provided `validate_batch.py` snippet\
+    \ ends abruptly without showing any logic for SC\u2011005 (or a complete implementation\
+    \ of SC\u2011002). Consequently the batch validation logic does not fully meet\
+    \ the task\u2019s specifications."
 T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
