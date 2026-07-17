@@ -1,0 +1,6656 @@
+{
+  "entries": [
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 22,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 23,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 25,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 36,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 37,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 39,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 54,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 55,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 57,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 68,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 69,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 71,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 82,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 83,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 85,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 98,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 99,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 101,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 112,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 113,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 115,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 126,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 127,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 129,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 141,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 142,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 144,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 156,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 157,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 159,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 170,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 171,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 173,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 186,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 187,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 189,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 203,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 204,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 206,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 221,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 222,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 224,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 240,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 241,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 243,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 257,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 258,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 260,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 272,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 273,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 275,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 287,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 288,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 290,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 302,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 303,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 305,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 317,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 318,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 320,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 331,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 332,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 334,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 349,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 350,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 352,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 367,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 368,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 370,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 384,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 385,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 387,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 399,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 400,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 402,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 414,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 415,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 417,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 428,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 429,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 431,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 444,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 445,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 447,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 459,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 460,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 462,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 476,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 477,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 479,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 493,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 494,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 496,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 508,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 509,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 511,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 524,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 525,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 527,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 540,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 541,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 543,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 556,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 557,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 559,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 572,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 573,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 575,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 588,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 589,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 591,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 604,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 605,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 607,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 620,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 621,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 623,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 636,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 637,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 639,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 652,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 653,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 655,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 668,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 669,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 671,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 684,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 685,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 687,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 700,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 701,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 703,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 716,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 717,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 719,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 732,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 733,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 735,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 748,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 749,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 751,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 764,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 765,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 767,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 780,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 781,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 783,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 796,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 797,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 799,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 814,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 815,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 817,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 832,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 833,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 835,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 849,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 850,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 852,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 864,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "registry",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 865,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "exempt",
+      "file": "agents/registry.yaml",
+      "kind": "registry_field",
+      "line": 866,
+      "models": [],
+      "owning_slice": null,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/base.py",
+      "kind": "field_consumer",
+      "line": 137,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/base.py",
+      "kind": "field_consumer",
+      "line": 138,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/base.py",
+      "kind": "field_consumer",
+      "line": 154,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/base.py",
+      "kind": "field_consumer",
+      "line": 155,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/base.py",
+      "kind": "field_consumer",
+      "line": 156,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/grounding_guard.py",
+      "kind": "module_constant",
+      "line": 92,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "_DEFAULT_MODEL"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1065,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1066,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1174,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1183,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1199,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1241,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1242,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1244,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1245,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1712,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1713,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/implementer.py",
+      "kind": "field_consumer",
+      "line": 1714,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 231,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 232,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 233,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 314,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 315,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 316,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 364,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 365,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 366,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 639,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 640,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/librarian.py",
+      "kind": "field_consumer",
+      "line": 641,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/living_document.py",
+      "kind": "model_id_literal",
+      "line": 81,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/living_document.py",
+      "kind": "model_id_literal",
+      "line": 514,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/paper_reviewer.py",
+      "kind": "field_consumer",
+      "line": 478,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/paper_reviewer.py",
+      "kind": "field_consumer",
+      "line": 479,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/paper_reviewer.py",
+      "kind": "field_consumer",
+      "line": 480,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/personality.py",
+      "kind": "module_constant",
+      "line": 68,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "MODEL_NAME"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/personality.py",
+      "kind": "field_consumer",
+      "line": 1198,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/personality.py",
+      "kind": "field_consumer",
+      "line": 1199,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/personality.py",
+      "kind": "field_consumer",
+      "line": 1200,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/submission_intake.py",
+      "kind": "field_consumer",
+      "line": 631,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/submission_intake.py",
+      "kind": "field_consumer",
+      "line": 632,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/submission_intake.py",
+      "kind": "field_consumer",
+      "line": 633,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/task_verifier.py",
+      "kind": "model_id_literal",
+      "line": 246,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/agents/task_verifier.py",
+      "kind": "model_id_literal",
+      "line": 434,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/backends/dartmouth.py",
+      "kind": "module_constant",
+      "line": 86,
+      "models": [
+        "gpt-oss",
+        "qwen3",
+        "qwen3.5"
+      ],
+      "owning_slice": 7,
+      "symbol": "_REASONING_MODELS"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/backends/dartmouth.py",
+      "kind": "module_constant",
+      "line": 510,
+      "models": [
+        "google.gemma-3-27b-it",
+        "google.gemma-4-31B-it",
+        "meta.codellama-13b-instruct-hf",
+        "meta.llama-3-2-3b-instruct",
+        "meta.llama-3.2-11b-vision-instruct",
+        "openai.gpt-oss-120b",
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "KNOWN_FREE_MODELS"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/backends/local.py",
+      "kind": "model_id_literal",
+      "line": 37,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": 7,
+      "symbol": "list_models"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/backends/router.py",
+      "kind": "module_constant",
+      "line": 45,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001",
+        "google.gemma-3-27b-it",
+        "openai.gpt-oss-120b",
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 5,
+      "symbol": "MODEL_FALLBACKS"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/backends/router.py",
+      "kind": "module_constant",
+      "line": 86,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 5,
+      "symbol": "DEFAULT_MODEL"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/backends/router.py",
+      "kind": "module_constant",
+      "line": 92,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": 5,
+      "symbol": "PAID_FALLBACK_MODELS"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/claims/extract.py",
+      "kind": "module_constant",
+      "line": 26,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "_DEFAULT_MODEL"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/claims/resolve.py",
+      "kind": "module_constant",
+      "line": 37,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "_DEFAULT_MODEL"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/cli.py",
+      "kind": "field_consumer",
+      "line": 276,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/cli.py",
+      "kind": "field_consumer",
+      "line": 276,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/cli.py",
+      "kind": "field_consumer",
+      "line": 505,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/cli.py",
+      "kind": "field_consumer",
+      "line": 506,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/cli.py",
+      "kind": "field_consumer",
+      "line": 507,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/cli.py",
+      "kind": "field_consumer",
+      "line": 510,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/engine.py",
+      "kind": "model_id_literal",
+      "line": 400,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/flesh_out_reviser.py",
+      "kind": "model_id_literal",
+      "line": 131,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/implementer_reviser.py",
+      "kind": "model_id_literal",
+      "line": 206,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/implementer_reviser.py",
+      "kind": "model_id_literal",
+      "line": 214,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/implementer_reviser.py",
+      "kind": "model_id_literal",
+      "line": 222,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/implementer_reviser.py",
+      "kind": "model_id_literal",
+      "line": 299,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
+      "kind": "model_id_literal",
+      "line": 159,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
+      "kind": "model_id_literal",
+      "line": 170,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
+      "kind": "model_id_literal",
+      "line": 181,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
+      "kind": "model_id_literal",
+      "line": 189,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
+      "kind": "model_id_literal",
+      "line": 241,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/paper_spec_reviser.py",
+      "kind": "model_id_literal",
+      "line": 117,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/paper_spec_reviser.py",
+      "kind": "model_id_literal",
+      "line": 129,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/plan_reviser.py",
+      "kind": "model_id_literal",
+      "line": 208,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/plan_reviser.py",
+      "kind": "model_id_literal",
+      "line": 219,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/spec_reviser.py",
+      "kind": "model_id_literal",
+      "line": 224,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/spec_reviser.py",
+      "kind": "model_id_literal",
+      "line": 236,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
+      "kind": "model_id_literal",
+      "line": 131,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
+      "kind": "model_id_literal",
+      "line": 142,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
+      "kind": "model_id_literal",
+      "line": 153,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
+      "kind": "model_id_literal",
+      "line": 164,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/triage.py",
+      "kind": "model_id_literal",
+      "line": 198,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/execution/data_source.py",
+      "kind": "model_id_literal",
+      "line": 118,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/fill/extract.py",
+      "kind": "module_constant",
+      "line": 247,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "_DEFAULT_MODEL"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/fill/service.py",
+      "kind": "model_id_literal",
+      "line": 98,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/grounding/entailment.py",
+      "kind": "module_constant",
+      "line": 18,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "_DEFAULT_MODEL"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/librarian/data_source_discovery.py",
+      "kind": "module_constant",
+      "line": 52,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "_MODEL"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/librarian/expand.py",
+      "kind": "model_id_literal",
+      "line": 61,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/librarian/math_classifier.py",
+      "kind": "model_id_literal",
+      "line": 223,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/librarian/query_extractor.py",
+      "kind": "model_id_literal",
+      "line": 141,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/librarian/relevance_judge.py",
+      "kind": "model_id_literal",
+      "line": 234,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/librarian/relevance_judge.py",
+      "kind": "model_id_literal",
+      "line": 347,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 113,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 119,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 125,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 131,
+      "models": [
+        "claude-haiku-4-5"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 137,
+      "models": [
+        "qwen3-vl"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 143,
+      "models": [
+        "qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/paper_reprocess/branch_code.py",
+      "kind": "field_consumer",
+      "line": 453,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/paper_reprocess/branch_code.py",
+      "kind": "field_consumer",
+      "line": 454,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/paper_reprocess/branch_code.py",
+      "kind": "field_consumer",
+      "line": 455,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/paper_reprocess/branch_nocode.py",
+      "kind": "field_consumer",
+      "line": 154,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/paper_reprocess/branch_nocode.py",
+      "kind": "field_consumer",
+      "line": 155,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/paper_reprocess/branch_nocode.py",
+      "kind": "field_consumer",
+      "line": 156,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/paper_reprocess/code_adapter.py",
+      "kind": "field_consumer",
+      "line": 251,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/paper_reprocess/code_adapter.py",
+      "kind": "field_consumer",
+      "line": 252,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/paper_reprocess/code_adapter.py",
+      "kind": "field_consumer",
+      "line": 253,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/paper_reprocess/preprint_figures.py",
+      "kind": "module_constant",
+      "line": 34,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "_VISION_MODEL"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/pipeline/graph.py",
+      "kind": "field_consumer",
+      "line": 770,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/pipeline/graph.py",
+      "kind": "field_consumer",
+      "line": 778,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/pipeline/graph.py",
+      "kind": "field_consumer",
+      "line": 781,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/pipeline/graph.py",
+      "kind": "field_consumer",
+      "line": 798,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/pipeline/graph.py",
+      "kind": "field_consumer",
+      "line": 799,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/clarify_cmd.py",
+      "kind": "field_consumer",
+      "line": 248,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/clarify_cmd.py",
+      "kind": "field_consumer",
+      "line": 257,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/paper_clarify_cmd.py",
+      "kind": "field_consumer",
+      "line": 219,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/paper_clarify_cmd.py",
+      "kind": "field_consumer",
+      "line": 231,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/paper_implement_cmd.py",
+      "kind": "field_consumer",
+      "line": 257,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/paper_implement_cmd.py",
+      "kind": "field_consumer",
+      "line": 299,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/paper_plan_cmd.py",
+      "kind": "field_consumer",
+      "line": 130,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/paper_plan_cmd.py",
+      "kind": "field_consumer",
+      "line": 154,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/paper_tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 129,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/paper_tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 130,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/paper_tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 131,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/paper_tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 162,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/paper_tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 172,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/plan_cmd.py",
+      "kind": "field_consumer",
+      "line": 387,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/plan_cmd.py",
+      "kind": "field_consumer",
+      "line": 412,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/plan_cmd.py",
+      "kind": "field_consumer",
+      "line": 440,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/plan_cmd.py",
+      "kind": "field_consumer",
+      "line": 467,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/slash_command.py",
+      "kind": "field_consumer",
+      "line": 107,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/slash_command.py",
+      "kind": "field_consumer",
+      "line": 108,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/slash_command.py",
+      "kind": "field_consumer",
+      "line": 119,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/slash_command.py",
+      "kind": "field_consumer",
+      "line": 120,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/slash_command.py",
+      "kind": "field_consumer",
+      "line": 121,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/slash_command.py",
+      "kind": "field_consumer",
+      "line": 306,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 248,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 249,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 250,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 303,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 304,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 305,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 481,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 482,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 483,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 540,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/tasks_cmd.py",
+      "kind": "field_consumer",
+      "line": 568,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/state/execution_status.py",
+      "kind": "module_constant",
+      "line": 63,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 6,
+      "symbol": "FREE_MODEL_TIERS"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/tools/summarize.py",
+      "kind": "module_constant",
+      "line": 45,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct",
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "_MODEL_BUDGETS"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/tools/summarize.py",
+      "kind": "model_id_literal",
+      "line": 248,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "schema",
+      "file": "src/llmxive/types.py",
+      "kind": "agentspec_field",
+      "line": 696,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_backend"
+    },
+    {
+      "category": "schema",
+      "file": "src/llmxive/types.py",
+      "kind": "agentspec_field",
+      "line": 697,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "fallback_backends"
+    },
+    {
+      "category": "schema",
+      "file": "src/llmxive/types.py",
+      "kind": "agentspec_field",
+      "line": 698,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_audit_bugfixes.py",
+      "kind": "model_id_literal",
+      "line": 100,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "default_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_audit_bugfixes.py",
+      "kind": "model_id_literal",
+      "line": 175,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "default_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_broken_prompt_fails_fast.py",
+      "kind": "model_id_literal",
+      "line": 59,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "default_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_credit_ledger_transport.py",
+      "kind": "model_id_literal",
+      "line": 319,
+      "models": [
+        "Qwen/Qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_append_event_rejects_unsafe_ids"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_credit_reservations.py",
+      "kind": "model_id_literal",
+      "line": 63,
+      "models": [
+        "anthropic.claude-haiku-4-5"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_free_backend_only.py",
+      "kind": "model_id_literal",
+      "line": 64,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_free_backend_only.py",
+      "kind": "model_id_literal",
+      "line": 121,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "module_constant",
+      "line": 38,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "CLAUDE"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 64,
+      "models": [
+        "claude-haiku-4-5"
+      ],
+      "owning_slice": null,
+      "symbol": "_paid_ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 152,
+      "models": [
+        "qwen.qwen3-vl:32b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 210,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "free"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 210,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "free"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 232,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chat"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 245,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_free_then_paid_reaches_paid_after_free_fails"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_paper_review_flow.py",
+      "kind": "model_id_literal",
+      "line": 83,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_paper_stage_freeze.py",
+      "kind": "module_constant",
+      "line": 44,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_FREE_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_personality_tick.py",
+      "kind": "model_id_literal",
+      "line": 299,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_run_log_entry_has_all_required_fields"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_planning_references_only.py",
+      "kind": "module_constant",
+      "line": 41,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_FREE_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_proj552_planning_no_kickback.py",
+      "kind": "module_constant",
+      "line": 38,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_FREE_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_proj552_real_plan.py",
+      "kind": "module_constant",
+      "line": 42,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_FREE_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_research_review_flow.py",
+      "kind": "model_id_literal",
+      "line": 83,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_resume_after_midpipeline_failure.py",
+      "kind": "model_id_literal",
+      "line": 59,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_resume_after_midpipeline_failure.py",
+      "kind": "model_id_literal",
+      "line": 101,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_resume_after_midpipeline_failure.py",
+      "kind": "model_id_literal",
+      "line": 118,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase1/test_idempotency.py",
+      "kind": "model_id_literal",
+      "line": 57,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "default_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase1/test_idempotency.py",
+      "kind": "model_id_literal",
+      "line": 162,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase1/test_idempotency.py",
+      "kind": "model_id_literal",
+      "line": 239,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase1/test_idempotency.py",
+      "kind": "model_id_literal",
+      "line": 310,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase1/test_idempotency.py",
+      "kind": "model_id_literal",
+      "line": 319,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase2/test_math_classifier.py",
+      "kind": "module_constant",
+      "line": 62,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_PLUMBING"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/phase2/test_submission_intake.py",
+      "kind": "model_id_literal",
+      "line": 243,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_resolve_submitter_legacy_body_model_line"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_claim_resolve_real.py",
+      "kind": "model_id_literal",
+      "line": 40,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_get_backend_and_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_dartmouth_chat.py",
+      "kind": "module_constant",
+      "line": 37,
+      "models": [
+        "google.gemma-4-31B-it",
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "preferred"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_dartmouth_chat.py",
+      "kind": "model_id_literal",
+      "line": 42,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "non_reasoning"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_dartmouth_outage_falls_back.py",
+      "kind": "model_id_literal",
+      "line": 35,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "list_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_dartmouth_outage_falls_back.py",
+      "kind": "model_id_literal",
+      "line": 56,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "list_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_dartmouth_outage_falls_back.py",
+      "kind": "model_id_literal",
+      "line": 103,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_e2e_real.py",
+      "kind": "model_id_literal",
+      "line": 55,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_make_backend_and_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_no_source_blocks_real.py",
+      "kind": "model_id_literal",
+      "line": 63,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_oeis_real.py",
+      "kind": "model_id_literal",
+      "line": 82,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_provenance_real.py",
+      "kind": "model_id_literal",
+      "line": 75,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_wikidata_real.py",
+      "kind": "model_id_literal",
+      "line": 79,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_wikidata_real.py",
+      "kind": "model_id_literal",
+      "line": 126,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_wikidata_real.py",
+      "kind": "model_id_literal",
+      "line": 156,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_fill_wikipedia_real.py",
+      "kind": "model_id_literal",
+      "line": 110,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_grounding_end_to_end.py",
+      "kind": "model_id_literal",
+      "line": 21,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_grounding_end_to_end.py",
+      "kind": "model_id_literal",
+      "line": 35,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_grounding_entailment.py",
+      "kind": "model_id_literal",
+      "line": 19,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_grounding_entailment.py",
+      "kind": "model_id_literal",
+      "line": 26,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 32,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_real_composite"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 33,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "m"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 34,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_real_composite"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 36,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_real_composite"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 38,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_real_composite"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_model_selection_snapshot_real.py",
+      "kind": "model_id_literal",
+      "line": 39,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_real_composite"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_paid_credits_real.py",
+      "kind": "model_id_literal",
+      "line": 55,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_paid_credits_real.py",
+      "kind": "model_id_literal",
+      "line": 78,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_paper_review_convergence_e2e.py",
+      "kind": "model_id_literal",
+      "line": 92,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_paper_reviewer_chunk_summary.py",
+      "kind": "model_id_literal",
+      "line": 86,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_relevance_judge_real.py",
+      "kind": "model_id_literal",
+      "line": 33,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_summarize_fidelity.py",
+      "kind": "module_constant",
+      "line": 26,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_triple_real.py",
+      "kind": "module_constant",
+      "line": 45,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_advancement_convergence.py",
+      "kind": "model_id_literal",
+      "line": 45,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_advancement_convergence.py",
+      "kind": "model_id_literal",
+      "line": 161,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_advancement_convergence.py",
+      "kind": "model_id_literal",
+      "line": 245,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_agent_malformed_response_retry.py",
+      "kind": "model_id_literal",
+      "line": 36,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "default_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_audit_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 32,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_conformant_entries_zero_violations"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_audit_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 66,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_missing_simulated_suffix_flagged"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_audit_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 94,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_tick_level_failure_without_slug_not_flagged"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_authors.py",
+      "kind": "model_id_literal",
+      "line": 200,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_authors.py",
+      "kind": "model_id_literal",
+      "line": 253,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_authors.py",
+      "kind": "model_id_literal",
+      "line": 254,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_authors.py",
+      "kind": "model_id_literal",
+      "line": 260,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_model_author_byline_lists_model_not_agent"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_branch_code.py",
+      "kind": "module_constant",
+      "line": 319,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "_FREE_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 49,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "_controlled_fallback_topology"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 50,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "_controlled_fallback_topology"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 51,
+      "models": [
+        "meta.codellama-13b-instruct-hf"
+      ],
+      "owning_slice": null,
+      "symbol": "_controlled_fallback_topology"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 103,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 107,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_healthy_no_fallback"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 114,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 116,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 122,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_transient_walks_to_first_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 123,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_transient_walks_to_first_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 124,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_transient_walks_to_first_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 125,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_transient_walks_to_first_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 135,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "deadline_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 137,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 142,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_deadline_hang_falls_to_peer_after_one_attempt"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 142,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_deadline_hang_falls_to_peer_after_one_attempt"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 150,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "deadline_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 151,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "deadline_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 152,
+      "models": [
+        "meta.codellama-13b-instruct-hf"
+      ],
+      "owning_slice": null,
+      "symbol": "deadline_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 157,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 161,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_all_models_deadline_hang_one_attempt_each_then_error"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 162,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_all_models_deadline_hang_one_attempt_each_then_error"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 163,
+      "models": [
+        "meta.codellama-13b-instruct-hf"
+      ],
+      "owning_slice": null,
+      "symbol": "test_all_models_deadline_hang_one_attempt_each_then_error"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 174,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "chat"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 179,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 183,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_reasoning_budget_exhausted_skips_remaining_primary_retries"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 184,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_reasoning_budget_exhausted_skips_remaining_primary_retries"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 189,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "permanent_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 191,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 193,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_permanent_on_primary_aborts_no_peer_walk"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 201,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 202,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 203,
+      "models": [
+        "meta.codellama-13b-instruct-hf"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 207,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 210,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_all_models_transient_raises_backend_error"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 211,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_all_models_transient_raises_backend_error"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 212,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_all_models_transient_raises_backend_error"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 213,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_all_models_transient_raises_backend_error"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 214,
+      "models": [
+        "meta.codellama-13b-instruct-hf"
+      ],
+      "owning_slice": null,
+      "symbol": "test_all_models_transient_raises_backend_error"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 252,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 254,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 257,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_kwarg_degradation_for_narrow_signature"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 265,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "unavailable_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 267,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 273,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_unavailable_walks_to_healthy_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 274,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_unavailable_walks_to_healthy_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 282,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "unavailable_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 282,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "unavailable_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 285,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 290,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_peer_unavailable_walks_to_next_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 291,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_peer_unavailable_walks_to_next_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 292,
+      "models": [
+        "meta.codellama-13b-instruct-hf"
+      ],
+      "owning_slice": null,
+      "symbol": "test_peer_unavailable_walks_to_next_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 303,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "unavailable_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 304,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "unavailable_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 305,
+      "models": [
+        "meta.codellama-13b-instruct-hf"
+      ],
+      "owning_slice": null,
+      "symbol": "unavailable_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 309,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 312,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_all_models_unavailable_raises_backend_unavailable"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 313,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_all_models_unavailable_raises_backend_unavailable"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 314,
+      "models": [
+        "meta.codellama-13b-instruct-hf"
+      ],
+      "owning_slice": null,
+      "symbol": "test_all_models_unavailable_raises_backend_unavailable"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 323,
+      "models": [
+        "meta.codellama-13b-instruct-hf"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 323,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 324,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "unavailable_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 327,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 335,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "unavailable_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 336,
+      "models": [
+        "meta.codellama-13b-instruct-hf"
+      ],
+      "owning_slice": null,
+      "symbol": "permanent_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 336,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "permanent_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 342,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 355,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "down_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 357,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 362,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_302_outage_falls_to_peer_after_one_attempt"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 363,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_302_outage_falls_to_peer_after_one_attempt"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 377,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 379,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_reasoning_chat_healthy_primary_no_fallback_default_budget"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 385,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 386,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 396,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 412,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "down_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 413,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 416,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_reasoning_chat_302_outage_falls_to_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 417,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_reasoning_chat_302_outage_falls_to_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 436,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_checks_backends.py",
+      "kind": "model_id_literal",
+      "line": 28,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "list_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_checks_backends.py",
+      "kind": "model_id_literal",
+      "line": 28,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "list_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_checks_backends.py",
+      "kind": "model_id_literal",
+      "line": 40,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_transient_blip_clears_on_retry"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_checks_backends.py",
+      "kind": "model_id_literal",
+      "line": 40,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_transient_blip_clears_on_retry"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_claim_extract.py",
+      "kind": "model_id_literal",
+      "line": 302,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_config_consistency.py",
+      "kind": "module_constant",
+      "line": 43,
+      "models": [
+        "gemini-"
+      ],
+      "owning_slice": null,
+      "symbol": "PAID_MODEL_FRAGMENTS"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_circuit_breaker.py",
+      "kind": "model_id_literal",
+      "line": 205,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_circuit_breaker.py",
+      "kind": "model_id_literal",
+      "line": 211,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_circuit_breaker.py",
+      "kind": "module_constant",
+      "line": 226,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_a"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_circuit_breaker.py",
+      "kind": "module_constant",
+      "line": 227,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_b"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 32,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_for_reasoning_model_is_360"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 37,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_for_gpt_oss_is_360"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 42,
+      "models": [
+        "google.gemma-3-27b-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_for_nonreasoning_model_is_180"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 46,
+      "models": [
+        "meta.llama-3-2-3b-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_for_unknown_model_is_180"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 59,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_env_overrides"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_reasoning_deadline.py",
+      "kind": "model_id_literal",
+      "line": 60,
+      "models": [
+        "google.gemma-3-27b-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_deadline_env_overrides"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_thinking.py",
+      "kind": "model_id_literal",
+      "line": 13,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "mk"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_thinking.py",
+      "kind": "model_id_literal",
+      "line": 20,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "mk"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_thinking.py",
+      "kind": "model_id_literal",
+      "line": 27,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_non_qwen_models_untouched"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_thinking.py",
+      "kind": "model_id_literal",
+      "line": 28,
+      "models": [
+        "google.gemma-3-27b-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_non_qwen_models_untouched"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_thinking.py",
+      "kind": "model_id_literal",
+      "line": 29,
+      "models": [
+        "meta.llama-3-2-3b-instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_non_qwen_models_untouched"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_execution_exhaustion_flow.py",
+      "kind": "model_id_literal",
+      "line": 93,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_ladder_skips_paid_tiers_when_opt_in_off"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_execution_exhaustion_flow.py",
+      "kind": "model_id_literal",
+      "line": 143,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_execution_model_override_resolves_tier"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_graph_advancement_persistence.py",
+      "kind": "model_id_literal",
+      "line": 114,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_implementer_feedback_injection.py",
+      "kind": "model_id_literal",
+      "line": 30,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "default_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_lane_locking.py",
+      "kind": "model_id_literal",
+      "line": 83,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 77,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 85,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 91,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_healthy_primary_no_fallback"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 99,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 100,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 102,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 109,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_transient_walks_to_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 110,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_primary_transient_walks_to_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_fallback_outage_classification.py",
+      "kind": "module_constant",
+      "line": 34,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "PRIMARY"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 91,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 95,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_free_success_returns_result"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 102,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 108,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_execution_options_applied_to_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 117,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 118,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 118,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 120,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_transient_advances_to_next_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 125,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 126,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 126,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 128,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_breaker_open_advances"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 132,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 133,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 133,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 135,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_paid_guard_denial_skips_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 140,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 141,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 141,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 145,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_permanent_refusal_aborts_and_does_not_advance"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 150,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 150,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "be"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 152,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 152,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 166,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 175,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 191,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 52,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_ignores_comments_and_docstrings"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 80,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_detects_literals_and_default_args"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 84,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_detects_literals_and_default_args"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 88,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_detects_literals_and_default_args"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 114,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "lit"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 158,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_frozenset_table_stays_single_constant"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 158,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_frozenset_table_stays_single_constant"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 180,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_fallback_table_single_entry_no_double_count"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 181,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_fallback_table_single_entry_no_double_count"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 182,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_fallback_table_single_entry_no_double_count"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 202,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_python_hf_slash_model_but_not_paths"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 289,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_scan_registry_extracts_agent_fields_with_lines"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 294,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 385,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_render_markdown_is_deterministic_with_counts_and_pins"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 17,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_REF"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 17,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_REF"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 18,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_PRICE"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 19,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "_LOCAL_REF"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 19,
+      "models": [
+        "qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_LOCAL_REF"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_lkg.py",
+      "kind": "model_id_literal",
+      "line": 20,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "_LOCAL_PRICE"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "module_constant",
+      "line": 16,
+      "models": [
+        "claude-haiku-4-5",
+        "gemma-4",
+        "gpt-oss",
+        "qwen2.5",
+        "qwen3-vl",
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_EXPECTED_FAMILIES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 27,
+      "models": [
+        "gemma-3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_expected_families_present_and_gemma3_absent"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 46,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 47,
+      "models": [
+        "qwen3-vl"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 48,
+      "models": [
+        "qwen3-vl"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 49,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 50,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 51,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 52,
+      "models": [
+        "qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 53,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_profiles.py",
+      "kind": "model_id_literal",
+      "line": 61,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_router_primitive.py",
+      "kind": "model_id_literal",
+      "line": 69,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_router_primitive.py",
+      "kind": "model_id_literal",
+      "line": 71,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_success_is_a_single_call"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 33,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 34,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA4"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 35,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "GPT_OSS"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 36,
+      "models": [
+        "google.gemma-3-27b-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA3"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 37,
+      "models": [
+        "qwen.qwen3-vl:32b"
+      ],
+      "owning_slice": null,
+      "symbol": "VL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 38,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "CLAUDE"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 39,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "LOCAL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 331,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 352,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 366,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 366,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 366,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 381,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 428,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 428,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 24,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 24,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 25,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 25,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 26,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 26,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 27,
+      "models": [
+        "gemma-3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 27,
+      "models": [
+        "google.gemma-3-27b-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 28,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 28,
+      "models": [
+        "qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 29,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 29,
+      "models": [
+        "claude-haiku-4-5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_vendor_and_family_derivation"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "module_constant",
+      "line": 38,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "mid"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 88,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 88,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 89,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "price"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 103,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_runtime_snapshot_is_deterministic_and_provenanced"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 115,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 115,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 116,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "price"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 141,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 141,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "ref"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_snapshot.py",
+      "kind": "model_id_literal",
+      "line": 142,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "price"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 44,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "test_refused_by_default"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 64,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "test_allowed_under_cap"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 74,
+      "models": [
+        "anthropic.claude-opus-4-8"
+      ],
+      "owning_slice": null,
+      "symbol": "test_refused_at_cap"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 84,
+      "models": [
+        "anthropic.claude-opus-4-8"
+      ],
+      "owning_slice": null,
+      "symbol": "test_custom_fraction"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 91,
+      "models": [
+        "anthropic.claude-opus-4-8"
+      ],
+      "owning_slice": null,
+      "symbol": "test_zero_max_budget_refused"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 116,
+      "models": [
+        "anthropic.claude-opus-4-8"
+      ],
+      "owning_slice": null,
+      "symbol": "test_fetch_failure_refuses"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paid_credits.py",
+      "kind": "model_id_literal",
+      "line": 183,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "test_fits_within_cap"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paper_resolver_pointer.py",
+      "kind": "model_id_literal",
+      "line": 93,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "default_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paper_reviewer_arxiv_intake.py",
+      "kind": "model_id_literal",
+      "line": 206,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_paper_reviewer_arxiv_intake.py",
+      "kind": "model_id_literal",
+      "line": 593,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_build_messages_with_mixed_string_and_dict_authors"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 129,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_entry_has_all_required_attribution_fields"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 152,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_disclaimer_template_names_persona_and_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_preprint_pdf.py",
+      "kind": "model_id_literal",
+      "line": 68,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_preprint_pdf.py",
+      "kind": "model_id_literal",
+      "line": 83,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_preprint_pdf.py",
+      "kind": "model_id_literal",
+      "line": 140,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_preprint_pdf.py",
+      "kind": "model_id_literal",
+      "line": 173,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_preprint_review.py",
+      "kind": "model_id_literal",
+      "line": 104,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_rereview_per_specialist_toggle.py",
+      "kind": "model_id_literal",
+      "line": 38,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_rereview_per_specialist_toggle.py",
+      "kind": "model_id_literal",
+      "line": 201,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_review_dispatch_gating.py",
+      "kind": "model_id_literal",
+      "line": 102,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_review_r1_action_items_gate.py",
+      "kind": "model_id_literal",
+      "line": 54,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_review_record_action_items.py",
+      "kind": "model_id_literal",
+      "line": 25,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_base_kwargs"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviewed_preprint_attribution.py",
+      "kind": "model_id_literal",
+      "line": 43,
+      "models": [
+        "claude-sonnet-4.7"
+      ],
+      "owning_slice": null,
+      "symbol": "_repo_with_runlog"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviewed_preprint_attribution.py",
+      "kind": "model_id_literal",
+      "line": 59,
+      "models": [
+        "claude-sonnet-4.7"
+      ],
+      "owning_slice": null,
+      "symbol": "test_preprint_credits_reviewer_model_not_implementer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviewed_preprint_attribution.py",
+      "kind": "model_id_literal",
+      "line": 73,
+      "models": [
+        "claude-sonnet-4.7"
+      ],
+      "owning_slice": null,
+      "symbol": "test_non_preprint_still_credits_implementer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviewed_preprint_finalize.py",
+      "kind": "model_id_literal",
+      "line": 95,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_self_consistency.py",
+      "kind": "model_id_literal",
+      "line": 466,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "__init__"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_self_consistency.py",
+      "kind": "model_id_literal",
+      "line": 469,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_self_consistency.py",
+      "kind": "model_id_literal",
+      "line": 469,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_self_consistency.py",
+      "kind": "model_id_literal",
+      "line": 470,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_self_consistency.py",
+      "kind": "model_id_literal",
+      "line": 489,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "__init__"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_self_consistency.py",
+      "kind": "model_id_literal",
+      "line": 491,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_runlog_producer.py",
+      "kind": "model_id_literal",
+      "line": 43,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "base"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_state_atomic_io.py",
+      "kind": "model_id_literal",
+      "line": 299,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_state_atomic_io.py",
+      "kind": "model_id_literal",
+      "line": 375,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_web_data_bot_submitter.py",
+      "kind": "model_id_literal",
+      "line": 39,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_models_are_not_bots"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_web_data_bot_submitter.py",
+      "kind": "model_id_literal",
+      "line": 40,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "test_models_are_not_bots"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_web_data_recent_activity.py",
+      "kind": "model_id_literal",
+      "line": 32,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_entry"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_web_data_recent_activity.py",
+      "kind": "model_id_literal",
+      "line": 82,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_personality_fields_propagated"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_web_data_recent_activity.py",
+      "kind": "model_id_literal",
+      "line": 119,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_duration_computed_from_timestamps"
+    }
+  ],
+  "generated_by": "llmxive.model_selection.inventory.build_manifest",
+  "schema": "llmxive-model-selection-migration/1"
+}
