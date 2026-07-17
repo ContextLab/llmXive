@@ -1,0 +1,14 @@
+T017:
+  c: false
+  h: 66a8179c5c2177a9bbdaac4968f38824bbedc180e11401164ae5107c738578b4
+  r: The repository contains `code/analyze_metrics.py`, but it does not include a
+    complete aggregation routine that writes a JSON file with all required fields,
+    and the expected output file `data/analysis/metrics.json` is missing. Consequently
+    the task of producing the metrics JSON with the specified fields is not satisfied.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the quickstart.md was actually executed or validated;\
+    \ there are no logs, screenshots, test results, or reproducibility artifacts demonstrating\
+    \ the end\u2011to\u2011end run. The implementer\u2019s response contains only\
+    \ the specification, not the required validation output."

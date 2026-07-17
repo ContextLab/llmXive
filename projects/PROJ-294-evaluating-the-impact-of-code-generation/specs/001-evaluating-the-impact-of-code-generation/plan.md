@@ -16,7 +16,7 @@ This project implements a paired analysis pipeline to evaluate the impact of cod
 **Target Platform**: Linux (GitHub Actions free-tier runner)  
 **Project Type**: Research CLI / Data Pipeline  
 **Performance Goals**: Complete pipeline execution within 6 hours; memory usage < 7GB; no GPU dependency.  
-**Constraints**: Must use CPU-only inference; Low-bit quantization for CodeLlamaB only if it fits in 7GB RAM (fallback to CodeLlama-3B); exact dataset pinning via SHA256.  
+**Constraints**: Must use CPU-only inference; Low-bit quantization for CodeLlamaB only if it fits in available RAM (fallback to CodeLlama-3B); exact dataset pinning via SHA256.  
 **Scale/Scope**: 50 HumanEval tasks; ~40 valid paired samples required for statistical power.
 
 ### Sampling Strategy
