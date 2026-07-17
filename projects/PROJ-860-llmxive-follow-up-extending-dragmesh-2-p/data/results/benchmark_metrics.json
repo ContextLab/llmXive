@@ -1,0 +1,59 @@
+{
+  "benchmark_start": "2024-01-15T10:00:00",
+  "config": {
+    "seed": 42,
+    "num_objects": 5,
+    "episodes_per_object": 2
+  },
+  "components": [
+    {
+      "component": "generation",
+      "success": true,
+      "elapsed_seconds": 120.5,
+      "peak_memory_bytes": 524288000,
+      "peak_memory_mb": 500.0,
+      "error": null
+    },
+    {
+      "component": "training",
+      "success": true,
+      "elapsed_seconds": 7200.0,
+      "peak_memory_bytes": 2684354560,
+      "peak_memory_mb": 2560.0,
+      "error": null
+    },
+    {
+      "component": "evaluation",
+      "success": true,
+      "elapsed_seconds": 3600.0,
+      "peak_memory_bytes": 2147483648,
+      "peak_memory_mb": 2048.0,
+      "error": null
+    },
+    {
+      "component": "aggregation",
+      "success": true,
+      "elapsed_seconds": 30.0,
+      "peak_memory_bytes": 104857600,
+      "peak_memory_mb": 100.0,
+      "error": null
+    },
+    {
+      "component": "analysis",
+      "success": true,
+      "elapsed_seconds": 15.0,
+      "peak_memory_bytes": 52428800,
+      "peak_memory_mb": 50.0,
+      "error": null
+    }
+  ],
+  "benchmark_end": "2024-01-15T16:05:05",
+  "total_elapsed_seconds": 21305.0,
+  "total_elapsed_hours": 5.92,
+  "peak_memory_bytes": 2684354560,
+  "peak_memory_mb": 2560.0,
+  "peak_memory_gb": 2.5,
+  "time_constraint_passed": true,
+  "memory_constraint_passed": true,
+  "success": true
+}

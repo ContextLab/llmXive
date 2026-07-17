@@ -1,0 +1,34 @@
+# Core Dependencies for llmXive Virtual Tactile Adaptation
+# Project: PROJ-860-llmxive-follow-up-extending-dragmesh-2-p
+# CPU-only environment (no CUDA required)
+
+# Physics Simulation
+pybullet>=3.2.5
+pybullet_data>=0.1
+
+# Data Processing & Numerics
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+
+# Machine Learning (if needed for baseline/adaptive policies)
+# Note: Using CPU-only compatible versions
+scikit-learn>=1.2.0
+
+# Data Loading (for any external datasets if needed)
+datasets>=2.14.0
+
+# Testing & Validation
+pytest>=7.3.0
+pytest-timeout>=2.2.0
+pytest-mock>=3.10.0
+
+# Statistical Analysis
+statsmodels>=0.14.0
+
+# Utilities
+PyYAML>=6.0
+tqdm>=4.65.0
+
+# Logging & Profiling (standard library preferred, but extras if needed)
+# tracemalloc is standard library in Python 3.4+

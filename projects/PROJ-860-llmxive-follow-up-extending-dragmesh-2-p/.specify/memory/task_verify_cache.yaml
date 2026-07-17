@@ -1,0 +1,23 @@
+T024:
+  c: false
+  h: f3685779d0ac6aa46131840d3578e1ce36108930e3c0213bbb65e10b0a76f1e2
+  r: The required file `.github/workflows/test-cpu-pipeline.yml` does not exist in
+    the repository, so the CI workflow definition (including the timeout enforcement)
+    is missing. The implementer must add the specified workflow file with the appropriate
+    timeout configuration.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No result files, logs, or benchmark outputs are present in the indicated directory,\
+    \ and there is no evidence that `tracemalloc` was used, that wall\u2011clock time\
+    \ and peak memory were measured, or that the required assertions (\u2264\u202F\
+    6\u202Fh, \u2264\u202F7\u202FGB) were satisfied. The implementer must provide\
+    \ the actual benchmark run logs and metrics saved under `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/data/results/`."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No documentation files or their contents were presented for the paths `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/`\
+    \ or `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/README.md`; therefore\
+    \ we cannot verify that the required updates exist or meet the specification.\
+    \ The implementer must supply the actual updated files (non\u2011empty) showing\
+    \ the documentation changes."

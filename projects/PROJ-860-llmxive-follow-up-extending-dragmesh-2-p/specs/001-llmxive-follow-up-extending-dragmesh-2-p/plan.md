@@ -13,7 +13,7 @@ This feature extends the DragMesh-2 framework to implement a "Virtual Tactile" z
 **Primary Dependencies**: `pybullet` (CPU-only), `numpy`, `scipy` (for statistical tests), `pandas`, `datasets` (for HuggingFace loading), `pytest`, `statsmodels` (for power analysis)  
 **Storage**: Local file system for generated geometry and logs; HuggingFace Hub for DragMesh-2 dataset.  
 **Testing**: `pytest` with `pytest-timeout` to enforce 6-hour limit; `pytest-mock` for unit testing the estimator logic.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~modest RAM).  
 **Project Type**: Research simulation pipeline / library.  
 **Performance Goals**: Complete full experiment (30 objects, 50 trials each, training, inference, analysis) in ≤ 6 hours; peak memory ≤ 7 GB.  
 **Constraints**: No CUDA/GPU operations; no 8-bit/4-bit quantization; strict CPU backend for physics engine.  
@@ -55,7 +55,7 @@ specs/001-virtual-tactile-adaptation/
 projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/
 ├── data/
 │   ├── raw/             # DragMesh-2 manifest (downloaded, read-only)
-│   └── generated/       # 30 novel object geometries
+│   └── generated/       # novel object geometries
 ├── code/
 │   ├── __init__.py
 │   ├── config.py        # Hyperparameters, seeds

@@ -67,7 +67,7 @@ A researcher runs the full training and inference pipeline on a standard GitHub 
 
 - **FR-001**: System MUST compute the stiffness proxy $k_{est}$ as the ratio of the absolute temporal derivative of hand joint torques to the absolute temporal derivative of object velocity at every simulation timestep in the sliding regime ($|\Delta v_{object}| > 0$), defined as $k_{est} = \frac{|\Delta \tau_{hand}|}{|\Delta v_{object}|}$ (See US-1).
 - **FR-002**: System MUST dynamically scale the PICA detachment ($r_{detach}$) and contact maintenance ($r_{contact}$) reward coefficients based on the computed $k_{est}$ value: if $k_{est} > 1.0$, increase $r_{detach}$ by $\ge 20\%$; if $k_{est} < 0.2$, decrease $r_{contact}$ by $\le 15\%$ (See US-1).
-- **FR-003**: System MUST generate a diverse set of novel articulated object geometries with randomized friction coefficients (range 0.1 to 1.2) for zero-shot evaluation (See US-1).
+- **FR-003**: System MUST generate a diverse set of novel articulated object geometries with randomized friction coefficients for zero-shot evaluation (See US-1).
 - **FR-004**: System MUST perform all physics simulation, policy training, and inference using only CPU resources, prohibiting any CUDA or GPU-accelerated operations (See US-3).
 - **FR-005**: System MUST execute a paired t-test comparing the success rates of the adaptive policy against the static PICA baseline across a diverse set of novel objects. (See US-1).
 - **FR-006**: System MUST apply a moving average filter (window size = 5) to torque derivative signals to mitigate simulation noise before computing $k_{est}$ (See US-2).
@@ -98,5 +98,5 @@ A researcher runs the full training and inference pipeline on a standard GitHub 
 - The PyBullet physics engine (CPU backend) provides sufficient fidelity for torque and velocity derivatives to serve as a valid proxy for contact stiffness in the *sliding regime* (where object velocity is non-zero) for this specific dexterous manipulation context.
 - The heuristic scheduler's mapping of $k_{est}$ to reward weights does not require complex hyperparameter tuning beyond the community-standard defaults defined in the implementation.
 - The "success rate" metric is defined as the binary outcome of reaching the goal state within the simulation time limit, independent of the intermediate torque values.
-- A sample size of novel objects is sufficient to provide a statistically valid sample size for a paired t-test with adequate statistical power given the expected effect size (15-20% improvement).
+- A sample size of novel objects is sufficient to provide a statistically valid sample size for a paired t-test with adequate statistical power given the expected effect size (a moderate improvement).
 - The heuristic ratio $|\Delta \tau| / |\Delta v|$ is a valid proxy for contact stiffness only when the object is in motion (sliding), not during stiction, which is handled by the epsilon clamping in FR-007.

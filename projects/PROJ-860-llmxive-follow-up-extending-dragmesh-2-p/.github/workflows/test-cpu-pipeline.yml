@@ -1,0 +1,94 @@
+name: CPU Pipeline Test (US3)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+# Enforce the 6-hour wall-clock limit for the entire job
+# GitHub Actions max is 6 hours for free tier; we set a stricter timeout
+# to ensure the pipeline fails fast if it exceeds the scientific constraint.
+timeout-minutes: 360
+
+jobs:
+  run-cpu-pipeline:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r code/requirements.txt
+          # Ensure pytest-mock and pytest-timeout are available as per T003
+          pip install pytest-mock pytest-timeout
+
+      - name: Verify CPU-Only Environment (FR-004)
+        run: |
+          python code/environment.py --check-cuda
+        # This script should assert no CUDA is available and exit cleanly
+
+      - name: Run Unit Tests
+        run: |
+          pytest tests/unit/ -v --timeout=300
+        # Timeout per test set to 5 minutes to prevent hanging
+
+      - name: Run Integration Tests
+        run: |
+          pytest tests/integration/ -v --timeout=600
+        # Integration tests may take longer, capped at 10 minutes
+
+      - name: Execute Generator (T007a)
+        run: |
+          python code/generator.py
+        # Generates novel geometry files in data/generated/
+
+      - name: Run Baseline (T012c)
+        run: |
+          python code/baseline_runner.py --steps 100
+        # Runs a minimal baseline to ensure the policy loop is functional
+
+      - name: Run Adaptive Training (T012)
+        run: |
+          python code/train.py --steps 200
+        # Runs a short training loop to verify estimator and scheduler integration
+
+      - name: Run Evaluation (T013)
+        run: |
+          python code/evaluate.py --objects data/generated/ --episodes 10
+        # Evaluates both adaptive and static policies
+
+      - name: Aggregate Results (T014a)
+        run: |
+          python code/aggregate.py
+        # Collects logs into CSV
+
+      - name: Run Analysis (T014)
+        run: |
+          python code/analysis.py
+        # Performs statistical tests and verifies improvement thresholds
+
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-results-${{ matrix.python-version }}
+          path: |
+            data/
+            state/
+            logs/
+          retention-days: 5
