@@ -1,9 +1,9 @@
 """
-Result serialization module for simulation outputs.
-
-This module handles the serialization of simulation results to JSON,
-ensuring compliance with the defined schema (T029a).
+Serialization module for simulation results.
+Handles saving and loading simulation results to/from JSON files
+with schema validation.
 """
+
 import json
 import logging
 from datetime import datetime
@@ -11,116 +11,108 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from code.src.simulation.schema import validate_simulation_run, get_results_schema
+from code.src.utils.reproducibility import ensure_data_directory
 
 logger = logging.getLogger(__name__)
 
 
 def save_simulation_result(
-    output_path: Path,
-    network_id: str,
-    seed: int,
-    diffusion_rate: float,
-    topology_class: str,
-    additional_metrics: Optional[Dict[str, Any]] = None,
-    metadata: Optional[Dict[str, Any]] = None
-) -> Path:
+    result: Dict[str, Any],
+    output_path: str
+) -> None:
     """
-    Save a single simulation result to JSON with schema validation.
+    Save a single simulation result to a JSON file with schema validation.
 
     Args:
+        result: Dictionary containing simulation result data with fields:
+            - network_id: str
+            - seed: int
+            - diffusion_rate: float
+            - topology_class: str
+            - steps_run: int
+            - status: str
         output_path: Path to the output JSON file.
-        network_id: Unique identifier for the network graph.
-        seed: Random seed used for the simulation.
-        diffusion_rate: Calculated diffusion rate from the simulation.
-        topology_class: Class of the network topology (e.g., 'ErdosRenyi', 'WattsStrogatz').
-        additional_metrics: Optional dictionary of additional metrics to include.
-        metadata: Optional dictionary of metadata (timestamp, version, etc.).
-
-    Returns:
-        The path to the saved file.
 
     Raises:
-        ValueError: If the constructed result fails schema validation.
-        IOError: If the file cannot be written.
+        ValueError: If the result does not conform to the schema.
+        IOError: If writing to the file fails.
     """
-    result = {
-        "network_id": network_id,
-        "seed": seed,
-        "diffusion_rate": diffusion_rate,
-        "topology_class": topology_class,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
+    # Ensure the output directory exists
+    output_dir = Path(output_path).parent
+    ensure_data_directory(output_dir)
 
-    if additional_metrics:
-        result["additional_metrics"] = additional_metrics
-
-    if metadata:
-        result["metadata"] = metadata
-    else:
-        result["metadata"] = {
-            "schema_version": "1.0",
-            "generated_by": "simulation_runner"
-        }
-
-    # Validate against schema before saving
+    # Validate the result against the schema
     schema = get_results_schema()
     try:
         validate_simulation_run(result, schema)
-    except Exception as e:
-        logger.error(f"Simulation result failed schema validation: {e}")
-        raise ValueError(f"Schema validation failed: {e}") from e
+    except ValueError as e:
+        logger.error(f"Schema validation failed: {e}")
+        raise
 
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Add metadata
+    result_with_metadata = result.copy()
+    result_with_metadata['saved_at'] = datetime.now(timezone.utc).isoformat()
 
-    # Write to file
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2)
-
-    logger.info(f"Saved simulation result to {output_path}")
-    return output_path
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(result_with_metadata, f, indent=2)
+        logger.info(f"Saved simulation result to {output_path}")
+    except IOError as e:
+        logger.error(f"Failed to write result to {output_path}: {e}")
+        raise
 
 
 def save_batch_results(
-    output_path: Path,
-    results: List[Dict[str, Any]]
-) -> Path:
+    results: List[Dict[str, Any]],
+    output_path: str
+) -> None:
     """
     Save a batch of simulation results to a single JSON file.
 
     Args:
+        results: List of dictionaries containing simulation result data.
         output_path: Path to the output JSON file.
-        results: List of result dictionaries to save.
 
-    Returns:
-        The path to the saved file.
+    Raises:
+        ValueError: If any result does not conform to the schema.
+        IOError: If writing to the file fails.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not results:
+        logger.warning("No results to save.")
+        return
 
-    batch_data = {
-        "version": "1.0",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "total_runs": len(results),
-        "results": results
-    }
-
-    # Validate each result individually before saving the batch
+    # Validate all results
     schema = get_results_schema()
-    for i, res in enumerate(results):
+    for i, result in enumerate(results):
         try:
-            validate_simulation_run(res, schema)
-        except Exception as e:
-            logger.error(f"Result at index {i} failed schema validation: {e}")
-            raise ValueError(f"Batch validation failed at index {i}: {e}") from e
+            validate_simulation_run(result, schema)
+        except ValueError as e:
+            logger.error(f"Schema validation failed for result {i}: {e}")
+            raise ValueError(f"Result {i} validation failed: {e}")
 
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(batch_data, f, indent=2)
+    # Ensure the output directory exists
+    output_dir = Path(output_path).parent
+    ensure_data_directory(output_dir)
 
-    logger.info(f"Saved batch of {len(results)} results to {output_path}")
-    return output_path
+    # Add metadata to each result
+    results_with_metadata = []
+    for result in results:
+        result_copy = result.copy()
+        result_copy['saved_at'] = datetime.now(timezone.utc).isoformat()
+        results_with_metadata.append(result_copy)
+
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(results_with_metadata, f, indent=2)
+        logger.info(f"Saved {len(results)} simulation results to {output_path}")
+    except IOError as e:
+        logger.error(f"Failed to write results to {output_path}: {e}")
+        raise
 
 
-def load_simulation_results(input_path: Path) -> Dict[str, Any]:
+def load_simulation_results(
+    input_path: str
+) -> List[Dict[str, Any]]:
     """
     Load simulation results from a JSON file.
 
@@ -128,23 +120,38 @@ def load_simulation_results(input_path: Path) -> Dict[str, Any]:
         input_path: Path to the input JSON file.
 
     Returns:
-        The loaded data as a dictionary.
+        List of dictionaries containing simulation result data.
 
     Raises:
-        FileNotFoundError: If the file does not exist.
+        FileNotFoundError: If the input file does not exist.
         json.JSONDecodeError: If the file is not valid JSON.
+        ValueError: If the data does not conform to the schema.
     """
-    with open(input_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    input_file = Path(input_path)
+    if not input_file.exists():
+        raise FileNotFoundError(f"Results file not found: {input_path}")
 
-    # Validate loaded data
+    try:
+        with open(input_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse JSON from {input_path}: {e}")
+        raise
+
+    # Ensure data is a list
+    if isinstance(data, dict):
+        data = [data]
+    elif not isinstance(data, list):
+        raise ValueError(f"Expected list of results, got {type(data)}")
+
+    # Validate each result
     schema = get_results_schema()
-    # If it's a batch, validate each result
-    if "results" in data:
-        for i, res in enumerate(data["results"]):
-            validate_simulation_run(res, schema)
-    else:
-        # Single result
-        validate_simulation_run(data, schema)
+    for i, result in enumerate(data):
+        try:
+            validate_simulation_run(result, schema)
+        except ValueError as e:
+            logger.error(f"Schema validation failed for result {i}: {e}")
+            raise ValueError(f"Result {i} validation failed: {e}")
 
+    logger.info(f"Loaded {len(data)} simulation results from {input_path}")
     return data

@@ -2,63 +2,43 @@ import argparse
 import sys
 from pathlib import Path
 
-# Add the project root to the path
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 from code.src.utils.reproducibility import inject_seed_to_log
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Inject a random seed into the run log for reproducibility."
+        description="Inject random seeds from config into the run log for reproducibility."
     )
     parser.add_argument(
-        "--seed",
-        type=int,
-        required=True,
-        help="The random seed to inject."
-    )
-    parser.add_argument(
-        "--data-dir",
+        "--config",
         type=str,
-        default=None,
-        help="Path to the data directory (defaults to project/data)."
+        default="code/config.yaml",
+        help="Path to the configuration file (default: code/config.yaml)"
     )
     parser.add_argument(
-        "--run-id",
+        "--output",
         type=str,
-        default=None,
-        help="Optional specific run ID. If not provided, a new one is generated."
+        default="data/run_log.json",
+        help="Path to the output run log file (default: data/run_log.json)"
     )
-    parser.add_argument(
-        "--metadata",
-        type=str,
-        default=None,
-        help="Optional JSON string of metadata to include."
-    )
-
+    
     args = parser.parse_args()
-
-    metadata = None
-    if args.metadata:
-        import json
-        try:
-            metadata = json.loads(args.metadata)
-        except json.JSONDecodeError:
-            print(f"Error: Invalid JSON in metadata: {args.metadata}")
-            sys.exit(1)
-
+    
     try:
-        entry = inject_seed_to_log(
-            seed=args.seed,
-            data_dir=args.data_dir,
-            run_id=args.run_id,
-            metadata=metadata
-        )
-        print(f"Successfully injected seed {args.seed}")
-        print(f"Run ID: {entry['run_id']}")
-        print(f"Log entry: {entry}")
+        result = inject_seed_to_log(args.config, args.output)
+        print(f"Seed injected successfully into {args.output}")
+        print(f"Verification status: {result['verification']['status']}")
+        sys.exit(0)
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except KeyError as e:
+        print(f"Configuration Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Validation Error: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        print(f"Error injecting seed: {e}")
+        print(f"Unexpected error: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

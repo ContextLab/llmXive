@@ -1,413 +1,389 @@
+"""
+Statistical Power Analysis Module for Network Topology Energy Transfer Study.
+
+This module consumes output from regression (T033) and ANOVA (T034) analyses
+to calculate the actual achieved statistical power based on the generated
+sample size (>=100) and observed variance. It validates the design against
+the target correlation coefficient (r >= 0.3) and generates a design
+validation report (SC-003).
+
+Outputs:
+    data/analysis/power_analysis_report.json: Design validation report.
+"""
+
 import json
 import logging
 import math
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy import stats
-from scipy.special import ndtr
+from scipy.stats import nct
 
-from code.src.analysis.regression import RegressionResult
-from code.src.analysis.anova import run_anova_on_diffusion_by_topology
+from code.src.utils.reproducibility import ensure_data_directory
 
+# Configure logging
 logger = logging.getLogger(__name__)
+
+# Constants
+TARGET_CORRELATION = 0.3
+TARGET_POWER = 0.80
+ALPHA = 0.05
+SAMPLE_SIZE_THRESHOLD = 100
+
+class PowerAnalysisError(Exception):
+    """Custom exception for power analysis errors."""
+    pass
 
 
 def calculate_effect_size_r_to_cohen_d(r: float) -> float:
     """
-    Convert Pearson correlation coefficient r to Cohen's d.
+    Convert Pearson correlation coefficient (r) to Cohen's d.
     Formula: d = 2r / sqrt(1 - r^2)
+
+    Args:
+        r: Pearson correlation coefficient (-1 to 1).
+
+    Returns:
+        Cohen's d effect size.
     """
     if abs(r) >= 1.0:
-        # Handle edge cases where correlation is perfect (theoretical)
-        # Return a large value or handle as error
-        logger.warning("Correlation coefficient |r| >= 1.0. Clamping to 0.999.")
-        r = 0.999 if r > 0 else -0.999
-    
-    denominator = math.sqrt(1 - r**2)
-    if denominator == 0:
-        return float('inf') if r > 0 else float('-inf')
-    
-    return (2 * r) / denominator
+        raise ValueError("Correlation coefficient must be strictly between -1 and 1.")
+    return (2 * r) / math.sqrt(1 - r**2)
 
 
-def calculate_power_t_test_two_tailed(
-    effect_size: float,
-    sample_size: int,
-    alpha: float = 0.05
-) -> float:
+def calculate_power_t_test_two_tailed(n: int, d: float, alpha: float = ALPHA) -> float:
     """
-    Calculate statistical power for a two-tailed t-test given effect size (Cohen's d)
-    and sample size.
-    
-    Approximation using non-central t-distribution or normal approximation for large N.
-    For this implementation, we use the normal approximation for power:
-    Power = 1 - beta = Phi( |d| * sqrt(N/2) - z_{1-alpha/2} )
-    
-    Note: This is an approximation. For small samples, non-central t is more accurate.
+    Calculate statistical power for a two-tailed t-test given sample size and effect size.
+    Uses the non-central t-distribution.
+
+    Args:
+        n: Total sample size (N = n1 + n2, assuming equal groups n/2).
+        d: Cohen's d effect size.
+        alpha: Significance level.
+
+    Returns:
+        Statistical power (probability of rejecting null hypothesis).
     """
-    if sample_size < 2:
+    if n <= 2:
         return 0.0
+
+    # Degrees of freedom for two independent samples (equal size)
+    df = n - 2
     
-    # Standard normal quantile for 1 - alpha/2
-    z_alpha = stats.norm.ppf(1 - alpha / 2)
+    # Non-centrality parameter
+    # For two-sample t-test: ncp = d * sqrt(n / 2)
+    ncp = d * math.sqrt(n / 2)
+
+    # Critical t-value for two-tailed test
+    t_crit = stats.t.ppf(1 - alpha / 2, df)
+
+    # Power is the probability that the t-statistic exceeds the critical value
+    # under the alternative hypothesis (non-central t-distribution)
+    # P(T > t_crit) + P(T < -t_crit)
+    power = 1 - stats.nct.cdf(t_crit, df, ncp) + stats.nct.cdf(-t_crit, df, ncp)
     
-    # Non-centrality parameter approximation
-    # For two independent groups of size n/2, delta = d * sqrt(n/2)
-    # But here we are looking at correlation regression context, 
-    # so we treat the effective N as the sample size for the correlation test.
-    # Approximation for correlation power:
-    # z_power = sqrt(N - 3) * arctanh(r) - z_alpha
-    # However, using d:
-    # delta = d * sqrt(N/2) is for t-test of means.
-    # Let's use the Fisher Z transformation approach for correlation power which is standard:
-    # z_r = 0.5 * ln((1+r)/(1-r))
-    # var(z_r) = 1/(N-3)
-    # Power = P( |Z| > z_alpha | H1 )
-    
-    # Using the direct correlation power formula via Fisher Z:
-    if abs(r := None): # Placeholder to avoid unused warning if we switch logic
-        pass
-    
-    # Let's stick to the Cohen's d to power mapping as requested by the function signature
-    # assuming d is derived from r.
-    # The non-centrality parameter for a two-sample t-test is delta = d * sqrt(n/2).
-    # For a one-sample or correlation test, the approximation is often:
-    # delta = d * sqrt(N) ? No, let's use the standard t-test power approximation:
-    # delta = d * sqrt(N/2) (assuming equal groups) or d * sqrt(N) for paired?
-    # Given the context of "sample size >= 100" and "target r", this implies a correlation test.
-    # Let's use the Fisher Z method for accuracy on correlation r, then map d back if needed.
-    # But the function takes 'effect_size' (d).
-    
-    # Standard approximation for power of t-test with effect size d:
-    # delta = d * sqrt(n/2)
-    # Power = 1 - beta
-    # We can use scipy's nct (non-central t) for precision or the normal approx.
-    # Normal approx: Power = Phi( delta - z_alpha ) + Phi( -delta - z_alpha )
-    # Since delta is usually positive for effect size magnitude:
-    # Power ~ Phi( |delta| - z_alpha )
-    
-    n = sample_size
-    # Assuming two groups of size n/2 for the d calculation context, or simply N total
-    # If d is derived from r in a regression of 1 predictor, the effective N is the sample size.
-    # Let's assume the standard t-test approximation: delta = d * sqrt(n/2)
-    # But if this is a correlation test, the variance is different.
-    # Let's use the formula: Power = 1 - beta = P(t > t_crit | H1)
-    # Approximation: z = d * sqrt(n/2) - z_alpha
-    # Wait, for correlation r, the standard error is 1/sqrt(N-3).
-    # Let's use the Fisher Z approach directly on r if we had r, but we have d.
-    # Let's assume the user wants the power for the t-test corresponding to this d.
-    # delta = d * sqrt(n/2)
-    delta = effect_size * math.sqrt(n / 2)
-    
-    z_power = abs(delta) - z_alpha
-    power = ndtr(z_power)
-    
-    # Clamp power to [0, 1]
-    return max(0.0, min(1.0, power))
+    return float(power)
 
 
-def load_regression_results(
-    results_path: Path, 
-    target_key: str = "regression_results"
-) -> List[Dict[str, Any]]:
+def load_regression_results(filepath: Optional[Path] = None) -> List[Dict[str, Any]]:
     """
-    Load regression results from the final analysis JSON file.
-    Expects a structure like:
-    {
-      "regression_results": [
-        {"predictor": "...", "r": 0.35, "r_squared": 0.12, "p_value": 0.001, ...},
-        ...
-      ],
-      ...
-    }
+    Load regression results from the analysis output file.
+    Expects a JSON file containing a list of regression results.
+
+    Args:
+        filepath: Path to the regression results JSON file. Defaults to 
+                  data/analysis/regression_results.json.
+
+    Returns:
+        List of regression result dictionaries.
+
+    Raises:
+        PowerAnalysisError: If file not found or invalid format.
     """
-    if not results_path.exists():
-        raise FileNotFoundError(f"Regression results file not found: {results_path}")
-    
-    with open(results_path, 'r') as f:
-        data = json.load(f)
-    
-    if target_key not in data:
-        # Try to find it if the key is slightly different or nested
-        # Fallback: look for any key containing 'regression'
-        candidates = [k for k in data.keys() if 'regression' in k.lower()]
-        if not candidates:
-            raise KeyError(f"Could not find regression results in {results_path}. Keys: {list(data.keys())}")
-        target_key = candidates[0]
-    
-    return data[target_key]
+    if filepath is None:
+        project_root = Path(__file__).resolve().parents[3]
+        filepath = project_root / "data" / "analysis" / "regression_results.json"
+
+    if not filepath.exists():
+        raise PowerAnalysisError(f"Regression results file not found: {filepath}")
+
+    try:
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+        
+        if not isinstance(data, list):
+            raise PowerAnalysisError("Regression results must be a list of dictionaries.")
+        
+        return data
+    except json.JSONDecodeError as e:
+        raise PowerAnalysisError(f"Invalid JSON in regression results: {e}")
 
 
-def load_anova_results(
-    results_path: Path,
-    target_key: str = "anova_results"
-) -> Dict[str, Any]:
+def load_anova_results(filepath: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Load ANOVA results from the final analysis JSON file.
+    Load ANOVA results from the analysis output file.
+    Expects a JSON file containing ANOVA summary statistics.
+
+    Args:
+        filepath: Path to the ANOVA results JSON file. Defaults to
+                  data/analysis/anova_results.json.
+
+    Returns:
+        Dictionary of ANOVA results.
+
+    Raises:
+        PowerAnalysisError: If file not found or invalid format.
     """
-    if not results_path.exists():
-        raise FileNotFoundError(f"ANOVA results file not found: {results_path}")
-    
-    with open(results_path, 'r') as f:
-        data = json.load(f)
-    
-    if target_key not in data:
-        candidates = [k for k in data.keys() if 'anova' in k.lower()]
-        if not candidates:
-            raise KeyError(f"Could not find ANOVA results in {results_path}. Keys: {list(data.keys())}")
-        target_key = candidates[0]
-    
-    return data[target_key]
+    if filepath is None:
+        project_root = Path(__file__).resolve().parents[3]
+        filepath = project_root / "data" / "analysis" / "anova_results.json"
+
+    if not filepath.exists():
+        raise PowerAnalysisError(f"ANOVA results file not found: {filepath}")
+
+    try:
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+        
+        if not isinstance(data, dict):
+            raise PowerAnalysisError("ANOVA results must be a dictionary.")
+        
+        return data
+    except json.JSONDecodeError as e:
+        raise PowerAnalysisError(f"Invalid JSON in ANOVA results: {e}")
 
 
 def compute_power_analysis(
     regression_results: List[Dict[str, Any]],
-    anova_results: Optional[Dict[str, Any]],
-    sample_size: int,
-    target_r: float = 0.3,
-    alpha: float = 0.05
+    anova_results: Dict[str, Any],
+    target_r: float = TARGET_CORRELATION,
+    target_power: float = TARGET_POWER
 ) -> Dict[str, Any]:
     """
-    Compute achieved statistical power based on observed effect sizes.
-    
+    Compute comprehensive power analysis based on regression and ANOVA results.
+
     Args:
-        regression_results: List of dicts with 'r' or 'r_squared' and 'p_value'.
-        anova_results: Dict with F-statistic and p-values.
-        sample_size: Total number of observations (graphs).
-        target_r: Target correlation threshold for the study design.
-        alpha: Significance level.
-    
+        regression_results: List of regression result dictionaries containing 
+                            correlation coefficients, p-values, and sample sizes.
+        anova_results: Dictionary containing ANOVA F-statistics, p-values, 
+                       and group information.
+        target_r: Target correlation coefficient for design validation.
+        target_power: Target statistical power.
+
     Returns:
-        Dictionary containing power analysis details.
+        Dictionary containing detailed power analysis results.
     """
-    logger.info(f"Computing power analysis for sample size N={sample_size}")
+    logger.info("Computing power analysis...")
     
-    power_analysis = {
-        "sample_size": sample_size,
+    analysis_results = {
+        "timestamp": datetime.now().isoformat(),
         "target_correlation": target_r,
-        "alpha": alpha,
+        "target_power": target_power,
         "regression_power_analysis": [],
         "anova_power_analysis": {},
-        "summary": {}
+        "design_validation": {
+            "sample_size_sufficient": False,
+            "power_achieved": False,
+            "effect_size_achieved": False,
+            "overall_validation": False,
+            "notes": []
+        }
     }
-    
-    # 1. Regression Power Analysis
-    total_significant = 0
-    power_values = []
-    
-    for res in regression_results:
-        r_val = res.get('r') or res.get('correlation')
-        p_val = res.get('p_value')
-        predictor = res.get('predictor', 'unknown')
-        
-        if r_val is None:
-            continue
+
+    # Analyze Regression Results
+    total_samples = 0
+    max_power = 0.0
+    observed_effect_sizes = []
+
+    for reg in regression_results:
+        r_value = reg.get("correlation", 0.0)
+        n = reg.get("sample_size", 0)
+        total_samples = max(total_samples, n)
         
         # Convert r to Cohen's d
-        d = calculate_effect_size_r_to_cohen_d(r_val)
-        
-        # Calculate power
-        power = calculate_power_t_test_two_tailed(abs(d), sample_size, alpha)
-        
-        power_values.append(power)
-        
-        entry = {
-            "predictor": predictor,
-            "observed_r": r_val,
-            "effect_size_d": d,
-            "p_value": p_val,
-            "achieved_power": power,
-            "is_significant": p_val < alpha if p_val else False
-        }
-        power_analysis["regression_power_analysis"].append(entry)
-        
-        if entry["is_significant"]:
-            total_significant += 1
-    
-    # 2. ANOVA Power Analysis
-    if anova_results:
-        # Extract F-statistic and degrees of freedom if available
-        f_stat = anova_results.get('f_statistic')
-        p_val = anova_results.get('p_value')
-        df1 = anova_results.get('df_between', 0)
-        df2 = anova_results.get('df_within', sample_size - df1 - 1)
-        
-        # Calculate eta-squared (effect size for ANOVA)
-        # eta^2 = SS_between / SS_total. We might not have SS, but we can estimate from F.
-        # F = (SS_between/df1) / (SS_within/df2)
-        # eta^2 = (F * df1) / (F * df1 + df2)
-        if f_stat and df1 and df2:
-            eta_sq = (f_stat * df1) / (f_stat * df1 + df2)
-            # Convert eta-squared to f (Cohen's f)
-            # f = sqrt(eta_sq / (1 - eta_sq))
-            if eta_sq < 1.0:
-                f_effect = math.sqrt(eta_sq / (1 - eta_sq))
-            else:
-                f_effect = float('inf')
-            
-            # Power for ANOVA (approximation)
-            # Non-centrality parameter lambda = f^2 * N
-            ncp = (f_effect ** 2) * sample_size
-            # Critical F value
-            f_crit = stats.f.ppf(1 - alpha, df1, df2)
-            # Power = 1 - beta = P(F > f_crit | lambda)
-            # Using non-central F distribution
-            try:
-                power_anova = 1 - stats.nct.cdf(f_crit, df1, df2, ncp) # Note: nct is t, need ncf
-                # scipy.stats.ncf exists? No, scipy.stats.ncf is not standard in older versions?
-                # Actually scipy.stats.ncf is available.
-                power_anova = 1 - stats.ncf.cdf(f_crit, df1, df2, ncp)
-            except AttributeError:
-                # Fallback if ncf is missing (older scipy)
-                # Approximation: power ~ 1 if f_stat is very high, else 0
-                power_anova = 1.0 if f_stat > f_crit else 0.0
-            
-            power_analysis["anova_power_analysis"] = {
-                "f_statistic": f_stat,
-                "degrees_of_freedom": {"between": df1, "within": df2},
-                "effect_size_eta_squared": eta_sq,
-                "effect_size_cohen_f": f_effect,
-                "non_central_parameter": ncp,
-                "achieved_power": float(power_anova),
-                "p_value": p_val,
-                "is_significant": p_val < alpha if p_val else False
-            }
-        else:
-            power_analysis["anova_power_analysis"] = {"error": "Missing F-stat or DF"}
+        try:
+            d = calculate_effect_size_r_to_cohen_d(r_value)
+            observed_effect_sizes.append(d)
+        except ValueError as e:
+            logger.warning(f"Invalid correlation in regression result: {e}")
+            continue
 
-    # 3. Summary
-    avg_power = sum(power_values) / len(power_values) if power_values else 0.0
-    min_power = min(power_values) if power_values else 0.0
-    max_power = max(power_values) if power_values else 0.0
+        # Calculate power for this effect size
+        power = calculate_power_t_test_two_tailed(n, d)
+        max_power = max(max_power, power)
+
+        analysis_results["regression_power_analysis"].append({
+            "correlation": r_value,
+            "effect_size_d": d,
+            "sample_size": n,
+            "achieved_power": power,
+            "meets_target": power >= target_power
+        })
+
+    # Analyze ANOVA Results (F-test power)
+    # Simplified: Use F-statistic to estimate effect size (Eta-squared)
+    # and calculate power for F-test
+    if "f_statistic" in anova_results and "p_value" in anova_results:
+        f_stat = anova_results["f_statistic"]
+        p_val = anova_results["p_value"]
+        n_groups = anova_results.get("groups", 3)
+        n_total = anova_results.get("total_samples", total_samples)
+        
+        # Eta-squared (effect size for ANOVA)
+        # Approximation: eta2 = F / (F + (df2/df1))
+        # df1 = k - 1, df2 = N - k
+        df1 = n_groups - 1
+        df2 = n_total - n_groups
+        
+        if df1 > 0 and df2 > 0:
+            eta_squared = f_stat / (f_stat + (df2 / df1))
+            # Cohen's f = sqrt(eta2 / (1 - eta2))
+            f_effect = math.sqrt(eta_squared / (1 - eta_squared)) if eta_squared < 1 else 2.0
+            
+            # Power for F-test (simplified approximation using non-central F)
+            # ncp = f^2 * N
+            ncp = (f_effect ** 2) * n_total
+            
+            # Critical F value
+            f_crit = stats.f.ppf(1 - ALPHA, df1, df2)
+            
+            # Power calculation using non-central F distribution
+            anova_power = 1 - stats.ncf.cdf(f_crit, df1, df2, ncp)
+            
+            analysis_results["anova_power_analysis"] = {
+                "f_statistic": f_stat,
+                "p_value": p_val,
+                "effect_size_eta_squared": eta_squared,
+                "effect_size_f": f_effect,
+                "achieved_power": anova_power,
+                "meets_target": anova_power >= target_power
+            }
+
+    # Design Validation Logic
+    analysis_results["design_validation"]["sample_size_sufficient"] = total_samples >= SAMPLE_SIZE_THRESHOLD
     
-    # Check against target power (usually 0.80)
-    # The task asks to measure against target r >= 0.3.
-    # If observed r >= 0.3, we check if power is adequate (>= 0.8).
-    # If observed r < 0.3, the study might be underpowered to detect the target.
+    # Check if observed effect sizes meet target r
+    # We check if the observed correlation is >= target_r OR if the power 
+    # calculated based on observed r is sufficient to detect target_r
+    observed_r_max = max([r.get("correlation", 0) for r in regression_results], default=0)
+    analysis_results["design_validation"]["effect_size_achieved"] = abs(observed_r_max) >= target_r
     
-    target_correlations_met = [r for r in power_values if r >= target_r] # This is wrong, r is correlation, power is probability
-    # Correct logic:
-    # Did we observe effects >= target_r?
-    observed_effects_meeting_target = [
-        entry for entry in power_analysis["regression_power_analysis"] 
-        if entry["observed_r"] >= target_r
-    ]
+    # Power is achieved if either regression or ANOVA power meets target
+    regression_power_met = any(r["meets_target"] for r in analysis_results["regression_power_analysis"])
+    anova_power_met = analysis_results["anova_power_analysis"].get("meets_target", False)
     
-    power_adequate = all(
-        entry["achieved_power"] >= 0.80 
-        for entry in observed_effects_meeting_target
-    ) if observed_effects_meeting_target else False
+    analysis_results["design_validation"]["power_achieved"] = regression_power_met or anova_power_met
     
-    # Overall conclusion
-    conclusion = "Inconclusive"
-    if avg_power >= 0.80:
-        conclusion = "Adequate Power"
-        if not observed_effects_meeting_target:
-            conclusion += " (No effects met target r)"
-    elif min_power < 0.50:
-        conclusion = "Underpowered"
-    else:
-        conclusion = "Marginal Power"
-    
-    power_analysis["summary"] = {
-        "average_achieved_power": avg_power,
-        "min_achieved_power": min_power,
-        "max_achieved_power": max_power,
-        "effects_meeting_target_r": len(observed_effects_meeting_target),
-        "power_adequate_for_target": power_adequate,
-        "conclusion": conclusion,
-        "recommendation": "Proceed with caution" if "Marginal" in conclusion else "Valid" if "Adequate" in conclusion else "Requires larger sample"
-    }
-    
-    return power_analysis
+    # Overall validation
+    validation = analysis_results["design_validation"]
+    validation["overall_validation"] = (
+        validation["sample_size_sufficient"] and 
+        validation["power_achieved"]
+    )
+
+    # Generate notes
+    if not validation["sample_size_sufficient"]:
+        validation["notes"].append(f"Sample size ({total_samples}) is below threshold ({SAMPLE_SIZE_THRESHOLD}).")
+    if not validation["effect_size_achieved"]:
+        validation["notes"].append(f"Observed effect size (r={observed_r_max:.3f}) is below target (r={target_r}).")
+    if not validation["power_achieved"]:
+        validation["notes"].append("Statistical power did not meet target threshold.")
+    if validation["overall_validation"]:
+        validation["notes"].append("Design validation PASSED: Sample size and power requirements met.")
+
+    logger.info(f"Power analysis complete. Overall validation: {validation['overall_validation']}")
+    return analysis_results
 
 
 def generate_power_report(
-    power_analysis: Dict[str, Any],
-    output_path: Path
-) -> None:
+    analysis_results: Dict[str, Any],
+    output_path: Optional[Path] = None
+) -> Path:
     """
-    Generate the design validation report (JSON).
+    Generate the design validation report and save to disk.
+
+    Args:
+        analysis_results: The computed power analysis results.
+        output_path: Path to save the report. Defaults to 
+                     data/analysis/power_analysis_report.json.
+
+    Returns:
+        Path to the saved report file.
     """
+    if output_path is None:
+        project_root = Path(__file__).resolve().parents[3]
+        output_path = project_root / "data" / "analysis" / "power_analysis_report.json"
+
+    # Ensure directory exists
     ensure_data_directory(output_path)
-    
-    report = {
-        "report_type": "Statistical Power Analysis",
-        "generated_at": datetime.now().isoformat(),
-        "analysis_results": power_analysis,
-        "validation": {
-            "sc_003_confirmed": power_analysis["summary"]["power_adequate_for_target"],
-            "details": power_analysis["summary"]["conclusion"]
-        }
+
+    # Add summary
+    validation = analysis_results["design_validation"]
+    analysis_results["summary"] = {
+        "status": "PASS" if validation["overall_validation"] else "FAIL",
+        "message": "Design validation successful" if validation["overall_validation"] 
+                   else "Design validation failed: requirements not met"
     }
-    
+
+    # Write to file
     with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Power analysis report saved to {output_path}")
+        json.dump(analysis_results, f, indent=2)
 
-
-def ensure_data_directory(file_path: Path) -> None:
-    """Ensure the directory for a file path exists."""
-    file_path.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Power analysis report saved to: {output_path}")
+    return output_path
 
 
 def main() -> int:
     """
-    Main entry point for the power analysis script.
-    Loads results from data/analysis/final_results.json and generates the report.
+    Main entry point for power analysis task (T044).
+    
+    Loads regression and ANOVA results, computes power analysis,
+    and generates the design validation report.
+
+    Returns:
+        0 on success, 1 on failure.
     """
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    # Paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    input_path = project_root / "data" / "analysis" / "final_results.json"
-    output_path = project_root / "data" / "analysis" / "power_analysis_report.json"
-    
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}. Run run_analysis.py first.")
-        return 1
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
     try:
-        # Load results
-        # We need to extract sample size. It should be in the final_results or we assume >= 100 from manifest
-        # Let's try to get it from the data or default to 100 if not found, but better to read from manifest
-        manifest_path = project_root / "data" / "raw" / "global_batch_manifest.json"
-        sample_size = 100 # Default
+        # Load dependencies
+        logger.info("Loading regression results...")
+        regression_data = load_regression_results()
         
-        if manifest_path.exists():
-            with open(manifest_path, 'r') as f:
-                manifest = json.load(f)
-                sample_size = manifest.get("total_graphs", 100)
+        logger.info("Loading ANOVA results...")
+        anova_data = load_anova_results()
         
-        logger.info(f"Detected sample size: {sample_size}")
-        
-        regression_data = load_regression_results(input_path)
-        anova_data = load_anova_results(input_path)
-        
-        # Compute power
-        power_results = compute_power_analysis(
-            regression_results=regression_data,
-            anova_results=anova_data,
-            sample_size=sample_size,
-            target_r=0.3,
-            alpha=0.05
-        )
+        # Compute analysis
+        logger.info("Computing power analysis...")
+        results = compute_power_analysis(regression_data, anova_data)
         
         # Generate report
-        generate_power_report(power_results, output_path)
+        logger.info("Generating power analysis report...")
+        report_path = generate_power_report(results)
         
-        logger.info("Power analysis completed successfully.")
+        # Verify output exists
+        if not report_path.exists():
+            raise PowerAnalysisError(f"Failed to create report file: {report_path}")
+        
+        print(f"Power analysis complete. Report saved to: {report_path}")
         return 0
         
+    except PowerAnalysisError as e:
+        logger.error(f"Power analysis failed: {e}")
+        print(f"Error: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Power analysis failed: {e}", exc_info=True)
+        logger.exception(f"Unexpected error during power analysis: {e}")
+        print(f"Unexpected error: {e}")
         return 1
 
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    exit(main())

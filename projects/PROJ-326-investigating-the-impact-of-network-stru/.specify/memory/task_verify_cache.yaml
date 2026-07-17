@@ -1,32 +1,44 @@
+T005:
+  c: false
+  h: ff62d8687f350bb375e09fa57b5b0c1bc5965238762da4a6500f62ab9bd7c859
+  r: "The `logging.py` file is truncated (e.g., `entries.append(en` is incomplete)\
+    \ and does not contain the full `log_run` implementation nor a call to `_save_log`.\
+    \ Additionally, the required `data/run_log.json` file is absent, indicating the\
+    \ logging output is not being produced. The task\u2019s requirement to capture\
+    \ seeds, parameters, and metrics and write them to `data/run_log.json` is therefore\
+    \ not satisfied."
 T018a:
   c: false
-  h: 9b6985b5e44d333fa75659f6670a947f66eaf2e9bf25ebd99955dbd19fc9d642
-  r: "The repository contains `aggregate_batch.py`, but the file is truncated and\
-    \ shows no code that writes a combined global batch or creates `data/raw/global_batch_manifest.json`.\
-    \ Moreover, the required manifest file is absent from the `data/raw` directory,\
-    \ so the script\u2019s output and the \u2265100\u2011graph verification are not\
-    \ demonstrated."
+  h: 072a0867b756d467939e17021dbfcf80cd15933977945b31b423c41db8ef51ea
+  r: "The repository contains an `aggregate_batch.py` script, but it does not show\
+    \ code that writes `data/raw/global_batch_manifest.json`, reads a `config.yaml`\
+    \ (which is absent), or implements the required 10\u2011attempt retry loop and\
+    \ exit\u2011code logic. Both the manifest file and the configuration file are\
+    \ missing, so the script cannot verify the target count as specified."
 T029a:
   c: false
   h: ba50c23989d8a8848887384c011d463a22534740d30183250985b62eebb78b20
-  r: "The required artifact `data/analysis/simulation_results.json` does not exist,\
-    \ so no JSON schema or validation against the `SimulationRun` entity can be verified.\
-    \ The task\u2019s core deliverable is missing."
+  r: The required `data/analysis/simulation_results.json` file (and any accompanying
+    JSON schema) is missing, so no schema definition or validation can be verified.
+    Without the file, the task of defining and validating the schema against the `SimulationRun`
+    entity cannot be satisfied.
 T035:
   c: false
-  h: 058bbd70793ee68aea18fb1571877bb2e94298fd0f40439dbed8c05a9fc7dc50
-  r: "The required output file `data/analysis/sensitivity_sweep.json` does not exist,\
-    \ so the sweep results are not saved. Moreover, the provided `sensitivity.py`\
-    \ is incomplete (truncated) and does not show the actual sweep logic or writing\
-    \ of \u22655 cutoff results. The task therefore remains unfinished."
+  h: 746e479b450ec33d9e262a74429b87329f426682619e2587d22f49097d3aa1d9
+  r: "The required output `data/analysis/sensitivity_sweep.json` does not exist, and\
+    \ the `config.yaml` file needed for configurable cutoffs is missing. Moreover,\
+    \ the provided unit test file is truncated and lacks concrete assertions verifying\
+    \ threshold validation, so the test suite does not fully satisfy the task\u2019\
+    s requirements."
 T037:
   c: false
-  h: 1fc6ee77fa4d54a479a690234e077bd8e1321d5550b82f60c14c96942b8db2db
-  r: "The `run_analysis.py` script exists but the provided excerpt does not show it\
-    \ performing the required aggregation, executing the specific tests (T033\u2011\
-    T035), invoking the plotting module, or writing `data/analysis/final_results.json`.\
-    \ Moreover, the expected output file `data/analysis/final_results.json` is missing\
-    \ from the repository. The task is therefore not fully satisfied."
+  h: cc21d4cb9071ef7126ea08f31a2c9a8bf3dec97e5037c9829fd2473aa0333ffa
+  r: "The `run_analysis.py` script exists but the provided excerpt is truncated and\
+    \ shows no code that actually writes `data/analysis/final_results.json` or invokes\
+    \ the test suites (T033\u2011T035) and plotting module. Moreover, the required\
+    \ output file `data/analysis/final_results.json` is missing from the repository.\
+    \ Without the final results file and evidence of the full pipeline execution,\
+    \ the task is not genuinely completed."
 T043:
   c: true
   h: 2cc29ca26622578245308608c230be2f3d7fc904c18ba06f3a2a419579cee16c
@@ -36,8 +48,35 @@ T043:
     \ with a `config.yaml` explanation."
 T044:
   c: false
-  h: 97abd86c586bc468668359eab658dee7cb74e9909e8e37b3ccfbf7a9e2e8515b
-  r: "The required output file `data/analysis/power_analysis_report.json` is missing,\
-    \ and the provided `power.py` snippet ends abruptly without showing any logic\
-    \ that writes such a report or fully consumes T033/T034 results. Consequently\
-    \ the task\u2019s deliverables are not present."
+  h: 5b45ae29512569097a9e6a19b31c2478f5905a0b8949f566fcd1d788c7fc2127
+  r: The `code/src/analysis/power.py` does not use `statsmodels.stats.power` as required
+    and the implementation for generating the design validation report is absent;
+    moreover, the expected output file `data/analysis/power_analysis_report.json`
+    is missing from the repository.
+T045:
+  c: false
+  h: a6d5ecc993dc69d1389f1e9c6d738fcf55e571984a3acbcf2c46095543f0dc49
+  r: "The repository contains the validation script, but the required `data/analysis/sensitivity_sweep.json`\
+    \ file is absent, so SC\u2011005 cannot be checked. Moreover, there is no evidence\
+    \ (e.g., console output or exit\u2011code log) that the script was actually executed\
+    \ and returned exit code\u202F0. The task therefore remains unfinished."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer supplied only a feature specification for synthetic network generation
+    and simulation, with no code, configuration, or generated coverage report related
+    to adding a `pytest` coverage report. There is no evidence of pytest integration,
+    a coverage configuration file, or an actual coverage output, so the task requirement
+    is not met.
+T047:
+  c: false
+  h: 972599fb4c5febe875a4f7f304d39c2ed064c3a99386988dfe1bccfaaef9ab98
+  r: The required artifact `config.yaml` does not exist on disk, so the documentation
+    cannot be verified and reproducibility of random seeds cannot be assessed. The
+    missing file must be added and populated appropriately.
+T048:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing that the quickstart.md file was parsed, checked, or validated
+    is present; there are no logs, reports, or test results indicating the validation
+    was performed. Consequently the required evidence for task T048 is missing.

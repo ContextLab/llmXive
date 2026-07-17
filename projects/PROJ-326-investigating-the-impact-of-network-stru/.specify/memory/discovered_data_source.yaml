@@ -1,0 +1,19 @@
+status: none
+intent: NetworkX synthetic graph generation with SNAP reference for controlled topology
+  python package dataset
+required_fields:
+- graph_id
+- graph_type
+- num_nodes
+- num_edges
+- degree_distribution_parameters
+- clustering_coefficient_target
+- rewiring_probability
+- power_law_exponent_gamma
+- is_connected
+- node_list
+- edge_list
+- generation_timestamp
+cache_key: e1e80746f6ba41f9eb833d39f9e26ffd9d42671921c25fa57baa1609abbefc01
+searched_at: '2026-07-17T14:12:55.071377+00:00'
+retry_count: 1

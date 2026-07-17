@@ -13,7 +13,7 @@ This feature implements a computational physics research pipeline to investigate
 **Primary Dependencies**: `networkx` (graph generation/analysis), `numpy` (numerical core), `scipy` (statistical tests), `matplotlib`/`seaborn` (visualization), `pandas` (data management)  
 **Storage**: Local file system (`data/` for synthetic graphs, `data/analysis/` for results); JSON/YAML for configuration.  
 **Testing**: `pytest` (unit tests for graph generation, simulation stability, statistical output validation).  
-**Target Platform**: Linux (GitHub Actions free-tier: multiple CPU cores, ~7 GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier: multiple CPU cores, several GB RAM, no GPU).  
 **Project Type**: Research simulation pipeline / CLI tool.  
 **Performance Goals**: Generate a sufficient number of graphs to ensure power for ANOVA subgroups; simulate 100 steps on 500-node graph within 60 mins; total job < 6 hours.  
 **Constraints**: Strict CPU-only execution; memory < 7GB; no external data downloads (purely synthetic); numerical stability checks for energy divergence.  
