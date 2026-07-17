@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-319-quantifying-the-impact-of-data-artifacts
-last_run_id: 774a524a-17f1-4b8f-a18d-4f33f81b06cf
+last_run_id: 25a5b92b-65aa-4570-87f7-02068ba548a3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts
 title: Quantifying the Impact of Data Artifacts on Planetary Nebula Morphology
-updated_at: '2026-07-17T20:00:28.827960Z'
+updated_at: '2026-07-17T22:06:12.213056Z'

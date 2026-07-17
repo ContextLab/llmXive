@@ -1,371 +1,421 @@
 """
-Main pipeline entry point for the Quantifying the Impact of Data Artifacts project.
+Main CLI entry point for the Planetary Nebula Artifact Impact Pipeline.
 
-This script orchestrates the full analysis pipeline:
-1. Generate synthetic planetary nebulae with known ground truth.
-2. Inject artifacts (noise, saturation).
-3. Measure metrics (ellipticity, asymmetry).
-4. Compute bias against ground truth.
-5. Run statistical significance tests.
-6. Log results and save artifacts.
+Refactored into modular CLI entry points to support:
+1. Data Generation (Synthetic Nebulae)
+2. Artifact Injection & Processing (Noise, Saturation)
+3. Calibration (Regression & Model Fitting)
+4. Validation (Real HST & Residual Bias)
+5. Verification (Pipeline Integrity)
 
-Usage:
-    python code/main.py --mode generate --n-images 50
-    python code/main.py --mode process --input data/synthetic --output data/processed
-    python code/main.py --mode calibrate --input data/processed/metrics.csv --output data/processed/models.json
-    python code/main.py --mode validate --input data/processed/models.json --test-set data/synthetic/validation --output data/processed/validation_results.csv
-    python code/main.py --mode verify --output logs/verification.log
+This script acts as the orchestrator, calling specific functions from
+code/synthetic/, code/metrics/, code/analysis/, and code/io/ modules.
 """
-
 import argparse
 import logging
 import sys
+import json
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-
 import numpy as np
-import pandas as pd
 
-# Import project modules
-from code.config import get_project_root, SEED, SATURATION_LEVELS, NOISE_LEVELS
-from code.synthetic.generator import generate_synthetic_nebula, generate_nebula_base, calculate_true_ellipticity, calculate_true_asymmetry
+# Project imports
+from code.config import (
+    get_project_root, 
+    NOISE_LEVELS, 
+    SATURATION_LEVELS, 
+    DEFAULT_SEED,
+    DATA_SYNTHETIC_DIR,
+    DATA_PROCESSED_DIR,
+    DATA_VALIDATION_DIR,
+    LOGS_DIR
+)
+from code.setup_dirs import create_directories
+from code.io.loader import load_fits_image, validate_fits_headers
+from code.io.writer import save_fits_image, save_metadata_json, write_artifact_manifest
+from code.synthetic.generator import generate_synthetic_nebula, calculate_true_ellipticity, calculate_true_asymmetry
 from code.synthetic.artifacts import inject_noise, clip_saturation, run_saturation_sweep
-from code.io.loader import load_fits_image, validate_fits_headers, MetadataValidationError
-from code.io.writer import save_fits_image, save_metadata_json, save_run_log, write_artifact_manifest, compute_array_checksum
 from code.metrics.ellipticity import calculate_ellipticity
 from code.metrics.asymmetry import calculate_asymmetry
-from code.analysis.statistical_tests import run_noise_sweep_statistics, run_saturation_significance_test
-from code.analysis.sensitivity_sweep import run_sensitivity_sweep, save_results
+from code.analysis.statistics import run_noise_significance_test, run_saturation_significance_test
+from code.analysis.regression import fit_calibration_models
+from code.analysis.validation import apply_calibration, validate_residuals, run_validation_on_real_hst
+from code.analysis.power_analysis import run_power_analysis
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('logs/research.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+# Configure Logging
+def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
+    """Setup logging configuration for the pipeline."""
+    logger = logging.getLogger("pipeline")
+    logger.setLevel(logging.INFO)
+    
+    # Clear existing handlers
+    logger.handlers = []
+    
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    
+    # File handler
+    if log_file:
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+    
+    return logger
 
-def setup_directories():
-    """Ensure all required directories exist."""
-    project_root = get_project_root()
+def setup_directories(logger: logging.Logger) -> Path:
+    """Initialize project directory structure."""
+    root = get_project_root()
     dirs = [
-        project_root / 'data' / 'raw',
-        project_root / 'data' / 'synthetic',
-        project_root / 'data' / 'processed',
-        project_root / 'data' / 'validation',
-        project_root / 'logs',
-        project_root / 'code' / 'synthetic',
-        project_root / 'code' / 'metrics',
-        project_root / 'code' / 'analysis',
-        project_root / 'code' / 'io',
+        root / "code",
+        root / "data" / "raw",
+        root / "data" / "synthetic",
+        root / "data" / "processed",
+        root / "data" / "validation",
+        root / "tests",
+        root / "logs",
+        root / "figures"
     ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Directories ensured at {project_root}")
+    create_directories(dirs, logger)
+    logger.info(f"Project root: {root}")
+    return root
 
-def generate_data(n_images: int = 50):
-    """Generate synthetic planetary nebulae with known ground truth."""
-    project_root = get_project_root()
-    output_dir = project_root / 'data' / 'synthetic'
+def generate_data(args: argparse.Namespace, logger: logging.Logger) -> None:
+    """
+    Generate synthetic planetary nebulae with known ground truth.
     
-    logger.info(f"Generating {n_images} synthetic nebulae with seed {SEED}")
-    np.random.seed(SEED)
+    This implements T006: Generate synthetic data and save ground truth
+    to data/synthetic/gt_metadata.json.
+    """
+    logger.info("Starting synthetic data generation...")
+    root = get_project_root()
+    output_dir = root / "data" / "synthetic"
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    images = []
-    metadata_list = []
+    n_images = args.n_images if hasattr(args, 'n_images') and args.n_images else 50
+    seed = args.seed if hasattr(args, 'seed') else DEFAULT_SEED
+    
+    rng = np.random.default_rng(seed)
+    gt_metadata = []
+    
+    logger.info(f"Generating {n_images} synthetic nebulae with seed {seed}...")
     
     for i in range(n_images):
-        # Generate base nebula
-        image, center = generate_nebula_base(seed=SEED + i)
+        # Generate base image
+        image_id = f"synth_{i:04d}"
+        img, params = generate_synthetic_nebula(rng, seed=seed + i)
         
-        # Calculate true ellipticity and asymmetry
-        true_ellipticity = calculate_true_ellipticity(image, center)
-        true_asymmetry = calculate_true_asymmetry(image, center)
+        # Calculate true metrics
+        true_ellip = calculate_true_ellipticity(params)
+        true_asym = calculate_true_asymmetry(params)
         
         # Save image
-        image_path = output_dir / f"nebula_{i:04d}.fits"
-        save_fits_image(image, image_path, {
-            'image_id': f"nebula_{i:04d}",
-            'center_x': center[0],
-            'center_y': center[1],
-            'true_ellipticity': true_ellipticity,
-            'true_asymmetry': true_asymmetry,
-            'checksum': compute_array_checksum(image)
-        })
+        img_path = output_dir / f"{image_id}.fits"
+        save_fits_image(img, img_path, params)
         
-        images.append(image)
-        metadata_list.append({
-            'image_id': f"nebula_{i:04d}",
-            'file_path': str(image_path),
-            'true_ellipticity': true_ellipticity,
-            'true_asymmetry': true_asymmetry,
-            'checksum': compute_array_checksum(image)
+        # Record metadata
+        gt_metadata.append({
+            "image_id": image_id,
+            "file_path": str(img_path),
+            "ellipticity": true_ellip,
+            "asymmetry": true_asym,
+            "seed": seed + i
         })
         
         if i % 10 == 0:
             logger.info(f"Generated {i+1}/{n_images} images")
     
-    # Save ground truth metadata
-    gt_path = output_dir / 'gt_metadata.json'
-    save_metadata_json(metadata_list, gt_path)
-    logger.info(f"Ground truth metadata saved to {gt_path}")
+    # Save ground truth metadata (Single Source of Truth)
+    gt_path = output_dir / "gt_metadata.json"
+    save_metadata_json(gt_metadata, gt_path)
+    logger.info(f"Saved ground truth metadata to {gt_path}")
     
     # Write manifest
-    manifest = {
-        'total_images': n_images,
-        'seed': SEED,
-        'images': metadata_list
-    }
-    write_artifact_manifest(manifest, output_dir / 'synthetic_manifest.json')
-    
-    return images, metadata_list
+    write_artifact_manifest(output_dir, logger)
+    logger.info("Data generation complete.")
 
-def process_artifacts():
-    """Process synthetic images with artifact injection and metric calculation."""
-    project_root = get_project_root()
-    synthetic_dir = project_root / 'data' / 'synthetic'
-    processed_dir = project_root / 'data' / 'processed'
+def process_artifacts(args: argparse.Namespace, logger: logging.Logger) -> None:
+    """
+    Inject artifacts (noise, saturation) and compute metrics.
     
-    # Load ground truth
-    gt_path = synthetic_dir / 'gt_metadata.json'
+    This implements T015 (Noise) and T022/T024 (Saturation).
+    It must load ground truth from data/synthetic/gt_metadata.json.
+    """
+    logger.info("Starting artifact injection and processing...")
+    root = get_project_root()
+    synth_dir = root / "data" / "synthetic"
+    processed_dir = root / "data" / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load Ground Truth
+    gt_path = synth_dir / "gt_metadata.json"
     if not gt_path.exists():
-        raise FileNotFoundError(f"Ground truth metadata not found at {gt_path}. Run generate mode first.")
+        raise FileNotFoundError(
+            f"Ground truth metadata not found at {gt_path}. "
+            "Please run 'generate' mode first (T006)."
+        )
     
     with open(gt_path, 'r') as f:
-        import json
-        gt_data = json.load(f)
+        gt_metadata = json.load(f)
     
-    logger.info(f"Loaded {len(gt_data)} ground truth entries")
+    logger.info(f"Loaded ground truth for {len(gt_metadata)} images.")
     
-    # Process each image
-    all_metrics = []
-    
-    for entry in gt_data:
-        image_path = Path(entry['file_path'])
-        if not image_path.exists():
-            logger.warning(f"Image not found: {image_path}, skipping")
-            continue
+    # 1. Noise Sweep (US1)
+    logger.info("Running Noise Sweep (US1)...")
+    noise_results = []
+    for entry in gt_metadata:
+        img_path = Path(entry["file_path"])
+        img = load_fits_image(img_path)
+        true_ellip = entry["ellipticity"]
         
-        # Load image
-        image = load_fits_image(image_path)
-        
-        # Inject noise (using configured levels)
         for sigma in NOISE_LEVELS:
-            noisy_image, _ = inject_noise(image, sigma)
-            ellipticity = calculate_ellipticity(noisy_image)
-            asymmetry = calculate_asymmetry(noisy_image)
+            noisy_img = inject_noise(img, sigma, rng=np.random.default_rng(entry["seed"]))
+            measured_ellip = calculate_ellipticity(noisy_img)
+            bias = measured_ellip - true_ellip
             
-            all_metrics.append({
-                'image_id': entry['image_id'],
-                'artifact_type': 'noise',
-                'artifact_level': sigma,
-                'measured_ellipticity': ellipticity,
-                'measured_asymmetry': asymmetry,
-                'true_ellipticity': entry['true_ellipticity'],
-                'true_asymmetry': entry['true_asymmetry'],
-                'ellipticity_bias': ellipticity - entry['true_ellipticity'],
-                'asymmetry_bias': asymmetry - entry['true_asymmetry']
+            noise_results.append({
+                "image_id": entry["image_id"],
+                "sigma": sigma,
+                "true_ellipticity": true_ellip,
+                "measured_ellipticity": measured_ellip,
+                "bias": bias
             })
-        
-        # Inject saturation (using configured levels)
-        for sat_frac in SATURATION_LEVELS:
-            sat_image, _ = clip_saturation(image, sat_frac)
-            ellipticity = calculate_ellipticity(sat_image)
-            asymmetry = calculate_asymmetry(sat_image)
-            
-            all_metrics.append({
-                'image_id': entry['image_id'],
-                'artifact_type': 'saturation',
-                'artifact_level': sat_frac,
-                'measured_ellipticity': ellipticity,
-                'measured_asymmetry': asymmetry,
-                'true_ellipticity': entry['true_ellipticity'],
-                'true_asymmetry': entry['true_asymmetry'],
-                'ellipticity_bias': ellipticity - entry['true_ellipticity'],
-                'asymmetry_bias': asymmetry - entry['true_asymmetry']
-            })
-        
-        if len(all_metrics) % 100 == 0:
-            logger.info(f"Processed {len(all_metrics)} metric entries")
     
-    # Save all metrics
-    metrics_path = processed_dir / 'metrics.csv'
-    df = pd.DataFrame(all_metrics)
-    df.to_csv(metrics_path, index=False)
-    logger.info(f"Metrics saved to {metrics_path}")
+    # Save noise sweep results
+    noise_csv = processed_dir / "noise_sweep.csv"
+    if noise_results:
+        import csv
+        with open(noise_csv, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=noise_results[0].keys())
+            writer.writeheader()
+            writer.writerows(noise_results)
+        logger.info(f"Saved noise sweep to {noise_csv}")
     
     # Run noise significance test
-    logger.info("Running noise significance test...")
-    noise_stats = run_noise_sweep_statistics(all_metrics, 'noise')
-    noise_stats_path = processed_dir / 'noise_stats.csv'
-    pd.DataFrame(noise_stats).to_csv(noise_stats_path, index=False)
-    logger.info(f"Noise statistics saved to {noise_stats_path}")
+    run_noise_significance_test(noise_results, processed_dir / "noise_stats.csv")
+    
+    # 2. Saturation Sweep (US2)
+    logger.info("Running Saturation Sweep (US2)...")
+    saturation_results = []
+    valid_entries = [] # For regression later
+    
+    for entry in gt_metadata:
+        img_path = Path(entry["file_path"])
+        img = load_fits_image(img_path)
+        true_asym = entry["asymmetry"]
+        
+        for sat_frac in SATURATION_LEVELS:
+            try:
+                sat_img = clip_saturation(img, sat_frac, rng=np.random.default_rng(entry["seed"]))
+                measured_asym = calculate_asymmetry(sat_img)
+                bias = measured_asym - true_asym
+                
+                saturation_results.append({
+                    "image_id": entry["image_id"],
+                    "saturation_fraction": sat_frac,
+                    "true_asymmetry": true_asym,
+                    "measured_asymmetry": measured_asym,
+                    "bias": bias
+                })
+                valid_entries.append({
+                    "image_id": entry["image_id"],
+                    "saturation_fraction": sat_frac,
+                    "bias": bias
+                })
+            except ValueError as e:
+                logger.warning(f"Skipping image {entry['image_id']} at sat_frac {sat_frac}: {e}")
+    
+    # Save saturation sweep results (T024 requirement)
+    sat_csv = processed_dir / "saturation_sweep.csv"
+    if saturation_results:
+        import csv
+        with open(sat_csv, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=saturation_results[0].keys())
+            writer.writeheader()
+            writer.writerows(saturation_results)
+        logger.info(f"Saved saturation sweep to {sat_csv}")
     
     # Run saturation significance test
-    logger.info("Running saturation significance test...")
-    sat_stats = run_saturation_significance_test(all_metrics, 'saturation')
-    sat_stats_path = processed_dir / 'saturation_stats.csv'
-    pd.DataFrame(sat_stats).to_csv(sat_stats_path, index=False)
-    logger.info(f"Saturation statistics saved to {sat_stats_path}")
+    run_saturation_significance_test(saturation_results, processed_dir / "saturation_stats.csv")
     
-    # Run saturation sweep for detailed analysis
-    logger.info("Running saturation sensitivity sweep...")
-    sweep_results = run_sensitivity_sweep(all_metrics, 'saturation')
-    save_results(sweep_results, processed_dir / 'saturation_sweep.csv')
-    logger.info(f"Saturation sweep results saved to {processed_dir / 'saturation_sweep.csv'}")
-    
-    return df
+    logger.info("Artifact processing complete.")
 
-def calibrate_models():
-    """Fit calibration models to correct bias."""
-    project_root = get_project_root()
-    processed_dir = project_root / 'data' / 'processed'
+def calibrate_models(args: argparse.Namespace, logger: logging.Logger) -> None:
+    """
+    Fit regression models to correct bias.
     
-    metrics_path = processed_dir / 'metrics.csv'
-    if not metrics_path.exists():
-        raise FileNotFoundError(f"Metrics not found at {metrics_path}. Run process mode first.")
+    Implements T027 and T029.
+    """
+    logger.info("Starting calibration model fitting...")
+    root = get_project_root()
+    processed_dir = root / "data" / "processed"
     
-    df = pd.read_csv(metrics_path)
+    # Aggregate data (T041)
+    noise_csv = processed_dir / "noise_sweep.csv"
+    sat_csv = processed_dir / "saturation_sweep.csv"
     
-    from code.analysis.regression import fit_calibration_model, select_best_model
+    if not noise_csv.exists() or not sat_csv.exists():
+        raise FileNotFoundError("Sweep results not found. Run 'process' mode first.")
     
-    # Fit noise model
-    noise_df = df[df['artifact_type'] == 'noise']
-    noise_model = fit_calibration_model(noise_df, 'ellipticity_bias', 'artifact_level')
-    noise_model = select_best_model(noise_model)
+    # Load and prepare data for regression
+    import pandas as pd
+    df_noise = pd.read_csv(noise_csv)
+    df_sat = pd.read_csv(sat_csv)
     
-    # Fit saturation model
-    sat_df = df[df['artifact_type'] == 'saturation']
-    sat_model = fit_calibration_model(sat_df, 'asymmetry_bias', 'artifact_level')
-    sat_model = select_best_model(sat_model)
+    # Fit models
+    models = fit_calibration_models(df_noise, df_sat)
     
     # Save models
-    models = {
-        'noise_ellipticity': noise_model,
-        'saturation_asymmetry': sat_model
-    }
+    model_path = processed_dir / "calibration_functions.json"
+    with open(model_path, 'w') as f:
+        json.dump(models, f, indent=2)
     
-    models_path = processed_dir / 'calibration_functions.json'
-    save_metadata_json(models, models_path)
-    logger.info(f"Calibration models saved to {models_path}")
-    
-    return models
+    logger.info(f"Saved calibration models to {model_path}")
+    logger.info("Calibration complete.")
 
-def validate_models():
-    """Validate calibration models on test set."""
-    project_root = get_project_root()
-    processed_dir = project_root / 'data' / 'processed'
-    validation_dir = project_root / 'data' / 'validation'
+def validate_models(args: argparse.Namespace, logger: logging.Logger) -> None:
+    """
+    Validate calibration models on held-out data and real HST images.
     
-    models_path = processed_dir / 'calibration_functions.json'
-    if not models_path.exists():
-        raise FileNotFoundError(f"Models not found at {models_path}. Run calibrate mode first.")
+    Implements T028, T031, and T009 dependency.
+    """
+    logger.info("Starting model validation...")
+    root = get_project_root()
+    processed_dir = root / "data" / "processed"
+    validation_dir = root / "data" / "validation"
     
-    with open(models_path, 'r') as f:
-        import json
+    model_path = processed_dir / "calibration_functions.json"
+    if not model_path.exists():
+        raise FileNotFoundError("Calibration models not found. Run 'calibrate' mode first.")
+    
+    with open(model_path, 'r') as f:
         models = json.load(f)
     
-    # Load validation data
-    validation_path = validation_dir / 'validation_manifest.json'
-    if not validation_path.exists():
-        logger.warning("No validation manifest found, skipping validation")
-        return
+    # 1. Cross-validation on synthetic data (T045)
+    logger.info("Validating on synthetic held-out data...")
+    # (Assuming split logic is inside apply_calibration or separate function)
+    # For this task, we call the validation logic
+    residuals = validate_residuals(models, processed_dir / "noise_sweep.csv", processed_dir / "saturation_sweep.csv")
     
-    with open(validation_path, 'r') as f:
-        import json
-        validation_data = json.load(f)
+    # 2. Real HST Validation (T028, T031)
+    # Requires T009 to be complete (Real HST images in data/validation/)
+    real_hst_dir = root / "data" / "validation"
+    manifest_path = real_hst_dir / "validation_manifest.json"
     
-    results = []
-    for entry in validation_data:
-        image_path = Path(entry['file_path'])
-        if not image_path.exists():
-            continue
+    if manifest_path.exists():
+        logger.info("Validating on Real HST images...")
+        hst_results = run_validation_on_real_hst(models, manifest_path)
         
-        image = load_fits_image(image_path)
-        ellipticity = calculate_ellipticity(image)
-        asymmetry = calculate_asymmetry(image)
-        
-        # Apply corrections if models exist
-        corrected_ellipticity = ellipticity
-        corrected_asymmetry = asymmetry
-        
-        if 'noise_ellipticity' in models:
-            # Apply correction logic here
-            pass
-        
-        if 'saturation_asymmetry' in models:
-            # Apply correction logic here
-            pass
-        
-        results.append({
-            'target_id': entry['target_id'],
-            'measured_ellipticity': ellipticity,
-            'measured_asymmetry': asymmetry,
-            'corrected_ellipticity': corrected_ellipticity,
-            'corrected_asymmetry': corrected_asymmetry
-        })
+        # Save validation report
+        report_path = validation_dir / "validation_report.json"
+        with open(report_path, 'w') as f:
+            json.dump(hst_results, f, indent=2)
+        logger.info(f"Saved real HST validation report to {report_path}")
+    else:
+        logger.warning("Real HST validation manifest not found. Skipping real data validation.")
     
-    # Save results
-    results_path = processed_dir / 'validation_results.csv'
-    pd.DataFrame(results).to_csv(results_path, index=False)
-    logger.info(f"Validation results saved to {results_path}")
-    
-    return results
+    logger.info("Validation complete.")
 
-def verify_pipeline():
-    """Verify all artifacts are present and consistent."""
-    project_root = get_project_root()
-    processed_dir = project_root / 'data' / 'processed'
+def verify_pipeline(args: argparse.Namespace, logger: logging.Logger) -> None:
+    """
+    Run power analysis and verify pipeline integrity.
     
+    Implements T030 and T035 (Integration check).
+    """
+    logger.info("Running pipeline verification...")
+    root = get_project_root()
+    processed_dir = root / "data" / "processed"
+    validation_dir = root / "data" / "validation"
+    
+    # Power Analysis (T030)
+    logger.info("Running power analysis...")
+    power_report = run_power_analysis(
+        processed_dir / "noise_sweep.csv",
+        processed_dir / "saturation_sweep.csv",
+        output_path=validation_dir / "power_analysis_report.md"
+    )
+    logger.info(f"Power analysis report saved to {validation_dir / 'power_analysis_report.md'}")
+    
+    # Check for critical artifacts
     required_files = [
-        'metrics.csv',
-        'noise_stats.csv',
-        'saturation_stats.csv',
-        'saturation_sweep.csv',
-        'calibration_functions.json'
+        processed_dir / "gt_metadata.json",
+        processed_dir / "noise_sweep.csv",
+        processed_dir / "saturation_sweep.csv",
+        processed_dir / "calibration_functions.json"
     ]
     
-    missing = []
-    for f in required_files:
-        if not (processed_dir / f).exists():
-            missing.append(f)
-    
+    missing = [f for f in required_files if not f.exists()]
     if missing:
-        logger.error(f"Missing required files: {missing}")
-        return False
+        logger.error(f"Missing critical artifacts: {missing}")
+        sys.exit(1)
     
-    logger.info("All required artifacts present")
-    return True
+    logger.info("Pipeline verification complete. All artifacts present.")
 
 def main():
-    parser = argparse.ArgumentParser(description='Main pipeline for data artifact impact analysis')
-    parser.add_argument('--mode', choices=['generate', 'process', 'calibrate', 'validate', 'verify'], required=True,
-                      help='Pipeline mode to execute')
-    parser.add_argument('--n-images', type=int, default=50, help='Number of images to generate')
-    parser.add_argument('--input', type=str, help='Input directory for process mode')
-    parser.add_argument('--output', type=str, help='Output directory for results')
-    parser.add_argument('--test-set', type=str, help='Test set directory for validation')
+    parser = argparse.ArgumentParser(
+        description="Planetary Nebula Artifact Impact Pipeline",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    subparsers = parser.add_subparsers(dest='mode', help='Pipeline mode')
+    
+    # Generate Mode
+    gen_parser = subparsers.add_parser('generate', help='Generate synthetic data')
+    gen_parser.add_argument('--n-images', type=int, default=50, help='Number of images to generate')
+    gen_parser.add_argument('--seed', type=int, default=DEFAULT_SEED, help='Random seed')
+    
+    # Process Mode
+    proc_parser = subparsers.add_parser('process', help='Inject artifacts and compute metrics')
+    
+    # Calibrate Mode
+    cal_parser = subparsers.add_parser('calibrate', help='Fit calibration models')
+    
+    # Validate Mode
+    val_parser = subparsers.add_parser('validate', help='Validate models')
+    val_parser.add_argument('--test-set', type=str, default='synthetic', help='Test set type')
+    
+    # Verify Mode
+    ver_parser = subparsers.add_parser('verify', help='Verify pipeline integrity')
     
     args = parser.parse_args()
     
-    setup_directories()
+    if not args.mode:
+        parser.print_help()
+        sys.exit(1)
     
-    if args.mode == 'generate':
-        generate_data(args.n_images)
-    elif args.mode == 'process':
-        process_artifacts()
-    elif args.mode == 'calibrate':
-        calibrate_models()
-    elif args.mode == 'validate':
-        validate_models()
-    elif args.mode == 'verify':
-        success = verify_pipeline()
-        sys.exit(0 if success else 1)
-    else:
-        raise ValueError(f"Unknown mode: {args.mode}")
+    # Setup
+    root = setup_directories(setup_logging(root / "logs" / "pipeline.log"))
+    logger = logging.getLogger("pipeline")
+    
+    try:
+        if args.mode == 'generate':
+            generate_data(args, logger)
+        elif args.mode == 'process':
+            process_artifacts(args, logger)
+        elif args.mode == 'calibrate':
+            calibrate_models(args, logger)
+        elif args.mode == 'validate':
+            validate_models(args, logger)
+        elif args.mode == 'verify':
+            verify_pipeline(args, logger)
+        elif args.mode == 'run-all':
+            # T046: Unified entry point
+            logger.info("Running full pipeline sequentially...")
+            generate_data(args, logger)
+            process_artifacts(args, logger)
+            calibrate_models(args, logger)
+            validate_models(args, logger)
+            verify_pipeline(args, logger)
+            logger.info("Full pipeline execution complete.")
+        else:
+            logger.error(f"Unknown mode: {args.mode}")
+            sys.exit(1)
+    except Exception as e:
+        logger.exception(f"Pipeline failed: {e}")
+        sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
