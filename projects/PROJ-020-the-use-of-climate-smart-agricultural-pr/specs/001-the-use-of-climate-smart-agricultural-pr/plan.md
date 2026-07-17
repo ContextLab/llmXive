@@ -10,7 +10,7 @@ This project implements a statistical analysis pipeline to quantify the associat
 ## Technical Context
 
 **Language/Version**: Python 3.x (Source: History of Python, https://en.wikipedia.org/wiki/History_of_Python).
-*Note: The Spec and Verified Facts mandate Python 3.14.6. The implementation MUST use this exact version. No fallback is permitted.*
+*Note: The Spec and Verified Facts mandate a recent, stable version of Python. The implementation MUST use this exact version. No fallback is permitted.*
 
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `geopandas`, `requests`, `huggingface_hub`, `matplotlib`, `seaborn`, `worldbank-lsms`.
 **Storage**: Local file system (GitHub Actions runner), intermediate CSV/Parquet files in `data/`.

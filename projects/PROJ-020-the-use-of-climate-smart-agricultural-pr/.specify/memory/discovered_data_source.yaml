@@ -1,19 +1,19 @@
 status: none
-intent: LSMS Kenya India Vietnam FAOSTAT indicators NASA POWER climate download python
-  package dataset
+intent: Python packages to download World Bank LSMS FAOSTAT and NASA POWER datasets
+  python package dataset
 required_fields:
 - household_id
-- country
 - survey_year
-- region
+- country
 - latitude
 - longitude
-- crop_production
-- land_area
-- fertilizer_use
-- irrigation
-- temperature
-- precipitation
-cache_key: cbc2c10a25b309096ac76295843e76ed726cc2383a349314e8f6deda503712fe
-searched_at: '2026-07-15T20:39:46.040366+00:00'
+- csa_practices
+- food_security_status
+- age
+- gender
+- household_size
+- faostat_crop_production
+- faostat_crop_yield
+cache_key: d4a9a79436d8bd4915eea4a52baea798a31c33fd9b8032106de78c5453820df7
+searched_at: '2026-07-17T18:12:48.999625+00:00'
 retry_count: 1

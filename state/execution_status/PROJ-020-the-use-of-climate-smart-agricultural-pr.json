@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-020-the-use-of-climate-smart-agricultural-pr",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/viz/plots.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# 3. Coefficient Plot (Simulated data if model output not stri\u2026\u201d; 5 run-book script(s) missing (plan/impl path mismatch): python code/ingestion.py; python code/preprocessing.py; python code/modeling.py; 1 command(s) failed: python code/analysis/robustness.py (rc=2); 1 declared deliverable(s) absent: data/processed/merged_sample.parquet",
+  "artifacts": [],
+  "failures": [
+    "python code/ingestion.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/code/ingestion.py': [Errno 2] No such file or directory",
+    "python code/preprocessing.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/code/preprocessing.py': [Errno 2] No such file or directory",
+    "python code/modeling.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/code/modeling.py': [Errno 2] No such file or directory",
+    "python code/analysis/robustness.py -> rc=2\n    usage: robustness.py [-h] --data DATA [--formula FORMULA]\n                     [--random-effect RANDOM_EFFECT] [--weights WEIGHTS]\n                     [--bootstrap-iterations BOOTSTRAP_ITERATIONS]\n                     [--output-dir OUTPUT_DIR] [--n-jobs N_JOBS]\nrobustness.py: error: the following arguments are required: --data",
+    "python code/viz.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/code/viz.py': [Errno 2] No such file or directory",
+    "python code/verify_reproducibility.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/code/verify_reproducibility.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-17T18:05:14Z"
+}
