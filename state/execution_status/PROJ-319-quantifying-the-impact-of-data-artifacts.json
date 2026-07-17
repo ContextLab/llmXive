@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-319-quantifying-the-impact-of-data-artifacts",
+  "ok": false,
+  "reason": "7 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/sensitivity_sweep.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026=SEED)     logger.info(f\"Generated base synthetic nebula with shape {base_\u2026\u201d; code/analysis/statistical_tests.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026e} not found. Generating synthetic clean data for demonstration (FAILS\u2026\u201d; code/synthetic/__init__.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic data generation and artifact\u2026\u201d; 5 run-book script(s) missing (plan/impl path mismatch): python code/main.py --mode generate --n-images 50 --output data/synthetic; python code/main.py --mode process --input data/synthetic --output data/processed; python code/main.py --mode calibrate --input data/processed/metrics.csv --output data/processed/models.json; 1 declared deliverable(s) absent: data/processed/saturation_sweep.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --mode generate --n-images 50 --output data/synthetic -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-319-quantifying-the-impact-of-data-artifacts/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-319-quantifying-the-impact-of-data-artifacts/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --mode process --input data/synthetic --output data/processed -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-319-quantifying-the-impact-of-data-artifacts/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-319-quantifying-the-impact-of-data-artifacts/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --mode calibrate --input data/processed/metrics.csv --output data/processed/models.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-319-quantifying-the-impact-of-data-artifacts/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-319-quantifying-the-impact-of-data-artifacts/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --mode validate --input data/processed/models.json --test-set data/synthetic/validation --output data/processed/validation_results.csv -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-319-quantifying-the-impact-of-data-artifacts/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-319-quantifying-the-impact-of-data-artifacts/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --mode verify --output logs/verification.log -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-319-quantifying-the-impact-of-data-artifacts/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-319-quantifying-the-impact-of-data-artifacts/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-17T20:01:01Z"
+}

@@ -12,3 +12,18 @@ T008:
   r: No `tests/unit/` directory, test files, or pytest configuration (e.g., `pytest.ini`
     or `conftest.py`) are present in the provided evidence, so the required test structure
     and setup have not been delivered.
+T015:
+  c: false
+  h: cbff989a2d7e654805a71b78acdc97390903365e01740be71909846a404f5c5b
+  r: The required `data/synthetic/gt_metadata.json` file is absent, so the pipeline
+    cannot load ground truth as specified. Moreover, the provided excerpt of `code/main.py`
+    does not demonstrate loading that JSON or invoking `run_noise_significance_test`.
+    Both the missing artifact and the lack of the required functionality mean the
+    task is not genuinely completed.
+T022:
+  c: false
+  h: cbff989a2d7e654805a71b78acdc97390903365e01740be71909846a404f5c5b
+  r: "The repository lacks the required `data/synthetic/gt_metadata.json` file, and\
+    \ the provided `code/main.py` excerpt does not contain any logic that loads this\
+    \ ground\u2011truth JSON or invokes `run_saturation_significance_test` as specified.\
+    \ Consequently the pipeline step described in the task is not implemented."

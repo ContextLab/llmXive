@@ -1,0 +1,259 @@
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Real HST targets NGC 7009 and NGC 6543 acquired from MAST
+  claim_id: c_bf408472
+  context: 'Acquire, vet, checksum, and process a small set of real HST images (MAST)
+    for manual validation as required by Constitution Principle VII. Targets: NGC
+    7009 (Saturn Nebula), NGC 6543 (Cat''s Eye).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Targets: NGC 7009 (Saturn Nebula), NGC 6543 (Cat''s Eye).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:04:53Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: MAST query parameters for NGC 7009 and NGC 6543 with F658N filter and
+    ACS instrument
+  claim_id: c_63b2a3a1
+  context: 'Query: MAST ''target=''NGC 7009'' OR target=''NGC 6543'' filter=''F658N''
+    instrument=''ACS''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Query: MAST ''target=''NGC 7009'' OR target=''NGC 6543'' filter=''F658N''
+    instrument=''ACS''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:05:33Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Synthetic sources asymmetry range set to 0.05 to 0.15
+  claim_id: c_f2d58607
+  context: 'Seed: Use multiple synthetic sources with ellipticity in a moderate range
+    and asymmetry in [0.05, 0.15].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asymmetry in [0.05, 0.15]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:06:07Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Noise levels configured as low, 0.05, and 0.10
+  claim_id: c_00511846
+  context: 'Create code/config.py with pinned random seeds, default paths, and concrete
+    artifact parameters: noise levels [low, 0.05, 0.10]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: noise levels [low, 0.05, 0.10]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:06:22Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Asymmetry index calculated using Conselice 2003 definition
+  claim_id: c_24a66e49
+  context: 'Unit test for asymmetry calculation in tests/unit/test_asymmetry.py: Function
+    test_asymmetry_conselice asserting that the A-statistic matches the Conselice
+    (2003) definition'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asymmetry index matches the Conselice (2003) definition
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:06:59Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Asymmetry metric implementation follows Conselice 2003 definition
+  claim_id: c_6caef3c3
+  context: Implement code/metrics/asymmetry.py using Conselice (2003) definition with
+    robust centering
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/metrics/asymmetry.py` using Conselice (2003) definition
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:07:24Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Saturation fraction sweep range 0.0 to 0.5 with 0.05 step size
+  claim_id: c_de614601
+  context: 'Implement code/synthetic/artifacts.py saturation clipping function: implement
+    sweep logic across 0.0 to 0.5 in 0.05 increments (variable saturation_fraction)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep logic across 0.0 to 0.5 in 0.05 increments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:07:48Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis range 0.0 to 0.5 with 0.05 step
+  claim_id: c_28507e98
+  context: 'Implement sensitivity analysis sweep: range 0.0 to 0.5, step 0.05; output
+    CSV data/processed/saturation_sweep.csv'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: range 0.0 to 0.5, step 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:08:11Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Power analysis verifies sample size 50 achieves 80% power
+  claim_id: c_9fa8d9af
+  context: "Power Analysis: Implement code/analysis/power_analysis.py to verify n=50\
+    \ achieves \u226580% power for effect size."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify n=50 achieves \u226580% power for effect size"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:08:38Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Power analysis uses Cohen's d as effect size metric
+  claim_id: c_882a4386
+  context: 'Test: Two-sample t-test. Effect Size: Cohen''s d.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_uses_Cohen's_d_as_effect_size_metric
+  kind: entity_fact
+  raw_text: 'Effect Size: Cohen''s d'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:10:49Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Full sensitivity sweep execution time under 4 hours on 2 CPU cores
+  claim_id: c_6382300d
+  context: 'Performance optimization: Ensure full sensitivity sweep runs < 4 hours
+    on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full sensitivity sweep runs < 4 hours on 2 CPU cores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:10:49Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Asymmetry index uses Conselice 2003 definition
+  claim_id: c_73122002
+  context: T019 [P] [US2] Unit test for asymmetry calculation... asserting that the
+    A-statistic matches the Conselice (2003) definition.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Conselice (2003) definition is used for the asymmetry index calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:13:31Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Saturation sweep 0.0 to 0.5 with 0.05 step
+  claim_id: c_7f952d26
+  context: 'T021 [P] [US2] Implement saturation clipping function: implement sweep
+    logic across 0.0 to 0.5 in 0.05 increments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Saturation fraction sweep ranges from 0.0 to 0.5 in 0.05 increments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T20:13:53Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Sample size 50 achieves 80% power
+  claim_id: c_bdb482c3
+  context: "T030 [US3] Power Analysis: Implement code/analysis/power_analysis.py to\
+    \ verify n=50 achieves \u226580% power for effect size."
+  evidence:
+    candidates:
+    - - Sample size 50 achieves
+      - 80.0
+    - - Donate Create account Log in Sample size
+      - 50.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Sample_size_50_achieves_80%25_power
+  kind: magnitude
+  raw_text: Power analysis aims to verify that a sample size of 50 achieves at least
+    80% power for the effect size.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-17T20:14:54Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep runs under 4 hours on 2 CPUs
+  claim_id: c_24bc1b88
+  context: 'T034 [P] Performance optimization: Ensure full sensitivity sweep runs
+    < 4 hours on 2 CPU cores.'
+  evidence:
+    candidates:
+    - - Log in Sensitivity sweep runs under
+      - 4.0
+    - - Sensitivity sweep runs under 4 hours on
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_sweep_runs_under_4_hours_on_2_CPUs
+  kind: magnitude
+  raw_text: The full sensitivity sweep is optimized to run in less than 4 hours on
+    2 CPU cores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-17T20:15:27Z'

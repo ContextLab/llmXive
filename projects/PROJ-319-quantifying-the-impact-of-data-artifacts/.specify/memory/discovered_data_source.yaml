@@ -1,0 +1,18 @@
+status: none
+intent: MAST HST planetary nebula archive download python package dataset
+required_fields:
+- FITS image data array
+- World Coordinate System (WCS) header keywords
+- Target name / nebula identifier
+- Right Ascension (RA) and Declination (Dec)
+- Observation date and time
+- Instrument name (e.g., ACS, WFC3)
+- Filter name
+- Exposure time
+- Pixel scale
+- Flux calibration coefficients or PHOTFLAM value
+- Detector gain and read noise
+- Data quality flags
+cache_key: 3792af9cc5c1b12f5c4180d44c2fd03ab0deee96eea434f9a4fc5fd12bc0c486
+searched_at: '2026-07-17T20:02:20.947313+00:00'
+retry_count: 1
