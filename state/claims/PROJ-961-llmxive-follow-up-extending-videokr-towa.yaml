@@ -1,0 +1,88 @@
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/docs/USAGE.md
+  attempts: 1
+  canonical: 2GB disk space required for pipeline
+  claim_id: c_4f6b5a40
+  context: The entire pipeline can be run sequentially. Ensure you have sufficient
+    disk space (approx. 2GB for raw data + processed artifacts).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/2GB_disk_space_required_for_pipeline
+  kind: entity_fact
+  raw_text: The entire pipeline requires approx. 2GB of disk space for raw data and
+    processed artifacts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:33:48Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/docs/USAGE.md
+  attempts: 1
+  canonical: 1000 records in pilot sampling
+  claim_id: c_2d2cbe87
+  context: 'Two-Stage Sampling: Implements a pilot (1000 records) followed by oversampling
+    to ensure at least 50 records per hop bin.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The two-stage sampling strategy implements a pilot of 1000 records.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:34:19Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/docs/USAGE.md
+  attempts: 1
+  canonical: 50 records minimum per hop bin
+  claim_id: c_e28efb22
+  context: 'Two-Stage Sampling: Implements a pilot (1000 records) followed by oversampling
+    to ensure at least 50 records per hop bin.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/50_records_minimum_per_hop_bin
+  kind: magnitude
+  raw_text: The sampling strategy ensures at least 50 records per hop bin.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:34:49Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/docs/USAGE.md
+  attempts: 1
+  canonical: Merge 3+ hop bins if sample size < 50
+  claim_id: c_b24f6980
+  context: 'Small Bin Handling: Automatically merges 3+ hop bins if sample size <
+    50, or defers the test with a logged reason.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merge_3+_hop_bins_if_sample_size_%3C_50
+  kind: magnitude
+  raw_text: The script automatically merges 3 or more hop bins if the sample size
+    is less than 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:35:33Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/docs/USAGE.md
+  attempts: 1
+  canonical: Sensitivity analysis tested at 2, 3, and 4 hops
+  claim_id: c_5e47d3b6
+  context: Re-runs the two-stage sampling strategy for each threshold (2, 3, 4 hops).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis re-runs the two-stage sampling strategy for thresholds
+    of 2, 3, and 4 hops.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:36:01Z'

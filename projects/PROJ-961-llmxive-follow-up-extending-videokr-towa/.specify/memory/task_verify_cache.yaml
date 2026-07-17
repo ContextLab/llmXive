@@ -1,0 +1,34 @@
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only a high\u2011level feature description and user\
+    \ stories; there is no evidence of any changes to `detect_threshold.py`, no code,\
+    \ tests, or output demonstrating handling of small bin sizes. The required artifact\
+    \ (updated script handling small bins) is missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The response contains only the task description and no actual artifacts such
+    as the annotated dataset, summary table, statistical test results, or the required
+    plots. Consequently, there is no evidence that the summary table and visualizations
+    were generated, so the requirement is not satisfied.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No comparison table (or any other output) was provided; the response contains
+    only the task description and no concrete artifact such as a CSV/markdown table
+    showing accuracy or other metrics across hop thresholds. The required deliverable
+    is missing.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No overlay plot or any data/analysis artifacts were provided; the claim contains
+    only the task description and specifications, with no figure, code, or results
+    to verify that accuracy curves for different threshold definitions were actually
+    created. The required overlay plot is missing.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README or usage instruction files were provided in a `docs/` directory, nor
+    any evidence that documentation was updated; the response only contains a feature
+    specification and no documentation artifacts.

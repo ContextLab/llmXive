@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils/config.py` for seed management and path configuration
-- [ ] T005 [P] Implement `code/utils/versioning.py` to write SHA-256 hashes of data artifacts (Constitution Principle V)
-- [ ] T006 [P] Create `code/utils/graph_utils.py` with shortest path logic (BFS) handling disconnected graphs
-- [ ] T007 [P] Create `code/utils/entity_linker.py` for mapping question entities to graph nodes (fuzzy/embedding based)
+- [X] T004 [P] Implement `code/utils/config.py` for seed management and path configuration
+- [X] T005 [P] Implement `code/utils/versioning.py` to write SHA-256 hashes of data artifacts (Constitution Principle V)
+- [X] T006 [P] Create `code/utils/graph_utils.py` with shortest path logic (BFS) handling disconnected graphs
+- [X] T007 [P] Create `code/utils/entity_linker.py` for mapping question entities to graph nodes (fuzzy/embedding based)
 - [ ] T008a [P] Create `.gitkeep` in `data/raw/` directory
 - [ ] T008b [P] Create `.gitkeep` in `data/processed/` directory
-- [ ] T009 [P] Implement `code/ingest/checksum.py` for verifying raw data integrity
+- [X] T009 [P] Implement `code/ingest/checksum.py` for verifying raw data integrity
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,21 +77,24 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for `graph_utils.py` shortest path logic in `tests/unit/test_graph_utils.py` (handles disconnected nodes, shortest path rule). **Depends on T006 completion.**
-- [ ] T011 [P] [US1] Integration test for `annotate_graph.py` on a sample subset in `tests/integration/test_pipeline.py`
+- [X] T010 [US1] Unit test for `graph_utils.py` shortest path logic in `tests/unit/test_graph_utils.py` (handles disconnected nodes, shortest path rule). **Depends on T006 completion.**
+- [X] T011 [US1] Integration test for `annotate_graph.py` on a sample subset in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/ingest/download_data.py` to fetch VideoKR-SFT and Knowledge Graph from verified URLs (NAB/UCI/arXiv) with checksumming
-- [ ] T013 [US1] Implement `code/ingest/annotate_graph.py` to:
-  - Load graph and dataset
-  - Map question entities to graph nodes using `entity_linker.py`
-  - Calculate shortest path hops (1, 2, 3+) for each record
-  - Handle disconnected graphs (exclude or label "unresolvable")
-  - Enforce "shortest path" rule for multiple paths
-- [ ] T014 [US1] Ensure output file `data/processed/annotated_videokr.csv` contains all input records with `chain_length` and original `correctness` labels (FR-002)
-- [ ] T015 [US1] Add chunking/sampling logic to `annotate_graph.py` to ensure memory < 7 GB RAM AND **explicitly mandate that the annotation step completes within the CI limit on a 2-core CPU runner**. If the full dataset cannot be processed within this time, implement a pilot sampling strategy first. **Task description must include the specific timing constraint: 'total runtime < 6 hours on 2-core CPU'.** (FR-006)
-- [ ] T016 [US1] Write hash of `annotated_videokr.csv` to `state/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa.yaml`
+- [X] T012 [P] [US1] Implement `code/ingest/download_data.py` to fetch VideoKR-SFT and Knowledge Graph from verified URLs (NAB/UCI/arXiv) with checksumming <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T013 [US1] Implement `code/ingest/annotate_graph.py` to:
+ - Load graph and dataset
+ - Map question entities to graph nodes using `entity_linker.py`
+ - Calculate shortest path hops (1, 2, 3+) for each record
+ - Handle disconnected graphs (exclude or label "unresolvable")
+ - Enforce "shortest path" rule for multiple paths
+- [ ] T014 [US1] Ensure output file `data/processed/annotated_videokr.csv` contains all input records with `chain_length` and original `correctness` labels (FR-002) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T015 [US1] Implement a **proactive two-stage sampling strategy** in `annotate_graph.py` to guarantee the analysis completes within 6 hours on a 2-core CPU runner (FR-006). <!-- FAILED: unspecified -->
+ - **Step 1 (Pilot)**: Load and process a pilot sample of exactly **1000 records** to estimate hop distribution.
+ - **Step 2 (Oversample)**: Based on pilot results, oversample the dataset to ensure **at least 50 records per hop bin** (1, 2, 3+). If the full dataset is required to reach this target, process in chunks; otherwise, use the oversampled subset.
+ - **Constraint**: This strategy must be implemented as the default execution path, not a fallback. The script must log the final sample size and bin counts to `data/processed/sampling_log.json`. (FR-006)
+- [X] T016 [US1] Write hash of `annotated_videokr.csv` to `state/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,30 +102,35 @@
 
 ## Phase 4: User Story 2 - Accuracy Stratification and Threshold Detection (Priority: P2)
 
-**Goal**: Calculate accuracy per hop-bin, detect non-linear "reasoning cliff" using Permutation Test and GAM.
+**Goal**: Calculate accuracy per hop-bin, detect non-linear "reasoning cliff" using Permutation Test.
 
 **Independent Test**: Generate accuracy vs. hop plot and statistical report; verify trend and p-value against raw data summary.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for accuracy calculation logic in `tests/unit/test_stratify_accuracy.py`
-- [ ] T018 [P] [US2] Integration test for `detect_threshold.py` on annotated data in `tests/integration/test_pipeline.py`
+- [X] T017 [P] [US2] Unit test for accuracy calculation logic in `tests/unit/test_stratify_accuracy.py`
+- [X] T018 [P] [US2] Integration test for `detect_threshold.py` on annotated data in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `code/analysis/stratify_accuracy.py` to calculate accuracy rate for bins 1-hop, 2-hop, 3+ hops (FR-003)
-- [ ] T020 [US2] Implement `code/analysis/detect_threshold.py` to:
-  - Perform grid-search change-point detection over hops 1-5
-  - Compare linear vs. piecewise linear models at optimal knot
-  - Apply Bonferroni correction for multiple comparisons (FR-004)
-  - **Note**: This task implements the Permutation Test for discrete change-point detection.
-  - **Depends on T019** (requires binned accuracy data).
-- [ ] T021 [US2] Handle small bin sizes: If 3+ hop bin < 50 samples, flag limitation and merge bins or defer test. **MUST write the specific reason for deferral and the merge logic used to `data/processed/threshold_results.json`** to satisfy Single Source of Truth (Edge Case).
+- [X] T019 [P] [US2] Implement `code/analysis/stratify_accuracy.py` to calculate accuracy rate for bins 1-hop, 2-hop, 3+ hops (FR-003)
+- [X] T020 [US2] Implement `code/analysis/detect_threshold.py` to:
+ - Perform grid-search change-point detection over hops 1-5
+ - Compare linear vs. piecewise linear models at optimal knot
+ - Apply Bonferroni correction for multiple comparisons (FR-004)
+ - **Note**: This task implements the Permutation Test for discrete change-point detection.
+ - **Depends on T019** (requires binned accuracy data).
+- [ ] T021 [US2] Handle small bin sizes in `detect_threshold.py`:
+ - **Logic**: If the 3+ hop bin contains fewer than 50 samples:
+ 1. Attempt to merge 3+ hop records into the 2-hop bin.
+ 2. If the merged bin (2+3+ hops) has >= 50 samples, proceed with the test on the merged bin and log `bin_status: "merged"` in `data/processed/threshold_results.json`.
+ 3. If the merged bin still has < 50 samples, **defer** the statistical test for this comparison and log `bin_status: "deferred"` with the specific reason (insufficient power) in `data/processed/threshold_results.json`.
+ - **Output**: The JSON file must explicitly contain the `bin_status` field to flag the limitation as required by the Spec Edge Cases. (Edge Cases)
 - [ ] T022 [US2] Generate summary table and plots:
-  - Binned accuracy plot
-  - **Continuous plot of accuracy vs. exact hop count (without binning)** using `data/processed/annotated_videokr.csv` as input (FR-005).
-  - **Depends on T013** (requires annotated data for continuous plot) and **T019** (for binned data).
-- [ ] T023 [US2] Output `data/processed/threshold_results.json` with p-value, effect size, optimal knot location, and deferral reasons (if any)
+ - **Binned Plot**: Use data from T019 to plot accuracy vs. hop bin.
+ - **Continuous Plot**: Generate a plot of accuracy vs. **exact `chain_length`** using the **raw, un-binned data** from `data/processed/annotated_videokr.csv` (FR-005). This must NOT use the binned data from T019.
+ - **Depends on T013** (requires annotated data for continuous plot) and **T019** (for binned data).
+- [X] T023 [US2] Output `data/processed/threshold_results.json` with p-value, effect size, optimal knot location, and deferral reasons (if any)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,15 +144,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for sensitivity sweep logic in `tests/unit/test_sensitivity.py`
+- [X] T024 [P] [US3] Unit test for sensitivity sweep logic in `tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement `code/analysis/sensitivity.py` to:
-  - Sweep thresholds across multiple hops (FR-005)
-  - Re-run threshold detection logic for each offset (depends on T020 logic)
-  - Compare significance (p-value) and effect size (accuracy drop)
-  - **Note**: This task must run sequentially after T020 completes; [P] tag removed to indicate dependency on Phase 4 completion.
+- [X] T025 [US3] Implement `code/analysis/sensitivity.py` to:
+ - **Re-apply Two-Stage Sampling**: For *each* threshold iteration (2, 3, 4 hops), re-run the **two-stage sampling strategy** (pilot=1000, oversample to min 50 per bin) to ensure sufficient power for the specific bin definition being tested.
+ - Sweep thresholds across multiple hops (FR-005)
+ - Re-run threshold detection logic for each offset (depends on T020 logic)
+ - Compare significance (p-value) and effect size (accuracy drop)
+ - **Note**: This task must run sequentially after T020 completes; [P] tag removed to indicate dependency on Phase 4 completion.
 - [ ] T026 [US3] Generate comparison table for varying hop thresholds
 - [ ] T027 [US3] Create overlay plot of accuracy curves for different threshold definitions
 - [ ] T028 [US3] Output `data/processed/sensitivity_report.md` stating if "cliff" remains significant (p < 0.05) in ≥2 of 3 thresholds (SC-003)
@@ -157,12 +166,13 @@
 
 **Goal**: Implement the Generalized Additive Model to test for non-linearity in the continuous domain, satisfying FR-007.
 
-- [ ] T034 [US2] Implement `code/analysis/fit_gam.py` to:
-  - Fit a Generalized Additive Model (GAM) with a smooth spline term for hop count using `data/processed/annotated_videokr.csv`
-  - Test for non-linearity in the continuous domain (FR-007)
-  - Compare GAM fit against a linear baseline
-  - Output `data/processed/gam_results.json` with p-value for non-linearity and smoothness parameters
-  - **Note**: This task complements T020 (Permutation Test) by addressing the continuous domain requirement as mandated by FR-007, overriding the Plan's "Complexity Tracking" note which suggested removal. The Spec's functional requirement (FR-007) takes precedence.
+- [X] T034 [US2] Implement `code/analysis/fit_gam.py` to:
+ - Fit a Generalized Additive Model (GAM) with a smooth spline term for hop count using `data/processed/annotated_videokr.csv`
+ - Test for non-linearity in the continuous domain (FR-007)
+ - Compare GAM fit against a linear baseline
+ - **Statistical Validity Warning**: Explicitly include a warning in the output and report stating that GAMs are typically considered invalid for low-cardinality discrete ordinal variables (per Plan.md), but this implementation is required by Spec FR-007. Interpret results with extreme caution.
+ - Output `data/processed/gam_results.json` with p-value for non-linearity and smoothness parameters
+ - **Note**: This task complements T020 (Permutation Test) by addressing the continuous domain requirement as mandated by FR-007, overriding the Plan's "Complexity Tracking" note which suggested removal. The Spec's functional requirement (FR-007) takes precedence.
 
 ---
 
@@ -185,8 +195,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **GAM (Phase 6)**: Depends on Foundational and US1 data (T013)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
@@ -254,9 +264,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
