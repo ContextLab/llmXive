@@ -1,0 +1,33 @@
+T029a:
+  c: false
+  h: ba50c23989d8a8848887384c011d463a22534740d30183250985b62eebb78b20
+  r: The required artifact `data/analysis/simulation_results.json` does not exist,
+    so no JSON schema could be defined or validated against the `SimulationRun` entity,
+    and the required fields are not verified. The task therefore remains unfinished.
+T043:
+  c: true
+  h: 2cc29ca26622578245308608c230be2f3d7fc904c18ba06f3a2a419579cee16c
+  r: The `code/README.md` file is present and contains a detailed **Configuration**
+    section that explains the purpose and structure of `config.yaml`, fulfilling the
+    update requirement.
+T045:
+  c: false
+  h: a6d5ecc993dc69d1389f1e9c6d738fcf55e571984a3acbcf2c46095543f0dc49
+  r: "The repository contains the validation script, but the required `data/analysis/sensitivity_sweep.json`\
+    \ file is absent, so SC\u2011005 cannot be checked. Moreover, there is no evidence\
+    \ (e.g., console output or exit\u2011code log) that the script was actually executed\
+    \ and returned exit code\u202F0. The task therefore remains unfinished."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer supplied only a feature specification for synthetic network generation
+    and simulation, with no code, configuration, or generated coverage report related
+    to adding a `pytest` coverage report. There is no evidence of pytest integration,
+    a coverage configuration file, or an actual coverage output, so the task requirement
+    is not met.
+T047:
+  c: false
+  h: 972599fb4c5febe875a4f7f304d39c2ed064c3a99386988dfe1bccfaaef9ab98
+  r: The required artifact `config.yaml` does not exist on disk, so the documentation
+    cannot be verified and reproducibility of random seeds cannot be assessed. The
+    missing file must be added and populated appropriately.

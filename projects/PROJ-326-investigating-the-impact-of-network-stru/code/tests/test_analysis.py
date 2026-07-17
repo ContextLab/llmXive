@@ -1,222 +1,247 @@
-import pytest
+"""
+Unit tests for the sensitivity analysis module.
+"""
+
+import json
+import tempfile
+from pathlib import Path
+
 import numpy as np
-from typing import Dict, Any, List, Tuple
-import networkx as nx
-from scipy import stats
-from statsmodels.stats.multitest import multipletests
-from code.src.analysis.sensitivity import run_sensitivity_sweep, validate_sweep_results
+import pytest
 
-class TestLinearRegression:
-    def test_simple_linear_regression(self):
-        x = np.array([1, 2, 3, 4, 5])
-        y = np.array([2, 4, 6, 8, 10])
-        
-        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-        
-        assert np.isclose(slope, 2.0)
-        assert np.isclose(intercept, 0.0)
-        assert np.isclose(r_value, 1.0)
-        assert p_value < 0.05
+from code.src.analysis.sensitivity import (
+    load_simulation_data,
+    filter_by_clustering_threshold,
+    compute_sensitivity_metrics,
+    run_sensitivity_sweep,
+    save_sensitivity_results
+)
 
-    def test_no_correlation(self):
-        np.random.seed(42)
-        x = np.random.rand(100)
-        y = np.random.rand(100)
-        
-        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-        
-        assert p_value > 0.05
 
-class TestNonlinearRegression:
-    def test_polynomial_fit(self):
-        x = np.array([1, 2, 3, 4, 5])
-        y = np.array([1, 4, 9, 16, 25])
-        
-        coeffs = np.polyfit(x, y, 2)
-        p = np.poly1d(coeffs)
-        
-        assert np.allclose(p(x), y, atol=0.1)
-        assert np.isclose(coeffs[0], 1.0, atol=0.1)
+@pytest.fixture
+def sample_simulation_data():
+    """Create sample simulation data for testing."""
+    return [
+        {
+            "network_id": "net_001",
+            "clustering_coefficient": 0.15,
+            "diffusion_rate": 0.45,
+            "topology_class": "erdos_renyi"
+        },
+        {
+            "network_id": "net_002",
+            "clustering_coefficient": 0.25,
+            "diffusion_rate": 0.52,
+            "topology_class": "watts_strogatz"
+        },
+        {
+            "network_id": "net_003",
+            "clustering_coefficient": 0.35,
+            "diffusion_rate": 0.48,
+            "topology_class": "erdos_renyi"
+        },
+        {
+            "network_id": "net_004",
+            "clustering_coefficient": 0.45,
+            "diffusion_rate": 0.61,
+            "topology_class": "barabasi_albert"
+        },
+        {
+            "network_id": "net_005",
+            "clustering_coefficient": 0.55,
+            "diffusion_rate": 0.58,
+            "topology_class": "watts_strogatz"
+        },
+        {
+            "network_id": "net_006",
+            "clustering_coefficient": 0.65,
+            "diffusion_rate": 0.72,
+            "topology_class": "barabasi_albert"
+        },
+        {
+            "network_id": "net_007",
+            "clustering_coefficient": 0.75,
+            "diffusion_rate": 0.68,
+            "topology_class": "erdos_renyi"
+        },
+        {
+            "network_id": "net_008",
+            "clustering_coefficient": 0.85,
+            "diffusion_rate": 0.81,
+            "topology_class": "watts_strogatz"
+        }
+    ]
 
-class TestEffectSizeCalculation:
-    def test_cohen_d(self):
-        group1 = np.array([1, 2, 3, 4, 5])
-        group2 = np.array([2, 3, 4, 5, 6])
-        
-        mean1, mean2 = np.mean(group1), np.mean(group2)
-        std1, std2 = np.std(group1, ddof=1), np.std(group2, ddof=1)
-        n1, n2 = len(group1), len(group2)
-        
-        pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
-        cohen_d = (mean2 - mean1) / pooled_std
-        
-        assert cohen_d < 0
 
-class TestRegressionWithNetworkMetrics:
-    def test_clustering_vs_diffusion(self):
-        np.random.seed(42)
-        clustering_coeffs = np.random.uniform(0.1, 0.9, 50)
-        diffusion_rates = 0.5 - 0.3 * clustering_coeffs + np.random.normal(0, 0.05, 50)
-        
-        slope, intercept, r_value, p_value, std_err = stats.linregress(clustering_coeffs, diffusion_rates)
-        
-        assert r_value < 0
-        assert p_value < 0.05
+@pytest.fixture
+def temp_results_file(sample_simulation_data):
+    """Create a temporary file with sample simulation data."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump(sample_simulation_data, f)
+        return Path(f.name)
 
-class TestANOVATest:
-    def test_anova_significant_difference(self):
-        group1 = np.random.normal(0, 1, 30)
-        group2 = np.random.normal(2, 1, 30)
-        group3 = np.random.normal(4, 1, 30)
-        
-        f_stat, p_value = stats.f_oneway(group1, group2, group3)
-        
-        assert p_value < 0.05
-        assert f_stat > 10
-
-    def test_anova_no_difference(self):
-        group1 = np.random.normal(0, 1, 30)
-        group2 = np.random.normal(0, 1, 30)
-        group3 = np.random.normal(0, 1, 30)
-        
-        f_stat, p_value = stats.f_oneway(group1, group2, group3)
-        
-        assert p_value > 0.05
-
-class TestMultipleComparisonCorrection:
-    def test_bonferroni_correction(self):
-        p_values = np.array([0.01, 0.03, 0.04, 0.06, 0.08])
-        
-        reject, corrected_p_values, _, _ = multipletests(p_values, alpha=0.05, method='bonferroni')
-        
-        assert len(reject) == len(p_values)
-        assert all(corrected_p_values >= p_values)
-
-    def test_bh_correction(self):
-        p_values = np.array([0.01, 0.03, 0.04, 0.06, 0.08])
-        
-        reject, corrected_p_values, _, _ = multipletests(p_values, alpha=0.05, method='fdr_bh')
-        
-        assert len(reject) == len(p_values)
-        assert all(corrected_p_values >= p_values)
-
-class TestAnalysisIntegration:
-    def test_full_analysis_pipeline(self):
-        np.random.seed(42)
-        n_samples = 100
-        
-        clustering_coeffs = np.random.uniform(0.1, 0.9, n_samples)
-        diffusion_rates = 0.5 - 0.3 * clustering_coeffs + np.random.normal(0, 0.05, n_samples)
-        
-        slope, intercept, r_value, p_value, std_err = stats.linregress(clustering_coeffs, diffusion_rates)
-        
-        assert r_value < 0
-        assert p_value < 0.05
 
 class TestSensitivitySweepLogic:
-    def test_sweep_generates_required_cutoffs(self):
-        np.random.seed(42)
-        n_graphs = 100
-        clustering_coeffs = np.random.uniform(0.0, 1.0, n_graphs)
-        diffusion_rates = 0.5 - 0.3 * clustering_coeffs + np.random.normal(0, 0.05, n_graphs)
-        
-        cutoffs = [0.1, 0.3, 0.5, 0.7, 0.9]
-        
-        results = run_sensitivity_sweep(clustering_coeffs, diffusion_rates, cutoffs)
-        
-        assert len(results) == len(cutoffs)
-        for result in results:
-            assert 'cutoff' in result
-            assert 'n_samples' in result
-            assert 'r_value' in result
-            assert 'p_value' in result
+    """Tests for the sensitivity sweep logic."""
 
-    def test_sweep_results_match_expectations(self):
-        np.random.seed(42)
-        n_graphs = 100
-        clustering_coeffs = np.random.uniform(0.0, 1.0, n_graphs)
-        diffusion_rates = 0.5 - 0.3 * clustering_coeffs + np.random.normal(0, 0.05, n_graphs)
-        
-        cutoffs = [0.1, 0.3, 0.5, 0.7, 0.9]
-        
-        results = run_sensitivity_sweep(clustering_coeffs, diffusion_rates, cutoffs)
-        
-        for result in results:
-            assert result['n_samples'] <= n_graphs
-            assert -1 <= result['r_value'] <= 1
-            assert 0 <= result['p_value'] <= 1
+    def test_load_simulation_data_success(self, temp_results_file):
+        """Test successful loading of simulation data."""
+        df = load_simulation_data(temp_results_file)
+        assert len(df) == 8
+        assert "clustering_coefficient" in df.columns
+        assert "diffusion_rate" in df.columns
+        assert "topology_class" in df.columns
 
-    def test_sweep_with_fewer_cutoffs(self):
-        np.random.seed(42)
-        n_graphs = 50
-        clustering_coeffs = np.random.uniform(0.0, 1.0, n_graphs)
-        diffusion_rates = 0.5 - 0.3 * clustering_coeffs + np.random.normal(0, 0.05, n_graphs)
-        
-        cutoffs = [0.2, 0.6]
-        
-        results = run_sensitivity_sweep(clustering_coeffs, diffusion_rates, cutoffs)
-        
-        assert len(results) == len(cutoffs)
-        for result in results:
-            assert result['n_samples'] <= n_graphs
+    def test_load_simulation_data_missing_file(self):
+        """Test that loading missing file raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            load_simulation_data(Path("nonexistent_file.json"))
 
-    def test_sweep_validation_passes(self):
-        np.random.seed(42)
-        n_graphs = 100
-        clustering_coeffs = np.random.uniform(0.0, 1.0, n_graphs)
-        diffusion_rates = 0.5 - 0.3 * clustering_coeffs + np.random.normal(0, 0.05, n_graphs)
-        
-        cutoffs = [0.1, 0.3, 0.5, 0.7, 0.9]
-        
-        results = run_sensitivity_sweep(clustering_coeffs, diffusion_rates, cutoffs)
-        
-        is_valid = validate_sweep_results(results, min_cutoffs=5)
-        assert is_valid
+    def test_filter_by_clustering_threshold_ge(self, sample_simulation_data):
+        """Test filtering with >= operator."""
+        import pandas as pd
+        df = pd.DataFrame(sample_simulation_data)
+        filtered = filter_by_clustering_threshold(df, 0.4, operator="ge")
+        assert len(filtered) == 5
+        assert all(filtered["clustering_coefficient"] >= 0.4)
 
-    def test_sweep_validation_fails_insufficient_cutoffs(self):
-        np.random.seed(42)
-        n_graphs = 100
-        clustering_coeffs = np.random.uniform(0.0, 1.0, n_graphs)
-        diffusion_rates = 0.5 - 0.3 * clustering_coeffs + np.random.normal(0, 0.05, n_graphs)
-        
-        cutoffs = [0.1, 0.3]
-        
-        results = run_sensitivity_sweep(clustering_coeffs, diffusion_rates, cutoffs)
-        
-        is_valid = validate_sweep_results(results, min_cutoffs=5)
-        assert not is_valid
+    def test_filter_by_clustering_threshold_le(self, sample_simulation_data):
+        """Test filtering with <= operator."""
+        import pandas as pd
+        df = pd.DataFrame(sample_simulation_data)
+        filtered = filter_by_clustering_threshold(df, 0.4, operator="le")
+        assert len(filtered) == 4
+        assert all(filtered["clustering_coefficient"] <= 0.4)
 
-    def test_sweep_handles_edge_cases(self):
-        np.random.seed(42)
-        n_graphs = 100
-        clustering_coeffs = np.random.uniform(0.0, 1.0, n_graphs)
-        diffusion_rates = 0.5 - 0.3 * clustering_coeffs + np.random.normal(0, 0.05, n_graphs)
-        
-        cutoffs = [0.0, 1.0]
-        
-        results = run_sensitivity_sweep(clustering_coeffs, diffusion_rates, cutoffs)
-        
-        assert len(results) == 2
-        for result in results:
-            assert result['n_samples'] <= n_graphs
-            assert -1 <= result['r_value'] <= 1
-            assert 0 <= result['p_value'] <= 1
-
-    def test_sweep_robustness_to_empty_data(self):
-        clustering_coeffs = np.array([])
-        diffusion_rates = np.array([])
-        
-        cutoffs = [0.1, 0.3, 0.5, 0.7, 0.9]
-        
+    def test_filter_by_clustering_threshold_invalid_operator(self, sample_simulation_data):
+        """Test that invalid operator raises ValueError."""
+        import pandas as pd
+        df = pd.DataFrame(sample_simulation_data)
         with pytest.raises(ValueError):
-            run_sensitivity_sweep(clustering_coeffs, diffusion_rates, cutoffs)
+            filter_by_clustering_threshold(df, 0.4, operator="invalid")
 
-    def test_sweep_robustness_to_mismatched_lengths(self):
-        np.random.seed(42)
-        clustering_coeffs = np.random.uniform(0.0, 1.0, 100)
-        diffusion_rates = np.random.uniform(0.0, 1.0, 50)
-        
-        cutoffs = [0.1, 0.3, 0.5, 0.7, 0.9]
-        
+    def test_compute_sensitivity_metrics(self, sample_simulation_data):
+        """Test computation of sensitivity metrics."""
+        import pandas as pd
+        df = pd.DataFrame(sample_simulation_data)
+        filtered_df = filter_by_clustering_threshold(df, 0.4, operator="ge")
+        metrics = compute_sensitivity_metrics(filtered_df, 0.4)
+
+        assert metrics["threshold"] == 0.4
+        assert metrics["sample_size"] == 5
+        assert "mean_diffusion_rate" in metrics
+        assert "std_diffusion_rate" in metrics
+        assert metrics["variance"] >= 0
+
+    def test_run_sensitivity_sweep_minimum_thresholds(self, sample_simulation_data):
+        """Test that run_sensitivity_sweep requires at least 5 thresholds."""
+        import pandas as pd
+        df = pd.DataFrame(sample_simulation_data)
+        with pytest.raises(ValueError) as exc_info:
+            run_sensitivity_sweep(df, thresholds=[0.1, 0.2, 0.3])
+        assert "at least 5 distinct cutoffs" in str(exc_info.value)
+
+    def test_run_sensitivity_sweep_valid_thresholds(self, sample_simulation_data):
+        """Test successful sensitivity sweep with valid thresholds."""
+        import pandas as pd
+        df = pd.DataFrame(sample_simulation_data)
+        thresholds = [0.0, 0.2, 0.4, 0.6, 0.8]
+
+        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as f:
+            output_path = Path(f.name)
+
+        try:
+            results = run_sensitivity_sweep(df, thresholds=thresholds, output_path=output_path)
+
+            assert len(results) == 5
+            assert all(r["sample_size"] >= 0 for r in results)
+            assert all(0.0 <= r["threshold"] <= 1.0 for r in results)
+
+            # Verify file was created
+            assert output_path.exists()
+
+            # Verify file content
+            with open(output_path, 'r') as f:
+                data = json.load(f)
+
+            assert "results" in data
+            assert len(data["results"]) == 5
+            assert data["verification"]["meets_sc005"] is True
+
+        finally:
+            output_path.unlink(missing_ok=True)
+
+    def test_run_sensitivity_sweep_invalid_threshold_range(self, sample_simulation_data):
+        """Test that invalid threshold range raises ValueError."""
+        import pandas as pd
+        df = pd.DataFrame(sample_simulation_data)
         with pytest.raises(ValueError):
-            run_sensitivity_sweep(clustering_coeffs, diffusion_rates, cutoffs)
+            run_sensitivity_sweep(df, thresholds=[0.0, 0.2, 0.4, 0.6, 1.5])
+
+    def test_save_sensitivity_results_validation(self, sample_simulation_data):
+        """Test that save_sensitivity_results validates minimum cutoffs."""
+        import pandas as pd
+        df = pd.DataFrame(sample_simulation_data)
+
+        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as f:
+            output_path = Path(f.name)
+
+        try:
+            # Create results with fewer than 5 cutoffs
+            results = [
+                {"threshold": 0.1, "sample_size": 5},
+                {"threshold": 0.2, "sample_size": 4}
+            ]
+
+            with pytest.raises(ValueError) as exc_info:
+                save_sensitivity_results(results, output_path)
+
+            assert "at least 5 cutoffs" in str(exc_info.value)
+
+        finally:
+            output_path.unlink(missing_ok=True)
+
+    def test_sensitivity_sweep_output_structure(self, sample_simulation_data):
+        """Test that sensitivity sweep output has correct structure."""
+        import pandas as pd
+        df = pd.DataFrame(sample_simulation_data)
+        thresholds = [0.0, 0.2, 0.4, 0.6, 0.8]
+
+        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as f:
+            output_path = Path(f.name)
+
+        try:
+            run_sensitivity_sweep(df, thresholds=thresholds, output_path=output_path)
+
+            with open(output_path, 'r') as f:
+                data = json.load(f)
+
+            # Verify structure
+            assert "sweep_parameters" in data
+            assert "results" in data
+            assert "verification" in data
+            assert "metadata" in data
+
+            # Verify sweep_parameters
+            assert data["sweep_parameters"]["num_thresholds"] == 5
+            assert data["sweep_parameters"]["operator"] == "ge"
+
+            # Verify verification
+            assert data["verification"]["meets_sc005"] is True
+            assert data["verification"]["all_thresholds_distinct"] is True
+
+        finally:
+            output_path.unlink(missing_ok=True)
+
+    def test_empty_filtered_data_handling(self, sample_simulation_data):
+        """Test that empty filtered data is handled gracefully."""
+        import pandas as pd
+        df = pd.DataFrame(sample_simulation_data)
+        # Filter with threshold that excludes all data
+        filtered_df = filter_by_clustering_threshold(df, 1.0, operator="ge")
+
+        metrics = compute_sensitivity_metrics(filtered_df, 1.0)
+
+        assert metrics["sample_size"] == 0
+        assert np.isnan(metrics["mean_diffusion_rate"])
+        assert np.isnan(metrics["std_diffusion_rate"])

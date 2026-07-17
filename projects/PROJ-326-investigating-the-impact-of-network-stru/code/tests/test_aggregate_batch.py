@@ -1,7 +1,3 @@
-"""
-Tests for batch aggregation functionality.
-"""
-
 import json
 import os
 import tempfile
@@ -9,142 +5,115 @@ from pathlib import Path
 import pytest
 import sys
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add code to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from code.src.generators.aggregate_batch import (
     load_batch_file,
     find_batch_files,
     aggregate_batches,
     generate_manifest,
+    save_manifest,
     verify_threshold,
-    main
+    main,
+    BATCH_THRESHOLD
 )
 
 @pytest.fixture
-def temp_batch_dir(tmp_path):
+def temp_batch_dir():
     """Create a temporary directory with mock batch files."""
-    # Create batch files
-    batch1_data = {
-        "graphs": [
-            {"id": "1", "topology_class": "erdos_renyi", "nodes": 10},
-            {"id": "2", "topology_class": "erdos_renyi", "nodes": 10}
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        
+        # Create mock batch files
+        batch1 = [
+            {"id": "g1", "topology_class": "er", "clustering": 0.1},
+            {"id": "g2", "topology_class": "er", "clustering": 0.15}
         ]
-    }
-    batch2_data = [
-        {"id": "3", "topology_class": "watts_strogatz", "nodes": 10},
-        {"id": "4", "topology_class": "watts_strogatz", "nodes": 10},
-        {"id": "5", "topology_class": "barabasi_albert", "nodes": 10}
-    ]
-    
-    batch1_path = tmp_path / "batch_erdos.json"
-    batch2_path = tmp_path / "batch_watts.json"
-    
-    with open(batch1_path, 'w') as f:
-        json.dump(batch1_data, f)
-    
-    with open(batch2_path, 'w') as f:
-        json.dump(batch2_data, f)
-    
-    return tmp_path
+        batch2 = [
+            {"id": "g3", "topology_class": "sw", "clustering": 0.4},
+            {"id": "g4", "topology_class": "sw", "clustering": 0.45},
+            {"id": "g5", "topology_class": "sf", "clustering": 0.2}
+        ]
+        
+        with open(tmp_path / "batch_er.json", "w") as f:
+            json.dump(batch1, f)
+        with open(tmp_path / "batch_sw.json", "w") as f:
+            json.dump(batch2, f)
+        
+        yield tmp_path
 
 def test_load_batch_file_valid(temp_batch_dir):
-    """Test loading a valid batch file."""
-    batch_path = temp_batch_dir / "batch_erdos.json"
-    graphs = load_batch_file(batch_path)
-    
-    assert len(graphs) == 2
-    assert graphs[0]["id"] == "1"
-    assert graphs[0]["topology_class"] == "erdos_renyi"
+    batch_path = temp_batch_dir / "batch_er.json"
+    data = load_batch_file(batch_path)
+    assert isinstance(data, list)
+    assert len(data) == 2
+    assert data[0]["id"] == "g1"
 
-def test_load_batch_file_missing(temp_batch_dir):
-    """Test loading a non-existent batch file."""
-    batch_path = temp_batch_dir / "nonexistent.json"
-    graphs = load_batch_file(batch_path)
-    
-    assert graphs == []
+def test_load_batch_file_missing():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with pytest.raises(FileNotFoundError):
+            load_batch_file(Path(tmpdir) / "nonexistent.json")
 
 def test_find_batch_files(temp_batch_dir):
-    """Test finding batch files in a directory."""
     files = find_batch_files(temp_batch_dir)
-    
     assert len(files) == 2
-    filenames = [f.name for f in files]
-    assert "batch_erdos.json" in filenames
-    assert "batch_watts.json" in filenames
+    names = [f.name for f in files]
+    assert "batch_er.json" in names
+    assert "batch_sw.json" in names
 
 def test_aggregate_batches(temp_batch_dir):
-    """Test aggregating multiple batch files."""
     files = find_batch_files(temp_batch_dir)
-    all_graphs = aggregate_batches(files)
-    
-    assert len(all_graphs) == 5
-    topology_classes = [g["topology_class"] for g in all_graphs]
-    assert topology_classes.count("erdos_renyi") == 2
-    assert topology_classes.count("watts_strogatz") == 2
-    assert topology_classes.count("barabasi_albert") == 1
+    combined = aggregate_batches(files)
+    assert len(combined) == 5
+    # Check topology distribution
+    classes = [g["topology_class"] for g in combined]
+    assert classes.count("er") == 2
+    assert classes.count("sw") == 2
+    assert classes.count("sf") == 1
 
 def test_generate_manifest(temp_batch_dir):
-    """Test manifest generation."""
     files = find_batch_files(temp_batch_dir)
-    all_graphs = aggregate_batches(files)
-    
-    output_path = temp_batch_dir / "manifest.json"
-    manifest = generate_manifest(all_graphs, files, output_path)
+    combined = aggregate_batches(files)
+    manifest = generate_manifest(combined, files)
     
     assert manifest["total_graphs"] == 5
-    assert manifest["threshold_met"] == False  # 5 < 100
-    assert manifest["threshold_required"] == 100
-    assert "erdos_renyi" in manifest["topology_distribution"]
-    assert manifest["validation_status"] == "failed"
+    assert "generated_at" in manifest
+    assert len(manifest["source_batches"]) == 2
+    assert manifest["topology_distribution"]["er"] == 2
+    assert manifest["threshold_required"] == BATCH_THRESHOLD
 
 def test_verify_threshold_pass():
-    """Test threshold verification when passed."""
     manifest = {"total_graphs": 150, "threshold_required": 100}
-    assert verify_threshold(manifest) == True
+    assert verify_threshold(manifest) is True
 
 def test_verify_threshold_fail():
-    """Test threshold verification when failed."""
     manifest = {"total_graphs": 50, "threshold_required": 100}
-    assert verify_threshold(manifest) == False
+    with pytest.raises(ValueError, match="Threshold verification FAILED"):
+        verify_threshold(manifest)
 
-def test_main_with_valid_batches(temp_batch_dir, capsys):
-    """Test main function with valid batches."""
-    # Create a manifest output path
-    output_path = temp_batch_dir / "global_batch_manifest.json"
-    
-    # Mock arguments
-    sys.argv = [
-        "test_aggregate_batch.py",
+def test_main_with_valid_batches(temp_batch_dir):
+    output_file = temp_batch_dir / "manifest.json"
+    args = [
         "--data-dir", str(temp_batch_dir),
-        "--output", str(output_path)
+        "--output", str(output_file)
     ]
-    
-    result = main()
-    
+    result = main(args)
     assert result == 0
-    assert output_path.exists()
+    assert output_file.exists()
     
-    with open(output_path, 'r') as f:
+    with open(output_file) as f:
         manifest = json.load(f)
-    
     assert manifest["total_graphs"] == 5
-    assert manifest["validation_status"] == "failed"
+    assert manifest["threshold_met"] is False  # 5 < 100
 
 def test_main_strict_mode_fail(temp_batch_dir):
-    """Test main function in strict mode when threshold not met."""
-    output_path = temp_batch_dir / "global_batch_manifest_strict.json"
-    
-    sys.argv = [
-        "test_aggregate_batch.py",
+    output_file = temp_batch_dir / "manifest_strict.json"
+    args = [
         "--data-dir", str(temp_batch_dir),
-        "--output", str(output_path),
+        "--output", str(output_file),
         "--strict"
     ]
-    
-    with pytest.raises(SystemExit) as exc_info:
-        main()
-    
-    assert exc_info.value.code == 1
+    # Should fail because 5 < 100
+    with pytest.raises(ValueError):
+        main(args)
