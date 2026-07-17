@@ -1,3 +1,3 @@
 """
-Test package for llmXive Adsorption Isotherm Pipeline
+Test suite for the Adsorption Isotherm Parameter Prediction project.
 """

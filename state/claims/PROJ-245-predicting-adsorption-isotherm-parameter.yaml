@@ -14,3 +14,92 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T15:24:41Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/tasks.md
+  attempts: 1
+  canonical: Generate raw synthetic data with N=5000 samples
+  claim_id: c_502f3855
+  context: T005 [P] [US1] Create code/data/synthetic_gen.py to generate raw synthetic
+    data (N=5000) with noise and random correlations
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate raw synthetic data (N=5000) with noise and random correlations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:47:51Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/tasks.md
+  attempts: 1
+  canonical: Verify RMSE improvement of greater than 20% reduction against null model
+  claim_id: c_61385278
+  context: T024 [US2] Implement null model comparison (predicting mean) and verify
+    a significant RMSE improvement (>20% reduction); output data/validation/null_model_comparison.json
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_RMSE_improvement_of_greater_than_20%25_reduction_agains
+  kind: magnitude
+  raw_text: Verify a significant RMSE improvement (>20% reduction)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:48:55Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/tasks.md
+  attempts: 1
+  canonical: Verify R squared score greater than or equal to 0.60
+  claim_id: c_50e69547
+  context: "T033 [US3] Implement re-training logic in code/interpret/shap_analysis.py\
+    \ on the top 3 descriptors only and verify R\xB2 >= 0.60."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_R_squared_score_greater_than_or_equal_to_0.60
+  kind: magnitude
+  raw_text: "Verify R\xB2 >= 0.60"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:49:44Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/tasks.md
+  attempts: 1
+  canonical: Ensure pipeline runtime is less than 6 hours
+  claim_id: c_99660196
+  context: 'T039b [US2] [P] Performance optimization: Optimize code to ensure pipeline
+    runtime < 6h based on T039a results'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_pipeline_runtime_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Optimize code to ensure pipeline runtime < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:50:17Z'
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/tasks.md
+  attempts: 1
+  canonical: Generate external validation dataset for Krypton adsorption on carbon
+    nanotubes
+  claim_id: c_545f0059
+  context: T035a [P] [US3] Create code/data/generate_external_kr_cnt.py... embed the
+    specific literature data points for 'Krypton adsorption on carbon nanotubes'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_external_validation_dataset_for_Krypton_adsorption
+  kind: entity_fact
+  raw_text: Krypton adsorption on carbon nanotubes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T23:51:03Z'

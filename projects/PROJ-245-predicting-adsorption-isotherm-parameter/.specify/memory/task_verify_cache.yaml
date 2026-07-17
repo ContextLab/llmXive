@@ -1,26 +1,10 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files, class definitions, or any other artifacts for the required base\
-    \ data classes/entities (Adsorbate, Adsorbent, IsothermParameter) are present\
-    \ in the provided evidence; the implementer\u2019s claim cannot be verified because\
-    \ the expected Python (or other language) files are missing. The task remains\
-    \ undone until concrete class implementations are added to the repository."
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration file (e.g.,\u202F`pytest.ini`, `pyproject.toml` with\
-    \ `[tool.pytest]`) or any `tests/` directory hierarchy (`tests/unit`, `tests/integration`,\
-    \ `tests/contract`) is present in the provided artifacts. The implementer did\
-    \ not supply the required test setup files or folder structure."
 T016:
   c: false
-  h: c568d5cf67a0b7f6d08d4803e8f76c7448b755c0abda1ea13f38af63a02faf0c
-  r: "The `code/data/preprocess.py` file does not contain any logic for detecting\
-    \ adsorbates with identical descriptor hashes but differing target values, nor\
-    \ does it write an `outliers.csv` file. Moreover, the required `data/processed/outliers.csv`\
-    \ file is absent from the repository. The task\u2019s core output is therefore\
-    \ missing."
+  h: 06faa10aa39d029274225053645ab776c31c769948c287003b4721bb798c78f0
+  r: "The provided `code/data/preprocess.py` contains data loading and cleaning utilities\
+    \ but no implementation that hashes descriptors, compares target variance, flags\
+    \ outliers, or writes `data/processed/outliers.csv`. Moreover, the required `outliers.csv`\
+    \ file does not exist. The task\u2019s core requirement is therefore unmet."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,3 +27,41 @@ T029:
   r: "The required integration test file `tests/integration/test_feature_ranking.py`\
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ No further content can be evaluated."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or generated report was provided that creates a diagnostic\
+    \ report when model R\xB2 falls below 0.5. The evidence lacks any artifact (e.g.,\
+    \ a function, CLI tool, or sample PDF/HTML) demonstrating the required behavior,\
+    \ so the task is not satisfied."
+T035:
+  c: false
+  h: d467b1cb253f2781012f32add97f35454f6e6a6658ef15adeb0e2d7f70d5694a
+  r: The `load_external.py` file exists but its `validate_external_data` function
+    is truncated and never completes the validation logic. Moreover, the required
+    schema file `contracts/dataset.schema.yaml` is missing, so the script cannot actually
+    validate the CSV against the project schema. Both issues must be fixed for the
+    task to be considered complete.
+T035a:
+  c: false
+  h: 632d27deaeee902dd0ab015067c0ee501a76bffe1d0d0cec0a52006984bd31b8
+  r: "The CSV `data/external/kr_cnt.csv` is present and non\u2011empty, but the required\
+    \ schema file `contracts/dataset.schema.yaml` is missing, so we cannot confirm\
+    \ that the CSV conforms to the specified schema. The task is therefore not fully\
+    \ satisfied."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or docs/ files were presented, nor any excerpts showing that documentation
+    was actually updated. Without concrete evidence of the required files and their
+    content, we cannot confirm the documentation updates were performed. The implementer
+    must provide the updated README.md and the relevant files in the docs/ directory.
+T045:
+  c: false
+  h: bd02ab47037b53553133fdc1a3af351e0a99eb006646ec55d485a0361d7dac38
+  r: The `code/models/audit.py` file is present but the shown source is truncated
+    (the `write_leakage_report` function is incomplete and there is no visible main
+    routine that aborts training on leakage). Moreover, the required output file `data/audit/leakage_report.json`
+    does not exist, indicating the script has not been executed or does not generate
+    the report as specified. The implementation therefore does not fully satisfy the
+    task requirements.

@@ -2,147 +2,224 @@ import argparse
 import logging
 import sys
 import json
+import time
 from pathlib import Path
-from datetime import datetime
+from typing import Dict, Any, Optional
 
-# Importing from project modules
-from data.synthetic_gen import generate_synthetic_data, main as gen_main
-from data.validate_schema import validate_dataframe, main as validate_main
-from data.preprocess import preprocess_pipeline, main as preprocess_main
-from data.download import attempt_nist_fetch, write_verification_log, main as download_main
-from data.load_external import load_external_data, validate_external_data, run_load_external_pipeline, main as external_main
-from models.train import run_training_pipeline, main as train_main
-from models.evaluate import run_evaluation_pipeline, main as eval_main
-from interpret.shap_analysis import run_shap_analysis_pipeline, main as shap_main, validate_consensus, retrain_top_features
-from interpret.diagnostics import run_diagnostic_pipeline
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
+# Import pipeline phases
+from data.download import main as download_main
+from data.synthetic_gen import main as synthetic_gen_main
+from data.preprocess import main as preprocess_main
+from models.train import main as train_main
+from models.evaluate import main as evaluate_main
+from interpret.shap_analysis import main as shap_main
+from interpret.diagnostics import main as diagnostics_main
+from data.verified_source_enforcer import main as enforce_main
+from models.audit import main as audit_main
+
 def ensure_dirs():
-    """Create necessary directories for the project."""
+    """Ensure all required directories exist."""
     dirs = [
-        "data/raw", "data/processed", "data/external", "data/validation",
-        "data/models", "figures", "logs"
+        "data/raw",
+        "data/processed",
+        "data/external",
+        "data/audit",
+        "data/benchmarks",
+        "data/validation",
+        "models",
+        "figures",
+        "state"
     ]
     for d in dirs:
         Path(d).mkdir(parents=True, exist_ok=True)
+    logger.info("Directory structure ensured.")
 
 def run_download_phase():
-    logger.info("Running download phase...")
-    # Attempt to fetch real data, log failure if it happens
-    success = attempt_nist_fetch()
-    if not success:
-        write_verification_log(status="failed", reason="NIST fetch failed")
-    else:
-        write_verification_log(status="success", reason="NIST fetch succeeded")
+    """Run the data download phase."""
+    logger.info("Starting download phase...")
+    start = time.time()
+    try:
+        download_main()
+    except Exception as e:
+        logger.warning(f"Download phase failed or skipped: {e}")
+    return time.time() - start
 
 def run_synthetic_gen_phase():
-    logger.info("Running synthetic data generation...")
-    generate_synthetic_data(n_samples=5000)
+    """Run the synthetic data generation phase."""
+    logger.info("Starting synthetic data generation phase...")
+    start = time.time()
+    try:
+        synthetic_gen_main()
+    except Exception as e:
+        logger.error(f"Synthetic generation failed: {e}")
+        raise
+    return time.time() - start
 
 def run_preprocess_phase():
-    logger.info("Running preprocessing...")
-    preprocess_pipeline()
+    """Run the data preprocessing phase."""
+    logger.info("Starting preprocessing phase...")
+    start = time.time()
+    try:
+        preprocess_main()
+    except Exception as e:
+        logger.error(f"Preprocessing failed: {e}")
+        raise
+    return time.time() - start
+
+def run_audit_phase():
+    """Run the data leakage audit phase."""
+    logger.info("Starting audit phase...")
+    start = time.time()
+    try:
+        audit_main()
+    except Exception as e:
+        logger.error(f"Audit failed: {e}")
+        raise
+    return time.time() - start
 
 def run_train_phase():
-    logger.info("Running model training...")
-    run_training_pipeline()
+    """Run the model training phase."""
+    logger.info("Starting training phase...")
+    start = time.time()
+    try:
+        train_main()
+    except Exception as e:
+        logger.error(f"Training failed: {e}")
+        raise
+    return time.time() - start
 
 def run_evaluation_phase():
-    logger.info("Running model evaluation...")
-    eval_results = run_evaluation_pipeline()
-    return eval_results
+    """Run the model evaluation phase."""
+    logger.info("Starting evaluation phase...")
+    start = time.time()
+    try:
+        evaluate_main()
+    except Exception as e:
+        logger.error(f"Evaluation failed: {e}")
+        raise
+    return time.time() - start
 
 def run_shap_phase():
-    logger.info("Running SHAP analysis...")
-    run_shap_analysis_pipeline()
+    """Run the SHAP analysis phase."""
+    logger.info("Starting SHAP analysis phase...")
+    start = time.time()
+    try:
+        shap_main()
+    except Exception as e:
+        logger.error(f"SHAP analysis failed: {e}")
+        raise
+    return time.time() - start
 
 def run_diagnostic_phase():
-    logger.info("Running diagnostic analysis for low R2...")
-    # Check if evaluation results indicate low R2 before running
-    eval_file = Path("data/models/evaluation_results.json")
-    if eval_file.exists():
-        with open(eval_file, 'r') as f:
-            data = json.load(f)
-            best_r2 = data.get('best_model', {}).get('r2', 1.0)
-            if best_r2 < 0.5:
-                logger.warning(f"R2 ({best_r2}) is below 0.5. Triggering diagnostic phase.")
-                run_diagnostic_pipeline()
-            else:
-                logger.info(f"R2 ({best_r2}) is acceptable. Skipping diagnostic phase.")
-    else:
-        logger.warning("Evaluation results not found. Skipping diagnostic phase.")
+    """Run the diagnostic phase."""
+    logger.info("Starting diagnostic phase...")
+    start = time.time()
+    try:
+        diagnostics_main()
+    except Exception as e:
+        logger.error(f"Diagnostic phase failed: {e}")
+        raise
+    return time.time() - start
 
-def run_full_pipeline(mode="synthetic"):
+def run_full_pipeline():
+    """Run the full pipeline sequentially."""
     ensure_dirs()
     
-    if mode == "synthetic":
-        logger.info("Starting full pipeline in SYNTHETIC mode.")
-        run_synthetic_gen_phase()
-        run_preprocess_phase()
-        run_train_phase()
-        run_evaluation_phase()
-        run_shap_phase()
-        # Only run diagnostics if R2 is low
-        run_diagnostic_phase()
-    elif mode == "external":
-        logger.info("Starting full pipeline in EXTERNAL mode.")
-        # Download/Load external data
-        run_load_external_pipeline()
-        
-        # CRITICAL: Trigger T032 and T033 logic ONLY when external data is present
-        # These tasks implement the validation logic in shap_analysis.py
-        # The orchestrator must call the specific functions to generate the reports
-        logger.info("External data detected. Triggering consensus validation (T032) and re-training (T033).")
-        
-        try:
-            # Call the specific validation logic implemented in T032
-            validate_consensus()
-            logger.info("Consensus validation (T032) completed successfully.")
-        except Exception as e:
-            logger.error(f"Consensus validation (T032) failed: {e}")
-            # Do not stop the pipeline, just log the error
-        
-        try:
-            # Call the specific re-training logic implemented in T033
-            retrain_top_features()
-            logger.info("Top-3 re-training (T033) completed successfully.")
-        except Exception as e:
-            logger.error(f"Top-3 re-training (T033) failed: {e}")
-            # Do not stop the pipeline, just log the error
-
-        run_preprocess_phase()
-        run_train_phase()
-        run_evaluation_phase()
-        run_shap_phase()
-        run_diagnostic_phase()
-    else:
-        logger.error(f"Unknown mode: {mode}")
-        sys.exit(1)
+    phases = [
+        ("data_curation", [run_download_phase, run_synthetic_gen_phase, run_preprocess_phase]),
+        ("model_training", [run_audit_phase, run_train_phase, run_evaluation_phase]),
+        ("interpretation", [run_shap_phase, run_diagnostic_phase])
+    ]
+    
+    total_start = time.time()
+    phase_breakdown = {}
+    
+    for phase_name, phase_funcs in phases:
+        phase_start = time.time()
+        for func in phase_funcs:
+            try:
+                func()
+            except Exception as e:
+                logger.error(f"Phase {phase_name} failed at {func.__name__}: {e}")
+                raise
+        phase_breakdown[phase_name] = time.time() - phase_start
+    
+    total_runtime = time.time() - total_start
+    
+    return {
+        "total_runtime_seconds": total_runtime,
+        "phase_breakdown": phase_breakdown
+    }
 
 def run_synthetic_flow():
-    run_full_pipeline(mode="synthetic")
+    """Run the pipeline with synthetic data."""
+    logger.info("Running synthetic data flow...")
+    # Ensure download fails gracefully or skips, forcing synthetic
+    # The loader handles this logic internally
+    return run_full_pipeline()
 
 def run_external_flow():
-    run_full_pipeline(mode="external")
+    """Run the pipeline with external data."""
+    logger.info("Running external data flow...")
+    # Enforce verified source check
+    enforce_main()
+    return run_full_pipeline()
+
+def run_benchmark_mode(output_path: str):
+    """
+    Execute the pipeline in benchmark mode and write timing results to output_path.
+    This verifies SC-004.
+    """
+    logger.info(f"Starting benchmark mode. Output: {output_path}")
+    ensure_dirs()
+    
+    try:
+        results = run_full_pipeline()
+        
+        # Write results to the specified output path
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_file, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        logger.info(f"Benchmark results written to {output_path}")
+        logger.info(f"Total runtime: {results['total_runtime_seconds']:.2f} seconds")
+        
+        return results
+        
+    except Exception as e:
+        logger.error(f"Benchmark mode failed: {e}")
+        raise
 
 def main():
-    parser = argparse.ArgumentParser(description="llmXive Adsorption Isotherm Pipeline")
-    parser.add_argument("--mode", type=str, choices=["synthetic", "external"], default="synthetic",
-                        help="Data source mode: synthetic or external")
-    parser.add_argument("--full", action="store_true", help="Run the full pipeline")
+    parser = argparse.ArgumentParser(description="Adsorption Isotherm Parameter Prediction Pipeline")
+    parser.add_argument("--mode", type=str, default="synthetic", 
+                      choices=["synthetic", "external", "benchmark"],
+                      help="Pipeline mode: synthetic, external, or benchmark")
+    parser.add_argument("--output", type=str, default="data/benchmarks/runtime_log.json",
+                      help="Output path for benchmark results (only used in benchmark mode)")
     
     args = parser.parse_args()
     
-    if args.full:
-        run_full_pipeline(mode=args.mode)
-    else:
-        # Default to just synthetic gen for quick testing if no flag
-        run_synthetic_gen_phase()
+    try:
+        if args.mode == "benchmark":
+            run_benchmark_mode(args.output)
+        elif args.mode == "synthetic":
+            run_synthetic_flow()
+        elif args.mode == "external":
+            run_external_flow()
+    except Exception as e:
+        logger.error(f"Pipeline execution failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,35 +1,58 @@
-# Dataset Schema Definition for Adsorption Isotherm Parameters
-version: "1.0"
-description: Schema for raw and processed adsorption dataset
-required_columns:
+# Dataset Schema Definition
+# Used for validating raw, processed, and external datasets.
+# Matches the columns required by the pipeline and T035a/T035.
+
+type: object
+properties:
+  material_id:
+    type: string
+    description: Unique identifier for the adsorbent material
+  adsorbate:
+    type: string
+    description: Name of the adsorbate gas (e.g., Kr, Xe, N2)
+  isotherm_type:
+    type: string
+    description: IUPAC isotherm type (e.g., Type I, Type IV)
+  surface_area:
+    type: number
+    description: BET surface area in m2/g
+  pore_volume:
+    type: number
+    description: Total pore volume in cm3/g
+  polarizability:
+    type: number
+    description: Molecular polarizability in Angstrom^3
+  kinetic_diameter:
+    type: number
+    description: Kinetic diameter in Angstrom
+  lj_energy_param:
+    type: number
+    description: Lennard-Jones energy parameter (epsilon/kB) in Kelvin
+  quadrupole_moment:
+    type: number
+    description: Quadrupole moment in Debye/Angstrom^2
+  langmuir_capacity:
+    type: number
+    description: Langmuir capacity (saturation uptake) in mmol/g
+  henry_constant:
+    type: number
+    description: Henry's law constant in mmol/g/bar
+  temperature:
+    type: number
+    description: Temperature in Kelvin
+  pressure:
+    type: number
+    description: Pressure in bar
+required:
   - material_id
-  - molecular_weight
-  - polar_surface_area
-  - polarizability
-  - h_bond_donors
-  - h_bond_acceptors
-  - van_der_waals_volume
-  - kinetic_diameter
+  - adsorbate
+  - isotherm_type
   - surface_area
   - pore_volume
+  - polarizability
+  - kinetic_diameter
+  - lj_energy_param
   - langmuir_capacity
   - henry_constant
-column_types:
-  material_id: string
-  molecular_weight: float
-  polar_surface_area: float
-  polarizability: float
-  h_bond_donors: integer
-  h_bond_acceptors: integer
-  van_der_waals_volume: float
-  kinetic_diameter: float
-  surface_area: float
-  pore_volume: float
-  langmuir_capacity: float
-  henry_constant: float
-constraints:
-  molecular_weight: {min: 0}
-  polarizability: {min: 0}
-  surface_area: {min: 0}
-  langmuir_capacity: {min: 0}
-  henry_constant: {min: 0}
+  - temperature
+  - pressure
