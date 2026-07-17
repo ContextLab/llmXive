@@ -1,5 +1,6 @@
 import os
 import random
+import numpy as np
 from pathlib import Path
 from typing import Any, Dict, Optional
 import yaml

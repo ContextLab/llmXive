@@ -61,9 +61,9 @@
 - [X] T004 Setup directory structure: `data/raw`, `data/interim`, `data/processed`, `code`, `tests`
 - [X] T005 Create `code/__init__.py` and configure module imports
 - [X] T006 Setup logging infrastructure in `code/utils/logging.py`
-- [ ] T007 Implement configuration management for data paths, random seeds, and window parameters in `code/config.py`
+- [X] T007 Implement configuration management for data paths, random seeds, and window parameters in `code/config.py`
 - [ ] T008 Create base data validation schemas in `contracts/` (earthquake.schema.yaml, pressure-anomaly.schema.yaml) with required fields: magnitude, depth, lat, lon, timestamp
-- [ ] T011b [P] Create a formal deviation record in `docs/deviations.md` for FR-001 (Global Data Download Blocked), explicitly stating the absence of verified global NOAA NCEP/NCAR sources, the fallback to verified test data only, and the verification logic required to confirm this state.
+- [X] T011b [P] Create a formal deviation record in `docs/deviations.md` for FR-001 (Global Data Download Blocked), explicitly stating the absence of verified global NOAA NCEP/NCAR sources, the fallback to verified test data only, and the verification logic required to confirm this state.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,18 +73,18 @@
 
 **Goal**: Download verified test pressure data and USGS earthquake catalog, align them spatially/temporally, and produce a clean analysis-ready dataset.
 
-**Independent Test**: The script MUST exit with code 0. The output CSV row count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12) within a 1% tolerance. The output MUST contain a validation report confirming all required fields are present.
+**Independent Test**: The script MUST exit with code 0. The output CSV row count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12) within a 1% tolerance. [UNRESOLVED-CLAIM: c_0056f07f — status=not_enough_info] The output MUST contain a validation report confirming all required fields are present.
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation. T009 depends on T008. T010 depends on T008 and T011 (structure).**
 
 - [ ] T009 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`: Validate `earthquake.schema.yaml` and `pressure-anomaly.schema.yaml` against sample data; assert failure if required fields (magnitude, depth, lat, lon, timestamp) are missing. (Dependency: T008)
-- [ ] T010 [P] [US1] Integration test for download pipeline in `tests/integration/test_download_pipeline.py`: Fetch USGS test data from ` (2018 Alaska subset); assert row count equals 12 (±1%). (Dependency: T008, T011 structure)
+- [X] T010 [P] [US1] Integration test for download pipeline in `tests/integration/test_download_pipeline.py`: Fetch USGS test data from ` (2018 Alaska subset); assert row count equals 12 (±1%). (Dependency: T008, T011 structure)
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement `code/download.py` to fetch verified test pressure data and USGS 2013-2023 catalog (M≥4.0, depth≤70km) from `https://earthquake.usgs.gov/fdsnws/event/1/query`; explicitly check for absence of global NOAA NCEP/NCAR source (FR-001), reference the deviation record in `docs/deviations.md` (T011b), and process only the 2018 Alaska subset (N=12) as test data.
+- [X] T011 [US1] Implement `code/download.py` to fetch verified test pressure data and USGS 2013-2023 catalog (M≥4.0, depth≤70km) from `https://earthquake.usgs.gov/fdsnws/event/1/query`; explicitly check for absence of global NOAA NCEP/NCAR source (FR-001), reference the deviation record in `docs/deviations.md` (T011b), and process only the 2018 Alaska subset (N=12) as test data [UNRESOLVED-CLAIM: c_36f0ce1d — status=not_enough_info].
 - [X] T012 [US1] Implement checksumming and raw data immutability checks in `code/download.py`
 - [X] T013 [US1] Implement `code/preprocess.py` to interpolate a coarse pressure grid to a finer resolution and extract nearest grid points for earthquake epicenters.
 - [X] T014 [US1] Implement logic in `code/preprocess.py` to calculate daily pressure anomalies using a left-censored -day moving average, explicitly EXCLUDING the period immediately preceding the event window (t-N to t-0) from the moving average calculation to prevent bias; verify the 30-day duration against `code/config.py` (T007) and ensure it matches the spec's 'sufficient duration' requirement.
@@ -113,7 +113,7 @@
 
 - [X] T021 [US2] Implement `code/analysis.py` to perform two-sample Kolmogorov–Smisnov test on event vs. control window anomalies
 - [X] T022 [US2] Implement permutation test in `code/analysis.py` with [deferred] iterations to generate null distribution of the test statistic
-- [~] T023 [US2] Implement p-value calculation logic comparing observed statistic to the 95th percentile of the permuted null array
+- [ ] T023 [US2] Implement p-value calculation logic comparing observed statistic to the 95th percentile of the permuted null array
 - [X] T024 [US2] Calculate effect size (Cohen's d) for significant results in `code/analysis.py`
 - [X] T025 [US2] Implement stratification of control windows by matching month/day across non-event years (basic date matching only); verify that the 'Verified Datasets' block is checked for missing ENSO/PDO sources and label the fallback as 'unverified' in output artifacts, as documented in `docs/deviations.md` (T025b).
 - [ ] T026 [US2] Generate `data/processed/statistical_results.json` containing p-values, effect sizes, and explicit "associational" framing (FR-005)
@@ -130,7 +130,7 @@
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [~] T027 [P] [US3] Unit test for sensitivity analysis sweep in `tests/unit/test_sensitivity.py`
+- [X] T027 [P] [US3] Unit test for sensitivity analysis sweep in `tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
@@ -138,7 +138,7 @@
 - [X] T029 [US3] Implement sensitivity analysis in `code/analysis.py` sweeping the anomaly cutoff over a range of multiples of σ, where σ is the background pressure standard deviation
 - [X] T030 [US3] Implement Benjamini-Hochberg False Discovery Rate (FDR) correction in `code/analysis.py` for the family-wise error rate across multiple tests (FR-006)
 - [ ] T031 [US3] Generate `data/processed/robustness_report.json` containing p-values, effect sizes, and significance rates for all subsets and sensitivity sweeps
-- [~] T032 [US3] Compile final report in `docs/pilot_report.md` explicitly labeling findings as "Pilot/Methodology Validation", documenting limitations (Global data blocked, no climate stratification), including full statistical power documentation (permutation p-values, effect sizes, robustness checks) for any result (positive or null) as required by Constitution Principle VII, and referencing `docs/deviations.md` (T025b).
+- [ ] T032 [US3] Compile final report in `docs/pilot_report.md` explicitly labeling findings as "Pilot/Methodology Validation", documenting limitations (Global data blocked, no climate stratification), including full statistical power documentation (permutation p-values, effect sizes, robustness checks) for any result (positive or null) as required by Constitution Principle VII, and referencing `docs/deviations.md` (T025b).
 
 ---
 

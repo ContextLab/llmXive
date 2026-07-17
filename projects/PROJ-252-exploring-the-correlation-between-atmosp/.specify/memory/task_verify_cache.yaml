@@ -1,0 +1,29 @@
+T009:
+  c: false
+  h: 642b718945cf87db8d3ea068862e70d708a939f7de6e3441f85d2b62435c08d7
+  r: The test file exists but is truncated and does not show the required assertions
+    for failing when required fields are missing. Moreover, the required schema files
+    (`earthquake.schema.yaml` and `pressure-anomaly.schema.yaml`) are absent from
+    the repository. Both the test logic and the dependent schema artifacts are missing,
+    so the task is not genuinely fulfilled.
+T027:
+  c: false
+  h: dc2f7f8d3d0d4a83e8e217169816c617b99c3ec570d5f4f20474ed1e20104bb4
+  r: The required artifact `tests/unit/test_sensitivity.py` does not exist on disk,
+    so no unit test for the sensitivity analysis sweep is provided. The task cannot
+    be considered completed until this file is created with appropriate test code.
+T032:
+  c: false
+  h: d679ab95b31d8efb50c1eda1f35d7c066cbe167bbdef5b28cfa984c1282eb7bb
+  r: The required `docs/pilot_report.md` file does not exist, so the final report
+    with the specified labeling, limitations, statistical power documentation, and
+    reference to `docs/deviations.md` is missing. The only present artifact is `docs/deviations.md`,
+    which does not satisfy the task.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation related to \u201Ccode cleanup and refactoring\
+    \ for memory efficiency on CPU\u2011only runners\u201D were provided; the only\
+    \ material shown concerns a data\u2011analysis feature spec, not the required\
+    \ refactoring work. The required artifact (refactored, memory\u2011efficient code)\
+    \ is missing."

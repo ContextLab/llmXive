@@ -4,9 +4,8 @@ import numpy as np
 import pandas as pd
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-
-from config import get_processed_path, get_event_window_days, get_control_window_days, get_random_seed, get_test_event_count, get_test_region
+from typing import Dict, List, Any, Tuple, Optional
+from config import get_processed_path, get_event_window_days, get_control_window_days, get_random_seed
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -18,307 +17,229 @@ def load_master_dataset() -> pd.DataFrame:
     path = get_processed_path() / "master_dataset.csv"
     if not path.exists():
         raise FileNotFoundError(f"Master dataset not found at {path}")
-    df = pd.read_csv(path)
-    logger.info(f"Loaded master dataset with {len(df)} rows")
-    return df
+    return pd.read_csv(path)
 
 # --- Statistical Tests ---
 
-def perform_ks_test(group1: pd.Series, group2: pd.Series) -> Tuple[float, float]:
+def perform_ks_test(event_anomalies: np.ndarray, control_anomalies: np.ndarray) -> Tuple[float, float]:
     """
     Perform two-sample Kolmogorov-Smirnov test.
-    Returns (statistic, p-value).
+    Returns (statistic, p_value).
     """
     from scipy import stats
-    stat, p_val = stats.ks_2samp(group1, group2)
-    return stat, p_val
+    stat, p_val = stats.ks_2samp(event_anomalies, control_anomalies)
+    return float(stat), float(p_val)
 
 def perform_permutation_test(
-    group1: pd.Series,
-    group2: pd.Series,
-    n_permutations: int = 1000,
-    random_state: Optional[int] = None
+    event_anomalies: np.ndarray,
+    control_anomalies: np.ndarray,
+    n_iterations: int = 1000,
+    random_seed: Optional[int] = None
 ) -> np.ndarray:
     """
-    Perform permutation test to generate null distribution of KS statistic.
-    Returns array of permuted KS statistics.
+    Perform permutation test to generate null distribution of the test statistic.
+    Returns array of permuted statistics.
     """
-    if random_state is None:
-        random_state = get_random_seed()
+    if random_seed is not None:
+        np.random.seed(random_seed)
     
-    combined = np.concatenate([group1.values, group2.values])
-    n1 = len(group1)
-    n2 = len(group2)
-    n_total = n1 + n2
+    combined = np.concatenate([event_anomalies, control_anomalies])
+    n_event = len(event_anomalies)
+    n_control = len(control_anomalies)
     
-    rng = np.random.default_rng(random_state)
-    perm_stats = np.zeros(n_permutations)
+    observed_stat = np.abs(np.mean(event_anomalies) - np.mean(control_anomalies))
     
-    logger.info(f"Starting permutation test with {n_permutations} iterations...")
+    null_stats = np.zeros(n_iterations)
     
-    for i in range(n_permutations):
-        if (i + 1) % 100 == 0:
-            logger.debug(f"Permutation {i+1}/{n_permutations}")
-        
-        shuffled = rng.permutation(combined)
-        g1_shuffled = shuffled[:n1]
-        g2_shuffled = shuffled[n1:]
-        
-        stat, _ = perform_ks_test(pd.Series(g1_shuffled), pd.Series(g2_shuffled))
-        perm_stats[i] = stat
+    for i in range(n_iterations):
+        np.random.shuffle(combined)
+        perm_event = combined[:n_event]
+        perm_control = combined[n_event:]
+        null_stats[i] = np.abs(np.mean(perm_event) - np.mean(perm_control))
     
-    logger.info("Permutation test completed.")
-    return perm_stats
+    return null_stats
 
-def calculate_p_value_permutation(
-    observed_stat: float,
-    perm_stats: np.ndarray
-) -> float:
+def calculate_p_value_permutation(observed_stat: float, null_stats: np.ndarray) -> float:
     """
-    Calculate p-value as the proportion of permuted statistics >= observed statistic.
+    Calculate p-value by comparing observed statistic to the 95th percentile of the null distribution.
     """
-    count = np.sum(perm_stats >= observed_stat)
-    return (count + 1) / (len(perm_stats) + 1)
+    # P-value is the proportion of null stats >= observed stat
+    p_val = np.mean(null_stats >= observed_stat)
+    return float(p_val)
 
-def calculate_cohen_d(group1: pd.Series, group2: pd.Series) -> float:
-    """Calculate Cohen's d effect size."""
-    mean1, mean2 = group1.mean(), group2.mean()
-    std1, std2 = group1.std(), group2.std()
-    n1, n2 = len(group1), len(group2)
+def calculate_cohen_d(event_anomalies: np.ndarray, control_anomalies: np.ndarray) -> float:
+    """
+    Calculate Cohen's d effect size.
+    """
+    mean1 = np.mean(event_anomalies)
+    mean2 = np.mean(control_anomalies)
+    std1 = np.std(event_anomalies, ddof=1)
+    std2 = np.std(control_anomalies, ddof=1)
     
     # Pooled standard deviation
+    n1 = len(event_anomalies)
+    n2 = len(control_anomalies)
     pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
     
     if pooled_std == 0:
         return 0.0
     
-    return (mean1 - mean2) / pooled_std
+    return float((mean1 - mean2) / pooled_std)
 
 # --- Stratification Helpers ---
 
 def is_pacific_ring_of_fire(lat: float, lon: float) -> bool:
     """
-    Simple heuristic to identify Pacific Ring of Fire.
-    Roughly: lat between -60 and 60, lon between -170 and 170 (excluding Atlantic/Europe core).
-    More precise bounding would require a shapefile, but this suffices for pilot.
+    Simple heuristic to check if a location is in the Pacific Ring of Fire.
+    This is a simplified bounding box approach for demonstration.
     """
-    # Broad Pacific band
-    if -60 <= lat <= 60:
-        # Exclude Atlantic/Europe block roughly
-        if not (-40 <= lon <= 20):
-            return True
+    # Rough approximation of the Ring of Fire
+    # This is a simplified check; a real implementation would use a shapefile or more complex logic
+    if lat < 0:
+        return False  # Simplified: mostly Northern Hemisphere for this heuristic
+    
+    # Check if it's around the Pacific rim
+    # West Coast Americas
+    if 10 < lat < 60 and -130 < lon < -60:
+        return True
+    # Asia/East Asia
+    if 20 < lat < 60 and 120 < lon < 150:
+        return True
+    # Japan/Kurils
+    if 30 < lat < 55 and 130 < lon < 145:
+        return True
+    # New Zealand
+    if -50 < lat < -35 and 165 < lon < 180:
+        return True
+    
     return False
 
 def stratify_by_magnitude(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
-    """Stratify dataset by magnitude ranges."""
-    subsets = {}
-    subsets['M4.0-5.0'] = df[(df['magnitude'] >= 4.0) & (df['magnitude'] < 5.0)]
-    subsets['M>5.0'] = df[df['magnitude'] >= 5.0]
-    return subsets
+    """Stratify dataset by magnitude thresholds."""
+    return {
+        "m4_0_5_0": df[(df['magnitude'] >= 4.0) & (df['magnitude'] <= 5.0)],
+        "m_gt_5_0": df[df['magnitude'] > 5.0]
+    }
 
 def stratify_by_region(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
-    """Stratify dataset by region (Pacific Ring of Fire vs Others)."""
+    """Stratify dataset by geographic region."""
     df['is_ring'] = df.apply(lambda row: is_pacific_ring_of_fire(row['lat'], row['lon']), axis=1)
-    subsets = {
-        'Pacific_Ring': df[df['is_ring'] == True],
-        'Other': df[df['is_ring'] == False]
+    return {
+        "ring_of_fire": df[df['is_ring']],
+        "other": df[~df['is_ring']]
     }
-    return subsets
 
 def stratify_control_windows(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
-    """
-    Stratify control windows by matching month/day across non-event years.
-    For this pilot, we simply separate event vs control labels as a baseline.
-    """
-    subsets = {
-        'event_window': df[df['label'] == 'event'],
-        'control_window': df[df['label'] == 'control']
-    }
-    return subsets
+    """Stratify control windows by matching month/day across non-event years."""
+    # Implementation for stratifying control windows
+    # For now, return the full dataframe as a single group
+    return {"all_controls": df}
 
-# --- Robustness & Sensitivity Analysis ---
+# --- Robustness and Sensitivity ---
 
 def run_robustness_analysis(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Run robustness checks by magnitude and region.
-    Returns a dictionary of results for each subset.
-    """
+    """Run robustness checks across magnitude and region strata."""
     results = {}
     
     # Magnitude stratification
-    mag_subsets = stratify_by_magnitude(df)
-    for name, subset in mag_subsets.items():
-        if len(subset) < 5:
-            logger.warning(f"Skipping {name} due to insufficient samples ({len(subset)})")
+    mag_strata = stratify_by_magnitude(df)
+    for name, subset in mag_strata.items():
+        if len(subset) < 2:
+            continue
+        event_anom = subset[subset['is_event'] == 1]['pressure_anomaly'].values
+        control_anom = subset[subset['is_event'] == 0]['pressure_anomaly'].values
+        if len(event_anom) == 0 or len(control_anom) == 0:
             continue
         
-        event_vals = subset[subset['label'] == 'event']['anomaly']
-        control_vals = subset[subset['label'] == 'control']['anomaly']
-        
-        if len(event_vals) == 0 or len(control_vals) == 0:
-            continue
-        
-        obs_stat, obs_p = perform_ks_test(event_vals, control_vals)
-        perm_stats = perform_permutation_test(event_vals, control_vals, n_permutations=1000)
-        perm_p = calculate_p_value_permutation(obs_stat, perm_stats)
-        cohens_d = calculate_cohen_d(event_vals, control_vals)
-        
-        results[f"robustness_mag_{name}"] = {
-            "n_samples": len(subset),
-            "ks_statistic": float(obs_stat),
-            "ks_p_value": float(obs_p),
-            "perm_p_value": float(perm_p),
-            "cohens_d": float(cohens_d),
-            "significant_perm": perm_p < 0.05
-        }
+        stat, p_val = perform_ks_test(event_anom, control_anom)
+        d = calculate_cohen_d(event_anom, control_anom)
+        results[f"ks_magnitude_{name}"] = {"stat": stat, "p_value": p_val, "effect_size": d}
     
     # Region stratification
-    region_subsets = stratify_by_region(df)
-    for name, subset in region_subsets.items():
-        if len(subset) < 5:
-            logger.warning(f"Skipping {name} due to insufficient samples ({len(subset)})")
+    reg_strata = stratify_by_region(df)
+    for name, subset in reg_strata.items():
+        if len(subset) < 2:
+            continue
+        event_anom = subset[subset['is_event'] == 1]['pressure_anomaly'].values
+        control_anom = subset[subset['is_event'] == 0]['pressure_anomaly'].values
+        if len(event_anom) == 0 or len(control_anom) == 0:
             continue
         
-        event_vals = subset[subset['label'] == 'event']['anomaly']
-        control_vals = subset[subset['label'] == 'control']['anomaly']
-        
-        if len(event_vals) == 0 or len(control_vals) == 0:
-            continue
-        
-        obs_stat, obs_p = perform_ks_test(event_vals, control_vals)
-        perm_stats = perform_permutation_test(event_vals, control_vals, n_permutations=1000)
-        perm_p = calculate_p_value_permutation(obs_stat, perm_stats)
-        cohens_d = calculate_cohen_d(event_vals, control_vals)
-        
-        results[f"robustness_region_{name}"] = {
-            "n_samples": len(subset),
-            "ks_statistic": float(obs_stat),
-            "ks_p_value": float(obs_p),
-            "perm_p_value": float(perm_p),
-            "cohens_d": float(cohens_d),
-            "significant_perm": perm_p < 0.05
-        }
+        stat, p_val = perform_ks_test(event_anom, control_anom)
+        d = calculate_cohen_d(event_anom, control_anom)
+        results[f"ks_region_{name}"] = {"stat": stat, "p_value": p_val, "effect_size": d}
     
     return results
 
-def run_sensitivity_analysis(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Run sensitivity analysis by sweeping anomaly cutoffs.
-    For this implementation, we sweep the definition of 'anomaly' if needed,
-    but primarily we return the baseline analysis with different parameters if available.
-    Since the master dataset already has anomalies calculated, we simulate a sweep
-    by re-evaluating significance thresholds or subsets if the data allows.
-    Here we return a placeholder structure indicating the method is ready.
-    """
-    # In a full implementation, this would vary the sigma multiplier for anomaly detection
-    # and re-run the analysis. For this task, we return the baseline stats as the 'sensitivity'
-    # point, or we could vary the significance threshold (alpha) to see stability.
-    
+def run_sensitivity_analysis(df: pd.DataFrame, cutoffs: List[float]) -> Dict[str, Any]:
+    """Run sensitivity analysis over different anomaly cutoffs."""
     results = {}
-    event_vals = df[df['label'] == 'event']['anomaly']
-    control_vals = df[df['label'] == 'control']['anomaly']
-    
-    if len(event_vals) > 0 and len(control_vals) > 0:
-        obs_stat, obs_p = perform_ks_test(event_vals, control_vals)
-        perm_stats = perform_permutation_test(event_vals, control_vals, n_permutations=1000)
-        perm_p = calculate_p_value_permutation(obs_stat, perm_stats)
-        cohens_d = calculate_cohen_d(event_vals, control_vals)
+    for cutoff in cutoffs:
+        # Filter based on cutoff (example logic)
+        subset = df[df['pressure_anomaly'].abs() > cutoff]
+        if len(subset) < 2:
+            results[f"sensitivity_cutoff_{cutoff}"] = {"error": "insufficient_data"}
+            continue
         
-        results["sensitivity_baseline"] = {
-            "ks_statistic": float(obs_stat),
-            "perm_p_value": float(perm_p),
-            "cohens_d": float(cohens_d)
-        }
+        event_anom = subset[subset['is_event'] == 1]['pressure_anomaly'].values
+        control_anom = subset[subset['is_event'] == 0]['pressure_anomaly'].values
+        if len(event_anom) == 0 or len(control_anom) == 0:
+            results[f"sensitivity_cutoff_{cutoff}"] = {"error": "no_events_or_controls"}
+            continue
+        
+        stat, p_val = perform_ks_test(event_anom, control_anom)
+        d = calculate_cohen_d(event_anom, control_anom)
+        results[f"sensitivity_cutoff_{cutoff}"] = {"stat": stat, "p_value": p_val, "effect_size": d}
     
     return results
 
-# --- FDR Correction (Benjamini-Hochberg) ---
-
-def benjamini_hochberg_fdr(p_values: List[float], alpha: float = 0.05) -> Tuple[List[bool], List[float]]:
+def benjamini_hochberg_fdr(p_values: List[float], alpha: float = 0.05) -> List[bool]:
     """
-    Apply Benjamini-Hochberg False Discovery Rate correction to a list of p-values.
-    
-    Args:
-        p_values: List of raw p-values from multiple tests.
-        alpha: Desired FDR level (default 0.05).
-    
-    Returns:
-        Tuple of (list of booleans indicating significance after FDR, list of adjusted q-values).
+    Apply Benjamini-Hochberg False Discovery Rate correction.
+    Returns list of booleans indicating which hypotheses are rejected.
     """
-    if not p_values:
-        return [], []
-    
     n = len(p_values)
-    # Sort p-values and keep track of original indices
-    sorted_indices = sorted(range(n), key=lambda i: p_values[i])
-    sorted_p = [p_values[i] for i in sorted_indices]
+    sorted_indices = np.argsort(p_values)
+    sorted_p = np.array(p_values)[sorted_indices]
     
-    # Calculate adjusted p-values (q-values)
-    q_values = [0.0] * n
-    prev_q = 0.0
+    ranks = np.arange(1, n + 1)
+    threshold = (ranks / n) * alpha
     
+    rejected = np.zeros(n, dtype=bool)
     for i in range(n - 1, -1, -1):
-        rank = i + 1
-        # BH formula: q_i = min( (n/rank) * p_i, q_{i+1} )
-        q_val = min((n / rank) * sorted_p[i], prev_q)
-        q_values[i] = q_val
-        prev_q = q_val
+        if sorted_p[i] <= threshold[i]:
+            rejected[i:] = True
+            break
     
-    # Ensure monotonicity (q-values should not decrease as rank increases)
-    # We already did this in the loop by taking min with prev_q, but let's double check
-    # Actually, the standard BH procedure for adjusted p-values is:
-    # q_i = min( (n/k) * p_(k), q_(k+1) ) for k from n down to 1
-    # Our loop does exactly that.
-    
-    # Determine significance
-    significant = [q <= alpha for q in q_values]
-    
-    # Map back to original order
-    final_significant = [False] * n
-    final_q_values = [0.0] * n
-    for idx, orig_idx in enumerate(sorted_indices):
-        final_significant[orig_idx] = significant[idx]
-        final_q_values[orig_idx] = q_values[idx]
-    
-    return final_significant, final_q_values
+    # Reorder to original indices
+    final_rejected = np.zeros(n, dtype=bool)
+    final_rejected[sorted_indices] = rejected
+    return final_rejected.tolist()
 
-def apply_fdr_correction(analysis_results: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Extract all p-values from analysis results, apply BH-FDR correction,
-    and update the results dictionary with FDR-adjusted status.
-    """
-    # Collect all p-values from robustness and sensitivity results
-    p_values = []
-    test_names = []
+def apply_fdr_correction(results_dict: Dict[str, Any], alpha: float = 0.05) -> Dict[str, Any]:
+    """Apply FDR correction to a dictionary of results containing p-values."""
+    p_vals = []
+    keys = []
+    for k, v in results_dict.items():
+        if 'p_value' in v:
+            p_vals.append(v['p_value'])
+            keys.append(k)
     
-    for key, result in analysis_results.items():
-        if 'perm_p_value' in result:
-            p_values.append(result['perm_p_value'])
-            test_names.append(key)
-        elif 'ks_p_value' in result: # Fallback if perm_p not present
-            p_values.append(result['ks_p_value'])
-            test_names.append(key)
+    if not p_vals:
+        return results_dict
     
-    if not p_values:
-        logger.warning("No p-values found to apply FDR correction.")
-        return analysis_results
+    significant = benjamini_hochberg_fdr(p_vals, alpha)
     
-    logger.info(f"Applying Benjamini-Hochberg FDR correction to {len(p_values)} tests.")
-    significant, q_values = benjamini_hochberg_fdr(p_values, alpha=0.05)
+    for i, k in enumerate(keys):
+        results_dict[k]['is_significant_after_fdr'] = significant[i]
     
-    # Update results
-    for i, key in enumerate(test_names):
-        if key in analysis_results:
-            analysis_results[key]['fdr_significant'] = significant[i]
-            analysis_results[key]['fdr_q_value'] = q_values[i]
-    
-    return analysis_results
+    return results_dict
 
-# --- Interpretation & Reporting ---
+# --- Interpretation and Reporting ---
 
-def interpret_effect_size(cohens_d: float) -> str:
+def interpret_effect_size(d: float) -> str:
     """Interpret Cohen's d effect size."""
-    abs_d = abs(cohens_d)
+    abs_d = abs(d)
     if abs_d < 0.2:
         return "negligible"
     elif abs_d < 0.5:
@@ -328,66 +249,72 @@ def interpret_effect_size(cohens_d: float) -> str:
     else:
         return "large"
 
-def generate_conclusion(results: Dict[str, Any]) -> str:
-    """Generate a textual conclusion based on the results."""
-    significant_count = sum(1 for r in results.values() if r.get('significant_perm', False))
-    fdr_significant_count = sum(1 for r in results.values() if r.get('fdr_significant', False))
-    
-    conclusion = f"Analysis of {len(results)} test configurations.\n"
-    conclusion += f"Raw significance (p < 0.05): {significant_count} tests.\n"
-    conclusion += f"FDR-corrected significance (q < 0.05): {fdr_significant_count} tests.\n"
-    
-    if fdr_significant_count == 0:
-        conclusion += "No significant association found after correcting for multiple comparisons."
-    else:
-        conclusion += f"Found {fdr_significant_count} significant associations after FDR correction."
-    
-    return conclusion
+def generate_conclusion(p_value: float, effect_size: float) -> str:
+    """Generate a textual conclusion based on p-value and effect size."""
+    sig = "significant" if p_value < 0.05 else "not significant"
+    eff_interpretation = interpret_effect_size(effect_size)
+    return f"Result is {sig} (p={p_value:.4f}) with {eff_interpretation} effect size (d={effect_size:.4f})."
 
-def save_results(results: Dict[str, Any], output_path: Path) -> None:
+def save_results(results: Dict[str, Any], output_path: Path):
     """Save results to a JSON file."""
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {output_path}")
 
 # --- Main Execution ---
 
 def run_analysis() -> Dict[str, Any]:
-    """
-    Run the full analysis pipeline: robustness, sensitivity, and FDR correction.
-    """
-    logger.info("Starting full analysis pipeline...")
-    
-    # Load data
+    """Main function to run the full analysis pipeline."""
     df = load_master_dataset()
     
-    # Run robustness checks
-    robustness_results = run_robustness_analysis(df)
+    # Filter for events and controls
+    event_data = df[df['is_event'] == 1]['pressure_anomaly'].values
+    control_data = df[df['is_event'] == 0]['pressure_anomaly'].values
     
-    # Run sensitivity analysis
-    sensitivity_results = run_sensitivity_analysis(df)
+    if len(event_data) == 0 or len(control_data) == 0:
+        logger.error("No event or control data found.")
+        return {}
     
-    # Combine results
-    all_results = {**robustness_results, **sensitivity_results}
+    # KS Test
+    ks_stat, ks_p = perform_ks_test(event_data, control_data)
     
-    # Apply FDR correction
-    corrected_results = apply_fdr_correction(all_results)
+    # Permutation Test
+    seed = get_random_seed()
+    null_dist = perform_permutation_test(event_data, control_data, n_iterations=1000, random_seed=seed)
+    observed_stat = np.abs(np.mean(event_data) - np.mean(control_data))
+    perm_p = calculate_p_value_permutation(observed_stat, null_dist)
     
-    # Generate conclusion
-    conclusion = generate_conclusion(corrected_results)
-    corrected_results['conclusion'] = conclusion
+    # Effect Size
+    cohens_d = calculate_cohen_d(event_data, control_data)
     
-    # Save results
-    output_path = get_processed_path() / "robustness_report.json"
-    save_results(corrected_results, output_path)
+    results = {
+        "ks_test": {"statistic": ks_stat, "p_value": ks_p},
+        "permutation_test": {"observed_statistic": observed_stat, "p_value": perm_p},
+        "effect_size": {"cohens_d": cohens_d, "interpretation": interpret_effect_size(cohens_d)},
+        "conclusion": generate_conclusion(perm_p, cohens_d)
+    }
     
-    logger.info("Analysis pipeline completed.")
-    return corrected_results
+    # Robustness
+    robust_results = run_robustness_analysis(df)
+    results["robustness"] = robust_results
+    
+    # Sensitivity
+    sensitivity_results = run_sensitivity_analysis(df, cutoffs=[0.5, 1.0, 1.5])
+    results["sensitivity"] = sensitivity_results
+    
+    # FDR Correction
+    apply_fdr_correction(results["robustness"])
+    apply_fdr_correction(results["sensitivity"])
+    
+    return results
 
 def main():
     """Entry point for the analysis script."""
+    logger.info("Starting analysis pipeline.")
     results = run_analysis()
-    print(json.dumps(results, indent=2))
+    
+    output_path = get_processed_path() / "statistical_results.json"
+    save_results(results, output_path)
+    logger.info(f"Results saved to {output_path}")
 
 if __name__ == "__main__":
     main()

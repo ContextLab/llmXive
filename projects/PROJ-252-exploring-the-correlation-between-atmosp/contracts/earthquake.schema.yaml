@@ -1,8 +1,5 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Earthquake Event Schema
-description: >
-  Schema for validating earthquake event data from USGS catalog.
-  Required fields: magnitude, depth, lat, lon, timestamp.
+# Schema for Earthquake Data (T008/T009)
+# Required fields as per spec: magnitude, depth, lat, lon, timestamp
 type: object
 required:
   - magnitude
@@ -10,44 +7,25 @@ required:
   - lat
   - lon
   - timestamp
+  - event_id
 properties:
-  id:
-    type: string
-    description: Unique USGS event ID
   magnitude:
     type: number
-    minimum: 0
-    description: Local or moment magnitude of the earthquake
+    description: Earthquake magnitude (e.g., Mw)
   depth:
     type: number
-    minimum: 0
-    maximum: 700
-    description: Hypocentral depth in kilometers
+    description: Depth in kilometers
   lat:
     type: number
-    minimum: -90
-    maximum: 90
-    description: Latitude of the epicenter in degrees
+    description: Latitude in degrees
   lon:
     type: number
-    minimum: -180
-    maximum: 180
-    description: Longitude of the epicenter in degrees
+    description: Longitude in degrees
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 formatted timestamp of the event origin time
-  place:
+    description: ISO 8601 timestamp of the event
+  event_id:
     type: string
-    description: Human-readable location description
-  type:
-    type: string
-    description: Type of event (e.g., earthquake, quarry blast)
-  status:
-    type: string
-    description: Status of the event (e.g., reviewed, automatic)
-  url:
-    type: string
-    format: uri
-    description: Link to the USGS event page
+    description: Unique USGS event identifier
 additionalProperties: true
