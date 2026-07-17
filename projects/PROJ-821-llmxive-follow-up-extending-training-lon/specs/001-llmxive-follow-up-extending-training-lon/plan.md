@@ -111,4 +111,4 @@ tests/
 | **Dual-Arm Data Generator** | Required to isolate "modality density" from "total context length" (Constitution Principle VI, Scientific Soundness concerns). | Single-arm (Constant Text) design confounds the variables, making it impossible to distinguish modality saturation from general long-context degradation. |
 | **Feasibility Gate (Pilot Run)** | Required to ensure the 6-hour CI limit is not exceeded by memory swapping or OOM crashes (Constitution Principle VII). | Blindly running 256K context on 7GB RAM risks immediate failure or excessive swapping, violating runtime constraints. |
 | **Quadratic/Non-Parametric Analysis** | Required to detect "cliffs" (non-linear drops) rather than assuming linear trends (Methodology concerns). | Standard linear regression cannot distinguish a sharp saturation cliff from a gradual decline. |
-| **4-bit Quantization Wrapper** | Required to fit the 7B model into 7GB RAM on CPU (FR-002). | Standard 16-bit loading would exceed memory limits immediately. |
+| **4-bit Quantization Wrapper** | Required to fit the 7B model into 7GB RAM on CPU (FR-002). | Standard high-bit loading would exceed memory limits immediately. |

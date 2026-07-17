@@ -1,0 +1,4 @@
+# This directory is part of the llmXive project structure.
+# It is created by task T001a to ensure the 'code' folder exists
+# for Python modules and scripts.
+# The .gitkeep file ensures the directory is tracked by git even if empty.

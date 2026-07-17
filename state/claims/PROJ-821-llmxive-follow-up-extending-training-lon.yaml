@@ -1,0 +1,1077 @@
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Generate 500 short-context samples with 1 image and max 4096 tokens
+  claim_id: c_c70b5f5e
+  context: "Phase 4, Task T047: Generate the short-context control group: 500 samples\
+    \ (\u22644K tokens) with 1 image using generator.py with --arm A --max_tokens\
+    \ 4096, saving to data/synthetic/short_context/."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate the short-context control group: 500 samples (\u22644K tokens)\
+    \ with 1 image using generator.py with --arm A --max_tokens 4096"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:18:38Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Execute retrieval on mmpro/MMProLong-7B-1.0 4-bit on 2-core CPU within
+    6 hours
+  claim_id: c_057b1938
+  context: 'Phase 4, Goal: Execute ''needle-in-a-haystack'' retrieval on the generated
+    dataset using mmpro/MMProLong-7B-1.0 (4-bit quantized via llama-cpp-python) on
+    a 2-core CPU runner within 6 hours, with robust OOM handling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute 'needle-in-a-haystack' retrieval on the generated dataset using
+    mmpro/MMProLong-7B-1.0 (4-bit quantized via llama-cpp-python) on a 2-core CPU
+    runner within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:20:41Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Peak RAM check limit is 7GB
+  claim_id: c_5c902f9c
+  context: "Phase 4, Task T042: Implement code/inference/runner.py with: Batch inference\
+    \ loop. Memory monitoring (peak RAM check \u22647GB). OOM guardrail..."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3879: 76'
+      source_id: Q19823792
+      url: https://www.wikidata.org/wiki/Q19823792
+      value: '76'
+    filled: true
+  kind: entity_fact
+  raw_text: "Memory monitoring (peak RAM check \u22647GB)"
+  resolved_value: '76'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T06:20:52Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Short-context samples accuracy baseline check is 95%
+  claim_id: c_9d9dae08
+  context: "Phase 6, Goal: Evaluate short-context samples separately to ensure long-context\
+    \ failure is not due to general visual capability loss. Independent Test: Short-context\
+    \ samples are processed and reported separately with \u226595% accuracy baseline\
+    \ check."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Short-context samples are processed and reported separately with \u2265\
+    95% accuracy baseline check"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:20:52Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Text-only token count variance is less than 1%
+  claim_id: c_5f7146c8
+  context: 'Phase 3, Task T012: Implement code/data_generation/validators.py to verify:
+    Arm A: Text-only token count variance <1% across samples.'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Text-only_token_count_variance_is_less_than_1%25
+  kind: magnitude
+  raw_text: Text-only token count variance <1% across samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-17T06:21:01Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Total token count variance is less than 1%
+  claim_id: c_1785ec60
+  context: 'Phase 3, Task T012: Implement code/data_generation/validators.py to verify:
+    Arm B: Total token count (text + visual) variance <1% across samples.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_token_count_variance_is_less_than_1%25
+  kind: magnitude
+  raw_text: Total token count (text + visual) variance <1% across samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:21:12Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Image count varies from 0 to 20
+  claim_id: c_1eea06fb
+  context: "Phase 3, Task T011: Arm B (Primary): Constant total tokens (text + visual),\
+    \ variable images (0\u201320)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Variable images (0\u201320)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:21:18Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Constant text tokens range from 128K to 256K or 4K
+  claim_id: c_ffb0ca63
+  context: "Phase 3, Task T011: Arm A (Auxiliary): Constant text tokens (128K-256K\
+    \ or \u22644K for short-context), variable images (0\u201320)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Constant_text_tokens_range_from_128K_to_256K_or_4K
+  kind: entity_fact
+  raw_text: "Constant text tokens (128K-256K or \u22644K for short-context)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:21:29Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Plan mandates Arm B as primary arm for hypothesis test
+  claim_id: c_78d478da
+  context: 'Phase 3, Goal: Generate a synthetic dataset where visual density varies
+    across a range. Arm B (Constant Total) is the PRIMARY arm for the hypothesis test
+    (per Plan/Constitution), while Arm A (Constant Text) serves as the control (per
+    Spec).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_mandates_Arm_B_as_primary_arm_for_hypothesis_test
+  kind: entity_fact
+  raw_text: The Plan mandates Arm B (Constant Total) as the PRIMARY arm for the hypothesis
+    test
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:29:11Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Tasks run on 2-core CPU with 7GB RAM limit and no GPU
+  claim_id: c_17e87963
+  context: "Notes: CRITICAL: All tasks must run on 2-core CPU, \u22647GB RAM, no GPU.\
+    \ No 8-bit/4-bit CUDA dependencies."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on 2-core CPU, \u22647GB RAM, no GPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:29:24Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: No 8-bit or 4-bit CUDA dependencies allowed
+  claim_id: c_7a743037
+  context: "Notes: CRITICAL: All tasks must run on 2-core CPU, \u22647GB RAM, no GPU.\
+    \ No 8-bit/4-bit CUDA dependencies."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No 8-bit/4-bit CUDA dependencies
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:29:41Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Visual token count varies exactly as specified
+  claim_id: c_1258d0dc
+  context: 'Phase 3, Goal: Independent Test: A script runs to generate a batch. Output
+    validation confirms text-only token count variance <1% (Arm A) or total token
+    variance <1% (Arm B), needle difficulty is identical, and visual token count varies
+    exactly as specified.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Visual_token_count_varies_exactly_as_specified
+  kind: entity_fact
+  raw_text: Visual token count varies exactly as specified
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:30:14Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Needle difficulty score is identical across all samples
+  claim_id: c_5a4c7e84
+  context: 'Phase 3, Task T012: Implement code/data_generation/validators.py to verify:
+    ... Needle difficulty score is identical across all samples.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Needle_difficulty_score_is_identical_across_all_samples
+  kind: entity_fact
+  raw_text: Needle difficulty score is identical across all samples
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:30:41Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Pilot run failure aborts job with error code 1
+  claim_id: c_06f0758b
+  context: 'Phase 4, Task T042: Feasibility Gate: Implement pilot run logic here to
+    test memory feasibility on a single sample before full batch. If the pilot fails,
+    abort job with error code 1 (do not reduce context).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement pilot run logic here to test memory feasibility on a single
+    sample before full batch. If the pilot fails, abort job with error code 1 (do
+    not reduce context)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:31:03Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Logistic Regression model includes Visual Density times Text Length interaction
+    term
+  claim_id: c_5abe21cc
+  context: "Phase 5, Task T049: Implement code/analysis/stats.py with: Logistic Regression\
+    \ model (Visual Density \xD7 Text Length interaction term). Note: Interaction\
+    \ term measured using full dataset (Arm A + Arm B) where text length varies (in\
+    \ Arm B) or via Arm B data where text length varies inversely with image count."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logistic_Regression_model_includes_Visual_Density_times_Text
+  kind: entity_fact
+  raw_text: "Logistic Regression model (Visual Density \xD7 Text Length interaction\
+    \ term)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:31:33Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Jonckheere-Terpstra test used for ordered alternatives
+  claim_id: c_91dd9b4c
+  context: 'Phase 5, Task T049: Implement code/analysis/stats.py with: ... Jonckheere-Terpstra
+    test for ordered alternatives.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Jonckheere-Terpstra_test_used_for_ordered_alternatives
+  kind: entity_fact
+  raw_text: Jonckheere-Terpstra test for ordered alternatives
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:32:03Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Quadratic term included to detect non-linear degradation cliffs
+  claim_id: c_51b5fad7
+  context: 'Phase 5, Task T049: Implement code/analysis/stats.py with: ... Quadratic
+    term inclusion to detect ''cliffs''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quadratic_term_included_to_detect_non-linear_degradation_cli
+  kind: entity_fact
+  raw_text: Quadratic term inclusion to detect 'cliffs'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:32:25Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Output p-values, interaction coefficients, and non-linear degradation
+    flags to statistics.json
+  claim_id: c_67eff9e7
+  context: 'Phase 5, Task T050: Implement reporting logic in code/analysis/stats.py
+    to output p-values, interaction coefficients, and explicit ''non-linear degradation''
+    flags to data/results/aggregated/statistics.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_p-values,_interaction_coefficients,_and_non-linear_de
+  kind: entity_fact
+  raw_text: Output p-values, interaction coefficients, and explicit 'non-linear degradation'
+    flags to data/results/aggregated/statistics.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:32:55Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Compute SHA-256 for data and code directories
+  claim_id: c_d7cf8732
+  context: 'Phase N, Task T061: Implement code/main.py --hash-artifacts step to compute
+    SHA-256 for data/ and code/ and write to state/artifact_hashes.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute SHA-256 for data/ and code/ and write to state/artifact_hashes.json
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:33:21Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: 'visual tokens formula: image_count * (336/14)^2 * 256'
+  claim_id: c_e14a061e
+  context: "Arm B (Primary): Constant total tokens (text + visual), variable images\
+    \ (0\u201320). Formula: visual_tokens = image_count * (336/14)^2 * 256 (approx\
+    \ 256 tokens per 336x336 image at 14x14 patch size)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: visual_tokens = image_count * (336/14)^2 * 256
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:34:14Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: inference on 2-core CPU within 6 hours
+  claim_id: c_6045d6c7
+  context: 'Goal: Execute ''needle-in-a-haystack'' retrieval on the generated dataset
+    using mmpro/MMProLong-7B-1.0 (4-bit quantized via llama-cpp-python) on a 2-core
+    CPU runner within 6 hours, with robust OOM handling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute retrieval on a 2-core CPU runner within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:34:37Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: short-context accuracy baseline check >= 95%
+  claim_id: c_9fb016b9
+  context: "Independent Test: Short-context samples are processed and reported separately\
+    \ with \u226595% accuracy baseline check."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Short-context samples are processed and reported separately with \u2265\
+    95% accuracy baseline check"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:34:37Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Arm A text-only token count variance < 1%
+  claim_id: c_744b1db9
+  context: 'T012 [P] [US1] Implement code/data_generation/validators.py to verify:
+    Arm A: Text-only token count variance <1% across samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Text-only token count variance <1% across samples for Arm A
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:34:37Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Arm B total token count variance < 1%
+  claim_id: c_094d1a89
+  context: 'T012 [P] [US1] Implement code/data_generation/validators.py to verify:
+    Arm B: Total token count (text + visual) variance <1% across samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total token count (text + visual) variance <1% across samples for Arm
+    B
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:34:37Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: visual token count variance matches specification
+  claim_id: c_e31893d0
+  context: 'Independent Test: A script runs to generate a batch. Output validation
+    confirms text-only token count variance <1% (Arm A) or total token variance <1%
+    (Arm B), needle difficulty is identical, and visual token count varies exactly
+    as specified.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Visual_token_count_variance_matches_specification
+  kind: entity_fact
+  raw_text: Visual token count varies exactly as specified
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:34:39Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Tests are optional in feature specifications
+  claim_id: c_6d4e665c
+  context: Input section describing task requirements and test inclusion criteria.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_in_feature_specifications
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:35:29Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: 500 short-context control samples with 1 image and <=4K tokens
+  claim_id: c_0db0cdc0
+  context: Task T047 description for generating short-context control group data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate the short-context control group: 500 samples (\u22644K tokens)\
+    \ with 1 image using generator.py with --arm A --max_tokens 4096, saving to data/synthetic/short_context/."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:36:13Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Needle retrieval on 2-core CPU within 6 hours using mmpro/MMProLong-7B-1.0
+  claim_id: c_35cd154f
+  context: Phase 4 goal description for CPU-feasible inference and retrieval execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute 'needle-in-a-haystack' retrieval on the generated dataset using
+    mmpro/MMProLong-7B-1.0 (4-bit quantized via llama-cpp-python) on a 2-core CPU
+    runner within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:36:13Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Implementation includes Wikidata entity Q19823792
+  claim_id: c_02f45715
+  context: Task T042 description for the inference runner implementation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implementation_includes_Wikidata_entity_Q19823792
+  kind: entity_fact
+  raw_text: Implement `code/inference/runner.py` with {{claim:c_5c902f9c}} (Wikidata
+    Q19823792, https://www.wikidata.org/wiki/Q19823792).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:36:29Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Wikidata entry Q19823792
+  claim_id: c_714ae3be
+  context: 'Implement code/inference/runner.py with: Batch inference loop. {{claim:c_5c902f9c}}
+    (Wikidata Q19823792, https://www.wikidata.org/wiki/Q19823792).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_entry_Q19823792
+  kind: entity_fact
+  raw_text: Wikidata Q19823792
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:37:15Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: "500 short-context samples with 1 image and \u22644K tokens"
+  claim_id: c_63ea56c9
+  context: "Generate the short-context control group: 500 samples (\u22644K tokens)\
+    \ with 1 image using generator.py with --arm A --max_tokens 4096, saving to data/synthetic/short_context/."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "500 samples (\u22644K tokens) with 1 image"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:37:39Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: "Constant text tokens range of 128K-256K or \u22644K for short-context"
+  claim_id: c_d8a50755
+  context: "Arm A (Auxiliary): Constant text tokens (128K-256K or \u22644K for short-context),\
+    \ variable images (0\u201320)."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In July 2025, the company released the weights for Kimi K2, a large language
+        model with 1 trillion total parameters. The model uses a mixture-of-experts
+        (MoE) architecture, where 32 billion parameters are active during inference.
+        K2 was trained on 15.5 trillion tokens of data and is released under a modified
+        MIT license. Kimi K2 is an open source LLM, meaning that it can be downloaded
+        and built upon by users. The day after its release, Kimi K2 had the most downloads
+        on the platform, an increase in popularity from previous months. Moonshot
+        claims that the model excels in coding tasks, having passed tests like LiveCodeBench.
+        In certain instances, the model performed on-par with or better than its Western
+        counterparts. It has also been praised for its writing skills. On 9 September
+        2025, Moonshot AI released an updated version of K2, Kimi-K2-Instruct-0905,
+        which further increased its performance in agentic coding tasks and doubled
+        its context window from 128K tokens to 256K tokens.
+      source_id: Moonshot AI
+      url: https://en.wikipedia.org/wiki/Moonshot_AI
+      value: 256K
+    filled: true
+  kind: entity_fact
+  raw_text: "128K-256K or \u22644K for short-context"
+  resolved_value: 256K
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T06:37:50Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: variable image count range of 0 to 20
+  claim_id: c_d04e3570
+  context: "Arm B (Primary): Constant total tokens (text + visual), variable images\
+    \ (0\u201320)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "0\u201320 images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:38:16Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: text-only token count variance less than 1 percent
+  claim_id: c_97129ece
+  context: 'Arm A: Text-only token count variance <1% across samples.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Text-only_token_count_variance_less_than_1_percent
+  kind: magnitude
+  raw_text: text-only token count variance <1%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:38:38Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: total token variance less than 1 percent
+  claim_id: c_0537b902
+  context: 'Arm B: Total token count (text + visual) variance <1% across samples.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_token_variance_less_than_1_percent
+  kind: magnitude
+  raw_text: total token variance <1%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:39:09Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: 2-core CPU runner
+  claim_id: c_8f27ee9d
+  context: Execute 'needle-in-a-haystack' retrieval on the generated dataset using
+    mmpro/MMProLong-7B-1.0 (4-bit quantized via llama-cpp-python) on a 2-core CPU
+    runner within 6 hours, with robust OOM handling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2-core CPU runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:39:27Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: execution time within 6 hours
+  claim_id: c_487b2dac
+  context: Execute 'needle-in-a-haystack' retrieval on the generated dataset using
+    mmpro/MMProLong-7B-1.0 (4-bit quantized via llama-cpp-python) on a 2-core CPU
+    runner within 6 hours, with robust OOM handling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:39:52Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: short-context accuracy baseline of at least 95 percent
+  claim_id: c_6053ccb2
+  context: "Short-context samples are processed and reported separately with \u2265\
+    95% accuracy baseline check."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Short-context_accuracy_baseline_of_at_least_95_percent
+  kind: magnitude
+  raw_text: "\u226595% accuracy baseline check"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:41:05Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 2
+  canonical: 500 short-context samples with 1 image and <=4K tokens
+  claim_id: c_d45d3cf6
+  context: "T047 [US2] [P] Generate the short-context control group: 500 samples (\u2264\
+    4K tokens) with 1 image using generator.py with --arm A --max_tokens 4096, saving\
+    \ to data/synthetic/short_context/."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate the short-context control group: 500 samples (\u22644K tokens)\
+    \ with 1 image using generator.py with --arm A --max_tokens 4096"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:41:27Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: short-context accuracy baseline of 95%
+  claim_id: c_c6504bea
+  context: "Independent Test: Short-context samples are processed and reported separately\
+    \ with \u226595% accuracy baseline check."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Short-context samples processed with >=95% accuracy baseline check
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:41:27Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: retrieval execution on 2-core CPU within 6 hours
+  claim_id: c_ed1e58e4
+  context: 'Goal: Execute ''needle-in-a-haystack'' retrieval on the generated dataset
+    using mmpro/MMProLong-7B-1.0 (4-bit quantized via llama-cpp-python) on a 2-core
+    CPU runner within 6 hours...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute retrieval on a 2-core CPU runner within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:41:27Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: token count variance less than 1%
+  claim_id: c_6de951c8
+  context: 'Independent Test: A script runs to generate a batch. Output validation
+    confirms text-only token count variance <1% (Arm A) or total token variance <1%
+    (Arm B)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Token_count_variance_less_than_1%25
+  kind: magnitude
+  raw_text: Visual density varies across a range with text-only token count variance
+    <1% (Arm A) or total token variance <1% (Arm B)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:42:21Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 2
+  canonical: visual token calculation formula for 336x336 images at 14x14 patch size
+  claim_id: c_d2521a5e
+  context: "Arm B (Primary): Constant total tokens (text + visual), variable images\
+    \ (0\u201320). Formula: visual_tokens = image_count * (336/14)^2 * 256 (approx\
+    \ 256 tokens per 336x336 image at 14x14 patch size)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: visual_tokens = image_count * (336/14)^2 * 256
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:42:43Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: retrieval execution on 2-core CPU within 6 hours using 4-bit quantized
+    mmpro/MMProLong-7B-1.0
+  claim_id: c_ea3f41ad
+  context: 'Goal: Execute ''needle-in-a-haystack'' retrieval on the generated dataset
+    using mmpro/MMProLong-7B-1.0 (4-bit quantized via llama-cpp-python) on a 2-core
+    CPU runner within 6 hours, with robust OOM handling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: execute needle-in-a-haystack retrieval on the generated dataset using
+    mmpro/MMProLong-7B-1.0 (4-bit quantized via llama-cpp-python) on a 2-core CPU
+    runner within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:42:43Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: 500 short-context samples with 1 image and <=4K tokens
+  claim_id: c_d013f18d
+  context: "Generate the short-context control group: 500 samples (\u22644K tokens)\
+    \ with 1 image using generator.py with --arm A --max_tokens 4096, saving to data/synthetic/short_context/."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "500 samples (\u22644K tokens) with 1 image"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:42:43Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: short-context accuracy baseline check at >=95%
+  claim_id: c_d873124f
+  context: "Independent Test: Short-context samples are processed and reported separately\
+    \ with \u226595% accuracy baseline check."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "short-context samples are processed and reported separately with \u2265\
+    95% accuracy baseline check"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:42:43Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: text-only token count variance less than 1 percent
+  claim_id: c_b4191681
+  context: 'Implement code/data_generation/validators.py to verify: Arm A: Text-only
+    token count variance <1% across samples.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Text-only_token_count_variance_less_than_1_percent
+  kind: magnitude
+  raw_text: Text-only token count variance <1% across samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:42:45Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: total token count variance less than 1 percent
+  claim_id: c_5df439df
+  context: 'Implement code/data_generation/validators.py to verify: Arm B: Total token
+    count (text + visual) variance <1% across samples.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_token_count_variance_less_than_1_percent
+  kind: magnitude
+  raw_text: Total token count (text + visual) variance <1% across samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:42:46Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: visual tokens calculation uses 256 tokens per 336x336 image at 14x14
+    patch size
+  claim_id: c_de68661e
+  context: "Arm B (Primary): Constant total tokens (text + visual), variable images\
+    \ (0\u201320). Formula: visual_tokens = image_count * (336/14)^2 * 256 (approx\
+    \ 256 tokens per 336x336 image at 14x14 patch size)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: visual_tokens = image_count * (336/14)^2 * 256
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:43:22Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Text-only token count variance is less than 1% across samples
+  claim_id: c_a6c5b9d7
+  context: 'Independent Test: ...Output validation confirms text-only token count
+    variance <1% (Arm A)...'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Text-only_token_count_variance_is_less_than_1%25_across_sample
+  kind: magnitude
+  raw_text: text-only token count variance <1%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-17T06:43:24Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Total token count variance is less than 1% across samples
+  claim_id: c_9b675694
+  context: '...or total token variance <1% (Arm B), needle difficulty is identical,
+    and visual token count varies exactly as specified.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_token_count_variance_is_less_than_1%25_across_samples
+  kind: magnitude
+  raw_text: total token variance <1%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:43:25Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Spec FR-002 model ID is mmpro/MMProLong-7B-1.0
+  claim_id: c_59569330
+  context: 'NOTE: Config must enforce Spec FR-002 model ID: mmpro/MMProLong-7B-1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mmpro/MMProLong-7B-1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:47:00Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Model converted to Q4_K_M.gguf format
+  claim_id: c_e3561434
+  context: '...download mmpro/MMProLong-7B-1.0 (per Spec FR-002) from HuggingFace
+    and convert it to Q4_K_M.gguf format using llama.cpp...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_converted_to_Q4_K_M.gguf_format
+  kind: entity_fact
+  raw_text: Q4_K_M.gguf
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:47:45Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Model uses 4-bit quantization
+  claim_id: c_273d3166
+  context: 'Goal: Execute ''needle-in-a-haystack'' retrieval... using mmpro/MMProLong-7B-1.0
+    (4-bit quantized via llama-cpp-python)...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '2603.13931'
+        url: https://arxiv.org/abs/2603.13931
+        value: '15'
+      - channel: paper
+        source_id: '2605.11396'
+        url: https://arxiv.org/abs/2605.11396
+        value: 4-bit
+      - channel: paper
+        source_id: '2606.29337'
+        url: https://arxiv.org/abs/2606.29337
+        value: '4'
+      quote: racy of 77.09%. We demonstrate the regularizing effect
+      source_id: '2105.03536'
+      url: https://arxiv.org/abs/2105.03536
+      value: 77.09%
+    filled: true
+  kind: numeric
+  raw_text: 4-bit quantization
+  resolved_value: 77.09%
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T06:48:31Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Inference runs on a 2-core CPU runner
+  claim_id: c_d9ca680c
+  context: '...on a 2-core CPU runner within 6 hours, with robust OOM handling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2-core CPU runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:48:31Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Support for short-context generation of 4K tokens or less
+  claim_id: c_c5557863
+  context: "Crucial: The generator must support a --max_tokens flag to handle both\
+    \ long-context (128K+) and short-context (\u22644K) generation modes."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Support_for_short-context_generation_of_4K_tokens_or_less
+  kind: entity_fact
+  raw_text: "\u22644K tokens"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:49:00Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Generate 500 short-context control group samples
+  claim_id: c_0dd58d76
+  context: "T047 [US2] [P] Generate the short-context control group: 500 samples (\u2264\
+    4K tokens) with 1 image..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 500 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T06:49:39Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Short-context samples reported with at least 95% accuracy baseline
+  claim_id: c_ee7e078a
+  context: "Independent Test: Short-context samples are processed and reported separately\
+    \ with \u226595% accuracy baseline check."
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Short-context_samples_reported_with_at_least_95%25_accuracy_ba
+  kind: magnitude
+  raw_text: "\u226595% accuracy baseline"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-17T06:50:31Z'
