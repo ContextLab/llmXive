@@ -59,7 +59,7 @@ projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/
 │   ├── __init__.py
 │   ├── config.py              # Paths, seeds, hyperparameters
 │   ├── data_loader.py         # Dataset fetching and stratification
-│   ├── distortion_engine.py   # Apply 54 compound distortions
+│   ├── distortion_engine.py   # Apply compound distortions
 │   ├── metrics.py             # SSS, WER, Collapse detection
 │   ├── models.py              # Regression model training
 │   ├── statistics.py          # Multiple comparison correction (FR-008)

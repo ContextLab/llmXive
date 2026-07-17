@@ -1,0 +1,12 @@
+scikit-learn
+transformers
+torch
+librosa
+pandas
+numpy
+datasets
+sentence-transformers
+jiwer
+pytest
+black
+ruff

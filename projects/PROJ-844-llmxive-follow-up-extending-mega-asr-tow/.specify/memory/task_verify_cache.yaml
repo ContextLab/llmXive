@@ -1,0 +1,8 @@
+T030b:
+  c: false
+  h: e08dd2ef99a85e77e98fe72b8d66a2ee74bcbd201151cc38426d9caaa5a2ff23
+  r: "The repository lacks the required input files `data/validation/human_annotations.csv`\
+    \ and `data/derived/stress_curves.parquet`, so the HVCM target cannot be derived.\
+    \ Moreover, the provided `code/metrics.py` excerpt shows only SSS/WER utilities\
+    \ and does not contain any function that reads those files or computes the Human\u2011\
+    Validated Collapse Margin. Both the data and the core implementation are missing."

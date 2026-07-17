@@ -9,7 +9,7 @@
 
 ### User Story 1 - Generate Compound Distortion Stress Curves (Priority: P1)
 
-**User Journey**: A researcher needs to systematically apply 54 specific compound acoustic distortions (combinations of reverberation and noise) to a subset of the "Voices-in-the-Wild-2M" dataset to generate stress curves for small ASR models.
+**User Journey**: A researcher needs to systematically apply a diverse set of compound acoustic distortions (combinations of reverberation and noise) to a subset of the "Voices-in-the-Wild-2M" dataset to generate stress curves for small ASR models.
 
 **Why this priority**: This is the foundational data generation step. Without the stress curves (mapping distortion intensity to semantic integrity), no analysis of non-linear interactions or collapse thresholds is possible. It delivers the raw dataset required for the entire study.
 
@@ -66,7 +66,7 @@
 - **FR-008**: System MUST implement multiple-comparison correction (e.g., Bonferroni or False Discovery Rate) when evaluating the statistical significance of the interaction effects across the 54 scenarios. (See US-3)
 - **FR-009**: System MUST validate the identified collapse intensity by confirming a concurrent spike in Word Error Rate (WER) exceeding 2× the model's baseline WER to ensure the target is not circularly dependent on the SSS metric. (See US-2)
 - **FR-010**: System MUST normalize the SSS collapse threshold (0.5) relative to each model's clean-audio baseline SSS to isolate universal acoustic interactions from model-specific embedding behaviors. (See US-3)
-- **FR-011**: System MUST validate the SSS metric against a held-out subset of 500 human-annotated transcripts to ensure correlation with human judgment of semantic integrity before defining the collapse threshold. (See US-1)
+- **FR-011**: System MUST validate the SSS metric against a held-out subset of human-annotated transcripts to ensure correlation with human judgment of semantic integrity before defining the collapse threshold. (See US-1)
 
 ### Key Entities
 
