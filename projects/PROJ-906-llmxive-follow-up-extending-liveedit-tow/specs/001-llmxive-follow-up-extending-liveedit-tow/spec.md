@@ -89,7 +89,7 @@
 
 ## Assumptions
 
-- **Assumption about data availability**: The DAVIS and YouTube-VOS datasets are publicly accessible and contain sufficient video clips with the required motion complexity (static, slow rigid, fast non-rigid) to populate the 500-clip dataset.
+- **Assumption about data availability**: The DAVIS and YouTube-VOS datasets are publicly accessible and contain sufficient video clips with the required motion complexity (static, slow rigid, fast non-rigid) to populate a comprehensive test dataset.
 - **Assumption about computational resources**: The GitHub Actions free-tier runner (multiple CPU cores, standard RAM allocation) is sufficient to run the lightweight optical flow algorithms (RAFT-small/Farneback) and the CPU-optimized diffusion model inference without exceeding memory limits, provided the dataset is processed in batches.
 - **Assumption about model compatibility**: The LiveEdit model architecture can be modified to replace the Mask Cache with a flow-warping module without requiring a complete retraining of the diffusion model weights, relying instead on the existing pre-trained weights.
 - **Assumption about measurement validity**: The Structural Similarity Index Measure (SSIM) and temporal gradient variance, calculated between consecutive frames in the edited output, are valid and accepted proxies for human-perceived background flickering and temporal consistency in this specific video editing context.

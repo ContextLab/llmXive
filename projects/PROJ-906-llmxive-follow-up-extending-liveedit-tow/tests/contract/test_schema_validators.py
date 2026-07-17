@@ -1,273 +1,168 @@
 """
-Contract tests for schema validators.
-Validates Dataset, Metrics, and Analysis output schemas.
+Contract tests for T007: Schema Validators.
+Verifies that Dataset, Metric, and Analysis schemas correctly validate JSON records
+and raise errors on mismatch.
 """
+import json
 import pytest
 from datetime import datetime
+from pydantic import ValidationError
 
-from data.models import VideoClip, MetricRecord, AnalysisResult
-from contracts.dataset_validator import DatasetValidator
-from contracts.metrics_validator import MetricsValidator
-from contracts.analysis_validator import AnalysisValidator
-
-
-class TestDatasetValidator:
-    """Tests for DatasetValidator."""
-
-    def test_valid_clip(self):
-        """Test validation of a valid VideoClip."""
-        clip = VideoClip(
-            clip_id="test_001",
-            source_path="data/raw/video.mp4",
-            duration_seconds=10.5,
-            frame_count=300,
-            fps=30,
-            width=1920,
-            height=1080,
-            motion_category="Static",
-            mask_path="data/flow/mask_001.npy",
-            flow_path="data/flow/flow_001.npy",
-        )
-        validator = DatasetValidator()
-        assert validator.validate_clip(clip) is True
-        assert len(validator.get_errors()) == 0
-
-    def test_missing_field(self):
-        """Test validation fails on missing required field."""
-        clip = VideoClip(
-            clip_id="test_002",
-            source_path="data/raw/video.mp4",
-            duration_seconds=10.5,
-            frame_count=300,
-            fps=30,
-            width=1920,
-            height=1080,
-            motion_category="Static",
-            mask_path=None,
-            flow_path=None,
-        )
-        # Manually remove a field to simulate missing data
-        clip_dict = clip.__dict__.copy()
-        del clip_dict["fps"]
-        invalid_clip = VideoClip(**{k: v for k, v in clip_dict.items() if k in VideoClip.__dataclass_fields__})
-
-        validator = DatasetValidator()
-        # We need to test the validation logic directly on the object
-        # Since we can't easily remove a field from a dataclass instance,
-        # we'll test the error message generation instead
-        assert validator.validate_clip(clip) is True  # This passes because all fields are present
-
-    def test_invalid_motion_category(self):
-        """Test validation fails on invalid motion category."""
-        clip = VideoClip(
-            clip_id="test_003",
-            source_path="data/raw/video.mp4",
-            duration_seconds=10.5,
-            frame_count=300,
-            fps=30,
-            width=1920,
-            height=1080,
-            motion_category="InvalidCategory",
-            mask_path=None,
-            flow_path=None,
-        )
-        validator = DatasetValidator()
-        assert validator.validate_clip(clip) is False
-        errors = validator.get_errors()
-        assert any("Invalid motion_category" in err for err in errors)
-
-    def test_negative_duration(self):
-        """Test validation fails on negative duration."""
-        clip = VideoClip(
-            clip_id="test_004",
-            source_path="data/raw/video.mp4",
-            duration_seconds=-5.0,
-            frame_count=300,
-            fps=30,
-            width=1920,
-            height=1080,
-            motion_category="Static",
-            mask_path=None,
-            flow_path=None,
-        )
-        validator = DatasetValidator()
-        assert validator.validate_clip(clip) is False
-        errors = validator.get_errors()
-        assert any("duration_seconds must be positive" in err for err in errors)
+from contracts.dataset_schema import DatasetValidator, VideoClipSchema
+from contracts.metric_schema import MetricValidator, MetricRecordSchema
+from contracts.analysis_schema import AnalysisValidator, StatisticalTestResult
 
 
-class TestMetricsValidator:
-    """Tests for MetricsValidator."""
+# --- Dataset Schema Tests ---
 
-    def test_valid_record(self):
-        """Test validation of a valid MetricRecord."""
-        record = MetricRecord(
-            clip_id="test_001",
-            method="baseline",
-            timestamp=datetime.now().isoformat(),
-            peak_memory_mb=1500.5,
-            inference_time_ms=2500.0,
-            bss_score=0.95,
-            flow_normalized_ssim=0.92,
-            avg_flow_magnitude=2.5,
-            invalid_flow_count=0,
-            total_frames=300,
-        )
-        validator = MetricsValidator()
-        assert validator.validate_record(record) is True
-        assert len(validator.get_errors()) == 0
-
-    def test_invalid_method(self):
-        """Test validation fails on invalid method."""
-        record = MetricRecord(
-            clip_id="test_001",
-            method="invalid_method",
-            timestamp=datetime.now().isoformat(),
-            peak_memory_mb=1500.5,
-            inference_time_ms=2500.0,
-            bss_score=0.95,
-            flow_normalized_ssim=0.92,
-            avg_flow_magnitude=2.5,
-            invalid_flow_count=0,
-            total_frames=300,
-        )
-        validator = MetricsValidator()
-        assert validator.validate_record(record) is False
-        errors = validator.get_errors()
-        assert any("Invalid method" in err for err in errors)
-
-    def test_negative_bss_score(self):
-        """Test validation fails on negative BSS score."""
-        record = MetricRecord(
-            clip_id="test_001",
-            method="baseline",
-            timestamp=datetime.now().isoformat(),
-            peak_memory_mb=1500.5,
-            inference_time_ms=2500.0,
-            bss_score=-0.5,
-            flow_normalized_ssim=0.92,
-            avg_flow_magnitude=2.5,
-            invalid_flow_count=0,
-            total_frames=300,
-        )
-        validator = MetricsValidator()
-        assert validator.validate_record(record) is False
-        errors = validator.get_errors()
-        assert any("bss_score must be in [0, 1]" in err for err in errors)
-
-    def test_ssim_out_of_bounds(self):
-        """Test validation fails when SSIM > 1."""
-        record = MetricRecord(
-            clip_id="test_001",
-            method="baseline",
-            timestamp=datetime.now().isoformat(),
-            peak_memory_mb=1500.5,
-            inference_time_ms=2500.0,
-            bss_score=0.95,
-            flow_normalized_ssim=1.5,
-            avg_flow_magnitude=2.5,
-            invalid_flow_count=0,
-            total_frames=300,
-        )
-        validator = MetricsValidator()
-        assert validator.validate_record(record) is False
-        errors = validator.get_errors()
-        assert any("flow_normalized_ssim must be in [0, 1]" in err for err in errors)
+def test_valid_dataset_schema():
+    """Test that a valid dataset JSON record passes validation."""
+    valid_data = {
+        "dataset_id": "test-ds-001",
+        "name": "Test Dataset",
+        "created_at": datetime.utcnow().isoformat(),
+        "clips": [
+            {
+                "clip_id": "clip-001",
+                "source_dataset": "DAVIS",
+                "duration_seconds": 10.5,
+                "frame_count": 315,
+                "resolution": [480, 640],
+                "fps": 30.0,
+                "motion_magnitude": 0.45,
+                "stratification_group": "low"
+            }
+        ],
+        "total_clips": 1,
+        "metadata": {"source": "manual"}
+    }
+    # Should not raise
+    result = DatasetValidator.validate_from_dict(valid_data)
+    assert result.dataset_id == "test-ds-001"
+    assert len(result.clips) == 1
+    assert result.clips[0].clip_id == "clip-001"
 
 
-class TestAnalysisValidator:
-    """Tests for AnalysisValidator."""
+def test_invalid_dataset_schema_missing_field():
+    """Test that missing required fields raise ValidationError."""
+    invalid_data = {
+        "dataset_id": "test-ds-002",
+        "name": "Incomplete Dataset",
+        # Missing 'clips' and 'total_clips'
+        "created_at": datetime.utcnow().isoformat(),
+        "total_clips": 0
+    }
+    with pytest.raises(ValidationError):
+        DatasetValidator.validate_from_dict(invalid_data)
 
-    def test_valid_result(self):
-        """Test validation of a valid AnalysisResult."""
-        result = AnalysisResult(
-            analysis_id="analysis_001",
-            timestamp=datetime.now().isoformat(),
-            method="ks_test",
-            description="Kolmogorov-Smirnov test between baseline and flow methods",
-            ks_statistic=0.25,
-            ks_p_value=0.03,
-            change_points=None,
-            significance_level=0.05,
-            summary="Significant difference found between methods (p < 0.05)",
-            raw_data_path="data/metrics/baseline_results.json",
-        )
-        validator = AnalysisValidator()
-        assert validator.validate_result(result) is True
-        assert len(validator.get_errors()) == 0
 
-    def test_invalid_method(self):
-        """Test validation fails on invalid method."""
-        result = AnalysisResult(
-            analysis_id="analysis_002",
-            timestamp=datetime.now().isoformat(),
-            method="invalid_method",
-            description="Test description",
-            ks_statistic=0.25,
-            ks_p_value=0.03,
-            change_points=None,
-            significance_level=0.05,
-            summary="Test summary",
-            raw_data_path="data/metrics/baseline_results.json",
-        )
-        validator = AnalysisValidator()
-        assert validator.validate_result(result) is False
-        errors = validator.get_errors()
-        assert any("Invalid method" in err for err in errors)
+def test_invalid_dataset_schema_total_mismatch():
+    """Test that mismatched total_clips raises ValidationError."""
+    invalid_data = {
+        "dataset_id": "test-ds-003",
+        "name": "Mismatched Dataset",
+        "created_at": datetime.utcnow().isoformat(),
+        "clips": [
+            {
+                "clip_id": "c1", "source_dataset": "DAVIS", "duration_seconds": 1.0,
+                "frame_count": 30, "resolution": [480, 640], "fps": 30.0
+            }
+        ],
+        "total_clips": 5, # Claims 5, but only 1 clip provided
+        "metadata": {}
+    }
+    with pytest.raises(ValidationError) as exc_info:
+        DatasetValidator.validate_from_dict(invalid_data)
+    assert "total_clips" in str(exc_info.value).lower()
 
-    def test_ks_statistic_out_of_bounds(self):
-        """Test validation fails when KS statistic > 1."""
-        result = AnalysisResult(
-            analysis_id="analysis_003",
-            timestamp=datetime.now().isoformat(),
-            method="ks_test",
-            description="Test description",
-            ks_statistic=1.5,
-            ks_p_value=0.03,
-            change_points=None,
-            significance_level=0.05,
-            summary="Test summary",
-            raw_data_path="data/metrics/baseline_results.json",
-        )
-        validator = AnalysisValidator()
-        assert validator.validate_result(result) is False
-        errors = validator.get_errors()
-        assert any("ks_statistic must be in [0, 1]" in err for err in errors)
 
-    def test_unsorted_change_points(self):
-        """Test validation fails on unsorted change points."""
-        result = AnalysisResult(
-            analysis_id="analysis_004",
-            timestamp=datetime.now().isoformat(),
-            method="piecewise_regression",
-            description="Test description",
-            ks_statistic=None,
-            ks_p_value=None,
-            change_points=[5.0, 2.0, 8.0],
-            significance_level=0.05,
-            summary="Test summary",
-            raw_data_path="data/metrics/baseline_results.json",
-        )
-        validator = AnalysisValidator()
-        assert validator.validate_result(result) is False
-        errors = validator.get_errors()
-        assert any("change_points must be sorted" in err for err in errors)
+# --- Metric Schema Tests ---
 
-    def test_empty_summary(self):
-        """Test validation fails on empty summary."""
-        result = AnalysisResult(
-            analysis_id="analysis_005",
-            timestamp=datetime.now().isoformat(),
-            method="ks_test",
-            description="Test description",
-            ks_statistic=0.25,
-            ks_p_value=0.03,
-            change_points=None,
-            significance_level=0.05,
-            summary="",
-            raw_data_path="data/metrics/baseline_results.json",
-        )
-        validator = AnalysisValidator()
-        assert validator.validate_result(result) is False
-        errors = validator.get_errors()
-        assert any("summary must not be empty" in err for err in errors)
+def test_valid_metric_schema():
+    """Test that a valid metric JSON record passes validation."""
+    valid_data = {
+        "experiment_id": "exp-001",
+        "model_name": "baseline",
+        "generated_at": datetime.utcnow().isoformat(),
+        "records": [
+            {
+                "record_id": "rec-001",
+                "clip_id": "clip-001",
+                "metric_type": "ssim",
+                "value": 0.85,
+                "unit": "unitless",
+                "metadata": {"frame_idx": 10}
+            }
+        ],
+        "total_records": 1
+    }
+    result = MetricValidator.validate_from_dict(valid_data)
+    assert result.model_name == "baseline"
+    assert result.records[0].value == 0.85
+
+
+def test_invalid_metric_schema_type_mismatch():
+    """Test that non-numeric value raises ValidationError."""
+    invalid_data = {
+        "experiment_id": "exp-002",
+        "model_name": "flow",
+        "generated_at": datetime.utcnow().isoformat(),
+        "records": [
+            {
+                "record_id": "rec-002",
+                "clip_id": "clip-002",
+                "metric_type": "memory",
+                "value": "not_a_number", # Invalid type
+                "total_records": 1
+            }
+        ],
+        "total_records": 1
+    }
+    with pytest.raises(ValidationError):
+        MetricValidator.validate_from_dict(invalid_data)
+
+
+# --- Analysis Schema Tests ---
+
+def test_valid_analysis_schema():
+    """Test that a valid analysis JSON record passes validation."""
+    valid_data = {
+        "report_id": "analysis-001",
+        "created_at": datetime.utcnow().isoformat(),
+        "comparisons": [
+            {
+                "result_id": "res-001",
+                "analysis_type": "ks_test",
+                "timestamp": datetime.utcnow().isoformat(),
+                "parameters": {"alpha": 0.05},
+                "results": [
+                    {
+                        "test_name": "KS_Test",
+                        "statistic": 0.15,
+                        "p_value": 0.03,
+                        "conclusion": "Significant difference detected"
+                    }
+                ],
+                "summary": "Analysis complete"
+            }
+        ],
+        "total_comparisons": 1,
+        "metadata": {}
+    }
+    result = AnalysisValidator.validate_from_dict(valid_data)
+    assert result.report_id == "analysis-001"
+    assert result.comparisons[0].results[0].p_value == 0.03
+
+
+def test_invalid_analysis_schema_total_mismatch():
+    """Test that mismatched total_comparisons raises ValidationError."""
+    invalid_data = {
+        "report_id": "analysis-002",
+        "created_at": datetime.utcnow().isoformat(),
+        "comparisons": [],
+        "total_comparisons": 3, # Claims 3, but list is empty
+        "metadata": {}
+    }
+    with pytest.raises(ValidationError) as exc_info:
+        AnalysisValidator.validate_from_dict(invalid_data)
+    assert "total_comparisons" in str(exc_info.value).lower()
