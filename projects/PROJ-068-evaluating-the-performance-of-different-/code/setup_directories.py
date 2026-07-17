@@ -1,22 +1,20 @@
+"""
+Setup script to create the project directory structure.
+
+This script creates the directories required for T001:
+projects/PROJ-068-evaluating-the-performance-of-different-/code/
+projects/PROJ-068-evaluating-the-performance-of-different-/tests/
+projects/PROJ-068-evaluating-the-performance-of-different-/data/
+projects/PROJ-068-evaluating-the-performance-of-different-/results/
+"""
 import os
-import hashlib
-import json
 import sys
+import json
+import hashlib
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
 
-# Define the required directory structure relative to the project root
-REQUIRED_DIRS = [
-    "data/processed",
-    "results/benchmarks",
-    "results/figures",
-    "results/stats",
-    "logs",
-]
-
-CHECKSUM_FILE = "results/checksums.json"
-
-def compute_file_checksum(file_path: str) -> str:
+def compute_file_checksum(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     try:
@@ -27,99 +25,107 @@ def compute_file_checksum(file_path: str) -> str:
     except FileNotFoundError:
         return ""
 
-def setup_directories(base_path: str = ".") -> List[str]:
-    """Create required directory structure if it doesn't exist."""
-    base = Path(base_path)
-    created = []
-    for dir_name in REQUIRED_DIRS:
-        full_path = base / dir_name
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(full_path))
-        elif not full_path.is_dir():
-            raise RuntimeError(f"Path {full_path} exists but is not a directory")
-    return created
+def setup_directories(base_path: Path) -> List[Path]:
+    """
+    Create the required directory structure.
+    
+    Args:
+        base_path: The root path where the project directories will be created.
+        
+    Returns:
+        List of created directory paths.
+    """
+    project_name = "PROJ-068-evaluating-the-performance-of-different-"
+    project_root = base_path / project_name
+    
+    required_dirs = [
+        project_root / "code",
+        project_root / "tests",
+        project_root / "data",
+        project_root / "results",
+    ]
+    
+    created_dirs = []
+    for dir_path in required_dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        created_dirs.append(dir_path)
+        print(f"Created directory: {dir_path}")
+        
+    return created_dirs
 
-def generate_checksums(base_path: str = ".", files: List[str] = None) -> Dict[str, str]:
-    """Generate checksums for all files in results/benchmarks and data/processed."""
-    base = Path(base_path)
+def generate_checksums(directory: Path, checksum_file: Path) -> Dict[str, str]:
+    """
+    Generate checksums for all files in a directory recursively.
+    
+    Args:
+        directory: The directory to scan.
+        checksum_file: Path to the JSON file to write checksums to.
+        
+    Returns:
+        Dictionary of relative paths to checksums.
+    """
     checksums = {}
-    
-    # Scan specific directories
-    target_dirs = [base / "results/benchmarks", base / "data/processed"]
-    
-    for target_dir in target_dirs:
-        if not target_dir.exists():
-            continue
-        for file_path in target_dir.rglob("*"):
-            if file_path.is_file():
-                rel_path = str(file_path.relative_to(base))
-                checksums[rel_path] = compute_file_checksum(str(file_path))
-    
-    # Save checksums
-    checksum_file = base / CHECKSUM_FILE
-    with open(checksum_file, "w") as f:
+    for root, _, files in os.walk(directory):
+        for file in files:
+            file_path = Path(root) / file
+            rel_path = file_path.relative_to(directory)
+            checksum = compute_file_checksum(file_path)
+            checksums[str(rel_path)] = checksum
+            
+    with open(checksum_file, 'w') as f:
         json.dump(checksums, f, indent=2)
-    
+        
     return checksums
 
-def verify_directories(base_path: str = ".") -> Tuple[bool, List[str]]:
-    """Verify that all required directories exist and checksums match if file exists."""
-    base = Path(base_path)
-    missing = []
-    issues = []
+def verify_directories(base_path: Path) -> bool:
+    """
+    Verify that the required directories exist.
     
-    # Check directories
-    for dir_name in REQUIRED_DIRS:
-        full_path = base / dir_name
-        if not full_path.exists() or not full_path.is_dir():
-            missing.append(dir_name)
-    
-    # Verify checksums if file exists
-    checksum_file = base / CHECKSUM_FILE
-    if checksum_file.exists():
-        with open(checksum_file, "r") as f:
-            stored_checksums = json.load(f)
+    Args:
+        base_path: The root path to check.
         
-        for rel_path, stored_hash in stored_checksums.items():
-            full_path = base / rel_path
-            if not full_path.exists():
-                issues.append(f"Missing file: {rel_path}")
-            else:
-                current_hash = compute_file_checksum(str(full_path))
-                if current_hash != stored_hash:
-                    issues.append(f"Checksum mismatch: {rel_path}")
-    else:
-        # No checksum file yet, just check directories
-        pass
+    Returns:
+        True if all directories exist, False otherwise.
+    """
+    project_name = "PROJ-068-evaluating-the-performance-of-different-"
+    project_root = base_path / project_name
     
-    return len(missing) == 0 and len(issues) == 0, missing + issues
+    required_dirs = [
+        project_root / "code",
+        project_root / "tests",
+        project_root / "data",
+        project_root / "results",
+    ]
+    
+    all_exist = True
+    for dir_path in required_dirs:
+        if not dir_path.exists() or not dir_path.is_dir():
+            print(f"Missing directory: {dir_path}")
+            all_exist = False
+            
+    return all_exist
 
 def main():
-    """Main entry point for directory setup and verification."""
-    base_path = Path(__file__).parent.parent
+    """Main entry point for the setup script."""
+    base_path = Path("projects")
     
-    print(f"Setting up directories in {base_path}...")
-    created = setup_directories(str(base_path))
-    if created:
-        print(f"Created directories: {created}")
-    else:
-        print("All required directories already exist.")
+    print(f"Setting up project structure in: {base_path}")
     
-    print("Generating checksums...")
-    checksums = generate_checksums(str(base_path))
-    print(f"Checksums saved to {base_path / CHECKSUM_FILE}")
-    print(f"Total files checksummed: {len(checksums)}")
+    # Create directories
+    created = setup_directories(base_path)
     
-    print("Verifying structure...")
-    is_valid, issues = verify_directories(str(base_path))
-    if is_valid:
-        print("✓ Directory structure verified successfully.")
+    if not created:
+        print("ERROR: Failed to create any directories.")
+        return 1
+        
+    print(f"\nSuccessfully created {len(created)} directories.")
+    
+    # Verify
+    if verify_directories(base_path):
+        print("Verification PASSED: All required directories exist.")
         return 0
     else:
-        print("✗ Verification failed:")
-        for issue in issues:
-            print(f"  - {issue}")
+        print("Verification FAILED: Some directories are missing.")
         return 1
 
 if __name__ == "__main__":

@@ -34,7 +34,7 @@ This project implements and benchmarks three Bloom filter variants (native array
 | **III. Data Hygiene** | ✅ Pass | Plan requires checksums for all `data/` files and immutable raw data handling. |
 | **IV. Single Source of Truth** | ✅ Pass | Visualizations and stats generated directly from `results/` CSVs; no manual transcription. |
 | **V. Versioning Discipline** | ✅ Pass | Content hashes to be computed for all artifacts; `state/` updated on changes. |
-| **VI. Benchmarking Consistency** | ✅ Pass (Exception) | Plan explicitly schedules FPRs ([deferred], [deferred], [deferred]), sizes (10k–1M), 50 repetitions, and wall-clock/memory metrics. Dataset source is synthetic proxy, not raw Enron/Google, per Requirement Exception. |
+| **VI. Benchmarking Consistency** | ✅ Pass (Exception) | Plan explicitly schedules FPRs ([deferred], [deferred], [deferred]), sizes (k–1M), 50 repetitions, and wall-clock/memory metrics. Dataset source is synthetic proxy, not raw Enron/Google, per Requirement Exception. |
 | **VII. Statistical Significance Reporting** | ✅ Pass | Plan mandates Kruskal-Wallis H-test with p < 0.05 threshold and reporting of effect sizes. |
 
 ### Constitutional Amendment Note
