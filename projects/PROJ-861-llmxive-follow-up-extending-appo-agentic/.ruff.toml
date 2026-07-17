@@ -1,0 +1,4 @@
+# This file extends the settings in pyproject.toml for local IDE usage if needed.
+# Currently, we rely solely on pyproject.toml for configuration.
+# This file is a placeholder to ensure the tool can find the config if it looks here first.
+extend = "pyproject.toml"

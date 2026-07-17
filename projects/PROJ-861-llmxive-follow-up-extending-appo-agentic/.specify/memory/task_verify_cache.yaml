@@ -1,0 +1,40 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting/formatting configuration files (e.g., `pyproject.toml` with `[tool.black]`
+    and `[tool.ruff]`, a `.ruff.toml`, or a `pre-commit` config) were provided for
+    the `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/` directory, nor
+    any evidence that `ruff` and `black` have been installed or run. The required
+    artifacts are missing, so the task is not satisfied.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were presented that implement the required\
+    \ timing\u2011monitoring, exclusion logging (\u201CTIMEOUT_EXCLUDED\u201D), or\
+    \ the exit\u2011on\u2011high\u2011exclusion\u2011rate behavior (\u201CRESOURCE_LIMIT_EXCEEDED\u201D\
+    ). The artifact needed to demonstrate this logic is missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data file, or documentation was provided that implements the required\
+    \ failure\u2011handling logic (recording a negative likelihood gain or a failure\
+    \ state when the policy cannot find a solution). Without any artifact to inspect,\
+    \ we cannot confirm the feature was added. The task remains unimplemented."
+T026:
+  c: false
+  h: 3fc94b8d6feb93b57bacd50c9501550966bd2af3ee0ff1f096a998043fe9dcc9
+  r: "The required unit test file `tests/unit/test_alignment.py` is missing from the\
+    \ repository, so no test code exists to verify the alignment logic. Without this\
+    \ artifact, the task\u2019s requirement is not satisfied."
+T028:
+  c: false
+  h: 3dd8fbfa8f4db11804283fa5a08224fd990cce9021455edd9fd3bc780edb49c5
+  r: "The required integration test file `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/integration/test_correlation_pipeline.py`\
+    \ is missing, so no test code exists to satisfy the task\u2019s specification."
+T029b:
+  c: false
+  h: f0a379522256ebf3a659bbd5187fd2233c2a6725a9f279aaa07e12356e194c52
+  r: "The required output file `data/processed/dtw_alignment_matrix.json` is missing,\
+    \ and the `compute_dtw_alignment` function in `code/analysis/correlation.py` is\
+    \ truncated and not fully implemented. The task\u2019s deliverables are therefore\
+    \ not present."

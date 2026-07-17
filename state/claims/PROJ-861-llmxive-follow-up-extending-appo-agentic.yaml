@@ -1,0 +1,247 @@
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: GSM8K dataset ID openai/gsm8k
+  claim_id: c_d95c887b
+  context: 'Implement data download utility to fetch GSM8K (dataset ID: openai/gsm8k)
+    and MATH (dataset ID: hendrycks/math) datasets from verified HuggingFace URLs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GSM8K_dataset_ID_openai/gsm8k
+  kind: entity_fact
+  raw_text: The dataset ID for GSM8K is openai/gsm8k.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:22:20Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: MATH dataset ID hendrycks/math
+  claim_id: c_925375c8
+  context: 'Implement data download utility to fetch GSM8K (dataset ID: openai/gsm8k)
+    and MATH (dataset ID: hendrycks/math) datasets from verified HuggingFace URLs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MATH_dataset_ID_hendrycks/math
+  kind: entity_fact
+  raw_text: The dataset ID for MATH is hendrycks/math.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:25:32Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: StaticScorer default model microsoft/phi-2
+  claim_id: c_434f9fbd
+  context: Implement StaticScorer class in code/static_score/compute.py (loads microsoft/phi-2
+    by default in default precision, CPU device).
+  evidence:
+    asserted: '-2.0'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: The default model for the StaticScorer class is microsoft/phi-2.
+  resolved_value: '2'
+  resolver: approximate
+  source_hash: 290a41cc5fb1b98dcc344e1c80bbc36f6fae8c957aab54f9535e67f96da14e06
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T02:25:32Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: StaticScorer fallback model meta-llama/Llama-3-8B
+  claim_id: c_8b23e85e
+  context: Implement StaticScorer class in code/static_score/compute.py... fallback
+    to meta-llama/Llama-3-8B if specified.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback model for the StaticScorer class is meta-llama/Llama-3-8B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:36:07Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: epsilon smoothing factor 1e-9 for log(0)
+  claim_id: c_4e188afb
+  context: Implement StaticScorer class... MUST implement epsilon smoothing factor
+    of 1e-9 to handle log(0) scenarios as per Spec Edge Cases.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The epsilon smoothing factor for log(0) scenarios is 1e-9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:39:12Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: probability clamping floor 1e-9
+  claim_id: c_61bf6956
+  context: Unit test for probability clamping (floor set to 1e-9) to prevent NaN.
+  evidence:
+    asserted: 1e-09
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The probability clamping floor to prevent NaN is 1e-9.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T02:39:12Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: stratified sampling bins tokens < 50, 50-100, > 100
+  claim_id: c_e9ec4916
+  context: 'Implement stratified random sampling... stratify by problem length/token
+    count into bins: tokens < 50, 50 <= tokens <= 100, tokens > 100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified random sampling bins for task difficulty are tokens < 50,
+    50 <= tokens <= 100, and tokens > 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:39:22Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: APPO rollout subset size 50 tasks
+  claim_id: c_030ffa94
+  context: Implement run_appo_rollout function... executes online rollouts on the
+    stratified random subset of exactly 50 tasks generated by T021.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of tasks in the stratified random subset for APPO rollouts
+    is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:39:34Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: permutation test minimum 5000 iterations
+  claim_id: c_330e0a7f
+  context: Implement Permutation Test... target of [deferred] iterations (minimum
+    5,000); MUST complete minimum 5,000 iterations before timeout check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum iteration count for the permutation test is 5,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:39:48Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: permutation test timeout 5.5 hours
+  claim_id: c_7b6dd153
+  context: Implement Permutation Test with hard timeout (5.5h) and target of [deferred]
+    iterations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hard timeout for the permutation test is 5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:39:56Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: correlation pipeline integration test 3 seeds
+  claim_id: c_434a435f
+  context: Integration test for full correlation pipeline with known dummy data, running
+    [deferred] iterations per seed across n=3 seeds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The integration test for the correlation pipeline uses n=3 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:50:35Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: alignment logic 80% overlap threshold
+  claim_id: c_7c317d60
+  context: Unit test for alignment logic (truncation/exclusion <80% overlap).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alignment_logic_80%25_overlap_threshold
+  kind: magnitude
+  raw_text: The alignment logic requires at least 80% overlap to avoid truncation
+    or exclusion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:52:40Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: correlation coefficient threshold > 0.7
+  claim_id: c_b4335682
+  context: Implement verification logic to assert that the correlation coefficient
+    meets the SC-001 threshold (>0.7).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/correlation_coefficient_threshold_%3E_0.7
+  kind: magnitude
+  raw_text: The correlation coefficient threshold for a feasible result is greater
+    than 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:52:52Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: peak memory usage < 7 GB
+  claim_id: c_fe924e39
+  context: Add memory profiling code... to verify memory usage <7 GB peak.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/peak_memory_usage_%3C_7_GB
+  kind: magnitude
+  raw_text: The peak memory usage must be less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T02:53:02Z'

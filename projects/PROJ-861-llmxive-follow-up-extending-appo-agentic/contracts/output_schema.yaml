@@ -1,0 +1,45 @@
+ReasoningTrace:
+  task_id:
+    type: str
+    required: true
+  tokens:
+    type: list
+    required: true
+  static_scores:
+    type: list
+    required: true
+  dynamic_scores:
+    type: list
+    required: true
+
+BranchingScore:
+  task_id:
+    type: str
+    required: true
+  position:
+    type: int
+    required: true
+  score:
+    type: float
+    required: true
+  type:
+    type: str
+    required: true
+    enum: [static, dynamic]
+
+CorrelationResult:
+  pearson:
+    type: float
+    required: true
+  spearman:
+    type: float
+    required: true
+  p_value:
+    type: float
+    required: true
+  seeds:
+    type: list
+    required: true
+  inconclusive_flag:
+    type: bool
+    required: true
