@@ -1,61 +1,37 @@
-#!/usr/bin/env python3
-"""
-Verification script to assert existence of all required project directories.
-
-This script is used to verify that the project structure has been correctly
-initialized according to the project specification.
-
-Usage:
-    python tools/setup_verify.py
-"""
 import os
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
-# Project root
-PROJECT_ROOT = Path(__file__).parent.parent
+# Project root is the parent of the 'tools' directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 REQUIRED_DIRS = [
-    "code",
-    "tests",
-    "data",
-    "data/processed",
-    "results",
-    "results/benchmarks",
-    "tools",
-    "specs",
+    "projects/PROJ-068-evaluating-the-performance-of-different-/code",
+    "projects/PROJ-068-evaluating-the-performance-of-different-/tests",
+    "projects/PROJ-068-evaluating-the-performance-of-different-/data",
+    "projects/PROJ-068-evaluating-the-performance-of-different-/results",
 ]
 
-def verify_directories() -> Tuple[bool, List[str]]:
-    """Verify that all required directories exist."""
-    missing = []
+def main():
+    """Verify that all required project directories exist."""
+    print(f"Verifying project structure at: {PROJECT_ROOT}")
+    
+    missing_dirs = []
     for dir_path in REQUIRED_DIRS:
         full_path = PROJECT_ROOT / dir_path
         if not full_path.exists():
-            missing.append(dir_path)
-        elif not full_path.is_dir():
-            missing.append(f"{dir_path} (not a directory)")
+            missing_dirs.append(dir_path)
+        else:
+            print(f"[OK] {dir_path}")
     
-    return len(missing) == 0, missing
-
-def main() -> int:
-    """Main entry point."""
-    print("Verifying project directory structure...")
-    print(f"Project root: {PROJECT_ROOT}")
+    if missing_dirs:
+        print("\n[FAIL] Missing directories:")
+        for d in missing_dirs:
+            print(f"  - {d}")
+        sys.exit(1)
     
-    success, missing = verify_directories()
-    
-    if missing:
-        print("\n❌ VERIFICATION FAILED:")
-        print("Missing or invalid directories:")
-        for item in missing:
-            print(f"  - {item}")
-        print("\nPlease run the project setup script to initialize the directory structure.")
-        return 1
-    
-    print("\n✅ All required directories exist.")
-    print("Directory structure verification passed.")
-    return 0
+    print("\n[SUCCESS] All required directories exist.")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

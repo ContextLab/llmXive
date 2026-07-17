@@ -1,15 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`projects/PROJ-068-evaluating-the-performance-of-different-/code/`,
-    `tests/`, `data/`, `results/`) or the output of `tools/setup_verify.py` is provided,
-    so we cannot confirm that the project structure was actually created.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/processed/` and `results/benchmarks/` directories,\
-    \ the `tools/pre-commit-checksum.py` script, or the installed git hook is provided;\
-    \ without these artifacts the task\u2019s requirement is not satisfied."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

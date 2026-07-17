@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements and benchmarks three Bloom filter variants (native arrays, dynamic vectors, specialized bitsets) to evaluate memory overhead and operation latency across varying dataset sizes. The implementation adheres to strict CPU-only constraints for GitHub Actions free-tier compatibility, using Python 3.11 with `scipy` for statistical analysis (Kruskal-Wallis H-test) and `memory_profiler` for resource tracking. The study targets false positive rates of [deferred], [deferred], and [deferred] with dataset sizes ranging from a minimum threshold to one million elements.
+This project implements and benchmarks three Bloom filter variants (native arrays, dynamic vectors, specialized bitsets) to evaluate memory overhead and operation latency across varying dataset sizes. The implementation adheres to strict CPU-only constraints for GitHub Actions free-tier compatibility, using Python for statistical analysis (Kruskal-Wallis H-test) and `memory_profiler` for resource tracking. The study targets false positive rates of [deferred], [deferred], and [deferred] with dataset sizes ranging from a minimum threshold to one million elements.
 
 **Critical Amendment**: Due to the absence of Enron/Google datasets in the "Verified datasets" block, this plan executes a **Requirement Exception**. We will use **Synthetic Data Modeled on Target Distributions** (validated via Kolmogorov-Smirnov test) instead of raw sampling, as inventing URLs is strictly prohibited.
 
@@ -143,7 +143,7 @@ tests/
 |------|------------|
 | Dataset download fails | N/A (Synthetic data generated locally). |
 | Memory overflow (>7GB) | Enforce strict dataset sampling; monitor memory usage per run; fail gracefully if limit exceeded. |
-| High variance (>20% CV) | Increase repetitions to 50; log variance metrics; report "Inconclusive" for small effects. |
+| High variance (>20% CV) | Increase repetitions to a sufficient number to ensure statistical robustness.; log variance metrics; report "Inconclusive" for small effects. |
 | Hash collision false positives | Use deterministic MurmurHash3; verify observed FPR via Cross-Implementation Consistency. |
 | 6-hour timeout exceeded | **Phased Execution**: Run small sizes first. **Hard Stop**: If [deferred] budget consumed by large sizes, truncate remaining large-size runs to ensure full matrix of smaller sizes completes. |
 | KS-test validation deadlock | **Retry Limit**: A limited number of attempts. If failed, proceed with best-fit parameters and log "degraded" status. |
