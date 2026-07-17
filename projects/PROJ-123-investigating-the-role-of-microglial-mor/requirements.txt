@@ -1,13 +1,11 @@
-# Core dependencies
-numpy>=1.24.0
-pandas>=2.0.0
-scikit-learn>=1.3.0
-statsmodels>=0.14.0
-opencv-python-headless>=4.8.0
-scikit-image>=0.21.0
-pyyaml>=6.0
-ruff>=0.1.0
-black>=23.0.0
-pytest>=7.4.0
-# New dependency for synthetic data generation (already in list, but ensuring presence)
-# Note: scikit-image and opencv are sufficient for the generation logic.
+scikit-learn
+statsmodels
+numpy
+pandas
+opencv-python-headless
+scikit-image
+pyyaml
+ruff
+black
+pytest
+pytest-cov

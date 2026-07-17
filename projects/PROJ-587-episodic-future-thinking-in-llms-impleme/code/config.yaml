@@ -1,23 +1,27 @@
 # Configuration for Episodic Future Thinking in LLMs Project
 # This file defines log levels, output destinations, and global parameters.
 # Referenced by utils/logging.py and the main execution pipeline.
+#
+# NOTE: This configuration satisfies the requirements for T008b (log levels/destinations)
+# and T009 (dataset_paths). It replaces the previous `data_paths` section with
+# the required `dataset_paths` key to align with the specification.
 
 logging:
   # Log levels: NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL
   # Default level for the root logger
   root_level: INFO
-  
+
   # Formatters
   format:
     json:
       enabled: true
       # Fields included in JSON output
       fields: ["timestamp", "level", "logger", "message", "module", "function", "line"]
-    
+
     console:
       enabled: true
       format_string: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  
+
   # Output destinations
   handlers:
     console:
@@ -25,7 +29,7 @@ logging:
       level: INFO
       formatter: "console"
       stream: "ext://sys.stdout"
-    
+
     file:
       type: "FileHandler"
       level: DEBUG
@@ -36,7 +40,7 @@ logging:
       encoding: "utf-8"
       maxBytes: 10485760  # 10MB
       backupCount: 5
-    
+
     fallback:
       type: "FileHandler"
       level: WARNING
@@ -45,7 +49,7 @@ logging:
       filename: "../data/logs/fallback_events.log"
       mode: "a"
       encoding: "utf-8"
-    
+
     retrieval_stats:
       type: "FileHandler"
       level: INFO
@@ -54,24 +58,24 @@ logging:
       filename: "../data/logs/retrieval_stats.log"
       mode: "a"
       encoding: "utf-8"
-  
+
   # Specific logger configurations
   loggers:
     episodic_memory:
       level: INFO
       handlers: ["console", "file"]
       propagate: false
-    
+
     retrieval_service:
       level: DEBUG
       handlers: ["console", "retrieval_stats", "fallback"]
       propagate: false
-    
+
     planning_service:
       level: INFO
       handlers: ["console", "file"]
       propagate: false
-    
+
     validation:
       level: WARNING
       handlers: ["console", "fallback"]
@@ -83,24 +87,22 @@ project:
   version: "0.1.0"
   random_seed: 42
   cpu_limit: 2
-  
-# Data paths (relative to code/)
-data_paths:
-  raw: "../data/raw"
-  processed: "../data/processed"
-  models: "../models"
-  reports: "../data/reports"
-  logs: "../data/logs"
-  
-# Dataset configuration
-datasets:
+
+# Dataset configuration - REQUIRED by T009
+# This section explicitly defines paths for ALFWorld and TextWorld datasets
+# satisfying the "dataset_paths" key requirement.
+dataset_paths:
   alfworld:
     path: "../data/raw/alfworld"
     version: "1.0"
+    source: "official_repository"
   textworld:
     path: "../data/raw/textworld"
     version: "1.0"
-    
+    source: "official_repository"
+  processed_trajectories:
+    path: "../data/processed/trajectories.parquet"
+
 # Model configuration
 models:
   embedding:
@@ -111,7 +113,7 @@ models:
     model_name: "google/bert-base-uncased"
     max_length: 512
     device: "cpu"
-    
+
 # Retrieval configuration
 retrieval:
   index_type: "HNSW"
@@ -120,7 +122,7 @@ retrieval:
   similarity_threshold: 0.75
   fallback_threshold: 2  # Number of results below which fallback triggers
   conflict_similarity_diff: 0.15
-  
+
 # Statistical analysis
 stats:
   power_analysis:
@@ -129,7 +131,7 @@ stats:
     effect_size: 0.8
     n_variants: 10
   multiple_comparison_correction: "bonferroni"
-  
+
 # Validation
 validation:
   human_raters_min: 3

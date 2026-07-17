@@ -1,105 +1,128 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://llmxive.org/schemas/dataset.schema.yaml
 title: Microglial Morphology Dataset Schema
 description: |
-  Schema for the raw and processed input dataset used in the
-  investigation of microglial morphology in age-related cognitive decline.
-  Defines the expected structure for metadata and image references.
+  Schema for the raw and processed dataset used in the investigation of
+  microglial morphology in age-related cognitive decline.
+  Defines the structure for input microscopy data and associated metadata.
 type: object
 required:
-  - version
+  - metadata
   - subjects
   - images
 properties:
-  version:
-    type: string
-    pattern: "^\\d+\\.\\d+\\.\\d+$"
-    description: Semantic version of the dataset schema.
   metadata:
     type: object
-    description: Global dataset metadata.
+    description: Project-level metadata
+    required:
+      - version
+      - created_at
+      - pipeline_version
     properties:
+      version:
+        type: string
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+        description: Dataset version (SemVer)
       created_at:
         type: string
         format: date-time
+        description: ISO 8601 timestamp of creation
+      pipeline_version:
+        type: string
+        description: Version of the processing pipeline used
       source:
         type: string
-        description: Origin of the data (e.g., 'SyntheticGenerator', 'PublicRepository').
-      processing_pipeline:
-        type: string
-        description: Identifier for the pipeline version used.
+        description: Origin of the data (e.g., public repository, lab acquisition)
+  
   subjects:
     type: array
-    description: List of subject metadata.
+    description: List of subject records
     items:
       type: object
       required:
         - subject_id
-        - age
-        - cognitive_status
         - brain_region
+        - cognitive_status
+        - amyloid_beta_load
       properties:
         subject_id:
           type: string
-          description: Unique identifier for the subject (e.g., 'SUBJ-001').
-        age:
-          type: integer
-          minimum: 0
-          description: Age of the subject in years.
+          description: Unique identifier for the subject
+        brain_region:
+          type: string
+          enum:
+            - Hippocampus
+            - Prefrontal_Cortex
+            - Amygdala
+            - Entorhinal_Cortex
+          description: Brain region of origin
         cognitive_status:
           type: string
           enum:
             - Control
             - MCI
-            - Early AD
-            - Late AD
-            - Unknown
-          description: Cognitive classification of the subject.
+            - AD
+          description: Cognitive classification
+        age:
+          type: integer
+          minimum: 50
+          description: Age of the subject in years
+        sex:
+          type: string
+          enum:
+            - M
+            - F
+          description: Biological sex
         amyloid_beta_load:
           type: number
           minimum: 0
-          description: Quantitative amyloid-beta load (optional, used for dynamic classification).
-        brain_region:
+          description: Quantified amyloid-beta load (normalized 0-1)
+        pathology_status:
           type: string
-          description: Specific brain region sampled (e.g., 'Hippocampus', 'Prefrontal Cortex').
-        metadata:
-          type: object
-          description: Additional subject-specific metadata.
+          enum:
+            - None
+            - Low
+            - Moderate
+            - High
+          description: General pathology classification
+  
   images:
     type: array
-    description: List of image entries linking to files and subjects.
+    description: List of image records linked to subjects
     items:
       type: object
       required:
         - image_id
         - subject_id
         - file_path
-        - acquisition_date
+        - acquisition_params
       properties:
         image_id:
           type: string
-          description: Unique identifier for the image (e.g., 'IMG-001-01').
+          description: Unique identifier for the image
         subject_id:
           type: string
-          description: Reference to the subject_id in the subjects list.
+          description: Foreign key to subjects
         file_path:
           type: string
-          description: Relative path to the image file (e.g., 'data/raw/images/IMG-001-01.tif').
-        acquisition_date:
-          type: string
-          format: date
-          description: Date the image was acquired.
-        microscope_model:
-          type: string
-          description: Model of the microscope used.
-        magnification:
-          type: number
-          description: Magnification level (e.g., 20.0, 40.0).
-        pixel_size_um:
-          type: number
-          minimum: 0
-          description: Physical size of a pixel in micrometers.
-        metadata:
+          description: Relative path to the image file
+        acquisition_params:
           type: object
-          description: Additional image-specific metadata.
+          required:
+            - magnification
+            - resolution_um
+            - channel
+          properties:
+            magnification:
+              type: integer
+              description: Objective magnification (e.g., 60)
+            resolution_um:
+              type: number
+              description: Pixel resolution in micrometers
+            channel:
+              type: string
+              description: Fluorescence channel used
+        metadata_missing:
+          type: boolean
+          default: false
+          description: Flag indicating if critical metadata was missing (FR-001)
 additionalProperties: false

@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-123-investigating-the-role-of-microglial-mor/` <!-- ATOMIZE: requested -->
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, statsmodels, numpy, pandas, opencv-python-headless, scikit-image, pyyaml)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
+- [ ] T001 Create project structure per implementation plan in `projects/PROJ-123-investigating-the-role-of-microglial-mor/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, statsmodels, numpy, pandas, opencv-python-headless, scikit-image, pyyaml)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
 
@@ -37,7 +37,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Implement `config.py` with paths, random seeds, and constants for CPU-only execution
-- [ ] T005 [P] Setup logging infrastructure in `code/__init__.py` to handle warnings for missing metadata (FR-001, FR-008)
+- [X] T005 [P] Setup logging infrastructure in `code/__init__.py` to handle warnings for missing metadata (FR-001, FR-008)
 - [ ] T006 [P] Create base data schemas in `specs/001-gene-regulation/contracts/` (dataset.schema.yaml, output.schema.yaml)
 - [X] T007 Implement synthetic data generator in `code/synthetic_data.py` for pipeline validation (addressing Blocking Dependency 1 in plan.md)
 
@@ -66,13 +66,13 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement image ingestion and metadata parsing in `code/data_ingestion.py` (FR-001, FR-008)
+- [X] T012 [US1] Implement image ingestion and metadata parsing in `code/data_ingestion.py` (FR-001, FR-008)
 - [X] T013 [US1] Implement denoising and background subtraction in `code/morphometry.py` via function `denoise_and_subtract()` (FR-002). Consumes raw images output by T012.
 - [X] T014 [US1] [Depends on T013] Implement skeletonization and branch point counting in `code/morphometry.py` via function `skeletonize_and_count()` (FR-003). Consumes output of T013.
-- [ ] T015 [US1] [Depends on T014] Implement soma area and total process length calculation in `code/morphometry.py` via function `calculate_soma_area_and_length()` (FR-003).
-- [ ] T016 [US1] [Depends on T015] Implement Sholl analysis with configurable radius steps in `code/morphometry.py` via function `run_sholl_analysis()` (FR-003, FR-006).
-- [ ] T017 [US1] Implement logic to skip empty fields of view and log warnings in `code/morphometry.py` via function `handle_empty_fields()` (Edge Case).
-- [ ] T018 [US1] Implement logic to exclude subjects missing cognitive scores with log entry in `code/analysis.py` (Edge Case).
+- [X] T015 [US1] [Depends on T014] Implement soma area and total process length calculation in `code/morphometry.py` via function `calculate_soma_area_and_length()` (FR-003).
+- [X] T016 [US1] [Depends on T015] Implement Sholl analysis with configurable radius steps in `code/morphometry.py` via function `run_sholl_analysis()` (FR-003, FR-006).
+- [X] T017 [US1] Implement logic to skip empty fields of view and log warnings in `code/morphometry.py` via function `handle_empty_fields()` (Edge Case).
+- [X] T018 [US1] Implement logic to exclude subjects missing cognitive scores with log entry in `code/analysis.py` (Edge Case).
 - [ ] T019 [US1] Output structured CSV `data/processed/morphological_metrics.csv` with `brain_region` tag.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -87,14 +87,14 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 2
 
-- [ ] T020 [P] [US2] Contract test for regression output schema (coefficients, p-values, interaction terms) in `tests/contract/test_output_schema.py`
-- [ ] T021 [P] [US2] Unit test for VIF calculation and PCA application when VIF > 5.0 in `tests/unit/test_analysis.py`
-- [ ] T022 [P] [US2] Unit test for dynamic 'Early AD' classification based on amyloid-beta threshold in `tests/unit/test_analysis.py`
+- [X] T020 [P] [US2] Contract test for regression output schema (coefficients, p-values, interaction terms) in `tests/contract/test_output_schema.py`
+- [X] T021 [P] [US2] Unit test for VIF calculation and PCA application when VIF > 5.0 in `tests/unit/test_analysis.py`
+- [X] T022 [P] [US2] Unit test for dynamic 'Early AD' classification based on amyloid-beta threshold in `tests/unit/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement Z-score normalization of cognitive scores per cohort in `code/analysis.py` (FR-009)
-- [ ] T024 [US2] Implement dynamic 'Early AD' classification logic in `code/analysis.py` (FR-010). **Logic**: If 'Early AD' labels are missing, calculate the 75th percentile of the control group's amyloid-beta load as the dynamic threshold. Classify 'Early AD' if amyloid-beta load exceeds this threshold. Log the specific threshold used. If labels are present, use them directly.
+- [X] T023 [US2] Implement Z-score normalization of cognitive scores per cohort in `code/analysis.py` (FR-009)
+- [X] T024 [US2] Implement dynamic 'Early AD' classification logic in `code/analysis.py` (FR-010). **Logic**: If 'Early AD' labels are missing, calculate the 75th percentile of the control group's amyloid-beta load as the dynamic threshold. Classify 'Early AD' if amyloid-beta load exceeds this threshold. Log the specific threshold used. If labels are present, use them directly.
 - [ ] T026 [US2] [Depends on T024] Implement VIF calculation for all predictors in `code/analysis.py` (FR-004). **Output**: Generate `data/intermediates/vif_check.json` containing VIF scores and a boolean flag `trigger_pca` (true if any VIF > 5.0).
 - [ ] T025 [US2] [Depends on T026] Implement PCA on morphological features in `code/analysis.py` (FR-011). **Input**: Consumes `data/intermediates/vif_check.json`. Runs PCA only if `trigger_pca` is true to generate orthogonal predictors.
 - [ ] T027 [US2] Implement multiple linear regression with `PathologyStatus * BrainRegion` interaction terms in `code/analysis.py` (FR-004). Uses orthogonal predictors from T025 (if applied) or original features.

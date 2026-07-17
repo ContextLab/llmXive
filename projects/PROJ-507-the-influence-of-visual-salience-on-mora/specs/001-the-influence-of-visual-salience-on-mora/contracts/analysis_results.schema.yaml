@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for statistical analysis outputs (LMM)"
+description: "Schema for statistical analysis outputs (LMM) - Typographic Salience Study"
 type: "object"
 properties:
   model_type:
@@ -21,9 +21,13 @@ properties:
   p_value:
     type: "number"
     description: "Raw p-value for salience effect."
+    minimum: 0
+    maximum: 1
   p_value_corrected:
     type: "number"
     description: "Bonferroni-corrected p-value."
+    minimum: 0
+    maximum: 1
   effect_size:
     type: "object"
     properties:
@@ -113,38 +117,3 @@ required:
   - "convergence_status"
   - "power_analysis"
 additionalProperties: false
-examples:
-  - model_type: "Linear_Mixed_Effects_Model"
-    fixed_effects:
-      intercept: 3.5
-      salience_medium: 0.8
-      salience_high: 1.2
-    random_effects_variance:
-      participant: 0.5
-      scenario: 0.2
-    p_value: 0.001
-    p_value_corrected: 0.003
-    effect_size:
-      marginal_r_squared: 0.15
-      conditional_r_squared: 0.45
-      ci_95_lower: 0.08
-      ci_95_upper: 0.22
-    post_hoc_tests:
-      - comparison: "low vs medium"
-        t_statistic: 2.5
-        p_value_uncorrected: 0.015
-        p_value_bonferroni: 0.045
-      - comparison: "medium vs high"
-        t_statistic: 3.2
-        p_value_uncorrected: 0.002
-        p_value_bonferroni: 0.006
-    exclusion_rate: 0.05
-    sample_size: 190
-    convergence_status: "converged"
-    power_analysis:
-      observed_power: 0.85
-      power_flag: false
-      precision_check:
-        ci_width: 0.14
-        threshold: 0.3
-        flag: false

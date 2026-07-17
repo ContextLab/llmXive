@@ -1,0 +1,15 @@
+status: none
+intent: download Visual Genome dataset images region descriptions objects relationships
+  python package dataset
+required_fields:
+- image_id
+- image_url
+- region_descriptions
+- object_names
+- object_bounding_boxes
+- relationship_triplets
+- scene_graph
+- metadata_tags
+cache_key: a85a423b7a9adbdfe7886b5c7b6fe3f3e1e533d3e26ac365a3a37cb70325ad9a
+searched_at: '2026-07-17T12:48:10.777194+00:00'
+retry_count: 1

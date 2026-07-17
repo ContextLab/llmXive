@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T01:06:13.405337Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-512-predicting-molecular-permeability-of-pol
-last_run_id: 297b57bd-7fab-432b-beee-13dfeb45cc4d
+last_run_id: 8e8d9149-d8f8-4036-b0a1-44c278e367d1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-512-predicting-molecular-permeability-of-pol/specs/001-predicting-molecular-permeability-of-pol
 title: Predicting Molecular Permeability of Polymers via Graph Neural Networks
-updated_at: '2026-07-17T07:33:20.902520Z'
+updated_at: '2026-07-17T12:44:19.106599Z'

@@ -1,35 +1,41 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://llmxive.org/schemas/output.schema.yaml
-title: Morphological Metrics Output Schema
+title: Morphological Analysis Output Schema
 description: |
-  Schema for the structured output of the morphological analysis pipeline.
-  Contains quantitative metrics extracted from microglial images.
+  Schema for the output of the morphological feature extraction and
+  regression analysis pipeline.
 type: object
 required:
-  - version
-  - analysis_timestamp
-  - results
+  - metadata
+  - morphological_metrics
+  - regression_results
 properties:
-  version:
-    type: string
-    pattern: "^\\d+\\.\\d+\\.\\d+$"
-    description: Semantic version of the output schema.
-  analysis_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the analysis was run.
-  pipeline_info:
+  metadata:
     type: object
-    description: Information about the pipeline execution.
+    required:
+      - generated_at
+      - pipeline_version
+      - analysis_config
     properties:
-      code_version:
+      generated_at:
         type: string
-      parameters:
+        format: date-time
+      pipeline_version:
+        type: string
+      analysis_config:
         type: object
-        description: Key parameters used (e.g., Sholl radii, denoising strength).
-  results:
+        properties:
+          sholl_radii:
+            type: array
+            items:
+              type: number
+          vif_threshold:
+            type: number
+          cv_folds:
+            type: integer
+  
+  morphological_metrics:
     type: array
-    description: List of metric records per image/subject.
+    description: Extracted morphological features per cell/image
     items:
       type: object
       required:
@@ -37,64 +43,103 @@ properties:
         - subject_id
         - brain_region
         - branch_points
-        - total_length_um
-        - soma_area_um2
+        - total_length
+        - soma_area
+        - sholl_intersections
       properties:
         image_id:
           type: string
-          description: Reference to the source image.
         subject_id:
           type: string
-          description: Reference to the subject.
         brain_region:
           type: string
-          description: Brain region of the subject (inherited from metadata).
-        cognitive_status:
-          type: string
-          description: Cognitive status of the subject (inherited from metadata).
         branch_points:
           type: integer
           minimum: 0
-          description: Count of branch points in the skeletonized neurites.
-        total_length_um:
+        total_length:
           type: number
           minimum: 0
-          description: Total length of processes in micrometers.
-        soma_area_um2:
+          description: Total process length in micrometers
+        soma_area:
           type: number
           minimum: 0
-          description: Area of the cell soma in square micrometers.
+          description: Soma area in square micrometers
         sholl_intersections:
-          type: array
-          description: Sholl analysis results (intersections per radius).
-          items:
-            type: object
-            required:
-              - radius_um
-              - intersection_count
-            properties:
-              radius_um:
-                type: number
-                minimum: 0
-              intersection_count:
-                type: integer
-                minimum: 0
-        processing_status:
-          type: string
-          enum:
-            - success
-            - skipped_empty
-            - failed
-          description: Status of the processing for this image.
-        error_message:
-          type: string
-          description: Error message if processing_status is 'failed'.
-        quality_metrics:
           type: object
-          description: Optional quality control metrics (e.g., SNR, contrast).
+          description: Map of radius (µm) to intersection count
+          additionalProperties:
+            type: integer
+        complexity_score:
+          type: number
+          description: Composite complexity metric (if calculated)
+        exclusion_reason:
+          type: string
+          nullable: true
+          description: Reason for exclusion if metrics are invalid (e.g., empty field)
+  
+  regression_results:
+    type: object
+    description: Results of the multivariate regression analysis
+    required:
+      - model_summary
+      - coefficients
+      - interaction_significance
+      - validation_metrics
+    properties:
+      model_summary:
+        type: object
+        properties:
+          r_squared:
+            type: number
+          adj_r_squared:
+            type: number
+          f_statistic:
+            type: number
+          p_value:
+            type: number
+      coefficients:
+        type: array
+        items:
+          type: object
+          required:
+            - term
+            - estimate
+            - std_err
+            - p_value
+            - significant
           properties:
-            snr:
+            term:
+              type: string
+            estimate:
               type: number
-            contrast_ratio:
+            std_err:
               type: number
+            p_value:
+              type: number
+            significant:
+              type: boolean
+      interaction_significance:
+        type: object
+        description: Specific analysis of Pathology*Region interaction
+        properties:
+          term_name:
+            type: string
+          p_value:
+            type: number
+          is_significant:
+            type: boolean
+            description: True if p < 0.05
+      validation_metrics:
+        type: object
+        properties:
+          cv_r2_mean:
+            type: number
+          cv_r2_std:
+            type: number
+          sensitivity_analysis_stable:
+            type: boolean
+            description: True if R² variation < 5% across Sholl steps
+      causality_warning:
+        type: boolean
+        description: Flag indicating if causality disclaimer is attached (FR-007)
 additionalProperties: false

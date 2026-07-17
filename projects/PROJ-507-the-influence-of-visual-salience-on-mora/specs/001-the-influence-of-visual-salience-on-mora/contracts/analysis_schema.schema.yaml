@@ -1,0 +1,122 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the output of the statistical analysis pipeline (LMM results)."
+type: "object"
+required:
+  - "model_summary"
+  - "fixed_effects"
+  - "random_effects"
+  - "post_hoc_tests"
+  - "power_analysis"
+properties:
+  model_summary:
+    type: "object"
+    description: "Overall model fit statistics."
+    properties:
+      aic:
+        type: "number"
+        description: "Akaike Information Criterion."
+      bic:
+        type: "number"
+        description: "Bayesian Information Criterion."
+      log_likelihood:
+        type: "number"
+        description: "Log-likelihood of the model."
+      n_obs:
+        type: "integer"
+        description: "Number of observations."
+      n_groups:
+        type: "object"
+        description: "Number of random effect groups."
+        properties:
+          participant:
+            type: "integer"
+          scenario:
+            type: "integer"
+  fixed_effects:
+    type: "array"
+    description: "Fixed effect estimates for salience levels."
+    items:
+      type: "object"
+      properties:
+        term:
+          type: "string"
+          description: "Name of the predictor (e.g., 'salience[Medium]')."
+        estimate:
+          type: "number"
+          description: "Coefficient estimate."
+        std_error:
+          type: "number"
+          description: "Standard error of the estimate."
+        t_statistic:
+          type: "number"
+          description: "T-statistic."
+        p_value:
+          type: "number"
+          description: "Uncorrected p-value."
+        p_value_bonferroni:
+          type: "number"
+          description: "Bonferroni-corrected p-value."
+        partial_eta_squared:
+          type: "number"
+          description: "Effect size (partial eta-squared)."
+        ci_lower:
+          type: "number"
+          description: "95% Confidence Interval Lower Bound."
+        ci_upper:
+          type: "number"
+          description: "95% Confidence Interval Upper Bound."
+  random_effects:
+    type: "object"
+    description: "Variance components for random effects."
+    properties:
+      participant:
+        type: "number"
+        description: "Variance of participant intercepts."
+      scenario:
+        type: "number"
+        description: "Variance of scenario intercepts."
+      residual:
+        type: "number"
+        description: "Residual variance."
+  post_hoc_tests:
+    type: "array"
+    description: "Pairwise comparisons between salience levels."
+    items:
+      type: "object"
+      properties:
+        contrast:
+          type: "string"
+          description: "Comparison label (e.g., 'Low vs Medium')."
+        estimate:
+          type: "number"
+        p_value:
+          type: "number"
+        p_value_bonferroni:
+          type: "number"
+  power_analysis:
+    type: "object"
+    description: "Post-hoc power analysis results."
+    properties:
+      observed_effect_size:
+        type: "number"
+      achieved_power:
+        type: "number"
+        description: "Calculated power given N and effect size."
+      power_flag:
+        type: "string"
+        enum: ["ADEQUATE", "LOW", "CRITICAL"]
+        description: "Status of power (>=0.80 is ADEQUATE)."
+  metadata:
+    type: "object"
+    properties:
+      seed:
+        type: "integer"
+        description: "Random seed used for reproducibility."
+      dataset_source:
+        type: "string"
+        description: "Source of the data (e.g., 'Synthetic Pilot', 'MME')."
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "Time of analysis execution."

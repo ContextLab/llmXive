@@ -1,139 +1,144 @@
-"""
-Configuration Module for the Microglial Morphology Project.
-
-Centralizes all configuration parameters including paths, random seeds,
-and constants for CPU-only execution.
-"""
-
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
-
 import yaml
 
+# Project Root
+# The project root is assumed to be the parent of the 'code' directory
+# This allows the config to be imported from anywhere within the project tree
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Random Seeds
+# Fixed seeds for reproducibility across CPU-only executions
+RANDOM_SEED = 42
+NP_RANDOM_SEED = 42
+
+# CPU-Only Execution Constants
+# Constraints to ensure the pipeline runs within memory and compute limits
+# as per the project's CPU-only requirement.
+MAX_WORKERS = 4  # Limit parallelism to avoid CPU saturation
+MAX_MEMORY_GB = 8  # Soft limit for memory-intensive operations
+CHUNK_SIZE = 1000  # Rows to process in chunks for large datasets
+
+# Configuration Defaults
+DEFAULT_CONFIG = {
+    "random_seed": RANDOM_SEED,
+    "cpu_workers": MAX_WORKERS,
+    "max_memory_gb": MAX_MEMORY_GB,
+    "image_processing": {
+        "denoise_sigma": 1.0,
+        "skeletonize_method": "zhang",
+        "sholl_radii_step": 5.0,  # micrometers
+        "sholl_max_radius": 50.0,
+    },
+    "analysis": {
+        "vif_threshold": 5.0,
+        "p_value_threshold": 0.05,
+        "amyloid_beta_threshold_percentile": 75,
+    },
+    "paths": {
+        "data_raw": "data/raw",
+        "data_intermediate": "data/intermediates",
+        "data_processed": "data/processed",
+        "figures": "figures",
+        "reports": "reports",
+        "specs": "specs/001-gene-regulation",
+        "contracts": "specs/001-gene-regulation/contracts",
+    }
+}
 
 def get_project_root() -> Path:
-    """
-    Get the project root directory.
-
-    Assumes the project structure is:
-    projects/PROJ-123-.../
-
-    Returns:
-        Path to the project root.
-    """
-    # Try to find the project root by looking for a known file
-    current = Path(__file__).resolve()
-    for parent in current.parents:
-        if (parent / 'tasks.md').exists():
-            return parent
-    # Fallback to current directory
-    return Path.cwd()
-
-
-def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Load configuration from a YAML file.
-
-    Args:
-        config_path: Path to the config file. Defaults to config.yaml in project root.
-
-    Returns:
-        Dictionary containing configuration parameters.
-    """
-    if config_path is None:
-        config_path = get_project_root() / 'config.yaml'
-
-    if not config_path.exists():
-        # Return default configuration
-        return get_default_config()
-
-    with open(config_path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
-
+    """Return the absolute path to the project root."""
+    return _PROJECT_ROOT
 
 def get_default_config() -> Dict[str, Any]:
+    """Return the default configuration dictionary."""
+    return DEFAULT_CONFIG.copy()
+
+def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Get default configuration parameters.
-
-    Returns:
-        Dictionary with default configuration values.
-    """
-    project_root = get_project_root()
-
-    return {
-        # Paths
-        'project_root': str(project_root),
-        'data_dir': str(project_root / 'data'),
-        'raw_data_dir': str(project_root / 'data' / 'raw'),
-        'processed_data_dir': str(project_root / 'data' / 'processed'),
-        'intermediate_data_dir': str(project_root / 'data' / 'intermediates'),
-        'figures_dir': str(project_root / 'figures'),
-        'reports_dir': str(project_root / 'reports'),
-        'specs_dir': str(project_root / 'specs'),
-
-        # Random seeds for reproducibility
-        'random_seed': 42,
-        'numpy_seed': 42,
-        'python_seed': 42,
-
-        # Execution settings
-        'cpu_only': True,
-        'max_workers': 4,  # Conservative for CPU-only execution
-        'memory_limit_gb': 8,
-
-        # Image processing parameters
-        'image_pixel_size_um': 0.325,  # Example: microns per pixel
-        'denoise_strength': 1.0,
-        'background_subtraction_radius': 50,
-
-        # Morphology analysis parameters
-        'sholl_radius_start': 0,
-        'sholl_radius_step': 5,  # microns
-        'sholl_radius_end': 100,
-        'branch_point_threshold': 3,  # pixels
-
-        # Statistical analysis parameters
-        'p_value_threshold': 0.05,
-        'vif_threshold': 5.0,
-
-        # Logging
-        'log_level': 'INFO',
-        'log_to_file': True,
-    }
-
-
-# Global configuration instance
-CONFIG = load_config()
-
-
-def get_path(key: str) -> Path:
-    """
-    Get a configuration path as a Path object.
-
+    Load configuration from a YAML file if provided, otherwise return defaults.
+    
     Args:
-        key: Configuration key for the path (e.g., 'raw_data_dir').
-
+        config_path: Optional path to a custom config YAML file relative to project root.
+    
     Returns:
-        Path object for the configured directory.
+        Merged configuration dictionary (file overrides defaults).
     """
-    path_str = CONFIG.get(key, '')
-    return Path(path_str)
+    config = get_default_config()
+    
+    if config_path:
+        full_path = get_project_root() / config_path
+        if full_path.exists():
+            with open(full_path, 'r') as f:
+                file_config = yaml.safe_load(f)
+                if file_config:
+                    # Deep merge logic could be added here, 
+                    # but for now, simple top-level override or key override
+                    # is sufficient for most use cases.
+                    # We will perform a shallow update for simplicity unless nested logic is required.
+                    # To be safe, let's do a recursive update for nested dicts.
+                    def deep_update(d, u):
+                        for k, v in u.items():
+                            if isinstance(v, dict) and k in d and isinstance(d[k], dict):
+                                deep_update(d[k], v)
+                            else:
+                                d[k] = v
+                        return d
+                    deep_update(config, file_config)
+        else:
+            # Log warning or raise? For now, just return defaults if file missing
+            # but in a real pipeline, this might be an error depending on strictness.
+            pass
+    
+    return config
 
-
-def ensure_dirs() -> None:
+def get_path(key: str, relative: bool = True) -> Path:
     """
-    Ensure all configured directories exist.
+    Construct a path based on a configuration key.
+    
+    Args:
+        key: The key in DEFAULT_CONFIG['paths'] to look up.
+        relative: If True, return path relative to project root. 
+                  If False, return absolute path.
+    
+    Returns:
+        Path object.
+    
+    Raises:
+        KeyError: If the key is not found in paths configuration.
     """
-    dirs = [
-        'data_dir',
-        'raw_data_dir',
-        'processed_data_dir',
-        'intermediate_data_dir',
-        'figures_dir',
-        'reports_dir',
-    ]
+    config = get_default_config()
+    if key not in config['paths']:
+        raise KeyError(f"Path key '{key}' not found in configuration.")
+    
+    path_str = config['paths'][key]
+    full_path = _PROJECT_ROOT / path_str
+    
+    if relative:
+        # Return path relative to project root
+        return Path(path_str)
+    return full_path
 
-    for dir_key in dirs:
-        dir_path = get_path(dir_key)
+def ensure_dirs(*keys: str) -> None:
+    """
+    Ensure that directories specified by configuration keys exist.
+    
+    Args:
+        *keys: One or more keys from DEFAULT_CONFIG['paths'].
+    
+    Raises:
+        KeyError: If a key is not found.
+    """
+    for key in keys:
+        dir_path = get_path(key, relative=False)
         dir_path.mkdir(parents=True, exist_ok=True)
+
+# Initialize random seeds immediately if this module is imported
+import random
+import numpy as np
+random.seed(RANDOM_SEED)
+np.random.seed(NP_RANDOM_SEED)
+
+# Load global config instance (optional, but useful for functions needing config)
+CONFIG = load_config()

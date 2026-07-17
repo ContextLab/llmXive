@@ -11,24 +11,20 @@ properties:
     type: "string"
     enum: ["Low", "Medium", "High"]
     description: "Categorical value for salience level"
-  manipulated_image_path:
+  manipulated_text:
     type: "string"
-    description: "Path to the manipulated image file"
-  contrast_change:
-    type: "number"
-    description: "RMS contrast change in the target region (percentage)"
+    description: "The text with typographic manipulation applied"
   semantic_similarity:
     type: "number"
-    description: "CLIP cosine similarity between original and manipulated image"
+    description: "Sentence-BERT cosine similarity between original and manipulated text"
   manipulation_valid:
     type: "boolean"
-    description: "Boolean indicating if the manipulation was successful"
+    description: "Boolean indicating if the manipulation was successful (similarity >= 0.95)"
 required:
   - variant_id
   - scenario_id
   - salience_level
-  - manipulated_image_path
-  - contrast_change
+  - manipulated_text
   - semantic_similarity
   - manipulation_valid
 additionalProperties: false

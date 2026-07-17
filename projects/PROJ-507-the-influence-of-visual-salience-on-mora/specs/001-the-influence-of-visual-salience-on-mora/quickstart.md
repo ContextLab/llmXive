@@ -1,103 +1,53 @@
-# Quickstart: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
+# Quickstart: The Influence of Typographic Salience on Moral Judgments
 
 ## Prerequisites
+-   Python 3.11+
+-   `pip`
+-   (Optional) Docker for isolated execution.
 
-- Python 3.11 or higher
-- Git
-- Access to the HuggingFace datasets (for downloading `runwayml/stable-diffusion-v1-5` if using Option A)
+## Setup
 
-## Installation
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd projects/PROJ-507-the-influence-of-visual-salience-on-mora
-   ```
-
-2. Create a virtual environment and install dependencies:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-
-## Running the Pipeline
-
-### Step 1: Data Curation
-
-Run the data curation script to load text narratives and generate/select images:
+### 1. Clone and Install
 ```bash
-python code/01_data_curation.py
+cd projects/PROJ-507-the-influence-of-visual-salience-on-mora
+pip install -r code/requirements.txt
 ```
 
-### Step 2: Human Coding (Ambiguity)
+### 2. Data Preparation
+The pipeline expects data in `data/raw/`.
+-   **Option A (Real Data)**: Download `Dahoas/rm-single-context` using `datasets.load_dataset("Dahoas/rm-single-context")` and save the raw JSON/Parquet files to `data/raw/`.
+-   **Option B (No Synthetic Data)**: Do not use synthetic data. The study relies on real data from the verified dataset.
 
-Run the human coding script to identify morally ambiguous scenarios (real or simulation mode):
+### 3. Run the Pipeline
+Execute the scripts in order:
 ```bash
-python code/02_human_coding.py
+# 1. Ingest and Filter
+python code/01_data_ingestion.py
+
+# 2. Ambiguity Filtering (using reward scores)
+python code/03_ambiguity_filter.py
+
+# 3. Stimulus Manipulation (Typographic)
+python code/02_stimulus_manipulation.py
+
+# 4. Survey Data Simulation (or load real CSV)
+python code/04_survey_deployment.py --simulate  # Generates dummy responses for testing
+
+# 5. Data Cleaning
+python code/05_data_cleaning.py
+
+# 6. Statistical Analysis
+python code/06_statistical_analysis.py
 ```
 
-### Step 3: Salience Manipulation
+### 4. Verify Results
+Check `data/processed/analysis_results.json` for:
+-   LMM fixed effects (Salience).
+-   Bonferroni-corrected p-values.
+-   Effect sizes (Partial Eta-Squared).
+-   **Note**: All values must be derived from the actual dataset. No placeholder values are accepted.
 
-Run the salience manipulation script to generate low, medium, and high salience variants:
-```bash
-python code/03_salience_manipulation.py
-```
-
-### Step 4: Pilot Manipulation Check
-
-Run the pilot manipulation check script to confirm narrative preservation (separate panel):
-```bash
-python code/04_manipulation_check.py
-```
-
-### Step 5: Survey Deployment (Pilot Mode)
-
-Run the survey deployment script to collect real data (or simulation mode for testing):
-```bash
-python code/05_survey_deployment.py
-```
-
-### Step 6: Data Cleaning
-
-Run the data cleaning script to exclude invalid participants:
-```bash
-python code/06_data_cleaning.py
-```
-
-### Step 7: Statistical Analysis
-
-Run the statistical analysis script to perform LMM and generate results:
-```bash
-python code/07_statistical_analysis.py
-```
-
-### Step 8: Power Analysis
-
-Run the power analysis script to compute a priori and post-hoc power:
-```bash
-python code/08_power_analysis.py
-```
-
-### Step 9: Report Generation
-
-Run the report generation script to create the final report:
-```bash
-python code/09_report_generation.py
-```
-
-## Testing
-
-Run the test suite to verify the pipeline:
-```bash
-pytest tests/
-```
-
-## Output
-
-The final report will be generated in `data/results/report.md`. The report includes:
-- Description of the methodology
-- Results of the statistical analysis (LMM table, R² effect sizes, confidence intervals)
-- Figures and visualizations
-- Limitations and future work
-- Power analysis results
+## Troubleshooting
+-   **Sentence-BERT Timeout**: If inference is too slow, reduce the number of stimuli or use a smaller model.
+-   **Data Missing**: Ensure `data/raw/` contains the downloaded `Dahoas` dataset files.
+-   **LMM Convergence**: If the model fails to converge, check for perfect separation or insufficient data (try `--robust` flag for bootstrap).
