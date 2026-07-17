@@ -1,7 +1,15 @@
-T045:
+T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data, notebook, or report was provided that shows defect density (from
-    T033) added as a primary predictor in the regression model, nor any evidence that
-    the model now links concentration to conductivity. The required artifact is missing,
-    so the task is not genuinely completed.
+  r: "No code, data, notebook, or report implementing a \u03C3\u2080 sensitivity analysis\
+    \ over a range of conductivity\u2011temperature product values is present; the\
+    \ only material is the task description and project specifications, which do not\
+    \ include the required artifact. Consequently the mandatory FR\u2011008 requirement\
+    \ is not satisfied."
+T044:
+  c: false
+  h: 5427a01c415c47cf94b4b2f1968b4ec73174da048a1b0cab7f1f783f35e79ba4
+  r: "The required `data/processed/analysis_results.json` file does not exist, and\
+    \ the provided `code/analysis.py` contains no implementation that writes analysis\
+    \ results to that JSON file or defines a machine\u2011readable schema linking\
+    \ to raw data points. The task\u2019s core output is therefore missing."

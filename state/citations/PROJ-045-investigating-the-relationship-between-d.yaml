@@ -20,14 +20,3 @@
   verification_status: unreachable
   verified_against_url: https://materialsproject.org`
   verified_at: '2026-06-30T00:03:16.374354Z'
-- artifact_hash: 6d87bee60c6265d8dd37f6cc3e71112a91e943d628a4b8b5e2493cebbd5576c1
-  artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Brown - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q42867277
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q42867277
-  verified_at: '2026-07-17T00:58:38.464491Z'

@@ -877,3 +877,1031 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T16:30:53Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: data download success rate is at least 93 percent
+  claim_id: c_63d6cca0
+  context: "Tests for User Story 1 (OPTIONAL - only if tests requested) - [X] T011\
+    \ [P] [US1] Contract test for data download success rate (\u226593%) in tests/test_download.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_download_success_rate_is_at_least_93_percent
+  kind: magnitude
+  raw_text: "Contract test for data download success rate (\u226593%) in tests/test_download.py"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:33:17Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: defect energy output values match literature expected ranges within 0.5
+    eV tolerance
+  claim_id: c_c041bf4f
+  context: 'Independent Test: Can be fully tested by running the calculation module
+    on 2-3 pre-selected test systems and verifying output energy values match expected
+    ranges from literature (within 0.5 eV tolerance for defect energies).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verifying output energy values match expected ranges from literature (within
+    0.5 eV tolerance for defect energies)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:33:34Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: dft_runner.py generates Quantum ESPRESSO input files
+  claim_id: c_fe20f718
+  context: Implementation for User Story 2 - [X] T025 [P] [US2] Implement dft_runner.py
+    to generate Quantum ESPRESSO input files (`.in`) withexplicit parameters (pseudopotentials,
+    k-mesh, cutoff) in code/dft_runner.py
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dft_runner.py_generates_Quantum_ESPRESSO_input_files
+  kind: entity_fact
+  raw_text: Implement `dft_runner.py` to generate Quantum ESPRESSO input files (`.in`)
+    withexplicit parameters
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:34:17Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: bond-valence sum model uses parameters from Brown Wikidata Q42867277
+  claim_id: c_8fa832d7
+  context: "Implementation for User Story 2 - [X] T023 [US2] Define and implement\
+    \ semi-empirical approximation method (bond-valence sum model using parameters\
+    \ from Brown (Wikidata Q42867277, https://www.wikidata.org/wiki/Q42867277)) for\
+    \ remaining compositions to achieve n\u226512 in code/semi_empirical.py."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bond-valence_sum_model_uses_parameters_from_Brown_Wikidata_Q
+  kind: entity_fact
+  raw_text: bond-valence sum model using parameters from Brown (Wikidata Q42867277,
+    https://www.wikidata.org/wiki/Q42867277)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:34:38Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: semi-empirical approximation achieves n greater than or equal to 12
+  claim_id: c_deacc0ab
+  context: "Implementation for User Story 2 - [X] T023 [US2] Define and implement\
+    \ semi-empirical approximation method (bond-valence sum model using parameters\
+    \ from Brown (Wikidata Q42867277, https://www.wikidata.org/wiki/Q42867277)) for\
+    \ remaining compositions to achieve n\u226512 in code/semi_empirical.py."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semi-empirical_approximation_achieves_n_greater_than_or_equa
+  kind: magnitude
+  raw_text: "achieve n\u226512"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:34:55Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: NEB method includes force convergence checks
+  claim_id: c_13974b20
+  context: Implementation for User Story 2 - [X] T029 [US2] Implement NEB method for
+    several representative defect configurations PER SYSTEM with force convergence
+    checks in code/dft_runner.py
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NEB_method_includes_force_convergence_checks
+  kind: entity_fact
+  raw_text: force convergence checks in NEB method
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:35:14Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: defect concentration is calculated as 1 divided by supercell volume
+  claim_id: c_2ad3c14f
+  context: 'Implementation for User Story 2 - [X] T033 [US2] REVISE: Implement defect
+    density quantification method in code/dft_runner.py to explicitly calculate and
+    log defect concentration (defects/volume = 1 / supercell_volume) for every configuration'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: defect concentration (defects/volume = 1 / supercell_volume)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:36:08Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: statistical power calculation targets power greater than or equal to
+    0.8
+  claim_id: c_3c936bfa
+  context: "Implementation for User Story 3 - [ ] T043 [US3] Implement statistical\
+    \ power calculation using statsmodels.stats.power as the Python-native replacement\
+    \ for the standalone G*Power application mentioned in SC-003 (\u03B1=0.05, effect\
+    \ size \u22650.1, target power \u22650.8) in code/analysis.py"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_calculation_targets_power_greater_than_or
+  kind: magnitude
+  raw_text: "target power \u22650.8"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:36:41Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: statistical power calculation uses effect size greater than or equal
+    to 0.1
+  claim_id: c_994eccd8
+  context: "Implementation for User Story 3 - [ ] T043 [US3] Implement statistical\
+    \ power calculation using statsmodels.stats.power as the Python-native replacement\
+    \ for the standalone G*Power application mentioned in SC-003 (\u03B1=0.05, effect\
+    \ size \u22650.1, target power \u22650.8) in code/analysis.py"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_calculation_uses_effect_size_greater_than
+  kind: magnitude
+  raw_text: "effect size \u22650.1"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:36:47Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: vectorized regression reduces runtime by less than 50 percent on 1000
+    synthetic data points
+  claim_id: c_4ab42dec
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - [ ] T049 [P] Performance optimization:
+    Vectorize the regression loop in code/analysis.py using numpy broadcasting. Pass/Fail:
+    Replace explicit for loops over compositions with numpy matrix operations; unit
+    test tests/test_analysis_vectorized.py must verify identical results with <50%
+    runtime reduction on n=1000 synthetic data.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Vectorized_regression_reduces_runtime_by_less_than_50_percen
+  kind: magnitude
+  raw_text: unit test tests/test_analysis_vectorized.py must verify identical results
+    with <50% runtime reduction on n=1000 synthetic data
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:36:50Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: quickstart.md file must be less than 500 lines
+  claim_id: c_6cb1a05a
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - [ ] T047 [P] Documentation:
+    Generate quickstart.md in docs/ containing EXACTLY: 1) pip install -r requirements.txt
+    command, 2) python code/download.py example, 3) python code/validate.py verification
+    output sample, 4) python code/analysis.py example. File must be <500 lines.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Quickstart.md_file_must_be_less_than_500_lines
+  kind: magnitude
+  raw_text: File must be <500 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:36:59Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: unit test verifies download streaming behavior with 150 MB mock file
+  claim_id: c_06bdf473
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - [ ] T048 [P] Code cleanup:
+    Refactor code/download.py to use requests streaming for files >100MB. Pass/Fail:
+    Must handle a large file without memory error on a runner with a constrained RAM
+    limit, using moderate buffer chunks. Add unit test tests/test_download_streaming.py
+    verifying this behavior with a 150MB mock file.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add unit test tests/test_download_streaming.py verifying this behavior
+    with a 150MB mock file
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:37:00Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: download.py refactored to use requests streaming for files larger than
+    100 MB
+  claim_id: c_c507a3d5
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - [ ] T048 [P] Code cleanup:
+    Refactor code/download.py to use requests streaming for files >100MB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: refactor code/download.py to use requests streaming for files >100MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:37:01Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: fetch crystal structures from OBELiX and Materials Project using static
+    MP-ID list
+  claim_id: c_9dd6b37a
+  context: 'Phase 3: User Story 1 - Data Pipeline and Validation. Implementation task
+    T014.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_crystal_structures_from_OBELiX_and_Materials_Project_u
+  kind: entity_fact
+  raw_text: Implement `download.py` to fetch crystal structures from OBELiX and Materials
+    Project using static MP-ID list
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:39:49Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: generate Quantum ESPRESSO input files with explicit parameters
+  claim_id: c_8e958d03
+  context: 'Phase 4: User Story 2 - Defect Energy and Barrier Calculations. Implementation
+    task T025.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_Quantum_ESPRESSO_input_files_with_explicit_paramete
+  kind: entity_fact
+  raw_text: Implement `dft_runner.py` to generate Quantum ESPRESSO input files (.in)
+    with explicit parameters
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:39:58Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: semi-empirical approximation method using parameters from Brown (Wikidata
+    Q42867277)
+  claim_id: c_fdad52fc
+  context: 'Phase 4: User Story 2 - Defect Energy and Barrier Calculations. Implementation
+    task T023.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semi-empirical_approximation_method_using_parameters_from_Br
+  kind: entity_fact
+  raw_text: Define and implement semi-empirical approximation method using parameters
+    from Brown (Wikidata Q42867277)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:40:09Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 2
+  canonical: "Li-O distances within 1.95-2.15 \xC5 range for transition metal oxides"
+  claim_id: c_1c5c854f
+  context: 'Phase 3: User Story 1. Implementation task T020 implements crystallographic
+    constraint check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Li-O distances fall within 1.95-2.15 \xC5 range for transition\
+    \ metal oxides"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:40:15Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Bond-Valence Sum deviation threshold of 10% from ideal oxidation states
+  claim_id: c_b494ddbf
+  context: 'Phase 3: User Story 1. Implementation task T019 implements BVS validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter out structures where calculated BVS deviates >10% from ideal oxidation
+    states
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:40:15Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: defect energy tolerance of 0.5 eV against literature values
+  claim_id: c_30036bb1
+  context: 'Phase 4: User Story 2 Independent Test description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output energy values match expected ranges from literature (within
+    0.5 eV tolerance for defect energies)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:40:21Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: "NEB force convergence threshold of 0.05 eV/\xC5"
+  claim_id: c_94be3ef7
+  context: 'Phase 4: User Story 2. Integration test T022 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement NEB convergence criteria with force \u22640.05 eV/\xC5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:40:21Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: minimum 2x2x2 supercell expansion
+  claim_id: c_ab94e167
+  context: 'Phase 4: User Story 2. Implementation task T031 implements supercell size
+    validation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_2x2x2_supercell_expansion
+  kind: entity_fact
+  raw_text: Implement supercell size validation to ensure minimum 2x2x2 conventional
+    cells are used
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:40:28Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: "oxygen-anion position constraint within 0.05 \xC5"
+  claim_id: c_d444915b
+  context: 'Phase 4: User Story 2. Implementation task T032 implements oxygen-anion
+    position constraint.'
+  evidence:
+    asserted: '0.05'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: "Implement oxygen-anion position constraint logic to constrain O-anion\
+    \ positions within 0.05 \xC5 of crystallographic positions"
+  resolved_value: '1.62'
+  resolver: approximate
+  source_hash: 65f02f5f3cf60bd189ad0ddf5cdcfee285a894ef110a68bc37d5236b11303740
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T12:40:28Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: defect concentration calculation as 1 divided by supercell volume
+  claim_id: c_85fced07
+  context: 'Phase 4: User Story 2. Implementation task T033 implements defect density
+    quantification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement defect density quantification method to explicitly calculate
+    and log defect concentration (defects/volume = 1 / supercell_volume)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:40:34Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: linear regression between defect formation energies and experimental
+    ionic conductivity
+  claim_id: c_4c18693f
+  context: 'Phase 5: User Story 3 - Statistical Analysis and Correlation. Goal description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_regression_between_defect_formation_energies_and_expe
+  kind: entity_fact
+  raw_text: Perform linear regression analysis between defect formation energies and
+    experimental ionic conductivity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:40:41Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: data download success rate of at least 93%
+  claim_id: c_d92cffdd
+  context: 'Phase 3: User Story 1. Test task T011 description.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_download_success_rate_of_at_least_93%25
+  kind: magnitude
+  raw_text: "Implement contract test for data download success rate (\u226593%)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:41:27Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 3
+  canonical: 'statistical power calculation parameters: alpha 0.05, effect size 0.1,
+    power 0.8'
+  claim_id: c_644c9a82
+  context: 'Phase 5: User Story 3. Implementation task T043 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement statistical power calculation with \u03B1=0.05, effect size\
+    \ \u22650.1, target power \u22650.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:41:48Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Fetch crystal structures from OBELiX and Materials Project
+  claim_id: c_976a084c
+  context: 'Phase 3: User Story 1 - Data Pipeline and Validation. T014 [P] [US1] Implement
+    `download.py` to fetch crystal structures from OBELiX and Materials Project using
+    static MP-ID list in `code/download.py`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_crystal_structures_from_OBELiX_and_Materials_Project
+  kind: entity_fact
+  raw_text: Implement `download.py` to fetch crystal structures from OBELiX and Materials
+    Project using static MP-ID list
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:45:50Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Filter structures with Bond-Valence Sum deviation greater than 10 percent
+  claim_id: c_5b6c4c33
+  context: 'Phase 3: User Story 1. T019 [US1] Implement Bond-Valence Sum (BVS) validation
+    in `code/validate.py` to filter out structures where calculated BVS deviates >10%
+    from ideal oxidation states'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_structures_with_Bond-Valence_Sum_deviation_greater_th
+  kind: magnitude
+  raw_text: Validate structures where calculated BVS deviates >10% from ideal oxidation
+    states
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:46:06Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Verify Li-O distances are between 1.95 and 2.15 Angstroms for transition
+    metal oxides
+  claim_id: c_91622d1b
+  context: "Phase 3: User Story 1. T020 [US1] Implement crystallographic constraint\
+    \ check in `code/validate.py` to verify Li-O distances fall within 1.95-2.15 \xC5\
+    \ range for transition metal oxides"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Li-O distances fall within 1.95-2.15 \xC5 range for transition\
+    \ metal oxides"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:46:07Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Verify defect energy values match literature within 0.5 eV tolerance
+  claim_id: c_896b2d80
+  context: 'Phase 4: User Story 2. Independent Test: Can be fully tested by running
+    the calculation module on 2-3 pre-selected test systems and verifying output energy
+    values match expected ranges from literature (within 0.5 eV tolerance for defect
+    energies).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate output energy values match expected ranges from literature within
+    0.5 eV tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:46:28Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Use bond-valence sum model parameters from Brown Wikidata Q42867277
+  claim_id: c_451bb0c3
+  context: 'Phase 4: User Story 2. T023 [US2] Define and implement semi-empirical
+    approximation method (bond-valence sum model using parameters from Brown (Wikidata
+    Q42867277, https://www.wikidata.org/wiki/Q42867277))'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_bond-valence_sum_model_parameters_from_Brown_Wikidata_Q4
+  kind: entity_fact
+  raw_text: Use bond-valence sum model using parameters from Brown (Wikidata Q42867277)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:46:49Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Validate BVS results against DFT for first 3 compositions
+  claim_id: c_0c059205
+  context: 'Phase 4: User Story 2. T023 [US2] ... Must validate BVS results against
+    DFT results for the high-fidelity subset (first 3 compositions).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate BVS results against DFT results for the high-fidelity subset
+    (first 3 compositions)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:47:05Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Achieve sample size of at least 12 using semi-empirical approximation
+  claim_id: c_aa526b4e
+  context: "Phase 4: User Story 2. T023 [US2] ... for remaining compositions to achieve\
+    \ n\u226512 in `code/semi_empirical.py`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Achieve_sample_size_of_at_least_12_using_semi-empirical_appr
+  kind: magnitude
+  raw_text: "Achieve n\u226512 using semi-empirical approximation for remaining compositions"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:48:49Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Calculate defect concentration as inverse of supercell volume
+  claim_id: c_ccdf2b9a
+  context: 'Phase 4: User Story 2. T033 [US2] Implement defect density quantification
+    method in `code/dft_runner.py` to explicitly calculate and log defect concentration
+    (defects/volume = 1 / supercell_volume)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate defect concentration as defects/volume = 1 / supercell_volume
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:49:09Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Constrain oxygen anion positions within 0.05 Angstroms of crystallographic
+    positions
+  claim_id: c_d2e1b033
+  context: "Phase 4: User Story 2. T032 [US2] Implement oxygen-anion position constraint\
+    \ logic in `code/dft_runner.py` to optionally constrain O-anion positions within\
+    \ 0.05 \xC5 of crystallographic positions during relaxation"
+  evidence:
+    asserted: '0.05'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: "Constrain O-anion positions within 0.05 \xC5 of crystallographic positions\
+    \ during relaxation"
+  resolved_value: '1.62'
+  resolver: approximate
+  source_hash: 65f02f5f3cf60bd189ad0ddf5cdcfee285a894ef110a68bc37d5236b11303740
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T12:49:09Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Perform multiple-comparison correction for more than 1 hypothesis test
+  claim_id: c_8808473c
+  context: 'Phase 5: User Story 3. T038 [US3] Implement multiple-comparison correction
+    (Bonferroni or Benjamini-Hochberg) for >1 hypothesis test in `code/analysis.py`'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Perform_multiple-comparison_correction_for_more_than_1_hypot
+  kind: magnitude
+  raw_text: Perform multiple-comparison correction (Bonferroni or Benjamini-Hochberg)
+    for >1 hypothesis test
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:49:30Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Calculate statistical power with alpha 0.05 effect size 0.1 and target
+    power 0.8
+  claim_id: c_da8205fe
+  context: "Phase 5: User Story 3. T043 [US3] Implement statistical power calculation\
+    \ using `statsmodels.stats.power` ... (\u03B1=0.05, effect size \u22650.1, target\
+    \ power \u22650.8)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement statistical power calculation with \u03B1=0.05, effect size\
+    \ \u22650.1, target power \u22650.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:49:30Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Examples include test tasks
+  claim_id: c_018388b7
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:51:17Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Selection logic for high-fidelity vs low-fidelity subset
+  claim_id: c_a186005d
+  context: Update `spec.md` to explicitly define the selection logic for the high-fidelity
+    (DFT) vs low-fidelity (semi-empirical) subset (e.g., 'Select a subset of compositions
+    with complete data for DFT; remaining for semi-empirical').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Selection_logic_for_high-fidelity_vs_low-fidelity_subset
+  kind: entity_fact
+  raw_text: Select a subset of compositions with complete data for DFT; remaining
+    for semi-empirical
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:51:40Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: 2x2x2 minimum supercell expansion for high-fidelity subset
+  claim_id: c_67537a32
+  context: "Update `spec.md` FR-003 to explicitly authorize a '2x2x2 minimum supercell\
+    \ expansion' (allowing >8 atoms) for the high-fidelity subset, resolving the contradiction\
+    \ with the original \u22648 atom constraint."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/2x2x2_minimum_supercell_expansion_for_high-fidelity_subset
+  kind: entity_fact
+  raw_text: 2x2x2 minimum supercell expansion
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:52:01Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: First 3 compositions with complete data for DFT
+  claim_id: c_175ce92b
+  context: Implement logic for 2x2x2 supercell expansion (allowing >8 atoms) for high-fidelity
+    subset (first 3 compositions with complete data) in `code/dft_runner.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a subset of compositions with complete data for DFT; remaining
+    for semi-empirical
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:52:01Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Bond-valence sum model parameters from Brown (Wikidata Q42867277)
+  claim_id: c_ffd7fa23
+  context: "Define and implement semi-empirical approximation method (bond-valence\
+    \ sum model using parameters from Brown (Wikidata Q42867277, https://www.wikidata.org/wiki/Q42867277))\
+    \ for remaining compositions to achieve n\u226512 in `code/semi_empirical.py`."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q42867277
+        url: https://www.wikidata.org/wiki/Q42867277
+        value: Q13421990
+      quote: Brown
+      source_id: Q13421990
+      url: https://www.wikidata.org/wiki/Q13421990
+      value: Brown
+    filled: true
+  kind: entity_fact
+  raw_text: parameters from Brown (Wikidata Q42867277, https://www.wikidata.org/wiki/Q42867277)
+  resolved_value: Brown
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T12:52:08Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Defect energy tolerance within 0.5 eV of literature
+  claim_id: c_90e8fc24
+  context: Can be fully tested by running the calculation module on 2-3 pre-selected
+    test systems and verifying output energy values match expected ranges from literature
+    (within 0.5 eV tolerance for defect energies).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output energy values match expected ranges from literature (within
+    0.5 eV tolerance for defect energies)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:52:08Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: NEB convergence criteria force threshold 0.05 eV per Angstrom
+  claim_id: c_24ec12cf
+  context: "Integration test for NEB convergence criteria (force \u22640.05 eV/\xC5\
+    ) in `tests/test_dft_runner.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "force \u22640.05 eV/\xC5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:52:08Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Data download success rate at least 93 percent
+  claim_id: c_184dc721
+  context: "Contract test for data download success rate (\u226593%) in `tests/test_download.py`"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_download_success_rate_at_least_93_percent
+  kind: magnitude
+  raw_text: "Contract test for data download success rate (\u226593%)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:52:32Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Refactor download to use streaming for files over 100 megabytes
+  claim_id: c_03ab970d
+  context: Refactor `code/download.py` to use `requests` streaming for files >100MB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: files >100MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:52:32Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Unit test verify streaming behavior with 150 megabyte mock file
+  claim_id: c_3549d184
+  context: Add unit test `tests/test_download_streaming.py` verifying this behavior
+    with a 150MB mock file.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 150MB mock file
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:52:51Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Unit test verify vectorized results with 1000 synthetic data points
+  claim_id: c_e1752b74
+  context: unit test `tests/test_analysis_vectorized.py` must verify identical results
+    with <50% runtime reduction on n=1000 synthetic data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n=1000 synthetic data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:53:11Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Statistical power calculation parameters alpha 0.05 effect size 0.1 power
+    0.8
+  claim_id: c_a7b21ea0
+  context: "Implement statistical power calculation using `statsmodels.stats.power`\
+    \ as the Python-native replacement for the standalone G*Power application mentioned\
+    \ in SC-003 (\u03B1=0.05, effect size \u22650.1, target power \u22650.8) in `code/analysis.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u03B1=0.05, effect size \u22650.1, target power \u22650.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:53:29Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Li-O distance range 1.95 to 2.15 Angstroms for transition metal oxides
+  claim_id: c_b509beed
+  context: "Implement crystallographic constraint check in `code/validate.py` to verify\
+    \ Li-O distances fall within 1.95-2.15 \xC5 range for transition metal oxides"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Li-O distance within 1.95-2.15 \xC5 range"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:54:01Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Bond Valence Sum deviation threshold 10 percent
+  claim_id: c_e2a10483
+  context: Implement Bond-Valence Sum (BVS) validation in `code/validate.py` to filter
+    out structures where calculated BVS deviates >10% from ideal oxidation states
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: BVS deviates >10% from ideal oxidation states
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:54:02Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: O-anion position constraint 0.05 Angstroms
+  claim_id: c_aac8b810
+  context: "Implement oxygen-anion position constraint logic in `code/dft_runner.py`\
+    \ to optionally constrain O-anion positions within 0.05 \xC5 of crystallographic\
+    \ positions during relaxation"
+  evidence:
+    asserted: '0.05'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: "O-anion positions within 0.05 \xC5 of crystallographic positions"
+  resolved_value: '1.62'
+  resolver: approximate
+  source_hash: 65f02f5f3cf60bd189ad0ddf5cdcfee285a894ef110a68bc37d5236b11303740
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T12:54:02Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Quickstart documentation file less than 500 lines
+  claim_id: c_e896d0c4
+  context: 'Documentation: Generate `quickstart.md` in `docs/` containing EXACTLY:
+    1) `pip install -r requirements.txt` command, 2) `python code/download.py` example,
+    3) `python code/validate.py` verification output sample, 4) `python code/analysis.py`
+    example. File must be <500 lines.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Quickstart_documentation_file_less_than_500_lines
+  kind: magnitude
+  raw_text: File must be <500 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:54:04Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: GitHub Actions workflow 7 gigabytes RAM 6 hour timeout
+  claim_id: c_590d7af7
+  context: Setup GitHub Actions workflow template for CPU-only execution with a limited
+    core count and 7GB RAM with 6h timeout in `.github/workflows/ci.yml`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 7GB RAM with 6h timeout
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:54:21Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Independent test runs on 2 to 3 pre-selected test systems
+  claim_id: c_51291688
+  context: Can be fully tested by running the calculation module on 2-3 pre-selected
+    test systems and verifying output energy values match expected ranges from literature
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2-3 pre-selected test systems
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T12:54:36Z'
