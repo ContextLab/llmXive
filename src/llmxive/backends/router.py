@@ -8,8 +8,6 @@ those declarations.
 from __future__ import annotations
 
 import enum
-import logging
-import time
 from collections.abc import Iterable
 
 from llmxive.backends.base import (
@@ -25,8 +23,6 @@ from llmxive.backends.base import (
 )
 from llmxive.backends.dartmouth import DartmouthBackend
 from llmxive.backends.local import LocalBackend
-
-logger = logging.getLogger(__name__)
 
 _REGISTRY: dict[str, type[BaseBackend]] = {
     "dartmouth": DartmouthBackend,
@@ -270,76 +266,11 @@ def chat_one_candidate(
     raise last_transient
 
 
-#: Short cache so the hot path makes at most one snapshot fetch per window
-#: (spec 026 slice 5). Live availability changes on the order of minutes, not
-#: per-call, so a 60s window preserves responsiveness without hammering the API.
-_ROUTING_SNAPSHOT_TTL_S = 60.0
-_routing_snapshot_cache: dict[str, object] = {"snapshot": None, "at": 0.0}
-
-
-def _routing_snapshot():
-    """A LIVE runtime snapshot for routing, or ``None`` when no live catalog is
-    available (spec 026 FR-013).
-
-    Routing shapes its model chain from LIVE availability only: a stale
-    ``last_known_good`` snapshot does NOT reshape routing — the static fallback
-    chain is the resilient default. So offline/CI (and an LKG-present dev box)
-    deterministically fall through to :data:`MODEL_FALLBACKS`, and only a genuine
-    live snapshot drives ``select()``. Cached for a short TTL.
-    """
-    now = time.monotonic()
-    cache = _routing_snapshot_cache
-    cached = cache["snapshot"]
-    if cached is not None and (now - float(cache["at"])) < _ROUTING_SNAPSHOT_TTL_S:
-        return cached
-    try:
-        from llmxive.model_selection import runtime_snapshot
-
-        fresh = runtime_snapshot()
-    except Exception as exc:  # acquisition failure -> static fallback (never crash)
-        logger.debug("routing snapshot unavailable (%s); using static fallback", exc)
-        return None
-    catalog = fresh.sources.get("catalog")
-    if catalog is None or catalog.source != "live":
-        return None  # stale LKG / unavailable must NOT reshape routing
-    cache["snapshot"], cache["at"] = fresh, now
-    return fresh
-
-
-def _select_fallback_peers(
-    primary: str, messages: list[ChatMessage], max_tokens: int | None
-) -> list[str] | None:
-    """The ``select()``-derived PEER chain for ``primary`` (peers only — the walker
-    prepends the primary), or ``None`` to signal the caller to use the legacy
-    static :data:`MODEL_FALLBACKS` (no live snapshot, or the selector found nothing).
-
-    ``allow_paid=True`` lets the guarded paid tail appear when the live snapshot is
-    opted-in with headroom; the execution walk's paid guard still decides per call —
-    behavior-preserving vs the legacy chain, which always LISTED the guarded paid
-    peer and let ``dartmouth.chat`` skip it. Reproduces the SC-007 golden chain.
-    """
-    snap = _routing_snapshot()
-    if snap is None:
-        return None
-    try:
-        from llmxive.model_selection import build_requirement, select
-        from llmxive.model_selection.tokens import call_budget_for
-
-        budget = call_budget_for(messages, max_tokens or GENERATION_MAX_TOKENS)
-        req = build_requirement("standard_generation", budget, allow_paid=True)
-        ids = [c.model_ref.model_id for c in select(req, snap).candidates]
-    except Exception as exc:  # ModelUnavailable etc. -> static fallback
-        logger.debug("select() routing chain unavailable (%s); static fallback", exc)
-        return None
-    return [m for m in ids if m != primary]
-
-
 def chat_with_model_fallback(
     backend: BaseBackend,
     messages: Iterable[ChatMessage],
     *,
     model: str | None,
-    fallback_models: list[str] | None = None,
     max_tokens: int | None = None,
     temperature: float | None = None,
 ) -> ChatResponse:
@@ -382,10 +313,7 @@ def chat_with_model_fallback(
             backend, msg_list, model=None,
             max_tokens=max_tokens, temperature=temperature,
         )
-    # The peer chain: the select()-derived ``fallback_models`` when the caller
-    # supplied one (live snapshot), else the legacy static MODEL_FALLBACKS.
-    peers = MODEL_FALLBACKS.get(model, []) if fallback_models is None else fallback_models
-    models_to_try = [model] + [m for m in peers if m != model]
+    models_to_try = [model] + [m for m in MODEL_FALLBACKS.get(model, []) if m != model]
     errors: list[str] = []
     saw_unavailable = False
     saw_transient = False
@@ -486,17 +414,11 @@ def reasoning_chat(
     walk. Use this — never call ``backend.chat`` directly (the centralization
     guard test enforces that).
     """
-    resolved_max = REASONING_MAX_TOKENS if max_tokens is None else max_tokens
-    msg_list = list(messages)
-    # Spec 026 slice 5: same-backend peers from select() (None on a model=None
-    # offline call or when no live snapshot -> legacy static MODEL_FALLBACKS).
-    peers = None if model is None else _select_fallback_peers(model, msg_list, resolved_max)
     return chat_with_model_fallback(
         backend,
-        msg_list,
+        messages,
         model=model,
-        fallback_models=peers,
-        max_tokens=resolved_max,
+        max_tokens=REASONING_MAX_TOKENS if max_tokens is None else max_tokens,
         temperature=temperature,
     )
 
@@ -542,9 +464,6 @@ def chat_with_fallback(
     errors: list[str] = []
     saw_outage = False
     msg_list = list(messages)
-    # Spec 026 slice 5: derive the same-backend peer chain from select() against a
-    # LIVE snapshot (None -> the walker uses the legacy static MODEL_FALLBACKS).
-    peers = _select_fallback_peers(model, msg_list, max_tokens)
     for name in chain:
         try:
             backend = make_backend(name)
@@ -563,7 +482,6 @@ def chat_with_fallback(
                 backend,
                 msg_list,
                 model=model,
-                fallback_models=peers,
                 max_tokens=max_tokens,
                 temperature=temperature,
             )

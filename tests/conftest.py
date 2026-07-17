@@ -36,30 +36,6 @@ def _stub_task_verifier_backend(
 
 
 @pytest.fixture(autouse=True)
-def _static_routing_fallback_offline(
-    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """Offline tests route via the static ``MODEL_FALLBACKS`` chain, not a live
-    ``select()`` snapshot (spec 026 slice 5).
-
-    ``router._routing_snapshot`` is a NETWORK boundary (``runtime_snapshot``
-    fetches the live Dartmouth catalog + credit). Left live it makes the router
-    mechanics tests hit real HTTP and bypass their monkeypatched topology (and
-    take tens of seconds). Stubbing it to ``None`` forces the deterministic static
-    fallback — behavior-identical to pre-slice-5. The real-call suite
-    (``LLMXIVE_REAL_TESTS=1``) exercises the genuine live select() path; tests that
-    assert the select() chain override this with their own snapshot.
-    """
-    if os.environ.get("LLMXIVE_REAL_TESTS") == "1":
-        return
-    if "real_call" in str(request.node.fspath):
-        return
-    monkeypatch.setattr(
-        "llmxive.backends.router._routing_snapshot", lambda: None, raising=False,
-    )
-
-
-@pytest.fixture(autouse=True)
 def _disable_convergence_cache_by_default(
     request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
