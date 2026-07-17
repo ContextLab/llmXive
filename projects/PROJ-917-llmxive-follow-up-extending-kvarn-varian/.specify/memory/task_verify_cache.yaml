@@ -1,0 +1,33 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim references creation of three classes (`AttentionTrajectory`, `ScalingFactor`,\
+    \ `SimulationRun`) in a shared `code/` module, but no code files, definitions,\
+    \ or any non\u2011empty artifacts are presented. Without the actual module or\
+    \ class implementations, the requirement is not met. The next implementer must\
+    \ add a `code/` directory (or appropriate package) containing the definitions\
+    \ of these three entities."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided artifacts relate to synthetic attention data generation, model\
+    \ training, and simulation, but there is no evidence of any code, configuration\
+    \ file, or documentation that sets up a unified random seed management system\
+    \ across the project\u2019s modules. Consequently, the core requirement of configuring\
+    \ reproducible random seeds is not addressed."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No environment configuration files, scripts, or documentation were provided\
+    \ that define or manage CPU\u2011only execution flags. The artifacts shown relate\
+    \ only to data generation and model training, not to setting up or documenting\
+    \ the required configuration management for CPU\u2011only runs. A proper implementation\
+    \ would include, for example, a config file (e.g., YAML/JSON), command\u2011line\
+    \ flag handling, or documentation showing how to enable CPU\u2011only mode across\
+    \ the project."
+T012:
+  c: false
+  h: 4d8b0060e208de67d2697ef85853715f5a37bdd2b371b1fabcbefd5d5899984e
+  r: "The required artifact `tests/test_model_training.py` does not exist on disk,\
+    \ so no unit test for the MLP architecture definition is present. Without this\
+    \ file, the task\u2019s requirement is unmet."

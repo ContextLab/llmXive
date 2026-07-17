@@ -1,0 +1,58 @@
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C90", # mccabe
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+]
+ignore = [
+    "E501", # line-too-long (handled by black)
+    "C901", # too-complex (handled by separate complexity check if needed)
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific files or directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as Black
+line-length = 88
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+target-version = "py311"
+
+[lint.per-file-ignores]
+# Ignore specific rules for test files if necessary
+"tests/*" = ["S101"] # Allow assert in tests
+
+[lint.mccabe]
+max-complexity = 10
