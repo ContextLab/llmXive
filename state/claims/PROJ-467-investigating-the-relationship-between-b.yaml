@@ -55,75 +55,6 @@
   updated_at: '2026-07-01T03:14:20Z'
 - artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
-  canonical: Weinstein tactile instrument cited with DOI 10.1016/j.neuropsychologia.2011.04.012
-  claim_id: c_0db7f19d
-  context: 'Implement src/brainnet/data_loader.py: Function to load tactile instrument
-    metadata and cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012) per FR-007'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-06T08:05:37Z'
-- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
-  canonical: HCP Young Adult dataset expected subject count 1200 plus or minus 50
-  claim_id: c_b795408c
-  context: "Validates subject count matches the selected dataset documentation (expected\
-    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "expected N\u22481200\xB150 for HCP"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-06T08:06:36Z'
-- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
-  canonical: Alternative or custom dataset expected subject count 1000 plus or minus
-    100
-  claim_id: c_c0570beb
-  context: "Validates subject count matches the selected dataset documentation (expected\
-    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "N\u22481000\xB1100 for alternative/custom"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-06T08:07:28Z'
-- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
-  canonical: Custom study tactile measurement protocol requires at least 50 subjects
-  claim_id: c_be6f44e0
-  context: "Add tactile measurement protocol to a custom study (2\u2011point discrimination\
-    \ threshold, n \u2265 50 subjects, validated instrument per FR\u2011007)."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Custom_study_tactile_measurement_protocol_requires_at_least
-  kind: magnitude
-  raw_text: "n \u2265 50 subjects"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-06T08:08:20Z'
-- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
   canonical: ROI extraction uses Schaefer-200 atlas with scale 200
   claim_id: c_c18ceb02
   context: 'Implement src/brainnet/preprocessing.py: ROI extraction using Schaefer-200
@@ -278,23 +209,6 @@
   updated_at: '2026-07-06T08:12:11Z'
 - artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
-  canonical: HCP dataset expected subject count 1200 plus or minus 50
-  claim_id: c_2cabad6d
-  context: "Validates subject count matches the selected dataset documentation (expected\
-    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "The dataset documentation expects a subject count of N\u22481200\xB1\
-    50 for HCP or N\u22481000\xB1100 for alternative/custom datasets."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-06T08:13:05Z'
-- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
   canonical: Weinstein DOI 10.1016/j.neuropsychologia.2011.04.012
   claim_id: c_0e56e9f4
   context: 'Implement src/brainnet/data_loader.py: Function to load tactile instrument
@@ -346,3 +260,124 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-06T08:13:44Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: HCP dataset expected subject count 1200 plus or minus 50
+  claim_id: c_2cabad6d
+  context: "Validates subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset documentation expects a subject count of N\u22481200\xB1\
+    50 for HCP or N\u22481000\xB1100 for alternative/custom datasets."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:13:14Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Alternative dataset expected subject count 1000 plus or minus 100
+  claim_id: c_441de64d
+  context: "Validates subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The expected subject count for an alternative or custom dataset is N\u2248\
+    1000\xB1100."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:13:57Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Weinstein tactile instrument DOI 10.1016/j.neuropsychologia.2011.04.012
+  claim_id: c_e9b36f08
+  context: 'Implement src/brainnet/data_loader.py: Function to load tactile instrument
+    metadata and cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012) per FR-007'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The Weinstein tactile instrument is associated with DOI 10.1016/j.neuropsychologia.2011.04.012.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:13:59Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: HCP Young Adult dataset expected subject count 1200 plus or minus 50
+  claim_id: c_b795408c
+  context: "Validates subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "expected N\u22481200\xB150 for HCP"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:16:39Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: Alternative or custom dataset expected subject count 1000 plus or minus
+    100
+  claim_id: c_c0570beb
+  context: "Validates subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "N\u22481000\xB1100 for alternative/custom"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:17:43Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: Weinstein tactile instrument cited with DOI 10.1016/j.neuropsychologia.2011.04.012
+  claim_id: c_0db7f19d
+  context: 'Implement src/brainnet/data_loader.py: Function to load tactile instrument
+    metadata and cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012) per FR-007'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:17:45Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: Custom study tactile measurement protocol requires at least 50 subjects
+  claim_id: c_be6f44e0
+  context: "Add tactile measurement protocol to a custom study (2\u2011point discrimination\
+    \ threshold, n \u2265 50 subjects, validated instrument per FR\u2011007)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Custom_study_tactile_measurement_protocol_requires_at_least
+  kind: magnitude
+  raw_text: "n \u2265 50 subjects"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:19:19Z'

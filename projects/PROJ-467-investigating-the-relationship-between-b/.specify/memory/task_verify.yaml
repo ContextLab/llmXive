@@ -1,7 +1,7 @@
-? 'T001 Create project structure: `mkdir -p src/brainnet tests/unit tests/contract
-  data/processed data/raw results/figures metadata contracts`'
-: 2
-? 'T002 Initialize Python 3.11 project with dependencies: `numpy`, `pandas`, `nilearn`,
-  `networkx`, `scikit-learn`, `statsmodels`, `pingouin`, `datasets`, `pytest`, `jsonschema`'
-: 2
-T003 [P] Configure linting (ruff/flake8) and formatting (black/isort) tools: 2
+T001: 1
+T002: 1
+T003: 1
+T005: 1
+T006: 1
+T007: 1
+T008: 1

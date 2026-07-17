@@ -1,102 +1,58 @@
 #!/bin/bash
-# run_pipeline.sh - Wrapper script for the cosmic ray anisotropy pipeline
 #
-# This script orchestrates the execution of src/pipeline.py with configurable
-# bin size parameters. It handles argument parsing, environment setup, and
-# provides a clean interface for running the full data analysis pipeline.
+# run_pipeline.sh
+# Wrapper script to execute the cosmic ray anisotropy pipeline.
 #
 # Usage:
-#   ./run_pipeline.sh [OPTIONS]
+#   ./run_pipeline.sh [--bin-size <days>]
 #
-# Options:
-#   --bin-size N    Set the temporal bin size in days (default: 27)
-#   --help          Display this help message
+# Default bin size is 27 days (as per spec).
 #
-# Environment Variables:
-#   DATA_DIR        Base directory for data storage (default: data/)
-#   LOG_LEVEL       Logging level (default: INFO)
-#   PYTHONPATH      Must include the code/ directory
 
-set -e  # Exit on error
+set -e
 
-# Default values
-BIN_SIZE=27
-DATA_DIR="${DATA_DIR:-data}"
-LOG_LEVEL="${LOG_LEVEL:-INFO}"
-
-# Script directory for relative paths
+# Default configuration
+DEFAULT_BIN_SIZE=27
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CODE_DIR="${SCRIPT_DIR}/code"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+PYTHON_SCRIPT="$PROJECT_ROOT/code/src/pipeline.py"
 
-# Parse command line arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --bin-size)
-            if [[ -z "$2" || "$2" == --* ]]; then
-                echo "Error: --bin-size requires a numeric argument" >&2
-                exit 1
-            fi
-            BIN_SIZE="$2"
-            shift 2
-            ;;
-        --help)
-            echo "Usage: $0 [--bin-size N] [--help]"
-            echo ""
-            echo "Options:"
-            echo "  --bin-size N    Set the temporal bin size in days (default: 27)"
-            echo "  --help          Display this help message"
-            echo ""
-            echo "Environment Variables:"
-            echo "  DATA_DIR        Base directory for data storage (default: data/)"
-            echo "  LOG_LEVEL       Logging level (default: INFO)"
-            exit 0
-            ;;
-        *)
-            echo "Unknown option: $1" >&2
-            echo "Use --help for usage information" >&2
+# Parse arguments
+BIN_SIZE=$DEFAULT_BIN_SIZE
+if [ "$#" -gt 0 ]; then
+    if [ "$1" == "--bin-size" ]; then
+        if [ -z "$2" ]; then
+            echo "Error: --bin-size requires an integer argument."
             exit 1
-            ;;
-    esac
-done
+        fi
+        BIN_SIZE=$2
+        # Validate argument is an integer
+        if ! [[ "$BIN_SIZE" =~ ^[0-9]+$ ]]; then
+            echo "Error: --bin-size argument must be a positive integer."
+            exit 1
+        fi
+        shift 2
+    else
+        echo "Error: Unknown argument '$1'"
+        echo "Usage: $0 [--bin-size <days>]"
+        exit 1
+    fi
+fi
 
-# Validate bin size is numeric
-if ! [[ "$BIN_SIZE" =~ ^[0-9]+$ ]]; then
-    echo "Error: bin-size must be a positive integer" >&2
+echo "Starting Cosmic Ray Anisotropy Pipeline..."
+echo "Bin size: $BIN_SIZE days"
+echo "Working directory: $PROJECT_ROOT"
+
+# Change to project root to ensure relative paths in pipeline.py work correctly
+cd "$PROJECT_ROOT"
+
+# Execute the pipeline
+python3 "$PYTHON_SCRIPT" --bin-size "$BIN_SIZE"
+
+if [ $? -eq 0 ]; then
+    echo "Pipeline completed successfully."
+    echo "Results are available in data/results/"
+else
+    echo "Pipeline execution failed."
     exit 1
 fi
-
-# Set PYTHONPATH to include the code directory
-export PYTHONPATH="${CODE_DIR}:${PYTHONPATH}"
-
-# Change to the code directory to ensure relative paths work correctly
-cd "${CODE_DIR}"
-
-# Log the execution start
-echo "=============================================="
-echo "Cosmic Ray Anisotropy Pipeline"
-echo "=============================================="
-echo "Bin Size: ${BIN_SIZE} days"
-echo "Data Directory: ${DATA_DIR}"
-echo "Log Level: ${LOG_LEVEL}"
-echo "Execution Time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-echo "=============================================="
-
-# Execute the pipeline with the specified parameters
-python src/pipeline.py \
-    --bin-size "${BIN_SIZE}" \
-    --data-dir "${DATA_DIR}" \
-    --log-level "${LOG_LEVEL}"
-
-EXIT_CODE=$?
-
-if [ $EXIT_CODE -eq 0 ]; then
-    echo "=============================================="
-    echo "Pipeline execution completed successfully"
-    echo "=============================================="
-else
-    echo "=============================================="
-    echo "Pipeline execution failed with exit code: ${EXIT_CODE}"
-    echo "=============================================="
-fi
-
-exit $EXIT_CODE

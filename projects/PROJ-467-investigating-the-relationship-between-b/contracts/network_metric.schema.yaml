@@ -1,0 +1,38 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Network Metric Schema
+description: |
+  Schema for computed network metrics (static and dynamic) derived from fMRI data.
+  Used to validate outputs from `static_metrics.py` and `dynamic_metrics.py`.
+type: object
+required:
+  - subject_id
+  - modularity_q
+  - segregation_index
+  - flexibility
+  - atlas_scale
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject
+  modularity_q:
+    type: number
+    description: Louvain modularity Q value (static)
+  segregation_index:
+    type: number
+    description: Global segregation index based on community structure
+  flexibility:
+    type: number
+    description: Average node flexibility across sliding windows
+  atlas_scale:
+    type: integer
+    description: Scale of the Schaefer atlas used (e.g., 200)
+  window_length:
+    type: integer
+    description: Length of sliding window in seconds
+  step_size:
+    type: integer
+    description: Step size between windows in seconds
+  threshold:
+    type: number
+    description: Correlation threshold used for graph construction
+additionalProperties: true

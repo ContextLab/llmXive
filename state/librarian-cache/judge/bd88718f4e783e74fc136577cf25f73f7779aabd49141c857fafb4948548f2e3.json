@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.00160",
+  "judged_at": "2026-07-17T04:10:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the correlation between gut microbiome composition and parkinson’s disease progression biology",
+  "rationale": "The paper focuses exclusively on Alzheimer's disease (AD) and neuroimaging (MRI) subtypes, which constitutes an off-domain rejection for a question specifically about the gut microbiome and Parkinson's disease. While both are neurodegenerative disorders, the biological mechanisms (gut microbiome vs. brain atrophy patterns) and the specific diseases studied are distinct, failing to meet any of the inclusion criteria for mechanism, variable, or population overlap.",
+  "relevant": false
+}

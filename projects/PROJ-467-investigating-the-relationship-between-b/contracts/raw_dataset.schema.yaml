@@ -1,0 +1,47 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Raw HCP Dataset Schema
+description: |
+  Schema for the raw dataset downloaded from the HCP Young Adult study (or alternative).
+  Validates the presence of required columns for the analysis pipeline, specifically
+  tactile discrimination measures and fMRI metadata.
+type: object
+required:
+  - subject_id
+  - age
+  - sex
+  - mean_fd
+  - scanner_id
+  - tactile_score
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject
+  age:
+    type: integer
+    minimum: 18
+    maximum: 35
+    description: Age in years (HCP Young Adult range)
+  sex:
+    type: string
+    enum: ["M", "F", "Male", "Female"]
+    description: Biological sex of the participant
+  mean_fd:
+    type: number
+    minimum: 0.0
+    description: Mean Framewise Displacement (motion metric)
+  scanner_id:
+    type: string
+    description: Identifier for the scanner used (e.g., "HCP_3T")
+  tactile_score:
+    type: number
+    description: |
+      Tactile discrimination score (e.g., 2-point discrimination threshold in mm).
+      Lower values indicate better discrimination.
+      Per FR-007, this must be derived from a validated instrument.
+  # Optional columns that may exist but are not strictly required for initial validation
+  handedness:
+    type: string
+    enum: ["R", "L", "Ambidextrous"]
+  education_years:
+    type: integer
+additionalProperties: true

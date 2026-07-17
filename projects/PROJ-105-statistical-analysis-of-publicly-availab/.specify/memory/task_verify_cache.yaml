@@ -1,0 +1,32 @@
+T008:
+  c: true
+  h: 7bb8c776ab15ca16508ee31440071653888ae2b8e5895c4e7a775cc55728d398
+  r: "The `code/utils.py` file defines a `PipelineError` exception, creates a logger\
+    \ named \u201Cpipeline\u201D set to INFO level, and adds a `FileHandler` pointing\
+    \ to `data/logs/pipeline.log` (creating the directory if needed). The required\
+    \ logging infrastructure is fully implemented in the code."
+T028:
+  c: false
+  h: 9945fbc05d12111c42e4c9e7ccbb68c26758c598fcde5a245a6a75898134877d
+  r: "The repository contains a partially\u2011implemented `code/models.py` that defines\
+    \ generic fitting utilities, but it does not show any code that computes `total_delay`,\
+    \ compares it to `ArrDelay` and `DepDelay` with KS tests, generates histograms,\
+    \ or writes a JSON result file. Moreover, the required output file `data/results/component_comparison.json`\
+    \ is absent. The task\u2019s core functionality and its expected result artifact\
+    \ are missing."
+T034:
+  c: false
+  h: 52749e7b1f593a88b92846847328d94e4dee1b5ed2315ce4c94c19da63bbfb72
+  r: "The repository contains a partially shown `code/diagnostics.py` that defines\
+    \ Hill\u2011estimator utilities but does not include any implementation of a bootstrap\
+    \ goodness\u2011of\u2011fit test, nor does it write a p\u2011value to `data/results/bootstrap_gof.json`.\
+    \ Moreover, the required JSON result file is absent. The task\u2019s core requirement\
+    \ is therefore not satisfied."
+T035:
+  c: false
+  h: 37f3f7c2f199d6878718ee3aa10243cfe12ec26c68ccb1f0546a0217f1d7e7e7
+  r: "The provided `code/diagnostics.py` contains Hill\u2011estimator utilities but\
+    \ shows no implementation of a Log\u2011Normal discrimination test, curvature\u2011\
+    statistic comparison, or simulation of a Log\u2011Normal null, nor does it write\
+    \ any JSON output. Moreover, the required output file `data/results/log_normal_test.json`\
+    \ is absent. The task\u2019s core requirements are therefore unmet."

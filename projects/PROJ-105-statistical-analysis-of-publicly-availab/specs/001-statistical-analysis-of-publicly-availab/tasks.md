@@ -58,9 +58,9 @@
 - [X] T005 [P] Implement memory monitoring utilities in `code/utils.py`: Implement `check_memory_limit(limit_gb=6.5)` that raises `MemoryError` if current usage exceeds limit, and `log_peak_memory()` that records peak RAM to stderr.
 - [X] T006 [P] Create base entity definitions and JSON schemas in `code/contracts/`: Create `code/contracts/delay_record.schema.yaml` and `code/contracts/distribution_model.schema.yaml` with fields defined in `data-model.md`.
 - [X] T040 [P] Generate and save `tail-index-estimate.schema.yaml`: Generate `code/contracts/tail-index-estimate.schema.yaml` based on `TailIndexEstimate` entity in `data-model.md` (moved from Phase 5 to ensure contract-before-code).
-- [ ] T007 Setup pytest environment and base test fixtures in `tests/conftest.py`
-- [ ] T008 Setup error handling and logging infrastructure in `code/utils.py`: Configure a logging instance with level INFO, file handler to `data/logs/pipeline.log`, and a custom exception class `PipelineError`.
-- [ ] T009 Setup environment configuration management in `code/config.py`: Define `BTS_URL` and `TARGET_YEAR` variables with defaults and validation logic. <!-- FAILED: unspecified -->
+- [X] T007 Setup pytest environment and base test fixtures in `tests/conftest.py`
+- [X] T008 Setup error handling and logging infrastructure in `code/utils.py`: Configure a logging instance with level INFO, file handler to `data/logs/pipeline.log`, and a custom exception class `PipelineError`.
+- [X] T009 Setup environment configuration management in `code/config.py`: Define `BTS_URL` and `TARGET_YEAR` variables with defaults and validation logic. <!-- FAILED: unspecified -->
 - [X] T019 [P] Implement memory-mapped array handling in `code/preprocessing.py`: Implement logic to use `pandas.read_csv` with `chunksize` or `numpy.memmap` if estimated size > 6.5GB; if impossible, raise `SystemExit` with message "Memory limit exceeded: full dataset cannot be loaded."
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -114,8 +114,8 @@
 - [X] T025a [US2] Implement `code/models.py`: Re-fit Exponential, Gamma, Log-Normal, Weibull on the **tail subset** (delay >= x_min) to enable tail-metric comparison.
 - [X] T025 [US2] Implement `code/models.py`: Calculate AIC, BIC, KS, AD for all 5 models on the tail subset; save to `model_comparison.json`.
 - [X] T027 [US2] Implement `code/models.py`: Perform Vuong test (best heavy-tail vs. best short-tail) on tail subset; report p-value in `vuong_test_results.json`.
-- [~] T028 [US2] Implement `code/models.py`: Compare sum distribution (`total_delay`) vs. components (`ArrDelay`, `DepDelay`) via KS test and histograms; save results to `data/results/component_comparison.json`.
-- [ ] T029 [US2] Implement `code/main.py` (Stage 2): Orchestrate fitting, metric calculation, and Vuong test; ensure at least 3 models converge.
+- [ ] T028 [US2] Implement `code/models.py`: Compare sum distribution (`total_delay`) vs. components (`ArrDelay`, `DepDelay`) via KS test and histograms; save results to `data/results/component_comparison.json`.
+- [X] T029 [US2] Implement `code/main.py` (Stage 2): Orchestrate fitting, metric calculation, and Vuong test; ensure at least 3 models converge.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,16 +129,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US3] Unit test for Hill estimator stability window (k/n <= 0.1) in `tests/unit/test_diagnostics.py`
-- [ ] T031 [P] [US3] Unit test for Bootstrap GoF p-value calculation in `tests/unit/test_diagnostics.py`
-- [ ] T032 [P] [US3] Integration test for diagnostic plotting and validation in `tests/integration/test_pipeline.py`
+- [X] T030 [P] [US3] Unit test for Hill estimator stability window (k/n <= 0.1) in `tests/unit/test_diagnostics.py`
+- [X] T031 [P] [US3] Unit test for Bootstrap GoF p-value calculation in `tests/unit/test_diagnostics.py`
+- [X] T032 [P] [US3] Integration test for diagnostic plotting and validation in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Implement `code/diagnostics.py`: Hill estimator with sliding window variance minimization (w=10) constrained to k/n <= 0.1; output `stability_curve.csv` and `tail_index_estimate.json`.
+- [X] T033 [P] [US3] Implement `code/diagnostics.py`: Hill estimator with sliding window variance minimization (w=10) constrained to k/n <= 0.1; output `stability_curve.csv` and `tail_index_estimate.json`.
 - [ ] T034 [US3] Implement `code/diagnostics.py`: Bootstrap Goodness-of-Fit test (n_iter=1000) for best model; reject if p < 0.1; save p-value to `data/results/bootstrap_gof.json`. **NOTE: R² calculation is performed for visualization only (in T036) and is NOT used for model rejection.**
 - [ ] T035 [US3] Implement `code/diagnostics.py`: Log-Normal discrimination via curvature statistic comparison; compare to simulated Log-Normal null; save result to `data/results/log_normal_test.json`.
-- [ ] T036 [US3] Implement `code/visualization.py`: Generate log-log survival plot (empirical vs. fitted) with R² calculation for visualization purposes only.
+- [X] T036 [US3] Implement `code/visualization.py`: Generate log-log survival plot (empirical vs. fitted) with R² calculation for visualization purposes only.
 - [ ] T037 [US3] Implement `code/visualization.py`: Generate QQ-plots for best-fit model.
 - [ ] T038 [US3] Implement `code/diagnostics.py`: Tail KS test with bootstrapped p-value correction for data-driven threshold; save p-value to `data/results/tail_ks.json`.
 - [ ] T039 [US3] Implement `code/main.py` (Stage 3): Orchestrate diagnostics; if best model fails Bootstrap GoF or Log-Normal discrimination, flag next best candidate.

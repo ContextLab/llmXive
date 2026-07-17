@@ -46,7 +46,7 @@
 - [ ] T001 Create project structure: `mkdir -p src/brainnet tests/unit tests/contract data/processed data/raw results/figures metadata contracts`
 - [ ] T002 Initialize Python 3.11 project with dependencies: `numpy`, `pandas`, `nilearn`, `networkx`, `scikit-learn`, `statsmodels`, `pingouin`, `datasets`, `pytest`, `jsonschema`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black/isort) tools
-- [ ] T004 [P] Create `requirements.txt` with pinned versions (e.g., `nilearn==0.10.*`)
+- [X] T004 [P] Create `requirements.txt` with pinned versions (e.g., `nilearn==0.10.*`)
 - [ ] T005 [P] Setup `.gitignore` for data artifacts and Python cache
 
 ---
@@ -85,7 +85,7 @@
 - [ ] T013 [P] [US1] Implement `src/brainnet/data_loader.py`: Function to download HCP via `datasets.load_dataset` from verified HF URL
 - [ ] T014 [US1] Implement `src/brainnet/data_loader.py`: Function `validate_tactile_presence()` that checks for `tactile_score` column. **If missing**: HALT analysis and output exact error message: `Dataset validation failed: Standard HCP Young Adult dataset does NOT include tactile discrimination measures. Resolution required before proceeding: (1) Switch to an alternative dataset that contains both fMRI and tactile measures (e.g., ABCD Study, a large sample of subjects, validated tactile instrument per FR‑013), OR (2) Add tactile measurement protocol to a custom study (2‑point discrimination threshold, n ≥ 50 subjects, validated instrument per FR‑007). Analysis cannot proceed without both data modalities.`
 - [ ] T015 [US1] Implement `src/brainnet/data_loader.py`: Function `validate_completeness()` to compute missing value rates. Validates subject count matches the selected dataset documentation (expected N≈1200±50 for HCP or N≈1000±100 for alternative/custom). Generates `data/processed/subject_count_validation.json` or halts with specific error if mismatch.
-- [ ] T016 [US1] Implement `src/brainnet/data_loader.py`: Function to load tactile instrument metadata and cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012) per FR-007
+- [ ] T016 [US1] Implement `src/brainnet/data_loader.py`: Function to load tactile instrument metadata and cite cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012) per FR-007
 - [ ] T018 [US1] Generate `data/processed/completeness_report.json` with subject counts, missing rates, and validation status
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

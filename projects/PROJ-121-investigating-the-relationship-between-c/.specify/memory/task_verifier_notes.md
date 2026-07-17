@@ -2,9 +2,19 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T007 Create base data entities: `EventDataset` and `SolarProxySeries` in `src/entities.py`** — No evidence of a `src/entities.py` file containing the required `EventDataset` and `SolarProxySeries` classes was provided; the claim cannot be verified without the actual code artifact. The implementer must add a non‑empty `src/entities.py` defining both entities.
-- **T008 Configure `src/config.py` for environment variables and default bin size (27 days)** — No `src/config.py` file was presented or described in the provided evidence, and thus we cannot verify that it defines the required environment‑variable handling nor sets a default bin size of 27 days. The implementer must add a non‑empty `src/config.py` containing the appropriate configuration code.
-- **T009 Setup `src/utils.py` for logging, error handling, and UTC Julian date conversion** — No `src/utils.py` file or its contents were presented, so we cannot confirm that logging, error handling, and UTC Julian date conversion have been implemented. The required artifact is missing, preventing verification of the task’s completion.
-- **T010 [P] [US1] Contract test for data download integrity in `tests/contract/test_data_loader.py`** — No evidence was provided that a file `tests/contract/test_data_loader.py` exists, is non‑empty, or contains a contract test verifying data download integrity. Without the actual test artifact, the requirement cannot be confirmed as satisfied.
-- **T011 [P] [US1] Integration test for full pipeline execution in `tests/integration/test_pipeline.py`** — No `tests/integration/test_pipeline.py` file or any integration‑test code is present in the provided evidence, so the required artifact for T011 does not exist. Consequently the claim that the integration test is complete cannot be verified.
-- **T012 [P] [US1] Implement `src/binning.py` to convert timestamps to UTC Julian dates and bin events into configurable intervals (FR-010)** — No `src/binning.py` file or its contents were provided; without the module we cannot confirm it converts timestamps to UTC Julian dates or bins events into configurable intervals. The required implementation artifact is missing.
+- **T007** — declared artifact(s) missing/empty/invalid: src/entities.py
+- **T008** — declared artifact(s) missing/empty/invalid: src/config.py
+- **T009** — declared artifact(s) missing/empty/invalid: src/utils.py
+- **T011** — The required artifact `tests/contract/test_data_download.py` does not exist in the repository, so the contract test for data download integrity is missing. The task cannot be considered completed until this file is added with appropriate test code.
+- **T012** — The required file `tests/integration/test_pipeline_flow.py` does not exist in the repository, so the integration test cannot be evaluated or run. The task’s primary deliverable is missing.
+- **T012#1** — declared artifact(s) missing/empty/invalid: src/binning.py
+- **T013** — declared artifact(s) missing/empty/invalid: src/anisotropy.py
+- **T014** — declared artifact(s) missing/empty/invalid: src/pipeline.py
+- **T015** — declared artifact(s) missing/empty/invalid: src/pipeline.py
+- **T016** — No code, script, or CSV output was provided that demonstrates the added logic for handling partial intervals or the presence of a `partial_interval` boolean column set to `true` for a shortened final bin. The required artifact (updated pipeline code and a sample CSV showing the flag) is missing.
+- **T017** — No `run_all.sh` script (or any related code) was provided for inspection, so we cannot confirm that it calls `run_pipeline.sh`, logs the required message, or handles missing data sources as specified. The required artifact is missing.
+- **T018** — declared artifact(s) missing/empty/invalid: data/results/dipole_timeseries.csv
+- **T019** — The required artifact `tests/contract/test_stats.py` does not exist in the repository, so the contract test for statistical methods is missing. The task cannot be considered completed until this file is added with appropriate test content.
+- **T021** — declared artifact(s) missing/empty/invalid: src/stats.py
+- **T022** — declared artifact(s) missing/empty/invalid: src/stats.py
+- **T023** — No code, script, notebook, or test output implementing the Monte‑Carlo shuffle test or integrating the T022 block‑bootstrap logic is present. The required artifact (e.g., a Python module or script that performs the shuffling with sufficient permutations and includes the conditional fallback for < 30 blocks) is missing, so the task is not satisfied.

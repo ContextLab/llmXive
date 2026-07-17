@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1906.11546",
+  "judged_at": "2026-07-17T04:11:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the correlation between gut microbiome composition and parkinson’s disease progression biology",
+  "rationale": "The paper focuses on the recovery dynamics of the gut microbiome following antibiotic intervention in healthy individuals, which does not measure Parkinson's disease progression or the specific correlation between microbiome composition and that disease. While it shares the \"gut microbiome\" domain, it fails to address the dependent variable (Parkinson's progression) or the specific disease mechanism, falling under the rejection rule for papers with no measurable connection to the user's specific",
+  "relevant": false
+}

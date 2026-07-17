@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.07723",
+  "judged_at": "2026-07-17T04:11:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the correlation between gut microbiome composition and parkinson’s disease progression biology",
+  "rationale": "This paper satisfies criteria (a) and (b) because it explicitly investigates the association between gut microbiota composition and Parkinson's disease, measuring the same biological variables (microbial taxa abundance) and the same clinical domain (Parkinson's disease) that the user is studying, even though the paper focuses on classification and feature extraction rather than longitudinal progression rates.",
+  "relevant": true
+}

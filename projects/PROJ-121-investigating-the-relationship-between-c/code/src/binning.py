@@ -1,183 +1,177 @@
 """
-Binning module for cosmic ray anisotropy analysis.
+Binning module for converting timestamps to UTC Julian dates and binning events
+into configurable intervals.
 
-Converts event timestamps to UTC Julian dates and bins events
-into configurable time intervals.
+Implements FR-010: Events must be binned into non-overlapping intervals of
+configurable duration.
 """
 from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Any, Tuple, Optional
 import numpy as np
-
-from .utils import julian_date, get_logger
+from .utils import julian_date, get_logger, datetime_from_jd
 from .config import DEFAULT_BIN_SIZE_DAYS, validate_bin_size
 from .entities import EventDataset
+
 
 logger = get_logger(__name__)
 
 
-def _get_bin_boundaries(
-    start_time: datetime,
-    end_time: datetime,
-    bin_size_days: int
-) -> List[Tuple[datetime, datetime, bool]]:
-    """
-    Generate a list of bin boundaries (start, end, is_partial) between
-    start_time and end_time with the specified bin_size_days.
-
-    Returns:
-        List of tuples: (bin_start, bin_end, is_partial)
-        where is_partial is True if the interval is shorter than bin_size_days.
-    """
-    boundaries = []
-    current_start = start_time
-    bin_duration = timedelta(days=bin_size_days)
-
-    while current_start < end_time:
-        current_end = current_start + bin_duration
-        is_partial = False
-
-        if current_end > end_time:
-            current_end = end_time
-            is_partial = True
-
-        boundaries.append((current_start, current_end, is_partial))
-        current_start = current_end
-
-    return boundaries
-
-
 def bin_events(
-    dataset: EventDataset,
-    bin_size_days: Optional[int] = None,
-    output_path: Optional[str] = None
+    events: EventDataset,
+    bin_size_days: int = DEFAULT_BIN_SIZE_DAYS,
+    start_time: Optional[datetime] = None,
+    end_time: Optional[datetime] = None
 ) -> List[Dict[str, Any]]:
     """
-    Bin cosmic ray events into time intervals and compute binned statistics.
-
+    Bin cosmic ray events into non-overlapping time intervals.
+    
+    This function converts event timestamps to UTC Julian Dates, then assigns
+    each event to a bin based on the specified bin size. The bins are
+    non-overlapping and cover the entire time range from the first event
+    (or start_time) to the last event (or end_time).
+    
     Args:
-        dataset: EventDataset containing events with timestamps and coordinates.
-        bin_size_days: Size of each bin in days. Defaults to DEFAULT_BIN_SIZE_DAYS.
-        output_path: Optional path to write the binned results as CSV.
-
+        events: EventDataset containing timestamps and event properties.
+        bin_size_days: Duration of each bin in days.
+        start_time: Optional start time for binning. If None, uses first event.
+        end_time: Optional end time for binning. If None, uses last event.
+        
     Returns:
-        List of dictionaries, one per bin, containing:
-            - interval_start: ISO format datetime string
-            - interval_end: ISO format datetime string
-            - partial_interval: boolean indicating if the interval is shorter than bin_size
-            - event_count: number of events in the bin
-            - mean_julian_date: average Julian date of events in the bin
-            - detector: detector name ('IceCube' or 'Auger')
-
+        List of dictionaries, each containing:
+            - interval_start: datetime of bin start
+            - interval_end: datetime of bin end
+            - n_events: number of events in bin
+            - interval_jd_start: Julian Date of bin start
+            - interval_jd_end: Julian Date of bin end
+            - partial_interval: True if this is the last bin and it's shorter
+                              than bin_size_days
+        
     Raises:
-        ValueError: If bin_size_days is invalid or dataset is empty.
-        FileNotFoundError: If output_path is specified but cannot be written.
+        ValueError: If bin_size_days is invalid or events is empty.
     """
-    if bin_size_days is None:
-        bin_size_days = DEFAULT_BIN_SIZE_DAYS
-
-    # Validate bin size
-    validate_bin_size(bin_size_days)
-
-    if not dataset or len(dataset.events) == 0:
-        logger.warning("Dataset is empty. Returning empty bin list.")
-        return []
-
-    # Extract timestamps and convert to datetime if needed
-    timestamps = []
-    for event in dataset.events:
-        ts = event.get('timestamp')
-        if ts is None:
-            raise ValueError("Event missing timestamp")
-        if isinstance(ts, str):
-            # Parse ISO format timestamp
-            ts = datetime.fromisoformat(ts.replace('Z', '+00:00'))
-        elif not isinstance(ts, datetime):
-            raise ValueError(f"Invalid timestamp type: {type(ts)}")
-        
-        # Ensure timezone awareness
-        if ts.tzinfo is None:
-            ts = ts.replace(tzinfo=timezone.utc)
-        
-        timestamps.append(ts)
-
-    if not timestamps:
-        logger.warning("No valid timestamps found. Returning empty bin list.")
-        return []
-
-    start_time = min(timestamps)
-    end_time = max(timestamps)
-
-    logger.info(
-        f"Binning {len(timestamps)} events from {start_time.isoformat()} "
-        f"to {end_time.isoformat()} with bin size {bin_size_days} days"
-    )
-
-    boundaries = _get_bin_boundaries(start_time, end_time, bin_size_days)
-    logger.info(f"Generated {len(boundaries)} time bins")
-
-    # Convert timestamps to Julian dates for efficient binning
-    julian_dates = [julian_date(ts) for ts in timestamps]
-
-    binned_results = []
-    detector_name = dataset.detector_name or "Unknown"
-
-    for i, (bin_start, bin_end, is_partial) in enumerate(boundaries):
-        bin_start_jd = julian_date(bin_start)
-        bin_end_jd = julian_date(bin_end)
-
-        # Find events in this bin
-        event_indices = [
-            j for j, jd in enumerate(julian_dates)
-            if bin_start_jd <= jd < bin_end_jd
-        ]
-
-        event_count = len(event_indices)
-
-        if event_count == 0:
-            # Still record empty bins for continuity
-            binned_results.append({
-                'interval_start': bin_start.isoformat(),
-                'interval_end': bin_end.isoformat(),
-                'partial_interval': is_partial,
-                'event_count': 0,
-                'mean_julian_date': None,
-                'detector': detector_name
-            })
-        else:
-            mean_jd = float(np.mean([julian_dates[j] for j in event_indices]))
-            binned_results.append({
-                'interval_start': bin_start.isoformat(),
-                'interval_end': bin_end.isoformat(),
-                'partial_interval': is_partial,
-                'event_count': event_count,
-                'mean_julian_date': mean_jd,
-                'detector': detector_name
-            })
-
-        logger.debug(
-            f"Bin {i+1}/{len(boundaries)}: {event_count} events, "
-            f"partial={is_partial}"
+    if not validate_bin_size(bin_size_days):
+        raise ValueError(
+            f"Invalid bin_size_days: {bin_size_days}. "
+            f"Must be between {validate_bin_size.__globals__.get('MIN_BIN_SIZE_DAYS', 14)} "
+            f"and {validate_bin_size.__globals__.get('MAX_BIN_SIZE_DAYS', 365)}."
         )
+    
+    if not events:
+        logger.warning("Empty event dataset provided to bin_events")
+        return []
+    
+    # Convert timestamps to UTC if not already
+    timestamps = [
+        ts.astimezone(timezone.utc) if ts.tzinfo else ts.replace(tzinfo=timezone.utc)
+        for ts in events.timestamps
+    ]
+    
+    # Determine time range
+    if start_time is None:
+        start_time = min(timestamps)
+    else:
+        start_time = start_time.astimezone(timezone.utc)
+        
+    if end_time is None:
+        end_time = max(timestamps)
+    else:
+        end_time = end_time.astimezone(timezone.utc)
+    
+    # Convert to Julian Dates
+    jd_start = julian_date(start_time)
+    jd_end = julian_date(end_time)
+    jd_bin_size = float(bin_size_days)
+    
+    logger.info(
+        f"Binning {len(events)} events from JD {jd_start:.4f} to JD {jd_end:.4f} "
+        f"with bin size {bin_size_days} days"
+    )
+    
+    # Calculate number of bins
+    total_duration = jd_end - jd_start
+    n_bins = int(np.ceil(total_duration / jd_bin_size))
+    
+    if n_bins == 0:
+        n_bins = 1
+    
+    bins = []
+    
+    for i in range(n_bins):
+        bin_jd_start = jd_start + i * jd_bin_size
+        bin_jd_end = bin_jd_start + jd_bin_size
+        
+        # Check if this is a partial interval (last bin)
+        is_partial = (i == n_bins - 1) and (bin_jd_end > jd_end + 1e-10)
+        
+        # Convert back to datetime
+        interval_start = datetime_from_jd(bin_jd_start)
+        interval_end = datetime_from_jd(min(bin_jd_end, jd_end))
+        
+        # Count events in this bin
+        # Events are included if: bin_start <= timestamp < bin_end
+        # For the last bin, include events up to and including the end
+        n_events_in_bin = 0
+        for ts in timestamps:
+            ts_jd = julian_date(ts)
+            if bin_jd_start <= ts_jd < bin_jd_end:
+                n_events_in_bin += 1
+            elif is_partial and abs(ts_jd - bin_jd_end) < 1e-10:
+                # Include boundary event for partial interval
+                n_events_in_bin += 1
+        
+        bins.append({
+            'interval_start': interval_start,
+            'interval_end': interval_end,
+            'n_events': n_events_in_bin,
+            'interval_jd_start': bin_jd_start,
+            'interval_jd_end': min(bin_jd_end, jd_end),
+            'partial_interval': is_partial
+        })
+    
+    logger.info(f"Created {len(bins)} bins, {sum(1 for b in bins if b['partial_interval'])} partial")
+    return bins
 
-    # Write to CSV if output_path is specified
-    if output_path:
-        import csv
-        import os
 
-        # Ensure directory exists
-        output_dir = os.path.dirname(output_path)
-        if output_dir:
-            os.makedirs(output_dir, exist_ok=True)
-
-        with open(output_path, 'w', newline='') as f:
-            fieldnames = [
-                'interval_start', 'interval_end', 'partial_interval',
-                'event_count', 'mean_julian_date', 'detector'
-            ]
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(binned_results)
-
-        logger.info(f"Wrote {len(binned_results)} bins to {output_path}")
-
-    return binned_results
+def get_bin_statistics(bins: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Calculate summary statistics for binned data.
+    
+    Args:
+        bins: List of bin dictionaries from bin_events.
+        
+    Returns:
+        Dictionary with statistics:
+            - total_bins: Total number of bins
+            - full_bins: Number of full bins
+            - partial_bins: Number of partial bins
+            - total_events: Total events across all bins
+            - mean_events_per_bin: Average events per bin
+            - time_coverage_days: Total time coverage in days
+    """
+    if not bins:
+        return {
+            'total_bins': 0,
+            'full_bins': 0,
+            'partial_bins': 0,
+            'total_events': 0,
+            'mean_events_per_bin': 0.0,
+            'time_coverage_days': 0.0
+        }
+    
+    total_events = sum(b['n_events'] for b in bins)
+    partial_bins = sum(1 for b in bins if b['partial_interval'])
+    full_bins = len(bins) - partial_bins
+    
+    # Calculate time coverage
+    first_start = bins[0]['interval_jd_start']
+    last_end = bins[-1]['interval_jd_end']
+    time_coverage = last_end - first_start
+    
+    return {
+        'total_bins': len(bins),
+        'full_bins': full_bins,
+        'partial_bins': partial_bins,
+        'total_events': total_events,
+        'mean_events_per_bin': total_events / len(bins) if bins else 0.0,
+        'time_coverage_days': time_coverage
+    }

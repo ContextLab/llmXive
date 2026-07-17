@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1810.08807",
+  "judged_at": "2026-07-17T04:11:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the correlation between gut microbiome composition and parkinson’s disease progression biology",
+  "rationale": "The paper focuses on voice biomarkers and LRRK2 mutations in Parkinson's Disease, which is a distinct construct from the user's specific question regarding the correlation between gut microbiome composition and disease progression. It fails to measure the independent variable (gut microbiome) or the specific mechanism of interest, and does not fall under any of the inclusion criteria (a-f) as it addresses a different domain of PD research (speech pathology vs. microbiology).",
+  "relevant": false
+}

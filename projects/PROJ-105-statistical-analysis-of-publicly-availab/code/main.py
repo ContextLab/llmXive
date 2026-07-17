@@ -19,7 +19,8 @@ from models import (
     save_model_comparison,
     perform_vuong_test,
     save_vuong_test_results,
-    compare_component_distributions
+    compare_component_distributions,
+    ConvergenceError
 )
 from utils import setup_logging, check_memory_limit, log_peak_memory
 import config
@@ -33,7 +34,11 @@ def run_stage1():
     logger.info("Stage 1 completed successfully.")
 
 def run_stage2():
-    """Run Stage 2: Model fitting and goodness-of-fit evaluation."""
+    """Run Stage 2: Model fitting and goodness-of-fit evaluation.
+    
+    Orchestrates the fitting of 5 distributions, calculation of metrics (AIC/BIC/KS/AD),
+    and performance of the Vuong test. Ensures at least 3 models converge successfully.
+    """
     logger.info("=== Stage 2: Model Fitting and Evaluation ===")
     
     # Load cleaned data
@@ -57,6 +62,7 @@ def run_stage2():
     logger.info("Estimating x_min via KS minimization...")
     x_min = estimate_x_min_ks(total_delay)
     save_x_min_estimate(x_min)
+    logger.info(f"Estimated x_min: {x_min:.4f}")
 
     # Fit distributions on full data (excluding Pareto)
     logger.info("Fitting base distributions on full data...")
@@ -71,13 +77,28 @@ def run_stage2():
     try:
         pareto_dist, pareto_params = fit_pareto_tail(total_delay, x_min)
         tail_fits['pareto'] = (pareto_dist, pareto_params)
+        logger.info("Pareto fitting successful.")
+    except ConvergenceError as e:
+        logger.warning(f"Pareto fitting failed due to convergence error: {e}")
     except Exception as e:
-        logger.warning(f"Pareto fitting failed: {e}")
+        logger.warning(f"Pareto fitting failed with unexpected error: {e}")
+
+    # Validate convergence count
+    # We need at least 3 models to converge. 
+    # tail_fits contains the base distributions (Exponential, Gamma, Log-Normal, Weibull) + potentially Pareto.
+    # The task requires at least 3 to converge.
+    converged_count = len(tail_fits)
+    logger.info(f"Total models converged on tail data: {converged_count}")
+    
+    if converged_count < 3:
+        logger.error(f"Stage 2 Failed: Only {converged_count} models converged. Requirement: >= 3.")
+        sys.exit(1)
 
     # Calculate metrics
     logger.info("Calculating model metrics...")
     metrics = calculate_tail_metrics(total_delay, tail_fits, x_min)
     save_model_comparison(metrics, x_min)
+    logger.info("Model metrics saved to data/results/model_comparison.json")
 
     # Perform Vuong test (best heavy-tail vs best short-tail)
     logger.info("Performing Vuong test...")
@@ -86,8 +107,19 @@ def run_stage2():
         if 'pareto' in tail_fits and 'expon' in tail_fits:
             vuong_results = perform_vuong_test(total_delay, tail_fits['pareto'][0], tail_fits['expon'][0], x_min)
             save_vuong_test_results(vuong_results, 'pareto', 'expon')
+            logger.info("Vuong test completed and saved.")
         else:
-            logger.warning("Insufficient models for Vuong test")
+            # Fallback: try to find any heavy vs short tail pair if Pareto/Expon missing but others exist
+            # For this implementation, we strictly follow the heuristic or log warning if specific pair missing
+            logger.warning("Insufficient specific models (Pareto/Expon) for standard Vuong test heuristic.")
+            if len(tail_fits) >= 2:
+                # Attempt a generic Vuong between the first two fitted models if heuristic fails
+                keys = list(tail_fits.keys())
+                dist1_name, dist1 = keys[0], tail_fits[keys[0]]
+                dist2_name, dist2 = keys[1], tail_fits[keys[1]]
+                vuong_results = perform_vuong_test(total_delay, dist1[0], dist2[0], x_min)
+                save_vuong_test_results(vuong_results, dist1_name, dist2_name)
+                logger.info(f"Vuong test completed for {dist1_name} vs {dist2_name}.")
     else:
         logger.warning("Not enough models fitted for Vuong test")
 
@@ -115,6 +147,9 @@ def main():
         elapsed = time.time() - start_time
         logger.info(f"Pipeline completed in {elapsed:.2f} seconds")
         
+    except ConvergenceError as e:
+        logger.error(f"Pipeline failed due to model convergence error: {e}")
+        sys.exit(1)
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         sys.exit(1)

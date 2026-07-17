@@ -1,8 +1,16 @@
-'T007 Create base data entities: `EventDataset` and `SolarProxySeries` in `src/entities.py`': 1
-T008 Configure `src/config.py` for environment variables and default bin size (27 days): 1
-T009 Setup `src/utils.py` for logging, error handling, and UTC Julian date conversion: 1
-T010 [P] [US1] Contract test for data download integrity in `tests/contract/test_data_loader.py`: 1
-T011 [P] [US1] Integration test for full pipeline execution in `tests/integration/test_pipeline.py`: 1
-? T012 [P] [US1] Implement `src/binning.py` to convert timestamps to UTC Julian dates
-  and bin events into configurable intervals (FR-010)
-: 1
+T007: 1
+T008: 1
+T009: 1
+T011: 1
+T012: 1
+T012#1: 1
+T013: 1
+T014: 1
+T015: 1
+T016: 1
+T017: 1
+T018: 1
+T019: 1
+T021: 1
+T022: 1
+T023: 1

@@ -1,0 +1,488 @@
+{
+  "fetched_at": "2026-07-17T04:11:21Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s Disease Progression",
+      "target_n": 5
+    },
+    "duration_seconds": 75.714,
+    "ended_at": "2026-07-17T04:11:21Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Gut-brain axis in Parkinson's disease"
+        ],
+        [
+          2,
+          "Microbiota-gut-brain axis and neurodegeneration"
+        ],
+        [
+          3,
+          "Intestinal microbiome alterations in Parkinson's"
+        ],
+        [
+          4,
+          "Dysbiosis and Parkinson's disease progression"
+        ],
+        [
+          5,
+          "Fecal microbiota transplantation for Parkinson's disease"
+        ],
+        [
+          6,
+          "Gut microbiome biomarkers for Parkinson's disease"
+        ],
+        [
+          7,
+          "Alpha-synuclein propagation via the vagus nerve"
+        ],
+        [
+          8,
+          "Enteric nervous system and Parkinson's pathology"
+        ],
+        [
+          9,
+          "Short-chain fatty acids and neuroinflammation in Parkinson's"
+        ],
+        [
+          10,
+          "Gut microbiome metabolites in Parkinson's disease"
+        ],
+        [
+          11,
+          "Bacterial diversity indices in Parkinson's patients"
+        ],
+        [
+          12,
+          "Specific gut bacteria strains associated with Parkinson's"
+        ],
+        [
+          13,
+          "Probiotics and Parkinson's disease symptom management"
+        ],
+        [
+          14,
+          "Microbiome composition changes preceding Parkinson's onset"
+        ],
+        [
+          15,
+          "Vagus nerve-mediated gut-brain signaling in neurodegeneration"
+        ],
+        [
+          16,
+          "Gut permeability and alpha-synuclein aggregation"
+        ],
+        [
+          17,
+          "Microbiome-targeted therapies for Parkinson's disease"
+        ],
+        [
+          18,
+          "Comparative analysis of gut flora in Parkinson's vs controls"
+        ],
+        [
+          19,
+          "Inflammation markers linked to gut microbiome in Parkinson's"
+        ],
+        [
+          20,
+          "Metagenomic analysis of Parkinson's disease stool samples"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Gut-brain axis in Parkinson's disease": 2,
+        "Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s Disease Progression biology": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "gut dysbiosis microbiota alteration fecal",
+      "alpha-synuclein aggregation Parkinson's mouse model",
+      "short-chain fatty acids SCFA metabolome",
+      "longitudinal microbiome profiling disease severity Hoehn Yahr",
+      "vagus nerve gut-brain axis neuroinflammation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2509.07723"
+      ]
+    },
+    "per_query_hit_count": {
+      "Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s Disease Progression biology": 3,
+      "alpha-synuclein aggregation Parkinson's mouse model": 3,
+      "gut dysbiosis microbiota alteration fecal": 3,
+      "longitudinal microbiome profiling disease severity Hoehn Yahr": 2,
+      "short-chain fatty acids SCFA metabolome": 3,
+      "vagus nerve gut-brain axis neuroinflammation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2412.00160",
+          "rationale": "The paper focuses exclusively on Alzheimer's disease (AD) and neuroimaging (MRI) subtypes, which constitutes an off-domain rejection for a question specifically about the gut microbiome and Parkinson's disease. While both are neurodegenerative disorders, the biological mechanisms (gut microbiome vs. brain atrophy patterns) and the specific diseases studied are distinct, failing to meet any of the inclusion criteria for mechanism, variable, or population overlap.",
+          "title": "How reproducible are data-driven subtypes of Alzheimer's disease atrophy?"
+        },
+        {
+          "primary_pointer": "1906.11546",
+          "rationale": "The paper focuses on the recovery dynamics of the gut microbiome following antibiotic intervention in healthy individuals, which does not measure Parkinson's disease progression or the specific correlation between microbiome composition and that disease. While it shares the \"gut microbiome\" domain, it fails to address the dependent variable (Parkinson's progression) or the specific disease mechanism, falling under the rejection rule for papers with no measurable connection to the user's specific",
+          "title": "Gut microbiome composition: back to baseline?"
+        },
+        {
+          "primary_pointer": "2409.12209",
+          "rationale": "The paper investigates the correlation between gut microbiome composition and gastric cancer, which is a distinct disease construct from Parkinson's Disease; while it shares the \"gut microbiome\" domain, it fails to address the specific dependent variable (Parkinson's progression) or the specific disease mechanism required by the user's question, falling under the \"Distinct construct\" rejection rule.",
+          "title": "Multivariate Analysis of Gut Microbiota Composition and Prevalence of Gastric Cancer"
+        },
+        {
+          "primary_pointer": "2306.04748",
+          "rationale": "The paper focuses on machine learning techniques applied to clinical and neurological parameters to predict Parkinson's progression, but it does not measure, analyze, or mention the gut microbiome composition, failing to satisfy the requirement for measuring the specific independent variable or mechanism in the user's domain.",
+          "title": "Analysis, Identification and Prediction of Parkinson Disease Sub-Types and Progression through Machine Learning"
+        },
+        {
+          "primary_pointer": "1810.08807",
+          "rationale": "The paper focuses on voice biomarkers and LRRK2 mutations in Parkinson's Disease, which is a distinct construct from the user's specific question regarding the correlation between gut microbiome composition and disease progression. It fails to measure the independent variable (gut microbiome) or the specific mechanism of interest, and does not fall under any of the inclusion criteria (a-f) as it addresses a different domain of PD research (speech pathology vs. microbiology).",
+          "title": "Investigating Voice as a Biomarker for leucine-rich repeat kinase 2-Associated Parkinson's Disease"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-17T04:10:05Z",
+    "term_input": {
+      "normalized": "investigating the correlation between gut microbiome composition and parkinson’s disease progression biology",
+      "raw": "Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s Disease Progression biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The gut microbiota has emerged as a fundamental regulator of sleep physiology, influencing neural, endocrine, and immune pathways through the gut-microbiota-brain axis (GMBA). This bidirectional communication system modulates neurotransmitter production, circadian rhythms, and metabolic homeostasis, while disruptions in microbial composition have been linked to sleep disorders, neuroinflammation, and systemic immune dysfunction. Recent findings suggest that gut dysbiosis contributes to sleep disturbances by altering serotonin, GABA, and short-chain fatty acid (SCFA) metabolism, with implications for neurodegenerative diseases, metabolic syndromes, and mood disorders. Additionally, the gut microbiota interacts with the endocrine and immune systems, shaping inflammatory responses and stress adaptation mechanisms. This review explores the intricate connections between sleep and the gut microbiota, integrating emerging research on microbiota-targeted therapies, such as probiotics, fecal microbiota transplantation (FMT), and chrononutrition, as potential interventions to restore sleep homeostasis and improve health outcomes",
+          "claimed_authors": [
+            "Enso Onill Torres Alegre"
+          ],
+          "claimed_title": "Microbes in the Moonlight: How the Gut Microbiota Influences Sleep",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.02766"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Microbes in the Moonlight: How the Gut Microbiota Influences Sleep')",
+        "failed_at": "2026-07-17T04:10:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Due to their antimicrobial properties, silver nanoparticles (AgNPs) are being used in non-edible and edible consumer products. It is not clear though if exposure to these chemicals can exert toxic effects on the host and gut microbiome. Conflicting studies have been reported on whether AgNPs result in gut dysbiosis and other changes within the host. We sought to examine whether exposure of Sprague-Dawley male rats for two weeks to different shapes of AgNPs, cube (AgNC) and sphere (AgNS) affects gut microbiota, select behaviors, and induces histopathological changes in the gastrointestinal system and brain. In the elevated plus maze (EPM), AgNS-exposed rats showed greater number of entries into closed arms and center compared to controls and those exposed to AgNC. AgNS and AgNC treated groups had select reductions in gut microbiota relative to controls. Clostridium spp., Bacteroides uniformis, Christensenellaceae, and Coprococcus eutactus were decreased in AgNC exposed group, whereas, Oscillospira spp., Dehalobacterium spp., Peptococcaeceae, Corynebacterium spp., Aggregatibacter pneumotropica were reduced in AgNS exposed group. Bacterial reductions correlated with select behavioral changes measured in the EPM. No significant histopathological changes were evident in the gastrointestinal system or brain. Findings suggest short-term exposure to AgNS or AgNC can lead to behavioral and gut microbiome changes.",
+          "claimed_authors": [
+            "Angela B. Javurek",
+            "Dhananjay Suresh",
+            "William G. Spollen",
+            "Marcia L. Hart",
+            "Sarah A. Hansen",
+            "Mark R. Ellersieck",
+            "Nathan J. Bivens",
+            "Scott A. Givan",
+            "Anandhi Upendran",
+            "Raghuraman Kannan",
+            "Cheryl S. Rosenfeld"
+          ],
+          "claimed_title": "Gut Dysbiosis and Neurobehavioral Alterations in Rats Exposed to Silver Nanoparticles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.09273"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Gut Dysbiosis and Neurobehavioral Alterations in Rats Exposed to Silver Nanoparticles')",
+        "failed_at": "2026-07-17T04:10:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Parkinson's disease (PD) is a neurodegenerative disorder associated with the accumulation of misfolded alpha-synuclein aggregates, forming Lewy bodies and neuritic shape used for pathology diagnostics. Automatic analysis of immunohistochemistry histopathological images with Deep Learning provides a promising tool for better understanding the spatial organization of these aggregates. In this study, we develop an automated image processing pipeline to segment and classify these aggregates in whole-slide images (WSIs) of midbrain tissue from PD and incidental Lewy Body Disease (iLBD) cases based on weakly supervised segmentation, robust to immunohistochemical labelling variability, with a ResNet50 classifier. Our approach allows to differentiate between major aggregate morphologies, including Lewy bodies and neurites with a balanced accuracy of $80\\%$. This framework paves the way for large-scale characterization of the spatial distribution and heterogeneity of alpha-synuclein aggregates in brightfield immunohistochemical tissue, and for investigating their poorly understood relationships with surrounding cells such as microglia and astrocytes.",
+          "claimed_authors": [
+            "Erwan Dereure",
+            "Robin Louiset",
+            "Laura Parkkinen",
+            "David A Menassa",
+            "David Holcman"
+          ],
+          "claimed_title": "Weakly Supervised Segmentation and Classification of Alpha-Synuclein Aggregates in Brightfield Midbrain Images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.16268"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Weakly Supervised Segmentation and Classification of Alpha-Synuclein Aggregates in Brightfield Midbrain Images')",
+        "failed_at": "2026-07-17T04:10:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Parkinson disease is a very common neurodegenerative disorder. Patients usually undergo destruction of substantia nigra to develop typical symptoms such as resting tremor, hypokinesia, and rigidity. However, the exact mechanism of Parkinson disease is still unknown, so it is called idiopathic Parkinsonism. According to my microarray analysis of peripheral blood leukocytes and substantia nigra brain tissue, I propose that Parkinson disease is actually a TH17 dominant autoimmune disease. Based on the microarray data in substantia nigra, HSP40, HSP70, HSP90, HSP27, HSP105, TLR5, TLR7, CEBPB, CEBPG, FOS, and caspase1 are significantly up-regulated. In peripheral leukocytes, NFKB1A, CEBPD, FOS, retinoic receptor alpha, suppressor of IKK epsilon, S100A11, G-CSF, MMP9, IL-1 receptor, IL-8 receptor, TNF receptor, caspase8, c1q receptor, cathepsin Z, HLA-G, complement receptor1, and complement 5a receptor. General immune related genes are also up-regulated including ILF2, CD22, CD3E, BLNK, ILF3, TCR alpha, TCR zeta, TCR delta, LAT, ITK, Ly9, and BANK1. The autoantigen is mainly alpha-synuclein. After knowing the exact disease pathophysiology, we can develop better drugs to prevent or control the detrimental disorder.",
+          "claimed_authors": [
+            "Wan-Chung Hu"
+          ],
+          "claimed_title": "Parkinson disease is a TH17 dominant autoimmune disorder against accumulated alpha-synuclein",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1403.3256"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Parkinson disease is a TH17 dominant autoimmune disorder against accumulated alpha-synuclein')",
+        "failed_at": "2026-07-17T04:10:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Protein phase transitions govern numerous diseases, including neurodegenerative disorders such as Parkinson's and Alzheimer's. In Parkinson's disease, distinct species of the protein alpha-synuclein undergo phase transitions from highly disordered to ordered beta-rich states. The emerging species and transitions between them can be reshaped by chaperones, small molecules, peptides or antibodies. Here, we use coarse-grained simulations to understand the effect of modulators on the thermodynamics and kinetics of alpha-synuclein transformations and phase transitions. Each protein is represented as a single morphing particle that transforms from a soft sphere (disordered state) to a hard spherocylinder (beta-rich state), while modulators are modeled as soft isotropic particles mimicking small peptides. The results show that purely repulsive modulators do not alter the final outcome, i.e. fibrils form following the same mechanisms independently of the modulator concentration. Attractive interactions towards the disordered protein slow down fibril formation in a dose-dependent manner by stabilizing intermediate species, and strong attraction yields persistent disordered heteroclusters. In contrast, specific attraction to the beta-rich state results in shorter fibrils through direct modulator surface \"capping\" that introduce kinetic barriers to monomer templating at the fibril ends and inhibit lateral attachment. Together, these results link modulator properties and environmental conditions to the effects on nucleation, fibril elongation and off-pathway trapping, providing a quantitative roadmap for selecting modulator properties and strategies that redirect phase transitions toward desirable endpoints. Additionally, they provide guiding principles for the development of intervention strategies and the engineering of novel materials with tunable and responsive properties.",
+          "claimed_authors": [
+            "Holly Masson",
+            "Massimiliano Paesani",
+            "Ioana M. Ilie"
+          ],
+          "claimed_title": "Modulators Selectively Reshape alpha-Synuclein Phase Transitions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.07513"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Modulators Selectively Reshape alpha-Synuclein Phase Transitions')",
+        "failed_at": "2026-07-17T04:10:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Short-chain fatty acids (SCFAs), including acetate, propionate and butyrate, are organic fatty-acids that are produced when indigested carbohydrates are fermented in the colon by gut-bacteria. Butyrate is especially considered a beneficial compound in relation to gut health and the maintenance of colonic homeostasis. Little is known about butyrate production and the current measurement methods of fecal samples are not representative and there is a strong unmet need to measure SCFAs in-vivo to further understand their role and effect on colonic function in human gut health and disease. The general aim of the project is to develop a novel sensor based on infrared technology that is capable of online detecting short chain fatty acids (SCFA; e.g. acetate, propionate and butyrate) and other small biomolecules (e.g. ammonium) produced in bioreactors. Whereas currently such levels of small biomolecules are usually not detected online due to practical constraints (sampling-analysis-processing of data), reliable online detection could significantly decrease analysis costs. Further, it would allow to perform online quality control of the bioreactors and allow to e.g. detect deviating values at an early stage. Hence, one can react much faster tackling certain problems which will further improve the quality of each experiment. Using machine learning algorithms to process the sensor signals, the results from testing in a so-called artificial gut setup are described in this technical report.",
+          "claimed_authors": [
+            "Martin Längkvist",
+            "Amy Loutfi",
+            "Igancio Rangel",
+            "Johnny Karlsson",
+            "Robert Jan Brummer"
+          ],
+          "claimed_title": "Using infrared gas sensors in an in-vitro dynamic gut model for detecting short-chain fatty-acids: Technical Report",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.11177"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Using infrared gas sensors in an in-vitro dynamic gut model for detecting short-chain fatty-acids: Technical Report')",
+        "failed_at": "2026-07-17T04:10:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Several short-chain fatty acids and their corresponding potential existing hydrated forms are important molecules in interstellar space. Their structures were optimized with twelve different computational methods. The dipole moments and the spectral constants, including rotational constants and centrifugal distortion constants were obtained. According to the benchmark study, revDSD-PBEP86-D3(BJ) is the most suitable method that was selected for rotational calculation. Symmetry-adapted perturbation theory was used to study the strength and composition of the interaction between acids and water in clusters. The possibility of its existing under the low-temperature and low-pressure conditions was confirmed by calculating of binding free energy. Furthermore, ab initio molecular dynamics simulations were used to investigate whether the internal rotations of acids could be observed. The 3-fold splitting from the predicted high-resolution microwave rotational spectra of the acetic acid monohydrate at different temperatures perfectly proved the accuracy of the simulations.",
+          "claimed_authors": [
+            "Fangjing Mu",
+            "Hao Wang",
+            "Zhanhang He",
+            "Qian Gou",
+            "Yuchao Zhang",
+            "Donghui Wei"
+          ],
+          "claimed_title": "Theoretical Study on the Potential Existing Forms and Microwave Rotational Spectrum of Short-Chain Fatty Acids in Interstellar Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.04762"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Theoretical Study on the Potential Existing Forms and Microwave Rotational Spectrum of Short-Chain Fatty Acids in Interstellar Space')",
+        "failed_at": "2026-07-17T04:10:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The origin of fatty acids on the prebiotic Earth is important as they likely formed the encapsulating membranes of the first protocells. Carbon-rich meteorites (i.e., carbonaceous chondrites) such as Murchison and Tagish Lake are well known to contain these molecules, and their delivery to the early planet by intense early meteorite bombardments constitutes a key prebiotic source. We collect the fatty acid abundances measured in various carbonaceous chondrites from the literature and analyze them for patterns and correlations. Fatty acids in meteorites include straight-chain and branched-chain monocarboxylic and dicarboxylic acids up to 12 carbons in length---fatty acids with at least 8 carbons are required to form vesicles, and modern cell membranes employ lipids with ~12--20 carbons. To understand the origin of meteoritic fatty acids, we search the literature for abiotic fatty acid reaction pathways and create a candidate list of 11 reactions that could potentially produce these fatty acids in meteorite parent bodies. Straight-chain monocarboxylic acids (SCMA) are the dominant fatty acids in meteorites, followed by branched-chain monocarboxylic acids (BCMA). SCMA are most abundant in CM2 and Tagish Lake (ungrouped) meteorites, ranging on average from 10$^2$ ppb to 4x10$^5$ ppb, and 10$^4$ ppb to 5x10$^6$ ppb, respectively. In CM, CV, and Tagish Lake meteorites, SCMA abundances generally decrease with increasing carbon chain length. Conversely, SCMA abundances in CR meteorites peak at 5 and 6 carbons in length, and decrease on either side of this peak. This unique CR fatty acid distribution may hint at terrestrial contamination, or that certain fatty acid reactions mechanisms are active in different meteorite parent bodies (planetesimals). We identify Fischer-Tropsch-type synthesis as the most promising pathway for further analysis in the production of fatty acids in planetesimals.",
+          "claimed_authors": [
+            "James C. -Y. Lai",
+            "Ben K. D. Pearce",
+            "Ralph E. Pudritz",
+            "Drake Lee"
+          ],
+          "claimed_title": "Meteoritic Abundances of Fatty Acids and Potential Reaction Pathways in Planetesimals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.09779"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Meteoritic Abundances of Fatty Acids and Potential Reaction Pathways in Planetesimals')",
+        "failed_at": "2026-07-17T04:10:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diagnosing Parkinson's disease is a complex task that requires the evaluation of several motor and non-motor symptoms. During diagnosis, gait abnormalities are among the important symptoms that physicians should consider. However, gait evaluation is challenging and relies on the expertise and subjectivity of clinicians. In this context, the use of an intelligent gait analysis algorithm may assist physicians in order to facilitate the diagnosis process. This paper proposes a novel intelligent Parkinson detection system based on deep learning techniques to analyze gait information. We used 1D convolutional neural network (1D-Convnet) to build a Deep Neural Network (DNN) classifier. The proposed model processes 18 1D-signals coming from foot sensors measuring the vertical ground reaction force (VGRF). The first part of the network consists of 18 parallel 1D-Convnet corresponding to system inputs. The second part is a fully connected network that connects the concatenated outputs of the 1D-Convnets to obtain a final classification. We tested our algorithm in Parkinson's detection and in the prediction of the severity of the disease with the Unified Parkinson's Disease Rating Scale (UPDRS). Our experiments demonstrate the high efficiency of the proposed method in the detection of Parkinson disease based on gait data. The proposed algorithm achieved an accuracy of 98.7 %. To our knowledge, this is the state-of-the-start performance in Parkinson's gait recognition. Furthermore, we achieved an accuracy of 85.3 % in Parkinson's severity prediction. To the best of our knowledge, this is the first algorithm to perform a severity prediction based on the UPDRS. Our results show that the model is able to learn intrinsic characteristics from gait data and to generalize to unseen subjects, which could be helpful in a clinical diagnosis.",
+          "claimed_authors": [
+            "Imanne El Maachi",
+            "Guillaume-Alexandre Bilodeau",
+            "Wassim Bouachir"
+          ],
+          "claimed_title": "Deep 1D-Convnet for accurate Parkinson disease detection and severity prediction from gait",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11509"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Deep 1D-Convnet for accurate Parkinson disease detection and severity prediction from gait')",
+        "failed_at": "2026-07-17T04:10:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Progressive cognitive decline spanning across decades is characteristic of Alzheimer's disease (AD). Various predictive models have been designed to realize its early onset and study the long-term trajectories of cognitive test scores across populations of interest. Research efforts have been geared towards superimposing patients' cognitive test scores with the long-term trajectory denoting gradual cognitive decline, while considering the heterogeneity of AD. Multiple trajectories representing cognitive assessment for the long-term have been developed based on various parameters, highlighting the importance of classifying several groups based on disease progression patterns. In this study, a novel method capable of self-organized prediction, classification, and the overlay of long-term cognitive trajectories based on short-term individual data was developed, based on statistical and differential equation modeling. We validated the predictive accuracy of the proposed method for the long-term trajectory of cognitive test score results on two cohorts: the Alzheimer's Disease Neuroimaging Initiative (ADNI) study and the Japanese ADNI study. We also presented two practical illustrations of the simultaneous evaluation of risk factor associated with both the onset and the longitudinal progression of AD, and an innovative randomized controlled trial design for AD that standardizes the heterogeneity of patients enrolled in a clinical trial. These resources would improve the power of statistical hypothesis testing and help evaluate the therapeutic effect. The application of predicting the trajectory of longitudinal disease progression goes beyond AD, and is especially relevant for progressive and neurodegenerative disorders.",
+          "claimed_authors": [
+            "Hiroyuki Sato",
+            "Keisuke Suzuki",
+            "Atsushi Hashizume",
+            "Ryoichi Hanazawa",
+            "Masanao Sasaki",
+            "Akihiro Hirakawa",
+            "the Japanese Alzheimer's Disease Neuroimaging Initiative",
+            "the Alzheimer's Disease Neuroimaging Initiative"
+          ],
+          "claimed_title": "Self-organized clustering, prediction, and superposition of long-term cognitive decline from short-term individual cognitive test scores in Alzheimer's disease",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.12205"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title=\"Self-organized clustering, prediction, and superposition of long-term cognitive decline from short-term individual cognitive test scores in Alzheimer's disease\")",
+        "failed_at": "2026-07-17T04:10:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Molecular communication (MC) is a bio-inspired communication paradigm that utilizes molecules to transfer information and offers a robust framework for understanding biological signaling systems. This paper introduces a novel end-to-end MC framework for short-chain fatty acid (SCFA)-driven vagus nerve signaling within the gut-brain axis (GBA) to enhance our understanding of gut-brain communication mechanisms. SCFA molecules, produced by gut microbiota, serve as important biomarkers in physiological and psychological processes, including neurodegenerative and mental health disorders. The developed end-to-end model integrates SCFA binding to vagal afferent fibers, G protein-coupled receptor (GPCR)-mediated calcium signaling, and Hodgkin-Huxley-based action potential generation into a comprehensive vagus nerve signaling mechanism through GBA. Information-theoretic metrics such as mutual information and delay are used to evaluate the efficiency of this SCFA-driven signaling pathway model. Simulations demonstrate how molecular inputs translate into neural outputs, highlighting critical aspects that govern gut-brain communication. In this work, the integration of SCFA-driven signaling into the MC framework provides a novel perspective on gut-brain communication and paves the way for the development of innovative therapeutic advancements targeting neurological and psychiatric disorders.",
+          "claimed_authors": [
+            "Beyza E. Ortlek",
+            "Ozgur B. Akan"
+          ],
+          "claimed_title": "Modeling and Analysis of SCFA-Driven Vagus Nerve Signaling in the Gut-Brain Axis via Molecular Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.19945"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Modeling and Analysis of SCFA-Driven Vagus Nerve Signaling in the Gut-Brain Axis via Molecular Communication')",
+        "failed_at": "2026-07-17T04:10:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The nature and origin of supermassive black holes (SMBHs) remain an open matter of debate within the scientific community. While various theoretical scenarios have been proposed, each with specific observational signatures, the lack of sufficiently sensitive X-ray observations hinders the progress of observational tests. In this white paper, we present how AXIS will contribute to solving this issue. With an angular resolution of 1.5$^{\\prime\\prime}$ on-axis and minimal off-axis degradation, we have designed a deep survey capable of reaching flux limits in the [0.5-2] keV range of approximately 2$\\times$10$^{-18}$ \\fcgs~ over an area of 0.13 deg$^2$ in approximately 7 million seconds (7 Ms). Furthermore, we have planned an intermediate depth survey covering approximately 2 deg$^2$ and reaching flux limits of about 2$\\times$10$^{-17}$ \\fcgs ~ in order to detect a significant number of SMBHs with X-ray luminosities (L$_X$) of approximately 10$^{42}$ \\lx up to z$\\sim$10. These observations will enable AXIS to detect SMBHs with masses smaller than 10$^5$ \\ms, assuming Eddington-limited accretion and a typical bolometric correction for Type II AGN. AXIS will provide valuable information on the seeding and population synthesis models of SMBH, allowing for more accurate constraints on their initial mass function (IMF) and accretion history from z$\\sim$0-10. To accomplish this, AXIS will leverage the unique synergy of survey telescopes such as JWST, Roman, Euclid, LSST, and the new generation of 30m class telescopes. These instruments will provide optical identification and redshift measurements, while AXIS will discover the smoking gun of nuclear activity, particularly in the case of highly obscured AGN or peculiar UV spectra as predicted and recently observed in the early Universe.",
+          "claimed_authors": [
+            "Nico Cappelluti",
+            "Adi Foord",
+            "Stefano Marchesi",
+            "Fabio Pacucci",
+            "Angelo Ricarte",
+            "Melanie Habouzit",
+            "Fabio Vito",
+            "Meredith Powell",
+            "Michael Koss",
+            "Richard Mushotzky",
+            "the AXIS AGN-SWG"
+          ],
+          "claimed_title": "Surveying the onset and evolution of supermassive black holes at high-z with AXIS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.07669"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Surveying the onset and evolution of supermassive black holes at high-z with AXIS')",
+        "failed_at": "2026-07-17T04:10:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Advanced X-ray Imaging Satellite (AXIS) promises revolutionary science in the X-ray and multi-messenger time domain. AXIS will leverage excellent spatial resolution (<1.5 arcsec), sensitivity (80x that of Swift), and a large collecting area (5-10x that of Chandra) across a 24-arcmin diameter field of view to discover and characterize a wide range of X-ray transients from supernova-shock breakouts to tidal disruption events to highly variable supermassive black holes. The observatory's ability to localize and monitor faint X-ray sources opens up new opportunities to hunt for counterparts to distant binary neutron star mergers, fast radio bursts, and exotic phenomena like fast X-ray transients. AXIS will offer a response time of <2 hours to community alerts, enabling studies of gravitational wave sources, high-energy neutrino emitters, X-ray binaries, magnetars, and other targets of opportunity. This white paper highlights some of the discovery science that will be driven by AXIS in this burgeoning field of time domain and multi-messenger astrophysics.",
+          "claimed_authors": [
+            "The AXIS Time-Domain",
+            "Multi-Messenger Science Working Group",
+            " :",
+            "Riccardo Arcodia",
+            "Franz E. Bauer",
+            "S. Bradley Cenko",
+            "Kristen C. Dage",
+            "Daryl Haggard",
+            "Wynn C. G. Ho",
+            "Erin Kara",
+            "Michael Koss",
+            "Tingting Liu",
+            "Labani Mallick",
+            "Michela Negro",
+            "Pragati Pradhan",
+            "J. Quirola-Vasquez",
+            "Mark T. Reynolds",
+            "Claudio Ricci",
+            "Richard E. Rothschild",
+            "Navin Sridhar",
+            "Eleonora Troja",
+            "Yuhan Yao"
+          ],
+          "claimed_title": "Prospects for Time-Domain and Multi-Messenger Science with AXIS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.07658"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Correlation Between Gut Microbiome Composition and Parkinson’s', candidate_title='Prospects for Time-Domain and Multi-Messenger Science with AXIS')",
+        "failed_at": "2026-07-17T04:10:44Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bo Yu",
+            "Zhixiu Hua",
+            "Bo Zhao"
+          ],
+          "title": "BDPM: A Machine Learning-Based Feature Extractor for Parkinson's Disease Classification via Gut Microbiota Analysis",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.07723",
+        "summary": "Background: Parkinson's disease remains a major neurodegenerative disorder with high misdiagnosis rates, primarily due to reliance on clinical rating scales. Recent studies have demonstrated a strong association between gut microbiota and Parkinson's disease, suggesting that microbial composition may serve as a promising biomarker. Although deep learning models based ongut microbiota show potential for early prediction, most approaches rely on single classifiers and often overlook inter-strain correlations or temporal dynamics. Therefore, there is an urgent need for more robust feature extraction methods tailored to microbiome data. Methods: We proposed BDPM (A Machine Learning-Based Feature Extractor for Parkinson's Disease Classification via Gut Microbiota Analysis). First, we collected gut microbiota profiles from 39 Parkinson's patients and their healthy spouses to identify differentially abundant taxa. Second, we developed an innovative feature selection framework named RFRE (Random Forest combined with Recursive Feature Elimination), integrating ecological knowledge to enhance biological interpretability. Finally, we designed a hybrid classification model to capture temporal and spatial patterns in microbiome data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.07723",
+          "http_status": 200,
+          "pdf_sample_score": 0.2131,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-17T04:10:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating the correlation between gut microbiome composition and parkinson’s disease progression biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

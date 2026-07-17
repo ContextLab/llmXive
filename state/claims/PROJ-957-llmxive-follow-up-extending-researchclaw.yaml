@@ -1275,3 +1275,288 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T19:21:48Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 140 total experimental runs composed of 7 agents, 2 conditions, and 10
+    tasks
+  claim_id: c_3fb9093e
+  context: "Scope: Strictly 140 runs (7 agents \xD7 2 conditions \xD7 10 (2402.18749,\
+    \ https://arxiv.org/abs/2402.18749) tasks). No N=30 generations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Strictly 140 runs (7 agents \xD7 2 conditions \xD7 10 tasks)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:34:08Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Selection of 10 tasks with failure mode experimental protocol mismatch
+    from ResearchClawBench
+  claim_id: c_af0042cf
+  context: Create src/data/filter.py to implement the specific logic to SELECT exactly
+    10 tasks from the ResearchClawBench dataset where the metadata field failure_mode
+    equals 'experimental protocol mismatch'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly 10 tasks from the ResearchClawBench dataset where the metadata
+    field failure_mode equals 'experimental protocol mismatch'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:34:35Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: TOST equivalence test on Scientific Core scores with margin of 5
+  claim_id: c_cc7a60d5
+  context: perform TOST on 'Scientific Core' scores with MARGIN=5 from config (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform TOST equivalence test on 'Scientific Core' scores with MARGIN=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:34:59Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Proceed with test if statistical power is below 0.4
+  claim_id: c_5140ddd1
+  context: if power is low (<0.4), log warning but proceed with the selected test;
+    perform TOST on 'Scientific Core' scores with MARGIN=5 from config (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If statistical power is low (<0.4), log warning but proceed with the selected
+    test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:34:59Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: TOST equivalence status mapping for p-values below 0.05
+  claim_id: c_8f802f63
+  context: This task MUST include logic to interpret the TOST p-values (both < 0.05)
+    and map them to the status string 'safe' or 'inconclusive' to be passed to the
+    report generator.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Interpret TOST p-values (both < 0.05) and map them to the status string
+    'safe' or 'inconclusive'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T04:35:00Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Concurrency controller limit of 7
+  claim_id: c_242c8910
+  context: Implement src/agents/concurrency.py with a semaphore-based concurrency
+    controller (limit=7) and a wall-clock budget enforcement function.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a semaphore-based concurrency controller with a limit of 7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:35:35Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 24 hour wall-clock time budget for experiment
+  claim_id: c_5241ae4a
+  context: Use src/agents/concurrency.py (Ta) to enforce concurrency limit of 7 and
+    24h budget.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a strict total wall-clock time budget of 24 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:36:08Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 140 runs total across 7 agents, 2 conditions, and 10 tasks
+  claim_id: c_e74e7ec9
+  context: "Scope: Strictly 140 runs (7 agents \xD7 2 conditions \xD7 10 (2402.18749,\
+    \ https://arxiv.org/abs/2402.18749) tasks). No N=30 generations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Strictly 140 runs (7 agents \xD7 2 conditions \xD7 10 tasks)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:37:18Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 2 conditions used in the experiment (Zero-Shot and Scaffolded)
+  claim_id: c_6214daf8
+  context: "Scope: Strictly 140 runs (7 agents \xD7 2 conditions \xD7 10 (2402.18749,\
+    \ https://arxiv.org/abs/2402.18749) tasks). No N=30 generations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2 conditions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:38:01Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: TOST equivalence test margin value is 5
+  claim_id: c_84330619
+  context: specifically for the TOST equivalence test on 'Scientific Core' scores
+    as required by FR-005
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TOST equivalence test margin is 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:38:25Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Statistical power warning threshold is less than 0.4
+  claim_id: c_fdbfc2e1
+  context: if power is low (<0.4), log warning but proceed with the selected test
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_warning_threshold_is_less_than_0.4
+  kind: magnitude
+  raw_text: Statistical power threshold for warning is < 0.4
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:39:19Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Concurrency limit is 7
+  claim_id: c_4386538f
+  context: Use src/agents/concurrency.py (Ta) to enforce concurrency limit of 7 and
+    24h budget.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Concurrency limit is 7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:40:16Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Experimental budget duration is 24 hours
+  claim_id: c_0d8ed5b8
+  context: Use src/agents/concurrency.py (Ta) to enforce concurrency limit of 7 and
+    24h budget.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Budget duration is 24 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:40:52Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Rubric criteria weights are 0.4 and 0.6
+  claim_id: c_fc7aba7e
+  context: 'The scoring algorithm MUST be a weighted sum of specific criteria: {"criteria":
+    [{"key": "step_1", "weight": 0.4}, {"key": "step_2", "weight": 0.6}]}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Rubric criteria weights are 0.4 and 0.6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:41:34Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: ResearchClawBench dataset ID constant name
+  claim_id: c_81825b3f
+  context: constants including RESEARCHCLAWBENCH_DATASET_ID
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ResearchClawBench_dataset_ID_constant_name
+  kind: entity_fact
+  raw_text: ResearchClawBench dataset ID is referenced as RESEARCHCLAWBENCH_DATASET_ID
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:42:22Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Scientific Core margin constant value is 5
+  claim_id: c_28490312
+  context: constants including RESEARCHCLAWBENCH_DATASET_ID, SCIENTIFIC_CORE_MARGIN=5
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scientific Core margin constant is 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:43:18Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: MAX_CONCURRENCY constant value is 7
+  claim_id: c_eb4c3823
+  context: and MAX_CONCURRENCY=7 (specifically for the TOST equivalence test on "Scientific
+    Core" scores as required by FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_CONCURRENCY constant is 7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T04:43:55Z'

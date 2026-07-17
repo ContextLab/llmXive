@@ -88,7 +88,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/brainnet-tactile
   verified_at: '2026-06-29T16:50:06.661061Z'
-- artifact_hash: 9d22fa8c87c9ec20c131c45e132ce819f49a1c90bb15fa395b9c3c1343062c8a
+- artifact_hash: 18fff490654fa54a6f04c3f944d5ab66bf612b2747765af993428a286f6e9cc5
   artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -97,6 +97,6 @@
     Data from the AIBL study'
   kind: doi
   value: 10.1016/j.neuropsychologia.2011.04.012
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.neuropsychologia.2011.04.012
-  verified_at: '2026-07-06T08:12:36.748874Z'
+  verified_at: '2026-07-17T04:21:51.411553Z'
