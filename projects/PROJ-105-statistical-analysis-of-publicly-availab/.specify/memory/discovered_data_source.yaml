@@ -1,0 +1,19 @@
+status: none
+intent: Bureau of Transportation Statistics On-Time Performance 2022 CSV download
+  python package dataset
+required_fields:
+- FlightDate
+- UniqueCarrier
+- FlightNum
+- Origin
+- Dest
+- DepDelayMinutes
+- ArrDelayMinutes
+- CarrierDelay
+- WeatherDelay
+- NASDelay
+- SecurityDelay
+- LateAircraftDelay
+cache_key: 9334a499bf925c875b61e1e4ab6e788e2efd5723784616fe0ef8c0ddd519d5ed
+searched_at: '2026-07-17T12:14:16.234683+00:00'
+retry_count: 1

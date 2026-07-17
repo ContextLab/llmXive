@@ -1,0 +1,270 @@
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: perform 1000 bootstrap iterations to estimate uncertainty and report
+    2.5th/97.5th percentiles confidence intervals
+  claim_id: c_8719df9b
+  context: 'T026 [P] [US2/US3] Estimate `x_min` via KS minimization with Bootstrap
+    Uncertainty: Implement `code/diagnostics.py` to estimate `x_min` via KS minimization
+    over a grid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Per plan.md Phase Step 1, perform 1000 bootstrap iterations to estimate
+    uncertainty and report confidence intervals (2.5th/97.5th percentiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:43:43Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Hill estimator constrained to k/n less than or equal to 0.1 with sliding
+    window variance minimization w=10
+  claim_id: c_ae869f9a
+  context: 'T033 [P] [US3] Implement `code/diagnostics.py`: Hill estimator with sliding
+    window variance minimization (w=10) constrained to k/n <= 0.1; output `stability_curve.csv`
+    and `tail_index_estimate.json`.'
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: 'Implement `code/diagnostics.py`: Hill estimator with sliding window variance
+    minimization (w=10) constrained to k/n <= 0.1'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T11:43:43Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Perform 1000 bootstrap iterations for x_min uncertainty estimation with
+    2.5th/97.5th percentile confidence intervals
+  claim_id: c_41929956
+  context: 'T026 [P] [US2/US3] Estimate x_min via KS minimization with Bootstrap Uncertainty:
+    Implement code/diagnostics.py to estimate x_min via KS minimization over a grid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Per plan.md Phase Step 1, perform 1000 bootstrap iterations to estimate
+    uncertainty and report confidence intervals (2.5th/97.5th percentiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:48:01Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Perform Bootstrap Goodness-of-Fit test with 1000 iterations
+  claim_id: c_f64bee35
+  context: 'T034 [US3] Implement code/diagnostics.py: Bootstrap Goodness-of-Fit test
+    (n_iter=1000) for best model; **Per plan.md Phase 2 Step 4, reject if p < 0.1
+    and update model_comparison.json with a ''rejected'' flag and reason.**'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Perform_Bootstrap_Goodness-of-Fit_test_with_1000_iterations
+  kind: magnitude
+  raw_text: Bootstrap Goodness-of-Fit test (n_iter=1000) for best model
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:48:43Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: perform 1000 bootstrap iterations for x_min estimation with 2.5th/97.5th
+    percentile confidence intervals
+  claim_id: c_055d6e73
+  context: 'T026 [P] [US2/US3] Estimate `x_min` via KS minimization with Bootstrap
+    Uncertainty: Implement `code/diagnostics.py` to estimate `x_min` via KS minimization
+    over a grid. **Per plan.md Phase Step 1, perform 1000 bootstrap iterations to
+    estimate uncertainty and report confidence intervals (2.5th/97.5th percentiles).
+    **'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Per plan.md Phase Step 1, perform 1000 bootstrap iterations to estimate
+    uncertainty and report confidence intervals (2.5th/97.5th percentiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:50:18Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: halt pipeline if retention rate < 95% per plan.md Phase 0 Step 8
+  claim_id: c_ed639f7e
+  context: 'T016 [US1] Implement `code/preprocessing.py`: Calculate retention rate
+    (`valid/total`); save `summary_report.json` with the rate. **Per plan.md Phase
+    0 Step 8, if rate < 95%, raise `SystemExit` with code 1 and message ''Retention
+    Rate Failure: < 95%'' (Hard Check), halting the entire pipeline execution preventing
+    US2/US3 from starting.**'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Per plan.md Phase 0 Step 8, if rate < 95%, raise `SystemExit` with code
+    1 and message ''Retention Rate Failure: < 95%'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:50:44Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: run 1000 bootstrap iterations for Goodness-of-Fit test
+  claim_id: c_61965eaf
+  context: 'T034 [US3] Implement `code/diagnostics.py`: Bootstrap Goodness-of-Fit
+    test (n_iter=1000) for best model; **Per plan.md Phase 2 Step 4, reject if p <
+    0.1 and update `model_comparison.json` with a ''rejected'' flag and reason.**'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: hypothesis. Each simulation will be performed for n = 100, 500, 1000
+        and
+      source_id: '2309.10614'
+      url: https://arxiv.org/abs/2309.10614
+      value: '1000'
+    filled: true
+  kind: magnitude
+  raw_text: 'Implement `code/diagnostics.py`: Bootstrap Goodness-of-Fit test (n_iter=1000)
+    for best model'
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T11:51:27Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Perform 1000 bootstrap iterations for x_min estimation uncertainty
+  claim_id: c_f502235e
+  context: Implement code/diagnostics.py to estimate x_min via KS minimization over
+    a grid. **Per plan.md Phase Step 1, perform 1000 bootstrap iterations to estimate
+    uncertainty and report confidence intervals (2.5th/97.5th percentiles). **
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Per plan.md Phase Step 1, perform 1000 bootstrap iterations to estimate
+    uncertainty and report confidence intervals (2.5th/97.5th percentiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:52:56Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Raise SystemExit if retention rate is less than 95%
+  claim_id: c_ddd4efe2
+  context: 'Calculate retention rate (valid/total); save summary_report.json with
+    the rate. **Per plan.md Phase 0 Step 8, if rate < 95%, raise SystemExit with code
+    1 and message "Retention Rate Failure: < 95%" (Hard Check), halting the entire
+    pipeline execution preventing US2/US3 from starting.**'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_SystemExit_if_retention_rate_is_less_than_95%25
+  kind: magnitude
+  raw_text: 'Per plan.md Phase 0 Step 8, if rate < 95%, raise SystemExit with code
+    1 and message "Retention Rate Failure: < 95%"'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:52:58Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Hill estimator stability window constraint k/n <= 0.1
+  claim_id: c_9b1962ec
+  context: Unit test for Hill estimator stability window (k/n <= 0.1) in tests/unit/test_diagnostics.py
+  evidence:
+    asserted: '0.1'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Hill estimator stability window (k/n <= 0.1)
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T11:52:58Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: CI workflow verifies memory and time constraints
+  claim_id: c_74811ab6
+  context: Create .github/workflows/ci.yml to run pytest and verify memory/time constraints;
+    ensure build passes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_workflow_verifies_memory_and_time_constraints
+  kind: entity_fact
+  raw_text: Ensure build passes with memory/time constraints
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:53:19Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 1000 bootstrap iterations for x_min uncertainty estimation
+  claim_id: c_c47ed036
+  context: 'T026 [P] [US2/US3] Estimate x_min via KS minimization with Bootstrap Uncertainty:
+    Implement code/diagnostics.py to estimate x_min via KS minimization over a grid.
+    Per plan.md Phase Step 1, perform 1000 bootstrap iterations to estimate uncertainty
+    and report confidence intervals (2.5th/97.5th percentiles).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Per plan.md Phase Step 1, perform 1000 bootstrap iterations to estimate
+    uncertainty and report confidence intervals (2.5th/97.5th percentiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:54:50Z'
+- artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if retention rate is less than 95%
+  claim_id: c_3ef6b451
+  context: 'T016 [US1] Implement code/preprocessing.py: Calculate retention rate (valid/total);
+    save summary_report.json with the rate. Per plan.md Phase 0 Step 8, if rate <
+    95%, raise SystemExit with code 1 and message ''Retention Rate Failure: < 95%''
+    (Hard Check), halting the entire pipeline execution preventing US2/US3 from starting.'
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_retention_rate_is_less_than_95%25
+  kind: magnitude
+  raw_text: 'Per plan.md Phase 0 Step 8, if rate < 95%, raise SystemExit with code
+    1 and message ''Retention Rate Failure: < 95%''.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-17T11:54:52Z'

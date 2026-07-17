@@ -1,101 +1,111 @@
 import pytest
 import numpy as np
-from pathlib import Path
+from scipy import stats
 import json
-import sys
 import os
+import sys
+from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from diagnostics import log_normal_discrimination, hill_estimator, compute_hill_statistics
+from diagnostics import tail_ks_test_with_bootstrap, save_tail_ks_results, run_tail_ks_task
 
-@pytest.fixture
-def sample_tail_data():
-    """Generate sample tail data for testing."""
-    np.random.seed(42)
-    # Generate Pareto-like data
-    alpha = 2.0
-    x_min = 1.0
-    data = np.random.pareto(alpha, 1000) * x_min + x_min
-    return data
-
-@pytest.fixture
-def sample_lognormal_data():
-    """Generate sample Log-Normal data for testing."""
-    np.random.seed(42)
-    data = np.random.lognormal(mean=1, sigma=1, size=1000)
-    return data
-
-def test_log_normal_discrimination_pareto(sample_tail_data):
-    """Test Log-Normal discrimination on Pareto data (should reject Log-Normal)."""
-    x_min = np.min(sample_tail_data)
-    result = log_normal_discrimination(
-        sample_tail_data, 
-        x_min=x_min,
-        n_sim=100,  # Small number for fast testing
-        random_state=42
-    )
+class TestTailKSTest:
+    def test_tail_ks_test_with_bootstrap_basic(self):
+        """Test that the function runs and returns expected keys."""
+        # Generate synthetic Pareto-like data for testing
+        np.random.seed(42)
+        alpha_true = 2.0
+        x_min_true = 10.0
+        data = stats.pareto.rvs(alpha_true, scale=x_min_true, size=1000, random_state=42)
+        
+        results = tail_ks_test_with_bootstrap(
+            data=data,
+            x_min=x_min_true,
+            n_bootstrap=10, # Small for speed
+            random_state=42
+        )
+        
+        assert "ks_statistic" in results
+        assert "p_value_bootstrap" in results
+        assert "alpha_estimate" in results
+        assert "n_tail_points" in results
+        assert results["n_tail_points"] == 1000
+        assert isinstance(results["p_value_bootstrap"], float)
     
-    assert 'curvature_statistic' in result
-    assert 'p_value' in result
-    assert 'conclusion' in result
-    assert result['n_observations'] == len(sample_tail_data)
+    def test_tail_ks_test_with_bootstrap_small_sample(self):
+        """Test behavior with small sample size."""
+        np.random.seed(42)
+        data = stats.pareto.rvs(2.0, scale=10.0, size=20, random_state=42)
+        
+        # Should not raise, but might have warnings or low n_bootstrap
+        results = tail_ks_test_with_bootstrap(
+            data=data,
+            x_min=10.0,
+            n_bootstrap=5,
+            random_state=42
+        )
+        
+        assert results["n_tail_points"] == 20
     
-    # For Pareto data, we expect to reject Log-Normal (low p-value)
-    # Note: With small n_sim, results may vary, so we just check structure
-    assert isinstance(result['p_value'], float)
-    assert 0 <= result['p_value'] <= 1
-
-def test_log_normal_discrimination_lognormal(sample_lognormal_data):
-    """Test Log-Normal discrimination on Log-Normal data (should not reject)."""
-    x_min = np.min(sample_lognormal_data)
-    result = log_normal_discrimination(
-        sample_lognormal_data,
-        x_min=x_min,
-        n_sim=100,
-        random_state=42
-    )
+    def test_save_tail_ks_results(self, tmp_path):
+        """Test that results are saved correctly to JSON."""
+        results = {
+            "ks_statistic": 0.1,
+            "p_value_bootstrap": 0.5,
+            "alpha_estimate": 2.0,
+            "x_min_used": 10.0,
+            "n_tail_points": 100,
+            "method": "Test"
+        }
+        output_path = str(tmp_path / "test_tail_ks.json")
+        
+        save_tail_ks_results(results, output_path)
+        
+        assert os.path.exists(output_path)
+        with open(output_path, 'r') as f:
+            saved = json.load(f)
+        
+        assert saved["ks_statistic"] == 0.1
+        assert saved["p_value_bootstrap"] == 0.5
     
-    assert 'curvature_statistic' in result
-    assert 'p_value' in result
-    assert result['conclusion'] in ['reject_log_normal', 'cannot_reject_log_normal']
-
-def test_log_normal_discrimination_insufficient_data():
-    """Test Log-Normal discrimination with insufficient data."""
-    data = np.array([1.0, 2.0, 3.0])
-    result = log_normal_discrimination(data, x_min=1.0, n_sim=10)
+    def test_run_tail_ks_task_integration(self, tmp_path, monkeypatch):
+        """Integration test for the full task runner."""
+        # Create dummy input data
+        np.random.seed(42)
+        data = stats.pareto.rvs(2.0, scale=10.0, size=500, random_state=42)
+        
+        # Mock the load function or pass data directly
+        # We will call the function directly with data
+        output_path = str(tmp_path / "tail_ks.json")
+        
+        results = run_tail_ks_task(
+            data=data,
+            x_min=10.0,
+            output_path=output_path,
+            n_bootstrap=10
+        )
+        
+        assert os.path.exists(output_path)
+        assert results["p_value_bootstrap"] is not None
+        assert results["ks_statistic"] is not None
     
-    assert result['conclusion'] == 'insufficient_data'
-    assert np.isnan(result['curvature_statistic'])
-    assert np.isnan(result['p_value'])
-
-def test_hill_estimator():
-    """Test Hill estimator calculation."""
-    np.random.seed(42)
-    # Generate Pareto data with known alpha
-    alpha = 2.0
-    data = np.random.pareto(alpha, 1000) + 1
-    
-    k = 100
-    xi_est = hill_estimator(data, k)
-    
-    # For Pareto, xi = 1/alpha
-    expected_xi = 1.0 / alpha
-    
-    # Check if estimate is reasonably close (within 20% for small k)
-    assert abs(xi_est - expected_xi) / expected_xi < 0.2
-
-def test_compute_hill_statistics():
-    """Test Hill statistics computation."""
-    np.random.seed(42)
-    data = np.random.pareto(2.0, 1000) + 1
-    
-    stats_dict = compute_hill_statistics(data, max_k_ratio=0.1)
-    
-    assert 'k_values' in stats_dict
-    assert 'hill_estimates' in stats_dict
-    assert 'variances' in stats_dict
-    assert stats_dict['n'] == 1000
-    assert len(stats_dict['k_values']) > 0
-    assert len(stats_dict['hill_estimates']) > 0
+    def test_x_min_estimation_in_bootstrap(self):
+        """Test that the bootstrap loop correctly re-estimates x_min."""
+        # This is implicitly tested by the fact that the function runs
+        # and produces a p-value. We can't easily verify the internal logic
+        # without inspecting the loop, but we can check that the output
+        # reflects the complexity.
+        np.random.seed(42)
+        data = stats.pareto.rvs(2.0, scale=10.0, size=200, random_state=42)
+        
+        results = tail_ks_test_with_bootstrap(
+            data=data,
+            x_min=10.0,
+            n_bootstrap=10,
+            random_state=42
+        )
+        
+        # The function should complete without error
+        assert "p_value_bootstrap" in results

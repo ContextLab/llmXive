@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-105-statistical-analysis-of-publicly-availab",
+  "ok": false,
+  "reason": "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/diagnostics.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026range(n_iter):         # Generate synthetic data from fitted distrib\u2026\u201d; code/diagnostics.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026lculate KS statistic for synthetic data         synth_cdf = np.s\u2026\u201d; code/diagnostics.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026range(n_sim):         # Generate synthetic Log-Normal data\u2026\u201d; 3 command(s) failed: python code/main.py --year 2022 --output data/results/ (rc=1); python code/data_loader.py --year 2022 --save data/raw/ (rc=1); python code/preprocessing.py --input data/raw/bts_2022.csv --output data/processed/cleaned_delays.csv (rc=1); 2 declared deliverable(s) absent: data/results/component_comparison.json; data/results/tail_ks.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --year 2022 --output data/results/ -> rc=1\n    2026-07-17 11:34:19,957 - pipeline - INFO - Starting Flight Delay Analysis Pipeline\n2026-07-17 11:34:19,957 - pipeline - INFO - Executing Stage 1: Data Acquisition and Pre-processing\n2026-07-17 11:34:19,957 - pipeline - WARNING - Raw data not found at data/raw/flight_delays.csv. Attempting download...\n2026-07-17 11:34:20,016 - pipeline - ERROR - Pipeline failed with error: download_bts_data() missing 1 required positional argument: 'year'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ",
+    "python code/data_loader.py --year 2022 --save data/raw/ -> rc=1\n    ipeline - INFO - Attempting download (attempt 5/5): https://transtats.bts.gov/OTD/2023_OTD.csv\n2026-07-17 11:35:36,959 - pipeline - WARNING - Download attempt 5 failed: 404 Client Error: Not Found for url: https://transtats.bts.gov/OTD/2023_OTD.csv\n2026-07-17 11:35:36,959 - pipeline - ERROR - All 5 download attempts failed.\n2026-07-17 11:35:36,960 - pipeline - ERROR - Pipeline error: Failed to download BTS data for year 2023 after 5 attempts.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects",
+    "python code/preprocessing.py --input data/raw/bts_2022.csv --output data/processed/cleaned_delays.csv -> rc=1\n    2026-07-17 11:35:37,251 - pipeline - WARNING - Raw data not found at data/raw/flight_delays.csv. Attempting download...\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-105-statistical-analysis-of-publicly-availab/code/preprocessing.py\", line 203, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-105-statistical-analysis-of-publicly-availab/code/preprocessing.py\", line 168, in main\n    download_bts_data()\nTypeEr"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/data_loader.py --year 2022 --save data/raw/"
+  ],
+  "updated_at": "2026-07-17T11:35:41Z"
+}

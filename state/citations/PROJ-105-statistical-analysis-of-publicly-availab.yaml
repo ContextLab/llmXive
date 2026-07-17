@@ -1,36 +1,3 @@
-- artifact_hash: e518a3b6e74c56067bb06f74f738cec01aa4e4f547dd4159154ead2fafc2d935
-  artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: OST_R | BTS | Transtats Homepage
-  kind: url
-  value: https://transtats.bts.gov/...`
-  verification_status: verified
-  verified_against_url: https://transtats.bts.gov/
-  verified_at: '2026-07-01T16:19:54.206522Z'
-- artifact_hash: e518a3b6e74c56067bb06f74f738cec01aa4e4f547dd4159154ead2fafc2d935
-  artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: "lamini/bts \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/lamini/bts/...`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/lamini/bts
-  verified_at: '2026-07-01T16:19:54.206522Z'
-- artifact_hash: e518a3b6e74c56067bb06f74f738cec01aa4e4f547dd4159154ead2fafc2d935
-  artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: "yangjinlong/bts \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/yangjinlong/bts/...`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/yangjinlong/bts
-  verified_at: '2026-07-01T16:19:54.206522Z'
 - artifact_hash: ea26b505c309f5f96e430108d0a80720496cb5bbb1a8bef536a352bf6a037b02
   artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/docs/data-model.md
   cite_id: c-001
@@ -42,3 +9,26 @@
   verification_status: pending
   verified_against_url: https://transtats.bts.gov/Maintenance.aspx?reason=db
   verified_at: '2026-07-17T06:06:50.244497Z'
+- artifact_hash: e9c62771b763f91302a5fde1f0a13b32c47283d7c913c59a6a0341a5f0a45745
+  artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2309.10614] A New Bootstrap Goodness-of-Fit Test for Normal Linear
+    Regression Models'
+  kind: url
+  value: https://arxiv.org/abs/2309.10614
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2309.10614
+  verified_at: '2026-07-17T11:55:34.942987Z'
+- artifact_hash: da0a4a100e48fae773e8906028c1af505273d46d5129134696b984965962b3cc
+  artifact_path: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://transtats.bts.gov/Download_Loop.asp?DownloadType=OnTime`
+  verification_status: mismatch
+  verified_against_url: https://transtats.bts.gov/Download_Loop.asp?DownloadType=OnTime
+  verified_at: '2026-07-17T12:22:22.703479Z'

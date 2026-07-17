@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: TailIndexEstimate
+type: object
+description: "Schema for the heavy-tail diagnostic result (Hill estimator, log-log fit)."
+required:
+  - method
+  - threshold_k
+  - threshold_x_min
+  - estimated_alpha
+  - confidence_interval
+  - stability_range
+  - r_squared_log_log
+  - is_rejected
+  - reason
+properties:
+  method:
+    type: string
+    description: "The method used for estimation (e.g., 'Hill')."
+  threshold_k:
+    type: integer
+    description: "Number of top records used for the Hill estimator."
+  threshold_x_min:
+    type: number
+    description: "The delay value (x_min) above which the tail analysis is performed."
+  estimated_alpha:
+    type: number
+    description: "The estimated tail index (alpha). Finite values indicate heavy tails if alpha < 2."
+  confidence_interval:
+    type: object
+    description: "95% confidence interval for the tail index."
+    required:
+      - lower
+      - upper
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+  stability_range:
+    type: object
+    description: "The range of k values over which the estimator was stable."
+    required:
+      - start_k
+      - end_k
+    properties:
+      start_k:
+        type: integer
+      end_k:
+        type: integer
+  r_squared_log_log:
+    type: number
+    description: "R-squared value from the OLS fit on the log-log survival plot."
+  is_rejected:
+    type: boolean
+    description: "True if the model fails tail diagnostics (R² < 0.95 or unstable)."
+  reason:
+    type: string
+    description: "Explanation for rejection if is_rejected is true."
+    minLength: 1
+  additionalProperties: false

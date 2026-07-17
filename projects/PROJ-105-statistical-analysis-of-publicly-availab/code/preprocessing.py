@@ -1,40 +1,50 @@
+"""
+Preprocessing module for flight delay data.
+Handles loading, cleaning, filtering, and preparing data for analysis.
+"""
 import os
 import sys
 import math
-from pathlib import Path
-from typing import Optional, Tuple
-import pandas as pd
+import json
+import logging
+import argparse
 import numpy as np
+import pandas as pd
+from pathlib import Path
+from typing import Optional, Tuple, Dict, Any
+from data_loader import download_bts_data
+from config import get_bts_url, RANDOM_SEED
+from utils import check_memory_limit, log_peak_memory, PipelineError
 
-# Import from local modules to ensure consistency with project structure
-from config import RANDOM_SEED, MEMORY_LIMIT_GB, TARGET_YEAR
-from utils import check_memory_limit, log_peak_memory, setup_logging
+# Set random seed for reproducibility
+np.random.seed(RANDOM_SEED)
 
-# Setup logging
-logger = setup_logging()
+logger = logging.getLogger(__name__)
+
+# Constants
+MEMORY_LIMIT_GB = 6.5
+ANOMALY_THRESHOLD = 1440  # 24 hours in minutes
+DATA_ERROR_THRESHOLD = 10000  # 10,000 minutes
+MIN_RETENTION_RATE = 0.95
+COMMERCIAL_CARRIERS = ['AA', 'DL', 'UA', 'WN', 'AS', 'B6', 'NK', 'F9', 'HA', 'SY']
 
 def estimate_csv_memory(file_path: str) -> float:
-    """
-    Estimate the memory footprint of a CSV file in GB.
-    Uses a heuristic based on file size and a safety factor for pandas overhead.
-    """
-    file_size_bytes = os.path.getsize(file_path)
-    # Heuristic: pandas DataFrame often uses 1.5x - 2x the raw CSV size in memory
-    # due to object overhead, index, and string storage.
-    estimated_gb = (file_size_bytes * 2.0) / (1024 ** 3)
+    """Estimate memory usage for loading a CSV file."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
+    # Estimate: 1.5x file size for pandas DataFrame overhead
+    estimated_gb = (file_size_mb * 1.5) / 1024
     return estimated_gb
 
 def load_large_csv(file_path: str, chunksize: int = 100000) -> pd.DataFrame:
-    """
-    Load a large CSV file in chunks to avoid memory spikes.
-    Returns a single concatenated DataFrame.
-    """
-    logger.info(f"Loading large CSV in chunks: {file_path}")
+    """Load a large CSV file in chunks to manage memory."""
+    check_memory_limit(MEMORY_LIMIT_GB)
+    
     chunks = []
     total_rows = 0
-    
     for chunk in pd.read_csv(file_path, chunksize=chunksize):
-        check_memory_limit(MEMORY_LIMIT_GB)
         chunks.append(chunk)
         total_rows += len(chunk)
         if total_rows % 1000000 == 0:
@@ -44,160 +54,179 @@ def load_large_csv(file_path: str, chunksize: int = 100000) -> pd.DataFrame:
     log_peak_memory()
     return df
 
-def create_memmap_array(data: np.ndarray, filename: str) -> np.ndarray:
-    """
-    Create a memory-mapped array from a numpy array to save RAM.
-    """
-    shape = data.shape
-    dtype = data.dtype
-    memmap = np.memmap(filename, dtype=dtype, mode='w+', shape=shape)
-    memmap[:] = data[:]
-    del memmap
-    # Return read-only memmap
-    return np.memmap(filename, dtype=dtype, mode='r', shape=shape)
+def create_memmap_array(file_path: str, dtype: np.dtype = np.float64) -> np.memmap:
+    """Create a memory-mapped array for large datasets."""
+    check_memory_limit(MEMORY_LIMIT_GB)
+    
+    # Estimate number of rows
+    with open(file_path, 'r') as f:
+        num_rows = sum(1 for _ in f) - 1  # Subtract header
+    
+    # Create memmap
+    memmap_path = file_path.replace('.csv', '.memmap')
+    shape = (num_rows,)
+    mm = np.memmap(memmap_path, dtype=dtype, mode='w+', shape=shape)
+    
+    # Load data into memmap
+    df = pd.read_csv(file_path)
+    mm[:] = df['ArrDelay'].values
+    del df
+    
+    return mm
 
-def preprocess_flight_delays(df: pd.DataFrame) -> Tuple[pd.DataFrame, dict]:
+def preprocess_flight_delays(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Core preprocessing logic for flight delay data.
+    Clean and preprocess flight delay data.
     
     Steps:
-    1. Filter for commercial US flights (CarrierType == 'U').
-    2. Compute total_delay = ArrDelay + DepDelay.
-    3. Treat missing values in delay columns as 0.
-    4. Remove negative delays.
-    5. Flag data errors (>10,000 min) and anomalies (>1,440 min).
-    6. Exclude data errors from the primary set.
-    7. Calculate retention rate. Raise SystemExit if < 95%.
-    8. Create a zero-excluded subset for sensitivity analysis.
-    9. Flag zero-inflation if the proportion of zero delays is significant.
+    1. Filter commercial US flights
+    2. Compute total_delay = ArrDelay + DepDelay
+    3. Treat missing as 0
+    4. Remove negative delays
+    5. Flag data errors and anomalies
+    6. Calculate retention rate
     
     Returns:
       Tuple of (processed_df, summary_stats)
     """
-    logger.info("Starting preprocessing pipeline...")
+    logger.info("Starting preprocessing...")
     
+    # Store original row count
+    original_count = len(df)
+    logger.info(f"Original dataset size: {original_count:,} rows")
+    
+    # Filter for commercial US carriers
+    if 'UniqueCarrier' in df.columns:
+        commercial_mask = df['UniqueCarrier'].isin(COMMERCIAL_CARRIERS)
+        df = df[commercial_mask].copy()
+        logger.info(f"After carrier filter: {len(df):,} rows")
+    
+    # Handle missing values in delay columns
+    delay_cols = ['ArrDelay', 'DepDelay']
+    for col in delay_cols:
+        if col in df.columns:
+            df[col] = df[col].fillna(0)
+        else:
+            # If column doesn't exist, create with zeros
+            df[col] = 0
+    
+    # Compute total delay
+    if 'ArrDelay' in df.columns and 'DepDelay' in df.columns:
+        df['total_delay'] = df['ArrDelay'] + df['DepDelay']
+    else:
+        # Fallback: use ArrDelay if DepDelay missing
+        df['total_delay'] = df.get('ArrDelay', 0)
+    
+    # Remove negative delays (data errors)
     initial_count = len(df)
+    df = df[df['total_delay'] >= 0]
+    removed_negative = initial_count - len(df)
+    logger.info(f"Removed {removed_negative:,} negative delays")
     
-    # 1. Filter commercial US flights
-    # Assuming 'CarrierType' column exists based on typical BTS data
-    if 'CarrierType' in df.columns:
-        df = df[df['CarrierType'] == 'U'].copy()
+    # Flag data errors (>10,000 min)
+    df['is_data_error'] = df['total_delay'] > DATA_ERROR_THRESHOLD
+    data_error_count = df['is_data_error'].sum()
+    logger.info(f"Flagged {data_error_count:,} data errors (>10,000 min)")
     
-    # 2. Compute total_delay
-    # Handle potential missing values by filling with 0 first
-    if 'ArrDelay' not in df.columns or 'DepDelay' not in df.columns:
-        raise ValueError("Required columns 'ArrDelay' and 'DepDelay' not found in dataset.")
+    # Flag anomalies (>1,440 min but <= 10,000 min)
+    df['is_anomaly'] = (df['total_delay'] > ANOMALY_THRESHOLD) & (df['total_delay'] <= DATA_ERROR_THRESHOLD)
+    anomaly_count = df['is_anomaly'].sum()
+    logger.info(f"Flagged {anomaly_count:,} anomalies (>24h)")
     
-    df['ArrDelay'] = pd.to_numeric(df['ArrDelay'], errors='coerce').fillna(0)
-    df['DepDelay'] = pd.to_numeric(df['DepDelay'], errors='coerce').fillna(0)
-    
-    df['total_delay'] = df['ArrDelay'] + df['DepDelay']
-    
-    # 3. Remove negative delays
-    # Negative delays usually indicate early arrivals/departures, treated as 0 or removed
-    # Per task: "Remove negative delays"
-    df = df[df['total_delay'] >= 0].copy()
-    
-    # 4. Flag data errors and anomalies
-    # Data error: > 10,000 minutes (implausible)
-    # Anomaly: > 1,440 minutes (24 hours)
-    df['is_data_error'] = df['total_delay'] > 10000
-    df['is_anomaly'] = df['total_delay'] > 1440
-    
-    # 5. Exclude data errors from primary set
+    # Exclude data errors from primary set (keep for reference)
     primary_df = df[~df['is_data_error']].copy()
-    anomaly_count = primary_df['is_anomaly'].sum()
     
-    # 6. Calculate retention rate
-    # Retention = (valid records in primary set) / (total records initially loaded)
-    # Note: "valid" here implies after filtering errors and negatives
-    retention_rate = len(primary_df) / initial_count if initial_count > 0 else 0.0
+    # Calculate retention rate
+    valid_count = len(primary_df)
+    retention_rate = valid_count / original_count if original_count > 0 else 0
     
-    if retention_rate < 0.95:
-        error_msg = f"Retention Rate Failure: {retention_rate:.4f} < 0.95"
+    logger.info(f"Retention rate: {retention_rate:.2%} ({valid_count:,} / {original_count:,})")
+    
+    # Check retention rate threshold
+    if retention_rate < MIN_RETENTION_RATE:
+        error_msg = f"Retention Rate Failure: {retention_rate:.2%} < {MIN_RETENTION_RATE:.2%}"
         logger.error(error_msg)
-        raise SystemExit(error_msg)
+        raise SystemExit(1)
     
-    # 7. Create zero-excluded subset for sensitivity analysis
-    # This is crucial for fitting distributions that cannot handle zeros (e.g., Log-Normal, Pareto)
-    non_zero_df = primary_df[primary_df['total_delay'] > 0].copy()
-    zero_count = len(primary_df) - len(non_zero_df)
-    zero_proportion = zero_count / len(primary_df) if len(primary_df) > 0 else 0.0
+    # Create zero-excluded subset for sensitivity analysis
+    zero_delay_count = (primary_df['total_delay'] == 0).sum()
+    zero_inflation_rate = zero_delay_count / len(primary_df) if len(primary_df) > 0 else 0
     
-    # 8. Flag zero-inflation
-    # Heuristic: If > 20% of delays are zero, it's considered zero-inflated
-    # This is a domain-specific threshold for sensitivity analysis flagging
-    ZERO_INFLATION_THRESHOLD = 0.20
-    is_zero_inflated = zero_proportion > ZERO_INFLATION_THRESHOLD
+    zero_excluded_df = primary_df[primary_df['total_delay'] > 0].copy()
+    logger.info(f"Zero delays: {zero_delay_count:,} ({zero_inflation_rate:.2%})")
+    logger.info(f"Zero-excluded subset size: {len(zero_excluded_df):,} rows")
     
-    logger.info(f"Preprocessing complete. Retention Rate: {retention_rate:.2%}")
-    logger.info(f"Zero delays: {zero_count} ({zero_proportion:.2%})")
-    logger.info(f"Zero-inflation flag: {is_zero_inflated}")
-    
+    # Prepare summary statistics
     summary_stats = {
-        "initial_count": initial_count,
-        "primary_count": len(primary_df),
-        "non_zero_count": len(non_zero_df),
-        "zero_count": int(zero_count),
-        "zero_proportion": float(zero_proportion),
-        "is_zero_inflated": is_zero_inflated,
-        "retention_rate": float(retention_rate),
-        "anomaly_count": int(anomaly_count)
+        'original_count': int(original_count),
+        'after_carrier_filter': int(len(df)),
+        'removed_negative': int(removed_negative),
+        'data_error_count': int(data_error_count),
+        'anomaly_count': int(anomaly_count),
+        'valid_count': int(valid_count),
+        'zero_delay_count': int(zero_delay_count),
+        'zero_excluded_count': int(len(zero_excluded_df)),
+        'retention_rate': float(retention_rate),
+        'zero_inflation_rate': float(zero_inflation_rate),
+        'is_zero_inflated': bool(zero_inflation_rate > 0.1)  # Flag if >10% zeros
     }
     
-    return primary_df, non_zero_df, summary_stats
+    return primary_df, zero_excluded_df, summary_stats
+
+def save_summary_report(stats: Dict[str, Any], output_path: str) -> None:
+    """Save summary statistics to JSON file."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(stats, f, indent=2)
+    logger.info(f"Summary report saved to {output_path}")
 
 def main():
-    """
-    Main entry point for preprocessing script.
-    Downloads data, processes it, and saves outputs.
-    """
-    # Check memory before starting
-    check_memory_limit(MEMORY_LIMIT_GB)
+    """Main entry point for preprocessing stage."""
+    parser = argparse.ArgumentParser(description='Preprocess flight delay data')
+    parser.add_argument('--input', type=str, required=True, help='Input CSV file path')
+    parser.add_argument('--output', type=str, required=True, help='Output CSV file path')
+    parser.add_argument('--summary', type=str, default='data/processed/summary_report.json', 
+                      help='Output summary report path')
+    parser.add_argument('--zero-excluded-output', type=str, default='data/processed/cleaned_delays_no_zeros.csv',
+                      help='Output path for zero-excluded subset')
+    args = parser.parse_args()
     
-    # 1. Load data (assuming download happened or file exists)
-    # For this task, we assume the file is already downloaded by T013/T014
-    # or we call the download function if needed. 
-    # Since T013/14 are done, we assume 'data/raw/flight_delays.csv' exists.
-    raw_data_path = Path("data/raw/flight_delays.csv")
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler('data/logs/pipeline.log'),
+            logging.StreamHandler()
+        ]
+    )
     
-    if not raw_data_path.exists():
-        logger.warning(f"Raw data not found at {raw_data_path}. Attempting download...")
-        # Trigger download if missing (part of T013 logic, but safe to call here)
-        from data_loader import download_bts_data
-        download_bts_data()
-    
-    logger.info(f"Loading data from {raw_data_path}")
-    df = load_large_csv(str(raw_data_path))
-    
-    # 2. Preprocess
-    primary_df, non_zero_df, stats = preprocess_flight_delays(df)
-    
-    # 3. Save outputs
-    # Save primary cleaned data
-    cleaned_path = Path("data/processed/cleaned_delays.csv")
-    cleaned_path.parent.mkdir(parents=True, exist_ok=True)
-    primary_df.to_csv(cleaned_path, index=False)
-    logger.info(f"Saved cleaned data to {cleaned_path}")
-    
-    # Save zero-excluded subset for sensitivity analysis
-    zero_excluded_path = Path("data/processed/cleaned_delays_no_zeros.csv")
-    non_zero_df.to_csv(zero_excluded_path, index=False)
-    logger.info(f"Saved zero-excluded data to {zero_excluded_path}")
-    
-    # Save summary report
-    report_path = Path("data/results/summary_report.json")
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    import json
-    with open(report_path, 'w') as f:
-        json.dump(stats, f, indent=2)
-    logger.info(f"Saved summary report to {report_path}")
-    
-    print(f"Loaded {stats['initial_count']} total records.")
-    print(f"Valid records: {stats['primary_count']}")
-    print(f"Zero-inflation detected: {stats['is_zero_inflated']}")
-    print(f"Retention rate: {stats['retention_rate']:.2%}")
+    try:
+        # Load data
+        logger.info(f"Loading data from {args.input}")
+        df = load_large_csv(args.input)
+        
+        # Preprocess
+        primary_df, zero_excluded_df, summary_stats = preprocess_flight_delays(df)
+        
+        # Save primary cleaned data
+        Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+        primary_df.to_csv(args.output, index=False)
+        logger.info(f"Primary cleaned data saved to {args.output}")
+        
+        # Save zero-excluded subset
+        Path(args.zero_excluded_output).parent.mkdir(parents=True, exist_ok=True)
+        zero_excluded_df.to_csv(args.zero_excluded_output, index=False)
+        logger.info(f"Zero-excluded subset saved to {args.zero_excluded_output}")
+        
+        # Save summary report
+        save_summary_report(summary_stats, args.summary)
+        
+        logger.info("Preprocessing completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed with error: {str(e)}")
+        raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

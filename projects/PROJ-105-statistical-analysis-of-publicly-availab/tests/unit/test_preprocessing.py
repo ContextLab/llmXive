@@ -70,3 +70,42 @@ def test_retention_rate_failure():
         preprocess_flight_delays(df)
     
     assert "Retention Rate Failure" in str(exc_info.value)
+
+def test_memory_estimation_logic():
+    """Test the logic for estimating memory usage based on row count and columns."""
+    from preprocessing import estimate_csv_memory
+    
+    # Test with a hypothetical large dataset
+    estimated_gb = estimate_csv_memory(1_000_000, 20)
+    
+    # Basic sanity check: should be a positive float
+    assert isinstance(estimated_gb, float)
+    assert estimated_gb > 0
+    
+    # Test with small dataset
+    estimated_gb_small = estimate_csv_memory(100, 5)
+    assert estimated_gb_small < estimated_gb
+
+def test_anomaly_flagging_logic():
+    """Test the logic for flagging anomalies (>1440 min) vs data errors (>10000 min)."""
+    data = {
+        'CarrierType': ['U', 'U', 'U'],
+        'ArrDelay': [100, 1500, 15000],
+        'DepDelay': [0, 0, 0]
+    }
+    df = pd.DataFrame(data)
+    
+    primary, non_zero, stats = preprocess_flight_delays(df)
+    
+    # Row 1 (1500) should be flagged as anomaly but kept in primary (unless filtered later)
+    # Row 2 (15000) should be excluded as data error
+    
+    # Check that 15000 is NOT in primary (excluded as data error)
+    assert 15000 not in primary['total_delay'].values
+    
+    # Check that 1500 IS in primary (anomaly, not error, so kept)
+    assert 1500 in primary['total_delay'].values
+    
+    # Verify stats contain anomaly info if implemented
+    if 'anomaly_count' in stats:
+        assert stats['anomaly_count'] >= 1

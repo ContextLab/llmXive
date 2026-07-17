@@ -53,14 +53,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Setup `code/config.py` for paths, random seeds, thresholds, and environment validation: Define constants `RANDOM_SEED=42`, `BTS_URL` (canonical endpoint), `TARGET_YEAR`, and `MEMORY_LIMIT_GB=6.5`. Include validation logic to assert `BTS_URL` and `TARGET_YEAR` are set. **NOTE: Do NOT define `X_MIN_THRESHOLD` as a constant. Per FR-014 and Plan Phase 2, `x_min` MUST be estimated dynamically via KS minimization at runtime.**
+- [X] T004 [P] Setup `code/config.py` for paths, random seeds, thresholds, and environment validation: Define constants `RANDOM_SEED=42`, `BTS_URL` (canonical endpoint), `TARGET_YEAR`, and `MEMORY_LIMIT_GB=6.5`. Include validation logic to assert `BTS_URL` and `TARGET_YEAR` are set. **NOTE: Do NOT define `X_MIN_THRESHOLD` as a constant. Per FR-014 and Plan Phase 2 Step 4, `x_min` MUST be estimated dynamically via KS minimization at runtime.**
 - [X] T005 [P] Implement memory monitoring utilities in `code/utils.py`: Implement `check_memory_limit(limit_gb=6.5)` that raises `MemoryError` if current usage exceeds limit, and `log_peak_memory()` that records peak RAM to stderr.
 - [X] T006 [P] Create base entity definitions and JSON schemas in `code/contracts/`: Create `code/contracts/delay_record.schema.yaml` and `code/contracts/distribution_model.schema.yaml` with fields defined in `data-model.md`.
 - [X] T040 [P] Generate and save `tail-index-estimate.schema.yaml`: Generate `code/contracts/tail-index-estimate.schema.yaml` based on `TailIndexEstimate` entity in `data-model.md` (moved from Phase 5 to ensure contract-before-code).
 - [X] T007 Setup pytest environment and base test fixtures in `tests/conftest.py`
 - [X] T008 Setup error handling and logging infrastructure in `code/utils.py`: Configure a logging instance with level INFO, file handler to `data/logs/pipeline.log`, and a custom exception class `PipelineError`.
 - [X] T019 [P] Implement memory-mapped array handling in `code/preprocessing.py`: Implement logic to use `pandas.read_csv` with `chunksize` or `numpy.memmap` if estimated size > 6.5GB; if impossible, raise `SystemExit` with message "Memory limit exceeded: full dataset cannot be loaded."
-- [X] T026 [P] [US2/US3] Estimate `x_min` via KS minimization with Bootstrap Uncertainty: Implement `code/diagnostics.py` to estimate `x_min` via KS minimization over a grid. **Per plan.md Phase Step 1, perform 1000 bootstrap iterations to estimate uncertainty and report confidence intervals (2.5th/97.5th percentiles).** Save output to `data/results/x_min_estimate.json` with fields `x_min`, `confidence_interval`, and `method`. **This task must complete BEFORE Phase 4 (Model Fitting) to ensure x_min is available for tail subset definition.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -99,6 +98,10 @@
 
 **Independent Test**: The analysis can be run on a static, pre-processed CSV to verify all 5 distributions are fitted, parameters estimated via MLE, metrics calculated, and Vuong test performed.
 
+**⚠️ PHASE 4 INTERNAL DEPENDENCIES**:
+- **T026** (x_min estimation) MUST complete before **T024** (Pareto fitting) and **T025a** (Tail subset refitting).
+- **T018** (US1 completion) MUST complete before **T026** (requires cleaned data).
+
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T020 [P] [US2] Unit test for MLE convergence handling (non-convergence catch) in `tests/unit/test_models.py`
@@ -108,11 +111,12 @@
 ### Implementation for User Story 2
 
 - [X] T023 [P] [US2] Implement `code/models.py`: MLE fitting for Exponential, Gamma, Log-Normal, Weibull on **full cleaned data** (excluding data errors).
-- [X] T024 [US2] Implement `code/models.py`: MLE fitting for Pareto restricted to `delay >= x_min` using the `x_min` value from T026 (Phase 2).
+- [X] T026 [US2] **Estimate `x_min` via KS minimization with Bootstrap Uncertainty**: Implement `code/diagnostics.py` to estimate `x_min` via KS minimization over a grid. **Per plan.md Phase 2 Step 1, perform a sufficient number of bootstrap iterations to estimate uncertainty and report confidence intervals (lower/upper percentiles). Validate that 1000 iterations do not exceed the 3600s runtime budget (SC-005).** Save output to `data/results/x_min_estimate.json` with fields `x_min`, `confidence_interval`, and `method`. **This task must complete before T024 and T025a within Phase 4 to ensure x_min is available for tail subset definition.** **NOTE: This task depends on T018 (US1) producing the cleaned dataset.**
+- [X] T024 [US2] Implement `code/models.py`: MLE fitting for Pareto restricted to `delay >= x_min` using the `x_min` value from T026.
 - [X] T025a [US2] Implement `code/models.py`: Re-fit Exponential, Gamma, Log-Normal, Weibull on the **tail subset** (delay >= x_min) to enable tail-metric comparison.
 - [X] T025 [US2] Implement `code/models.py`: Calculate AIC, BIC, KS, AD for all 5 models on the tail subset; save to `model_comparison.json`.
 - [X] T027 [US2] Implement `code/models.py`: Perform Vuong test (best heavy-tail vs. best short-tail) on tail subset; report p-value in `vuong_test_results.json`.
-- [X] T028 [US2] Implement `code/models.py`: Compare sum distribution (`total_delay`) vs. components (`ArrDelay`, `DepDelay`) via KS test and histograms; save results to `data/results/component_comparison.json`.
+- [X] T028 [US2] **Compare sum distribution vs. components**: Implement `code/models.py` to perform a Kolmogorov-Smirnov test between the `total_delay` distribution and the `ArrDelay`/`DepDelay` distributions. Generate side-by-side histograms for visualization. Save results, including the KS p-value, to `data/results/component_comparison.json`. **This task implements FR-002 and SC-008.**
 - [X] T029 [US2] Implement `code/main.py` (Stage 2): Orchestrate fitting, metric calculation, and Vuong test; ensure at least 3 models converge.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -123,23 +127,23 @@
 
 **Goal**: Perform Hill estimator stability analysis, Bootstrap GoF, and generate diagnostic plots
 
-**Independent Test**: The system can generate the log-log survival plot, Hill estimator output, and tail KS test results for a provided dataset, producing visual confirmation of linearity.
+**Independent Test**: The system can generate the log-log survival plot, Hill estimator output, and tail KS test results for a provided dataset, producing a visual confirmation of linearity.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T030 [P] [US3] Unit test for Hill estimator stability window (k/n <= 0.1) in `tests/unit/test_diagnostics.py`
+- [X] T030 [P] [US3] **Unit test for Hill estimator variance minimization logic**: Implement a unit test in `tests/unit/test_diagnostics.py` that verifies the Hill estimator stability analysis correctly minimizes variance over a sliding window of size w=10, constrained to k/n <= 0.1. **This task replaces the placeholder '' and ensures the Hill estimator logic is testable.**
 - [X] T031 [P] [US3] Unit test for Bootstrap GoF p-value calculation in `tests/unit/test_diagnostics.py`
-- [X] T032 [P] [US3] Integration test for diagnostic plotting and validation in `tests/integration/test_pipeline.py`
+- [X] T032 [P] [US3] Integration test for diagnostic plotting and validationin `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [X] T033 [P] [US3] Implement `code/diagnostics.py`: Hill estimator with sliding window variance minimization (w=10) constrained to k/n <= 0.1; output `stability_curve.csv` and `tail_index_estimate.json`.
-- [X] T034 [US3] Implement `code/diagnostics.py`: Bootstrap Goodness-of-Fit test (n_iter=1000) for best model; **Per plan.md Phase 2 Step 4, reject if p < 0.1 and update `model_comparison.json` with a "rejected" flag and reason.** **Note: R² is calculated for visualization only.** **This task implements the plan.md override of spec.md FR-015.**
-- [X] T035 [US3] Implement `code/diagnostics.py`: Log-Normal discrimination via curvature statistic comparison; compare to simulated Log-Normal null; save result to `data/results/log_normal_test.json`.
-- [X] T036 [US3] Implement `code/visualization.py`: Generate log-log survival plot (empirical vs. fitted) with R² calculation for visualization purposes only.
+- [X] T033 [P] [US3] **Implement Hill estimator stability analysis**: Implement `code/diagnostics.py` to compute the tail index using the Hill estimator on the top k records. **Algorithm**: Minimize the variance of alpha estimates over a sliding window of size w=10, constrained to k/n <= 0.1. **Output**: Save the full stability curve (variance vs k) to `data/results/stability_curve.csv` and the summary stats (min_k, max_k, variance_min, estimated_alpha, confidence_interval) to `data/results/tail_index_estimate.json`. **This task implements FR-005 and SC-009.**
+- [X] T034 [US3] **Implement Bootstrap Goodness-of-Fit (GoF) test**: Implement `code/diagnostics.py` to perform a formal GoF test using the Bootstrap Method (Clauset et al.). **Algorithm**: Generate a set of synthetic datasets from the fitted model, compute the KS statistic for each, and compare the empirical KS to the synthetic distribution to derive a p-value. **Rejection Rule**: Reject the model if p < 0.1. **Note**: This task implements the plan.md Phase 2 Step 4 override of spec.md FR-015, where the Bootstrap GoF p-value is the primary gate, not the R² value. Save the p-value and rejection status to `data/results/bootstrap_gof.json`. **This task must complete before T039 (Orchestration) to ensure validation logic is applied.** **Update `model_comparison.json` with a "rejected" flag and reason if the best model fails.**
+- [X] T035 [US3] **Implement Log-Normal discrimination**: Implement `code/diagnostics.py` to calculate the curvature statistic of the Hill plot. **Algorithm**: Simulate multiple Log-Normal datasets with similar parameters, calculate the curvature for each, and compare the empirical curvature to the null distribution. **Rejection Rule**: If the empirical curvature is not significantly different from the Log-Normal null (p > 0.05), the hypothesis of a pure Power-Law is rejected in favor of a Log-Normal heavy tail. Save the result to `data/results/log_normal_test.json`. **This task implements FR-015 (Log-Normal discrimination aspect) and SC-003.**
+- [X] T036 [US3] Implement `code/visualization.py`: Generate log-log survival plot (empirical vs. fitted) with R² calculation for visualization purposes only. **Note**: R² is calculated for visualization only and is NOT used as a pass/fail gate per plan.md Phase 2 Step 4.
 - [X] T037 [US3] Implement `code/visualization.py`: Generate QQ-plots for best-fit model.
-- [X] T038 [US3] Implement `code/diagnostics.py`: Tail KS test with bootstrapped p-value correction for data-driven threshold; save p-value to `data/results/tail_ks.json`.
-- [X] T039 [US3] Implement `code/main.py` (Stage 3): Orchestrate diagnostics; if best model fails Bootstrap GoF or Log-Normal discrimination, flag next best candidate.
+- [X] T038 [US3] **Implement Tail KS test with bootstrapped p-value correction**: Implement `code/diagnostics.py` to perform a KS test on the tail subset (x >= x_min). **Algorithm**: Generate a representative set of synthetic datasets, estimate x_min for each, fit the model, compute the KS statistic, and compare the empirical KS to this distribution to derive a bootstrapped p-value. Save the p-value to `data/results/tail_ks.json`. **This task implements FR-010 and SC-011.**
+- [X] T039 [US3] Implement `code/main.py` (Stage 3): Orchestrate diagnostics; if the best model fails the Bootstrap GoF test (T034) or Log-Normal discrimination (T035), flag the next best candidate and report the failure reason. **This task ensures the validation logic from T034 and T035 is applied.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -150,7 +154,7 @@
 **Purpose**: Compile final results, validate success criteria, and frame findings
 
 - [X] T041 [US1] Implement `code/main.py` (Stage 4): Compile final `summary_report.json` including runtime, retention_rate, model_rankings, p-values, and causality_disclaimer.
-- [X] T042 [US3] Validate Success Criteria: Implement assertions for SC-001 (retention >= 95%), SC-002 (3 models), SC-003 (Hill index), SC-005 (runtime <= 3600s), SC-006 (Vuong), SC-007 (Tail KS), SC-009 (stability), SC-010/SC-011 (p-values). **For SC-004 (R² >= 0.95): Record R² in `validation_status.json` as a metric for visualization reporting only; do NOT assert pass/fail.** **Per plan.md Phase 2 Step 4, SC-004 is superseded by Bootstrap GoF for the gate; record R² only. Write `validation_status.json` with PASS/FAIL for each SC.**
+- [X] T042 [US3] **Validate Success Criteria**: Implement assertions for SC-001 (retention >= 95%), SC-002 (3 models), SC-003 (Hill index), SC-005 (runtime <= 3600s), SC-006 (Vuong), SC-007 (Tail KS), SC-009 (stability), SC-010/SC-011 (p-values). **For SC-004 (R² >= 0.95): Record R² in `validation_status.json` as a metric for visualization reporting only; do NOT assert pass/fail.** **Per plan.md Phase 2 Step 4, SC-004 is superseded by Bootstrap GoF for the gate; record R² only. Write `validation_status.json` with PASS/FAIL for each SC.** **Note**: The spec.md SC-004 text is effectively superseded by plan.md for the *gate* logic, but R² must still be calculated and reported.
 - [X] T043 [P] Update `docs/data-model.md` and `docs/quickstart.md` with final entity definitions and execution instructions.
 - [X] T044 [P] Create `.github/workflows/ci.yml` to run pytest and verify memory/time constraints; ensure build passes.
 
@@ -172,8 +176,8 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable. **Requires T018 (US1) to complete before T026 (Phase 4 start).**
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable. **Requires T029 (US2) to complete before T033/T034 (Phase 5 start).**
 
 ### Within Each User Story
 

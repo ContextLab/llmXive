@@ -5,14 +5,28 @@ T008:
     \ named \u201Cpipeline\u201D set to INFO level, and adds a `FileHandler` pointing\
     \ to `data/logs/pipeline.log` (creating the directory if needed). The required\
     \ logging infrastructure is fully implemented in the code."
+T028:
+  c: false
+  h: f25bbd9bdd10453f9e2614c0ed78f3ebe7bca602eb6be61f7cac4f3575721e6f
+  r: "The provided `code/models.py` is truncated, ends mid\u2011function, and contains\
+    \ no logic that computes `total_delay`, compares it to `ArrDelay` and `DepDelay`\
+    \ with KS tests or generates histograms, nor does it write a JSON result file.\
+    \ Additionally, the required output file `data/results/component_comparison.json`\
+    \ is absent. The task\u2019s core requirements are therefore not met."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `stability_curve.csv` or `tail_index_estimate.json` files were presented or
+    referenced; the evidence provided contains only the task description and specifications,
+    with no actual output artifacts to inspect. Consequently the required outputs
+    are missing.
 T034:
   c: false
-  h: ba59539ab50b1b22a1c2ddd8e70dfb2d89292a9a34962e3cf20e8d90c88b9561
-  r: "The provided `code/diagnostics.py` is truncated and contains only Hill\u2011\
-    estimator utilities; it does not implement a bootstrap goodness\u2011of\u2011\
-    fit test, nor does it write a p\u2011value to `data/results/bootstrap_gof.json`.\
-    \ Moreover, the required `bootstrap_gof.json` file is absent. The task\u2019s\
-    \ core requirement is therefore unmet."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `model_comparison.json` file (or any updated version) is present, and there\
+    \ is no evidence that a p\u2011value check was performed and a \u201Crejected\u201D\
+    \ flag with a reason was added. The required artifact and its contents are missing,\
+    \ so the task is not satisfied."
 T035:
   c: false
   h: 30284483b3e2503aa91c1c3c9bfaedf3e80ac6182038555ad22d2f7cce4acaa9
@@ -20,14 +34,6 @@ T035:
     \ Log\u2011Normal discrimination logic, curvature statistic comparison, or code\
     \ to write the JSON result. Moreover, the expected output file `data/results/log_normal_test.json`\
     \ is absent. Both the implementation and the required artifact are missing."
-T038:
-  c: false
-  h: 840bfaa5e33b23ab3093b89ad5036a3bba3e45b5cb586bd7752ce0bb7625ba2f
-  r: "The provided `code/diagnostics.py` contains only Hill\u2011estimator utilities\
-    \ and is truncated before any Tail KS test implementation; it never performs a\
-    \ KS test, bootstrapped p\u2011value correction, or writes a JSON file. Moreover,\
-    \ `data/results/tail_ks.json` does not exist. The required functionality and output\
-    \ are missing."
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

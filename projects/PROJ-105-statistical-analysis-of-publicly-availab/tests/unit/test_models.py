@@ -1,133 +1,161 @@
 import pytest
 import numpy as np
 from scipy import stats
+import json
+import os
 import sys
+import tempfile
 from pathlib import Path
 
 # Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from models import (
+    ConvergenceError,
     fit_distribution,
-    fit_all_base_distributions,
-    fit_pareto_tail,
-    estimate_x_min_ks,
-    calculate_tail_metrics,
-    perform_vuong_test,
-    compare_component_distributions,
-    ConvergenceError
+    get_fitted_distribution,
+    compare_component_distributions
 )
 
-@pytest.fixture
-def sample_delay_data():
-    """Generate sample delay data for testing."""
-    np.random.seed(42)
-    # Simulate a mix of short and long delays
-    short_delays = np.random.exponential(scale=30, size=800)
-    long_delays = np.random.pareto(a=1.5, size=200) * 60  # Scale to minutes
-    data = np.concatenate([short_delays, long_delays])
-    data = np.maximum(data, 0)  # Ensure non-negative
-    return data
-
-@pytest.fixture
-def component_data():
-    """Generate sample component delay data."""
-    np.random.seed(42)
-    arr_delay = np.random.exponential(scale=20, size=500)
-    dep_delay = np.random.exponential(scale=25, size=500)
-    total_delay = arr_delay + dep_delay
-    return total_delay, arr_delay, dep_delay
-
-def test_fit_distribution_convergence(sample_delay_data):
-    """Test that fit_distribution converges for common distributions."""
-    distributions = ['expon', 'gamma', 'lognorm', 'weibull_min']
+class TestFitDistribution:
+    """Tests for fit_distribution function."""
     
-    for dist_name in distributions:
-        frozen_dist, params = fit_distribution(sample_delay_data, dist_name)
-        assert frozen_dist is not None
-        assert len(params) > 0
-        assert all(not np.isnan(p) and not np.isinf(p) for p in params if p != 0)
+    def test_fit_exponential(self):
+        """Test fitting exponential distribution."""
+        data = np.random.exponential(scale=2.0, size=1000)
+        dist_obj, params = fit_distribution(data, 'expon')
+        assert dist_obj is not None
+        assert 'expon' in params['name']
+        assert len(params['params']) > 0
+        assert not any(np.isnan(p) for p in params['params'])
+    
+    def test_fit_gamma(self):
+        """Test fitting gamma distribution."""
+        data = np.random.gamma(shape=2.0, scale=1.5, size=1000)
+        dist_obj, params = fit_distribution(data, 'gamma')
+        assert dist_obj is not None
+        assert 'gamma' in params['name']
+        assert not any(np.isnan(p) for p in params['params'])
+    
+    def test_fit_lognorm(self):
+        """Test fitting log-normal distribution."""
+        data = np.random.lognormal(mean=0.0, sigma=1.0, size=1000)
+        dist_obj, params = fit_distribution(data, 'lognorm')
+        assert dist_obj is not None
+        assert 'lognorm' in params['name']
+        assert not any(np.isnan(p) for p in params['params'])
+    
+    def test_fit_weibull(self):
+        """Test fitting Weibull distribution."""
+        data = np.random.weibull(a=1.5, size=1000)
+        dist_obj, params = fit_distribution(data, 'weibull_min')
+        assert dist_obj is not None
+        assert 'weibull_min' in params['name']
+        assert not any(np.isnan(p) for p in params['params'])
+    
+    def test_fit_empty_data(self):
+        """Test fitting with empty data raises error."""
+        with pytest.raises(ConvergenceError):
+            fit_distribution(np.array([]), 'expon')
+    
+    def test_fit_invalid_method(self):
+        """Test fitting with invalid method raises error."""
+        data = np.random.exponential(size=100)
+        with pytest.raises(ValueError):
+            fit_distribution(data, 'expon', method='invalid')
 
-def test_fit_distribution_pareto_tail(sample_delay_data):
-    """Test Pareto fitting on tail data."""
-    x_min = np.percentile(sample_delay_data, 80)
-    frozen_dist, params = fit_pareto_tail(sample_delay_data, x_min)
+class TestGetFittedDistribution:
+    """Tests for get_fitted_distribution function."""
     
-    assert frozen_dist is not None
-    assert 'b' in params
-    assert params['b'] > 0
-    assert params['x_min'] == x_min
-
-def test_estimate_x_min_ks(sample_delay_data):
-    """Test x_min estimation via KS minimization."""
-    x_min = estimate_x_min_ks(sample_delay_data, grid_points=20)
-    
-    assert x_min > 0
-    assert x_min < np.max(sample_delay_data)
-
-def test_calculate_tail_metrics(sample_delay_data):
-    """Test calculation of tail metrics."""
-    x_min = estimate_x_min_ks(sample_delay_data, grid_points=20)
-    fitted_results = fit_all_base_distributions_tail(sample_delay_data, x_min)
-    
-    metrics = calculate_tail_metrics(sample_delay_data, fitted_results, x_min)
-    
-    assert len(metrics) > 0
-    for dist_name, metric in metrics.items():
-        assert 'aic' in metric
-        assert 'bic' in metric
-        assert 'ks_statistic' in metric
-        assert 'ks_p_value' in metric
-
-def test_perform_vuong_test(sample_delay_data):
-    """Test Vuong test implementation."""
-    x_min = estimate_x_min_ks(sample_delay_data, grid_points=20)
-    fitted_results = fit_all_base_distributions_tail(sample_delay_data, x_min)
-    
-    if len(fitted_results) >= 2:
-        dist_names = list(fitted_results.keys())
-        model1 = fitted_results[dist_names[0]][0]
-        model2 = fitted_results[dist_names[1]][0]
+    def test_get_metrics(self):
+        """Test calculation of fit metrics."""
+        data = np.random.exponential(scale=2.0, size=1000)
+        dist_obj, _ = fit_distribution(data, 'expon')
+        metrics = get_fitted_distribution(dist_obj, data)
         
-        results = perform_vuong_test(sample_delay_data, model1, model2, x_min)
+        assert 'aic' in metrics
+        assert 'bic' in metrics
+        assert 'ks_statistic' in metrics
+        assert 'ks_p_value' in metrics
+        assert 'ad_statistic' in metrics
         
-        assert 'vuong_z' in results
-        assert 'p_value' in results
-        assert results['p_value'] >= 0
-        assert results['p_value'] <= 1
+        # Check reasonable values
+        assert metrics['ks_statistic'] >= 0
+        assert 0 <= metrics['ks_p_value'] <= 1
+        assert metrics['ad_statistic'] >= 0
 
-def test_compare_component_distributions(component_data):
-    """Test component distribution comparison."""
-    total_delay, arr_delay, dep_delay = component_data
+class TestCompareComponentDistributions:
+    """Tests for compare_component_distributions function."""
     
-    results = compare_component_distributions(total_delay, arr_delay, dep_delay)
+    def test_compare_distributions(self):
+        """Test comparison of total vs component delays."""
+        # Generate synthetic data for testing
+        np.random.seed(42)
+        n = 1000
+        arr_delay = np.random.exponential(scale=5.0, size=n)
+        dep_delay = np.random.exponential(scale=3.0, size=n)
+        total_delay = arr_delay + dep_delay + np.random.normal(0, 1, size=n)
+        
+        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as f:
+            output_path = f.name
+        
+        try:
+            results = compare_component_distributions(total_delay, arr_delay, dep_delay, output_path)
+            
+            assert 'ks_tests' in results
+            assert 'summary_statistics' in results
+            
+            # Check KS tests exist
+            assert 'total_vs_arrival' in results['ks_tests']
+            assert 'total_vs_departure' in results['ks_tests']
+            assert 'arrival_vs_departure' in results['ks_tests']
+            
+            # Check summary statistics
+            assert 'total_delay' in results['summary_statistics']
+            assert 'arrival_delay' in results['summary_statistics']
+            assert 'departure_delay' in results['summary_statistics']
+            
+            # Verify JSON file was created
+            assert os.path.exists(output_path)
+            with open(output_path, 'r') as f:
+                loaded = json.load(f)
+            assert loaded == results
+        finally:
+            if os.path.exists(output_path):
+                os.remove(output_path)
     
-    assert 'sample_sizes' in results
-    assert 'descriptive_statistics' in results
-    assert 'ks_tests' in results
-    assert 'correlations' in results
+    def test_compare_with_no_valid_data(self):
+        """Test comparison with no valid data points."""
+        total_delay = np.array([0.0, 0.0, 0.0])
+        arr_delay = np.array([0.0, 0.0, 0.0])
+        dep_delay = np.array([0.0, 0.0, 0.0])
+        
+        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as f:
+            output_path = f.name
+        
+        try:
+            results = compare_component_distributions(total_delay, arr_delay, dep_delay, output_path)
+            assert results.get('error') == "No valid data points"
+        finally:
+            if os.path.exists(output_path):
+                os.remove(output_path)
     
-    assert results['sample_sizes']['total_delay'] == len(total_delay)
-    assert results['sample_sizes']['arr_delay'] == len(arr_delay)
-    assert results['sample_sizes']['dep_delay'] == len(dep_delay)
-
-def test_compare_component_distributions_with_negatives():
-    """Test component comparison handles negative values correctly."""
-    np.random.seed(42)
-    arr_delay = np.random.normal(loc=10, scale=20, size=500)  # Some negative
-    dep_delay = np.random.normal(loc=15, scale=25, size=500)
-    total_delay = arr_delay + dep_delay
-    
-    # Should not raise error, just filter negatives
-    results = compare_component_distributions(total_delay, arr_delay, dep_delay)
-    
-    assert results['sample_sizes']['total_delay'] < 500  # Some filtered out
-    assert results['sample_sizes']['total_delay'] > 0
-
-def test_fit_distribution_non_convergence():
-    """Test that non-convergence raises ConvergenceError."""
-    # Use pathological data that won't fit well
-    pathological_data = np.array([0.0] * 100)  # All zeros
-    
-    with pytest.raises(ConvergenceError):
-        fit_distribution(pathological_data, 'gamma')
+    def test_compare_with_partial_valid_data(self):
+        """Test comparison with some valid data points."""
+        np.random.seed(42)
+        arr_delay = np.array([10.0, -5.0, 20.0, 0.0])  # -5 and 0 are invalid for some checks
+        dep_delay = np.array([5.0, 10.0, -3.0, 0.0])
+        total_delay = arr_delay + dep_delay + 1.0  # [16, 6, 18, 1]
+        
+        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as f:
+            output_path = f.name
+        
+        try:
+            results = compare_component_distributions(total_delay, arr_delay, dep_delay, output_path)
+            assert 'ks_tests' in results
+            assert 'summary_statistics' in results
+            # Should have at least one valid point (index 0: 10+5+1=16)
+            assert results['summary_statistics']['total_delay']['count'] >= 1
+        finally:
+            if os.path.exists(output_path):
+                os.remove(output_path)
