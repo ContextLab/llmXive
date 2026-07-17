@@ -1,0 +1,39 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required project directories (`code/`, `tests/`, `data/`,
+    `specs/`) is provided; the implementer did not supply any file listings or contents
+    showing that these folders exist and contain files. The task cannot be considered
+    fulfilled until the specified structure is present in the repository.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided information contains only the feature specification and user stories;
+    there are no files, configuration snippets, or scripts shown that set up ruff
+    linting or black formatting (e.g., a `pyproject.toml` with black settings, a `.ruff.toml`,
+    or a CI step invoking them). Without such artifacts, the requirement to configure
+    linting and formatting tools is not satisfied. The implementer must add the appropriate
+    configuration files and/or documentation demonstrating that ruff and black are
+    integrated into the project.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no visible `.gitignore` or `.env.example` files, nor any\
+    \ content showing they were created. Without these non\u2011empty artifacts present,\
+    \ the requirement to set up ignore rules and environment variable templates is\
+    \ not satisfied. The next implementer must add a proper `.gitignore` and a populated\
+    \ `.env.example` file to the repository."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No trained DistilBERT model file or checkpoint is present in `code/models/router_model/`,
+    nor is there any training script, logs, or evidence that the router was trained
+    on the CSV from T013. The required artifact is missing, so the task is not satisfied.
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided information contains only the high\u2011level feature specification\
+    \ and user stories; there is no code, test, or metrics file showing that a validation\
+    \ step was added to guarantee `ui_element_count` is logged for the runs 1,\u202F\
+    3,\u202F5,\u202F10. Consequently the required artifact (validation implementation\
+    \ and evidence of its execution) is missing."

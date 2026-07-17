@@ -1,0 +1,124 @@
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: label N=500 interaction turns
+  claim_id: c_86f26918
+  context: 'Goal: Ingest the Macaron-A2UI dataset and provide an interface to label
+    N=500 interaction turns as ''High-Confidence'' or ''Ambiguous'' to create ground
+    truth.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/annotate.py to provide the manual annotation interface
+    for researchers to label N=500 turns
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T00:09:17Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: create N=50 human-annotated hold-out set
+  claim_id: c_a12ce69b
+  context: Additionally, create a separate N=50 human-annotated hold-out set for rubric
+    validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: create a separate N=50 human-annotated hold-out set for rubric validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T00:09:37Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: CSV with 500 rows and 95% coverage validation
+  claim_id: c_60cdd7d5
+  context: "Independent Test: A CSV file exists containing N=500 rows with columns\
+    \ query, ground_truth_intent, complexity_score, validated by a script checking\
+    \ \u226595% coverage and no missing labels."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A CSV file exists containing N=500 rows with columns query, ground_truth_intent,\
+    \ complexity_score, validated by a script checking \u226595% coverage and no missing\
+    \ labels"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T00:10:31Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: user patience modeled as exponential decay with mean 2 seconds
+  claim_id: c_9bb07803
+  context: Implement code/simulation/patience.py with sample_patience() function modeling
+    exponential decay (mean=2s) for user abandonment (FR-003)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/simulation/patience.py with sample_patience() function
+    modeling exponential decay (mean=2s) for user abandonment
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T00:10:57Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: alignment score formula 0.4 intent match plus 0.3 latency penalty plus
+    0.3 ui completeness
+  claim_id: c_76d53354
+  context: 'Implement code/simulation/rubric.py to derive and implement the ''Human-Agent
+    Alignment'' scoring function: score = 0.4 * intent_match + 0.3 * (1 - latency_penalty)
+    + 0.3 * ui_completeness'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T00:11:27Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: density levels 1, 3, 5, and 10
+  claim_id: c_53a2e4a3
+  context: Implement logic in code/simulation/runner.py to iterate through explicit
+    density levels {1, 3, 5, 10} for deterministic fallback (FR-004, Constitution
+    Principle VII)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: iterate through explicit density levels {1, 3, 5, 10} for deterministic
+    fallback
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T00:12:16Z'
+- artifact_path: projects/PROJ-914-llmxive-follow-up-extending-macaron-a2ui/specs/001-llmxive-follow-up-extending-macaron-a2ui/tasks.md
+  attempts: 1
+  canonical: CPU inference less than 500 milliseconds per query
+  claim_id: c_2bcb3a6f
+  context: 'Performance optimization: ensure CPU inference < 500ms per query (8-bit
+    quantization check)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CPU_inference_less_than_500_milliseconds_per_query
+  kind: magnitude
+  raw_text: ensure CPU inference < 500ms per query
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T00:13:35Z'

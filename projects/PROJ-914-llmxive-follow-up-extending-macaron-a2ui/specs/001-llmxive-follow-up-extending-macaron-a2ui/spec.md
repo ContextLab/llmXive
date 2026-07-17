@@ -56,7 +56,7 @@ The system must calculate task success rates, latency metrics, and alignment sco
 
 ### Edge Cases
 
-- What happens if the 1B parameter model fails to load on the CPU-only environment? (System must fallback to a smaller distilled model or abort with a clear error).
+- What happens if the B parameter model fails to load on the CPU-only environment? (System must fallback to a smaller distilled model or abort with a clear error).
 - How does the system handle queries that are borderline between "High-Confidence" and "Ambiguous" where the router's confidence score is near the decision boundary? (The system must log the confidence score and allow for a sensitivity analysis on the router threshold).
 - What if the deterministic rule-based generator cannot find a matching ontology entry for an "Ambiguous" query? (The system must return a safe, minimal fallback UI (1 element) and log the "no-match" event for safety analysis. This is treated as an "Ambiguous" case with a specific sub-flag).
 - What happens if the user cancels the request due to high latency? (The system must record an "abandonment" event and set the alignment score to 0 for that trial).
@@ -97,7 +97,7 @@ The system must calculate task success rates, latency metrics, and alignment sco
 ## Assumptions
 
 - The A2UI-Bench dataset contains all necessary variables (queries, ground truth intents, and complexity indicators) required to train the router and simulate the scenarios; if specific complexity metadata is missing, it will be derived from query length or token count.
-- The 1B parameter generative model and the DistilBERT classifier can run within the GitHub Actions free-tier constraints (2 CPU cores, ~7 GB RAM) without requiring GPU acceleration or quantization.
+- The medium-scale generative model and the DistilBERT classifier can run within the GitHub Actions free-tier constraints (a limited number of CPU cores and constrained RAM) without requiring GPU acceleration or quantization.
 - The "Human-Agent Alignment" rubric can be operationalized into a deterministic scoring function for the simulation, as human-in-the-loop testing is not feasible within the CI/CD environment. **Validation**: This rubric is validated against a hold-out set of N=50 human-annotated examples, requiring a correlation (r) ≥ 0.7 to ensure it is a valid proxy for "alignment" and not just "rule adherence".
 - The deterministic rule-based generator has a sufficiently rich ontology of common UI components to handle the majority of "Ambiguous" intents without falling back to a generic error state.
 - The latency injection method (sleep/delay) accurately simulates real-world network/compute variance, and the user patience model (exponential decay, mean=2s) accurately captures the behavioral impact of delay on user trust.

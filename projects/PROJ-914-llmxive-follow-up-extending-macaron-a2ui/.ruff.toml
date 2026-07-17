@@ -1,0 +1,2 @@
+# Ruff configuration file (redundant with pyproject.toml but useful for editors)
+extend = "pyproject.toml"

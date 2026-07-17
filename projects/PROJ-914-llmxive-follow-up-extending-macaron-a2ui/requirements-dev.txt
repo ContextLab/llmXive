@@ -1,0 +1,20 @@
+# Development dependencies for llmXive
+# Included in T003: Linting and Formatting configuration
+
+# Linting and Formatting
+ruff>=0.1.0
+black>=23.0.0
+
+# Testing (from T002 requirements, explicitly listed for dev env)
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Note: Main runtime dependencies are in requirements.txt
+# transformers[cpu-only]
+# scikit-learn
+# pandas
+# numpy
+# matplotlib
+# seaborn
+# pyyaml
+# statsmodels

@@ -13,7 +13,7 @@ This project implements a hybrid routing and latency simulation system to evalua
 **Primary Dependencies**: `transformers` (CPU-only, 8-bit), `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`, `statsmodels` (for LMM)  
 **Storage**: Local filesystem (CSV/JSON) under `data/` and `code/`  
 **Testing**: `pytest` with contract validation against YAML schemas  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM)  
 **Project Type**: Research Simulation / Data Analysis  
 **Performance Goals**: Complete simulation runs (N=200 unique queries x 20 configurations = 4,000 trials) within 6 hours; model inference < 500ms per query on CPU (8-bit).  
 **Constraints**: Must run on CPU-only environment; no external API calls for generation (local quantized model); strict adherence to reproducibility (random seeds).  
@@ -99,4 +99,4 @@ tests/
 | **Hybrid Routing Logic** | Required to distinguish between "High-Confidence" (generative) and "Ambiguous" (deterministic) intents per Spec FR-002. | A single generative model cannot simulate the "deterministic fallback" behavior or the specific latency trade-offs required for the Pareto analysis. |
 | **Latency Injection & Patience Model** | Required to simulate user abandonment and non-linear trust degradation (Spec US-2). | Real-world network latency is uncontrolled and non-reproducible; simulation is necessary for rigorous statistical testing. |
 | **Statistical Correction (FDR/Bonferroni)** | Required to control family-wise error rate across multiple latency/density configurations (Spec FR-006). | Uncorrected p-values would lead to inflated Type I errors in the threshold identification (SC-003). |
-| **Quantized Generative Model** | Required to measure stochastic degradation empirically (fixing circular validation). | A deterministic proxy fails to capture the "fidelity" variable; a full 1B model exceeds CPU limits. DistilGPT2 (8-bit) is the minimal faithful form. |
+| **Quantized Generative Model** | Required to measure stochastic degradation empirically (fixing circular validation). | A deterministic proxy fails to capture the "fidelity" variable; a full 1B model exceeds CPU limits. DistilGPT (8-bit) is the minimal faithful form. |
