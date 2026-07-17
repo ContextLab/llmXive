@@ -40,7 +40,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from llmxive.model_selection.ledger_transport import (
+    LedgerConfig,
     LedgerDenied,
+    LedgerError,
     append_event,
     fetch_ledger,
     read_events,
@@ -202,7 +204,7 @@ def reserve(
     credit_observer: Callable[[], CreditObservation],
     lease_expires_at: datetime,
     now: datetime | None = None,
-    remote: str | None = None,
+    config: LedgerConfig | None = None,
 ) -> Reservation:
     """Open a reservation for ``worst_case_credits`` under strict CAS.
 
@@ -216,15 +218,17 @@ def reserve(
     Idempotent for a matching re-``reserve`` (no double-count).
     """
     now = now or _utcnow()
+    config = config or LedgerConfig()
     if not math.isfinite(worst_case_credits) or worst_case_credits < 0:
         raise ValueError(f"worst_case_credits must be finite non-negative, got {worst_case_credits!r}")
-    if remote is None:
+    if config.remote is None:
         global _warned_local_reserve
         if not _warned_local_reserve:
             _warned_local_reserve = True
             logger.warning(
-                "reservation opened with remote=None — LOCAL ledger only, NO cross-runner "
-                "headroom protection (C7). Production/slice-3 wiring MUST pass a real remote."
+                "reservation opened with a LOCAL-only ledger config — NO cross-runner headroom "
+                "protection (C7). Production/slice-3 wiring MUST pass LedgerConfig(remote=..., "
+                "expected_anchor=...)."
             )
 
     def prepare(events: list[dict]) -> dict | None:
@@ -269,7 +273,7 @@ def reserve(
             "ts": now.isoformat(),
         }
 
-    append_event(repo, prepare=prepare, remote=remote)
+    append_event(repo, prepare=prepare, config=config)
     return project(read_events(repo))[reservation_id]
 
 
@@ -282,7 +286,7 @@ def heartbeat(
     *,
     lease_expires_at: datetime,
     now: datetime | None = None,
-    remote: str | None = None,
+    config: LedgerConfig | None = None,
 ) -> None:
     """Append a heartbeat that extends the reservation's lease (no headroom
     predicate — a heartbeat never changes the reserved amount)."""
@@ -296,7 +300,7 @@ def heartbeat(
             "lease_expires_at": lease_expires_at.isoformat(),
             "ts": now.isoformat(),
         },
-        remote=remote,
+        config=config,
     )
 
 
@@ -305,35 +309,55 @@ def settle(
     reservation_id: str,
     *,
     now: datetime | None = None,
-    remote: str | None = None,
+    config: LedgerConfig | None = None,
 ) -> None:
     """Transition ``open → settling`` when the call returns (success OR failure
-    after reaching the provider). The hold is RETAINED — never released here."""
+    after reaching the provider). The hold is RETAINED — never released here.
+
+    IDEMPOTENT (R4-2): a fixed ``<rid>-settling`` event id whose body carries the
+    caller's timestamp would make a SECOND settle (owner-returns vs sweeper-settles
+    an expired lease) an append-only violation → a successful call wrongly reporting
+    failure. Built via ``prepare`` instead: already-settling/reconciled → no-op; a
+    valid ``open`` → write the transition; any other state → fail closed."""
     now = now or _utcnow()
-    append_event(
-        repo,
-        {
+
+    def prepare(events: list[dict]) -> dict | None:
+        cur = project(events).get(reservation_id)
+        if cur is None or cur.state in (STATE_SETTLING, STATE_RECONCILED):
+            return None  # nothing to settle / already settled — idempotent no-op
+        if cur.state != STATE_OPEN:
+            raise LedgerError(f"settle: reservation {reservation_id!r} in unexpected state {cur.state!r}")
+        return {
             "event_id": f"{reservation_id}-settling",
             "reservation_id": reservation_id,
             "type": STATE_SETTLING,
             "ts": now.isoformat(),
-        },
-        remote=remote,
-    )
+        }
+
+    append_event(repo, prepare=prepare, config=config)
 
 
 def _reconcile_one(
-    repo: Path, reservation_id: str, *, now: datetime, remote: str | None
+    repo: Path, reservation_id: str, *, now: datetime, config: LedgerConfig | None
 ) -> None:
-    append_event(
-        repo,
-        {
+    # IDEMPOTENT (R4-2): terminal transition to `reconciled` from any non-terminal
+    # state; a second reconcile (two reconcilers, or daily-reset vs attribution) is a
+    # no-op instead of an append-only violation.
+    def prepare(events: list[dict]) -> dict | None:
+        cur = project(events).get(reservation_id)
+        if cur is None or cur.state == STATE_RECONCILED:
+            return None
+        return {
             "event_id": f"{reservation_id}-reconciled",
             "reservation_id": reservation_id,
             "type": STATE_RECONCILED,
             "ts": now.isoformat(),
-        },
-        remote=remote,
+        }
+
+    append_event(
+        repo,
+        prepare=prepare,
+        config=config,
     )
 
 
@@ -356,14 +380,14 @@ class ReservationLease:
         *,
         interval_s: float,
         lease_duration_s: float,
-        remote: str | None = None,
+        config: LedgerConfig | None = None,
         now_fn: Callable[[], datetime] = _utcnow,
     ) -> None:
         self._repo = repo
         self._rid = reservation_id
         self._interval = max(0.1, interval_s)
         self._lease_duration = lease_duration_s
-        self._remote = remote
+        self._config = config
         self._now_fn = now_fn
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
@@ -378,7 +402,7 @@ class ReservationLease:
                     self._rid,
                     lease_expires_at=self._now_fn() + timedelta(seconds=self._lease_duration),
                     now=self._now_fn(),
-                    remote=self._remote,
+                    config=self._config,
                 )
             except Exception as exc:  # a heartbeat failure must not crash the call
                 logger.warning("reservation %s heartbeat failed: %s", self._rid, exc)
@@ -405,7 +429,7 @@ def reconcile_settled(
     observed_spend: float,
     epoch: str,
     now: datetime | None = None,
-    remote: str | None = None,
+    config: LedgerConfig | None = None,
 ) -> list[str]:
     """Attribution-prefix reconciliation (FR-016, rev-3): an observed provider-spend
     delta MUST NOT accidentally reconcile multiple overlapping reservations.
@@ -433,8 +457,8 @@ def reconcile_settled(
     slower headroom reclaim.
     """
     now = now or _utcnow()
-    if remote is not None:
-        fetch_ledger(repo, remote)  # #3: sync the authoritative ref BEFORE projecting
+    config = config or LedgerConfig()
+    fetch_ledger(repo, config)  # #3/R4-3: sync + verify the authoritative ref BEFORE projecting
     current = project(read_events(repo))
     batch = sorted(
         (r for r in current.values() if r.state == STATE_SETTLING and r.budget_epoch == epoch),
@@ -449,7 +473,7 @@ def reconcile_settled(
     for r in batch:
         cumulative += r.worst_case_credits
         if cumulative <= covered:
-            _reconcile_one(repo, r.reservation_id, now=now, remote=remote)
+            _reconcile_one(repo, r.reservation_id, now=now, config=config)
             reconciled.append(r.reservation_id)
         else:
             break  # prefix rule: this + all following stay settling
@@ -462,7 +486,7 @@ def sweep(
     observed_spend: float,
     current_epoch: str,
     now: datetime | None = None,
-    remote: str | None = None,
+    config: LedgerConfig | None = None,
     settlement_timeout_s: float = DEFAULT_SETTLEMENT_TIMEOUT_S,
 ) -> dict[str, list[str]]:
     """The maintenance sweep (a CLI subcommand + a maintenance-workflow step):
@@ -483,8 +507,8 @@ def sweep(
     Returns the ids affected per phase.
     """
     now = now or _utcnow()
-    if remote is not None:
-        fetch_ledger(repo, remote)  # #3: sync the authoritative ref BEFORE projecting
+    config = config or LedgerConfig()
+    fetch_ledger(repo, config)  # #3/R4-3: sync + verify the authoritative ref BEFORE projecting
     current = project(read_events(repo))
 
     conservatively_settled: list[str] = []
@@ -492,17 +516,17 @@ def sweep(
         if r.state == STATE_OPEN and r.budget_epoch == current_epoch:
             expired = bool(r.lease_expires_at) and _parse(r.lease_expires_at) < now
             if expired:
-                settle(repo, r.reservation_id, now=now, remote=remote)
+                settle(repo, r.reservation_id, now=now, config=config)
                 conservatively_settled.append(r.reservation_id)
 
     discarded: list[str] = []
     for r in current.values():
         if r.state != STATE_RECONCILED and r.budget_epoch != current_epoch:
-            _reconcile_one(repo, r.reservation_id, now=now, remote=remote)
+            _reconcile_one(repo, r.reservation_id, now=now, config=config)
             discarded.append(r.reservation_id)
 
     reconciled = reconcile_settled(
-        repo, observed_spend=observed_spend, epoch=current_epoch, now=now, remote=remote
+        repo, observed_spend=observed_spend, epoch=current_epoch, now=now, config=config
     )
 
     # 4. Settlement timeout (#9, corrected R3-2): a settling hold older than the
@@ -539,13 +563,13 @@ def sweep(
 
 
 def outstanding_headroom_consumption(
-    repo: Path, *, epoch: str, remote: str | None = None
+    repo: Path, *, epoch: str, config: LedgerConfig | None = None
 ) -> float:
     """The current counting-reservation total on the authoritative ledger — what
-    slice 3's pre-call guard subtracts from the fractional cap. Fetches the
-    authoritative ref first (#3) so a fresh checkout is never silently blind."""
-    if remote is not None:
-        fetch_ledger(repo, remote)
+    slice 3's pre-call guard subtracts from the fractional cap. Syncs + verifies the
+    authoritative ref first (#3/R4-3) so a fresh checkout is never silently blind and
+    a missing/wrong remote fails closed (never read as full headroom)."""
+    fetch_ledger(repo, config or LedgerConfig())
     return counting_total(project(read_events(repo)).values(), epoch=epoch)
 
 
@@ -557,6 +581,7 @@ __all__ = [
     "STATE_RECONCILED",
     "STATE_SETTLING",
     "CreditObservation",
+    "LedgerConfig",
     "LedgerDenied",
     "Reservation",
     "ReservationLease",

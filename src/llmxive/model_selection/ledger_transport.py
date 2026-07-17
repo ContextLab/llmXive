@@ -35,6 +35,7 @@ import re
 import subprocess
 import tempfile
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -56,14 +57,19 @@ _GIT_IDENTITY = {
     "GIT_COMMITTER_EMAIL": "ledger@llmxive.local",
 }
 # stderr fragments that mean "authenticated/authorized transport FAILED" (fail
-# closed) as opposed to a benign non-fast-forward rejection (retry).
+# closed) as opposed to a benign non-fast-forward rejection (retry). CONTEXTUAL only
+# (R4-1): a bare "401"/"403" matched random commit OIDs in a concurrent
+# "cannot lock ref ... expected <OID>" rejection and misclassified it as an auth
+# failure — every marker here must be a phrase that cannot appear inside a hex OID.
 _AUTH_FAIL_MARKERS = (
     "authentication failed",
     "could not read username",
     "permission denied",
     "access denied",
-    "403",
-    "401",
+    "returned error: 401",
+    "returned error: 403",
+    "error: 401 unauthorized",
+    "error: 403 forbidden",
     "fatal: could not read",
     "remote: permission to",
     "terminal prompts disabled",
@@ -150,6 +156,17 @@ def _read_event_blob(repo: Path, event_id: str, tip: str) -> str | None:
         ["cat-file", "-p", f"{tip}:{_EVENT_DIR}/{event_id}.json"], cwd=repo, check=False
     )
     return proc.stdout if proc.returncode == 0 else None
+
+
+@dataclass(frozen=True)
+class LedgerConfig:
+    """Where the authoritative ledger lives + how to trust it (R4-3). Passed to
+    EVERY authoritative read and mutation so remote identity + the pinned bootstrap
+    anchor are enforced uniformly (production Slice 3 pins ``expected_anchor``). The
+    default is local-only — tests / a single-runner / degenerate mode."""
+
+    remote: str | None = None
+    expected_anchor: str | None = None
 
 
 class LedgerError(RuntimeError):
@@ -325,7 +342,7 @@ def bootstrap_ledger(repo: Path, remote: str | None = None) -> str:
     FAILS CLOSED rather than create one. Production should additionally protect the ref
     server-side (a protected ref / branch-protection rule allowing only fast-forward
     appends by the ledger identity) and pin the anchor for the ancestry check that the
-    write path performs (see ``append_event(expected_anchor=...)``)."""
+    read/write paths perform (see ``LedgerConfig(expected_anchor=...)``)."""
     if remote is not None:
         remote_oid = _remote_ledger_oid(repo, remote)
         if remote_oid is not None:
@@ -356,14 +373,36 @@ def bootstrap_ledger(repo: Path, remote: str | None = None) -> str:
     return commit
 
 
-def fetch_ledger(repo: Path, remote: str) -> None:
-    """Sync the local ledger ref from the AUTHORITATIVE remote before a projection
-    (fixes #3). Any read that gates admission or reconciliation — ``sweep``,
-    ``reconcile_settled``, production headroom reads — MUST call this first: a fresh
-    Actions checkout does not fetch ``refs/llmxive/credit-ledger``, so an un-synced
-    local projection is EMPTY and every downstream decision is silently blind. Fails
-    closed on auth/permission (never proceeds against a stale/empty local ledger)."""
-    _fetch_authoritative(repo, remote)
+def _sync_and_verify(repo: Path, config: LedgerConfig) -> None:
+    """Bring the local ledger ref into agreement with the AUTHORITATIVE remote and
+    verify its identity before any read/mutation projects it (R3/R4-3). For a remote
+    config: the ref MUST already EXIST on the remote — bootstrap is the only creator,
+    so a missing ref fails closed (not treated as an empty local projection); the ref
+    is then synced locally; and if an anchor is pinned, the remote tip MUST descend
+    from it (else a wrong/unrelated ledger — fail closed). Local-only = no-op."""
+    if config.remote is None:
+        return
+    remote_oid = _remote_ledger_oid(repo, config.remote)
+    if remote_oid is None:
+        raise LedgerAuthError(
+            f"ledger ref {LEDGER_REF} absent on {config.remote!r} — not bootstrapped "
+            "(run `credits-ledger-bootstrap` once); failing closed"
+        )
+    _fetch_authoritative(repo, config.remote)
+    if config.expected_anchor is not None and not _is_ancestor(repo, config.expected_anchor, remote_oid):
+        raise LedgerAuthError(
+            f"remote {LEDGER_REF} tip {remote_oid} does not descend from the pinned anchor "
+            f"{config.expected_anchor} — wrong/divergent ledger; failing closed"
+        )
+
+
+def fetch_ledger(repo: Path, config: LedgerConfig) -> None:
+    """Sync + verify the authoritative ledger before a projection (fixes #3/R4-3).
+    Any read that gates admission or reconciliation — ``sweep``, ``reconcile_settled``,
+    production headroom reads — MUST call this first: a fresh Actions checkout does not
+    fetch ``refs/llmxive/credit-ledger``, so an un-synced local projection is EMPTY and
+    every downstream decision is silently blind."""
+    _sync_and_verify(repo, config)
 
 
 def _push_fast_forward(repo: Path, remote: str, commit: str) -> bool:
@@ -391,22 +430,21 @@ def append_event(
     event: dict | None = None,
     *,
     prepare: Callable[[list[dict]], dict | None] | None = None,
-    remote: str | None = None,
+    config: LedgerConfig | None = None,
     predicate: Callable[[list[dict]], tuple[bool, str]] | None = None,
-    allow_cold_start: bool = False,
-    expected_anchor: str | None = None,
     max_retries: int = 8,
 ) -> str:
     """Append ONE event to the authoritative ledger under strict CAS.
 
-    Each attempt: (1) fetch the authoritative ref (if ``remote``); (2) re-read the
-    events; (3) BUILD the event — either the fixed ``event`` (optionally gated by
-    ``predicate``) or, for callers that must price against FRESH state each attempt
-    (``reserve``), ``prepare(events)`` which returns the event to append, ``None``
-    for an idempotent no-op, or raises :class:`LedgerDenied`; (4) enforce append-only
-    immutability; (5) append onto the current tip; (6) fast-forward the ref
-    (``update-ref`` CAS locally, FF push remotely); (7) on non-fast-forward, refetch
-    and recompute. Every ledger mutation flows through here.
+    Each attempt: (1) ``_sync_and_verify`` the authoritative ref per ``config``
+    (remote existence + pinned-anchor identity; fails closed if not bootstrapped);
+    (2) re-read the events; (3) BUILD the event — either the fixed ``event``
+    (optionally gated by ``predicate``) or, for callers that must price against
+    FRESH state each attempt (``reserve``), ``prepare(events)`` which returns the
+    event to append, ``None`` for an idempotent no-op, or raises
+    :class:`LedgerDenied`; (4) enforce append-only immutability; (5) append onto the
+    current tip; (6) fast-forward the ref (``update-ref`` CAS locally, FF push
+    remotely); (7) on non-fast-forward, refetch and recompute.
 
     ``prepare`` is re-invoked on EVERY attempt so the event's epoch / settlement
     baseline reflect a fresh, internally-consistent credit observation (fixes #2 —
@@ -414,30 +452,10 @@ def append_event(
     """
     if (event is None) == (prepare is None):
         raise ValueError("append_event requires exactly one of 'event' or 'prepare'")
+    config = config or LedgerConfig()
 
     for _attempt in range(max_retries):
-        if remote is not None:
-            # R3-4: check the REMOTE ref (not the possibly-stale local ref). A remote
-            # write requires the ledger to ALREADY exist on the remote (bootstrapped),
-            # else a pre-existing local ledger + empty/wrong remote would spawn a
-            # divergent ledger there.
-            remote_oid = _remote_ledger_oid(repo, remote)
-            if not allow_cold_start and remote_oid is None:
-                raise LedgerAuthError(
-                    f"ledger ref {LEDGER_REF} absent on {remote!r} — not bootstrapped; "
-                    "refusing to create a divergent ledger (run `credits-ledger-bootstrap` once)"
-                )
-            _fetch_authoritative(repo, remote)
-            # Pinned-anchor identity (R3-4): if the caller pins the trusted bootstrap
-            # anchor, the remote tip MUST descend from it — else it is an UNRELATED
-            # ledger on a wrong remote, and we fail closed rather than operate on it.
-            if expected_anchor is not None and remote_oid is not None and not _is_ancestor(
-                repo, expected_anchor, remote_oid
-            ):
-                raise LedgerAuthError(
-                    f"remote {LEDGER_REF} tip {remote_oid} does not descend from the pinned "
-                    f"anchor {expected_anchor} — wrong/divergent ledger; failing closed"
-                )
+        _sync_and_verify(repo, config)  # remote existence + anchor identity; fails closed
         events = read_events(repo)
         if prepare is not None:
             built = prepare(events)  # fresh per attempt; may raise LedgerDenied
@@ -467,8 +485,8 @@ def append_event(
                     "(append-only violation) — failing closed"
                 )
         new_commit = _append_commit(repo, parent, built)
-        if remote is not None:
-            if _push_fast_forward(repo, remote, new_commit):
+        if config.remote is not None:
+            if _push_fast_forward(repo, config.remote, new_commit):
                 # Sync the local ref to what we successfully pushed.
                 _git(["update-ref", LEDGER_REF, new_commit], cwd=repo)
                 return new_commit
@@ -489,6 +507,7 @@ __all__ = [
     "LEDGER_REF",
     "SCHEMA_REVISION",
     "LedgerAuthError",
+    "LedgerConfig",
     "LedgerContention",
     "LedgerDenied",
     "LedgerError",

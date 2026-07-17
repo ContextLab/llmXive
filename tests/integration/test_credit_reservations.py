@@ -19,6 +19,7 @@ from llmxive.model_selection.reservations import (
     STATE_RECONCILED,
     STATE_SETTLING,
     CreditObservation,
+    LedgerConfig,
     ReservationLease,
     counting_total,
     project,
@@ -68,7 +69,7 @@ def _reserve(repo: Path, rid: str, wc: float, *, cap: float, spend: float, remot
         credit_observer=lambda: CreditObservation(spend=spend, effective_cap=cap, budget_epoch=epoch),
         lease_expires_at=LEASE,
         now=T0,
-        remote=remote,
+        config=LedgerConfig(remote=remote),
     )
 
 
@@ -177,6 +178,34 @@ def test_reserve_id_collision_fails_closed(repo):
     assert counting_total(project(read_events(repo)).values(), epoch=EPOCH) == 10.0
 
 
+def test_settle_and_reconcile_are_idempotent(repo):
+    """R4-2: a repeated transition (owner-returns vs sweeper-settles, or two
+    reconcilers) is a no-op, NOT an append-only violation."""
+    _reserve(repo, "r1", 10.0, cap=1000.0, spend=0.0)
+    settle(repo, "r1", now=T0)
+    settle(repo, "r1", now=T0 + timedelta(seconds=5))  # different ts — must not raise
+    assert project(read_events(repo))["r1"].state == STATE_SETTLING
+    reconcile_settled(repo, observed_spend=10.0, epoch=EPOCH, now=T0)
+    # a second reconcile (e.g. daily-reset vs attribution race) is a no-op
+    from llmxive.model_selection.reservations import _reconcile_one
+    _reconcile_one(repo, "r1", now=T0 + timedelta(seconds=9), config=None)
+    assert project(read_events(repo))["r1"].state == STATE_RECONCILED
+
+
+def test_headroom_read_fails_closed_on_unbootstrapped_remote(remote_and_two_clones, tmp_path):
+    """R4-3: a headroom read against a remote with NO ledger ref fails closed
+    (never read as full headroom on a wrong/misconfigured remote)."""
+    from llmxive.model_selection.ledger_transport import LedgerAuthError
+    from llmxive.model_selection.reservations import outstanding_headroom_consumption
+
+    empty_remote = tmp_path / "empty.git"
+    _git(["init", "--bare", "-b", "main", str(empty_remote)], tmp_path)
+    clone = tmp_path / "clone_empty"
+    _git(["clone", "--quiet", str(empty_remote), str(clone)], tmp_path)
+    with pytest.raises(LedgerAuthError):
+        outstanding_headroom_consumption(clone, epoch=EPOCH, config=LedgerConfig(remote="origin"))
+
+
 def test_reserve_rejects_bad_amount(repo):
     import math
     for bad in (-1.0, math.inf, math.nan):
@@ -232,9 +261,9 @@ def test_sweep_fetches_authoritative_ref_before_projecting(remote_and_two_clones
     EMPTY local projection; sweep MUST fetch first (not silently no-op)."""
     _remote, producer, fresh = remote_and_two_clones
     _reserve(producer, "r1", 5.0, cap=1000.0, spend=0.0, remote="origin")
-    settle(producer, "r1", now=T0, remote="origin")
+    settle(producer, "r1", now=T0, config=LedgerConfig(remote="origin"))
     assert project(read_events(fresh)) == {}  # fresh clone is blind until it fetches
-    out = sweep(fresh, observed_spend=5.0, current_epoch=EPOCH, now=T0, remote="origin")
+    out = sweep(fresh, observed_spend=5.0, current_epoch=EPOCH, now=T0, config=LedgerConfig(remote="origin"))
     assert out["reconciled"] == ["r1"]  # fetched, saw r1, reconciled it
 
 
@@ -308,7 +337,7 @@ def test_two_runners_cannot_collectively_overspend(remote_and_two_clones):
                 clone, reservation_id=rid, worst_case_credits=10.0, model="m",
                 credit_observer=lambda: CreditObservation(
                     spend=0.0, effective_cap=10.0, budget_epoch=EPOCH),
-                lease_expires_at=LEASE, now=T0, remote="origin",
+                lease_expires_at=LEASE, now=T0, config=LedgerConfig(remote="origin"),
             )
             results[rid] = "admitted"
         except LedgerDenied:

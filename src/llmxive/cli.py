@@ -320,17 +320,18 @@ def _cmd_credits_ledger_sweep(args: argparse.Namespace) -> int:
     from llmxive.backends import credits as credits_mod
     from llmxive.config import repo_root
     from llmxive.model_selection import reservations
+    from llmxive.model_selection.ledger_transport import LedgerConfig
 
     balance = credits_mod.fetch_credit_balance()  # FRESH, cache-bypassing
     remote = None if args.no_remote else args.remote
     # NOTE (R3-4): the sweep does NOT bootstrap — bootstrap is a one-time explicit
-    # admin op (`llmxive credits-ledger-bootstrap`). A sweep before bootstrap is a
-    # safe no-op (empty ledger); it never creates a divergent ledger on a wrong remote.
+    # admin op (`llmxive credits-ledger-bootstrap`). A sweep against a non-bootstrapped
+    # remote fails closed (never creates a divergent ledger); this step is non-fatal.
     result = reservations.sweep(
         repo_root(),
         observed_spend=balance.spend,
         current_epoch=balance.budget_reset_at,
-        remote=remote,
+        config=LedgerConfig(remote=remote),
     )
     for phase, ids in result.items():
         print(f"{phase}: {len(ids)}" + (f" ({', '.join(ids)})" if ids else ""))

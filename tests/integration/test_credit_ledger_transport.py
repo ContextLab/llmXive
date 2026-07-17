@@ -18,6 +18,7 @@ import pytest
 from llmxive.model_selection.ledger_transport import (
     LEDGER_REF,
     LedgerAuthError,
+    LedgerConfig,
     _push_fast_forward,
     _rev,
     append_event,
@@ -62,7 +63,7 @@ def test_cold_start_has_no_events(remote_and_clones):
 
 def test_single_append_round_trips_to_a_fresh_clone(remote_and_clones, tmp_path):
     remote, clone_a, _clone_b = remote_and_clones
-    append_event(clone_a, _event("r1", 10.0), remote="origin")
+    append_event(clone_a, _event("r1", 10.0), config=LedgerConfig(remote="origin"))
     # a THIRD, freshly-made clone must observe the event on the authoritative ref
     fresh = tmp_path / "clone_fresh"
     _git(["clone", "--quiet", str(remote), str(fresh)], tmp_path)
@@ -78,7 +79,7 @@ def test_non_fast_forward_push_is_rejected_not_merged(remote_and_clones):
     """The deterministic CAS core: a commit built on a STALE tip is rejected
     (False), never merged — this is what makes it a compare-and-swap."""
     _remote, clone_a, clone_b = remote_and_clones
-    append_event(clone_a, _event("r1", 10.0), remote="origin")  # ref now has r1
+    append_event(clone_a, _event("r1", 10.0), config=LedgerConfig(remote="origin"))  # ref now has r1
 
     # B builds an event on the EMPTY tip (parent=None) — a stale base — and pushes.
     from llmxive.model_selection.ledger_transport import _append_commit
@@ -96,7 +97,7 @@ def test_concurrent_reservers_no_event_lost(remote_and_clones):
     def reserve(clone: Path, rid: str, credits: float) -> None:
         try:
             barrier.wait(timeout=10)
-            append_event(clone, _event(rid, credits), remote="origin", max_retries=16)
+            append_event(clone, _event(rid, credits), config=LedgerConfig(remote="origin"), max_retries=16)
         except BaseException as exc:
             errors.append(exc)
 
@@ -127,7 +128,7 @@ def test_predicate_denial_appends_nothing(remote_and_clones):
 
     tip_before = _rev(clone_a, LEDGER_REF)  # the bootstrap anchor
     with pytest.raises(LedgerDenied):
-        append_event(clone_a, _event("r1", 10.0), remote="origin", predicate=deny)
+        append_event(clone_a, _event("r1", 10.0), config=LedgerConfig(remote="origin"), predicate=deny)
     assert read_events(clone_a) == []  # nothing appended
     assert _rev(clone_a, LEDGER_REF) == tip_before  # ref unchanged
 
@@ -142,9 +143,9 @@ def test_remote_write_requires_bootstrap(tmp_path):
     clone = tmp_path / "clone"
     _git(["clone", "--quiet", str(remote), str(clone)], tmp_path)
     with pytest.raises(LedgerAuthError):
-        append_event(clone, _event("r1", 10.0), remote="origin")  # not bootstrapped
+        append_event(clone, _event("r1", 10.0), config=LedgerConfig(remote="origin"))  # not bootstrapped
     bootstrap_ledger(clone, remote="origin")
-    append_event(clone, _event("r1", 10.0), remote="origin")  # now allowed
+    append_event(clone, _event("r1", 10.0), config=LedgerConfig(remote="origin"))  # now allowed
     assert [e["reservation_id"] for e in read_events(clone)] == ["r1"]
 
 
@@ -168,7 +169,7 @@ def test_bootstrap_refuses_divergent_local_vs_empty_remote(tmp_path):
     with pytest.raises(LedgerAuthError):
         bootstrap_ledger(local, remote="origin")  # local exists, remote empty → refuse
     with pytest.raises(LedgerAuthError):
-        append_event(local, _event("r2", 5.0), remote="origin")  # not bootstrapped on remote
+        append_event(local, _event("r2", 5.0), config=LedgerConfig(remote="origin"))  # not bootstrapped on remote
     assert _remote_ledger_oid(local, "origin") is None  # wrong remote stayed empty
 
 
@@ -179,9 +180,9 @@ def test_expected_anchor_gates_remote_identity(remote_and_clones):
 
     _remote, clone_a, _clone_b = remote_and_clones
     anchor = _rev(clone_a, LEDGER_REF)  # the real bootstrap anchor
-    append_event(clone_a, _event("r1", 5.0), remote="origin", expected_anchor=anchor)  # ok
+    append_event(clone_a, _event("r1", 5.0), config=LedgerConfig(remote="origin", expected_anchor=anchor))  # ok
     with pytest.raises(LedgerAuthError):
-        append_event(clone_a, _event("r2", 5.0), remote="origin", expected_anchor="a" * 40)
+        append_event(clone_a, _event("r2", 5.0), config=LedgerConfig(remote="origin", expected_anchor="a" * 40))
 
 
 def test_bootstrap_is_idempotent(tmp_path):
@@ -203,7 +204,7 @@ def test_auth_failure_fails_closed(tmp_path):
     _git(["init", "-b", "main", str(clone)], tmp_path)
     _git(["remote", "add", "origin", str(tmp_path / "does-not-exist.git")], clone)
     with pytest.raises(LedgerAuthError):
-        append_event(clone, _event("r1", 10.0), remote="origin")
+        append_event(clone, _event("r1", 10.0), config=LedgerConfig(remote="origin"))
 
 
 def test_local_only_cas_serializes_same_clone(remote_and_clones):
