@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EntropyProfile"
+description: "Schema for entropy profile records containing layer-wise entropy values"
+type: "object"
+required:
+  - sequence_id
+  - dataset
+  - layers
+properties:
+  sequence_id:
+    type: "string"
+    description: "Unique identifier for the token sequence"
+  dataset:
+    type: "string"
+    description: "Name of the source dataset (e.g., 'gsm8k', 'minigrid')"
+  problem_id:
+    type: "string"
+    description: "Identifier for the specific problem within the dataset"
+  validity_label:
+    type: "string"
+    enum:
+      - "valid"
+      - "invalid"
+      - "ambiguous"
+    description: "Ground truth validity label for the sequence"
+  layers:
+    type: "object"
+    description: "Dictionary mapping layer IDs to their entropy data"
+    additionalProperties:
+      type: "object"
+      required:
+        - entropy
+      properties:
+        entropy:
+          type: "array"
+          description: "List of entropy values for each token position in this layer"
+          items:
+            type: "number"
+            description: "Shannon entropy value (non-negative float)"
+      additionalProperties: false
+  metadata:
+    type: "object"
+    description: "Optional metadata about the generation process"
+    additionalProperties: true
+additionalProperties: false

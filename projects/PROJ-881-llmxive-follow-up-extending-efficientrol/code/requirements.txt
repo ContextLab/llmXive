@@ -1,0 +1,12 @@
+transformers==4.40.0
+torch==2.3.0
+datasets==2.19.0
+scikit-learn==1.4.2
+pandas==2.2.2
+numpy==1.26.4
+h5py==3.11.0
+pytest==8.2.0
+statsmodels==0.14.2
+pyyaml==6.0.1
+black==24.4.2
+ruff==0.4.4

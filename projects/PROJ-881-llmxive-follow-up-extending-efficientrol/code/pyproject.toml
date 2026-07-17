@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up"
+version = "0.1.0"
+description = "Entropy-Guided Validity Prediction in RL Rollouts"
+requires-python = ">=3.9"
+dependencies = [
+    "transformers",
+    "torch",
+    "datasets",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "h5py",
+    "pytest",
+    "statsmodels",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+target-version = "py39"
+
+# Assume Python 3.9
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assertions in tests
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]

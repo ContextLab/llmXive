@@ -1,0 +1,50 @@
+T009:
+  c: false
+  h: 8233450ba8cbd420a5cbf7ee6b1e2a43523fb6668409b7c7926a266325cf8f2b
+  r: "The required file `code/tests/contract/test_dataset_schema.py` is missing from\
+    \ the repository, so no contract test for the dataset schema exists. Without this\
+    \ artifact, the task\u2019s deliverable is not satisfied."
+T015:
+  c: true
+  h: 221dbd000e23905a7ee9b86148dd9d490de34cd7759f345848bee3f796cf19d8
+  r: "The `generation.py` file defines `setup_logging()` that creates the `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/logs/generation.log`\
+    \ path, uses a custom JSON formatter, and adds `token_count` and `validity_stats`\
+    \ fields to log records. This matches the task\u2019s specification."
+T016:
+  c: false
+  h: 32db499e2e29cea721bcf542cbfc501727b769e0ef45db603643a3ff4df03278
+  r: "The provided `generation.py` contains only placeholder stubs (e.g., `generate_single_pass`,\
+    \ `validate_against_ground_truth`) and the `write_labeled_dataset` function is\
+    \ truncated and never shows logic that reads generation outputs, merges them with\
+    \ ground\u2011truth labels, or validates against `dataset.schema.yaml`. There\
+    \ is no explicit reference to the schema file, so the required merging implementation\
+    \ is missing."
+T022:
+  c: false
+  h: 70db43fc98b6bc56ab8b8460b192cf401f204722b4cd9f3fa8056a2cd216226a
+  r: "The provided `preprocessing.py` only contains batch\u2011handling utilities\
+    \ and a placeholder `process_batch_with_entropy` that inserts dummy `entropy_profile`\
+    \ data; it never loads or merges the labeled dataset from T016, never validates\
+    \ against or even references the `entropy_profile.schema.yaml`, and does not ensure\
+    \ layer\u2011wise granularity beyond inserting `np.nan` placeholders. Consequently\
+    \ the required merging logic is missing."
+T023:
+  c: false
+  h: 70db43fc98b6bc56ab8b8460b192cf401f204722b4cd9f3fa8056a2cd216226a
+  r: "The provided `preprocessing.py` does not contain a `validate_entropy_profile()`\
+    \ implementation (the file excerpt shows no such function), so the required validation\
+    \ logic is missing. Consequently the task\u2019s core requirement is not satisfied."
+T024:
+  c: false
+  h: b868373ebfe2844181e3b1a4d6e3d47b0119af36e4326e8cee8a517f0a6cbc73
+  r: The required file `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/tests/contract/test_analysis_result_schema.py`
+    does not exist in the repository, so no contract test for the analysis result
+    schema is present. The task cannot be considered completed until this test file
+    is added with appropriate content.
+T031:
+  c: false
+  h: 6739b45cd9711a2147dc8383a90798d159f7c791682f81f0be709f784ffcb16b
+  r: "The repository contains a partially\u2011implemented `report.py`, but the required\
+    \ output file `code/results/final_report.json` is absent, and the provided code\
+    \ does not demonstrate that it writes a JSON report with AUC\u2011ROC, p\u2011\
+    values, and the optimal threshold. The task therefore remains unfinished."

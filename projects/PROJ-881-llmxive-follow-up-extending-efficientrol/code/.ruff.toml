@@ -1,0 +1,15 @@
+# Explicit ruff configuration file for clarity, though pyproject.toml is also used.
+# This file is picked up automatically by `ruff check`.
+
+extend = "pyproject.toml"
+
+# Override line length if needed for specific ruff runs
+line-length = 88
+
+[lint]
+# Ensure we are using the same set of rules as defined in pyproject.toml
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501", "B008", "C901"]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"]
