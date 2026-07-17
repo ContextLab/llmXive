@@ -3,6 +3,8 @@ import json
 import logging
 import os
 import subprocess
+import sys
+import platform
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, Union, List
@@ -32,6 +34,7 @@ def get_git_commit_hash() -> Optional[str]:
 def get_environment_info() -> Dict[str, Any]:
     """
     Gather basic environment information relevant to reproducibility.
+    Includes OS, Python version, and key environment variables.
     """
     env_vars = {
         "PYTHONPATH": os.environ.get("PYTHONPATH", ""),
@@ -39,6 +42,9 @@ def get_environment_info() -> Dict[str, Any]:
         "HOME": os.environ.get("HOME", ""),
         "USER": os.environ.get("USER", ""),
         "HOSTNAME": os.environ.get("HOSTNAME", "unknown"),
+        "PYTHON_VERSION": sys.version,
+        "PLATFORM": platform.platform(),
+        "ARCHITECTURE": platform.machine(),
     }
     # Filter out potentially sensitive or overly large env vars if needed
     return env_vars
@@ -163,3 +169,23 @@ def generate_run_manifest(
     }
     
     return save_metadata_json(manifest, output_path)
+
+def write_run_manifest_for_pipeline(
+    pipeline_mode: str,
+    artifact_params: Dict[str, Any],
+    output_path: Union[str, Path] = "data/processed/run_manifest.json"
+) -> str:
+    """
+    Convenience wrapper to generate a run manifest specifically for pipeline execution.
+    Ensures the manifest is written to the correct location and includes pipeline mode.
+    
+    Args:
+        pipeline_mode: The mode of the pipeline (e.g., 'generate', 'process', 'calibrate')
+        artifact_params: Dictionary containing all parameters used for this run
+        output_path: Path to save the manifest JSON file
+    
+    Returns:
+        Checksum of the generated manifest file
+    """
+    params_with_mode = {"pipeline_mode": pipeline_mode, **artifact_params}
+    return generate_run_manifest(params_with_mode, output_path)

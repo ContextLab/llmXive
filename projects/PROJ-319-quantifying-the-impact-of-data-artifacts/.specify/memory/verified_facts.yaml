@@ -1,13 +1,15 @@
-'|conselice definition':
-  quote: In 1998, Sidney van den Bergh published a book on galaxy morphology in which
-    he interrogated weaknesses in the Hubble sequence as a classification scheme.
-    Subsequent work revealed further weaknesses. In 2003, Christopher Conselice formalized
-    the CAS parameters, a set of quantitative morphological parameters which could
-    be used to approximate the Hubble types of galaxy populations at low redshift.
-    In 2004, a paper by Jennifer Lotz found that the Gini coefficient, when used in
-    tandem with the second-order moment of the brightest 20% of the galaxy's flux
-    (referred to as M20) and the CAS parameters, could distinguish normal galaxies
-    from mergers.
-  source_id: Galaxy morphological classification
-  url: https://en.wikipedia.org/wiki/Galaxy_morphological_classification
-  value: CAS parameters
+6543|include ngc target validation:
+  quote: Planetary Nebulae NGC 7009 and NGC 6543
+  source_id: '2003.01737'
+  url: https://arxiv.org/abs/2003.01737
+  value: NGC 7009 and NGC 6543
+'|alpha statistical test use':
+  quote: "The error that a practising statistician would consider the more important\
+    \ to avoid (which is a subjective judgment) is called the error of the first kind.\
+    \ The first demand of the mathematical theory is to deduce such test criteria\
+    \ as would ensure that the probability of committing an error of the first kind\
+    \ would equal (or approximately equal, or not exceed) a preassigned number \u03B1\
+    , such as \u03B1 = 0.05 or 0.01, etc. This number is called the level of significance."
+  source_id: P-value
+  url: https://en.wikipedia.org/wiki/P-value
+  value: '0.05'

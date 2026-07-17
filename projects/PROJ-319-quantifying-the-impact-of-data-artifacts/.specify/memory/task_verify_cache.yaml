@@ -11,27 +11,3 @@ T040:
     \ the shown `code/main.py` does not contain any code that loads this ground\u2011\
     truth metadata before computing asymmetry bias. Both the artifact and the necessary\
     \ logic are missing."
-T047:
-  c: false
-  h: 6e8be2d05520611dcb4f1967bf4d6e76b6848aaf8fbd00f6d81e941e256de377
-  r: "The repository lacks a `data/synthetic/gt_metadata.json` file, and the provided\
-    \ `code/main.py` and `code/synthetic/generator.py` snippets show no implementation\
-    \ of a `run_us1_pipeline` that waits for or validates the existence of that JSON\
-    \ before loading ground truth. Consequently, the required data\u2011flow enforcement\
-    \ has not been implemented."
-T049:
-  c: false
-  h: 213a803e5938be65962a38557fcec3560777665ff71afb5d2d7880bd8498ec09
-  r: The repository contains a `power_analysis.py` with a `calculate_mdes` function,
-    but it never invokes this function for n=50 nor writes any report. Moreover, the
-    required `data/validation/power_analysis_report.md` file is absent. Both the explicit
-    MDES reporting and the validation markdown are missing.
-T050:
-  c: false
-  h: 6c5161159ebe19a06966c5a1a25af3386bcaaf97b5a6badb6c303a31f60e0933
-  r: The repository contains an updated `code/io/writer.py`, but it only defines utilities
-    for git hash, environment info, checksums, and saving FITS/JSON files; there is
-    no code that creates or writes `data/processed/run_manifest.json`. Moreover, the
-    expected `run_manifest.json` file is absent from the `data/processed` directory.
-    Consequently, the task of generating a reproducibility manifest for each run is
-    not fulfilled.
