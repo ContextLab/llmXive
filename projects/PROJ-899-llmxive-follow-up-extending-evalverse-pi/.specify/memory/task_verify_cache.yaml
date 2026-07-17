@@ -1,0 +1,20 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`src/`, `tests/`, `specs/`) is shown or described in
+    the provided evidence; the claim lacks any artifact confirming those folders exist
+    or contain files. The implementer must create and show the required project directories.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., `pyproject.toml` with `[tool.black]`\
+    \ and `[tool.ruff]` sections, `.ruff.toml`, or a pre\u2011commit hook) were presented,\
+    \ so there is no evidence that ruff and black have been set up in the repository.\
+    \ The required artifacts are missing."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files (e.g., `pyproject.toml`, `.env`, or similar) or scripts
+    establishing the `data/raw` and `data/processed` directories were presented, and
+    there is no evidence that those directories actually exist in the repository.
+    The required environment setup and cache directory structure are therefore missing.

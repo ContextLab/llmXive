@@ -1,0 +1,13 @@
+# Core dependencies
+opencv-python
+librosa
+scikit-learn
+xgboost
+psutil
+numpy
+pandas
+
+# Development dependencies
+pytest
+ruff>=0.1.0
+black>=23.0.0

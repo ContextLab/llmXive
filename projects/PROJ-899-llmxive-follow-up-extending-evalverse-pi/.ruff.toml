@@ -1,0 +1,6 @@
+# Extends the configuration in pyproject.toml for specific IDE/editor overrides if needed,
+# but primarily relies on pyproject.toml for the main configuration.
+# This file ensures ruff finds configuration even if pyproject.toml is not in the root.
+extend = "pyproject.toml"
+line-length = 88
+target-version = "py311"

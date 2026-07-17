@@ -68,7 +68,7 @@
 - **FR-004**: System MUST calculate Pearson and Spearman correlation coefficients between model predictions and the VLM reference scores for each dimension. (See US-1)
 - **FR-005**: System MUST perform a sensitivity analysis by sweeping the classification threshold (e.g., correlation cutoff) across a defined set of values {0.80, 0.85, 0.90} and report the resulting variation in classification outcome. (See US-3)
 - **FR-006**: System MUST profile and log peak memory usage and inference time per video clip to verify compliance with the 7 GB RAM and 6-hour time limit constraints. (See US-2)
-- **FR-007**: System MUST apply bootstrapping to generate 95% confidence intervals for all reported correlation coefficients. (See US-1)
+- **FR-007**: System MUST apply bootstrapping to generate confidence intervals for all reported correlation coefficients. (See US-1)
 - **FR-008**: System MUST explicitly flag dimensions where the lower bound of the 95% confidence interval drops below 0.70 as "VLM-required" in the final output. (See US-1)
 - **FR-009**: System MUST perform a preliminary validation step by correlating VLM reference scores with a subset of human expert ratings (n ≥ 30) to confirm alignment (r ≥ 0.70) before proceeding with the main distillation study. (See US-1)
 

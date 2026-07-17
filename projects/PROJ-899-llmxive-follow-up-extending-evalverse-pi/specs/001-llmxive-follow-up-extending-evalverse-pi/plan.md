@@ -13,7 +13,7 @@ This feature implements a CPU-tractable pipeline to evaluate the sufficiency of 
 **Primary Dependencies**: `opencv-python` (CPU-only), `librosa`, `scikit-learn`, `xgboost` (CPU build), `pandas`, `numpy`, `scipy`, `psutil` (for memory profiling).
 **Storage**: Local filesystem (`data/raw`, `data/processed`), CSV/Parquet for intermediate results.
 **Testing**: `pytest` for unit tests of feature extraction and model logic; integration tests for pipeline execution on sample data.
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, ~7GB RAM).
+**Target Platform**: Linux (GitHub Actions free-tier runner: vCPU, ~7GB RAM).
 **Project Type**: Data science research pipeline / CLI tool.
 **Performance Goals**: Process N=10,000 clips within 6 hours; peak memory < 7GB; per-clip inference < 1.8 seconds (derived from 6h/10k).
 **Constraints**: No GPU/CUDA; no heavy LLM inference; strict adherence to 7GB RAM limit; all random seeds pinned.

@@ -1,0 +1,18 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.2.0
+    hooks:
+      - id: black
+        language_version: python3.11
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        # This is an alternative to black if ruff is used for formatting
+        # but since we use black explicitly, we might skip this or keep as linter
+        # Keeping as linter only if we don't use ruff-format for formatting
+        # args: [--fix]
+# Note: The project uses Black for formatting and Ruff for linting.
+# This config ensures both run on pre-commit.
