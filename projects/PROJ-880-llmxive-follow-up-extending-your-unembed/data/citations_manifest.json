@@ -1,0 +1,10 @@
+{
+  "verified_urls": [
+    "https://arxiv.org/abs/2305.19465",
+    "https://arxiv.org/abs/2310.06825",
+    "https://huggingface.co/docs/transformers/main/en/main_classes/model",
+    "https://www.w3.org/International/articles/definitions-characters/"
+  ],
+  "last_verified": "2024-05-20",
+  "note": "Placeholder manifest for T005. Update with real URLs as citations are added to specs."
+}

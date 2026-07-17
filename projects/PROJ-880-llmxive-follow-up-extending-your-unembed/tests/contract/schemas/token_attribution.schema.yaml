@@ -1,0 +1,81 @@
+# Schema for token_attribution outputs
+# Used by: frequency_distributions.json, token_attribution_report.json
+
+type: object
+required:
+  - language
+  - tokens
+  - metadata
+additionalProperties: false
+
+properties:
+  language:
+    type: string
+    description: Language code (e.g., 'en', 'fr', 'zh')
+    pattern: "^[a-z]{2}$"
+
+  tokens:
+    type: array
+    description: Ranked list of tokens with attribution scores
+    items:
+      type: object
+      required:
+        - token_id
+        - token_str
+        - attribution_score
+        - rank
+      additionalProperties: false
+      properties:
+        token_id:
+          type: integer
+          minimum: 0
+          description: Token ID in the model vocabulary
+        token_str:
+          type: string
+          description: Token string representation
+        attribution_score:
+          type: number
+          description: Projection score onto edge spectrum subspace
+        rank:
+          type: integer
+          minimum: 1
+          description: Rank position (1 = highest)
+
+  overlap:
+    type: object
+    description: Overlap analysis with English baseline (optional)
+    additionalProperties: false
+    properties:
+      top_k_overlap:
+        type: integer
+        minimum: 0
+        description: Number of overlapping tokens in top-k
+      overlap_ratio:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Ratio of overlapping tokens
+
+  metadata:
+    type: object
+    required:
+      - k
+      - source_dataset
+      - timestamp
+    additionalProperties: false
+    properties:
+      k:
+        type: integer
+        minimum: 1
+        description: Number of singular vectors used
+      source_dataset:
+        type: string
+        description: Source dataset identifier
+      frequency_threshold:
+        type: number
+        minimum: 0
+        description: Minimum frequency threshold for token inclusion
+      timestamp:
+        type: string
+        pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+        description: ISO 8601 timestamp

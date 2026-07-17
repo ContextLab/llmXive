@@ -1,0 +1,7 @@
+torch==2.1.0
+transformers==4.36.0
+numpy==1.24.3
+scipy==1.11.4
+pandas==2.1.4
+huggingface_hub==0.20.3
+datasets==2.16.1

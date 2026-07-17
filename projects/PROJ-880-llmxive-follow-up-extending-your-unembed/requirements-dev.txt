@@ -1,0 +1,8 @@
+# Development and Linting Dependencies
+flake8>=6.1.0
+black>=23.12.0
+isort>=5.13.0
+pytest>=7.4.0
+mypy>=1.8.0
+# Note: Core dependencies are pinned in requirements.txt
+# This file is for dev tools only.

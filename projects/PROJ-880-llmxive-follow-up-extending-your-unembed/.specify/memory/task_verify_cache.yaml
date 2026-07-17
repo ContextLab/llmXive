@@ -1,0 +1,48 @@
+T014:
+  c: false
+  h: 9e0cd375a586b190f15b75159ead6c7d8cc7d1bd4c6e5ec748ee570638216912
+  r: The repository contains `code/main.py`, but the required output file `data/processed/similarity_matrix.json`
+    is not present, indicating the orchestrator has not successfully produced the
+    expected result. The missing JSON file must be generated for the task to be considered
+    complete.
+T016:
+  c: false
+  h: 4ccbada5339743bc44b650c59c3acfc48cac680aeabe05808f4fac21f3e77969
+  r: The provided `tests/contract/test_schemas.py` contains only partial validation
+    logic and no concrete unittest that exercises `token_attribution.schema.yaml`.
+    Moreover, the required schema file (`token_attribution.schema.yaml` in the `contracts`
+    directory) is absent, so the test cannot even load the schema. The task therefore
+    lacks both the necessary schema artifact and a complete test implementation.
+T019:
+  c: false
+  h: d813a405e40be53aaa83650a3562abaf837212b5a6084899186aa9f2ad0a1732
+  r: "The required `data/processed/frequency_distributions.json` file is absent, and\
+    \ the provided `code/data_loader.py` contains generic download/verification utilities\
+    \ rather than logic to load frequency distributions and write the specified JSON\
+    \ output. The task\u2019s core requirement is therefore unmet."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, function, or output implementing the overlap\u2011ratio calculation\
+    \ is present; the only material is a high\u2011level specification without any\
+    \ concrete artifact to verify. The required implementation (e.g., a function that\
+    \ takes two top\u2011ranked token lists and returns their overlap percentage)\
+    \ is missing."
+T023:
+  c: false
+  h: 722086b22c05d03c9a3c2f0498a96c0bf5bf543836200b318e1a37565749a278
+  r: "The repository contains `code/main.py`, but the required output file `data/processed/token_attribution_report.json`\
+    \ is absent, indicating the token\u2011attribution pipeline was never executed\
+    \ or did not produce the expected artifact. Additionally, the provided excerpt\
+    \ of `main.py` does not show any function that runs the US2 pipeline and writes\
+    \ that JSON file. The missing report means the task\u2019s core requirement is\
+    \ not met."
+T024:
+  c: false
+  h: 4ccbada5339743bc44b650c59c3acfc48cac680aeabe05808f4fac21f3e77969
+  r: The provided `tests/contract/test_schemas.py` only contains validation logic
+    for `similarity_report.schema.yaml` and `token_attribution.schema.yaml`; there
+    is no test code referencing `permutation_result.schema.yaml`. Moreover, the required
+    schema file (`permutation_result.schema.yaml` or a generic `schema.yaml`) is absent
+    from the repository. Consequently, the contract test for the specified schema
+    is not present.

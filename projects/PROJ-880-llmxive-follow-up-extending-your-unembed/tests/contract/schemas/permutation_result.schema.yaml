@@ -1,0 +1,89 @@
+# Schema for permutation_result output
+# Used by: permutation_result.json
+
+type: object
+required:
+  - observed_statistic
+  - null_distribution
+  - p_value
+  - is_significant
+  - metadata
+additionalProperties: false
+
+properties:
+  observed_statistic:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Observed cross-lingual similarity score
+
+  null_distribution:
+    type: object
+    required:
+      - mean
+      - std
+      - samples
+    additionalProperties: false
+    properties:
+      mean:
+        type: number
+      std:
+        type: number
+        minimum: 0
+      samples:
+        type: integer
+        minimum: 1
+        description: Number of bootstrap samples
+
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Two-tailed p-value
+
+  is_significant:
+    type: boolean
+    description: Whether the shift is statistically significant
+
+  significance_level:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Alpha level used for significance testing
+
+  perturbation_params:
+    type: object
+    required:
+      - sigma
+      - method
+    additionalProperties: false
+    properties:
+      sigma:
+        type: number
+        minimum: 0
+        description: Standard deviation of Gaussian noise
+      method:
+        type: string
+        enum:
+          - gaussian_perturbation
+          - weight_shuffling
+
+  metadata:
+    type: object
+    required:
+      - n_iterations
+      - seed
+      - timestamp
+    additionalProperties: false
+    properties:
+      n_iterations:
+        type: integer
+        minimum: 1
+        description: Number of permutation iterations
+      seed:
+        type: integer
+        description: Random seed used
+      timestamp:
+        type: string
+        pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+        description: ISO 8601 timestamp

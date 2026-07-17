@@ -32,7 +32,7 @@ The researcher needs to identify the specific tokens with the highest logit weig
 
 **Acceptance Scenarios**:
 
-1. **Given** the edge spectrum subspace for BLOOM is extracted, **When** the system projects the frequency distribution of the Common Crawl (French/Chinese) subset onto this subspace, **Then** the system outputs a ranked list of the top-50 tokens driving the subspace variance, distinct from the English top-50 list.
+1. **Given** the edge spectrum subspace for BLOOM is extracted, **When** the system projects the frequency distribution of the Common Crawl (French/Chinese) subset onto this subspace, **Then** the system outputs a ranked list of the top tokens driving the subspace variance, distinct from the English top list.
 2. **Given** the ranked token lists for English and non-English models, **When** the system calculates the overlap ratio of the top-10 tokens between the two lists, **Then** the system reports an overlap percentage that is lower than the within-language overlap baseline (indicating typological shift).
 
 ---
@@ -47,7 +47,7 @@ The researcher needs to perform a permutation test to determine if the observed 
 
 **Acceptance Scenarios**:
 
-1. **Given** the observed cosine similarity between English and BLOOM subspaces, **When** the system performs 1,000 permutations of model seeds (comparing English-BLOOM against English-English seed-variants) to generate a null distribution, **Then** the system outputs a p-value indicating the probability of observing the current similarity under the null hypothesis.
+1. **Given** the observed cosine similarity between English and BLOOM subspaces, **When** the system performs multiple permutations of model seeds (comparing English-BLOOM against English-English seed-variants) to generate a null distribution, **Then** the system outputs a p-value indicating the probability of observing the current similarity under the null hypothesis.
 2. **Given** the p-value is computed, **When** the p-value is less than 0.05, **Then** the system outputs both the exact p-value and a flag "Statistically Significant Shift" in the final report.
 
 ---
