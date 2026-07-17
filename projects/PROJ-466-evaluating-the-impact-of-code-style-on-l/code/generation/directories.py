@@ -1,252 +1,192 @@
-"""
-Directory structure management for the llmXive research pipeline.
-
-This module ensures that all required output directories exist and
-validates that CSV artifacts are written correctly.
-"""
 import os
 import logging
 import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-
 from config.loader import load_config
 
 logger = logging.getLogger(__name__)
 
-# Required directories relative to project root
 REQUIRED_DIRS = [
     "data/raw/humaneval",
     "data/processed",
     "data/figures",
     "state",
-    "logs",
-    "results",
+    "logs"
 ]
 
-# Required CSV artifacts and their expected headers
-REQUIRED_CSVS = {
-    "samples_all.csv": [
-        "task_id",
-        "style",
-        "sample_id",
-        "code",
-        "pass_status",
-        "timeout",
-        "error_message",
-    ],
-    "samples_valid.csv": [
-        "task_id",
-        "style",
-        "sample_id",
-        "code",
-        "pass_status",
-    ],
-    "metrics_all.csv": [
-        "task_id",
-        "style",
-        "sample_id",
-        "ngram_entropy",
-        "ast_edit_distance",
-        "is_valid",
-    ],
-    "metrics_valid.csv": [
-        "task_id",
-        "style",
-        "sample_id",
-        "ngram_entropy",
-        "ast_edit_distance",
-    ],
-}
+REQUIRED_CSVS = [
+    "data/processed/samples_all.csv",
+    "data/processed/samples_valid.csv",
+    "data/processed/metrics_all.csv",
+    "data/processed/metrics_valid.csv"
+]
 
-def ensure_output_dirs(base_path: Optional[Path] = None) -> List[str]:
+def ensure_output_dirs(config: Optional[Dict[str, Any]] = None) -> bool:
     """
-    Create all required output directories if they do not exist.
+    Ensure all required output directories exist.
+    Creates them if they don't exist.
     
     Args:
-        base_path: Base project directory. Defaults to current working directory.
+        config: Optional config dict (not strictly needed for this function)
         
     Returns:
-        List of created directory paths.
+        True if all directories were created or already exist, False otherwise.
     """
-    if base_path is None:
-        base_path = Path.cwd()
-        
-    created_dirs = []
-    
-    for dir_name in REQUIRED_DIRS:
-        full_path = base_path / dir_name
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {full_path}")
-            created_dirs.append(str(full_path))
-        else:
-            logger.debug(f"Directory already exists: {full_path}")
-            
-    return created_dirs
+    try:
+        for dir_path in REQUIRED_DIRS:
+            path = Path(dir_path)
+            path.mkdir(parents=True, exist_ok=True)
+            logger.debug(f"Ensured directory: {path.absolute()}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to create directory: {e}")
+        return False
 
-def validate_csv_structure(file_path: Path, expected_headers: List[str]) -> Dict[str, Any]:
+def validate_csv_structure(file_path: str, expected_headers: List[str]) -> bool:
     """
-    Validate that a CSV file exists and has the expected structure.
+    Validate that a CSV file exists and has the expected header structure.
     
     Args:
-        file_path: Path to the CSV file.
-        expected_headers: List of expected column headers.
+        file_path: Path to the CSV file
+        expected_headers: List of expected header names
         
     Returns:
-        Dictionary with validation results:
-        - exists: bool
-        - valid_headers: bool
-        - row_count: int
-        - headers: List[str] (actual headers)
-        - errors: List[str]
+        True if file exists and headers match, False otherwise.
     """
-    result = {
-        "exists": False,
-        "valid_headers": False,
-        "row_count": 0,
-        "headers": [],
-        "errors": []
-    }
-    
-    if not file_path.exists():
-        result["errors"].append(f"File does not exist: {file_path}")
-        return result
-        
-    result["exists"] = True
+    path = Path(file_path)
+    if not path.exists():
+        logger.error(f"CSV file missing: {file_path}")
+        return False
     
     try:
-        with open(file_path, 'r', newline='', encoding='utf-8') as f:
+        with open(path, 'r', newline='', encoding='utf-8') as f:
             reader = csv.reader(f)
             headers = next(reader, None)
             
             if headers is None:
-                result["errors"].append("CSV file is empty (no headers)")
-                return result
-                
-            result["headers"] = headers
-            result["row_count"] = sum(1 for _ in reader)
+                logger.error(f"CSV file is empty: {file_path}")
+                return False
             
-            # Check if all expected headers are present
-            missing_headers = set(expected_headers) - set(headers)
-            extra_headers = set(headers) - set(expected_headers)
+            if set(headers) != set(expected_headers):
+                logger.error(f"CSV headers mismatch in {file_path}. Expected: {expected_headers}, Got: {headers}")
+                return False
             
-            if missing_headers:
-                result["errors"].append(f"Missing headers: {missing_headers}")
-            if extra_headers:
-                logger.warning(f"Extra headers found (not required): {extra_headers}")
-                
-            if not missing_headers:
-                result["valid_headers"] = True
-                
-    except Exception as e:
-        result["errors"].append(f"Error reading CSV: {str(e)}")
-        
-    return result
-
-def validate_all_artifacts(base_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Validate that all required CSV artifacts exist with correct structure.
-    
-    Args:
-        base_path: Base project directory. Defaults to current working directory.
-        
-    Returns:
-        Dictionary with validation results for all artifacts.
-    """
-    if base_path is None:
-        base_path = Path.cwd()
-        
-    results = {
-        "all_valid": True,
-        "artifacts": {}
-    }
-    
-    for csv_name, expected_headers in REQUIRED_CSVS.items():
-        csv_path = base_path / "data/processed" / csv_name
-        validation = validate_csv_structure(csv_path, expected_headers)
-        results["artifacts"][csv_name] = validation
-        
-        if not validation["exists"] or not validation["valid_headers"]:
-            results["all_valid"] = False
-            
-    return results
-
-def create_sample_csvs(base_path: Optional[Path] = None) -> Dict[str, Path]:
-    """
-    Create empty CSV files with correct headers if they don't exist.
-    This is a utility for initialization, not for actual data generation.
-    
-    Args:
-        base_path: Base project directory. Defaults to current working directory.
-        
-    Returns:
-        Dictionary mapping CSV names to their file paths.
-    """
-    if base_path is None:
-        base_path = Path.cwd()
-        
-    processed_dir = base_path / "data/processed"
-    ensure_output_dirs(base_path)
-    
-    created_files = {}
-    
-    for csv_name, expected_headers in REQUIRED_CSVS.items():
-        csv_path = processed_dir / csv_name
-        
-        if not csv_path.exists():
-            with open(csv_path, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                writer.writerow(expected_headers)
-            logger.info(f"Created empty CSV with headers: {csv_path}")
-        else:
-            logger.debug(f"CSV already exists: {csv_path}")
-            
-        created_files[csv_name] = csv_path
-        
-    return created_files
-
-def run_directory_validation(base_path: Optional[Path] = None) -> bool:
-    """
-    Run full validation of directory structure and CSV artifacts.
-    
-    Args:
-        base_path: Base project directory. Defaults to current working directory.
-        
-    Returns:
-        True if all validations pass, False otherwise.
-    """
-    if base_path is None:
-        base_path = Path.cwd()
-        
-    logger.info("Starting directory structure validation...")
-    
-    # Ensure directories exist
-    ensure_output_dirs(base_path)
-    
-    # Validate artifacts
-    validation_results = validate_all_artifacts(base_path)
-    
-    if validation_results["all_valid"]:
-        logger.info("All directory and CSV validations passed.")
         return True
-    else:
-        logger.error("Validation failed:")
-        for csv_name, result in validation_results["artifacts"].items():
-            if not result["exists"] or not result["valid_headers"]:
-                logger.error(f"  {csv_name}: {result['errors']}")
+    except Exception as e:
+        logger.error(f"Error validating CSV {file_path}: {e}")
         return False
 
-if __name__ == "__main__":
-    import sys
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+def validate_all_artifacts(config: Optional[Dict[str, Any]] = None) -> bool:
+    """
+    Validate that all required CSV artifacts exist and have correct structure.
     
-    base = Path.cwd()
-    if len(sys.argv) > 1:
-        base = Path(sys.argv[1])
+    Args:
+        config: Optional config dict
         
-    success = run_directory_validation(base)
-    sys.exit(0 if success else 1)
+    Returns:
+        True if all artifacts are valid, False otherwise.
+    """
+    all_valid = True
+    
+    # Define expected headers for each CSV based on pipeline requirements
+    csv_definitions = {
+        "data/processed/samples_all.csv": [
+            "task_id", "style", "sample_id", "code", "pass_status"
+        ],
+        "data/processed/samples_valid.csv": [
+            "task_id", "style", "sample_id", "code", "pass_status"
+        ],
+        "data/processed/metrics_all.csv": [
+            "task_id", "style", "metric_type", "value", "count"
+        ],
+        "data/processed/metrics_valid.csv": [
+            "task_id", "style", "metric_type", "value", "count"
+        ]
+    }
+    
+    for file_path, expected_headers in csv_definitions.items():
+        if not validate_csv_structure(file_path, expected_headers):
+            all_valid = False
+        else:
+            logger.info(f"Validated: {file_path}")
+    
+    if all_valid:
+        logger.info("All required CSV artifacts are present and valid.")
+    else:
+        logger.warning("Some required CSV artifacts are missing or invalid.")
+        
+    return all_valid
+
+def create_sample_csvs(config: Optional[Dict[str, Any]] = None) -> bool:
+    """
+    Create empty sample CSV files with correct headers if they don't exist.
+    This is a helper for initialization, not for populating data.
+    
+    Args:
+        config: Optional config dict
+        
+    Returns:
+        True if files were created or already exist, False otherwise.
+    """
+    if not ensure_output_dirs(config):
+        return False
+        
+    csv_definitions = {
+        "data/processed/samples_all.csv": ["task_id", "style", "sample_id", "code", "pass_status"],
+        "data/processed/samples_valid.csv": ["task_id", "style", "sample_id", "code", "pass_status"],
+        "data/processed/metrics_all.csv": ["task_id", "style", "metric_type", "value", "count"],
+        "data/processed/metrics_valid.csv": ["task_id", "style", "metric_type", "value", "count"]
+    }
+    
+    for file_path, headers in csv_definitions.items():
+        path = Path(file_path)
+        if not path.exists():
+            try:
+                with open(path, 'w', newline='', encoding='utf-8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(headers)
+                logger.info(f"Created empty CSV: {file_path}")
+            except Exception as e:
+                logger.error(f"Failed to create CSV {file_path}: {e}")
+                return False
+        else:
+            logger.debug(f"CSV already exists: {file_path}")
+            
+    return True
+
+def run_directory_validation(config: Optional[Dict[str, Any]] = None) -> bool:
+    """
+    Main entry point for directory and artifact validation.
+    Ensures directories exist and all required CSVs are valid.
+    
+    Args:
+        config: Optional config dict
+        
+    Returns:
+        True if validation passes, False otherwise.
+    """
+    logger.info("Running directory and artifact validation...")
+    
+    # Ensure directories exist
+    if not ensure_output_dirs(config):
+        logger.error("Failed to ensure output directories.")
+        return False
+        
+    # Validate existing artifacts
+    if not validate_all_artifacts(config):
+        logger.warning("Artifact validation failed. Some files may be missing or malformed.")
+        return False
+        
+    logger.info("Directory and artifact validation completed successfully.")
+    return True
+
+if __name__ == "__main__":
+    # Simple test runner for this module
+    logging.basicConfig(level=logging.INFO)
+    result = run_directory_validation()
+    if result:
+        print("Validation passed.")
+    else:
+        print("Validation failed.")
+        exit(1)

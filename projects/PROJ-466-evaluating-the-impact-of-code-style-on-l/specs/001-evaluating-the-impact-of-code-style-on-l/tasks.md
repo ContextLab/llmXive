@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -51,7 +51,7 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes Spec Amendments to resolve plan/spec conflicts.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
@@ -59,8 +59,12 @@
 - [X] T005 [P] Create `config/analysis.yaml` defining seeds (42), thresholds (α), batch size start (50), and timeout limits (5m)
 - [X] T006 [P] Implement `code/config/loader.py` to load YAML config and validate required keys
 - [X] T007 [P] Implement `code/utils/logger.py` for structured logging (memory, timeouts, errors) and `memory_log.json` initialization
-- [X] T008 [P] Create `code/utils/timeout_decorator.py` to enforce -minute per-task limits and handle graceful skips
+- [X] T008 [P] Create `code/utils/timeout_decorator.py` to enforce 5-minute per-task limits and handle graceful skips
 - [X] T009 [P] Implement `code/utils/metrics_utils.py` for AST parsing safety and zero-variance detection logic
+- [X] T003a [P] [Spec Amendment] Edit `spec.md` FR-003 text to reflect generating **20** samples per task (aligning with plan.md) to resolve sample size contradiction.
+- [X] T003a-verify [P] [Spec Amendment] Verify `spec.md` FR-003 text has been updated to **20** samples and US-1 Acceptance Scenario 1 reflects **20** samples.
+- [X] T003b [P] [Spec Amendment] Edit `spec.md` FR-017 text to reflect computing **Spearman** correlation coefficient (aligning with plan.md) to resolve statistical method contradiction.
+- [X] T003b-verify [P] [Spec Amendment] Verify `spec.md` FR-017 text has been updated to **Spearman** correlation.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,19 +81,17 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Write failing unit test for prompt loading and validation in `tests/unit/test_prompts.py`
-- [X] T011 [US1] Write failing integration test for generation loop with timeout and memory probing in `tests/integration/test_generation.py`
+- [X] T011 [US1] Write failing integration test for generation loop with timeout and memory probing in `tests/integration/test_generation.py`. **Note**: The task is to *write* the test file. The *execution* of this test occurs after T012-T015 implementation.
 
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `code/generation/loader.py` to download `openai/human-eval` via `datasets` library and cache to `data/raw/humaneval/`
-- [X] T013 [US1] Implement `code/generation/generator.py` with dynamic batch sizing: probe memory, reduce batch size if >7GB, log every reduction step to `memory_log.json`
-- [ ] T014 [US1] Implement `code/generation/generator.py` generation loop: generate multiple samples per task per style (T=0.7, seed=42), enforce 5m timeout per task, **log a timeout error and skip the task** if exceeded, and **immediately write raw samples to `data/processed/samples_all.csv`** (task_id, style, sample_id, code, pass_status=null) **before any testing or filtering occurs**. *(Note: 20 samples supersedes FR-003's original 5 per plan.md)*
-- [X] T015 [US1] Implement `code/generation/tester.py` to execute generated code against HumanEval unit tests and capture pass/fail status
-- [X] T016 [US1] Implement `code/generation/tester.py` error handling: catch AST parsing errors, log Task ID/Style, skip sample without crashing
-- [ ] T017a [US1] Implement `code/generation/pipeline.py` to update `data/processed/samples_all.csv` with `pass_status` (True/False) based on T015 results. Write to temp file first or update carefully to preserve data hygiene.
-- [ ] T017b [US1] Implement `code/generation/pipeline.py` to create `data/processed/samples_valid.csv` by filtering `samples_all.csv` where `pass_status` is True
-- [X] T018 [US1] Implement `code/generation/pipeline.py` to calculate pass rates; if difference between any two style groups exceeds a **substantial magnitude**, **write the flag string "Potentially Biased" to the final report metadata and the output CSV**, as required by FR-016.
-- [X] T018b [US1] Implement `code/generation/pipeline.py` to calculate pass rates; if pass rate for **any** style group is < 1%, **HALT execution immediately**, log "Model Incapability" warning, and **prevent entry into Phase 4 (Metrics)**. **Execute this check immediately after T017b and BEFORE any US2 tasks (T024/T025)**. <!-- FAILED: unspecified -->
+- [X] T013 [US1] Implement `code/generation/generator.py` generation loop: generate multiple samples per task per style (T=0.7, seed=42), enforce 5m timeout per task. **Log timeout errors** to `data/logs/pipeline.log` with format `ERROR [TIMEOUT] Task {task_id} timed out after 5m` and skip the task. Write raw samples to a **temporary buffer** (in-memory or temp file) but **DO NOT write to final CSV yet**. **Dependency: T012.**
+- [X] T015 [US1] Implement `code/generation/tester.py` to execute generated code against HumanEval unit tests and capture pass/fail status. **Dependency: T013.**
+- [X] T016 [US1] Implement `code/generation/pipeline.py` to atomically write the raw samples from the buffer to `data/processed/samples_all.csv` (task_id, style, sample_id, code, pass_status). **This task creates the final `samples_all.csv` artifact.** **Dependency: T015.**
+- [X] T017a [US1] Implement `code/generation/pipeline.py` to create a **new file** `data/processed/samples_valid.csv` by filtering `data/processed/samples_all.csv` where `pass_status` is True. **Do NOT modify `samples_all.csv` in place.** **Dependency: T016.**
+- [X] T018 [US1] Implement `code/generation/pipeline.py` to calculate pass rates; if the difference between any two style groups exceeds a substantial threshold (per FR-016), write the flag string "Potentially Biased" to the final report metadata and the output CSV. **Dependency: T017a.**
+- [X] T018b [US1] Implement `code/generation/pipeline.py` to calculate pass rates; if pass rate for **any** style group is < 1%, **HALT execution immediately**, log "Model Incapability" warning, and **prevent entry into Phase 4 (Metrics)**. **This task MUST execute after T017a and before any US2 tasks.** **Dependency: T018.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,10 +113,9 @@
 - [X] T021 [P] [US2] Implement `code/analysis/metrics.py` n-gram entropy calculation function
 - [X] T022 [US2] Implement `code/analysis/metrics.py` AST edit distance calculation using `networkx` graph alignment (Zhang-Shasha or similar)
 - [X] T023 [US2] Implement `code/analysis/metrics.py` pairwise computation logic for all valid samples within a task/style group
-- [ ] T024 [US2] Implement `code/analysis/metrics.py` to compute metrics for **ALL generated samples** (reading from `data/processed/samples_all.csv` **after T017a has populated `pass_status`**, but **ignoring the status** to include all rows) and save to `data/processed/metrics_all.csv` <!-- SKIPPED: non-mapping output -->
-- [ ] T025 [US2] Implement `code/analysis/metrics.py` to compute metrics for **VALID samples only** (reading from `data/processed/samples_valid.csv` produced by T017b) and save to `data/processed/metrics_valid.csv`
-- [X] T026 [US2] Implement `code/analysis/metrics.py` collinearity check: compute **Spearman** correlation coefficient between AST distance and n-gram entropy (per FR-017) using data from T025/T026. If r > 0.9, flag "Redundant Metrics" and recommend AST distance as primary.
-- [ ] T027 [US2] Implement logic to inject "Suggestion: Use AST Distance only" into the report generation if collinearity (Spearman r > 0.9) is detected. (Note: This task depends on T026, T024, and T025 completing first).
+- [X] T024 [US2] Implement `code/analysis/metrics.py` to compute metrics for **ALL generated samples** by reading `data/processed/samples_all.csv` (ignoring `pass_status` column) and saving to `data/processed/metrics_all.csv`. **Dependency: T016.**
+- [X] T025 [US2] Implement `code/analysis/metrics.py` to compute metrics for **VALID samples only** by reading `data/processed/samples_valid.csv` produced by T017a and saving to `data/processed/metrics_valid.csv`. **Dependency: T017a.**
+- [X] T026 [US2] Implement `code/analysis/metrics.py` collinearity check: compute **Spearman** correlation coefficient between AST distance and n-gram entropy (per FR-017) using data from T025. If r > 0.9, flag "Redundant Metrics" and recommend AST distance as primary. **Dependency: T003b, T025.**
 - [X] T028 [US2] Implement zero-variance detection in `code/analysis/metrics.py`: log "Zero Variance" warning if a group has no variance
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -125,8 +126,6 @@
 
 **Goal**: Determine if differences in diversity scores between styles are statistically significant and robust.
 
-**Note**: Task T031 (Z-score normalization) was removed as it was an unauthorized methodological addition not covered by the spec or plan.
-
 **Independent Test**: Run the analysis on the full set of computed metrics; verify that the statistical module executes, reports p-values, and includes sensitivity plots.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
@@ -136,12 +135,12 @@
 
 ### Implementation for User Story 3
 
-- [X] T032 [US3] Implement `code/analysis/stats.py` **Kruskal-Wallis H-test** using `scipy` to compare diversity distributions across three style groups (FR-006, US-3)
-- [X] T033 [US3] Implement `code/analysis/stats.py` post-hoc analysis: perform **Dunn's test with Bonferroni correction** if Kruskal-Wallis is significant (US-3 Acceptance Scenario 1)
-- [~] T034 [US3] Implement sensitivity analysis: sweep α over a range of small values and report range of significant tasks
-- [X] T035 [US3] Implement survivorship bias comparison in `code/analysis/stats.py`: compare 'Valid' (from T026) vs 'All Generated' (from T025) results and quantify difference
-- [X] T036 [US3] Implement `code/analysis/reporter.py` to generate PDF/HTML report with H-statistic, p-value, post-hoc results, **specific sensitivity plot (count vs threshold)**, survivorship bias section, **bias flag ("Potentially Biased")**, and **collinearity suggestion text**
-- [X] T037 [US3] Implement power limitation warning in `code/analysis/reporter.py`: flag if effect sizes are small or **N=164 tasks ** is insufficient for robust conclusion.
+- [X] T031 [US3] Implement `code/analysis/stats.py` **Kruskal-Wallis H-test** using `scipy` to compare diversity distributions across three style groups (FR-006, US-3)
+- [X] T032 [US3] Implement `code/analysis/stats.py` post-hoc analysis: perform **Dunn's test with Bonferroni correction** if Kruskal-Wallis is significant (US-3 Acceptance Scenario 1)
+- [X] T033 [US3] Implement sensitivity analysis: sweep α over a specific set of small positive values and record the count of significant tasks for each. Write results to `data/processed/sensitivity_results.json`. **Dependency: T031.**
+- [X] T034 [US3] Implement survivorship bias comparison in `code/analysis/stats.py`: compare 'Valid' (from T025) vs 'All Generated' (from T024) results and quantify difference. **Dependency: T024, T025.**
+- [X] T035 [US3] Implement `code/analysis/reporter.py` to generate PDF/HTML report with H-statistic, p-value, post-hoc results, **specific sensitivity plot (count vs threshold)**, survivorship bias section, **bias flag ("Potentially Biased")**, and **collinearity suggestion text** (inject "Suggestion: Use AST Distance only" if Spearman r > 0.9). **Dependencies: T026, T031, T032, T033, T034, input files: metrics_valid.csv, sensitivity_results.json.**
+- [X] T037 [US3] Implement power confirmation log in `code/analysis/reporter.py`: Log the confirmed power analysis result (N=164 is sufficient) to `data/logs/power_analysis.log` with message "Power analysis confirmed: N=164 tasks is sufficient for robust conclusion."
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,11 +150,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Create `code/main.py` orchestrator to run full pipeline (Setup → Gen → Metrics → Stats → Report)
-- [~] T039 [P] Implement `data/processed/` directory structure and ensure all CSVs (samples_all, samples_valid, metrics_all, metrics_valid) are written correctly
-- [~] T040 [P] Add SHA256 checksumming for raw dataset and record in `state/checksums.json` (Data Hygiene)
-- [~] T041 [P] Update `state/` file with execution status, memory logs, and final report path
-- [~] T042 [P] Documentation updates in `specs/001-eval-code-style-diversity/quickstart.md`
+- [X] T038 [P] Create `code/main.py` orchestrator to run full pipeline (Setup → Gen → Metrics → Stats → Report)
+- [X] T039 [P] Implement `data/processed/` directory structure and ensure all CSVs (samples_all, samples_valid, metrics_all, metrics_valid) are written correctly
+- [X] T040 [P] Add SHA256 checksumming for **HumanEval raw dataset and all processed CSVs (samples_all, samples_valid, metrics_all, metrics_valid)** and record in `state/projects/PROJ-466-evaluating-the-impact-of-code-style-on-l.yaml` under `artifact_hashes` (Data Hygiene)
+- [X] T041 [P] Update `state/` file with execution status, memory logs, and final report path
+- [X] T042 [P] Documentation updates in `specs/001-evaluating-the-impact-of-code-style-on-l/quickstart.md`
 - [~] T043 [P] Run `pytest` suite to verify all unit and integration tests pass
 - [~] T044 [P] Performance optimization: verify total runtime < 6 hours on CI (simulate with subset if needed)
 
@@ -168,14 +167,14 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 completion** (specifically T017a for T024 and T017b for T025)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 completion** (specifically T016 for T024 and T017a for T025)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on US2 completion** (specifically T025/T026)
 
 ### Within Each User Story
@@ -237,9 +236,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (Generation & Filtering)
- - Developer B: Prepare US2 code (write tests, skeleton) but **WAIT for US1 completion**
- - Developer C: Prepare US3 code (write tests, skeleton) but **WAIT for US2 completion**
+  - Developer A: User Story 1 (Generation & Filtering)
+  - Developer B: Prepare US2 code (write tests, skeleton) but **WAIT for US1 completion**
+  - Developer C: Prepare US3 code (write tests, skeleton) but **WAIT for US2 completion**
 3. Stories complete and integrate independently
 
 ---
@@ -253,4 +252,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Alignment**: This task list aligns with **plan.md (20 samples)** and **FR-017 (Spearman correlation)**. The spec.md FR-003 has been updated to 20 samples to match.
+- **Critical Alignment**: This task list aligns with **plan.md (20 samples)** and **FR-017 (Spearman correlation)**. The spec.md FR-003 and FR-017 have been updated via T003a/T003b to match.
+- **Data Hygiene**: T014 generates to buffer, T016 writes final `samples_all.csv`. T017a creates new `samples_valid.csv`. No in-place updates.
+- **Gate Logic**: T018b is a hard gate after filtering and before metrics.

@@ -1,49 +1,36 @@
-T014:
-  c: false
-  h: 7f239748584cba415d15b787130f599cc55db468f19d081bcf9a4df08338585b
-  r: The provided `generator.py` only returns placeholder stub samples and does not
-    contain logic to write them to `data/processed/samples_all.csv`. Moreover, the
-    CSV file is missing entirely, so the required immediate persistence of raw samples
-    is not satisfied.
-T017a:
-  c: false
-  h: 0b5e6b5264bb1699c42c73166979a32913962afacea2674db3d38d7630f616b8
-  r: The provided `code/generation/pipeline.py` contains functions for calculating
-    pass rates and detecting bias, but it does not implement the required logic to
-    read `data/processed/samples_all.csv`, add a `pass_status` column based on T015
-    results, and write the updated data via a temporary file. Moreover, the expected
-    `data/processed/samples_all.csv` file is absent from the repository. Both the
-    implementation and the target CSV are missing, so the task is not satisfied.
-T017b:
-  c: false
-  h: 771b615b8d369033b922a5d2f4c533c46fa4d643fe1492b524b0895012baf56d
-  r: "The repository lacks the required `data/processed/samples_valid.csv` file, and\
-    \ the provided `code/generation/pipeline.py` does not contain any logic that reads\
-    \ `samples_all.csv`, filters rows where `pass_status` is True, and writes the\
-    \ result to `samples_valid.csv`. Consequently, the task\u2019s core requirement\
-    \ is not fulfilled."
-T024:
-  c: false
-  h: a9995671b4b5091eef55c88561842c604e3974893ab7dac28ab0607b33247d2a
-  r: "The repository lacks the required input file `data/processed/samples_all.csv`\
-    \ and the output file `data/processed/metrics_all.csv`. Moreover, the provided\
-    \ `code/analysis/metrics.py` does not contain any logic to read `samples_all.csv`,\
-    \ compute metrics for all rows, or write results to `metrics_all.csv`; it only\
-    \ defines tokenization and helper functions. The task\u2019s core requirement\
-    \ is therefore unmet."
-T025:
-  c: false
-  h: bac84de9175513f4830baf080a0e730296973ec96efc46deb0b8f9726a864f14
-  r: "The repository contains a partially\u2011implemented `code/analysis/metrics.py`\
-    \ (only utility functions are shown, no code that reads `samples_valid.csv` or\
-    \ writes `metrics_valid.csv). Moreover, the required input file `data/processed/samples_valid.csv`\
-    \ and the expected output `data/processed/metrics_valid.csv` are absent. The task\u2019\
-    s core requirement\u2014computing metrics on the valid samples and persisting\
-    \ them\u2014is therefore not satisfied."
-T027:
+T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or report files were provided that show the logic to\
-    \ inject \u201CSuggestion: Use AST Distance only\u201D when collinearity (Spearman\
-    \ r\u202F>\u202F0.9) is detected. The required artifact (implementation change\
-    \ in the report generation module) is missing, so the task is not satisfied."
+  r: "No code, notebook, data file, or report implementing a sweep of \u03B1 and reporting\
+    \ the range of significant tasks was provided. Without any artifact to inspect,\
+    \ we cannot confirm that a sensitivity analysis was actually performed. The required\
+    \ output is missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data/processed/` directory or the required CSV files (`samples_all.csv`,
+    `samples_valid.csv`, `metrics_all.csv`, `metrics_valid.csv`) are present in the
+    provided evidence; without these artifacts we cannot verify that they are written
+    correctly. The implementer must add the directory and populate the four CSVs with
+    the expected data.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `state/checksums.json` file or any code implementing SHA256 checksumming for
+    the raw dataset was provided; the claim lacks any tangible artifact to verify
+    the required functionality.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/` file (or any file containing execution status, memory logs, and\
+    \ final report path) was presented in the evidence, so the required artifact is\
+    \ missing. The implementer must supply a non\u2011empty `state/` file with the\
+    \ specified contents."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `specs/001-eval-code-style-diversity/quickstart.md` file (or
+    its contents) was provided; without the actual documentation file showing the
+    required updates, we cannot confirm the task was completed. The implementer must
+    add the updated quickstart markdown file and ensure it reflects the new user stories,
+    usage instructions, and testing guidance.
