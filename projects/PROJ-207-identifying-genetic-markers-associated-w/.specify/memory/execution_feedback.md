@@ -8,14 +8,14 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Honeybee C…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Validation.  This module generates deterministic synthetic VCF and Phenotype data f…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…al biological data.  The synthetic data generation strictly adhe…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic colony data with CCD dia…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic SNP data associated with…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…None:     """     Write synthetic SNP data to VCF format.…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""Main function to generate synthetic data."""     parser = ar…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…umentParser(description="Generate synthetic VCF and phenotype data f…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…rt_path)          print("Synthetic data generation complete.")…”
-- code/01_download.py: synthetic/fake INPUT data not authorized by the spec — “…conditional fallback to synthetic data.  Requirements: - Reques…”
-- code/01_download.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Executes the synthetic data generation script as a f…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…None:     """     Write synthetic SNP data to VCF format.      VCF…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…ON report validating the synthetic data against FR-011.     """…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""Main function to generate synthetic VCF and phenotype data."…”
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
@@ -27,17 +27,10 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 17 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic colony data with CCD dia…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic SNP data associated with…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…None:     """     Write synthetic SNP data to VCF format.…”; 3 command(s) failed: python code/01_download.py (rc=1); python code/04_ml_validation.py (rc=2); python code/05_annotation.py (rc=1); 4 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/gwas_results_fdr.tsv
+**Summary**: 23 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Honeybee C…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Validation.  This module generates deterministic synthetic VCF and Phenotype data f…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…al biological data.  The synthetic data generation strictly adhe…”; 2 command(s) failed: python code/04_ml_validation.py (rc=2); python code/05_annotation.py (rc=1); 4 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/gwas_results_fdr.tsv
 
 ## Failing / missing run-book commands
 
-- python code/01_download.py -> rc=1
-    Checking SSL verification for https://www.ncbi.nlm.nih.gov/bioproject/PRJNA566029...
-Fetching data for BioProject PRJNA566029...
-
-Error fetching BioProject summary: 404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/bioproject/summary/PRJNA566029?format=json
-Error fetching data: 404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/bioproject/summary/PRJNA566029?format=json
-HALTING: Data fetch failed.
 - python code/04_ml_validation.py -> rc=2
     usage: 04_ml_validation.py [-h] --gwas GWAS --pheno PHENO --geno GENO
                            [--output-dir OUTPUT_DIR]

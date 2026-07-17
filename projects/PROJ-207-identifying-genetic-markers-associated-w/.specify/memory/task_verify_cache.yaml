@@ -1,3 +1,11 @@
+T022:
+  c: true
+  h: 4476c4784c16f898e26c1505694b28a369f6b0a139565419b3b066a95e532fbf
+  r: "The `code/04_apply_fdr.sh` script exists, is non\u2011empty, references the\
+    \ required input file, invokes `code/utils/fdr_correction.py` with `--input` and\
+    \ `--output` arguments, and writes results to `data/processed/gwas_results_fdr.tsv`.\
+    \ The supporting utility script is also present. No required artifact is missing\
+    \ for the creation task itself."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

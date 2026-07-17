@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
-This project implements a CPU-tractable Genome-Wide Association Study (GWAS) pipeline to identify SNPs associated with Colony Collapse Disorder (CCD) in *Apis mellifera*. Due to the unavailability of verified public genomic data with the required phenotype metadata, the **primary execution path** for this stage is a **Synthetic Validation Strategy**. The pipeline will generate simulated FASTQ reads, perform alignment (`bwa mem`), variant calling (`FreeBayes`), and association testing (`PLINK`) on synthetic data to validate the methodology. Real data ingestion (NCBI BioProject) is attempted first (FR-001) but will fall back to synthetic generation if verification fails. All steps are constrained to run on GitHub Actions free-tier (limited CPU, constrained RAM, 6h limit).
+This project implements a CPU-tractable Genome-Wide Association Study (GWAS) pipeline to identify SNPs associated with Colony Collapse Disorder (CCD) in *Apis mellifera*. Due to the unavailability of verified public genomic data with the required phenotype metadata, the **primary execution path** for this stage is a **Synthetic Validation Strategy**. The pipeline will generate simulated FASTQ reads, perform alignment (`bwa mem`), variant calling (`FreeBayes`), and association testing (`PLINK`) on synthetic data to validate the methodology. Real data ingestion (NCBI BioProject) is attempted first (FR-001) but will fall back to synthetic generation if verification fails. All steps are constrained to run on GitHub Actions free-tier (limited CPU, constrained RAM, time limit).
 
 ## Technical Context
 

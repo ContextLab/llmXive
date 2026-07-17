@@ -1,0 +1,9 @@
+{
+  "total_colonies": 100,
+  "ccd_count": 50,
+  "healthy_count": 50,
+  "total_snps": 1000,
+  "validation_criteria": "FR-011",
+  "validation_passed": true,
+  "errors": []
+}
