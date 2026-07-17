@@ -1,5 +1,6 @@
-# Core dependencies for the molecular flexibility project
-rdkit>=2023.9.1
+# Core dependencies for PROJ-266
+# Generated/Updated by T002
+rdkit>=2023.9.5
 pandas>=2.0.0
 scikit-learn>=1.3.0
 matplotlib>=3.7.0
@@ -10,4 +11,4 @@ scipy>=1.11.0
 pyyaml>=6.0
 pytest>=7.4.0
 black>=23.0.0
-flake8>=6.0.0
+flake8>=6.1.0

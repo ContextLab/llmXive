@@ -3,10 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "molecular-flexibility-caco2"
+name = "molecular-flexibility-permeability"
 version = "0.1.0"
 description = "Exploring the correlation between molecular flexibility and drug transport across cell membranes"
-readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "rdkit",
@@ -22,16 +21,16 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "flake8",
-    "black",
-    "pre-commit",
-    "pytest",
-    "pytest-cov",
+    "flake8>=7.0.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -44,17 +43,17 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | \.eggs
-    | \.egg-info
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["utils", "data"]
+skip_gitignore = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"

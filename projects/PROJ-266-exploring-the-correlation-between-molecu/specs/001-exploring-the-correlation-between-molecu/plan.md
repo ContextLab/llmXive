@@ -70,8 +70,8 @@ The following schema must be used in `state/projects/PROJ-266-exploring-the-corr
 spec_deviations:
   - id: "DEV-001"
     spec_requirement: "FR-003"
-    original_value: "50 conformers"
-    adapted_value: "20 conformers"
+    multiple conformers
+    A set of conformers will be generated for subsequent analysis, as adapted from prior methodology.
     rationale: "CPU feasibility on GitHub Actions free-tier"
     impact_assessment: "Potential loss of variance stability; mitigated by sensitivity analysis"
     approved_by: "Convergence Panel"

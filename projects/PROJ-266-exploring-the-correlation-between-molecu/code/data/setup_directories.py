@@ -1,10 +1,9 @@
 """
-Directory setup and checksum utility for the molecular flexibility project.
+Setup directory structure and checksum utilities for data integrity.
 
-This module provides functions to:
-1. Create the required directory structure (data/raw, data/processed).
-2. Compute SHA-256 checksums for data files.
-3. Generate a manifest of checksums for data integrity verification.
+This module creates the required data directories (data/raw, data/processed)
+and provides utilities to compute file checksums (SHA-256) for data integrity
+verification. This is a prerequisite for T009 and T010.
 """
 import hashlib
 import json
@@ -13,7 +12,7 @@ import sys
 from pathlib import Path
 from typing import Optional, List, Dict
 
-# Import logging utilities from the project's utils
+# Import logging utility from the project's existing API
 from utils.logging import get_logger, configure_root_logger
 from utils.config import get_project_root
 
@@ -22,152 +21,220 @@ logger = get_logger(__name__)
 
 def create_directories() -> Dict[str, Path]:
     """
-    Create the standard directory structure for the project.
-
+    Create the required data directory structure if they do not exist.
+    
+    Creates:
+        - data/raw/
+        - data/processed/
+        - data/interim/ (optional, for intermediate data)
+    
     Returns:
-        Dict[str, Path]: A dictionary mapping directory names to their Path objects.
+        Dict mapping directory names to their Path objects.
     """
-    project_root = get_project_root()
-    data_root = project_root / "data"
-
+    root = get_project_root()
+    data_root = root / "data"
+    
     directories = {
         "raw": data_root / "raw",
         "processed": data_root / "processed",
+        "interim": data_root / "interim",
         "figures": data_root / "figures",
     }
-
+    
+    created = []
     for name, path in directories.items():
         if not path.exists():
             path.mkdir(parents=True, exist_ok=True)
             logger.info(f"Created directory: {path}")
+            created.append(name)
         else:
             logger.debug(f"Directory already exists: {path}")
-
+    
+    if created:
+        logger.info(f"Created {len(created)} new directories.")
+    else:
+        logger.info("All required directories already exist.")
+        
     return directories
 
 
 def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
     """
-    Compute the checksum of a file.
-
+    Compute the checksum of a file using the specified algorithm.
+    
     Args:
         file_path: Path to the file to checksum.
         algorithm: Hash algorithm to use (default: sha256).
-
+    
     Returns:
-        str: The hexadecimal digest of the file.
-
+        Hexadecimal string of the checksum.
+    
     Raises:
         FileNotFoundError: If the file does not exist.
         ValueError: If the algorithm is not supported.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-
+    
     hash_func = hashlib.new(algorithm)
+    
     try:
         with open(file_path, "rb") as f:
             # Read in chunks to handle large files
             for chunk in iter(lambda: f.read(8192), b""):
                 hash_func.update(chunk)
-    except IOError as e:
+    except Exception as e:
         logger.error(f"Error reading file {file_path}: {e}")
         raise
-
+    
     return hash_func.hexdigest()
 
 
 def generate_checksum_manifest(
     directory: Path,
     output_path: Optional[Path] = None,
-    recursive: bool = True
+    algorithm: str = "sha256"
 ) -> Dict[str, str]:
     """
     Generate a manifest of checksums for all files in a directory.
-
+    
+    Recursively scans the directory and computes checksums for all files.
+    
     Args:
-        directory: The directory to scan.
-        output_path: Optional path to write the JSON manifest.
-        recursive: Whether to scan subdirectories.
-
+        directory: Path to the directory to scan.
+        output_path: Optional path to write the JSON manifest. If None, 
+                    the manifest is not written to disk.
+        algorithm: Hash algorithm to use.
+    
     Returns:
-        Dict[str, str]: A dictionary mapping relative file paths to their checksums.
+        Dict mapping relative file paths to their checksums.
+    
+    Raises:
+        NotADirectoryError: If the provided path is not a directory.
     """
-    if not directory.exists():
-        raise FileNotFoundError(f"Directory not found: {directory}")
-
+    if not directory.is_dir():
+        raise NotADirectoryError(f"Not a directory: {directory}")
+    
     manifest = {}
-    files: List[Path] = []
-
-    if recursive:
-        files = list(directory.rglob("*"))
-    else:
-        files = list(directory.iterdir())
-
-    # Filter for files only
-    files = [f for f in files if f.is_file()]
-
-    logger.info(f"Scanning {len(files)} files in {directory}...")
-
-    for file_path in files:
-        try:
-            # Use relative path from the target directory for the manifest
-            rel_path = file_path.relative_to(directory)
-            checksum = compute_file_checksum(file_path)
-            manifest[str(rel_path)] = checksum
-            logger.debug(f"Checksummed: {rel_path} -> {checksum[:16]}...")
-        except Exception as e:
-            logger.warning(f"Failed to checksum {file_path}: {e}")
-
+    file_count = 0
+    
+    logger.info(f"Scanning directory for checksums: {directory}")
+    
+    for file_path in directory.rglob("*"):
+        if file_path.is_file():
+            # Skip hidden files and temporary files
+            if file_path.name.startswith(".") or file_path.name.endswith(".tmp"):
+                continue
+            
+            try:
+                checksum = compute_file_checksum(file_path, algorithm)
+                rel_path = str(file_path.relative_to(directory))
+                manifest[rel_path] = checksum
+                file_count += 1
+            except Exception as e:
+                logger.warning(f"Failed to checksum {file_path}: {e}")
+    
+    logger.info(f"Generated checksum manifest for {file_count} files.")
+    
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(manifest, f, indent=2)
-        logger.info(f"Manifest written to: {output_path}")
-
+            json.dump(manifest, f, indent=2, sort_keys=True)
+        logger.info(f"Wrote checksum manifest to: {output_path}")
+    
     return manifest
+
+
+def verify_checksums(
+    manifest_path: Path,
+    base_directory: Optional[Path] = None,
+    algorithm: str = "sha256"
+) -> bool:
+    """
+    Verify file checksums against a manifest.
+    
+    Args:
+        manifest_path: Path to the JSON manifest file.
+        base_directory: Base directory for relative paths in the manifest.
+                       Defaults to the parent of the manifest file.
+        algorithm: Hash algorithm used for the checksums.
+    
+    Returns:
+        True if all files match their checksums, False otherwise.
+    """
+    if not manifest_path.exists():
+        logger.error(f"Manifest file not found: {manifest_path}")
+        return False
+    
+    if base_directory is None:
+        base_directory = manifest_path.parent
+    
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+    
+    all_valid = True
+    total_files = len(manifest)
+    valid_count = 0
+    
+    logger.info(f"Verifying {total_files} files against manifest...")
+    
+    for rel_path, expected_checksum in manifest.items():
+        file_path = base_directory / rel_path
+        
+        if not file_path.exists():
+            logger.error(f"File missing: {file_path}")
+            all_valid = False
+            continue
+        
+        try:
+            actual_checksum = compute_file_checksum(file_path, algorithm)
+            if actual_checksum == expected_checksum:
+                valid_count += 1
+            else:
+                logger.error(f"Checksum mismatch for {file_path}: "
+                           f"expected {expected_checksum}, got {actual_checksum}")
+                all_valid = False
+        except Exception as e:
+            logger.error(f"Error verifying {file_path}: {e}")
+            all_valid = False
+    
+    logger.info(f"Verification complete: {valid_count}/{total_files} files valid.")
+    return all_valid
 
 
 def main() -> int:
     """
-    Main entry point for the directory setup and checksum utility.
-
+    Main entry point for the setup directories and checksum utility.
+    
     This function:
-    1. Creates the required directory structure.
-    2. Generates a checksum manifest for the 'data' directory if it contains files.
-    3. Prints the results to the console.
-
+    1. Creates the required data directories.
+    2. Generates a checksum manifest for any existing files in the data directory.
+    
     Returns:
-        int: Exit code (0 for success, 1 for failure).
+        Exit code (0 for success, 1 for failure).
     """
-    configure_root_logger()
-    logger.info("Starting directory setup and checksum generation...")
-
     try:
-        # 1. Create directories
-        dirs = create_directories()
-        logger.info(f"Directory structure ready: {list(dirs.keys())}")
-
-        # 2. Generate manifest for the data root if files exist
-        data_root = dirs["raw"].parent
+        # Configure logging
+        configure_root_logger()
+        
+        logger.info("Starting data directory setup and checksum generation...")
+        
+        # Create directories
+        directories = create_directories()
+        
+        # Generate checksum manifest for the entire data directory
+        data_root = get_project_root() / "data"
         manifest_path = data_root / "checksum_manifest.json"
-
-        # Check if there are any files to checksum
-        has_files = any(data_root.rglob("*"))
-        if has_files:
-            logger.info("Generating checksum manifest for data directory...")
-            manifest = generate_checksum_manifest(data_root, output_path=manifest_path)
-            logger.info(f"Manifest contains {len(manifest)} entries.")
+        
+        if data_root.exists():
+            manifest = generate_checksum_manifest(data_root, manifest_path)
+            logger.info(f"Checksum manifest contains {len(manifest)} entries.")
         else:
-            logger.info("No files found in data directory. Skipping manifest generation.")
-            # Create an empty manifest if the directory is new
-            with open(manifest_path, "w", encoding="utf-8") as f:
-                json.dump({}, f, indent=2)
-            logger.info(f"Created empty manifest at: {manifest_path}")
-
+            logger.warning("Data root directory does not exist. Skipping checksum generation.")
+        
         logger.info("Setup complete.")
         return 0
-
+        
     except Exception as e:
         logger.error(f"Setup failed: {e}", exc_info=True)
         return 1

@@ -57,11 +57,12 @@
 
 - [X] T004 Implement `code/utils/config.py` for random seeds, paths, and constants
 - [X] T005 [P] Implement `code/utils/logging.py` for standardized logging
-- [X] T006 [P] [US0] Implement `code/utils/generate_transparency_report.py` script. **Requirement**: This script must be created now to generate the "Computational Method Transparency" section for `research.md` at execution time. The script must read the deviation record (`state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`) and execution logs (produced by later tasks) to output version-controlled computational artifacts (scripts and raw values) to `data/` and `code/` as mandated by Constitution Principle VI. The script itself is the deliverable; its execution occurs in Phase N (T026).
+- [X] T006a [US0] Update the existing spec deviation record in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` with ID DEV-001. **Requirement**: This task MUST populate the pre-existing schema defined in `plan.md` under "Spec Deviation & Governance" for the RDKit vs. PyVib substitution. Do NOT create a new record; update the existing one to ensure metadata consistency. This record must be created BEFORE T006 runs. **Dependency**: This task is NOT parallel-safe ([P] removed) and must complete before T006 to ensure the deviation record exists.
+- [X] T006 [US0] Implement `code/utils/generate_transparency_report.py` script. **Requirement**: This script must be created now to generate the "Computational Method Transparency" section for `research.md` at execution time. The script reads the deviation record (`state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`) created by T006a. **Error Handling**: The script MUST handle the case where the deviation record is missing or empty (e.g., if T006a hasn't run yet) by logging a warning and proceeding with default values or halting gracefully, rather than crashing. **Dependency**: This task depends on T006a completion to ensure the deviation record exists before reading. Do NOT mark as [P].
 - [ ] T007 Create base data schemas in `specs/001-molecular-flexibility-permeability/contracts/` (dataset.schema.yaml, analysis_output.schema.yaml)
-- [ ] T008 Setup directory structure for `data/raw/` and `data/processed/` with checksum generation utility
+- [ ] T008 Setup directory structure for `data/raw/` and `data/processed/` with checksum generation utility. **Note**: This utility is a prerequisite for T009 and T010 to ensure data integrity.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel. T008 provides the checksum utility required by T009/T010 for data integrity.
 
 ---
 
@@ -90,12 +91,13 @@
 
 ### Implementation for User Story 2
 
-- [X] T013 [US2] Implement `code/data/descriptors.py` to generate 3D conformer ensembles using RDKit. **Requirement**: Generate a sufficient number of conformers per molecule as per Plan.md Deviation DEV-001 (overriding Spec FR-003's 50 due to CPU feasibility). **Constraint**: If the full dataset exceeds memory limits, implement a static sampling strategy to select the first N molecules (up to a practical upper limit) to ensure the *output* contains ≥450 valid descriptors. The sampling must be deterministic (e.g., first N rows) and logged, not based on molecular weight.
-- [X] T013b [US2] Implement error handling and logging in `code/data/descriptors.py` for conformer generation failures. **Requirement**: Log any molecule where 20-conformer generation fails (e.g., stereochemistry issues) and skip it. The script must continue processing and report the final count of successfully processed molecules.
-- [X] T014a [US2] Implement torsional variance calculation for **bond, angle, and dihedral** (in rad²) in `code/data/descriptors.py`. **Requirement**: Compute ALL three variance components as mandated by FR-004. **Note**: While dihedral variance is the primary predictor for the regression model (FR-007), bond and angle variances are REQUIRED outputs for dataset completeness per FR-004 and will be stored in the output file.
+- [X] T013a [US2] Implement `code/data/descriptors.py` to generate 3D conformer ensembles using RDKit. **Requirement**: Generate 20 conformers per molecule as per Plan.md Deviation ID: **DEV-001** (overriding Spec FR-003's 50 due to CPU feasibility). **Traceability**: Explicitly reference Deviation ID **DEV-001** from `plan.md` in code comments and logs. **Dependency**: This task assumes the deviation record created in T006a exists. **Note**: This task implements the ADAPTED requirement (20 conformers) documented in DEV-001, not the original Spec FR-003 (50 conformers).
+- [X] T013b [US2] Implement random sampling strategy in `code/data/descriptors.py` to select molecules if the dataset exceeds memory limits. **Requirement**: Use a fixed random seed for deterministic, unbiased sampling (e.g., `numpy.random.seed(...)` and `numpy.random.choice`). **Constraint**: The output must contain ≥450 valid descriptors. The sampling rule (which split, how many rows, seed) must be logged.
+- [X] T013c [US2] Implement error handling and logging in `code/data/descriptors.py` for conformer generation failures. **Requirement**: Log any molecule where 20-conformer generation fails (e.g., stereochemistry issues) and skip it. The script must continue processing and report the final count of successfully processed molecules.
+- [X] T014a [US2] Implement torsional variance calculation for **dihedral** (in rad²) in `code/data/descriptors.py`. **Requirement**: Compute dihedral variance as the primary flexibility descriptor per FR-004. Bond and angle variances are computed as intermediate steps for dataset completeness but are not the primary output for the regression model.
 - [X] T014b [P] [US2] Implement outlier flagging logic in `code/data/descriptors.py` using the interquartile range method (IQR > 1.5 × Q1) for the computed variance columns.
 - [X] T014c [P] [US2] Implement output formatting in `code/data/descriptors.py` to save results as a CSV/Parquet file with explicit columns: `smiles`, `bond_variance`, `angle_variance`, `dihedral_variance` (primary), and `is_outlier`.
-- [X] T015 [US2] Implement `code/data/analysis.py` to compute Pearson and Spearman correlations between **each** flexibility descriptor (bond, angle, dihedral) and logPapp with p-values. **Note**: All three correlations are computed for completeness, but the primary hypothesis focuses on dihedral_variance.
+- [X] T015 [US2] Implement `code/data/analysis.py` to compute Pearson and Spearman correlations between **dihedral_variance** (primary) and logPapp with p-values. **Note**: Bond and angle variances are also correlated for completeness, but the primary hypothesis focuses on dihedral_variance.
 - [X] T016 [US2] Implement Benjamini-Hochberg FDR correction in `code/data/analysis.py` for multiple hypothesis testing (q < 0.05).
 - [X] T017 [P] [US2] Write unit tests for conformer generation and variance calculation in `tests/test_descriptors.py`.
 - [X] T018 [P] [US2] Write unit tests for correlation and FDR logic in `tests/test_analysis.py`.
@@ -112,12 +114,14 @@
 
 ### Implementation for User Story 3
 
-- [X] T019 [US3] Implement multivariate linear regression model in `code/data/analysis.py` using **all computed flexibility descriptors** (bond, angle, dihedral) as predictors and confounders (logP, MW, PSA, rotatable bonds). **Requirement**: The model MUST utilize the full set of flexibility descriptors (bond, angle, dihedral variance) as computed in T013/T014, not the full NMA suite. If collinearity is detected (VIF > 5), apply Ridge regression or drop the least significant descriptor, but document the exclusion. The primary hypothesis focuses on dihedral_variance, but the model construction must accept and process the full descriptor set.
-- [X] T020 [US3] Implement scaffold-based cross-validation in `code/data/analysis.py` to assess generalizability.
-- [X] T021 [US3] Implement VIF (Variance Inflation Factor) diagnosis for predictor collinearity in `code/data/analysis.py`.
-- [X] T022a [US3] Implement scatter plot logic in `code/data/analysis.py` to generate plots with regression line and confidence interval.
-- [X] T022b [P] [US3] Implement output formatting in `code/data/analysis.py` to save the scatter plot as PNG with metadata dpi ≥ 300.
-- [ ] T023 [US3] Ensure all outputs explicitly state "associational" (not causal) in documentation and plot titles (FR-009).
+- [X] T019a [US3] Implement multivariate linear regression model in `code/data/analysis.py` using **dihedral_variance** as the primary predictor and confounders (logP, MW, PSA). **Requirement**: The model MUST utilize the flexibility descriptor computed in T013/T014. **Constraint**: Strictly adhere to FR-007 confounders: **logP, MW, PSA**. Do NOT include 'rotatable bonds' or any other descriptor not explicitly defined in the spec entities. If collinearity is detected (VIF > 5), apply Ridge regression or drop the least significant descriptor, but document the exclusion.
+- [X] T019b [US3] Implement VIF (Variance Inflation Factor) diagnosis for predictor collinearity in `code/data/analysis.py`.
+- [X] T019c [US3] Implement Ridge regression fallback logic in `code/data/analysis.py` to handle collinearity when VIF > 5.
+- [ ] T020 [US3] Implement scaffold-based cross-validation in `code/data/analysis.py` to assess generalizability.
+- [ ] T022a [US3] Implement scatter plot logic in `code/data/analysis.py` to generate plots with regression line and confidence interval.
+- [ ] T022b [P] [US3] {{claim:c_242e4378}}
+- [ ] T023a [US3] Update `code/data/visualize.py` and `code/data/analysis.py` plot titles to explicitly state "Associational Relationship" (not causal) as required by FR-009. **Verification**: Grep for "associational" in generated PNG metadata and code comments.
+- [ ] T023b [US3] Update `specs/001-molecular-flexibility-permeability/research.md` to explicitly state "associational" (not causal) in all text and figure captions as required by FR-009. **Verification**: Grep for "associational" in research.md.
 - [ ] T024 [P] [US3] Write integration tests for the full analysis pipeline in `tests/test_analysis.py`.
 - [ ] T025 [P] [US3] Write contract tests for `analysis_output.schema.yaml` in `tests/contract/test_analysis.py`.
 
@@ -129,11 +133,18 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T026 [P] Update `specs/001-molecular-flexibility-permeability/research.md` with final results, methodology justification, and explicit documentation of the "Computational Method Transparency" decision (RDKit vs PyVib) as required by Constitution Principle VI and Plan constraints. **Execution**: Run the script created in T006 (`code/utils/generate_transparency_report.py`) to generate the narrative section dynamically from the deviation record and execution logs.
+- [ ] T026a [P] Update `specs/001-molecular-flexibility-permeability/research.md` with final results, methodology justification, and explicit documentation of the "Computational Method Transparency" decision (RDKit vs PyVib) as required by Constitution Principle VI and Plan constraints.
+- [ ] T026b [P] Execute the script created in T006 (`code/utils/generate_transparency_report.py`) to generate the narrative section dynamically from the deviation record and execution logs.
 - [ ] T027 [P] Update `specs/001-molecular-flexibility-permeability/plan.md` to reflect any deviations or confirmed constraints.
 - [ ] T028 Refactor `code/data/analysis.py` to reduce cyclomatic complexity < 10.
-- [ ] T029 Optimize `code/data/descriptors.py` to ensure total runtime ≤ 6 hours on CPU-only runner.
-- [ ] T030 Run `quickstart.md` validation.
+- [ ] T029 [P] Run benchmark on a representative sample of molecules to verify total runtime estimate. **Requirement**: Execute the full pipeline on a representative subset of molecules and extrapolate to the full dataset. **Enforcement Logic**: If estimated runtime > 6 hours:
+ 1. Calculate N_new = N_current * (6h / estimated_time), round down to nearest 50.
+ 2. Update `plan.md` sampling threshold to N_new.
+ 3. Re-run benchmark.
+ 4. Repeat this loop up to 3 times.
+ 5. If runtime still > 6h after 3 iterations, escalate to `human_input_needed`.
+ **Pass Criteria**: Estimated runtime ≤ 6 hours or documented escalation.
+- [ ] T030 Execute `quickstart.md` instructions end-to-end. **Requirement**: Verify `data/processed/descriptors.csv` exists with ≥450 rows. **Pass Criteria**: Script runs without errors and produces the expected output file.
 
 ---
 
@@ -165,7 +176,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T006a and T006**. T006a must complete before T006. T006a is NOT parallel-safe with T006.
 - Once Foundational phase completes, US1, US2, and US3 can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 
@@ -228,6 +239,14 @@ With multiple developers:
 - **Crucial**: All tasks must run on free CPU-only CI with limited CPU resources, constrained RAM, and no GPU. No 8-bit/4-bit quantization or large model training.
 - **Data Integrity**: All data must be real (ChEMBL API) or fetched via verified Python packages. No synthetic/fake data generation.
 - **Spec Deviation**: Conformer ensemble size is fixed per Plan.md to ensure CPU feasibility (DEV-001). Spec FR-003's 50 conformers is overridden by this approved deviation.
-- **Model Scope**: The multivariate model (T019) must use all computed flexibility descriptors (bond, angle, dihedral) as per FR-007, with collinearity handling (VIF) documented.
-- **Documentation**: Research narratives (T006, T026) must be generated dynamically from logs and deviation records via the script created in T006, not hardcoded.
-- **Removed Scope**: Phase 4.5 (Scaling Analysis) has been removed as it was not authorized by spec.md or plan.md.
+- **Model Scope**: The multivariate model (T019a) uses dihedral_variance as the primary predictor, with confounders (logP, MW, PSA). Collinearity handling (VIF, Ridge) is documented. **Note**: 'rotatable bonds' has been removed from confounders to strictly adhere to FR-007.
+- **Documentation**: Research narratives (T026a, T026b) must be generated dynamically from logs and deviation records via the script created in T006, not hardcoded.
+- **Removed Scope**: Phase 5.5 (Scaling Analysis) has been removed as it was not authorized by spec.md or plan.md. This resolves the scope creep violation.
+- **Reviewer Response**: Addressed panel concerns regarding:
+ 1. Removed unapproved Phase 5.5 (Scaling Analysis) entirely.
+ 2. Restored T006a to explicitly create/update the DEV-001 record before T006 reads it, and removed [P] tag to ensure ordering.
+ 3. Clarified T013a to explicitly reference Deviation ID DEV-001.
+ 4. Enhanced T029 with deterministic fallback logic for 6-hour runtime limit.
+ 5. Removed 'rotatable bonds' from T019a confounder list.
+ 6. Fixed contradictory 'Removed Scope' notes.
+ 7. Clarified dependency ordering for T006/T006a and added error handling for missing records.

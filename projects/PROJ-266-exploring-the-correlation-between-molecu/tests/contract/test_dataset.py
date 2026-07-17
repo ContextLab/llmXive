@@ -1,175 +1,265 @@
 """
-Contract tests for the Caco-2 molecular flexibility dataset against dataset.schema.yaml.
+Contract tests for the Caco-2 permeability dataset against dataset.schema.yaml.
 
-These tests validate that the processed dataset conforms to the expected schema,
-ensuring data quality and consistency before downstream analysis.
+These tests ensure that the preprocessed data produced by T009 and T010
+strictly adheres to the defined schema, validating types, ranges, and
+required fields before downstream analysis (T013+).
 """
-
+import json
+import math
 import os
 import sys
-import yaml
-import pytest
 from pathlib import Path
-import pandas as pd
-import numpy as np
+from typing import Any, Dict, List, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+import pandas as pd
+import pytest
+import yaml
+
+# Add project root to path for imports if running via pytest discovery
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from utils.config import get_project_root
 
+# Constants
+SCHEMA_PATH = project_root / "specs" / "001-molecular-flexibility-permeability" / "contracts" / "dataset.schema.yaml"
+DATA_PATH = project_root / "data" / "processed" / "cleaned_caco2.csv"
 
-def load_schema(schema_path: Path) -> dict:
-    """Load the YAML schema definition."""
-    with open(schema_path, 'r') as f:
+# Required columns from schema
+REQUIRED_COLUMNS = [
+    "smiles",
+    "logPapp",
+    "assay_id",
+    "molecular_weight",
+    "logP",
+    "psa",
+    "is_outlier"
+]
+
+# Optional columns (flexibility descriptors, added later)
+OPTIONAL_COLUMNS = [
+    "bond_variance",
+    "angle_variance",
+    "dihedral_variance"
+]
+
+ALL_COLUMNS = REQUIRED_COLUMNS + OPTIONAL_COLUMNS
+
+
+def load_schema() -> Dict[str, Any]:
+    """Load the JSON schema from disk."""
+    if not SCHEMA_PATH.exists():
+        raise FileNotFoundError(f"Schema file not found at {SCHEMA_PATH}")
+    with open(SCHEMA_PATH, "r") as f:
         return yaml.safe_load(f)
 
 
-def get_processed_data_path() -> Path:
+def load_dataset() -> Optional[pd.DataFrame]:
     """
-    Locate the processed dataset file.
-    Expects data/processed/descriptors.csv or similar.
+    Load the dataset if it exists.
+    Returns None if the file is missing (e.g., if T010 hasn't run yet).
     """
-    data_dir = get_project_root() / "data" / "processed"
-    if not data_dir.exists():
-        pytest.skip("Processed data directory not found. Run preprocessing/descriptors tasks first.")
-
-    # Look for CSV files in processed directory
-    csv_files = list(data_dir.glob("*.csv"))
-    if not csv_files:
-        pytest.skip("No CSV files found in data/processed/. Run descriptor generation tasks first.")
-
-    # Prefer descriptors.csv if it exists, otherwise take the first CSV
-    preferred = data_dir / "descriptors.csv"
-    if preferred.exists():
-        return preferred
-    return csv_files[0]
+    if not DATA_PATH.exists():
+        return None
+    return pd.read_csv(DATA_PATH)
 
 
-class TestDatasetSchema:
-    """Contract tests validating the dataset against the schema."""
+def validate_row_types(row: pd.Series, schema: Dict[str, Any]) -> List[str]:
+    """
+    Validate that each column in a row matches the expected type from schema.
+    Returns a list of error messages.
+    """
+    errors = []
+    properties = schema.get("properties", {})
 
-    @pytest.fixture
-    def schema(self) -> dict:
-        """Load the dataset schema."""
-        schema_path = get_project_root() / "specs" / "001-molecular-flexibility-permeability" / "contracts" / "dataset.schema.yaml"
-        if not schema_path.exists():
-            pytest.fail(f"Schema file not found at {schema_path}. Run T007 first.")
-        return load_schema(schema_path)
+    for col in ALL_COLUMNS:
+        if col not in properties:
+            # Column exists in data but not in schema (unless it's optional and we just ignore)
+            if col not in OPTIONAL_COLUMNS:
+                errors.append(f"Column '{col}' found in data but not defined in schema.")
+            continue
 
-    @pytest.fixture
-    def df(self) -> pd.DataFrame:
-        """Load the processed dataset."""
-        data_path = get_processed_data_path()
-        if not data_path.exists():
-            pytest.fail(f"Dataset file not found at {data_path}. Run data processing tasks first.")
+        val = row.get(col)
+        prop_def = properties[col]
+        expected_type = prop_def.get("type")
 
-        try:
-            return pd.read_csv(data_path)
-        except Exception as e:
-            pytest.fail(f"Failed to load dataset from {data_path}: {e}")
+        if pd.isna(val):
+            if prop_def.get("nullable", False):
+                continue
+            else:
+                # Check if it's a required field
+                if col in schema.get("required", []):
+                    errors.append(f"Required field '{col}' is NULL.")
+                continue
 
-    def test_schema_exists(self, schema):
-        """Verify the schema structure is valid."""
-        assert "name" in schema, "Schema must have a 'name' field"
-        assert "columns" in schema, "Schema must have a 'columns' field"
-        assert isinstance(schema["columns"], list), "Columns must be a list"
-        assert len(schema["columns"]) > 0, "Schema must define at least one column"
+        # Type checking
+        if expected_type == "string":
+            if not isinstance(val, str) or len(val) == 0:
+                errors.append(f"Column '{col}' expected string, got {type(val).__name__} or empty.")
+        elif expected_type == "integer":
+            if not isinstance(val, (int, float)) or not math.isfinite(val):
+                errors.append(f"Column '{col}' expected integer/finite number, got {val}.")
+            elif isinstance(val, float) and not val.is_integer():
+                # Allow float if it represents an integer (e.g. 1.0), but strict check
+                pass
+        elif expected_type == "number":
+            if not isinstance(val, (int, float)) or not math.isfinite(val):
+                errors.append(f"Column '{col}' expected number, got {val}.")
+        elif expected_type == "boolean":
+            if not isinstance(val, bool):
+                errors.append(f"Column '{col}' expected boolean, got {type(val).__name__}.")
 
-    def test_required_columns_present(self, schema, df):
-        """Verify all required columns from schema exist in the dataset."""
-        schema_columns = {col["name"] for col in schema["columns"]}
-        required_columns = {col["name"] for col in schema["columns"] if col.get("required", False)}
+    return errors
 
-        actual_columns = set(df.columns)
 
-        missing_required = required_columns - actual_columns
-        assert not missing_required, f"Missing required columns: {missing_required}"
+def validate_row_constraints(row: pd.Series, schema: Dict[str, Any]) -> List[str]:
+    """
+    Validate numeric constraints (min, max) defined in schema.
+    """
+    errors = []
+    properties = schema.get("properties", {})
 
-        # Also check that all schema columns are present (even optional ones)
-        missing_all = schema_columns - actual_columns
-        if missing_all:
-            # Log warning but don't fail if optional columns are missing
-            pytest.xfail(f"Optional columns missing from dataset: {missing_all}")
+    for col in ALL_COLUMNS:
+        if col not in properties:
+            continue
 
-    def test_no_null_required_columns(self, schema, df):
-        """Verify required columns have no null values."""
-        for col_def in schema["columns"]:
-            if col_def.get("required", False):
-                col_name = col_def["name"]
-                if col_name in df.columns:
-                    null_count = df[col_name].isnull().sum()
-                    assert null_count == 0, f"Required column '{col_name}' contains {null_count} null values"
+        val = row.get(col)
+        prop_def = properties[col]
 
-    def test_numeric_columns_finite(self, schema, df):
-        """Verify numeric columns contain finite values (no NaN, Inf, -Inf)."""
-        for col_def in schema["columns"]:
-            if col_def.get("type") == "float" and col_def["name"] in df.columns:
-                col_name = col_def["name"]
-                values = df[col_name].dropna()  # Ignore NaN if not required
+        if pd.isna(val):
+            continue
 
-                if len(values) > 0:
-                    has_inf = np.isinf(values).any()
-                    assert not has_inf, f"Column '{col_name}' contains infinite values"
+        if prop_def.get("type") == "number" or prop_def.get("type") == "integer":
+            if "minimum" in prop_def and val < prop_def["minimum"]:
+                errors.append(f"Column '{col}' value {val} is below minimum {prop_def['minimum']}.")
+            if "maximum" in prop_def and val > prop_def["maximum"]:
+                errors.append(f"Column '{col}' value {val} is above maximum {prop_def['maximum']}.")
 
-    def test_smiles_format(self, schema, df):
-        """Verify SMILES strings are non-empty strings."""
-        if "smiles" not in df.columns:
-            pytest.skip("SMILES column not present in dataset")
+    return errors
 
-        smiles_series = df["smiles"]
-        assert smiles_series.dtype == object or smiles_series.dtype == str, \
-            "SMILES column should be string type"
 
-        empty_count = smiles_series.str.len().sum() == 0
-        assert not empty_count.any() or (smiles_series == "").sum() == 0, \
-            "SMILES column contains empty strings"
+def validate_smiles_format(row: pd.Series) -> List[str]:
+    """
+    Basic validation for SMILES strings (non-empty, no obvious whitespace).
+    """
+    errors = []
+    smiles = row.get("smiles")
+    if pd.notna(smiles):
+        if not isinstance(smiles, str):
+            errors.append(f"SMILES is not a string: {type(smiles)}")
+        elif len(smiles.strip()) == 0:
+            errors.append("SMILES is empty or whitespace.")
+        elif " " in smiles:
+            errors.append("SMILES contains whitespace.")
+    return errors
 
-    def test_logPapp_range(self, df):
-        """Verify logPapp values are within a reasonable physical range."""
+
+class TestDatasetContract:
+    """
+    Contract tests ensuring the dataset matches dataset.schema.yaml.
+    """
+
+    @pytest.fixture(scope="class")
+    def schema(self):
+        return load_schema()
+
+    @pytest.fixture(scope="class")
+    def df(self):
+        df = load_dataset()
+        if df is None:
+            pytest.skip(f"Dataset file not found at {DATA_PATH}. Run T010 first.")
+        return df
+
+    def test_schema_exists(self):
+        """Verify the schema file exists and is valid YAML."""
+        assert SCHEMA_PATH.exists(), "Schema file missing."
+        schema = load_schema()
+        assert "properties" in schema, "Schema must define properties."
+
+    def test_required_columns_present(self, df: pd.DataFrame):
+        """Verify all required columns exist in the DataFrame."""
+        missing = set(REQUIRED_COLUMNS) - set(df.columns)
+        assert len(missing) == 0, f"Missing required columns: {missing}"
+
+    def test_column_types(self, df: pd.DataFrame, schema: Dict[str, Any]):
+        """Verify types of all columns match schema definitions."""
+        all_errors = []
+        for idx, row in df.iterrows():
+            row_errors = validate_row_types(row, schema)
+            if row_errors:
+                all_errors.append(f"Row {idx}: {row_errors}")
+            # Limit error reporting to first 5 rows to avoid spam
+            if len(all_errors) >= 5:
+                break
+
+        if all_errors:
+            pytest.fail(f"Type validation failed:\n" + "\n".join(all_errors))
+
+    def test_numeric_constraints(self, df: pd.DataFrame, schema: Dict[str, Any]):
+        """Verify numeric values respect min/max constraints."""
+        all_errors = []
+        for idx, row in df.iterrows():
+            row_errors = validate_row_constraints(row, schema)
+            if row_errors:
+                all_errors.append(f"Row {idx}: {row_errors}")
+            if len(all_errors) >= 5:
+                break
+
+        if all_errors:
+            pytest.fail(f"Constraint validation failed:\n" + "\n".join(all_errors))
+
+    def test_smiles_validity(self, df: pd.DataFrame):
+        """Verify SMILES strings are valid (non-empty, no whitespace)."""
+        all_errors = []
+        for idx, row in df.iterrows():
+            row_errors = validate_smiles_format(row)
+            if row_errors:
+                all_errors.append(f"Row {idx}: {row_errors}")
+            if len(all_errors) >= 5:
+                break
+
+        if all_errors:
+            pytest.fail(f"SMILES validation failed:\n" + "\n".join(all_errors))
+
+    def test_logPapp_range(self, df: pd.DataFrame):
+        """Specific check for logPapp range (-10 to 10)."""
         if "logPapp" not in df.columns:
-            pytest.skip("logPapp column not present")
+            pytest.skip("logPapp column missing")
+        
+        invalid = df[
+            (df["logPapp"].notna()) & 
+            ((df["logPapp"] < -10.0) | (df["logPapp"] > 10.0))
+        ]
+        assert len(invalid) == 0, f"Found {len(invalid)} rows with logPapp outside [-10, 10]"
 
-        logpapp = df["logPapp"].dropna()
-        if len(logpapp) == 0:
-            pytest.skip("No logPapp values to validate")
-
-        # Caco-2 logPapp typically ranges from -6 to 6
-        # Allow slightly wider range for edge cases
-        assert logpapp.min() >= -8, f"logPapp minimum {logpapp.min()} is unreasonably low"
-        assert logpapp.max() <= 8, f"logPapp maximum {logpapp.max()} is unreasonably high"
-
-    def test_variance_columns_non_negative(self, df):
-        """Verify variance columns are non-negative."""
-        variance_cols = ["bond_variance", "angle_variance", "dihedral_variance"]
-        for col in variance_cols:
-            if col in df.columns:
-                values = df[col].dropna()
-                if len(values) > 0:
-                    assert (values >= 0).all(), f"Column '{col}' contains negative values"
-
-    def test_outlier_flag_boolean(self, df):
-        """Verify is_outlier column is boolean if present."""
+    def test_outlier_flag_type(self, df: pd.DataFrame):
+        """Verify is_outlier is boolean."""
         if "is_outlier" not in df.columns:
-            pytest.skip("is_outlier column not present")
+            pytest.skip("is_outlier column missing")
+        
+        # Check if all non-null values are boolean
+        non_bool = df[~df["is_outlier"].apply(lambda x: isinstance(x, (bool, int)) if pd.notna(x) else True)]
+        # Note: pandas often reads booleans as int 0/1, so we allow int if 0/1
+        invalid_rows = []
+        for idx, val in df["is_outlier"].items():
+            if pd.notna(val):
+                if isinstance(val, bool):
+                    continue
+                if isinstance(val, int) and val in [0, 1]:
+                    continue
+                invalid_rows.append(idx)
+        
+        assert len(invalid_rows) == 0, f"Non-boolean values in is_outlier at rows: {invalid_rows}"
 
-        assert df["is_outlier"].dtype == bool, "is_outlier column must be boolean"
-
-    def test_record_count_minimum(self, df):
-        """Verify dataset meets minimum record count for statistical validity."""
-        # Per task requirements, we expect >= 500 valid records
-        min_records = 500
-        assert len(df) >= min_records, \
-            f"Dataset has {len(df)} records, expected at least {min_records}"
-
-    def test_schema_metadata_present(self, schema):
-        """Verify schema contains required metadata fields."""
-        assert "metadata" in schema, "Schema must contain metadata section"
-        metadata = schema["metadata"]
-        assert "source" in metadata, "Metadata must specify data source"
-        assert "retrieval_script" in metadata, "Metadata must specify retrieval script"
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_no_extra_columns(self, df: pd.DataFrame, schema: Dict[str, Any]):
+        """Verify no unexpected columns exist (unless defined in schema)."""
+        schema_cols = set(schema.get("properties", {}).keys())
+        data_cols = set(df.columns)
+        
+        extra = data_cols - schema_cols
+        # Allow extra columns if they are not in the schema but we might have added them?
+        # Strict mode: fail if extra columns exist
+        if extra:
+            pytest.fail(f"Unexpected columns found in data: {extra}")

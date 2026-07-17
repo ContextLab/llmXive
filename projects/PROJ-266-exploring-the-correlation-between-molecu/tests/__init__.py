@@ -1,3 +1,3 @@
 """
-Test suite for the molecular flexibility research pipeline.
+Test suite for llmXive project
 """

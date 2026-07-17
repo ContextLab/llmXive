@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline - Molecular Flexibility & Permeability
+llmXive Project Source Code Package
 """

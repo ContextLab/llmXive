@@ -1,79 +1,52 @@
-# Dataset Schema for Caco-2 Permeability and Molecular Flexibility
-# This schema defines the expected structure for the processed dataset
-# used in the correlation analysis between molecular flexibility and drug transport.
-
-name: caco2_molecular_flexibility_dataset
-version: 1.0.0
-description: >
-  Processed dataset containing Caco-2 permeability measurements (logPapp)
-  and molecular flexibility descriptors (bond, angle, dihedral variance).
-
-columns:
-  - name: smiles
+$schema: http://json-schema.org/draft-07/schema#
+title: Caco-2 Permeability Dataset Schema
+description: Schema for the preprocessed Caco-2 permeability dataset used in molecular flexibility analysis.
+type: object
+required:
+  - smiles
+  - logPapp
+  - assay_id
+  - molecular_weight
+  - logP
+  - psa
+  - is_outlier
+properties:
+  smiles:
     type: string
-    required: true
-    description: Canonical SMILES string of the molecule
-    constraints:
-      - not_null
-      - valid_smiles
-
-  - name: logPapp
-    type: float
-    required: true
-    description: Logarithm of the apparent permeability coefficient (cm/s)
-    constraints:
-      - not_null
-      - finite
-
-  - name: assay_id
-    type: string
-    required: false
-    description: ChEMBL assay identifier
-
-  - name: mol_id
-    type: string
-    required: false
-    description: ChEMBL molecule identifier
-
-  - name: standard_value
-    type: string
-    required: false
-    description: Original standard value string from ChEMBL
-
-  - name: standard_units
-    type: string
-    required: false
-    description: Units of the standard value
-
-  - name: bond_variance
-    type: float
-    required: false
-    description: Variance of bond lengths across conformer ensemble (Å²)
-    constraints:
-      - finite
-
-  - name: angle_variance
-    type: float
-    required: false
-    description: Variance of bond angles across conformer ensemble (rad²)
-    constraints:
-      - finite
-
-  - name: dihedral_variance
-    type: float
-    required: false
-    description: Variance of dihedral angles across conformer ensemble (rad²)
-    constraints:
-      - finite
-
-  - name: is_outlier
+    description: Canonical SMILES string of the molecule.
+    minLength: 1
+  assay_id:
+    type: integer
+    description: Unique ChEMBL assay identifier.
+  logPapp:
+    type: number
+    description: Log10 of the apparent permeability coefficient (cm/s).
+    minimum: -10.0
+    maximum: 10.0
+  molecular_weight:
+    type: number
+    description: Molecular weight in g/mol.
+    minimum: 0.0
+  logP:
+    type: number
+    description: Octanol-water partition coefficient (calculated).
+  psa:
+    type: number
+    description: Polar Surface Area (Å²).
+    minimum: 0.0
+  is_outlier:
     type: boolean
-    required: false
-    description: Flag indicating if the record is an outlier based on IQR method
-
-metadata:
-  source: ChEMBL REST API
-  retrieval_script: code/data/retrieval.py
-  preprocessing_script: code/data/preprocessing.py
-  descriptor_script: code/data/descriptors.py
-  generated_at: "ISO8601 timestamp"
+    description: Flag indicating if the record is an outlier based on IQR method.
+  bond_variance:
+    type: number
+    description: Variance of bond lengths across conformers (Å²).
+    nullable: true
+  angle_variance:
+    type: number
+    description: Variance of bond angles across conformers (rad²).
+    nullable: true
+  dihedral_variance:
+    type: number
+    description: Variance of dihedral angles across conformers (rad²). Primary flexibility metric.
+    nullable: true
+additionalProperties: false

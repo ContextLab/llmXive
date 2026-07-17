@@ -1,3 +1,3 @@
 """
-Data retrieval, preprocessing, descriptor calculation, and analysis modules.
+Data module for llmXive project
 """

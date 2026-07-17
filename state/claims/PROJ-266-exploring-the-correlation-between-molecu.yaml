@@ -1,0 +1,548 @@
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Examples include test tasks
+  claim_id: c_018388b7
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:00:04Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Tasks grouped by user story for independent implementation and testing
+  claim_id: c_18aa0a61
+  context: 'Organization: Tasks are grouped by user story to enable independent implementation
+    and testing of each story.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_grouped_by_user_story_for_independent_implementation_a
+  kind: entity_fact
+  raw_text: Tasks are grouped by user story to enable independent implementation and
+    testing of each story.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:00:47Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Retrieval script output contains 500 valid records from raw batch of
+    600
+  claim_id: c_2d2df21f
+  context: "**Independent Test**: Execute retrieval script and verify output contains\
+    \ \u2265500 valid records with non-NULL SMILES and logPapp from a raw batch of\
+    \ \u2265600."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Independent Test: Execute retrieval script and verify output contains\
+    \ \u2265500 valid records with non-NULL SMILES and logPapp from a raw batch of\
+    \ \u2265600."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:00:47Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Fetch 600 raw Caco-2 records from ChEMBL REST API
+  claim_id: c_b3408ba5
+  context: "- [X] T009 [US1] Implement `code/data/retrieval.py` to fetch \u2265600\
+    \ raw Caco-2 records from ChEMBL REST API (assay_type = Caco-2, standard_type\
+    \ = MEASUREMENT) with exponential backoff"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/data/retrieval.py` to fetch \u2265600 raw Caco-2 records\
+    \ from ChEMBL REST API"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:00:48Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Process 50 molecules to compute 450 valid flexibility descriptors and
+    produce correlation coefficient with p-values
+  claim_id: c_98c46f8c
+  context: "**Independent Test**: Process a sample of 50 molecules and verify \u2265\
+    450 valid flexibility descriptors are computed and at least one correlation coefficient\
+    \ is produced with p-values."
+  evidence:
+    candidates:
+    - - Process 50 molecules to compute
+      - 450.0
+    - - Donate Create account Log in Process
+      - 50.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Process_50_molecules_to_compute_450_valid_flexibility_descri
+  kind: magnitude
+  raw_text: "Independent Test: Process a sample of 50 molecules and verify \u2265\
+    450 valid flexibility descriptors are computed and at least one correlation coefficient\
+    \ is produced with p-values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-17T15:01:35Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Output must contain 450 valid descriptors
+  claim_id: c_d9c045e4
+  context: "- [ ] T013b [US2] Implement random sampling strategy in `code/data/descriptors.py`\
+    \ to select molecules if the dataset exceeds memory limits. **Requirement**: Use\
+    \ a fixed random seed for deterministic, unbiased sampling (e.g., `numpy.random.seed(...)`\
+    \ and `numpy.random.choice`). **Constraint**: The output must contain \u2265450\
+    \ valid descriptors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The output must contain \u2265450 valid descriptors."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:01:36Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Outlier flagging using IQR > 1.5 times Q1
+  claim_id: c_b8da157b
+  context: "- [ ] T014b [P] [US2] Implement outlier flagging logic in `code/data/descriptors.py`\
+    \ using the interquartile range method (IQR > 1.5 \xD7 Q1) for the computed variance\
+    \ columns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement outlier flagging logic in `code/data/descriptors.py` using\
+    \ the interquartile range method (IQR > 1.5 \xD7 Q1) for the computed variance\
+    \ columns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:01:36Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction for multiple hypothesis testing with
+    q < 0.05
+  claim_id: c_7721aa65
+  context: '- [ ] T016 [US2] Implement Benjamini-Hochberg FDR correction in `code/data/analysis.py`
+    for multiple hypothesis testing (q < 0.05).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Benjamini-Hochberg FDR correction in `code/data/analysis.py`
+    for multiple hypothesis testing (q < 0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:01:36Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Apply Ridge regression if VIF > 5
+  claim_id: c_4b54d65a
+  context: '- [ ] T019a [US3] Implement multivariate linear regression model in `code/data/analysis.py`
+    using **dihedral_variance** as the primary predictor and confounders (logP, MW,
+    PSA). **Requirement**: The model MUST utilize the flexibility descriptor computed
+    in T013/T014. **Constraint**: Strictly adhere to FR-007 confounders: **logP, MW,
+    PSA**. Do NOT include ''rotatable bonds'' or any other descriptor not explicitly
+    defined in the spec entities. If collinearity is detected (VIF > 5), apply Ridge
+    regression or drop the least significant descriptor, but document the exclusion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If collinearity is detected (VIF > 5), apply Ridge regression or drop
+    the least significant descriptor, but document the exclusion.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:01:36Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Save scatter plot as PNG with dpi >= 300
+  claim_id: c_242e4378
+  context: "- [ ] T022b [P] [US3] Implement output formatting in `code/data/analysis.py`\
+    \ to save the scatter plot as PNG with metadata dpi \u2265 300."
+  evidence:
+    asserted: '300.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement output formatting in `code/data/analysis.py` to save the scatter\
+    \ plot as PNG with metadata dpi \u2265 300."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T15:01:36Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Verify data/processed/descriptors.csv exists with 450 rows
+  claim_id: c_911202cf
+  context: "- [ ] T030 Execute `quickstart.md` instructions end-to-end. **Requirement**:\
+    \ Verify `data/processed/descriptors.csv` exists with \u2265450 rows. **Pass Criteria**:\
+    \ Script runs without errors and produces the expected output file."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify `data/processed/descriptors.csv` exists with \u2265450 rows."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:01:36Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Calculate N_new if estimated runtime > 6 hours
+  claim_id: c_0700a562
+  context: '- [ ] T029 [P] [US3] Run benchmark on a representative sample of molecules
+    to verify total runtime estimate. **Requirement**: Execute the full pipeline on
+    a representative subset of molecules and extrapolate to the full dataset. **Enforcement
+    Logic**: If estimated runtime > 6 hours: 1. Calculate N_new = N_current * (6h
+    / estimated_time), round down to nearest 50.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If estimated runtime > 6 hours: Calculate N_new = N_current * (6h / estimated_time),
+    round down to nearest 50.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:02:02Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Repeat loop up to 3 times
+  claim_id: c_85c3cae1
+  context: 4. Repeat this loop up to 3 times.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat this loop up to 3 times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:02:16Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Escalate to human input needed if runtime > 6h after 3 iterations
+  claim_id: c_7e0c76ec
+  context: 5. If runtime still > 6h after 3 iterations, escalate to `human_input_needed`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If runtime still > 6h after 3 iterations, escalate to `human_input_needed`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:02:16Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Estimated runtime <= 6 hours or documented escalation
+  claim_id: c_1030e253
+  context: "**Pass Criteria**: Estimated runtime \u2264 6 hours or documented escalation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pass Criteria: Estimated runtime \u2264 6 hours or documented escalation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:02:16Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Caco-2 dataset retrieval yields at least 500 valid records from a raw
+    batch of at least 600
+  claim_id: c_2ac76d74
+  context: "Independent Test: Execute retrieval script and verify output contains\
+    \ \u2265500 valid records with non-NULL SMILES and logPapp from a raw batch of\
+    \ \u2265600."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Caco-2_dataset_retrieval_yields_at_least_500_valid_records_f
+  kind: magnitude
+  raw_text: "Execute retrieval script and verify output contains \u2265500 valid records\
+    \ with non-NULL SMILES and logPapp from a raw batch of \u2265600."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:12:24Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Molecular flexibility descriptor generation yields at least 450 valid
+    descriptors
+  claim_id: c_2d629db4
+  context: "Requirement: Use a fixed random seed for deterministic, unbiased sampling\
+    \ (e.g., `numpy.random.seed(...)` and `numpy.random.choice`). **Constraint**:\
+    \ The output must contain \u2265450 valid descriptors. The sampling rule (which\
+    \ split, how many rows, seed) must be logged."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Molecular_flexibility_descriptor_generation_yields_at_least
+  kind: magnitude
+  raw_text: "The output must contain \u2265450 valid descriptors."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:12:48Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Final processed descriptors file contains at least 450 rows
+  claim_id: c_8180a127
+  context: "Requirement: Verify `data/processed/descriptors.csv` exists with \u2265\
+    450 rows. **Pass Criteria**: Script runs without errors and produces the expected\
+    \ output file."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_processed_descriptors_file_contains_at_least_450_rows
+  kind: magnitude
+  raw_text: "Verify `data/processed/descriptors.csv` exists with \u2265450 rows."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:13:00Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime benchmark threshold is 6 hours
+  claim_id: c_c9a9adc7
+  context: 'Execute the full pipeline on a representative subset of molecules and
+    extrapolate to the full dataset. **Enforcement Logic**: If estimated runtime >
+    6 hours: 1. Calculate N_new...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Execute the full pipeline on a representative subset of molecules and
+    extrapolate to the full dataset. **Enforcement Logic**: If estimated runtime >
+    6 hours'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:13:00Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Collinearity threshold for VIF is 5
+  claim_id: c_2bc8b23a
+  context: If collinearity is detected (VIF > 5), apply Ridge regression or drop the
+    least significant descriptor, but document the exclusion.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Ridge regression or drop the least significant descriptor if collinearity
+    is detected (VIF > 5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:13:00Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Outlier flagging uses IQR threshold of 1.5
+  claim_id: c_465f05fb
+  context: "Implement outlier flagging logic in `code/data/descriptors.py` using the\
+    \ interquartile range method (IQR > 1.5 \xD7 Q1) for the computed variance columns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement outlier flagging logic using the interquartile range method\
+    \ (IQR > 1.5 \xD7 Q1) for the computed variance columns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:13:00Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction threshold is q < 0.05
+  claim_id: c_e7dbf09c
+  context: Implement Benjamini-Hochberg FDR correction in `code/data/analysis.py`
+    for multiple hypothesis testing (q < 0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Benjamini-Hochberg FDR correction for multiple hypothesis testing
+    (q < 0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:13:00Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity threshold is 10
+  claim_id: c_7d175087
+  context: Refactor `code/data/analysis.py` to reduce cyclomatic complexity < 10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor `code/data/analysis.py` to reduce cyclomatic complexity < 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:13:00Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: fetch 600 raw Caco-2 records from ChEMBL
+  claim_id: c_16f72029
+  context: "Implement `code/data/retrieval.py` to fetch \u2265600 raw Caco-2 records\
+    \ from ChEMBL REST API (assay_type = Caco-2, standard_type = MEASUREMENT) with\
+    \ exponential backoff"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "fetch \u2265600 raw Caco-2 records from ChEMBL REST API"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:18:28Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: 500 valid records with non-NULL SMILES and logPapp from raw batch of
+    600
+  claim_id: c_84df5dbe
+  context: "Independent Test: Execute retrieval script and verify output contains\
+    \ \u2265500 valid records with non-NULL SMILES and logPapp from a raw batch of\
+    \ \u2265600."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "output contains \u2265500 valid records with non-NULL SMILES and logPapp\
+    \ from a raw batch of \u2265600"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:18:28Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: generate 20 conformers per molecule
+  claim_id: c_f3dfb833
+  context: 'Generate 20 conformers per molecule as per Plan.md Deviation ID: DEV-001
+    (overriding Spec FR-003''s 50 due to CPU feasibility).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 20 conformers per molecule
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:18:57Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: output contain 450 valid descriptors
+  claim_id: c_d6e4ce6b
+  context: "Constraint: The output must contain \u2265450 valid descriptors. The sampling\
+    \ rule (which split, how many rows, seed) must be logged."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "output must contain \u2265450 valid descriptors"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:18:57Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: IQR greater than 1.5 times Q1
+  claim_id: c_75c1ef74
+  context: "Implement outlier flagging logic in `code/data/descriptors.py` using the\
+    \ interquartile range method (IQR > 1.5 \xD7 Q1) for the computed variance columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/IQR_greater_than_1.5_times_Q1
+  kind: magnitude
+  raw_text: "IQR > 1.5 \xD7 Q1"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:19:37Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: estimated runtime 6 hours
+  claim_id: c_6e3b44ec
+  context: "Pass Criteria: Estimated runtime \u2264 6 hours or documented escalation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Estimated runtime \u2264 6 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:19:37Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: descriptors.csv exists with 450 rows
+  claim_id: c_63af95a0
+  context: "Requirement: Verify `data/processed/descriptors.csv` exists with \u2265\
+    450 rows. Pass Criteria: Script runs without errors and produces the expected\
+    \ output file."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify `data/processed/descriptors.csv` exists with \u2265450 rows"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T15:19:37Z'

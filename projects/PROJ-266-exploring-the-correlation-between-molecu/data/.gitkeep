@@ -1,2 +1,2 @@
-# This file ensures the data directory exists in version control.
-# The setup_directories.py script will populate this with raw/ and processed/ subdirectories.
+# Data directory - contains raw, processed, and external data files
+# This file ensures the directory is tracked by git
