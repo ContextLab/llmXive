@@ -1,24 +1,61 @@
-# Ruff configuration for PROJ-512
-# This file is a legacy alias; prefer [tool.ruff] in pyproject.toml
-# Keeping this for compatibility with older CI runners that might look for .ruff.toml
+# Ruff configuration for llmXive: Predicting Molecular Permeability of Polymers
+# Enforces strict linting rules for reproducibility and code quality.
 
-target-version = "py311"
-line-length = 100
-
+[lint]
+# Select specific rule sets
 select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade (modern Python syntax)
+    "RUF", # Ruff-specific rules
 ]
 
+# Ignore specific rules that might be too strict for research code
 ignore = [
-    "E501",
-    "B008",
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in dataclasses)
 ]
 
-[per-file-ignores]
-"tests/*" = ["S101"]
+# Allow automatic fixes for safe rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude standard build artifacts and data directories
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    "data/raw",
+    "data/processed",
+    "models",
+    "evaluation/results",
+]
+
+[lint.per-file-ignores]
+# Allow unused imports in __init__.py files for cleaner public API exposure
+"**/__init__.py" = ["F401"]
+# Allow magic numbers in tests for clarity
+"tests/**/*.py" = ["PLR2004"]
+
+[lint.isort]
+# Enforce consistent import ordering
+known-first-party = ["data", "models", "evaluation"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[lint.pydocstyle]
+convention = "google"
+
+[format]
+# Ensure line length matches black (88 is default, but we use 88)
+line-length = 88
+indent-width = 4
+quote-style = "double"
+skip-magic-trailing-comma = false
+
+[build]
+# Ensure consistent target version
+target-version = "py311"
