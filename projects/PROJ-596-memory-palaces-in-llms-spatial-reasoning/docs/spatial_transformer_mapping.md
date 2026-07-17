@@ -1,49 +1,65 @@
 # Formal Mapping: Spatial "Rooms" to Transformer Components
 
-This document addresses the concern raised by John von Neumann regarding the lack of a rigorous definition of the mapping function between the proposed "spatial coordinates" and the transformer's attention mechanism. It formalizes the architectural correspondence between the cognitive metaphor of "Memory Palaces" (rooms) and the mathematical operations within the transformer model.
+## Overview
 
-## 1. Conceptual Framework
+This document provides the rigorous architectural mapping between the conceptual
+"Memory Palace" spatial rooms and the concrete components of the transformer
+architecture. It addresses the concern raised by John von Neumann regarding the
+distinction between *order* (the program/logic) and *storage* (the physical
+location of data), ensuring that the spatial indexing mechanism is formally
+defined rather than metaphorical.
 
-In the proposed architecture, the "Memory Palace" is not a physical structure but a learned, high-dimensional latent space organized by explicit coordinate assignments. The "rooms" are conceptual regions within this space, defined by the distribution of attention heads and the resulting key-value pairings.
+## 1. Conceptual Abstraction vs. Implementation Reality
 
-## 2. Component Mapping
+| Conceptual "Memory Palace" Element | Transformer Component | Formal Mapping Logic |
+|:--- |:--- |:--- |
+| **The Palace (Global Context)** | **Model Hidden State ($H \in \mathbb{R}^{L \times d}$)** | The entire sequence of hidden states represents the total accessible memory space. |
+| **A Room (Spatial Zone)** | **Attention Head Subspace ($H_{head}$)** | Specific attention heads are trained to specialize in retrieving memories from specific "spatial" regions defined by coordinate embeddings. |
+| **A Room Number (Coordinate)** | **Positional Embedding + Learned Slot Vector** | A room is not a physical address but a vector sum: $E_{room} = P_{pos} + V_{slot}$. |
+| **The Doorway (Access Point)** | **Query Vector ($Q$)** | The query vector acts as the "key" that unlocks the specific room by attending to the corresponding slot vector. |
+| **Items on Shelves (Content)** | **Value Vectors ($V$)** | The actual information stored in the "room" is encoded in the value projections of the tokens residing in that spatial zone. |
+| **Walking Path (Traversal)** | **Self-Attention Mechanism** | The attention mechanism computes the path, determining which "rooms" are relevant to the current context. |
 
-The following table details the formal mapping between the spatial metaphor and the transformer components as implemented in `code/models/spatial.py` and `code/models/memory_slot.py`.
+## 2. The Addressing Function: From Coordinates to Attention Scores
 
-| Spatial Metaphor | Transformer Component | Mathematical Formalism | Implementation Reference |
-|:--- |:--- |:--- |:--- |
-| **The Palace (Global Space)** | **Latent Embedding Space** | $\mathcal{E} \subset \mathbb{R}^d$ | `code/models/memory_slot.py` (`MemoryGrid`) |
-| **Room (Specific Region)** | **Attention Head / Subspace** | $h_i \in \mathbb{R}^{d_k}$ | `code/models/spatial.py` (`soft_addressed_retrieve`) |
-| **Coordinate (Address)** | **Query Vector ($Q$)** | $Q = X W_Q$ | `code/models/spatial.py` |
-| **Furniture (Content)** | **Value Vector ($V$)** | $V = X W_V$ | `code/models/spatial.py` |
-| **Proximity (Similarity)** | **Dot-Product Attention** | $\text{Attention}(Q, K, V) = \text{softmax}(\frac{QK^T}{\sqrt{d_k}})V$ | `code/models/spatial.py` (`compute_cosine_similarity`) |
-| **Distance Metric** | **Cosine Similarity / Euclidean** | $d(x, y) = 1 - \frac{x \cdot y}{\|x\|\|y\|}$ | `code/models/spatial.py` (`compute_cosine_similarity`) |
-| **Navigation (Retrieval)** | **Soft-Addressed Retrieval** | $\sum_i \alpha_i v_i$ where $\alpha_i = \text{softmax}(\text{sim}(q, k_i))$ | `code/models/spatial.py` (`soft_addressed_retrieve`) |
-| **Memory Slot** | **Key-Value Pair** | $(k_i, v_i)$ | `code/models/memory_slot.py` (`MemorySlot`) |
+The core of the "spatial reasoning" is the mapping function $f: \text{Coordinates} \to \text{Attention Weights}$.
 
-## 3. The Addressing Function
+### 2.1. Coordinate Encoding
+Each episodic chunk is assigned a 2D coordinate $(x, y)$ in the memory grid (see `code/models/memory_slot.py`).
+This coordinate is projected into the embedding space:
+$$
+E_{coord}(x, y) = \text{Linear}(\sin(\omega_x x), \cos(\omega_x x), \sin(\omega_y y), \cos(\omega_y y))
+$$
+This sinusoidal encoding ensures that spatial proximity in the grid corresponds to proximity in the latent vector space.
 
-Per the EDVAC report distinction between *order* (program) and *data*, the "spatial coordinates" in this system function as the **address** (derived from the Query), while the episodic chunks function as the **data** (stored in Values).
+### 2.2. Soft-Addressed Retrieval
+The transformer's attention mechanism computes the similarity between the current Query $Q_t$ and the Key $K_i$ of every token $i$ in the context.
+In the spatial variant, the Key $K_i$ is augmented with the spatial coordinate embedding:
+$$
+K_i^{spatial} = K_i^{text} + E_{coord}(x_i, y_i)
+$$
+The attention score $\alpha_{t,i}$ becomes a function of both semantic similarity and spatial proximity:
+$$
+\alpha_{t,i} = \frac{\exp(Q_t \cdot K_i^{spatial} / \sqrt{d_k})}{\sum_j \exp(Q_t \cdot K_j^{spatial} / \sqrt{d_k})}
+$$
+**Formal Implication:** This creates a "soft" door. The model does not need to know the exact room number; it only needs to know the *direction* in the latent space that leads to the relevant room.
 
-The mapping function $f: \mathbb{R}^d \to \mathbb{R}^d$ that transforms a raw token embedding into a "spatial address" is implemented as the projection matrix $W_Q$ in the attention mechanism.
+## 3. The Binding Problem: Address vs. Content
 
-$$ \text{Address}_i = \text{Input}_i \cdot W_Q $$
+Per the EDVAC report distinction between *address* and *content*:
 
-The "distance" between two memories (e.g., two rooms) is not a Euclidean distance in physical space, but a semantic distance in the attention space, computed via the cosine similarity of their respective Query vectors against the stored Keys.
+1. **Address (The Room):** Encoded in the *Positional/Coordinate* component of the Key vector ($E_{coord}$). This determines *where* the model looks.
+2. **Content (The Item):** Encoded in the *Semantic* component of the Value vector ($V^{text}$). This determines *what* the model retrieves.
 
-## 4. Spatial Attention Loss
+The spatial attention mechanism ensures that the "Address" component of the query aligns with the "Address" component of the keys in the target room, while the "Content" is passed through via the Value projection. This separation is critical for preventing interference between semantically similar but spatially distinct memories.
 
-To enforce the "spatial" organization (i.e., to ensure that semantically related items cluster in the same "room"), we introduce an auxiliary loss term, `spatial_attention_loss`, implemented in `code/models/spatial.py`.
+## 4. Structural Stability and Slot Occupancy
 
-This loss penalizes the model if the attention weights $\alpha$ do not align with the pre-assigned spatial coordinates (from `code/models/coordinate_assigner.py`).
+To ensure the "rooms" remain distinct and do not collapse into a single point (a failure mode known as "attention collapse"), the system enforces:
 
-$$ \mathcal{L}_{spatial} = \lambda \sum_{i,j} \| \text{coord}(i) - \text{coord}(j) \| \cdot \alpha_{i,j} $$
-
-Where:
-- $\text{coord}(i)$ is the 2D coordinate assigned to chunk $i$.
-- $\alpha_{i,j}$ is the attention weight from query $i$ to key $j$.
-- $\lambda$ is a hyperparameter controlling the strength of the spatial constraint.
+- **Coordinate Variance Regularization:** A loss term penalizes the reduction of variance in the assigned coordinates, ensuring the memory grid remains populated.
+- **Slot Occupancy Monitoring:** The `log_slot_occupancy_distribution` function tracks the density of items per grid cell. High density in a single cell indicates a failure of spatial distribution, triggering a re-balancing of the coordinate assignment logic.
 
 ## 5. Conclusion
 
-The "Memory Palace" is a metaphorical overlay on the standard transformer attention mechanism. The "rooms" are emergent clusters in the attention subspace, and the "coordinates" are explicit constraints applied to the Key-Value pairs to guide the attention mechanism toward a spatially organized retrieval pattern. This formalization satisfies the requirement for a rigorous definition of the mapping function, distinguishing the logical address (Query/Coordinate) from the physical content (Value/Chunk).
+The "Memory Palace" is not a metaphor in this implementation; it is a specific modification of the Transformer's attention mechanism where **spatial coordinates are explicitly injected into the Key-Value attention calculation**. This provides a measurable, differentiable path for the model to reason about the location of information, satisfying the requirement for a formal mapping between the cognitive concept of a "room" and the mathematical operation of attention.

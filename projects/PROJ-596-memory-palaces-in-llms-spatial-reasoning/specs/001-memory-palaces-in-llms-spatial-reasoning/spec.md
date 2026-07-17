@@ -58,7 +58,7 @@ The system measures and reports structural correlates of spatial organization to
 ### Edge Cases
 
 - What happens when a dataset sample exceeds the memory slot capacity (e.g., more episodic chunks than grid locations)? → System implements FIFO eviction with oldest slot overwritten; eviction rate is logged and must be ≤ 5% of total samples.
-- How does system handle out-of-memory errors on GitHub Actions free tier? → System implements automatic dataset subsampling; If total model + data exceeds available RAM capacity, batch size is reduced to 4.. If memory usage still exceeds 6 GB at batch size 4, total samples are capped at [deferred] of the original.
+- How does system handle out-of-memory errors on GitHub Actions free tier? → System implements automatic dataset subsampling; If total model + data exceeds available RAM capacity, batch size is reduced to a lower value.. If memory usage still exceeds 6 GB at batch size 4, total samples are capped at [deferred] of the original.
 - What happens when paired t-test assumptions are violated (non-normal distribution of accuracy differences)? → System runs Shapiro-Wilk normality test; if p < 0.05, Wilcoxon signed-rank test is used instead and both results are reported.
 
 ## Requirements *(mandatory)*

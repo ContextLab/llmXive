@@ -25,12 +25,12 @@ This project investigates whether explicit spatial organization of episodic memo
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: The plan mandates pinned random seeds (0-4) in the code and deterministic data loading from verified URLs. Checksums for derived data will be recorded.
+- **I. Reproducibility**: The plan mandates pinned random seeds in the code and deterministic data loading from verified URLs. Checksums for derived data will be recorded.
 - **II. Verified Accuracy**: All citations in `research.md` will be limited to the "Verified datasets" block provided in the prompt. No external URLs will be fabricated.
 - **III. Data Hygiene**: Raw data will be downloaded to `data/raw/` with checksums. Processed data (subsampled/evicted) will be written to `data/processed/` with derivation logs. No PII handling is expected as these are public synthetic/text datasets.
 - **IV. Single Source of Truth**: All metrics (recall, interference distance, coordinate variance) will be computed by code and stored in `data/metrics/` JSON/CSV files. The paper will only reference these files.
 - **V. Versioning**: Every artifact (code, data, results) will carry a content hash. The `state.yaml` will be updated upon artifact changes.
-- **VI. Computational Resource Constraints**: The plan explicitly designs for CPU-only execution, 4-bit quantization, and automatic batch size reduction (to 4) or [deferred] data subsampling if RAM > 6 GB. Runtime is capped at 5 hours. **Note**: The Constitution specifies "single CPU core" but the GitHub Actions runner provides 2 cores; the plan interprets this as "no additional parallelization beyond the runner's default" to ensure the 5-hour limit.
+- **VI. Computational Resource Constraints**: The plan explicitly designs for CPU-only execution, 4-bit quantization, and automatic batch size reduction (to 4) or [deferred] data subsampling if RAM > 6 GB. Runtime is capped at a fixed duration. **Note**: The Constitution specifies "single CPU core" but the GitHub Actions runner provides cores; the plan interprets this as "no additional parallelization beyond the runner's default" to ensure the 5-hour limit.
 - **VII. Benchmark Standardization**: Only bAbI task 3, LAMBADA, and Story Cloze are used. Metrics are restricted to exact-match recall, paired t-tests, Cohen's d, and interference distance.
 
 ## Project Structure
@@ -81,10 +81,10 @@ projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **DistilGPT2 (66M)** | Required to fit in 6 GB RAM on CPU with training overhead. | GPT Medium exceeds RAM even with 4-bit quantization during training on CPU. |
+| **DistilGPT2 (66M)** | Required to fit in constrained CPU memory with training overhead. | GPT Medium exceeds RAM even with low-bit quantization during training on CPU. |
 | **4-bit Quantization + CPU** | Required to fit model weights in RAM. | Full precision or 8-bit (bitsandbytes on CUDA) is impossible without GPU. |
 | **Interference Distance Metric** | Required to address reviewer concerns (Rosalind Franklin) about "measurable structural correlates." | Simple recall accuracy alone is insufficient to prove *spatial* organization is the cause of improvement. |
-| **Adaptive Batch Size & [deferred] Subsampling** | Required to respect the 6 GB RAM hard constraint (Constitution VI). | Fixed batch size 8 or full dataset risks OOM crashes on the free-tier runner. |
+| **Adaptive Batch Size & [deferred] Subsampling** | Required to respect a hard RAM constraint (Constitution VI). | Fixed batch size 8 or full dataset risks OOM crashes on the free-tier runner. |
 | **Multiple Comparison Correction** | Required by FR-006 and SC-004 to prevent false positives across 3 datasets. | Reporting raw p-values would inflate Type I error rates. |
 | **Distance-Decay Penalty** | Required to enforce locality and distinguish from standard attention. | Soft attention without decay is mathematically equivalent to global memory, not spatial. |
 

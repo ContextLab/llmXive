@@ -1,44 +1,44 @@
-T007b:
+T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, module, or documentation implementing the coordinate\u2011assignment\
-    \ logic for episodic chunks is present; the only evidence is the task description\
-    \ itself, which does not demonstrate that any artifact was created or that the\
-    \ required functionality exists. The implementer must provide the actual implementation\
-    \ (e.g., source file, function, or notebook) and evidence it works."
-T015:
+  r: "No code, module, script, or documentation implementing Cohen\u2019s\u202Fd with\
+    \ 95\u202F% confidence intervals was provided; the evidence section contains no\
+    \ artifact paths or content to verify the calculation. Consequently the required\
+    \ effect\u2011size functionality is missing."
+T024:
   c: false
-  h: b4ab14add6c0a0888c4bcd8ba007d1b6261affb6a6d130477458daa797cfeacd
-  r: "The `code/evaluation/metrics.py` file exists but contains only helper functions\
-    \ and no logic that writes the per\u2011seed exact\u2011match recall to `artifacts/results/recall_accuracy.json`.\
-    \ Moreover, the required `artifacts/results/recall_accuracy.json` file is missing\
-    \ from the repository. The task\u2019s core requirement\u2014to store the computed\
-    \ results in that JSON file\u2014is therefore not satisfied."
-T016:
+  h: 6032dc147c0d8ee2a5b8cd9d03a030540b0ee2df00ebfb4b60973063d530f8f4
+  r: "The repository lacks the required `artifacts/results/interference_distance.json`\
+    \ file, and the shown portion of `code/evaluation/metrics.py` contains no implementation\
+    \ of an interference\u2011distance metric or any code that writes such results.\
+    \ Without the metric implementation and the output file, the task is not satisfied."
+T027:
   c: false
-  h: 1ce33d1dbfc1369f4cc978e3bdb9fac54e36494431d18777a52ea16fcc46dcd5
-  r: "The `code/main.py` file is present but only partially shown and does not demonstrate\
-    \ the full orchestration (download \u2192 model loading \u2192 training across\
-    \ the required seeds \u2192 evaluation) nor any logic that writes `artifacts/results/run_summary.json`.\
-    \ Moreover, the expected `run_summary.json` file is missing from the repository.\
-    \ The required output file with the specified keys is not generated."
-T017a:
-  c: false
-  h: 645e72e61f7ed6584cdf2f4bc981721fb01b33de2ef7b2b26c9e055eb78a657e
-  r: The required artifact `artifacts/results/hyperparams_log.json` does not exist,
-    so no hyperparameters or memory usage have been logged as specified. The implementer
-    must create this JSON file with the appropriate logged data.
-T017b:
-  c: false
-  h: 645e72e61f7ed6584cdf2f4bc981721fb01b33de2ef7b2b26c9e055eb78a657e
-  r: "The required artifact `artifacts/results/hyperparams_log.json` does not exist,\
-    \ so no hyperparameters (or RAM threshold note) are recorded. The task\u2019s\
-    \ core deliverable is missing."
-T020:
+  h: fda3f04f29ae48bfcbc7afcc5870efdeccf5a89235840112e355d126656fbcdf
+  r: "The `artifacts/results/interference_metrics.json` file does not exist, and the\
+    \ provided `code/main.py` excerpt shows no implementation that runs interference\u2011\
+    injection experiments after evaluation or writes variant results and statistical\
+    \ significance to that JSON file. The required output artifact is missing, so\
+    \ the task is not fulfilled."
+T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or output showing that Bonferroni or Holm\u2011Bonferroni\
-    \ correction was applied to the paired\u2011test results for bAbI, LAMBADA, and\
-    \ Story\u202FCloze is present. The required artifact (implementation and/or documented\
-    \ results of the multiple\u2011comparison correction) is missing, so the task\
-    \ is not satisfied."
+  r: "No evidence of a `research.md` file with a new \u201CStructural Metrics\u201D\
+    \ heading and the required descriptions (interference\u2011distance methodology,\
+    \ slot\u2011occupancy logging, coordinate\u2011variance tracking) was provided.\
+    \ The implementer must add the documentation to `research.md` and show its contents."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No documentation file, diagram, or written description providing a formal mapping\
+    \ between spatial \u201Crooms\u201D and transformer components is present. The\
+    \ required artifact (the mapping documentation) is missing, so the task is not\
+    \ satisfied."
+T033:
+  c: false
+  h: 35eb5792260d86714c4fd35f3533e4d8b64cfc9dc6ff2d8e8206ea5343042a6f
+  r: "The `scripts/validate_quickstart.sh` script is present, but the required output\
+    \ file `artifacts/results/run_summary.json` does not exist, so the validation\
+    \ cannot succeed and the task\u2019s requirement is not satisfied. The missing\
+    \ artifact must be generated by a successful run of the script within the 5\u2011\
+    hour limit."

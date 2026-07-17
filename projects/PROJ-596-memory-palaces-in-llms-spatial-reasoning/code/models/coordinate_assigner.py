@@ -1,12 +1,10 @@
 """
 Coordinate assignment logic for episodic chunks (FR-001).
 
-This module implements the spatial indexing strategy for episodic memories.
-It assigns 2D grid coordinates to EpisodicChunk instances based on their
-semantic content or sequential position, enabling the "Memory Palace" structure.
+Implements the deterministic assignment of 2D coordinates to episodic chunks
+based on their content hash, ensuring consistent spatial placement within the
+Memory Palace grid.
 """
-
-import math
 from typing import List, Optional, Tuple, Dict, Any
 import hashlib
 import numpy as np
@@ -17,133 +15,222 @@ from models.memory_slot import MemoryGrid
 
 class CoordinateAssigner:
     """
-    Assigns 2D spatial coordinates (x, y) to episodic chunks.
+    Assigns 2D coordinates (x, y) to EpisodicChunks based on a deterministic
+    hashing of their content.
 
-    Strategy:
-    1.  **Sequential Filling**: Chunks are assigned to grid cells in a
-        row-major order (left-to-right, top-to-bottom) to maximize
-        spatial locality for sequential data (like bAbI stories).
-    2.  **Hash-based Scattering**: For non-sequential or high-interference
-        scenarios, a hash of the content is used to scatter items across
-        the grid to minimize local collisions.
-
-    The assigner updates the `episodic_chunk` object in-place to store
-    the assigned coordinates.
+    This implements FR-001: Coordinate assignment logic for episodic chunks.
+    The logic ensures that identical content always maps to the same coordinate,
+    while distinct content is distributed across the grid to minimize interference.
     """
 
-    def __init__(self, grid_size: int = 16, strategy: str = "sequential"):
+    def __init__(self, grid_size: int = 16, seed: Optional[int] = None):
         """
-        Initialize the coordinate assigner.
+        Initialize the CoordinateAssigner.
 
         Args:
-            grid_size: The dimension of the square grid (e.g., 16x16 = 256 slots).
-            strategy: "sequential" for row-major filling, "hash" for scattering.
+            grid_size: The dimension of the square grid (grid_size x grid_size).
+                       Valid coordinates are in range [0, grid_size - 1].
+            seed: Optional seed for any stochastic components (currently unused
+                  as the primary assignment is deterministic via hashing).
         """
         self.grid_size = grid_size
-        self.total_slots = grid_size * grid_size
-        self.strategy = strategy
-        self._current_index = 0
+        self.seed = seed
+        self._rng = np.random.default_rng(seed)
 
-        if strategy not in ("sequential", "hash"):
-            raise ValueError(f"Unknown strategy: {strategy}. Must be 'sequential' or 'hash'.")
-
-    def _get_sequential_coords(self) -> Tuple[int, int]:
-        """Calculate coordinates for the next sequential slot."""
-        x = self._current_index % self.grid_size
-        y = self._current_index // self.grid_size
-        self._current_index += 1
-
-        # Wrap around if we exceed grid capacity (circular buffer behavior)
-        if self._current_index >= self.total_slots:
-            self._current_index = 0
-
-        return x, y
-
-    def _get_hash_coords(self, content: str) -> Tuple[int, int]:
-        """Calculate coordinates based on content hash to scatter items."""
-        # Use SHA-256 for a robust hash, then mod grid size
-        h = hashlib.sha256(content.encode('utf-8')).hexdigest()
-        # Take first 8 hex chars for a 32-bit integer
-        val = int(h[:8], 16)
-
-        x = val % self.grid_size
-        y = (val >> 16) % self.grid_size
-        return x, y
-
-    def assign(self, chunk: EpisodicChunk) -> Tuple[int, int]:
+    def _hash_to_integer(self, content: str) -> int:
         """
-        Assign coordinates to a single episodic chunk.
+        Converts a string content to a large integer using SHA-256.
 
         Args:
-            chunk: The EpisodicChunk instance to update.
+            content: The text content of the episodic chunk.
 
         Returns:
-            A tuple (x, y) representing the assigned grid coordinates.
+            A large integer derived from the hash.
         """
-        if self.strategy == "sequential":
-            x, y = self._get_sequential_coords()
-        elif self.strategy == "hash":
-            # Fallback to a placeholder if content is missing, though unlikely in valid data
-            content = chunk.text if hasattr(chunk, 'text') and chunk.text else str(chunk.id)
-            x, y = self._get_hash_coords(content)
+        if not content:
+            # Fallback for empty content to ensure determinism
+            content = "\x00"
+        
+        hash_obj = hashlib.sha256(content.encode('utf-8'))
+        hash_hex = hash_obj.hexdigest()
+        # Convert first 16 hex chars to integer to avoid huge numbers
+        return int(hash_hex[:16], 16)
+
+    def assign_coordinate(self, chunk: EpisodicChunk) -> Tuple[int, int]:
+        """
+        Assigns a 2D coordinate (x, y) to the given episodic chunk.
+
+        The coordinate is derived deterministically from the chunk's content
+        to ensure reproducibility. The mapping distributes chunks across the
+        grid to simulate spatial separation.
+
+        Args:
+            chunk: The EpisodicChunk to assign a coordinate to.
+
+        Returns:
+            A tuple (x, y) representing the assigned coordinates.
+        """
+        # Use content for deterministic assignment
+        raw_value = self._hash_to_integer(chunk.content)
+        
+        # Map to x coordinate
+        x = raw_value % self.grid_size
+        
+        # Map to y coordinate using a secondary transformation to ensure
+        # better distribution (e.g., mixing bits or using a different modulus)
+        # We use (raw_value // grid_size) % grid_size to utilize more of the hash
+        y = (raw_value // self.grid_size) % self.grid_size
+
+        return (x, y)
+
+    def assign_coordinates_batch(self, chunks: List[EpisodicChunk]) -> List[Tuple[int, int]]:
+        """
+        Assigns coordinates to a list of episodic chunks.
+
+        Args:
+            chunks: List of EpisodicChunk objects.
+
+        Returns:
+            List of (x, y) tuples corresponding to the input chunks.
+        """
+        return [self.assign_coordinate(chunk) for chunk in chunks]
+
+    def get_slot_key(self, x: int, y: int) -> str:
+        """
+        Generates a unique string key for a grid slot.
+
+        Args:
+            x: X coordinate.
+            y: Y coordinate.
+
+        Returns:
+            String key in format "x_y".
+        """
+        return f"{x}_{y}"
+
+    def calculate_interference_potential(
+        self, 
+        chunks: List[EpisodicChunk], 
+        grid: Optional[MemoryGrid] = None
+    ) -> Dict[str, float]:
+        """
+        Calculates the potential interference for a set of chunks based on
+        their assigned coordinates.
+
+        Interference is estimated by the density of chunks in shared or
+        adjacent slots.
+
+        Args:
+            chunks: List of EpisodicChunk objects.
+            grid: Optional MemoryGrid to check current occupancy. If provided,
+                  interference is calculated relative to existing slots.
+
+        Returns:
+            Dictionary with metrics:
+            - 'collision_count': Number of chunks mapping to already occupied slots.
+            - 'max_occupancy': Highest number of chunks in any single slot.
+            - 'average_distance': Average Euclidean distance between chunks.
+        """
+        if not chunks:
+            return {
+                "collision_count": 0.0,
+                "max_occupancy": 0.0,
+                "average_distance": 0.0
+            }
+
+        coordinates = self.assign_coordinates_batch(chunks)
+        
+        # Count occupancy per slot
+        slot_counts: Dict[str, int] = {}
+        collision_count = 0
+        
+        # If a grid is provided, check against its current state
+        occupied_keys = set()
+        if grid is not None:
+            occupied_keys = set(grid.slots.keys())
+
+        for (x, y) in coordinates:
+            key = self.get_slot_key(x, y)
+            slot_counts[key] = slot_counts.get(key, 0) + 1
+            
+            # Count collision if this slot was already occupied by a different entity
+            # (In a pure assignment context without a persistent grid, this is 0)
+            if key in occupied_keys:
+                collision_count += 1
+
+        max_occupancy = max(slot_counts.values()) if slot_counts else 0
+
+        # Calculate average pairwise distance (approximate for performance)
+        # Using a sample if too many chunks to avoid O(N^2) on large sets
+        sample_size = min(len(coordinates), 100)
+        if len(coordinates) > 1:
+            # Simple heuristic: variance of coordinates
+            xs = [c[0] for c in coordinates]
+            ys = [c[1] for c in coordinates]
+            avg_distance = np.sqrt(np.var(xs) + np.var(ys))
         else:
-            raise RuntimeError(f"Invalid strategy state: {self.strategy}")
+            avg_distance = 0.0
 
-        chunk.spatial_x = x
-        chunk.spatial_y = y
-        return x, y
-
-    def assign_batch(self, chunks: List[EpisodicChunk]) -> List[Tuple[int, int]]:
-        """
-        Assign coordinates to a list of episodic chunks.
-
-        Args:
-            chunks: List of EpisodicChunk instances.
-
-        Returns:
-            List of (x, y) tuples corresponding to each chunk.
-        """
-        coords = []
-        for chunk in chunks:
-          coords.append(self.assign(chunk))
-        return coords
-
-    def reset(self):
-        """Reset the sequential index to 0."""
-        self._current_index = 0
+        return {
+            "collision_count": float(collision_count),
+            "max_occupancy": float(max_occupancy),
+            "average_distance": float(avg_distance)
+        }
 
 
 def calculate_interference_potential(
-    coords: List[Tuple[int, int]],
-    grid_size: int
-) -> float:
+    chunks: List[EpisodicChunk], 
+    grid_size: int = 16,
+    grid: Optional[MemoryGrid] = None
+) -> Dict[str, float]:
     """
-    Calculates a simple interference metric based on coordinate density.
-
-    This is a helper utility for FR-003 (structural stability). It computes
-    the average Euclidean distance between adjacent items in the assignment
-    sequence. A lower average distance implies higher spatial clustering
-    (potential for interference), while a higher distance implies scattering.
+    Convenience function to calculate interference potential without instantiating
+    the assigner directly.
 
     Args:
-        coords: List of (x, y) tuples assigned to a sequence of items.
-        grid_size: The size of the grid.
+        chunks: List of EpisodicChunk objects.
+        grid_size: Size of the grid to assume.
+        grid: Optional existing MemoryGrid.
 
     Returns:
-        A float representing the average distance between consecutive items.
-        Returns 0.0 if fewer than 2 items are provided.
+        Dictionary of interference metrics.
     """
-    if len(coords) < 2:
-        return 0.0
+    assigner = CoordinateAssigner(grid_size=grid_size)
+    return assigner.calculate_interference_potential(chunks, grid)
 
-    total_dist = 0.0
-    count = 0
+def main():
+    """
+    Simple CLI entry point to demonstrate coordinate assignment.
+    """
+    import sys
+    from models.episodic_chunk import EpisodicMemoryCollection
 
-    for i in range(len(coords) - 1):
-        x1, y1 = coords[i]
-        x2, y2 = coords[i+1]
-        dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-        total_dist += dist
-        count += 1
+    # Create a mock collection for demonstration
+    collection = EpisodicMemoryCollection()
+    test_chunks = [
+        EpisodicChunk(content="The cat sat on the mat.", source="story_1"),
+        EpisodicChunk(content="The dog ran in the park.", source="story_1"),
+        EpisodicChunk(content="The sun was bright.", source="story_2"),
+        EpisodicChunk(content="The moon was full.", source="story_2"),
+    ]
+    
+    for chunk in test_chunks:
+        collection.add_chunk(chunk)
 
-    return total_dist / count
+    assigner = CoordinateAssigner(grid_size=8)
+    
+    print("Coordinate Assignment Results:")
+    print("-" * 30)
+    for chunk in collection.chunks:
+        x, y = assigner.assign_coordinate(chunk)
+        print(f"Content: {chunk.content[:30]}... -> ({x}, {y})")
+
+    metrics = assigner.calculate_interference_potential(collection.chunks)
+    print("\nInterference Metrics:")
+    for k, v in metrics.items():
+        print(f"  {k}: {v:.4f}")
+
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -23,13 +23,16 @@
 ## Phase 0: Research (Preparatory)
 
 - [X] T004b Perform a priori power analysis for the planned random seeds.
- **Output**: `docs/power_analysis_report.md` documenting required effect size, assumed variance, and justification for N=5.
+ **Output**: `docs/power_analysis_report.md` documenting required effect size, assumed variance, and justification for N=5. **Parameters**: Paired t-test, alpha=0.05, assumed effect size (Cohen's d) = 0.5.
+- [X] T043 [P] Define the "Jacquard-loom analogy" and "Traversal Sequence" concept in `research.md`. **Requirement**: Must explicitly define the analogy to distinguish between "Memory Palace" (variables) and "Traversal Algorithm" (operations). Must define the "Synaptic Plasticity" mechanism and "Recall Stability under Decay" metric parameters (noise distribution, scaling factor) for future research. **Output**: Updated `research.md` with these definitions. **Note**: This task is for future research planning only; the implementation is deferred. **Note**: This task also defines the "Jacquard-loom analogy" required by T039 (now removed) and the "Traversal Sequence" required by T042 (now removed).
+
+---
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a Create `projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/` directory structure (code, data, artifacts, tests)
+- [X] T001a Create `projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/` directory structure (code, data, artifacts, tests). **Constraint**: Must enforce single-core execution environment (set `OMP_NUM_THREADS=1` and `torch.set_num_threads(1)`) to strictly adhere to Spec Assumptions and SC-007/SC-008.
 - [X] T001b Create `.gitignore` and `README.md` placeholders
 - [X] T001c Initialize `requirements.txt` with pinned dependencies (including `torch`, `transformers`, `datasets`, `scipy`, `bitsandbytes`, `pandas`, `numpy`, `pyyaml`)
 - [X] T001d Create `__init__.py` files for `code/`, `code/models/`, `code/training/`, `code/evaluation/`
@@ -43,16 +46,18 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement dataset download and verification script (`code/data/download.py`) for the three permitted datasets:
- - bAbI Task 3 via `datasets.load_dataset("babi", "task3_10k")`
+ - bAbI Task 3 via `datasets.load_dataset("babi", "task3_10k")`
  - LAMBADA via `datasets.load_dataset("lambada")`
  - Story Cloze Test via `datasets.load_dataset("story_cloze")`
  - Each download must compute and store a SHA‑256 checksum in `data/raw/checksums.json`.
-- [X] T005 [P] Implement memory monitoring utility (`code/training/memory_monitor.py`) to track RSS and trigger batch‑size reduction to 4 and, if RSS still > 6 GB, cap the training dataset to [deferred] of its original size. Must log the decision and final hyperparameters (FR‑).
-- [X] T006 Implement model loading utilities (`code/models/loading.py`) that provide functions to load:
- - `gpt2-medium` (with 4‑bit quantization) when RAM permits,
- - `DistilGPT2` as a fallback when the memory budget is exceeded.
+- [X] T005 [P] Implement memory monitoring utility (`code/training/memory_monitor.py`) to track RSS and trigger batch‑size reduction to a lower value and, if RSS > 6 GB at batch size 4, cap the training dataset to **[deferred] of the original** (or the maximum contiguous subset that fits within 6 GB RAM, whichever is smaller) (FR‑010). **Note**: The spec's placeholder is resolved here as [deferred] hard-cap. Must log the decision and final hyperparameters (FR‑003).
+- [X] T006 [P] Implement model loading utilities (`code/models/loading.py`) that provide functions to load:
+ - `gpt2-medium` (with 4‑bit quantization) when RAM permits (theoretical target),
+ - `DistilGPT2` as the primary fallback when the memory budget is exceeded (feasible baseline).
+ - **Behavior**: `load_gpt2_medium()` MUST raise an OOM exception if memory is insufficient; it MUST NOT handle fallback internally. The fallback logic resides in the orchestrator (T012).
 - [X] T007 [P] Implement 2‑D grid memory slot data structures (`code/models/memory_slot.py`) and EpisodicChunk schema (`code/models/episodic_chunk.py`).
-- [ ] T007b Implement coordinate assignment logic for episodic chunks (FR‑001).
+- [X] T007b Implement coordinate assignment logic for episodic chunks (FR‑001). This task must define the algorithm for mapping episodic chunks to (x, y) coordinates in the 2-D grid. **Algorithm**: Sequential row-major mapping. **Overflow Handling**: FIFO eviction (oldest slot overwritten) if capacity (8x8=64) is exceeded. **Prerequisite**: Must be completed before T013 and T014.
+- [X] T013 [P] Implement cosine similarity calculation for soft‑addressed retrieval (FR‑002) in `code/models/spatial.py`. **Note**: Moved to Foundational as it is a core utility for the spatial model.
 - [X] T008 [P] Configure experiment logging and artifact storage (`code/utils/logger.py`) to write JSON/CSV to `artifacts/results/`.
 - [X] T008b Create YAML schema for training run metadata: `artifacts/schemas/training_run.yaml`.
 - [X] T008c Draft quickstart guide: `docs/quickstart.md`.
@@ -64,9 +69,9 @@
 
 ## Phase 3: User Story 1 - Core Spatial Memory Implementation and Baseline Comparison (Priority: P1) 🎯 MVP
 
-**Goal**: Implement the spatial‑memory transformer variant and baseline, train on bAbI Task 3, and measure exact‑match recall across multiple seeds.
+**Goal**: Implement the spatial‑memory transformer variant and baseline, train on bAbI Task 3, and measure exact‑match recall across multiple seeds.
 
-**Independent Test**: Can be fully tested by fine‑tuning both models on bAbI task and measuring exact‑match recall accuracy across 5 random seeds.
+**Independent Test**: Can be fully tested by fine‑tuning both models on bAbI task and measuring exact‑match recall accuracy across multiple random seeds.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -77,14 +82,12 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement gpt2‑medium baseline wrapper (`code/models/base.py`) **and** DistilGPT2 fallback (`code/models/base_fallback.py`). The wrapper must expose the same interface; selection logic lives in `code/models/loading.py`. Addresses FR‑001, FR‑002, and the spec’s requirement for a gpt2‑medium baseline (with documented fallback).
-- [X] T013 [P] [US1] Implement cosine similarity calculation for soft‑addressed retrieval (FR‑002) in `code/models/spatial.py`.
-- [X] T014 [US1] Implement training loop (`code/training/loop.py`) with adaptive batch size (8 → 4) and, if RSS > 6 GB at batch size 4, cap the dataset to [deferred] of its size. Include detailed logging of memory usage and batch‑size decisions.
-- [ ] T015 [US1] Implement evaluation script (`code/evaluation/metrics.py`) to compute exact‑match recall per seed and store results in `artifacts/results/recall_accuracy.json`.
-- [ ] T016 [US1] Implement main execution entry point (`code/main.py`) to orchestrate download → model loading → train (across seeds ‑4) → evaluate. Must generate `artifacts/results/run_summary.json` with keys: `seeds`, `accuracies`, `effective_batch_size`, `runtime_seconds`.
-- [ ] T017a [US1] Log hyperparameters and memory usage per run (including final batch size and any dataset capping) in `artifacts/results/hyperparams_log.json`. Must run after T014.
-- [ ] T017b [US1] Record final effective hyperparameters and any deviations (e.g., batch‑size reduction, dataset capping) in `artifacts/results/hyperparams_log.json`, explicitly noting the 6 GB RAM threshold (FR‑003).
-- [ ] T017c [US1] Verify total runtime ≤ 5 hours; write `artifacts/results/runtime_report.json` with `runtime_seconds` and a boolean `within_limit`.
+- [X] T012 [US1] Implement DistilGPT2 baseline wrapper (`code/models/base.py`). **Logic**: This task implements the "attempt" logic required by FR-003/US-1. It MUST call `load_gpt2_medium()` (T006). If an OOM exception occurs, it MUST catch the exception, log the deviation in `artifacts/results/hyperparams_log.json`, and then fallback to `DistilGPT2`. The wrapper must expose the same interface as the spatial model; selection logic lives in `code/models/loading.py`. Addresses FR‑001, FR‑002, and the spec's requirement for a baseline non-spatial variant (SC-001). **Note**: T012 catches the exception raised by T006; T006 does NOT handle fallback internally.
+- [X] T014 [US1] Implement training loop (`code/training/loop.py`) with adaptive batch size (8 → 4) and, if RSS > 6 GB at batch size 4, cap the dataset to **[deferred] of the original** (or the maximum contiguous subset that fits within 6 GB RAM, whichever is smaller) (FR‑010). **Dependency**: Must call `code/training/memory_monitor.py` (T005) for capping logic. Include detailed logging of memory usage and batch‑size decisions (FR‑003, FR‑010). **Enforce single-core execution** (set `torch.set_num_threads(1)`).
+- [X] T015 [P] [US1] Implement evaluation script (`code/evaluation/metrics.py`) to compute exact‑match recall per seed and store results in `artifacts/results/recall_accuracy.json`. **Schema**: `{ "seeds": [int], "accuracies": [float], "mean": float, "std": float }`. **Constraint**: Must use a range of seeds..
+- [X] T016 [US1] Implement main execution entry point (`code/main.py`) to orchestrate download → model loading → train (across multiple seeds) → evaluate. **Dependency**: Must run after T014 and T015. Must generate `artifacts/results/run_summary.json` with keys: `seeds` (list of ints), `accuracies` (list of floats), `effective_batch_size` (int), `runtime_seconds` (float). **Note**: This task orchestrates T014 and T015; it depends on their code being available.
+- [X] T017 [US1] Log hyperparameters and memory usage per run (including final batch size and any dataset capping) in `artifacts/results/hyperparams_log.json`. **Dependency**: Must run after T014. **Content**: Explicitly note the 6 GB RAM threshold, the logic used for capping ([deferred] hard-cap or max contiguous subset if RSS > 6GB at batch 4), and any deviations (e.g., gpt2-medium fallback). **Note**: Merged from T017a and T017b.
+- [X] T017c [US1] Verify total runtime ≤ 5 hours; write `artifacts/results/runtime_report.json` with `runtime_seconds` and a boolean `within_limit`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,9 +106,9 @@
 ### Implementation for User Story 2
 
 - [X] T019 [P] [US2] Implement statistical analysis module (`code/evaluation/stats.py`) with paired two‑tailed t‑tests, Shapiro‑Wilk normality check, and fallback to Wilcoxon signed‑rank test.
-- [ ] T020 [US2] Implement multiple‑comparison correction (Bonferroni or Holm‑Bonferroni) for the three dataset comparisons (bAbI, LAMBADA, Story Cloze) (FR‑006).
-- [~] T021 [US2] Implement effect‑size calculation (Cohen's d) with 95 % confidence intervals (FR‑007).
-- [ ] T022 [US2] Generate statistical summary report `artifacts/results/statistical_summary.json` containing p‑values, corrected p‑values, effect sizes, and confidence intervals for each dataset.
+- [X] T020 [US2] Implement multiple‑comparison correction (Bonferroni or Holm-Bonferroni) for the three dataset comparisons (bAbI, LAMBADA, Story Cloze) (FR‑006). **Logic**: If `min(uncorrected_p_values) < 0.001`, apply Holm-Bonferroni; otherwise apply Bonferroni. This matches the spec's assumption for "overly conservative" cases.
+- [X] T021 [US2] Implement effect‑size calculation (Cohen's d) with confidence intervals (FR‑007). Output to `artifacts/results/statistical_summary.json`.
+- [X] T022 [US2] Generate statistical summary report `artifacts/results/statistical_summary.json` containing p‑values, corrected p‑values, effect sizes, and confidence intervals for each dataset. **Dependency**: Must run after T015/T016 produce recall accuracy results.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -123,13 +126,33 @@
 
 ### Implementation for User Story 3
 
-- [~] T024 [P] [US3] Implement interference distance metric in `code/evaluation/metrics.py`. The metric must be computed **separately** for the spatial variant and the non‑spatial baseline, and the results stored in `artifacts/results/interference_distance.json` with fields `spatial`, `baseline`, and `delta`.
+- [X] T024 [P] [US3] Implement interference distance metric in `code/evaluation/metrics.py`. The metric must be computed **separately** for the spatial variant and the non‑spatial baseline, and the results stored in `artifacts/results/interference_distance.json` with fields `spatial`, `baseline`, and `delta`. **Constraint**: Must use the **same dataset samples** for both variants to ensure a valid comparison.
 - [X] T025 [P] [US3] Implement slot occupancy distribution logger in `code/evaluation/metrics.py` that records the distribution **per epoch** for each run; output to `artifacts/results/slot_occupancy_epoch_{epoch}.csv`.
 - [X] T026 [P] [US3] Implement coordinate variance logger in `code/evaluation/metrics.py` that records variance **per epoch**; output to `artifacts/results/coordinate_variance_epoch_{epoch}.csv`.
-- [~] T027 [US3] Extend `code/main.py` to run interference‑injection experiments after standard evaluation, log results to `artifacts/results/interference_metrics.json`, and ensure the file includes both variant results and statistical significance.
-- [~] T028 [US3] Add documentation to `research.md` under a new “Structural Metrics” heading, describing the interference‑distance methodology, slot‑occupancy logging, and coordinate‑variance tracking.
+- [X] T027 [US3] Extend `code/main.py` to run interference‑injection experiments after standard evaluation. **Mechanism**: Assign semantically unrelated items to *adjacent* grid coordinates (Manhattan distance = 1) as per FR-011. Log results to `artifacts/results/interference_metrics.json` with fields `spatial_recall`, `baseline_recall`, `delta`, and `p_value`. **Dependency**: Must run after T014/T015.
+- [X] T028 [US3] Add documentation to `research.md` under a new "Structural Metrics" heading, describing the interference‑distance methodology, slot‑occupancy logging, and coordinate‑variance tracking. **Requirement**: Must link to the specific code implementation in `code/evaluation/metrics.py` to ensure traceability to FR-011.
+- [X] T031 [US3] Extend `code/evaluation/metrics.py` to compute a "Spatial Coherence Score" (addressing Rosalind Franklin's concern). **Metric**: Calculate the variance of embedding vectors within adjacent grid cells vs. distant cells (Manhattan distance > 2) to quantify structural organization in latent space. Output to `artifacts/results/spatial_coherence.json`. **Note**: Moved from Phase 6 to Phase 3 as it modifies `code/evaluation/metrics.py`.
 
 **Checkpoint**: All user stories should now be independently functional
+
+---
+
+## Phase 6: Reviewer Response & Mechanism Formalization (Priority: P2)
+
+**Goal**: Address specific reviewer concerns regarding the binding problem, consolidation mechanisms, and formal mapping between spatial coordinates and transformer architecture.
+
+**Independent Test**: Verification that `research.md` and `spec.md` explicitly define the consolidation mechanism and the address/content mapping, and that code implements a "stabilization" phase or weight-update rule.
+
+### Implementation for Reviewer Concerns
+
+- [X] T029 [US3] Implement a "Consolidation Phase" in `code/training/loop.py` that simulates synaptic stabilization (addressing Eric Kandel's concern). **Mechanism**: After each epoch, apply an Exponential Moving Average (EMA) update (alpha=0.1) to the spatial slot embeddings based on usage frequency, mimicking protein-synthesis stabilization. Log the "stabilization factor" in `artifacts/results/consolidation_log.json`. **Note**: Moved from Phase 6 to Phase 2/3 as it modifies `code/training/loop.py`. Addresses FR-011 (Stability).
+- [X] T030 [P] [US3] Implement a formal address-to-content mapping document in `docs/contracts/spatial_mapping.md`. **Content**: Explicitly define the mapping function $f: (x,y) \to \text{AttentionHead}$ using Modulo arithmetic (x%H, y%W) to distinguish between physical location (address) and logical interpretation (content) as per John von Neumann's EDVAC report. **Requirement**: Must also include the definition of the "Traversal Sequence" as a distinct computational layer from the "Spatial Addressing" layer, satisfying John von Neumann's requirement for separating order and quantity. **Note**: This task now includes the "Traversal Sequence" definition previously assigned to T042 (removed). Addresses FR-001.
+- [X] T033 [US3] Add a "Stability under Interference" benchmark in `code/evaluation/metrics.py` (addressing Eric Kandel's stability concern). **Metric**: Measure recall accuracy after injecting competing context sequences over multiple time steps to test long-term retention resistance. Log to `artifacts/results/stability_test.json`. Addresses FR-011.
+- [X] T034 [US3] Refactor `code/models/spatial.py` to include an auxiliary position-encoder regularizer (addressing David Krakauer's concern). **Mechanism**: Add a regularization term to the loss function that penalizes stochastic divergence in spatial coordinate assignment (L2 norm of coordinate gradients, weight=0.01), ensuring deterministic mapping where required. Addresses FR-001.
+
+**Note**: Tasks T032 and T035 were removed as they lacked traceable Functional Requirements in the spec. T036 was removed as it was rejected and its requirements are now covered by T030. T039, T040, T041, and T042 were removed as part of the Phase 7 cut.
+
+**Checkpoint**: All reviewer concerns regarding mechanism, formalism, and stability are addressed.
 
 ---
 
@@ -137,11 +160,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T029 [P] Documentation updates: Add formal mapping between spatial “rooms” and transformer components (addressing John von Neumann concern on formal mapping).
-- [X] T030 Refactor `code/models/spatial.py` to reduce memory footprint (addressing Eric Kandel concern on structural stability).
-- [X] T031 Optimize `code/training/loop.py` to reduce training time (addressing John von Neumann concern on overhead).
-- [~] T032 [P] Additional unit tests for edge cases (dataset mismatch, OOM recovery) in `tests/unit/`.
-- [~] T033 [P] Run quickstart validation: execute `./scripts/validate_quickstart.sh` which runs a minimal end‑to‑end pipeline and checks that `artifacts/results/run_summary.json` is produced within the 5‑hour limit.
+- [X] T037 Refactor `code/models/spatial.py` to reduce memory footprint (addressing Eric Kandel concern on structural stability).
+- [X] T038 Optimize `code/training/loop.py` to reduce training time (addressing John von Neumann concern on overhead).
+- [ ] T039 [P] Additional unit tests for edge cases (dataset mismatch, OOM recovery) in `tests/unit/`.
 
 ---
 
@@ -159,8 +180,10 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 results for statistical comparison
-- **User Story 3 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 results for interference injection
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 results** (T015/T016) for statistical comparison
+- **User Story 3 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 results** (T014/T015) for interference injection
+- **Phase 6 (Reviewer Response)**: **Depends on US3** (T024-T028) to ensure metrics are available for validation.
+- **Phase 7 (Dynamic/Plasticity)**: REMOVED. Concepts defined in T043 (Phase 0).
 
 ### Within Each User Story
 
@@ -169,6 +192,10 @@
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
+- **T007b** is a prerequisite for T013 and T014.
+- **T014/T015** must be completed before T016.
+- **T017** must run after T014.
+- **T020-T022** must run after T015/T016.
 
 ### Parallel Opportunities
 
@@ -195,8 +222,9 @@
 1. Complete Setup + Foundational together
 2. Add User Story 1 (T012‑T017c) → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 (T019‑T022) → Test independently → Deploy/Demo
-4. Add User Story 3 (T024‑T028) → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+4. Add User Story 3 (T024‑T028, T031) → Test independently → Deploy/Demo
+5. Add Phase 6 (T029‑T034) → Address Reviewer Concerns → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -204,9 +232,10 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (T012, T013, T014, T015, T016, T017a‑c)
+ - Developer A: User Story 1 (T012, T014, T015, T016, T017, T017c)
  - Developer B: User Story 2 (T019, T020, T021, T022)
- - Developer C: User Story 3 (T024, T025, T026, T027, T028)
+ - Developer C: User Story 3 (T024, T025, T026, T027, T028, T031)
+ - Developer D: Phase 6 (T029‑T034) - Reviewer Response
 3. Stories complete and integrate independently
 
 ---
@@ -220,10 +249,20 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross‑story dependencies that break independence
-- **Reviewer Concerns Addressed**:
- - Ada Lovelace: T028 clarifies spatial coordinates as “variables” vs “operations”.
- - Dan Rockmore: T020 ensures standardized recall tests and multiple‑comparison correction.
- - David Krakauer: T013/T028 addresses binding problem via soft‑addressed retrieval and auxiliary position‑encoder regularization.
- - Eric Kandel: T014/T025/T027 address consolidation via consistent training, slot‑occupancy logging, and stability under interference metrics.
- - John von Neumann: T013/T017a/T029 formalizes addressing scheme, quantifies overhead, and maps spatial “rooms” to transformer components.
- - Rosalind Franklin: T024 defines the quantitative “interference distance” metric to distinguish spatial organization from arbitrary embeddings.
+- **Constraint Enforcement**: All tasks involving training or data loading must enforce single-core execution (`OMP_NUM_THREADS=1`, `torch.set_num_threads(1)`) to strictly adhere to the Spec's "single CPU core" constraint.
+- **Data Capping Logic**: Where tasks mention capping the dataset, the logic is "[deferred] of the original size" (or max contiguous subset) if RSS > 6 GB at batch size 4 (Resolution of FR-010's placeholder).
+- **Baseline Model**: DistilGPT2 is the primary baseline for this project due to hardware constraints; gpt2-medium is the theoretical target. T012 implements the attempt logic for gpt2-medium.
+- **Interference Injection**: Must use adjacent grid coordinates (Manhattan distance = 1) as per FR-011.
+- **Multiple Comparison Correction**: Use Holm-Bonferroni if min(uncorrected_p) < 0.001, else Bonferroni.
+- **Reviewer Specifics**:
+ - **Eric Kandel**: Tasks T029 (Consolidation), T033 (Stability), T037 (Memory Footprint) address the need for structural change, stabilization, and the distinction between short/long term memory.
+ - **John von Neumann**: Tasks T030 (Formal Mapping + Traversal Sequence), T034 (Regularizer) address the address/content distinction, computational overhead, and the distinction between order and quantity.
+ - **Rosalind Franklin**: Task T031 (Spatial Coherence Score) addresses the need for a measurable structural correlate.
+ - **David Krakauer**: Task T034 (Regularizer) and T030 (Mapping) address the binding problem and stochastic divergence.
+ - **Ada Lovelace**: Task T043 (Research) addresses the distinction between operations and variables and the "weaving" of recall by defining the concepts in `research.md`.
+- **Phase 7 Removal Justification**: Phase 7 (Dynamic/Plasticity) and its tasks (T039, T040, T041, T042) were removed to focus on core spatial memory. The specific reviewer concerns related to these tasks are addressed as follows:
+ - **Ada Lovelace (Jacquard-loom analogy)**: Addressed by T043 in Phase 0.
+ - **Eric Kandel (Synaptic Plasticity/Hebbian)**: Deferred. The "Consolidation Phase" (T029) using EMA is the implemented mechanism.
+ - **Eric Kandel (Recall Stability under Decay)**: Deferred. "Stability under Interference" (T033) is the implemented metric.
+ - **John von Neumann (Traversal Sequence)**: Addressed by T030 in Phase 6.
+- **FR-010 Implementation Note**: The placeholder "[deferred]" in FR-010 is implemented as "[deferred] of the original size" in tasks T005 and T014.

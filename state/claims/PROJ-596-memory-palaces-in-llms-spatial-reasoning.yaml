@@ -524,3 +524,295 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T15:46:06Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: power analysis justification for N=5
+  claim_id: c_d08280a0
+  context: 'Phase 0: Research (Preparatory) - T004b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Perform a priori power analysis for the planned random seeds. Output:
+    docs/power_analysis_report.md documenting required effect size, assumed variance,
+    and justification for N=5.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:39:28Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: download bAbI Task 3 LAMBADA and Story Cloze Test datasets
+  claim_id: c_b5876616
+  context: 'Phase 2: Foundational - T004'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement dataset download and verification script (code/data/download.py)
+    for the three permitted datasets: bAbI Task 3 via datasets.load_dataset("babi",
+    "task3_10k"), LAMBADA via datasets.load_dataset("lambada"), Story Cloze Test via
+    datasets.load_dataset("story_cloze").'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:39:50Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: compute SHA-256 checksum for downloaded datasets
+  claim_id: c_da7a6bd5
+  context: 'Phase 2: Foundational - T004'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Each download must compute and store a SHA\u2011256 checksum in data/raw/checksums.json."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:40:01Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: reduce batch size to 4 if RSS exceeds 6 GB
+  claim_id: c_284a2b90
+  context: 'Phase 2: Foundational - T005'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement memory monitoring utility (code/training/memory_monitor.py)\
+    \ to track RSS and trigger batch\u2011size reduction to 4 and, if RSS > 6 GB,\
+    \ cap the training dataset to [deferred] of its original size."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:40:18Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: load gpt2-medium with 4-bit quantization
+  claim_id: c_bbcce329
+  context: 'Phase 2: Foundational - T006'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement model loading utilities (code/models/loading.py) that provide\
+    \ functions to load: gpt2\u2011medium (with 4\u2011bit quantization) when RAM\
+    \ permits, DistilGPT2 as a fallback when the memory budget is exceeded."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:40:40Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: measure exact-match recall across 5 random seeds
+  claim_id: c_bb3597ff
+  context: 'Phase 3: User Story 1 - Goal'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Independent Test: Can be fully tested by fine\u2011tuning both models\
+    \ on bAbI task and measuring exact\u2011match recall accuracy across 5 random\
+    \ seeds."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:41:17Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: train across 4 random seeds
+  claim_id: c_06fb9ebc
+  context: 'Phase 3: User Story 1 - T016'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement main execution entry point (code/main.py) to orchestrate download\
+    \ \u2192 model loading \u2192 train (across seeds \u20114) \u2192 evaluate."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:41:48Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: verify total runtime is less than or equal to 5 hours
+  claim_id: c_da59dcc8
+  context: 'Phase 3: User Story 1 - T017c'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_runtime_is_less_than_or_equal_to_5_hours
+  kind: magnitude
+  raw_text: "Verify total runtime \u2264 5 hours; write artifacts/results/runtime_report.json\
+    \ with runtime_seconds and a boolean within_limit."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:41:54Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: apply multiple-comparison correction for 3 dataset comparisons
+  claim_id: c_2ebe084d
+  context: 'Phase 4: User Story 2 - T020'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement multiple\u2011comparison correction (Bonferroni or Holm\u2011\
+    Bonferroni) for the three dataset comparisons (bAbI, LAMBADA, Story Cloze)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:41:54Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: calculate Cohen's d with 95 percent confidence intervals
+  claim_id: c_2881dea8
+  context: 'Phase 4: User Story 2 - T021'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement effect\u2011size calculation (Cohen's d) with 95 % confidence\
+    \ intervals."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:41:59Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: compute interference distance separately for spatial and non-spatial
+    variants
+  claim_id: c_f434cd3e
+  context: 'Phase 5: User Story 3 - T024'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_interference_distance_separately_for_spatial_and_non
+  kind: entity_fact
+  raw_text: "The metric must be computed separately for the spatial variant and the\
+    \ non\u2011spatial baseline, and the results stored in artifacts/results/interference_distance.json\
+    \ with fields spatial, baseline, and delta."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:42:03Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: validate quickstart pipeline produces run summary within 5 hours
+  claim_id: c_0a63ad95
+  context: "Phase N: Polish & Cross\u2011Cutting Concerns - T033"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run quickstart validation: execute ./scripts/validate_quickstart.sh which\
+    \ runs a minimal end\u2011to\u2011end pipeline and checks that artifacts/results/run_summary.json\
+    \ is produced within the 5\u2011hour limit."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T13:42:05Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/contracts/spatial_mapping.md
+  attempts: 1
+  canonical: spatial memory modeled as 8x8 grid with 64 slots
+  claim_id: c_88af907d
+  context: The spatial memory is modeled as a discrete 2D grid G of dimensions H x
+    W (default 8 x 8 = 64 slots).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The spatial memory is modeled as a discrete 2D grid G of dimensions H
+    x W (default 8 x 8 = 64 slots).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T14:09:56Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/contracts/spatial_mapping.md
+  attempts: 1
+  canonical: DistilGPT2 has 12 attention heads
+  claim_id: c_acbd2ecb
+  context: Let N_heads be the number of attention heads in the model (e.g., 12 for
+    DistilGPT2).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of attention heads in the model is 12 for DistilGPT2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T14:10:11Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/contracts/spatial_mapping.md
+  attempts: 1
+  canonical: spatial indexing overhead is less than 1%
+  claim_id: c_bb3eae96
+  context: Since G << L for typical contexts, the overhead is negligible (< 1%).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spatial_indexing_overhead_is_less_than_1%25
+  kind: magnitude
+  raw_text: The spatial indexing overhead is negligible, reported as less than 1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T14:10:29Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/contracts/spatial_mapping.md
+  attempts: 1
+  canonical: spatial slots memory footprint is 49 KB for G=64 and d_model=768
+  claim_id: c_aefc1733
+  context: "For G=64 and d_model=768, this is \u2248 49 KB, which is trivial compared\
+    \ to the model weights."
+  evidence:
+    asserted: '64.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: For G=64 and d_model=768, the memory footprint for spatial slots is approximately
+    49 KB.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T14:10:29Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/docs/contracts/spatial_mapping.md
+  attempts: 1
+  canonical: DistilGPT2 has 120 million parameters
+  claim_id: c_c979146f
+  context: trivial compared to the model weights (e.g., 120M parameters for DistilGPT2).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DistilGPT2 has 120M parameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T14:11:08Z'
