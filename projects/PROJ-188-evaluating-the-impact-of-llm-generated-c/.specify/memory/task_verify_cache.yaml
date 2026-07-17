@@ -1,0 +1,51 @@
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/` directory with the required subfolders (`raw/`, `intermediate/`,
+    `processed/`) is provided; the implementer did not supply any artifact confirming
+    the directory structure exists. The task remains undone until those directories
+    are created and shown.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or documentation was provided that shows environment
+    variables for the HuggingFace token and model paths being loaded (e.g., a .env
+    loader, settings module, or usage example). The required artifact is missing,
+    so the task is not satisfied.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No validation script or resulting dataset was provided; there is no artifact\
+    \ (e.g., a Python script, JSON output, or log) demonstrating checks for nulls,\
+    \ valid labels, token counts\u202F<\u202F150, and a final N\u202F\u2265\u202F\
+    20. Without these files, the requirement cannot be confirmed."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or documentation showing that logging for skipped snippets
+    and fallback triggers has been added is present; the artifact is missing entirely.
+    The implementer must provide the modified source files (or diff) that implement
+    the required logging and evidence (e.g., log output examples or tests) to satisfy
+    the task.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or data files implementing the condition rendering logic
+    (survey UI, random assignment to the three conditions, display of code/explanations,
+    and logging of answers with timestamps) were provided. The required artifact is
+    missing, so the task is not satisfied.
+T020b:
+  c: false
+  h: 1e402176de48256b0ea312ec699d011c2864786dfed3a487328023133995f530
+  r: "The `data/intermediate/mock_responses.csv` file does not exist, and the provided\
+    \ `code/02_survey_logic.py` excerpt shows only loading and assignment utilities\
+    \ without any logic that simulates 10 participants, generates latency\u202F>\u202F\
+    30\u202Fs, or writes the required CSV columns. The task\u2019s core output is\
+    \ therefore missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or configuration file implementing the required filtering logic\
+    \ (excluding participants with total time\u202F<\u202F30\u202Fs or >\u202F80\u202F\
+    % missing responses) and logging the counts of exclusions is present. The evidence\
+    \ provided contains no artifact to verify that this functionality exists or works."
