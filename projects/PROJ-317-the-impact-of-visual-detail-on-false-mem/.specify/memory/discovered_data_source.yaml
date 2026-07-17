@@ -1,0 +1,14 @@
+status: none
+intent: download Visual Genome images and annotations as python package dataset
+required_fields:
+- image_id
+- image_url
+- width
+- height
+- objects
+- object_bboxes
+- region_descriptions
+- relationships
+cache_key: a40e36dfbc94684d84190f724b43d47c2f2ca7af88e650a80dfda24bf56d9a0b
+searched_at: '2026-07-17T09:49:40.437400+00:00'
+retry_count: 1

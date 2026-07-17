@@ -1158,3 +1158,110 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T09:55:43Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations seed 42 for 95% confidence intervals
+  claim_id: c_3fb236f2
+  context: 'T021 [US2] Create bootstrap correction script... that: (1) implements
+    bootstrap resampling (1000 iterations, seed=42) for 95% confidence intervals...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: implements bootstrap resampling (1000 iterations, seed=42) for 95% confidence
+    intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:06:42Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: data merge completeness validation 90% threshold
+  claim_id: c_de015fab
+  context: "T017 [US1] Create merge output script... that: (2) validates completeness\
+    \ (\u2265 90% threshold) with warning logging..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validates completeness (\u2265 90% threshold) with warning logging"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:06:43Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: effective sample size calculation formula n times 1 minus rho divided
+    by 1 plus rho
+  claim_id: c_99818a5e
+  context: "T020 [US2] Create correlation computation script... that: (4) implements\
+    \ effective sample size calculation (n_eff = n \xD7 (1-\u03C1)/(1+\u03C1))..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "implements effective sample size calculation (n_eff = n \xD7 (1-\u03C1\
+    )/(1+\u03C1))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:09:44Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: lag window analysis across multiple lag intervals
+  claim_id: c_6327f92e
+  context: 'T020 [US2] Create correlation computation script... that: (2) implements
+    lag window analysis (across multiple lag intervals)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lag_window_analysis_across_multiple_lag_intervals
+  kind: entity_fact
+  raw_text: implements lag window analysis (across multiple lag intervals)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:15:18Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: null results handling correlation less than 0.1 reporting p-value and
+    confidence intervals
+  claim_id: c_56690b17
+  context: 'T022 [US2] Create control validation script... that: (5) handles null
+    results (correlation < 0.1) by reporting with p-value and confidence intervals
+    without forcing positive finding'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_results_handling_correlation_less_than_0.1_reporting_p-
+  kind: magnitude
+  raw_text: handles null results (correlation < 0.1) by reporting with p-value and
+    confidence intervals without forcing positive finding
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:15:55Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: region filtering West Coast NA 35 N to 50 N 120 W to 125 W
+  claim_id: c_018127d3
+  context: "Phase 3: User Story 1 - Data Ingestion & Preprocessing... align to monthly\
+    \ resolution for West Coast NA region (35\xB0N-50\xB0N, 120\xB0W-125\xB0W)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Region filtering for West Coast NA (35\xB0N-50\xB0N, 120\xB0W-125\xB0\
+    W)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:16:16Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1109.4624",
+  "judged_at": "2026-07-17T09:44:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of data scaling on statistical test sensitivity statistics",
+  "rationale": "The paper focuses on asymptotic properties of combinatorial statistics (Mahonian statistics, Galois numbers) in finite vector spaces and symmetric groups, which is a topic in algebraic combinatorics rather than the empirical evaluation of statistical test sensitivity under data scaling. It does not measure statistical power, Type I/II error rates, or the impact of sample size scaling on hypothesis testing performance, failing to meet any of the inclusion criteria (a-f) for the user's specific re",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1501.01732",
+  "judged_at": "2026-07-17T09:45:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of data scaling on statistical test sensitivity statistics",
+  "rationale": "This paper addresses the user's question by providing an empirical and theoretical analysis of how test statistics (specifically sums of rank correlations) behave and achieve power (sensitivity) under high-dimensional scaling regimes where the number of variables $m$ scales with or exceeds the sample size $n$. This satisfies acceptance criteria (a) and (b) as it measures the mechanism of statistical test sensitivity in the context of data scaling (high dimensions) and establishes the power prope",
+  "relevant": true
+}

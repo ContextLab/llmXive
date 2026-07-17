@@ -1,4 +1,4 @@
-- artifact_hash: 2e59e0dbdbb465bdfca46e9647f32be36ec5e920800deacfe5cc5c2208f97598
+- artifact_hash: ca40b30e282a1d2c7c7138630b84d9f512ad5908642d6de16d8c232893ad1627
   artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -6,6 +6,6 @@
   fetched_title: Bonferroni correction - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q385989
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q385989
-  verified_at: '2026-07-14T09:55:24.185064Z'
+  verified_at: '2026-07-17T10:16:17.090915Z'

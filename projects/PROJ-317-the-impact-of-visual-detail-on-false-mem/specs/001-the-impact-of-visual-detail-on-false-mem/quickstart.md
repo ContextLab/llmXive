@@ -2,79 +2,77 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   Access to a terminal (Linux/macOS/WSL)
+* Python 3.11+
+* Git
+* (Optional) HuggingFace CLI (if using private datasets, though COCO is public)
 
 ## Installation
 
-1.  **Clone the repository** (if not already done):
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-317-the-impact-of-visual-detail-on-false-mem
-    ```
+1. **Clone the repository**:
+ ```bash
+ git clone <repo-url>
+ cd projects/PROJ-317-the-impact-of-visual-detail-on-false-mem
+ ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
+ ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 ## Running the Pipeline
 
-The pipeline consists of three main stages: **Stimulus Generation**, **Session Simulation**, and **Analysis**.
+### Step 0: Power Analysis (Blocking Gate)
+Run the power analysis to determine sample size.
+```bash
+python code/analysis/stats.py --power-analysis
+```
+*Check `data/analysis/power_report.json`. If N < 50, the pipeline halts.*
 
-### 1. Generate Stimuli
-
-This step creates the baseline images (mock) and their manipulated versions.
+### Step 1: Generate Stimuli (Phase 1)
+This step downloads images (COCO 2017), filters for complexity, and creates manipulated versions.
 
 ```bash
-python code/cli.py generate-stimuli --count 30 --seed 42
+python code/stimuli/downloader.py --output data/stimuli
+python code/stimuli/filter.py --input data/stimuli/raw --output data/stimuli/filtered
+python code/stimuli/manipulator.py --input data/stimuli/filtered --output data/stimuli/manipulated
+python code/stimuli/metadata.py --input data/stimuli/manipulated --output data/stimuli/metadata
 ```
+*Note: Check `data/logs/manipulation_errors.log` for any skipped images.*
 
--   `--count`: Number of baseline images to generate.
--   `--seed`: Random seed for reproducibility.
--   **Output**: Images saved to `data/stimuli/`, metadata to `data/stimuli_metadata/`.
-
-### 2. Simulate Participants
-
-This step runs the participant interface simulation to generate response data.
+### Step 2: Run Participant Interface (Phase 2)
+Start the web interface for data collection.
+*Note: For local testing, you can simulate a participant using `code/tests/simulate_participant.py`.*
 
 ```bash
-python code/cli.py simulate-sessions --n-sessions 60 --seed 42
+streamlit run code/interface/app.py
 ```
+*Access at `
+*Note: The consent form will enforce a brief reading time before the session starts.*
 
--   `--n-sessions`: Number of simulated participants.
--   **Output**: Response logs saved to `data/responses/`.
-
-### 3. Run Analysis
-
-This step performs the repeated-measures ANOVA and generates visualizations.
+### Step 3: Analyze Results (Phase 3)
+Run the statistical analysis on collected data.
 
 ```bash
-python code/cli.py run-analysis --output data/processed/results.json
+python code/analysis/stats.py --input data/responses --output data/analysis/results.json
+python code/analysis/viz.py --input data/analysis/results.json --output data/analysis/plots.png
 ```
-
--   **Output**: JSON results and PNG plots saved to `data/processed/`.
 
 ## Verification
 
-To verify the setup:
-
-1.  Check that `data/stimuli/` contains at least 30 baseline images and 60 manipulated images.
-2.  Check that `data/responses/` contains JSON files for 60 sessions.
-3.  Run the unit tests:
-    ```bash
-    pytest tests/unit/
-    ```
+1. **Check Stimuli**: Ensure `data/stimuli/` contains at least 30 pairs of images (enhanced/reduced).
+2. **Check Logs**: Verify `data/logs/manipulation_errors.log` exists (may be empty).
+3. **Check Analysis**: Ensure `data/analysis/results.json` contains `anova_p` and `effect_size`.
+4. **Check Ethics**: Ensure `data/ethics/consent_template.md` contains the IRB approval number.
 
 ## Troubleshooting
 
--   **Memory Error**: If running on low RAM, reduce `--count` or `--n-sessions`.
--   **Missing Dependencies**: Ensure `requirements.txt` is installed in the virtual environment.
--   **Checksum Mismatch**: If data files have been modified, delete `data/` and re-run the pipeline.
+* **"No images found"**: The downloader may have failed to fetch COCO. Check network or switch to the mock generator by setting `USE_MOCK=true` in environment variables.
+* **"Session incomplete"**: Participants who drop out are logged in `data/logs/dropouts.log`. Ensure N ≥ 50 for valid power.
+* **"Memory Error"**: If processing large images, reduce the batch size in `manipulator.py`.
+* **"Consent Timer"**: If the consent timer is not working, check the browser console for JavaScript errors.

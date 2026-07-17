@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2007.01784",
+  "judged_at": "2026-07-17T09:45:25Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of data scaling on statistical test sensitivity statistics",
+  "rationale": "This paper satisfies criterion (a) and (b) because it explicitly investigates the performance of statistical tests (specifically \"unified consistent tests\") across different data scaling regimes (\"sparse, dense and ultra-dense cases\"), which directly measures the sensitivity of statistical inference as a function of data volume/structure. Although the paper proposes a specific model, its establishment of asymptotic theories and Monte Carlo simulations regarding test behavior under varying data d",
+  "relevant": true
+}

@@ -1,87 +1,65 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Stimulus Metadata Schema"
-description: "Schema for the metadata file generated for each baseline image and its manipulations (Constitution VII)."
+description: "Schema for per-image manipulation metadata files (data/stimuli/{id}.yaml)"
 type: "object"
 required:
-  - "image_id"
-  - "baseline_complexity_score"
-  - "complexity_bin"
-  - "manipulation_params"
-  - "timestamp"
-  - "checksums"
-  - "source_type"
+  - stimulus_id
+  - baseline_path
+  - enhanced_path
+  - reduced_path
+  - manipulation_params
+  - complexity_score
+  - created_at
+  - checksum
 properties:
-  image_id:
+  stimulus_id:
     type: "string"
-    description: "Unique identifier for the baseline image."
-  baseline_complexity_score:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Quantified complexity score of the baseline image."
-  complexity_bin:
-    type: "string"
-    enum:
-      - "Q1"
-      - "Q2"
-      - "Q3"
-    description: "Quantile bin of the complexity score."
-  source_type:
-    type: "string"
-    enum:
-      - "mock"
-      - "real"
-    description: "Origin of the baseline image (mock generator or real dataset)."
+    description: "Unique hash of the baseline image"
   baseline_path:
     type: "string"
-    description: "Relative path to the baseline image file."
+    description: "Relative path to original image"
   enhanced_path:
     type: "string"
-    description: "Relative path to the enhanced detail image."
+    description: "Relative path to enhanced image"
   reduced_path:
     type: "string"
-    description: "Relative path to the reduced detail image."
+    description: "Relative path to reduced image"
   manipulation_params:
     type: "object"
     required:
-      - "objects_added"
-      - "objects_removed"
-      - "texture_settings"
+      - objects_added
+      - objects_removed
+      - texture_settings
     properties:
       objects_added:
         type: "array"
         items:
           type: "string"
-        description: "List of objects added in the enhanced version."
+        description: "List of object labels added"
       objects_removed:
         type: "array"
         items:
           type: "string"
-        description: "List of objects removed in the reduced version."
+        description: "List of object labels removed/blurred"
       texture_settings:
         type: "object"
-        description: "Parameters used for texture modification."
-  timestamp:
+        properties:
+          blur_radius:
+            type: "number"
+            description: "Blur radius for reduced detail"
+          contrast_boost:
+            type: "number"
+            description: "Contrast adjustment for enhanced detail"
+  complexity_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Calculated complexity score (0.0-1.0)"
+  created_at:
     type: "string"
     format: "date-time"
-    description: "ISO 8601 timestamp of the manipulation."
-  checksums:
-    type: "object"
-    required:
-      - "baseline"
-      - "enhanced"
-      - "reduced"
-    properties:
-      baseline:
-        type: "string"
-        description: "SHA-256 hash of the baseline image."
-      enhanced:
-        type: "string"
-        description: "SHA-256 hash of the enhanced image."
-      reduced:
-        type: "string"
-        description: "SHA-256 hash of the reduced image."
-  version:
+    description: "ISO8601 timestamp of generation"
+  checksum:
     type: "string"
-    description: "Version of the manipulation script used."
-    default: "1.0.0"
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 checksum of the file content"

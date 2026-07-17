@@ -2,71 +2,73 @@
 
 ## Overview
 
-This document defines the data structures used in the project, ensuring alignment with the Functional Requirements (FR-001 to FR-008) and the Project Constitution. All data is stored in `data/` with strict versioning and checksumming.
+This document defines the schema for all data artifacts in the project, ensuring compliance with Constitution III (Data Hygiene) and IV (Single Source of Truth).
 
 ## Entities
 
-### 1. Image (Stimulus)
+### 1. Stimulus Metadata
+**Path**: `data/stimuli/{stimulus_id}.yaml`
+**Purpose**: Records the exact parameters of image manipulation for reproducibility.
 
-Represents a baseline image and its manipulated variants.
-
-**Attributes**:
--   `image_id`: Unique identifier (UUID).
--   `baseline_complexity_score`: Float (0.0 - 1.0). Derived from mock generator.
--   `complexity_bin`: String (Q1, Q2, Q3).
--   `baseline_path`: Relative path to the baseline image file.
--   `enhanced_path`: Relative path to the enhanced detail image.
--   `reduced_path`: Relative path to the reduced detail image.
--   `manipulation_params`: Dictionary containing:
-    -   `objects_added`: List of strings (for enhanced).
-    -   `objects_removed`: List of strings (for reduced).
-    -   `texture_settings`: Dictionary.
--   `timestamp`: ISO 8601 timestamp.
--   `checksum`: SHA-256 hash of the image file.
-
-**Source**: `code/stimuli/manipulator.py` (Mock Generator + PIL).
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `stimulus_id` | string | Unique hash of the baseline image. |
+| `baseline_path` | string | Relative path to original image. |
+| `enhanced_path` | string | Relative path to enhanced image. |
+| `reduced_path` | string | Relative path to reduced image. |
+| `manipulation_params` | object | Details of the compositing (objects added/removed). |
+| `complexity_score` | float | Calculated complexity (0.0 - 1.0). |
+| `created_at` | timestamp | ISO8601 timestamp of generation. |
+| `checksum` | string | SHA-256 of the file content. |
 
 ### 2. Participant Session
+**Path**: `data/responses/session_{participant_id}.jsonl`
+**Purpose**: Raw, timestamped responses from a single session.
 
-Represents a single experimental run.
-
-**Attributes**:
--   `session_id`: Unique identifier (UUID).
--   `participant_id`: Pseudonymous hash (no PII).
--   `condition`: String (`enhanced`, `reduced`, `baseline`).
--   `baseline_image_id`: Reference to Image entity.
--   `start_timestamp`: ISO 8601.
--   `end_timestamp`: ISO 8601.
--   `completion_status`: String (`complete`, `partial`, `dropped`).
--   `consent_verified`: Boolean.
--   `total_false_memory_rate`: Float (0.0 - 1.0).
-
-**Source**: `code/participants/session.py`.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `session_id` | string | Unique session identifier. |
+| `participant_id` | string | Hashed pseudonym. |
+| `start_time` | timestamp | Session start. |
+| `end_time` | timestamp | Session end. |
+| `condition` | string | "enhanced" or "reduced". |
+| `consent_verified` | boolean | Must be true. |
+| `responses` | list | List of response objects. |
 
 ### 3. Response
+**Path**: Embedded in `Participant Session`
+**Purpose**: Individual answer to a recognition question.
 
-Represents a single answer to a recognition question.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `question_id` | string | Unique ID for the question. |
+| `is_lure` | boolean | True if the item was never in the image. |
+| `response` | boolean | True if participant said "Yes, it was there". |
+| `reaction_time_ms` | integer | Time from question display to response. |
+| `timestamp` | timestamp | Precise time of response. |
+| `semantic_plausibility` | float | Score (0.0-1.0) indicating how plausible the lure is (WordNet-based). |
 
-**Attributes**:
--   `response_id`: Unique identifier (UUID).
--   `session_id`: Reference to Participant Session.
--   `question_id`: String (e.g., `Q_001`).
--   `is_false_detail`: Boolean (True if the item was a lure).
--   `response_value`: Boolean (True if participant said "Yes, it was there").
--   `response_timestamp`: ISO 8601.
--   `latency_ms`: Integer (time to answer).
+### 4. Analysis Results
+**Path**: `data/analysis/results.json`
+**Purpose**: Aggregated statistical outputs.
 
-**Source**: `code/participants/interface.py`.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `anova_f` | float | F-statistic. |
+| `anova_p` | float | P-value. |
+| `effect_size` | float | Partial eta-squared. |
+| `n_participants` | integer | Total valid participants. |
+| `false_alarm_rates` | object | Mean rates per condition. |
 
 ## Data Flow
 
-1.  **Generation**: `code/data/loader.py` generates `Image` entities (mock) and saves to `data/stimuli/`.
-2.  **Manipulation**: `code/stimuli/manipulator.py` creates `enhanced` and `reduced` versions, updates `Image` metadata, and saves to `data/stimuli/`.
-3.  **Simulation**: `code/participants/interface.py` simulates a session, generating `Participant Session` and `Response` entities, saving to `data/responses/`.
-4.  **Aggregation**: `code/analysis/stats.py` loads responses, computes `total_false_memory_rate`, and saves aggregated data to `data/processed/`.
+1.  **Ingestion**: `downloader.py` fetches images → `filter.py` selects for complexity → `manipulator.py` creates variants → `metadata.py` writes `stimuli/*.yaml`.
+2.  **Collection**: `interface/app.py` collects responses → writes to `data/responses/*.jsonl`.
+3.  **Processing**: `analysis/stats.py` reads `data/responses/` → computes metrics → writes `data/analysis/results.json`.
+4.  **Logging**: Errors in manipulation or network timeouts are written to `data/logs/*.log`.
 
-## Data Hygiene & Versioning
+## Constraints
 
--   **Checksums**: Every file in `data/` is checksummed (SHA-256) upon creation. Checksums are recorded in `state/...yaml`.
--   **No In-Place Modification**: If an image is re-manipulated, a new file is created (e.g., `img_001_v2_enhanced.png`).
--   **PII**: `participant_id` is a hash of a random seed. No names, emails, or IPs are stored.
+*   **PII**: No email, name, or IP address stored in `data/responses/`. IP addresses are stripped at the Streamlit gateway.
+*   **Immutability**: Once a `session_*.jsonl` file is written, it is never modified. Corrections create a new versioned file.
+*   **Checksums**: All files in `data/stimuli/` and `data/analysis/` must have a corresponding entry in `state/.../artifact_hashes`.

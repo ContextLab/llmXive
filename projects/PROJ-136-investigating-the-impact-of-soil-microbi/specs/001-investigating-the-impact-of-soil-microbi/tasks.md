@@ -20,7 +20,7 @@
 
 **BLOCKING GATE**: Task T012 (dataset verification) MUST complete successfully with PASS status before any data download tasks (T013+) can execute. This resolves Constitution Principle II (Verified Accuracy) blocking gate. T013+ explicitly depend on T012 completion. **NOTE**: If T012 returns FAIL (no verified sources), the project halts and flags the spec for amendment; T013+ will not execute.
 
-**CPU CONSTRAINT**: All analyses must complete on 2 CPU, 7GB RAM, no GPU within 6 hours. No GPU-dependent operations (load_in_8bit, device_map="cuda", large LLMs) are permitted.
+**CPU CONSTRAINT**: All analyses must complete on 2 CPU, 7GB RAM, no GPU within 6 hours. [UNRESOLVED-CLAIM: c_4779ff6a — status=not_enough_info] No GPU-dependent operations (load_in_8bit, device_map="cuda", large LLMs) are permitted.
 
 ---
 

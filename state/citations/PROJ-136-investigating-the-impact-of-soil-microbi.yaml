@@ -76,7 +76,7 @@
   verification_status: mismatch
   verified_against_url: https://docs.qiime2.org/latest/install/
   verified_at: '2026-06-29T19:38:07.703177Z'
-- artifact_hash: 719ae20b59b3acd62cc4c3fcea3816ac5e4fbfacb9be64bd78a59ec66b796897
+- artifact_hash: 050a0ded0450257bb5140110970ae1abf5f9d7b9e12abf981288c245302b8dd1
   artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -84,10 +84,10 @@
   fetched_title: Qiita
   kind: url
   value: https://qiita.ucsd.edu/
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://qiita.ucsd.edu/
-  verified_at: '2026-06-29T19:59:03.631863Z'
-- artifact_hash: 719ae20b59b3acd62cc4c3fcea3816ac5e4fbfacb9be64bd78a59ec66b796897
+  verified_at: '2026-07-17T10:29:26.293253Z'
+- artifact_hash: 050a0ded0450257bb5140110970ae1abf5f9d7b9e12abf981288c245302b8dd1
   artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -95,6 +95,6 @@
   fetched_title: Cyclomatic complexity - Wikipedia
   kind: url
   value: https://en.wikipedia.org/wiki/Cyclomatic_complexity
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity
-  verified_at: '2026-06-29T19:59:03.631863Z'
+  verified_at: '2026-07-17T10:29:26.293253Z'

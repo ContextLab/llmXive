@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2010.07147",
+  "judged_at": "2026-07-17T09:45:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of data scaling on statistical test sensitivity statistics",
+  "rationale": "This paper addresses the user's question by providing a canonical methodological reference (category d) for statistical hypothesis testing in high-dimensional, large-sample settings, and it empirically evaluates the \"power\" (sensitivity) of its proposed test statistic under various data conditions (category a). While it does not explicitly study \"data scaling\" as a variable in the sense of increasing dataset size to observe sensitivity changes, it establishes the baseline performance and sensiti",
+  "relevant": true
+}

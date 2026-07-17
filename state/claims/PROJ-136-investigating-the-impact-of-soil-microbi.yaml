@@ -1151,3 +1151,398 @@
   source_type: external
   status: verified
   updated_at: '2026-06-29T20:09:37Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Analysis runtime constraint: 2 CPU, 7GB RAM, no GPU, 6 hours'
+  claim_id: c_4779ff6a
+  context: 'CPU CONSTRAINT: All analyses must complete on 2 CPU, 7GB RAM, no GPU within
+    6 hours. No GPU-dependent operations are permitted.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All analyses must complete on 2 CPU, 7GB RAM, no GPU within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:18:42Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Power analysis requirements: power >= 0.8, effect size >= 0.1'
+  claim_id: c_78ee48c3
+  context: "Implement power analysis utility in code/analysis/power_analysis.py (a\
+    \ priori power \u22650.8, effect size \u22650.1) per FR-015."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project requires a priori power \u22650.8 and effect size \u2265\
+    0.1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:18:42Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha=0.05, variance=0.15'
+  claim_id: c_a867e2cc
+  context: 'uses input parameters: alpha level = 0.05, variance estimate = 0.15 (default
+    placeholder)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an alpha level of 0.05 and a variance estimate
+    of 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:19:10Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'EMP/MG-RAST data target: 100 samples'
+  claim_id: c_81f876c3
+  context: "Implement EMP/MG-RAST data download in code/analysis/data_acquisition.py\
+    \ with \u2265100 samples target (FR-001)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/EMP/MG-RAST_data_target:_100_samples
+  kind: magnitude
+  raw_text: The EMP/MG-RAST data download targets at least 100 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:19:41Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Disease incidence record target: 50 records'
+  claim_id: c_2a776df0
+  context: "Implement disease incidence record download in code/analysis/data_acquisition.py\
+    \ with \u226550 records target"
+  evidence:
+    entailment_evidence: 'Disease incidence record target: 50 records'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Disease_incidence_record_target:_50_records
+  kind: magnitude
+  raw_text: The disease incidence record download targets at least 50 records.
+  resolved_value: 'Disease incidence record target: 50 records'
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T10:19:43Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Matched sample target: 30 samples'
+  claim_id: c_7356fd4b
+  context: "Implement sample-disease matching logic by location and date fields (\u2265\
+    30 matched samples target)"
+  evidence:
+    entailment_evidence: 'Matched sample target: 30 samples'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Matched_sample_target:_30_samples
+  kind: magnitude
+  raw_text: Sample-disease matching targets at least 30 matched samples.
+  resolved_value: 'Matched sample target: 30 samples'
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T10:19:47Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Taxon filtering threshold: 5% of samples'
+  claim_id: c_1e3d9b28
+  context: "Implement taxon filtering (retain taxa present in \u22655% of samples)\
+    \ in code/analysis/preprocessing.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Taxon_filtering_threshold:_5%25_of_samples
+  kind: magnitude
+  raw_text: Taxon filtering retains taxa present in at least 5% of samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:26:31Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Rarefaction depth: 10000 reads; QIIME 2 version: 2023.9'
+  claim_id: c_ed31988f
+  context: Implement rarefaction to 10k reads per sample using QIIME 2 version 2023.9
+    (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Rarefaction is performed to 10,000 reads per sample using QIIME 2 version
+    2023.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:26:43Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Model convergence: max_iter=1000, tol=1e-6'
+  claim_id: c_b3d8f381
+  context: 'convergence criteria: max_iter=1000, tol=1e-6'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical model fitting uses convergence criteria of max_iter=1000
+    and tol=1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:26:59Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Permutation test: 10000 permutations for p-value stability <0.01'
+  claim_id: c_d569daca
+  context: 'Implement permutation tests with 10,000 permutations (FR-005) - justification:
+    10,000 permutations provides p-value stability <0.01'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 10,000 permutations to achieve p-value stability
+    <0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:27:15Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Crop stratification: 2 subsets, 15 samples each'
+  claim_id: c_f29f0faf
+  context: "Implement crop type stratification analysis (\u22652 subsets, \u226515\
+    \ samples each)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Crop_stratification:_2_subsets,_15_samples_each
+  kind: magnitude
+  raw_text: Crop type stratification requires at least 2 subsets with at least 15
+    samples each.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:28:10Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Crop stratification effect consistency: 80%'
+  claim_id: c_76269edd
+  context: "with effect direction consistency check (\u226580% consistent)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Crop_stratification_effect_consistency:_80%25
+  kind: magnitude
+  raw_text: Effect direction consistency in crop stratification must be at least 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:28:46Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'ANCOM significance threshold: q < 0.1'
+  claim_id: c_c9f74cec
+  context: Implement ANCOM differential abundance testing between high- and low-disease
+    sites (FR-006) - ANCOM version 2.1 via q2-compositional plugin, significance threshold
+    q<0.1
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ANCOM differential abundance testing uses a significance threshold of
+    q<0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:28:46Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'ANCOM version: 2.1'
+  claim_id: c_879778d7
+  context: ANCOM version 2.1 via q2-compositional plugin
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ANCOM version 2.1 is used via the q2-compositional plugin.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:28:48Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'CoNet version: 1.1.2'
+  claim_id: c_c4a3a07f
+  context: Implement co-occurrence network construction using CoNet (FR-007) - CoNet
+    version 1.1.2 via Cytoscape plugin
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Co-occurrence network construction uses CoNet version 1.1.2 via Cytoscape
+    plugin.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:28:50Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'CoNet bootstrap iterations: 1000'
+  claim_id: c_2f2eda73
+  context: 'parameters: Pearson/Spearman correlation, 1000 bootstrap iterations'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Co-occurrence network construction uses 1000 bootstrap iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:28:55Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Co-occurrence network node count: 10 nodes'
+  claim_id: c_35459947
+  context: "verification: data/processed/cooccurrence_network.graphml created with\
+    \ \u226510 nodes"
+  evidence:
+    entailment_evidence: 'Co-occurrence network node count: 10 nodes'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Co-occurrence_network_node_count:_10_nodes
+  kind: magnitude
+  raw_text: The co-occurrence network must produce at least 10 nodes with centrality
+    metrics.
+  resolved_value: 'Co-occurrence network node count: 10 nodes'
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T10:28:57Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Keystone taxon count: 2 taxa'
+  claim_id: c_c40f3303
+  context: "Implement keystone taxon flagging (\u22652 taxa with high centrality)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Keystone_taxon_count:_2_taxa
+  kind: magnitude
+  raw_text: Keystone taxon flagging requires at least 2 taxa with high centrality.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:29:05Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Differential abundance target: 3 taxa with q < 0.1'
+  claim_id: c_ed8b6b42
+  context: "Implement differential abundance q-value filtering (q<0.1, \u22653 taxa\
+    \ target per SC-003)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Differential_abundance_target:_3_taxa_with_q_%3C_0.1
+  kind: magnitude
+  raw_text: Differential abundance filtering targets at least 3 taxa with q<0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:29:09Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Meta-analysis reference: r = -0.35 +/- 0.12 (2023)'
+  claim_id: c_d393b07e
+  context: "reference: 'Soil microbiome diversity and plant disease' (2023) meta-analysis\
+    \ r= -0.35 \xB1 0.12 (if available)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The reference meta-analysis value for soil microbiome diversity and plant\
+    \ disease is r= -0.35 \xB1 0.12 from 2023."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:29:14Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Cyclomatic complexity limit: < 10'
+  claim_id: c_1d4d6a35
+  context: 'reduce cyclomatic complexity <10 (Wikipedia: Cyclomatic complexity, https://en.wikipedia.org/wiki/Cyclomatic_complexity)
+    per function'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_limit:_%3C_10
+  kind: magnitude
+  raw_text: Cyclomatic complexity must be reduced to less than 10 per function.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:29:18Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Docker image size limit: < 2 GB'
+  claim_id: c_6fdefd06
+  context: "Implement Docker containerization for QIIME 2 and CoNet (\u22642 GB image\
+    \ size per Assumptions)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Docker_image_size_limit:_%3C_2_GB
+  kind: magnitude
+  raw_text: The Docker image size for QIIME 2 and CoNet must be less than 2 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:29:21Z'
+- artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
+  attempts: 1
+  canonical: 'Docker base image: python:3.11-slim'
+  claim_id: c_a1275f47
+  context: 'verification: docker/Dockerfile with base image python:3.11-slim'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Docker base image used is python:3.11-slim.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:29:26Z'

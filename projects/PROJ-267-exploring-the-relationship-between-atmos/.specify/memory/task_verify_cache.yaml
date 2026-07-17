@@ -1,0 +1,14 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file was provided in the evidence, and thus there is no installation\
+    \ guide, data source list, run commands, or expected output documentation to verify\
+    \ against the FR\u2011007 requirements. The required artifact is missing."
+T017:
+  c: false
+  h: e624b3b855a5bb91a904463a8451d361bacfc49caf3e67f80cf96a364ce10bee
+  r: "The repository contains the `03_merge_output.py` script, but the required output\
+    \ file `data/processed/merged_monthly.csv` does not exist, and the referenced\
+    \ schema file `contracts/dataset.schema.yaml` is also missing. Without these artifacts\
+    \ the script cannot fulfill the completeness, NaN\u2011check, and schema\u2011\
+    validation steps mandated by the task."

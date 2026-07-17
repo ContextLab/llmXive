@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1402.6836",
+  "judged_at": "2026-07-17T09:45:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of data scaling on statistical test sensitivity statistics",
+  "rationale": "This paper satisfies criterion (a) and (b) because it establishes the theoretical limit distributions and evaluates the finite sample performance (sensitivity) of specific statistical tests (independence and goodness-of-fit) as a function of sample size, which directly addresses the mechanism of how data scaling impacts test sensitivity.",
+  "relevant": true
+}

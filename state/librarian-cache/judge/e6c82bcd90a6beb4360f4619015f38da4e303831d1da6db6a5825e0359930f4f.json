@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.12937",
+  "judged_at": "2026-07-17T09:45:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of data scaling on statistical test sensitivity statistics",
+  "rationale": "The paper focuses on forecasting stability and model selection for non-stationary time series rather than investigating how sample size or data scaling affects the sensitivity (statistical power) of hypothesis tests. While it mentions an \"adaptive stability test,\" this is a specific diagnostic tool for time-varying coefficients, not a study of the general relationship between data volume and test sensitivity, failing to meet the criteria for mechanism, variable, or baseline inclusion.",
+  "relevant": false
+}

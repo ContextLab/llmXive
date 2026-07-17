@@ -33,3 +33,8 @@ properties:
     type: "integer"
     minimum: 0
     description: "Time taken to answer in milliseconds."
+  semantic_plausibility:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Score indicating how semantically plausible the lure is (WordNet-based)."
