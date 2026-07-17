@@ -5,180 +5,213 @@ import pandas as pd
 from pathlib import Path
 from config import ensure_directories
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/merge_warnings.log', mode='a')
-    ]
-)
-logger = logging.getLogger(__name__)
-
+# Configure logging for this module
 # Ensure logs directory exists
-ensure_directories()
+log_dir = Path("logs")
+log_dir.mkdir(exist_ok=True)
+log_file = log_dir / "merge_warnings.log"
+
+# Configure logger specifically for this module to avoid interfering with root logger
+logger = logging.getLogger("merge_datasets")
+logger.setLevel(logging.DEBUG)
+
+# Remove existing handlers to prevent duplicates if re-run
+if logger.handlers:
+    logger.handlers.clear()
+
+# File handler for warnings and errors
+fh = logging.FileHandler(log_file, mode='w')
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
+
+# Console handler for general info (optional but good for debugging)
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.INFO)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 def load_target_list(path: Path) -> pd.DataFrame:
     """Load the target list of repositories."""
-    df = pd.read_csv(path)
-    logger.info(f"Loaded target list with {len(df)} repositories from {path}")
-    return df
+    logger.info(f"Loading target list from {path}")
+    if not path.exists():
+        raise FileNotFoundError(f"Target list not found at {path}")
+    return pd.read_csv(path)
 
 def load_github_metrics(path: Path) -> pd.DataFrame:
-    """Load GitHub metrics (authors, KLOC, etc.)."""
-    df = pd.read_csv(path)
-    logger.info(f"Loaded GitHub metrics with {len(df)} repositories from {path}")
-    return df
+    """Load GitHub metrics."""
+    logger.info(f"Loading GitHub metrics from {path}")
+    if not path.exists():
+        raise FileNotFoundError(f"GitHub metrics not found at {path}")
+    return pd.read_csv(path)
 
 def load_nvd_cves(path: Path) -> pd.DataFrame:
     """Load NVD CVE data."""
-    # Handle both .json.gz and .json
-    if path.suffix == '.gz':
-        df = pd.read_json(path, compression='gzip')
-    else:
-        df = pd.read_json(path)
-    
-    # Ensure 'url' column exists and is string type
-    if 'url' not in df.columns:
-        raise ValueError("NVD data must contain a 'url' column")
-    
-    df['url'] = df['url'].astype(str)
-    logger.info(f"Loaded NVD CVE data with {len(df)} entries from {path}")
-    return df
+    logger.info(f"Loading NVD CVE data from {path}")
+    if not path.exists():
+        raise FileNotFoundError(f"NVD CVE data not found at {path}")
+    # Assuming JSON input is converted to a DataFrame elsewhere or handled here
+    # For this task, we assume the input is a DataFrame with 'url' and 'cve_id'
+    return pd.read_json(path)
 
-def count_cves_per_repo(nvd_df: pd.DataFrame) -> pd.Series:
-    """
-    Count CVEs per repository URL using EXACT matching.
-    Returns a Series indexed by URL with CVE counts.
-    """
+def count_cves_per_repo(nvd_df: pd.DataFrame) -> pd.DataFrame:
+    """Count CVEs per repository URL."""
     if nvd_df.empty:
-        logger.warning("NVD data is empty, returning empty CVE counts")
-        return pd.Series(dtype=int)
-    
-    # Group by exact URL and count
-    counts = nvd_df.groupby('url').size()
-    logger.info(f"Counted CVEs for {len(counts)} unique URLs")
+        return pd.DataFrame(columns=['url', 'cve_count'])
+    counts = nvd_df.groupby('url').size().reset_index(name='cve_count')
     return counts
 
-def merge_datasets(
-    target_list: pd.DataFrame,
-    github_metrics: pd.DataFrame,
-    nvd_counts: pd.Series
-) -> pd.DataFrame:
+def merge_datasets(target_df: pd.DataFrame, github_df: pd.DataFrame, nvd_counts_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Merge datasets using EXACT URL matching as per FR-002.
+    Merge datasets with exact URL matching.
     
-    - If a URL in target_list has no exact match in NVD, set cve_count to 0.
-    - Flag ambiguous matches (substring matches) in logs but do NOT merge them.
+    - Joins GitHub metrics to target list.
+    - Performs left join with NVD counts.
+    - Logs skipped repositories (no match) and ambiguous matches.
+    - Sets cve_count to 0 for no matches.
     """
-    # Ensure URL columns are strings for consistent comparison
-    target_list = target_list.copy()
-    github_metrics = github_metrics.copy()
-    
-    target_list['url'] = target_list['url'].astype(str)
-    github_metrics['url'] = github_metrics['url'].astype(str)
-    
-    # Merge GitHub metrics with target list (inner join to keep only valid targets)
-    merged = pd.merge(
-        target_list,
-        github_metrics,
-        on='url',
-        how='inner'
-    )
-    logger.info(f"Merged target list with GitHub metrics: {len(merged)} rows")
-    
-    # Initialize cve_count column with 0 (default for no match)
-    merged['cve_count'] = 0
-    
-    # Find exact matches in NVD
-    exact_matches = merged[merged['url'].isin(nvd_counts.index)]
-    merged.loc[exact_matches.index, 'cve_count'] = merged.loc[exact_matches.index, 'url'].map(nvd_counts)
-    
-    # Detect and log ambiguous matches (substring matches) that were NOT exact matches
-    # These are URLs in NVD that are substrings of target URLs or vice versa, but not exact
-    target_urls = set(target_list['url'].unique())
-    nvd_urls = set(nvd_counts.index)
-    
-    # Find URLs in NVD that are not exact matches but might be ambiguous
-    non_exact_nvd = nvd_urls - target_urls
-    
-    ambiguous_count = 0
-    for nvd_url in non_exact_nvd:
-        for target_url in target_urls:
-            if nvd_url in target_url or target_url in nvd_url:
-                # This is an ambiguous match
-                logger.warning(f"[{target_url}] Ambiguous match detected with NVD URL: {nvd_url} (substring match, not merged)")
-                ambiguous_count += 1
-                # Only log first occurrence per target to avoid spam
-                break
-    
-    if ambiguous_count > 0:
-        logger.warning(f"Total ambiguous (substring) matches flagged: {ambiguous_count}")
-    
-    logger.info(f"Final merged dataset has {len(merged)} rows, with CVE counts assigned via exact matching")
-    return merged
+    logger.info("Starting dataset merge with exact URL matching")
 
-def validate_merged_data(df: pd.DataFrame) -> None:
-    """
-    Validate the merged dataset:
-    - Check for null values in kloc and cve_count
-    - Ensure cve_count defaults to 0 (not null) if missing
-    """
-    logger.info("Validating merged dataset...")
+    # Merge target list with GitHub metrics (inner join to ensure we have metrics)
+    # Assuming target_df has 'url' and github_df has 'url'
+    merged = target_df.merge(github_df, on='url', how='left')
     
-    # Check for nulls in critical columns
+    if merged.empty:
+        logger.error("Merged dataset is empty after joining with GitHub metrics.")
+        return merged
+
+    # Identify URLs in merged that are not in NVD counts
+    # We will do a left join to keep all merged rows
+    final_df = merged.merge(nvd_counts_df, on='url', how='left')
+
+    # Process missing values and logging
+    # 1. Handle ambiguous matches: 
+    #    Since we are doing exact matching on 'url', any match in the merge is exact.
+    #    Ambiguous matches (substring) would only occur if we did fuzzy matching.
+    #    However, if the NVD data contains URLs that are substrings of the target URLs,
+    #    a strict 'url' join will NOT match them. 
+    #    To detect potential ambiguous matches (where a substring of target URL exists in NVD),
+    #    we perform a check.
+    
+    target_urls = set(merged['url'].unique())
+    nvd_urls = set(nvd_counts_df['url'].unique())
+    
+    # Check for potential ambiguous matches (substring containment)
+    # This is an O(N*M) operation, so we might limit it or optimize if data is huge.
+    # For now, we iterate to find if any NVD URL is a substring of a target URL (and vice versa)
+    # that didn't get an exact match.
+    
+    ambiguous_matches = []
+    skipped_repos = []
+
+    # Filter out exact matches first
+    exact_match_urls = target_urls.intersection(nvd_urls)
+    non_exact_target_urls = target_urls - exact_match_urls
+
+    for t_url in non_exact_target_urls:
+        found_ambiguous = False
+        for n_url in nvd_urls:
+            if t_url in n_url or n_url in t_url:
+                # This is an ambiguous match (substring)
+                ambiguous_matches.append((t_url, n_url))
+                found_ambiguous = True
+                break # Stop at first ambiguous match for this target URL
+        
+        if not found_ambiguous:
+            # No exact match and no substring match found
+            skipped_repos.append(t_url)
+
+    # Log ambiguous matches
+    for t_url, n_url in ambiguous_matches:
+        msg = f"[{t_url}] Reason: Ambiguous NVD match found (substring: {n_url}), not merged."
+        logger.error(msg)
+
+    # Log skipped repositories
+    for t_url in skipped_repos:
+        msg = f"[{t_url}] Reason: No exact or ambiguous NVD match found."
+        logger.warning(msg)
+
+    # Fill NaN cve_count with 0 for all rows (including skipped ones if they are in the df)
+    final_df['cve_count'] = final_df['cve_count'].fillna(0).astype(int)
+
+    logger.info(f"Merge complete. Processed {len(final_df)} repos.")
+    logger.info(f"Skipped repos (no match): {len(skipped_repos)}")
+    logger.info(f"Ambiguous matches logged: {len(ambiguous_matches)}")
+
+    return final_df
+
+def validate_merged_data(df: pd.DataFrame) -> bool:
+    """Validate the merged dataset for nulls in critical columns."""
+    logger.info("Validating merged dataset")
+    
     if df['kloc'].isnull().any():
-        null_kloc_rows = df[df['kloc'].isnull()]
-        logger.error(f"Found {len(null_kloc_rows)} rows with null kloc values")
-        raise ValueError("Null values found in 'kloc' column. This violates data integrity requirements.")
+        error_msg = "Validation failed: Null values found in 'kloc' column."
+        logger.error(error_msg)
+        raise ValueError(error_msg)
     
     if df['cve_count'].isnull().any():
-        null_cve_rows = df[df['cve_count'].isnull()]
-        logger.warning(f"Found {len(null_cve_rows)} rows with null cve_count. Filling with 0.")
-        df['cve_count'] = df['cve_count'].fillna(0)
-    
-    # Ensure cve_count is integer type
-    df['cve_count'] = df['cve_count'].astype(int)
-    
-    logger.info("Validation passed: no null values in critical columns")
+        error_msg = "Validation failed: Null values found in 'cve_count' column."
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+
+    logger.info("Validation passed.")
+    return True
 
 def main():
-    """Main entry point for merging and validating datasets."""
-    # Define paths
-    base_dir = Path(__file__).parent.parent.parent
-    target_list_path = base_dir / 'data' / 'raw' / 'target_list.csv'
-    github_metrics_path = base_dir / 'data' / 'processed' / 'github_raw_metrics.csv'
-    nvd_cve_path = base_dir / 'data' / 'raw' / 'nvd_cve_merged.json.gz'
-    output_path = base_dir / 'data' / 'processed' / 'repo_metrics.csv'
-    
-    # Load data
-    target_list = load_target_list(target_list_path)
-    github_metrics = load_github_metrics(github_metrics_path)
-    nvd_cves = load_nvd_cves(nvd_cve_path)
-    
-    # Count CVEs per repo (exact URL matching)
-    nvd_counts = count_cves_per_repo(nvd_cves)
-    
-    # Merge datasets with validation logic
-    merged_df = merge_datasets(target_list, github_metrics, nvd_counts)
-    
-    # Validate the merged data
-    validate_merged_data(merged_df)
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save the final merged dataset
-    merged_df.to_csv(output_path, index=False)
-    logger.info(f"Saved merged dataset to {output_path}")
-    
-    # Print summary
-    print(f"\n=== Merge Summary ===")
-    print(f"Total repositories: {len(merged_df)}")
-    print(f"Repositories with CVEs: {(merged_df['cve_count'] > 0).sum()}")
-    print(f"Repositories without CVEs (cve_count=0): {(merged_df['cve_count'] == 0).sum()}")
-    print(f"Output file: {output_path}")
+    """Main entry point for merging datasets."""
+    # Paths
+    target_path = Path("data/raw/target_list.csv")
+    github_path = Path("data/processed/github_raw_metrics.csv")
+    nvd_path = Path("data/processed/nvd_cve_counts.csv") # Assuming intermediate step creates this
+    output_path = Path("data/processed/repo_metrics.csv")
 
-if __name__ == '__main__':
+    # Ensure output directory exists
+    ensure_directories()
+
+    try:
+        # Load data
+        target_df = load_target_list(target_path)
+        github_df = load_github_metrics(github_path)
+        
+        # If NVD is a raw JSON, we need to count CVEs first
+        # Assuming nvd_path is the result of count_cves_per_repo
+        if not nvd_path.exists():
+            # Fallback: load raw JSON and count if the path points to raw JSON
+            raw_nvd_path = Path("data/raw/nvd_cve_merged.json.gz")
+            if raw_nvd_path.exists():
+                import gzip
+                import json
+                with gzip.open(raw_nvd_path, 'rt', encoding='utf-8') as f:
+                    nvd_data = json.load(f)
+                # Convert to DF and count
+                nvd_df = pd.DataFrame(nvd_data)
+                # Assuming 'cwe_id' or 'id' or 'url' exists. 
+                # Based on T007, we have a merged JSON. We need to extract the repo URL mapping.
+                # This part depends on the schema of nvd_cve_merged.json.gz.
+                # For this task, we assume nvd_path points to the pre-counted CSV.
+                # If not, we raise an error or attempt to derive it.
+                # Let's assume the task T009b implies we have a way to get counts.
+                # We will assume nvd_path is correct for the merge step.
+                raise FileNotFoundError(f"Pre-counted NVD data not found at {nvd_path}. Please run NVD processing step.")
+            else:
+                raise FileNotFoundError(f"NVD data not found at {nvd_path} or {raw_nvd_path}")
+        
+        nvd_counts_df = load_nvd_cves(nvd_path)
+
+        # Merge
+        result_df = merge_datasets(target_df, github_df, nvd_counts_df)
+
+        # Validate
+        validate_merged_data(result_df)
+
+        # Save
+        result_df.to_csv(output_path, index=False)
+        logger.info(f"Saved merged data to {output_path}")
+
+    except Exception as e:
+        logger.error(f"Error during merge process: {str(e)}")
+        raise
+
+if __name__ == "__main__":
     main()

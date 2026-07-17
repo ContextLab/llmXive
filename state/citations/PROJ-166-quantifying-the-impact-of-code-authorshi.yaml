@@ -9,3 +9,14 @@
   verification_status: pending
   verified_against_url: https://nvd.nist.gov/feeds/json/cve/1.1/
   verified_at: '2026-07-03T06:01:05.974551Z'
+- artifact_hash: ee60ed5fd555e46108d201d17a1f0caea3a328881f70727e022843680f8378ed
+  artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/quantifying-authorship-diversity.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/quantifying-authorship-diversity
+  verified_at: '2026-07-17T03:28:43.984538Z'

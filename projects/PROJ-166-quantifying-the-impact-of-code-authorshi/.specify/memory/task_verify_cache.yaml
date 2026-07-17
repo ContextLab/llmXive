@@ -1,0 +1,20 @@
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, notebook, or output file) showing the Benjamini\u2011\
+    Hochberg correction applied to the p\u2011values from the subsample and entropy\
+    \ models was provided. Without a concrete corrected\u2011p\u2011values dataset\
+    \ or code implementing the correction, the task requirement is not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md file or its contents were provided, so we cannot confirm that a
+    CLI usage section, a Methods section describing the GLM offset approach, and a
+    Data section were added as required. The implementer must supply the updated README.md
+    showing these three sections.
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit test files or code were presented under `tests/unit/analysis/`; the\
+    \ claim provides only the task description without any actual test artifacts,\
+    \ so the required additional edge\u2011case tests are missing."
