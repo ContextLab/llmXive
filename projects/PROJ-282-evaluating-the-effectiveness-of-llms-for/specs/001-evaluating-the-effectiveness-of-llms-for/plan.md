@@ -4,7 +4,9 @@
 **Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
-The project will (1) download the open‑source VulDeePecker and Juliet datasets (≤ 5 000 labeled snippets), (2) run zero‑shot inference with a CPU‑quantized open‑source code LLM (StarCoder‑Base quantized to 4‑bit), (3) extract structural, semantic, and embedding‑based features for each snippet (using an EXTERNAL vulnerability pattern corpus to prevent data leakage), (4) run baseline static analyzers (Bandit for Python, cppcheck for C), and (5) perform the full statistical suite (precision/recall/F1/ROC‑AUC per category, Point-Biserial correlations with multiple‑comparison correction, Binary Logistic Regression, McNemar’s test on matched samples, and a sensitivity analysis on a human‑verified subset). All steps are orchestrated in a reproducible, chunk‑aware pipeline that respects the CPU budget on GitHub Actions.
+The project will (1) download the open‑source VulDeePecker and Juliet datasets (≤ 5 000 labeled snippets), (2) run zero‑shot inference with a CPU‑quantized open‑source code LLM (StarCoder‑Base quantized to low-bit precision
+
+The research question is: How does quantization affect the performance of StarCoder‑Base? The method is: Quantization-aware training and evaluation. References: [1] DOI:10.1145/3582356.), (3) extract structural, semantic, and embedding‑based features for each snippet (using an EXTERNAL vulnerability pattern corpus to prevent data leakage), (4) run baseline static analyzers (Bandit for Python, cppcheck for C), and (5) perform the full statistical suite (precision/recall/F1/ROC‑AUC per category, Point-Biserial correlations with multiple‑comparison correction, Binary Logistic Regression, McNemar’s test on matched samples, and a sensitivity analysis on a human‑verified subset). All steps are orchestrated in a reproducible, chunk‑aware pipeline that respects the CPU budget on GitHub Actions.
 
 ## Technical Context
 **Language/Version**: Python 3.11  

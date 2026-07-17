@@ -1,0 +1,15 @@
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `llm_inference.py` file or diff showing the required truncation\u2011event\
+    \ logging and ambiguous\u2011response regex mapping was provided; without the\
+    \ actual code changes we cannot confirm the logic was added. The implementer must\
+    \ supply the updated `llm_inference.py` (or a patch) demonstrating both features."
+T015:
+  c: false
+  h: 375bbdbf39b53d68c2d79474d3a4e8cad9b9fb1fc263803b738396008e6774e7
+  r: "The repository contains `src/data/ingest_pipeline.py`, but the file is truncated\
+    \ and shows no implementation of dynamic batch\u2011size adjustment or writing\
+    \ of `data/processed/predictions.csv`. Moreover, the required output file `data/processed/predictions.csv`\
+    \ is absent, so the pipeline\u2019s validation step cannot be verified. The task\
+    \ therefore remains unfinished."

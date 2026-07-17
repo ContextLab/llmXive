@@ -1,0 +1,27 @@
+# Ruff configuration file
+# This file extends or mirrors settings in pyproject.toml for CLI usage
+
+line-length = 100
+target-version = "py311"
+
+select = [
+    "E", "W", "F", "I", "C", "B", "UP", "RUF",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+
+exclude = [
+    ".git",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+    "data",
+    "__pycache__",
+]
+
+[per-file-ignores]
+"code/tests/*" = ["S101"]
