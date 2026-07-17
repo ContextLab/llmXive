@@ -5,9 +5,11 @@ type: "object"
 required:
   - "task_id"
   - "condition"
-  - "model_output"
+  - "generated_code"
   - "execution_status"
   - "error_type"
+  - "execution_time_ms"
+  - "timeout_triggered"
 properties:
   task_id:
     type: "string"
@@ -18,7 +20,7 @@ properties:
     enum:
       - "blind"
       - "guided"
-  model_output:
+  generated_code:
     type: "string"
     description: "The generated code string."
   execution_status:
@@ -38,13 +40,17 @@ properties:
       - "Syntax"
       - "Library"
       - "Runtime"
-      - "LogicTransfer"
+      - "Logic Transfer"
   anchor_verification:
     type: "boolean"
     description: "True if generated code implements all anchor steps (only for 'Pass' cases)."
-  latency_ms:
+  execution_time_ms:
     type: "integer"
     description: "Time taken for generation + execution in milliseconds."
+  timeout_triggered:
+    type: "boolean"
+    description: "True if the execution timed out."
   logs:
     type: "string"
     description: "Raw stderr/stdout logs from the sandbox."
+additionalProperties: false

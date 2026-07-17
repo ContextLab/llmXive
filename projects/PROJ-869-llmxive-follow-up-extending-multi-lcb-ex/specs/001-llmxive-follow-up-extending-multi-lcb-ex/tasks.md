@@ -45,24 +45,29 @@
 
 - [ ] T001 Create project structure per implementation plan in `projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/`
 - [ ] T002 Initialize Python project with `requirements.txt` dependencies (llama-cpp-python, datasets, scipy, pandas, pyyaml, pytest, joblib)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T003 [P] **Model Feasibility Gate**: Implement `code/feasibility_gate.py` to measure token throughput of the 1.1B GGUF model on the target runner. **Mandatory Fallback**: If throughput < 2 tokens/sec, the task MUST switch the configuration to the 3B model and reduce the target task set to 50 items. Output: `data/feasibility_log.json` with binary decision (proceed/fallback), measured throughput, and final configuration.
+- [ ] T004 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 2: Data Preparation & Filtering (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core data infrastructure, filtering, and baseline establishment. MUST be complete before ANY user story execution.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work (Phase 3/4) can begin until this phase is complete. All downstream tasks depend on `data/final_tasks.json`.
 
-- [ ] T004 [P] Create `code/config.py` to manage paths, random seeds, and model configurations
-- [ ] T005 [P] Implement `code/dataset.py` for loading Multi-LCB parquet files from HuggingFace and verifying checksums
-- [ ] T006 [P] Implement `code/dataset.py` stratification logic (Difficulty, Topic, Language Pair) per FR-006
-- [ ] T007 Create `data/raw/` and `data/processed/` directory structure with checksum tracking
-- [ ] T008 [P] Setup error logging infrastructure in `code/utils/logger.py`
-- [ ] T009 [P] Implement `code/sandbox.py` skeleton with subprocess execution and 10s timeout enforcement (FR-003)
+- [ ] T005 [P] Create `code/config.py` to manage paths, random seeds, and model configurations
+- [ ] T006 [P] Create `data/raw/` and `data/processed/` directory structure with checksum tracking
+- [ ] T007 [P] Setup error logging infrastructure in `code/utils/logger.py`
+- [ ] T008 [P] Implement `code/dataset.py` for loading Multi-LCB parquet files from HuggingFace and verifying checksums
+- [ ] T009 [P] Implement `code/dataset.py` stratification logic (Difficulty, Topic, Language Pair) per FR-006
+- [ ] T010 [P] Implement `code/sandbox.py` **full execution harness** with strict timeout enforcement per test case (FR-003). **Do not implement as a skeleton.**
+- [ ] T016 [P] [US1] **Static Pool Selection**: Implement `code/dataset.py` to select the initial pool of tasks where the model previously failed in the target language (blind Pass@1 < 1.0) AND succeeded in Python. **Must include logic for sampling replacements** if the initial pool is insufficient to meet the final target after filtering. Output: `data/initial_pool.json`.
+- [ ] T017 [P] [US1] **Stochasticity Filter Execution**: Implement `code/dataset.py` to orchestrate multiple blind runs per task in `data/initial_pool.json` and include only tasks that fail in ≥2 of 3 runs. Output: `data/filtered_tasks.json`.
+- [ ] T018 [P] [US1] **Attrition Handling**: Implement `code/dataset.py` to sample replacements from the next available pool (excluding rejected tasks) if `data/filtered_tasks.json` contains < 200 items, maintaining stratification by Difficulty/Topic. **Explicitly implement the replacement sampling logic** to ensure the final set reaches the target count. Output: `data/final_tasks.json`.
+- [ ] T039 [P] [US3] **Record Baseline Metrics**: Implement `code/stats.py` to calculate and write the empirical baseline Pass@1 for the **final filtered set** (`data/final_tasks.json` from T018) to `data/blind_baseline.yaml`. **Schema**: `{pass_count: int, total_count: int, pass_rate: float, filtered_task_ids: list}`. **Depends on T018**.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Data ready - user story implementation can now begin in parallel
 
 ---
 
@@ -70,19 +75,19 @@
 
 **Goal**: Extract Partial Logic Traces from Python ground truth and construct guided prompts for target languages.
 
-**Independent Test**: The system can be tested by running the inference pipeline on a single, **pre-filtered or mocked** task from the dataset, verifying that the model outputs a syntactically valid code snippet in the target language when provided the Partial Logic Trace. (Note: The full filtering logic is implemented in Phase 4).
+**Independent Test**: The system can be tested by running the inference pipeline on a single, **pre-filtered** task from the dataset, verifying that the model outputs a syntactically valid code snippet in the target language when provided the Partial Logic Trace.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [P] [US1] Unit test for AST parsing logic in `tests/unit/test_logic_anchor.py`
-- [ ] T011 [P] [US1] Unit test for prompt construction in `tests/unit/test_prompt_builder.py`
+- [ ] T011 [P] [US1] Unit test for AST parsing logic in `tests/unit/test_logic_anchor.py`
+- [ ] T012 [P] [US1] Unit test for prompt construction in `tests/unit/test_prompt_builder.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/logic_anchor.py`: Parse ground-truth Python solutions into AST and extract first 3 algorithmic steps (FR-001.1)
-- [ ] T013 [P] [US1] Implement `code/logic_anchor.py`: Serialize extracted steps into pseudo-code/Python anchor strings
-- [ ] T014 [US1] Implement `code/prompt_builder.py`: Construct few-shot prompts including problem statement, failed output, and Partial Logic Trace (FR-001)
-- [ ] T015 [US1] Implement `code/inference.py`: Load **standard CPU quantization model (e.g., GGUF q4_0 via llama-cpp-python)** and generate target language code given the prompt. **NO bitsandbytes/8-bit/4-bit CUDA quantization allowed.**
+- [ ] T013 [P] [US1] Implement `code/logic_anchor.py`: Parse ground-truth Python solutions into AST, extract first algorithmic steps (FR-001.1). **Mandatory Error Handling**: If the Python solution is too short to extract a sufficient number of steps, the task MUST skip the entry, log "Anchor Extraction Failed", and remove the task from the active processing list (Edge Case).
+- [ ] T014 [P] [US1] Implement `code/logic_anchor.py`: Serialize extracted steps into pseudo-code/Python anchor strings.
+- [ ] T015 [US1] Implement `code/prompt_builder.py`: Construct few-shot prompts including problem statement, failed output, and Partial Logic Trace (FR-001). **Dependency**: Model must be loaded successfully (T003 passed).
+- [ ] T016 [US1] Implement `code/inference.py`: Load **standard CPU quantization model (e.g., GGUF quantized format via llama-cpp-python)** and generate target language code given the prompt. **NO bitsandbytes/8-bit/4-bit CUDA quantization allowed.** **Prerequisite**: T003 (Feasibility Gate) must have passed.
 
 **Checkpoint**: At this point, User Story 1 (excluding the stochasticity filter) should be fully functional and testable with mocked data
 
@@ -90,27 +95,24 @@
 
 ## Phase 4: User Story 2 - Automated Execution & Pass@1 Verification (Priority: P2)
 
-**Goal**: Execute generated code in a sandboxed environment, apply the stochasticity filter, and verify correctness against test suites.
+**Goal**: Execute generated code in a sandboxed environment, verify correctness, and categorize errors.
 
 **Independent Test**: The system can be tested by feeding a known correct Rust solution into the execution harness and verifying that the test suite passes, and conversely, that a syntactically broken solution fails the harness.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for timeout enforcement in `tests/unit/test_sandbox.py`
-- [ ] T019 [P] [US2] Unit test for error log parsing (Syntax, Runtime, Library) in `tests/unit/test_sandbox.py`
+- [ ] T017 [P] [US2] Unit test for timeout enforcement in `tests/unit/test_sandbox.py`
+- [ ] T018 [P] [US2] Unit test for error log parsing (Syntax, Runtime, Library) in `tests/unit/test_sandbox.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/sandbox.py`: Full execution harness for Rust/Kotlin/Go with strict 10s timeout per test case (FR-003)
-- [ ] T021 [US2] Implement `code/sandbox.py`: Parse execution logs to detect "Compile Error", "Runtime Error", "Timeout", "Segmentation fault"
-- [ ] T016 [US2] Implement `code/dataset.py`: **Full filtering logic (Static + Stochastic)** - Select tasks where model failed in target language but succeeded in Python, then **re-run blind condition 3 times** and include only if fails **≥2/3 runs** (FR-006, FR-006.2)
-- [ ] T017 [US2] Implement `code/dataset.py`: **Stochasticity Filter Execution** - Orchestrate the 3 blind runs and apply the ≥2/3 failure filter logic to produce the final task set (FR-006.2)
-- [ ] T039 [US2] Implement `code/stats.py`: **Record empirical baseline Pass@1** metrics for the filtered dataset to `data/blind_baseline.yaml` (FR-006.1, SC-001)
-- [ ] T022 [US2] Implement `code/sandbox.py`: Logic Transfer Failure detection: Verify generated code implements anchor steps via **keyword/control-flow matching** against the Partial Logic Trace artifact produced by **T012/T013** (FR-004)
-- [ ] T023 [US2] Implement `code/stats.py`: Binary Pass/Fail determination logic based on test suite outcomes
-- [ ] T024 [US2] Implement `code/main.py` orchestration: Run blind and guided conditions on the **final filtered dataset** (from T016/T017) (200 tasks target)
-- [ ] T025 [US2] Implement `code/main.py`: Parallelize execution using `joblib` to maximize CPU usage within 6h limit
-- [ ] T040 [US2] Implement `code/main.py`: **Orchestration logic for time/resource management** (dynamic task skipping, resource monitoring, parallelization tuning) to ensure ≤6h runtime (SC-004)
+- [ ] T019 [P] [US2] Implement `code/sandbox.py`: Full execution harness for Rust/Kotlin/Go with strict timeout per test case (FR-003).
+- [ ] T020 [US2] Implement `code/sandbox.py`: Parse execution logs to detect "Compile Error", "Runtime Error", "Timeout", "Segmentation fault".
+- [ ] T021 [P] [US2] Implement `code/inference_runner.py`: Run blind and guided conditions on the **final filtered dataset** (`data/final_tasks.json` from T018). **Dependency**: T018 (Final Dataset), T016 (Inference).
+- [ ] T022 [P] [US2] Implement `code/parallel_executor.py`: Parallelize execution using `joblib` to maximize CPU usage within 6h limit.
+- [ ] T023 [US2] Implement `code/orchestrator.py`: **Orchestration logic** for time/resource management (dynamic task skipping, resource monitoring) to ensure ≤6h runtime (SC-004).
+- [ ] T024 [US2] **Logic Transfer Failure Detection**: Implement `code/error_categorizer.py`. **Mandatory Valid Alternative Check**: Verify generated code implements anchor steps via **keyword/control-flow matching** against the Partial Logic Trace (from T013/T014). **Crucially, exclude cases where code passes tests but uses a standard library function encapsulating the anchor steps**; in such cases, mark as "Pass" or "Library Misuse", NOT "Logic Transfer Failure" (FR-004). **Depends on T021 (Guided Runs output)**.
+- [ ] T025 [US2] Implement `code/stats.py`: Binary Pass/Fail determination logic based on test suite outcomes.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,12 +131,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement `code/stats.py`: Categorize failures into Syntax, Library Misuse, Runtime Error, Logic Transfer Failure (FR-004)
-- [ ] T029 [US3] Implement `code/stats.py`: Perform paired McNemar's test on blind vs. guided Pass/Fail outcomes (FR-005)
-- [ ] T030 [US3] Implement `code/stats.py`: Calculate LC-Pass@1 metrics (Passes / Total) excluding Logic Transfer Failures
-- [ ] T031 [US3] Implement `code/main.py`: Generate `data/statistical_report.yaml` with p-values, metrics, and error distribution
-- [ ] T032 [US3] Implement `code/main.py`: Generate `data/results.csv` mapping task IDs to blind/guided status and error types
-- [ ] T033 [US3] Validate execution time: Verify total pipeline runtime ≤ 6 hours on GitHub Actions free-tier (SC-004) (Depends on T040)
+- [ ] T028 [P] [US3] Implement `code/stats.py`: Categorize failures into Syntax, Library Misuse, Runtime Error, Logic Transfer Failure (FR-004).
+- [ ] T029 [US3] Implement `code/stats.py`: Perform paired McNemar's test on blind vs. guided Pass/Fail outcomes (FR-005).
+- [ ] T030 [US3] Implement `code/stats.py`: Calculate primary Pass@1 metrics (Passes / Total) and Recovery Rate (SC-001). **Note**: This task calculates the primary metric defined in SC-001, distinct from derived metrics.
+- [ ] T031 [US3] Implement `code/main.py`: Generate `data/statistical_report.yaml` with p-values, metrics, and error distribution.
+- [ ] T032 [US3] Implement `code/main.py`: Generate `data/results.csv` mapping task IDs to blind/guided status and error types.
+- [ ] T033 [US3] Validate execution time: Verify total pipeline runtime ≤ 6 hours on GitHub Actions free-tier (SC-004) (Depends on T023).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -157,17 +159,17 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+- **Data Prep (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Data Prep (Phase 2) completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories (uses **mocked/pre-filtered** data for initial test)
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for prompt generation and logic anchor artifacts (T012/T013) and **includes the filtering logic** (T016/T017)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 for execution results and baseline metrics
+- **User Story 1 (P1)**: Can start after Data Prep (Phase 2) - No dependencies on other stories (uses `data/final_tasks.json` for initial test)
+- **User Story 2 (P2)**: Can start after Data Prep (Phase 2) - Depends on US1 for prompt generation and logic anchor artifacts (T013/T014) and consumes `data/final_tasks.json`
+- **User Story 3 (P3)**: Can start after Data Prep (Phase 2) - Depends on US2 for execution results and baseline metrics
 
 ### Within Each User Story
 
@@ -180,8 +182,8 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All Data Prep tasks marked [P] can run in parallel (within Phase 2)
+- Once Data Prep phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
@@ -207,14 +209,14 @@ Task: "Implement code/logic_anchor.py: Serialize extracted steps into pseudo-cod
 ### MVP First (User Story 1 Only)
 
 1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+2. Complete Phase 2: Data Prep (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (using **mocked/pre-filtered** data)
+4. **STOP and VALIDATE**: Test User Story 1 independently (using `data/final_tasks.json`)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational → Foundation ready
+1. Complete Setup + Data Prep → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
@@ -224,8 +226,8 @@ Task: "Implement code/logic_anchor.py: Serialize extracted steps into pseudo-cod
 
 With multiple developers:
 
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
+1. Team completes Setup + Data Prep together
+2. Once Data Prep is done:
    - Developer A: User Story 1
    - Developer B: User Story 2
    - Developer C: User Story 3
@@ -242,4 +244,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Data Flow**: T012/T013 (Anchor) -> T020/T021 (Harness) -> **T016/T017 (Filter)** -> T024 (Final Runs) -> **T039 (Baseline Record)** -> T029 (Stats)
+- **Critical Data Flow**: T003 (Feasibility) -> T016 (Static Pool) -> T017 (Stochastic Filter) -> T018 (Attrition) -> T039 (Baseline) -> T013/T014 (Anchor) -> T021 (Runs) -> T024 (Analysis) -> T029 (Stats)

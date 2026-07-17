@@ -1,55 +1,44 @@
-- artifact_hash: 3a3a450c2bbeff029426ada8e8263d752d0df3107b02cf0844349bd6f30ca446
+- artifact_hash: 60872c1c4a7afb13ab4701652a3f16a05d030277bcda619b4cd8471ca4e8ad77
   artifact_path: projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/specs/001-llmxive-follow-up-extending-multi-lcb-ex/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: test-00000-of-00013.parquet
   kind: url
-  value: https://huggingface.co/datasets/huypn16/LCB-R/resolve/main/data/test-00000-of-00013.parquet
-  verification_status: verified
-  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/66ccb6f4051dca09d3a165c3/0ca7b68965a567c70ff58554a597e58eaabf6f89a40a99bf9676361b57cfeeff?Expires=1784095074&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2Y2NiNmY0MDUxZGNhMDlkM2ExNjVjMy8wY2E3YjY4OTY1YTU2N2M3MGZmNTg1NTRhNTk3ZTU4ZWFhYmY2Zjg5YTQwYTk5YmY5Njc2MzYxYjU3Y2ZlZWZmKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA5NTA3NH19fV19&Signature=MEUCIQCiS%7EEsikhSssYJ5brDiXjPnN1IvGEvmUiQWdXYQO0eqwIgdmMJ%7EUjMO0ypShpNQswQCH7657V4O9cjuBkeb1jVm8o_&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00013.parquet%3B+filename%3D%22test-00000-of-00013.parquet%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T045754Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=86962768672656b914349ccfdf48412e26d05943a1a91948d9a640dc95481ebc
-  verified_at: '2026-07-15T04:57:54.024895Z'
-- artifact_hash: 3a3a450c2bbeff029426ada8e8263d752d0df3107b02cf0844349bd6f30ca446
+  value: https://huggingface.co/datasets/huypn16/LCB-R/resolve/main/data/test-00000-of-00013.parquet`
+  verification_status: pending
+  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/66ccb6f4051dca09d3a165c3/0ca7b68965a567c70ff58554a597e58eaabf6f89a40a99bf9676361b57cfeeff?Expires=1784254952&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2Y2NiNmY0MDUxZGNhMDlkM2ExNjVjMy8wY2E3YjY4OTY1YTU2N2M3MGZmNTg1NTRhNTk3ZTU4ZWFhYmY2Zjg5YTQwYTk5YmY5Njc2MzYxYjU3Y2ZlZWZmKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDI1NDk1Mn19fV19&Signature=MEUCIQD0%7EztW5acDH3H6lwUyIJ5J0Tp9liSwwMyO6gRTREd7lgIgPj1aiDll9nnP4UEG7Qh4s5R6HX%7EPb%7EQm7w-waiGIjqI_&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00013.parquet%3B+filename%3D%22test-00000-of-00013.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260717%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260717T012232Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=192c4ded0096472393c31330d7d6eb679cce28e5bf1c3af7939eb6cc81434569
+  verified_at: '2026-07-17T01:22:32.679624Z'
+- artifact_hash: 60872c1c4a7afb13ab4701652a3f16a05d030277bcda619b4cd8471ca4e8ad77
   artifact_path: projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/specs/001-llmxive-follow-up-extending-multi-lcb-ex/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: test-00000-of-00006.parquet
   kind: url
-  value: https://huggingface.co/datasets/huypn16/LCB-R-F/resolve/main/data/test-00000-of-00006.parquet
-  verification_status: verified
-  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/66ce24e7528c51fee3950783/dff5846f13caf671f0f418cf842925f305a94d01d1a1e640baab41be0d14e87c?Expires=1784095096&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2Y2UyNGU3NTI4YzUxZmVlMzk1MDc4My9kZmY1ODQ2ZjEzY2FmNjcxZjBmNDE4Y2Y4NDI5MjVmMzA1YTk0ZDAxZDFhMWU2NDBiYWFiNDFiZTBkMTRlODdjKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA5NTA5Nn19fV19&Signature=MEYCIQCODsG0bY0VAtD8Xkvf3%7EJvByhhsfS5IUiRokFaCRmwqAIhAKCCiz7ysHwuiEh6Y4eVZ13w2uvQ7DPFrQ73Hgnj9DZn&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00006.parquet%3B+filename%3D%22test-00000-of-00006.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T045816Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9d99f2b23b8a5b60b3383229df3edda57416685bcb20fdf02c6e5c4c01f0cb52
-  verified_at: '2026-07-15T04:57:54.024895Z'
-- artifact_hash: 3a3a450c2bbeff029426ada8e8263d752d0df3107b02cf0844349bd6f30ca446
+  value: https://huggingface.co/datasets/huypn16/LCB-R-F/resolve/main/data/test-00000-of-00006.parquet`
+  verification_status: pending
+  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/66ce24e7528c51fee3950783/dff5846f13caf671f0f418cf842925f305a94d01d1a1e640baab41be0d14e87c?Expires=1784254961&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2Y2UyNGU3NTI4YzUxZmVlMzk1MDc4My9kZmY1ODQ2ZjEzY2FmNjcxZjBmNDE4Y2Y4NDI5MjVmMzA1YTk0ZDAxZDFhMWU2NDBiYWFiNDFiZTBkMTRlODdjKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDI1NDk2MX19fV19&Signature=MEYCIQDrfzIcxkOZmmCUwNT88Etr2n8KOo2iHd6i1Vv%7EL7%7E4-AIhAKBdklVfWt6idVytHUtpOjKVAt7pBsDmPWYn5DIIdSBP&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00006.parquet%3B+filename%3D%22test-00000-of-00006.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260717%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260717T012241Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=845d30851492be239d3caa0ca082424f42102408d44de2f67b9bfd919c88843d
+  verified_at: '2026-07-17T01:22:32.679624Z'
+- artifact_hash: 60872c1c4a7afb13ab4701652a3f16a05d030277bcda619b4cd8471ca4e8ad77
   artifact_path: projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/specs/001-llmxive-follow-up-extending-multi-lcb-ex/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: train-00000-of-00001.parquet
   kind: url
-  value: https://huggingface.co/datasets/sigcp/lcb_ccp_easy/resolve/main/data/train-00000-of-00001.parquet
-  verification_status: verified
-  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/67335ad1483c1c6a10631c00/f6f2e921ea6b30a6d4f0c548ac9b0f1e0866e1b42e8e7c68ffac2945af2979e1?Expires=1784095125&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY3MzM1YWQxNDgzYzFjNmExMDYzMWMwMC9mNmYyZTkyMWVhNmIzMGE2ZDRmMGM1NDhhYzliMGYxZTA4NjZlMWI0MmU4ZTdjNjhmZmFjMjk0NWFmMjk3OWUxKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA5NTEyNX19fV19&Signature=MEQCIGOEB0TWtLndUX5SomwohbFcYl1rOkknRRhg0ZoBZ2pMAiANyKc0t5aDGGNKi6M0LezdbdrvoB%7EbSvXrG7aQSo2dZg__&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T045845Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=37683e36359e9d6bce1ca8fed25040f1812d55286eb75db2cdd32d3f0c00f696
-  verified_at: '2026-07-15T04:57:54.024895Z'
-- artifact_hash: dbbb453a7c563107187be1a7f243c7819122a60e1c19a1a313286b9183931de9
-  artifact_path: projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/specs/001-llmxive-follow-up-extending-multi-lcb-ex/data-model.md
+  value: https://huggingface.co/datasets/sigcp/lcb_ccp_easy/resolve/main/data/train-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/67335ad1483c1c6a10631c00/f6f2e921ea6b30a6d4f0c548ac9b0f1e0866e1b42e8e7c68ffac2945af2979e1?Expires=1784254980&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY3MzM1YWQxNDgzYzFjNmExMDYzMWMwMC9mNmYyZTkyMWVhNmIzMGE2ZDRmMGM1NDhhYzliMGYxZTA4NjZlMWI0MmU4ZTdjNjhmZmFjMjk0NWFmMjk3OWUxKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDI1NDk4MH19fV19&Signature=MEYCIQDiDzK6KFLeDto0hW6sq28u26Y3PR3WYsZSUX-ac4cnswIhANsnOQXOZOkMfMtgd6B5yWeY6IeQMr70fCkMo1yAEFzj&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260717%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260717T012300Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=84c962e9e4f8058720defb601d213fc1d71aa9e69e25c8ee6f257279d6d1cfd3
+  verified_at: '2026-07-17T01:22:32.679624Z'
+- artifact_hash: 0105af36bdc39d7dc81577b45d70aedd77928d11bcf1cac5abedd1d196f460b1
+  artifact_path: projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/specs/001-llmxive-follow-up-extending-multi-lcb-ex/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/.../test-00000-of-00013.parquet
-  verification_status: pending
-  verified_against_url: https://huggingface.co/.../test-00000-of-00013.parquet
-  verified_at: '2026-07-15T04:59:47.414229Z'
-- artifact_hash: dbbb453a7c563107187be1a7f243c7819122a60e1c19a1a313286b9183931de9
-  artifact_path: projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/specs/001-llmxive-follow-up-extending-multi-lcb-ex/data-model.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/.../test-00000-of-00006.parquet
-  verification_status: pending
-  verified_against_url: https://huggingface.co/.../test-00000-of-00006.parquet
-  verified_at: '2026-07-15T04:59:47.414229Z'
+  value: https://github.com/your-org/llmxive-follow-up.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmxive-follow-up
+  verified_at: '2026-07-17T01:23:26.142649Z'

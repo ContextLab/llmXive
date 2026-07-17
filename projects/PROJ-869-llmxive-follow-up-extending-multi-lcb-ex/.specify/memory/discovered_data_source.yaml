@@ -1,0 +1,14 @@
+status: none
+intent: download Multi-LCB dataset LiveCodeBench extension ground truth python solutions
+  test cases python package dataset
+required_fields:
+- task_id
+- problem_statement
+- ground_truth_python_solution
+- ground_truth_target_solution
+- target_language
+- test_cases_input
+- test_cases_output
+cache_key: a4eb8d27aaafe60674f6dfc819416505972b54a1c70da47d41fd417b940fbdcb
+searched_at: '2026-07-17T00:58:17.839748+00:00'
+retry_count: 1

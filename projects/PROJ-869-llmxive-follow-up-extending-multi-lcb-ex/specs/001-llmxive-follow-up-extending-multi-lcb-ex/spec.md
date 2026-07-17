@@ -102,7 +102,7 @@ The researcher needs to compare the Pass@1 rates between the blind and guided co
 ## Assumptions
 
 - **Assumption about data**: The Multi-LCB dataset contains ground-truth Python solutions for all selected tasks that are verified to be correct and executable.
-- **Assumption about compute**: The selected models (e.g., LlamaB, CodeLlamaB) can be quantized (e.g., 4-bit or 8-bit via `bitsandbytes` is NOT used; instead, standard CPU quantization or smaller context windows) to run within a memory footprint compatible with the GitHub Actions free tier (2-core, 7GB RAM) without GPU acceleration.
+- **Assumption about compute**: The selected models (e.g., LlamaB, CodeLlamaB) can be quantized (e.g., low-bit or standard precision via `bitsandbytes` is NOT used; instead, standard CPU quantization or smaller context windows) to run within a memory footprint compatible with the GitHub Actions free tier (2-core, 7GB RAM) without GPU acceleration.
 - **Assumption about methodology**: The study treats the presence of the Partial Logic Trace as an observational intervention; findings will be framed as associational improvements in code generation, not causal proof of "reasoning transfer," unless the design explicitly includes randomization (which is not present here).
 - **Assumption about variables**: The Multi-LCB dataset provides sufficient test cases to perform a statistically powered paired test (n=200) after applying the 3-run stochasticity filter, without requiring external data collection.
 - **Assumption about thresholds**: The timeout per test case is sufficient to detect infinite loops while allowing complex algorithmic solutions to execute.; this threshold is based on standard competitive programming time limits.
