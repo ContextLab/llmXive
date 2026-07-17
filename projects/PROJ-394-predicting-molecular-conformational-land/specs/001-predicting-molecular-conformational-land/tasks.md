@@ -45,7 +45,7 @@
 
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-394-predicting-molecular-conformational-land/`) by executing: `mkdir -p code/{data,models,utils,tests/unit,tests/integration} data/raw data/processed docs && touch code/__init__.py code/utils/__init__.py code/models/__init__.py code/data/__init__.py code/tests/__init__.py code/tests/unit/__init__.py code/tests/integration/__init__.py`
 - [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`. **IMPORTANT**: Do NOT include `xtb` in `requirements.txt` as it is a C++ binary. Instead, add a comment in `requirements.txt` and a script `code/scripts/install_xtb.sh` that installs `xtb` via `conda-forge` (preferred) or system package manager (apt) as per Spec Assumptions. Python deps: `torch==2.3.0`, `rdkit==2024.3.1`, `joblib==1.4.2`, `statsmodels==0.14.2`, `pandas==2.2.2`, `numpy==1.26.4`, `scikit-learn==1.5.0`, `huggingface-hub==0.23.4`.
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/.pre-commit-config.yaml`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/.pre-commit-config.yaml`
 
 ---
 
@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement global seed setting utility in `code/utils/seeds.py` (numpy, torch, python random)
-- [ ] T005 [P] Setup structured logging in `code/utils/logging.py` (JSON format, file + console handlers)
-- [ ] T006 [P] Create base data schema in `code/contracts/molecule.schema.yaml` (JSON Schema) with properties: `smiles` (string), `graph` (object), `latent_vector` (array of 64 floats), `conformer_set` (array of objects)
-- [ ] T007 [P] Create metrics schema in `code/contracts/metrics.schema.yaml` (JSON Schema) with properties: `spearman_rho` (float), `p_value` (float), `confidence_interval` (array of 2 floats)
-- [ ] T008 [P] Setup environment configuration management in `code/config.py` (paths, hyperparameters, CPU thread limits)
-- [ ] T009 [P] Implement robust error handling wrapper for `xtb` subprocess calls in `code/data/energy_calc.py` (retry logic, timeout, logging)
-- [ ] T009b [P] [Constitution VI] Implement `code/data/xtb_metadata.py` to capture, version, and archive the exact `xtb` command-line flags, convergence criteria, and version info for every calculation into `data/calculation_metadata/` as required by Constitution Principle VI.
+- [X] T004 [P] Implement global seed setting utility in `code/utils/seeds.py` (numpy, torch, python random)
+- [X] T005 [P] Setup structured logging in `code/utils/logging.py` (JSON format, file + console handlers)
+- [X] T006 [P] Create base data schema in `code/contracts/molecule.schema.yaml` (JSON Schema) with properties: `smiles` (string), `graph` (object), `latent_vector` (array of 64 floats), `conformer_set` (array of objects)
+- [X] T007 [P] Create metrics schema in `code/contracts/metrics.schema.yaml` (JSON Schema) with properties: `spearman_rho` (float), `p_value` (float), `confidence_interval` (array of 2 floats)
+- [X] T008 [P] Setup environment configuration management in `code/config.py` (paths, hyperparameters, CPU thread limits)
+- [X] T009 [P] Implement robust error handling wrapper for `xtb` subprocess calls in `code/data/energy_calc.py` (retry logic, timeout, logging)
+- [X] T009b [P] [Constitution VI] Implement `code/data/xtb_metadata.py` to capture, version, and archive the exact `xtb` command-line flags, convergence criteria, and version info for every calculation into `data/calculation_metadata/` as required by Constitution Principle VI.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -109,12 +109,12 @@
 
 - [ ] T022 [P] [US2] Implement ETKDG conformer generation in `code/data/preprocess.py` (a limited set of conformers, seed pinned)
 - [ ] T023 [US2] Implement GFN2-xTB geometry optimization wrapper in `code/data/energy_calc.py` (parallelized via joblib n_jobs=2, FR-004, calls T009b for metadata logging)
-- [ ] T024 [US2] Implement linear regression head for energy prediction in `code/models/linear_head.py` (input dim=64, output dim=1 [UNRESOLVED-CLAIM: c_c78cfbb6 — status=not_enough_info])
+- [ ] T024 [US2] Implement linear regression head for energy prediction in `code/models/linear_head.py` (input dim=64, output dim=1)
 - [ ] T025 [US2] Implement end-to-end ranking pipeline in `code/evaluate.py` (latent vector -> predicted scores via T024 -> rank, Depends on T017, T024)
 - [ ] T026 [US2] Implement Spearman ρ and Bonferroni-adjusted p-value calculation in `code/evaluate.py` (FR-005, FR-008)
 - [ ] T027 [US2] Implement sensitivity analysis loop in `code/evaluate.py` explicitly sweeping α over a range of small numeric values (FR-010) and saving results to `data/sensitivity_analysis.json` with columns `alpha`, `p_value`, `rho`.
-- [ ] T028 [US2] Implement power analysis function in `code/evaluate.py` using `statsmodels` (effect size=0.5, alpha=0.05, power=0.8 [UNRESOLVED-CLAIM: c_6644e841 — status=not_enough_info]) and save report to `data/power_analysis_report.txt` (FR-012)
-- [ ] T029 [US2] Implement workflow success rate validation (≥95% success) [UNRESOLVED-CLAIM: c_f98f0123 — status=refuted] in `code/data/energy_calc.py` (FR-011)
+- [ ] T028 [US2] Implement power analysis function in `code/evaluate.py` using `statsmodels`, {{claim:c_16294c32}} (Wikipedia: Statistical significance, https://en.wikipedia.org/wiki/Statistical_significance), power=0.8) and save report to `data/power_analysis_report.txt` (FR-012)
+- [ ] T029 [US2] Implement workflow success rate validation (≥95% success) in `code/data/energy_calc.py` (FR-011)
 
 **Checkpoint**: At this point, User Story 2 should be fully functional and testable independently
 
@@ -170,7 +170,7 @@
 ### Implementation for Pilot & Edge Cases
 
 - [ ] T047a [P] Select a specific subset of molecules from the ZINC15 dataset for the pilot benchmark.
-- [ ] T047b [P] Run the conformer generation and GFN-xTB optimization pipeline on the 50-molecule subset [UNRESOLVED-CLAIM: c_48fdc5d7 — status=not_enough_info] defined in T047a.
+- [ ] T047b [P] Run the conformer generation and GFN-xTB optimization pipeline on the 50-molecule subset defined in T047a.
 - [ ] T047c [P] Generate a runtime report in `data/pilot_runtime.json` containing average time per molecule, total time, and success rate, to update `plan.md` Compute Feasibility section.
 - [ ] T048 [P] Implement dataset size check in `code/data/preprocess.py` to raise a clear error and print the minimum sample size (from T028) if the input dataset has < 1,000 molecules
 
@@ -283,4 +283,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must be executable on CPU-only (2 cores, 7GB RAM [UNRESOLVED-CLAIM: c_c65f922a — status=not_enough_info]) within 6 hours [UNRESOLVED-CLAIM: c_1c55c3d3 — status=not_enough_info]. No GPU/CUDA, no 8-bit quantization, no large model loading.
+- **Critical Constraint**: All tasks must be executable on CPU-only (2 cores, 7GB RAM) within 6 hours. No GPU/CUDA, no 8-bit quantization, no large model loading.

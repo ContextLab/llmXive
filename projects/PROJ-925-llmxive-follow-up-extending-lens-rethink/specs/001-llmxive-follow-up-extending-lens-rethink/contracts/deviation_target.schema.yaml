@@ -1,42 +1,23 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Alignment Deviation Target
-description: >
-  Schema for the target variable Y = |Normalized_CLIP - Normalized_Human|.
-  Used to validate the output of code/data/preprocess.py.
-type: object
-required:
-  - record_id
-  - clip_score
-  - human_rating
-  - deviation_score
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Deviation Target Schema"
+description: "Schema for the derived target variable (raw difference)."
+type: "object"
 properties:
-  record_id:
-    type: string
-    description: Unique identifier linking to the source dataset record.
-  clip_score:
-    type: number
-    description: >
-      Normalized CLIP similarity score (0.0 to 1.0).
-    minimum: 0.0
-    maximum: 1.0
-  human_rating:
-    type: number
-    description: >
-      Normalized human preference rating (0.0 to 1.0).
-      Derived from winner/loser logic.
-    minimum: 0.0
-    maximum: 1.0
+  id:
+    type: "string"
+    description: "Foreign key to the original record."
   deviation_score:
-    type: number
-    description: >
-      Absolute difference |clip_score - human_rating|.
-      This is the target variable Y for regression.
-    minimum: 0.0
-    maximum: 1.0
-  validation_status:
-    type: string
-    enum: [valid, excluded_missing, excluded_zero_variance]
-    description: Status of the record regarding target learnability.
-  exclusion_reason:
-    type: string
-    description: Reason for exclusion if validation_status is not 'valid'.
+    type: "number"
+    description: "Absolute difference between raw CLIP and Human Rating."
+  clip_score:
+    type: "number"
+    description: "Raw CLIP score."
+  human_rating:
+    type: "number"
+    description: "Raw Human rating."
+required:
+  - "id"
+  - "deviation_score"
+  - "clip_score"
+  - "human_rating"
+additionalProperties: false

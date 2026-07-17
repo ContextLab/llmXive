@@ -1,0 +1,21 @@
+T003:
+  c: true
+  h: c30a7a9f087acdd45ddd904c282c2ec5ef525806fcd7d30f7b8828efef147b2f
+  r: "The file `code/.pre-commit-config.yaml` exists, is non\u2011empty, and contains\
+    \ ruff (linting) and black (formatting) hook configurations as required. No missing\
+    \ or placeholder content was found."
+T006:
+  c: true
+  h: 7d98ecf380ebfacc37f647a88864d7c75ded0b99d32f0a4c6d1b0a0f3b67f2c5
+  r: "The file `code/contracts/molecule.schema.yaml` exists, is non\u2011empty, and\
+    \ defines the required properties `smiles` (string), `graph` (object), `latent_vector`\
+    \ (array constrained to 64 floats), and `conformer_set` (array of objects), satisfying\
+    \ the task specification."
+T007:
+  c: true
+  h: eea502554c8d124f34671c482f41b85d689e40bd904e5b69d70c693b8fda857b
+  r: "The provided `code/contracts/metrics.schema.yaml` file exists, is non\u2011\
+    empty, and defines a JSON Schema with the required `spearman_rho` (float), `p_value`\
+    \ (float), and `confidence_interval` (array of exactly two floats) properties,\
+    \ matching the task specification. The missing `schema.yaml` is unrelated to the\
+    \ stated requirement."

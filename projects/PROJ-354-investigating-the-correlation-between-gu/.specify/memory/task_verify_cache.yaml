@@ -1,0 +1,42 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `code/`, `data/`, `results/`, or `tests/` directories
+    (or any files within them) was provided; without a directory listing or actual
+    artifacts, we cannot confirm the project structure was created. The implementer
+    must supply the filesystem layout showing these folders (and ideally some placeholder
+    content) to satisfy the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or `black` settings) are present in the provided evidence, nor any
+    documentation showing that ruff/flake8 and black have been set up for the project.
+    Consequently the task of configuring these tools is not satisfied.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or code were presented showing a `code/models/` directory containing
+    definitions for `Participant`, `MicrobiomeProfile`, or `CognitiveScore`. Without
+    these model files, the required data entities have not been demonstrated as created.
+    The implementer must add the model definitions in the specified path.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or documentation for managing the UK Biobank
+    token were presented; the implementer provided no tangible artifact showing environment
+    configuration management for credentials. Consequently, the requirement is not
+    satisfied.
+T015:
+  c: false
+  h: 281cd9e50ffd67480f02d9897f179c65c411e6db4c8da39b32846b46ea965a94
+  r: "The provided `code/preprocess.py` is truncated and does not contain any genus\u2011\
+    level aggregation, zero\u2011replacement, CLR or ILR transformation logic, nor\
+    \ does it write `data/processed/ilr_coordinates.parquet`. Moreover, the expected\
+    \ output file is absent. The task\u2019s core requirements are therefore unmet."
+T019:
+  c: false
+  h: eb4fd4a70544a71cc09cc5977f260a00878b1596049e68ea94b3472f6d3d2c73
+  r: "The `code/power_analysis.py` script exists, but the required output artifact\
+    \ `results/power/power_report.md` is missing, so the task\u2019s deliverable is\
+    \ not fully satisfied."

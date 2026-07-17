@@ -1,16 +1,11 @@
 status: none
-intent: Hugging Face quantized 8B LLM CPU inference python package dataset
+intent: download Project Gutenberg full text dataset python package dataset
 required_fields:
-- model_name
-- model_id
-- parameter_count
-- quantization_type
-- compatible_hardware
-- license
-- download_url
-- tokenizer_name
-- config_file
-- repo_url
-cache_key: 370ee385bf80737c0353a3076aee32c21052d6d0013b2ea2be6c7cc4b834c904
-searched_at: '2026-07-16T05:41:57.013313+00:00'
+- text
+- title
+- author
+- book_id
+- language
+cache_key: ff3e6adb77a2008fef8a2cbe06dd1df1024f735d5637b024eec0d2b286a71c67
+searched_at: '2026-07-17T19:16:54.206370+00:00'
 retry_count: 1

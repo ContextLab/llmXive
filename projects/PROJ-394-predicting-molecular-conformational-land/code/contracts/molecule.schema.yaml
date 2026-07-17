@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecule Conformational Data Schema"
+description: |
+  JSON Schema for storing molecular data including SMILES, graph representation,
+  latent vectors from VAE, and conformer sets.
+type: object
+properties:
+  smiles:
+    type: string
+    description: Canonical SMILES string representing the molecule
+    pattern: "^([A-Za-z0-9\\[\\]\\(\\)\\<\\>\\>\\<\\+\\-\\.\\=\\#\\%0-9]+)$"
+  graph:
+    type: object
+    description: Graph representation of the molecular structure
+    properties:
+      nodes:
+        type: array
+        description: List of node attributes (e.g., atom types, features)
+        items:
+          type: object
+          additionalProperties: true
+      edges:
+        type: array
+        description: List of edges representing bonds
+        items:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            type: integer
+      edge_features:
+        type: array
+        description: Optional features for each edge
+        items:
+          type: object
+          additionalProperties: true
+    required:
+      - nodes
+      - edges
+  latent_vector:
+    type: array
+    description: Latent vector encoding of the molecule from VAE (fixed size 64)
+    items:
+      type: number
+      format: float
+    minItems: 64
+    maxItems: 64
+  conformer_set:
+    type: array
+    description: List of conformer geometries and associated properties
+    items:
+      type: object
+      properties:
+        conformer_id:
+          type: integer
+          description: Unique identifier for the conformer
+        coordinates:
+          type: array
+          description: 3D coordinates (x, y, z) for each atom
+          items:
+            type: array
+            items:
+              type: number
+              format: float
+            minItems: 3
+            maxItems: 3
+        energy:
+          type: number
+          format: float
+          description: Calculated energy of the conformer (e.g., from GFN2-xTB)
+        gradient_norm:
+          type: number
+          format: float
+          description: Gradient norm indicating optimization convergence
+        metadata:
+          type: object
+          description: Additional metadata for the conformer
+          additionalProperties: true
+      required:
+        - conformer_id
+        - coordinates
+        - energy
+required:
+  - smiles
+  - graph
+  - latent_vector
+  - conformer_set
+additionalProperties: false

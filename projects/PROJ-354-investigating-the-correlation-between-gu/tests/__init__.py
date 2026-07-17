@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline - Tests Directory
+Tests package.
 """

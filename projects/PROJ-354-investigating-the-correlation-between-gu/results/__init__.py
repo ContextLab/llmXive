@@ -1,3 +1,4 @@
 """
-llmXive Research Pipeline - Results Directory
+Results directory placeholder.
+Contains analysis outputs, plots, and reports.
 """

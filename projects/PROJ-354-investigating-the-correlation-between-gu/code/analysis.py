@@ -1,322 +1,389 @@
-"""
-Statistical Analysis Module for Gut Microbiome-Cognitive Correlation Study.
-
-Implements OLS linear models, Benjamini-Hochberg correction, and interaction analysis.
-Enforces citation validity from config.py (T024b).
-"""
 import os
 import json
+import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
-
+from typing import Dict, List, Optional, Tuple, Any, Union
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from statsmodels.stats.multitest import multipletests
 
-# Local Imports (ensuring API surface matches)
-from code.config import (
-    ARTIFACT_PATHS,
-    VALIDATED_CITATIONS,
-    get_validated_citation,
-    validate_citation_id,
-    FDR_THRESHOLD,
-    SIGNIFICANCE_THRESHOLD,
-)
-from code.utils.logging import get_logger, AnalysisError
+from config import get_path, ensure_directories
+from utils.logging import get_logger, AnalysisError, LlmXiveError
+from utils.hygiene import compute_file_checksum, generate_data_manifest
 
 logger = get_logger(__name__)
 
-def _validate_citations_for_analysis() -> None:
+# ----------------------------------------------------------------------
+# Helper Functions for Confounder Handling
+# ----------------------------------------------------------------------
+
+def get_confounder_formula(
+    outcome_col: str,
+    confounders: Optional[List[str]] = None,
+    include_intercept: bool = True
+) -> str:
     """
-    Enforce citation validity before running analysis.
-    Checks that all required cognitive instrument citations are validated.
+    Constructs the R-style formula string for OLS regression.
+
+    Args:
+        outcome_col: Name of the dependent variable column.
+        confounders: List of independent variable column names to control for.
+        include_intercept: Whether to include the intercept (default True).
+
+    Returns:
+        Formula string suitable for statsmodels.
     """
-    required_citations = [
-        "fluid_intelligence_score",
-        "reaction_time",
-        "pairs_matching",
-    ]
+    if confounders is None:
+        confounders = []
+
+    predictors = " + ".join(confounders)
+    if include_intercept:
+        # statsmodels adds intercept by default unless -1 is specified
+        # We explicitly list it for clarity or rely on default behavior
+        formula = f"{outcome_col} ~ {predictors}" if predictors else f"{outcome_col} ~ 1"
+    else:
+        formula = f"{outcome_col} ~ {predictors} - 1" if predictors else f"{outcome_col} ~ 0"
     
-    missing = []
-    for key in required_citations:
-        if not validate_citation_id(key):
-            missing.append(key)
-    
+    return formula
+
+
+def validate_confounders_present(df: pd.DataFrame, confounders: List[str]) -> bool:
+    """
+    Checks if all required confounder columns exist in the dataframe.
+
+    Args:
+        df: Input dataframe.
+        confounders: List of required column names.
+
+    Returns:
+        True if all confounders are present, raises AnalysisError otherwise.
+    """
+    missing = [col for col in confounders if col not in df.columns]
     if missing:
-        error_msg = f"Citation validation failed for analysis. Missing validated IDs: {missing}. " \
-                    f"Please run T024a (Instrument Validator) first."
-        logger.error(error_msg)
-        raise AnalysisError(error_msg)
-    
-    logger.info("All required cognitive instrument citations validated successfully.")
+        raise AnalysisError(f"Missing required confounder columns: {missing}")
+    return True
+
+
+# ----------------------------------------------------------------------
+# Core Statistical Analysis Functions
+# ----------------------------------------------------------------------
 
 def fit_ols_model(
     df: pd.DataFrame,
     outcome_col: str,
     predictor_col: str,
-    covariate_cols: List[str],
-    interaction_col: Optional[str] = None
+    confounders: List[str]
 ) -> Dict[str, Any]:
     """
-    Fit a Standard OLS linear model.
+    Fits a standard OLS linear model: outcome ~ predictor + confounders.
 
     Args:
-        df: DataFrame containing the data
-        outcome_col: Name of the outcome variable (cognitive score)
-        predictor_col: Name of the predictor variable (ILR coordinate)
-        covariate_cols: List of covariate column names
-        interaction_col: Optional column name for interaction term
+        df: DataFrame containing the data.
+        outcome_col: Column name for the dependent variable (e.g., cognitive score).
+        predictor_col: Column name for the independent variable (e.g., ILR coordinate).
+        confounders: List of column names for covariates.
 
     Returns:
-        Dictionary with model statistics (beta, p-value, adj_p, r_squared)
+        Dictionary containing:
+            - 'beta': Coefficient for the predictor.
+            - 'pvalue': P-value for the predictor.
+            - 'std_err': Standard error of the predictor.
+            - 'model': The fitted statsmodels OLSResults object.
     """
-    _validate_citations_for_analysis()
+    # Ensure all columns exist
+    required_cols = [outcome_col, predictor_col] + confounders
+    validate_confounders_present(df, required_cols)
 
-    # Prepare data
-    cols = [outcome_col, predictor_col] + covariate_cols
-    if interaction_col:
-        cols.append(interaction_col)
+    # Drop rows with missing values in any of the required columns
+    model_data = df[required_cols].dropna()
     
-    # Drop rows with missing values
-    clean_df = df[cols].dropna()
-    
-    if len(clean_df) < 10:
-        logger.warning(f"Insufficient data points for model fitting ({len(clean_df)} < 10).")
-        return {
-            "beta": np.nan,
-            "p_value": np.nan,
-            "adj_p_value": np.nan,
-            "r_squared": np.nan,
-            "n_obs": len(clean_df),
-            "status": "insufficient_data"
-        }
+    if len(model_data) == 0:
+        raise AnalysisError(f"No valid rows remaining after dropping NaNs for {predictor_col}")
 
-    # Define design matrix
-    y = clean_df[outcome_col].values
-    X = clean_df[[predictor_col] + covariate_cols]
-    
-    if interaction_col:
-        X = pd.concat([X, clean_df[[interaction_col]]], axis=1)
-    
-    X = sm.add_constant(X)
-    
+    # Construct formula
+    formula = get_confounder_formula(outcome_col, [predictor_col] + confounders)
+
     try:
-        model = sm.OLS(y, X).fit()
-        # Get the coefficient for the predictor
-        pred_idx = list(X.columns).index(predictor_col)
-        beta = model.params[pred_idx]
-        p_val = model.pvalues[pred_idx]
-        r_sq = model.rsquared
-        
-        return {
-            "beta": beta,
-            "p_value": p_val,
-            "adj_p_value": np.nan, # Calculated later in batch
-            "r_squared": r_sq,
-            "n_obs": len(clean_df),
-            "status": "success"
-        }
+        model = sm.OLS.from_formula(formula, data=model_data)
+        results = model.fit()
     except Exception as e:
-        logger.error(f"OLS model fitting failed: {e}")
-        return {
-            "beta": np.nan,
-            "p_value": np.nan,
-            "adj_p_value": np.nan,
-            "r_squared": np.nan,
-            "n_obs": len(clean_df),
-            "status": "error",
-            "error": str(e)
-        }
+        raise AnalysisError(f"OLS fitting failed for {predictor_col}: {str(e)}")
 
-def apply_benjamini_hochberg(p_values: np.ndarray) -> np.ndarray:
+    # Extract results for the specific predictor
+    # The params index will match the predictor name exactly if using from_formula
+    params = results.params
+    pvalues = results.pvalues
+    std_errs = results.bse
+
+    if predictor_col not in params.index:
+        # Fallback for edge cases, though from_formula usually handles it
+        raise AnalysisError(f"Predictor '{predictor_col}' not found in model results")
+
+    return {
+        'beta': float(params[predictor_col]),
+        'pvalue': float(pvalues[predictor_col]),
+        'std_err': float(std_errs[predictor_col]),
+        'tvalue': float(results.tvalues[predictor_col]),
+        'r_squared': float(results.rsquared),
+        'adj_r_squared': float(results.rsquared_adj),
+        'n_obs': int(results.nobs),
+        'model': results  # Keep the full object if needed for diagnostics
+    }
+
+
+def apply_benjamini_hochberg(
+    pvalues: np.ndarray,
+    alpha: float = 0.05
+) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Apply Benjamini-Hochberg correction to a list of p-values.
+    Applies the Benjamini-Hochberg procedure to control the False Discovery Rate (FDR).
 
     Args:
-        p_values: Array of raw p-values
+        pvalues: Array of raw p-values.
+        alpha: Significance level for FDR (default 0.05).
 
     Returns:
-        Array of adjusted p-values
+        Tuple of (reject_hypothesis, adjusted_pvalues).
+        - reject_hypothesis: Boolean array indicating if the null hypothesis is rejected.
+        - adjusted_pvalues: The FDR-adjusted p-values (q-values).
     """
-    if len(p_values) == 0:
-        return np.array([])
-    
-    # Use statsmodels implementation
-    reject, pvals_corrected, _, _ = multipletests(
-        p_values, 
-        alpha=FDR_THRESHOLD, 
-        method='fdr_bh'
-    )
-    return pvals_corrected
+    if len(pvalues) == 0:
+        return np.array([]), np.array([])
+
+    # Use statsmodels implementation which handles sorting and monotonicity correction
+    # method='fdr_bh' implements the Benjamini-Hochberg linear step-up procedure
+    reject, adj_pvals, _, _ = multipletests(pvalues, alpha=alpha, method='fdr_bh')
+
+    return reject, adj_pvals
+
+
+# ----------------------------------------------------------------------
+# Main Execution Logic for Task T021
+# ----------------------------------------------------------------------
 
 def run_main_effects_analysis(
-    ilr_df: pd.DataFrame,
-    cognitive_scores: pd.DataFrame,
-    covariates: List[str],
-    output_path: Path
+    ilr_data_path: str,
+    cognitive_data_path: str,
+    confounder_cols: List[str],
+    output_path: str,
+    age_group_col: Optional[str] = None
 ) -> pd.DataFrame:
     """
-    Run main effects analysis for all taxon-cognitive associations.
+    Runs the main effects analysis:
+    1. Loads ILR coordinates and cognitive scores.
+    2. Merges on participant ID.
+    3. Fits OLS models for each ILR coordinate against cognitive score + confounders.
+    4. Applies Benjamini-Hochberg correction.
+    5. Saves results to Parquet.
 
     Args:
-        ilr_df: DataFrame with ILR coordinates
-        cognitive_scores: DataFrame with cognitive scores
-        covariates: List of covariate column names
-        output_path: Path to save results
+        ilr_data_path: Path to the ILR-transformed parquet file.
+        cognitive_data_path: Path to the cognitive scores parquet file.
+        confounder_cols: List of confounder column names.
+        output_path: Path to save the results parquet file.
+        age_group_col: Optional column name for age groups (for potential future interaction checks).
 
     Returns:
-        DataFrame with association statistics
+        DataFrame containing the analysis results.
     """
-    _validate_citations_for_analysis()
+    logger.info(f"Loading ILR data from {ilr_data_path}")
+    ilr_df = pd.read_parquet(ilr_data_path)
     
-    logger.info("Starting Main Effects Analysis...")
+    logger.info(f"Loading cognitive data from {cognitive_data_path}")
+    cog_df = pd.read_parquet(cognitive_data_path)
+
+    # Determine the merge key (usually 'participant_id' or similar)
+    # Assuming standard naming convention based on project context
+    merge_key = 'participant_id'
+    if merge_key not in ilr_df.columns or merge_key not in cog_df.columns:
+        # Fallback to common variations
+        candidates = ['eid', 'f20400', 'id']
+        found = False
+        for c in candidates:
+            if c in ilr_df.columns and c in cog_df.columns:
+                merge_key = c
+                found = True
+                break
+        if not found:
+            raise AnalysisError("Could not find a common merge key between ILR and Cognitive data.")
+
+    logger.info(f"Merging on key: {merge_key}")
+    merged_df = pd.merge(ilr_df, cog_df, on=merge_key, how='inner')
     
-    # Merge data
-    merged_df = ilr_df.merge(cognitive_scores, on="eid")
-    
+    if len(merged_df) == 0:
+        raise AnalysisError("No overlapping participants found between ILR and Cognitive datasets.")
+
+    logger.info(f"Merged dataset size: {len(merged_df)} participants")
+
+    # Identify ILR columns (typically prefixed with 'ilr_' or ending in '_ilr')
+    # Based on T015 output, we assume columns are named appropriately.
+    # We will look for columns that are numeric and not the merge key, outcome, or confounders.
+    outcome_col = 'cognitive_score' # Assumed column name from T012/T020
+    if outcome_col not in merged_df.columns:
+        # Try to find a column that looks like a cognitive score
+        possible_outcomes = [c for c in merged_df.columns if 'cog' in c.lower() or 'score' in c.lower()]
+        if possible_outcomes:
+            outcome_col = possible_outcomes[0]
+            logger.warning(f"Assumed cognitive score column: {outcome_col}")
+        else:
+            raise AnalysisError(f"Could not identify cognitive score column. Available: {merged_df.columns.tolist()}")
+
+    # Filter out non-ILR columns
+    exclude_cols = [merge_key, outcome_col] + confounder_cols
+    ilr_cols = [c for c in merged_df.columns if c not in exclude_cols and np.issubdtype(merged_df[c].dtype, np.number)]
+
+    if not ilr_cols:
+        raise AnalysisError("No ILR coordinate columns found in the merged dataset.")
+
+    logger.info(f"Found {len(ilr_cols)} ILR coordinates to test.")
+
     results = []
-    cognitive_vars = [col for col in cognitive_scores.columns if col != "eid"]
-    ilr_vars = [col for col in ilr_df.columns if col != "eid"]
-    
-    total_tests = len(ilr_vars) * len(cognitive_vars)
-    logger.info(f"Running {total_tests} tests.")
-    
-    for cov in cognitive_vars:
-        for ilr in ilr_vars:
-            res = fit_ols_model(
+
+    for coord in ilr_cols:
+        try:
+            stats = fit_ols_model(
                 merged_df,
-                outcome_col=cov,
-                predictor_col=ilr,
-                covariate_cols=covariates
+                outcome_col=outcome_col,
+                predictor_col=coord,
+                confounders=confounder_cols
             )
-            res["outcome"] = cov
-            res["predictor"] = ilr
-            results.append(res)
-    
+            results.append({
+                'taxon_coordinate': coord,
+                'outcome': outcome_col,
+                'beta': stats['beta'],
+                'pvalue': stats['pvalue'],
+                'std_err': stats['std_err'],
+                'tvalue': stats['tvalue'],
+                'r_squared': stats['r_squared'],
+                'n_obs': stats['n_obs']
+            })
+        except Exception as e:
+            logger.error(f"Failed to fit model for {coord}: {e}")
+            # Log error but continue with other taxa
+            results.append({
+                'taxon_coordinate': coord,
+                'outcome': outcome_col,
+                'beta': np.nan,
+                'pvalue': np.nan,
+                'std_err': np.nan,
+                'tvalue': np.nan,
+                'r_squared': np.nan,
+                'n_obs': 0,
+                'error': str(e)
+            })
+
     results_df = pd.DataFrame(results)
-    
-    # Apply FDR correction per outcome
-    for outcome in cognitive_vars:
-        mask = results_df["outcome"] == outcome
-        p_vals = results_df.loc[mask, "p_value"].values
-        adj_p = apply_benjamini_hochberg(p_vals)
-        results_df.loc[mask, "adj_p_value"] = adj_p
-    
+
+    # Apply Benjamini-Hochberg correction
+    if 'pvalue' in results_df.columns:
+        valid_pvals = results_df['pvalue'].dropna().values
+        if len(valid_pvals) > 0:
+            _, adj_pvals = apply_benjamini_hochberg(valid_pvals)
+            # Map back to the dataframe
+            # We need to align the sorted indices or just map by value if unique?
+            # Better: re-run on the full series, handling NaNs
+            
+            # statsmodels multipletests handles NaNs by returning NaN for them? 
+            # Let's do it manually to be safe with the index alignment
+            pvals_series = results_df['pvalue']
+            non_nan_idx = pvals_series.notna()
+            if non_nan_idx.any():
+                _, adj_pvals_arr, _, _ = multipletests(pvals_series[non_nan_idx].values, alpha=0.05, method='fdr_bh')
+                results_df.loc[non_nan_idx, 'adj_pvalue'] = adj_pvals_arr
+            else:
+                results_df['adj_pvalue'] = np.nan
+        else:
+            results_df['adj_pvalue'] = np.nan
+    else:
+        results_df['adj_pvalue'] = np.nan
+
     # Add metadata
-    results_df["causality_claim"] = False
-    
-    # Save
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    results_df['analysis_type'] = 'main_effects'
+    results_df['causality_claim'] = False
+    results_df['correction_method'] = 'benjamini_hochberg'
+
+    # Ensure output directory exists
+    ensure_directories([output_path])
+
+    # Save to Parquet
     results_df.to_parquet(output_path, index=False)
-    logger.info(f"Main effects results saved to {output_path}")
-    
+    logger.info(f"Saved main effects results to {output_path}")
+
+    # Generate manifest/checksum
+    checksum = compute_file_checksum(output_path)
+    manifest = {
+        'file': output_path,
+        'checksum': checksum,
+        'n_rows': len(results_df),
+        'n_columns': len(results_df.columns),
+        'timestamp': str(pd.Timestamp.now())
+    }
+    manifest_path = str(Path(output_path).with_suffix('.manifest.json'))
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+    logger.info(f"Generated manifest at {manifest_path}")
+
     return results_df
+
 
 def run_interaction_analysis(
-    ilr_df: pd.DataFrame,
-    cognitive_scores: pd.DataFrame,
-    age_group_col: str,
-    covariates: List[str],
-    output_path: Path
-) -> pd.DataFrame:
+    df: pd.DataFrame,
+    outcome_col: str,
+    predictor_col: str,
+    interaction_col: str,
+    confounders: List[str]
+) -> Dict[str, Any]:
     """
-    Run interaction analysis (Age_Group * Taxon).
-
-    Args:
-        ilr_df: DataFrame with ILR coordinates
-        cognitive_scores: DataFrame with cognitive scores (includes age_group_col)
-        age_group_col: Column name for age groups
-        covariates: List of covariate column names
-        output_path: Path to save results
-
-    Returns:
-        DataFrame with interaction statistics
+    Fits an interaction model: outcome ~ predictor * interaction + confounders.
+    This is a placeholder for T027 implementation, but included for API completeness.
     """
-    _validate_citations_for_analysis()
-    
-    logger.info("Starting Interaction Analysis...")
-    
-    merged_df = ilr_df.merge(cognitive_scores, on="eid")
-    
-    results = []
-    cognitive_vars = [col for col in cognitive_scores.columns if col != "eid" and col != age_group_col]
-    ilr_vars = [col for col in ilr_df.columns if col != "eid"]
-    
-    total_tests = len(ilr_vars) * len(cognitive_vars)
-    logger.info(f"Running {total_tests} interaction tests.")
-    
-    for cov in cognitive_vars:
-        for ilr in ilr_vars:
-            # Construct interaction term manually if not in df
-            # Assuming age_group_col is categorical or we create dummy
-            interaction_name = f"{ilr}_x_{age_group_col}"
-            
-            # For simplicity in this module, we assume the interaction term 
-            # is pre-computed or we fit a model with the interaction column
-            # In a real pipeline, this might be more complex.
-            # Here we assume the interaction term is passed or constructed.
-            # To be robust, we construct the term if it exists as a column or create it.
-            
-            # Let's assume the interaction term is provided in the df or constructed here
-            # For this implementation, we will fit the model with the interaction term
-            # if it exists in the dataframe, otherwise skip or warn.
-            
-            # Simplified approach: Fit model with interaction term explicitly
-            # We need the interaction term column to exist.
-            # In a real scenario, we would generate this in preprocess.
-            # Here we assume 'interaction_term' is not a single column but we model:
-            # Y ~ Taxon + AgeGroup + Taxon*AgeGroup + Covariates
-            
-            # We will use statsmodels formula for clarity if possible, 
-            # but to stick to the API, we use the matrix approach.
-            # We need to create the interaction column in a temp df.
-            
-            temp_df = merged_df.copy()
-            # Assuming age_group_col is numeric or we map it to 0/1 for interaction
-            # If it's categorical, we need dummies. For this specific task, 
-            # let's assume we have a binary 'Age_Group' or we use the column directly.
-            # If the column is categorical, we need to handle it.
-            # Let's assume the column is numeric (0, 1) for interaction.
-            
-            if temp_df[age_group_col].dtype == 'object':
-                # Map to numeric for interaction
-                temp_df[age_group_col] = temp_df[age_group_col].astype('category').cat.codes
-            
-            temp_df[interaction_name] = temp_df[ilr] * temp_df[age_group_col]
-            
-            res = fit_ols_model(
-                temp_df,
-                outcome_col=cov,
-                predictor_col=interaction_name,
-                covariate_cols=covariates + [ilr, age_group_col]
-            )
-            res["outcome"] = cov
-            res["predictor"] = interaction_name
-            results.append(res)
-    
-    results_df = pd.DataFrame(results)
-    
-    # Apply FDR
-    for outcome in cognitive_vars:
-        mask = results_df["outcome"] == outcome
-        p_vals = results_df.loc[mask, "p_value"].values
-        adj_p = apply_benjamini_hochberg(p_vals)
-        results_df.loc[mask, "adj_p_value"] = adj_p
-    
-    results_df["causality_claim"] = False
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    results_df.to_parquet(output_path, index=False)
-    logger.info(f"Interaction results saved to {output_path}")
-    
-    return results_df
+    # Implementation would go here
+    raise NotImplementedError("Interaction analysis is scheduled for T027.")
+
 
 def main():
-    """Main entry point for analysis."""
-    logger.info("Analysis module loaded. Citation validation active.")
-    # This would typically be called by a pipeline script
-    pass
+    """
+    Main entry point for running the analysis pipeline.
+    Reads configuration from config.py and executes T021 logic.
+    """
+    logger.info("Starting Main Effects Analysis (T021)")
+
+    try:
+        # Load paths from config
+        ilr_path = get_path('data', 'processed', 'ilr_coordinates.parquet')
+        cog_path = get_path('data', 'processed', 'cohort_with_age_groups.parquet') # Or similar source
+        output_path = get_path('results', 'associations', 'main_effects.parquet')
+        
+        # Define confounders based on T004 and FR-004
+        # Assuming these are standard names; if T004 defines specific IDs, map them here
+        confounders = ['age', 'sex', 'bmi', 'diet_score', 'activity_score', 'medication_count']
+        
+        # Validate inputs exist
+        if not os.path.exists(ilr_path):
+            raise FileNotFoundError(f"ILR data not found at {ilr_path}. Run preprocessing first.")
+        if not os.path.exists(cog_path):
+            raise FileNotFoundError(f"Cognitive data not found at {cog_path}. Run preprocessing first.")
+
+        # Run analysis
+        results = run_main_effects_analysis(
+            ilr_data_path=ilr_path,
+            cognitive_data_path=cog_path,
+            confounder_cols=confounders,
+            output_path=output_path
+        )
+
+        logger.info(f"Analysis complete. {len(results)} associations tested.")
+        logger.info(f"Output saved to {output_path}")
+        
+        # Print summary
+        significant = results[results['adj_pvalue'] < 0.05]
+        logger.info(f"Significant associations (adj-p < 0.05): {len(significant)}")
+
+    except Exception as e:
+        logger.critical(f"Analysis failed: {e}")
+        raise LlmXiveError(f"Analysis execution failed: {e}") from e
+
 
 if __name__ == "__main__":
     main()

@@ -3,58 +3,88 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip` or `conda`
-- Sufficient disk space for dependencies and cached models.
+- `pip`
+- At least 15 GB of free disk space (for raw data and processed artifacts)
+- A GitHub Actions runner (or local machine) with CPU access.
 
 ## Installation
 
-1. **Clone and Setup**
+1. **Clone the repository**:
    ```bash
-   cd projects/PROJ-925-llmxive-follow-up-extending-lens-rethink
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r code/requirements.txt
+   git clone https://github.com/your-org/llmxive-follow-up.git
+   cd llmxive-follow-up
    ```
 
-2. **Verify Dependencies**
+2. **Create a virtual environment**:
    ```bash
-   python -c "import spacy; import xgboost; import transformers; print('All dependencies OK')"
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` pins `transformers`, `spacy`, `xgboost`, `scikit-learn`, `pandas`, `pyarrow`, `ruff`, `black`.*
+
+4. **Download spaCy model**:
+   ```bash
+   python -m spacy download en_core_web_sm
+   ```
+
+5. **Configure Linting (Optional but recommended)**:
+   The project uses `pyproject.toml` for Black and Ruff configuration.
+   ```bash
+   # Format code
+   black code/
+   # Lint code
+   ruff check code/
    ```
 
 ## Running the Pipeline
 
-The pipeline is executed via a single orchestration script or individual steps.
+**Note**: All commands below assume you are running from the **repository root** (the directory containing `code/`, `data/`, etc.).
 
-### Step 1: Download & Preprocess (Streaming)
-Downloads a sample of COCO data and computes CLIP scores.
+### Step 1: Download Data
+The script downloads the verified Pick-a-Pic dataset to `data/raw`.
 ```bash
-python code/data/download.py --sample-size sufficient to ensure statistical power for detecting the target effect size. --streaming
-python code/data/preprocess.py --input data/raw/coco_stream.parquet --output data/processed/caption_records.csv
+python code/data/loader.py
 ```
+*Output*: `data/raw/pick-a-pic.parquet` (or streaming cache).
+*Error Handling*: If the dataset lacks `preference_score`, the script raises a `ValueError` and exits. No synthetic data is generated.
 
-### Step 2: Feature Extraction
-Computes linguistic features on CPU.
+### Step 2: Extract Features
+Computes linguistic features from raw text.
 ```bash
-python code/data/features.py --input data/processed/caption_records.csv --output data/processed/features.csv --batch-size
+python code/data/features.py
 ```
+*Output*: `data/processed/features.csv`
 
-### Step 3: Training & Significance Testing
-Trains the XGBoost model and performs permutation tests.
+### Step 3: Compute Deviation
+Calculates the target variable (using raw difference).
 ```bash
-python code/data/train.py --features data/processed/features.csv --target deviation_score --output results/model_artifacts/
+python code/data/preprocess.py
 ```
+*Output*: `data/processed/deviation.csv`
+*Error Handling*: If the target has zero variance, the script raises `ValueError("Target not learnable")`.
+
+### Step 4: Train Model & Run Sensitivity
+Trains XGBoost and runs the stability loop (5 seeds).
+```bash
+python code/models/train.py
+```
+*Output*: `results/stability_metrics.json`, `results/model.pkl`
 
 ## Verification
 
-Run the unit tests to ensure feature extraction logic is correct:
+Run the test suite to ensure the pipeline is healthy:
 ```bash
-pytest code/tests/test_features.py -v
-pytest code/tests/test_train.py -v
+pytest code/tests/ -v
 ```
 
-## Expected Outputs
+## Troubleshooting
 
-- `data/processed/features.csv`: Contains `semantic_entropy`, `syntactic_depth`, etc.
-- `results/model_artifacts/xgboost_model.json`: The trained model.
-- `results/model_artifacts/significance.json`: Feature rankings with p-values.
-- `results/plots/feature_importance.png`: Visualization of top predictors.
+- **"Dataset missing required 'preference_score' column"**: The verified dataset does not contain human ratings. The pipeline has halted to prevent fabrication. Check the dataset schema in `data/raw`.
+- **"Memory limit exceeded"**: Ensure `streaming=True` is used in `loader.py`. If running locally, reduce the sample size in the config.
+- **"CUDA error"**: The code is designed for CPU. If you see CUDA errors, ensure `device="cpu"` is set in `transformers` and `xgboost`.
+- **"Zero Variance in Target"**: The human ratings and CLIP scores are identical for the sample. Check data quality.

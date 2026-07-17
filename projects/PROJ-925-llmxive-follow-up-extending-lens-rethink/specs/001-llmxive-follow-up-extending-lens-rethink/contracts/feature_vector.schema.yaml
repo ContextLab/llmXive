@@ -1,29 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: LinguisticFeatureVector
-description: Schema for the linguistic feature vector extracted from captions.
-type: object
+title: "Feature Vector Schema"
+description: "Schema for the extracted linguistic features."
+type: "object"
 properties:
-  semantic_entropy:
-    type: number
-    description: Semantic entropy calculated as ln(perplexity).
-    minimum: 0
+  id:
+    type: "string"
+    description: "Foreign key to the original record."
+  textual_perplexity:
+    type: "number"
+    description: "Natural log of perplexity (ln(perplexity)). Proxy for linguistic uncertainty."
   syntactic_depth:
-    type: integer
-    description: Maximum depth of the syntactic dependency tree.
-    minimum: 0
+    type: "integer"
+    description: "Maximum depth of the dependency parse tree."
   noun_phrase_density:
-    type: number
-    description: Ratio of noun phrases to total tokens.
-    minimum: 0.0
-    maximum: 1.0
+    type: "number"
+    description: "Ratio of noun phrases to total tokens."
   token_diversity:
-    type: number
-    description: Type-token ratio (unique tokens / total tokens).
-    minimum: 0.0
-    maximum: 1.0
+    type: "number"
+    description: "Type-Token Ratio (TTR)."
+  caption_length:
+    type: "integer"
+    description: "Number of tokens in the caption (used as confounder)."
+  status:
+    type: "string"
+    enum:
+      - "valid"
+      - "failed"
+    description: "Processing status."
 required:
-  - semantic_entropy
-  - syntactic_depth
-  - noun_phrase_density
-  - token_diversity
+  - "id"
+  - "textual_perplexity"
+  - "syntactic_depth"
+  - "noun_phrase_density"
+  - "token_diversity"
+  - "caption_length"
+  - "status"
 additionalProperties: false

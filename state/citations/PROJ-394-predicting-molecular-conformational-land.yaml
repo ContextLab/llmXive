@@ -9,3 +9,14 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/jonghyunlee/ZINC15/resolve/main/zinc_processed.parquet%60
   verified_at: '2026-06-30T09:42:41.328043Z'
+- artifact_hash: a29c0784d15e682fcaac44b26f5ef75fc9bcaf3e4d2e50dd0cf8ab98f8e79c1a
+  artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Statistical significance - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Statistical_significance
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Statistical_significance
+  verified_at: '2026-07-17T19:33:37.187071Z'

@@ -1,76 +1,31 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Expert Profile"
-description: "Schema for a generated expert profile containing capability and behavior tracks."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: ExpertProfile
+description: Schema for an expert profile with decoupled capability and behavior tracks.
+type: object
 required:
-  - "id"
-  - "domain"
-  - "capability_track"
-  - "behavior_track"
-  - "created_at"
-  - "checksum"
+  - profile_id
+  - domain
+  - capability_track
+  - behavior_track
+  - seed
 properties:
-  id:
-    type: "string"
-    description: "Unique UUID for the profile."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  profile_id:
+    type: string
+    description: "Unique identifier (UUID)"
   domain:
-    type: "string"
-    description: "Domain of expertise."
-    enum:
-      - "coding"
-      - "math"
-      - "logic"
-      - "creative"
-      - "factual"
+    type: string
+    description: "Domain of expertise (e.g., Python Developer)"
   capability_track:
-    type: "object"
-    description: "Rules and heuristics defining the expert's capability."
-    required:
-      - "rules"
-      - "heuristics"
-    properties:
-      rules:
-        type: "array"
-        description: "Strict rules the expert must follow."
-        items:
-          type: "string"
-      heuristics:
-        type: "array"
-        description: "Heuristics for problem solving."
-        items:
-          type: "string"
+    type: array
+    items:
+      type: string
+    description: "List of rules/heuristics"
   behavior_track:
-    type: "object"
-    description: "Style definitions for the expert's behavior."
-    required:
-      - "style_keywords"
-      - "tone"
-      - "forbidden_phrases"
-    properties:
-      style_keywords:
-        type: "array"
-        description: "Keywords that define the style."
-        items:
-          type: "string"
-      tone:
-        type: "string"
-        description: "Tone of the response."
-        enum:
-          - "formal"
-          - "conversational"
-          - "pedagogical"
-          - "technical"
-      forbidden_phrases:
-        type: "array"
-        description: "Phrases the expert should not use."
-        items:
-          type: "string"
-  created_at:
-    type: "string"
-    description: "ISO 8601 timestamp of creation."
-    format: "date-time"
-  checksum:
-    type: "string"
-    description: "SHA-256 checksum of the profile content."
-    pattern: "^[a-f0-9]{64}$"
+    type: array
+    items:
+      type: string
+    description: "List of style definitions"
+  seed:
+    type: integer
+    description: "Random seed used for generation"
+additionalProperties: false

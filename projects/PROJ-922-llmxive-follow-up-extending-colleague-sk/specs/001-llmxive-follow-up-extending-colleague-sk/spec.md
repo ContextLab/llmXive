@@ -9,7 +9,7 @@
 
 ### User Story 1 - Execute CPU-tractable LLM inference with decoupled prompt architecture (Priority: P1)
 
-The research system must load a small language model (e.g., Llama-3-8B-Q4 or Phi-3-mini) on a CPU-only environment and execute inference tasks using three distinct prompt conditions: Monolithic, Separated Tracks, and Generic Baseline. This is the foundational step required to generate any data for analysis.
+The research system must load a small language model (e.g., Llama-8B-Q4 or Phi-3-mini) on a CPU-only environment and execute inference tasks using three distinct prompt conditions: Monolithic, Separated Tracks, and Generic Baseline. This is the foundational step required to generate any data for analysis.
 
 **Why this priority**: Without successful, reproducible inference under strict CPU constraints (no GPU, <7GB RAM), no data can be collected to test the core hypothesis regarding hallucination and style drift.
 

@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `tests/`)
-- [ ] T002 Initialize Python 3.10 project with `requirements.txt` (pinned versions: pandas, numpy, scikit-learn, statsmodels, seaborn, matplotlib, pyarrow, requests, zCompositions, huggingface_hub)
+- [X] T002 Initialize Python 3.10 project with `requirements.txt` (pinned versions: pandas, numpy, scikit-learn, statsmodels, seaborn, matplotlib, pyarrow, requests, zCompositions, huggingface_hub)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -57,11 +57,11 @@
 
 - [X] T004 [P] Implement `code/config.py` with paths, random seeds, and constants. MUST include UK Biobank field IDs: microbiome-related fields, cognitive assessment fields, and confounder IDs (sex, age, BMI, etc.).
 - [X] T005 [P] Setup data hygiene utilities (checksumming, PII masking helpers) in `code/utils/hygiene.py`
-- [ ] T006 [P] Implement streaming/batch data loader utilities in `code/utils/streaming.py` to handle >14GB datasets within 7GB RAM limits
+- [X] T006 [P] Implement streaming/batch data loader utilities in `code/utils/streaming.py` to handle >14GB datasets within 7GB RAM limits
 - [ ] T007 Create base data models/entities (Participant, MicrobiomeProfile, CognitiveScore) in `code/models/`
 - [X] T008 Configure error handling and logging infrastructure in `code/utils/logging.py`
-- [~] T009 Setup environment configuration management for credentials (UK Biobank token)
-- [~] T019 [P] Implement `code/power_analysis.py` to generate synthetic dataset (beta=0.1), run power script, validate against theoretical values (SC-003), and **generate `results/power/power_report.md`** as the required evidence artifact. This task acts as a gate before statistical analysis.
+- [ ] T009 Setup environment configuration management for credentials (UK Biobank token)
+- [ ] T019 [P] Implement `code/power_analysis.py` to generate synthetic dataset (beta=0.1), run power script, validate against theoretical values (SC-003), and **generate `results/power/power_report.md`** as the required evidence artifact. This task acts as a gate before statistical analysis.
 - [X] T024a [P] **Execute Reference-Validator Agent** on cognitive instrument citations (FR-009) against primary sources. Generate `results/validation/instrument_citation_report.md` to satisfy the 'Verified Accuracy' gate.
 - [X] T024b [P] Update `code/config.py` and metadata with validated citation IDs and enforce citation validity in `code/analysis.py` imports.
 
@@ -82,7 +82,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/download.py` to fetch UK Biobank microbiome data and cognitive scores (fields 20400, 20002) using streaming batches <!-- ATOMIZE: requested -->
+- [ ] T012 [P] [US1] Implement `code/download.py` to fetch UK Biobank microbiome data and cognitive scores (fields 20400, 20002) using streaming batches <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T013 [US1] Implement `code/preprocess.py` to filter cohort: exclude recent antibiotic users and participants missing either data type (log exclusion counts)
 - [ ] T014 [US1] Apply **Bayesian-multiplicative zero-replacement** to raw microbiome counts (per Plan Complexity Tracking) to avoid log(0) bias. **Output**: `data/processed/zero_replaced_counts.parquet`.
 - [ ] T015 [US1] Implement `code/preprocess.py` genus-level aggregation and **Isometric Log-Ratio (ILR)** transformation. Pipeline: Zero-replaced counts -> Centered Log-Ratio (CLR) -> ILR (orthonormal coordinates). **Output**: `data/processed/ilr_coordinates.parquet`. Satisfies Constitution Principle VI.
@@ -101,14 +101,14 @@
 
 ### Tests for User Story 2 (OPTIONAL)
 
-- [ ] T017 [P] [US2] Unit test for Benjamini-Hochberg correction logic in `tests/test_analysis.py`
-- [ ] T018 [P] [US2] Unit test for power analysis script using synthetic beta=0.1 dataset in `tests/test_power.py`
+- [X] T017 [P] [US2] Unit test for Benjamini-Hochberg correction logic in `tests/test_analysis.py`
+- [X] T018 [P] [US2] Unit test for power analysis script using synthetic beta=0.1 dataset in `tests/test_power.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020a [US2] Implement `code/analysis.py` to fit **Standard OLS** linear models for main effects (ILR coords vs. cognitive scores) with covariates (age, sex, BMI, diet, activity, medication). **Requires T019 completion** (Power Gate).
-- [ ] T020b [US2] Implement `code/analysis.py` covariate handling logic and ensure all confounders from FR-004 are included.
-- [ ] T021 [US2] Implement `code/analysis.py` Benjamini-Hochberg correction for all taxon-cognitive associations and report adjusted p-values (FR-005). **Output**: `results/associations/main_effects.parquet`.
+- [X] T020a [US2] Implement `code/analysis.py` to fit **Standard OLS** linear models for main effects (ILR coords vs. cognitive scores) with covariates (age, sex, BMI, diet, activity, medication). **Requires T019 completion** (Power Gate).
+- [X] T020b [US2] Implement `code/analysis.py` covariate handling logic and ensure all confounders from FR-004 are included.
+- [~] T021 [US2] Implement `code/analysis.py` Benjamini-Hochberg correction for all taxon-cognitive associations and report adjusted p-values (FR-005). **Output**: `results/associations/main_effects.parquet`.
 - [ ] T022a [US2] Fit reduced models excluding diet/medication covariates to check for over-control bias (FR-010).
 - [ ] T022b [US2] Generate over-control bias comparison report comparing effect sizes between full and reduced models. **Output**: `results/sensitivity/over_control_report.json`.
 - [ ] T023 [US2] Update `results/associations/*.parquet` metadata columns to include `causality_claim: false` (FR-008).

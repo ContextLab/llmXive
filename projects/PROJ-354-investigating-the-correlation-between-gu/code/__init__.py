@@ -1,3 +1,4 @@
 """
-llmXive Research Pipeline - Code Module
+llmXive Gut Microbiome-Cognitive Correlation Study
+Core code package.
 """

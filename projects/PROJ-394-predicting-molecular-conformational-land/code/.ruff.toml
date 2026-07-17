@@ -1,0 +1,23 @@
+[lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "UP",  # pyupgrade
+]
+ignore = [
+  "E501", # line too long (handled by black)
+  "B008", # do not perform function calls in argument defaults (common in ML)
+]
+
+[lint.isort]
+known-first-party = ["code"]
+force-single-line = true
+
+[format]
+line-length = 88
+quote-style = "double"
+indent-style = "space"

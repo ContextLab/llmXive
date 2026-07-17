@@ -1,9 +1,12 @@
 status: none
-intent: MS COCO image caption dataset download python package dataset
+intent: Pick-a-Pic caption preference dataset and COCO image dataset python package
+  dataset
 required_fields:
-- caption_id
 - image_id
-- caption_text
-cache_key: 6735726e1a0e62ce40880b66ced189c3e01ab5de25735e93ddb9681b904d1bd9
-searched_at: '2026-07-16T07:32:09.744973+00:00'
+- caption
+- human_preference_label
+- winner_caption
+- loser_caption
+cache_key: 13a29d852343351a0668d1a70a3fd5d99a06486facebd62266ed5953a40e4494
+searched_at: '2026-07-17T18:39:50.373144+00:00'
 retry_count: 1

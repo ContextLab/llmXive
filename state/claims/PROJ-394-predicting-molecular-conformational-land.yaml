@@ -431,3 +431,261 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T10:12:41Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 0
+  canonical: Python dependencies versions for molecular conformation project
+  claim_id: c_2a85a10c
+  context: 'Phase 1: Setup (Shared Infrastructure), Task T002 Initialize Python 3.11
+    project with pinned dependencies.'
+  evidence:
+    asserted: '2.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Python deps: torch==2.3.0, rdkit==2024.3.1, joblib==1.4.2, statsmodels==0.14.2,
+    pandas==2.2.2, numpy==1.26.4, scikit-learn==1.5.0, huggingface-hub==0.23.4.'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T19:24:48Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: latent vector dimension is 64
+  claim_id: c_42aff1ba
+  context: 'Phase 2: Foundational, Task T006 Create base data schema with properties
+    including latent_vector.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Latent_vector_dimension_is_64
+  kind: entity_fact
+  raw_text: latent vector is an array of 64 floats.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T19:25:27Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: confidence_interval array length is 2
+  claim_id: c_de0f8c10
+  context: 'Phase 2: Foundational, Task T007 Create metrics schema with properties
+    including confidence_interval.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Confidence_interval_array_length_is_2
+  kind: entity_fact
+  raw_text: confidence_interval is an array of 2 floats.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T19:25:53Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: VAE latent dimension is 64
+  claim_id: c_58a4a6e6
+  context: 'Phase 3: User Story 1, Task T011 Unit test for VAE architecture asserts
+    latent dim=64.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: latent dim=64
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T19:26:26Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Integration test asserts loss less than or equal to 0.15
+  claim_id: c_06c8da6a
+  context: "Phase 3: User Story 1, Task T012 Integration test for training loop asserts\
+    \ checkpoint exists, loss \u2264 0.15."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Integration_test_asserts_loss_less_than_or_equal_to_0.15
+  kind: magnitude
+  raw_text: "loss \u2264 0.15"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T19:26:58Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Linear regression head input dimension is 64
+  claim_id: c_391ff6ea
+  context: 'Phase 4: User Story 2, Task T024 Implement linear regression head for
+    energy prediction.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: input dim=64
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T19:27:50Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Linear regression head output dimension is 1
+  claim_id: c_535ec07b
+  context: 'Phase 4: User Story 2, Task T024 Implement linear regression head for
+    energy prediction.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: output dim=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T19:28:37Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Power analysis effect size is 0.5
+  claim_id: c_d0fcdaae
+  context: 'Phase 4: User Story 2, Task T028 Implement power analysis function using
+    statsmodels.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.0 0.5 1.0 1.5 2.0
+      source_id: '1809.02623'
+      url: https://arxiv.org/abs/1809.02623
+      value: '0.5'
+    filled: true
+  kind: numeric
+  raw_text: effect size=0.5
+  resolved_value: '0.5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T19:29:21Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Power analysis alpha is 0.05
+  claim_id: c_16294c32
+  context: 'Phase 4: User Story 2, Task T028 Implement power analysis function using
+    statsmodels.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In 1925, Ronald Fisher advanced the idea of statistical hypothesis testing,
+        which he called "tests of significance", in his publication Statistical Methods
+        for Research Workers. Fisher suggested a probability of one in twenty (0.05)
+        as a convenient cutoff level to reject the null hypothesis. In a 1933 paper,
+        Jerzy Neyman and Egon Pearson called this cutoff the significance level, which
+        they named
+      source_id: Statistical significance
+      url: https://en.wikipedia.org/wiki/Statistical_significance
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T19:29:42Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Workflow success rate must be at least 95%
+  claim_id: c_373afb42
+  context: 'Phase 4: User Story 2, Task T029 Implement workflow success rate validation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Workflow_success_rate_must_be_at_least_95%25
+  kind: magnitude
+  raw_text: "workflow success rate validation (\u226595% success)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T19:30:12Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Minimum sample size check for input dataset is 1000 molecules
+  claim_id: c_0ef8fe7b
+  context: 'Phase 7: Pilot & Edge Case Handling, Task T048 Implement dataset size
+    check to raise error if input dataset has < 1,000 molecules.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: input dataset has < 1,000 molecules
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T19:30:12Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Runtime target for energy_calc.py is less than 2 hours
+  claim_id: c_cf007635
+  context: 'Phase N: Polish & Cross-Cutting Concerns, Task T044 Performance optimization
+    to meet runtime constraint with a target of < 2 hours.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_target_for_energy_calc.py_is_less_than_2_hours
+  kind: magnitude
+  raw_text: target of < 2 hours for energy_calc.py
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T19:30:34Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Task execution constraint is CPU-only 2 cores, 7GB RAM, within 6 hours
+  claim_id: c_35e2e13f
+  context: Notes section, Critical Constraint regarding task execution environment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must be executable on CPU-only (2 cores, 7GB RAM) within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T19:30:58Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Pilot benchmark uses a 50-molecule subset
+  claim_id: c_07f7ce18
+  context: 'Phase 7: Pilot & Edge Case Handling, Task T047b Run the conformer generation
+    and GFN-xTB optimization pipeline on the 50-molecule subset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 50-molecule subset defined in T047a
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T19:31:24Z'

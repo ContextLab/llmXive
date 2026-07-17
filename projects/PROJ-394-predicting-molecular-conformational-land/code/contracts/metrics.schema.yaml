@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Molecular Conformer Ranking Metrics
+description: |
+  JSON Schema for statistical metrics used to evaluate the correlation between
+  predicted energy rankings and ground-truth GFN2-xTB energy rankings.
+  This schema enforces the structure required for the Spearman rank correlation
+  analysis as defined in the project specifications.
+type: object
+properties:
+  spearman_rho:
+    type: number
+    format: float
+    description: |
+      The Spearman rank-order correlation coefficient (ρ) between the predicted
+      conformer energy rankings and the actual GFN2-xTB calculated energy rankings.
+      Values range from -1 to 1.
+    minimum: -1.0
+    maximum: 1.0
+  p_value:
+    type: number
+    format: float
+    description: |
+      The two-tailed p-value associated with the Spearman correlation coefficient.
+      Indicates the statistical significance of the observed correlation under
+      the null hypothesis of no correlation.
+    minimum: 0.0
+    maximum: 1.0
+  confidence_interval:
+    type: array
+    description: |
+      The 95% confidence interval for the Spearman correlation coefficient.
+      Represented as a two-element array [lower_bound, upper_bound].
+    items:
+      type: number
+      format: float
+    minItems: 2
+    maxItems: 2
+required:
+  - spearman_rho
+  - p_value
+  - confidence_interval
+additionalProperties: false

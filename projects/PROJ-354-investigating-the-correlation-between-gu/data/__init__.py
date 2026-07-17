@@ -1,3 +1,4 @@
 """
-llmXive Research Pipeline - Data Directory
+Data directory placeholder.
+Contains raw, processed, and intermediate data artifacts.
 """

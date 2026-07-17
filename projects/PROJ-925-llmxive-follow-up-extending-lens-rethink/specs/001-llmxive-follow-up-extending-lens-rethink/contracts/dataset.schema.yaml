@@ -1,34 +1,28 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Pick-a-Pic Dataset Record
-description: >
-  Schema for raw dataset records loaded from the Pick-a-Pic dataset.
-  Includes image paths, captions, and preference metadata.
-type: object
-required:
-  - image_id
-  - caption_chosen
-  - caption_rejected
-  - image_path
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the raw dataset rows from the verified Pick-a-Pic source."
+type: "object"
 properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the caption record."
+  text:
+    type: "string"
+    description: "The raw caption text."
   image_id:
-    type: string
-    description: Unique identifier for the image in the dataset.
-  caption_chosen:
-    type: string
-    description: The human-preferred caption for the image.
-  caption_rejected:
-    type: string
-    description: The non-preferred (rejected) caption for the image.
-  image_path:
-    type: string
-    description: Local file path to the image after download.
-  metadata:
-    type: object
-    description: Optional additional metadata from the source dataset.
-    properties:
-      source:
-        type: string
-      timestamp:
-        type: string
-        format: date-time
+    type: "string"
+    description: "The associated image ID."
+  clip_score:
+    type: "number"
+    description: "Pre-computed CLIP score for the image-caption pair."
+  preference_score:
+    type:
+      - "number"
+      - "null"
+    description: "Human preference score (0.0 to 1.0). Can be null."
+required:
+  - "id"
+  - "text"
+  - "clip_score"
+  - "preference_score"
 additionalProperties: true
