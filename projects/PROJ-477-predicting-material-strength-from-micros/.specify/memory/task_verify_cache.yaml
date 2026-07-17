@@ -1,0 +1,30 @@
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., terminal log, CI report, or script output) showing that `ruff\
+    \ check --fix` was executed on the `code/` directory and returned exit code\u202F\
+    0 is present. Without such evidence, we cannot confirm the task was actually performed.\
+    \ The implementer must provide the ruff execution output or a verification file\
+    \ confirming a successful run."
+T036:
+  c: false
+  h: c4a89ec27db07304613811f75fa9f493af2491f9bc68e49b89aa30f66a1efb5d
+  r: "The required output file `results/memory_profile.json` is absent, so there is\
+    \ no recorded peak memory usage and no verification that the script was run with\
+    \ the `--stress-test` flag or that memory stayed below 7\u202FGB. The implementer\
+    \ must generate this JSON file with the memory profile data."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of new unit test files under `tests/unit/` was provided; the claim\
+    \ lacks any actual test code covering corrupted data or extreme aspect\u2011ratio\
+    \ cases, so the required artifact is missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No actual artifacts (download script, preprocessing pipeline, train/validation/test\
+    \ splits, manifest files, trained model checkpoint, or final performance report)\
+    \ were provided for inspection, so the claim that the full pipeline from data\
+    \ download to report generation has been executed cannot be verified. The implementer\
+    \ must supply the runnable end\u2011to\u2011end scripts and the resulting output\
+    \ artifacts to satisfy the integration test."

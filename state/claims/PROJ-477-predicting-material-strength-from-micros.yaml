@@ -125,3 +125,238 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T11:56:04Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Hall-Petch formula for yield strength
+  claim_id: c_26c8fb68
+  context: The yield strength labels for the microstructure images are generated using
+    the Hall-Petch relationship, a fundamental physics-based model in materials science.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hall-Petch_formula_for_yield_strength
+  kind: entity_fact
+  raw_text: 'The yield strength ($\sigma_y$) is calculated using the formula: $\sigma_y
+    = \sigma_0 + \frac{k}{\sqrt{d}}$.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:40:56Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Friction stress for mild steel is 65 MPa
+  claim_id: c_a8dc663c
+  context: 'Where: $\sigma_0$ (friction stress) = 65 MPa (typical for mild steel)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The friction stress ($\sigma_0$) is 65 MPa (typical for mild steel).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:41:33Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Hall-Petch slope is 0.36 MPa m^0.5
+  claim_id: c_14efdcb8
+  context: "Where: k (Hall-Petch slope) = 0.36 MPa\xB7m$^{1/2}$ (empirically derived)"
+  evidence:
+    asserted: '0.36'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The Hall-Petch slope ($k$) is 0.36 MPa\xB7m$^{1/2}$ (empirically derived)."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T18:41:33Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Generated labels range from 100 to 500 MPa
+  claim_id: c_b65611e0
+  context: "The generated labels are validated to ensure they fall within physically\
+    \ realistic ranges (typically 100\u2013500 MPa for the materials in this dataset)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated labels typically fall within physically realistic ranges\
+    \ of 100\u2013500 MPa for the materials in this dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:43:08Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: 'Power analysis parameters: effect size 0.5, alpha 0.05, power 0.80'
+  claim_id: c_46f3f5ce
+  context: 'Parameters: Effect Size (Cohen''s d): 0.5 (medium effect, representing
+    a meaningful improvement in prediction error), Significance Level ($\alpha$):
+    0.05, Power ($1 - \beta$): 0.80'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A power analysis was conducted using an effect size (Cohen's d) of 0.5,
+    a significance level of 0.05, and a power of 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:45:25Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Minimum sample size required is 64 per group
+  claim_id: c_404b7276
+  context: The analysis indicates that a minimum of 64 samples per group (train/val/test
+    split considerations applied) is required to achieve 80% power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis indicates that a minimum of 64 samples per group is
+    required to achieve 80% power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:47:01Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Dataset size exceeds 1000 images
+  claim_id: c_6ab6058e
+  context: Given the dataset size (typically >1,000 images after preprocessing), the
+    project has sufficient statistical power to detect medium-to-large effects.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "Introduction Low back pain is a worldwide health problem with lifetime\
+        \ prevalence reported as high as 84%.1 In the United States alone, the direct\
+        \ medical and indirect costs of low back pain have been estimated at $50-100\
+        \ billion.2 In the lumbar spine, narrowing of the spinal canal, neural foramina,\
+        \ and subarticular recesses can compress spinal nerve roots, which can lead\
+        \ to radiculopathy and necessitate spinal surgery. MRI is the best imaging\
+        \ modality to assess the degree of narrowing in these regions, but reported\
+        \ inter-rater agreement between radiologists\u2019 grades of stenosis has\
+        \ been variable, ranging from poor to substantial, between different studies\
+        \ and spinal location (spinal canal, subarticular, or neural foramen).3,4\
+        \ While the large number of lumbar spine MRIs creates a substantial workload\
+        \ for radiologists, this is overshadowed by the more critical challenge of\
+        \ ensuring consistent and accurate grading of stenosis severity, which impacts\
+        \ diagnostic confidence and potentially patient care. Previous efforts to\
+        \ create machine learning (ML) models for this purpose have been limited by\
+        \ the available lumbar spondylosis imaging datasets.5\u20137 Our goal was\
+        \ to create the largest, most diverse, expertly annotated MRI lumbar spondylosis\
+        \ dataset for both the RSNA 2024 Lumbar Spine Degenerative Classification\
+        \ AI Challenge and future research. Dataset Description and Usage The RSNA\
+        \ Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is\
+        \ composed of MRI studies of the lumbar spine from 2,697 patients with a total\
+        \ of 8,593 image series from 8 institutions across 6 countries and 5 continents.\
+        \ Inclusion criteria included an MR lumbar spine study with a sagittal \u201C\
+        T2-like\u201D (e.g. conventional spin echo T2, STIR, or Dixon), sagittal T1,\
+        \ and axial T2 weighted images. Both axial T2 images acquired as a continuous\
+        \ stack or oriented parallel to the intervertebral disc levels were acceptable\
+        \ if they included at least 3 lumbar spine disc levels. Additional inclusion\
+        \ criteria were a patient age \u2265 18 years old and imaged in an outpatient\
+        \ setting for lumbar degenerative disease. Exclusion criteria included lumbosacral\
+        \ spinal hardware, active non-degenerative pathology (e.g. spinal tumor, active\
+        \ infection, etc.), severe scoliosis, or substantial diagnostic limiting artifact.\
+        \ A summary of the patient demographics and incidence of high-grade (moderate\
+        \ or severe) degenerative stenosis by institution is included in Table 1.\
+        \ Overall, of the 13,474 spinal canal stenosis grades, 85.4% were normal/mild,\
+        \ 8.8% were moderate, and 5.9% were severe. Of the 26,919 neural foraminal\
+        \ grades, 78.3% right and 77.2% left were normal/mild, 17.3% right and 18.1%\
+        \ left were moderate, and 4.4% right and 4.6% left were severe. Of the 26,285\
+        \ subarticular grades, 69.4% right and 69.5% left were normal/mild, 19.6%\
+        \ right and 19.2% left were moderate, and 10.9% right and 11.3% left"
+      source_id: '2506.09162'
+      url: https://arxiv.org/abs/2506.09162
+      value: 2,697
+    filled: true
+  kind: magnitude
+  raw_text: The dataset size is typically greater than 1,000 images after preprocessing.
+  resolved_value: 2,697
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T18:47:52Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: MobileNetV2 chosen as CNN backbone
+  claim_id: c_14e0aede
+  context: 'Chosen: MobileNetV2 (frozen backbone, fine-tuned head)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MobileNetV2_chosen_as_CNN_backbone
+  kind: entity_fact
+  raw_text: MobileNetV2 was chosen as the CNN backbone with a frozen backbone and
+    fine-tuned head.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:48:34Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: MobileNetV2 has better parameter efficiency than ResNet-18
+  claim_id: c_c3053cdc
+  context: ResNet-18 was considered but MobileNetV2 offers better parameter efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MobileNetV2 offers better parameter efficiency than ResNet-18.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:49:08Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Confidence intervals use 30 Monte Carlo Dropout samples
+  claim_id: c_f0fac525
+  context: 'Confidence Intervals: Monte Carlo Dropout (30 samples) to estimate prediction
+    uncertainty (Task T032).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confidence intervals are estimated using Monte Carlo Dropout with 30 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:49:38Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Model considered insufficient if R squared is below 0.2
+  claim_id: c_fdf14807
+  context: "Null Hypothesis Protocol: If R\xB2 < 0.2, the model is considered insufficient\
+    \ (Task T025), and a report is generated."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_considered_insufficient_if_R_squared_is_below_0.2
+  kind: magnitude
+  raw_text: "If R\xB2 is less than 0.2, the model is considered insufficient."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:50:38Z'

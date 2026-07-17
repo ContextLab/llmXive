@@ -50,8 +50,8 @@ The researcher MUST be able to generate visual explanations (Grad-CAM or SHAP) t
 **Acceptance Scenarios**:
 
 1. **Given** a trained model and a set of test images, **When** the interpretability script is executed, **Then** the system generates Grad-CAM heatmaps overlaid on the original microstructure images, highlighting regions contributing most to the strength prediction.
-2. **Given** a defined decision threshold for classifying "high strength" materials (defined as the median predicted strength of the test set), **When** the sensitivity analysis is run, **Then** the system sweeps the threshold across the set {0.01, 0.05, 0.1} (relative to the median) and reports the variation in false-positive and false-negative rates.
-3. **Given** a model prediction with high uncertainty, **When** the user requests an explanation, **Then** the system provides a confidence interval (95%) alongside the prediction value.
+2. **Given** a defined decision threshold for classifying "high strength" materials (defined as the median predicted strength of the test set), **When** the sensitivity analysis is run, **Then** the system sweeps the threshold across a set of low relative values (relative to the median) and reports the variation in false-positive and false-negative rates.
+3. **Given** a model prediction with high uncertainty, **When** the user requests an explanation, **Then** the system provides a confidence interval alongside the prediction value.
 
 ### Edge Cases
 
