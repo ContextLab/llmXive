@@ -1,105 +1,68 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Merged Cognitive and Visual Distraction Dataset
-description: |
-  Schema for the merged dataset linking participant-level cognitive metrics
-  with workspace visual complexity metrics. Used to validate `data/processed/merged_data.csv`.
-type: object
-properties:
-  participant_id:
-    type: string
-    description: Unique identifier for the participant.
-    pattern: "^P\\d{4}$"
-    examples:
-      - "P0001"
-      - "P0042"
-  
-  cognitive_task_type:
-    type: string
-    description: The type of cognitive task performed (Stroop or Flanker).
-    enum:
-      - "Stroop"
-      - "Flanker"
-  
-  reaction_time:
-    type: number
-    description: Mean reaction time in milliseconds.
-    minimum: 0
-    exclusiveMinimum: false
-  
-  accuracy:
-    type: number
-    description: Accuracy rate as a proportion (0.0 to 1.0).
-    minimum: 0
-    maximum: 1
-  
-  workspace_image_path:
-    type: string
-    description: Relative path to the workspace image file.
-    pattern: "^data/raw/.*\\.(jpg|jpeg|png)$"
-  
-  lighting_condition:
-    type: string
-    description: Lighting condition of the workspace image.
-    enum:
-      - "Natural"
-      - "Artificial"
-      - "Mixed"
-      - "Low"
-  
-  room_type:
-    type: string
-    description: Type of room depicted in the image.
-    enum:
-      - "Home Office"
-      - "Co-working Space"
-      - "Open Plan"
-      - "Private Office"
-  
-  demographic_group:
-    type: string
-    description: Demographic grouping for the participant (for stratification).
-    enum:
-      - "Group A"
-      - "Group B"
-      - "Group C"
-  
-  edge_density:
-    type: number
-    description: Normalized edge density (0.0 to 1.0) derived from Canny/Sobel.
-    minimum: 0
-    maximum: 1
-  
-  color_entropy:
-    type: number
-    description: Color entropy value derived from histogram analysis.
-    minimum: 0
-  
-  object_count:
-    type: integer
-    description: Number of distinct objects detected by YOLO model.
-    minimum: 0
-  
-  missing_value_flags:
-    type: object
-    description: Flags indicating which fields are missing for this record.
-    properties:
-      reaction_time:
-        type: boolean
-      accuracy:
-        type: boolean
-      visual_complexity:
-        type: boolean
-    additionalProperties: false
+# Dataset Schema Definition
+# Defines the structure and requirements for data/processed/merged_data.csv
+# and data/processed/final_analysis_data.csv
 
-required:
+required_columns:
   - participant_id
-  - cognitive_task_type
   - reaction_time
   - accuracy
-  - workspace_image_path
+  - visual_complexity
   - edge_density
   - color_entropy
   - object_count
-  - missing_value_flags
+  - workspace_type
+  - lighting_condition
 
-additionalProperties: false
+columns:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant
+    required: true
+
+  reaction_time:
+    type: float
+    description: Reaction time in milliseconds
+    required: true
+    min_value: 0.0
+
+  accuracy:
+    type: float
+    description: Accuracy as a decimal (0.0 to 1.0)
+    required: true
+    min_value: 0.0
+    max_value: 1.0
+
+  visual_complexity:
+    type: float
+    description: Composite visual complexity score
+    required: true
+
+  edge_density:
+    type: float
+    description: Normalized edge density (0.0 to 1.0)
+    required: true
+    min_value: 0.0
+    max_value: 1.0
+
+  color_entropy:
+    type: float
+    description: Color entropy of the workspace image
+    required: true
+
+  object_count:
+    type: float
+    description: Number of objects detected in the image
+    required: true
+    allow_null: true # NaN is allowed if detection fails
+
+  workspace_type:
+    type: string
+    description: Type of workspace (e.g., home, office)
+    required: true
+
+  lighting_condition:
+    type: string
+    description: Lighting condition (e.g., natural, artificial)
+    required: true
+
+strict_columns: false # Allow additional columns if needed for analysis

@@ -1,6 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-visual-distraction"
+version = "0.1.0"
+description = "Impact of Visual Distraction on Cognitive Control in Remote Work Environments"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "scipy",
+    "opencv-python-headless",
+    "ultralytics",
+    "matplotlib",
+    "seaborn",
+    "Pillow",
+    "pytest",
+    "ruff",
+    "black",
+]
+
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -16,8 +41,16 @@ exclude = '''
 )/
 '''
 
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+src = ["code", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "C4", "UP"]
+ignore = ["E501"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
+addopts = "-v --strict-markers"

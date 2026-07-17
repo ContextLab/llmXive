@@ -1,24 +1,16 @@
 [lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # Pyflakes
+  "I",   # isort
+  "C90", # mccabe (complexity)
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex (handled by separate complexity check if needed)
+  "E501", # line too long (handled by black)
 ]
-
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # assert allowed in tests
+per-file-ignores = {}
 
 [format]
-# Black-compatible formatting settings
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+line-length = 88
+indent-width = 4

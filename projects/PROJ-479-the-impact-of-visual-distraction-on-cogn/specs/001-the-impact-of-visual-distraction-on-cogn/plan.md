@@ -11,11 +11,11 @@ This project investigates the association between visual complexity in home work
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `opencv-python-headless`, `ultralytics` (YOLOv5n/tiny CPU-optimized), `matplotlib`, `seaborn`, `Pillow`  
 **Storage**: Local filesystem (`data/` for raw/processed, `results/` for artifacts)  
 **Testing**: `pytest` (contract tests against YAML schemas, unit tests for metric extraction)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU resources, ~7 GB RAM, no GPU)  
 **Project Type**: Data Analysis Pipeline / Research Script  
 **Performance Goals**: Total runtime ≤ 6 hours; memory usage ≤ 6 GB during peak processing; synthetic data generation < 5 minutes.  
 **Constraints**: No GPU usage; no large language model inference; all data must be reproducible via pinned random seeds; strict associational language in all outputs.  

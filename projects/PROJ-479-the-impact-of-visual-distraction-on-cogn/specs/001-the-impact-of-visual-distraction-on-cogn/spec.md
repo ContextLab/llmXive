@@ -114,7 +114,7 @@ The system MUST conduct bootstrap resampling and alternative complexity metric s
 - **SC-005**: Threshold justification is measured against the requirement that the p<0.05 significance threshold is explicitly justified as a community-standard convention, and a summary table of exact p-values and Holm-Bonferroni adjusted p-values is generated (See US-4)
 - **SC-006**: Measurement validity is measured against the requirement that visual complexity metrics use validated computer vision methods (OpenCV edge detection, standard color entropy formulas) with citable documentation (See US-2)
 - **SC-007**: Predictor collinearity is measured against the requirement that VIF scores are computed and reported; if VIF ≥5 for any predictor, the system MUST use PCA components as predictors and document the variance explained (See US-2)
-- **SC-008**: Compute feasibility is measured against the requirement that total analysis runtime ≤6 hours on GitHub Actions free-tier runner (limited CPU cores, ~7 GB RAM, no GPU) (See US-1)
+- **SC-008**: Compute feasibility is measured against the requirement that total analysis runtime ≤6 hours on GitHub Actions free-tier runner (limited CPU cores, constrained RAM, no GPU) (See US-1)
 
 ## Assumptions
 

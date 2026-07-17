@@ -1,0 +1,10 @@
+[
+  {
+    "pair": "edge_density_vs_reaction_time",
+    "ci": {
+      "mean": 0.12,
+      "ci_lower": -0.05,
+      "ci_upper": 0.29
+    }
+  }
+]

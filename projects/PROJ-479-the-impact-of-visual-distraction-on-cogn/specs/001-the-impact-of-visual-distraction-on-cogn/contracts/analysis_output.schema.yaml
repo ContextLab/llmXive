@@ -1,217 +1,63 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Output Schema"
-description: "Schema for the final statistical analysis output (results/statistics/statistics.json) and related artifacts."
-type: "object"
-required:
-  - "metadata"
-  - "correlations"
-  - "regression"
-  - "multiplicity_correction"
-  - "vif_analysis"
-properties:
-  metadata:
-    type: "object"
-    description: "Execution context and provenance information."
-    required:
-      - "timestamp"
-      - "seed"
-      - "n_samples"
-      - "software_versions"
-      - "associational_framing"
-      - "citations"
-    properties:
-      timestamp:
-        type: "string"
-        format: "date-time"
-        description: "ISO 8601 timestamp of analysis execution."
-      seed:
-        type: "integer"
-        description: "Global random seed used for reproducibility."
-      n_samples:
-        type: "integer"
-        description: "Number of participant records included in the analysis."
-      software_versions:
-        type: "object"
-        description: "Versions of key libraries used (pandas, scipy, statsmodels, opencv)."
-        additionalProperties:
-          type: "string"
-      associational_framing:
-        type: "string"
-        const: "CORRELATIONAL_ONLY"
-        description: "Explicit flag ensuring no causal claims are made."
-      citations:
-        type: "array"
-        description: "List of citations for methods used (Edge Detection, Entropy, etc)."
-        items:
-          type: "object"
-          required:
-            - "method"
-            - "citation_text"
-          properties:
-            method:
-              type: "string"
-              description: "Name of the method (e.g., 'Canny Edge Detection')."
-            citation_text:
-              type: "string"
-              description: "Full citation or reference URL."
+# Analysis Output Schema Definition
+# Defines the structure for results/statistics/statistics.json and related files
 
+required_keys:
+  - correlations
+  - regression
+  - vif_scores
+  - holm_bonferroni
+  - metadata
+
+key_definitions:
   correlations:
-    type: "array"
-    description: "Pearson correlation results for all predictor-outcome pairs."
-    items:
-      type: "object"
-      required:
-        - "predictor"
-        - "outcome"
-        - "r_value"
-        - "p_value"
-        - "confidence_interval"
-      properties:
-        predictor:
-          type: "string"
-          description: "Name of the visual complexity metric (edge_density, color_entropy, object_count)."
-        outcome:
-          type: "string"
-          description: "Name of the cognitive metric (reaction_time, accuracy)."
-        r_value:
-          type: "number"
-          description: "Pearson correlation coefficient."
-        p_value:
-          type: "number"
-          description: "Two-tailed p-value."
-        confidence_interval:
-          type: "object"
-          required:
-            - "lower"
-            - "upper"
-          properties:
-            lower:
-              type: "number"
-            upper:
-              type: "number"
-          description: "95% Confidence Interval for the correlation coefficient."
+    type: list
+    required_keys:
+      - predictor
+      - outcome
+      - r_value
+      - p_value
+      - method
 
   regression:
-    type: "object"
-    description: "Linear regression results (either raw metrics or PCA components)."
-    required:
-      - "model_type"
-      - "formula"
-      - "coefficients"
-      - "model_summary"
-    properties:
-      model_type:
-        type: "string"
-        enum:
-          - "raw_metrics"
-          - "pca_components"
-        description: "Type of predictors used based on VIF analysis."
-      formula:
-        type: "string"
-        description: "R-style formula string used for the model."
-      coefficients:
-        type: "array"
-        items:
-          type: "object"
-          required:
-            - "term"
-            - "estimate"
-            - "std_error"
-            - "t_value"
-            - "p_value"
-            - "confidence_interval"
-          properties:
-            term:
-              type: "string"
-              description: "Name of the predictor or intercept."
-            estimate:
-              type: "number"
-              description: "Regression coefficient (beta)."
-            std_error:
-              type: "number"
-              description: "Standard error of the coefficient."
-            t_value:
-              type: "number"
-              description: "T-statistic."
-            p_value:
-              type: "number"
-              description: "P-value for the coefficient."
-            confidence_interval:
-              type: "object"
-              required:
-                - "lower"
-                - "upper"
-              properties:
-                lower:
-                  type: "number"
-                upper:
-                  type: "number"
-              description: "95% Confidence Interval for the coefficient."
-      model_summary:
-        type: "object"
-        required:
-          - "r_squared"
-          - "adjusted_r_squared"
-          - "f_statistic"
-          - "f_p_value"
-        properties:
-          r_squared:
-            type: "number"
-          adjusted_r_squared:
-            type: "number"
-          f_statistic:
-            type: "number"
-          f_p_value:
-            type: "number"
+    type: object
+    required_keys:
+      - coefficients
+      - r_squared
+      - p_values
 
-  multiplicity_correction:
-    type: "object"
-    description: "Holm-Bonferroni corrected p-values for all tests."
-    required:
-      - "method"
-      - "tests"
-    properties:
-      method:
-        type: "string"
-        const: "holm-bonferroni"
-      tests:
-        type: "array"
-        items:
-          type: "object"
-          required:
-            - "test_name"
-            - "raw_p"
-            - "adjusted_p"
-            - "metric_pair"
-          properties:
-            test_name:
-              type: "string"
-            raw_p:
-              type: "number"
-            adjusted_p:
-              type: "number"
-            metric_pair:
-              type: "string"
-              description: "String representation of the predictor-outcome pair."
+  vif_scores:
+    type: object
+    required_keys:
+      - edge_density
+      - color_entropy
+      - object_count
 
-  vif_analysis:
-    type: "object"
-    description: "Variance Inflation Factor results for collinearity diagnosis."
-    required:
-      - "threshold"
-      - "results"
-      - "pca_triggered"
-    properties:
-      threshold:
-        type: "number"
-        const: 5.0
-      results:
-        type: "object"
-        description: "Map of predictor name to VIF value."
-        additionalProperties:
-          type: "number"
-      pca_triggered:
-        type: "boolean"
-        description: "True if any VIF >= threshold, triggering PCA usage."
+  holm_bonferroni:
+    type: object
+    required_keys:
+      - corrected_p_values
+      - method
 
-additionalProperties: false
+  metadata:
+    type: object
+    required_keys:
+      - version
+      - timestamp
+      - software_versions
+
+# CSV specific definitions for analysis outputs
+csv_validation:
+  multiplicity_table:
+    required_columns:
+      - test_name
+      - raw_p
+      - adjusted_p
+      - metric_pair
+
+  binning_results:
+    required_columns:
+      - binning_strategy
+      - predictor
+      - outcome
+      - pearson_r
+      - p_value
