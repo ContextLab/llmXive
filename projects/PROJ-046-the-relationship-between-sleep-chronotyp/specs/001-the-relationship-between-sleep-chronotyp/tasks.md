@@ -85,9 +85,9 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T011 [US1] Implement `code/01_ingest.R`:
  1. Load CSV.
  2. Verify presence of ALL required columns (`MEQ_score`, `MFQ_*`, `PSQI`, `acute_sleepiness`, `age`, `sex`). **ABORT immediately** if any column is missing (FR-001) **BEFORE** any processing.
- 3. Check for missing `acute_sleepiness`. Exclude rows with missing values.
- 4. **IMMEDIATE ABORT CHECK**: Calculate exclusion rate (Excluded / Total Rows). If rate > 20%, **ABORT immediately** with a clear error message. **DO NOT** save any intermediate files if this check fails.
- 5. If rate <= 20%, log exclusions to `logs/ingest_exclusions.log` (format: `row_id,reason,step=ingest`) and save `data/processed/cleaned_data.csv`.
+ 3. Check for missing `acute_sleepiness`. Exclude rows with missing values and log them to `logs/ingest_exclusions.log` (format: `row_id,reason,step=ingest`). **DO NOT ABORT** immediately.
+ 4. **FINAL ABORT CHECK (End of Step)**: Calculate total exclusion rate (Excluded Rows / Total Rows). If rate > 20%, **ABORT immediately** with a clear error message. **DO NOT** save any intermediate files if this check fails.
+ 5. If rate <= 20%, save `data/processed/cleaned_data.csv`.
  6. **Data Contract**: Ensure the script exits with code 0 only if the file is saved; exits with code 1 if aborted.
 
 - [X] T012 [US1] Implement `code/02_classify.R`:
@@ -95,32 +95,35 @@ Examples of foundational tasks (adjust based on your project):
  - Apply thresholds: `MEQ >= 59` -> "morning", `MEQ <= 41` -> "evening", else "intermediate".
  - Flag rows with `NA` or non-numeric `MEQ_score` (exclude and log to `logs/classify_exclusions.log` with format `row_id,reason,step=classify`).
  - Exclude rows with out-of-range MFQ scores (per FR-006), logging each exclusion to `logs/classify_exclusions.log` with format `row_id,reason,step=classify`.
- - **IMMEDIATE ABORT CHECK**: Calculate cumulative exclusion rate (Total Excluded so far / Original Rows). If rate > 20%, **ABORT immediately** with a clear error message. **DO NOT** save `classified_data.csv` if this check fails.
+ - **FINAL ABORT CHECK (End of Step)**: Calculate cumulative exclusion rate (Total Excluded so far / Original Rows). If rate > 20%, **ABORT immediately** with a clear error message. **DO NOT** save `classified_data.csv` if this check fails.
  - If rate <= 20%, save `data/derived/classified_data.csv`.
 
-- [X] T014 [US1] [P] Implement `code/06_benchmark_accuracy.R`:
+- [X] T014 [US1] [SC-001] Implement `code/06_benchmark_accuracy.R`:
  - **Depends on**: T012.
+ - **[SC-001] See SC-001**. **STRICTLY FOR BENCHMARK ACCURACY TEST ONLY**.
  - **Generate** a synthetic benchmark dataset with known labels. **Scope**: Use ONLY for classifier accuracy testing (SC-001), NOT for primary analysis.
- - **Method**: Generate data using Beta distributions with **hardcoded parameters** (shape1=2, shape2=5) to mimic real MEQ/MFQ score ranges.
+ - **WARNING**: This synthetic data is **NOT** for primary analysis or scientific claims.
+ - **Method**: Generate data using Beta distributions with **hardcoded parameters** (shape1=2, shape2=5) to mimic real MEQ/MFQ score ranges. **Explicit Mapping**: Generate `MEQ_score` such that the known label is **deterministically derived** using the exact same thresholds as FR-002 (`>=59` -> morning, `<=41` -> evening). The "known label" is the result of applying FR-002 logic to the generated score, ensuring the benchmark is verifiable.
  - **Execution Constraint**: The script **MUST** require the CLI flag `--mode=test`. If invoked without this flag, **ABORT immediately**.
  - **Output Constraint**: The script **MUST** write output **only** to `data/derived/` (e.g., `data/derived/benchmark_results.csv`). If the target directory is `data/processed/`, **ABORT immediately** regardless of flags.
  - Run the classifier on this synthetic data.
  - Verify ≥95% accuracy (SC-001).
 
-- [X] T018 [US1] [P] Implement `code/02.6_reliability.R`:
+- [X] T018 [US1] Implement `code/02.6_reliability.R`:
  - **Depends on**: T012.
  - Calculate Cronbach's alpha for all five MFQ subscales using the classified data.
  - Save results to `data/derived/reliability_metrics.csv` with columns: `subscale`, `cronbach_alpha`, `n_items`.
  - **Verify**: Ensure `data/derived/reliability_metrics.csv` exists and contains valid alpha values.
 
-- [X] T018.5 [US1] [P] Implement `code/02.7_meq_reliability.R`:
+- [X] T018.5 [US1] [Constitution Principle VI] Implement `code/02.7_meq_reliability.R`:
  - **Depends on**: T012.
+ - **[Constitution Principle VI] See Constitution Principle VI**.
  - **Calculate Cronbach's alpha for the MEQ instrument**:
-   - If the source data contains individual MEQ items (e.g., `MEQ_item_1`...`MEQ_item_19`), calculate Cronbach's alpha and save to `data/derived/meq_reliability.csv`.
-   - **If the source data contains ONLY a total `MEQ_score` column**: The task **MUST** write a row to `data/derived/meq_reliability.csv` with `subscale="MEQ_Total"`, `cronbach_alpha="N/A (single item)"`, `n_items=1`.
+ - **Primary Path (Expected per FR-001)**: If the source data contains ONLY a total `MEQ_score` column (as per FR-001 and Assumptions), the task **MUST** write a row to `data/derived/meq_reliability.csv` with `subscale="MEQ_Total"`, `cronbach_alpha="N/A (single item)"`, `n_items=1`. **DO NOT attempt calculation.**
+ - **Secondary Path**: If the source data contains individual MEQ items (e.g., `MEQ_item_1`...`MEQ_item_19`), calculate Cronbach's alpha and save to `data/derived/meq_reliability.csv`.
  - **Report Integration**: Ensure the final report (T026) explicitly states "MEQ Internal Consistency: N/A (single item)" or the calculated alpha value, fulfilling Constitution Principle VI.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. Note: T014, T018, T018.5 depend on T012 completion and run sequentially after it.
 
 ---
 
@@ -137,13 +140,19 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [X] T019.5 [US2] [P] Implement `code/reference_ancova.R`:
+- [X] T019.5 [US2] [SC-002] Implement `code/reference_ancova.R`:
  - **Depends on**: T012.
- - **Create** a dynamic reference script that embeds a small, fixed test dataset as a CSV string literal in the code.
-   - **Embedded Data**: Include a minimal CSV string (e.g., 5 rows) with valid `MEQ_score`, `MFQ_*`, `PSQI`, `acute_sleepiness`, `age`, `sex` values.
+ - **[SC-002] See SC-002**.
+ - **Create** a reference script that embeds a small, fixed test dataset as a CSV string literal in the code to serve as the internal baseline for SC-002 verification (acknowledging the absence of an external merged dataset per Plan Data Availability Note).
+ - **Embedded Data**: Include a minimal CSV string (5 rows) with **explicit values**:
+   - Row 1: MEQ=65 (Morning), MFQ_care=4.5, PSQI=3, acute_sleepiness=2, age=30, sex="M"
+   - Row 2: MEQ=35 (Evening), MFQ_care=3.0, PSQI=8, acute_sleepiness=5, age=25, sex="F"
+   - Row 3: MEQ=50 (Intermediate), MFQ_care=4.0, PSQI=4, acute_sleepiness=3, age=35, sex="M"
+   - Row 4: MEQ=60 (Morning), MFQ_care=4.2, PSQI=2, acute_sleepiness=2, age=28, sex="F"
+   - Row 5: MEQ=40 (Evening), MFQ_care=3.2, PSQI=7, acute_sleepiness=4, age=32, sex="M"
  - Run the ANCOVA model on this embedded dataset to generate **dynamic** reference p-values.
  - **Output**: Save `data/derived/reference_p_values.csv` containing the results of this run.
- - **Purpose**: This provides a reproducible baseline generated by the actual statistical engine, not hardcoded constants, satisfying SC-002's "pre-validated dataset" requirement.
+ - **Purpose**: This provides a reproducible baseline generated by the actual statistical engine, not hardcoded constants, satisfying SC-002's "pre-validated dataset" requirement by ensuring internal consistency in the absence of an external merged dataset.
 
 - [X] T019 [US2] Implement `code/03_analysis.R`:
  - **Depends on**: T012 (Hard Gate).
@@ -155,8 +164,8 @@ Examples of foundational tasks (adjust based on your project):
  - **If any VIF > 2**: Log warning to `logs/vif_warnings.log`, write "Invalid" flag to `data/derived/vif_flag.csv`, and **DO NOT ABORT** the pipeline (per FR-006), but mark the result as potentially unreliable for publication (honoring Assumptions).
  - If VIF OK, save `data/derived/ancova_results.csv` and `data/derived/effect_sizes.csv`.
 
-- [X] T024 [US2] [P] Implement `code/07_regression_test.R`:
- - **Depends on**: T019, T019.5.
+- [X] T024 [US2] Implement `code/07_regression_test.R`:
+ - **Depends on**: T019, T019.5 (Hard Gate).
  - **Execute** `code/reference_ancova.R` (T019.5) to generate `reference_p_values.csv`.
  - Compare pipeline p-values (from T019) with reference p-values (from T019.5).
  - Verify tolerance ≤0.01 (SC-002).
@@ -178,7 +187,8 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 3
 
 - [X] T026 [US3] Implement `code/04_report.Rmd`: Include descriptive tables, ANCOVA results, Cohen's d, G*Power summary (FR-005). **Depends on**: T019, T018, T018.5, T012.
-- [X] T027 [US3] Implement sensitivity analysis sweep in `code/04_report.Rmd`:
+- [X] T027 [US3] [SC-004] Implement sensitivity analysis sweep in `code/04_report.Rmd`:
+ - **[SC-004] See SC-004**.
  - **Depends on**: T019, T018, T012.
  - **Method**: Read existing p-values and **contrast labels** (e.g., `Morning_vs_Evening`) from `data/derived/ancova_results.csv`.
  - **Iterate** over each unique `contrast_label` and recalculate significance status for each alpha threshold (0.01, 0.0125, 0.015) **without re-fitting models**.
@@ -198,27 +208,51 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 [P] Create `docs/README.md` with Setup, Run, and Data Source Note sections (replaces vague "Update documentation")
-- [ ] T031 [P] Code cleanup and refactoring: Run `lintr` on all code using `lintr::lint_dir(..., linters = list(cyclocomp_linter(limit = 10)))` to ensure cyclomatic complexity < 10, remove unused imports, and verify no TODOs remain (Specific, Executable Criteria).
-- [ ] T032 [P] [US3] Validate `quickstart.md` (Depends on T005.5)
-- [ ] T033 [P] [US1/US2/US3] Verify CI runner compatibility: Create `.github/workflows/ci.yml` and execute it to produce `logs/ci_run.log` as evidence of compatibility with CPU/7GB RAM constraints
-- [ ] T034 [P] [US1/US2/US3] Add explicit "Data Source Note" to `README.md` and `code/01_ingest.R` header clarifying that the pipeline requires a user-provided merged CSV and will abort if columns are missing, preventing accidental synthetic fallbacks.
-- [ ] T035 [P] [US3] Add a "Limitations" section to `reports/chronotype_moral_analysis.html` explicitly stating the observational nature of the study and the lack of causal inference, per Spec Assumptions.
-- [ ] T036 [P] [US1] Implement `code/08_low_balance_alert.R`:
+- [X] T030 [P] Create `docs/README.md` with Setup, Run, and Data Source Note sections (replaces vague "Update documentation")
+- [X] T031 [P] Code cleanup and refactoring: Run `lintr` on all code using `lintr::lint_dir(..., linters = list(cyclocomp_linter(limit = 10)))` to ensure cyclomatic complexity < 10, remove unused imports, and verify no TODOs remain (Specific, Executable Criteria).
+- [X] T032 [P] [US3] Validate `quickstart.md` (Depends on T005.5)
+- [X] T033 [P] [US1/US2/US3] Verify CI runner compatibility: Create `.github/workflows/ci.yml` and execute it to produce `logs/ci_run.log` as evidence of compatibility with constrained CPU and limited RAM environments.
+- [X] T034 [P] [US1/US2/US3] Add explicit "Data Source Note" to `README.md` and `code/01_ingest.R` header clarifying that the pipeline requires a user-provided merged CSV and will abort if columns are missing, preventing accidental synthetic fallbacks.
+- [X] T035 [P] [US3] Add a "Limitations" section to `reports/chronotype_moral_analysis.html` explicitly stating the observational nature of the study and the lack of causal inference, per Spec Assumptions.
+- [X] T036 [US1] Implement `code/08_low_balance_alert.R`:
  - **Depends on**: T012.
  - **Logic**: Read `data/derived/classified_data.csv`. Calculate the proportion of participants in the "intermediate" chronotype group.
  - **Action**: If proportion > 0.70, generate a warning file `data/derived/low_balance_alert.txt` with a clear message suggesting recruitment of extreme-type participants.
  - **Report Integration**: **Add a code chunk in `code/04_report.Rmd` (T026) that reads `data/derived/low_balance_alert.txt` and prints its content if the file exists.**
-- [ ] T037 [P] [US1/US2] Implement `code/09_vif_visualization.R`:
+
+- [X] T037 [US1/US2] Implement `code/09_vif_visualization.R`:
  - **Depends on**: T019.
  - **Logic**: Read `data/derived/ancova_results.csv` (which contains VIF flags). Generate a bar plot of VIF values for all predictors across all 5 models.
  - **Output**: Save plot to `reports/vif_visualization.png`.
  - **Report Integration**: Include `reports/vif_visualization.png` in `code/04_report.Rmd` (T026) to provide visual evidence of collinearity checks.
-- [ ] T038 [P] [US3] Implement `code/10_power_analysis.R`:
+
+- [X] T038 [US3] Implement `code/10_power_analysis.R`:
  - **Depends on**: T019.
  - **Logic**: Use the `pwr` package to conduct a post-hoc power analysis for the observed effect sizes (Cohen's f) from the ANCOVA results, assuming α = 0.01.
  - **Output**: Save power summary to `data/derived/power_analysis.csv` and generate a text summary for the report.
  - **Report Integration**: Ensure the G*Power summary section in `code/04_report.Rmd` (T026) reads and displays these calculated power values instead of generic placeholders.
+
+---
+
+## Phase 7: Final Verification & Handoff
+
+**Purpose**: Final checks to ensure the pipeline is ready for execution on the free-tier runner with real data.
+
+- [ ] T039 [US1/US2/US3] [FR-001] [FR-006] [FR-007] Create `tests/testdata/sample_valid.csv` with a representative set of valid, synthetic data rows that passes all ingestion and classification gates. (used for CI smoke tests).
+ - **[FR-001] [FR-006] [FR-007] See FR-001, FR-006, FR-007**.
+ - **Strict Isolation**: This file is **ONLY** for CI smoke tests. The script generating it **MUST** require `--mode=test`. The file **MUST** be listed in `.gitignore` for production runs or the pipeline must explicitly check for a test flag before loading it.
+ - **Content**: Valid columns and values that pass all gates.
+
+- [ ] T040 [US1/US2/US3] [FR-001] Create `tests/testdata/sample_invalid_columns.csv` with missing `acute_sleepiness` column to verify T011 aborts correctly.
+ - **[FR-001] See FR-001**.
+ - **Strict Isolation**: This file is **ONLY** for CI smoke tests. Must require `--mode=test`.
+
+- [ ] T041 [US1/US2/US3] [FR-006] [FR-007] Create `tests/testdata/sample_high_exclusion.csv` with [deferred] missing `acute_sleepiness` values to verify T011/T012 aborts correctly.
+ - **[FR-006] [FR-007] See FR-006, FR-007**.
+ - **Strict Isolation**: This file is **ONLY** for CI smoke tests. Must require `--mode=test`.
+
+- [ ] T042 [US1/US2/US3] Write `run_all_tests.sh` script that executes `testthat::test_dir("tests")`, runs `code/06_benchmark_accuracy.R --mode=test`, and renders `code/04_report.Rmd` using `tests/testdata/sample_valid.csv`.
+- [ ] T043 [US3] Update `quickstart.md` to include a "Troubleshooting" section explaining the specific abort conditions (missing columns, >20% exclusion) and how to fix them.
 
 ---
 
@@ -320,14 +354,17 @@ With multiple developers:
 - **Data Constraint**: The pipeline requires a user-provided merged dataset. No synthetic data generation is permitted for primary analysis.
 - **Compute Constraint**: All tasks must run on free CPU-only CI with limited resources. No GPU or heavy model loading.
 - **Data Hygiene**: Raw data in `data/raw/` must never be modified. All derived files go to `data/derived/`.
-- **Psychometric Transparency**: Cronbach's alpha must be calculated and reported in the final output for **both** MEQ and MFQ (T018.5 and T018).
+- **Psychometric Transparency**: Cronbach's alpha must be calculated and reported in the final output for **both** MEQ and MFQ (T018 and T018.5).
 - **VIF Handling**: Pipeline must **Flag as Invalid** (not abort) if VIF > 2, per FR-006 and Assumptions.
 - **Exclusion Reporting**: All exclusions (missing acute_sleepiness, out-of-range MFQ) must be logged and summarized in the final report.
 - **Reliability Metrics**: Cronbach's alpha must be computed for all MFQ subscales (T018) and MEQ (T018.5) and saved to `data/derived/reliability_metrics.csv` for inclusion in the report (T027).
 - **Sensitivity Analysis**: The sensitivity sweep must explicitly re-calculate significance status from existing p-values **without re-fitting models** to ensure efficiency, and must iterate over **contrast labels** (T019 output) to cover every required pairwise comparison (SC-004).
-- **Exclusion Threshold**: The 20% exclusion rate check is a **hard gate** performed **immediately** in T011 and T012 before any intermediate artifacts are written.
+- **Exclusion Threshold**: The 20% exclusion rate check is a **hard gate** performed **at the end of each step** (T011, T012) after all exclusions are complete, not immediately upon encountering missing data.
 - **Reference Baseline**: T019.5 provides an independent reference script for T024 to ensure SC-002 is met without circular dependency, using a dynamic dataset rather than hardcoded values.
 - **Synthetic Data**: T014 uses synthetic data ONLY for SC-001 testing with a hard `--mode=test` flag and strict output path enforcement (`data/derived/`) to prevent leakage.
 - **Low Group Balance**: T036 implements the specific alert mechanism for >70% intermediate group dominance, ensuring the report reflects this limitation.
 - **Collinearity Visualization**: T037 adds a visual check for VIFs to complement the numeric flags, improving transparency for reviewers.
 - **Power Analysis**: T038 ensures the post-hoc power analysis is calculated from the actual observed effect sizes, providing a more accurate G*Power summary than generic estimates.
+- **Test Data Generation**: T039-T041 ensure robust CI testing by covering valid, missing column, and high exclusion scenarios, with strict isolation constraints.
+- **CI Automation**: T042 provides a single entry point for running all verification steps.
+- **Documentation**: T043 ensures users understand failure modes via `quickstart.md`.

@@ -1,51 +1,51 @@
 # Implementation Plan: The Relationship Between Sleep Chronotype and Moral Judgement
 
-**Branch**: `feature/chronotype-moral-judgement` | **Date**: 2026-06-29 | **Spec**: `specs/chronotype-moral-judgement/spec.md`
-**Input**: Feature specification from `specs/chronotype-moral-judgement/spec.md`
+**Branch**: `feature/chronotype-moral-judgement` | **Date**: 2026-06-29 | **Spec**: `specs/001-the-relationship-between-chronotype-moral-judgement/spec.md`
+**Input**: Feature specification from `/specs/001-the-relationship-between-chronotype-moral-judgement/spec.md`
 
 ## Summary
 
-This feature implements a statistical analysis pipeline to investigate the associational relationship between sleep chronotype (Morningness-Eveningness) and moral foundation scores, controlling for acute sleepiness and chronic sleep quality. The approach involves ingesting a **single, pre-merged** CSV file containing MEQ, MFQ, PSQI, and acute sleepiness data, classifying participants into chronotype groups, performing five separate ANCOVAs with Bonferroni correction, calculating effect sizes, and generating a reproducible R-Markdown report with sensitivity analysis.
+This feature implements a reproducible statistical analysis pipeline to test whether individuals with later sleep chronotypes (evening types) exhibit systematically different patterns of moral judgement compared to earlier chronotypes, independent of acute sleep deprivation. The approach involves ingesting CSV data, classifying chronotypes using the Morningness-Eveningness Questionnaire (MEQ) thresholds, performing a Multivariate Analysis of Covariance (MANCOVA) followed by univariate ANCOVAs on Moral Foundations Questionnaire (MFQ) subscales while controlling for sleep quality (PSQI) and acute sleepiness, and generating a comprehensive R-Markdown report with effect sizes, sensitivity analysis, and robustness checks.
 
-**Critical Data Constraint**: The pipeline **MUST** abort if the input data does not contain all required columns (`MEQ_score`, `MFQ_*`, `PSQI`, `acute_sleepiness`, `age`, `sex`) for the same participant records. No synthetic data generation or simulation of missing covariates is permitted for the primary analysis, as this would invalidate the scientific hypothesis.
+**Critical Note on Data & Scientific Integrity**: This pipeline is a **scientific tool** designed to analyze real data. It does **not** generate or validate scientific results using synthetic data for the ANCOVA/MANCOVA steps. The CI runner will execute unit tests on the classification logic (using a synthetic benchmark for SC-001) but will **skip** the statistical analysis phase if the required real data file (containing MEQ, MFQ, PSQI, and Acute Sleepiness) is not present, preventing any fabricated results. No synthetic covariates are used to simulate the covariance structure required for the hypothesis "independent of acute sleep deprivation."
 
 ## Technical Context
 
-**Language/Version**: R 4.3+ (via `renv`).
-**Primary Dependencies**: `tidyverse`, `lme4`, `car` (for ANOVA/VIF), `effectsize`, `pwr`, `rmarkdown`, `knitr`, `data.table`.
-**Storage**: Local CSV files in `data/`; derived artifacts in `data/derived/`.
-**Testing**: `testthat` for unit tests; `lintr` for code style; `renv` for dependency reproducibility.
-**Target Platform**: GitHub Actions free-tier runner (Ubuntu, 2 CPU, 7GB RAM).
-**Project Type**: Computational research pipeline.
-**Performance Goals**: Complete analysis and report generation within 6 hours on CPU-only runner.
-**Constraints**: No GPU; memory usage < 6GB; strict adherence to Bonferroni correction (α=0.01); **ABORT** if required columns are missing or >20% of rows are unusable.
-**Scale/Scope**: Single dataset ingestion; A series of hypothesis tests will be conducted to address the research question using the established method, drawing on the cited references.; report generation.
+**Language/Version**: R 4.3+ (via `renv` for reproducibility)  
+**Primary Dependencies**: `tidyverse`, `car` (for Anova/VIF), `manova`, `parameters`, `effectsize`, `ggplot2`, `knitr`, `rmarkdown`, `pwr`, `lintr`, `testthat`  
+**Storage**: Local CSV/Parquet files in `data/raw/` and `data/processed/`  
+**Testing**: `testthat` for unit tests on classification logic; `lintr` for code quality  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, sufficient RAM)  
+**Project Type**: Statistical Analysis Pipeline / Research Artifact  
+**Performance Goals**: Complete analysis on n=159+ within 6 hours; memory < 7 GB  
+**Constraints**: Must run without GPU; must handle missing data gracefully; must enforce Bonferroni correction (α=0.01); must abort if >20% data unusable.  
+**Scale/Scope**: Single dataset analysis; MANCOVA + ANCOVAs
 
-> **Data Availability Note**: The spec assumptions note that existing public datasets (OSF, HuggingFace) lack the required combination of MEQ, MFQ, PSQI, and acute sleepiness data. Consequently, this pipeline is designed to **require** a user-provided merged dataset (e.g., from primary data collection via Prolific) or a specific merged file provided by the researcher. The pipeline will not attempt to merge disjoint datasets or simulate missing values.
+A MANCOVA will be conducted alongside a series of ANCOVAs.; A sensitivity sweep will be conducted. The research question, method, and references remain as specified in the original planning document.; final report.  
+**Dependency Management**: `renv` is used for R package management. The `renv.lock` file serves the same purpose as `requirements.txt` in Python, ensuring reproducible environments as per Constitution Principle I.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-| Principle | Compliance Status | Action / Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Compliant** | Random seeds pinned in `code/analysis.R`. Dependencies pinned via `renv`. |
-| **II. Verified Accuracy** | **Compliant** | No fabricated URLs. The plan explicitly acknowledges the lack of a verified merged dataset and requires user-provided data. No synthetic data is used for scientific claims. |
-| **III. Data Hygiene** | **Compliant** | Raw data checksummed. Derived data versioned. No in-place modification. |
-| **IV. Single Source of Truth** | **Compliant** | Report figures/tables generated directly from `data/processed/` via `code/`. |
-| **V. Versioning Discipline** | **Compliant** | Content hashes for data/code recorded in `state/`. |
-| **VI. Psychometric Transparency** | **Compliant** | MEQ and MFQ scoring algorithms documented in `code/measurements.md`. Cronbach's α reported. |
+- **I. Reproducibility**: Plan mandates `renv` lockfile, pinned seeds in `code/`, and automated CI re-runs.
+- **II. Verified Accuracy**: All citations (MEQ, MFQ, PSQI) will be validated against the provided `# Verified datasets` block. **No synthetic data is used for scientific validation.** The pipeline only validates the *code* against a synthetic benchmark for classification (SC-001); scientific results require real data.
+- **III. Data Hygiene**: Raw data is preserved; transformations produce new files with checksums. PII scan enforced.
+- **IV. Single Source of Truth**: All report figures/statistics generated directly from `code/` scripts, not hand-typed.
+- **V. Versioning Discipline**: Content hashes tracked in `state/` YAML; artifacts invalidated on change. The `state/PROJ-046...yaml` file will be updated with hashes of `data/` and `code/` artifacts after each run.
+- **VI. Psychometric Transparency**: Plan includes explicit recording of MEQ (standardized items, Horne & Östberg) and MFQ (Graham et al.) scoring algorithms and Cronbach's α calculation in `code/measurements.md`. Any simulation logic used *only* for unit tests is documented separately as "Simulation Protocol" to distinguish it from validated instruments.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/chronotype-moral-judgement/
+specs/001-the-relationship-between-chronotype-moral-judgement/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
+├── tasks.md             # Phase 2 output
 ├── contracts/           # Phase 1 output
 └── tasks.md             # Phase 2 output
 ```
@@ -55,80 +55,121 @@ specs/chronotype-moral-judgement/
 ```text
 projects/PROJ-046-the-relationship-between-sleep-chronotyp/
 ├── data/
-│   ├── raw/             # User-provided merged CSV (must contain all required columns)
-│   └── processed/       # Merged, cleaned, and classified data
+│   ├── raw/             # Downloaded raw CSVs/Parquets (immutable)
+│   └── processed/       # Cleaned data, classification results
 ├── code/
-│   ├── 01_ingest.R      # Data loading, validation, and ABORT logic if columns missing
-│   ├── 02_classify.R    # Chronotype labeling logic
-│   ├── 03_analysis.R    # ANCOVA, effect sizes, power analysis, sensitivity sweep
-│   ├── 04_report.Rmd    # Report generation template
-│   ├── 05_validate_report.R # Script to verify report content (SC-003)
-│   ├── 06_benchmark_accuracy.R # Script to generate benchmark and test 95% accuracy (SC-001)
-│   ├── 07_regression_test.R # Script to compare p-values against reference (SC-002)
-│   └── measurements.md  # Instrument scoring details
+│   ├── 01_ingest_classify.R
+│   ├── 02_mancova_ancova.R
+│   ├── 03_report_render.R
+│   ├── 04_lint_check.R
+│   ├── measurements.md  # Psychometric scoring details
+│   └── renv.lock        # R environment lockfile
+├── reports/
+│   └── analysis_report.html
 ├── tests/
-│   └── test-classify.R  # Unit tests for chronotype logic
-└── renv.lock            # Dependency lockfile
+│   ├── test-classification.R
+│   └── test-ancova.R
+├── .github/
+│   └── workflows/
+│       └── ci.yml       # Automated pipeline
+└── README.md
 ```
 
-**Structure Decision**: Single-project R structure with clear separation of ingestion, classification, analysis, and reporting steps. Explicit validation scripts added to meet Success Criteria.
+**Structure Decision**: Single-project R analysis structure. Chosen for direct alignment with statistical workflow (ingest -> analyze -> report) and ease of `renv` management. No separate backend/frontend required.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **N/A** | The scope is linear and well-defined (ingest -> classify -> analyze -> report). | No complex architecture required. |
+|-----------|------------|-------------------------------------|
+| None | The scope is strictly defined by the spec (MANCOVA, 5 ANCOVAs, 1 report). | N/A |
 
 ## Implementation Phases
 
-### Phase 0: Data Ingestion & Validation (FR-001, FR-006, FR-007)
-1.  **Task**: Implement `code/01_ingest.R`.
-2.  **Logic**:
-    *   Load raw CSV.
-    *   Verify presence of ALL required columns: `MEQ_score`, `MFQ_care`, `MFQ_fairness`, `MFQ_loyalty`, `MFQ_authority`, `MFQ_sanctity`, `PSQI`, `acute_sleepiness`, `age`, `sex`.
-    *   **ABORT** execution with a clear error message if any column is missing.
-    *   Check for missing `acute_sleepiness` values. Flag rows.
-    *   Calculate exclusion rate. **ABORT** if >20% of rows are unusable (FR-006).
-    *   Log all validation warnings.
-    *   Save cleaned data to `data/processed/cleaned_data.csv`.
+### Phase 0: Research & Data Strategy
+- **Task**: Verify MEQ and MFQ scoring algorithms (Horne & Östberg, 1976; Graham et al., 2009).
+- **Task**: Document Data Collection Protocol for PSQI and Acute Sleepiness (since no real combined dataset exists).
+- **Task**: Define MANCOVA and ANCOVA statistical assumptions.
 
-### Phase 1: Chronotype Classification (FR-002, SC-001)
-1.  **Task**: Implement `code/02_classify.R`.
-2.  **Logic**:
-    *   Apply thresholds: `MEQ >= 59` -> "morning", `MEQ <= 41` -> "evening", else "intermediate".
-    *   Flag rows with `NA` or non-numeric `MEQ_score`.
-    *   **Task (SC-001)**: Implement `code/06_benchmark_accuracy.R` to generate a synthetic benchmark dataset with known labels, run the classifier, and verify ≥95% accuracy.
-3.  **Output**: `data/processed/classified_data.csv` with `chronotype` column.
+### Phase 1: Data Model & Contracts
+- **Task**: Define `ParticipantRecord` schema with all required columns.
+- **Task**: Define `AnalysisResult` schema for MANCOVA/ANCOVA output.
+- **Task**: Create `contracts/` YAML files for validation.
 
-### Phase 2: Statistical Analysis (FR-003, FR-004, SC-002)
-1.  **Task**: Implement `code/03_analysis.R`.
-2.  **Logic**:
-    *   Run separate ANCOVAs
+### Phase 2: Pipeline Implementation
+- **Task**: `01_ingest_classify.R`:
+  - Ingest CSV.
+  - Validate columns.
+  - Classify chronotype (MEQ thresholds).
+  - **Abort Logic (FR-006)**: If >20% rows unusable (missing MEQ/Acute Sleepiness/MFQ), log error and abort (FR-006).
+  - Generate `data/processed/cleaned_data.csv`.
+- **Task**: `02_mancova_ancova.R`:
+  - **Data Check**: If `cleaned_data.csv` is missing or empty, skip analysis (CI will pass but report will note "No Data").
+  - Run MANCOVA (Hotelling's Trace) for overall pattern.
+  - If MANCOVA significant, run 5 univariate ANCOVAs with Bonferroni correction.
+  - Calculate VIF (must be < 2).
+  - Calculate Cohen's d and confidence intervals for significant contrasts.
+  - Perform Sensitivity Analysis (alpha: a range of small significance levels).
+  - Generate `data/processed/analysis_results.json`.
+- **Task**: `03_report_render.R`:
+  - Generate R-Markdown report with:
+    - Descriptive stats.
+    - MANCOVA/ANCOVA tables.
+    - Effect sizes.
+    - **Sensitivity Matrix** (SC-004): Cross-tabulate significance status for every subscale at a range of corrected alpha levels.
+    - Power/Efficiency analysis (Sensitivity for effect size).
+- **Task**: `04_lint_check.R`:
+  - Run `lintr::lint_dir("code/")`.
+  - Ensure cyclomatic complexity < 10.
+  - Generate `reports/lint_report.txt`.
 
-The research question, method, and references remain unchanged as per the planning document requirements.: `MFQ_subscale ~ chronotype + PSQI + acute_sleepiness + age + sex`.
-    *   Apply Bonferroni correction (α=0.01).
-    *   Calculate Cohen's d and 95% CI for significant contrasts.
-    *   Calculate VIFs; warn if >2.
-    *   **Task (SC-002)**: Implement `code/07_regression_test.R` to generate a "reference R script" output and compare pipeline p-values with ≤0.01 tolerance.
-3.  **Output**: `data/derived/ancova_results.csv` and `data/derived/effect_sizes.csv`.
+### Phase 3: Unit Testing & Benchmarking
+- **Task**: Generate `data/benchmark/synthetic_benchmark.csv` with *known* chronotype labels (SC-001).
+- **Task**: Run `01_ingest_classify.R` on benchmark.
+- **Task**: Verify classification accuracy ≥ 95% (SC-001).
+- **Task**: Run `test-classification.R` and `test-ancova.R`.
 
-### Phase 3: Reporting & Sensitivity (FR-005, SC-003, SC-004)
-1.  **Task**: Implement `code/04_report.Rmd`.
-2.  **Logic**:
-    *   Generate descriptive tables.
-    *   Include ANCOVA tables with adjusted p-values.
-    *   Include effect size tables.
-    *   Include G*Power summary.
-    *   **Task (SC-004)**: Generate sensitivity analysis table for alpha_corrected ∈ {0.01, 0.0125, 0.015}, listing significance status for every MFQ subscale contrast.
-    *   **Task (SC-003)**: Implement `code/05_validate_report.R` to parse the generated report and verify presence of all required sections.
-3.  **Output**: `reports/chronotype_moral_analysis.html` (or PDF).
+### Phase 4: CI/CD Configuration
+- **Task**: Create `.github/workflows/ci.yml`:
+  - Setup R environment.
+  - Restore `renv`.
+  - Run unit tests.
+  - Run linting (T031).
+  - Run classification benchmark.
+  - **Skip** analysis if `data/raw/study_data.csv` is missing.
+  - Generate report (if data present).
 
-## Risk Management
+### Phase 5: Documentation
+- **Task**: Generate `quickstart.md` with installation and usage instructions (T032).
+- **Task**: Validate `quickstart.md` against actual pipeline execution.
 
-| Risk | Mitigation |
-| :--- | :--- |
-| **Missing Data** | Pipeline aborts immediately if required columns are missing. No fallback to simulation. |
-| **High Exclusion Rate** | Pipeline aborts if >20% of rows are unusable. |
-| **Collinearity** | VIF calculated; warning issued if >2. |
-| **Low Group Balance** | Alert issued if >70% in intermediate group. |
-| **No Verified Merged Dataset** | Documented as a critical blocker. Pipeline requires user-provided merged data. |
+## Task Mapping to Requirements
+
+| Requirement | Phase | Task |
+|-------------|-------|------|
+| FR-001 (Ingest) | Phase 2 | `01_ingest_classify.R` |
+| FR-002 (Classify) | Phase 2 | `01_ingest_classify.R` |
+| FR-003 (ANCOVA/MANCOVA) | Phase 2 | `02_mancova_ancova.R` |
+| FR-004 (Effect Sizes) | Phase 2 | `02_mancova_ancova.R` |
+| FR-005 (Report) | Phase 2 | `03_report_render.R` |
+| FR-006 (Abort >20%) | Phase 2 | `01_ingest_classify.R` (Abort Logic) |
+| FR-007 (Acute Sleepiness) | Phase 2 | `01_ingest_classify.R` (Validation) |
+| SC-001 (Benchmark) | Phase 3 | Unit Test & Benchmark Generation |
+| SC-002 (Accuracy) | Phase 3 | Unit Test |
+| SC-003 (Report Sections) | Phase 2 | `03_report_render.R` |
+| SC-004 (Sensitivity Matrix) | Phase 2 | `03_report_render.R` |
+
+## Compute Feasibility
+
+- **CPU-First**: All operations are lightweight statistical operations in R.
+- **Memory**: Estimated < 500 MB for n=1000.
+- **Time**: < 10 minutes for full pipeline on 2 CPU cores.
+- **GPU**: Not required.
+- **Data Handling**: If real data is large, stream via `data.table::fread` or chunked reading.
+
+## Data Availability & CI Strategy
+
+- **Real Data**: No public dataset contains all required variables (MEQ, MFQ, PSQI, Acute Sleepiness). The pipeline requires the user to provide `data/raw/study_data.csv`.
+- **CI Behavior**:
+  - If `data/raw/study_data.csv` is **missing**: CI runs unit tests and classification benchmark only. Analysis step is skipped. Report is generated with "No Data" notice.
+  - If `data/raw/study_data.csv` is **present**: CI runs full analysis pipeline.
+- **Synthetic Data**: Only used for **unit testing** the classification logic (SC-001) with known ground truth. **Never** used for ANCOVA/MANCOVA results.

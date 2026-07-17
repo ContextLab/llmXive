@@ -1,77 +1,82 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ParticipantRecord"
-description: "Schema for the cleaned and classified participant data used in ANCOVA."
-type: object
+type: "object"
 properties:
   participant_id:
-    type: string
+    type: "string"
     description: "Unique identifier for the participant."
-  meq_score:
-    type: number
+  MEQ_score:
+    type: "integer"
     description: "Morningness-Eveningness Questionnaire score."
     minimum: 16
     maximum: 86
   chronotype:
-    type: string
-    description: "Derived chronotype label."
+    type: "string"
     enum:
       - "morning"
       - "intermediate"
       - "evening"
       - "NA"
-  mfq_care:
-    type: number
-    description: "Moral Foundations Care subscale score."
+    description: "Derived chronotype label based on MEQ_score."
+  MFQ_care:
+    type: "number"
+    description: "Moral Foundations Questionnaire: Care subscale score."
     minimum: 0
-    maximum: 100
-  mfq_fairness:
-    type: number
-    description: "Moral Foundations Fairness subscale score."
+    maximum: 40
+  MFQ_fairness:
+    type: "number"
+    description: "Moral Foundations Questionnaire: Fairness subscale score."
     minimum: 0
-    maximum: 100
-  mfq_loyalty:
-    type: number
-    description: "Moral Foundations Loyalty subscale score."
+    maximum: 40
+  MFQ_loyalty:
+    type: "number"
+    description: "Moral Foundations Questionnaire: Loyalty subscale score."
     minimum: 0
-    maximum: 100
-  mfq_authority:
-    type: number
-    description: "Moral Foundations Authority subscale score."
+    maximum: 40
+  MFQ_authority:
+    type: "number"
+    description: "Moral Foundations Questionnaire: Authority subscale score."
     minimum: 0
-    maximum: 100
-  mfq_sanctity:
-    type: number
-    description: "Moral Foundations Sanctity subscale score."
+    maximum: 40
+  MFQ_sanctity:
+    type: "number"
+    description: "Moral Foundations Questionnaire: Sanctity subscale score."
     minimum: 0
-    maximum: 100
-  psqi:
-    type: number
-    description: "Pittsburgh Sleep Quality Index."
+    maximum: 40
+  PSQI:
+    type: "number"
+    description: "Pittsburgh Sleep Quality Index score."
     minimum: 0
     maximum: 21
   acute_sleepiness:
-    type: number
-    description: "Acute sleepiness rating (e.g., 0-10 scale)."
+    type: "number"
+    description: "Acute sleepiness score."
+    minimum: 0
+    maximum: 10
   age:
-    type: integer
+    type: "integer"
     description: "Age in years."
-    minimum: 18
+    minimum: 0
   sex:
-    type: string
-    description: "Biological sex."
+    type: "string"
+    enum:
+      - "male"
+      - "female"
+      - "other"
+    description: "Sex of the participant."
   exclusion_reason:
     type: ["string", "null"]
     description: "Reason for exclusion if applicable."
 required:
   - participant_id
-  - meq_score
+  - MEQ_score
   - chronotype
-  - mfq_care
-  - mfq_fairness
-  - mfq_loyalty
-  - mfq_authority
-  - mfq_sanctity
-  - psqi
+  - MFQ_care
+  - MFQ_fairness
+  - MFQ_loyalty
+  - MFQ_authority
+  - MFQ_sanctity
+  - PSQI
   - acute_sleepiness
   - age
   - sex

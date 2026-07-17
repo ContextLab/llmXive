@@ -1,9 +1,3 @@
-"""
-Logging Utilities for PROJ-046
-
-Provides centralized logging configuration, loggers, and helper functions
-for the entire pipeline.
-"""
 import logging
 import os
 import sys
@@ -11,142 +5,130 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-# Singleton logger instance
-_pipeline_logger: Optional[logging.Logger] = None
-
+_logger_instance = None
+_logger_initialized = False
 
 def get_project_root() -> Path:
     """Get the project root directory."""
-    # Assumes code/ is at the root level or one level deep
-    current_file = Path(__file__).resolve()
-    if current_file.name == "utils_logging.py":
-        # If in code/
-        return current_file.parent.parent
-    else:
-        return current_file.parent
-
+    return Path(__file__).parent.parent
 
 def ensure_log_directory() -> Path:
     """Ensure the logs directory exists."""
-    root = get_project_root()
-    logs_dir = root / "logs"
-    logs_dir.mkdir(parents=True, exist_ok=True)
+    project_root = get_project_root()
+    logs_dir = project_root / "logs"
+    logs_dir.mkdir(exist_ok=True)
     return logs_dir
 
+def setup_logger(name: str = "pipeline", level: int = logging.INFO) -> logging.Logger:
+    """Set up the pipeline logger."""
+    global _logger_instance, _logger_initialized
 
-def setup_logger(name: str = "pipeline") -> logging.Logger:
-    """
-    Setup and return a logger with file and console handlers.
-    
-    Args:
-        name: Name for the logger.
-        
-    Returns:
-        Configured logger instance.
-    """
-    global _pipeline_logger
-    
-    if _pipeline_logger is not None:
-        return _pipeline_logger
-    
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-    
-    # Avoid adding handlers multiple times
-    if logger.handlers:
-        _pipeline_logger = logger
-        return logger
-    
+    if _logger_initialized:
+        return _logger_instance
+
     logs_dir = ensure_log_directory()
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = logs_dir / f"{name}_{timestamp}.log"
-    
-    # File Handler
-    file_handler = logging.FileHandler(log_file, encoding="utf-8")
-    file_handler.setLevel(logging.DEBUG)
-    file_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    file_handler.setFormatter(file_formatter)
-    
-    # Console Handler
+    log_file = logs_dir / f"{name}.log"
+
+    # Create logger
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    # Clear existing handlers
+    logger.handlers.clear()
+
+    # Create file handler
+    file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
+    file_handler.setLevel(level)
+
+    # Create console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_formatter = logging.Formatter(
-        "%(levelname)s: %(message)s"
+    console_handler.setLevel(level)
+
+    # Create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
-    console_handler.setFormatter(console_formatter)
-    
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    # Add handlers
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
-    
-    _pipeline_logger = logger
+
+    _logger_instance = logger
+    _logger_initialized = True
+
     return logger
 
-
 def get_pipeline_logger() -> logging.Logger:
-    """Get the main pipeline logger instance."""
-    if _pipeline_logger is None:
+    """Get the pipeline logger instance."""
+    global _logger_instance, _logger_initialized
+
+    if not _logger_initialized:
         return setup_logger()
-    return _pipeline_logger
 
+    return _logger_instance
 
-def log_info(message: str) -> None:
+def log_info(message: str, logger: Optional[logging.Logger] = None):
     """Log an info message."""
-    logger = get_pipeline_logger()
+    if logger is None:
+        logger = get_pipeline_logger()
     logger.info(message)
 
-
-def log_warning(message: str) -> None:
+def log_warning(message: str, logger: Optional[logging.Logger] = None):
     """Log a warning message."""
-    logger = get_pipeline_logger()
+    if logger is None:
+        logger = get_pipeline_logger()
     logger.warning(message)
 
-
-def log_error(message: str) -> None:
+def log_error(message: str, logger: Optional[logging.Logger] = None):
     """Log an error message."""
-    logger = get_pipeline_logger()
+    if logger is None:
+        logger = get_pipeline_logger()
     logger.error(message)
 
-
-def log_abort(message: str) -> None:
-    """Log an error and raise an exception to abort the pipeline."""
-    logger = get_pipeline_logger()
-    logger.error(f"ABORT: {message}")
+def log_abort(message: str, logger: Optional[logging.Logger] = None):
+    """Log an abort message and raise an exception."""
+    if logger is None:
+        logger = get_pipeline_logger()
+    logger.critical(f"ABORT: {message}")
     raise RuntimeError(f"Pipeline aborted: {message}")
 
-
-def log_exclusion(reason: str, row_id: Optional[str] = None) -> None:
+def log_exclusion(row_id: str, reason: str, step: str, logger: Optional[logging.Logger] = None):
     """Log an exclusion event."""
-    logger = get_pipeline_logger()
-    msg = f"Exclusion: {reason}"
-    if row_id:
-        msg += f" (Row ID: {row_id})"
-    logger.warning(msg)
-    
-    # Also write to specific exclusion log if needed
+    if logger is None:
+        logger = get_pipeline_logger()
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    message = f"{row_id},{reason},step={step},timestamp={timestamp}"
     logs_dir = ensure_log_directory()
-    exclusion_log = logs_dir / "exclusions.log"
-    with open(exclusion_log, "a", encoding="utf-8") as f:
-        f.write(f"{datetime.now().isoformat()} - {msg}\n")
+    exclusion_file = logs_dir / f"{step}_exclusions.log"
+    with open(exclusion_file, 'a', encoding='utf-8') as f:
+        f.write(message + '\n')
+    logger.info(f"Excluded row {row_id}: {reason}")
 
-
-def log_exclusion_count(count: int, step: str) -> None:
-    """Log a summary of exclusion counts."""
-    logger = get_pipeline_logger()
-    logger.info(f"Exclusion Summary ({step}): {count} rows excluded.")
-
-
-def check_log_file_exists(filename: str) -> bool:
-    """Check if a specific log file exists."""
+def log_exclusion_count(total_rows: int, excluded_rows: int, step: str, logger: Optional[logging.Logger] = None):
+    """Log the exclusion count summary."""
+    if logger is None:
+        logger = get_pipeline_logger()
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    message = f"SUMMARY,step={step},total_rows={total_rows},excluded_rows={excluded_rows},timestamp={timestamp}"
     logs_dir = ensure_log_directory()
-    return (logs_dir / filename).exists()
+    exclusion_file = logs_dir / f"{step}_exclusions.log"
+    with open(exclusion_file, 'a', encoding='utf-8') as f:
+        f.write(message + '\n')
+    logger.info(f"Exclusion summary for {step}: {excluded_rows}/{total_rows} rows excluded")
 
-
-def read_log_file(filename: str) -> str:
-    """Read the content of a log file."""
+def check_log_file_exists(log_name: str = "pipeline.log") -> bool:
+    """Check if a log file exists."""
     logs_dir = ensure_log_directory()
-    file_path = logs_dir / filename
-    if not file_path.exists():
-        raise FileNotFoundError(f"Log file not found: {file_path}")
-    return file_path.read_text(encoding="utf-8")
+    log_file = logs_dir / log_name
+    return log_file.exists()
+
+def read_log_file(log_name: str = "pipeline.log") -> str:
+    """Read the contents of a log file."""
+    logs_dir = ensure_log_directory()
+    log_file = logs_dir / log_name
+    if not log_file.exists():
+        raise FileNotFoundError(f"Log file {log_file} does not exist.")
+    return log_file.read_text(encoding='utf-8')

@@ -1,6 +1,3 @@
-"""
-Utility functions for managing R environment and renv.
-"""
 import subprocess
 import sys
 import os
@@ -8,152 +5,147 @@ import json
 from typing import List, Optional
 from pathlib import Path
 
-def check_r_version(min_version: str = "4.3.0") -> bool:
-    """
-    Check if R is installed and meets minimum version requirements.
-    
-    Args:
-        min_version: Minimum required R version (default: 4.3.0)
-    
-    Returns:
-        True if R meets version requirements, False otherwise
-    """
+def get_project_root() -> Path:
+    """Get the project root directory."""
+    return Path(__file__).parent.parent
+
+def check_r_version(min_version: str = "4.3") -> bool:
+    """Check if R version meets the minimum requirement."""
     try:
         result = subprocess.run(
             ["R", "--version"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            check=True,
-            text=True
+            timeout=10
         )
-        
-        # Parse version from output
-        for line in result.stdout.split('\n'):
-            if 'R version' in line:
-                version = line.split()[2]
-                major, minor, patch = map(int, version.split('.')[:3])
-                min_major, min_minor, min_patch = map(int, min_version.split('.'))
-                
-                if major > min_major:
-                    return True
-                if major == min_major and minor > min_minor:
-                    return True
-                if major == min_major and minor == min_minor and patch >= min_patch:
-                    return True
-                return False
-        
+        if result.returncode != 0:
+            return False
+
+        output = result.stdout.decode('utf-8')
+        # Parse version from output (format: "R version X.Y.Z ...")
+        for line in output.split('\n'):
+            if line.startswith('R version'):
+                parts = line.split()
+                if len(parts) >= 3:
+                    version = parts[2]
+                    # Compare versions
+                    major, minor, patch = version.split('.')[:3]
+                    min_major, min_minor, min_patch = min_version.split('.')
+                    if int(major) > int(min_major):
+                        return True
+                    elif int(major) == int(min_major):
+                        if int(minor) > int(min_minor):
+                            return True
+                        elif int(minor) == int(min_minor):
+                            if int(patch) >= int(min_patch):
+                                return True
         return False
-    except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
+    except (FileNotFoundError, subprocess.TimeoutExpired, ValueError):
         return False
 
-def verify_packages(packages: List[str]) -> bool:
-    """
-    Verify that specified R packages are installed.
-    
-    Args:
-        packages: List of package names to verify
-    
-    Returns:
-        True if all packages are installed, False otherwise
-    """
-    r_script = f"""
-    packages <- c({', '.join([f"'{p}'" for p in packages])})
-    missing <- packages[!sapply(packages, requireNamespace, quietly = TRUE)]
-    if (length(missing) > 0) {{
-        quit(status = 1)
-    }}
-    """
-    
-    try:
-        result = subprocess.run(
-            ["Rscript", "-e", r_script],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=True,
-            text=True
-        )
-        return True
-    except subprocess.CalledProcessError:
+def verify_packages(packages: List[str], logger=None) -> bool:
+    """Verify that required R packages are installed."""
+    if logger is None:
+        from utils_logging import get_pipeline_logger
+        logger = get_pipeline_logger()
+
+    missing_packages = []
+    for pkg in packages:
+        try:
+            result = subprocess.run(
+                ["R", "--slave", "-e", f"library({pkg})"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=30
+            )
+            if result.returncode != 0:
+                missing_packages.append(pkg)
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            missing_packages.append(pkg)
+
+    if missing_packages:
+        logger.error(f"Missing R packages: {', '.join(missing_packages)}")
         return False
 
-def initialize_renv(project_root: Path, packages: List[str]) -> bool:
-    """
-    Initialize renv in the project directory and install specified packages.
-    
-    Args:
-        project_root: Path to the project root directory
-        packages: List of packages to install
-    
-    Returns:
-        True if initialization was successful, False otherwise
-    """
-    r_script = f"""
-    if (!requireNamespace("renv", quietly = TRUE)) {{
-        install.packages("renv", repos = "https://cloud.r-project.org")
-    }}
-    renv::init()
-    packages <- c({', '.join([f"'{p}'" for p in packages])})
-    renv::install(packages)
-    renv::snapshot()
-    """
-    
+    logger.info("All required R packages are installed.")
+    return True
+
+def initialize_renv(packages: List[str], logger=None) -> bool:
+    """Initialize renv and install required packages."""
+    if logger is None:
+        from utils_logging import get_pipeline_logger
+        logger = get_pipeline_logger()
+
+    project_root = get_project_root()
+    renv_dir = project_root / "renv"
+
+    # Check if renv is already initialized
+    if (project_root / "renv.lock").exists() or renv_dir.exists():
+        logger.info("renv is already initialized.")
+        return verify_packages(packages, logger)
+
+    # Initialize renv
+    logger.info("Initializing renv...")
     try:
         result = subprocess.run(
-            ["Rscript", "-e", r_script],
+            ["R", "--slave", "-e", "renv::init()"],
             cwd=project_root,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            check=True,
-            text=True,
-            timeout=300
+            timeout=120
         )
-        return True
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
-        print(f"Error initializing renv: {e}")
+        if result.returncode != 0:
+            logger.error(f"Failed to initialize renv: {result.stderr.decode('utf-8')}")
+            return False
+    except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+        logger.error(f"Failed to run R: {str(e)}")
         return False
 
+    # Install packages
+    logger.info(f"Installing packages: {', '.join(packages)}")
+    packages_str = 'c(' + ', '.join([f'"{pkg}"' for pkg in packages]) + ')'
+    try:
+        result = subprocess.run(
+            ["R", "--slave", "-e", f"renv::install({packages_str})"],
+            cwd=project_root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=600
+        )
+        if result.returncode != 0:
+            logger.error(f"Failed to install packages: {result.stderr.decode('utf-8')}")
+            return False
+    except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+        logger.error(f"Failed to run R: {str(e)}")
+        return False
+
+    logger.info("renv initialized and packages installed.")
+    return verify_packages(packages, logger)
+
 def main():
-    """Main entry point for command line usage."""
-    packages = [
-        "tidyverse",
-        "lme4",
-        "car",
-        "effectsize",
-        "pwr",
-        "rmarkdown",
-        "knitr",
-        "data.table",
-        "testthat",
-        "lintr"
+    """Main entry point for R environment setup."""
+    from utils_logging import get_pipeline_logger
+    logger = get_pipeline_logger()
+
+    required_packages = [
+        "tidyverse", "lme4", "car", "effectsize", "pwr",
+        "rmarkdown", "knitr", "data.table", "testthat", "lintr"
     ]
-    
+
+    # Check R version
     if not check_r_version():
-        print("ERROR: R 4.3+ is required but not found.")
+        logger.error("R 4.3+ is required. Please install R 4.3 or higher.")
         sys.exit(1)
-    
-    if not verify_packages(packages):
-        print("Some packages are missing. Attempting to initialize renv...")
-        
-        # Find project root
-        current = Path(__file__).resolve()
-        while current.parent != current:
-            if (current / "code").exists() and (current / "data").exists():
-                project_root = current
-                break
-            current = current.parent
-        else:
-            print("ERROR: Could not find project root")
-            sys.exit(1)
-        
-        if not initialize_renv(project_root, packages):
-            print("ERROR: Failed to initialize renv.")
-            sys.exit(1)
-        
-        if not verify_packages(packages):
-            print("ERROR: Failed to install required packages.")
-            sys.exit(1)
-    
-    print("SUCCESS: R environment verified and ready.")
+
+    logger.info("R version check passed.")
+
+    # Initialize renv and install packages
+    if not initialize_renv(required_packages, logger):
+        logger.error("Failed to initialize R environment.")
+        sys.exit(1)
+
+    logger.info("R environment setup completed successfully.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

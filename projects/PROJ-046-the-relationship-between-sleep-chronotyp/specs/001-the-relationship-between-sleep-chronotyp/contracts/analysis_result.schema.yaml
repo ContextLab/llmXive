@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+type: "object"
+properties:
+  subscale:
+    type: "string"
+    enum:
+      - "care"
+      - "fairness"
+      - "loyalty"
+      - "authority"
+      - "sanctity"
+    description: "The MFQ subscale being analyzed."
+  f_statistic:
+    type: "number"
+    description: "F-statistic from the ANCOVA model."
+  p_value:
+    type: "number"
+    description: "Raw p-value from the ANCOVA model."
+  p_value_adj:
+    type: "number"
+    description: "Bonferroni-adjusted p-value."
+  significant:
+    type: "boolean"
+    description: "True if p_value_adj < 0.01."
+  cohen_d:
+    type: ["number", "null"]
+    description: "Cohen's d effect size (null if not significant)."
+  ci_lower:
+    type: ["number", "null"]
+    description: "Lower bound of 95% CI for Cohen's d."
+  ci_upper:
+    type: ["number", "null"]
+    description: "Upper bound of 95% CI for Cohen's d."
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor for predictors."
+required:
+  - subscale
+  - f_statistic
+  - p_value
+  - p_value_adj
+  - significant
+  - vif
+additionalProperties: false

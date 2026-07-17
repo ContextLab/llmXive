@@ -1,50 +1,49 @@
 # Data Model: The Relationship Between Sleep Chronotype and Moral Judgement
 
-## Entity Definitions
+## Entity: ParticipantRecord
 
-### ParticipantRecord
-Represents a single participant after ingestion and cleaning.
+Represents a single respondent in the study.
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `participant_id` | string | Unique identifier | PK, Non-null |
-| `meq_score` | float | Morningness-Eveningness Questionnaire score | Range [16, 86], Non-null for analysis |
-| `chronotype` | enum | Derived label: "morning", "intermediate", "evening", "NA" | Derived from `meq_score` |
-| `mfq_care` | float | Moral Foundations Care subscale score | Range [0, 100] |
-| `mfq_fairness` | float | Moral Foundations Fairness subscale score | Range [0, 100] |
-| `mfq_loyalty` | float | Moral Foundations Loyalty subscale score | Range [0, 100] |
-| `mfq_authority` | float | Moral Foundations Authority subscale score | Range [0, 100] |
-| `mfq_sanctity` | float | Moral Foundations Sanctity subscale score | Range [0, 100] |
-| `psqi` | float | Pittsburgh Sleep Quality Index | Range [0, 21] |
-| `acute_sleepiness` | float | Acute sleepiness rating (e.g., 0-10) | Non-null (FR-007) |
-| `age` | integer | Age in years | > 18 |
-| `sex` | string | Biological sex (e.g., "M", "F", "Other") | Categorical |
-| `exclusion_reason` | string | Reason for exclusion if any (e.g., "missing_acute_sleepiness") | Nullable |
+### Attributes
 
-### AnalysisResult
+| Attribute | Type | Description | Constraints | Source/Validation |
+|-----------|------|-------------|-------------|-------------------|
+| `participant_id` | string | Unique identifier | Not NULL, Unique | Generated |
+| `MEQ_score` | integer | Morningness-Eveningness Questionnaire score | Range [16, 86], Not NULL | MEQ (Horne & Östberg) |
+| `chronotype` | enum | Derived label: "morning", "intermediate", "evening", "NA" | Derived from MEQ_score | Rule: ≥59→morning, ≤41→evening |
+| `MFQ_care` | float | Moral Foundations: Care subscale score | Range [0, 40] | MFQ (Graham et al.) |
+| `MFQ_fairness` | float | Moral Foundations: Fairness subscale score | Range [0, 40] | MFQ |
+| `MFQ_loyalty` | float | Moral Foundations: Loyalty subscale score | Range [0, 40] | MFQ |
+| `MFQ_authority` | float | Moral Foundations: Authority subscale score | Range [0, 40] | MFQ |
+| `MFQ_sanctity` | float | Moral Foundations: Sanctity subscale score | Range [0, 40] | MFQ |
+| `PSQI` | float | Pittsburgh Sleep Quality Index | Range [0, 21] | PSQI (Buysse et al.) |
+| `acute_sleepiness` | float | Acute sleepiness score (e.g., 1-10) | Range [0, 10] | Self-report/Actigraphy |
+| `age` | integer | Age in years | > 0 | Demographics |
+| `sex` | enum | "male", "female", "other" | Not NULL | Demographics |
+| `exclusion_reason` | string | Reason for exclusion if any | NULL if included | Validation logic |
+
+## Entity: AnalysisResult
+
 Encapsulates the output of the statistical analysis.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `subscale` | string | Name of the MFQ subscale (e.g., "care") |
-| `f_statistic` | float | F-statistic from ANCOVA |
-| `p_value_raw` | float | Raw p-value |
-| `p_value_adjusted` | float | Bonferroni-adjusted p-value |
-| `significant` | boolean | Is `p_value_adjusted` < 0.01? |
-| `effect_size_cohens_d` | float | Cohen's d for significant contrasts |
-| `ci_lower` | float | Lower bound of 95% CI |
-| `ci_upper` | float | Upper bound of 95% CI |
+### Attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `subscale` | string | MFQ subscale name (e.g., "care") |
+| `f_statistic` | float | ANCOVA F-statistic |
+| `p_value` | float | Raw p-value |
+| `p_value_adj` | float | Bonferroni-adjusted p-value |
+| `significant` | boolean | Is p_value_adj < 0.01? |
+| `cohen_d` | float | Effect size for significant contrasts |
+| `ci_lower` | float | Lower bound of 95% CI for Cohen's d |
+| `ci_upper` | float | Upper bound of 95% CI for Cohen's d |
+| `vif` | float | Variance Inflation Factor for predictors |
 
 ## Data Flow
-1.  **Raw Ingestion**: Load a **single, pre-merged** CSV file containing all required columns (`MEQ_score`, `MFQ_*`, `PSQI`, `acute_sleepiness`, `age`, `sex`).
-2.  **Validation**:
-    *   Verify all required columns are present.
-    *   **ABORT** if any required column is missing.
-    *   Check ranges, flag missing `acute_sleepiness`.
-    *   Calculate exclusion rate. **ABORT** if >20% of rows are unusable.
-3.  **Classification**: Compute `chronotype`.
-4.  **Filter**: Exclude rows with `chronotype == "NA"` or missing `acute_sleepiness`.
-5.  **Analysis**: Run ANCOVA models.
-6.  **Report**: Aggregate results into `AnalysisResult` table.
 
-**Note**: The pipeline does **not** support merging disjoint datasets or simulating missing covariates. All data must be provided in a single merged file.
+1. **Ingest**: Raw CSV -> `ParticipantRecord` (with validation).
+2. **Classify**: `MEQ_score` -> `chronotype` label.
+3. **Filter**: Remove rows with `chronotype = NA` or missing covariates.
+4. **Analyze**: Filtered data -> `AnalysisResult` per subscale.
+5. **Report**: Aggregate `AnalysisResult` -> Final Report.

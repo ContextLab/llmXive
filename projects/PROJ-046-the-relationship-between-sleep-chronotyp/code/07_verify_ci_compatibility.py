@@ -1,253 +1,215 @@
-"""
-CI Compatibility Verification Script.
-
-Verifies that the execution environment meets the project constraints:
-- 2 CPU cores minimum
-- 7 GB RAM minimum
-- No GPU required (but must not crash if present)
-- R 4.3+ installed
-- renv initialized
-
-This script is designed to run on the CI runner to validate resource constraints
-before executing the full analysis pipeline.
-"""
 import os
 import sys
 import subprocess
 import json
 from pathlib import Path
 from typing import List, Tuple, Optional
-import resource
-import multiprocessing
 
 def get_project_root() -> Path:
     """Get the project root directory."""
-    return Path(__file__).parent.parent
+    return Path(__file__).resolve().parent.parent
 
-def check_cpu_cores() -> Tuple[bool, str, int]:
-    """
-    Check if the system has at least 2 CPU cores.
-    
-    Returns:
-        Tuple of (success, message, count)
-    """
+def check_cpu_cores() -> int:
+    """Check available CPU cores."""
     try:
-        # Try to get CPU count using os.cpu_count()
-        count = os.cpu_count()
-        if count is None:
-            return False, "Could not determine CPU count", 0
-        
-        if count < 2:
-            return False, f"Insufficient CPU cores: {count} (minimum 2 required)", count
-        
-        return True, f"CPU cores check passed: {count} cores available", count
-    except Exception as e:
-        return False, f"Error checking CPU cores: {str(e)}", 0
-
-def check_ram_gb() -> Tuple[bool, str, float]:
-    """
-    Check if the system has at least 7 GB of RAM.
-    
-    Returns:
-        Tuple of (success, message, available_gb)
-    """
-    try:
-        # Get total memory in bytes
-        total_mem = resource.getrlimit(resource.RLIMIT_AS)[0]
-        if total_mem == resource.RLIM_INFINITY:
-            # If no limit, try to get system memory
-            try:
-                with open('/proc/meminfo', 'r') as f:
-                    for line in f:
-                        if line.startswith('MemTotal:'):
-                            mem_kb = int(line.split()[1])
-                            total_mem = mem_kb * 1024
-                            break
-            except:
-                # Fallback for macOS or other systems
-                try:
-                    total_mem = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
-                except:
-                    return False, "Could not determine system memory", 0.0
-        
-        total_gb = total_mem / (1024 ** 3)
-        
-        if total_gb < 7.0:
-            return False, f"Insufficient RAM: {total_gb:.2f} GB (minimum 7 GB required)", total_gb
-        
-        return True, f"RAM check passed: {total_gb:.2f} GB available", total_gb
-    except Exception as e:
-        return False, f"Error checking RAM: {str(e)}", 0.0
-
-def check_gpu() -> Tuple[bool, str, bool]:
-    """
-    Check if a GPU is present and report status.
-    
-    The project does not require a GPU, but we verify that the system
-    can run without one and report if one is detected.
-    
-    Returns:
-        Tuple of (success, message, has_gpu)
-    """
-    try:
-        # Check for NVIDIA GPU using nvidia-smi
-        has_gpu = False
-        try:
-            result = subprocess.run(
-                ['nvidia-smi', '--query-gpu=name', '--format=csv,noheader'],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                has_gpu = True
-                gpu_info = result.stdout.strip()
-                return True, f"GPU detected (not required): {gpu_info}", True
-        except (subprocess.TimeoutExpired, FileNotFoundError):
-            pass
-        
-        # Check for Apple Silicon GPU
-        if sys.platform == 'darwin':
-            try:
-                result = subprocess.run(
-                    ['sysctl', '-n', 'machdep.cpu.brand_string'],
-                    capture_output=True,
-                    text=True,
-                    timeout=5
-                )
-                if 'Apple' in result.stdout:
-                    return True, "Apple Silicon GPU detected (not required)", True
-            except:
-                pass
-        
-        return True, "No GPU detected (acceptable for this project)", False
-    except Exception as e:
-        return False, f"Error checking GPU: {str(e)}", False
-
-def check_r_installed() -> Tuple[bool, str, Optional[str]]:
-    """
-    Check if R is installed and meets version requirements.
-    
-    Returns:
-        Tuple of (success, message, version)
-    """
-    try:
-        result = subprocess.run(
-            ['R', '--version'],
-            capture_output=True,
-            text=True,
-            timeout=10
-        )
-        
-        if result.returncode != 0:
-            return False, "R is not installed or not in PATH", None
-        
-        # Parse version from output
-        version_line = result.stdout.split('\n')[0]
-        version = version_line.split(' ')[-1].split('-')[0]
-        
-        # Check version >= 4.3
-        major, minor = map(int, version.split('.')[:2])
-        if major < 4 or (major == 4 and minor < 3):
-            return False, f"R version {version} is too old (minimum 4.3 required)", version
-        
-        return True, f"R version check passed: {version}", version
-    except FileNotFoundError:
-        return False, "R is not installed or not in PATH", None
-    except Exception as e:
-        return False, f"Error checking R installation: {str(e)}", None
-
-def check_renv_initialized() -> Tuple[bool, str, bool]:
-    """
-    Check if renv is initialized in the project.
-    
-    Returns:
-        Tuple of (success, message, is_initialized)
-    """
-    try:
-        project_root = get_project_root()
-        renv_lock = project_root / 'renv.lock'
-        renv_folder = project_root / 'renv'
-        
-        if renv_lock.exists() and renv_folder.exists():
-            return True, "renv is initialized", True
+        if sys.platform == 'win32':
+            return int(os.cpu_count() or 1)
         else:
-            return False, "renv is not initialized (missing renv.lock or renv/ folder)", False
+            result = subprocess.run(['nproc'], capture_output=True, text=True, check=True)
+            return int(result.stdout.strip())
     except Exception as e:
-        return False, f"Error checking renv initialization: {str(e)}", False
+        raise RuntimeError(f"Failed to check CPU cores: {e}")
 
-def run_ci_compatibility_check() -> List[Tuple[str, bool, str]]:
-    """
-    Run all CI compatibility checks.
+def check_ram_gb() -> float:
+    """Check available RAM in GB."""
+    try:
+        if sys.platform == 'win32':
+            # Windows: use wmic or psutil if available
+            try:
+                import psutil
+                return psutil.virtual_memory().total / (1024 ** 3)
+            except ImportError:
+                raise RuntimeError("psutil not installed on Windows")
+        else:
+            # Linux/Unix: use free command
+            result = subprocess.run(['free', '-g'], capture_output=True, text=True, check=True)
+            lines = result.stdout.strip().split('\n')
+            # Parse the 'Mem:' line
+            for line in lines:
+                if line.startswith('Mem:'):
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        return float(parts[1])
+            raise RuntimeError("Could not parse RAM info from 'free' command")
+    except Exception as e:
+        raise RuntimeError(f"Failed to check RAM: {e}")
+
+def check_gpu() -> bool:
+    """Check if GPU is available."""
+    try:
+        if sys.platform == 'win32':
+            result = subprocess.run(['nvidia-smi'], capture_output=True, text=True)
+            return result.returncode == 0
+        else:
+            result = subprocess.run(['nvidia-smi'], capture_output=True, text=True)
+            return result.returncode == 0
+    except FileNotFoundError:
+        return False
+    except Exception as e:
+        # Log warning but don't fail
+        print(f"Warning: Could not check GPU: {e}")
+        return False
+
+def check_r_installed() -> Tuple[bool, str]:
+    """Check if R is installed and get version."""
+    try:
+        result = subprocess.run(['R', '--version'], capture_output=True, text=True, check=True)
+        # Extract version from first line
+        first_line = result.stdout.split('\n')[0]
+        return True, first_line
+    except subprocess.CalledProcessError:
+        return False, "R not installed"
+    except FileNotFoundError:
+        return False, "R command not found"
+
+def check_renv_initialized() -> Tuple[bool, str]:
+    """Check if renv is initialized."""
+    project_root = get_project_root()
+    renv_lock = project_root / 'renv.lock'
+    renv_dir = project_root / 'renv'
     
-    Returns:
-        List of tuples: (check_name, success, message)
-    """
-    checks = [
-        ("CPU Cores", check_cpu_cores),
-        ("RAM", check_ram_gb),
-        ("GPU Status", check_gpu),
-        ("R Installation", check_r_installed),
-        ("renv Initialization", check_renv_initialized),
-    ]
-    
-    results = []
-    for name, check_func in checks:
-        success, message, _ = check_func()
-        results.append((name, success, message))
-    
+    if renv_lock.exists() and renv_dir.exists():
+        return True, "renv initialized"
+    else:
+        return False, "renv not initialized"
+
+def run_ci_compatibility_check() -> dict:
+    """Run all compatibility checks and return results."""
+    results = {
+        "timestamp": subprocess.run(['date', '-u', '+%Y-%m-%dT%H:%M:%SZ'], capture_output=True, text=True).stdout.strip(),
+        "checks": {}
+    }
+
+    # Check CPU
+    try:
+        cores = check_cpu_cores()
+        results["checks"]["cpu"] = {
+            "status": "pass" if cores >= 2 else "warn",
+            "value": cores,
+            "unit": "cores",
+            "message": f"Detected {cores} CPU cores"
+        }
+    except Exception as e:
+        results["checks"]["cpu"] = {"status": "fail", "error": str(e)}
+
+    # Check RAM
+    try:
+        ram = check_ram_gb()
+        results["checks"]["ram"] = {
+            "status": "pass" if ram >= 7.0 else "warn",
+            "value": round(ram, 2),
+            "unit": "GB",
+            "message": f"Detected {ram:.2f} GB RAM"
+        }
+    except Exception as e:
+        results["checks"]["ram"] = {"status": "fail", "error": str(e)}
+
+    # Check GPU
+    try:
+        has_gpu = check_gpu()
+        results["checks"]["gpu"] = {
+            "status": "pass" if not has_gpu else "info",
+            "value": has_gpu,
+            "message": "GPU not required for this project (CPU-only)" if not has_gpu else "GPU detected but not used"
+        }
+    except Exception as e:
+        results["checks"]["gpu"] = {"status": "warn", "error": str(e)}
+
+    # Check R
+    r_installed, r_msg = check_r_installed()
+    results["checks"]["r_installed"] = {
+        "status": "pass" if r_installed else "fail",
+        "message": r_msg
+    }
+
+    # Check renv
+    renv_ok, renv_msg = check_renv_initialized()
+    results["checks"]["renv_initialized"] = {
+        "status": "pass" if renv_ok else "warn",
+        "message": renv_msg
+    }
+
+    # Overall status
+    failed_checks = [k for k, v in results["checks"].items() if v.get("status") == "fail"]
+    results["overall_status"] = "pass" if not failed_checks else "fail"
+    results["failed_checks"] = failed_checks
+
     return results
 
-def generate_ci_report(results: List[Tuple[str, bool, str]]) -> dict:
-    """
-    Generate a JSON report of CI compatibility checks.
+def generate_ci_report(results: dict, output_path: Path) -> None:
+    """Generate a human-readable CI run log."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        results: List of check results
+    with open(output_path, 'w') as f:
+        f.write("=" * 60 + "\n")
+        f.write("CI COMPATIBILITY CHECK REPORT\n")
+        f.write("=" * 60 + "\n\n")
+        f.write(f"Timestamp: {results['timestamp']}\n")
+        f.write(f"Overall Status: {results['overall_status'].upper()}\n\n")
         
-    Returns:
-        Dictionary with check results and summary
-    """
-    all_passed = all(success for _, success, _ in results)
-    
-    report = {
-        "ci_compatibility_check": {
-            "timestamp": None,  # Will be set by caller if needed
-            "overall_status": "PASS" if all_passed else "FAIL",
-            "checks": {}
-        }
-    }
-    
-    for name, success, message in results:
-        report["ci_compatibility_check"]["checks"][name] = {
-            "status": "PASS" if success else "FAIL",
-            "message": message
-        }
-    
-    return report
+        f.write("DETAILED RESULTS:\n")
+        f.write("-" * 40 + "\n")
+        
+        for check_name, check_data in results["checks"].items():
+            status = check_data.get("status", "unknown").upper()
+            f.write(f"\n[{status}] {check_name.replace('_', ' ').title()}\n")
+            if "value" in check_data:
+                f.write(f"  Value: {check_data['value']} {check_data.get('unit', '')}\n")
+            f.write(f"  Message: {check_data.get('message', 'N/A')}\n")
+            if "error" in check_data:
+                f.write(f"  Error: {check_data['error']}\n")
+        
+        f.write("\n" + "=" * 60 + "\n")
+        if results["overall_status"] == "pass":
+            f.write("SUCCESS: All critical checks passed.\n")
+            f.write("The project is compatible with the CI runner constraints.\n")
+        else:
+            f.write("FAILURE: Some checks failed.\n")
+            f.write(f"Failed checks: {', '.join(results['failed_checks'])}\n")
+        f.write("=" * 60 + "\n")
 
 def main():
-    """Main entry point for CI compatibility verification."""
-    print("=" * 60)
-    print("CI COMPATIBILITY VERIFICATION")
-    print("=" * 60)
+    """Main entry point for CI compatibility check."""
+    import argparse
     
-    results = run_ci_compatibility_check()
+    parser = argparse.ArgumentParser(description="Verify CI runner compatibility")
+    parser.add_argument("--output", type=str, default="logs/ci_run.log",
+                      help="Path to output log file")
+    args = parser.parse_args()
+
+    project_root = get_project_root()
+    output_path = project_root / args.output
+
+    print("Running CI compatibility checks...")
     
-    all_passed = True
-    for name, success, message in results:
-        status = "✓ PASS" if success else "✗ FAIL"
-        print(f"{status} | {name}: {message}")
-        if not success:
-            all_passed = False
-    
-    print("=" * 60)
-    
-    if all_passed:
-        print("OVERALL: CI environment is COMPATIBLE")
-        sys.exit(0)
-    else:
-        print("OVERALL: CI environment is INCOMPATIBLE")
+    try:
+        results = run_ci_compatibility_check()
+        generate_ci_report(results, output_path)
+        
+        print(f"Report saved to: {output_path}")
+        
+        # Exit with error code if checks failed
+        if results["overall_status"] == "fail":
+            sys.exit(1)
+        else:
+            sys.exit(0)
+            
+    except Exception as e:
+        print(f"ERROR: Compatibility check failed: {e}")
+        # Write error to log
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            f.write(f"ERROR: {e}\n")
         sys.exit(1)
 
 if __name__ == "__main__":

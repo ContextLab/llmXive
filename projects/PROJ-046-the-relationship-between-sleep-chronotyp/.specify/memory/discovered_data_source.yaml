@@ -1,0 +1,18 @@
+status: none
+intent: OSF moral foundations questionnaire morningness-eveningness questionnaire
+  PSQI dataset python package
+required_fields:
+- participant_id
+- meq_score
+- mfq_harm
+- mfq_fairness
+- mfq_loyalty
+- mfq_authority
+- mfq_purity
+- psqi_score
+- acute_sleepiness_score
+- age
+- sex
+cache_key: c17fb799c56fa7aad38a2eb7a18f21624e0866ecb288d308420d9eecd8d4e96c
+searched_at: '2026-07-17T08:20:48.292002+00:00'
+retry_count: 1
