@@ -1,39 +1,14 @@
-status: verified
-kind: pypi_package
-ref: ucimlrepo
-access_python: 'import pandas as pd
-
-  from ucimlrepo import fetch_ucirepo
-
-
-  dataset = fetch_ucirepo(id=352)
-
-  # The features dataframe contains the transaction data
-
-  df = dataset.data.features
-
-  print(f"RECORDS={len(df)}")
-
-  required = ["InvoiceNo","Quantity","InvoiceDate","UnitPrice","CustomerID","Country"]
-
-  present = [c for c in required if c in df.columns]
-
-  print("FIELDS=" + ",".join(present))'
-record_count: 541909
-sample_fields:
-- Quantity
-- InvoiceDate
-- UnitPrice
-- CustomerID
-- Country
-field_coverage: 0.833
+status: none
+intent: UCI Online Retail transaction dataset download python package dataset
 required_fields:
-- InvoiceNo (cluster identifier)
-- Quantity (outcome)
-- InvoiceDate
-- UnitPrice
-- CustomerID
-- Country
-intent: download UCI Online Retail dataset from UCI Machine Learning Repository python
-  package dataset
-cache_key: cea43e33b9c2960a75c5fef0103fd556139de94f39744ecaa3df77c1141f18db
+- cluster_id
+- outcome
+- treatment
+- session_id
+- transaction_id
+- product_id
+- quantity
+- price
+cache_key: 55dd1aaecc916c3754d19e5dd7aeb707a09ea48606746e5086976b8380bd188f
+searched_at: '2026-07-17T21:51:22.707507+00:00'
+retry_count: 1

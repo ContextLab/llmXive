@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "proj-239-evaluating-the-statistical-significance"
+name = "llmxive-ab-significance"
 version = "0.1.0"
 description = "Evaluating Statistical Significance of A/B Tests with Non-Independent Observations"
 requires-python = ">=3.11"
@@ -13,7 +13,6 @@ dependencies = [
     "statsmodels==0.14.1",
     "pandas==2.2.0",
     "pytest==7.4.0",
-    "ucimlrepo"
 ]
 
 [tool.black]
@@ -23,20 +22,28 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | \.eggs
+  | \.cache
 )/
 '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
+python_classes = "Test*"
 python_functions = "test_*"
 addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+exclude = ["tests*"]

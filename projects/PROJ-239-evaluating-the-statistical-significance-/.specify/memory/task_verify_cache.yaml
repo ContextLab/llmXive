@@ -4,15 +4,6 @@ T025:
   r: The required output file `data/derived/final_report.csv` does not exist, and
     the input files `data/derived/baseline_results.csv` and `data/derived/robustResults.csv`
     are also missing, so the script cannot be run to produce the final report.
-T031:
-  c: false
-  h: 70dd3c44599c6e1c3d843daf7387385e1d076945b5dadfcde9ad908b060e0fbd
-  r: "The `code/data_generator.py` file contains a module docstring that mentions\
-    \ the ICC range (0.0\u20130.5 typical), iteration count (typically 1,000 per ICC),\
-    \ and default seed (42), but it is not formatted as a Google\u2011style docstring.\
-    \ More critically, `code/simulation_runner.py` has no module\u2011level docstring\
-    \ at all, and none of its functions document the ICC range, number of iterations\
-    \ per ICC, or the seed used, so the required documentation is missing."
 T035:
   c: false
   h: a0d7189bb12866720aa42efb37f3909c0eb0544dc9efed31327cb02bb945b688

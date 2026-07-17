@@ -2920,3 +2920,675 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T00:03:16Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: UCI Online Retail synthetic parameters avg_cluster_size 12.5 std_cluster_size
+    8.2
+  claim_id: c_dd220b06
+  context: 'Task T035: Generate synthetic cluster-structure parameters. **Deliverable**:
+    Script `code/synthetic_cluster_params.py` that reads public summary statistics
+    for UCI Online Retail (cite source: "UCI Machine Learning Repository: Online Retail
+    Data Set") and uses a **hardcoded dictionary** derived from them: `{"avg_cluster_size":
+    12.5, "std_cluster_size": 8.2}`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The project uses a hardcoded dictionary derived from UCI Machine Learning
+    Repository summary statistics: {''avg_cluster_size'': 12.5, ''std_cluster_size'':
+    8.2}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:52:33Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Simulation memory limit 7GB
+  claim_id: c_07a9c749
+  context: 'Task T027: [Memory & Time] Implement performance monitoring and enforcement...
+    If `estimated_mb > 7000` (targeting the 7GB limit)... Rationale: 7GB is the spec
+    limit (FR-006).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_memory_limit_7GB
+  kind: entity_fact
+  raw_text: The project targets a memory limit of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:52:59Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Simulation time limit 6 hours
+  claim_id: c_0bb34aeb
+  context: 'Task T027: [Memory & Time] Implement performance monitoring and enforcement...
+    If total elapsed time > 6 hours (21600 seconds), raise `RuntimeError("Time limit
+    exceeded: 6 hours.")`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation enforces a time limit of 6 hours (21600 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:53:26Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Project Python version 3.11
+  claim_id: c_1510231d
+  context: 'Task T002: Initialize Python 3.11 project with dependencies. **Deliverable**:
+    Create `projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project initializes with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:53:46Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Dependency numpy version 1.26.0
+  claim_id: c_ed4d3f94
+  context: 'Task T002: ...with exact pins: `numpy==1.26.0`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses numpy version 1.26.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:54:05Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Dependency scipy version 1.12.0
+  claim_id: c_0dda7404
+  context: 'Task T002: ...with exact pins: `scipy==1.12.0`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scipy version 1.12.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:54:23Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Dependency statsmodels version 0.14.1
+  claim_id: c_4fb662bd
+  context: 'Task T002: ...with exact pins: `statsmodels==0.14.1`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses statsmodels version 0.14.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:54:40Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Dependency pandas version 2.2.0
+  claim_id: c_5b034deb
+  context: 'Task T002: ...with exact pins: `pandas==2.2.0`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pandas version 2.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:54:59Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Dependency pytest version 7.4.0
+  claim_id: c_29abcbac
+  context: 'Task T002: ...with exact pins: `pytest==7.4.0`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pytest version 7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:55:13Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default ICC range 0.0 to 0.5 step 0.1
+  claim_id: c_b709fa22
+  context: 'Task T004: Define constants `ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default Intraclass Correlation Coefficient (ICC) range is [0.0, 0.1,
+    0.2, 0.3, 0.4, 0.5].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:55:37Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default alpha levels 0.01 0.05 0.10
+  claim_id: c_f900be52
+  context: 'Task T004: Define constants `ALPHA_LEVELS = [0.01, 0.05, 0.10]`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default alpha levels are [0.01, 0.05, 0.10].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:56:13Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default number of clusters 100
+  claim_id: c_30ee5679
+  context: 'Task T004: Define constants `DEFAULT_N_CLUSTERS = 100`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of clusters is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:56:34Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default random seed 42
+  claim_id: c_b3fbedfc
+  context: 'Task T004: Define constants `DEFAULT_SEED = 42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default random seed is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:56:57Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Minimum cluster count 50
+  claim_id: c_04a374d3
+  context: 'Task T004: ...raises `ValueError` if `cfg[''n_clusters''] < 50` **unless**
+    `cfg[''icc''] == 0.0`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum number of clusters required for validation is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:57:18Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Block permutation test default 1000 iterations
+  claim_id: c_14cf5ff7
+  context: 'Task T018: ...`run_block_permutation(data, treatment_col, outcome_col,
+    cluster_id_col, n_permutations=1000) -> float`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The block permutation test uses 1000 permutations by default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:57:37Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: UCI Online Retail synthetic parameters avg_cluster_size 12.5 std_cluster_size
+    8.2
+  claim_id: c_c13e9934
+  context: 'T035 [US1] Generate synthetic cluster-structure parameters. **Deliverable**:
+    Script `code/synthetic_cluster_params.py` that reads public summary statistics
+    for UCI Online Retail (cite source: "UCI Machine Learning Repository: Online Retail
+    Data Set") and uses a **hardcoded dictionary** derived from them: `{"avg_cluster_size":
+    12.5, "std_cluster_size": 8.2}`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The project uses a hardcoded dictionary derived from public summary statistics
+    for UCI Online Retail: {"avg_cluster_size": 12.5, "std_cluster_size": 8.2}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:59:04Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project dependencies numpy 1.26.0 scipy 1.12.0 statsmodels
+    0.14.1 pandas 2.2.0 pytest 7.4.0
+  claim_id: c_24ea3d1f
+  context: 'T002 Initialize Python 3.11 project with dependencies. **Deliverable**:
+    Create `projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt`
+    with exact pins: `numpy==1.26.0`, `scipy==1.12.0`, `statsmodels==0.14.1`, `pandas==2.2.0`,
+    `pytest==7.4.0`.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'The project initializes Python 3.11 with exact pins: numpy==1.26.0, scipy==1.12.0,
+    statsmodels==0.14.1, pandas==2.2.0, pytest==7.4.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T21:59:04Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: DEFAULT_N_CLUSTERS 100
+  claim_id: c_bc4b8265
+  context: 'T004 Create `code/config.py` to define simulation parameters and validation.
+    **Deliverable**: Define constants `ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]`,
+    `ICC_STEP = 0.1`, `ALPHA_LEVELS = [0.01, 0.05, 0.10]`, `DEFAULT_N_CLUSTERS = 100`,
+    `DEFAULT_SEED = 42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation uses a default number of clusters of 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:59:28Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: DEFAULT_SEED 42
+  claim_id: c_6057a743
+  context: 'T004 Create `code/config.py` to define simulation parameters and validation.
+    **Deliverable**: Define constants `ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]`,
+    `ICC_STEP = 0.1`, `ALPHA_LEVELS = [0.01, 0.05, 0.10]`, `DEFAULT_N_CLUSTERS = 100`,
+    `DEFAULT_SEED = 42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation uses a default random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T21:59:52Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: ICC_RANGE 0.0 to 0.5 step 0.1
+  claim_id: c_a662ae40
+  context: 'T004 Create `code/config.py` to define simulation parameters and validation.
+    **Deliverable**: Define constants `ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]`,
+    `ICC_STEP = 0.1`, `ALPHA_LEVELS = [0.01, 0.05, 0.10]`, `DEFAULT_N_CLUSTERS = 100`,
+    `DEFAULT_SEED = 42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ICC range used in simulations is [0.0, 0.1, 0.2, 0.3, 0.4, 0.5] with
+    a step of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:00:23Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: ALPHA_LEVELS 0.01 0.05 0.10
+  claim_id: c_7e1fb0e2
+  context: 'T004 Create `code/config.py` to define simulation parameters and validation.
+    **Deliverable**: Define constants `ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]`,
+    `ICC_STEP = 0.1`, `ALPHA_LEVELS = [0.01, 0.05, 0.10]`, `DEFAULT_N_CLUSTERS = 100`,
+    `DEFAULT_SEED = 42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The alpha levels used in simulations are [0.01, 0.05, 0.10].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:00:53Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: block permutation test n_permutations 1000
+  claim_id: c_6009608a
+  context: "T018 [US2] Implement block permutation test in `code/estimators.py`. **Deliverable**:\
+    \ Function `run_block_permutation(data, treatment_col, outcome_col, cluster_id_col,\
+    \ n_permutations=1000) -> float` that permutes treatment labels at the cluster\
+    \ level and returns a p\u2011value."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The block permutation test uses 1000 permutations by default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:00:53Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: memory limit 7GB
+  claim_id: c_c045cf0e
+  context: 'T027 [US3] [Memory & Time] Implement performance monitoring and enforcement
+    in `code/simulation_runner.py`. **Deliverable**: ... If `estimated_mb > 7000`
+    (targeting the 7GB limit) ... If `peak > 7.0 * 1024 * 1024 * 1024` (7GB), raise
+    `RuntimeError("Memory limit exceeded: 7GB. Down-sampling failed.")`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_limit_7GB
+  kind: entity_fact
+  raw_text: The simulation enforces a memory limit of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:01:16Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: time limit 6 hours 21600 seconds
+  claim_id: c_d6dc3862
+  context: 'T027 [US3] [Memory & Time] Implement performance monitoring and enforcement
+    in `code/simulation_runner.py`. **Deliverable**: ... If total elapsed time > 6
+    hours (21600 seconds), raise `RuntimeError("Time limit exceeded: 6 hours.")`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation enforces a time limit of 6 hours (21600 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:01:17Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: UCI Online Retail synthetic parameters avg_cluster_size 12.5 std_cluster_size
+    8.2
+  claim_id: c_ac9a21c6
+  context: 'Script code/synthetic_cluster_params.py that reads public summary statistics
+    for UCI Online Retail (cite source: "UCI Machine Learning Repository: Online Retail
+    Data Set") and uses a hardcoded dictionary derived from them: {"avg_cluster_size":
+    12.5, "std_cluster_size": 8.2}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The project uses a hardcoded dictionary derived from UCI Machine Learning
+    Repository: Online Retail Data Set summary statistics: {"avg_cluster_size": 12.5,
+    "std_cluster_size": 8.2}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:02:54Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: ICC range 0.0 to 0.5 step 0.1
+  claim_id: c_6a774930
+  context: Define constants ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5], ICC_STEP =
+    0.1, ALPHA_LEVELS = [0.01, 0.05, 0.10].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation uses ICC values ranging from 0.0 to 0.5 in steps of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:03:19Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default alpha levels 0.01 0.05 0.10
+  claim_id: c_7bc89d75
+  context: Define constants ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5], ICC_STEP =
+    0.1, ALPHA_LEVELS = [0.01, 0.05, 0.10].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default alpha levels for statistical testing are 0.01, 0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:03:40Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default n_clusters 100
+  claim_id: c_d0ea8e7f
+  context: Define constants ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5], ICC_STEP =
+    0.1, ALPHA_LEVELS = [0.01, 0.05, 0.10], DEFAULT_N_CLUSTERS = 100, DEFAULT_SEED
+    = 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of clusters for the simulation is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:04:12Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default seed 42
+  claim_id: c_154b0483
+  context: Define constants ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5], ICC_STEP =
+    0.1, ALPHA_LEVELS = [0.01, 0.05, 0.10], DEFAULT_N_CLUSTERS = 100, DEFAULT_SEED
+    = 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default random seed for the simulation is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:04:42Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_32208a2f
+  context: 'Initialize Python 3.11 project with dependencies. **Deliverable**: Create
+    projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt with
+    exact pins.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python version 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:05:04Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_f159f60d
+  context: 'Create projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt
+    with exact pins: numpy==1.26.0, scipy==1.12.0, statsmodels==0.14.1, pandas==2.2.0,
+    pytest==7.4.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires numpy version 1.26.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:05:20Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: scipy version 1.12.0
+  claim_id: c_91cdf110
+  context: 'Create projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt
+    with exact pins: numpy==1.26.0, scipy==1.12.0, statsmodels==0.14.1, pandas==2.2.0,
+    pytest==7.4.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires scipy version 1.12.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:05:36Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_aa1c34c7
+  context: 'Create projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt
+    with exact pins: numpy==1.26.0, scipy==1.12.0, statsmodels==0.14.1, pandas==2.2.0,
+    pytest==7.4.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires statsmodels version 0.14.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:06:04Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_73f1b33f
+  context: 'Create projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt
+    with exact pins: numpy==1.26.0, scipy==1.12.0, statsmodels==0.14.1, pandas==2.2.0,
+    pytest==7.4.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pandas version 2.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:06:24Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_44cd257d
+  context: 'Create projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt
+    with exact pins: numpy==1.26.0, scipy==1.12.0, statsmodels==0.14.1, pandas==2.2.0,
+    pytest==7.4.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pytest version 7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:06:37Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Memory limit 7GB
+  claim_id: c_43a582f1
+  context: If estimated_mb > 7000 (targeting the 7GB limit), enter a retry loop...
+    If peak > 7.0 * 1024 * 1024 * 1024 (7GB), raise RuntimeError.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_limit_7GB
+  kind: entity_fact
+  raw_text: The simulation enforces a memory limit of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:06:39Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Time limit 6 hours
+  claim_id: c_75db4ef4
+  context: Wrap the entire simulation loop in a timer. If total elapsed time > 6 hours
+    (21600 seconds), raise RuntimeError.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation enforces a time limit of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:06:39Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Block permutation n_permutations 1000
+  claim_id: c_d73d764b
+  context: Function run_block_permutation(data, treatment_col, outcome_col, cluster_id_col,
+    n_permutations=1000) -> float that permutes treatment labels at the cluster level.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The block permutation test uses 1000 permutations by default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:06:40Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Minimum n_clusters 50 unless ICC 0.0
+  claim_id: c_970b7dc9
+  context: Implement validate_config(cfg) that raises ValueError if cfg['n_clusters']
+    < 50 unless cfg['icc'] == 0.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum number of clusters required is 50, unless ICC is 0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T22:07:00Z'

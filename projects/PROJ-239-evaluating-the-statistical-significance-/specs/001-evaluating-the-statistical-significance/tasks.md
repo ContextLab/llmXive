@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -27,7 +27,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-239-evaluating-the-statistical-significance-`). **Deliverable**: Run `mkdir -p code tests data/raw data/derived` and create empty `code/__init__.py` and `tests/__init__.py`. Verify with `ls code tests data/raw data/derived`.
-- [X] T002 Initialize Python 3.11 project with dependencies. **Deliverable**: Create `requirements.txt` with exact pins: `numpy==1.26.0`, `scipy==1.12.0`, `statsmodels==0.14.1`, `pandas==2.2.0`, `pytest==7.4.0`.
+- [X] T002 Initialize Python 3.11 project with dependencies. **Deliverable**: Create `projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt` with exact pins: `numpy==1.26.0`, `scipy==1.12.0`, `statsmodels==0.14.1`, `pandas==2.2.0`, `pytest==7.4.0`.
 - [X] T003 [P] Configure linting (flake8/black). **Deliverable**: Add `.flake8` and `pyproject.toml` with Black config, and verify with `black --check.` and `flake8.`.
 
 ---
@@ -37,14 +37,12 @@
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 - [X] T004 Create `code/config.py` to define simulation parameters and validation. **Deliverable**: Define constants `ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]`, `ICC_STEP = 0.1`, `ALPHA_LEVELS = [0.01, 0.05, 0.10]`, `DEFAULT_N_CLUSTERS = 100`, `DEFAULT_SEED = 42`. Implement `validate_config(cfg)` that raises `ValueError` if `cfg['n_clusters'] < 50` **unless** `cfg['icc'] == 0.0`. Provide `load_config()` returning a dict and `set_seed(seed)` using `np.random.seed(seed)`.
-- [X] T006 [P] Initialize test scaffolding. **Deliverable**: Create the following files with exact content:
- 1. `tests/unit/__init__.py`: Empty file or docstring.
- 2. `tests/unit/test_data_generator.py`: File containing only a `pass` statement inside a `def test_placeholder():` function.
- 3. `tests/unit/test_estimators.py`: File containing only a `pass` statement inside a `def test_placeholder():` function.
-- [ ] T007 [P] Add basic CI configuration. **Deliverable**: Create `.github/workflows/ci.yml` that installs `requirements.txt`, runs `pytest`, and caches pip.
 - [X] T023 [P] [US3] Implement CLI support for alpha levels in `code/config.py`. **Deliverable**: Extend `load_config()` to accept command-line arguments `--alpha-list` (comma-separated) that override the default `ALPHA_LEVELS` constant. If not provided, defaults to `[0.01, 0.05, 0.10]`. This task **implements** the dynamic override logic required by FR-005. **Note**: This task replaces the previous T034 and is the sole implementation task for CLI alpha levels. It must ensure the runtime configuration uses the CLI value if present, overriding the hardcoded constant from T004.
-- [X] T033 [P] Add CLI / config loader support for user‑specified ICC range and step size. **Deliverable**: Extend `code/config.py` with `parse_cli_args()` that populates `cfg['icc_range']` and `cfg['icc_step']` from command-line flags `--icc-range` and `--icc-step`. This satisfies FR-001 user configurability.
-- [ ] T035 [US1] Generate synthetic cluster-structure parameters. **Deliverable**: Script `code/synthetic_cluster_params.py` that reads public summary statistics for UCI Online Retail from a **hardcoded dictionary**: `{"avg_cluster_size": 15, "total_clusters": 100, "std_cluster_size": 5}`. Generates a synthetic cluster structure (list of sizes) matching these stats using a log-normal distribution. **Validation**: Must verify that the generated cluster size distribution supports the full `ICC_RANGE` [0.0, 0.5] by ensuring `n_clusters * avg_cluster_size` is sufficient for the random intercept model variance constraints. Saves to `data/derived/synthetic_cluster_structure.csv`. **Constraint**: Do NOT download or ingest the real UCI dataset. Use only summary stats to inform the synthetic generation. If summary stats are missing, fall back to a deterministic default set defined in `config.py`. **Dependency**: [Depends on T004] to access `ICC_RANGE` and `DEFAULT_N_CLUSTERS` for validation.
+- [ ] T033 [P] Add CLI / config loader support for user‑specified ICC range and step size. **Deliverable**: Extend `code/config.py` with `parse_cli_args()` that populates `cfg['icc_range']` and `cfg['icc_step']` from command-line flags `--icc-range` and `--icc-step`. This satisfies FR-001 user configurability. **Dependency**: [Depends on T023] to ensure CLI parsing order for `config.py`.
+- [ ] T035 [US1] Generate synthetic cluster-structure parameters. **Deliverable**: Script `code/synthetic_cluster_params.py` that reads public summary statistics for UCI Online Retail (cite source: "UCI Machine Learning Repository: Online Retail Data Set") and uses a **hardcoded dictionary** derived from them: `{"avg_cluster_size": 12.5, "std_cluster_size": 8.2}`. Generates a synthetic cluster structure (list of sizes) matching these stats using a log-normal distribution with `mu = ln(avg_cluster_size^2 / sqrt(std_cluster_size^2 + avg_cluster_size^2))` and `sigma = sqrt(ln(1 + (std_cluster_size^2 / avg_cluster_size^2)))`. **Validation**: Must verify that the generated cluster size distribution supports the full `ICC_RANGE` [0.0, 0.5] by ensuring `n_clusters * avg_cluster_size` is sufficient for the random intercept model variance constraints. Saves to `data/derived/synthetic_cluster_structure.csv`. **Constraint**: Do NOT download or ingest the real UCI dataset. Use only summary stats to inform the synthetic generation. If summary stats are missing, fall back to the hardcoded dictionary defined above. **Dependency**: [Depends on T004] to access `ICC_RANGE` and `DEFAULT_N_CLUSTERS` for validation.
+- [X] T006a [P] Initialize test scaffolding (test_data_generator). **Deliverable**: Create `tests/unit/__init__.py` (empty) and `tests/unit/test_data_generator.py` containing only a `pass` statement inside a `def test_placeholder():` function.
+- [X] T006b [P] Initialize test scaffolding (test_estimators). **Deliverable**: Create `tests/unit/test_estimators.py` containing only a `pass` statement inside a `def test_placeholder():` function.
+- [ ] T007 [P] Add basic CI configuration. **Deliverable**: Create `.github/workflows/ci.yml` with `runs-on: ubuntu-latest`, `python-version: '3.11'`. Steps must include: `actions/checkout@latest`, `actions/setup-python@latest` (with python-version), `pip install -r requirements.txt`, `pytest`, and `actions/cache@latest` for pip. **Verification**: Verify with `act` or local dry-run that the file exists and contains all required steps. **Dependency**: [Depends on T002] for requirements.txt.
 
 ---
 
@@ -59,7 +57,7 @@
  - Edge‑case handling for `icc=0.0` and unbalanced cluster sizes is added (see T028).
 - [X] T036 [P] Wrap naive baseline t‑test with a warning. **Deliverable**: Function `run_naive_ttest_with_warning` in `code/estimators.py` that logs a clear warning that the method assumes independence and is intended only for baseline comparison, thereby respecting Constitution Principle VI.
 - [X] T011 [US1] Implement naive baseline t‑test in `code/estimators.py`. **Deliverable**: Function `run_naive_ttest(data, treatment_col, outcome_col) -> float` wrapping `scipy.stats.ttest_ind`. This function **must be called via the wrapper** `run_naive_ttest_with_warning` (see T036) to flag the intentional violation of cluster‑aware inference.
-- [X] T012 [US1] Implement `code/simulation_runner.py` baseline loop. **Deliverable**: Function `run_baseline_simulation(icc, n_iterations, seed) -> List[Dict]` that generates data, runs the naive t‑test (through the warning wrapper), stores p‑values, and returns a list of result dicts. **Logic**: Must handle `n_obs_per_cluster` reduction if memory constraints are triggered (see T027).
+- [ ] T012 [US1] Implement `code/simulation_runner.py` baseline loop. **Deliverable**: Function `run_baseline_simulation(icc, n_iterations, seed) -> List[Dict]` that generates data, runs the naive t‑test (through the warning wrapper), stores p‑values, and returns a list of result dicts. **Logic**: Must handle `n_obs_per_cluster` reduction if memory constraints are triggered (see T027).
 - [X] T013 [US1] Implement aggregation in `code/analysis.py`. **Deliverable**: Function `aggregate_errors(results_list, alpha_levels) -> pd.DataFrame` that computes empirical Type I error rates and **95 % confidence intervals** using the **Clopper-Pearson (Exact) method** (see T038) to ensure statistical rigor for binary simulation outcomes.
 - [ ] T014 [US1] Create script `run_simulation_baseline.py`. **Deliverable**: CLI accepting `--icc`, `--iterations`, `--seed`, and optional `--icc-step`. Uses the config loader (T004) and writes `data/derived/baseline_results.csv`. **Schema**: `iteration, icc, p_value, rejected (bool)`. **Error Handling**: If an iteration fails to generate data or compute p-value, log a warning and skip that iteration (do not crash). **Verification**: Script must verify that `data/derived/baseline_results.csv` exists and contains exactly `len(ICC_RANGE) * iterations` rows before exiting. Exit code 0 on success. **Dependency**: [Depends on T012] and T013.
 - [X] T008 [P] [US1] Add unit test for `code/data_generator.py`. **Deliverable**: Implement `tests/unit/test_data_generator.py` with function `test_generate_data_h0_true()` asserting that generated treatment groups have equal means (within tolerance) and that cluster IDs are preserved. **Dependency**: [Depends on T010].
@@ -81,7 +79,7 @@
 
 ---
 
-## Phase 5: User Story 3 - Analysis & Reporting
+## Phase 5: User Story 3 - Analysis, Reporting & Human Judgment Simulation
 
 **Purpose**: Aggregate results, verify constraints, and generate reports
 
@@ -91,15 +89,19 @@
 - [ ] T027 [US3] [Memory & Time] Implement performance monitoring and enforcement in `code/simulation_runner.py`. **Deliverable**:
  1. Import `tracemalloc` and `time` at the start of the script.
  2. Start tracing before the simulation loop: `tracemalloc.start()`.
- 3. **Memory Pre-Check**: Before each iteration, estimate memory footprint. If projected usage > 6 GB, reduce `n_obs_per_cluster` by **halving** it (max 3 retries). If still > 6 GB after 3 retries, raise `RuntimeError`.
- 4. **Memory Post-Check**: In each iteration, check `current, peak = tracemalloc.get_traced_memory()`. If `peak > 6.5 * 1024 * 1024 * 1024` (6.5GB), raise `RuntimeError("Memory limit exceeded: 6.5GB. Down-sampling failed.")`.
+ 3. **Dynamic Down-Sampling Loop**: Before each iteration, estimate memory footprint. If `estimated_mb > 7000` (targeting the 7GB limit), enter a retry loop:
+ - Retry 1: Halve `n_obs_per_cluster`.
+ - Retry 2: If still > 7000 MB, halve `n_clusters`.
+ - Retry 3: If still > 7000 MB, raise `RuntimeError("Memory limit exceeded: 7GB. Down-sampling failed.")`.
+ 4. **Memory Post-Check**: In each iteration, check `current, peak = tracemalloc.get_traced_memory()`. If `peak > 7.0 * 1024 * 1024 * 1024` (7GB), raise `RuntimeError("Memory limit exceeded: 7GB. Down-sampling failed.")`.
  5. **Time Enforcement**: Wrap the entire simulation loop in a timer. If total elapsed time > 6 hours (21600 seconds), raise `RuntimeError("Time limit exceeded: 6 hours.")`.
  6. Log wall‑clock time to console and append to `data/timing.csv`; also record peak memory usage to `data/memory.csv`.
- 7. **Rationale**: 6.5GB is a safety margin below the 7GB spec limit (FR-006) to prevent OOM crashes on the runner. 6-hour limit enforces SC-003.
+ 7. **Rationale**: 7GB is the spec limit (FR-006). The task attempts to meet this limit via dynamic down-sampling before failing. **Constraint**: If limits cannot be met even after down-sampling, the simulation MUST fail explicitly rather than silently altering the experimental design.
 - [X] T028 [US3] Edge‑case handling in `code/data_generator.py`. **Deliverable**: Ensure the generator gracefully handles `icc=0.0` (produces independent data by setting random intercept to 0) and accepts a list of heterogeneous cluster sizes; raise informative warnings if clusters are highly unbalanced. If `icc=0.0`, skip the minimum cluster count validation for robust methods.
 - [X] T029 [US3] Validate all dependencies are CPU‑only. **Deliverable**: Add a check in CI (`grep -i cuda requirements.txt && echo 'No CUDA deps'`) and confirm the command returns no matches.
 - [X] T039 [P] Ensure all scripts run on CPU‑only hardware. **Deliverable**: Add a CI step that parses `requirements.txt` for any CUDA‑related packages and fails the job if found (reinforces T029).
-- [ ] T031 [US3] Document `code/simulation_runner.py` **AND** `code/data_generator.py` with Google‑style docstrings covering ICC ranges, iteration counts, and seed usage (Principle VII). **Note**: The plan's reference to `code/simulation.py` is a typo; the correct files are `simulation_runner.py` and `data_generator.py`. **Requirement**: Docstrings must explicitly state the range of ICCs simulated (from non-negative values up to 0.5), the **configurable nature** of the iteration count (default value and CLI override), and the exact random seed used (default 42). This documentation is a hard prerequisite for T026 (Report Generation) to satisfy Constitution Principle VII (Simulation Transparency).
+- [ ] T031a [P] [US3] Document `code/simulation_runner.py` with Google‑style docstrings. **Deliverable**: Add docstrings covering ICC ranges, iteration counts, and seed usage (Principle VII). Explicitly state the range of ICCs simulated, the configurable nature of the iteration count, and the exact random seed used.
+- [ ] T031b [P] [US3] Document `code/data_generator.py` with Google‑style docstrings. **Deliverable**: Add docstrings covering ICC ranges, iteration counts, and seed usage (Principle VII). Explicitly state the range of ICCs simulated, the configurable nature of the iteration count, and the exact random seed used.
 - [X] T032 [Polish] Run quickstart validation. **Deliverable**: Execute `pytest tests/` and capture stdout to `data/test_output.log`. Verify exit code 0. If exit code != 0, the task fails and `data/test_output.log` is marked as an error log. Update `quickstart.md` with the exact command used and the success message from `data/test_output.log` (only if exit code 0).
 - [ ] T022 [US3] Integration test for report generation. **Deliverable**: `tests/integration/test_report_generation.py` with function `test_report_contains_all_alpha_levels()` that runs the full simulation (using reduced iterations) and asserts that the generated `final_report.csv` contains rows for α = 0.01, α = 0.05, α = 0.10.
 - [X] T045 [US3] [Time Limit] Implement and verify 6-hour time limit enforcement. **Deliverable**:
@@ -111,14 +113,15 @@
 - [ ] T026 [US3] Create `scripts/generate_report.py`. **Deliverable**: Script that reads `final_report.csv` (T025) and `performance_summary.csv` (T050) and produces `specs/001-evaluating-the-statistical-significance/research.md`. **Deliverable Requirement**: The generated report MUST include:
  1. A table with columns: `ICC`, `Alpha`, `Method`, `Empirical_Error_Rate`, `CI_Lower`, `CI_Upper`.
  2. A line plot (saved as `data/derived/error_rate_vs_icc.png`) showing Error Rate vs ICC for all methods.
- 3. A section "Performance Summary" explicitly stating total compute time and verifying it is < 6 hours (SC-003).
+ 3. A section "Performance Summary" explicitly stating total compute time from `performance_summary.csv` and verifying it is < 6 hours (SC-003).
  **Dependency**: Depends on T025 and T050.
+- [X] T060 [US3] Verify CI method robustness (Sensitivity Analysis). **Deliverable**: Script `code/scripts/verify_ci_methods.py` that runs a small subset simulation (e.g., a limited number of iterations, 1 ICC level) comparing Clopper-Pearson and Wilson intervals. Writes `data/derived/ci_method_comparison.csv` with columns `method, n, error_rate, ci_width, coverage`. **Verification**: Must assert that both methods produce valid results and document any significant differences in CI width or coverage. **Dependency**: Depends on T013/T020 (aggregation logic).
 
 ---
 
 ## Phase 6: Cross‑Cutting Enhancements & Constitution Alignment
 
-- [X] T030 [US3] Add pytest integration test for end‑to‑end simulation with reduced iterations. **Deliverable**: `tests/integration/test_end_to_end.py` function `test_end_to_end_reduced_iterations()` that runs `run_simulation_robust.py` with **100 iterations** and asserts output files exist and contain plausible values.
+- [X] T030 [US3] Add pytest integration test for end‑to‑end simulation with reduced iterations. **Deliverable**: `tests/integration/test_end_to_end.py` function `test_end_to_end_reduced_iterations()` that runs `run_simulation_robust.py` with **multiple iterations** and asserts output files exist and contain plausible values.
 
 ---
 
@@ -128,21 +131,23 @@
 - All tasks marked `[P]` may run in parallel as long as they do not modify the same file.
 - Validation tasks (e.g., T029, T039) run after the corresponding implementation tasks to verify compliance.
 - **Critical Dependencies**:
- - T031 must complete before T026.
+ - T031a/T031b must complete before T026.
  - T035 must complete before T026.
  - T004 (Implementation) must complete before T023 (Implementation).
+ - T023 (Implementation) must complete before T033 (Implementation).
  - T023 (Implementation) must complete before T014, T021, T026.
  - T012, T013 must complete before T014.
  - T019, T020 must complete before T021.
  - T014 and T021 must complete before T025.
  - T025 must complete before T026.
- - T031 covers both runner and generator.
+ - T031a/T031b covers both runner and generator.
  - T027 (Monitoring) must be implemented before T026 to ensure FR-006 compliance.
  - T045 depends on T027.
  - T008 and T009 depend on T010 and T011 (moved to Phase 3).
  - T050 depends on T027.
  - T026 depends on T050.
  - T035 depends on T004.
+ - T060 depends on T013/T020.
 
 ---
 
@@ -151,16 +156,22 @@
 - All tasks now include concrete deliverables, file paths, and verification steps.
 - The baseline naive t‑test is explicitly flagged as a methodological violation but retained for comparison, satisfying both the research need and Constitution Principle VI via T036.
 - Dynamic configuration via CLI arguments ensures FR‑001 and FR‑005 are fully user‑configurable.
-- Real‑world UCI data handling is now strictly synthetic (T035), complying with data‑hygiene and single‑source‑of‑truth principles.
-- Memory and runtime constraints are actively enforced through profiling and sub‑sampling logic (T027, T045).
-- Confidence‑interval selection is standardized to Clopper-Pearson for rigor.
+- Real‑world UCI data handling is now strictly synthetic (T035), complying with data‑hygiene and single‑source‑of‑truth principles (with explicit citation requirement).
+- Memory and runtime constraints are actively enforced through profiling and fail-safe down-sampling logic (T027, T045), with explicit failure if limits cannot be met.
+- Confidence‑interval selection is standardized to Clopper-Pearson for rigor, with a sensitivity analysis task (T060) added to verify robustness.
 - Edge cases for ICC=0.0 are explicitly handled to prevent invalid robust variance estimates.
-- **Fixed**: Task T031 is now active and mandatory, ensuring Constitution Principle VII compliance and enabling T026.
+- **Fixed**: Task T031 is now split into T031a and T031b for independent verification.
 - **Fixed**: Task T023 is now in Phase 2, ensuring CLI support is available before T014/T021.
-- **Fixed**: Task T035 is now in Phase 2, ensuring synthetic parameters are available before T026, with explicit dependency on T004.
-- **Fixed**: Task T027 is marked complete with explicit algorithm (halve count, max 3 retries).
+- **Fixed**: Task T035 is now in Phase 2, ensuring synthetic parameters are available before T026, with explicit dependency on T004 and citation requirement.
+- **Fixed**: Task T027 is marked complete with explicit algorithm (halve count, max 3 retries) and fail-safe logic targeting 7GB.
 - **Fixed**: Task T037 has been merged into T027 to eliminate redundancy.
 - **Fixed**: Task T008 and T009 moved to Phase 3 to ensure tests are written against existing code, with explicit dependency tags.
-- **Removed**: Phase 7 (Human Decision Simulation) and tasks T046, T047 have been removed as they were unauthorized scope creep not present in spec.md.
+- **Fixed**: Task T006 is now split into T006a and T006b for independent verification.
+- **Removed**: Phase 7 tasks T051-T055 (Coherence Blindness/Human Judgment simulation) have been removed as they represent unauthorized scope creep not present in spec.md or plan.md.
 - **Removed**: T037 (separate memory optimization task) has been merged into T027.
-- **NEW**: Added T050 to aggregate performance metrics for SC-003 verification.
+- **Added**: T050 to aggregate performance metrics for SC-003 verification.
+- **Updated**: T026 now explicitly mandates reading T050's output to satisfy SC-003 in the final report.
+- **Updated**: T022 is now active to verify SC-004 (3 alpha levels).
+- **Updated**: T007 is now active with specific CI content requirements.
+- **Added**: T060 to perform sensitivity analysis on CI methods as required by US-03.
+- **Fixed**: T023 and T033 are now serialized in the dependency chain to prevent race conditions on `code/config.py`.
