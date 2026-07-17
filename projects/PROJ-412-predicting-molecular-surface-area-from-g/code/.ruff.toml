@@ -1,0 +1,22 @@
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+
+[format]
+line-length = 88
+indent-style = "space"
+quote-style = "double"

@@ -53,14 +53,25 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-13T19:49:45.867041Z'
-- artifact_hash: 7092ab855708803890bc246588ad0e7663fe34aebaf26fa574d870c44e99df35
+- artifact_hash: 8598fd8d4373b8f7a189f90921c5bcd16672b706a8224355849d8c74856c06cf
   artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-17T23:11:54.937247Z'
+- artifact_hash: 8598fd8d4373b8f7a189f90921c5bcd16672b706a8224355849d8c74856c06cf
+  artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
   fetched_title: ZINC15 - Verification Required
   kind: url
-  value: https://zinc15.docking.org/subsets/home/...`
-  verification_status: verified
-  verified_against_url: https://zinc15.docking.org/captcha/?next=http%3A%2F%2Fzinc15.docking.org%2Fsubsets%2Fhome%2F
-  verified_at: '2026-07-13T19:59:13.220969Z'
+  value: https://zinc15.docking.org/subsets/filtered/drug_like/`
+  verification_status: pending
+  verified_against_url: https://zinc15.docking.org/captcha/?next=http%3A%2F%2Fzinc15.docking.org%2Fsubsets%2Ffiltered%2Fdrug_like%2F
+  verified_at: '2026-07-17T23:11:54.937247Z'

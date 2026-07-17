@@ -1,0 +1,103 @@
+# Static Schema for Molecular Graph Data
+# This schema defines the expected structure of the processed data
+# used by the data ingestion and preprocessing pipeline (US1).
+#
+# Validation: tests/contract/test_data_schema.py validates data against this schema.
+
+version: "1.0.0"
+description: "Schema for molecular graph data with SASA labels"
+
+fields:
+  - name: molecule_id
+    type: string
+    required: true
+    description: "Unique identifier for the molecule (e.g., ZINC ID or hash)"
+
+  - name: smiles
+    type: string
+    required: true
+    description: "Canonical SMILES string of the molecule"
+
+  - name: atom_features
+    type: list
+    required: true
+    description: "List of node feature vectors (atoms)"
+    item_schema:
+      type: list
+      items:
+        - type: float
+          description: "Feature value (e.g., atom type, hybridization, charge)"
+      min_items: 1
+
+  - name: edge_index
+    type: list
+    required: true
+    description: "Edge index matrix [2, num_edges] representing bonds"
+    item_schema:
+      type: list
+      items:
+        - type: integer
+          description: "Node index"
+      min_items: 2
+      max_items: 2
+
+  - name: edge_features
+    type: list
+    required: false
+    description: "List of edge feature vectors (bonds)"
+    item_schema:
+      type: list
+      items:
+        - type: float
+          description: "Feature value (e.g., bond type, conjugation)"
+
+  - name: sasa
+    type: float
+    required: true
+    description: "Solvent Accessible Surface Area (Å²) - target variable"
+    constraints:
+      min: 0.0
+
+  - name: molecular_weight
+    type: float
+    required: false
+    description: "Molecular weight (g/mol)"
+
+  - name: logp
+    type: float
+    required: false
+    description: "Octanol-water partition coefficient"
+
+  - name: num_atoms
+    type: integer
+    required: true
+    description: "Number of atoms in the molecule"
+
+  - name: num_bonds
+    type: integer
+    required: true
+    description: "Number of bonds in the molecule"
+
+  - name: source
+    type: string
+    required: true
+    description: "Data source identifier (e.g., 'zinc15_filtered')"
+
+  - name: processing_timestamp
+    type: string
+    required: false
+    description: "ISO 8601 timestamp of processing"
+
+constraints:
+  - field: sasa
+    rule: not_null
+    message: "SASA target must not be null"
+  - field: atom_features
+    rule: not_empty
+    message: "Atom features must not be empty"
+  - field: edge_index
+    rule: valid_shape
+    message: "Edge index must be a 2xN list"
+  - field: num_atoms
+    rule: positive
+    message: "Number of atoms must be positive"

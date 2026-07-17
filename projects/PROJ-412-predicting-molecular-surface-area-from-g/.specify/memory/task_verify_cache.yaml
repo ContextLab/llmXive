@@ -1,0 +1,41 @@
+T011:
+  c: false
+  h: 557089656345f3ce41fd9efdc1ef18286508a05e2a023ba839ebc4b187b87e33
+  r: The required artifact `tests/integration/test_ingest.py` does not exist in the
+    repository, so the integration test for the SMILES ingestion pipeline is missing.
+    The task cannot be considered completed until this file is added with appropriate
+    test code.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log files were provided showing validation of SMILES strings,\
+    \ handling of conformer\u2011generation failures, counting of failures, or halting\
+    \ when the failure rate exceeds 10\u202F%. The required artifact (implementation\
+    \ and evidence of the error\u2011handling behavior) is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, log files, or documentation were provided showing that warning logs
+    are emitted for excluded molecules or that dataset statistics are recorded. Without
+    concrete artifacts (e.g., updated ingestion script with logging statements, sample
+    log output, or a report of dataset statistics), the requirement cannot be verified.
+T018:
+  c: false
+  h: 7210e8ac7a4e627744460e0ca9d6a6c70ff373edb743fd710bd34bb1c312c267
+  r: The provided `tests/contract/test_model_output.py` exists, but the required `model_schema.yaml`
+    file is missing, so the test cannot actually validate the model output against
+    the schema. The missing schema file must be added for the contract test to be
+    functional.
+T026:
+  c: false
+  h: 1adedc87a47e6d40b5692eb897d44644a857a36cd57f967855668e46a9c965db
+  r: The required files `tests/contract/test_sensitivity_report.py` and `sensitivity_schema.yaml`
+    are missing, so no contract test or schema validation exists to meet the task.
+    The implementer must add both artifacts with appropriate test code and schema
+    definition.
+T027a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing the mean SASA calculation, the warning log, or the documented
+    justification in a final report is provided; the claim lacks any concrete output
+    or file evidence. The required evidence is missing, so the task is not satisfied.
