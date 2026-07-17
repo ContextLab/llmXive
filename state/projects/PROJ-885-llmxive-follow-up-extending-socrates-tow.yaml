@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-885-llmxive-follow-up-extending-socrates-tow
-last_run_id: d2158804-c6cd-41b2-bc95-9623c23b3bdf
+last_run_id: 07d46ed9-a748-4fff-9766-c647766a1c1c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow
 title: 'llmXive follow-up: extending "SoCRATES: Towards Reliable Automated Evaluation
   of Proactive LLM Media"'
-updated_at: '2026-07-13T19:12:06.574158Z'
+updated_at: '2026-07-17T20:16:06.582491Z'

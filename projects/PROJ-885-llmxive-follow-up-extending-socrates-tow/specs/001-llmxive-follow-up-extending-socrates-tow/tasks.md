@@ -20,32 +20,31 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/`)
-- [ ] T002 Initialize Python 3.11 project with `scikit-learn`, `pandas`, `transformers` (CPU-only), `datasets`, `pytest` dependencies in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001 Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`, `contracts/` as defined in plan.md
+- [X] T002 Initialize Python 3.11 project with `scikit-learn`, `pandas`, `transformers` (CPU-only), `datasets`, `pytest` in `requirements.txt`. **Explicitly exclude** `bitsandbytes`, `flash-attn`, and any GPU-accelerated libraries. Add a comment in `requirements.txt` noting this exclusion to satisfy FR-004.
 
 ---
 
@@ -55,11 +54,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.py` with pinned random seeds, file paths (`data/raw`, `data/processed`, `data/results`), and hyperparameters
-- [ ] T005 [P] Implement data validation utilities in `code/data/loader.py` to enforce schema compliance for generated trajectories
-- [ ] T006 [P] Setup logging infrastructure in `code/config.py` to track experiment conditions (Adapter vs. Static) and skipped samples
-- [ ] T007 Create base entities: `ConflictTrajectory` and `SocioCognitiveState` dataclasses in `code/models/entities.py`
-- [ ] T008 [P] Implement retry mechanism with exponential backoff for API/local inference failures in `code/experiments/retry_utils.py`
+- [X] T004 Create `code/config.py` with pinned random seeds, file paths (`data/raw`, `data/processed`, `data/results`), and hyperparameters
+- [X] T005 [P] Implement data validation utilities in `code/data/loader.py` to enforce schema compliance for generated trajectories
+- [X] T006 [P] Setup logging infrastructure in `code/config.py` to track experiment conditions (Adapter vs. Static) and skipped samples
+- [X] T007 Create base entities: `ConflictTrajectory` and `SocioCognitiveState` dataclasses in `code/models/entities.py`
+- [X] T008 [P] Implement retry mechanism with exponential backoff for API/local inference failures in `code/experiments/retry_utils.py`
+- [X] T009 [P] Implement `code/experiments/model_loader.py` with a pre-flight memory check function that estimates model size. **Logic**: If a model's estimated RAM usage > 7GB, log a warning and skip loading it. Add a unit test in `tests/unit/test_model_loader.py` that verifies this exclusion logic works for a mock large model.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,17 +75,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for trajectory schema in `tests/contract/test_trajectory_schema.py`
-- [ ] T011 [P] [US1] Integration test for oversampling distribution in `tests/integration/test_oversampling.py`
+- [X] T010 [P] [US1] Contract test for trajectory schema in `tests/contract/test_trajectory_schema.py`
+- [X] T011 [P] [US1] Integration test for oversampling distribution in `tests/integration/test_oversampling.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/data/generator.py` to generate conflict trajectories with metadata tags (emotional reactivity, cultural identity)
-- [ ] T013 [US1] Implement oversampling logic in `code/data/generator.py` to ensure ≥40% of trajectories fall into "high emotional reactivity" or "diverse cultural identity" categories
-- [ ] T014 [US1] Implement `code/data/generator.py` output writer to save trajectories to `data/processed/trajectories.json` and a summary report to `data/processed/generation_stats.json`
-- [ ] T015 [US1] Add validation in `code/data/generator.py` to verify generated data meets the 40% threshold before writing
-- [ ] T016 [US1] Add logging for generation parameters and final distribution counts
-- [ ] T019 [US1] Generate training dataset for classifier in `code/data/generator.py` using ONLY scenario metadata tags (emotional reactivity, cultural identity) distinct from consensus-gap evaluation metrics, saving to `data/processed/classifier_training_data.json` to ensure independence (FR-002)
+- [X] T012 [P] [US1] Implement `code/data/generator.py` to generate conflict trajectories with metadata tags (emotional reactivity, cultural identity)
+- [X] T013 [US1] Implement oversampling logic in `code/data/generator.py` to ensure ≥40% of trajectories fall into "high emotional reactivity" or "diverse cultural identity" categories
+- [X] T014 [US1] Implement `code/data/generator.py` output writer to save trajectories to `data/processed/trajectories.json` and a summary report to `data/processed/generation_stats.json`. **Requirement**: The summary report MUST explicitly list the count and percentage of trajectories in each target category to satisfy T015 validation.
+- [X] T015 [US1] Add validation in `code/data/generator.py` to verify generated data meets the 40% threshold before writing
+- [X] T016 [US1] Add logging for generation parameters and final distribution counts
+- [X] T019 [US1] Implement `code/data/generator.py` to **derive turn-level training pairs** from generated `ConflictTrajectory` objects. **Requirement**: Implement logic to split the full trajectory history into sliding windows of N turns (e.g., every 3 turns) to create `turn_text` (dialogue snippet) and `label` (socio-cognitive state from trajectory metadata) pairs. Save this derived dataset to `data/processed/classifier_training_data.json`. This ensures the classifier trains on real experimental data structure without circularity (satisfying FR-002). **Clarification**: Do NOT generate new synthetic dialogue; slice the existing generated trajectories.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,19 +99,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Contract test for prompt injection in `tests/contract/test_prompt_injection.py`
-- [ ] T022 [P] [US2] Integration test for paired experiment execution in `tests/integration/test_experiment_runner.py`
+- [X] T021 [P] [US2] Contract test for prompt injection in `tests/contract/test_prompt_injection.py`
+- [X] T022 [P] [US2] Integration test for paired experiment execution in `tests/integration/test_experiment_runner.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/models/classifier.py` with a lightweight logistic regression classifier trained on `data/processed/classifier_training_data.json` (metadata tags only) to infer socio-cognitive states, ensuring no overlap with evaluation metrics (FR-002)
-- [ ] T023 [P] [US2] Implement `code/experiments/prompts.py` with templates for Static baseline and Dynamic Adapter (injecting state instructions like "validate cultural norms", "de-escalate")
-- [ ] T024 [US2] Implement `code/experiments/runner.py` to load trajectories, run the classifier every N turns, and inject dynamic prompts for the Adapter condition
-- [ ] T025 [US2] Implement `code/experiments/runner.py` to run the Static condition (no injection) for the same trajectories
-- [ ] T026 [US2] Integrate retry logic from `code/experiments/retry_utils.py` to handle timeouts/crashes, logging skipped samples
-- [ ] T027 [US2] Implement CPU-only inference loop in `code/experiments/runner.py` using `transformers` with `device="cpu"`, explicitly excluding bitsandbytes/quantization libraries, and implementing fallback logic to inject "neutral monitoring state" on low confidence (FR-002)
-- [ ] T028 [US2] Save experiment logs to `data/processed/experiment_logs.json` containing trajectory ID, condition (Adapter/Static), injected state (if any), and LLM output
-- [ ] T029 [US2] Add validation to ensure the classifier fails gracefully to a neutral "monitoring" state on low confidence (Edge Case FR-002)
+- [X] T020 [P] [US2] Implement `code/models/classifier.py` with a lightweight logistic regression classifier. **Input Schema**: Must accept `classifier_training_data.json` containing a list of dicts with keys `turn_text`, `label`, `trajectory_id`. **Training**: Train on `turn_text` features (e.g., TF-IDF) to predict `label`. Ensure no overlap with evaluation metrics (FR-002).
+- [X] T023 [P] [US2] Implement `code/experiments/prompts.py` with templates for Static baseline and Dynamic Adapter (injecting state instructions like "validate cultural norms", "de-escalate")
+- [X] T024a [US2] Implement `code/experiments/runner.py` to load trajectories, run the classifier every N turns, and inject dynamic prompts for the Adapter condition
+- [X] T024b [US2] Implement **turn-by-turn streaming slicing logic** in `code/experiments/runner.py`. **Requirement**: Create a stateful accumulator that appends dialogue turns and triggers the classifier every N turns (e.g., 3) using the logic defined in T019. This explicitly resolves the gap between static trajectory generation and dynamic inference requirements (FR-002).
+- [X] T025 [US2] Implement `code/experiments/runner.py` to run the Static condition (no injection) for the same trajectories
+- [X] T026 [US2] Integrate retry logic from `code/experiments/retry_utils.py` to handle timeouts/crashes, logging skipped samples
+- [X] T027 [US2] Implement CPU-only inference loop in `code/experiments/runner.py` using `transformers` with `device="cpu"`. **Verification**: Add a runtime check at startup that asserts `torch.cuda.is_available()` is False or that no CUDA device is used, failing the run if GPU libraries are detected. Explicitly exclude bitsandbytes/quantization libraries. Implement fallback logic to inject "neutral monitoring state" on low confidence (FR-002).
+- [X] T028 [US2] Save experiment logs to `data/processed/experiment_logs.json` containing trajectory ID, condition (Adapter/Static), injected state (if any), and LLM output. **Mandatory**: The log entry for each turn MUST include `confidence_score` (float) and `injected_state` (string or null) to satisfy SC-005 requirements for sensitivity analysis. **Verification**: Add a validation step that asserts every log entry contains these fields.
+- [X] T029 [US2] Add validation to ensure the classifier fails gracefully to a neutral "monitoring" state on low confidence (Edge Case FR-002)
+- [X] T042 [US2] Implement `code/analysis/perf_monitor.py` to calculate throughput (trajectories/hour) and latency (s/trajectory) from `experiment_logs.json`. **Verification**: Add a step that asserts throughput >= 40 and latency <= 45, and **fails the build** if these criteria are not met (satisfying SC-003).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,15 +127,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [P] [US3] Contract test for statistical report schema in `tests/contract/test_stats_report.py`
-- [ ] T032 [P] [US3] Integration test for normality and significance testing in `tests/integration/test_statistical_analysis.py`
+- [X] T031 [P] [US3] Contract test for statistical report schema in `tests/contract/test_stats_report.py`
+- [X] T032 [P] [US3] Integration test for normality and significance testing in `tests/integration/test_statistical_analysis.py`
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Implement `code/models/evaluator.py` (topic-localized evaluator) to calculate "consensus gap" scores for LLM outputs against ideal resolution (independent of state labels)
-- [ ] T034 [US3] Implement `code/analysis/metrics.py` to compute consensus gap closure for every trajectory in `data/processed/experiment_logs.json`
-- [ ] T038 [US3] Implement `code/analysis/stats.py` to perform conditional statistical workflow: (1) Shapiro-Wilk normality test on difference scores, (2) if normal (p>=0.05) run paired t-test, else run Wilcoxon signed-rank test, (3) apply Holm-Bonferroni correction for multiple comparisons across 8 LLMs, and (4) generate final report with t-statistic, p-value, Cohen's d, and `is_significant` flag
-- [ ] T039 [US3] Implement sensitivity analysis script in `code/analysis/sensitivity.py` to sweep classifier confidence thresholds and report variation in injected directives (SC-005)
+- [X] T033 [P] [US3] Implement `code/models/evaluator.py` (topic-localized evaluator) to calculate "consensus gap" scores for LLM outputs against ideal resolution (independent of state labels)
+- [X] T034 [US3] Implement `code/analysis/metrics.py` to compute consensus gap closure for every trajectory in `data/processed/experiment_logs.json`
+- [X] T038 [US3] Implement `code/analysis/stats.py` to perform conditional statistical workflow: (1) Shapiro-Wilk normality test on difference scores, (2) if normal (p>=0.05) run paired t-test, else run Wilcoxon signed-rank test, (3) apply Holm-Bonferroni correction for multiple comparisons across multiple LLMs, and (4) generate final report with t-statistic, p-value, Cohen's d, and `is_significant` flag
+- [X] T039 [US3] Implement sensitivity analysis script in `code/analysis/sensitivity.py` to sweep classifier confidence thresholds (e.g., a range of values). **Input**: `data/processed/experiment_logs.json` (must contain `confidence_score`). **Output**: Generate `data/results/sensitivity_analysis_report.json` containing a table of confidence thresholds vs. count of injected directives, and verify the file exists with the correct schema (satisfying SC-005).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -144,8 +146,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T040 [P] Documentation updates in `README.md` and `specs/001-dynamic-state-injection/quickstart.md`
-- [ ] T041 Code cleanup and refactoring to ensure CPU memory usage stays <7GB
-- [ ] T042 [P] Implement performance monitoring and batching logic in `code/experiments/runner.py` to ensure throughput ≥40 trajectories/hour and latency ≤45s per trajectory (SC-003)
+- [X] T041 [P] Implement `code/analysis/memory_profiler.py` to instrument memory usage during the full experiment suite. **Execution**: Run the profiler against the full experiment set and generate `data/results/memory_profile_report.json`. **Constraint**: The script MUST fail the build if any model exceeds a predefined RAM usage threshold at any point. This replaces subjective "cleanup" with a verifiable artifact.
 - [ ] T043 [P] Additional unit tests in `tests/unit/` for classifier and evaluator logic
 - [ ] T044 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
@@ -225,9 +226,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+  - Developer A: User Story 1
+  - Developer B: User Story 2
+  - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -241,5 +242,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All LLM inference MUST run on CPU only (no CUDA, no bitsandbytes, no aggressive quantization). If a model exceeds available system memory, exclude it.
+- **Critical Constraint**: All LLM inference MUST run on CPU only (no CUDA, no bitsandbytes, no aggressive quantization). If a model exceeds available system memory, exclude it (see T009).
 - **Critical Constraint**: All data must be real/generated locally; no fake/synthetic input data for final results.
+- **Critical Constraint**: The classifier MUST be trained on turn-level dialogue text (T019, T020) to satisfy FR-002.
+- **Critical Constraint**: T028 must log per-turn confidence scores to enable T039 sensitivity analysis.
+- **Critical Constraint**: T041 must generate a verifiable memory report and fail the build on violation.

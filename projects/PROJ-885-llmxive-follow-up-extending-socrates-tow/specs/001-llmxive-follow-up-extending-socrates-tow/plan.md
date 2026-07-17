@@ -5,7 +5,7 @@
 
 ## Summary
 
-The project implements a CPU‑tractable adapter for LLM mediation that **dynamically** injects socio‑cognitive state signals (e.g., “escalating”, “cultural‑friction”) into the system prompt based on a lightweight logistic‑regression classifier that operates on **turn‑level dialogue text** (every 3 turns) and auxiliary scenario metadata. The primary hypothesis is that this dynamic injection improves consensus gap closure in high‑emotion, culturally diverse conflict scenarios compared to a static baseline.
+The project implements a CPU‑tractable adapter for LLM mediation that **dynamically** injects socio‑cognitive state signals (e.g., “escalating”, “cultural‑friction”) into the system prompt based on a lightweight logistic‑regression classifier that operates on **turn‑level dialogue text** (every few turns) and auxiliary scenario metadata. The primary hypothesis is that this dynamic injection improves consensus gap closure in high‑emotion, culturally diverse conflict scenarios compared to a static baseline.
 
 ## Technical Context
 

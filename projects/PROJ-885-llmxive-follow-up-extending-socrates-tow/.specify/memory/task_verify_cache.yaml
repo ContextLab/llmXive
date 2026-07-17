@@ -1,0 +1,29 @@
+T011:
+  c: false
+  h: 1454140d03af297c44997d034d942742ce358a4e0b25b38301c1c1d38a0f837d
+  r: "The required integration test file `tests/integration/test_oversampling.py`\
+    \ is missing from the repository, so no test code exists to verify the oversampling\
+    \ distribution as specified. Without this artifact, the task\u2019s acceptance\
+    \ criteria cannot be satisfied."
+T019:
+  c: false
+  h: aad431d9c0b011c366c4a16105d06833a2cc336057da969837ed1654180da566
+  r: "The `data/processed/classifier_training_data.json` file does not exist, so no\
+    \ dataset with `turn_text`, `label`, and `trajectory_id` was saved. Moreover,\
+    \ the provided `code/data/generator.py` is truncated and only outlines trajectory\
+    \ generation, not the creation of turn\u2011level records or writing them to the\
+    \ required JSON file. The task\u2019s core output is therefore missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation implementing the low\u2011confidence validation\
+    \ for the classifier were provided; the claim lacks any tangible artifact to verify\
+    \ that the classifier now falls back to a neutral \u201Cmonitoring\u201D state\
+    \ on low confidence. The required implementation and its verification are missing."
+T034:
+  c: false
+  h: bc05299e27705a5b5543d7bd2e92890ec2a66ac84511f9b896482cdf11874838
+  r: "The `code/analysis/metrics.py` file exists, but the required input `data/processed/experiment_logs.json`\
+    \ is missing, so the module cannot be exercised to compute consensus gap closure\
+    \ for every trajectory as specified. The absence of this dataset means the task\u2019\
+    s core requirement is unmet."

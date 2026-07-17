@@ -1,0 +1,12 @@
+# Core dependencies
+scikit-learn
+pandas
+transformers
+datasets
+pytest
+
+# Linting and Formatting (CPU-only, no GPU acceleration)
+# Note: bitsandbytes and flash-attn are explicitly excluded to satisfy FR-004 (CPU-only constraint)
+ruff
+black
+pre-commit
