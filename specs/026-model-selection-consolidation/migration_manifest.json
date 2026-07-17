@@ -2017,7 +2017,7 @@
       "category": "migration_target",
       "file": "src/llmxive/backends/router.py",
       "kind": "module_constant",
-      "line": 45,
+      "line": 49,
       "models": [
         "anthropic.claude-haiku-4-5-20251001",
         "google.gemma-3-27b-it",
@@ -2031,7 +2031,7 @@
       "category": "migration_target",
       "file": "src/llmxive/backends/router.py",
       "kind": "module_constant",
-      "line": 86,
+      "line": 90,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -2042,7 +2042,7 @@
       "category": "migration_target",
       "file": "src/llmxive/backends/router.py",
       "kind": "module_constant",
-      "line": 92,
+      "line": 96,
       "models": [
         "anthropic.claude-haiku-4-5-20251001"
       ],
@@ -4741,6 +4741,138 @@
       ],
       "owning_slice": null,
       "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 491,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "snap"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 491,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "snap"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 491,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "snap"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 494,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "peers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 496,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_select_fallback_peers_from_live_snapshot"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 496,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_select_fallback_peers_from_live_snapshot"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 502,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_select_fallback_peers_none_without_live_snapshot"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 508,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "transient_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 510,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 511,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "fallback_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 513,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_chat_with_model_fallback_honors_injected_fallback_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_chat_with_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 514,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_chat_with_model_fallback_honors_injected_fallback_models"
     },
     {
       "category": "test_double",
