@@ -5,120 +5,121 @@ import yaml
 import random
 import numpy as np
 
-# Project root is the parent of the 'code' directory
-_PROJECT_ROOT: Optional[Path] = None
+# Project Root
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# CPU-only execution constraints
-CPU_ONLY = True
-MAX_WORKERS = 4  # Limit parallel workers for CPU constraint
-MAX_MEMORY_GB = 14  # Approximate RAM limit for runner
+# Configuration Defaults
+DEFAULT_CONFIG = {
+    "seed": 42,
+    "cpu_only": True,
+    "paths": {
+        "data_root": "data",
+        "model_root": "models",
+        "reports": "reports",
+        "specs": "specs",
+        "code": "code",
+        "tests": "tests"
+    },
+    "morphometry": {
+        "sholl_radii": [2, 5, 10],
+        "denoise_sigma": 1.0,
+        "background_subtract": True
+    },
+    "analysis": {
+        "vif_threshold": 5.0,
+        "cv_folds": 5,
+        "random_state": 42
+    }
+}
 
-# Random seeds for reproducibility
-DEFAULT_SEED = 42
-
-# Configuration dictionary
 CONFIG: Dict[str, Any] = {}
 
 def get_project_root() -> Path:
-    """Returns the project root directory."""
-    global _PROJECT_ROOT
-    if _PROJECT_ROOT is None:
-        # Assume code/ is at root level or src/code/
-        current_file = Path(__file__).resolve()
-        # Try to find the project root by looking for 'tasks.md' or 'plan.md'
-        # Common structure: projects/PROJ-.../code/config.py
-        # Or: code/config.py
-        parent = current_file.parent
-        while parent != parent.parent:
-            if (parent / "tasks.md").exists() or (parent / "plan.md").exists():
-                _PROJECT_ROOT = parent
-                break
-            parent = parent.parent
-        
-        if _PROJECT_ROOT is None:
-            # Fallback: assume current directory is project root
-            _PROJECT_ROOT = Path.cwd()
+    """Get the project root directory."""
     return _PROJECT_ROOT
 
 def get_default_config() -> Dict[str, Any]:
-    """Returns the default configuration dictionary."""
-    return {
-        "seed": DEFAULT_SEED,
-        "cpu_only": CPU_ONLY,
-        "max_workers": MAX_WORKERS,
-        "max_memory_gb": MAX_MEMORY_GB,
-        "paths": {
-            "data_raw": "data/raw",
-            "data_intermediates": "data/intermediates",
-            "data_processed": "data/processed",
-            "figures": "figures",
-            "reports": "reports",
-            "specs": "specs"
-        },
-        "morphometry": {
-            "sholl_radii": [2, 5, 10],  # in micrometers
-            "denoise_sigma": 1.0,
-            "skeletonize_method": "zhang"
-        },
-        "analysis": {
-            "vif_threshold": 5.0,
-            "early_ad_amyloid_percentile": 75,
-            "cv_folds": 5
-        }
-    }
+    """Return the default configuration dictionary."""
+    return DEFAULT_CONFIG.copy()
 
 def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """Loads configuration from a YAML file or returns defaults."""
+    """
+    Load configuration from a YAML file or return defaults.
+    
+    Args:
+        config_path: Path to config file. If None, uses default.
+    
+    Returns:
+        Dict: Configuration dictionary.
+    """
     global CONFIG
-    if CONFIG:
-        return CONFIG
-    
-    if config_path is None:
-        config_path = os.path.join(get_project_root(), "config.yaml")
-    
-    config_file = Path(config_path)
-    if config_file.exists():
-        with open(config_file, "r") as f:
+    if config_path and os.path.exists(config_path):
+        with open(config_path, 'r') as f:
             CONFIG = yaml.safe_load(f)
     else:
-        CONFIG = get_default_config()
-    
+        CONFIG = DEFAULT_CONFIG
     return CONFIG
 
-def get_path(relative_path: str) -> Path:
-    """Returns an absolute path relative to the project root."""
-    return get_project_root() / relative_path
-
-def ensure_dirs() -> None:
-    """Creates all necessary directories defined in the configuration."""
-    config = load_config()
-    paths = config.get("paths", {})
+def get_path(*relative_parts: str) -> Path:
+    """
+    Construct an absolute path relative to the project root.
     
-    for dir_name in paths.values():
-        dir_path = get_path(dir_name)
-        dir_path.mkdir(parents=True, exist_ok=True)
+    Args:
+        relative_parts: Path components relative to project root.
+    
+    Returns:
+        Path: Absolute path.
+    """
+    return _PROJECT_ROOT / os.path.join(*relative_parts)
+
+def ensure_dirs(*path_strs: str) -> Path:
+    """
+    Ensure directories exist for the given paths.
+    
+    Args:
+        path_strs: Path strings to ensure exist.
+    
+    Returns:
+        Path: The last path created/checked.
+    """
+    for p_str in path_strs:
+        p = get_path(p_str)
+        p.mkdir(parents=True, exist_ok=True)
+    return get_path(*path_strs)
 
 def set_seed(seed: Optional[int] = None) -> None:
-    """Sets random seeds for reproducibility."""
+    """Set random seeds for reproducibility."""
     if seed is None:
-        seed = DEFAULT_SEED
-    
+        seed = DEFAULT_CONFIG.get("seed", 42)
     random.seed(seed)
     np.random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
 
 def get_morphometry_config() -> Dict[str, Any]:
-    """Returns morphometry-specific configuration."""
-    config = load_config()
-    return config.get("morphometry", get_default_config()["morphometry"])
+    """Get morphometry specific configuration."""
+    return DEFAULT_CONFIG.get("morphometry", {})
 
 def get_analysis_config() -> Dict[str, Any]:
-    """Returns analysis-specific configuration."""
-    config = load_config()
-    return config.get("analysis", get_default_config()["analysis"])
+    """Get analysis specific configuration."""
+    return DEFAULT_CONFIG.get("analysis", {})
 
-def get_data_paths() -> Dict[str, Path]:
-    """Returns paths for data directories."""
-    config = load_config()
-    paths = config.get("paths", {})
-    return {k: get_path(v) for k, v in paths.items()}
+def get_data_paths() -> Dict[str, str]:
+    """Get data directory paths."""
+    return DEFAULT_CONFIG.get("paths", {})
+
+# T004: Explicit constants for paths, seeds, and CPU-only execution
+DATA_ROOT = get_path(DEFAULT_CONFIG["paths"]["data_root"])
+MODEL_ROOT = get_path(DEFAULT_CONFIG["paths"]["model_root"])
+SEED = DEFAULT_CONFIG["seed"]
+CPU_ONLY = DEFAULT_CONFIG["cpu_only"]
+
+# Ensure required directories exist on import (idempotent)
+ensure_dirs(
+    DEFAULT_CONFIG["paths"]["data_root"],
+    os.path.join(DEFAULT_CONFIG["paths"]["data_root"], "raw"),
+    os.path.join(DEFAULT_CONFIG["paths"]["data_root"], "processed"),
+    os.path.join(DEFAULT_CONFIG["paths"]["data_root"], "intermediates"),
+    DEFAULT_CONFIG["paths"]["reports"],
+    DEFAULT_CONFIG["paths"]["specs"],
+    DEFAULT_CONFIG["paths"]["tests"]
+)

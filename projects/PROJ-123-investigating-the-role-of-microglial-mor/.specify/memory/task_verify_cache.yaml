@@ -1,9 +1,9 @@
-T026:
+T018:
   c: false
-  h: 67fb9ad3cd363ade5ac50e244d70874640cad2cb1ae55565b618c2194e77f066
-  r: "The required artifact `data/intermediates/vif_check.json` does not exist, so\
-    \ the VIF scores and `trigger_pca` flag were never written. Consequently the task\u2019\
-    s deliverable is missing."
+  h: 04486782c15898adf9c604431b5389fd4e74b9c425baf8042fa5ae853499af4e
+  r: "The required file `data/processed/morphological_metrics.csv` does not exist,\
+    \ so no CSV with the specified columns and constraints is present. The task\u2019\
+    s core deliverable is missing."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

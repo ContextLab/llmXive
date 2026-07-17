@@ -68,16 +68,20 @@ def test_validate_brain_region_valid():
 def test_ingest_directory_excludes_untagged(tmp_path):
     """
     T011: Verify that images without valid brain region tags are excluded.
+    
+    This test ensures that the ingestion pipeline strictly adheres to FR-008
+    by excluding subjects missing valid brain region tags or other required
+    metadata fields.
     """
     # Create test images
     img_valid = np.zeros((100, 100), dtype=np.uint8)
     img_invalid = np.zeros((100, 100), dtype=np.uint8)
     
-    # Valid filename
+    # Valid filename: matches pattern and has valid brain region
     valid_path = tmp_path / "subject_01_hippocampus_20231027.tif"
     Image.fromarray(img_valid).save(valid_path)
     
-    # Invalid filename (missing brain region)
+    # Invalid filename (missing brain region in name, or invalid region)
     invalid_path = tmp_path / "subject_02_badname.tif"
     Image.fromarray(img_invalid).save(invalid_path)
     
@@ -88,7 +92,7 @@ def test_ingest_directory_excludes_untagged(tmp_path):
     results = ingest_directory(tmp_path)
     
     # Should only contain the valid one
-    assert len(results) == 1
+    assert len(results) == 1, f"Expected 1 valid record, got {len(results)}"
     assert results[0]['path'].name == "subject_01_hippocampus_20231027.tif"
     assert results[0]['metadata']['brain_region'] == 'hippocampus'
 

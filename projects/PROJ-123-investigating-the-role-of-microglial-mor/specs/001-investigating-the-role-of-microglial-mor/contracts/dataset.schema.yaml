@@ -1,54 +1,32 @@
-# Dataset Schema for Microglial Morphology Analysis
-# Defines the structure of the input dataset for regression analysis
-# Version: 1.0.0
-# Last Updated: 2024-01-15
-#
-# This schema enforces strict type checking and enumeration constraints
-# to ensure data quality for the regression pipeline (US2).
-
 $schema: http://json-schema.org/draft-07/schema#
-title: MicrogliaMorphologyDataset
+title: Microglial Morphology Dataset Schema
 description: |
-  Schema for the processed morphological metrics dataset.
-  Contains features extracted from microscopy images and associated metadata.
-
+  Schema for the raw and processed morphological metrics dataset.
+  Defines the structure for microglial cell measurements tagged by brain region
+  and pathology status.
+  This schema strictly adheres to FR-003, excluding 'fractal_dimension' and 'complexity_index'.
 type: object
 required:
-  - subject_id
   - brain_region
   - pathology_status
   - morphological_metrics
   - cognitive_score
-
 properties:
-  subject_id:
-    type: string
-    description: Unique identifier for the subject/animal
-    pattern: "^[A-Z0-9_-]+$"
-
   brain_region:
     type: string
-    description: Anatomical region of the brain slice
+    description: The anatomical region of the brain sample.
     enum:
       - Hippocampus
       - Prefrontal Cortex
-    x-note: |
-      Only these two regions are supported per the study design.
-      Other regions must be excluded during ingestion (T012).
-
   pathology_status:
     type: string
-    description: Pathological classification of the subject
+    description: The pathological classification of the subject.
     enum:
       - Normal
       - Early AD
-    x-note: |
-      'Early AD' is determined dynamically if labels are missing,
-      based on amyloid-beta load (T024).
-
   morphological_metrics:
     type: object
-    description: Quantitative measures of microglial morphology
+    description: Quantitative metrics derived from image analysis.
     required:
       - branch_points
       - total_length
@@ -57,39 +35,23 @@ properties:
     properties:
       branch_points:
         type: integer
+        description: Count of branch points in the microglial skeleton.
         minimum: 0
-        description: Count of branch points in the skeletonized neurite tree
-
       total_length:
         type: number
-        minimum: 0.0
-        description: Total length of neurites in micrometers (µm)
-
+        description: Total length of the microglial processes in micrometers.
+        minimum: 0
       soma_area:
         type: number
-        minimum: 0.0
-        description: Area of the cell soma in square micrometers (µm²)
-
+        description: Area of the microglial cell body in square micrometers.
+        minimum: 0
       sholl_intersections:
         type: integer
+        description: Number of intersections at a specific Sholl radius.
         minimum: 0
-        description: Number of intersections at the standard Sholl radius
-
-      # NOTE: 'fractal_dimension' is explicitly excluded per spec FR-003
-      # and the review decision to focus on standard morphometric features.
-
   cognitive_score:
     type: number
-    description: Morris Water Maze (MWM) latency in seconds
-    minimum: 0.0
-    x-note: |
-      Lower latency indicates better cognitive performance.
-      Subjects with missing scores are excluded (T012).
-
-  amyloid_beta_load:
-    type: number
-    minimum: 0.0
-    description: Quantified amyloid-beta load (optional, used for dynamic classification)
-    x-note: Required for T024 dynamic classification logic if labels are missing.
-
+    description: Cognitive assessment score, specifically MWM latency in seconds.
+    minimum: 0
+    maximum: 300
 additionalProperties: false

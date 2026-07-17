@@ -5,203 +5,230 @@ from typing import Dict, Any, List, Optional
 import pandas as pd
 from datetime import datetime
 from code.config import get_path, ensure_dirs
-from code.analysis import run_regression_with_interaction
 import logging
 
 logger = logging.getLogger(__name__)
 
 def load_regression_results() -> Optional[Dict[str, Any]]:
-    """Load regression results from the analysis pipeline if available."""
-    # The analysis pipeline is expected to have populated a temporary or intermediate
-    # results structure, or we re-run the core regression logic to capture the state.
-    # For this implementation, we assume the analysis pipeline returns the results
-    # when called, or we load from a cached intermediate file if T027 saved one.
-    # Based on T027 description, it generates the model. We will re-run the core
-    # analysis to get the fresh results for the report, or load from a saved state.
-    # To be robust, we will re-run the regression step to ensure data consistency
-    # with the latest `morphological_metrics.csv` and `vif_check.json`.
-    
-    try:
-        # Re-run the regression logic to get the latest results
-        # This function is defined in code/analysis.py
-        from code.analysis import run_regression_with_interaction
-        results = run_regression_with_interaction()
-        return results
-    except Exception as e:
-        logger.error(f"Failed to load or run regression results: {e}")
+    """Load regression results from the JSON file."""
+    json_path = get_path("reports", "regression_results.json")
+    if not os.path.exists(json_path):
+        logger.warning(f"Regression results file not found at {json_path}")
         return None
+    
+    with open(json_path, 'r') as f:
+        return json.load(f)
 
 def load_vif_check() -> Optional[Dict[str, Any]]:
-    """Load VIF check results from the intermediate file."""
-    vif_path = get_path("data/intermediates/vif_check.json")
-    if not vif_path or not os.path.exists(vif_path):
-        logger.warning(f"VIF check file not found at {vif_path}")
+    """Load VIF check results from the JSON file."""
+    json_path = get_path("data", "intermediates", "vif_check.json")
+    if not os.path.exists(json_path):
+        logger.warning(f"VIF check file not found at {json_path}")
         return None
     
-    try:
-        with open(vif_path, 'r') as f:
-            return json.load(f)
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse VIF check JSON: {e}")
-        return None
+    with open(json_path, 'r') as f:
+        return json.load(f)
 
-def generate_json_report(regression_results: Dict[str, Any], vif_check: Optional[Dict[str, Any]]) -> Dict[str, Any]:
-    """Generate the structured JSON report."""
-    report = {
-        "metadata": {
-            "generated_at": datetime.now().isoformat(),
-            "pipeline_version": "1.0.0",
-            "task_id": "T029"
-        },
-        "vif_analysis": vif_check,
-        "regression_results": regression_results,
-        "conclusion": "Analysis complete. See regression_results for coefficients and p-values."
-    }
-    return report
-
-def generate_markdown_report(regression_results: Dict[str, Any], vif_check: Optional[Dict[str, Any]], causality_warning: bool) -> str:
-    """Generate the Markdown report."""
-    md_lines = [
-        "# Regression Analysis Report: Microglial Morphology and Cognitive Decline",
-        "",
-        f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        "",
-        "## Methodology",
-        "This report presents the results of a multiple linear regression analysis predicting cognitive status",
-        "based on microglial morphological metrics (branch points, total length, soma area, Sholl intersections).",
-        "The model includes interaction terms between Pathology Status and Brain Region.",
-        "",
-        "## VIF Analysis"
-    ]
-    
-    if vif_check:
-        md_lines.append(f"- **PCA Triggered:** {vif_check.get('trigger_pca', False)}")
-        md_lines.append(f"- **VIF Scores:** {vif_check.get('vif_scores', {})}")
-        if vif_check.get('trigger_pca'):
-            md_lines.append("- *Note: Multicollinearity was detected (VIF > 5.0). PCA was applied to generate orthogonal predictors.*")
-        else:
-            md_lines.append("- *No multicollinearity detected. Original predictors used.*")
-    else:
-        md_lines.append("- VIF check data not available.")
-    
-    md_lines.extend([
-        "",
-        "## Regression Results"
-    ])
-    
-    if regression_results:
-        coeffs = regression_results.get('coefficients', {})
-        p_values = regression_results.get('p_values', {})
-        interaction_terms = regression_results.get('interaction_terms', [])
-        
-        md_lines.append("### Coefficients")
-        md_lines.append("| Variable | Coefficient | P-Value |")
-        md_lines.append("|---|---|---|")
-        for var, coef in coeffs.items():
-            p_val = p_values.get(var, 'N/A')
-            md_lines.append(f"| {var} | {coef:.4f} | {p_val:.4f} |")
-        
-        if interaction_terms:
-            md_lines.extend([
-                "",
-                "### Interaction Terms"
-            ])
-            for term in interaction_terms:
-                md_lines.append(f"- {term}")
-        
-        # Causality Warning
-        if causality_warning:
-            md_lines.extend([
-                "",
-                "## ⚠️ Causality Warning",
-                "",
-                "Associational findings only; causality not inferred. The study design was not randomized."
-            ])
-    else:
-        md_lines.append("Regression results could not be computed or loaded.")
-    
-    md_lines.extend([
-        "",
-        "---",
-        "*Report generated by llmXive automated science pipeline.*"
-    ])
-    
-    return "\n".join(md_lines)
-
-def run_report_pipeline() -> bool:
+def determine_causality_warning(metadata: Optional[Dict[str, Any]] = None) -> bool:
     """
-    Main entry point for T029.
-    1. Loads regression results.
-    2. Loads VIF check.
-    3. Determines causality warning flag (from T028 logic).
-    4. Generates JSON and Markdown reports.
-    5. Writes to reports/regression_results.json and reports/regression_results.md
-    """
-    logger.info("Starting report generation pipeline (T029)...")
+    Determine if a causality warning is needed based on metadata.
     
-    # Ensure output directory exists
-    output_dir = get_path("reports")
-    if output_dir:
-        ensure_dirs(output_dir)
-    else:
-        logger.error("Could not determine reports directory path.")
+    Logic:
+    - Check metadata['randomized'].
+    - If True, causality_warning = False.
+    - If False or missing, causality_warning = True.
+    
+    Returns:
+        bool: True if warning is needed, False otherwise.
+    """
+    if metadata is None:
+        return True
+    
+    randomized = metadata.get('randomized')
+    if randomized is True:
         return False
-
-    # Load Data
-    regression_results = load_regression_results()
-    vif_check = load_vif_check()
-
-    if not regression_results:
-        logger.error("Failed to retrieve regression results. Cannot generate report.")
-        return False
-
-    # Determine Causality Warning
-    # T028 logic: Check metadata['randomized']. If False or missing, set warning.
-    # We need to check the global config or a metadata file. 
-    # Assuming the config or a global state holds this. 
-    # Based on T028 description, we check a flag. Let's assume we read from a config 
-    # or a specific metadata file if it exists, otherwise default to True (observational).
-    causality_warning = True 
-    try:
-        from code.config import load_config
-        config = load_config()
-        # Check if a 'randomized' flag exists in the analysis config or metadata
-        if config and 'analysis' in config:
-            if config['analysis'].get('randomized', False):
-                causality_warning = False
-        # Also check if there's a specific metadata file
-        # If not found, default to True (observational study)
-    except Exception:
-        pass
-
-    # Generate Reports
-    json_report = generate_json_report(regression_results, vif_check)
-    md_report = generate_markdown_report(regression_results, vif_check, causality_warning)
-
-    # Write JSON
-    json_path = os.path.join(output_dir, "regression_results.json")
-    try:
-        with open(json_path, 'w') as f:
-            json.dump(json_report, f, indent=2)
-        logger.info(f"JSON report written to {json_path}")
-    except Exception as e:
-        logger.error(f"Failed to write JSON report: {e}")
-        return False
-
-    # Write Markdown
-    md_path = os.path.join(output_dir, "regression_results.md")
-    try:
-        with open(md_path, 'w') as f:
-            f.write(md_report)
-        logger.info(f"Markdown report written to {md_path}")
-    except Exception as e:
-        logger.error(f"Failed to write Markdown report: {e}")
-        return False
-
-    logger.info("Report generation pipeline completed successfully.")
     return True
 
-if __name__ == "__main__":
-    # Setup logging if not already done
-    logging.basicConfig(level=logging.INFO)
-    run_report_pipeline()
+def generate_markdown_report(
+    regression_results: Dict[str, Any],
+    vif_check: Optional[Dict[str, Any]] = None,
+    metadata: Optional[Dict[str, Any]] = None,
+    output_path: Optional[str] = None
+) -> str:
+    """
+    Generate a Markdown report from regression results.
+    
+    Args:
+        regression_results: Dictionary containing regression results.
+        vif_check: Optional dictionary containing VIF check results.
+        metadata: Optional dictionary containing study metadata (for causality check).
+        output_path: Optional path to write the report. If None, returns the string.
+    
+    Returns:
+        str: The generated Markdown report content.
+    """
+    # Determine causality warning
+    causality_warning = determine_causality_warning(metadata)
+    
+    lines = []
+    lines.append("# Regression Analysis Report")
+    lines.append("")
+    lines.append(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append("")
+    
+    # Causality Warning Section
+    lines.append("## Causality Warning")
+    lines.append("")
+    if causality_warning:
+        lines.append("⚠️ **Associational findings only; causality not inferred**")
+        lines.append("")
+        lines.append("This study is observational. The metadata indicates the study was not randomized ")
+        lines.append("or the randomized status is missing. Therefore, no causal inferences should be drawn ")
+        lines.append("from the observed correlations.")
+        lines.append("")
+    else:
+        lines.append("✅ **Causal inference permitted**")
+        lines.append("")
+        lines.append("The study design was randomized. Causal interpretations of the regression coefficients ")
+        lines.append("are supported by the experimental design.")
+        lines.append("")
+    
+    # Model Summary
+    lines.append("## Model Summary")
+    lines.append("")
+    if 'model_summary' in regression_results:
+        summary = regression_results['model_summary']
+        lines.append(f"- **R² Score:** {summary.get('r2', 'N/A')}")
+        lines.append(f"- **Adjusted R²:** {summary.get('adj_r2', 'N/A')}")
+        lines.append(f"- **F-statistic:** {summary.get('f_statistic', 'N/A')}")
+        lines.append(f"- **P-value (F-test):** {summary.get('f_pvalue', 'N/A')}")
+    lines.append("")
+    
+    # Coefficients
+    lines.append("## Regression Coefficients")
+    lines.append("")
+    lines.append("| Variable | Coefficient | Std Error | t-statistic | P-value | 95% CI |")
+    lines.append("|----------|-------------|-----------|-------------|---------|--------|")
+    
+    if 'coefficients' in regression_results:
+        coeffs = regression_results['coefficients']
+        for var, data in coeffs.items():
+            ci_lower = data.get('ci_lower', 'N/A')
+            ci_upper = data.get('ci_upper', 'N/A')
+            lines.append(f"| {var} | {data.get('coef', 'N/A'):.4f} | {data.get('std_err', 'N/A'):.4f} | {data.get('t_value', 'N/A'):.4f} | {data.get('pvalue', 'N/A'):.4f} | [{ci_lower}, {ci_upper}] |")
+    lines.append("")
+    
+    # Interaction Terms
+    if 'interaction_terms' in regression_results and regression_results['interaction_terms']:
+        lines.append("## Interaction Terms")
+        lines.append("")
+        for term, data in regression_results['interaction_terms'].items():
+            lines.append(f"- **{term}**: Coefficient = {data.get('coef', 'N/A'):.4f}, P-value = {data.get('pvalue', 'N/A'):.4f}")
+        lines.append("")
+    
+    # VIF Scores
+    if vif_check and 'vif_scores' in vif_check:
+        lines.append("## Variance Inflation Factors (VIF)")
+        lines.append("")
+        lines.append("| Variable | VIF Score |")
+        lines.append("|----------|-----------|")
+        for var, vif in vif_check['vif_scores'].items():
+            lines.append(f"| {var} | {vif:.4f} |")
+        lines.append("")
+        if vif_check.get('trigger_pca', False):
+            lines.append("**Note:** PCA was applied due to high multicollinearity (VIF > 5).")
+        else:
+            lines.append("**Note:** No PCA was required as all VIF scores were below the threshold (5.0).")
+        lines.append("")
+    
+    # Validation Metrics
+    if 'validation_metrics' in regression_results:
+        lines.append("## Validation Metrics")
+        lines.append("")
+        val = regression_results['validation_metrics']
+        lines.append(f"- **Cross-validated R² (mean):** {val.get('r2_mean', 'N/A')}")
+        lines.append(f"- **Cross-validated R² (std):** {val.get('r2_std', 'N/A')}")
+        lines.append(f"- **Sensitivity Variation:** {val.get('sensitivity_variation', 'N/A')}")
+        lines.append("")
+    
+    if output_path:
+        ensure_dirs(output_path)
+        with open(output_path, 'w') as f:
+            f.write('\n'.join(lines))
+        logger.info(f"Markdown report written to {output_path}")
+    
+    return '\n'.join(lines)
+
+def generate_json_report(
+    regression_results: Dict[str, Any],
+    vif_check: Optional[Dict[str, Any]] = None,
+    metadata: Optional[Dict[str, Any]] = None,
+    output_path: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Generate a JSON report from regression results.
+    
+    Args:
+        regression_results: Dictionary containing regression results.
+        vif_check: Optional dictionary containing VIF check results.
+        metadata: Optional dictionary containing study metadata.
+        output_path: Optional path to write the JSON report.
+    
+    Returns:
+        dict: The generated JSON report content.
+    """
+    report = {
+        "generated_at": datetime.now().isoformat(),
+        "causality_warning": determine_causality_warning(metadata),
+        "regression_results": regression_results,
+        "vif_check": vif_check
+    }
+    
+    if output_path:
+        ensure_dirs(output_path)
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"JSON report written to {output_path}")
+    
+    return report
+
+def run_report_pipeline(
+    regression_results: Optional[Dict[str, Any]] = None,
+    vif_check: Optional[Dict[str, Any]] = None,
+    metadata: Optional[Dict[str, Any]] = None,
+    output_dir: Optional[str] = None
+) -> Dict[str, str]:
+    """
+    Run the full report generation pipeline.
+    
+    Args:
+        regression_results: Pre-loaded regression results (optional).
+        vif_check: Pre-loaded VIF check (optional).
+        metadata: Study metadata for causality check.
+        output_dir: Directory to write reports (defaults to config).
+    
+    Returns:
+        dict: Paths to generated reports.
+    """
+    if regression_results is None:
+        regression_results = load_regression_results()
+    
+    if vif_check is None:
+        vif_check = load_vif_check()
+    
+    if output_dir is None:
+        output_dir = get_path("reports")
+    
+    json_path = os.path.join(output_dir, "regression_results.json")
+    md_path = os.path.join(output_dir, "regression_results.md")
+    
+    # Generate JSON report
+    generate_json_report(regression_results, vif_check, metadata, json_path)
+    
+    # Generate Markdown report
+    generate_markdown_report(regression_results, vif_check, metadata, md_path)
+    
+    return {
+        "json_report": json_path,
+        "md_report": md_path
+    }
