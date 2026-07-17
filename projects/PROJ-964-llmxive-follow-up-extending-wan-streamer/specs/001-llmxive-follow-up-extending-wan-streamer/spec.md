@@ -45,7 +45,7 @@ The research system MUST simulate a hybrid inference pipeline where the trained 
 
 **Why this priority**: This validates the practical utility of the research by demonstrating that the theoretical "low-information manifold" can be exploited to reduce latency without unacceptable quality loss.
 
-**Independent Test**: Can be fully tested by running the simulation script on a test set of video segments, measuring inference time per frame and computing FID/MOS, and confirming that the hybrid approach reduces latency by a statistically significant margin while maintaining quality within the 5% degradation threshold. **The test MUST include a randomized subset of frames forced to be skipped (regardless of prediction) to validate the causal effect of the skip action, distinguishing 'easy to skip' from 'easy to generate'. Propensity-score matching (FR-005) is used only for observational baseline validation, not for the primary causal conclusion.**
+**Independent Test**: Can be fully tested by running the simulation script on a test set of video segments, measuring inference time per frame and computing FID/MOS, and confirming that the hybrid approach reduces latency by a statistically significant margin while maintaining quality within a predefined degradation threshold. **The test MUST include a randomized subset of frames forced to be skipped (regardless of prediction) to validate the causal effect of the skip action, distinguishing 'easy to skip' from 'easy to generate'. Propensity-score matching (FR-005) is used only for observational baseline validation, not for the primary causal conclusion.**
 
 **Acceptance Scenarios**:
 

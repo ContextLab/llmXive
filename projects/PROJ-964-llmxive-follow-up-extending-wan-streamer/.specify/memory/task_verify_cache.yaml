@@ -1,0 +1,46 @@
+T008:
+  c: false
+  h: d2d7746c6b099115ef7ed361732e3dbccc675546303cf9253de1ee40c66caadb
+  r: The provided `code/utils/update_state_yaml.py` file is present but only a partial
+    implementation is shown (truncated) and there is no `state.yaml` file in the repository.
+    Without the full script logic and an actual state.yaml to update, the requirement
+    of updating the project's state file with artifact hashes is not demonstrably
+    satisfied. The missing state.yaml and incomplete script need to be provided/fixed.
+T009:
+  c: false
+  h: 6d19a92f6c34521acde68b3bd6fd7accf88c9321211b01b0b81e89fa031c022c
+  r: "The provided `validate_logs.py` is only partially shown and does not contain\
+    \ the logic that computes a checksum and writes it to `state.yaml`, nor does it\
+    \ modify any configuration file. Moreover, the required `state.yaml` file is absent\
+    \ from the repository, so the script cannot register the checksum as specified.\
+    \ The task\u2019s core requirements are therefore unmet."
+T012:
+  c: false
+  h: 135e986abe021a2b5f7f265d9ee302b4b057cdb94806165b777954e6bb649b28
+  r: "The required integration test file `tests/integration/test_data_extraction.py`\
+    \ does not exist in the repository, so the artifact is missing and the task\u2019\
+    s deliverable is not provided."
+T013:
+  c: false
+  h: fc5aef25093c11e1882c90a20e9766d5ad0a694adda3af02461909d95f7ffdd7
+  r: "The required script `code/data/extract_latents.py` does not exist, so no parsing,\
+    \ latent extraction, or event\u2011detection logic is provided. Consequently the\
+    \ configurable thresholds and detection algorithm referenced in the task are absent.\
+    \ The implementer must add the missing `extract_latents.py` file with the specified\
+    \ functionality."
+T018:
+  c: false
+  h: b9e5ece5b5341679410f77826311d4173611584cc03fb5d8054e3f7d3f9cd873
+  r: "The repository contains `code/models/gru_estimator.py`, but the file is truncated\
+    \ (the `forward` method is incomplete) so we cannot confirm it returns a `[batch,\u202F\
+    2]` tensor with the required columns. Moreover, the required checkpoint file `data/models/estimator_checkpoint.pt`\
+    \ is absent. Both the model output specification and the saved checkpoint are\
+    \ missing, so the task is not fully satisfied."
+T021#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No extraction script, dataset file, training script, or model checkpoint was
+    supplied; the claim contains only a textual description of the intended work,
+    with no concrete artifacts to verify that an `UncertaintyScore` is computed or
+    that the required logic is implemented. The required code and output files are
+    missing.

@@ -1,0 +1,12 @@
+{
+  "zero_delta_mse": 0.0,
+  "model_mse": null,
+  "improvement": null,
+  "statistical_test": {
+    "t_statistic": null,
+    "p_value": null,
+    "significant_at_0.05": null
+  },
+  "note": "Correlation with FID stability (r >= 0.7) is deferred to T042.",
+  "status": "placeholder_pending_real_data"
+}
