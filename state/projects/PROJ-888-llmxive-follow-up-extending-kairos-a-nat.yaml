@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T18:05:02.170277Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-888-llmxive-follow-up-extending-kairos-a-nat
-last_run_id: 485e74fe-08bb-4728-b749-10073d288d74
+last_run_id: 5391c8b6-d18c-4868-b882-7e9dfb60e0e8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat
 title: 'llmXive follow-up: extending "Kairos: A Native World Model Stack for Physical
   AI"'
-updated_at: '2026-07-15T12:36:01.033580Z'
+updated_at: '2026-07-18T16:24:36.277749Z'

@@ -1,92 +1,67 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Sensitivity Report
-description: Schema for sensitivity analysis results across confidence thresholds.
+description: Schema for sensitivity analysis report across different confidence thresholds.
 type: object
 required:
   - organism
-  - thresholds_analyzed
-  - results_by_threshold
-  - stability_analysis
-  - pass_fail_status
+  - centrality_metric
+  - threshold_results
+  - stability_flag
+  - max_delta_rho
 properties:
   organism:
     type: string
-  thresholds_analyzed:
+    description: Organism identifier.
+  centrality_metric:
+    type: string
+    enum:
+      - degree
+      - betweenness
+      - eigenvector
+    description: Centrality metric analyzed.
+  threshold_results:
     type: array
     items:
-      type: integer
-    description: List of confidence thresholds tested
-  results_by_threshold:
-    type: object
-    description: Results keyed by threshold value (e.g., "threshold_500")
-    additionalProperties:
       type: object
       required:
-        - network_stats
-        - correlations
+        - threshold
+        - spearman_rho
+        - p_value
+        - sample_size
       properties:
-        network_stats:
-          type: object
-          properties:
-            nodes:
-              type: integer
-            edges:
-              type: integer
-            density:
-              type: number
-        correlations:
-          type: object
-          additionalProperties:
-            type: object
-            properties:
-              spearman_rho:
-                type: number
-              spearman_pvalue:
-                type: number
-  stability_analysis:
-    type: object
-    required:
-      - max_delta_rho
-      - threshold_pairs
-    properties:
-      max_delta_rho:
-        type: number
-        description: Maximum absolute difference in correlation coefficients across thresholds
-      threshold_pairs:
-        type: array
-        items:
-          type: object
-          properties:
-            pair:
-              type: array
-              items:
-                type: integer
-              minItems: 2
-              maxItems: 2
-            delta_rho:
-              type: number
-            passed:
-              type: boolean
-  pass_fail_status:
-    type: object
-    required:
-      - sc_002_pass
-      - summary
-    properties:
-      sc_002_pass:
-        type: boolean
-        description: True if max delta rho <= 0.1
-      summary:
-        type: string
-        description: Human-readable summary of stability
+        threshold:
+          type: integer
+          description: STRING confidence threshold.
+        spearman_rho:
+          type: number
+          description: Correlation coefficient at this threshold.
+        p_value:
+          type: number
+          description: P-value at this threshold.
+        sample_size:
+          type: integer
+          description: Number of genes analyzed.
+        delta_rho:
+          type: number
+          nullable: true
+          description: Difference in rho compared to the previous threshold.
+  stability_flag:
+    type: boolean
+    description: True if max |Δρ| ≤ 0.1 (SC-002 pass), False otherwise.
+  max_delta_rho:
+    type: number
+    description: Maximum absolute difference in correlation coefficients across thresholds.
+  summary:
+    type: string
+    description: Human-readable summary of stability.
   metadata:
     type: object
-    required:
-      - timestamp
     properties:
       timestamp:
         type: string
         format: date-time
-      pipeline_version:
-        type: string
-        nullable: true
+      thresholds_tested:
+        type: array
+        items:
+          type: integer
+additionalProperties: false

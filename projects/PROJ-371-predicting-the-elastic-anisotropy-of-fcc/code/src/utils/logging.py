@@ -1,3 +1,10 @@
+"""
+Structured logging and error tracking utilities for the elastic anisotropy pipeline.
+
+This module provides a consistent logging interface with JSON formatting for
+machine-readable logs and standard logging for human-readable output.
+"""
+
 import logging
 import json
 import sys
@@ -5,13 +12,12 @@ from datetime import datetime
 from typing import Optional, Any, Dict
 import traceback
 
-from .config import get_path
-
 
 class JsonFormatter(logging.Formatter):
-    """Custom JSON formatter for structured logging."""
+    """Custom formatter that outputs log records as JSON."""
 
     def format(self, record: logging.LogRecord) -> str:
+        """Format a log record as a JSON string."""
         log_data: Dict[str, Any] = {
             "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
@@ -19,6 +25,15 @@ class JsonFormatter(logging.Formatter):
             "message": record.getMessage(),
         }
 
+        # Add location info if available
+        if hasattr(record, "filename"):
+            log_data["location"] = {
+                "file": record.filename,
+                "line": record.lineno,
+                "function": record.funcName,
+            }
+
+        # Add exception info if present
         if record.exc_info:
             log_data["exception"] = {
                 "type": record.exc_info[0].__name__ if record.exc_info[0] else None,
@@ -26,8 +41,18 @@ class JsonFormatter(logging.Formatter):
                 "traceback": traceback.format_exception(*record.exc_info),
             }
 
-        if hasattr(record, "extra_data"):
-            log_data["data"] = record.extra_data
+        # Add extra fields if present
+        if hasattr(record, "__dict__"):
+            extra_fields = {
+                k: v for k, v in record.__dict__.items()
+                if k not in {"msg", "args", "levelname", "levelno", "pathname",
+                             "filename", "module", "lineno", "funcName",
+                             "created", "msecs", "relativeCreated", "thread",
+                             "threadName", "processName", "process", "exc_info",
+                             "exc_text", "stack_info", "message", "name", "pathname"}
+            }
+            if extra_fields:
+                log_data["extra"] = extra_fields
 
         return json.dumps(log_data)
 
@@ -35,136 +60,137 @@ class JsonFormatter(logging.Formatter):
 def setup_logger(
     name: str = "elastic_anisotropy",
     level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    console: bool = True,
+    json_output: bool = False,
+    log_file: Optional[str] = None
 ) -> logging.Logger:
     """
-    Configure and return a logger with optional JSON file handler and console handler.
+    Set up a logger with consistent formatting and handlers.
 
     Args:
-        name: Logger name.
-        level: Logging level (e.g., logging.INFO).
-        log_file: Optional path to log file. If provided, logs are saved as JSON lines.
-        console: Whether to log to console.
+        name: Logger name (usually module name)
+        level: Logging level (e.g., logging.DEBUG, logging.INFO)
+        json_output: If True, use JSON formatter; otherwise use standard format
+        log_file: Optional path to write logs to a file
 
     Returns:
-        Configured logger instance.
+        Configured logger instance
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    logger.handlers = []  # Clear existing handlers
 
-    if console:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        console_formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    # Avoid adding duplicate handlers if logger already configured
+    if logger.handlers:
+        return logger
+
+    # Clear any existing handlers from parent loggers to prevent duplication
+    logger.propagate = False
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+
+    if json_output:
+        console_handler.setFormatter(JsonFormatter())
+    else:
+        # Standard format for human readability
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
         )
-        console_handler.setFormatter(console_formatter)
-        logger.addHandler(console_handler)
+        console_handler.setFormatter(formatter)
 
+    logger.addHandler(console_handler)
+
+    # File handler if specified
     if log_file:
-        log_path = get_path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_path)
+        file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(level)
-        file_handler.setFormatter(JsonFormatter())
+        if json_output:
+            file_handler.setFormatter(JsonFormatter())
+        else:
+            formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S"
+            )
+            file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
     return logger
 
 
-def get_logger(name: str = "elastic_anisotropy") -> logging.Logger:
+# Global logger instance (lazy initialization)
+_logger: Optional[logging.Logger] = None
+
+
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Retrieve an existing logger or create a new one with default settings.
+    Get or create a logger instance.
 
     Args:
-        name: Logger name.
+        name: Optional logger name. If None, returns the default logger.
 
     Returns:
-        Logger instance.
+        Logger instance
     """
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        # Default to console logging if not configured
-        setup_logger(name, console=True)
-    return logger
+    global _logger
+
+    if name is None:
+        if _logger is None:
+            _logger = setup_logger()
+        return _logger
+
+    return setup_logger(name)
 
 
-def log_error(
-    message: str,
-    logger_name: str = "elastic_anisotropy",
-    exc_info: bool = True,
-    extra_data: Optional[Dict[str, Any]] = None,
-) -> None:
-    """Log an error message."""
+def log_info(message: str, logger_name: Optional[str] = None, **kwargs: Any) -> None:
+    """Log an informational message."""
     logger = get_logger(logger_name)
-    record = logger.makeRecord(
-        logger.name, logging.ERROR, "", 0, message, (), None
-    )
-    if extra_data:
-        record.extra_data = extra_data
-    logger.handle(record)
-    if exc_info:
-        logger.exception(message)
+    logger.info(message, extra=kwargs)
 
 
-def log_warning(
-    message: str,
-    logger_name: str = "elastic_anisotropy",
-    extra_data: Optional[Dict[str, Any]] = None,
-) -> None:
+def log_warning(message: str, logger_name: Optional[str] = None, **kwargs: Any) -> None:
     """Log a warning message."""
     logger = get_logger(logger_name)
-    record = logger.makeRecord(
-        logger.name, logging.WARNING, "", 0, message, (), None
-    )
-    if extra_data:
-        record.extra_data = extra_data
-    logger.handle(record)
+    logger.warning(message, extra=kwargs)
 
 
-def log_info(
-    message: str,
-    logger_name: str = "elastic_anisotropy",
-    extra_data: Optional[Dict[str, Any]] = None,
-) -> None:
-    """Log an info message."""
+def log_error(message: str, logger_name: Optional[str] = None, **kwargs: Any) -> None:
+    """Log an error message."""
     logger = get_logger(logger_name)
-    record = logger.makeRecord(
-        logger.name, logging.INFO, "", 0, message, (), None
-    )
-    if extra_data:
-        record.extra_data = extra_data
-    logger.handle(record)
+    logger.error(message, extra=kwargs)
 
 
-def log_debug(
-    message: str,
-    logger_name: str = "elastic_anisotropy",
-    extra_data: Optional[Dict[str, Any]] = None,
-) -> None:
+def log_debug(message: str, logger_name: Optional[str] = None, **kwargs: Any) -> None:
     """Log a debug message."""
     logger = get_logger(logger_name)
-    record = logger.makeRecord(
-        logger.name, logging.DEBUG, "", 0, message, (), None
-    )
-    if extra_data:
-        record.extra_data = extra_data
-    logger.handle(record)
+    logger.debug(message, extra=kwargs)
 
 
-def log_success(
-    message: str,
-    logger_name: str = "elastic_anisotropy",
-    extra_data: Optional[Dict[str, Any]] = None,
-) -> None:
-    """Log a success message (custom level or INFO)."""
+def log_success(message: str, logger_name: Optional[str] = None, **kwargs: Any) -> None:
+    """Log a success message (using INFO level with custom formatting)."""
     logger = get_logger(logger_name)
-    # Map success to INFO level for standard compliance, or use a custom level if needed
-    record = logger.makeRecord(
-        logger.name, logging.INFO, "", 0, f"[SUCCESS] {message}", (), None
+    # Use a custom level or just info with context
+    logger.info(f"SUCCESS: {message}", extra=kwargs)
+
+
+# Convenience function to configure logging for the entire pipeline
+def configure_pipeline_logging(
+    log_file: Optional[str] = None,
+    json_format: bool = False,
+    level: int = logging.INFO
+) -> None:
+    """
+    Configure logging for the entire pipeline.
+
+    Args:
+        log_file: Optional path to write logs to a file
+        json_format: If True, use JSON formatting
+        level: Logging level for the pipeline
+    """
+    global _logger
+    _logger = setup_logger(
+        name="elastic_anisotropy_pipeline",
+        level=level,
+        json_output=json_format,
+        log_file=log_file
     )
-    if extra_data:
-        record.extra_data = extra_data
-    logger.handle(record)

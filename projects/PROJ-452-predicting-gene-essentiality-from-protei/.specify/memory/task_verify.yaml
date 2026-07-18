@@ -1,8 +1,7 @@
-T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `tests/`): 1
-? 'T002 Initialize Python 3.11 project with dependencies: `networkx`, `pandas`, `scipy`,
-  `statsmodels`, `requests`, `pyyaml`, `numpy`, `biopython`, `dendropy`'
-: 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 1
-T004 Create `code/config.py` to load organism IDs, confidence thresholds, and paths from YAML: 1
-T005 [P] Implement `code/utils.py` with logging setup, checksumming (SHA256), and exponential backoff helpers: 1
-T006 [P] Create `code/hash_checker.py` to compute hashes for `data/` and `results/` and update `state/` YAML: 1
+T001: 1
+T002: 1
+T003: 1
+T007: 1
+T009: 1
+T017: 1
+T020: 1

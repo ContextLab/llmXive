@@ -1,210 +1,139 @@
 """
-Configuration management for the llmXive gene essentiality pipeline.
+Configuration loader for the llmXive pipeline.
 
-Loads organism IDs, confidence thresholds, and file paths from a YAML
-configuration file (default: config.yaml in the project root).
+Loads organism IDs, confidence thresholds, and paths from a YAML configuration file.
 """
-
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
 import yaml
 
-
-# Default configuration file path relative to project root
-DEFAULT_CONFIG_PATH = "config.yaml"
-
-# Default values if config is missing or keys are absent
-DEFAULT_ORGANISMS = [
-    "6239",  # C. elegans
-    "7227",  # D. melanogaster
-    "8355",  # X. tropicalis
-    "9606",  # H. sapiens
-    "10090", # M. musculus
-    "44689", # D. rerio
-    "7955",  # Z. zebrafish (alternative ID)
-    "548687",# S. pombe
-    "4932",  # S. cerevisiae
-]
-
-DEFAULT_CONFIDENCE_THRESHOLDS = [500, 700, 900]
-
-DEFAULT_PATHS = {
-    "data_dir": "data",
-    "results_dir": "results",
-    "figures_dir": "figures",
-    "state_dir": "state",
-    "raw_data_dir": "data/raw",
-    "phylogeny_dir": "data/phylogeny",
-    "null_distribution_dir": "results/null_distribution",
-    "rewired_graphs_dir": "results/null_distribution/rewired_graphs",
-    "config_path": DEFAULT_CONFIG_PATH,
-}
-
-
 class ConfigError(Exception):
-    """Raised when configuration loading or validation fails."""
+    """Custom exception for configuration errors."""
     pass
-
 
 def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
     Load configuration from a YAML file.
-
+    
     Args:
-        config_path: Path to the YAML config file. Defaults to DEFAULT_CONFIG_PATH.
-
+        config_path: Optional path to the config file. Defaults to 'config.yaml' in project root.
+        
     Returns:
-        Dictionary containing the merged configuration (defaults + file overrides).
-
+        Dictionary containing the configuration.
+        
     Raises:
-        ConfigError: If the config file cannot be read or parsed, or if required
-                     sections are missing.
+        ConfigError: If the file cannot be read or parsed.
     """
     if config_path is None:
-        config_path = DEFAULT_CONFIG_PATH
-
-    config_path = Path(config_path)
-
-    # Start with defaults
-    config: Dict[str, Any] = {
-        "organisms": DEFAULT_ORGANISMS.copy(),
-        "confidence_thresholds": DEFAULT_CONFIDENCE_THRESHOLDS.copy(),
-        "paths": DEFAULT_PATHS.copy(),
-    }
-
-    if not config_path.exists():
-        # If config file doesn't exist, return defaults but log a warning
-        # In a real pipeline, we might want to generate a default config file
-        # For now, we just use defaults
-        return config
-
+        config_path = "config.yaml"
+    
+    path = Path(config_path)
+    
+    if not path.exists():
+        raise ConfigError(f"Configuration file not found: {path}")
+    
     try:
-        with open(config_path, "r", encoding="utf-8") as f:
-            file_config = yaml.safe_load(f)
+        with open(path, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f) or {}
     except yaml.YAMLError as e:
-        raise ConfigError(f"Failed to parse YAML config file: {e}")
+        raise ConfigError(f"Failed to parse YAML configuration: {e}")
     except IOError as e:
-        raise ConfigError(f"Failed to read config file: {e}")
-
-    if file_config is None:
-        # Empty file, return defaults
-        return config
-
-    # Merge file config with defaults
-    if "organisms" in file_config:
-        if not isinstance(file_config["organisms"], list):
-            raise ConfigError("'organisms' must be a list")
-        config["organisms"] = file_config["organisms"]
-
-    if "confidence_thresholds" in file_config:
-        if not isinstance(file_config["confidence_thresholds"], list):
-            raise ConfigError("'confidence_thresholds' must be a list")
-        config["confidence_thresholds"] = file_config["confidence_thresholds"]
-
-    if "paths" in file_config:
-        if not isinstance(file_config["paths"], dict):
-            raise ConfigError("'paths' must be a dictionary")
-        config["paths"].update(file_config["paths"])
-
-    return config
-
+        raise ConfigError(f"Failed to read configuration file: {e}")
 
 def get_organisms(config: Optional[Dict[str, Any]] = None) -> List[str]:
     """
-    Get the list of organism IDs to process.
-
+    Get the list of target organisms from the configuration.
+    
     Args:
-        config: Optional config dict. If None, loads from default config file.
-
+        config: Optional pre-loaded config dict.
+        
     Returns:
-        List of organism IDs (as strings, typically taxonomic IDs).
+        List of organism names (e.g., ['yeast', 'human']).
+        
+    Raises:
+        ConfigError: If organisms are not defined.
     """
     if config is None:
         config = load_config()
-    return config.get("organisms", DEFAULT_ORGANISMS)
-
+    
+    organisms = config.get('organisms', [])
+    if not organisms:
+        raise ConfigError("No organisms defined in configuration.")
+    
+    return organisms
 
 def get_confidence_thresholds(config: Optional[Dict[str, Any]] = None) -> List[int]:
     """
-    Get the list of STRING confidence thresholds to use.
-
+    Get the list of confidence thresholds from the configuration.
+    
     Args:
-        config: Optional config dict. If None, loads from default config file.
-
+        config: Optional pre-loaded config dict.
+        
     Returns:
-        List of confidence thresholds (integers, typically 0-1000).
-    """
-    if config is None:
-        config = load_config()
-    return config.get("confidence_thresholds", DEFAULT_CONFIDENCE_THRESHOLDS)
-
-
-def get_path(key: str, config: Optional[Dict[str, Any]] = None) -> str:
-    """
-    Get a specific path from the configuration.
-
-    Args:
-        key: The path key (e.g., 'data_dir', 'phylogeny_dir').
-        config: Optional config dict. If None, loads from default config file.
-
-    Returns:
-        The path string for the given key.
-
+        List of integer thresholds (e.g., [500, 700, 900]).
+        
     Raises:
-        ConfigError: If the key is not found in paths.
+        ConfigError: If thresholds are not defined.
     """
     if config is None:
         config = load_config()
+    
+    thresholds = config.get('confidence_thresholds', [])
+    if not thresholds:
+        raise ConfigError("No confidence thresholds defined in configuration.")
+    
+    return [int(t) for t in thresholds]
 
-    paths = config.get("paths", {})
-    if key not in paths:
-        raise ConfigError(f"Path key '{key}' not found in configuration")
-
-    return paths[key]
-
-
-def ensure_dirs(config: Optional[Dict[str, Any]] = None) -> None:
+def get_path(key: str) -> Path:
     """
-    Ensure all directories specified in the config exist.
-
+    Resolve a path key from the configuration to an absolute Path.
+    
     Args:
-        config: Optional config dict. If None, loads from default config file.
-    """
-    if config is None:
-        config = load_config()
-
-    paths = config.get("paths", {})
-    for key, path_str in paths.items():
-        if key.endswith("_dir") or key.endswith("_path"):
-            # Only create directories, not files
-            if path_str.endswith("_path"):
-                continue
-            path = Path(path_str)
-            path.mkdir(parents=True, exist_ok=True)
-
-
-# Convenience function to get a fully resolved config with paths
-def get_full_config(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Get the full configuration with resolved paths.
-
-    Args:
-        config_path: Path to the YAML config file. Defaults to DEFAULT_CONFIG_PATH.
-
+        key: The key name in the 'paths' section (e.g., 'data', 'results').
+        
     Returns:
-        Complete configuration dictionary.
+        Absolute Path object.
+        
+    Raises:
+        ConfigError: If the path key is missing.
     """
-    config = load_config(config_path)
-    ensure_dirs(config)
-    return config
+    config = load_config()
+    paths = config.get('paths', {})
+    
+    if key not in paths:
+        # Default fallback if not explicitly defined but common keys exist
+        if key == 'data':
+            return Path('data')
+        elif key == 'results':
+            return Path('results')
+        elif key == 'state':
+            return Path('state')
+        elif key == 'code':
+            return Path('code')
+        elif key == 'tests':
+            return Path('tests')
+        else:
+            raise ConfigError(f"Path key '{key}' not found in configuration.")
+    
+    path_str = paths[key]
+    return Path(path_str)
 
+def ensure_dirs(*paths: Path) -> None:
+    """
+    Ensure that the given directories exist, creating them if necessary.
+    
+    Args:
+        *paths: Variable number of Path objects to ensure exist.
+    """
+    for p in paths:
+        p.mkdir(parents=True, exist_ok=True)
 
-if __name__ == "__main__":
-    # Simple test to verify config loading works
-    import json
-
-    cfg = get_full_config()
-    print("Loaded configuration:")
-    print(json.dumps(cfg, indent=2, default=str))
+def get_full_config() -> Dict[str, Any]:
+    """
+    Load and return the full configuration dictionary.
+    
+    Returns:
+        Full configuration dict.
+    """
+    return load_config()

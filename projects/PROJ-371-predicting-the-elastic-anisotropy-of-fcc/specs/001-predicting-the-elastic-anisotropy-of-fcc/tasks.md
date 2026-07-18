@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: `mkdir -p src/{data,models,utils,cli} tests/{unit,integration} data/{raw,processed} output` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T002 Create `pyproject.toml` with dependencies: `pandas, scikit-learn, mendeleev, requests, pyyaml, matplotlib, python-dotenv, ruff, black, pytest`
+- [X] T002 Create `pyproject.toml` with dependencies: `pandas, scikit-learn, mendeleev, requests, pyyaml, matplotlib, python-dotenv, ruff, black, pytest`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -59,8 +59,8 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T004 Create `src/utils/config.py` to manage paths (data/raw, data/processed, output), random seeds (42), and constants
 - [ ] T005 [P] Implement `src/utils/logging.py` for structured logging and error tracking
-- [ ] T006 Create `tests/unit/test_config.py` to verify configuration loading and seed reproducibility
-- [~] T007 Setup `data/raw/` and `data/processed/` directory structures with `.gitkeep`
+- [X] T006 Create `tests/unit/test_config.py` to verify configuration loading and seed reproducibility
+- [ ] T007 Setup `data/raw/` and `data/processed/` directory structures with `.gitkeep`
 - [X] T008 Create `tests/unit/test_logging.py` to verify log output formats
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -79,7 +79,7 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T009 [P] [US1] Add `tests/unit/test_features.py::test_descriptor_variance_handles_empty_input` to verify descriptor calculation handles empty input without crashing
 - [X] T010 [P] [US1] Add `tests/unit/test_ingest.py::test_ingest_handles_missing_C11` to verify the ingest script skips entries with missing C11 and logs the ID
-- [~] T011 [P] [US1] Add `tests/integration/test_pipeline.py::test_pipeline_end_to_end_static` using a static manifest `data/raw/manifest_subset.json` containing a list of known FCC material IDs (e.g., MP-123, AFLOW-456) to verify the full pipeline runs on a known subset
+- [ ] T011 [P] [US1] Add `tests/integration/test_pipeline.py::test_pipeline_end_to_end_static` using a static manifest `data/raw/manifest_subset.json` containing a list of known FCC material IDs (e.g., MP-123, AFLOW-456) to verify the full pipeline runs on a known subset
 
 ### Implementation for User Story 1
 
@@ -88,7 +88,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T014 [US1] Implement `src/data/features.py` to compute atomic radius variance, electronegativity standard deviation, and valence electron concentration using `mendeleev` or `pymatgen` (FR-002)
 - [ ] T015 [US1] Create `src/cli/run_pipeline.py` orchestration script to fetch, clean, and feature-engineer data, saving results to `data/processed/elastic_anisotropy.csv`
 - [ ] T016 [US1] Add validation in `src/cli/run_pipeline.py` to ensure output CSV has no null values in descriptor columns (US-1 Acceptance 2)
-- [~] T017 [US1] Verify pipeline execution on free-tier CI constraints (CPU only, <7GB RAM) by running with a sample subset of entries
+- [ ] T017 [US1] Verify pipeline execution on free-tier CI constraints (CPU only, <7GB RAM) by running with a sample subset of entries
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

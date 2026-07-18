@@ -1,3 +1,1 @@
-"""
-Data directory for raw, processed, and cached datasets.
-"""
+# Data directory for raw and processed datasets.

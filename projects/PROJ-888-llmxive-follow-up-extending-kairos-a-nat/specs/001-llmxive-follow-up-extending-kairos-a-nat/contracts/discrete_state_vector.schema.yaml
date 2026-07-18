@@ -8,7 +8,7 @@ properties:
     description: "Timestamp in seconds."
   bit_depth:
     type: "integer"
-    enum: [4, 8, 16]
+    enum: [4, 8, 12, 16]
     description: "Quantization bit depth."
   noise_std:
     type: "number"
@@ -18,6 +18,12 @@ properties:
     items:
       type: "integer"
     description: "List of quantized integer values representing the state."
+  is_dropped:
+    type: "boolean"
+    description: "True if the timestep was dropped due to sparsity simulation."
+  source_episode_id:
+    type: "string"
+    description: "ID of the source episode for pairing in statistical tests."
   metadata:
     type: "object"
     properties:
@@ -33,5 +39,7 @@ required:
   - bit_depth
   - noise_std
   - state_vector
+  - is_dropped
+  - source_episode_id
   - metadata
 additionalProperties: false

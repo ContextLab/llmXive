@@ -1,0 +1,41 @@
+# Configuration for llmXive Gene Essentiality Pipeline
+
+# Target organisms for analysis
+organisms:
+  - yeast
+  - human
+  - worm
+  - fly
+
+# STRING confidence score thresholds to test
+confidence_thresholds:
+  - 500
+  - 700
+  - 900
+
+# Directory paths (relative to project root)
+paths:
+  data: data
+  results: results
+  state: state
+  code: code
+  tests: tests
+  figures: figures
+
+# API settings
+api:
+  string:
+    base_url: "https://string-db.org/api"
+    timeout: 30
+  deg:
+    base_url: "https://degrn.org"
+    timeout: 30
+  opentree:
+    base_url: "https://api.opentree.org"
+    timeout: 30
+
+# Analysis parameters
+analysis:
+  centrality_sampling_threshold: 5000
+  permutation_iterations: 100
+  rewiring_iterations: 100

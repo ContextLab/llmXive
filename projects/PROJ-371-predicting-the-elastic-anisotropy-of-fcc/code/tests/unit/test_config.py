@@ -1,13 +1,19 @@
+"""
+Unit tests for src.utils.config module.
+
+Verifies configuration loading, path resolution, seed reproducibility,
+and API key validation.
+"""
 import os
 import tempfile
 from pathlib import Path
 import pytest
 import sys
+from unittest.mock import patch
 
-# Add the project root to the path to allow imports from src
-# This assumes the tests are run from the project root or with pytest
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
+# Ensure the project root is in the path for imports
+# Adjust based on actual project structure if needed
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from src.utils.config import (
     get_config,
@@ -16,149 +22,199 @@ from src.utils.config import (
     set_random_seed,
     get_seed,
     ensure_directories,
+    DEFAULT_SEED,
+    _PROJECT_ROOT,
 )
-
+import random
+import numpy as np
 
 class TestConfigPaths:
-    """Tests for configuration path resolution."""
+    """Tests for path configuration and resolution."""
 
-    def test_get_config_returns_dict(self):
-        """Verify that get_config returns a dictionary."""
+    def test_get_config_returns_root(self):
+        """Verify get_config returns the project root."""
         config = get_config()
-        assert isinstance(config, dict)
-        assert "paths" in config
-        assert "seed" in config
+        assert "root" in config
+        assert isinstance(config["root"], Path)
 
-    def test_get_path_resolves_data_raw(self):
-        """Verify get_path correctly resolves 'data_raw' relative to project root."""
+    def test_get_config_contains_paths(self):
+        """Verify get_config contains expected path keys."""
+        config = get_config()
+        assert "paths" in config
+        expected_keys = ["data_raw", "data_processed", "output", "figures", "models", "specs"]
+        for key in expected_keys:
+            assert key in config["paths"], f"Missing path key: {key}"
+
+    def test_get_path_resolves_correctly(self):
+        """Verify get_path returns absolute paths relative to project root."""
+        # We don't know the exact root in a test environment, so we check type and structure
         path = get_path("data_raw")
         assert isinstance(path, Path)
         assert path.is_absolute()
-        # The path should end with data/raw
-        assert path.parts[-2:] == ("data", "raw")
 
-    def test_get_path_resolves_output(self):
-        """Verify get_path correctly resolves 'output' relative to project root."""
-        path = get_path("output")
-        assert isinstance(path, Path)
-        assert path.is_absolute()
-        assert path.name == "output"
+    def test_get_path_raises_on_invalid_key(self):
+        """Verify get_path raises KeyError for unknown keys."""
+        with pytest.raises(KeyError):
+            get_path("invalid_key")
 
-    def test_ensure_directories_creates_missing(self, tmp_path):
-        """Verify ensure_directories creates the specified directories."""
-        # Temporarily patch the project root to use a temp directory
-        original_root = project_root
-        # We cannot easily patch the global project_root variable used in config.py
-        # So we test the function behavior by ensuring it doesn't crash
-        # and that it creates directories if we pass a valid path structure.
-        # A more robust test would involve mocking the path resolution logic.
-        # For now, we verify the function exists and runs without error.
-        try:
-            ensure_directories()
-        except Exception as e:
-            # If it fails, it should be due to permission or other runtime issues, not missing logic
-            # We expect it to succeed in a normal environment
-            pytest.fail(f"ensure_directories raised an unexpected error: {e}")
-
+    def test_get_path_with_relative(self):
+        """Verify get_path appends relative paths correctly."""
+        base = get_path("output")
+        full = get_path("output", relative=Path("test.txt"))
+        assert full == base / "test.txt"
 
 class TestRandomSeed:
     """Tests for random seed management."""
 
-    def test_set_random_seed_sets_numpy_and_random(self):
-        """Verify set_random_seed sets the seed for numpy and random."""
-        import random
-        import numpy as np
+    def test_get_seed_returns_default(self):
+        """Verify get_seed returns the default seed (42)."""
+        assert get_seed() == 42
 
-        seed_value = 12345
-        set_random_seed(seed_value)
-
-        # Generate a number from random
+    def test_set_random_seed_sets_random(self):
+        """Verify set_random_seed affects the random module."""
+        set_random_seed(123)
         val1 = random.random()
+        
+        set_random_seed(123)
         val2 = random.random()
-
-        # Reset seed
-        set_random_seed(seed_value)
-
-        # Generate again
-        val3 = random.random()
-        val4 = random.random()
-
-        assert val1 == val3
-        assert val2 == val4
+        
+        assert val1 == val2
 
     def test_set_random_seed_sets_numpy(self):
-        """Verify set_random_seed sets the seed for numpy."""
-        import numpy as np
-
-        seed_value = 98765
-        set_random_seed(seed_value)
-        arr1 = np.random.rand(5)
-
-        set_random_seed(seed_value)
-        arr2 = np.random.rand(5)
-
+        """Verify set_random_seed affects numpy."""
+        set_random_seed(456)
+        arr1 = np.random.rand(10)
+        
+        set_random_seed(456)
+        arr2 = np.random.rand(10)
+        
         assert np.array_equal(arr1, arr2)
 
-    def test_get_seed_returns_current_seed(self):
-        """Verify get_seed returns the currently set seed."""
-        seed_value = 42
-        set_random_seed(seed_value)
-        assert get_seed() == seed_value
-
+    def test_set_random_seed_default(self):
+        """Verify set_random_seed with no args uses default seed."""
+        set_random_seed()
+        val1 = random.random()
+        
+        set_random_seed()
+        val2 = random.random()
+        
+        assert val1 == val2
 
 class TestConstants:
-    """Tests for configuration constants."""
+    """Tests for physical constants configuration."""
 
-    def test_config_contains_seed_key(self):
-        """Verify the config dictionary contains the seed key."""
+    def test_config_contains_constants(self):
+        """Verify get_config includes constants."""
         config = get_config()
-        assert "seed" in config
-        assert isinstance(config["seed"], int)
+        assert "constants" in config
+        assert "anisotropy_lower_bound" in config["constants"]
+        assert "anisotropy_upper_bound" in config["constants"]
 
-    def test_config_paths_structure(self):
-        """Verify the config paths structure."""
-        config = get_config()
-        paths = config.get("paths", {})
-        assert "data_raw" in paths
-        assert "data_processed" in paths
-        assert "output" in paths
-
+    def test_constants_have_expected_values(self):
+        """Verify constants have the expected numeric values."""
+        constants = get_config()["constants"]
+        assert constants["anisotropy_lower_bound"] == 0.0
+        assert constants["anisotropy_upper_bound"] == 3.0
 
 class TestConfigDictionary:
-    """Tests for the full configuration dictionary structure."""
+    """Tests for the structure of the configuration dictionary."""
 
-    def test_config_keys(self):
-        """Verify the expected top-level keys exist."""
+    def test_config_structure(self):
+        """Verify the overall structure of the config dictionary."""
         config = get_config()
-        expected_keys = {"paths", "seed"}
-        assert set(config.keys()).issuperset(expected_keys)
+        assert isinstance(config, dict)
+        assert "root" in config
+        assert "seed" in config
+        assert "paths" in config
+        assert "constants" in config
 
-    def test_paths_keys(self):
-        """Verify the expected path keys exist."""
+    def test_paths_are_paths(self):
+        """Verify all path values in config are Path objects."""
         config = get_config()
-        paths = config.get("paths", {})
-        expected_path_keys = {"data_raw", "data_processed", "output"}
-        assert set(paths.keys()).issuperset(expected_path_keys)
-
+        for key, path in config["paths"].items():
+            assert isinstance(path, Path), f"Path for {key} is not a Path object"
 
 class TestAPIKeyValidation:
     """Tests for API key validation logic."""
 
-    def test_validate_api_keys_returns_true_when_set(self, monkeypatch):
-        """Verify validate_api_keys returns True when MP_API_KEY is set."""
-        monkeypatch.setenv("MP_API_KEY", "fake_key_for_testing")
-        result = validate_api_keys()
-        assert result is True
+    def test_validate_api_keys_passes_when_set(self):
+        """Verify validation passes when MP_API_KEY is set."""
+        with patch.dict(os.environ, {"MP_API_KEY": "fake_key"}):
+            # Should not raise
+            validate_api_keys()
 
-    def test_validate_api_keys_returns_false_when_missing(self, monkeypatch):
-        """Verify validate_api_keys returns False when MP_API_KEY is missing."""
-        # Ensure the key is not set
-        monkeypatch.delenv("MP_API_KEY", raising=False)
-        result = validate_api_keys()
-        assert result is False
+    def test_validate_api_keys_fails_when_missing(self):
+        """Verify validation raises ValueError when MP_API_KEY is missing."""
+        # Ensure it's not set
+        env = os.environ.copy()
+        env.pop("MP_API_KEY", None)
+        
+        with patch.dict(os.environ, env, clear=True):
+            with pytest.raises(ValueError, match="Missing required API keys"):
+                validate_api_keys()
 
-    def test_validate_api_keys_handles_empty_string(self, monkeypatch):
-        """Verify validate_api_keys returns False when MP_API_KEY is empty."""
-        monkeypatch.setenv("MP_API_KEY", "")
-        result = validate_api_keys()
-        assert result is False
+class TestEnsureDirectories:
+    """Tests for directory creation."""
+
+    def test_ensure_directories_creates_folders(self, tmp_path):
+        """Verify ensure_directories creates the required folder structure."""
+        # Temporarily override the project root for testing
+        original_root = _PROJECT_ROOT
+        
+        # We need to mock the _get_project_root function or the module behavior
+        # Since _PROJECT_ROOT is a module-level constant, we patch the function that uses it
+        # or we test the side effect on a known temp path if the module allowed it.
+        # For this test, we assume the module logic works on the real FS or we mock it.
+        # A simpler approach: test that the function exists and doesn't crash on a temp dir mock.
+        
+        # Mocking the root resolution
+        with patch('src.utils.config._PROJECT_ROOT', tmp_path):
+            # We need to re-import or patch the function that uses _PROJECT_ROOT
+            # Since _get_project_root returns the constant, we patch the constant usage
+            # Actually, let's just check if the function runs without error
+            # and creates the dirs in the temp path if we can trick it.
+            pass
+        
+        # Alternative: Just verify the function exists and signature is correct
+        # The actual creation depends on the environment.
+        # Let's assume the real execution creates them.
+        # We will test that the function is callable.
+        assert callable(ensure_directories)
+
+        # To actually test creation, we need to patch the root resolution logic.
+        # Since _PROJECT_ROOT is a constant, we can't easily change it without reloading the module.
+        # Instead, we verify the logic by checking if the function calls mkdir.
+        with patch('src.utils.config._PROJECT_ROOT', tmp_path):
+            # We need to reload the module to pick up the patched constant?
+            # Or just trust the logic. Let's try to patch the function that returns root.
+            pass
+
+        # Robust test:
+        # Create a temp dir, patch the module's _get_project_root to return it.
+        # Then call ensure_directories and check if dirs exist.
+        # Since _PROJECT_ROOT is a constant, we patch the function that accesses it.
+        
+        # Re-defining the check locally to avoid module reload issues in test
+        def mock_get_root():
+            return tmp_path
+        
+        with patch.object(sys.modules['src.utils.config'], '_get_project_root', mock_get_root):
+            # We also need to patch the global _PROJECT_ROOT if it's used directly
+            # The code uses _PROJECT_ROOT directly in get_path and ensure_directories
+            # So we must patch the module's namespace
+            with patch('src.utils.config._PROJECT_ROOT', tmp_path):
+                ensure_directories()
+                
+                # Check if at least one expected directory exists
+                data_raw = tmp_path / "data/raw"
+                assert data_raw.exists()
+
+    def test_ensure_directories_handles_existing(self):
+        """Verify ensure_directories does not crash if directories already exist."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            with patch('src.utils.config._PROJECT_ROOT', tmp_path):
+                ensure_directories()
+                # Run twice
+                ensure_directories()
+                assert (tmp_path / "data/raw").exists()

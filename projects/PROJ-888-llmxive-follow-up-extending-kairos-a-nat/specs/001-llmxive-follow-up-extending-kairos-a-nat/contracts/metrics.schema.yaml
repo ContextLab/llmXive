@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ErrorMetric"
+description: "Schema for error metrics and statistical results."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the independent run."
+  bit_depth:
+    type: "integer"
+    enum: [4, 8, 12, 16]
+    description: "Quantization level used."
+  horizon:
+    type: "integer"
+    enum: [100, 250, 500]
+    description: "Prediction horizon in steps."
+  mse:
+    type: "number"
+    description: "Mean Squared Error."
+  cumulative_error_rate:
+    type: "number"
+    description: "MSE growth per time step."
+  noise_std:
+    type: "number"
+    description: "Noise level used."
+  ram_peak_mb:
+    type: "number"
+    description: "Peak RAM usage in MB."
+  latency_per_step_ms:
+    type: "number"
+    description: "Inference latency per step in milliseconds."
+  entropy_score:
+    type: "number"
+    description: "Entropy of the quantized distribution."
+  is_untrained:
+    type: "boolean"
+    description: "True if model was trained from scratch."
+required:
+  - "run_id"
+  - "bit_depth"
+  - "horizon"
+  - "mse"
+  - "cumulative_error_rate"
+  - "noise_std"
+  - "ram_peak_mb"
+  - "latency_per_step_ms"
+  - "entropy_score"
+  - "is_untrained"

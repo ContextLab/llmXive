@@ -4,90 +4,93 @@
 
 How does the minimum information density required for stable long-horizon forecasting in embodied agents scale as input modality shifts from continuous visual streams to sparse, discrete sensor streams, and what architectural properties are necessary to preserve error bounds under these constraints?
 
+## Background & Hypothesis
+
+### Background
+The Kairos architecture utilizes a Hybrid Linear Temporal Attention mechanism designed for physical AI. While effective with continuous visual streams, its performance under sparse, discrete sensor inputs (simulating low-bandwidth edge devices) is unknown. The hypothesis is that there exists a non-linear "tipping point" in information density (bit-depth) below which the cumulative error growth rate explodes, rendering long-horizon forecasting unstable.
+
+### Hypothesis
+1. **H1**: There exists a critical quantization threshold (likely between 4-bit and 8-bit) where the Mean Squared Error (MSE) growth rate increases non-linearly.
+2. **H2**: The Hybrid Linear Temporal Attention mechanism will maintain stability at 8-bit and 16-bit but degrade significantly at 4-bit compared to the continuous baseline.
+3. **H3**: Statistical validation (paired t-test) will show a significant difference (p < 0.05) in error accumulation between the discrete (4-bit) and continuous modalities.
+
 ## Dataset Strategy
 
-The primary dataset for this study is the **LIBERO** benchmark, which provides continuous RGB frames and proprioceptive states for embodied agents. The study will not use the raw visual streams for the discrete modality analysis but will use the underlying state vectors (object positions, velocities, etc.) to generate the quantized inputs.
+The study relies on the **LIBERO** benchmark dataset, which contains continuous RGB frames and proprioceptive states for embodied agents. Since no verified "JSON-serialized" dataset exists, the research pipeline must construct the discrete dataset from the raw HDF5 source.
 
-| Dataset Component | Source URL (Verified) | Usage in Plan |
+### Verified Datasets
+The following sources are verified for programmatic access and used exclusively:
+
+| Dataset | Source URL | Usage |
 |:--- |:--- |:--- |
-| **LIBERO State Data** | ` (Note: Actual format is HDF5) | Primary source for continuous proprioceptive states and object positions. Will be parsed using `h5py` or `lerobot` library to extract state vectors for quantization. |
-| **LIBERO Episode Data** | ` (Note: Actual format is HDF5) | Used to verify episode structure and temporal consistency of state sequences. |
-| **Baseline Visual Data** | *Same as above* | The continuous visual modality baseline will be derived from the same dataset by *not* applying quantization, ensuring architectural consistency. |
+| **LIBERO (HDF5)** | ` | Primary source for raw proprioceptive states and object positions. |
+| **LIBERO (Parquet)** | ` | Alternative/Supplementary source for state vectors if HDF5 parsing fails. |
 
-**Note**: No verified source was found for pre-existing "JSON-serialized" discrete datasets. Therefore, the `data/quantize.py` script will generate the discrete JSON vectors from the verified LIBERO sources, ensuring data hygiene (Principle III) and reproducibility (Principle I). The plan explicitly handles the HDF5 format of the source data.
+**Note**: No verified source exists for "JSON-serialized" or "CPU-only" datasets. The plan *must* generate the discrete JSON data from the raw LIBERO HDF5/Parquet sources using `code/quantize.py`. The hallucinated 'yuanty/LIBERO-fastwam' URL has been removed.
 
-**Dataset Variable Fit**:
-- **Required Variables**: Object positions (x, y, z), velocities (vx, vy, vz), binary collision flags, gripper state.
-- **Source Fit**: The LIBERO HDF5 files contain `states` arrays with proprioceptive data (e.g., `robot0_eef_pos`, `robot0_eef_quat`, `robot0_gripper_qpos`).
-- **Gap Analysis**: The spec requires "RGB frames" for the continuous baseline, but the *discrete* analysis relies on the *state vectors*. The plan explicitly extracts state vectors from the HDF5 files. If the HDF5 files lack specific velocity fields (e.g., only position is stored), the plan will compute finite differences from position data. **Warning**: Finite differences amplify noise; this will be explicitly logged and the resulting error growth rate will be interpreted with caution.
+### Data Processing Plan
+1. **Download**: Fetch raw HDF5/Parquet files from verified URLs.
+2. **Schema Verification**: Programmatically compare the `state_vector` schema of HDF5 and Parquet sources. If they differ, abort with an error to prevent silent data corruption.
+3. **Parse**: Extract proprioceptive states (positions, velocities) and collision flags.
+4. **Sparsity Simulation**: Apply **temporal subsampling** (stride=2) and **random dropout** (20% rate) to simulate low-bandwidth transmission.
+5. **Quantize**: Map continuous floats to discrete integers based on bit-depth (4-bit: 0-15, 8-bit: 0-255, 12-bit: 0-4095, 16-bit: 0-65535).
+6. **Noise Injection**: Add Gaussian noise with a standard deviation within a low-to-moderate range to simulate sensor instability.
+7. **Serialize**: Output as JSON-serialized state vectors to `data/processed/`.
+8. **Ground Truth**: For evaluation, use the **clean** (noise-free) quantized state as the target to separate model error from sensor noise.
 
-## Methodology
+### Sample Size Definition
+- **N (Episodes)**: 50 episodes per run (sourced from LIBERO-10 Documentation which lists ~400 total episodes).
+- **Steps per Episode**: 200 steps.
+- **Total Effective N**: [deferred] steps per run.
+- **Runs**: 10 independent runs per quantization level.
 
-### Phase 1: Data Construction & Quantization (US-1)
-1. **Ingestion**: Download verified LIBERO HDF5 files. Parse using `h5py` to extract `states` arrays.
-2. **Extraction**: Parse `states` arrays to extract continuous vectors (position, quaternion, gripper).
-3. **Quantization**: Apply uniform quantization to target bit-depths (4-bit: -15, 8-bit: -255, 16-bit: 0-65535).
- - *Formula*: `discrete_val = floor((val - min) / (max - min) * (2^bits - 1))`
- - *Clamping*: Ensure all values fall within valid integer ranges.
-4. **Noise Injection**: Add Gaussian noise ($\mathcal{N}(\mu, \sigma)$) with varying noise levels.
- - *Clamping*: Post-noise values are clamped to the nearest valid discrete bin to prevent "floating-point leakage" (Edge Case).
-5. **Serialization**: Save as JSON-serialized state vectors.
+## Model Strategy
 
-### Phase 2: Model Adaptation & CPU Training (US-2)
-**Two-Stage Training Protocol** (Resolved Construct Validity):
-1. **Stage 1 (Encoder Pre-training)**: Train the *discrete projection layer* (encoder) on the quantized data to learn the mapping from discrete bins to the latent embedding space. This ensures the encoder can represent the input.
-2. **Stage 2 (Freeze & Train)**: Freeze the trained discrete projection layer. Load the pre-trained Kairos Hybrid Linear Temporal Attention weights. Train *only* the temporal attention module on the quantized sequences.
- - *Constraint*: No gradient updates to the encoder (Stage 2).
- - *Rationale*: This isolates the stability of the *attention mechanism* (the research target) from the encoder's ability to represent the input.
+### Architecture
+- **Base**: Pre-trained Kairos Hybrid Linear Temporal Attention module.
+- **Modification**: Replace visual embedding layers with a **fixed, untrained discrete projection layer**. This isolates the modality shift from architectural changes (FR-002).
+- **Training**: CPU-only training on the discrete dataset.
 
-**Training Loop**: Execute on CPU-only PyTorch.
- - *Input*: Quantized sequences.
- - *Loss*: Mean Squared Error (MSE) between predicted and ground-truth discrete sequences (decoded to continuous space for comparison, see Phase 3).
- - *Constraints*:
- - Batch size tuned to fit < 7GB RAM.
- - Max epochs: a predetermined limit (or graceful exit after a reasonable time duration).
- - Checkpointing: Save model state every epoch.
+### Computational Feasibility (CPU-First)
+The study is designed for the GitHub Actions free-tier (a limited number of CPUs and memory).
+- **Model Size**: The Kairos attention module is lightweight; the visual encoder is replaced by a small projection layer, reducing memory footprint.
+- **Batch Size**: Dynamically adjusted to fit < 6GB RAM.
+- **Precision**: `float32` (default CPU precision).
+- **Training Time**: Target ≤ 4 hours for sampled dataset. Graceful exit at an appropriate duration.
 
-### Phase 3: Stability Analysis & Threshold Mapping (US-3)
-**Revised Validation Target** (Resolved Tautology):
-- **Ground Truth**: The original continuous state vector.
-- **Prediction**: The model predicts a sequence of discrete states. These are *decoded* back to continuous space (using the inverse quantization mapping) before calculating error.
-- **Metric**: MSE between the *decoded* prediction and the *original* continuous ground truth. This measures the information loss of the discrete bottleneck, not just the model's ability to invert a deterministic function.
+**Decision/Rationale**:
+- **CPU vs. GPU**: The method (Linear Temporal Attention on discrete vectors) is computationally light enough for CPU. No transformer fine-tuning or diffusion generation is required. The "GPU escape hatch" is **not** needed unless the pre-trained weights are incompatible with CPU (unlikely for PyTorch), but the plan assumes CPU-first execution.
+- **Dataset Size**: The full LIBERO dataset may exceed RAM. The plan will sample N=50 episodes (200 steps each) to ensure feasibility while maintaining statistical power for the 10 independent runs.
+- **Weight Fallback**: If pre-trained weights are missing, the system will **train a model from scratch** for 5 epochs on the continuous baseline to learn the temporal dependencies. This ensures the "stability of the mechanism" is tested, rather than testing random noise. Runs with this fallback are flagged as "Untrained" and excluded from final statistical analysis but recorded for pipeline reproducibility.
 
-1. **Error Calculation**: Compute MSE for each prediction horizon across a range of short, medium, and long steps.
-2. **Scaling Law**: Plot MSE vs. Quantization Level (4, 8, 16-bit).
-3. **Statistical Validation**:
- - Perform multiple independent runs with different noise seeds.
- - **Test**: Bayesian Hierarchical Modeling (BHM) with partial pooling. This allows for robust estimation of effect sizes even with low N (N=10), mitigating Type II error risks.
- - **Metric**: Posterior distribution of the difference in error rates between Discrete and Continuous modalities. A credible interval excluding zero indicates a significant degradation.
-4. **Threshold Identification**: Identify the bit-depth where the normalized MSE exceeds **[deferred]** of the continuous baseline MSE (as per US-3 Acceptance Scenario 1). This explicitly defines the threshold determination strategy.
+## Statistical Analysis Plan
 
-## Statistical Rigor & Feasibility
+### Metrics
+- **Primary**: Mean Squared Error (MSE) between predicted and **clean** ground-truth discrete sequences.
+- **Secondary**: Cumulative error growth rate over horizons **100, 250, and 500** steps (FR-004).
+- **Normalization**: MSE normalized by state space dimensionality (Principle VII).
+- **Entropy Check**: Verify that quantization bins capture sufficient information (entropy > threshold).
 
-### Statistical Rigor (Quantitative Studies)
-- **Multiple Comparisons**: Since 3 quantization levels are tested, a correction factor is applied in the BHM model structure (hierarchical priors) to control for family-wise error rate.
-- **Power Justification**: 10 independent runs are planned. To mitigate the risk of Type II error with low N, the plan uses **Bayesian Hierarchical Modeling** (BHM) instead of frequentist t-tests. BHM allows for partial pooling across runs, borrowing strength to estimate effects more robustly and providing credible intervals that better characterize uncertainty.
-- **Causal Inference**: Claims are framed as **associational** (relative degradation due to quantization). No causal claims are made about the "true" physical world, as the ground truth for the discrete modality is synthetic (derived from continuous).
-- **Collinearity**: Predictors (quantization level, noise level) are orthogonal by design (sweeping one while holding the other constant). However, position and velocity are definitionally related; the analysis will report them descriptively and acknowledge the collinearity in the error growth rate.
-- **Measurement Validity**: The "discrete sensor" is a simulation. Validity relies on the assumption that uniform quantization + Gaussian noise approximates real-world sensor degradation. This is a standard assumption in robust control literature.
+### Statistical Tests
+- **Method**: Paired t-test or Wilcoxon signed-rank test (FR-005, Principle VII). **No Bayesian Hierarchical Models**.
+- **Pairing**: Same **Episode ID** across modalities.
+- **Variance Check**: Levene's test for equal variance. If variances are unequal, use Wilcoxon.
+- **Runs**: 10 independent runs with different noise seeds per quantization level.
+- **Significance**: p < 0.05.
 
-### Compute Feasibility (GitHub Actions Free Tier)
-- **Hardware**: 2 CPU cores, ~7 GB RAM, ~14 GB disk.
-- **Strategy**:
- - **Data Subset**: Only a subset of LIBERO episodes (e.g., 50 episodes) will be used to ensure the dataset fits in RAM after quantization.
- - **Model Size**: The Kairos adapter will use a reduced hidden dimension if the full model exceeds memory (documented in `data-model.md`).
- - **Training**: CPU training is slow. The plan targets a feasible duration for 100 epochs on a *sampled* dataset. If runtime exceeds 6 hours, the loop exits gracefully, and the checkpoint is used for analysis (SC-003).
- - **Libraries**: `torch` (CPU wheel), `numpy`, `pandas`, `h5py`, `arviz` are all compatible with CPU-only environments. No `bitsandbytes` or CUDA-specific code.
+### Sensitivity Analysis
+- **Sweep**: Quantization levels **4, 8, 12, 16** bits (SC-005).
+- **Output**: Error rate change and stability boundary identification.
 
-## Decision Rationale
+## Risk Assessment
 
-| Decision | Rationale |
-|:--- |:--- |
-| **Use LIBERO HDF5** | Verified source available. Contains necessary state vectors. Plan updated to parse HDF5 correctly. |
-| **Custom Quantization Script** | No verified pre-quantized dataset exists. Custom script ensures reproducibility and exact control over bit-depth. |
-| **Two-Stage Training** | Isolates the effect of modality shift from architectural changes (FR-002) and ensures the encoder can represent the discrete input. |
-| **CPU-Only Execution** | Directly addresses the "resource-constrained" research question and ensures runnability on free CI. |
-| **10 Independent Runs + BHM** | Minimum required for a valid analysis within time limits; BHM mitigates low-N power issues. |
-| **Graceful Exit at 6h** | Prevents job failure and allows partial results to be analyzed, ensuring the study can proceed even if training is slower than expected. |
-| **20% Threshold** | Explicitly defined in US-3 and adopted as the stability boundary criterion. |
-| **Decoded MSE** | Measures information loss against the original continuous ground truth, avoiding tautological validation. |
+| Risk | Impact | Mitigation |
+|:--- |:--- |:--- |
+| **Missing Model Weights** | High (Blocks US2/US3) | Fallback to **train-from-scratch** (5 epochs) on continuous baseline. Flag as "Untrained" and exclude from stats. |
+| **RAM Exceeded** | High (Crash) | Streaming data; dynamic batch sizing; sample size reduction. |
+| **Quantization Collapse** | Medium (Invalid Data) | Detect 1-bit degeneracy; flag run as "Invalid". |
+| **Time Limit Exceeded** | Medium (Incomplete Results) | Checkpoint every epoch; graceful exit; report partial results. |
+| **Schema Mismatch** | High (Parsing Error) | Programmatic schema verification in `download.py`. Abort if mismatch. |
+| **Statistical Power** | Medium (False Negative) | N=50 episodes, 200 steps/episode, 10 runs. |
+| **Noise Conflation** | Medium (Invalid Metric) | Evaluate against **clean** ground truth (noise removed). |
+| **Variance Assumption** | Medium (Invalid Test) | Levene's test before t-test; fallback to Wilcoxon. |

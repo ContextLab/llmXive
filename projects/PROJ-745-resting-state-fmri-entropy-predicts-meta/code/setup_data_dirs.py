@@ -1,43 +1,27 @@
-"""
-Setup script to initialize the data directory structure for the project.
-Creates raw and processed subdirectories under the data folder.
-"""
 import os
 from pathlib import Path
 
 def main():
-    # Determine project root (assuming script is in code/)
-    project_root = Path(__file__).resolve().parent.parent
-    data_root = project_root / "data"
+    """
+    Setup the data directory structure for the project.
+    Creates data/raw/ and data/processed/ directories.
+    """
+    base_dir = Path(__file__).parent.parent
+    data_dir = base_dir / "data"
+    raw_dir = data_dir / "raw"
+    processed_dir = data_dir / "processed"
 
-    # Define required directories
-    directories = [
-        data_root / "raw",
-        data_root / "processed",
-        data_root / "figures",
-        data_root / "interim",
-    ]
-
-    created = []
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            created.append(str(directory))
-            print(f"Created directory: {directory}")
-        else:
-            print(f"Directory already exists: {directory}")
-
-    if not created:
-        print("All required data directories already exist.")
-    else:
-        print(f"Successfully created {len(created)} directory/directories.")
+    # Create directories if they don't exist
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
     # Create .gitkeep files to ensure directories are tracked by git
-    for directory in directories:
-        keep_file = directory / ".gitkeep"
-        if not keep_file.exists():
-            keep_file.write_text("# Keep this directory in git\n")
-            print(f"Created .gitkeep in: {directory}")
+    (raw_dir / ".gitkeep").touch()
+    (processed_dir / ".gitkeep").touch()
+
+    print(f"Created directory structure:")
+    print(f"  {raw_dir}")
+    print(f"  {processed_dir}")
 
 if __name__ == "__main__":
     main()

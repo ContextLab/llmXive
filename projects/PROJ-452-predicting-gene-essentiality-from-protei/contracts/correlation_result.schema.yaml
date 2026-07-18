@@ -1,80 +1,68 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Correlation Result
-description: Schema for Spearman correlation results between network centrality and gene essentiality.
+description: Schema for Spearman correlation results between network centrality metrics and gene essentiality.
 type: object
 required:
   - organism
-  - network_source
+  - centrality_metric
+  - spearman_rho
+  - p_value
+  - sample_size
   - confidence_threshold
-  - centrality_metrics
-  - metadata
+  - correlation_type
 properties:
   organism:
     type: string
-    description: Organism identifier (e.g., 'S. cerevisiae')
-  network_source:
+    description: Organism identifier (e.g., 'S. cerevisiae').
+  centrality_metric:
     type: string
-    description: Source of the PPI network (e.g., 'STRING')
+    enum:
+      - degree
+      - betweenness
+      - eigenvector
+    description: The centrality metric analyzed.
+  spearman_rho:
+    type: number
+    description: Spearman rank correlation coefficient.
+  p_value:
+    type: number
+    description: Two-tailed p-value for the correlation.
+  sample_size:
+    type: integer
+    minimum: 0
+    description: Number of genes in the analysis.
   confidence_threshold:
     type: integer
-    description: Minimum confidence score used for filtering edges
-  centrality_metrics:
+    description: STRING confidence score threshold used.
+  correlation_type:
+    type: string
+    const: spearman
+    description: Type of correlation calculated.
+  empirical_p_value:
+    type: number
+    nullable: true
+    description: Empirical p-value from null model (if available).
+  null_distribution_summary:
     type: object
-    description: Correlation results for each centrality metric
-    additionalProperties:
-      type: object
-      required:
-        - spearman_rho
-        - spearman_pvalue
-        - sample_size
-      properties:
-        spearman_rho:
-          type: number
-          description: Spearman's rank correlation coefficient
-        spearman_pvalue:
-          type: number
-          description: P-value for the correlation test
-        empirical_p_value:
-          type: number
-          description: Empirical p-value from null distribution (optional)
-          nullable: true
-        sample_size:
-          type: integer
-          description: Number of genes in the analysis
-        null_distribution_summary:
-          type: object
-          description: Summary statistics of the null distribution (optional)
-          nullable: true
-          properties:
-            mean:
-              type: number
-            std:
-              type: number
-            min:
-              type: number
-            max:
-              type: number
+    nullable: true
+    properties:
+      mean:
+        type: number
+      std:
+        type: number
+      count:
+        type: integer
+    description: Summary statistics of the null distribution.
   metadata:
     type: object
-    required:
-      - timestamp
-      - pipeline_version
     properties:
       timestamp:
         type: string
         format: date-time
-      pipeline_version:
+      data_version:
         type: string
-      mapping_coverage_percent:
-        type: number
-        description: Percentage of genes successfully mapped
-      network_stats:
-        type: object
-        nullable: true
-        properties:
-          nodes:
-            type: integer
-          edges:
-            type: integer
-          density:
-            type: number
+      network_edges:
+        type: integer
+      network_nodes:
+        type: integer
+additionalProperties: false

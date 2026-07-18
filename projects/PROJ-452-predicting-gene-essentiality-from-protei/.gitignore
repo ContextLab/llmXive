@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 .Python
 build/
 develop-eggs/
@@ -25,7 +26,13 @@ ENV/
 env/
 .venv/
 
-# IDEs
+# Data and results (large files)
+data/raw/
+data/processed/
+results/
+state/
+
+# IDE
 .idea/
 .vscode/
 *.swp
@@ -35,13 +42,5 @@ env/
 .DS_Store
 Thumbs.db
 
-# Project specific
-data/raw/*
-!data/raw/.gitkeep
-results/*
-!results/.gitkeep
-state/*
-!state/.gitkeep
+# Logs
 *.log
-.ruff_cache/
-.mypy_cache/

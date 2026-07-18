@@ -63,12 +63,12 @@
  - [ ] T005a [P] Implement structured JSON logging in `src/utils/logging.py`
  - [ ] T005b [P] Implement SHA256 verification in `src/utils/checksums.py`
 - [X] T006 [P] Setup `src/config/constants.yaml` with thresholds (VIF>5, p<0.05, min_samples=10, max_ram=7GB)
-- [ ] T007 [P] Implement data ingestion logic in `src/pipelines/ingest.py`
+- [X] T007 [P] Implement data ingestion logic in `src/pipelines/ingest.py`
  - [ ] T007a [P] Implement validation logic for downloaded files (checksum verification, format check). **Constraint**: Do NOT use `datasets.load_dataset` for raw sequence data; this function typically returns processed tables which violates the requirement for raw FASTQ ingestion.
  - [ ] T007b [P] Implement metadata harmonization logic.
-- [ ] T008 Configure `src/cli/main.py` entry point with argument parsing for `--mode` (validation vs research) and `--stratify-by`
-- [ ] T014a [P] [US1] Implement memory-safe subsampling logic in `src/utils/memory.py` to trigger subsampling if RAM > 6GB (FR-009).
-- [ ] T014b [US1] Implement **Memory Projection Logic** in `src/pipelines/ingest.py`: Calculate estimated peak RAM usage based on sample count and read depth *before* loading data. If `estimated_peak_ram > 6GB`, trigger subsampling (T014a) and log the ratio. This must occur BEFORE MICE or VIF steps.
+- [X] T008 Configure `src/cli/main.py` entry point with argument parsing for `--mode` (validation vs research) and `--stratify-by`
+- [X] T014a [P] [US1] Implement memory-safe subsampling logic in `src/utils/memory.py` to trigger subsampling if RAM > 6GB (FR-009).
+- [X] T014b [US1] Implement **Memory Projection Logic** in `src/pipelines/ingest.py`: Calculate estimated peak RAM usage based on sample count and read depth *before* loading data. If `estimated_peak_ram > 6GB`, trigger subsampling (T014a) and log the ratio. This must occur BEFORE MICE or VIF steps.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,8 +84,8 @@
 
 > **NOTE**: These tasks are to **WRITE** the test code first (TDD). They cannot be *executed* until the implementation code exists.
 
-- [ ] T010 [P] [US1] **Write** contract test for ASV table schema validation in `tests/contract/test_asv_schema.py` (Verify failure on invalid schema).
-- [ ] T011 [P] [US1] **Write** contract test for environmental metadata schema in `tests/contract/test_metadata_schema.py` (Verify failure on missing columns).
+- [X] T010 [P] [US1] **Write** contract test for ASV table schema validation in `tests/contract/test_asv_schema.py` (Verify failure on invalid schema).
+- [X] T011 [P] [US1] **Write** contract test for environmental metadata schema in `tests/contract/test_metadata_schema.py` (Verify failure on missing columns).
 - [X] T012 [P] [US1] **Write** integration test for end-to-end pipeline on synthetic data in `tests/integration/test_workflow_us1.py` (Verify failure on missing implementation).
 
 ### Implementation for User Story 1
@@ -97,14 +97,14 @@
  - [ ] T013c2 [US1] Implement error model learning and denoising.
  - [ ] T013c3 [US1] Implement read merging and chimera removal.
  - [ ] T013c4 [US1] Output ASV table to `data/qc/asv_table.tsv`.
-- [~] T013d [US1] Implement construction and validation of Environmental Matrix in `src/pipelines/ingest.py` by merging and cleaning metadata; output `data/metadata/harmonized_matrix.csv`.
+- [ ] T013d [US1] Implement construction and validation of Environmental Matrix in `src/pipelines/ingest.py` by merging and cleaning metadata; output `data/metadata/harmonized_matrix.csv`.
 - [X] T014 [US1] Implement ontology mapping in `src/pipelines/ingest.py` to standardize biome labels (e.g., 'Temperate Forest' -> 'Forest').
-- [~] T015 [US1] Implement MICE imputation in `src/pipelines/preprocess.py` using `miceforest` with a configured iteration limit. Check convergence flag; if False, log warning and drop rows; verify `data/cleaned_metadata.csv` has no NaNs (FR-008).
+- [ ] T015 [US1] Implement MICE imputation in `src/pipelines/preprocess.py` using `miceforest` with a configured iteration limit. Check convergence flag; if False, log warning and drop rows; verify `data/cleaned_metadata.csv` has no NaNs (FR-008).
 - [X] T016 [US1] Implement VIF calculation in `src/pipelines/preprocess.py`; remove or PCA-combine variables with VIF > 5 (FR-007, Edge Cases). **Input**: Imputed data from T015.
 - [X] T017 [US1] Implement beta-diversity (Bray-Curtis) and alpha-diversity (Shannon, Observed ASVs) calculation in `src/pipelines/preprocess.py` using `skbio`; **Output**: Bray-Curtis distance matrix and Euclidean distance matrix (FR-002).
-- [~] T018 [US1] Implement PERMANOVA (adonis2) with ≥999 permutations and Benjamini-Hochberg FDR correction in `src/pipelines/analysis.py`. **Conditional Logic**: If sample size < 20, use **exact permutation test** or **≥9999 permutations** (FR-003). **Input**: Distance matrices from T017; **Output**: `results/permanova_summary.csv` with columns: term, R2, p-value, p-value_adj.
+- [ ] T018 [US1] Implement PERMANOVA (adonis2) with ≥999 permutations and Benjamini-Hochberg FDR correction in `src/pipelines/analysis.py`. **Conditional Logic**: If sample size < 20, use **exact permutation test** or **≥9999 permutations** (FR-003). **Input**: Distance matrices from T017; **Output**: `results/permanova_summary.csv` with columns: term, R2, p-value, p-value_adj.
 - [X] T019 [US1] Implement variance partitioning (varpart) to quantify unique/shared variance by predictor in `src/pipelines/analysis.py` (FR-004).
-- [ ] T020 [US1] Implement db-RDA triplot generation in `src/pipelines/report.py` showing sample clustering by dominant vector. <!-- ATOMIZE: requested -->
+- [ ] T020 [US1] Implement db-RDA triplot generation in `src/pipelines/report.py` showing sample clustering by dominant vector. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T022 [US1] Generate `results/permanova_summary.csv` and `results/db_rda_variance.csv` with FDR-corrected p-values.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -125,11 +125,11 @@
 ### Implementation for User Story 2
 
 - [X] T025 [US2] Implement stratification logic in `src/pipelines/analysis.py` to split cleaned data by `biome` column (using output from T013d).
-- [~] T026 [US2] Implement power check in `src/pipelines/analysis.py`: If stratum sample count < 10, **SKIP** execution of PERMANOVA/varpart for that stratum, log error to `results/skipped_strata.log`, and proceed; verify log file contains biome name (FR-005).
+- [ ] T026 [US2] Implement power check in `src/pipelines/analysis.py`: If stratum sample count < 10, **SKIP** execution of PERMANOVA/varpart for that stratum, log error to `results/skipped_strata.log`, and proceed; verify log file contains biome name (FR-005).
 - [X] T027 [US2] Re-run PERMANOVA and varpart for each valid stratum in `src/pipelines/analysis.py`.
-- [~] T028 [US2] Generate `results/db_rda_biome_<NAME>.csv` for each biome with R² values.
+- [ ] T028 [US2] Generate `results/db_rda_biome_<NAME>.csv` for each biome with R² values.
 - [ ] T029 [US2] Implement logic to determine top driver per biome. **Metric**: Calculate **standard deviation of the rank index** of the top driver across biomes. **Pass Condition**: Verify standard deviation ≤ 0.5 (SC-003). **Deliverable**: Log the calculated standard deviation and a Pass/Fail flag to `results/biome_ranking_summary.csv`.
-- [~] T030 [US2] Generate summary report indicating if top predictor changes across biomes (e.g., pH in forests, moisture in grasslands).
+- [ ] T030 [US2] Generate summary report indicating if top predictor changes across biomes (e.g., pH in forests, moisture in grasslands).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

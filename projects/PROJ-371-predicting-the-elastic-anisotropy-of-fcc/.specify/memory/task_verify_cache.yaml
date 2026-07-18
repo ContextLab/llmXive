@@ -1,0 +1,36 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim only states the intended command; no actual directory tree or file
+    listing is provided to confirm that `src/data`, `src/models`, `src/utils`, `src/cli`,
+    `tests/unit`, `tests/integration`, `data/raw`, `data/processed`, and `output`
+    were created. Without concrete evidence of these folders existing, the task requirement
+    is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.pre-commit-config.yaml`) or related setup scripts are present in the provided
+    evidence, so the requirement to configure ruff and black is not satisfied. The
+    implementer must add the appropriate configuration artifacts.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw/` and `data/processed/` directories or\
+    \ accompanying `.gitkeep` files is provided; the implementer\u2019s claim cannot\
+    \ be verified against any actual artifacts. The task remains undone until those\
+    \ directories with non\u2011empty `.gitkeep` placeholders are present in the repository."
+T011:
+  c: false
+  h: 19d25b9222c71163668607f21c34bbf3233805d4f96299d97813f2efbd2bcb76
+  r: The integration test file `tests/integration/test_pipeline.py` is present, but
+    the required static manifest `data/raw/manifest_subset.json` is missing, so the
+    test cannot run on a known subset of FCC IDs as specified. The missing manifest
+    must be added with a list of valid material IDs.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (e.g., CI logs, script output CSV/JSON, performance metrics, or\
+    \ a report) were provided to demonstrate that the data pipeline was executed on\
+    \ a free\u2011tier CI runner with CPU\u2011only resources and a sample subset\
+    \ of entries. Without such evidence the claim cannot be verified."

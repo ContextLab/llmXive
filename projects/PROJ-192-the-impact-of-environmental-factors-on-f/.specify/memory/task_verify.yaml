@@ -1,18 +1,10 @@
-T007 [P] Implement data ingestion logic in `src/pipelines/ingest.py`: 1
-? T008 Configure `src/cli/main.py` entry point with argument parsing for `--mode`
-  (validation vs research) and `--stratify-by`
-: 1
-? T010 [P] [US1] **Write** contract test for ASV table schema validation in `tests/contract/test_asv_schema.py`
-  (Verify failure on invalid schema).
-: 1
-? T011 [P] [US1] **Write** contract test for environmental metadata schema in `tests/contract/test_metadata_schema.py`
-  (Verify failure on missing columns).
-: 1
-? T014a [P] [US1] Implement memory-safe subsampling logic in `src/utils/memory.py`
-  to trigger subsampling if RAM > 6GB (FR-009).
-: 1
-? 'T014b [US1] Implement **Memory Projection Logic** in `src/pipelines/ingest.py`:
-  Calculate estimated peak RAM usage based on sample count and read depth *before*
-  loading data. If `estimated_peak_ram > 6GB`, trigger subsampling (T014a) and log
-  the ratio. This must occur BEFORE MICE or VIF steps.'
-: 1
+T013d: 1
+T015: 1
+T018: 1
+T020: 1
+T022: 1
+T026: 1
+T028: 1
+T029: 1
+T030: 1
+T033: 1

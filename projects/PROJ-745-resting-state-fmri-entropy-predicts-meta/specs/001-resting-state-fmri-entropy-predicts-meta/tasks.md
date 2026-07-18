@@ -56,15 +56,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Implement data ingestion metadata fetcher in `code/download.py` (HCP metadata validation)
-- [ ] T006 [P] Implement NIfTI download logic in `code/download.py` (fetch raw fMRI data to `data/raw/`)
+- [X] T005 [P] Implement data ingestion metadata fetcher in `code/download.py` (HCP metadata validation)
+- [X] T006 [P] Implement NIfTI download logic in `code/download.py` (fetch raw fMRI data to `data/raw/`)
 - [X] T007 [P] Implement behavioral data download logic in `code/download.py` (fetch CSV/Parquet to `data/raw/`)
 - [X] T008 [P] Implement motion scrubbing skeleton in `code/preprocess.py` (FD calculation logic)
 - [X] T009 [P] Implement nuisance regression skeleton in `code/preprocess.py` (motion, CSF, WM regression)
 - [X] T010 [P] Implement band-pass filtering skeleton in `code/preprocess.py` <!-- ATOMIZE: requested -->
-- [~] T011 [P] Define data schema in `code/models.py` (Pydantic schemas or CSV headers for Subject, TimeSeries, EntropyMetric, MetacognitiveEfficiency)
-- [ ] T012 [P] Configure error handling and logging infrastructure in `code/utils/logging.py` <!-- SKIPPED: non-mapping output -->
-- [~] T013 [P] Configure environment configuration management (`.env` for HCP credentials, random seeds)
+- [ ] T011 [P] Define data schema in `code/models.py` (Pydantic schemas or CSV headers for Subject, TimeSeries, EntropyMetric, MetacognitiveEfficiency)
+- [X] T012 [P] Configure error handling and logging infrastructure in `code/utils/logging.py` <!-- SKIPPED: non-mapping output -->
+- [ ] T013 [P] Configure environment configuration management (`.env` for HCP credentials, random seeds)
 - [X] T014 [P] Implement automated state file update logic in `code/utils/state_manager.py` to update `updated_at` timestamp upon artifact changes (Constitution Principle V)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -90,8 +90,8 @@
 - [X] T018 [US1] Implement motion scrubbing (FD > 0.5mm flagging) in `code/preprocess.py`: MUST flag and continue processing high-motion subjects per US-1 Acceptance Scenario 2
 - [X] T019 [US1] Implement nuisance regression (motion, CSF, WM) and band-pass filtering in `code/preprocess.py` <!-- ATOMIZE: requested -->
 - [X] T020 [US1] Implement Schaefer 400-region parcellation logic in `code/preprocess.py`
-- [ ] T021 [US1] Add validation: check for zero-variance time series and exclude subjects in `code/preprocess.py`
-- [ ] T022 [US1] Add logging for subject exclusion reasons (corrupted data, high motion, missing behavior)
+- [X] T021 [US1] Add validation: check for zero-variance time series and exclude subjects in `code/preprocess.py`
+- [~] T022 [US1] Add logging for subject exclusion reasons (corrupted data, high motion, missing behavior)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,12 +105,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US2] Unit test for MSE calculation with synthetic data in `tests/unit/test_metrics_entropy.py`
-- [ ] T024 [P] [US2] Unit test for meta-d′ calculation with synthetic behavior in `tests/unit/test_metrics_meta.py`
+- [X] T023 [P] [US2] Unit test for MSE calculation with synthetic data in `tests/unit/test_metrics_entropy.py`
+- [X] T024 [P] [US2] Unit test for meta-d′ calculation with synthetic behavior in `tests/unit/test_metrics_meta.py`
 
 ### Implementation for User Story 2
 
-- [ ] T025 [P] [US2] Implement multiscale sample entropy calculation using `nolds` in `code/metrics.py`: use scales τ=1–5, m=2, **configurable r parameter (default 0.15)** per spec.md US-2 and FR-006
+- [X] T025 [P] [US2] Implement multiscale sample entropy calculation using `nolds` in `code/metrics.py`: use scales τ=1–5, m=2, **configurable r parameter (default 0.15)** per spec.md US-2 and FR-006
 - [ ] T026 [US2] Implement whole-brain aggregation (arithmetic mean across parcels) in `code/metrics.py`
 - [ ] T027 [US2] Implement Type 2 SDT logic for meta-d′, d′, and efficiency ratio in `code/metrics.py`
 - [ ] T028 [US2] Implement bootstrapping for bias correction of meta-d′/d′ in `code/metrics.py`

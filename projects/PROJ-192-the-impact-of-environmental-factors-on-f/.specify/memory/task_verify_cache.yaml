@@ -1,0 +1,44 @@
+T013d:
+  c: false
+  h: 3b0f0aeabb264e459be013a6fa3eb414e25989418ef9627985b8cfc32faad7cf
+  r: "The required output file `data/metadata/harmonized_matrix.csv` does not exist,\
+    \ and the provided `src/pipelines/ingest.py` snippet shows only ontology\u2011\
+    mapping utilities without any logic that merges, validates, cleans metadata, or\
+    \ writes the harmonized matrix CSV. Consequently the task\u2019s core requirement\
+    \ is unmet."
+T015:
+  c: false
+  h: 3afd8b224489f8033b99e082d10c7468d9dffd8739c5e3b0e171fe312f374470
+  r: The `src/pipelines/preprocess.py` file contains no import or usage of `miceforest`,
+    nor any logic for MICE imputation, convergence checking, or row dropping. Additionally,
+    the required `data/cleaned_metadata.csv` file is absent. Both the implementation
+    and the verification artifact are missing.
+T018:
+  c: false
+  h: 07a14b294a7a2efd32482ba86bae5a2450fdc287ea88d1106c97503678f34bd5
+  r: "The repository lacks the required `results/permanova_summary.csv` file, and\
+    \ the provided `src/pipelines/analysis.py` does not contain any implementation\
+    \ of PERMANOVA (adonis2) with the specified permutation logic or Benjamini\u2011\
+    Hochberg correction. The task\u2019s core output and functionality are therefore\
+    \ missing."
+T026:
+  c: false
+  h: 15b2860d96d2d29a17944bb41435ffb72a0119c356f47c3269e5cf1a9bca0916
+  r: "The provided `analysis.py` does not show any logic that checks stratum sample\
+    \ counts and skips PERMANOVA/varpart, nor does it write to `results/skipped_strata.log`.\
+    \ Moreover, the required log file is absent from the repository. The power\u2011\
+    check implementation and the verification log entry for biome \u201CFR-005\u201D\
+    \ are missing."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `results/db_rda_biome_<NAME>.csv` files are present; the claim provides only\
+    \ a description of the expected output without any actual CSV artifacts, so the\
+    \ required per\u2011biome R\xB2 results are missing. The next implementer must\
+    \ generate and commit the CSV files for each biome as specified."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No summary report file (e.g., CSV, PDF, or markdown) showing the top predictor
+    per biome was provided; the evidence consists only of the task description and
+    specifications, with no actual output artifact to verify the required analysis.

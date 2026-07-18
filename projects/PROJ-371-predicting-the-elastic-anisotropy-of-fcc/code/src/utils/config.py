@@ -1,7 +1,7 @@
 """
-Configuration management for the elastic anisotropy prediction pipeline.
+Configuration management for the Elastic Anisotropy prediction pipeline.
 
-Handles path resolution, random seed management, and API key validation.
+Handles paths, random seeds, constants, and API key validation.
 """
 import os
 from pathlib import Path
@@ -9,118 +9,141 @@ from typing import Any, Dict, Optional
 import random
 import numpy as np
 
-# Project root is the parent of the 'code' directory
+# Project root is assumed to be the directory containing 'code'
+# If running as a module, we resolve relative to this file
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-_CODE_ROOT = _PROJECT_ROOT / "code"
 
-# Default paths relative to project root
-_PATHS = {
-    "data_raw": _PROJECT_ROOT / "data" / "raw",
-    "data_processed": _PROJECT_ROOT / "data" / "processed",
-    "output": _PROJECT_ROOT / "output",
-    "figures": _PROJECT_ROOT / "output" / "figures",
-    "src": _CODE_ROOT / "src",
-    "tests": _CODE_ROOT / "tests",
-}
+# Default random seed as per specification
+DEFAULT_SEED = 42
 
 # Constants
-DEFAULT_SEED = 42
-VALIDATION_THRESHOLD = 0.1  # Variance threshold for sensitivity analysis
+# Physical bounds for Anisotropy A1 (Zener anisotropy ratio for cubic crystals)
+# Theoretical range is often cited as 0 < A1 < 3 for stability in this context,
+# though strictly A1 > 0 for stability. We use the task-specified range.
 ANISOTROPY_LOWER_BOUND = 0.0
 ANISOTROPY_UPPER_BOUND = 3.0
 
-# Cache for configuration
-_config_cache: Optional[Dict[str, Any]] = None
+# Path configuration
+_PATHS = {
+    "data_raw": "data/raw",
+    "data_processed": "data/processed",
+    "output": "output",
+    "figures": "output/figures",
+    "models": "output/models",
+    "specs": "specs",
+}
+
+def _get_project_root() -> Path:
+    """Returns the project root path."""
+    return _PROJECT_ROOT
 
 def get_config() -> Dict[str, Any]:
     """
-    Load and return the main configuration dictionary.
+    Returns a dictionary containing all configuration settings.
     
     Returns:
-        Dict containing paths, seeds, and constants.
+        dict: Configuration dictionary with paths, seed, and constants.
     """
-    global _config_cache
-    if _config_cache is None:
-        _config_cache = {
-            "paths": {k: str(v) for k, v in _PATHS.items()},
-            "seed": DEFAULT_SEED,
-            "constants": {
-                "validation_threshold": VALIDATION_THRESHOLD,
-                "anisotropy_lower_bound": ANISOTROPY_LOWER_BOUND,
-                "anisotropy_upper_bound": ANISOTROPY_UPPER_BOUND,
-            },
-            "environment": {
-                "mp_api_key": os.getenv("MP_API_KEY"),
-                "aflow_api_key": os.getenv("AFLOW_API_KEY"),
-            }
+    root = _get_project_root()
+    return {
+        "root": root,
+        "seed": get_seed(),
+        "paths": {
+            key: root / path for key, path in _PATHS.items()
+        },
+        "constants": {
+            "anisotropy_lower_bound": ANISOTROPY_LOWER_BOUND,
+            "anisotropy_upper_bound": ANISOTROPY_UPPER_BOUND,
         }
-    return _config_cache
+    }
 
-def get_path(key: str) -> Path:
+def get_path(key: str, relative: Optional[Path] = None) -> Path:
     """
-    Retrieve a specific path by key.
+    Returns the absolute path for a given configuration key.
     
     Args:
-        key: One of 'data_raw', 'data_processed', 'output', 'figures', 'src', 'tests'.
+        key: The key from the _PATHS dictionary (e.g., 'data_raw').
+        relative: Optional relative sub-path to append.
         
     Returns:
-        Path object for the requested directory.
+        pathlib.Path: The absolute path.
         
     Raises:
-        KeyError: If the key is not found in the configuration.
+        KeyError: If the key is not found in configuration.
     """
+    root = _get_project_root()
     if key not in _PATHS:
         raise KeyError(f"Path key '{key}' not found in configuration. Available keys: {list(_PATHS.keys())}")
     
-    path = _PATHS[key]
-    # Ensure directories exist
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    base_path = root / _PATHS[key]
+    if relative:
+        return base_path / relative
+    return base_path
 
-def validate_api_keys() -> bool:
+def ensure_directories() -> None:
     """
-    Check if required API keys are present in the environment.
+    Creates all necessary directories defined in the configuration.
+    """
+    root = _get_project_root()
+    for path_key, rel_path in _PATHS.items():
+        dir_path = root / rel_path
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+def validate_api_keys() -> None:
+    """
+    Validates the presence of required API keys in environment variables.
     
-    Returns:
-        True if all required keys are present, False otherwise.
+    Raises:
+        ValueError: If a required API key is missing.
     """
     required_keys = ["MP_API_KEY"]
-    missing = [key for key in required_keys if not os.getenv(key)]
+    missing_keys = [key for key in required_keys if not os.environ.get(key)]
     
-    if missing:
-        return False
-    return True
+    if missing_keys:
+        raise ValueError(
+            f"Missing required API keys: {', '.join(missing_keys)}. "
+            "Please set them in your environment or .env file."
+        )
 
-def set_random_seed(seed: int = DEFAULT_SEED) -> None:
+def set_random_seed(seed: Optional[int] = None) -> None:
     """
-    Set the random seed for reproducibility across libraries.
+    Sets the random seed for reproducibility across random, numpy, and torch (if available).
     
     Args:
-        seed: Integer seed value. Defaults to 42.
+        seed: The seed value. Defaults to DEFAULT_SEED if None.
     """
+    if seed is None:
+        seed = DEFAULT_SEED
+    
     random.seed(seed)
     np.random.seed(seed)
-    # If torch is available, set its seed too
+    
+    # Attempt to set torch seed if available
     try:
         import torch
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
     except ImportError:
-        pass
+        pass  # Torch is not required, so ignore if missing
 
 def get_seed() -> int:
     """
-    Get the current default random seed.
+    Returns the current default random seed.
     
     Returns:
-        The default seed value (42).
+        int: The seed value.
     """
     return DEFAULT_SEED
 
-def ensure_directories() -> None:
+def get_constants() -> Dict[str, float]:
     """
-    Create all required directories defined in the configuration.
+    Returns the physical constants configuration.
+    
+    Returns:
+        dict: Dictionary of physical constants.
     """
-    for path in _PATHS.values():
-        path.mkdir(parents=True, exist_ok=True)
+    return {
+        "anisotropy_lower_bound": ANISOTROPY_LOWER_BOUND,
+        "anisotropy_upper_bound": ANISOTROPY_UPPER_BOUND,
+    }

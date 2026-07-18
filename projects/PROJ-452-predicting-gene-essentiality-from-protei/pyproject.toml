@@ -16,29 +16,39 @@ dependencies = [
     "pyyaml",
     "numpy",
     "biopython",
-    "dendropy"
+    "dendropy",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff",
-    "black"
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest",
+    "pytest-cov",
 ]
 
-[tool.setuptools.packages.find]
-where = ["code"]
-
 [tool.ruff]
-line-length = 100
+line-length = 88
 target-version = "py311"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
 
-[tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
-ignore = ["E501"]
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.black]
-line-length = 100
-target-version = ['py311']
+line-length = 88
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -53,3 +63,8 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=code --cov-report=term-missing"

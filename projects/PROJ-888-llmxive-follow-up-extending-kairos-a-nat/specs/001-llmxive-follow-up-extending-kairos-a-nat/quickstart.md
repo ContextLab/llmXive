@@ -2,82 +2,71 @@
 
 ## Prerequisites
 
-- **Python**: 3.11 or higher
-- **System**: Linux (Ubuntu 22.04 recommended for GitHub Actions compatibility)
-- **Memory**: At least 8GB RAM (for local testing; 7GB is the hard limit for CI)
-- **Disk**: 14GB free space
+-   Python 3.11+
+-   7GB+ RAM available
+-   14GB+ Disk space
+-   Git
 
 ## Installation
 
-1.  **Clone the Repository**:
+1.  **Clone and Setup**:
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat
-    ```
-
-2.  **Create Virtual Environment**:
-    ```bash
+    cd projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/code/
     python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install Dependencies**:
-    ```bash
+    source venv/bin/activate
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins `torch` to a CPU-only wheel to ensure compatibility with the target CI environment.*
 
-## Data Setup
-
-The project automatically downloads the verified LIBERO dataset on first run.
-
-1.  **Run Data Download**:
+2.  **Verify Dependencies**:
     ```bash
-    python code/data/download_libero.py
+    python -c "import torch; import datasets; import scipy; print('Dependencies OK')"
     ```
-    This script fetches the Parquet files from the verified HuggingFace URLs and checksums them.
 
-2.  **Verify Data**:
-    Check `data/raw/` for the downloaded Parquet files and the `checksums.txt` manifest.
+## Data Download
 
-## Running the Pipeline
-
-### 1. Quantization (Phase 1)
-Convert continuous data to discrete JSON vectors.
+Run the download script to fetch the verified LIBERO dataset:
 ```bash
-python code/data/quantize.py --bit-depth 4 --noise-std 0.1 --output-dir data/processed
+python download.py --source libero_hdf5
 ```
-*Options*: `--bit-depth` (4, 8, 16), `--noise-std` (0.0, 0.1, 0.3, 0.5).
+*Note: This will download the raw HDF5 file to `data/raw/`, verify the checksum, and perform schema compatibility checks.*
 
-### 2. Training (Phase 2)
-Train the Kairos adapter on CPU.
-```bash
-python code/models/training_loop.py --config config/training.yaml --epochs 100
-```
-*Note*: The training loop includes a 6-hour graceful exit and checkpointing.
+## Quantization Pipeline
 
-### 3. Analysis (Phase 3)
-Compute error metrics and statistical tests.
+Convert the raw data to discrete JSON vectors with sparsity simulation:
 ```bash
-python code/analysis/stats.py --input data/results/error_metrics.csv --output data/final_report.csv
+python quantize.py --bit-depth 4 --noise-std 0.1 --sparsity-stride 2 --sparsity-dropout 0.2 --output data/processed/quantized_4bit
+python quantize.py --bit-depth 8 --noise-std 0.1 --sparsity-stride 2 --sparsity-dropout 0.2 --output data/processed/quantized_8bit
+python quantize.py --bit-depth 12 --noise-std 0.1 --sparsity-stride 2 --sparsity-dropout 0.2 --output data/processed/quantized_12bit
+python quantize.py --bit-depth 16 --noise-std 0.1 --sparsity-stride 2 --sparsity-dropout 0.2 --output data/processed/quantized_16bit
 ```
 
-## Testing
+## Training & Evaluation
 
-Run the full test suite:
+Run the full experiment sweep (4, 8, 12, 16-bit) with 10 independent runs:
 ```bash
-pytest tests/
+python experiments.py --runs 10 --horizons 100,250,500 --sweep 4,8,12,16 --episodes 50
 ```
 
-- **Unit Tests**: Verify quantization logic and noise injection.
-- **Contract Tests**: Validate JSON outputs against `contracts/*.schema.yaml`.
-- **Integration Tests**: Run a mini-pipeline (download -> quantize -> train 1 epoch -> evaluate).
+*This script will:*
+1.  Load the Kairos model (with fallback to train-from-scratch if weights missing).
+2.  Train on the CPU for each quantization level.
+3.  Evaluate on horizons 100, 250, and 500 using **clean** ground truth.
+4.  Log `ErrorMetric` to `data/results/mse_logs/`.
+5.  Perform Levene's test, paired t-tests, and Wilcoxon tests.
 
-## Resource Monitoring
+## Statistical Analysis
 
-To verify compliance with the 7GB RAM limit during local runs:
+View the aggregated results:
 ```bash
-# Monitor RAM usage in a separate terminal
-watch -n 1 'ps aux | grep python'
+python stats.py --input data/results/mse_logs/
 ```
-The training script logs peak RAM usage to `logs/training.log`.
+*Output: Summary table with MSE, p-values, and stability thresholds.*
+
+## Validation
+
+Check that all constraints are met:
+```bash
+python -m pytest tests/ -v
+```
+*Ensure no tests fail and RAM/CPU logs are within limits.*

@@ -1,0 +1,40 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`projects/PROJ-745-resting-state-fmri-entropy-predicts-meta/`,\
+    \ `data/`, `code/`, `tests/`) being present on disk is provided; the artifact\
+    \ list is empty. The implementer must create these folders (non\u2011empty) to\
+    \ satisfy the task."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gitignore` file or its contents were presented; the required rules for\
+    \ ignoring `data/`, `__pycache__/`, and virtual\u2011environment directories are\
+    \ absent, so the task is not satisfied."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided evidence contains no listing or content of `code/__init__.py` or
+    `tests/__init__.py`; thus we cannot confirm that empty `__init__.py` files were
+    created in those directories. The required files are missing or not shown.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/` and `data/processed/` directories (or
+    any files within them) was provided; the claim cannot be verified without seeing
+    those folders on disk. The implementer must create and show the directory structure
+    (and ideally populate it with placeholder files) to satisfy the task.
+T011:
+  c: false
+  h: 9b6136f3b6d2d55ef9f55ad4b743074a1d12f9fc04c6a4ed5c5f81f972f9c142
+  r: The required `code/models.py` file does not exist, so no data schema (Pydantic
+    models or CSV header definitions) is provided for Subject, TimeSeries, EntropyMetric,
+    or MetacognitiveEfficiency. The implementer must create this file with the appropriate
+    schema definitions.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.env` file or any other configuration artifact is present in the provided\
+    \ evidence; thus the required environment configuration (HCP credentials and random\
+    \ seed settings) is missing. The implementer must add a non\u2011empty `.env`\
+    \ (or equivalent) file containing the necessary variables."

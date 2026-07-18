@@ -1,67 +1,65 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: PGLS Result
-description: Schema for Phylogenetic Generalized Least Squares comparison results.
+description: Schema for Phylogenetic Generalized Least Squares comparison results across organisms.
 type: object
 required:
-  - analysis_type
-  - organisms_compared
-  - tree_source
-  - results
-  - metadata
+  - organisms
+  - metric
+  - pgls_statistic
+  - p_value
+  - adjusted_p_value
+  - phylogeny_source
+  - sample_size
 properties:
-  analysis_type:
-    type: string
-    enum:
-      - fisher_z_pgl
-  organisms_compared:
+  organisms:
     type: array
     items:
       type: string
-    minItems: 2
-  tree_source:
+    description: List of organisms compared.
+  metric:
     type: string
-    description: Source of the phylogenetic tree (e.g., 'OpenTree')
-  results:
+    enum:
+      - degree
+      - betweenness
+      - eigenvector
+    description: Centrality metric being compared.
+  pgls_statistic:
+    type: number
+    description: PGLS test statistic (e.g., t-statistic or F-statistic).
+  p_value:
+    type: number
+    description: Raw p-value from the PGLS model.
+  adjusted_p_value:
+    type: number
+    description: Benjamini-Hochberg adjusted p-value.
+  phylogeny_source:
+    type: string
+    description: Source of the phylogenetic tree (e.g., 'OpenTree').
+  sample_size:
+    type: integer
+    minimum: 0
+    description: Effective number of taxa in the analysis.
+  lambda_estimate:
+    type: number
+    nullable: true
+    description: Estimated Pagel's lambda parameter.
+  correlation_coefficients:
     type: object
-    description: Results for each centrality metric compared
+    description: Map of organism -> correlation coefficient used in PGLS.
     additionalProperties:
-      type: object
-      required:
-        - pgls_statistic
-        - p_value
-        - adjusted_p_value
-        - method
-      properties:
-        pgls_statistic:
-          type: number
-          description: PGLS test statistic (t or z)
-        p_value:
-          type: number
-          description: Raw p-value from the test
-        adjusted_p_value:
-          type: number
-          description: P-value adjusted for multiple comparisons (Benjamini-Hochberg)
-        method:
-          type: string
-          description: Statistical method used (e.g., 'pgls')
-        correlation_difference:
-          type: number
-          description: Difference in Fisher-transformed correlations
+      type: number
+  warnings:
+    type: array
+    items:
+      type: string
+    description: List of warnings (e.g., 'Power insufficient').
   metadata:
     type: object
-    required:
-      - timestamp
-      - effective_sample_size
     properties:
       timestamp:
         type: string
         format: date-time
-      effective_sample_size:
-        type: integer
-        description: Number of organisms included in the analysis
-      power_warning:
-        type: boolean
-        description: True if sample size was insufficient for reliable inference
-      tree_nodes:
-        type: integer
-        description: Number of nodes in the phylogenetic tree used
+      tree_file:
+        type: string
+        description: Filename of the Newick tree used.
+additionalProperties: false

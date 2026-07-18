@@ -1,0 +1,36 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/`, `results/`, `tests/`)
+    is provided; the implementer did not supply a directory listing or any files showing
+    that the project structure has been created.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided material contains only a feature specification and user stories;
+    there is no evidence of a Python 3.11 project being created (e.g., no `pyproject.toml`,
+    `requirements.txt`, `setup.cfg`, or similar file) and none of the listed dependencies
+    are declared or installed. Consequently, the task of initializing the project
+    with the required packages has not been demonstrated.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only a feature specification for gene\u2011essentiality\
+    \ analysis and no linting/formatting configuration files, scripts, or documentation\
+    \ (e.g., `pyproject.toml`, `.ruff.toml`, Black config, or pre\u2011commit hooks).\
+    \ Consequently, the required artifacts for configuring ruff and black are missing."
+T017:
+  c: false
+  h: 03f43f0f840870ba24d3b54a6ea2146974c6269483311cf42ed04739ae91ee1a
+  r: "The `code/main.py` file stops before writing any output (the snippet ends after\
+    \ defining `output_file` and no `json.dump` or similar is present), and the expected\
+    \ `results/correlations.json` file does not exist on disk. Consequently the orchestration\
+    \ loop does not complete the download\u2011map\u2011centrality\u2011correlation\u2011\
+    save sequence required by the task."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that the pipeline now\
+    \ assigns a centrality of\u202F0 for disconnected network components or that it\
+    \ logs a warning and skips organisms with no gene overlap. Without such artifacts,\
+    \ we cannot confirm the required error\u2011handling behavior was implemented."

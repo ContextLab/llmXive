@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DiscreteStateVector"
+description: "Schema for quantized state vectors generated from LIBERO dataset."
+type: "object"
+properties:
+  timestep:
+    type: "integer"
+    description: "Time step index."
+  bit_depth:
+    type: "integer"
+    enum: [4, 8, 12, 16]
+    description: "Quantization level in bits."
+  state_vector:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of discrete integer values representing state."
+    minItems: 1
+  collision_flag:
+    type: "integer"
+    enum: [0, 1]
+    description: "Binary collision indicator."
+  noise_std:
+    type: "number"
+    description: "Standard deviation of injected Gaussian noise."
+  is_dropped:
+    type: "boolean"
+    description: "True if the timestep was dropped due to sparsity simulation."
+  source_episode_id:
+    type: "string"
+    description: "ID of the source episode for pairing in statistical tests."
+required:
+  - "timestep"
+  - "bit_depth"
+  - "state_vector"
+  - "collision_flag"
+  - "noise_std"
+  - "is_dropped"
+  - "source_episode_id"

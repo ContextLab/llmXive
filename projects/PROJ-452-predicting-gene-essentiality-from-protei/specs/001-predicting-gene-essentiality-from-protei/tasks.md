@@ -55,9 +55,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.py` to load organism IDs, confidence thresholds, and paths from YAML
-- [ ] T005 [P] Implement `code/utils.py` with logging setup, checksumming (SHA256), and exponential backoff helpers
-- [ ] T006 [P] Create `code/hash_checker.py` to compute hashes for `data/` and `results/` and update `state/` YAML
+- [X] T004 Create `code/config.py` to load organism IDs, confidence thresholds, and paths from YAML
+- [X] T005 [P] Implement `code/utils.py` with logging setup, checksumming (SHA256), and exponential backoff helpers
+- [X] T006 [P] Create `code/hash_checker.py` to compute hashes for `data/` and `results/` and update `state/` YAML
 - [ ] T007 Create `contracts/correlation_result.schema.yaml`, `contracts/pgls_result.schema.yaml`, `contracts/sensitivity_report.schema.yaml`
 - [X] T008 [P] Setup `tests/contract/test_schemas.py` to validate JSON outputs against the schema files
 - [ ] T009 [P] Fetch the Newick phylogenetic tree from OpenTree of Life (api.opentree.org) using taxonomic IDs for target organisms; save to `data/phylogeny/tree.newick`; if fetch fails, log a warning and skip the comparative test (PGLS) gracefully (per Spec Assumptions) rather than failing the build
@@ -77,7 +77,7 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T010 [P] [US1] Contract test for correlation result schema in `tests/contract/test_correlation_schema.py`
-- [ ] T011 [US1] Integration test for single-organism pipeline in `tests/integration/test_single_organism.py` (Note: Depends on implementation completion) <!-- FAILED: unspecified -->
+- [X] T011 [US1] Integration test for single-organism pipeline in `tests/integration/test_single_organism.py` (Note: Depends on implementation completion) <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -85,7 +85,7 @@
 - [X] T013 [US1] Implement `code/data_loader.py` to fetch gene essentiality labels (binary) from DEG database (e.g., ` or direct CSV fetch) for the same organisms; fallback to local `data/raw/` if API fails; define organism list in config
 - [X] T014 [US1] Implement ID mapping logic in `code/data_loader.py` using Ensembl BioMart API to align STRING and DEG gene identifiers; log `mapping_coverage_percent`
 - [X] T015 [US1] Implement `code/network_analysis.py` to compute degree, betweenness, and eigenvector centrality using NetworkX; use k-sampling for betweenness on networks >5,000 nodes to ensure <30min runtime (FR-004); exact calculation for smaller networks
-- [ ] T016 [US1] Implement `code/statistics.py` to calculate Spearman's rank correlation between each centrality metric and essentiality labels
+- [X] T016 [US1] Implement `code/statistics.py` to calculate Spearman's rank correlation between each centrality metric and essentiality labels
 - [ ] T017 [US1] Implement `code/main.py` orchestration loop: download → map → centrality → correlation → save to `results/correlations.json`
 - [ ] T020 [US1] Add error handling for disconnected networks (assign 0 centrality) and missing gene overlaps (skip with warning)
 
