@@ -1,225 +1,260 @@
 """
-Data pipeline orchestration script for US1.
-Executes: download -> parse -> filter -> save to parquet.
+Data pipeline orchestration script for 2D material elastic moduli prediction.
+
+This script orchestrates the full data ingestion pipeline:
+1. Download raw CIF files and elastic tensors from the canonical source.
+2. Parse CIF files into MaterialGraph objects.
+3. Filter for valid 2D materials with complete elastic tensors.
+4. Save the processed graphs to a Parquet file.
+5. Generate and record a SHA256 checksum in the project state file.
+
+WARNING: This model is a surrogate interpolating pre-computed DFT results.
+It does NOT solve the Schrödinger equation or perform first-principles calculations.
 """
+
 import os
 import sys
 import argparse
 import logging
 import json
+import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Literal
+from typing import List, Dict, Any, Optional
+import yaml
 
-# Local imports based on API surface
-from ingest.download import DownloadManifest, UnifiedDatasetLoader, main as download_main
-from ingest.parse_cif import parse_cif_directory, main as parse_main
-from ingest.filter import filter_graphs, save_filter_stats, FilterStats
-from ingest.bias_check import analyze_exclusion_bias, write_bias_report, main as bias_main
-from data_models.material_graph import MaterialGraph
+import pandas as pd
+import numpy as np
+
+# Project imports
 from utils.config import Config
-from utils.logger import get_logger, configure_log_file
+from utils.logger import get_logger
+from ingest.download import UnifiedDatasetLoader
+from ingest.parse_cif import parse_cif_directory
+from ingest.filter import filter_graphs, save_filter_stats
+from data_models.material_graph import MaterialGraph
 
-# Parquet support
-try:
-    import pandas as pd
-    import pyarrow as pa
-    import pyarrow.parquet as pq
-except ImportError:
-    raise ImportError("Missing required dependencies: pandas, pyarrow. "
-                      "Please install them via requirements.txt.")
+# Configure logging
+logger = get_logger(__name__)
 
-LOGGER = get_logger(__name__)
 
 def serialize_graph(graph: MaterialGraph) -> Dict[str, Any]:
     """
-    Serialize a MaterialGraph object to a dictionary suitable for parquet storage.
-    Output schema MUST include: node_features, edge_features, target_moduli, family_id.
-    """
-    if graph.node_features is None or graph.edge_features is None:
-        raise ValueError(f"Cannot serialize graph for {graph.material_id}: missing features.")
-    
-    if graph.target_moduli is None:
-        raise ValueError(f"Cannot serialize graph for {graph.material_id}: missing target_moduli.")
+    Serialize a MaterialGraph object to a dictionary for Parquet storage.
 
-    # Ensure arrays are lists for JSON/Parquet compatibility
+    Args:
+        graph: The MaterialGraph object to serialize.
+
+    Returns:
+        A dictionary representation of the graph.
+    """
     return {
         "material_id": graph.material_id,
-        "formula": graph.formula,
+        "node_features": graph.node_features.tolist() if graph.node_features is not None else None,
+        "edge_features": graph.edge_features.tolist() if graph.edge_features is not None else None,
+        "edge_index": graph.edge_index.tolist() if graph.edge_index is not None else None,
+        "target_moduli": graph.target_moduli.tolist() if graph.target_moduli is not None else None,
         "family_id": graph.family_id,
-        "node_features": graph.node_features.tolist() if hasattr(graph.node_features, 'tolist') else list(graph.node_features),
-        "edge_features": graph.edge_features.tolist() if hasattr(graph.edge_features, 'tolist') else list(graph.edge_features),
-        "target_moduli": graph.target_moduli.tolist() if hasattr(graph.target_moduli, 'tolist') else list(graph.target_moduli),
         "space_group": graph.space_group,
+        "composition": graph.composition,
         "num_atoms": graph.num_atoms
     }
 
+
+def compute_sha256(file_path: Path) -> str:
+    """
+    Compute the SHA256 hash of a file.
+
+    Args:
+        file_path: Path to the file to hash.
+
+    Returns:
+        Hex digest of the SHA256 hash.
+    """
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
+
+
+def update_state_checksum(state_path: Path, artifact_key: str, checksum: str) -> None:
+    """
+    Update the project state YAML file with a new artifact checksum.
+
+    Args:
+        state_path: Path to the state YAML file.
+        artifact_key: The key path in the YAML (e.g., "artifact_hashes.data_processed.graphs_v1_parquet").
+        checksum: The checksum string (e.g., "sha256:abc123...").
+    """
+    if not state_path.exists():
+        logger.error(f"State file not found: {state_path}")
+        raise FileNotFoundError(f"State file not found: {state_path}")
+
+    with open(state_path, "r") as f:
+        state_data = yaml.safe_load(f) or {}
+
+    # Ensure nested structure exists
+    if "artifact_hashes" not in state_data:
+        state_data["artifact_hashes"] = {}
+
+    # Split key path and navigate/create nested dict
+    keys = artifact_key.split(".")
+    current = state_data["artifact_hashes"]
+    for key in keys[:-1]:
+        if key not in current:
+            current[key] = {}
+        current = current[key]
+    
+    current[keys[-1]] = checksum
+
+    with open(state_path, "w") as f:
+        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+
+    logger.info(f"Updated state checksum for {artifact_key}: {checksum}")
+
+
 def run_pipeline(
     config: Config,
-    source_type: Literal["materials_project", "aflow", "local_cif_dir"],
-    source_id: Optional[str] = None,
-    cif_dir: Optional[Path] = None,
-    output_dir: Optional[Path] = None
-) -> Path:
+    download_source: str = "materials_project",
+    force_download: bool = False
+) -> Dict[str, Any]:
     """
-    Execute the full ingestion pipeline: Download -> Parse -> Filter -> Save.
-    
+    Run the full data ingestion pipeline.
+
     Args:
-        config: Configuration object.
-        source_type: The data source to use.
-        source_id: The ID for the source (e.g., API key or dataset ID).
-        cif_dir: Path to local CIF directory if source_type is 'local_cif_dir'.
-        output_dir: Directory to write processed graphs. Defaults to config.paths.processed.
-    
+        config: The configuration object.
+        download_source: The canonical data source to use.
+        force_download: Whether to force re-download of data.
+
     Returns:
-        Path to the generated parquet file.
+        A dictionary containing pipeline statistics and output paths.
     """
-    if output_dir is None:
-        output_dir = config.paths.processed
+    logger.info("Starting data ingestion pipeline...")
     
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / "graphs_v1.parquet"
+    # Ensure output directories exist
+    config.data_processed_dir.mkdir(parents=True, exist_ok=True)
     
-    LOGGER.info(f"Starting pipeline. Source: {source_type}, Output: {output_file}")
-
-    # 1. Download
-    # The UnifiedDatasetLoader handles the "single canonical source" constraint internally
-    # via the runtime check in T009a.
-    LOGGER.info("Step 1: Downloading data...")
-    
-    # We instantiate the loader. If it's a remote source, it downloads.
-    # If it's local, it prepares the path.
-    # Note: We pass a dummy source_id for the loader to accept, 
-    # but the real logic is in the loader's implementation.
+    # Step 1: Download
+    logger.info(f"Step 1: Downloading data from {download_source}...")
     loader = UnifiedDatasetLoader(
-        source=source_type,
-        source_id=source_id,
-        download_dir=config.paths.raw
+        source=download_source,
+        data_dir=config.data_raw_dir,
+        config=config
     )
+    manifest = loader.load(force=force_download)
     
-    manifest = loader.run()
-    cif_dir_path = manifest.cif_dir
+    if not manifest.files:
+        logger.warning("No files downloaded. Pipeline cannot proceed.")
+        return {"status": "failed", "reason": "No files downloaded"}
     
-    if not cif_dir_path.exists():
-        raise RuntimeError(f"Download failed: CIF directory {cif_dir_path} does not exist.")
-
-    # 2. Parse
-    LOGGER.info("Step 2: Parsing CIFs to MaterialGraphs...")
-    parsed_graphs = parse_cif_directory(cif_dir_path)
-    LOGGER.info(f"Parsed {len(parsed_graphs)} graphs.")
-
-    if not parsed_graphs:
-        LOGGER.warning("No graphs parsed. Check CIF validity.")
-
-    # 3. Filter
-    LOGGER.info("Step 3: Filtering for 2D materials and valid tensors...")
+    logger.info(f"Downloaded {len(manifest.files)} files.")
     
-    # Filter returns a tuple: (filtered_graphs, filter_stats)
-    # We need to ensure error handling for missing tensors is explicit.
-    filtered_graphs = []
-    excluded_reasons = []
-
-    for graph in parsed_graphs:
-        # Check for missing tensors explicitly before filtering
-        if graph.target_moduli is None:
-            excluded_reasons.append({
-                "material_id": graph.material_id,
-                "reason": "missing_tensor",
-                "details": "Elastic tensor is None."
-            })
-            continue
-        
-        # Apply the 2D and 6-component checks
-        if is_2d_material(graph) and is_valid_6_component_tensor(graph):
-            filtered_graphs.append(graph)
-        else:
-            excluded_reasons.append({
-                "material_id": graph.material_id,
-                "reason": "invalid_structure_or_tensor",
-                "details": f"2D: {is_2d_material(graph)}, Tensor: {is_valid_6_component_tensor(graph)}"
-            })
-
-    LOGGER.info(f"Filter complete. Kept: {len(filtered_graphs)}, Excluded: {len(excluded_reasons)}")
-    
-    # Save filter stats
-    stats = FilterStats(
-        total_parsed=len(parsed_graphs),
-        kept=len(filtered_graphs),
-        excluded=len(excluded_reasons),
-        exclusion_details=excluded_reasons
+    # Step 2: Parse CIFs
+    logger.info("Step 2: Parsing CIF files...")
+    graphs = parse_cif_directory(
+        cif_dir=config.data_raw_dir,
+        manifest=manifest
     )
-    save_filter_stats(stats, output_dir / "filter_stats.json")
-
-    # 4. Bias Check
-    LOGGER.info("Step 4: Running bias check on excluded entries...")
-    if excluded_reasons:
-        bias_report = analyze_exclusion_bias(excluded_reasons)
-        write_bias_report(bias_report, output_dir / "bias_report.json")
-    else:
-        LOGGER.info("No excluded entries to check for bias.")
-
-    # 5. Save to Parquet
-    LOGGER.info("Step 5: Serializing and saving to Parquet...")
+    logger.info(f"Parsed {len(graphs)} graphs.")
+    
+    if not graphs:
+        logger.warning("No graphs parsed. Pipeline cannot proceed.")
+        return {"status": "failed", "reason": "No graphs parsed"}
+    
+    # Step 3: Filter
+    logger.info("Step 3: Filtering for valid 2D materials...")
+    filtered_graphs, stats = filter_graphs(graphs)
+    save_filter_stats(stats, config.data_processed_dir / "filter_stats.json")
+    logger.info(f"Filtered: {stats['total']} -> {stats['kept']} valid graphs.")
+    
     if not filtered_graphs:
-        LOGGER.warning("No valid graphs to save. Creating empty parquet file.")
-        # Create an empty parquet with correct schema
-        empty_df = pd.DataFrame(columns=[
-            "material_id", "formula", "family_id", "node_features", 
-            "edge_features", "target_moduli", "space_group", "num_atoms"
-        ])
-        empty_df.to_parquet(output_file, index=False)
-    else:
-        serialized_data = [serialize_graph(g) for g in filtered_graphs]
-        df = pd.DataFrame(serialized_data)
-        
-        # Ensure correct column order
-        cols = [
-            "material_id", "formula", "family_id", "node_features", 
-            "edge_features", "target_moduli", "space_group", "num_atoms"
-        ]
-        df = df[cols]
-        
-        df.to_parquet(output_file, index=False)
-        LOGGER.info(f"Saved {len(filtered_graphs)} graphs to {output_file}")
+        logger.warning("No graphs passed filtering. Pipeline cannot proceed.")
+        return {"status": "failed", "reason": "No graphs passed filtering"}
+    
+    # Step 4: Serialize and Save
+    logger.info("Step 4: Serializing and saving to Parquet...")
+    serialized_data = [serialize_graph(g) for g in filtered_graphs]
+    
+    output_path = config.data_processed_dir / "graphs_v1.parquet"
+    df = pd.DataFrame(serialized_data)
+    
+    # Ensure schema requirements are met
+    required_cols = ["node_features", "edge_features", "target_moduli", "family_id"]
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Schema validation failed. Missing columns: {missing_cols}")
+    
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Saved {len(df)} graphs to {output_path}")
+    
+    # Step 5: Checksum and State Update
+    logger.info("Step 5: Generating checksum and updating state...")
+    checksum = compute_sha256(output_path)
+    state_path = config.project_root / "state" / "projects" / "PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml"
+    
+    # Normalize checksum format for state file
+    state_checksum = f"sha256:{checksum}"
+    update_state_checksum(state_path, "artifact_hashes.data_processed.graphs_v1_parquet", state_checksum)
+    
+    # Return summary
+    return {
+        "status": "success",
+        "downloaded_count": len(manifest.files),
+        "parsed_count": len(graphs),
+        "filtered_count": len(filtered_graphs),
+        "output_path": str(output_path),
+        "checksum": state_checksum,
+        "filter_stats": stats
+    }
 
-    return output_file
 
 def main():
     """Main entry point for the pipeline script."""
     parser = argparse.ArgumentParser(description="Run the 2D material data ingestion pipeline.")
-    parser.add_argument("--source", type=str, required=True, 
-                      choices=["materials_project", "aflow", "local_cif_dir"],
-                      help="Data source to use.")
-    parser.add_argument("--source-id", type=str, default=None,
-                      help="Source identifier (e.g., API key or dataset ID).")
-    parser.add_argument("--cif-dir", type=str, default=None,
-                      help="Path to local CIF directory (only for local_cif_dir source).")
-    parser.add_argument("--output", type=str, default=None,
-                      help="Output path for the parquet file.")
+    parser.add_argument(
+        "--source",
+        type=str,
+        default="materials_project",
+        choices=["materials_project", "aflow"],
+        help="Canonical data source to use."
+    )
+    parser.add_argument(
+        "--force-download",
+        action="store_true",
+        help="Force re-download of data even if it exists."
+    )
+    parser.add_argument(
+        "--config-path",
+        type=str,
+        default="code/utils/config.yaml",
+        help="Path to the configuration file."
+    )
     
     args = parser.parse_args()
     
-    # Initialize config
-    config = Config()
-    configure_log_file(config.paths.logs / "pipeline.log")
-    
-    output_path = None
-    if args.output:
-        output_path = Path(args.output)
-        if not output_path.parent.exists():
-            output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Load configuration
+    config = Config.load(args.config_path)
     
     try:
-        result_path = run_pipeline(
+        result = run_pipeline(
             config=config,
-            source_type=args.source,
-            source_id=args.source_id,
-            cif_dir=Path(args.cif_dir) if args.cif_dir else None,
-            output_dir=output_path.parent if output_path else None
+            download_source=args.source,
+            force_download=args.force_download
         )
-        print(f"Pipeline completed successfully. Output: {result_path}")
+        
+        if result["status"] == "success":
+            logger.info("Pipeline completed successfully.")
+            logger.info(f"Output: {result['output_path']}")
+            logger.info(f"Checksum: {result['checksum']}")
+            logger.info(f"Filter stats: {json.dumps(result['filter_stats'], indent=2)}")
+        else:
+            logger.error(f"Pipeline failed: {result.get('reason', 'Unknown error')}")
+            sys.exit(1)
+            
     except Exception as e:
-        LOGGER.error(f"Pipeline failed: {e}", exc_info=True)
+        logger.exception(f"Pipeline failed with exception: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

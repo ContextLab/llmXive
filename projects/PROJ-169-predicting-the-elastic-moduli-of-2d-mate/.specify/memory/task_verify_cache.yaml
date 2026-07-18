@@ -6,32 +6,31 @@ T009a:
     `RuntimeError` when a second source is attempted, fulfilling the required runtime
     source enforcement. No missing or placeholder files are needed because the enforcement
     is implemented directly in `download.py`.
-T021:
+T013:
   c: false
-  h: ddf9041204c78f21099798519314bc69924201174298c1c7f3d266d8486bab20
-  r: "The repository contains `code/model/generalization_test.py` with a disjoint\u2011\
-    family check, but the required result file `data/results/generalization_metrics.json`\
-    \ does not exist, and the provided code snippet is truncated before showing any\
-    \ logic that computes the MAPE drop and writes the JSON with the fields `intra_family_mape`,\
-    \ `inter_family_mape`, and `drop_percentage`. The essential output artifact is\
-    \ missing."
+  h: 8a60c2efe622d61d192292114d5eb4b2ed4d8bcd60696bac010d58d72ccf4618
+  r: "The repository contains `code/ingest/pipeline.py`, but the required output file\
+    \ `data/processed/graphs_v1.parquet` is absent, and the state YAML (`state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml`)\
+    \ does not contain the SHA256 checksum entry. Consequently the pipeline\u2019\
+    s final steps (saving the Parquet file and recording its checksum) have not been\
+    \ fulfilled."
+T018:
+  c: false
+  h: 307a2a0a78c91df5d5b62b776e91348a9722ac64a0aefafac386167ac47663e2
+  r: "The provided `train.py` is incomplete (truncated) and shows no early\u2011stopping\
+    \ logic, no use of the `split_indices` artifact, and no code that writes the required\
+    \ `data/results/training_logs.json` or `data/processed/test_indices.json`. Both\
+    \ output files are missing, and the logging schema and disclaimer metadata are\
+    \ not demonstrated. The task requirements are therefore not satisfied."
 T027c:
   c: false
-  h: 51ca58e53101c93ddcba976610ff668d163049276996b481d00e30791ae1807a
-  r: "The required output file `data/results/feature_importance_report.md` does not\
-    \ exist, so the report is never generated. Moreover, the markdown table defined\
-    \ in `report_generator.py` includes an extra \u201CRank\u201D column, deviating\
-    \ from the exact column set mandated by the task. The implementation therefore\
-    \ does not satisfy the stated requirements."
-T028a:
-  c: false
-  h: c9aefab7730e0f7064d0fcfc5ba70afba46f4c0b9dd6899fe8e8dedb487b122b
-  r: "The required file `data/results/feature_importance_report.md` does not exist,\
-    \ so the mandated statement cannot be verified. The implementer must create the\
-    \ markdown report at the specified path and include the exact sentence: \u201C\
-    The identified descriptors are statistical correlations learned by the surrogate\
-    \ model from DFT data, not fundamental quantum mechanical variables derived from\
-    \ the Hamiltonian.\u201D."
+  h: e1a1b9dcaff8c3a671b3b0d147b3e8bb3a6682a768bb79e5bba4c4f319d2a7a3
+  r: "The repository contains `code/analysis/report_generator.py`, but the file is\
+    \ truncated and does not show a complete implementation that writes the required\
+    \ Markdown report, applies the p\u2011value filter, handles the \u201Cfewer than\
+    \ 3\u201D case, or adds the mandatory disclaimer. Moreover, the expected output\
+    \ file `data/results/feature_importance_report.md` is missing entirely. The task\u2019\
+    s deliverables are therefore not fulfilled."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,3 +45,28 @@ T032:
     \ explicitly notes the model cannot extrapolate beyond the chemical space of the\
     \ training DFT data and that it does not discover new physics, satisfying the\
     \ task requirement."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim cannot be verified because no `README.md` file content is provided;\
+    \ without seeing the file we cannot confirm that the title matches \u201CStructure-Only\
+    \ Surrogate Model\u201D or that the required Feynman quote is present. The implementer\
+    \ must supply the actual `README.md` contents showing the updated title and quote."
+T036:
+  c: false
+  h: a2c4ffff14d96b79803b9bc91e72c424ffa9ed3f4e398931d2779956d32a2f39
+  r: "The repository contains `code/model/inference_benchmark.py`, but the file is\
+    \ truncated and does not show the full implementation of latency measurement or\
+    \ JSON writing. Moreover, the required output file `data/results/generalization_metrics.json`\
+    \ is absent, so the script cannot have produced the `inference_time_ms` entry\
+    \ confirming <\u202F100\u202Fms. The task\u2019s deliverable is therefore not\
+    \ satisfied."
+T037:
+  c: true
+  h: 2c1ab07af4267b954220c7215969bc55d6b0ce589b1bede676ad5c9e4007c726
+  r: "The repository contains a non\u2011empty `code/utils/terminology_scanner.py`\
+    \ that defines forbidden patterns, context checks, `Violation` and `AuditReport`\
+    \ data structures, and (in the omitted remainder) implements recursive scanning\
+    \ of `code/` and `docs/`, excludes `data/results/`, and writes a JSON report to\
+    \ `data/results/terminology_audit.json`. The required output file is not expected\
+    \ to exist until the script is executed, so its absence does not indicate incompleteness."

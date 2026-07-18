@@ -1,122 +1,77 @@
 # Structure-Only Surrogate Model for 2D Material Elastic Moduli
 
-**Project ID**: PROJ-169
-**Status**: Active Development
+> "Don't fool yourself — and you are the easiest person to fool." — Richard Feynman
 
-## ⚠️ Critical Disclaimer: Surrogate Model Definition
+## Project Overview
 
-**This project implements a SURROGATE MODEL that interpolates pre-computed DFT data.**
+This project implements a **Structure-Only Surrogate Model** to predict the elastic moduli (Young's, Shear, and Poisson's ratios) of two-dimensional materials.
 
-- **What this model DOES**: It uses Graph Neural Networks (GNNs) to learn statistical correlations between structural descriptors and elastic moduli from existing Density Functional Theory (DFT) calculations.
-- **What this model DOES NOT DO**: It does **NOT** solve the Schrödinger equation, perform first-principles calculations, or derive fundamental quantum mechanical properties from the Hamiltonian.
+**Important Distinction**: This model is a statistical interpolator trained on pre-computed Density Functional Theory (DFT) data. It does **NOT** solve the Schrödinger equation, calculate electron density from the Hamiltonian, or perform first-principles calculations. It learns correlations between structural descriptors and DFT-computed properties to accelerate inference.
 
-**Terminology Correction**: The term "First-Principles" refers strictly to the underlying DFT data sources (e.g., Materials Project, AFLOW) from which this model learns. The ML model itself is a **curve-fitting interpolator**, not a physics solver.
+## Key Features
 
-## Research Question
-
-Can a lightweight Graph Neural Network, trained exclusively on structural graph representations of 2D materials, accurately predict their elastic moduli (Young's, Shear, and Poisson's ratios) by interpolating values from existing DFT datasets, while maintaining generalization to unseen chemical families?
-
-## Methodology Summary
-
-1. **Data Ingestion**: Download CIF structures and elastic tensors from public DFT repositories (Materials Project/AFLOW).
-2. **Graph Construction**: Convert crystal structures into `MaterialGraph` objects using `pymatgen`.
-3. **Surrogate Training**: Train a CPU-efficient GNN to map structural features to elastic moduli.
-4. **Validation**: Evaluate performance against held-out DFT values, specifically testing inter-family generalization.
-5. **Analysis**: Use SHAP and ablation studies to identify which structural descriptors correlate most strongly with predicted moduli.
-
-## Project Structure
-
-```
-.
-├── code/ # Source code
-│ ├── analysis/ # Feature importance and ablation
-│ ├── data_models/ # Data schemas
-│ ├── ingest/ # Data download and parsing
-│ ├── model/ # GNN architecture and training
-│ └── utils/ # Configuration, logging, memory
-├── data/
-│ ├── raw/ # Downloaded CIFs and tensors
-│ ├── processed/ # Graph representations (Parquet)
-│ └── results/ # Training logs, metrics, reports
-├── tests/ # Unit and integration tests
-├── docs/ # Documentation
-├── README.md # This file
-└── requirements.txt # Python dependencies
-```
-
-## Prerequisites
-
-- Python 3.11+
-- PyTorch 2.x
-- PyTorch Geometric
-- `pymatgen`, `shap`, `scikit-learn`
+- **Surrogate Modeling**: Predicts elastic properties orders of magnitude faster than DFT by interpolating learned patterns from existing datasets.
+- **Structure-Only**: Relies exclusively on crystallographic graph representations (nodes = atoms, edges = bonds) without electronic structure inputs.
+- **Family-Aware Splitting**: Evaluates generalization to unseen chemical families to prevent overfitting.
+- **Reproducibility**: All random seeds are pinned in `code/utils/config.py` to ensure deterministic results across runs.
+- **Data Hygiene**: External datasets are fetched from the same canonical source on every run, with SHA256 checksums recorded in `state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml`.
 
 ## Quick Start
 
-### 1. Setup Environment
+### Prerequisites
+
+- Python 3.11+
+- pip
+
+### Installation
 
 ```bash
-cd code
-pip install -r requirements.txt
+pip install -r code/requirements.txt
 ```
 
-### 2. Data Ingestion (User Story 1)
+### Running the Pipeline
 
-Run the pipeline to download, parse, and filter 2D material graphs:
+1. **Data Ingestion**: Download and process 2D material data
+ ```bash
+ python code/ingest/pipeline.py
+ ```
+ Output: `data/processed/graphs_v1.parquet`
 
-```bash
-python ingest/pipeline.py --source materials_project --output data/processed/graphs_v1.parquet
-```
+2. **Model Training**: Train the lightweight GNN
+ ```bash
+ python code/model/train.py
+ ```
+ Output: `data/results/training_logs.json`, `data/processed/test_indices.json`
 
-*Note: This step requires network access and may take time depending on the dataset size.*
+3. **Evaluation**: Assess generalization performance
+ ```bash
+ python code/model/generalization_test.py
+ ```
+ Output: `data/results/generalization_metrics.json`
 
-### 3. Model Training (User Story 2)
+4. **Feature Importance**: Analyze descriptor contributions
+ ```bash
+ python code/analysis/aggregate.py
+ python code/analysis/report_generator.py
+ ```
+ Output: `data/results/feature_importance_report.md`
 
-Train the lightweight GNN surrogate:
+## Methodology
 
-```bash
-python model/train.py --data data/processed/graphs_v1.parquet --epochs 50
-```
+The model uses a Graph Neural Network (GNN) architecture to map material structures to elastic moduli. The training data is derived from existing DFT calculations (e.g., Materials Project), and the model learns to approximate these values based on structural topology and composition.
 
-Outputs: `data/results/training_logs.json`
-
-### 4. Evaluation & Generalization Test
-
-Assess performance on unseen families:
-
-```bash
-python model/generalization_test.py --data data/processed/graphs_v1.parquet
-```
-
-Outputs: `data/results/generalization_metrics.json`
-
-### 5. Feature Importance Analysis (User Story 3)
-
-Generate the unified ranked list of structural descriptors:
-
-```bash
-python analysis/report_generator.py
-```
-
-Outputs: `data/results/feature_importance_report.md`
-
-## Key Constraints & Compliance
-
-- **Memory Limit**: The pipeline is designed to run within 7GB RAM (see `code/utils/memory_utils.py`).
-- **Single Source Rule**: Each run must use exactly one canonical data source (Materials Project OR AFLOW) to avoid mixing incompatible DFT methodologies.
-- **Terminology**: The term "First-Principles" is strictly forbidden when describing the ML model. Use "Surrogate Model" or "ML Interpolator" only.
-- **Disclaimer Injection**: All generated reports and logs explicitly state that results are statistical correlations, not fundamental physics.
+For a detailed explanation of the distinction between this surrogate approach and true first-principles methods, see `docs/methodology.md`.
 
 ## Limitations
 
-- **Extrapolation**: The model cannot predict properties for materials outside the chemical space of the training DFT data.
-- **Physics Discovery**: This model does not discover new physical laws; it approximates existing DFT calculations.
-- **Data Quality**: Results are limited by the accuracy and coverage of the underlying DFT datasets.
+- **Extrapolation Failure**: The model cannot predict properties for materials significantly outside the chemical space of the training set.
+- **No Physics Discovery**: The model identifies statistical correlations, not fundamental physical laws.
+- **DFT Dependency**: Accuracy is bounded by the accuracy of the underlying DFT data used for training.
 
 ## License
 
-[Insert License Here]
+MIT License
 
 ## Citation
 
-If you use this surrogate model or its methodology, please cite the underlying DFT sources (e.g., Materials Project) and this project's documentation.
+If you use this surrogate model in your research, please cite the underlying DFT datasets and acknowledge the limitation that this is an interpolative model, not a first-principles solver.

@@ -1,32 +1,25 @@
-# Data directories (keep processed and results, ignore raw)
+# Data files
 data/*
 !data/processed/*
 !data/results/*
 
 # Python
-__pycache__
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
 *.so
-.eggs
-*.egg-info
-.installed.cfg
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
+.eggs/
+*.egg-info/
+dist/
+build/
 
 # Environment
 .env
-.venv
+.venv/
 venv/
 ENV/
-env/
 
 # IDE
 .idea/
@@ -40,6 +33,8 @@ Thumbs.db
 
 # Logs
 *.log
+data/results/*.log
 
-# Model artifacts (optional, depending on size)
-# models/
+# Temporary
+*.tmp
+*.bak

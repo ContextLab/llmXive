@@ -1,26 +1,18 @@
 [lint]
-# Enable strict rules for E (pycodestyle errors), F (Pyflakes), W (pycodestyle warnings), I (isort)
-select = ["E", "F", "W", "I"]
-
-# Ignore specific rules if necessary (none for strict mode)
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+]
 ignore = []
 
-# Allow autofix for all enabled rules
+# Allow autofix for all enabled rules (if `--fix` is provided).
 fixable = ["ALL"]
 unfixable = []
 
-# Line length for formatting (must match black)
-line-length = 88
-
-# Target Python version
-target-version = "py311"
-
-[lint.per-file-ignores]
-# Optional: specific ignores for test files if needed
-"tests/*" = ["S101"]
+# A list of rule codes that are unused and can be ignored.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [lint.isort]
-# Isort configuration
-known-first-party = ["data_models", "ingest", "model", "utils", "analysis"]
-force-sort-within-sections = true
-lines-after-imports = 2
+known-first-party = ["utils", "ingest", "model", "data_models", "analysis"]

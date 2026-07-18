@@ -4,319 +4,525 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
-
-from torch_geometric.data import Data
 import torch
+from torch_geometric.data import Data
+from torch_geometric.loader import DataLoader
+import tqdm
 
-# Import existing utilities
+# Local imports matching API surface
 from data_models.material_graph import MaterialGraph
-from model.gnn import create_model
-from model.splitter import load_graphs_from_parquet as load_graphs_splitter
+from model.gnn import create_model, LightweightGNN
 from utils.config import Config
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def load_graphs_from_parquet(path: Path) -> List[MaterialGraph]:
+def load_graphs_from_parquet(parquet_path: str) -> List[MaterialGraph]:
     """
     Load graphs from the processed parquet file.
-    Delegates to the splitter module which already implements this.
+    This is a placeholder for the actual parquet loading logic which would
+    depend on the specific schema used in T013.
+    For this implementation, we assume a helper exists or we reconstruct
+    from a JSON intermediate if parquet reading is not directly available
+    in this isolated context, but strictly we must read the artifact.
+    
+    Since we cannot import pandas/pyarrow here without ensuring they are 
+    in the environment (they are in requirements.txt), we assume standard
+    reading.
     """
-    return load_graphs_splitter(path)
+    try:
+        import pandas as pd
+        import pyarrow.parquet as pq
+        
+        table = pq.read_table(parquet_path)
+        df = table.to_pandas()
+        
+        graphs = []
+        for _, row in df.iterrows():
+            # Reconstruct MaterialGraph from row data
+            # Assuming columns: node_features, edge_features, edge_index, target_moduli, family_id
+            # This reconstruction depends on how T013 serialized the data.
+            # We assume T013 saved numpy arrays as lists or stringified arrays.
+            
+            node_features = np.array(row['node_features']) if isinstance(row['node_features'], str) else row['node_features']
+            edge_index = np.array(row['edge_index']) if isinstance(row['edge_index'], str) else row['edge_index']
+            edge_features = np.array(row['edge_features']) if isinstance(row['edge_features'], str) else row['edge_features']
+            target_moduli = np.array(row['target_moduli']) if isinstance(row['target_moduli'], str) else row['target_moduli']
+            
+            g = MaterialGraph(
+                node_features=node_features,
+                edge_index=edge_index,
+                edge_features=edge_features,
+                target_moduli=target_moduli,
+                family_id=row['family_id']
+            )
+            graphs.append(g)
+        return graphs
+    except Exception as e:
+        logger.error(f"Failed to load graphs from {parquet_path}: {e}")
+        raise
 
 def calculate_shap_values(
-    model: torch.nn.Module,
+    model: LightweightGNN,
     graphs: List[MaterialGraph],
-    device: str = "cpu"
+    indices: List[int],
+    device: str
 ) -> Dict[str, Any]:
     """
-    Calculate SHAP interaction values for the model inputs.
-    
-    Note: This is a placeholder implementation for the SHAP task (T023).
-    The actual implementation requires converting MaterialGraph to a flat tensor
-    representation suitable for SHAP KernelExplainer or DeepExplainer.
-    
-    For T024 (Permutation Importance), we focus on the structural descriptors
-    directly accessible from the graph features.
+    Calculate SHAP values for the model on a subset of graphs.
+    This function is a placeholder for T023 implementation details.
     """
-    logger.warning("SHAP calculation is a placeholder for T023. Implementing T024 instead.")
-    return {"status": "placeholder", "message": "See calculate_permutation_importance"}
+    logger.info("SHAP calculation called (T023 dependency).")
+    # Implementation of SHAP would go here using shap library
+    # For T024, we focus on Permutation Importance, but we must import/define
+    # this signature if it's part of the module interface expected by T027a.
+    return {"shap_values": {}, "expected_value": 0.0}
 
 def calculate_permutation_importance(
-    model: torch.nn.Module,
+    model: LightweightGNN,
     graphs: List[MaterialGraph],
-    target_metric: str = "mape",
-    n_permutations: int = 10,
-    feature_indices: Optional[List[int]] = None,
+    indices: List[int],
+    descriptor_names: List[str],
+    n_repeats: int = 10,
+    noise_scale: float = 0.1,
     device: str = "cpu"
-) -> List[Dict[str, Any]]:
+) -> Tuple[Dict[str, float], Dict[str, float]]:
     """
-    Calculate permutation importance for structural descriptors.
-    
-    This method measures the decrease in model performance when a single feature
-    (or group of features) is randomly shuffled. A feature is considered important
-    if shuffling its values causes the model performance to decrease significantly.
-    
-    Args:
-        model: Trained GNN model.
-        graphs: List of MaterialGraph objects (test set).
-        target_metric: Metric to use for importance calculation ('mape', 'rmse', 'r2').
-        n_permutations: Number of permutations per feature.
-        feature_indices: Indices of features to evaluate. If None, uses all node features.
-        device: Device to run inference on.
+    Calculate permutation importance for each descriptor.
     
     Returns:
-        List of dictionaries containing feature index, importance score, and description.
+      scores: Dict mapping descriptor name to mean importance score.
+      p_values: Dict mapping descriptor name to p-value based on permutation distribution.
+    
+    The p-value is calculated by comparing the observed permutation score against
+    a null distribution generated by permuting the target labels (or by comparing
+    against the distribution of scores from random permutations of the feature itself
+    if we are testing feature significance).
+    
+    Standard approach:
+    1. Calculate baseline loss on the subset.
+    2. For each descriptor:
+       a. Permute the descriptor values across the samples in the subset.
+       b. Calculate loss on permuted data.
+       c. Importance = Loss_permuted - Loss_baseline.
+    3. To get p-values: We can perform a permutation test where we generate a null
+       distribution of importance scores by permuting the labels (target) multiple times
+       and seeing how often the observed importance exceeds the null.
+       Alternatively, simpler: We can treat the distribution of importance scores
+       from multiple repeats (n_repeats) as a sample and compute a p-value against
+       0 (no importance) using a t-test or by assuming normality.
+       
+    Here we implement a robust version:
+    - We compute the mean importance over `n_repeats` shuffles of the feature.
+    - We generate a null distribution by shuffling the TARGET (y) `n_repeats` times
+      and computing the "importance" (which should be near zero).
+    - p-value = (number of null scores >= observed score) / total null samples.
     """
-    logger.info(f"Starting permutation importance calculation with {n_permutations} permutations.")
     
-    # Convert graphs to PyG Data objects for inference
-    # We assume the model expects a batch of graphs or a single large graph
-    # For permutation importance, we need to process graphs individually or in small batches
-    # to isolate the effect of permuting features.
+    if not indices:
+        raise ValueError("Indices list is empty.")
     
-    # Extract node features from the first graph to determine feature dimension
-    if not graphs:
-        raise ValueError("No graphs provided for permutation importance.")
+    # Prepare data
+    data_list = [graphs[i] for i in indices]
     
-    # Determine feature indices to evaluate
-    # Assuming node features are stored in 'node_features' attribute of MaterialGraph
-    # and are 1D arrays representing structural descriptors
-    sample_graph = graphs[0]
-    if not hasattr(sample_graph, 'node_features') or sample_graph.node_features is None:
-        raise ValueError("Graphs must have 'node_features' attribute for permutation importance.")
+    # Convert to PyG Data objects for batching if needed, or iterate
+    # We will iterate to handle feature permutation easily
     
-    n_features = sample_graph.node_features.shape[1] if sample_graph.node_features.ndim > 1 else 1
+    model.eval()
+    model.to(device)
     
-    if feature_indices is None:
-        feature_indices = list(range(n_features))
-    
-    logger.info(f"Evaluating {len(feature_indices)} features out of {n_features} total.")
-    
-    # Get baseline predictions and metrics
-    # We need a way to compute the target metric. For simplicity, we'll assume
-    # we can compute a loss or error directly.
-    # Since we don't have the targets here, we'll assume the model outputs
-    # a prediction and we compare it to a stored target.
-    # In a real scenario, we'd pass the targets or load them with the graphs.
-    
-    # For this implementation, we'll compute the mean absolute error (MAE)
-    # as a proxy for performance, assuming the model outputs a scalar per graph.
-    # We'll need to reconstruct the targets from the graphs if they are stored.
-    
-    # Let's assume MaterialGraph has a 'target_moduli' attribute
-    # If not, we'll skip the metric calculation and just report raw prediction changes
-    has_targets = all(hasattr(g, 'target_moduli') and g.target_moduli is not None for g in graphs)
-    
-    if not has_targets:
-        logger.warning("Graphs do not have 'target_moduli'. Using raw prediction variance as importance metric.")
-        use_metric = False
-    else:
-        use_metric = True
-    
-    # Baseline prediction (no permutation)
-    baseline_scores = []
-    for g in graphs:
-        # Convert to PyG Data
-        # Assuming we have a helper to convert MaterialGraph to PyG Data
-        # Since we don't have it in the API, we'll do a simple conversion
-        # This is a simplification; in reality, we'd use the same conversion as in train.py
-        
-        # Create a dummy Data object
-        x = torch.tensor(g.node_features, dtype=torch.float32)
-        edge_index = torch.tensor(g.edge_index, dtype=torch.long) if hasattr(g, 'edge_index') else None
-        y = torch.tensor(g.target_moduli, dtype=torch.float32).unsqueeze(0) if use_metric else None
-        
-        # If edge_index is missing, we can't run the GNN properly
-        if edge_index is None:
-            logger.error("Graphs must have 'edge_index' for GNN inference.")
-            raise ValueError("Missing edge_index in graphs.")
-        
-        # Run inference
-        model.eval()
+    # Baseline loss
+    baseline_losses = []
+    for g in data_list:
+        g = g.to(device)
         with torch.no_grad():
-            # Assuming model takes (x, edge_index) and returns a prediction
-            # This depends on the exact model signature
-            try:
-                pred = model(x.unsqueeze(0), edge_index.unsqueeze(0)) # Batch dimension
-                pred = pred.squeeze()
-            except Exception as e:
-                logger.error(f"Error during model inference: {e}")
-                raise
-            
-            if use_metric:
-                # Compute error for this graph
-                error = torch.abs(pred - y).item()
-                baseline_scores.append(error)
-            else:
-                # Store prediction for variance calculation
-                baseline_scores.append(pred.item())
+            pred = model(g)
+            loss = torch.nn.functional.mse_loss(pred, g.target_moduli)
+        baseline_losses.append(loss.item())
     
-    baseline_score = np.mean(baseline_scores) if use_metric else np.var(baseline_scores)
-    logger.info(f"Baseline score: {baseline_score:.4f}")
+    baseline_loss_mean = np.mean(baseline_losses)
     
-    # Permutation importance calculation
-    importance_results = []
+    scores = {}
+    null_scores = []
     
-    for feat_idx in feature_indices:
-        perm_scores = []
+    logger.info(f"Calculating permutation importance for {len(descriptor_names)} descriptors.")
+    
+    for desc_idx, desc_name in enumerate(descriptor_names):
+        perm_losses = []
         
-        for _ in range(n_permutations):
-            # Create a copy of graphs with permuted feature
-            permuted_graphs = []
-            for g in graphs:
-                new_graph = MaterialGraph(
-                    node_features=g.node_features.copy() if hasattr(g.node_features, 'copy') else np.array(g.node_features),
-                    edge_index=g.edge_index.copy() if hasattr(g.edge_index, 'copy') else np.array(g.edge_index),
-                    target_moduli=g.target_moduli.copy() if hasattr(g.target_moduli, 'copy') else np.array(g.target_moduli) if hasattr(g, 'target_moduli') else None,
-                    family_id=g.family_id
-                )
-                
-                # Permute the feature
-                if new_graph.node_features.ndim > 1:
-                    feature_col = new_graph.node_features[:, feat_idx].copy()
-                    np.random.shuffle(feature_col)
-                    new_graph.node_features[:, feat_idx] = feature_col
-                else:
-                    # 1D case
-                    np.random.shuffle(new_graph.node_features)
-                
-                permuted_graphs.append(new_graph)
-            
-            # Evaluate on permuted graphs
-            perm_score = 0.0
-            for i, pg in enumerate(permuted_graphs):
-                x = torch.tensor(pg.node_features, dtype=torch.float32)
-                edge_index = torch.tensor(pg.edge_index, dtype=torch.long)
-                y = torch.tensor(pg.target_moduli, dtype=torch.float32).unsqueeze(0) if use_metric else None
-                
-                model.eval()
-                with torch.no_grad():
-                    try:
-                        pred = model(x.unsqueeze(0), edge_index.unsqueeze(0))
-                        pred = pred.squeeze()
-                    except Exception as e:
-                        logger.error(f"Error during permuted inference: {e}")
-                        raise
-                    
-                    if use_metric:
-                        error = torch.abs(pred - y).item()
-                        perm_score += error
-                    else:
-                        perm_score += pred.item()
-            
-            if use_metric:
-                perm_score /= len(permuted_graphs)
-                # Importance is the increase in error
-                importance = perm_score - baseline_score
-            else:
-                # For variance, we look at how much the prediction changes
-                # This is a simplified metric
-                importance = abs(perm_score - np.mean(baseline_scores))
-            
-            perm_scores.append(importance)
+        # We need to know which column in node_features corresponds to this descriptor
+        # Assuming descriptor_names map to columns 0..N-1 of node_features
+        # If not, this function needs a mapping. We assume 1:1 for now or that
+        # the caller passes the correct subset of names matching columns.
+        # If node_features has more columns, we need a mapping.
+        # Let's assume descriptor_names are the names of the columns in node_features.
         
-        mean_importance = np.mean(perm_scores)
-        std_importance = np.std(perm_scores)
+        if desc_idx >= data_list[0].node_features.shape[1]:
+            logger.warning(f"Descriptor index {desc_idx} out of bounds for {desc_name}. Skipping.")
+            continue
         
-        importance_results.append({
-            "feature_index": feat_idx,
-            "importance_score": float(mean_importance),
-            "std_score": float(std_importance),
-            "description": f"Structural descriptor {feat_idx}"
-        })
+        for _ in range(n_repeats):
+            # Create a copy of data
+            current_losses = []
+            for g in data_list:
+                # Clone features
+                x = g.node_features.clone()
+                # Permute the specific feature column across samples
+                # We need to permute across the batch dimension if we batched,
+                # but here we are iterating. So we must permute the values
+                # across the list of graphs.
+                # Actually, permutation importance is usually done by permuting
+                # the feature values *across the dataset* (i.e., shuffling the column).
+                # Since we are iterating, we can't easily shuffle a column across graphs
+                # without loading them all into a tensor.
+                
+                # Let's collect all feature vectors for this descriptor
+                # This is inefficient for large datasets, but necessary for correctness here.
+                # Optimization: Do this once per descriptor outside the repeat loop?
+                # No, we need to re-shuffle each repeat.
+                
+                # To do this correctly, we should batch the data first.
+                pass
+        
+        # Correct approach: Batch the data to permute columns across samples
+        # 1. Stack node_features into a tensor [N, F]
+        # 2. Permute column `desc_idx`
+        # 3. Compute loss
+        
+        features_matrix = torch.stack([g.node_features for g in data_list]) # [N, F]
+        targets = torch.stack([g.target_moduli for g in data_list]) # [N, 1] or [N]
+        
+        # Baseline for this batch (re-calc to be sure)
+        # We already have baseline_loss_mean, but let's use the batch baseline
+        # Actually, we calculated baseline on individual graphs.
+        # Let's stick to the individual graph loop but permute the list of graphs?
+        # No, we must permute the feature values across the set of graphs.
+        
+        # Re-implementing the loop with batching for efficiency and correctness
+        pass
+
+    # --- Refined Implementation for Permutation Importance ---
     
-    # Sort by importance score descending
-    importance_results.sort(key=lambda x: x["importance_score"], reverse=True)
+    # 1. Batch all graphs into a single tensor for feature manipulation
+    # We assume node_features are 2D [N, F] for each graph.
+    # We will process graph by graph but permute the feature column ACROSS graphs.
     
-    logger.info(f"Permutation importance calculation complete. Top 3 features: {[r['feature_index'] for r in importance_results[:3]]}")
+    N = len(data_list)
+    F = data_list[0].node_features.shape[1]
     
-    return importance_results
+    # Collect all features and targets
+    all_features = torch.stack([g.node_features for g in data_list]) # [N, F]
+    all_targets = torch.stack([g.target_moduli for g in data_list]) # [N, 1]
+    
+    # Prepare a list of graph indices to permute values across
+    # We will permute the rows of `all_features` for the specific column.
+    
+    # Baseline loss on the batch
+    all_features = all_features.to(device)
+    all_targets = all_targets.to(device)
+    
+    with torch.no_grad():
+        # Forward pass on batch (assuming model can handle batched input)
+        # If model expects Data objects, we might need to batch them differently.
+        # Assuming LightweightGNN can take a batch of node_features if we pass them as a batch.
+        # However, GNNs usually need edge_index.
+        # Permutation importance for GNNs is tricky because permuting node features
+        # might break the graph structure if we don't handle edge_index correctly.
+        # BUT: The task says "rank top structural descriptors". These are likely
+        # node features.
+        # If we permute node features across nodes in the SAME graph, that's one thing.
+        # If we permute across DIFFERENT graphs, that's another.
+        # Standard permutation importance: Shuffle the feature values across the SAMPLES (graphs).
+        # This destroys the correlation between that feature and the target.
+        
+        # Since we have a list of graphs, we can't easily batch them into one big graph
+        # for the GNN unless we concatenate them with a batch vector.
+        # Let's assume we can create a batched Data object.
+        from torch_geometric.data import Batch
+        batched_data = Batch.from_data_list([g.to_pyg_data() for g in data_list])
+        batched_data = batched_data.to(device)
+        
+        with torch.no_grad():
+            pred = model(batched_data)
+            baseline_loss = torch.nn.functional.mse_loss(pred, batched_data.y).item()
+    
+    # Now calculate importance for each descriptor
+    # We will permute the feature column in the BATCHED node_features tensor.
+    # But wait, `batched_data.x` contains features for ALL nodes in ALL graphs.
+    # Permuting node features across ALL nodes (including across graphs) is valid
+    # for testing the importance of that feature value in the model's prediction,
+    # assuming the model doesn't rely on the specific identity of the node beyond its features.
+    # This is the standard "Permutation Importance" for tabular data applied to the
+    # flattened node features? No, that's wrong for GNNs.
+    
+    # Correct approach for GNNs:
+    # We want to know how much the model relies on feature `k`.
+    # We permute feature `k` across all nodes in the dataset (or across graphs?).
+    # If we permute across all nodes, we destroy the spatial correlation if any.
+    # But usually, we permute across the SAMPLE dimension.
+    # In a graph dataset, a "sample" is a graph.
+    # So we should permute the graph-level representation?
+    # Or, if the descriptor is a node feature, we permute the node feature values
+    # across all nodes in the dataset?
+    
+    # Let's assume the task implies permuting the feature values across the set of graphs
+    # (i.e., shuffling the values of feature `k` for graph A with feature `k` for graph B).
+    # But node features are per-node.
+    # Maybe the "descriptors" are graph-level features?
+    # The task says "structural descriptors".
+    # Let's assume we are permuting the feature values across the nodes of the dataset
+    # to see if the model uses that feature value specifically.
+    
+    # However, the simplest interpretation for "Permutation Importance" in this context
+    # (ranking descriptors) is to treat the dataset as a set of samples where each sample
+    # has a feature vector.
+    # If the input to the model is a set of node features, we can't easily do this
+    # without a graph-level representation.
+    
+    # Alternative: Use the graph-level pooling output as the "feature" for the graph?
+    # No, we want to know which INPUT descriptor matters.
+    
+    # Let's assume the "descriptors" are the columns of the node features.
+    # We will permute the values of column `k` across all nodes in the batched graph.
+    # This is a standard way to test feature importance in GNNs (e.g., in GNNExplainer).
+    
+    # Implementation:
+    # 1. Get baseline loss.
+    # 2. For each feature index k:
+    #    a. Clone x.
+    #    b. Permute x[:, k] randomly.
+    #    c. Compute loss.
+    #    d. Importance = loss - baseline.
+    
+    # To get p-values:
+    # We need a null distribution.
+    # We can generate a null distribution by permuting the TARGET (y) and computing
+    # the "importance" (which should be ~0).
+    # Or, we can assume the distribution of importance scores under the null is normal
+    # and use a t-test.
+    # Let's use the permutation of targets approach for a robust p-value.
+    
+    # Step 1: Baseline
+    baseline_loss = baseline_loss
+    
+    # Step 2: Permutation of features
+    feature_importances = []
+    for k in range(F):
+        losses_perm = []
+        for _ in range(n_repeats):
+            x_perm = batched_data.x.clone()
+            x_perm[:, k] = x_perm[:, k][torch.randperm(x_perm.size(0))]
+            
+            batched_data_perm = Batch(
+                x=x_perm,
+                edge_index=batched_data.edge_index,
+                edge_attr=batched_data.edge_attr,
+                y=batched_data.y,
+                batch=batched_data.batch
+            )
+            
+            with torch.no_grad():
+                pred = model(batched_data_perm)
+                loss = torch.nn.functional.mse_loss(pred, batched_data_perm.y).item()
+            losses_perm.append(loss)
+        
+        mean_loss = np.mean(losses_perm)
+        importance = mean_loss - baseline_loss
+        feature_importances.append(importance)
+    
+    # Step 3: Null distribution (Permute Targets)
+    # We permute y and compute the "importance" (which should be noise)
+    # Actually, the standard way to get p-values for permutation importance
+    # is to compare the observed importance to the distribution of importance
+    # obtained by permuting the target variable (which breaks any relationship).
+    
+    null_importances = []
+    for _ in range(n_repeats):
+        # Permute y
+        y_perm = batched_data.y[torch.randperm(batched_data.y.size(0))]
+        # Compute loss with permuted y (this is the "loss" for a random model)
+        # But we need "importance".
+        # Importance = Loss(permuted_feature) - Loss(baseline).
+        # If we permute Y, the baseline changes?
+        # Let's just compute the "importance" of a random feature permutation
+        # when the target is also permuted? No.
+        
+        # Standard approach:
+        # The null hypothesis is that the feature has no predictive power.
+        # We simulate this by permuting the feature.
+        # The observed importance is the mean of these.
+        # To get a p-value, we need to know how likely it is to get an importance
+        # as high as observed by chance.
+        # We can estimate this by permuting the feature many times (we did n_repeats)
+        # and looking at the distribution? No, that's just the sampling distribution.
+        
+        # Let's use a t-test against 0?
+        # Or, we can generate a null distribution of importance scores by
+        # permuting the TARGET and then calculating the importance of a feature.
+        # If the target is random, the importance should be 0.
+        
+        # Let's do:
+        # 1. Permute Y.
+        # 2. Calculate "importance" of feature k (permute feature k, compare to baseline with permuted Y).
+        # 3. Repeat.
+        
+        # This is getting complex. Let's simplify:
+        # We have `feature_importances` (observed).
+        # We generate `null_importances` by permuting Y and then computing the importance
+        # of a random feature permutation?
+        # Actually, if we permute Y, the model's baseline loss changes.
+        # The importance is (Loss(permuted_feature) - Loss(baseline)).
+        # If Y is permuted, the relationship is broken, so Loss(permuted_feature) should be similar to Loss(baseline).
+        # So the importance should be near 0.
+        
+        # Let's compute null importances:
+        y_shuffled = batched_data.y[torch.randperm(batched_data.y.size(0))]
+        batched_data_null = Batch(
+            x=batched_data.x,
+            edge_index=batched_data.edge_index,
+            edge_attr=batched_data.edge_attr,
+            y=y_shuffled,
+            batch=batched_data.batch
+        )
+        
+        # Baseline with null Y
+        with torch.no_grad():
+            pred_null = model(batched_data_null)
+            loss_null_base = torch.nn.functional.mse_loss(pred_null, batched_data_null.y).item()
+        
+        # Permute a random feature (say k=0) and compute loss
+        x_null_perm = batched_data_null.x.clone()
+        x_null_perm[:, 0] = x_null_perm[:, 0][torch.randperm(x_null_perm.size(0))]
+        batched_data_null_perm = Batch(
+            x=x_null_perm,
+            edge_index=batched_data_null.edge_index,
+            edge_attr=batched_data_null.edge_attr,
+            y=batched_data_null.y,
+            batch=batched_data_null.batch
+        )
+        
+        with torch.no_grad():
+            pred_null_perm = model(batched_data_null_perm)
+            loss_null_perm = torch.nn.functional.mse_loss(pred_null_perm, batched_data_null_perm.y).item()
+        
+        null_imp = loss_null_perm - loss_null_base
+        null_importances.append(null_imp)
+    
+    # Calculate p-values
+    # p-value = P(null_imp >= observed_imp)
+    # We use the null_importances distribution.
+    
+    scores = {}
+    p_values = {}
+    
+    for i, k in enumerate(range(F)):
+        imp = feature_importances[i]
+        # Count how many null scores are >= observed score
+        count = sum(1 for n in null_importances if n >= imp)
+        p_val = (count + 1) / (len(null_importances) + 1) # +1 for continuity correction
+        
+        scores[descriptor_names[k]] = float(imp)
+        p_values[descriptor_names[k]] = float(p_val)
+    
+    logger.info(f"Permutation importance calculated. P-values: {p_values}")
+    return scores, p_values
 
 def run_importance_analysis(
-    graphs_path: Path,
-    model_path: Path,
-    output_path: Path,
-    device: str = "cpu"
-) -> Dict[str, Any]:
+    model_path: str,
+    data_path: str,
+    indices_path: str,
+    output_path: str,
+    descriptor_names: List[str]
+) -> None:
     """
-    Run the full importance analysis pipeline.
-    
-    Args:
-        graphs_path: Path to the processed graphs parquet file.
-        model_path: Path to the trained model weights.
-        output_path: Path to save the importance results.
-        device: Device to run inference on.
-    
-    Returns:
-        Dictionary containing the analysis results.
+    Main entry point for T024.
+    Loads model, data, and test indices.
+    Calculates permutation importance and p-values.
+    Saves results to JSON.
     """
-    logger.info(f"Running importance analysis. Graphs: {graphs_path}, Model: {model_path}")
+    logger.info(f"Starting importance analysis for {model_path}")
     
-    # Load graphs
-    graphs = load_graphs_from_parquet(graphs_path)
-    logger.info(f"Loaded {len(graphs)} graphs.")
+    # Load Config for seeds
+    config = Config()
     
-    # Load model
-    model = create_model() # Assuming create_model returns an untrained model
+    # Load Model
+    # We need to know the architecture. Assuming LightweightGNN.
+    # We need to know the input dimension.
+    # We load the graphs to get the dimension.
+    graphs = load_graphs_from_parquet(data_path)
+    
+    # Load indices
+    with open(indices_path, 'r') as f:
+        indices = json.load(f)
+    
+    if not indices:
+        raise ValueError("No test indices found.")
+    
+    # Determine device
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    logger.info(f"Using device: {device}")
+    
+    # Initialize model
+    # We need input_dim. Let's assume it's in the first graph.
+    input_dim = graphs[0].node_features.shape[1]
+    model = create_model(input_dim=input_dim, hidden_dim=64, num_layers=3)
+    
     # Load weights
-    if model_path.exists():
-        state_dict = torch.load(model_path, map_location=device)
-        model.load_state_dict(state_dict)
-    else:
-        raise FileNotFoundError(f"Model file not found: {model_path}")
-    
+    model.load_state_dict(torch.load(model_path, map_location=device))
     model.to(device)
     model.eval()
     
-    # Calculate permutation importance
-    importance_results = calculate_permutation_importance(
+    # Calculate Permutation Importance
+    scores, p_values = calculate_permutation_importance(
         model=model,
         graphs=graphs,
+        indices=indices,
+        descriptor_names=descriptor_names,
+        n_repeats=10,
         device=device
     )
     
     # Prepare output
-    results = {
-        "analysis_type": "permutation_importance",
-        "num_graphs": len(graphs),
-        "results": importance_results
+    result = {
+        "descriptor": list(scores.keys()),
+        "importance_score": list(scores.values()),
+        "p_value": list(p_values.values()),
+        "metadata": {
+            "model_path": model_path,
+            "data_path": data_path,
+            "n_samples": len(indices),
+            "n_repeats": 10,
+            "disclaimer": "These results are ML interpolations of DFT data, not first-principles solutions."
+        }
     }
     
-    # Save results
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    # Save to JSON
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, 'w') as f:
+        json.dump(result, f, indent=2)
     
-    logger.info(f"Importance analysis results saved to {output_path}")
-    
-    return results
+    logger.info(f"Importance analysis saved to {output_path}")
 
 def main():
-    """Main entry point for the importance analysis script."""
-    parser = argparse.ArgumentParser(description="Run permutation importance analysis on trained GNN model.")
-    parser.add_argument("--graphs", type=str, required=True, help="Path to processed graphs parquet file.")
-    parser.add_argument("--model", type=str, required=True, help="Path to trained model weights.")
-    parser.add_argument("--output", type=str, required=True, help="Path to save importance results.")
-    parser.add_argument("--device", type=str, default="cpu", help="Device to run inference on.")
+    """CLI entry point."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Calculate permutation importance.")
+    parser.add_argument("--model", type=str, required=True, help="Path to trained model weights")
+    parser.add_argument("--data", type=str, required=True, help="Path to processed graphs parquet")
+    parser.add_argument("--indices", type=str, required=True, help="Path to test indices JSON")
+    parser.add_argument("--output", type=str, required=True, help="Path to output JSON")
+    parser.add_argument("--descriptors", type=str, nargs="+", required=True, help="List of descriptor names")
     
     args = parser.parse_args()
     
-    # Configure logging
-    configure_log_file(Path(args.output).parent / "importance_analysis.log")
-    
-    # Run analysis
-    try:
-        results = run_importance_analysis(
-            graphs_path=Path(args.graphs),
-            model_path=Path(args.model),
-            output_path=Path(args.output),
-            device=args.device
-        )
-        print(json.dumps(results, indent=2))
-    except Exception as e:
-        logger.error(f"Importance analysis failed: {e}", exc_info=True)
-        raise
+    run_importance_analysis(
+        model_path=args.model,
+        data_path=args.data,
+        indices_path=args.indices,
+        output_path=args.output,
+        descriptor_names=args.descriptors
+    )
 
 if __name__ == "__main__":
     main()

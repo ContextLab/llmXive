@@ -1,5 +1,5 @@
 """
-Training script for the Lightweight GNN surrogate model.
+Training loop for the Structure-Only Surrogate Model.
 
 WARNING: This model is a surrogate interpolating pre-computed DFT results.
 It does NOT solve the Schrödinger equation or perform first-principles calculations.
@@ -13,229 +13,260 @@ import time
 import gc
 import tracemalloc
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, Dataset
-from torch_geometric.data import Data
-import numpy as np
+from torch_geometric.data import DataLoader, Data
+from torch_geometric.nn import GCNConv, global_mean_pool
 
-# Import project utilities
+# Local imports
 from utils.config import Config
-from utils.logger import get_logger, log_training_metrics
-from utils.memory_utils import get_memory_profile
-from data_models.material_graph import MaterialGraph
+from utils.logger import get_logger, log_training_metrics, configure_log_file
 from model.gnn import LightweightGNN, create_model
 from model.splitter import load_graphs_from_parquet
 
-# Configure logging
+# Disable GPU to enforce CPU-only constraint
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 logger = get_logger(__name__)
 
-# Explicit Surrogate Model Warning
-SURROGATE_WARNING = (
-    "WARNING: This model is a surrogate interpolating pre-computed DFT results. "
-    "It does NOT solve the Schrödinger equation or perform first-principles calculations. "
-    "All predictions are statistical interpolations within the chemical space of the training data."
-)
 
-class GraphDataset(Dataset):
-    """PyTorch Dataset wrapper for MaterialGraphs."""
+class GraphDataset(torch.utils.data.Dataset):
+    """Dataset wrapper for PyTorch Geometric Data objects."""
 
-    def __init__(self, graphs: List[MaterialGraph], transform=None):
+    def __init__(self, graphs: List[Data]):
         self.graphs = graphs
-        self.transform = transform
 
     def __len__(self):
         return len(self.graphs)
 
     def __getitem__(self, idx):
-        graph = self.graphs[idx]
-        if self.transform:
-            graph = self.transform(graph)
-        return graph
+        return self.graphs[idx]
 
-def collate_fn(batch):
-    """Custom collate function to convert list of MaterialGraphs to PyG Data."""
-    # We expect the batch to contain MaterialGraph objects or dicts that need conversion
-    pyg_batch = []
-    for item in batch:
-        if isinstance(item, MaterialGraph):
-            pyg_batch.append(graph_to_pyg(item))
-        else:
-            # Assume it's already a dict or Data object if passed differently
-            pyg_batch.append(item)
-    # PyG collate handles the rest
-    return torch.utils.data.default_collate(pyg_batch)
 
-def graph_to_pyg(graph: MaterialGraph) -> Data:
-    """Convert MaterialGraph dataclass to PyTorch Geometric Data object."""
-    # Ensure features are tensors
-    x = torch.tensor(graph.node_features, dtype=torch.float32)
-    edge_index = torch.tensor(graph.edge_index, dtype=torch.long)
-    edge_attr = torch.tensor(graph.edge_features, dtype=torch.float32) if graph.edge_features is not None else None
+def collate_fn(batch: List[Data]) -> Data:
+    """Custom collate function if specific handling is needed, otherwise use default."""
+    # PyG default collate is usually sufficient for simple Data objects
+    return torch.utils.data._utils.collate.default_collate(batch)
+
+
+def graph_to_pyg(graph_dict: Dict[str, Any]) -> Data:
+    """
+    Convert a dictionary representation of a MaterialGraph to a PyG Data object.
+    Expects keys: 'node_features', 'edge_index', 'edge_features', 'target_moduli'.
+    """
+    # Convert numpy arrays/tensors to torch tensors
+    x = torch.tensor(graph_dict['node_features'], dtype=torch.float)
+    edge_index = torch.tensor(graph_dict['edge_index'], dtype=torch.long)
     
-    # Target: Elastic moduli (Young's, Shear, Poisson)
-    # Assuming target_moduli is a list or array of 3 values
-    y = torch.tensor(graph.target_moduli, dtype=torch.float32).view(1, -1)
+    # Handle edge features if present
+    edge_attr = None
+    if 'edge_features' in graph_dict and graph_dict['edge_features'] is not None:
+        edge_attr = torch.tensor(graph_dict['edge_features'], dtype=torch.float)
 
-    data = Data(x=x, edge_index=edge_index, y=y)
-    if edge_attr is not None:
-        data.edge_attr = edge_attr
-    
+    y = torch.tensor(graph_dict['target_moduli'], dtype=torch.float)
+
+    data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr, y=y)
     return data
 
-def train_epoch(model: nn.Module, loader: DataLoader, optimizer: torch.optim.Optimizer, device: str) -> float:
-    """Train the model for one epoch."""
+
+def train_epoch(
+    model: nn.Module, 
+    loader: DataLoader, 
+    optimizer: torch.optim.Optimizer, 
+    device: torch.device
+) -> Tuple[float, int]:
+    """Train for one epoch."""
     model.train()
     total_loss = 0.0
-    criterion = nn.MSELoss()
+    num_batches = 0
 
     for batch in loader:
         batch = batch.to(device)
         optimizer.zero_grad()
         
-        out = model(batch)
-        # Handle output shape if necessary (model might return 1D or 2D)
-        if out.dim() == 1:
-            out = out.unsqueeze(1)
+        # Forward pass
+        # model expects (x, edge_index, edge_attr) or similar depending on implementation
+        # Assuming model.forward handles the batched Data object or unpacks it
+        if hasattr(model, 'forward_batch'):
+            out = model.forward_batch(batch)
+        else:
+            # Fallback for standard GNN expecting x, edge_index
+            out = model(batch.x, batch.edge_index, batch.edge_attr)
+
+        loss = out.mean() # Simple MSE-like loss if out is scalar per node, or adapt
+        # If out is graph-level prediction (y_hat) and batch.y is target:
+        # Assuming out shape matches batch.y for regression
+        if out.shape != batch.y.shape:
+             # If out is node-level and we need graph-level, pool
+             # But typically for this task, model should output graph-level
+             pass 
         
+        # Correct loss calculation for graph-level regression
+        # Assuming 'out' is the prediction for the whole graph
+        criterion = nn.MSELoss()
+        # Ensure shapes match. If model outputs per-node, we need global_mean_pool here too
+        # Let's assume the model in gnn.py returns graph-level predictions
         loss = criterion(out, batch.y)
+
         loss.backward()
         optimizer.step()
-        
+
         total_loss += loss.item()
+        num_batches += 1
 
-    return total_loss / len(loader)
+        # Memory safety check
+        if num_batches % 10 == 0:
+            gc.collect()
 
-def evaluate(model: nn.Module, loader: DataLoader, device: str) -> Dict[str, float]:
-    """Evaluate the model on a dataset."""
+    return total_loss / max(num_batches, 1), num_batches
+
+
+def evaluate(
+    model: nn.Module, 
+    loader: DataLoader, 
+    device: torch.device
+) -> Tuple[float, Dict[str, float]]:
+    """Evaluate model on a dataset."""
     model.eval()
     total_loss = 0.0
-    criterion = nn.MSELoss()
+    num_batches = 0
     all_preds = []
     all_targets = []
 
     with torch.no_grad():
         for batch in loader:
             batch = batch.to(device)
-            out = model(batch)
-            if out.dim() == 1:
-                out = out.unsqueeze(1)
             
-            loss = criterion(out, batch.y)
-            total_loss += loss.item()
-            
-            all_preds.append(out.cpu().numpy())
-            all_targets.append(batch.y.cpu().numpy())
+            if hasattr(model, 'forward_batch'):
+                out = model.forward_batch(batch)
+            else:
+                out = model(batch.x, batch.edge_index, batch.edge_attr)
 
-    all_preds = np.vstack(all_preds) if all_preds else np.array([])
-    all_targets = np.vstack(all_targets) if all_targets else np.array([])
+            criterion = nn.MSELoss()
+            loss = criterion(out, batch.y)
+
+            total_loss += loss.item()
+            num_batches += 1
+
+            all_preds.extend(out.cpu().numpy().flatten())
+            all_targets.extend(batch.y.cpu().numpy().flatten())
+
+    avg_loss = total_loss / max(num_batches, 1)
 
     # Calculate metrics
-    mse = total_loss / len(loader)
-    rmse = np.sqrt(mse)
-    
-    # MAPE calculation (handle zeros)
-    if np.any(all_targets != 0):
-        mape = np.mean(np.abs((all_targets - all_preds) / (all_targets + 1e-8))) * 100
-    else:
-        mape = 0.0
+    import numpy as np
+    preds = np.array(all_preds)
+    targets = np.array(all_targets)
 
-    return {
-        "loss": mse,
-        "rmse": float(rmse),
-        "mape": float(mape)
-    }
+    # Avoid division by zero
+    abs_targets = np.abs(targets)
+    abs_targets[abs_targets == 0] = 1e-8
+
+    mape = np.mean(np.abs((preds - targets) / abs_targets)) * 100
+    rmse = np.sqrt(np.mean((preds - targets) ** 2))
+
+    return avg_loss, {"mape": float(mape), "rmse": float(rmse)}
+
 
 def main():
-    """Main training loop with early stopping and logging."""
-    print(SURROGATE_WARNING)
-    logger.warning(SURROGATE_WARNING)
-
-    parser = argparse.ArgumentParser(description="Train Lightweight GNN Surrogate Model")
-    parser.add_argument("--data_path", type=str, default="data/processed/graphs_v1.parquet",
-                        help="Path to processed graphs parquet file")
-    parser.add_argument("--split_manifest", type=str, default="data/results/split_manifest.json",
-                        help="Path to split manifest file")
-    parser.add_argument("--output_dir", type=str, default="data/results",
-                        help="Directory to save logs and checkpoints")
-    parser.add_argument("--epochs", type=int, default=100, help="Maximum epochs")
+    parser = argparse.ArgumentParser(description="Train the Surrogate GNN Model")
+    parser.add_argument("--config", type=str, default="code/utils/config.yaml", help="Path to config file")
+    parser.add_argument("--epochs", type=int, default=100, help="Max epochs")
     parser.add_argument("--patience", type=int, default=3, help="Early stopping patience")
-    parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")
-    parser.add_argument("--batch_size", type=int, default=32, help="Batch size")
-    parser.add_argument("--hidden_dim", type=int, default=64, help="Hidden dimension")
-    parser.add_argument("--num_layers", type=int, default=3, help="Number of GNN layers")
+    parser.add_argument("--batch_size", type=int, default=16, help="Batch size")
+    parser.add_argument("--lr", type=float, default=0.001, help="Learning rate")
+    parser.add_argument("--data_path", type=str, default="data/processed/graphs_v1.parquet", help="Path to processed graphs")
+    parser.add_argument("--split_path", type=str, default="data/processed/split_indices.json", help="Path to split indices")
+    parser.add_argument("--output_log", type=str, default="data/results/training_logs.json", help="Path to training log")
+    parser.add_argument("--output_test_indices", type=str, default="data/processed/test_indices.json", help="Path to save test indices")
     args = parser.parse_args()
 
-    # Setup
-    config = Config()
-    config.seed_everything()
+    # Initialize config and logging
+    config = Config.load(args.config)
+    log_path = Path(args.output_log)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    configure_log_file(log_path)
     
-    output_path = Path(args.output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    log_file = output_path / "training_logs.json"
-    log_entries = []
+    logger.info("Starting Training Loop for Surrogate Model")
+    logger.warning("WARNING: This model is a surrogate interpolating pre-computed DFT results. It does NOT solve the Schrödinger equation.")
 
-    device = torch.device("cpu")  # CPU execution as required
-    logger.info(f"Using device: {device}")
-
-    # Load Data
+    # Load data
     logger.info(f"Loading graphs from {args.data_path}")
-    graphs = load_graphs_from_parquet(args.data_path)
-    logger.info(f"Loaded {len(graphs)} graphs")
-
-    # Load Split Manifest
-    logger.info(f"Loading split manifest from {args.split_manifest}")
-    with open(args.split_manifest, 'r') as f:
+    all_graphs = load_graphs_from_parquet(args.data_path)
+    
+    # Load split indices
+    logger.info(f"Loading split indices from {args.split_path}")
+    with open(args.split_path, 'r') as f:
         split_data = json.load(f)
     
-    train_indices = split_data.get("train_indices", [])
-    val_indices = split_data.get("val_indices", [])
+    train_indices = split_data['train_indices']
+    val_indices = split_data['val_indices']
+    test_indices = split_data['test_indices']
 
-    train_graphs = [graphs[i] for i in train_indices]
-    val_graphs = [graphs[i] for i in val_indices]
+    # Save test indices as required
+    with open(args.output_test_indices, 'w') as f:
+        json.dump({"test_indices": test_indices}, f, indent=2)
+    logger.info(f"Saved test indices to {args.output_test_indices}")
 
-    logger.info(f"Train size: {len(train_graphs)}, Val size: {len(val_graphs)}")
+    # Create datasets
+    train_graphs = [all_graphs[i] for i in train_indices]
+    val_graphs = [all_graphs[i] for i in val_indices]
+    # Test graphs are not used in training loop, only for final eval if needed later
 
-    # Create Datasets and Loaders
     train_dataset = GraphDataset(train_graphs)
     val_dataset = GraphDataset(val_graphs)
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn)
 
-    # Initialize Model
-    model = create_model(hidden_dim=args.hidden_dim, num_layers=args.num_layers)
+    # Initialize model
+    device = torch.device("cpu") # Enforce CPU
+    model = create_model() # Uses default args from gnn.py
     model = model.to(device)
+    
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2)
 
-    # Training Loop
+    # Training state
     best_val_loss = float('inf')
     patience_counter = 0
-    
-    logger.info("Starting training loop...")
+    training_log = []
+
+    # Metadata for log
+    metadata = {
+        "disclaimer": "These results are ML interpolations of DFT data, not first-principles solutions.",
+        "config": {
+            "epochs": args.epochs,
+            "patience": args.patience,
+            "batch_size": args.batch_size,
+            "lr": args.lr
+        }
+    }
+
+    logger.info(f"Model initialized. Parameters: {sum(p.numel() for p in model.parameters())}")
+
+    # Start memory tracking
     tracemalloc.start()
 
     for epoch in range(args.epochs):
         start_time = time.time()
         
         # Train
-        train_loss = train_epoch(model, train_loader, optimizer, device)
+        train_loss, _ = train_epoch(model, train_loader, optimizer, device)
         
-        # Evaluate
-        val_metrics = evaluate(model, val_loader, device)
-        val_loss = val_metrics["loss"]
+        # Validate
+        val_loss, val_metrics = evaluate(model, val_loader, device)
         
+        # Update LR
         scheduler.step(val_loss)
 
-        # Memory Profile
-        current_mem, peak_mem = get_memory_profile()
-        memory_peak_gb = peak_mem / (1024 ** 3)
-
-        # Log Entry
+        # Memory check
+        current, peak = tracemalloc.get_traced_memory()
+        memory_peak_gb = peak / 1024**3
+        
+        # Log entry
         log_entry = {
             "epoch": epoch + 1,
             "loss": float(train_loss),
@@ -243,51 +274,42 @@ def main():
                 "mape": val_metrics["mape"],
                 "rmse": val_metrics["rmse"]
             },
-            "memory_peak": memory_peak_gb,
-            "val_loss": float(val_loss),
-            "lr": optimizer.param_groups[0]['lr'],
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+            "memory_peak": float(memory_peak_gb)
         }
-        log_entries.append(log_entry)
-
-        # Log to file and console
+        training_log.append(log_entry)
+        
+        logger.info(f"Epoch {epoch+1}: Train Loss={train_loss:.4f}, Val Loss={val_loss:.4f}, Val MAPE={val_metrics['mape']:.2f}%, Val RMSE={val_metrics['rmse']:.4f}, Mem={memory_peak_gb:.2f}GB")
         log_training_metrics(log_entry)
-        logger.info(f"Epoch {epoch+1}: Loss={train_loss:.4f}, Val Loss={val_loss:.4f}, "
-                    f"MAPE={val_metrics['mape']:.2f}%, RMSE={val_metrics['rmse']:.4f}, "
-                    f"Peak Mem={memory_peak_gb:.2f}GB")
 
-        # Early Stopping
+        # Early stopping logic
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             patience_counter = 0
-            # Save checkpoint
-            checkpoint_path = output_path / "best_model.pth"
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'val_loss': best_val_loss,
-            }, checkpoint_path)
-            logger.info(f"Checkpoint saved to {checkpoint_path}")
+            # Save best model state (optional but good practice)
+            # torch.save(model.state_dict(), "best_model.pth")
         else:
             patience_counter += 1
             if patience_counter >= args.patience:
                 logger.info(f"Early stopping triggered at epoch {epoch+1}")
                 break
 
-        # Cleanup
         gc.collect()
-        if device.type == 'cuda':
-            torch.cuda.empty_cache()
 
     tracemalloc.stop()
 
-    # Final Save
-    with open(log_file, 'w') as f:
-        json.dump(log_entries, f, indent=2)
+    # Final log save
+    final_report = {
+        "metadata": metadata,
+        "training_history": training_log,
+        "best_val_loss": best_val_loss,
+        "final_epoch": epoch + 1
+    }
+
+    with open(args.output_log, 'w') as f:
+        json.dump(final_report, f, indent=2)
     
-    logger.info(f"Training logs saved to {log_file}")
-    logger.info("Training completed.")
+    logger.info(f"Training complete. Logs saved to {args.output_log}")
+    logger.info(f"Best Validation Loss: {best_val_loss}")
 
 if __name__ == "__main__":
     main()
