@@ -1,3 +1,17 @@
+T005:
+  c: true
+  h: ef9293e98f2f466df2c9c5ba64c5637aade7a29d0930dcddfb97d280d9aefe19
+  r: The `code/data/fetch.py` file exists, defines the two required functions with
+    the correct signatures, and each returns the specified path strings. No further
+    implementation or additional files are required for this scaffolding task.
+T013c:
+  c: false
+  h: 1311c7da7c05c40f9bc3eb9b1999ae3587bd344e230add0e77561ebbdc3d7a6a
+  r: "The `write_synced_csv` function in `code/data/align.py` is truncated and does\
+    \ not show the full implementation (e.g., the column\u2011assertion list is incomplete\
+    \ and there is no code that checks for NaNs or writes to `data/processed/synced.csv`).\
+    \ Moreover, the required output file `data/processed/synced.csv` does not exist.\
+    \ Both the function implementation and the expected output are missing."
 T019:
   c: false
   h: b44cde29835b4fa3ee028917511fcff06fbb35974f17cc17a044ae4d8b1184d0

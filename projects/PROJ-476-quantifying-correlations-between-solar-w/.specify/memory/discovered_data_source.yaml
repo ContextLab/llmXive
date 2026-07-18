@@ -1,0 +1,13 @@
+status: none
+intent: ACE Solar Wind Ion Composition CDAWeb dataset NOAA Kp Dst indices OMNI python
+  package dataset
+required_fields:
+- timestamp
+- proton_density
+- temperature
+- helium_abundance
+- Kp
+- Dst
+cache_key: 7ab8bfacaa3f747a872bdbb38848476165feb81ee3121904078b1559b5fc14f6
+searched_at: '2026-07-18T11:26:43.064969+00:00'
+retry_count: 1

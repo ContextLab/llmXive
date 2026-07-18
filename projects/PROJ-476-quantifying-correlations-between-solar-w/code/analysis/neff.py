@@ -72,11 +72,3 @@ def calculate_neff(time_series: Union[pd.Series, np.ndarray]) -> float:
     logger.debug(f"Neff calculation: N={n}, rho_1={rho_1:.4f}, Neff={neff:.2f}")
     
     return float(neff)
-
-if __name__ == "__main__":
-    # Simple test with synthetic data to verify logic
-    test_data = np.random.RandomState(42).randn(100)
-    # Add some autocorrelation to make it realistic
-    test_data = np.cumsum(test_data) / 10.0
-    result = calculate_neff(test_data)
-    print(f"Test Neff calculation: {result}")
