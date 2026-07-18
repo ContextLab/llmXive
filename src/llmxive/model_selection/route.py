@@ -155,6 +155,18 @@ def route_chat(
         )
 
     msg_list = list(messages)
+    # Production ledger source (review finding 1): the reservation ledger lives on a
+    # protected ref in the MAIN repo (bootstrapped at repo_root() by `cli` /
+    # infra/credit-ledger-ops.md), so a routed PAID candidate can open an
+    # authoritative reservation instead of being skipped with "no ledger configured".
+    # Default to it when the caller doesn't inject one; tests pass an explicit
+    # ledger_repo (e.g. a tmp git ledger) as the injection seam. Free-only chains
+    # never read it (execute touches the ledger ONLY when a paid candidate exists),
+    # and execute still fails CLOSED on an unbootstrapped anchor.
+    if ledger_repo is None:
+        from llmxive.config import repo_root
+
+        ledger_repo = repo_root()
     snap = snapshot if snapshot is not None else _acquire_snapshot()
 
     # Derive paid admissibility from the snapshot's opt-in when the caller doesn't

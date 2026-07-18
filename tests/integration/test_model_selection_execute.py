@@ -345,3 +345,109 @@ def test_explicit_local_config_is_the_opt_in_for_paid(repo, monkeypatch):
     res = _exec(_paid_chain(), repo, be, monkeypatch=monkeypatch)  # _exec passes LOCAL_CFG
     assert res.response.text == f"paid:{CLAUDE}"
     assert res.reserved_credits > 0
+
+
+# --------------------------------------------------------------------------- #
+# Review findings 1+2+3: the WHOLE routing chokepoint (route_chat → select →
+# execute) reaches the guarded paid tail over the real git ledger.
+# --------------------------------------------------------------------------- #
+
+QWEN = "qwen.qwen3.5-122b"
+GEMMA4 = "google.gemma-4-31B-it"
+GPT_OSS = "openai.gpt-oss-120b"
+LOCAL = "Qwen/Qwen2.5-3B-Instruct"
+
+
+def _composite_paid_snapshot():
+    """The REAL composite: 3 free Dartmouth + 1 free local + the paid claude tail,
+    all live + opted-in with ample headroom (so select keeps claude last)."""
+    from llmxive.model_selection.types import CreditGuardSnapshot, RuntimeSnapshot
+
+    def ref(mid, backend, endpoint, family, vendor):
+        return ModelRef(backend, endpoint, mid, family, vendor)
+
+    models = (
+        ref(QWEN, "dartmouth", EP, "qwen3.5", "qwen"),
+        ref(GEMMA4, "dartmouth", EP, "gemma-4", "google"),
+        ref(GPT_OSS, "dartmouth", EP, "gpt-oss", "openai"),
+        ref(LOCAL, "local", "local", "qwen2.5", "qwen"),
+        _paid_ref(),
+    )
+    pricing = {m.model_id: ModelPricing(0.0, 0.0) for m in models[:-1]}
+    pricing[CLAUDE] = ModelPricing(1e-6, 5e-6)
+    credit = CreditGuardSnapshot(
+        balance=1000.0, spend=100.0, max_budget=2000.0, paid_opt_in=True,
+        budget_fraction=0.75, effective_cap=1500.0, available_headroom=1400.0,
+        budget_reset_at=EPOCH, observed_at=NOW, source="live",
+    )
+    live = SnapshotProvenance("live", NOW, 0.0)
+    return RuntimeSnapshot(
+        models=models, pricing=pricing, health={m.model_id: "ok" for m in models},
+        credit=credit, observed_at=NOW,
+        sources={"catalog": live, "local": live, "credit": live}, digest="COMPOSITE",
+    )
+
+
+class _FreeDownServesPaid:
+    """Dartmouth backend: every FREE model is down (transient → advance); the paid
+    claude answers. Records every model tried."""
+
+    name = "dartmouth"
+
+    def __init__(self):
+        self.calls: list[str] = []
+
+    def chat(self, messages, *, model=None, max_tokens=None, temperature=None, deadline_s=None):
+        self.calls.append(model)
+        if model == CLAUDE:
+            return ChatResponse(text=f"paid:{model}", model=model, backend="dartmouth")
+        raise ModelDownError(f"free model {model!r} is down")
+
+
+class _UnavailableLocal:
+    """Local runtime not configured (review finding 3) → advance, don't abort."""
+
+    name = "local"
+
+    def __init__(self):
+        self.calls: list[str] = []
+
+    def chat(self, messages, *, model=None, max_tokens=None, temperature=None, deadline_s=None):
+        from llmxive.backends.base import BackendUnavailable
+
+        self.calls.append(model)
+        raise BackendUnavailable("transformers not installed; local runtime unavailable")
+
+
+def test_route_chat_reaches_paid_after_free_down_and_local_unavailable(repo, monkeypatch):
+    # Findings 1+2+3 together: route_chat with the composite paid snapshot walks
+    # dartmouth-free (all down) → local (unavailable, ADVANCES) → claude PAID, which
+    # opens an authoritative reservation on the real git ledger and moves it to
+    # settling. Proves the wrappers' paid fallback is now functional end-to-end.
+    from llmxive.backends import credits as credits_mod
+    from llmxive.model_selection.route import route_chat
+
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    monkeypatch.setattr(credits_mod, "fetch_credit_balance", _balance())  # ample live credit
+
+    dart = _FreeDownServesPaid()
+    local_be = _UnavailableLocal()
+    resp = route_chat(
+        MSG, profile="standard_generation", caller_model=QWEN, max_tokens=512,
+        snapshot=_composite_paid_snapshot(),
+        backend_factory=lambda name: local_be if name == "local" else dart,
+        ledger_repo=repo, ledger_config=LOCAL_CFG,
+    )
+
+    # Reached the guarded paid tail (finding 2: claude was NOT truncated).
+    assert resp.model == CLAUDE
+    # Local was tried (finding 3: it advanced rather than aborting the chain).
+    assert local_be.calls == [LOCAL]
+    # The dartmouth free chain was walked before claude answered (finding 2 order).
+    assert dart.calls[0] in {QWEN, GEMMA4, GPT_OSS} and dart.calls[-1] == CLAUDE
+    # An authoritative reservation was opened and RETAINED as settling (findings 1+FR-016).
+    reservations = project(read_events(repo))
+    assert reservations, "no reservation was opened — paid path never reserved"
+    (res,) = list(reservations.values())
+    assert res.model == CLAUDE
+    assert res.state == STATE_SETTLING

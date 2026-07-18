@@ -92,6 +92,15 @@ PROFILES: dict[str, RequirementProfile] = {
     "standard_generation": RequirementProfile(
         name="standard_generation",
         capability="standard",
+        # Review finding 2: the general-purpose profile the routing chokepoints use
+        # must retain the WHOLE free chain PLUS the guarded paid tail. Against the
+        # real COMPOSITE snapshot the eligible free set is already four
+        # (qwen3.5 → gemma-4 → gpt-oss → local qwen2.5), so the default cap of 4
+        # truncated the paid claude tail (free-before-paid, FR-008). Size the cap
+        # above the free chain + the 1-model paid tail (with headroom for catalog
+        # growth) so a guarded paid fallback is reachable when all free candidates
+        # are down — behavior-preserving vs the legacy qwen→…→claude MODEL_FALLBACKS.
+        max_candidates=8,
     ),
     "deep_review": RequirementProfile(
         name="deep_review",

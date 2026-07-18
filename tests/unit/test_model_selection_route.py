@@ -243,6 +243,33 @@ def test_route_chat_derives_allow_paid_from_snapshot_opt_in(monkeypatch):
     assert captured["allow_paid"] is True
 
 
+def test_route_chat_defaults_ledger_repo_to_repo_root(monkeypatch):
+    # Review finding 1: the production wrappers don't pass a ledger_repo, so
+    # route_chat must default it to the repo root (where the reservation ledger
+    # lives) — otherwise execute() skips EVERY paid candidate with "no reservation
+    # ledger configured" and the guarded paid fallback is nonfunctional. The
+    # explicit param stays the test injection seam.
+    from llmxive.config import repo_root
+    from llmxive.model_selection import route as route_mod
+    from llmxive.model_selection.execute import ExecutionResult
+
+    captured = {}
+
+    def _spy_execute(chain, messages, **kwargs):
+        captured["ledger_repo"] = kwargs.get("ledger_repo")
+        return ExecutionResult(
+            response=ChatResponse(text="ok", model=QWEN, backend="dartmouth"),
+            model_ref=chain.candidates[0].model_ref, reserved_credits=0.0, notes=(),
+        )
+
+    monkeypatch.setattr(route_mod, "execute", _spy_execute)
+    route_mod.route_chat(
+        _MSGS, profile="standard_generation", caller_model=QWEN, max_tokens=512,
+        snapshot=_snapshot(), backend_factory=_factory(_RecordingBackend("dartmouth")),
+    )
+    assert captured["ledger_repo"] == repo_root()  # production ledger source supplied
+
+
 def test_route_chat_passes_none_temperature_through_to_backend():
     # Generative agents leave temperature None (sampling ON); route must NOT coerce
     # it to 0.0 (that would silently make brainstorm/implementer deterministic — an

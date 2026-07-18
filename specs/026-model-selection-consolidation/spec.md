@@ -106,6 +106,10 @@ Each `agents/registry.yaml` agent expresses a **requirement profile** rather tha
 3. **Given** a `deterministic-no-llm` agent, **Then** it is exempt from catalog selection.
 4. **Given** `test_config_consistency`, **Then** it validates capability profiles, not a hardcoded model allowlist.
 
+**Delivery split (2026-07-18 review — BINDING).** US5 spans two slices, because half of it depends on the `AgentRegistryEntry` schema migration that plan.md scopes to Slice 7:
+- **Delivered in Slice 5** (the routing chokepoint): registry-supplied pins are RESOLVED through `select()` (via the `route_chat` chokepoint the compatibility wrappers delegate to); **AC2** (a live-absent former default is excluded, never resurrected); **AC3** (`deterministic-no-llm` bypasses selection/execution entirely); and the **SC-007 model-ID projections** (paid-off / paid-on, incl. the composite snapshot that retains the guarded paid tail). Every LLM agent routes through a *provisional* `standard_generation` profile.
+- **Deferred to Slice 7** (co-located with the `AgentRegistryEntry` schema migration it requires — plan.md Slice 7): each agent *expressing its own requirement profile* (the story intro); **AC1**'s all-LLM-agents fixed-migration-snapshot primary-preservation assertion; and **AC4** (`test_config_consistency` validating capability profiles instead of the `KNOWN_FREE_MODELS`/`MODEL_FALLBACKS` allowlists, which are retired in Slice 8). These acceptance criteria remain **open and binding** until Slice 7 lands them.
+
 ---
 
 ### User Story 6 - Execution-tier migration (Priority: P2)
@@ -217,10 +221,10 @@ The ~20 direct model pins are replaced by requirement profiles. A **static enfor
 2. **Pure deterministic selector + capability policy metadata** (`select`, tie-breaks, `CapabilityPolicy`). (US2)
 3. **Execution adapter consuming `ModelChain`** (`ExecutionOptions`; three outcomes; twice-checked paid + the authoritative strict-CAS **reservation ledger** — `open`/`settling`/`reconciled` states, deadline-relative lease/heartbeats; router safeguards). (US3)
 4. **Independence contract** (required/preferred; `exclude_vendors`; convergence-panel integration). (US4)
-5. **Registry / default migration** (profiles; fixed-snapshot behavior preservation; non-LLM exemption). (US5)
+5. **Registry / default RESOLUTION** through the routing chokepoint (`route_chat`→`select()`); AC2 no-resurrection; AC3 non-LLM exemption; SC-007 model-ID projections incl. the composite paid-tail. Provisional `standard_generation` profile per agent. (US5, resolution portion — see the US5 "Delivery split")
 6. **Execution-tier migration** (ladder → requirement profiles / escalating constraints). (US6)
-7. **Remaining direct-pin migration**. (US7)
-8. **Static enforcement test, then delete `DEFAULT_MODEL` + `MODEL_FALLBACKS`**. (US7)
+7. **Remaining direct-pin migration + the `AgentRegistryEntry` schema migration** (each agent expresses a requirement profile), which lands US5's schema-dependent acceptance: AC1 all-agents fixed-snapshot primary preservation + AC4 `test_config_consistency` → capability profiles. (US7 + US5 schema portion)
+8. **Static enforcement test, then delete `DEFAULT_MODEL` + `MODEL_FALLBACKS`** (+ the `KNOWN_FREE_MODELS` allowlist). (US7)
 
 ## Assumptions
 

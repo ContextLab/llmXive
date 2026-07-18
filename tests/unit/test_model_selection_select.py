@@ -495,3 +495,17 @@ def test_sc007_local_backend_fallback_ordered_last_free():
     )
     assert _ids(chain) == [QWEN, GEMMA4, GPT_OSS, LOCAL]
     assert chain.candidates[-1].model_ref.backend == "local"
+
+
+def test_sc007_composite_snapshot_retains_guarded_paid_tail_after_local():
+    # Review finding 2: the FULL composite snapshot (dartmouth free + local free +
+    # paid claude) produces FOUR free candidates before the guarded paid tail
+    # (free-before-paid, FR-008). standard_generation's candidate limit MUST retain
+    # claude — a Dartmouth-only snapshot hid this because it had only 3 free. Uses
+    # the default composite _snapshot (qwen, gemma-4, gpt-oss, VL, gemma-3, claude,
+    # local); VL is vision-only + gemma-3 is policy-absent → both excluded.
+    snap = _snapshot(paid_opt_in=True, credit_source="live", available_headroom=1400.0)
+    chain = select(build_requirement("standard_generation", _cb(), allow_paid=True), snap)
+    assert _ids(chain) == [QWEN, GEMMA4, GPT_OSS, LOCAL, CLAUDE]  # free chain + local, THEN paid
+    assert chain.candidates[-1].model_ref.model_id == CLAUDE  # guarded paid tail survives
+    assert chain.candidates[-1].model_ref.backend == "dartmouth"

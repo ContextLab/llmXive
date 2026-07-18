@@ -3484,6 +3484,94 @@
     },
     {
       "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "module_constant",
+      "line": 355,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "module_constant",
+      "line": 356,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA4"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "module_constant",
+      "line": 357,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "GPT_OSS"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "module_constant",
+      "line": 358,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "LOCAL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 370,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 371,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 372,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 373,
+      "models": [
+        "qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
       "file": "tests/integration/test_paper_review_flow.py",
       "kind": "model_id_literal",
       "line": 83,
@@ -4527,6 +4615,17 @@
       ],
       "owning_slice": null,
       "symbol": "test_primary_transient_walks_to_peer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_local_backend_availability.py",
+      "kind": "module_constant",
+      "line": 21,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "_LOCAL_MODEL"
     },
     {
       "category": "test_double",

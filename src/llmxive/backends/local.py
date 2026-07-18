@@ -11,10 +11,10 @@ from collections.abc import Iterable
 from typing import Any
 
 from llmxive.backends.base import (
+    BackendUnavailable,
     BaseBackend,
     ChatMessage,
     ChatResponse,
-    PermanentBackendError,
 )
 
 # Loaded (tokenizer, model) pairs, keyed by model id. Loading a checkpoint
@@ -56,15 +56,31 @@ class LocalBackend(BaseBackend):
                 AutoTokenizer,
             )
         except ImportError as exc:
-            raise PermanentBackendError(
-                "transformers is not installed; required by local backend"
+            # Review finding 3: a MISSING optional runtime is NOT a request-level
+            # permanent refusal — it is a backend-UNAVAILABLE condition. Raising
+            # BackendUnavailable makes ``execute``/``disposition_of`` ADVANCE the
+            # chain (a selected-but-unusable local fallback must not strand the run
+            # before a later guarded paid candidate), while still fast-failing this
+            # candidate (no same-model retry).
+            raise BackendUnavailable(
+                "transformers is not installed; local backend runtime unavailable"
             ) from exc
 
         if model in _MODEL_CACHE:
             tokenizer, llm = _MODEL_CACHE[model]
         else:
-            tokenizer = AutoTokenizer.from_pretrained(model)
-            llm = AutoModelForCausalLM.from_pretrained(model)
+            # A checkpoint that cannot be fetched/loaded (no network, missing
+            # weights, OOM) is likewise a backend-availability failure, not a
+            # request refusal — surface it as BackendUnavailable so the chain
+            # advances rather than aborts.
+            try:
+                tokenizer = AutoTokenizer.from_pretrained(model)
+                llm = AutoModelForCausalLM.from_pretrained(model)
+            except Exception as exc:
+                raise BackendUnavailable(
+                    f"local checkpoint {model!r} could not be loaded "
+                    f"({type(exc).__name__}: {exc})"
+                ) from exc
             _MODEL_CACHE[model] = (tokenizer, llm)
         msg_list = list(messages)
         # Instruct checkpoints only behave (follow the system prompt, emit
