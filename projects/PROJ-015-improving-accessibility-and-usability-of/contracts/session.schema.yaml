@@ -1,8 +1,7 @@
-# Session Data Schema for PROJ-015
-# Defines the structure for session logs in data/raw/session_*.json
-# Enforced by T019b (DataValidator) and T019 (RawDataLogger)
-
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Session Data Schema"
+description: "Schema for session data collected from the usability study. Used to validate both web app logs and simulator outputs."
+type: "object"
 required:
   - participant_id
   - disability_type
@@ -14,95 +13,66 @@ required:
   - explanation_engagement_time_seconds
   - sus_score
   - status
-
+  - dropout_reason
 properties:
   participant_id:
-    type: string
-    description: Unique identifier for the participant (e.g., P-001)
-    pattern: "^P-\\d{3,}$"
-
+    type: "string"
+    description: "Unique identifier for the participant"
+    minLength: 1
   disability_type:
-    type: string
-    description: The category of disability for the participant
+    type: "string"
+    description: "Type of disability (e.g., visual, motor, cognitive)"
     enum:
-      - visual_impairment
-      - hearing_impairment
-      - motor_impairment
-      - cognitive_impairment
-      - multiple
-      - unknown
-
+      - "visual"
+      - "motor"
+      - "cognitive"
+      - "auditory"
+      - "other"
   interface_type:
-    type: string
-    description: The specific interface variant presented in this session
+    type: "string"
+    description: "Type of interface used in this session"
     enum:
-      - Traditional
-      - Explainable
-
+      - "traditional"
+      - "explainable"
   sequence:
-    type: string
-    description: The order of interfaces presented in this study session
-    pattern: "^(Traditional->Explainable|Explainable->Traditional)$"
-
+    type: "array"
+    description: "Order of interface presentation (e.g., ['traditional', 'explainable'])"
+    items:
+      type: "string"
+      enum:
+        - "traditional"
+        - "explainable"
+    minItems: 2
+    maxItems: 2
   start_time:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the session started
-
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of session start"
   end_time:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the session ended
-
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of session end"
   error_count:
-    type: integer
+    type: "integer"
+    description: "Number of errors committed during the session"
     minimum: 0
-    description: Total number of errors committed by the user during the session
-
   explanation_engagement_time_seconds:
-    type: number
-    minimum: 0
-    description: Time spent interacting with XAI explanations (only applicable for Explainable interface)
-
+    type: "number"
+    description: "Time spent interacting with XAI explanations (in seconds)"
+    minimum: 0.0
   sus_score:
-    type: number
+    type: "integer"
+    description: "System Usability Scale score (0-100)"
     minimum: 0
     maximum: 100
-    description: System Usability Scale score (0-100). Null if session incomplete and SUS not administered.
-    nullable: true
-
   status:
-    type: string
-    description: Completion status of the session
+    type: "string"
+    description: "Completion status of the session"
     enum:
-      - complete
-      - incomplete
-
+      - "complete"
+      - "incomplete"
   dropout_reason:
-    type: string
-    description: Reason for session abandonment if status is 'incomplete'
-    nullable: true
-    enum:
-      - frustration
-      - technical_issue
-      - time_constraint
-      - participant_request
-      - other
-      - null
-
-  logged_at:
-    type: string
-    format: date-time
-    description: Timestamp when the file was written to disk (auto-generated)
-
-  file_checksum:
-    type: string
-    description: SHA-256 checksum of the session data for integrity verification
-    pattern: "^[a-f0-9]{64}$"
-
-  metrics_snapshot:
-    type: object
-    description: Optional snapshot of partial metrics collected before dropout
-    nullable: true
-
-additionalProperties: false
+    type:
+      - "string"
+      - "null"
+    description: "Reason for dropout if status is incomplete"
