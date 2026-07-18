@@ -1,0 +1,16 @@
+status: none
+intent: Moral Foundations Questionnaire OSF dataset Moral Stories HuggingFace python
+  package dataset
+required_fields:
+- participant_id
+- mfq_item_responses
+- story_id
+- story_text
+- salience_level
+- vr_response_time
+- gaze_coordinates
+- judgment_input
+- blend_shape_parameters
+cache_key: 1c9091cf9cd4f76544fc2ff3aea3f7b2e7ae79230c7cf380b5cd4ec8e5468fec
+searched_at: '2026-07-18T20:51:37.621604+00:00'
+retry_count: 1

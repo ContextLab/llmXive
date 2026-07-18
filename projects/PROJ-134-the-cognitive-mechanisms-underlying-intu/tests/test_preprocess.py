@@ -1,216 +1,213 @@
 """
-Unit tests for the preprocessing module.
+Tests for the preprocessing module (T016).
+
+These tests verify:
+1. Salience assignment logic.
+2. Mapping logic from story IDs to blend shapes.
+3. Filtering of invalid data.
+4. Log file generation (vr_mapping.log).
 """
+
 import pytest
-import pandas as pd
-import numpy as np
-from pathlib import Path
-import sys
 import os
+import sys
+import json
 import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+import pandas as pd
 import yaml
 
-# Add parent directory to path
+# Add code to path if needed, though imports usually handle this
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.data.preprocess import (
-    load_merged_data,
-    load_blend_shape_config,
+from data.preprocess import (
     assign_salience_level,
     map_to_blend_shapes,
     process_salience_mapping,
-    save_preprocessed_data,
+    load_blend_shape_config,
     run_preprocessing_pipeline
 )
-from code.utils.schema import SalienceLevel
+from utils.logging_utils import get_vr_mapping_log_path
 
+class TestSalienceAssignment:
+    """Tests for assign_salience_level function."""
 
-class TestPreprocess:
-    """Test suite for preprocessing functions."""
-
-    @pytest.fixture
-    def temp_dir(self):
-        """Create a temporary directory for test files."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
-
-    @pytest.fixture
-    def sample_merged_data(self, temp_dir):
-        """Create a sample merged CSV file."""
-        data = {
-            'story_id': ['story_001', 'story_002', 'story_003'],
-            'participant_id': ['p1', 'p2', 'p3'],
-            'judgment': [5, 3, 4],
-            'foundation_score': [0.8, 0.5, 0.6]
-        }
-        df = pd.DataFrame(data)
-        path = temp_dir / "merged_data.csv"
-        df.to_csv(path, index=False)
-        return path
-
-    @pytest.fixture
-    def sample_config(self, temp_dir):
-        """Create a sample blend shape config file."""
+    def test_high_salience_assignment(self):
+        """Test that a known high salience story returns 'high'."""
         config = {
-            'story_mappings': {
-                'story_001': {
-                    'salience_level': 'high',
-                    'blend_shapes': {'eye_open': 0.8, 'mouth_smile': 0.6}
-                },
-                'story_002': {
-                    'salience_level': 'low',
-                    'blend_shapes': {'eye_open': 0.4, 'mouth_smile': 0.2}
-                },
-                'story_003': {
-                    'salience_level': 'high',
-                    'blend_shapes': {'eye_open': 0.9, 'mouth_smile': 0.7}
+            "mappings": {
+                "story_001": {
+                    "salience_level": "high",
+                    "blend_shape_params": {"jawOpen": 0.8}
                 }
             }
         }
-        path = temp_dir / "unity_blend_shapes.yaml"
-        with open(path, 'w') as f:
-            yaml.dump(config, f)
-        return path
+        salience, params = assign_salience_level("story_001", config)
+        assert salience == "high"
+        assert params["jawOpen"] == 0.8
 
-    def test_load_merged_data(self, sample_merged_data):
-        """Test loading merged data."""
-        df = load_merged_data(sample_merged_data)
-        assert len(df) == 3
-        assert 'story_id' in df.columns
-        assert list(df['story_id']) == ['story_001', 'story_002', 'story_003']
-
-    def test_load_merged_data_not_found(self, temp_dir):
-        """Test loading non-existent file."""
-        with pytest.raises(FileNotFoundError):
-            load_merged_data(temp_dir / "nonexistent.csv")
-
-    def test_load_merged_data_empty(self, temp_dir):
-        """Test loading empty file."""
-        path = temp_dir / "empty.csv"
-        path.touch()
-        with pytest.raises(ValueError):
-            load_merged_data(path)
-
-    def test_load_blend_shape_config(self, sample_config):
-        """Test loading blend shape config."""
-        config = load_blend_shape_config(sample_config)
-        assert 'story_mappings' in config
-        assert 'story_001' in config['story_mappings']
-        assert config['story_mappings']['story_001']['salience_level'] == 'high'
-
-    def test_load_blend_shape_config_not_found(self, temp_dir):
-        """Test loading non-existent config."""
-        with pytest.raises(FileNotFoundError):
-            load_blend_shape_config(temp_dir / "nonexistent.yaml")
-
-    def test_assign_salience_level_found(self, sample_config):
-        """Test assigning salience level when found."""
-        config = load_blend_shape_config(sample_config)
-        level = assign_salience_level('story_001', config)
-        assert level == 'high'
-        
-        level = assign_salience_level('story_002', config)
-        assert level == 'low'
-
-    def test_assign_salience_level_not_found(self, sample_config):
-        """Test assigning salience level when not found (defaults to low)."""
-        config = load_blend_shape_config(sample_config)
-        level = assign_salience_level('story_999', config)
-        assert level == 'low'
-
-    def test_map_to_blend_shapes(self, sample_merged_data, sample_config):
-        """Test mapping stories to blend shapes."""
-        df = load_merged_data(sample_merged_data)
-        config = load_blend_shape_config(sample_config)
-        
-        result_df = map_to_blend_shapes(df, config)
-        
-        assert 'salience_level' in result_df.columns
-        assert len(result_df) == 3
-        assert result_df.loc[result_df['story_id'] == 'story_001', 'salience_level'].iloc[0] == 'high'
-        assert result_df.loc[result_df['story_id'] == 'story_002', 'salience_level'].iloc[0] == 'low'
-
-    def test_map_to_blend_shapes_invalid_salience(self, temp_dir):
-        """Test mapping with invalid salience level."""
-        # Create data
-        data = {'story_id': ['s1']}
-        df = pd.DataFrame(data)
-        path = temp_dir / "data.csv"
-        df.to_csv(path, index=False)
-        
-        # Create config with invalid salience
+    def test_low_salience_assignment(self):
+        """Test that a known low salience story returns 'low'."""
         config = {
-            'story_mappings': {
-                's1': {'salience_level': 'invalid'}
+            "mappings": {
+                "story_006": {
+                    "salience_level": "low",
+                    "blend_shape_params": {"jawOpen": 0.1}
+                }
             }
         }
-        config_path = temp_dir / "config.yaml"
-        with open(config_path, 'w') as f:
-            yaml.dump(config, f)
-        
-        df_loaded = load_merged_data(path)
-        cfg = load_blend_shape_config(config_path)
-        
-        # Should raise error because 'invalid' is not in ['low', 'high']
-        with pytest.raises(ValueError):
-            map_to_blend_shapes(df_loaded, cfg)
+        salience, params = assign_salience_level("story_006", config)
+        assert salience == "low"
+        assert params["jawOpen"] == 0.1
 
-    def test_save_preprocessed_data(self, sample_merged_data, sample_config, temp_dir):
-        """Test saving preprocessed data."""
-        df = load_merged_data(sample_merged_data)
-        config = load_blend_shape_config(sample_config)
-        df = map_to_blend_shapes(df, config)
-        
-        output_path = temp_dir / "output.csv"
-        save_preprocessed_data(df, output_path)
-        
-        assert output_path.exists()
-        result_df = pd.read_csv(output_path)
-        assert len(result_df) == 3
-        assert 'salience_level' in result_df.columns
+    def test_missing_story_id_fallback(self):
+        """Test fallback behavior for missing story IDs."""
+        config = {"mappings": {}}
+        salience, params = assign_salience_level("unknown_story", config)
+        # Should assign based on hash or default
+        assert salience in ["low", "high"]
+        assert isinstance(params, dict)
 
-    def test_run_preprocessing_pipeline(self, sample_merged_data, sample_config, temp_dir):
-        """Test the full preprocessing pipeline."""
-        output_path = temp_dir / "preprocessed.csv"
-        log_path = temp_dir / "vr_mapping.log"
-        
-        result_df = run_preprocessing_pipeline(
-            sample_merged_data,
-            sample_config,
-            output_path,
-            log_path
-        )
-        
-        assert output_path.exists()
-        assert log_path.exists()
-        assert len(result_df) == 3
-        assert 'salience_level' in result_df.columns
-        
-        # Verify log content
-        with open(log_path, 'r') as f:
-            log_content = f.read()
-            assert 'story_001' in log_content
-            assert 'high' in log_content
+    def test_invalid_salience_level_defaults(self):
+        """Test that invalid salience levels default to 'low'."""
+        config = {
+            "mappings": {
+                "story_bad": {
+                    "salience_level": "invalid",
+                    "blend_shape_params": {}
+                }
+            }
+        }
+        salience, params = assign_salience_level("story_bad", config)
+        assert salience == "low"
 
-    def test_run_preprocessing_pipeline_missing_input(self, temp_dir):
-        """Test pipeline with missing input file."""
-        config_path = temp_dir / "config.yaml"
-        output_path = temp_dir / "output.csv"
-        
-        with pytest.raises(FileNotFoundError):
-            run_preprocessing_pipeline(
-                temp_dir / "missing.csv",
-                config_path,
-                output_path
-            )
+class TestMappingLogic:
+    """Tests for map_to_blend_shapes function."""
 
-    def test_run_preprocessing_pipeline_missing_config(self, sample_merged_data, temp_dir):
-        """Test pipeline with missing config file."""
-        output_path = temp_dir / "output.csv"
+    def test_mapping_dataframe(self):
+        """Test that mapping adds correct columns to dataframe."""
+        df = pd.DataFrame({
+            "story_id": ["story_001", "story_006"],
+            "other_col": [1, 2]
+        })
+        config = {
+            "mappings": {
+                "story_001": {"salience_level": "high", "blend_shape_params": {"a": 1}},
+                "story_006": {"salience_level": "low", "blend_shape_params": {"a": 2}}
+            }
+        }
         
-        with pytest.raises(FileNotFoundError):
-            run_preprocessing_pipeline(
-                sample_merged_data,
-                temp_dir / "missing.yaml",
-                output_path
-            )
+        result = map_to_blend_shapes(df, config)
+        
+        assert "salience_level" in result.columns
+        assert "blend_shape_params" in result.columns
+        assert result.loc[0, "salience_level"] == "high"
+        assert result.loc[1, "salience_level"] == "low"
+
+    def test_missing_story_in_config(self):
+        """Test handling of story IDs not in config."""
+        df = pd.DataFrame({
+            "story_id": ["story_001", "story_missing"],
+            "other_col": [1, 2]
+        })
+        config = {
+            "mappings": {
+                "story_001": {"salience_level": "high", "blend_shape_params": {"a": 1}}
+            }
+        }
+        
+        result = map_to_blend_shapes(df, config)
+        
+        assert result.loc[0, "salience_level"] == "high"
+        assert pd.isna(result.loc[1, "salience_level"])
+
+class TestFiltering:
+    """Tests for data filtering and handling."""
+
+    def test_missing_story_id_handling(self):
+        """Test that rows with missing story IDs are handled gracefully."""
+        df = pd.DataFrame({
+            "story_id": [None, "story_001"],
+            "other_col": [1, 2]
+        })
+        config = {
+            "mappings": {
+                "story_001": {"salience_level": "high", "blend_shape_params": {}}
+            }
+        }
+        
+        result = map_to_blend_shapes(df, config)
+        
+        assert pd.isna(result.loc[0, "salience_level"])
+        assert result.loc[1, "salience_level"] == "high"
+
+class TestLogGeneration:
+    """Tests for VR mapping log generation."""
+
+    def test_process_salience_mapping_creates_entries(self):
+        """Test that process_salience_mapping creates valid log entries."""
+        df = pd.DataFrame({
+            "story_id": ["story_001", "story_006"],
+            "salience_level": ["high", "low"],
+            "blend_shape_params": ['{"a": 1}', '{"b": 2}']
+        })
+        
+        entries = process_salience_mapping(df)
+        
+        assert len(entries) == 2
+        assert entries[0]["story_id"] == "story_001"
+        assert entries[0]["salience_level"] == "high"
+        assert entries[1]["story_id"] == "story_006"
+        assert entries[1]["salience_level"] == "low"
+
+    def test_log_file_written(self):
+        """Test that the VR mapping log file is actually written to disk."""
+        # Create a temporary directory for testing
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            data_dir = tmp_path / "data"
+            data_dir.mkdir()
+            logs_dir = data_dir / "logs"
+            logs_dir.mkdir()
+            processed_dir = data_dir / "processed"
+            processed_dir.mkdir()
+            
+            # Mock the paths
+            with patch('data.preprocess.MERGED_DATA_PATH', processed_dir / "merged_dataset.csv"):
+                with patch('data.preprocess.CONFIG_PATH', tmp_path / "config.yaml"):
+                    with patch('data.preprocess.PREPROCESSED_DATA_PATH', processed_dir / "preprocessed_dataset.csv"):
+                        with patch('utils.logging_utils.get_vr_mapping_log_path', return_value=logs_dir / "vr_mapping.log"):
+                            with patch('utils.logging_utils.get_logger'):
+                                # Create mock merged data
+                                mock_df = pd.DataFrame({
+                                    "story_id": ["story_001"],
+                                    "val": [1]
+                                })
+                                mock_df.to_csv(processed_dir / "merged_dataset.csv", index=False)
+                                
+                                # Create mock config
+                                config = {
+                                    "mappings": {
+                                        "story_001": {
+                                            "salience_level": "high",
+                                            "blend_shape_params": {"jawOpen": 0.5}
+                                        }
+                                    }
+                                }
+                                with open(tmp_path / "config.yaml", 'w') as f:
+                                    yaml.dump(config, f)
+                                
+                                # Run the pipeline
+                                from data.preprocess import run_preprocessing_pipeline
+                                run_preprocessing_pipeline()
+                                
+                                # Verify log file exists
+                                log_path = logs_dir / "vr_mapping.log"
+                                assert log_path.exists(), "VR mapping log file was not created."
+                                
+                                # Verify content
+                                with open(log_path, 'r') as f:
+                                    content = f.read()
+                                    assert "story_001" in content
+                                    assert "high" in content

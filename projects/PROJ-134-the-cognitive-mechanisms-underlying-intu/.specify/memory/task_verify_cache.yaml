@@ -9,11 +9,18 @@ T013:
     \ The task\u2019s core requirement is therefore unmet."
 T015a:
   c: false
-  h: f1cc507f6286885fd22f4c7ca53ae3180240ea8b918942a2f9721ef46447d33f
-  r: "The repository lacks the required `data/logs/exclusion.log` file, and the shown\
-    \ portion of `code/data/ingest.py` does not contain any logic that logs exclusion\
-    \ reasons for mismatched participant IDs (e.g., calls to `log_exclusion`). Without\
-    \ these, the task\u2019s logging requirement is not met."
+  h: dc0ea07ac29f01199412a64b44ac1b049355ed8e683af8779917d2eee0f89670
+  r: "The `data/logs/exclusion.log` file does not exist, and the shown portion of\
+    \ `code/data/ingest.py` contains only data\u2011loading functions with no logic\
+    \ that detects mismatched participant IDs or calls `log_exclusion` to write reasons\
+    \ to that log file. Consequently the required logging behavior is not implemented."
+T016:
+  c: false
+  h: a4c2bdb276e5ed8fc98f9d7593a8adb6789d1096cfe4e28dee4d23a60bd81db9
+  r: "The repository contains `code/data/preprocess.py`, but the required log file\
+    \ `data/logs/vr_mapping.log` is absent, indicating that the CSV logging of story\u2011\
+    ID, salience level, and blend\u2011shape parameters was not implemented or executed.\
+    \ Consequently the task\u2019s logging requirement is not satisfied."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

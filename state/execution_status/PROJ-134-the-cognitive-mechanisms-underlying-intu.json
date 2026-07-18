@@ -1,0 +1,23 @@
+{
+  "project_id": "PROJ-134-the-cognitive-mechanisms-underlying-intu",
+  "ok": false,
+  "reason": "19 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/model_comparison.py: self-declared fabricated metric \u2014 \u201c\u2026MODE: {run_mode}\")          # Mock results for demonstration (in real f\u2026\u201d; code/data/simulation_stories.py: function `generate_story_text` returns a bare RNG draw (line 43) \u2014 a reported value computed from no real input; code/data/ingest.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026Load MFQ data from the generated synthetic dataset or real source.\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/data/simulation.py; 7 command(s) failed: python code/data/ingest.py (rc=1); python code/data/preprocess.py (rc=1); python code/models/bayesian.py (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/data/ingest.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/ingest.py\", line 4, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/data/simulation.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/simulation.py': [Errno 2] No such file or directory",
+    "python code/data/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/preprocess.py\", line 19, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/models/bayesian.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/models/bayesian.py\", line 8, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/analysis/model_comparison.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/analysis/model_comparison.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/analysis/validation.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/analysis/validation.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/utils/hashing.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py\", line 12, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
+    "python code/reports/generate_report.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/reports/generate_report.py\", line 14, in <module>\n    from config import ensure_directories\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/config.py\", line 4, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-18T20:50:25Z"
+}
