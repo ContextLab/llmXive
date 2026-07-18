@@ -36,7 +36,7 @@ def test_missing_transformers_classifies_as_advance(monkeypatch):
     monkeypatch.setitem(sys.modules, "transformers", None)
     try:
         LocalBackend().chat(_MSGS, model=_LOCAL_MODEL)
-    except Exception as exc:  # noqa: BLE001 — we assert the classification below
+    except Exception as exc:  # we assert the classification below
         assert isinstance(exc, PermanentBackendError)  # still a permanent-family error…
         assert disposition_of(exc) is CandidateDisposition.RETRY_ADVANCE  # …but ADVANCES
     else:  # pragma: no cover - must raise
