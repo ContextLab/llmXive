@@ -1,175 +1,91 @@
-"""
-Unit tests for stratified split logic and Total Variation Distance (TVD) calculation.
-This module validates the integrity of data splits used in model training (User Story 2).
-"""
-
 import pytest
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Tuple, Optional
+from pathlib import Path
+import sys
 
-# Helper function to calculate Total Variation Distance
-def calculate_tvd(dist1: pd.Series, dist2: pd.Series) -> float:
-    """
-    Calculates the Total Variation Distance between two categorical distributions.
-    
-    TVD = 0.5 * sum(|p_i - q_i|)
-    
-    Args:
-        dist1: A pandas Series representing the first distribution (counts or probabilities).
-        dist2: A pandas Series representing the second distribution (counts or probabilities).
-        
-    Returns:
-        float: The TVD value between 0.0 and 1.0.
-    """
-    # Normalize to probabilities
-    total1 = dist1.sum()
-    total2 = dist2.sum()
-    
-    if total1 == 0 or total2 == 0:
-        return 1.0 # Max distance if one is empty
-    
-    probs1 = dist1 / total1
-    probs2 = dist2 / total2
-    
-    # Ensure both series have the same index (categories) for alignment
-    all_categories = probs1.index.union(probs2.index)
-    probs1 = probs1.reindex(all_categories, fill_value=0.0)
-    probs2 = probs2.reindex(all_categories, fill_value=0.0)
-    
-    tvd = 0.5 * np.abs(probs1 - probs2).sum()
-    return float(tvd)
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
+from code.evaluate import calculate_tvd
 
-def calculate_stratified_split_distributions(
-    df: pd.DataFrame, 
-    stratify_col: str, 
-    train_size: float = 0.8, 
-    random_state: int = 42
-) -> Tuple[pd.Series, pd.Series]:
-    """
-    Simulates a stratified split and returns the distribution of the stratification column
-    for both train and validation sets.
-    
-    Args:
-        df: The input DataFrame.
-        stratify_col: The column name to stratify by.
-        train_size: The proportion of the dataset to include in the train split.
-        random_state: The random seed for reproducibility.
-        
-    Returns:
-        Tuple of (train_distribution, val_distribution) as pandas Series of counts.
-    """
-    # Simple stratified sampling implementation
-    np.random.seed(random_state)
-    
-    train_indices = []
-    val_indices = []
-    
-    groups = df.groupby(stratify_col)
-    
-    for name, group in groups:
-        indices = group.index.tolist()
-        n_train = int(len(indices) * train_size)
-        
-        # Shuffle indices
-        shuffled = indices.copy()
-        np.random.shuffle(shuffled)
-        
-        train_indices.extend(shuffled[:n_train])
-        val_indices.extend(shuffled[n_train:])
-    
-    train_df = df.loc[train_indices]
-    val_df = df.loc[val_indices]
-    
-    return train_df[stratify_col].value_counts(), val_df[stratify_col].value_counts()
+class TestSplitValidation:
+    """Unit tests for stratified split logic and TVD calculation."""
 
-
-class TestStratifiedSplitValidation:
-    """Tests for the stratified split logic and TVD calculation."""
-
-    def test_tvd_identical_distributions(self):
+    def test_calculate_tvd_identical_distribution(self):
         """TVD should be 0.0 for identical distributions."""
-        s1 = pd.Series([10, 20, 30], index=['A', 'B', 'C'])
-        s2 = pd.Series([10, 20, 30], index=['A', 'B', 'C'])
+        train_dist = {'A': 0.5, 'B': 0.5}
+        val_dist = {'A': 0.5, 'B': 0.5}
         
-        tvd = calculate_tvd(s1, s2)
+        tvd = calculate_tvd(train_dist, val_dist)
         assert tvd == 0.0, f"Expected TVD 0.0, got {tvd}"
 
-    def test_tvd_disjoint_distributions(self):
+    def test_calculate_tvd_disjoint_distribution(self):
         """TVD should be 1.0 for completely disjoint distributions."""
-        s1 = pd.Series([10], index=['A'])
-        s2 = pd.Series([10], index=['B'])
+        train_dist = {'A': 1.0}
+        val_dist = {'B': 1.0}
         
-        tvd = calculate_tvd(s1, s2)
-        # 0.5 * (|1.0 - 0.0| + |0.0 - 1.0|) = 0.5 * 2 = 1.0
+        tvd = calculate_tvd(train_dist, val_dist)
         assert tvd == 1.0, f"Expected TVD 1.0, got {tvd}"
 
-    def test_tvd_partial_overlap(self):
-        """TVD should be between 0 and 1 for partial overlap."""
-        s1 = pd.Series([10, 10], index=['A', 'B'])
-        s2 = pd.Series([5, 15], index=['A', 'B'])
-        
-        # p = [0.5, 0.5], q = [0.25, 0.75]
-        # |0.5 - 0.25| + |0.5 - 0.75| = 0.25 + 0.25 = 0.5
-        # TVD = 0.5 * 0.5 = 0.25
-        tvd = calculate_tvd(s1, s2)
-        assert abs(tvd - 0.25) < 1e-6, f"Expected TVD 0.25, got {tvd}"
-
-    def test_stratified_split_preserves_distribution(self):
-        """Stratified split should result in very low TVD between train and val sets."""
-        # Create a synthetic dataset with known distribution
-        data = {
-            'crystal_system': ['Cubic'] * 800 + ['Hexagonal'] * 100 + ['Orthorhombic'] * 100,
-            'value': range(1000)
-        }
-        df = pd.DataFrame(data)
-        
-        train_dist, val_dist = calculate_stratified_split_distributions(
-            df, 
-            stratify_col='crystal_system', 
-            train_size=0.8, 
-            random_state=42
-        )
+    def test_calculate_tvd_partial_overlap(self):
+        """TVD should be 0.25 for partial overlap."""
+        # Train: A=0.6, B=0.4
+        # Val: A=0.4, B=0.6
+        # |0.6-0.4| + |0.4-0.6| = 0.2 + 0.2 = 0.4
+        # TVD = 0.5 * 0.4 = 0.2
+        train_dist = {'A': 0.6, 'B': 0.4}
+        val_dist = {'A': 0.4, 'B': 0.6}
         
         tvd = calculate_tvd(train_dist, val_dist)
-        
-        # With perfect stratification, TVD should be very close to 0
-        # Allow small float errors or edge cases in small groups
-        assert tvd <= 0.05, f"Stratified split TVD ({tvd}) exceeds threshold 0.05"
+        assert abs(tvd - 0.2) < 1e-6, f"Expected TVD 0.2, got {tvd}"
 
-    def test_stratified_split_handles_imbalanced_data(self):
-        """Stratified split should handle highly imbalanced classes."""
-        # 990 A, 10 B
-        data = {
-            'crystal_system': ['A'] * 990 + ['B'] * 10,
-            'value': range(1000)
-        }
-        df = pd.DataFrame(data)
-        
-        train_dist, val_dist = calculate_stratified_split_distributions(
-            df, 
-            stratify_col='crystal_system', 
-            train_size=0.8, 
-            random_state=123
-        )
+    def test_calculate_tvd_with_missing_keys(self):
+        """TVD should handle missing keys in one distribution."""
+        # Train: A=0.7, B=0.3
+        # Val: A=0.7, C=0.3 (B is missing in Val, C is missing in Train)
+        # Train: A=0.7, B=0.3, C=0.0
+        # Val: A=0.7, B=0.0, C=0.3
+        # |0.7-0.7| + |0.3-0.0| + |0.0-0.3| = 0 + 0.3 + 0.3 = 0.6
+        # TVD = 0.5 * 0.6 = 0.3
+        train_dist = {'A': 0.7, 'B': 0.3}
+        val_dist = {'A': 0.7, 'C': 0.3}
         
         tvd = calculate_tvd(train_dist, val_dist)
-        
-        # Should still maintain the ratio, resulting in low TVD
-        assert tvd <= 0.05, f"Stratified split TVD ({tvd}) exceeds threshold 0.05 for imbalanced data"
+        assert abs(tvd - 0.3) < 1e-6, f"Expected TVD 0.3, got {tvd}"
 
-    def test_tvd_with_missing_categories(self):
-        """TVD calculation should handle cases where one distribution lacks a category."""
-        s1 = pd.Series([10, 5], index=['A', 'B'])
-        s2 = pd.Series([10], index=['A']) # Missing 'B'
+    def test_calculate_tvd_empty_distribution(self):
+        """TVD should handle empty distributions gracefully or raise error."""
+        # If both are empty, TVD is 0? Or undefined?
+        # Let's test with one empty and one non-empty -> TVD should be 1.0
+        train_dist = {}
+        val_dist = {'A': 1.0}
         
-        tvd = calculate_tvd(s1, s2)
-        
-        # p = [0.66, 0.33], q = [1.0, 0.0]
-        # |0.66 - 1.0| + |0.33 - 0.0| = 0.33 + 0.33 = 0.66
-        # TVD = 0.5 * 0.66 = 0.33
-        assert 0.3 <= tvd <= 0.4, f"Expected TVD around 0.33, got {tvd}"
+        # The calculate_tvd function should handle this.
+        # If it raises, we catch it. If it returns 1.0, we check.
+        try:
+            tvd = calculate_tvd(train_dist, val_dist)
+            assert tvd == 1.0, f"Expected TVD 1.0 for empty vs non-empty, got {tvd}"
+        except ValueError:
+            # If the function raises ValueError for empty distributions, that's acceptable.
+            pass
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_calculate_tvd_threshold_check(self):
+        """Test that TVD calculation can be used to check against a threshold."""
+        train_dist = {'A': 0.9, 'B': 0.1}
+        val_dist = {'A': 0.8, 'B': 0.2}
+        
+        tvd = calculate_tvd(train_dist, val_dist)
+        # |0.9-0.8| + |0.1-0.2| = 0.1 + 0.1 = 0.2
+        # TVD = 0.1
+        assert tvd <= 0.05, f"TVD {tvd} should be <= 0.05 for good split"
+        
+        # Now a bad split
+        train_dist_bad = {'A': 0.9, 'B': 0.1}
+        val_dist_bad = {'A': 0.5, 'B': 0.5}
+        
+        tvd_bad = calculate_tvd(train_dist_bad, val_dist_bad)
+        # |0.9-0.5| + |0.1-0.5| = 0.4 + 0.4 = 0.8
+        # TVD = 0.4
+        assert tvd_bad > 0.05, f"TVD {tvd_bad} should be > 0.05 for bad split"

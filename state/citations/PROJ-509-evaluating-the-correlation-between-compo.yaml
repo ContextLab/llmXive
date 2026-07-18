@@ -31,20 +31,9 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4053859
   verified_at: '2026-06-29T21:06:19.286842Z'
-- artifact_hash: d15f4263bf96a8b870e658ca9187c512e0602da0d1056bbe10c6cea06dd224bb
+- artifact_hash: be6d47c71d90ed6e7ad70a1451269f42fe2930c1b74e8197a383bab8b8932d01
   artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: MS-DOS - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q47604
-  verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q47604
-  verified_at: '2026-07-02T07:32:46.938077Z'
-- artifact_hash: d15f4263bf96a8b870e658ca9187c512e0602da0d1056bbe10c6cea06dd224bb
-  artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -52,4 +41,4 @@
   value: 10.5281/zenodo.4053859
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4053859
-  verified_at: '2026-07-02T07:32:46.938077Z'
+  verified_at: '2026-07-18T10:22:34.088589Z'

@@ -72,7 +72,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Download MP-2020.12.1 dataset, filter for inorganic compounds, compute multiple mean/variance descriptors, and output a clean CSV.
 
-**Independent Test**: Run `code/ingest.py` and `code/descriptors.py` against the Zenodo mirror; {{claim:c_331c9c49}} (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604), no nulls in descriptor columns, and matches `contracts/dataset.schema.yaml`.
+**Independent Test**: Run `code/ingest.py` and `code/descriptors.py` against the Zenodo mirror; {{claim:c_331c9c49}} ({{claim:c_e83f63b0}}, {{claim:c_9b3d233c}}), no nulls in descriptor columns, and matches `contracts/dataset.schema.yaml`.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -83,7 +83,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/ingest.py` to Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859) [UNRESOLVED-CLAIM: c_eb27361c — status=not_enough_info], filter for inorganic compounds with complete formation energy/composition, and log excluded rows.
+- [X] T012 [US1] Implement `code/ingest.py` to Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859) [UNRESOLVED-CLAIM: c_eb27361c — status=not_enough_info], filter for inorganic compounds with complete formation energy/composition, and log excluded rows.
 - [X] T013 [US1] Implement stratified sampling logic in `code/ingest.py` (calling `code/utils/sampling.py`) to sample the raw dataset by **Chemical Family** if it exceeds memory threshold. **Output**: Save the sampled raw dataset to `data/processed/sampled_raw_data.csv` and generate a versioned manifest `data/processed/sampling_manifest.json` containing the row count, random seed, and SHA256 checksum. Log sampling stats to `data/logs/sampling.log`.
 - [X] T014 [US1] Implement `code/descriptors.py` to load `data/processed/sampled_raw_data.csv` and load elemental properties (electronegativity, radius, valence, melting point, ionization energy) using `pymatgen` or `matminer`.
 - [X] T015 [US1] Implement `code/descriptors.py` to compute mean and variance for the 5 descriptors for every compound and handle missing elemental properties by excluding rows.
@@ -103,16 +103,16 @@ Examples of foundational tasks (adjust based on your project):
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`.
-- [ ] T019 [P] [US2] Unit test for stratified split logic (TVD calculation) in `tests/unit/test_split_validation.py`.
+- [X] T019 [P] [US2] Unit test for stratified split logic (TVD calculation) in `tests/unit/test_split_validation.py`.
 
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Implement `code/train.py` to load `data/processed/computed_descriptors.csv` and perform an 80/20 stratified split by **Crystal System** (as required by Spec FR-004) to ensure structural diversity in the validation set.
-- [ ] T021 [US2] Implement `code/train.py` to train Random Forest Regressor (`n_estimators=200`, `max_depth=20`) on the training split.
-- [ ] T022 [US2] Implement `code/train.py` to train Gradient Boosting Regressor (`n_estimators=100`) on the training split.
-- [ ] T023 [US2] Implement `code/evaluate.py` to calculate R², MAE, and RMSE for both models on the validation split.
+- [X] T021 [US2] Implement `code/train.py` to train Random Forest Regressor (`n_estimators=200`, `max_depth=20`) on the training split.
+- [X] T022 [US2] Implement `code/train.py` to train Gradient Boosting Regressor (`n_estimators=100`) on the training split.
+- [X] T023 [US2] Implement `code/evaluate.py` to calculate R², MAE, and RMSE for both models on the validation split.
 - [X] T024 [US2] Implement `code/evaluate.py` to calculate Total Variation Distance (TVD) between training and validation crystal system distributions; flag if TVD > 0.05.
-- [~] T025 [US2] Implement `code/evaluate.py` to detect overfitting by calculating `overfitting_ratio = train_r2 / val_r2` (handle division by zero). **Output**: Append `overfitting_ratio` to `data/evaluation/model_metrics.json`.
+- [ ] T025 [US2] Implement `code/evaluate.py` to detect overfitting by calculating `overfitting_ratio = train_r2 / val_r2` (handle division by zero). **Output**: Append `overfitting_ratio` to `data/evaluation/model_metrics.json`.
 - [ ] T026 [US2] Save model artifacts to `data/evaluation/trained_models.pkl` and metrics to `data/evaluation/model_metrics.json` (Single Source of Truth).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -128,7 +128,7 @@ Examples of foundational tasks (adjust based on your project):
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T032 [P] [US3] Unit test for feature importance correlation calculation in `tests/unit/test_importance_validation.py`.
-- [ ] T033 [P] [US3] Integration test for PDP generation in `tests/integration/test_pdp_generation.py`.
+- [X] T033 [P] [US3] Integration test for PDP generation in `tests/integration/test_pdp_generation.py`.
 
 ### Implementation for User Story 3
 

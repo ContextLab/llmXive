@@ -1,3 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directory hierarchy (`projects/PROJ-057-investigating-the-impact-of-compiler-opt/...`)
+    actually exists; the response contains only the task description and specifications,
+    with no listing, screenshot, or command output confirming the `mkdir` execution.
+    The implementer must supply proof that the directories were created (e.g., a tree
+    listing or command output).
+T004:
+  c: false
+  h: 0d715f5a244c5685f2353e02ac0e5740f47bbd03caf14386fc1ebc37dc346fee
+  r: "The provided `config.py` defines flag handling and combination generation, but\
+    \ the script lacks a runnable CLI that accepts `--generate-combinations` and `--input\
+    \ flags.yaml`, and it does not create `data/raw/combinations.json`. Moreover,\
+    \ the required `flags.yaml` (or JSON) input file and the resulting `combinations.json`\
+    \ output are absent. The implementer must add the command\u2011line interface,\
+    \ ensure the script writes the combinations to the specified path, and supply\
+    \ a sample `flags.yaml` (or JSON) for testing."
+T005:
+  c: false
+  h: b7fad0efedddf8b45156d04182262d5e9e0a0461ac178a9b3014a9d3a7003a24
+  r: "The provided `tensor_generator.py` is truncated (e.g., `os.makedi` line) and\
+    \ lacks the command\u2011line interface required (`--seed` and `--verify-hash`),\
+    \ full generation loop over the three fixed seeds, and logic to compute and store\
+    \ the SHA\u2011256 hashes in `data/raw/.hashes/`. Consequently the expected output\
+    \ files and hash files are missing."
+T006:
+  c: false
+  h: 2a9d20fb911b3df249c3baeca688a27cd26cc10973c61044ab6c439cd904909d
+  r: "The required hash file `data/raw/.hashes/ref_2x2.sha256` is absent, meaning\
+    \ the verification step (`python code/benchmarks/reference.py --test --verify-hash`)\
+    \ has not produced the expected output. Without this file, the task\u2019s requirement\
+    \ of generating and saving the reference hash is not met."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, logs, plots, or any other artifacts were provided; the\
+    \ claim lacks any tangible evidence that the required compiler\u2011flag benchmarking\
+    \ system, high\u2011precision reference engine, statistical analysis, or visualizations\
+    \ were actually implemented. The implementer must supply the concrete artifacts\
+    \ (e.g., source code, JSONL logs, CSV metrics, and Pareto plots) for verification."
 T023:
   c: false
   h: a6a04eef6ac6f4a9d2cba0bdba58ca6906ab56bfeb23f0db53d62e54f48ff681
@@ -26,3 +67,11 @@ T037:
     \ compilation/execution, numerical stability measurement, statistical analysis)\
     \ are missing, so the task\u2019s modularity and code\u2011cleanup goals are not\
     \ demonstrated."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file or diff output is provided; without the edited specification\
+    \ showing \u201CWelch's Independent Samples t-test\u201D replacing \u201Cpaired\
+    \ t-tests\u201D and an accompanying verification against `plan.md`, the requirement\
+    \ cannot be confirmed. The implementer must supply the modified `spec.md` (or\
+    \ its relevant excerpt) and the diff evidence."

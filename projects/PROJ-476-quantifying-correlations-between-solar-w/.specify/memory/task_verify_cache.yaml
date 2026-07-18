@@ -1,0 +1,37 @@
+T010:
+  c: false
+  h: 9b6c5c2ed7f286cb2b37c49e501dbe19fcc47bb2c0e84284eba608c911490e66
+  r: The provided `test_pipeline.py` is truncated and does not contain a complete
+    implementation that actually downloads real NOAA/ACE data or validates the output.
+    Moreover, the required output file `data/processed/synced.csv` and the schema
+    file `contracts/dataset.schema.yaml` are absent from the repository, so the test
+    cannot verify the CSV against the schema as specified. The missing artifacts must
+    be added and the test completed for the task to be considered done.
+T013:
+  c: false
+  h: b087b1206a6661c356bb7649b525f6a07a4b5043d424bd20bccee1fc82b08798
+  r: "The `align.py` script is present but the provided excerpt shows no code that\
+    \ reads files from `data/raw/` and writes the aligned result to `data/processed/synced.csv`;\
+    \ moreover the required `synced.csv` file is missing from the repository. The\
+    \ task\u2019s core output is therefore not produced."
+T019:
+  c: false
+  h: a67187bb7b1e9b2713901d339661b557a775ca2989fd47df792012a16536bd8e
+  r: The provided `code/tests/test_pipeline.py` does not contain the required `test_pipeline_correlation_full_run`
+    function (only a `test_pipeline_monthly_sync` stub is shown), and the expected
+    output file `data/processed/correlation_results.csv` is absent. Both the test
+    and the CSV artifact required by the task are missing.
+T020:
+  c: false
+  h: df3d7338cd9fbeb44714e5d6a4f913145e406ab7d3a236e9cb0e4e218a0fa139
+  r: "The `code/analysis/correlation.py` file is truncated (ends mid\u2011statement)\
+    \ and does not show a complete implementation that outputs the required results\
+    \ table. Moreover, the required input file `data/processed/synced.csv` is absent,\
+    \ so the module cannot be exercised as specified. Both the code artifact and the\
+    \ necessary data are missing/incomplete."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No Markdown report file was supplied, and there is no evidence of any content\
+    \ stating whether the Helium\u2011Dst correlation exceeds |r|\u202F>\u202F0.5.\
+    \ Without the required artifact, the task is not satisfied."

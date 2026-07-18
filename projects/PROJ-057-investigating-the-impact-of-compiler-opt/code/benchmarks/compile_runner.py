@@ -66,7 +66,6 @@ def compile_kernel(
     cmd = [
         compiler,
         f"-std={std}",
-        "-O3",  # Base optimization, specific flags will override/add
         "-o", output_path,
         kernel_path
     ]

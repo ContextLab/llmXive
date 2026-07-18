@@ -52,8 +52,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` by executing `mkdir -p projects/PROJ-057-investigating-the-impact-of-compiler-opt/{code/{kernels,benchmarks,analysis,utils},data/{raw,intermediates,results},tests/{unit,integration}}`
-- [ ] T002 Create `code/requirements.txt` containing: `numpy`, `scipy`, `matplotlib`, `pyyaml`, `pytest`, `pandas`, `pandas-stubs`
-- [ ] T003 Create `code/.flake8` and `code/pyproject.toml` with black formatting configuration for the compiler optimization project.
+- [X] T002 Create `code/requirements.txt` containing: `numpy`, `scipy`, `matplotlib`, `pyyaml`, `pytest`, `pandas`, `pandas-stubs`
+- [X] T003 Create `code/.flake8` and `code/pyproject.toml` with black formatting configuration for the compiler optimization project.
 
 ---
 
@@ -66,7 +66,7 @@
 - [ ] T004 [P] Create `code/benchmarks/config.py` to handle compiler flags. **Requirement: MUST implement dynamic generation of combinations from a user-supplied YAML/JSON list (e.g., `flags.yaml`). The user-supplied list MUST REPLACE the hardcoded defaults (`-O0` to `-O3`, `-Os`, `-march=native`, `-ffast-math`, `-funroll-loops`) for combinatorial generation. If no user list is provided, use the defaults. Verify by running `python code/benchmarks/config.py --generate-combinations --input flags.yaml` which outputs the full list of combinations to `data/raw/combinations.json`.**
 - [ ] T005 [P] Implement deterministic synthetic tensor generator in `code/benchmarks/tensor_generator.py` using fixed seeds **[12345, 67890, 11111]** and varied distributions (Normal, Uniform) to ensure construct validity; output to `data/raw/`. **Verify by running `python code/benchmarks/tensor_generator.py --seed <SEED> --verify-hash` which generates the file, prints its SHA-256 hash, and saves the hash to `data/raw/.hashes/<SEED>.sha256`. Subsequent runs must match this hash.**
 - [ ] T006 [P] Implement high-precision reference engine in `code/benchmarks/reference.py` using Python `decimal` module with arbitrary-precision arithmetic for MatMul, Softmax, and LayerNorm; output to `data/raw/`. **Verify by running `python code/benchmarks/reference.py --test --verify-hash` which generates a reference for a 2x2 matrix, prints its SHA-256 hash, and saves it to `data/raw/.hashes/ref_2x2.sha256`.**
-- [ ] T007 Setup logging infrastructure in `code/utils/logger.py` to record compiler versions, flag combinations, and runtime warnings (NaN detection)
+- [X] T007 Setup logging infrastructure in `code/utils/logger.py` to record compiler versions, flag combinations, and runtime warnings (NaN detection)
 - [ ] T008 [X] (Duplicate of T004 - Removed)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -81,12 +81,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement C++ MatMul kernel in `code/kernels/matmul.cpp` (C++17, float32)
-- [ ] T012 [P] [US1] Implement C++ Softmax kernel in `code/kernels/softmax.cpp`
-- [ ] T013 [P] [US1] Implement C++ LayerNorm kernel in `code/kernels/layernorm.cpp`
-- [ ] T014 [US1] Implement `code/benchmarks/compile_runner.py` to orchestrate `g++`/`clang++` compilation with dynamic flag injection and SHA-256 hashing of binaries; **Verify by running `python code/benchmarks/compile_runner.py --test` which outputs a SHA-256 hash of a dummy binary**
-- [ ] T015 [US1] [Depends: T005] Implement `code/benchmarks/executor.py` to run binaries and measure latency using `std::chrono` (via subprocess). **Enforce a sufficient iteration count: Run a fixed number of iterations per configuration to ensure convergence and stability (Constitution Principle VII). Do NOT use adaptive stopping. Implement memory fallback: if 768x768 allocation fails, auto-downsample to 512x512, log 'Memory Pressure' with the new dimension ID, and continue execution. Only exit if the downsampled run also fails. Output results to `data/intermediates/raw_logs/{config_id}.jsonl` with the following schema: `{"config_id": "string", "kernel": "string", "compiler": "string", "flags": ["string"], "median_ms": float, "p95_ms": float, "iterations": int, "downsampled": bool, "tensor_dim": "string"}`. Verify by running `python code/benchmarks/executor.py --test` which produces a valid JSONL line.**
-- [ ] T017 [US1] [Depends: T015] Implement NaN detection and exclusion logic in `code/analysis/stability_check.py`; **Post-process raw logs to detect NaNs in output tensors, log specific flag configurations causing stability failures, and output `data/intermediates/filtered_stable_runs.csv` containing only valid runs. Verify by running `python code/analysis/stability_check.py --detect-nan` which produces the filtered CSV and a log of excluded runs.**
+- [X] T011 [P] [US1] Implement C++ MatMul kernel in `code/kernels/matmul.cpp` (C++17, float32)
+- [X] T012 [P] [US1] Implement C++ Softmax kernel in `code/kernels/softmax.cpp`
+- [X] T013 [P] [US1] Implement C++ LayerNorm kernel in `code/kernels/layernorm.cpp`
+- [X] T014 [US1] Implement `code/benchmarks/compile_runner.py` to orchestrate `g++`/`clang++` compilation with dynamic flag injection and SHA-256 hashing of binaries; **Verify by running `python code/benchmarks/compile_runner.py --test` which outputs a SHA-256 hash of a dummy binary**
+- [X] T015 [US1] [Depends: T005] Implement `code/benchmarks/executor.py` to run binaries and measure latency using `std::chrono` (via subprocess). **Enforce a sufficient iteration count: Run a fixed number of iterations per configuration to ensure convergence and stability (Constitution Principle VII). Do NOT use adaptive stopping. Implement memory fallback: if 768x768 allocation fails, auto-downsample to 512x512, log 'Memory Pressure' with the new dimension ID, and continue execution. Only exit if the downsampled run also fails. Output results to `data/intermediates/raw_logs/{config_id}.jsonl` with the following schema: `{"config_id": "string", "kernel": "string", "compiler": "string", "flags": ["string"], "median_ms": float, "p95_ms": float, "iterations": int, "downsampled": bool, "tensor_dim": "string"}`. Verify by running `python code/benchmarks/executor.py --test` which produces a valid JSONL line.**
+- [~] T017 [US1] [Depends: T015] Implement NaN detection and exclusion logic in `code/analysis/stability_check.py`; **Post-process raw logs to detect NaNs in output tensors, log specific flag configurations causing stability failures, and output `data/intermediates/filtered_stable_runs.csv` containing only valid runs. Verify by running `python code/analysis/stability_check.py --detect-nan` which produces the filtered CSV and a log of excluded runs.**
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 

@@ -7,77 +7,78 @@
 
 ## User Scenarios & Testing
 
-### User Story 1 - Archival Data Retrieval and Harmonization (Priority: P1)
+### User Story 1 - Archival Raw Data Retrieval and Validation (Priority: P1)
 
-The researcher MUST be able to retrieve published T-violation correlation coefficients (specifically the D-coefficient) and their associated uncertainties for specific nuclei (e.g., 6He, 19Ne) from the NNDC ENSDF database and harmonize them into a single dataset for meta-analysis.
+The researcher MUST be able to retrieve raw or semi-raw momentum spectra and polarization asymmetry coefficients for specific nuclei (e.g., 6He, 19Ne) from the NNDC ENSDF database and validate that the data format supports cross-modal covariance analysis.
 
-**Why this priority**: This is the foundational step; without retrieving the existing published limits on T-violation, no meta-analysis or comparison can occur. It represents the minimum viable data pipeline.
+**Why this priority**: This is the foundational step; without retrieving the fundamental observables required for the proposed fusion method, no analysis can occur. This step also validates the feasibility of the novel approach.
 
-**Independent Test**: Can be fully tested by executing the data extraction script against the ENSDF API/website and verifying the output CSV contains rows with D-coefficient values and uncertainties for a target nucleus, with no missing critical identifiers.
+**Independent Test**: Can be fully tested by executing the data extraction script against the ENSDF API/website and verifying the output contains raw/semi-raw spectra or asymmetry coefficients (not just pre-calculated D-coefficients) for a target nucleus.
 
 **Acceptance Scenarios**:
 
-1. **Given** a target nucleus (e.g., 6He) exists in ENSDF with published D-coefficient data, **When** the extraction script queries the database, **Then** the script retrieves the D-coefficient value, its uncertainty, and the source experiment reference.
-2. **Given** multiple published measurements for the same nucleus, **When** the harmonization process runs, **Then** the resulting dataset lists each measurement separately with its source, preserving the independence of the results.
-3. **Given** a target nucleus with no published D-coefficient data, **When** the script processes it, **Then** the script flags the nucleus as "insufficient data" and excludes it from the meta-analysis without crashing.
+1. **Given** a target nucleus (e.g., 6He) exists in ENSDF with raw momentum/polarization data, **When** the extraction script queries the database, **Then** the script retrieves the momentum spectrum and polarization asymmetry values with their uncertainties.
+2. **Given** multiple published measurements for the same nucleus, **When** the validation process runs, **Then** the system confirms each dataset contains the necessary modalities (momentum AND polarization) to perform the fusion.
+3. **Given** a target nucleus where only pre-calculated D-coefficients are available (no raw data), **When** the script processes it, **Then** the script flags the nucleus as "fusion impossible" and excludes it from the fusion analysis, reporting the limitation explicitly.
 
 ---
 
-### User Story 2 - Meta-Analysis and Upper Bound Calculation (Priority: P2)
+### User Story 2 - Cross-Modal Data Fusion and Permutation Testing (Priority: P2)
 
-The system MUST perform a weighted meta-analysis of the retrieved D-coefficients to calculate a combined upper bound on T-violation, properly propagating uncertainties and checking for consistency among the measurements.
+The system MUST perform a cross-modal data fusion by computing the covariance matrix between momentum distribution and polarization coefficients for each nucleus, and use permutation testing (minimum 10,000 shuffles) to establish the null distribution and calculate a 95% confidence interval upper bound on the D-coefficient.
 
-**Why this priority**: This is the core scientific analysis. It directly addresses the research question by synthesizing independent measurements to determine if the combined data reveals a non-zero T-violation or establishes a tighter upper bound than individual experiments.
+**Why this priority**: This is the core scientific analysis. It directly addresses the research question by testing the hypothesis that archival data can reveal T-violation via the proposed novel fusion method.
 
-**Independent Test**: Can be fully tested by running the statistical analysis module on a mock dataset with known injected D-coefficients and uncertainties, verifying the calculated weighted average and combined uncertainty match the theoretical expectation within 1% relative error.
+**Independent Test**: Can be fully tested by running the statistical analysis module on a mock dataset with known injected correlations, verifying the permutation p-value is stable (variance < 0.01) when the number of shuffles is doubled from [deferred] to [deferred].
 
 **Acceptance Scenarios**:
 
-1. **Given** a harmonized dataset of D-coefficients, **When** the meta-analysis runs, **Then** the system calculates the weighted average of the D-coefficients using inverse-variance weighting.
-2. **Given** the combined D-coefficient and its uncertainty, **When** the upper bound calculation runs, **Then** the system outputs a 95% confidence interval upper bound (e.g., |D| < X) based on the combined result.
-3. **Given** a dataset where the weighted average is statistically indistinguishable from zero, **When** the bound calculation runs, **Then** the system reports a null result with a quantified sensitivity limit (e.g., "Combined data limits D to < Y at [deferred] CL").
+1. **Given** a harmonized dataset of momentum spectra and polarization asymmetries for a single nucleus, **When** the fusion algorithm runs, **Then** the system calculates the cross-modal covariance matrix and derives the D-coefficient estimate.
+2. **Given** the derived D-coefficient, **When** the permutation test runs (10,000 shuffles), **Then** the system generates a null distribution and calculates a p-value.
+3. **Given** the p-value and D-estimate, **When** the bound calculation runs, **Then** the system outputs a 95% confidence interval upper bound (e.g., |D| < X) based on the 95th percentile of the null distribution.
 
 ---
 
-### User Story 3 - Consistency Testing and Sensitivity Validation (Priority: P3)
+### User Story 3 - Sensitivity Validation and PDG Comparison (Priority: P3)
 
-The system MUST perform a consistency test (Cochran's Q test) to check for heterogeneity among the published D-coefficients and calculate the sensitivity limit (experimental noise floor) of the combined dataset, validating results against known constraints from the Particle Data Group (PDG).
+The system MUST calculate the sensitivity limit of the derived bound for each nucleus and compare it against the best single-experiment sensitivity and the 2024 Particle Data Group (PDG) review limits to validate the results.
 
-**Why this priority**: This ensures the scientific rigor of the results by verifying that the combined measurements are consistent (i.e., no hidden systematic errors or conflicting results) and quantifying the precision of the final bound.
+**Why this priority**: This ensures the scientific rigor of the results by quantifying the precision of the fusion method and benchmarking it against established constraints.
 
-**Independent Test**: Can be fully tested by running the validation module on the processed data and verifying the generation of a heterogeneity p-value (Cochran's Q), a sensitivity limit, and a comparison table against external PDG constraints.
+**Independent Test**: Can be fully tested by running the validation module on the processed data and verifying the generation of a sensitivity limit (per nucleus) and a comparison table against the 2024 PDG Review.
 
 **Acceptance Scenarios**:
 
-1. **Given** multiple D-coefficient measurements, **When** the consistency test runs, **Then** the system calculates Cochran's Q statistic and the associated p-value to determine if the measurements are consistent (p > 0.05).
-2. **Given** the combined dataset, **When** the sensitivity analysis runs, **Then** the system calculates the sensitivity limit as the standard error of the weighted mean.
-3. **Given** the derived upper bound, **When** the validation step runs, **Then** the system cross-references the result with the Particle Data Group (PDG) review and flags if the new bound is looser than the current world average.
+1. **Given** the derived D-coefficient bound for a nucleus, **When** the sensitivity analysis runs, **Then** the system calculates the sensitivity limit as the standard error of the weighted mean of measurements for *that specific nucleus*.
+2. **Given** the derived upper bound, **When** the validation step runs, **Then** the system cross-references the result with the 2024 PDG review and flags if the new bound is looser than the current world average.
+3. **Given** the derived sensitivity limit, **When** the benchmarking runs, **Then** the system compares the fusion sensitivity against the best single-experiment sensitivity in the set.
 
 ---
 
 ### Edge Cases
 
 - What happens when the NNDC ENSDF database is temporarily unavailable or returns a 404 error for a specific nucleus? (System must retry a limited number of times with exponential backoff, then log the failure and proceed with available nuclei).
-- How does the system handle nuclei where the D-coefficient is reported as a range rather than a point estimate? (System must use the midpoint for calculation and propagate the range width as the uncertainty, or exclude if the range is too wide).
-- What happens if the consistency test results in a p-value exactly equal to 0 or 1 due to floating-point precision limits? (System must clamp values to [e-10, 1-1e-10] and log a warning).
-- How does the system handle a nucleus with only a single published measurement? (System must skip the consistency test and report the single measurement's result and uncertainty directly).
+- How does the system handle nuclei where the raw data is reported as a range rather than a point estimate? (System must use the midpoint for calculation and propagate the range width as the uncertainty, or exclude if the range is too wide).
+- What happens if the permutation test results in a p-value exactly equal to 0 or 1 due to floating-point precision limits? (System must clamp values to [e-10, 1-1e-10] and log a warning).
+- How does the system handle a nucleus with only a single published measurement? (System must skip the permutation consistency check and report the single measurement's result and uncertainty directly, noting the lack of statistical power).
+- What happens if the archival data is strictly binned aggregates with no event-level covariance information? (System must flag the dataset as "invalid for fusion" and exclude it, preventing the generation of a statistical artifact).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST retrieve published T-violation D-coefficients and their uncertainties for specified nuclei (e.g., 6He, 19Ne) from the NNDC ENSDF database, ensuring data is aligned by nuclear state and source experiment. (See US-1)
-- **FR-002**: System MUST perform a weighted meta-analysis of the retrieved D-coefficients using inverse-variance weighting to calculate a combined central value and uncertainty. (See US-2)
-- **FR-003**: System MUST convert the combined D-coefficient result into a 95% confidence interval upper bound, reporting the result with explicit numerical limits. (See US-2)
-- **FR-004**: System MUST perform a consistency test using Cochran's Q statistic with an analytic chi-square distribution to check for heterogeneity among the measurements. (See US-3)
-- **FR-005**: System MUST calculate the sensitivity limit of the combined dataset as the standard error of the weighted mean (1/sqrt(sum(1/sigma_i^2))), representing the experimental noise floor. (See US-3)
-- **FR-006**: System MUST validate the derived upper bounds by cross-referencing them with the Particle Data Group (PDG) review limits and flag any results that are looser than the current world average. (See US-3)
+- **FR-001**: System MUST retrieve raw or semi-raw beta decay energy/momentum spectra and polarization asymmetry coefficients for specified nuclei (e.g., 6He, 19Ne) from the NNDC ENSDF database, ensuring data is aligned by nuclear state and source experiment. (See US-1)
+- **FR-002**: System MUST compute the cross-modal covariance matrix between the retrieved momentum distributions and polarization coefficients to derive the D-coefficient for each nucleus individually. (See US-2)
+- **FR-003**: System MUST perform permutation testing with a minimum of 10,000 shuffles to generate the null distribution for the D-coefficient and calculate a 95% confidence interval upper bound. (See US-2)
+- **FR-004**: System MUST validate the feasibility of the fusion by checking for the presence of event-level or sufficiently granular covariance information; if only binned aggregates are available, the system MUST flag the dataset as "invalid for fusion" and exclude it from the analysis. (See US-1)
+- **FR-005**: System MUST calculate the sensitivity limit of the derived bound for each nucleus individually as the standard error of the weighted mean of measurements for that specific nucleus. (See US-3)
+- **FR-006**: System MUST validate the derived upper bounds by cross-referencing them with the 2024 Particle Data Group (PDG) Review limits and flag any results that are looser than the current world average. (See US-3)
 
 ### Key Entities
 
 - **Nucleus**: Represents a specific atomic nucleus (e.g., 6He) with attributes: `name`, `mass_number`, `experimental_conditions`.
-- **DMeasurement**: Represents a published measurement of the D-coefficient, with attributes: `value`, `uncertainty`, `source_experiment`, `reference_id`.
-- **MetaAnalysisResult**: Represents the statistical output of the fusion analysis, with attributes: `weighted_average`, `combined_uncertainty`, `p_value_heterogeneity`, `d_upper_bound`.
+- **RawObservable**: Represents a raw/semi-raw measurement (momentum spectrum or polarization asymmetry), with attributes: `value`, `uncertainty`, `modality_type`, `source_experiment`, `reference_id`.
+- **FusionResult**: Represents the statistical output of the data fusion analysis, with attributes: `nucleus_id`, `d_coefficient_estimate`, `p_value_null`, `d_upper_bound_95`, `sensitivity_limit`.
 
 ## Success Criteria
 
@@ -85,18 +86,18 @@ The system MUST perform a consistency test (Cochran's Q test) to check for heter
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The combined D-coefficient upper bound is measured against the constraints reported in the Particle Data Group (PDG) review for the same nucleus. (See US-3)
-- **SC-002**: The p-value from the Cochran's Q consistency test is measured against the standard significance threshold of 0.05 to determine if measurements are consistent. (See US-3)
-- **SC-003**: The sensitivity limit (experimental noise floor) is measured against the theoretical minimum uncertainty achievable given the input dataset (calculated as 1/sqrt(sum(1/sigma_i^2))) to verify precision. (See US-3)
-- **SC-004**: The meta-analysis accuracy is measured against a mock dataset with a known injected D-coefficient and uncertainties, verifying the result is within 1% relative error of the injected value. (See US-2)
-- **SC-005**: The data retrieval success rate is measured against the total number of requested nuclei in the target list {6He, 19Ne}, targeting ≥ 90% successful retrievals for nuclei with available data. (See US-1)
+- **SC-001**: The derived D-coefficient upper bound for each nucleus is measured against the constraints reported in the 2024 Particle Data Group (PDG) Review for the same nucleus. (See US-3)
+- **SC-002**: The p-value from the permutation test is measured against the standard significance threshold of 0.05 to determine if the derived D-coefficient is statistically significant. (See US-2)
+- **SC-003**: The sensitivity limit of the fusion method is measured against the best single-experiment sensitivity in the set to verify if the fusion improves precision. (See US-3)
+- **SC-004**: The permutation test stability is measured by doubling the shuffles from [deferred] to [deferred] and verifying the p-value variance is < 0.01. (See US-2)
+- **SC-005**: The data retrieval coverage is measured against the total number of requested nuclei in the target list {6He, 19Ne}, requiring [deferred] retrieval of all available raw/semi-raw datasets (flagging those where only aggregates exist). (See US-1)
 
 ## Assumptions
 
 - The NNDC ENSDF database is accessible via its public interface or API for the duration of the analysis, and the data format remains stable.
-- The archival data for the selected nuclei (6He, 19Ne) contains published D-coefficients or sufficient angular correlation parameters to derive them.
-- The published measurements of the D-coefficient are independent and their uncertainties are correctly reported.
-- The meta-analysis approach (inverse-variance weighting) is appropriate for combining these independent experimental results.
+- The archival data for the selected nuclei (6He, 19Ne) contains sufficient raw or semi-raw momentum and polarization data to attempt the cross-modal fusion.
+- The published measurements of the raw observables are independent and their uncertainties are correctly reported.
+- The cross-modal covariance method is theoretically capable of deriving the D-coefficient if the necessary event-level or granular data is available.
 - The Standard Model prediction for the T-violation D-coefficient is effectively zero, serving as the null hypothesis baseline.
-- The "data fusion" is a meta-analysis of published results, not a statistical correlation of raw spectra from different experiments. Cross-modal covariance between independent momentum and polarization aggregates is physically invalid for archival data due to the lack of event-level pairing; therefore, the research is strictly limited to meta-analysis of published D-coefficients.
-- Cochran's Q test is used solely to check for statistical consistency of reported values, acknowledging that it cannot distinguish between heterogeneity of true T-violation and systematic errors in binned data.
+- If archival data is strictly binned aggregates, the fusion method is physically invalid for that dataset, and the system will correctly identify and flag this limitation.
+- The permutation testing approach (10,000 shuffles) is computationally feasible within the allocated runtime for the dataset size.

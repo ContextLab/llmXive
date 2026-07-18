@@ -1,11 +1,5 @@
-? "T012 [US1] Implement `code/ingest.py` to Download MP-2020.12.1 dataset from Zenodo\
-  \ (DOI: 10.5281/zenodo.4053859) [UNRESOLVED-CLAIM: c_eb27361c \u2014 status=not_enough_info],\
-  \ filter for inorganic compounds with complete formation energy/composition, and\
-  \ log excluded rows."
-: 1
-T019 [P] [US2] Unit test for stratified split logic (TVD calculation) in `tests/unit/test_split_validation.py`.: 1
-? T021 [US2] Implement `code/train.py` to train Random Forest Regressor (`n_estimators=200`,
-  `max_depth=20`) on the training split.
-: 1
-T022 [US2] Implement `code/train.py` to train Gradient Boosting Regressor (`n_estimators=100`) on the training split.: 1
-"T023 [US2] Implement `code/evaluate.py` to calculate R\xB2, MAE, and RMSE for both models on the validation split.": 1
+T025: 1
+T026: 1
+T038: 1
+T039: 1
+T040: 1

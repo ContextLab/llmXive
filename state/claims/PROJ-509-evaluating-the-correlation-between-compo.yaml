@@ -467,25 +467,6 @@
   status: not_enough_info
   updated_at: '2026-07-02T07:23:46Z'
 - artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
-  attempts: 2
-  canonical: Download MP-2020.12.1 dataset from Zenodo DOI 10.5281/zenodo.4053859
-  claim_id: c_dbf2a7ba
-  context: 'Implement code/ingest.py to Download MP-2020.12.1 dataset from Zenodo
-    (DOI: 10.5281/zenodo.4053859), filter for inorganic compounds with complete formation
-    energy/composition, and log excluded rows.'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-02T07:26:09Z'
-- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
   attempts: 1
   canonical: Train Random Forest Regressor with 200 estimators and max depth 20
   claim_id: c_70882f82
@@ -588,25 +569,6 @@
   status: not_enough_info
   updated_at: '2026-07-02T07:27:36Z'
 - artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
-  attempts: 2
-  canonical: MP-2020.12.1 dataset available at Zenodo DOI 10.5281/zenodo.4053859
-  claim_id: c_79342046
-  context: 'Implement `code/ingest.py` to Download MP-2020.12.1 dataset from Zenodo
-    (DOI: 10.5281/zenodo.4053859), filter for inorganic compounds with complete formation
-    energy/composition, and log excluded rows.'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-02T07:30:18Z'
-- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
   attempts: 1
   canonical: Wikidata entry Q47604
   claim_id: c_8bb8d71b
@@ -626,7 +588,102 @@
   status: not_enough_info
   updated_at: '2026-07-02T07:30:22Z'
 - artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Wikidata identifier Q47604
+  claim_id: c_e83f63b0
+  context: Run code/ingest.py and code/descriptors.py against the Zenodo mirror; {{claim:c_331c9c49}}
+    (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604), no nulls in descriptor
+    columns, and matches contracts/dataset.schema.yaml.
+  evidence:
+    entailment_evidence: Wikidata identifier Q47604
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_identifier_Q47604
+  kind: entity_fact
+  raw_text: Wikidata Q47604
+  resolved_value: Wikidata identifier Q47604
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T10:14:02Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Wikidata entry Q47604 referenced in text
+  claim_id: c_9b3d233c
+  context: Run `code/ingest.py` and `code/descriptors.py` against the Zenodo mirror;
+    {{claim:c_331c9c49}} ({{claim:c_e83f63b0}}, https://www.wikidata.org/wiki/Q47604),
+    no nulls in descriptor columns, and matches `contracts/dataset.schema.yaml`.
+  evidence:
+    entailment_evidence: Wikidata entry Q47604 referenced in text
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_entry_Q47604_referenced_in_text
+  kind: entity_fact
+  raw_text: https://www.wikidata.org/wiki/Q47604
+  resolved_value: Wikidata entry Q47604 referenced in text
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T10:14:55Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 4
+  canonical: MP-2020.12.1 dataset available at Zenodo DOI 10.5281/zenodo.4053859
+  claim_id: c_79342046
+  context: 'Implement `code/ingest.py` to Download MP-2020.12.1 dataset from Zenodo
+    (DOI: 10.5281/zenodo.4053859), filter for inorganic compounds with complete formation
+    energy/composition, and log excluded rows.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T10:16:23Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: MP-2020.12.1 dataset DOI 10.5281/zenodo.4053859
+  claim_id: c_e0c9a38b
+  context: 'Implement code/ingest.py to Download MP-2020.12.1 dataset from Zenodo
+    (DOI: 10.5281/zenodo.4053859), filter for inorganic compounds with complete formation
+    energy/composition, and log excluded rows.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T10:19:13Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
   attempts: 3
+  canonical: Download MP-2020.12.1 dataset from Zenodo DOI 10.5281/zenodo.4053859
+  claim_id: c_dbf2a7ba
+  context: 'Implement code/ingest.py to Download MP-2020.12.1 dataset from Zenodo
+    (DOI: 10.5281/zenodo.4053859), filter for inorganic compounds with complete formation
+    energy/composition, and log excluded rows.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T10:20:33Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 6
   canonical: MP-2020.12.1 dataset available at Zenodo DOI 10.5281/zenodo.4053859
   claim_id: c_eb27361c
   context: 'Implement code/ingest.py to Download MP-2020.12.1 dataset from Zenodo
@@ -643,4 +700,4 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-02T07:32:46Z'
+  updated_at: '2026-07-18T10:22:33Z'

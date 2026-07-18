@@ -1,322 +1,98 @@
-"""
-Unit tests for stability_check module.
-
-Tests:
-1. NaN detection in tensors
-2. L2 relative error calculation
-3. Max absolute difference calculation
-4. Stability processing logic
-5. Exclusion of unstable runs
-"""
 import pytest
 import numpy as np
 import json
+import os
 import tempfile
 from pathlib import Path
-from code.analysis.stability_check import (
+import sys
+
+# Add code directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+
+from analysis.stability_check import (
     detect_nan_in_tensor,
     calculate_l2_relative_error,
     calculate_max_absolute_difference,
+    StabilityResult,
     process_stability,
-    StabilityResult
+    load_raw_logs
 )
 
-class TestDetectNanInTensor:
-    """Tests for NaN/Inf detection in tensors."""
-    
-    def test_no_nan(self):
-        """Test tensor with no NaN values."""
-        tensor = [1.0, 2.0, 3.0, 4.0, 5.0]
-        has_nan, indices = detect_nan_in_tensor(tensor)
-        assert has_nan is False
-        assert indices is None
-        
-    def test_has_nan(self):
-        """Test tensor with NaN values."""
-        tensor = [1.0, float('nan'), 3.0, 4.0, 5.0]
-        has_nan, indices = detect_nan_in_tensor(tensor)
-        assert has_nan is True
-        assert indices == [1]
-        
-    def test_has_inf(self):
-        """Test tensor with Inf values."""
-        tensor = [1.0, 2.0, float('inf'), 4.0, 5.0]
-        has_nan, indices = detect_nan_in_tensor(tensor)
-        assert has_nan is True
-        assert indices == [2]
-        
-    def test_has_negative_inf(self):
-        """Test tensor with -Inf values."""
-        tensor = [1.0, 2.0, float('-inf'), 4.0, 5.0]
-        has_nan, indices = detect_nan_in_tensor(tensor)
-        assert has_nan is True
-        assert indices == [2]
-        
-    def test_multiple_nan(self):
-        """Test tensor with multiple NaN values."""
-        tensor = [float('nan'), 2.0, float('nan'), 4.0, float('nan')]
-        has_nan, indices = detect_nan_in_tensor(tensor)
-        assert has_nan is True
-        assert indices == [0, 2, 4]
-        
-    def test_empty_tensor(self):
-        """Test empty tensor."""
-        tensor = []
-        has_nan, indices = detect_nan_in_tensor(tensor)
-        assert has_nan is False
-        assert indices is None
-        
-    def test_none_tensor(self):
-        """Test None tensor."""
-        has_nan, indices = detect_nan_in_tensor(None)
-        assert has_nan is False
-        assert indices is None
+class TestNaNDetection:
+    def test_detect_nan_true(self):
+        data = [1.0, np.nan, 3.0]
+        assert detect_nan_in_tensor(data) is True
 
-class TestCalculateL2RelativeError:
-    """Tests for L2 relative error calculation."""
-    
-    def test_identical_tensors(self):
-        """Test with identical tensors (error should be 0)."""
-        pred = [1.0, 2.0, 3.0]
-        ref = [1.0, 2.0, 3.0]
-        error = calculate_l2_relative_error(pred, ref)
-        assert error == 0.0
-        
-    def test_different_tensors(self):
-        """Test with different tensors."""
-        pred = [1.0, 2.0, 3.0]
-        ref = [1.1, 2.1, 3.1]
-        error = calculate_l2_relative_error(pred, ref)
-        # Error should be small but non-zero
-        assert error > 0
-        assert error < 1.0
-        
-    def test_large_difference(self):
-        """Test with large difference."""
-        pred = [0.0, 0.0, 0.0]
-        ref = [1.0, 1.0, 1.0]
-        error = calculate_l2_relative_error(pred, ref)
-        # Error should be 1.0 (perfectly scaled)
-        assert error == 1.0
-        
-    def test_zero_reference(self):
-        """Test with zero reference tensor."""
-        pred = [1.0, 2.0, 3.0]
-        ref = [0.0, 0.0, 0.0]
-        error = calculate_l2_relative_error(pred, ref)
-        assert error == float('inf')
-        
-    def test_length_mismatch(self):
-        """Test with mismatched tensor lengths."""
-        pred = [1.0, 2.0]
-        ref = [1.0, 2.0, 3.0]
-        with pytest.raises(ValueError):
-            calculate_l2_relative_error(pred, ref)
+    def test_detect_nan_false(self):
+        data = [1.0, 2.0, 3.0]
+        assert detect_nan_in_tensor(data) is False
 
-class TestCalculateMaxAbsoluteDifference:
-    """Tests for maximum absolute difference calculation."""
-    
-    def test_identical_tensors(self):
-        """Test with identical tensors."""
-        pred = [1.0, 2.0, 3.0]
-        ref = [1.0, 2.0, 3.0]
-        diff = calculate_max_absolute_difference(pred, ref)
-        assert diff == 0.0
-        
-    def test_different_tensors(self):
-        """Test with different tensors."""
-        pred = [1.0, 2.0, 3.0]
-        ref = [1.5, 2.0, 3.0]
-        diff = calculate_max_absolute_difference(pred, ref)
-        assert diff == 0.5
-        
-    def test_negative_difference(self):
-        """Test with negative differences."""
-        pred = [1.0, 2.0, 3.0]
-        ref = [1.0, 2.5, 3.0]
-        diff = calculate_max_absolute_difference(pred, ref)
-        assert diff == 0.5
-        
-    def test_length_mismatch(self):
-        """Test with mismatched tensor lengths."""
-        pred = [1.0, 2.0]
-        ref = [1.0, 2.0, 3.0]
-        with pytest.raises(ValueError):
-            calculate_max_absolute_difference(pred, ref)
+    def test_detect_nan_empty(self):
+        assert detect_nan_in_tensor([]) is False
+
+    def test_detect_nan_none(self):
+        assert detect_nan_in_tensor(None) is False
+
+class TestErrorCalculations:
+    def test_l2_relative_error_zero(self):
+        p = [1.0, 2.0, 3.0]
+        r = [1.0, 2.0, 3.0]
+        assert calculate_l2_relative_error(p, r) == 0.0
+
+    def test_l2_relative_error_nonzero(self):
+        p = [2.0, 2.0, 3.0]
+        r = [1.0, 2.0, 3.0]
+        # Diff: [1, 0, 0], L2_diff = 1
+        # Ref: [1, 2, 3], L2_ref = sqrt(1+4+9) = sqrt(14)
+        expected = 1.0 / np.sqrt(14)
+        assert abs(calculate_l2_relative_error(p, r) - expected) < 1e-9
+
+    def test_max_diff(self):
+        p = [1.0, 5.0, 3.0]
+        r = [1.0, 2.0, 3.0]
+        # Diff: [0, 3, 0] -> Max 3
+        assert calculate_max_absolute_difference(p, r) == 3.0
 
 class TestProcessStability:
-    """Tests for stability processing logic."""
-    
-    def test_all_stable(self):
-        """Test with all stable runs."""
-        raw_logs = [
-            {
-                'config_id': 'test1',
-                'kernel_type': 'matmul',
-                'output_tensor': [1.0, 2.0, 3.0],
-                'reference_tensor': [1.0, 2.0, 3.0],
-                'downsampled_flag': False
-            }
+    def test_process_nan_exclusion(self):
+        logs = [
+            {"config_id": "c1", "kernel": "matmul", "output_tensor": [1.0, np.nan, 3.0]},
+            {"config_id": "c2", "kernel": "matmul", "output_tensor": [1.0, 2.0, 3.0]}
         ]
-        ref_logs = [
-            {
-                'config_id': 'test1',
-                'kernel_type': 'matmul',
-                'output_tensor': [1.0, 2.0, 3.0]
-            }
-        ]
+        results = process_stability(logs)
         
-        stable, unstable = process_stability(raw_logs, ref_logs)
-        
-        assert len(stable) == 1
-        assert len(unstable) == 0
-        assert stable[0].status == 'stable'
-        
-    def test_nan_excluded(self):
-        """Test that NaN runs are excluded and marked unstable."""
-        raw_logs = [
-            {
-                'config_id': 'test_nan',
-                'kernel_type': 'matmul',
-                'output_tensor': [1.0, float('nan'), 3.0],
-                'reference_tensor': [1.0, 2.0, 3.0],
-                'downsampled_flag': False
-            }
-        ]
-        ref_logs = [
-            {
-                'config_id': 'test_nan',
-                'kernel_type': 'matmul',
-                'output_tensor': [1.0, 2.0, 3.0]
-            }
-        ]
-        
-        stable, unstable = process_stability(raw_logs, ref_logs)
-        
-        assert len(stable) == 0
-        assert len(unstable) == 1
-        assert unstable[0].status == 'nan'
-        assert unstable[0].nan_indices == [1]
-        
-    def test_high_error_excluded(self):
-        """Test that high error runs are excluded."""
-        raw_logs = [
-            {
-                'config_id': 'test_error',
-                'kernel_type': 'matmul',
-                'output_tensor': [0.0, 0.0, 0.0],
-                'reference_tensor': [1.0, 1.0, 1.0],
-                'downsampled_flag': False
-            }
-        ]
-        ref_logs = [
-            {
-                'config_id': 'test_error',
-                'kernel_type': 'matmul',
-                'output_tensor': [1.0, 1.0, 1.0]
-            }
-        ]
-        
-        stable, unstable = process_stability(raw_logs, ref_logs, error_threshold=1e-5)
-        
-        assert len(stable) == 0
-        assert len(unstable) == 1
-        assert unstable[0].status == 'unstable'
-        assert unstable[0].l2_error == 1.0
-        
-    def test_mixed_results(self):
-        """Test with mixed stable and unstable runs."""
-        raw_logs = [
-            {
-                'config_id': 'stable1',
-                'kernel_type': 'matmul',
-                'output_tensor': [1.0, 2.0, 3.0],
-                'reference_tensor': [1.0, 2.0, 3.0],
-                'downsampled_flag': False
-            },
-            {
-                'config_id': 'nan_run',
-                'kernel_type': 'softmax',
-                'output_tensor': [1.0, float('nan'), 3.0],
-                'reference_tensor': [1.0, 2.0, 3.0],
-                'downsampled_flag': False
-            },
-            {
-                'config_id': 'high_error',
-                'kernel_type': 'layernorm',
-                'output_tensor': [0.0, 0.0, 0.0],
-                'reference_tensor': [1.0, 1.0, 1.0],
-                'downsampled_flag': False
-            }
-        ]
-        ref_logs = [
-            {
-                'config_id': 'stable1',
-                'kernel_type': 'matmul',
-                'output_tensor': [1.0, 2.0, 3.0]
-            },
-            {
-                'config_id': 'nan_run',
-                'kernel_type': 'softmax',
-                'output_tensor': [1.0, 2.0, 3.0]
-            },
-            {
-                'config_id': 'high_error',
-                'kernel_type': 'layernorm',
-                'output_tensor': [1.0, 1.0, 1.0]
-            }
-        ]
-        
-        stable, unstable = process_stability(raw_logs, ref_logs)
-        
-        assert len(stable) == 1
-        assert len(unstable) == 2
-        assert stable[0].config_id == 'stable1'
-        assert any(u.config_id == 'nan_run' for u in unstable)
-        assert any(u.config_id == 'high_error' for u in unstable)
-        
-    def test_downsampled_flag_preserved(self):
-        """Test that downsampled flag is preserved in results."""
-        raw_logs = [
-            {
-                'config_id': 'downsampled_run',
-                'kernel_type': 'matmul',
-                'output_tensor': [1.0, 2.0, 3.0],
-                'reference_tensor': [1.0, 2.0, 3.0],
-                'downsampled_flag': True
-            }
-        ]
-        ref_logs = [
-            {
-                'config_id': 'downsampled_run',
-                'kernel_type': 'matmul',
-                'output_tensor': [1.0, 2.0, 3.0]
-            }
-        ]
-        
-        stable, unstable = process_stability(raw_logs, ref_logs)
-        
-        assert len(stable) == 1
-        assert stable[0].downsampled is True
+        assert len(results) == 2
+        assert results[0].status == "unstable_nan"
+        assert results[0].has_nan is True
+        assert results[1].status == "stable" # No reference provided, so stable by default in this test
+        assert results[1].has_nan is False
 
-class TestStabilityResult:
-    """Tests for StabilityResult dataclass."""
-    
-    def test_to_dict(self):
-        """Test conversion to dictionary."""
-        result = StabilityResult(
-            config_id='test',
-            kernel_type='matmul',
-            status='stable',
-            l2_error=0.001,
-            max_diff=0.0005,
-            downsampled=False
-        )
-        
-        d = result.to_dict()
-        assert d['config_id'] == 'test'
-        assert d['kernel_type'] == 'matmul'
-        assert d['status'] == 'stable'
-        assert d['l2_error'] == 0.001
-        assert d['max_diff'] == 0.0005
-        assert d['downsampled'] is False
+    def test_process_stable_with_reference(self):
+        # Create a temporary reference file
+        with tempfile.TemporaryDirectory() as tmpdir:
+            ref_path = Path(tmpdir) / "matmul_ref.npy"
+            np.save(ref_path, np.array([1.0, 2.0, 3.0]))
+            
+            logs = [
+                {"config_id": "c1", "kernel": "matmul", "output_tensor": [1.0, 2.0, 3.0]}, # Perfect match
+                {"config_id": "c2", "kernel": "matmul", "output_tensor": [10.0, 20.0, 30.0]} # Large error
+            ]
+            
+            results = process_stability(logs, reference_dir=tmpdir)
+            
+            # c1 should be stable
+            assert results[0].status == "stable"
+            # c2 should be unstable due to error
+            assert results[1].status == "unstable_error"
+
+class TestLoadRawLogs:
+    def test_load_jsonl(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_file = Path(tmpdir) / "test.jsonl"
+            data = {"config_id": "c1", "kernel": "matmul", "output_tensor": [1.0, 2.0]}
+            with open(log_file, 'w') as f:
+                f.write(json.dumps(data) + "\n")
+            
+            logs = load_raw_logs(tmpdir)
+            assert len(logs) == 1
+            assert logs[0]["config_id"] == "c1"

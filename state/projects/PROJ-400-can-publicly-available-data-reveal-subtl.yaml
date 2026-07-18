@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T15:04:04.724414Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-400-can-publicly-available-data-reveal-subtl
-last_run_id: 4ce74e7b-13bf-4b23-a7c9-c0df845bab26
+last_run_id: 798ac4c7-9174-43b3-9ff8-9af9c393a16d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-400-can-publicly-available-data-reveal-subtl/specs/001-can-publicly-available-data-reveal-subtl
 title: Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry
   in Beta Decay?
-updated_at: '2026-07-15T07:54:05.250426Z'
+updated_at: '2026-07-18T09:53:28.959006Z'

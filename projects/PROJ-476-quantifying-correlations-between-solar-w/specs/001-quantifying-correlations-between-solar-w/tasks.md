@@ -101,12 +101,12 @@ EOF`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement logic in `code/data/fetch.py` (populating the existing stub) to download ACE Level 2 (SWEPAM/SWICS) and NOAA Kp/Dst. **MUST implement** `fetch_ace` and `fetch_noaa` with `start_date`, `end_date` parameters. **MUST use verified URLs**: ACE ({{claim:c_b55181bd}}) and NOAA ({{claim:c_50896016}}).
-- [ ] T012 [US1] Implement `code/data/validate.py` to abort with clear error if `N_p`, `T_p`, or `He2+_ratio` are missing (FR-006). **MUST explicitly check the actual headers of the downloaded file against the hardcoded list and abort if they don't match**. **MUST verify source file column names against ACE Level 2 names ('N_p', 'T_p', 'He2+_ratio') BEFORE mapping**. **MUST log the specific missing variable name** (e.g., "Missing variable: He2+_ratio") in the abort message to satisfy SC-002. **MUST raise** `ValueError` with the exact message format defined in T007.
+- [X] T011 [P] [US1] Implement logic in `code/data/fetch.py` (populating the existing stub) to download ACE Level 2 (SWEPAM/SWICS) and NOAA Kp/Dst. **MUST implement** `fetch_ace` and `fetch_noaa` with `start_date`, `end_date` parameters. **MUST use verified URLs**: ACE ({{claim:c_b55181bd}}) and NOAA ({{claim:c_50896016}}).
+- [X] T012 [US1] Implement `code/data/validate.py` to abort with clear error if `N_p`, `T_p`, or `He2+_ratio` are missing (FR-006). **MUST explicitly check the actual headers of the downloaded file against the hardcoded list and abort if they don't match**. **MUST verify source file column names against ACE Level 2 names ('N_p', 'T_p', 'He2+_ratio') BEFORE mapping**. **MUST log the specific missing variable name** (e.g., "Missing variable: He2+_ratio") in the abort message to satisfy SC-002. **MUST raise** `ValueError` with the exact message format defined in T007.
 - [ ] T013 [US1] Implement `code/data/align.py` to resample to 1-hour UTC grid. **MUST** read from `data/raw/` and write to `data/processed/synced.csv`.
-- [ ] T014 [US1] Implement linear interpolation in `code/data/align.py` for gaps ≤ 6h (FR-002). **MUST** log interpolated intervals.
-- [~] T015 [US1] Add logging for interpolated intervals in `code/data/align.py`.
-- [~] T016 [US1] Create `code/main.py` entry point to orchestrate US1 pipeline (download → validate → sync).
+- [X] T014 [US1] Implement linear interpolation in `code/data/align.py` for gaps ≤ 6h (FR-002). **MUST** log interpolated intervals.
+- [X] T015 [US1] Add logging for interpolated intervals in `code/data/align.py`.
+- [X] T016 [US1] Create `code/main.py` entry point to orchestrate US1 pipeline (download → validate → sync).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -124,11 +124,11 @@ EOF`
 
 - [X] T017 [P] [US2] Unit test for Neff calculation in `code/tests/test_correlation.py`. **Function name**: `test_correlation_neff_formula`. **MUST use formula** $N_{eff} = N \frac{1-\rho_1}{1+\rho_1}$ with synthetic data (e.g., N=100, rho=0.9) and verify expected result. **MUST include code snippet for synthetic data generation**: `np.random.RandomState(42).randn(100)`. **MUST verify that the detrending step (`scipy.signal.detrend`) is applied before calculating rho_1**.
 - [X] T018 [P] [US2] Unit test for Bonferroni correction in `code/tests/test_correlation.py`. **Function name**: `test_correlation_bonferroni_divisor`. Verify α_adj = 0.05/30 (fixed global divisor).
-- [~] T019 [US2] Integration test for full correlation run in `code/tests/test_pipeline.py`. **Function name**: `test_pipeline_correlation_full_run`. Verify `data/processed/correlation_results.csv` has 30 rows if all vars present, or fewer if missing.
+- [ ] T019 [US2] Integration test for full correlation run in `code/tests/test_pipeline.py`. **Function name**: `test_pipeline_correlation_full_run`. Verify `data/processed/correlation_results.csv` has 30 rows if all vars present, or fewer if missing.
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement `code/analysis/correlation.py` to compute Pearson and Spearman coefficients for all pairs at various lags (FR-003). **MUST** read from `data/processed/synced.csv`.
+- [ ] T020 [US2] Implement `code/analysis/correlation.py` to compute Pearson and Spearman coefficients for all pairs at various lags (FR-003). **MUST** read from `data/processed/synced.csv`.
 - [X] T021 [US2] Implement `code/analysis/neff.py` to calculate effective sample size ($N_{eff}$) using lag-1 autocorrelation on the FULL continuous series (1998-2020). **MUST use the method of Pyper & Peterman (late 1990s)**: **Call `scipy.signal.detrend`** on the time series to remove linear trend before calculating lag-1 autocorrelation ($\rho_1$) of the residuals, then apply formula $N_{eff} = N \frac{1-\rho_1}{1+\rho_1}$. Do NOT use `scipy.stats.autocorr` directly on raw data. **MUST implement the detrending logic inline** to ensure the producer before consumer principle is met.
 - [X] T022 [US2] Implement raw p-value calculation using $N_{eff}$ in `code/analysis/correlation.py`.
 - [X] T023 [US2] Implement Bonferroni correction logic in `code/analysis/correlation.py` (FR-004). **MUST derive the divisor 30 dynamically** from configuration (3 params × 2 indices × 5 lags) to calculate $\alpha_{adj} = 0.05 / 30$, regardless of actual data availability, to control family-wise error rate.
@@ -161,13 +161,13 @@ expected <block end>, but found ':'
 
 ### Implementation for User Story 3
 
-- [~] T029 [P] [US3] Implement `code/viz/plots.py` to generate time-series overlay plots per lag.
-- [~] T030 [P] [US3] Implement `code/viz/plots.py` to generate correlation heatmap (parameters × lags).
-- [~] T031 [US3] Implement `code/viz/report.py` to split data into Train (1998-2017) and Test (2018-2020) using constants `TRAIN_START`, `TRAIN_END`, `TEST_START`, `TEST_END` from `code/config.py`. <!-- FAILED: unspecified -->
-- [~] T032 [US3] Implement `code/viz/report.py` to **load the GLOBAL significance threshold** (from `artifacts/thresholds/global_threshold.json` produced in T025a) and **evaluate** the pre-computed global correlations against the held-out 2018-2020 period data. **MUST also re-compute** the multiple-testing correction (Neff and Bonferroni p-values) **specifically on the validation set** (2018-2020) using the same procedure (detrending + Neff formula) to verify stability. **DO NOT** rely solely on global p-values for the validation conclusion. **MUST report** whether the composition-index pair exceeds |r| > 0.5 **AND** has a local Bonferroni-corrected p < 0.05 in the test set. <!-- FAILED: unspecified -->
-- [~] T032a [US3] **Implement** the specific logic to re-calculate Neff and Bonferroni p-values for the validation set in `code/viz/report.py`. **MUST use** `scipy.signal.detrend` and the Pyper & Peterman formula on the 2018-2020 subset.
-- [~] T033 [US3] Generate Markdown report stating if Helium-Dst exceeds |r| > 0.5 (US-3 Acceptance Scenario 1). <!-- FAILED: unspecified -->
-- [~] T034 [US3] Integrate US3 logic into `code/main.py` to run after US2 completes.
+- [X] T029 [P] [US3] Implement `code/viz/plots.py` to generate time-series overlay plots per lag.
+- [X] T030 [P] [US3] Implement `code/viz/plots.py` to generate correlation heatmap (parameters × lags).
+- [X] T031 [US3] Implement `code/viz/report.py` to split data into Train (1998-2017) and Test (2018-2020) using constants `TRAIN_START`, `TRAIN_END`, `TEST_START`, `TEST_END` from `code/config.py`. <!-- FAILED: unspecified -->
+- [X] T032 [US3] Implement `code/viz/report.py` to **load the GLOBAL significance threshold** (from `artifacts/thresholds/global_threshold.json` produced in T025a) and **evaluate** the pre-computed global correlations against the held-out 2018-2020 period data. **MUST also re-compute** the multiple-testing correction (Neff and Bonferroni p-values) **specifically on the validation set** (2018-2020) using the same procedure (detrending + Neff formula) to verify stability. **DO NOT** rely solely on global p-values for the validation conclusion. **MUST report** whether the composition-index pair exceeds |r| > 0.5 **AND** has a local Bonferroni-corrected p < 0.05 in the test set. <!-- FAILED: unspecified -->
+- [X] T032a [US3] **Implement** the specific logic to re-calculate Neff and Bonferroni p-values for the validation set in `code/viz/report.py`. **MUST use** `scipy.signal.detrend` and the Pyper & Peterman formula on the 2018-2020 subset.
+- [ ] T033 [US3] Generate Markdown report stating if Helium-Dst exceeds |r| > 0.5 (US-3 Acceptance Scenario 1). <!-- FAILED: unspecified -->
+- [X] T034 [US3] Integrate US3 logic into `code/main.py` to run after US2 completes.
 
 **Checkpoint**: All user stories should now be independently functional
 

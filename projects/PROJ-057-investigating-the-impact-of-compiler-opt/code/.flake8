@@ -11,7 +11,15 @@ exclude =
     buck-out,
     build,
     dist,
-    __pycache__
+    __pycache__,
+    *.pyc
 per-file-ignores =
-    # Allow longer lines in data files or generated scripts if needed
-    data/*: E501
+    # Allow unused imports in __init__.py files for public API exposure
+    */__init__.py: F401
+    # Allow unused arguments in function signatures (e.g., for callbacks or abstract methods)
+    code/benchmarks/config.py: ARG001
+    code/analysis/stats.py: ARG001
+max-complexity = 10
+count = True
+show-source = True
+statistics = True

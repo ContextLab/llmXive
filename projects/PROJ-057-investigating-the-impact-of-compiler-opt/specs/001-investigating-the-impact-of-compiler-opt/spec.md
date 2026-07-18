@@ -1,98 +1,123 @@
-# Feature Specification: Investigating the Impact of Compiler Optimizations on LLM Inference Latency
+# Project Specification: Investigating the Impact of Compiler Optimizations on LLM Inference Latency
 
-**Feature Branch**: `001-investigate-compiler-optimizations`  
-**Created**: 2023-10-27  
-**Status**: Draft  
-**Input**: User description: "Investigating the Impact of Compiler Optimizations on LLM Inference Latency"
+## 1. Introduction
 
-## User Scenarios & Testing *(mandatory)*
+This project investigates the impact of compiler optimization flags on the latency and numerical stability of LLM inference kernels. The goal is to provide data-driven insights into the trade-offs between performance and accuracy for different optimization levels.
 
-### User Story 1 - Compile and Execute Kernel Benchmarks (Priority: P1)
+## 2. User Stories
 
-The system MUST compile standalone C++ inference kernels (matrix multiplication, softmax, layer normalization) using GCC and Clang with varying optimization flags (`-O0` through `-O3`, `-Os`, `-march=native`, `-ffast-math`) and execute them against synthetic input tensors to measure latency.
+### US1: Compile and Execute Kernel Benchmarks
+As a researcher, I want to compile C++ kernels with varying optimization flags and execute them to measure latency, so that I can establish a baseline performance profile for each configuration.
 
-**Why this priority**: This is the core experimental mechanism. Without the ability to compile and run the kernels across different configurations, no data can be collected, and the research question cannot be addressed.
+### US2: Quantify Numerical Stability Drift
+As a researcher, I want to compare optimized kernel outputs against a high-precision reference to calculate relative error and max absolute difference, so that I can assess the numerical stability of each optimization level.
 
-**Independent Test**: The system can be fully tested by running a single kernel (e.g., matmul 512x512) with a specific flag set (e.g., `-O2`) and verifying that it produces a latency measurement and a valid output tensor within the 6-hour runtime budget.
+### US3: Statistical Significance and Pareto Frontier Analysis
+As a researcher, I want to perform statistical tests on block-averaged latency distributions and generate Pareto frontier plots, so that I can identify optimal configurations that balance speed and accuracy.
 
-**Acceptance Scenarios**:
+## 3. Functional Requirements
 
-1. **Given** a synthetic input tensor file and a compiler flag configuration, **When** the benchmark script is executed, **Then** the system produces a latency measurement (median and 95th percentile) and a binary output file.
-2. **Given** a valid compiler (GCC 11+ or Clang 14+), **When** the script compiles a kernel with `-O3 -march=native`, **Then** the compilation succeeds and the resulting binary runs without segmentation faults.
-3. **Given** a kernel execution, **When** at least 30 iterations are completed or the coefficient of variation (CV) of latency drops ≤ 1%, **Then** the system records the timing statistics and exits with a success code (0).
+### FR-001: Compiler Flag Configuration
+The system must support dynamic generation of compiler flag combinations from a user-supplied YAML/JSON list.
 
----
+### FR-002: Deterministic Tensor Generation
+The system must generate deterministic synthetic tensors using fixed seeds and varied distributions to ensure construct validity.
 
-### User Story 2 - Quantify Numerical Stability Drift (Priority: P2)
+### FR-003: High-Precision Reference Engine
+The system must implement a high-precision reference engine using Python `decimal` module with 512-bit precision for MatMul, Softmax, and LayerNorm operations.
 
-The system MUST compare the output of optimized kernels against a high-precision reference implementation (Python `decimal` with arbitrary high precision) to calculate relative error (L2 norm) and maximum absolute difference, ensuring numerical stability is quantified for each configuration.
+### FR-004: Statistical Analysis
+The system must perform **Welch's Independent Samples t-test** to compare optimization levels (p<0.05 threshold) for independent binaries (different compilers/flags). This statistical method is required because the binaries are independent samples, not paired observations, and Welch's test does not assume equal variances, providing a more robust comparison for performance metrics which often exhibit heteroscedasticity.
 
-**Why this priority**: Latency improvements are meaningless if they come at the cost of incorrect results. This story ensures the "accuracy" side of the speed-accuracy trade-off is measured, directly addressing the research question's stability component.
+### FR-005: Pareto Frontier Visualization
+The system must generate Pareto frontier plots including:
+- Exploration plot: ALL configurations (stable and unstable), with distinct visual indicators for downsampled and unstable configurations.
+- Final plot: Strictly excluding configurations with error > 1e-5 (numerically unstable).
 
-**Independent Test**: The system can be tested by running a kernel with `-ffast-math`, comparing its output to the high-precision reference, and verifying that a relative error metric is calculated and reported.
+### FR-006: Memory Pressure Handling
+The system must implement memory fallback: if 768x768 allocation fails, auto-downsample to 512x512, log 'Memory Pressure' with the new dimension ID, and continue execution.
 
-**Acceptance Scenarios**:
+### FR-007: NaN Detection and Exclusion
+The system must detect NaNs in output tensors, log specific flag configurations causing stability failures, and exclude them from statistical analysis while retaining them in raw logs.
 
-1. **Given** an optimized kernel output and the high-precision reference output, **When** the comparison script runs, **Then** it calculates and reports the L2 relative error and maximum absolute difference.
-2. **Given** a configuration with `-ffast-math`, **When** the stability check runs, **Then** it flags if the relative error exceeds the threshold of 1e-5.
-3. **Given** multiple optimization levels, **When** the results are aggregated, **Then** a table is generated mapping each flag set to its corresponding stability metric.
+## 4. Non-Functional Requirements
 
----
+### NFR-001: Reproducibility
+All experiments must be reproducible with fixed seeds and deterministic execution.
 
-### User Story 3 - Statistical Significance and Pareto Frontier Analysis (Priority: P3)
+### NFR-002: Performance
+The system must complete a full experiment within a 6-hour runtime budget on a CPU-only, multi-core, constrained RAM environment.
 
-The system MUST perform paired t-tests on block-averaged latency distributions to determine if latency differences between optimization levels are statistically significant (p<0.05) and generate a Pareto frontier plot balancing latency reduction against numerical drift.
+### NFR-003: Code Quality
+The codebase must adhere to PEP 8 standards, with a maximum cyclomatic complexity of 10 per function.
 
-**Why this priority**: This transforms raw data into scientific findings. It answers the "can we identify" part of the research question by providing a rigorous statistical basis for the trade-off frontier.
+## 5. Data Model
 
-**Independent Test**: The system can be tested by feeding it a CSV of block-averaged latency and error data for two configurations and verifying that a p-value is calculated and a plot is generated.
+### Raw Logs
+JSONL format with schema:
+```json
+{
+ "config_id": "string",
+ "kernel": "string",
+ "compiler": "string",
+ "flags": ["string"],
+ "median_ms": float,
+ "p95_ms": float,
+ "iterations": int,
+ "downsampled": bool,
+ "tensor_dim": "string"
+}
+```
 
-**Acceptance Scenarios**:
+### Stability Metrics
+CSV format with columns: `config_id`, `kernel_type`, `l2_error`, `max_diff`, `status`.
 
-1. **Given** latency measurements for `-O2` and `-O3` across at least 30 independent samples (block means), **When** the statistical analysis runs, **Then** it outputs a p-value and determines if the difference is significant (p<0.05).
-2. **Given** the full dataset of latency vs. error, **When** the visualization script runs, **Then** it generates a scatter plot identifying the Pareto frontier of optimization settings based on median latency and maximum absolute difference.
-3. **Given** a null hypothesis of "no difference," **When** the test is run, **Then** the system explicitly states whether the null hypothesis is rejected or retained for each comparison.
+### Block-Averaged Data
+CSV format containing aggregated latency distributions for statistical testing.
 
----
+## 6. Edge Cases
 
-### Edge Cases
+### NaN Detection
+- Log specific flag configuration
+- Exclude from statistical analysis
+- Retain in raw logs
 
-- **What happens when** a compiler flag combination causes the kernel to produce NaN (Not a Number) values? The system must detect NaNs in the output, log the specific flag configuration, and exclude that run from the statistical analysis while recording it as a "stability failure."
-- **How does system handle** a scenario where the synthetic tensor size exceeds the available RAM on the GitHub Actions runner (7 GB)? The system must implement a fallback to process smaller tensor dimensions (e.g., 256x256) or stream data, logging the dimension reduction as an assumption. The target tensor dimensions are defined as batch size=1, sequence length=512, hidden dimension=768 (float32), which occupies ~2.3MB; if memory pressure occurs, the system will automatically downsample to 512x512.
-- **What happens when** the compiler version is not detected (e.g., GCC < 11)? The script must fail gracefully with a clear error message indicating the minimum required version, preventing silent execution with unsupported flags.
+### Memory Pressure
+- Auto-downsample from 768x768 to 512x512
+- Log 'Memory Pressure' event
+- Continue execution with downsampled configuration
 
-## Requirements *(mandatory)*
+### Compiler Version Validation
+- Fail immediately if GCC < 11 or Clang < 14
+- Clear error message citing minimum requirement
 
-### Functional Requirements
+## 7. Validation and Verification
 
-- **FR-001**: System MUST compile C++ kernels using GCC and Clang with a minimum required set of optimization levels `-O0`, `-O1`, `-O2`, `-O3`, `-Os`, and flag combinations `-march=native`, `-ffast-math`, `-funroll-loops`, and MUST support dynamic generation of combinations from a user-supplied list (See US-1).
-- **FR-002**: System MUST measure end-to-end kernel latency using `std::chrono::high_resolution_clock` for at least 30 iterations per configuration or until the coefficient of variation (CV) of latency is ≤ 1%, recording median and 95th percentile values (See US-1).
-- **FR-003**: System MUST calculate relative error (L2 norm) and maximum absolute difference between optimized outputs and the high-precision reference implementation (Python `decimal` 512-bit) for every configuration (See US-2).
-- **FR-004**: System MUST perform paired t-tests on block-averaged latency distributions (minimum block size 100 iterations) to determine statistical significance (p<0.05) for comparisons between optimization levels (See US-3).
-- **FR-005**: System MUST generate a Pareto frontier visualization plotting median latency reduction against maximum absolute difference for all valid configurations (See US-3).
+### Verification Steps
+1. Run `python code/benchmarks/config.py --generate-combinations --input flags.yaml` to verify dynamic flag generation.
+2. Run `python code/benchmarks/tensor_generator.py --seed <SEED> --verify-hash` to verify deterministic tensor generation.
+3. Run `python code/benchmarks/reference.py --test --verify-hash` to verify high-precision reference engine.
+4. Run `python code/benchmarks/executor.py --test` to verify binary execution and latency measurement.
+5. Run `python code/analysis/stability_check.py --detect-nan` to verify NaN detection and filtering.
+6. Run `python code/analysis/stats.py --t-test` to verify Welch's t-test implementation.
+7. Run `python code/analysis/viz.py --plot-exploration` to verify Pareto exploration plot generation.
+8. Run `python code/analysis/viz.py --plot-final` to verify Pareto final plot generation.
 
-### Key Entities
+### Validation Report
+Generate `validation_report.json` with pass/fail status for each quickstart step.
 
-- **Kernel Configuration**: Represents a specific combination of compiler (GCC/Clang), optimization level, and flags.
-- **Benchmark Result**: Contains latency metrics (median, 95th percentile), stability metrics (L2 error, max diff), and the associated configuration ID.
-- **Statistical Comparison**: Represents the result of a t-test between two configurations, including p-value and significance status.
+## 8. Appendix
 
-## Success Criteria *(mandatory)*
+### Compiler Flags Reference
+- `-O0`: No optimization
+- `-O1`: Basic optimization
+- `-O2`: Moderate optimization
+- `-O3`: Aggressive optimization
+- `-Os`: Optimize for size
+- `-march=native`: Optimize for native architecture
+- `-ffast-math`: Fast but potentially less accurate math
+- `-funroll-loops`: Unroll loops for performance
 
-### Measurable Outcomes
-
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: Latency improvement is measured against the high-precision reference implementation for each kernel type (See US-1).
-- **SC-002**: Numerical stability drift is measured against the high-precision reference implementation using relative error and maximum absolute difference (See US-2).
-- **SC-003**: Statistical significance of latency differences is measured against the p<0.05 threshold (See US-3).
-- **SC-004**: The Pareto frontier is measured by identifying the set of configurations where no other configuration offers both lower median latency and lower maximum absolute difference (See US-3).
-
-## Assumptions
-
-- **Assumption about data/environment**: The GitHub Actions runner environment provides modern GCC and Clang compilers with standard optimization flags available.; if not, the script will attempt to install them or fail with a clear error.
-- **Assumption about scope boundaries**: The research is limited to CPU-only execution on standard x86_64 architecture; ARM or GPU-specific optimizations are out of scope for this iteration.
-- **Assumption about target users**: The primary user is the research team seeking to understand the baseline compiler impact, not end-users of a deployed LLM service.
-- **Assumption about target hardware**: The synthetic tensor sizes (target batch=1, seq=512, hidden=768) are estimated to fit within the 7 GB RAM limit of the free-tier GitHub Actions runner; if memory pressure occurs, the system will automatically downsample to 512x512, as defined in Edge Cases.
-- **Assumption about numerical stability**: The high-precision reference implementation (Python `decimal` 512-bit) is assumed to be the "ground truth" for numerical correctness, and any deviation in optimized runs is attributed to compiler optimizations rather than algorithmic error.
-- **Assumption about reproducibility**: All random seeds for synthetic data generation are fixed to ensure deterministic results across runs.
+### Statistical Methods
+- **Welch's Independent Samples t-test**: Used for comparing independent binaries with potentially unequal variances.
+- **Block Averaging**: Aggregating latency measurements into blocks to reduce variance and improve statistical power.

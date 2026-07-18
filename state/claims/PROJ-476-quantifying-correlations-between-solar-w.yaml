@@ -1154,3 +1154,220 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T13:07:50Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: 20-year span 1998-2020 for lagged correlation analysis
+  claim_id: c_7eae295d
+  context: All downstream tasks MUST import these constants from code.config. MUST
+    explicitly document that TRAIN_START to TEST_END covers the full 20-year span
+    (1998-2020) referenced in SC-001 for the 'full 20-year lagged correlation analysis'
+    performance benchmark
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full 20-year span (1998-2020) is referenced for the 'full 20-year
+    lagged correlation analysis' performance benchmark.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:43:37Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Neff calculation method Pyper and Peterman late 1990s
+  claim_id: c_fee12b86
+  context: 'MUST use the method of Pyper & Peterman (late 1990s): Call scipy.signal.detrend
+    on the time series to remove linear trend before calculating lag-1 autocorrelation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Neff_calculation_method_Pyper_and_Peterman_late_1990s
+  kind: entity_fact
+  raw_text: The Neff calculation uses the method of Pyper & Peterman (late 1990s).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:44:29Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Neff formula N times 1 minus rho1 over 1 plus rho1
+  claim_id: c_e839a455
+  context: MUST use formula N_eff = N (1 - rho_1) / (1 + rho_1) with synthetic data
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The effective sample size formula is N_eff = N * (1 - rho_1) / (1 + rho_1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:44:56Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Bonferroni divisor 30 from 3 parameters 2 indices 5 lags
+  claim_id: c_72e1e288
+  context: "MUST derive the divisor 30 dynamically from configuration (3 params \xD7\
+    \ 2 indices \xD7 5 lags) to calculate alpha_adj = 0.05 / 30"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction divisor is 30, derived from 3 parameters, 2
+    indices, and 5 lags.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:45:23Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Bonferroni alpha adjusted 0.05 divided by 30
+  claim_id: c_da0fac33
+  context: calculate alpha_adj = 0.05 / 30, regardless of actual data availability
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction uses an alpha_adj of 0.05 divided by 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:45:35Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Validation period 2018 to 2020
+  claim_id: c_f9810451
+  context: run validation on 2018-2020. Verify PNGs <= 5MB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation period for User Story 3 is 2018-2020.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:45:51Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Training period 1998 to 2017
+  claim_id: c_b956f88d
+  context: split data into Train (1998-2017) and Test (2018-2020)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training period for the model is 1998-2017.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:46:10Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: ACE Level 2 variables Np Tp He2plus ratio
+  claim_id: c_057ab379
+  context: verify source file column names against ACE Level 2 names ('N_p', 'T_p',
+    'He2+_ratio') BEFORE mapping
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ACE Level 2 variables used are N_p, T_p, and He2+_ratio.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:46:42Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: NOAA variables Kp and Dst
+  claim_id: c_228f8acd
+  context: NOAA_VARS=['Kp', 'Dst']
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA_variables_Kp_and_Dst
+  kind: entity_fact
+  raw_text: The NOAA variables used are Kp and Dst.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:47:03Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Linear interpolation threshold 6 hours
+  claim_id: c_41486d71
+  context: Implement linear interpolation in code/data/align.py for gaps <= 6h
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_interpolation_threshold_6_hours
+  kind: magnitude
+  raw_text: The interpolation threshold for linear interpolation is gaps less than
+    or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:47:22Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Report flags pairs with absolute correlation greater than 0.5
+  claim_id: c_7bb9f8a9
+  context: Verify PNGs <= 5MB and Markdown report correctly flags pairs with |r| >
+    0.5
+  evidence:
+    entailment_evidence: Report flags pairs with absolute correlation greater than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Report_flags_pairs_with_absolute_correlation_greater_than_0.
+  kind: magnitude
+  raw_text: The report flags pairs where the absolute correlation coefficient |r|
+    is greater than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-18T09:48:10Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: PNG file size limit 5MB
+  claim_id: c_6393aa7d
+  context: Verify PNGs <= 5MB and Markdown report correctly flags pairs
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PNG_file_size_limit_5MB
+  kind: magnitude
+  raw_text: The generated PNG visualizations must be less than or equal to 5MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:48:39Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Correlation lags 0 1 2 3 and 6 hours
+  claim_id: c_d5f18948
+  context: Compute Pearson/Spearman correlations at lags 0,1,2,3,6h on the FULL dataset
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation analysis is performed at lags of 0, 1, 2, 3, and 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:49:04Z'
