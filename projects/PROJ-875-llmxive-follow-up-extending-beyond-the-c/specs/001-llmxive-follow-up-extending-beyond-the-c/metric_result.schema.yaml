@@ -1,0 +1,46 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MetricResult
+description: Schema for a metric result from the evaluation
+type: object
+required:
+  - metric_name
+  - value
+  - timestamp
+  - agent_type
+properties:
+  metric_name:
+    type: string
+    description: Name of the metric being measured
+  value:
+    type: number
+    description: Numeric value of the metric
+  timestamp:
+    type: integer
+    description: Time when the metric was computed
+  agent_type:
+    type: string
+    enum: ["text_only", "multimodal_baseline"]
+    description: Type of agent that produced the metric
+  metadata:
+    type: object
+    description: Additional metadata about the metric computation
+    properties:
+      seed:
+        type: integer
+      game_instance_id:
+        type: string
+      steps:
+        type: integer
+  confidence_interval:
+    type: object
+    description: Confidence interval for the metric (if applicable)
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+      confidence_level:
+        type: number
+        minimum: 0
+        maximum: 1
+additionalProperties: false

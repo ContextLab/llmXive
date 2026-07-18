@@ -22,117 +22,110 @@
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 1: Setup (Shared Infrastructure & Utilities)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization and core utility implementation.
+**Note**: Utility scripts (checksum, hasher, validator) are implemented here as code artifacts. Their *execution* on data occurs later.
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/`: Create directories `code/`, `utils/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `docs/`, `results/`, `config/`. Create files `code/__init__.py`, `requirements.txt`, `.gitignore`.
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` including `transformers`, `bitsandbytes`, `scikit-learn`, `sentence-transformers`, `numpy`, `pandas`, `pytest`, `pyyaml`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T001a [P] Re-create project directory structure in `projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/`: Create directories `code/`, `utils/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `docs/`, `results/`, `config/`, `specs/contracts/`. Create `code/__init__.py`.
+- [ ] T001b [P] Create empty `projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/requirements.txt` and `.gitignore` (with standard Python patterns like `__pycache__`, `.env`, `*.pyc`).
+- [ ] T002 [P] Update `projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/requirements.txt` with pinned versions: `transformers`, `bitsandbytes`, `scikit-learn`, `sentence-transformers`, `numpy`, `pandas`, `pytest`, `pyyaml`, `datasets`, `sentencepiece`.
+- [ ] T003a [P] Create `pyproject.toml` in project root with configuration for `black` and `ruff` (rules: E, F, W, I, N).
+- [ ] T003b [P] Run initial lint/format check on empty codebase to verify tool configuration.
+- [ ] T004 [P] Implement `utils/checksum.py` to generate SHA-256 checksums for `data/processed/` (Constitution Principle III).
+- [ ] T005 [P] Implement `utils/hasher.py` to generate version hashes for artifacts (Constitution Principle V).
+- [ ] T006 [P] Implement `utils/renderer_validator.py` to verify ASCII vs Visual ground truth consistency (SC-005).
+- [ ] T007 [P] Create base `code/__init__.py` and data model contracts in `specs/contracts/`:
+    - `state_snapshot.schema.yaml` (fields: `ascii_grid`, `event_log`, `ground_truth_state`, `masked_ground_truth`)
+    - `metric_result.schema.yaml` (fields: `memory_gap_score`, `p_value`, `confidence_interval`, `run_id`)
+- [ ] T008 [P] Implement `code/logger.py` with JSON-formatted rotating file handler (max limited size, multiple backups) and configure `code/main.py` to use it for all stdout/stderr redirection.
+- [ ] T009 [P] Create `config/seeds.yaml` containing a list of integer seeds (e.g., [1, 2,..., 20]) and implement `code/config_loader.py` to load this file and export a global `SEEDS` list.
 
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 [P] Implement `utils/checksum.py` to generate SHA-256 checksums for `data/processed/` (Constitution Principle III)
-- [ ] T005 [P] Implement `utils/hasher.py` to generate version hashes for artifacts (Constitution Principle V)
-- [ ] T006 [P] Implement `utils/renderer_validator.py` to verify ASCII vs Visual ground truth consistency (SC-005)
-- [ ] T007 Create base `code/__init__.py` and data model contracts in `specs/contracts/`
-- [ ] T008 Implement `code/logger.py` with JSON-formatted rotating file handler (max limited size, multiple backups) and configure `code/main.py` to use it for all stdout/stderr redirection.
-- [ ] T009 Create `config/seeds.yaml` containing a list of integer seeds. and implement `code/config_loader.py` to load this file and export a global `SEEDS` list.
-- [ ] T010 [P] [US1] Unit test for ASCII grid generation in `tests/unit/test_renderer.py` (verify `#`, `.`, `M` mapping)
-- [ ] T011 [P] [US1] Unit test for JSON event logging in `tests/unit/test_renderer.py` (verify `{"t": ..., "event": "saw_key"}` format)
-- [ ] T012 [P] [US1] Unit test for error handling in `tests/unit/test_renderer.py` (verify `ERROR: STATE_CORRUPT` output)
-- [ ] T013 [P] [US1] Integration test for full renderer pipeline in `tests/integration/test_full_loop.py`
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Setup and Utilities ready.
 
 ---
 
-## Phase 3: User Story 1 - ASCII State Rendering and Environment Generation (Priority: P1) 🎯 MVP
+## Phase 2: Foundational Design (Blocking Prerequisites)
 
-**Goal**: Generate deterministic 3D Maze game instances where raw visual frames are converted into ASCII text representations and JSON event logs.
+**Purpose**: Design tasks and test definitions that block implementation.
 
-**Independent Test**: Run the renderer script on a fixed seed, capture output ASCII grid and JSON log, verify bit-identical output and 1:1 mapping to ground truth.
+- [ ] T017 [P] [US3 Design] Design test cases for "Hidden State Masking" logic in `tests/unit/test_hidden_masking.py` (define inputs: masked state, outputs: pass/fail, expected behavior based on Spec FR-007). **Depends on T007 contracts.**
 
-### Implementation for User Story 1
-
-- [ ] T014 [P] [US1] Implement `code/renderer.py` to convert RNG-Bench visual state to ASCII grid string
-- [ ] T015 [P] [US1] Implement `code/renderer.py` to generate JSON event logs for every time step (FR-001)
-- [ ] T016 [US1] Add validation for out-of-bounds states and standardized error blocks
-- [ ] T016b [US1] Execute `utils/renderer_validator.py` on generated `data/processed/` files to generate `results/validation_report.json` ensuring Levenshtein distance = 0 (SC-005).
-- [ ] T017 [US1] Integrate `utils/checksum.py` to record checksums for generated `data/processed/` files into `state/...yaml`.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: Design ready - implementation can now begin.
 
 ---
 
-## Phase 4: User Story 2 - Text-Only Agent Inference Loop (Priority: P2)
+## Phase 3: User Story 1 & 2 Implementation (Data Generation)
 
-**Goal**: Execute a text-only LLM in a long-horizon loop receiving ASCII state and event logs, updating an internal "mental map," and outputting actions within CPU constraints.
+**Goal**: Implement Renderer (US1), Agent (US2), and Baseline (US2) to generate data for scoring.
 
-**Independent Test**: Run a short, fixed-sequence maze game, verify valid move sequence output and logical "mental map" evolution.
+### Implementation for User Story 1 (Renderer)
 
-### Tests for User Story 2 ⚠️
+- [ ] T014 [P] [US1] Implement `code/renderer.py` to convert RNG-Bench visual state to ASCII grid string.
+- [ ] T015 [P] [US1] Implement `code/renderer.py` to generate JSON event logs for every time step (FR-001).
+- [ ] T016 [US1] Implement validation for out-of-bounds states and standardized error blocks in `code/renderer.py`.
+- [ ] T016b [US1] Unit test for out-of-bounds state validation in `tests/unit/test_renderer.py` (verify `ERROR: STATE_CORRUPT` output).
+- [ ] T021 [P] [US1] Integration test for full renderer pipeline in `tests/integration/test_full_loop.py` (verify ASCII consistency). **Note: Uses `utils/renderer_validator.py` (T006).**
+- [ ] T022 [US1] Execute `utils/renderer_validator.py` on generated `data/processed/*.ascii` and `data/processed/*.json` files to generate `results/validation_report.json` ensuring Levenshtein distance = 0 (SC-005). **Note: Implements Plan Override of SC-005.**
 
-- [ ] T019 [P] [US2] Unit test for model loading in `tests/unit/test_agent_loop.py` (verify quantized model loads under feasible RAM constraints)
-- [ ] T020 [P] [US2] Unit test for prompt construction in `tests/unit/test_agent_loop.py` (verify ASCII + JSON history formatting)
-- [ ] T021 [P] [US2] Unit test for sliding window logic in `tests/unit/test_agent_loop.py` (verify context truncation strategy)
-- [ ] T022 [P] [US2] Integration test for full agent loop in `tests/integration/test_full_loop.py`
+### Implementation for User Story 2 (Text Agent)
 
-### Implementation for User Story 2
-
-- [ ] T023 [P] [US2] Implement `code/agent_loop.py` to load quantized text-only LLM (≤3B params) using CPU-optimized engine (FR-002)
-- [ ] T024 [P] [US2] Implement `code/agent_loop.py` inference cycle: receive ASCII/Log, output JSON action + updated mental map (FR-003)
-- [ ] T025 [US2] Implement context window management (sliding window/truncation) to handle long event logs
+- [ ] T023 [P] [US2] Implement `code/agent_loop.py` to load quantized text-only LLM (≤3B params) using CPU-optimized engine (FR-002).
+- [ ] T024 [P] [US2] Implement `code/agent_loop.py` inference cycle: receive ASCII/Log, output JSON action + updated mental map (FR-003).
+- [ ] T025 [US2] Implement context window management (sliding window/truncation) to handle long event logs.
 - [ ] T026 [US2] Implement a hard step limit to prevent hangs on stuck agents.
-- [ ] T027 [US2] Implement error handling for inference failures (NaN output, OOM) with logging and run discard
+- [ ] T027 [US2] Implement error handling for inference failures (NaN output, OOM) with logging and run discard.
 - [ ] T028 [US2] Implement `code/resource_monitor.py` to log peak RAM and CPU usage to `results/resource_profile.json` after every agent run (Constitution Principle VII).
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+### Implementation for User Story 2 (Baseline Agent)
+
+- [ ] T039a [P] [US2] Implement `code/baseline_runner.py` to load a Vision-capable MLLM (e.g., Qwen-VL), process Visual inputs (raw frames), manage context, and output structured JSON mental maps. **Implements Plan Override of FR-008.**
+- [ ] T039b [US2] Execute `code/baseline_runner.py` on seeds from `config/seeds.yaml` to generate baseline logs in `data/processed/`. **Depends on T039a.**
+
+### Performance Verification (Blocking)
+
+- [ ] T041 [US2] Refactor `code/agent_loop.py` to implement sliding window context truncation and verify batch of 20 game instances completes in <6 hours via `results/benchmark_log.json`. **Instrument `main.py` to measure and report total batch execution time. Reference SC-004.** **Must pass before Phase 4.**
+
+**Checkpoint**: All data generation (US1, US2, Baseline) complete.
 
 ---
 
-## Phase 5: User Story 3 - Memory Gap Metric Calculation and Statistical Comparison (Priority: P3)
+## Phase 4: User Story 3 Implementation (Scoring & Statistics)
 
-**Goal**: Compute "Memory Gap" score by comparing agent's internal state description against masked ground-truth state and perform statistical comparison against baseline.
-
-**Independent Test**: Feed agent output logs and ground-truth logs into scorer, verify numeric score and statistical test execution.
+**Goal**: Implement Scorer (US3) and Statistical Analysis.
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T029 [P] [US3] Unit test for "Hidden State Masking" logic in `tests/unit/test_hidden_masking.py` (verify visible items excluded) - Write test for T035.
-- [ ] T030 [P] [US3] Unit test for Structured JSON comparison in `tests/unit/test_scorer.py`
-- [ ] T031 [P] [US3] Unit test for Mann-Whitney U test in `tests/unit/test_stats.py`
-- [ ] T032 [P] [US3] Integration test for full scoring pipeline in `tests/integration/test_full_loop.py`
+- [ ] T030 [P] [US3] Unit test for Structured JSON comparison in `tests/unit/test_scorer.py`.
+- [ ] T031 [P] [US3] Unit test for Mann-Whitney U test in `tests/unit/test_stats.py`.
+- [ ] T032 [P] [US3] Integration test for full scoring pipeline in `tests/integration/test_full_loop.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement `code/baseline_adapter.py` to parse Baseline MLLM (Visual) output into structured JSON mental map (Plan Override of FR-008). **Include validation step to confirm output matches the masked ground-truth format used by the Text Agent.**
-- [ ] T034 [US3] Implement `code/scorer.py` to calculate "Memory Gap" using Structured JSON comparison + Semantic Similarity (Plan Override of FR-006). **Ensure Hidden State Masking is applied to BOTH Text Agent and Baseline Agent comparisons.** (Depends on T007 contract).
-- [ ] T035 [US3] Implement `code/scorer.py` logic to apply a penalty for missing critical items in hidden ground truth (FR-007). **Verify masking logic is applied to Baseline agent comparison.**
-- [ ] T036 [US3] Implement `code/stats.py` to perform one-tailed Mann-Whitney U test (FR-005)
-- [ ] T037 [US3] Implement `code/main.py` to orchestrate Text Agent and Baseline runs, aggregate results into `results/statistical_summary.json`, and trigger `utils/checksum.py` on `data/processed/`.
-- [ ] T038 [US3] Generate `results/statistical_summary.json` with p-values, confidence intervals, and **mean Memory Gap scores for both Text Agent and Baseline** (SC-001).
-- [ ] T039 [US3] Execute Baseline MLLM on Visual inputs using seeds from `config/seeds.yaml` to generate the baseline distribution logs required for FR-005 and SC-001.
+- [ ] T033 [US3] Implement `code/baseline_adapter.py` to parse Baseline MLLM (Visual) output into structured JSON mental map. **Note: Implements Plan Override of FR-008 (Kickback Issue 1); defines new entity 'Baseline Adapter' required by Plan.** **Include validation step to confirm output matches the masked ground-truth format used by the Text Agent.**
+- [ ] T034 [US3] Implement `code/scorer.py` to calculate "Memory Gap" using Structured JSON comparison + Semantic Similarity (Plan Override of FR-006). **Ensure Hidden State Masking is applied to BOTH Text Agent and Baseline Agent comparisons.** **Note: Implements Plan Override (Kickback Issue 2).** (Depends on T007 contract).
+- [ ] T035 [US3] Implement `code/scorer.py` logic to apply a penalty for missing critical items in hidden ground truth (FR-007). **Verify masking logic is applied to Baseline agent comparison.** (Depends on T007 contract).
+- [ ] T036 [US3] Unit test for Hidden State Masking in `tests/unit/test_hidden_masking.py` (verify visible items excluded). **Depends on T017 design.**
+- [ ] T037 [US3] Implement `code/stats.py` to perform one-tailed Mann-Whitney U test (FR-005).
+- [ ] T038 [US3] Implement `code/main.py` to orchestrate Text Agent and Baseline runs, aggregate results into `results/statistical_summary.json`, and trigger `utils/checksum.py` on `data/processed/`.
 
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: Scoring and Statistics implementation complete.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 5: Execution, Finalization & Polish
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Run final experiments, finalize artifacts, and validate.
 
-- [ ] T040 [P] Documentation updates in `docs/` and `research.md`
-- [ ] T041 [US3] Refactor `code/agent_loop.py` to implement sliding window context truncation and verify batch of runs completes in <6 hours via `results/benchmark_log.json`. **Instrument `main.py` to measure and report total batch execution time.**
-- [ ] T042 [P] Additional unit tests in `tests/unit/`
-- [ ] T043 [US4] Run `utils/hasher.py` to finalize artifact versions (Constitution V). **Dependent on completion of all data generation tasks (T014-T017, T023-T028, T033-T039).** (Serial final step).
-- [ ] T044 [US4] Execute all commands in `docs/quickstart.md` in a fresh virtualenv and verify exit code 0 for all steps, logging output to `results/quickstart_validation.log`.
+- [ ] T039c [US3] Execute full experiment batch (Text Agent + Baseline) for N=20 (or N=64 if power analysis requires) and generate `results/statistical_summary.json`. **Depends on T041 pass.**
+- [ ] T040 [P] Documentation updates in `docs/` and `research.md`.
+- [ ] T042a [P] Add edge case tests for `code/stats.py` Mann-Whitney edge cases in `tests/unit/test_stats.py`.
+- [ ] T042b [P] Add integration tests for full loop in `tests/integration/test_full_loop.py`.
+- [ ] T043 [Phase 5] Run `utils/checksum.py` on `data/processed/` and update `state/...yaml`. **Depends on T039c.**
+- [ ] T046 [Phase 5] Run `utils/hasher.py` to finalize artifact versions (Constitution V). **Depends on T039c and T043. Serial final step.**
+- [ ] T044 [Phase 5] Execute all commands in `docs/quickstart.md` in a fresh virtualenv and verify exit code 0 for all steps, logging output to `results/quickstart_validation.log`.
+
+**Checkpoint**: Project complete.
 
 ---
 
@@ -141,80 +134,23 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Foundational Design (Phase 2)**: Depends on Setup - BLOCKS implementation
+- **Implementation (Phase 3)**: Depends on Design - Generates Data
+- **Scoring (Phase 4)**: Depends on Data Generation - Calculates Metrics
+- **Finalization (Phase 5)**: Depends on Scoring - Hashes & Validates
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+- **User Story 1 (P1)**: Phase 3 (T014-T022)
+- **User Story 2 (P2)**: Phase 3 (T023-T039b, T041)
+- **User Story 3 (P3)**: Phase 4 (T033-T038), Phase 5 (T039c)
 
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Design phase completes, US1, US2 (Text), US2 (Baseline) can start in parallel
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together:
-Task: "Unit test for ASCII grid generation in tests/unit/test_renderer.py"
-Task: "Unit test for JSON event logging in tests/unit/test_renderer.py"
-Task: "Unit test for error handling in tests/unit/test_renderer.py"
-
-# Launch implementation for User Story 1:
-Task: "Implement code/renderer.py to convert RNG-Bench visual state to ASCII grid string"
-Task: "Implement code/renderer.py to generate JSON event logs for every time step"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify ASCII consistency)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1 (Renderer & Validation)
-   - Developer B: User Story 2 (Agent Loop & Quantization)
-   - Developer C: User Story 3 (Scorer & Statistics)
-3. Stories complete and integrate independently
 
 ---
 
@@ -227,7 +163,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Hygiene**: All data files in `data/processed/` MUST have checksums generated before use.
+- **Data Hygiene**: All data files in `data/processed/` MUST have checksums generated before use (T043).
 - **Modality Isolation**: Ensure Baseline runs on Visual inputs and Text Agent runs on ASCII inputs (Plan Override of FR-008).
 - **Metric Validity**: Ensure "Memory Gap" uses Structured JSON comparison, not raw Levenshtein distance (Plan Override of FR-006).
-- **Serial Final Step**: T043 is a serial final step dependent on all data generation tasks.
+- **Serial Final Step**: T046 is a serial final step dependent on all data generation and scoring tasks.

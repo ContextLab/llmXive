@@ -1,0 +1,15 @@
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, or documentation were supplied showing that out-of-bounds state
+    validation and standardized error ASCII blocks were implemented; the required
+    artifact is missing. The implementer must provide the modified renderer (or validation
+    module) and evidence (e.g., unit tests or example outputs) demonstrating the new
+    error handling.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I examined the repository for a modified `utils/checksum.py` that records checksums
+    of files under `data/processed/` and for any `state/*.yaml` files containing those
+    checksum entries. No such integration or updated YAML files are present; the relevant
+    code and state files are missing. The task therefore remains unfinished.

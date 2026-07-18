@@ -30,7 +30,7 @@ The technical approach involves:
 **Project Type**: Research tooling / CLI.  
 **Performance Goals**: <6 hours for pilot batch of 20 game instances; <7GB peak RAM.  
 **Constraints**: Must run without CUDA; must handle context window limits via truncation/sliding window; must enforce hard step limits to prevent hangs.  
-**Scale/Scope**: Pilot: 20 runs per condition. Final: a sufficient number of runs per condition determined by power analysis.
+**Scale/Scope**: Pilot: A sufficient number of runs per condition to ensure preliminary stability. Final: a sufficient number of runs per condition determined by power analysis.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -142,7 +142,7 @@ projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/
 4.  **Validate Masking**: Run `pytest tests/unit/test_hidden_masking.py` to ensure visible items are correctly excluded from `masked_ground_truth`.
 
 ### Phase 3: Experimental Execution & Power Analysis (FR-005, SC-003, SC-004)
-1.  **Phase 3a: Pilot Run**: Execute 20 runs per condition (Text vs. Visual Baseline). Log RAM usage and execution time.
+1.  **Phase 3a: Pilot Run**: Execute multiple runs per condition (Text vs. Visual Baseline). Log RAM usage and execution time.
 2.  **Phase 3b: Power Analysis**: Calculate effect size and variance from Pilot.
     - If effect size is small or variance high, **trigger scaling**: Re-run with N=64 per condition.
     - If effect size is large and variance low, proceed with N=20 as definitive.

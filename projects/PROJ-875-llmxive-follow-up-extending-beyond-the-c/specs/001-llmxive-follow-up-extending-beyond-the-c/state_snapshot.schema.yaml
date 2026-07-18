@@ -1,0 +1,58 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StateSnapshot
+description: Schema for a single state snapshot in the game environment
+type: object
+required:
+  - timestamp
+  - grid
+  - player_position
+  - key_collected
+  - exit_reachable
+properties:
+  timestamp:
+    type: integer
+    description: Time step of the snapshot
+    minimum: 0
+  grid:
+    type: array
+    description: 2D array representing the game grid
+    items:
+      type: array
+      items:
+        type: string
+        enum: [".", "#", "M", "K", "E"]
+    minItems: 1
+    uniqueItems: false
+  player_position:
+    type: object
+    required:
+      - row
+      - col
+    properties:
+      row:
+        type: integer
+        minimum: 0
+      col:
+        type: integer
+        minimum: 0
+  key_collected:
+    type: boolean
+    description: Whether the key has been collected
+  exit_reachable:
+    type: boolean
+    description: Whether the exit is currently reachable
+  events:
+    type: array
+    description: List of events that occurred at this timestamp
+    items:
+      type: object
+      required:
+        - type
+        - details
+      properties:
+        type:
+          type: string
+          enum: ["move", "key_collect", "exit_reach", "error"]
+        details:
+          type: string
+additionalProperties: false

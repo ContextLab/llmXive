@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up"
+version = "0.1.0"
+description = "Follow-up study: Extending Beyond the Current Observation"
+requires-python = ">=3.10"
+dependencies = [
+    "transformers>=4.40.0",
+    "bitsandbytes>=0.43.0",
+    "scikit-learn>=1.4.0",
+    "sentence-transformers>=2.7.0",
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+    "pytest>=8.1.0",
+    "pyyaml>=6.0.1",
+    "datasets>=2.19.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "I", "N"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

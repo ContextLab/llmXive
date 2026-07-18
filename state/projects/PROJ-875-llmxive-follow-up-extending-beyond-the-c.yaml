@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-875-llmxive-follow-up-extending-beyond-the-c
-last_run_id: 4f0f67cf-7c81-40b3-9e09-e65defcc32c6
+last_run_id: febb5166-6022-4e6f-ae07-7450992e7137
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c
 title: 'llmXive follow-up: extending "Beyond the Current Observation: Evaluating Multimodal
   Large Language M"'
-updated_at: '2026-07-15T11:33:43.489510Z'
+updated_at: '2026-07-18T13:32:21.508631Z'
