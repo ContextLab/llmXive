@@ -118,10 +118,13 @@ class CallBudget:
 class ExecutionOptions:
     """Runtime call controls, applied uniformly to every candidate in a chain.
     ``max_tokens`` MUST be a concrete int and ``<= call_budget.max_output_tokens``
-    (enforced by ``execute``)."""
+    (enforced by ``execute``). ``temperature`` is ``float | None``: ``None`` means
+    "backend default" (sampling ON) — the router omits the kwarg — so a generative
+    caller (brainstorm/implementer) that leaves it unset is NOT silently forced to
+    the deterministic ``0.0`` a reviewer pins."""
 
     max_tokens: int
-    temperature: float = 0.0
+    temperature: float | None = 0.0
     deadline_s: float | None = None
 
 

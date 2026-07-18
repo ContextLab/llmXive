@@ -1,0 +1,187 @@
+"""Routing chokepoint (spec 026, Phase 2 slice 5 — corrected execute()-delegation).
+
+``route_chat`` is the SINGLE production entry that turns a call's INTENT into a
+real chat WITHOUT ever projecting the selected chain back to model-id strings or
+walking the legacy peer chain. It:
+
+1. acquires the REAL, LKG-inclusive :func:`runtime_snapshot` (bounded
+   negative-caching so an outage never re-fetches catalog+local+credit per call);
+2. derives ``allow_paid`` from the snapshot's credit opt-in when the caller does
+   not pin it (so the guarded paid tail can appear; ``execute``'s twice-checked
+   guard + reservation still decide per call);
+3. builds the requirement for the named ``profile`` priced against the ACTUAL
+   messages (:func:`build_requirement` + :func:`call_budget_for`);
+4. runs the PURE :func:`select` (requirement-sensitive freshness; a cold start —
+   no live catalog AND no LKG — fails CLOSED with ``ModelUnavailable``, never a
+   fall back to a static legacy chain);
+5. reorders the chain with :func:`_promote_primary` so the caller's pinned model
+   runs FIRST *iff* ``select`` kept it (present + eligible), and NEVER resurrects
+   a live-confirmed-absent one (revert-finding #3 / US5 scenario 2);
+6. delegates the WHOLE :class:`ModelChain` to :func:`execute`, which dispatches
+   each candidate through ITS OWN ``ModelRef.backend`` (revert-finding #2), does
+   the atomic paid reservation + retry-envelope + settlement (revert-finding #1),
+   and returns the first successful :class:`ChatResponse`.
+
+Backend fallback is therefore FIRST-CLASS through ``select``/``execute`` (the
+local candidate carries ``backend=="local"``); the legacy ``default_backend`` /
+``fallback_backends`` inputs are redundant and the chokepoint ignores them (spec
+§29). The compat walkers in ``backends.router`` are thin wrappers over this.
+"""
+
+from __future__ import annotations
+
+import time
+from collections.abc import Callable, Iterable
+from dataclasses import replace
+
+from llmxive.backends.base import BaseBackend, ChatMessage, ChatResponse
+from llmxive.backends.router import make_backend
+from llmxive.model_selection.execute import execute
+from llmxive.model_selection.ledger_transport import LedgerConfig
+from llmxive.model_selection.profiles import build_requirement
+from llmxive.model_selection.select import select
+from llmxive.model_selection.snapshot import runtime_snapshot
+from llmxive.model_selection.tokens import call_budget_for
+from llmxive.model_selection.types import (
+    ExecutionOptions,
+    IndependenceBaseline,
+    ModelChain,
+    RuntimeSnapshot,
+)
+
+__all__ = [
+    "DETERMINISTIC_NO_LLM",
+    "reset_snapshot_cache",
+    "route_chat",
+]
+
+#: The registry sentinel for scaffolding agents that make NO LLM call (spec 015;
+#: ``test_config_consistency.NO_LLM``). Such an agent must NEVER reach the model
+#: layer — reaching ``route_chat`` with it is a programming error, so we fail fast
+#: BEFORE any snapshot / select / execute work (bypasses the mechanism entirely).
+DETERMINISTIC_NO_LLM = "deterministic-no-llm"
+
+#: Bounded snapshot cache TTL (seconds). Matches the ~30s credit-balance cache: a
+#: snapshot is acquired at most once per window, so a Dartmouth outage does not
+#: re-hit catalog+local+credit on every routed call. The RESULT is cached whether
+#: it is healthy OR a cold-start/LKG snapshot (the "bounded negative result",
+#: revert-finding #6) — ``runtime_snapshot`` never raises; it degrades to
+#: ``unavailable`` provenance, which ``select`` then fails closed on.
+_SNAPSHOT_TTL_S = 30.0
+
+#: Monotonic clock indirection (module-level so tests can freeze it). Never a
+#: wall-clock value that would drift the TTL.
+_now: Callable[[], float] = time.monotonic
+
+#: ``(snapshot, monotonic_expiry)`` or ``None``.
+_SNAPSHOT_CACHE: tuple[RuntimeSnapshot, float] | None = None
+
+
+def reset_snapshot_cache() -> None:
+    """Drop the bounded snapshot cache (test isolation / forced refresh)."""
+    global _SNAPSHOT_CACHE
+    _SNAPSHOT_CACHE = None
+
+
+def _acquire_snapshot() -> RuntimeSnapshot:
+    """The REAL, LKG-inclusive snapshot, served from the bounded cache when a
+    prior acquisition is still within the TTL (negative caching included)."""
+    global _SNAPSHOT_CACHE
+    now = _now()
+    cached = _SNAPSHOT_CACHE
+    if cached is not None and cached[1] > now:
+        return cached[0]
+    snap = runtime_snapshot()
+    _SNAPSHOT_CACHE = (snap, now + _SNAPSHOT_TTL_S)
+    return snap
+
+
+def _promote_primary(chain: ModelChain, caller_model: str | None) -> ModelChain:
+    """Reorder ``chain.candidates`` so the caller's pinned ``caller_model`` runs
+    FIRST — but ONLY if ``select`` already kept it (present + eligible). If the
+    caller pinned nothing, or the model is absent from ``select``'s result (dropped
+    for staleness / exclusion / independence / the paid guard, or live-confirmed
+    absent), the chain is returned UNCHANGED — never resurrecting an absent model
+    (revert-finding #3). Moves whole ``Candidate`` objects, so backend identity and
+    pricing ride along (revert-finding #2)."""
+    if not caller_model:
+        return chain
+    idx = next(
+        (i for i, c in enumerate(chain.candidates) if c.model_ref.model_id == caller_model),
+        None,
+    )
+    if idx is None or idx == 0:
+        return chain
+    cands = list(chain.candidates)
+    cands.insert(0, cands.pop(idx))
+    return replace(chain, candidates=tuple(cands))
+
+
+def route_chat(
+    messages: Iterable[ChatMessage],
+    *,
+    profile: str = "standard_generation",
+    caller_model: str | None = None,
+    max_tokens: int,
+    temperature: float | None = None,
+    deadline_s: float | None = None,
+    allow_paid: bool | None = None,
+    independence_against: IndependenceBaseline | None = None,
+    retries: int = 3,
+    backend_factory: Callable[[str], BaseBackend] = make_backend,
+    snapshot: RuntimeSnapshot | None = None,
+    ledger_repo=None,
+    ledger_config: LedgerConfig | None = None,
+    **requirement_overrides: object,
+) -> ChatResponse:
+    """Route one chat call through select()→execute() and return its response.
+
+    ``caller_model`` is the model the call site pinned (used ONLY to promote it to
+    the front when ``select`` kept it — see :func:`_promote_primary`); it is NOT a
+    fallback chain and NEVER a resurrection. ``snapshot`` is an injection seam
+    (tests / an owner above the per-call router); when ``None`` the bounded cache
+    acquires the real one. Raises :class:`ModelUnavailable` (fail closed) when
+    ``select`` finds no eligible candidate, ``ChainExhausted`` when the chain runs
+    and none succeeds, re-raises a request-level permanent refusal unchanged, and
+    ``ValueError`` on the fail-fast budget check.
+    """
+    # deterministic-no-llm bypasses snapshot / select / execute ENTIRELY: a no-llm
+    # agent that reached the model layer is a programming error → fail fast before
+    # touching the mechanism (e2e #7).
+    if caller_model == DETERMINISTIC_NO_LLM:
+        raise ValueError(
+            "route_chat called with the 'deterministic-no-llm' sentinel — a no-LLM "
+            "agent must never reach model selection/execution"
+        )
+
+    msg_list = list(messages)
+    snap = snapshot if snapshot is not None else _acquire_snapshot()
+
+    # Derive paid admissibility from the snapshot's opt-in when the caller doesn't
+    # pin it; select()/execute() then enforce the live-credit + reservation guards.
+    allow_paid_eff = snap.credit.paid_opt_in if allow_paid is None else allow_paid
+
+    call_budget = call_budget_for(msg_list, max_tokens)
+    requirement = build_requirement(
+        profile,
+        call_budget,
+        independence_against=independence_against,
+        allow_paid=allow_paid_eff,
+        **requirement_overrides,
+    )
+    chain = select(requirement, snap)
+    chain = _promote_primary(chain, caller_model)
+
+    options = ExecutionOptions(
+        max_tokens=max_tokens, temperature=temperature, deadline_s=deadline_s
+    )
+    result = execute(
+        chain,
+        msg_list,
+        options=options,
+        backend_factory=backend_factory,
+        retries=retries,
+        ledger_repo=ledger_repo,
+        ledger_config=ledger_config,
+    )
+    return result.response
