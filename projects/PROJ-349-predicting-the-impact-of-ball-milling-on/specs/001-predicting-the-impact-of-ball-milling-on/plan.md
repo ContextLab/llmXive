@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-predict-balling-milling-psd/spec.md`
 
 ## Summary
-Create a reproducible pipeline that (1) aggregates ball‑milling experiments from Materials Project, NIST, and arXiv, (2) preprocesses the data (imputation excluding targets, normalization, encoding), (3) trains Gaussian Process Regression (GPR) and Random Forest (RF) models using **Nested Cross-Validation** (5x2), (4) evaluates performance against a linear‑regression baseline using the **Nadeau & Bengio corrected resampled t-test**, (5) conducts **a priori** power analysis, and (6) generates interpretability artefacts (partial dependence plots, feature‑importance JSON). All steps respect the GitHub Actions free‑tier constraints (≤7 GB RAM, **6-hour** job limit) and the project constitution. All findings are explicitly framed as **associational** due to the observational nature of the data.
+Create a reproducible pipeline that aggregates ball‑milling experiments from Materials Project, NIST, and arXiv, (2) preprocesses the data (imputation excluding targets, normalization, encoding), (3) trains Gaussian Process Regression (GPR) and Random Forest (RF) models using **Nested Cross-Validation** (5x2), (4) evaluates performance against a linear‑regression baseline using the **Nadeau & Bengio corrected resampled t-test**, (5) conducts **a priori** power analysis, and (6) generates interpretability artefacts (partial dependence plots, feature‑importance JSON). All steps respect the GitHub Actions free‑tier constraints (≤7 GB RAM, **6-hour** job limit) and the project constitution. All findings are explicitly framed as **associational** due to the observational nature of the data.
 
 ## Technical Context
 - **Language/Version**: Python 3.11

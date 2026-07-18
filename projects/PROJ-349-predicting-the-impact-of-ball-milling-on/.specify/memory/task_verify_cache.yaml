@@ -1,9 +1,49 @@
-T009:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer supplied only a feature specification for data aggregation and
-    modeling; there is no artifact such as configuration files, environment variable
-    definitions, or code that sets up and manages API keys for the Materials Project
-    or other services. Consequently, the requirement to establish environment configuration
-    management is not met. A proper implementation should include, for example, a
-    `.env` template, secure loading of API keys, and documentation of the setup process.
+  r: No directory listings or file artifacts were provided showing the required folders
+    (`src/`, `tests/`, `data/raw`, `data/processed`, `data/splits`, `results`, `contracts/`,
+    `.github/workflows/`). Without concrete evidence that these paths exist and contain
+    content, the task requirement is not satisfied.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No project scaffold, configuration file, or dependency list (e.g., `pyproject.toml`,
+    `requirements.txt`, or `environment.yml`) was provided; the implementer only restated
+    the feature specification without delivering the actual Python 3.11 project initialization
+    or pinned dependencies. The required artifact is missing.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided only a feature specification for data aggregation and
+    modeling, with no linting configuration files (e.g., `.flake8`, `pyproject.toml`
+    for Black, or a `pre-commit` setup) or any evidence that flake8/black were installed
+    and integrated. Consequently, the required linting/formatting tooling is missing.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`data/raw`, `data/processed`, `data/splits`,
+    `results`) being created or listed is provided; the implementer did not supply
+    any artifact confirming the directory structure exists.
+T007a:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: "The required file `contracts/dataset.schema.yaml` does not exist on disk, so\
+    \ no schema definition is present to satisfy the listed field requirements. The\
+    \ task\u2019s primary artifact is missing."
+T007b:
+  c: false
+  h: f2929e7cf964aa9b99c60b752e927e242e7d101345b78faeae3c31cd205cf107
+  r: "The `validate_schema.py` file exists and contains validation logic, but it depends\
+    \ on a schema file (`contracts/dataset.schema.yaml`) that is missing, causing\
+    \ `load_schema` to raise `FileNotFoundError`. Additionally, the import statement\
+    \ `from src.exceptions import \u2026` does not match the actual location of `exceptions.py`\
+    \ (`src/utils/exceptions.py`), so the module would fail to import. Both issues\
+    \ prevent the function from being fully functional as required."
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or execution output was provided that reads the aggregated\
+    \ dataset from T015, checks its row count, raises `SystemExit` with code\u202F\
+    1 when rows\u202F<\u202F150, and logs the required message. Without these concrete\
+    \ artifacts, the task\u2019s requirement is not satisfied."

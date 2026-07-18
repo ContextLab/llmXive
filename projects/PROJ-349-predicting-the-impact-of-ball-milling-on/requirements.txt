@@ -1,28 +1,18 @@
-# Python 3.11 dependencies for PROJ-349: Predicting the Impact of Ball Milling on Particle Size Distribution
-# Pinned versions to ensure reproducibility
-pandas==2.2.2
-numpy==1.26.4
-scikit-learn==1.5.0
-statsmodels==0.14.2
-matplotlib==3.9.0
-seaborn==0.13.2
-requests==2.32.3
-tqdm==4.66.4
-pyarrow==16.1.0
-pdfminer.six==20231228
-# Additional dependencies required by the pipeline but not explicitly listed in the task description
-# These are necessary for the implementation of T012-T016 and related tasks
-# Based on the API surface and task requirements
-pyyaml==6.0.1
-python-dotenv==1.0.1
-pytest==8.2.2
-pytest-cov==5.0.0
-black==24.4.2
-flake8==7.1.0
-isort==5.13.2
-# For OCR fallback in T014 (pytesseract)
-pytesseract==0.3.10
-# For data loading from Hugging Face datasets (if needed for NIST/Materials Project)
-datasets==2.20.0
-# For PDF processing beyond pdfminer (optional but recommended)
-pdf2image==1.17.0
+# Core dependencies
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+requests>=2.31.0
+tqdm>=4.65.0
+pyarrow>=12.0.0
+pdfminer.six>=20230510
+pyyaml>=6.0
+joblib>=1.3.0
+
+# Development dependencies
+pytest>=7.4.0
+black>=23.0.0
+flake8>=6.1.0

@@ -1,2 +1,1 @@
-# This file ensures the directory exists in version control.
-# Dynamic splits are generated in-memory, but this directory is reserved for any static splits if needed.
+# This file ensures the data/splits directory is tracked by git.

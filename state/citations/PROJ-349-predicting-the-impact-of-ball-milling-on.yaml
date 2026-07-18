@@ -20,36 +20,25 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-16T06:35:44.541285Z'
-- artifact_hash: 3032849714f9679da645722b874e2c941a36fc53e19620a00c4732a253651c81
-  artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/README.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: "Releases \xB7 oschwartz10612/poppler-windows \xB7 GitHub"
-  kind: url
-  value: https://github.com/oschwartz10612/poppler-windows/releases/
-  verification_status: pending
-  verified_against_url: https://github.com/oschwartz10612/poppler-windows/releases/
-  verified_at: '2026-07-16T07:07:11.244571Z'
-- artifact_hash: 1a9d01933a6f743246dde9ee1a9e8ae0760d551492949d3b8c8e5a13e641df46
+- artifact_hash: b4a3d3778fe3bd562782db8714ffaed14bc4fb6bf48cc9a29d5cfc79f3807a5e
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: p-value - Wikipedia
+  fetched_title: null
   kind: url
-  value: https://en.wikipedia.org/wiki/P-value
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-07-16T07:16:08.460800Z'
-- artifact_hash: 1a9d01933a6f743246dde9ee1a9e8ae0760d551492949d3b8c8e5a13e641df46
+  value: https://api.materialsproject.org/v2/...`
+  verification_status: mismatch
+  verified_against_url: https://api.materialsproject.org/v2/
+  verified_at: '2026-07-18T16:11:50.196717Z'
+- artifact_hash: b4a3d3778fe3bd562782db8714ffaed14bc4fb6bf48cc9a29d5cfc79f3807a5e
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: arxiv
-  value: '2305.12345'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-07-16T07:16:08.460800Z'
+  kind: url
+  value: https://www.nist.gov/materials-data-repository/ball-milling`
+  verification_status: mismatch
+  verified_against_url: https://www.nist.gov/materials-data-repository/ball-milling
+  verified_at: '2026-07-18T16:11:50.196717Z'

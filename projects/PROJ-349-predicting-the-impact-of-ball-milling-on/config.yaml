@@ -1,0 +1,39 @@
+# Configuration for Ball Milling PSD Prediction Project
+# This file contains all configurable parameters for the pipeline.
+# Values can be overridden by environment variables prefixed with BALLMILL_
+
+# API Endpoints and Authentication
+api:
+  materials_project:
+    base_url: "https://materialsproject.org/rest/v2"
+    timeout: 30
+    api_key_env: "MP_API_KEY"  # Must be set in environment
+
+  nist:
+    base_url: "https://www.nist.gov"
+    timeout: 30
+
+  arxiv:
+    base_url: "https://export.arxiv.org/api/query"
+    timeout: 30
+
+# Resource Limits for GPR Training
+# If exceeded, the system will fall back to Random Forest
+resources:
+  gpr_max_runtime: 1800        # 30 minutes in seconds
+  gpr_max_memory: 5.0          # 5 GB
+  max_workers: 4               # Number of parallel workers
+
+# OCR and Unstructured Data Handling
+ocr:
+  fallback_enabled: false      # Enable OCR for unstructured PSD images
+  tesseract_path: null         # Path to tesseract executable (null for system default)
+  pdfminer_path: null          # Path to pdfminer executable
+
+# Data Directory Configuration
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  splits_dir: "data/splits"
+  results_dir: "results"
+  min_dataset_size: 150        # Minimum viable dataset size per spec

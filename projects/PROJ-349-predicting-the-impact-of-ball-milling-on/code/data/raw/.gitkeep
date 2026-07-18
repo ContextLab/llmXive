@@ -1,2 +1,1 @@
-# This file ensures the directory exists in version control.
-# Real data files will be downloaded here by the ingestion pipeline.
+# This file ensures the data/raw directory is tracked by git.

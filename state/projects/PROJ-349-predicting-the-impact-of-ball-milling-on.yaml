@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T09:57:23.338905Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-349-predicting-the-impact-of-ball-milling-on
-last_run_id: 88b361a5-3810-4e48-86a3-373537417d79
+last_run_id: a9d183c7-598e-4bf9-85c1-e0bd2882e962
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on
 title: Predicting the Impact of Ball Milling on Particle Size Distribution
-updated_at: '2026-07-16T07:16:16.376066Z'
+updated_at: '2026-07-18T16:12:14.790843Z'
