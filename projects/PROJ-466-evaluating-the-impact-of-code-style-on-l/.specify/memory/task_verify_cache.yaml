@@ -1,3 +1,10 @@
+T001c:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided spec excerpt shows the `spec.md` file\u2019s Assumptions section\
+    \ now contains a detailed Power Analysis calculation justifying the use of N\u202F\
+    =\u202F164 tasks, fulfilling the required deliverable. No placeholder or missing\
+    \ content remains."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,9 +41,38 @@ T042:
     required updates, we cannot confirm the task was completed. The implementer must
     add the updated quickstart markdown file and ensure it reflects the new user stories,
     usage instructions, and testing guidance.
-T044:
+T043b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CI logs, timing reports, or any performance measurements were provided to\
-    \ demonstrate that the total runtime is under 6\u202Fhours (or a simulated subset).\
-    \ The required artifact\u2014evidence of runtime verification\u2014is missing."
+  h: 0dc30cb534371d3b29041703088cb68f1e680eccd6fa081ac56305a199b38d9e
+  r: The required artifact `tests/results/junit.xml` is missing, so the implementer
+    could not verify its existence nor confirm it contains no failures. The task therefore
+    remains unfinished.
+T044a:
+  c: false
+  h: 425f4dee64cf8128b522666f10f65ac2ee440d1269d8bb8365e9e0b3dbe87d40
+  r: "The required artifact `data/logs/timing.log` does not exist, so the pipeline\
+    \ execution duration was not logged as specified. The task\u2019s core deliverable\
+    \ is missing."
+T044b:
+  c: false
+  h: 425f4dee64cf8128b522666f10f65ac2ee440d1269d8bb8365e9e0b3dbe87d40
+  r: "The required artifact `data/logs/timing.log` is missing, so the existence check\
+    \ cannot be performed and no evidence of a duration under 6\u202Fhours is provided.\
+    \ The task therefore remains unfinished."
+T045:
+  c: false
+  h: 21f514411bd4e4171d2e6c19b425ff9d20225ab0466ec80a930b1b0e618ffeff
+  r: "The `generator.py` only contains a static heuristic (`calculate_batch_size`)\
+    \ and a single `log_memory_state` call; it does not iteratively probe memory and\
+    \ shrink the batch size until a RAM limit is satisfied, nor does it record each\
+    \ reduction step. Additionally, the required `data/logs/memory_log.json` file\
+    \ is absent. The task\u2019s dynamic batch\u2011sizing and logging requirements\
+    \ are therefore unmet."
+T046:
+  c: false
+  h: 62f7fa4cbc1bbdf5a3d07c17f01de0ae819745d44d3870fd01d067e2826d49c5
+  r: "The provided `generator.py` only shows a `@timeout_decorator(300)` wrapper on\
+    \ `solution`, but no code that catches `TaskTimeoutError`, skips the timed\u2011\
+    out task, or logs a timeout-specific message. Moreover, the required `data/logs/pipeline.log`\
+    \ file does not exist. Consequently, the timeout handling and logging requirements\
+    \ are not demonstrably satisfied."

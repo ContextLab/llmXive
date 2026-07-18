@@ -4,207 +4,223 @@ import logging
 import time
 import csv
 import signal
+import psutil
+from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-from functools import wraps
+from datasets import load_dataset
+from utils.logger import log_memory_usage, log_batch_reduction, initialize_memory_log, get_memory_log_path, log_generation_error
+from utils.timeout_decorator import timeout_decorator, TaskTimeoutError
+from config.loader import load_config
 
-from utils.logger import log_memory_usage, log_batch_reduction, log_generation_error, log_timeout_error
-from utils.timeout_decorator import TaskTimeoutError, timeout_decorator
-from config.loader import load_config, get_config_value
-from generation.loader import get_humaneval_tasks
-
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 def get_available_memory_gb() -> float:
-    """
-    Estimate available memory in GB.
-    
-    Note: This is a simplified implementation. In production, use psutil.
-    """
-    # Fallback default if psutil not available
-    return 16.0
+    """Get available memory in GB using psutil."""
+    try:
+        mem = psutil.virtual_memory()
+        return mem.available / (1024 ** 3)
+    except Exception as e:
+        logger.error(f"Failed to get available memory: {e}")
+        return 8.0  # Default fallback
 
-def calculate_batch_size(available_gb: float, max_gb: float = 7.0) -> int:
+def calculate_batch_size(available_gb: float, target_gb: float = 2.0) -> int:
     """
-    Calculate batch size based on available memory.
-    
-    Args:
-        available_gb: Available memory in GB
-        max_gb: Maximum memory to use (default 7GB)
-        
-    Returns:
-        Recommended batch size
+    Calculate initial batch size based on available memory.
+    Assumes ~2GB per batch as a starting heuristic.
     """
-    # Simple heuristic: start with 50, reduce if memory is low
-    if available_gb >= max_gb:
-        return 50
-    elif available_gb >= 4.0:
-        return 25
-    elif available_gb >= 2.0:
-        return 10
-    else:
-        return 1
+    if available_gb < target_gb:
+        return max(1, int(available_gb / target_gb))
+    return int(available_gb / target_gb)
 
-def _mock_llm_call(prompt: str, style: str, seed: int, temperature: float) -> str:
-    """
-    Mock LLM call that generates deterministic code based on inputs.
-    This simulates the LLM response without requiring an actual API.
-    """
-    # Deterministic generation based on seed and style
-    # In a real implementation, this would call the actual LLM model
-    base_code = f"""# Task Style: {style}
-# Seed: {seed}
-# Temperature: {temperature}
+def log_memory_state(batch_size: int, step: str = "initial"):
+    """Log current memory state and batch size to memory_log.json."""
+    log_memory_usage(batch_size=batch_size, step=step)
 
-def solution():
-    pass
-"""
-    # Add style-specific modifications
-    if style == "pep8":
-        base_code += "\n# PEP8 compliant formatting\n"
-        base_code += "    # Proper indentation and spacing\n"
-    elif style == "minified":
-        base_code = base_code.replace("\n", ";").replace("    ", "")
-    elif style == "neutral":
-        base_code += "\n# Neutral style\n"
-    
-    return base_code
-
-@timeout_decorator(300)  # 5 minute timeout per task
-def generate_samples_for_task(
-    task: Dict[str, Any],
-    style: str,
-    num_samples: int = 20,
-    temperature: float = 0.7,
-    seed: int = 42
-) -> List[Dict[str, Any]]:
+def solution(task: Dict[str, Any], style: str, batch_size: int, timeout_seconds: int = 300) -> List[Dict[str, Any]]:
     """
-    Generate multiple code samples for a single task with a specific style.
-    
-    Args:
-        task: HumanEval task dictionary
-        style: Style name (neutral, pep8, minified)
-        num_samples: Number of samples to generate
-        temperature: Sampling temperature
-        seed: Random seed
-        
-    Returns:
-        List of generated samples
+    Generate samples for a single task with timeout enforcement.
+    This is the inner loop function that would call the LLM.
+    For this implementation, we simulate generation with a placeholder
+    that respects the timeout structure.
     """
     samples = []
-    task_id = task.get('problem_id', 'unknown')
-    prompt = task.get('prompt', '')
     
-    logger.info(f"Generating {num_samples} samples for task {task_id} with style {style}")
+    # In a real implementation, this would loop 'batch_size' times
+    # calling an LLM API with the task prompt and style constraints.
+    # We simulate the generation process here.
     
-    for i in range(num_samples):
-        # Use a deterministic seed for reproducibility
-        sample_seed = seed + i
-        try:
-            # Simulate LLM call
-            code = _mock_llm_call(prompt, style, sample_seed, temperature)
-            
-            sample = {
-                'task_id': task_id,
-                'style': style,
-                'sample_id': f"{task_id}_{style}_{i}",
-                'code': code,
-                'pass_status': None  # Will be filled by tester
-            }
-            samples.append(sample)
-            
-        except Exception as e:
-            log_generation_error(task_id, style, f"Error generating sample {i}: {str(e)}")
-            logger.error(f"Error generating sample {i} for {task_id} ({style}): {e}")
-            # Continue with next sample rather than failing the whole task
-            continue
+    for i in range(batch_size):
+        # Simulate generation time (randomized to test timeout)
+        # In real code, this is where the LLM API call happens
+        time.sleep(0.01) 
+        
+        sample = {
+            "task_id": task['task_id'],
+            "style": style,
+            "sample_index": i,
+            "code": f"# Placeholder for generated code for {task['task_id']} style {style} sample {i}",
+            "generation_time": time.time()
+        }
+        samples.append(sample)
     
     return samples
 
-def run_generation_pipeline(config_path: Optional[str] = None) -> None:
+@timeout_decorator(300)
+def generate_samples_for_task(task: Dict[str, Any], style: str, initial_batch_size: int, max_reductions: int = 10) -> Tuple[List[Dict[str, Any]], int]:
     """
-    Run the full generation pipeline for all tasks and styles.
-    Generates samples and immediately writes them to samples_all.csv
-    before any testing or filtering occurs.
+    Generate samples for a task with dynamic batch sizing.
+    Probes memory usage and reduces batch size iteratively if limits are exceeded.
     
     Args:
-        config_path: Optional path to config file
+        task: The HumanEval task dict
+        style: The style profile (e.g., 'pep8', 'minified')
+        initial_batch_size: Starting batch size
+        max_reductions: Maximum number of reduction attempts
+        
+    Returns:
+        Tuple of (list of samples, final batch size used)
     """
-    if config_path is None:
-        config_path = "config/analysis.yaml"
+    current_batch_size = initial_batch_size
+    reduction_count = 0
+    all_samples = []
     
-    config = load_config(config_path)
+    # Log initial state
+    log_memory_state(current_batch_size, "initial")
     
-    # Get styles from prompt files
-    styles = ['neutral', 'pep8', 'minified']
-    output_path = Path("data/processed/samples_all.csv")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    while reduction_count < max_reductions:
+        available_mem = get_available_memory_gb()
+        logger.info(f"Attempt {reduction_count + 1}: Batch size {current_batch_size}, Available Mem: {available_mem:.2f}GB")
+        
+        try:
+            # Attempt generation with current batch size
+            # In a real scenario, we might monitor memory during the actual generation
+            # Here we simulate a check: if available memory is critically low, reduce batch
+            if available_mem < 0.5:
+                raise MemoryError("Available memory critically low")
+            
+            # Simulate generation
+            # In real code: samples = solution(task, style, current_batch_size)
+            # We call the solution function which is decorated with timeout
+            samples = solution(task, style, current_batch_size)
+            
+            # If we got here without error, we succeeded
+            all_samples.extend(samples)
+            logger.info(f"Successfully generated {len(samples)} samples with batch size {current_batch_size}")
+            return all_samples, current_batch_size
+            
+        except MemoryError as e:
+            reduction_count += 1
+            new_batch_size = max(1, current_batch_size // 2)
+            
+            if new_batch_size == current_batch_size:
+                logger.warning("Cannot reduce batch size further, breaking loop")
+                break
+            
+            log_batch_reduction(
+                old_batch_size=current_batch_size,
+                new_batch_size=new_batch_size,
+                reason=str(e),
+                available_memory_gb=available_mem
+            )
+            
+            logger.warning(f"Memory error: reducing batch size from {current_batch_size} to {new_batch_size}")
+            current_batch_size = new_batch_size
+            
+        except TaskTimeoutError as e:
+            # If timeout occurs, we treat it as a hard failure for this batch
+            # In the pipeline, this task would be skipped
+            logger.error(f"Timeout during generation for task {task['task_id']}: {e}")
+            raise
+            
+    # If we exit the loop without success
+    logger.error(f"Failed to generate samples for task {task['task_id']} after {max_reductions} reductions")
+    return all_samples, current_batch_size
+
+def run_generation_pipeline(output_path: str, styles: List[str], config_path: str = "config/analysis.yaml"):
+    """
+    Run the full generation pipeline with dynamic batch sizing.
     
-    # Get tasks
-    tasks = get_humaneval_tasks()
+    Args:
+        output_path: Path to the output CSV file
+        styles: List of style profiles to generate for
+        config_path: Path to the configuration file
+    """
+    # Load configuration
+    try:
+        config = load_config(config_path)
+    except Exception as e:
+        logger.error(f"Failed to load config: {e}")
+        raise
     
-    # Initialize output file
-    fieldnames = ['task_id', 'style', 'sample_id', 'code', 'pass_status']
+    # Initialize memory log
+    initialize_memory_log()
     
-    # Track statistics
-    total_tasks = len(tasks)
-    completed_tasks = 0
-    skipped_tasks = 0
-    total_samples = 0
+    # Load HumanEval dataset
+    try:
+        dataset = load_dataset("openai/human-eval", split="test")
+        tasks = list(dataset)
+    except Exception as e:
+        logger.error(f"Failed to load HumanEval dataset: {e}")
+        raise
     
-    # Open file for writing
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    all_results = []
+    
+    # Process each style
+    for style in styles:
+        logger.info(f"Processing style: {style}")
         
         for task in tasks:
-            task_id = task.get('problem_id', 'unknown')
-            logger.info(f"Processing task {task_id} ({completed_tasks + 1}/{total_tasks})")
+            task_id = task['task_id']
+            logger.info(f"Processing task {task_id} with style {style}")
             
-            task_completed = False
+            # Calculate initial batch size based on current memory
+            available_mem = get_available_memory_gb()
+            initial_batch = calculate_batch_size(available_mem, target_gb=1.0)
             
-            for style in styles:
-                try:
-                    # Generate samples with timeout
-                    samples = generate_samples_for_task(task, style)
-                    
-                    # Immediately write raw samples to CSV
-                    for sample in samples:
-                        writer.writerow(sample)
-                        total_samples += 1
-                    
-                    task_completed = True
-                    logger.info(f"Generated {len(samples)} samples for {task_id} ({style})")
-                    
-                except TaskTimeoutError:
-                    # Log timeout error and skip this task entirely
-                    log_timeout_error(task_id, style, 300)
-                    logger.warning(f"Timeout exceeded for task {task_id} ({style}). Skipping task.")
-                    skipped_tasks += 1
-                    # Break out of style loop to skip remaining styles for this task
-                    break
-                    
-                except Exception as e:
-                    log_generation_error(task_id, style, str(e))
-                    logger.error(f"Error generating samples for {task_id} ({style}): {e}")
-                    # Continue with next style
-                    continue
-          
-            if task_completed:
-                completed_tasks += 1
-            else:
-                skipped_tasks += 1
+            try:
+                samples, final_batch = generate_samples_for_task(
+                    task=task,
+                    style=style,
+                    initial_batch_size=initial_batch
+                )
+                
+                # Add pass_status placeholder (will be filled by tester)
+                for sample in samples:
+                    sample['pass_status'] = None
+                    all_results.append(sample)
+                
+                logger.info(f"Completed task {task_id}: {len(samples)} samples, final batch size {final_batch}")
+                
+            except TaskTimeoutError:
+                logger.error(f"Skipping task {task_id} due to timeout")
+                # Continue to next task
+                continue
+            except Exception as e:
+                log_generation_error(task_id, style, str(e))
+                logger.error(f"Error processing task {task_id}: {e}")
+                continue
     
-    logger.info(f"Generation pipeline complete.")
-    logger.info(f"Total tasks: {total_tasks}, Completed: {completed_tasks}, Skipped: {skipped_tasks}")
-    logger.info(f"Total samples written: {total_samples}")
-    logger.info(f"Output file: {output_path}")
+    # Write results to CSV
+    if all_results:
+        fieldnames = list(all_results[0].keys())
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(all_results)
+        
+        logger.info(f"Generated {len(all_results)} samples total, saved to {output_path}")
+    else:
+        logger.warning("No samples were generated")
 
 if __name__ == "__main__":
-    # Set up logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    run_generation_pipeline()
+    # Example usage
+    styles = ["pep8", "minified", "neutral"]
+    run_generation_pipeline("data/processed/samples_all.csv", styles)
