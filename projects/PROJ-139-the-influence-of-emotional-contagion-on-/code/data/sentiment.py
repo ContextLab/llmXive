@@ -1,214 +1,153 @@
 """
-Sentiment analysis module.
-Implements VADER sentiment analysis and validation against human-annotated corpus.
-"""
+Sentiment Analysis Module for Emotional Contagion Pipeline.
 
+This module applies VADER (Valence Aware Dictionary and sEntiment Reasoner)
+from NLTK to compute compound sentiment scores for posts in the valid dataset.
+Scores are bounded to [-1.0, 1.0].
+"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
-
 import pandas as pd
-from nltk.sentiment import SentimentIntensityAnalyzer
-from nltk.corpus import stopwords
 
-from config.settings import get_config
-from utils.logging_config import get_logger
-
-# Ensure NLTK resources are downloaded
 try:
-    from nltk.data import find
-    find('sentiment/vader_lexicon.zip')
-    find('corpora/stopwords')
-except LookupError:
+    from nltk.sentiment.vader import SentimentIntensityAnalyzer
     import nltk
-    nltk.download('vader_lexicon')
-    nltk.download('stopwords')
+except ImportError:
+    raise ImportError(
+        "NLTK is required for sentiment analysis. "
+        "Install with: pip install nltk"
+    )
 
-logger = get_logger(__name__)
+# Ensure VADER lexicon is downloaded
+try:
+    nltk.data.find('sentiment/vader_lexicon.zip')
+except LookupError:
+    nltk.download('vader_lexicon', quiet=True)
+
+logger = logging.getLogger(__name__)
 
 
-def load_annotated_corpus(corpus_path: Path) -> pd.DataFrame:
+def load_valid_dataset(input_path: Path) -> pd.DataFrame:
     """
-    Load the human-annotated corpus from T007a.
-    Expected format: JSON or CSV with 'text' and 'label' columns.
+    Load the valid threads dataset produced by T019/T019a.
+
+    Args:
+        input_path: Path to the CSV file containing valid threads.
+
+    Returns:
+        DataFrame with thread data.
     """
-    if not corpus_path.exists():
-        raise FileNotFoundError(f"Annotated corpus not found at {corpus_path}")
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Valid dataset not found at {input_path}. "
+            "Ensure T019 and T019a have been executed successfully."
+        )
 
-    if corpus_path.suffix == '.json':
-        with open(corpus_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        if isinstance(data, list):
-            df = pd.DataFrame(data)
-        else:
-            df = pd.DataFrame([data])
-    elif corpus_path.suffix == '.csv':
-        df = pd.read_csv(corpus_path)
-    else:
-        raise ValueError(f"Unsupported file format: {corpus_path.suffix}")
+    df = pd.read_csv(input_path)
 
-    required_cols = {'text', 'label'}
-    if not required_cols.issubset(df.columns):
-        raise ValueError(f"Corpus must contain columns: {required_cols}")
+    # Verify required columns exist
+    required_cols = ['thread_id', 'post_id', 'text', 'timestamp', 'author_id', 'sentiment_score']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(
+            f"Missing required columns in valid dataset: {missing_cols}. "
+            "The dataset must contain thread_id, post_id, text, and existing sentiment_score."
+        )
 
-    logger.info(f"Loaded {len(df)} annotated comments from {corpus_path}")
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
     return df
 
 
-def apply_vader_sentiment(df: pd.DataFrame, text_col: str = 'text') -> pd.DataFrame:
+def apply_vader_sentiment(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Apply VADER sentiment analysis to the text column.
-    Adds 'vader_compound', 'vader_pos', 'vader_neu', 'vader_neg' columns.
-    """
-    sia = SentimentIntensityAnalyzer()
+    Apply VADER sentiment analysis to the 'text' column.
 
-    def get_scores(text):
+    Computes the compound score and bounds it to [-1.0, 1.0].
+    Overwrites the 'sentiment_score' column with the new VADER score.
+
+    Args:
+        df: DataFrame containing the 'text' column.
+
+    Returns:
+        DataFrame with updated 'sentiment_score' column.
+    """
+    analyzer = SentimentIntensityAnalyzer()
+
+    def get_compound_score(text: str) -> float:
         if not isinstance(text, str) or not text.strip():
-            return {'compound': 0.0, 'pos': 0.0, 'neu': 0.0, 'neg': 0.0}
-        return sia.polarity_scores(text)
+            return 0.0
+        try:
+            scores = analyzer.polarity_scores(text)
+            compound = scores.get('compound', 0.0)
+            # Ensure bounds [-1.0, 1.0]
+            return max(-1.0, min(1.0, compound))
+        except Exception as e:
+            logger.warning(f"Failed to analyze sentiment for text snippet: {e}")
+            return 0.0
 
-    scores = df[text_col].apply(get_scores)
-    score_df = pd.DataFrame(scores.tolist(), index=df.index)
-    score_df.columns = [f'vader_{col}' for col in score_df.columns]
+    logger.info("Applying VADER sentiment analysis...")
+    df['sentiment_score'] = df['text'].apply(get_compound_score)
 
-    result = pd.concat([df, score_df], axis=1)
-    logger.info(f"Applied VADER sentiment to {len(result)} comments")
-    return result
+    # Validate bounds
+    if df['sentiment_score'].min() < -1.0 or df['sentiment_score'].max() > 1.0:
+        raise RuntimeError("Sentiment scores out of bounds [-1.0, 1.0].")
+
+    logger.info(f"Sentiment analysis complete. Range: [{df['sentiment_score'].min():.4f}, {df['sentiment_score'].max():.4f}]")
+    return df
 
 
-def validate_vader_against_corpus(
-    corpus_df: pd.DataFrame,
-    report_path: Path,
-    label_col: str = 'label'
-) -> Dict[str, Any]:
+def save_processed_sentiment(df: pd.DataFrame, output_path: Path) -> None:
     """
-    Validate VADER scores against human annotations.
-    Reads the existing T007b report to verify Kappa statistics exist.
-    Updates the report with VADER validation results.
+    Save the sentiment-analyzed dataset to CSV.
+
+    Args:
+        df: DataFrame with sentiment scores.
+        output_path: Path to save the output CSV.
     """
-    if not report_path.exists():
-        raise FileNotFoundError(
-            f"Validation report from T007b not found at {report_path}. "
-            "T007b must complete before T014."
-        )
-
-    with open(report_path, 'r', encoding='utf-8') as f:
-        report = json.load(f)
-
-    # Verify Kappa statistics exist
-    if 'kappa' not in report:
-        raise ValueError(
-            f"Kappa statistics missing in {report_path}. "
-            "T007b did not generate valid inter-rater reliability metrics."
-        )
-
-    logger.info(f"Found Kappa statistic: {report['kappa']}")
-
-    # Apply VADER to the corpus
-    annotated_df = apply_vader_sentiment(corpus_df, text_col='text')
-
-    # Compute agreement between VADER and human labels
-    def vader_to_label(compound: float) -> str:
-        if compound >= 0.05:
-            return 'positive'
-        elif compound <= -0.05:
-            return 'negative'
-        else:
-            return 'neutral'
-
-    annotated_df['vader_label'] = annotated_df['vader_compound'].apply(vader_to_label)
-
-    # Calculate agreement metrics
-    agreement_mask = annotated_df[label_col] == annotated_df['vader_label']
-    agreement_rate = agreement_mask.mean()
-
-    # Compute Cohen's Kappa between VADER and human labels
-    from sklearn.metrics import cohen_kappa_score
-
-    # Filter out rows with missing labels
-    valid_mask = annotated_df[label_col].notna() & annotated_df['vader_label'].notna()
-    if valid_mask.sum() < 2:
-        logger.warning("Insufficient valid data for Kappa calculation")
-        kappa_score = None
-    else:
-        kappa_score = cohen_kappa_score(
-            annotated_df.loc[valid_mask, label_col],
-            annotated_df.loc[valid_mask, 'vader_label']
-        )
-
-    # Update report with VADER validation results
-    report['vader_validation'] = {
-        'status': 'validated',
-        'kappa_vs_human': kappa_score,
-        'agreement_rate': float(agreement_rate),
-        'sample_size': int(len(annotated_df)),
-        'valid_sample_size': int(valid_mask.sum()),
-        'vader_thresholds': {
-            'positive': 0.05,
-            'negative': -0.05
-        }
-    }
-
-    report['validation_status'] = 'complete'
-    report['validated_at'] = pd.Timestamp.now().isoformat()
-
-    # Ensure parent directory exists
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write updated report
-    with open(report_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2, default=str)
-
-    logger.info(f"VADER validation complete. Updated report saved to {report_path}")
-    logger.info(f"VADER vs Human Kappa: {kappa_score}, Agreement Rate: {agreement_rate:.2%}")
-
-    return report
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved sentiment-analyzed dataset to {output_path}")
 
 
-def main():
+def main() -> None:
     """
-    Main entry point for T014: VADER validation against human-annotated corpus.
+    Main entry point for the sentiment analysis pipeline (T013).
+
+    Reads from data/processed/valid_threads.csv and writes to
+    data/processed/valid_threads_sentiment.csv.
     """
-    config = get_config()
+    # Paths relative to project root
+    project_root = Path(__file__).resolve().parents[2]
+    input_path = project_root / "data" / "processed" / "valid_threads.csv"
+    output_path = project_root / "data" / "processed" / "valid_threads_sentiment.csv"
 
-    # Paths
-    corpus_path = config.data_paths.raw / 'annotations.json'
-    report_path = config.data_paths.processed / 'vader_validation_report.json'
-
-    logger.info(f"Starting VADER validation for T014")
-    logger.info(f"Corpus path: {corpus_path}")
-    logger.info(f"Report path: {report_path}")
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
     try:
-        # Load annotated corpus
-        corpus_df = load_annotated_corpus(corpus_path)
+        # Load valid dataset (produced by T019/T019a)
+        df = load_valid_dataset(input_path)
 
-        # Validate VADER against corpus
-        report = validate_vader_against_corpus(
-            corpus_df,
-            report_path,
-            label_col='label'
-        )
+        # Apply VADER
+        df_analyzed = apply_vader_sentiment(df)
 
-        # Output summary
-        print(f"VADER Validation Complete")
-        print(f"  Kappa (VADER vs Human): {report['vader_validation']['kappa_vs_human']}")
-        print(f"  Agreement Rate: {report['vader_validation']['agreement_rate']:.2%}")
-        print(f"  Sample Size: {report['vader_validation']['sample_size']}")
-        print(f"  Report saved to: {report_path}")
+        # Save results
+        save_processed_sentiment(df_analyzed, output_path)
+
+        logger.info("T013 Sentiment Analysis completed successfully.")
 
     except FileNotFoundError as e:
-        logger.error(f"Required file missing: {e}")
-        raise
-    except ValueError as e:
-        logger.error(f"Validation failed: {e}")
+        logger.error(f"Data not found: {e}")
         raise
     except Exception as e:
-        logger.exception(f"Unexpected error during VADER validation")
+        logger.error(f"Pipeline failed: {e}")
         raise
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

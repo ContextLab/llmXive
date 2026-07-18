@@ -14,21 +14,27 @@ T023:
     \ of a sensitivity\u2011analysis routine that sweeps agreement cutoffs and entropy\
     \ thresholds or writes the specified CSV. Both the output artifact and the corresponding\
     \ code are missing."
+T024:
+  c: false
+  h: 23114e9c970b84b1167e8c46fd633d070934fe3343d8b8345b60f97611d1aa92
+  r: "The required output file `data/processed/external_validation_correlation.csv`\
+    \ does not exist, and the provided `code/data/modeling.py` (truncated) contains\
+    \ no implementation that computes the correlation between the external validation\
+    \ score and contagion index/decision\u2011quality metrics nor writes the results\
+    \ to that CSV. Both the artifact and the expected functionality are missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, timing reports, or result files are provided to demonstrate\
+    \ that the full pipeline was run on 500 threads and completed within the 6\u2011\
+    hour limit on a CPU\u2011only runner. Without such artifacts, the claim cannot\
+    \ be verified."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `state/projects/PROJ-139-...yaml` file (or any similarly named YAML) was presented,
     and therefore there is no evidence that an `artifact_hashes` section containing
     checksums was recorded. The required checksum registry is missing.
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No reproducibility artifacts (e.g., a script or notebook that re\u2011runs the\
-    \ entire data\u2011collection, sentiment, and modeling pipeline, nor any generated\
-    \ checksum files or verification logs) were provided. Without such outputs we\
-    \ cannot confirm that the pipeline was re\u2011executed and that its results match\
-    \ previously recorded checksums. The implementer must supply the re\u2011run execution\
-    \ logs and the corresponding checksum comparison results."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

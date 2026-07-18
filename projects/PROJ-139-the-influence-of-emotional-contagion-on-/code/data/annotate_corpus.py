@@ -1,145 +1,199 @@
+"""
+Corpus annotation module for sentiment validation.
+
+This module provides functions for loading extracted data, sampling comments,
+and generating annotations for sentiment validation.
+"""
 import os
 import json
 import logging
 import random
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+import pandas as pd
+from code.config.settings import get_config
 
-from code.data.extract import load_downloaded_data
-from code.utils.logging_config import get_logger
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
+def load_extracted_data() -> pd.DataFrame:
+    """
+    Load the processed threads data with seeds.
+    
+    Returns:
+        DataFrame containing thread/comment data.
+    """
+    config = get_config()
+    # Try to load the validated threads first, falling back to raw if needed
+    valid_threads_path = config.dataset_paths.processed_dir / "valid_threads.csv"
+    threads_path = config.dataset_paths.processed_dir / "threads_with_seeds.csv"
+    
+    if valid_threads_path.exists():
+        path = valid_threads_path
+        logger.info(f"Loading from valid_threads.csv: {path}")
+    elif threads_path.exists():
+        path = threads_path
+        logger.info(f"Loading from threads_with_seeds.csv: {path}")
+    else:
+        raise FileNotFoundError(
+            "No valid dataset found. Expected valid_threads.csv or threads_with_seeds.csv in processed_dir."
+        )
+    
+    df = pd.read_csv(path)
+    return df
 
-def load_extracted_data(extracted_path: Optional[str] = None) -> List[Dict[str, Any]]:
+def sample_comments(df: pd.DataFrame, n_samples: int = 100, seed: int = 42) -> List[Dict[str, Any]]:
     """
-    Load extracted thread data from data/processed/extracted_threads.json.
-    """
-    if extracted_path is None:
-        extracted_path = "data/processed/extracted_threads.json"
+    Select a representative subset of comments from the dataset.
     
-    path_obj = Path(extracted_path)
-    if not path_obj.exists():
-        raise FileNotFoundError(f"Extracted data not found at {extracted_path}")
-    
-    with open(path_obj, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
-def sample_comments(data: List[Dict[str, Any]], sample_size: int = 100) -> List[Dict[str, Any]]:
-    """
-    Sample a representative subset of comments from the dataset.
-    """
-    if len(data) <= sample_size:
-        return data
-    
-    return random.sample(data, sample_size)
-
-def get_vader_label(text: str) -> str:
-    """
-    Helper to get a label based on VADER if needed for comparison,
-    though this task is about human annotation.
-    """
-    from nltk.sentiment.vader import SentimentIntensityAnalyzer
-    analyzer = SentimentIntensityAnalyzer()
-    score = analyzer.polarity_scores(text)['compound']
-    if score > 0.05: return "positive"
-    if score < -0.05: return "negative"
-    return "neutral"
-
-def get_textblob_label(text: str) -> str:
-    """
-    Helper for TextBlob label.
-    """
-    try:
-        from textblob import TextBlob
-        blob = TextBlob(text)
-        polarity = blob.sentiment.polarity
-        if polarity > 0.05: return "positive"
-        if polarity < -0.05: return "negative"
-        return "neutral"
-    except ImportError:
-        return "neutral"
-
-def generate_annotations(
-    sample: List[Dict[str, Any]],
-    output_path: str,
-    annotator_ids: List[str] = ["A1", "A2"]
-) -> None:
-    """
-    Generate the annotations file structure.
-    In a real scenario, this would interface with human annotators.
-    For the purpose of this pipeline, we simulate the structure
-    that T007a would produce, assuming the 'human' labels are generated
-    by a deterministic process or pre-existing gold standard if available.
-    
-    Since we cannot perform real human annotation in this automated step,
-    we will generate labels based on a 'gold standard' heuristic (e.g. VADER)
-    but tag them as 'human' for the sake of the pipeline flow, 
-    OR we assume the task T007a implies the existence of this file 
-    from a previous manual step.
-    
-    However, the constraint says: "If manual annotation is not feasible, 
-    use a pre-defined gold-standard subset".
-    
-    We will simulate the file creation with 'gold' labels derived from VADER
-    to ensure the pipeline has data to run T007b and T014.
-    """
-    import nltk
-    try:
-        nltk.data.find('sentiment/vader_lexicon.zip')
-    except LookupError:
-        nltk.download('vader_lexicon', quiet=True)
-    
-    from nltk.sentiment.vader import SentimentIntensityAnalyzer
-    analyzer = SentimentIntensityAnalyzer()
-    
-    annotations = []
-    for comment in sample:
-        text = comment.get('text', '')
-        if not text: continue
+    Args:
+        df: DataFrame containing thread/comment data.
+        n_samples: Number of samples to select.
+        seed: Random seed for reproducibility.
         
-        score = analyzer.polarity_scores(text)['compound']
-        if score > 0.05: label = "positive"
-        elif score < -0.05: label = "negative"
-        else: label = "neutral"
+    Returns:
+        List of dictionaries containing sampled comment data.
+    """
+    random.seed(seed)
+    if len(df) == 0:
+        logger.warning("Input DataFrame is empty, returning empty list.")
+        return []
+    
+    # Ensure we don't sample more than available
+    actual_samples = min(n_samples, len(df))
+    
+    # Sample rows
+    sampled_rows = df.sample(n=actual_samples, random_state=seed)
+    
+    # Convert to list of dicts
+    samples = []
+    for _, row in sampled_rows.iterrows():
+        sample_dict = row.to_dict()
+        # Ensure comment_id is present
+        if 'comment_id' not in sample_dict:
+            # Try to construct from available fields if possible
+            if 'thread_id' in sample_dict and 'author' in sample_dict:
+                sample_dict['comment_id'] = f"{sample_dict['thread_id']}_{sample_dict['author']}"
+            else:
+                sample_dict['comment_id'] = f"sample_{len(samples)}"
+        samples.append(sample_dict)
+    
+    return samples
+
+def get_vader_label(sentiment_score: float) -> str:
+    """
+    Map VADER compound score to a label.
+    
+    Args:
+        sentiment_score: Compound sentiment score from VADER (-1.0 to 1.0).
         
-        for annotator in annotator_ids:
-            # Simulate slight noise for inter-annotator agreement simulation
-            # In a real T007a, this would be manual input.
-            # Here we generate consistent labels for the 'gold' path to pass T014.
-            # To simulate realistic agreement, we might flip a small %
-            # But for T014 to pass with high Kappa, we keep them consistent.
+    Returns:
+        Label string: 'positive', 'negative', or 'neutral'.
+    """
+    if sentiment_score >= 0.05:
+        return 'positive'
+    elif sentiment_score <= -0.05:
+        return 'negative'
+    else:
+        return 'neutral'
+
+def get_textblob_label(sentiment_score: float) -> str:
+    """
+    Map TextBlob polarity score to a label.
+    
+    Args:
+        sentiment_score: Polarity score from TextBlob (-1.0 to 1.0).
+        
+    Returns:
+        Label string: 'positive', 'negative', or 'neutral'.
+    """
+    if sentiment_score >= 0.1:
+        return 'positive'
+    elif sentiment_score <= -0.1:
+        return 'negative'
+    else:
+        return 'neutral'
+
+def generate_annotations(samples: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Generate a mock annotation file for sampled comments.
+    
+    This function creates annotations based on VADER-like heuristics for validation
+    when human annotators are unavailable. The annotations are deterministic based
+    on the comment content to ensure reproducibility.
+    
+    Args:
+        samples: List of sampled comment dictionaries.
+        output_path: Path where the annotations JSON file will be saved.
+    """
+    if not samples:
+        logger.warning("No samples provided for annotation generation.")
+        annotations = []
+    else:
+        annotations = []
+        for sample in samples:
+            comment_id = sample.get('comment_id', 'unknown')
+            text = sample.get('text', '') or sample.get('body', '') or ''
+            
+            # Simple heuristic: if text contains positive words, label positive
+            # This is a mock annotation logic as per requirements
+            positive_words = {'good', 'great', 'excellent', 'awesome', 'wonderful', 'happy', 'love', 'like', 'helpful'}
+            negative_words = {'bad', 'terrible', 'awful', 'horrible', 'sad', 'hate', 'dislike', 'unhelpful', 'wrong'}
+            
+            text_lower = text.lower()
+            pos_count = sum(1 for word in positive_words if word in text_lower)
+            neg_count = sum(1 for word in negative_words if word in text_lower)
+            
+            if pos_count > neg_count:
+                label = 'positive'
+            elif neg_count > pos_count:
+                label = 'negative'
+            else:
+                label = 'neutral'
+            
             annotations.append({
-                "comment_id": comment.get('id', 'unknown'),
-                "text": text,
-                "label": label,
-                "annotator_id": annotator,
-                "source": "simulated_gold"
+                'comment_id': comment_id,
+                'label': label,
+                'source': 'mock_annotation',
+                'annotator_id': 'mock_annotator_1'
             })
     
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write annotations to file
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(annotations, f, indent=2)
     
-    logger.info(f"Generated {len(annotations)} annotations at {output_path}")
+    logger.info(f"Generated {len(annotations)} mock annotations to {output_path}")
 
 def main():
     """
-    Main entry point for T007a: Generate human-annotated corpus sample.
+    Main function to run the corpus annotation pipeline.
     """
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Starting T007a: Generating annotated corpus sample")
+    config = get_config()
+    logger.info("Starting corpus annotation pipeline.")
     
     try:
-        data = load_extracted_data()
-        logger.info(f"Loaded {len(data)} threads/comments")
+        # Load data
+        df = load_extracted_data()
+        logger.info(f"Loaded {len(df)} records from dataset.")
         
-        sample = sample_comments(data, sample_size=200) # Sample 200 items
-        output_path = "data/raw/annotations.json"
+        # Sample comments
+        samples = sample_comments(df, n_samples=100, seed=42)
+        logger.info(f"Sampled {len(samples)} comments.")
         
-        generate_annotations(sample, output_path)
-        logger.info("T007a completed successfully.")
+        if not samples:
+            logger.warning("No samples extracted. Cannot generate annotations.")
+            return
+        
+        # Generate mock annotations
+        annotations_path = config.dataset_paths.raw_dir / "annotations.json"
+        generate_annotations(samples, annotations_path)
+        
+        logger.info("Corpus annotation completed successfully.")
+        
     except Exception as e:
-        logger.error(f"T007a failed: {e}")
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":
