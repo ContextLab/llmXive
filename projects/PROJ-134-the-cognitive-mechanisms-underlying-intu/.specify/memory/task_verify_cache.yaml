@@ -1,3 +1,19 @@
+T015a:
+  c: false
+  h: f1cc507f6286885fd22f4c7ca53ae3180240ea8b918942a2f9721ef46447d33f
+  r: "The repository lacks the required `data/logs/exclusion.log` file, and the shown\
+    \ portion of `code/data/ingest.py` does not contain any logic that logs exclusion\
+    \ reasons for mismatched participant IDs (e.g., calls to `log_exclusion`). Without\
+    \ these, the task\u2019s logging requirement is not met."
+T016a:
+  c: false
+  h: dd806fe1b59030b948b8f519d9879d32d3ac6595c1f53a8beb2eb4790ab6134e
+  r: "The provided `preprocess.py` does not show any code that actually writes the\
+    \ story\u2011ID\u2011to\u2011salience mapping to `data/logs/vr_mapping.log` (only\
+    \ an import of a logging helper is present, and the file is truncated before any\
+    \ logging calls). Moreover, the required log file `data/logs/vr_mapping.log` is\
+    \ absent from the repository. The task\u2019s core requirement\u2014capturing\
+    \ and persisting those VR mapping logs\u2014is therefore not satisfied."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

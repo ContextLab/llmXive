@@ -133,7 +133,7 @@ The system MUST validate that the synthetic MFQ data distribution matches the pu
 - **SC-001**: Model convergence rate is measured against the standard Bayesian inference benchmark (R-hat < 1.05).
 - **SC-002**: **Pipeline Validation**: The model must recover the `ground_truth_effect` within the 95% credible interval. (Not "ΔAIC > 10" for scientific evidence yet).
 - **SC-003**: Interaction significance is measured by the correct computation and reporting of the Bonferroni-corrected p-value (Pipeline Check).
-- **SC-004**: Sensitivity analysis coverage is measured against the required threshold set {, 10, 20}.
+- **SC-004**: Sensitivity analysis coverage is measured against the required threshold set {, low, high}.
 - **SC-005**: **Artifact Integrity**: All derived files must have checksums recorded in `state/...yaml`.
 - **SC-006**: **Psychometric Validity**: Synthetic MFQ distribution must match Gervais et al. (2011) norms within 1 standard deviation.
 

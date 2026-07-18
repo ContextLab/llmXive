@@ -1,29 +1,14 @@
 """
-Real Data Ingestion Architecture for VR Moral Judgments Study.
+Real Data Ingestion Module for Moral Mechanisms Project.
 
-This module defines the architecture and interfaces for ingesting REAL external data
-(OSF, HuggingFace) required for FR-006 compliance.
+This module implements strict "Fail Loudly" logic for fetching real data.
+It attempts to fetch:
+1. MFQ (Moral Foundations Questionnaire) data from OSF (Open Science Framework).
+2. Moral Stories dataset from HuggingFace.
 
-EXECUTION MODE:
-- By default, this script acts as an ARCHITECTURAL STUB. It defines the fetch logic
-  but defaults to loading from `data/simulated/` to satisfy the current simulation
-  scope (Plan) without requiring external network access or authentication.
-- To enable real data fetching, set the environment variable `RUN_MODE=real`
-  and provide valid credentials in `config.py` or environment variables.
-
-SPECIFICATIONS (FR-006 Compliance):
-1. OSF API Endpoint: https://api.osf.io/v2/
-   - Target Node: "moral-judgments-vr-study" (Placeholder ID, to be replaced with actual project ID)
-   - Endpoint: /nodes/{node_id}/files/osfstorage/
-2. HuggingFace Dataset:
-   - Dataset ID: "llmXive/moral-vr-dataset" (Placeholder, to be updated with actual HF ID)
-   - Split: "train"
-   - Config: "full"
-3. Authentication:
-   - OSF: OAuth2 Token (via `OSF_TOKEN` env var)
-   - HuggingFace: HF Token (via `HF_TOKEN` env var)
-4. Data Schema:
-   - Must match `code/utils/schema.py` -> VRInteractionLog and MergedDataset definitions.
+If any fetch operation fails, it raises a DataFetchError immediately without
+falling back to synthetic generators. This ensures data integrity and prevents
+silent fabrication.
 """
 
 import os
@@ -33,189 +18,264 @@ from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
 import pandas as pd
 
-# Import project configuration and schema
-from code.config import ensure_directories, get_run_mode
-from code.utils.schema import VRInteractionLog, MoralStoriesDataset, MergedDataset
-from code.utils.logging_utils import log_pipeline_step, get_logger
+# Add project root to path for imports if running as script
+if str(Path(__file__).parent.parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-# Setup logging
-logger = get_logger(__name__)
+from code.utils.logging_utils import get_logger, log_pipeline_step
 
-# ----------------------------------------------------------------------
-# CONFIGURATION CONSTANTS (FR-006 Architecture Definition)
-# ----------------------------------------------------------------------
+# Configure logging
+logger = get_logger("ingest_real")
+
+class DataFetchError(Exception):
+    """Custom exception for data fetching failures.
+    
+    Raised when real data cannot be retrieved from the specified source.
+    This error halts execution to prevent the use of synthetic data as a fallback.
+    """
+    pass
 
 # OSF Configuration
-OSF_API_BASE_URL = "https://api.osf.io/v2"
-OSF_PROJECT_ID = os.getenv("OSF_PROJECT_ID", "moral-judgments-vr-study-placeholder")
-OSF_TOKEN = os.getenv("OSF_TOKEN", None)  # Required for private projects
+# Note: Using a public OSF project ID. In a real scenario, this might need 
+# specific file paths or authentication if the data is private.
+OSF_NODE_ID = "z8k9v"  # Example ID for a public moral foundations dataset
+OSF_API_BASE = "https://api.osf.io/v2/nodes"
+OSF_FILES_ENDPOINT = f"{OSF_API_BASE}/{OSF_NODE_ID}/files/osfstorage"
 
 # HuggingFace Configuration
-HF_DATASET_ID = os.getenv("HF_DATASET_ID", "llmXive/moral-vr-dataset-placeholder")
-HF_TOKEN = os.getenv("HF_TOKEN", None)
+HF_DATASET_NAME = "moral-stories-v1" 
+# Note: If the dataset is not public or doesn't exist, this will fail loudly.
+# We use a try/except around the import to ensure the library is available.
+try:
+    from datasets import load_dataset
+    HF_AVAILABLE = True
+except ImportError:
+    HF_AVAILABLE = False
+    logger.warning("HuggingFace datasets library not installed. Real data fetch will fail.")
 
-# Output Paths
-DATA_RAW_DIR = Path("data/raw")
-DATA_PROCESSED_DIR = Path("data/processed")
+def fetch_from_osf(output_path: Optional[Path] = None) -> pd.DataFrame:
+    """
+    Fetches real MFQ data from the Open Science Framework (OSF).
 
-# ----------------------------------------------------------------------
-# ARCHITECTURE: OSF Fetch Logic
-# ----------------------------------------------------------------------
+    This function attempts to download the MFQ dataset. If the network request fails,
+    the file is not found, or the data is malformed, it raises DataFetchError.
+    It does NOT fall back to synthetic data.
 
-def fetch_from_osf(node_id: str, token: Optional[str] = None) -> Tuple[Optional[pd.DataFrame], Optional[str]]:
-  """
-  Architecture definition for fetching VR logs from OSF.
+    Args:
+        output_path (Optional[Path]): Path to save the downloaded CSV. 
+                                     Defaults to data/raw/mfq_osf_real.csv.
 
-  Args:
-      node_id: The OSF project/node ID.
-      token: Optional OAuth2 token for authentication.
+    Returns:
+        pd.DataFrame: The loaded MFQ data.
 
-  Returns:
-      Tuple of (DataFrame with raw VR logs, Error message if failed).
+    Raises:
+        DataFetchError: If the fetch fails for any reason (network, auth, 404, etc.).
+        ImportError: If requests library is missing.
+    """
+    if output_path is None:
+        output_path = Path("data/raw/mfq_osf_real.csv")
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-  Note:
-      This function is currently a stub. In a real execution (`RUN_MODE=real`),
-      it would use the `requests` library to hit the OSF API:
-      `GET {OSF_API_BASE_URL}/nodes/{node_id}/files/osfstorage/`
-      and parse the JSON response into a pandas DataFrame.
-  """
-  if not token:
-      logger.warning("OSF Token not provided. Skipping real fetch.")
-      return None, "No OSF token provided"
+    logger.info(f"Attempting to fetch real MFQ data from OSF Node: {OSF_NODE_ID}")
+    
+    try:
+        import requests
+        import io
+        
+        # OSF API v2 returns JSON. We need to find the file download URL.
+        # This is a simplified fetch assuming a direct file link or a known structure.
+        # In a robust implementation, we would paginate through the files endpoint.
+        # For this implementation, we attempt to fetch a specific known file or 
+        # the main dataset if available via a direct link pattern.
+        
+        # Strategy: Try to fetch a known file ID or the root listing.
+        # Since we don't have the specific file ID in the prompt, we attempt 
+        # to list files and find a CSV, or fail if not found.
+        
+        url = OSF_FILES_ENDPOINT
+        response = requests.get(url, timeout=30)
+        
+        if response.status_code == 404:
+            raise DataFetchError(f"OSF Node {OSF_NODE_ID} not found. Cannot fetch real data.")
+        elif response.status_code != 200:
+            raise DataFetchError(f"OSF API returned status {response.status_code}. Cannot fetch real data.")
+        
+        data = response.json()
+        
+        # Look for a file named 'mfq_data.csv' or similar in the 'data' attribute
+        files = data.get('data', [])
+        target_file = None
+        
+        for item in files:
+            fname = item.get('attributes', {}).get('name', '')
+            if fname.endswith('.csv'):
+                target_file = item
+                break
+        
+        if not target_file:
+            # If no CSV found, we cannot proceed with real data.
+            raise DataFetchError("No CSV file found in the specified OSF node. Cannot fetch real data.")
+        
+        # Construct download URL
+        download_url = target_file['links']['download']
+        
+        # Fetch the actual file content
+        file_response = requests.get(download_url, timeout=60)
+        if file_response.status_code != 200:
+            raise DataFetchError(f"Failed to download file content from OSF. Status: {file_response.status_code}")
+        
+        # Load into pandas
+        df = pd.read_csv(io.StringIO(file_response.text))
+        
+        # Save to disk
+        df.to_csv(output_path, index=False)
+        logger.info(f"Successfully fetched and saved real MFQ data to {output_path}")
+        
+        return df
 
-  logger.info(f"Architecting fetch for OSF Node: {node_id}")
-  # REAL IMPLEMENTATION LOGIC (Commented out to prevent execution failure in stub mode):
-  # headers = {"Authorization": f"Bearer {token}"}
-  # response = requests.get(f"{OSF_API_BASE_URL}/nodes/{node_id}/files/osfstorage/", headers=headers)
-  # response.raise_for_status()
-  # data = response.json()
-  # df = pd.json_normalize(data['data'])
-  # return df, None
+    except requests.exceptions.RequestException as e:
+        raise DataFetchError(f"Network error while fetching OSF data: {str(e)}")
+    except DataFetchError:
+        raise
+    except Exception as e:
+        raise DataFetchError(f"Unexpected error fetching OSF data: {str(e)}")
 
-  return None, "Architecture Stub: Real fetch disabled"
+def fetch_from_huggingface(output_path: Optional[Path] = None) -> pd.DataFrame:
+    """
+    Fetches real Moral Stories data from HuggingFace Datasets.
 
-# ----------------------------------------------------------------------
-# ARCHITECTURE: HuggingFace Fetch Logic
-# ----------------------------------------------------------------------
+    This function attempts to load the 'moral-stories-v1' dataset. 
+    If the dataset does not exist, cannot be accessed, or the library is missing,
+    it raises DataFetchError immediately. No synthetic fallback.
 
-def fetch_from_huggingface(dataset_id: str, token: Optional[str] = None) -> Tuple[Optional[pd.DataFrame], Optional[str]]:
-  """
-  Architecture definition for fetching data from HuggingFace.
+    Args:
+        output_path (Optional[Path]): Path to save the downloaded CSV.
+                                     Defaults to data/raw/moral_stories_hf_real.csv.
 
-  Args:
-      dataset_id: The HuggingFace dataset ID.
-      token: Optional HF token for private datasets.
+    Returns:
+        pd.DataFrame: The loaded Moral Stories data.
 
-  Returns:
-      Tuple of (DataFrame with raw data, Error message if failed).
+    Raises:
+        DataFetchError: If the fetch fails.
+    """
+    if output_path is None:
+        output_path = Path("data/raw/moral_stories_hf_real.csv")
 
-  Note:
-      This function is currently a stub. In a real execution, it would use:
-      `from datasets import load_dataset`
-      `dataset = load_dataset(dataset_id, token=token)`
-      `df = dataset['train'].to_pandas()`
-  """
-  logger.info(f"Architecting fetch for HuggingFace Dataset: {dataset_id}")
-  # REAL IMPLEMENTATION LOGIC (Commented out to prevent execution failure in stub mode):
-  # try:
-  #     from datasets import load_dataset
-  #     ds = load_dataset(dataset_id, token=token, split="train")
-  #     df = ds.to_pandas()
-  #     return df, None
-  # except Exception as e:
-  #     return None, str(e)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-  return None, "Architecture Stub: Real fetch disabled"
+    logger.info(f"Attempting to fetch real Moral Stories from HuggingFace: {HF_DATASET_NAME}")
 
-# ----------------------------------------------------------------------
-# SCHEMA VALIDATION
-# ----------------------------------------------------------------------
+    if not HF_AVAILABLE:
+        raise DataFetchError("HuggingFace 'datasets' library is not installed. Cannot fetch real data.")
 
-def validate_real_data_schema(df: pd.DataFrame) -> bool:
-  """
-  Validates that the fetched DataFrame matches the required VRInteractionLog schema.
+    try:
+        # Attempt to load the dataset
+        # We assume the dataset is public. If it requires a token, we'd need HF_TOKEN env var.
+        dataset = load_dataset(HF_DATASET_NAME, split="train")
+        
+        if dataset is None or len(dataset) == 0:
+            raise DataFetchError("Loaded HuggingFace dataset is empty. Cannot fetch real data.")
+        
+        # Convert to pandas
+        df = dataset.to_pandas()
+        
+        # Validate basic schema (ensure it has story and judgment columns)
+        required_cols = ['story', 'judgment'] # Adjust based on actual dataset schema if known
+        # If the dataset has different columns, we might just load it and let downstream fail,
+        # but for "Fail Loudly" we check if it looks like data.
+        if df.empty:
+            raise DataFetchError("Dataset conversion to DataFrame resulted in empty data.")
 
-  Args:
-      df: The raw DataFrame.
+        # Save to disk
+        df.to_csv(output_path, index=False)
+        logger.info(f"Successfully fetched and saved real Moral Stories data to {output_path}")
+        
+        return df
 
-  Returns:
-      True if valid, False otherwise.
-  """
-  required_columns = [
-      "participant_id", "story_id", "reaction_time_ms", "gaze_x", "gaze_y",
-      "judgment_moral", "judgment_harm", "salience_level", "timestamp"
-  ]
+    except Exception as e:
+        # Catch all specific HuggingFace errors and generic network errors
+        raise DataFetchError(f"Failed to fetch real data from HuggingFace '{HF_DATASET_NAME}': {str(e)}")
 
-  missing_cols = [col for col in required_columns if col not in df.columns]
-  if missing_cols:
-      logger.error(f"Schema validation failed. Missing columns: {missing_cols}")
-      return False
+def validate_real_data_schema(df: pd.DataFrame, data_type: str) -> None:
+    """
+    Validates that the fetched real data conforms to expected schema.
+    
+    This function checks for required columns and data types.
+    It raises ValueError if the schema is invalid.
 
-  # Type checks could be added here using Pydantic validation if needed
-  return True
+    Args:
+        df (pd.DataFrame): The dataframe to validate.
+        data_type (str): 'mfq' or 'stories' to determine validation rules.
 
-# ----------------------------------------------------------------------
-# MAIN EXECUTION (STUB MODE)
-# ----------------------------------------------------------------------
+    Raises:
+        ValueError: If the schema is invalid.
+    """
+    if df.empty:
+        raise ValueError(f"Real {data_type} data is empty after fetching.")
 
-def main() -> None:
-  """
-  Main entry point for real data ingestion architecture.
+    if data_type == 'mfq':
+        # Expected MFQ columns (simplified)
+        required_cols = ['participant_id', 'foundation_1', 'foundation_2', 'foundation_3', 'foundation_4', 'foundation_5']
+        missing = [c for c in required_cols if c not in df.columns]
+        if missing:
+            raise ValueError(f"Real MFQ data missing required columns: {missing}")
+        
+    elif data_type == 'stories':
+        # Expected Stories columns
+        required_cols = ['story_id', 'story_text', 'judgment']
+        missing = [c for c in required_cols if c not in df.columns]
+        if missing:
+            # Be lenient on exact names if it's a real dataset, but ensure content exists
+            if 'story' not in df.columns and 'story_text' not in df.columns:
+                raise ValueError("Real Stories data missing 'story' or 'story_text' column.")
+            if 'judgment' not in df.columns:
+                raise ValueError("Real Stories data missing 'judgment' column.")
 
-  Behavior:
-  1. Checks `RUN_MODE` from config.
-  2. If `real`: Attempts to fetch from OSF/HF (currently stubbed to fail gracefully).
-  3. If `simulation` (default): Loads from `data/simulated/` (T014 output) to satisfy
-     the Plan's simulation scope while preserving the architecture for FR-006.
-  """
-  run_mode = get_run_mode()
-  ensure_directories()
+def main():
+    """
+    Main entry point for the real data ingestion script.
+    
+    Executes fetches for both MFQ and Moral Stories.
+    Writes output to data/raw/ and logs to data/logs/.
+    Exits with code 1 if DataFetchError occurs.
+    """
+    log_pipeline_step("INGEST_REAL_START")
+    
+    mfq_df = None
+    stories_df = None
 
-  logger.info(f"Starting Real Data Ingestion Architecture. Mode: {run_mode}")
+    try:
+        # 1. Fetch MFQ
+        try:
+            mfq_df = fetch_from_osf()
+            validate_real_data_schema(mfq_df, 'mfq')
+            logger.info("MFQ validation passed.")
+        except DataFetchError as e:
+            logger.error(f"CRITICAL: MFQ Fetch Failed: {e}")
+            raise # Re-raise to halt execution
 
-  df_mfq = None
-  df_stories = None
-  df_vr_logs = None
+        # 2. Fetch Stories
+        try:
+            stories_df = fetch_from_huggingface()
+            validate_real_data_schema(stories_df, 'stories')
+            logger.info("Stories validation passed.")
+        except DataFetchError as e:
+            logger.error(f"CRITICAL: Stories Fetch Failed: {e}")
+            raise # Re-raise to halt execution
 
-  if run_mode == "real":
-      # Attempt real fetch
-      logger.info("Attempting REAL data fetch...")
-      df_vr_logs, err = fetch_from_osf(OSF_PROJECT_ID, OSF_TOKEN)
-      if err:
-          logger.error(f"OSF Fetch Failed (Architecture Stub): {err}")
-          # In a real scenario, we might fallback to simulation or exit
-          df_vr_logs = None
+        logger.info("Real data ingestion completed successfully.")
+        log_pipeline_step("INGEST_REAL_SUCCESS")
+        return True
 
-      if df_vr_logs is None:
-          # Fallback to simulation if real fetch fails or is stubbed
-          logger.warning("Real fetch failed or disabled. Falling back to simulation data.")
-          run_mode = "simulation"
-
-  if run_mode == "simulation":
-      logger.info("Loading from simulated data (T014 output) for architecture validation.")
-      # Load the simulated data generated by T014
-      try:
-          df_vr_logs = pd.read_csv(DATA_RAW_DIR / "simulated_vr_logs.csv")
-          logger.info(f"Loaded {len(df_vr_logs)} rows from simulated VR logs.")
-      except FileNotFoundError:
-          logger.error("Simulated data file not found. Please run simulation first.")
-          sys.exit(1)
-
-  # Validate Schema
-  if df_vr_logs is not None:
-      if validate_real_data_schema(df_vr_logs):
-          logger.info("Schema validation passed.")
-          # Save processed data
-          output_path = DATA_PROCESSED_DIR / "ingested_real_data.csv"
-          df_vr_logs.to_csv(output_path, index=False)
-          logger.info(f"Saved processed data to {output_path}")
-      else:
-          logger.error("Schema validation failed. Data cannot be processed.")
-          sys.exit(1)
-  else:
-      logger.warning("No data loaded. Architecture test complete but no data processed.")
-
-  logger.info("Ingestion Architecture Check Complete.")
+    except DataFetchError as e:
+        logger.error(f"REAL DATA INGESTION FAILED: {e}")
+        log_pipeline_step("INGEST_REAL_FAILURE", error=str(e))
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"UNEXPECTED ERROR IN INGEST_REAL: {e}")
+        log_pipeline_step("INGEST_REAL_UNEXPECTED_ERROR", error=str(e))
+        sys.exit(1)
 
 if __name__ == "__main__":
-  main()
+    main()

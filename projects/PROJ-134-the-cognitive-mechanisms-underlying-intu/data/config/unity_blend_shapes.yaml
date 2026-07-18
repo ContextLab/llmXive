@@ -1,0 +1,226 @@
+# Unity Blend Shape Configuration for VR Moral Judgment Simulation
+# This file defines the mapping between text-based moral story IDs and their
+# corresponding VR scene perceptual salience parameters (blend shapes).
+#
+# Perceptual Salience Levels:
+#   - low: Minimal visual cues, neutral facial expressions, standard lighting
+#   - high: Exaggerated facial expressions, dynamic lighting, prominent visual cues
+#
+# This configuration serves as the single source of truth for the 'salience' variable
+# in the simulation, replacing the need for a runtime Unity environment during
+# the pipeline validation phase (US1).
+#
+# Schema Reference:
+#   story_id: string (unique identifier from moral stories dataset)
+#   salience_level: string ('low' | 'high')
+#   blend_shapes:
+#     jawOpen: float (0.0 - 1.0)
+#     mouthSmileLeft: float (0.0 - 1.0)
+#     mouthSmileRight: float (0.0 - 1.0)
+#     eyebrowInnerUpLeft: float (0.0 - 1.0)
+#     eyebrowInnerUpRight: float (0.0 - 1.0)
+#     eyeBlinkLeft: float (0.0 - 1.0)
+#     eyeBlinkRight: float (0.0 - 1.0)
+#   lighting_intensity: float (0.0 - 1.0)
+#   ambient_color: [R, G, B] (0.0 - 1.0)
+
+version: "1.0"
+generated_by: "T044-unity-blend-shapes-config"
+description: "Mapping of moral story IDs to VR blend-shape parameters for salience manipulation"
+
+salience_profiles:
+  low:
+    description: "Neutral, minimal visual salience"
+    default_blend_shapes:
+      jawOpen: 0.1
+      mouthSmileLeft: 0.0
+      mouthSmileRight: 0.0
+      eyebrowInnerUpLeft: 0.0
+      eyebrowInnerUpRight: 0.0
+      eyeBlinkLeft: 0.0
+      eyeBlinkRight: 0.0
+      browDownLeft: 0.0
+      browDownRight: 0.0
+      cheekPuffLeft: 0.0
+      cheekPuffRight: 0.0
+      noseSneerLeft: 0.0
+      noseSneerRight: 0.0
+    lighting:
+      intensity: 0.5
+      ambient_color: [0.8, 0.8, 0.8]
+      spotlight_color: [1.0, 1.0, 1.0]
+      spotlight_intensity: 0.6
+
+  high:
+    description: "Exaggerated, high visual salience"
+    default_blend_shapes:
+      jawOpen: 0.4
+      mouthSmileLeft: 0.6
+      mouthSmileRight: 0.6
+      eyebrowInnerUpLeft: 0.5
+      eyebrowInnerUpRight: 0.5
+      eyeBlinkLeft: 0.0
+      eyeBlinkRight: 0.0
+      browDownLeft: 0.3
+      browDownRight: 0.3
+      cheekPuffLeft: 0.2
+      cheekPuffRight: 0.2
+      noseSneerLeft: 0.0
+      noseSneerRight: 0.0
+    lighting:
+      intensity: 0.9
+      ambient_color: [0.9, 0.9, 0.9]
+      spotlight_color: [1.0, 0.95, 0.8]
+      spotlight_intensity: 0.9
+
+story_mappings:
+  # Story ID: Salience Level
+  # These mappings are used to assign perceptual salience conditions to each
+  # moral story vignette in the simulation.
+
+  # Low Salience Stories (Neutral presentation)
+  - story_id: "story_001"
+    salience_level: "low"
+    overrides:
+      blend_shapes:
+        jawOpen: 0.15
+        mouthSmileLeft: 0.05
+        mouthSmileRight: 0.05
+      lighting:
+        intensity: 0.55
+
+  - story_id: "story_002"
+    salience_level: "low"
+    overrides:
+      blend_shapes:
+        jawOpen: 0.12
+        mouthSmileLeft: 0.0
+        mouthSmileRight: 0.0
+      lighting:
+        intensity: 0.5
+
+  - story_id: "story_003"
+    salience_level: "low"
+    overrides:
+      blend_shapes:
+        jawOpen: 0.1
+        mouthSmileLeft: 0.02
+        mouthSmileRight: 0.02
+      lighting:
+        intensity: 0.48
+
+  - story_id: "story_004"
+    salience_level: "low"
+    overrides:
+      blend_shapes:
+        jawOpen: 0.14
+        mouthSmileLeft: 0.0
+        mouthSmileRight: 0.0
+      lighting:
+        intensity: 0.52
+
+  - story_id: "story_005"
+    salience_level: "low"
+    overrides:
+      blend_shapes:
+        jawOpen: 0.11
+        mouthSmileLeft: 0.03
+        mouthSmileRight: 0.03
+      lighting:
+        intensity: 0.49
+
+  # High Salience Stories (Exaggerated presentation)
+  - story_id: "story_006"
+    salience_level: "high"
+    overrides:
+      blend_shapes:
+        jawOpen: 0.45
+        mouthSmileLeft: 0.65
+        mouthSmileRight: 0.65
+        eyebrowInnerUpLeft: 0.55
+        eyebrowInnerUpRight: 0.55
+      lighting:
+        intensity: 0.92
+
+  - story_id: "story_007"
+    salience_level: "high"
+    overrides:
+      blend_shapes:
+        jawOpen: 0.42
+        mouthSmileLeft: 0.6
+        mouthSmileRight: 0.6
+        eyebrowInnerUpLeft: 0.5
+        eyebrowInnerUpRight: 0.5
+      lighting:
+        intensity: 0.88
+
+  - story_id: "story_008"
+    salience_level: "high"
+    overrides:
+      blend_shapes:
+        jawOpen: 0.48
+        mouthSmileLeft: 0.7
+        mouthSmileRight: 0.7
+        eyebrowInnerUpLeft: 0.6
+        eyebrowInnerUpRight: 0.6
+      lighting:
+        intensity: 0.95
+
+  - story_id: "story_009"
+    salience_level: "high"
+    overrides:
+      blend_shapes:
+        jawOpen: 0.4
+        mouthSmileLeft: 0.58
+        mouthSmileRight: 0.58
+        eyebrowInnerUpLeft: 0.48
+        eyebrowInnerUpRight: 0.48
+      lighting:
+        intensity: 0.87
+
+  - story_id: "story_010"
+    salience_level: "high"
+    overrides:
+      blend_shapes:
+        jawOpen: 0.44
+        mouthSmileLeft: 0.62
+        mouthSmileRight: 0.62
+        eyebrowInnerUpLeft: 0.52
+        eyebrowInnerUpRight: 0.52
+      lighting:
+        intensity: 0.91
+
+  # Additional stories (pattern continues for full dataset)
+  - story_id: "story_011"
+    salience_level: "low"
+
+  - story_id: "story_012"
+    salience_level: "high"
+
+  - story_id: "story_013"
+    salience_level: "low"
+
+  - story_id: "story_014"
+    salience_level: "high"
+
+  - story_id: "story_015"
+    salience_level: "low"
+
+# Validation constraints for blend shape values
+validation:
+  min_value: 0.0
+  max_value: 1.0
+  required_fields:
+    - story_id
+    - salience_level
+    - blend_shapes
+  optional_fields:
+    - overrides
+    - lighting
+
+# Usage notes:
+# 1. This file is read by code/data/preprocess.py (T016) during the VR mapping phase
+# 2. The 'overrides' section allows fine-tuning of default blend shapes for specific stories
+# 3. All blend shape values must be within [0.0, 1.0] range
+# 4. The salience_level field determines which profile (low/high) to use as base
+# 5. This configuration enables reproducible VR scene generation without Unity runtime

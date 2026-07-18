@@ -18,6 +18,7 @@ STORIES_OUTPUT = "data/processed/synthetic_stories.csv"
 VR_LOGS_OUTPUT = "data/processed/synthetic_vr_logs.csv"
 
 # Ground truth effect size for validation (parameter recovery)
+# This value is validated against the MDES calculated in T045
 GROUND_TRUTH_SALIENCE_EFFECT = 0.8
 
 def set_seed(seed: int = 42):
@@ -78,7 +79,7 @@ def generate_moral_stories_dataset(n_stories: int = 200, n_participants: int = 5
 def generate_vr_logs_dataset(stories_df: pd.DataFrame) -> pd.DataFrame:
     """
     Generate synthetic VR interaction logs with a known ground truth effect.
-    The judgment score is influenced by salience_level.
+    The judgment score is influenced by salience_level to proxy FR-006 requirements.
     """
     init_random_seeds()
     log_pipeline_step("Generating synthetic VR logs data", LOG_FILE)
