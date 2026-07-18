@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, sentence-transformers, datasets, scipy, statsmodels, pyyaml, pytest)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, sentence-transformers, datasets, scipy, statsmodels, pyyaml, pytest)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -191,8 +191,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Manual Annotation (Phase 6)**: Depends on US1 and US2 completion
 - **Philosophical Safeguards (Phase 7)**: Depends on US1, US2, US3 completion
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
@@ -259,9 +259,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Hypothesis/Novelty)
-   - Developer B: User Story 2 (Code Execution)
-   - Developer C: User Story 3 (Stats/Research Integration)
+ - Developer A: User Story 1 (Hypothesis/Novelty)
+ - Developer B: User Story 2 (Code Execution)
+ - Developer C: User Story 3 (Stats/Research Integration)
 3. Stories complete and integrate independently
 
 ---
