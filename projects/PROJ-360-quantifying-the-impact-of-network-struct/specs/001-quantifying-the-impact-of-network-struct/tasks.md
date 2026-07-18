@@ -73,12 +73,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Implement `code/download.py` to query Materials Project API for materials with thermal conductivity, handling rate-limiting (HTTP client error) and server errors with 3 retries (1s, 2s, 4s backoff)
-- [ ] T008 [US1] Implement `code/download.py` logic to fetch and save ≥50 CIF files to `data/raw/cif/` within 30 minutes, skipping materials missing thermal conductivity data
-- [ ] T009 [P] [US1] Implement `code/construct_network.py` to parse CIF files using `pymatgen`, detect bonds via covalent radius summation with an empirically determined tolerance threshold, and create `networkx.Graph` objects <!-- FAILED: unspecified -->
-- [ ] T010 [US1] Implement fallback bond detection in `code/construct_network.py` (progressive distance cutoffs) for disconnected graphs; log and skip materials with no edges after fallbacks <!-- ATOMIZE: requested -->
-- [ ] T011 [US1] Save constructed `networkx.Graph` objects to `data/processed/networks/` (pickle format) and generate `data/processed/network_manifest.json` <!-- FAILED: unspecified -->
-- [ ] T012 [P] [US1] Implement validation in `code/construct_network.py` to ensure every graph has ≥2 nodes and ≥1 edge, or is explicitly skipped with a log entry <!-- FAILED: unspecified -->
+- [X] T007 [US1] Implement `code/download.py` to query Materials Project API for materials with thermal conductivity, handling rate-limiting (HTTP client error) and server errors with 3 retries (1s, 2s, 4s backoff)
+- [X] T008 [US1] Implement `code/download.py` logic to fetch and save ≥50 CIF files to `data/raw/cif/` within 30 minutes, skipping materials missing thermal conductivity data
+- [X] T009 [P] [US1] Implement `code/construct_network.py` to parse CIF files using `pymatgen`, detect bonds via covalent radius summation with an empirically determined tolerance threshold, and create `networkx.Graph` objects <!-- FAILED: unspecified -->
+- [X] T010 [US1] Implement fallback bond detection in `code/construct_network.py` (progressive distance cutoffs) for disconnected graphs; log and skip materials with no edges after fallbacks <!-- ATOMIZE: requested -->
+- [ ] T011 [US1] Save constructed `networkx.Graph` objects to `data/processed/networks/` (pickle format) and generate `data/processed/network_manifest.json` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T012 [P] [US1] Implement validation in `code/construct_network.py` to ensure every graph has ≥2 nodes and ≥1 edge, or is explicitly skipped with a log entry <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -92,13 +92,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [P] [US2] Implement `code/compute_metrics.py` to calculate average degree, average shortest path length (on LCC), and clustering coefficient for each graph in `data/processed/networks/`
-- [ ] T014 [US2] Implement logic in `code/compute_metrics.py` to handle disconnected graphs (report NaN for path length) and compute network density as a diagnostic only
-- [ ] T015 [US2] Implement extraction of thermal conductivity scalar ($\frac{k_x + k_y + k_z}{3}$) for `data/processed/metrics.csv` (Network metrics only per FR-003) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T013 [P] [US2] Implement `code/compute_metrics.py` to calculate average degree, average shortest path length (on LCC), and clustering coefficient for each graph in `data/processed/networks/`
+- [X] T014 [US2] Implement logic in `code/compute_metrics.py` to handle disconnected graphs (report NaN for path length) and compute network density as a diagnostic only
+- [ ] T015 [US2] Implement extraction of thermal conductivity scalar ($\frac{k_x + k_y + k_z}{3}$) for `data/processed/metrics.csv` (Network metrics only per FR-003) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T015b [US2] Implement extraction of physical descriptors (columns: `unit_cell_volume`, `total_atom_count`, `mean_atomic_mass`) for `data/processed/metrics.csv`. **Action**: Append these columns to the existing CSV with a header comment `# DIAGNOSTICS: Physical descriptors excluded from regression features` to distinguish them from primary features. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T016 [P] [US2] Implement `code/analyze.py` to compute Pearson and Spearman correlations between each **network metric** (average degree, path length, clustering) and thermal conductivity, storing results in `results/correlations.json`. Do NOT include physical descriptors in this analysis. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [ ] T017 [US2] Implement Bonferroni correction in `code/analyze.py` for the 3 correlation tests to control family-wise error rate at α ≤ 0.05 <!-- FAILED: unspecified -->
-- [ ] T018 [US2] Implement power analysis logging in `code/analyze.py` to record warnings if $n < 50$ in `results/power_analysis.log` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T016 [P] [US2] Implement `code/analyze.py` to compute Pearson and Spearman correlations between each **network metric** (average degree, path length, clustering) and thermal conductivity, storing results in `results/correlations.json`. Do NOT include physical descriptors in this analysis. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+- [X] T017 [US2] Implement Bonferroni correction in `code/analyze.py` for the 3 correlation tests to control family-wise error rate at α ≤ 0.05 <!-- FAILED: unspecified -->
+- [ ] T018 [US2] Implement power analysis logging in `code/analyze.py` to record warnings if $n < 50$ in `results/power_analysis.log` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -112,10 +112,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T020 [US3] Implement `code/analyze.py` to calculate Variance Inflation Factor (VIF) for network metrics using `statsmodels` OLS. **Input**: `data/processed/metrics.csv`. **Output**: VIF values for each network metric. <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T020 [US3] Implement `code/analyze.py` to calculate Variance Inflation Factor (VIF) for network metrics using `statsmodels` OLS. **Input**: `data/processed/metrics.csv`. **Output**: VIF values for each network metric. <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 - [ ] T021 [US3] Implement `code/analyze.py` to filter features: **MUST exclude any feature with VIF ≥ 5**. **Action**: Log every excluded feature and its VIF value to `results/power_analysis.log`. **Output**: Generate a new artifact `data/processed/filtered_features.csv` containing ONLY the columns for features with VIF < 5. This artifact MUST be used as input for T022. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [ ] T022 [US3] Implement `code/analyze.py` to train a `scikit-learn` Linear Regression model using **ONLY** the features listed in `data/processed/filtered_features.csv` from T021. Save the model to `models/thermal_predictor.pkl`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T023 [US3] Implement k-fold cross-validation in `code/analyze.py` on CPU-only hardware. **Stratification Strategy**: Bin thermal conductivity values into 5 quantile-based strata and use `StratifiedKFold(n_splits=5)`. Compute R² and RMSE for each fold. **Requirement**: If mean R² < 0.30, write the exact string "Weak predictive power (R² < 0.30), consistent with null hypothesis." to the JSON key `r2_interpretation` in `results/model_performance.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T022 [US3] Implement `code/analyze.py` to train a `scikit-learn` Linear Regression model using **ONLY** the features listed in `data/processed/filtered_features.csv` from T021. Save the model to `models/thermal_predictor.pkl`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T023 [US3] Implement k-fold cross-validation in `code/analyze.py` on CPU-only hardware. **Stratification Strategy**: Bin thermal conductivity values into 5 quantile-based strata and use `StratifiedKFold(n_splits=5)`. Compute R² and RMSE for each fold. **Requirement**: If mean R² < 0.30, write the exact string "Weak predictive power (R² < 0.30), consistent with null hypothesis." to the JSON key `r2_interpretation` in `results/model_performance.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T024 [US3] Aggregate CV results (mean ± std dev) and save to `results/model_performance.json`.
 - [X] T025 [US3] Implement `code/report.py` to generate `results/final_report.md`. **Mandatory**: Insert the exact "Limitations" text defined in FR-008: "This study is observational. Correlations do not imply causality. The thermal conductivity tensor was reduced to a scalar by averaging principal components, which may obscure anisotropic effects." **Action**: Read `r2_interpretation` from `model_performance.json` (if present); if present, append it as a **separate paragraph** immediately following the mandatory Limitations text. If the key is missing, omit the interpretation line.
 

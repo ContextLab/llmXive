@@ -1,0 +1,44 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or file system evidence were provided showing that the\
+    \ required paths (e.g., `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/`,\
+    \ `.../data/`, `.../analysis/`, `.../utils/`, `.../tests/`, `.../artifacts/`)\
+    \ actually exist. The implementer\u2019s claim is unsubstantiated, so the required\
+    \ artifact is missing."
+T011:
+  c: false
+  h: 01a1ba9d8f2c8711ed4b0121f5bffa256055d5e124aabc624944d63a7b6646fc
+  r: "The required artifact `code/tests/test_coverage_pipeline.py` does not exist\
+    \ in the repository, so no integration test is present to verify end\u2011to\u2011\
+    end coverage calculation. The task\u2019s core deliverable is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and specification excerpts;\
+    \ no code files, functions, or other artifacts implementing the required edge\u2011\
+    case logic (noise\u2011scale clamping, collinearity detection, bootstrap sample\u2011\
+    size enforcement) are present. Consequently the required reusable functions are\
+    \ missing, so the task is not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `artifacts/coverage_intermediate.csv` or `artifacts/coverage_results.csv`
+    were supplied, and there is no code or output showing the `deviation_from_nominal`
+    column being calculated and written. The required aggregation artifact is missing,
+    so the task is not satisfied.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that a validation layer\
+    \ was added to enforce double\u2011precision floating\u2011point arithmetic and\
+    \ restrict execution to CPU only. The only artifacts shown relate to a different\
+    \ feature (DP noise coverage) and do not address the required validation task."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, log files, or documentation showing that logging of simulation progress\
+    \ and completion for each (dataset,\u202F\u03B5,\u202Fnoise_type) combination\
+    \ was added. The submission contains only the task description and specifications,\
+    \ but provides no concrete artifact (e.g., modified source files, example log\
+    \ output, or test results) to verify the required logging functionality."

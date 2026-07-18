@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/` root directory
+- [ ] T001a Create `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/` root directory <!-- FAILED: unspecified -->
 - [ ] T001b Create `code/`, `data/`, `tests/`, `docs/` subdirectories
 - [ ] T001c Create `data/raw/` and `data/processed/` subdirectories
 - [ ] T001d Create `tests/contract/`, `tests/integration/`, `tests/unit/` subdirectories
@@ -91,17 +91,17 @@ expected alphabetic or numeric character, but found '*'
 
 - [X] T012 [US1] Implement `code/data_ingestion.py` to fetch OQMD data via HuggingFace `datasets.load_dataset('OQMD/elastic_properties')`, filter for entries with `bulk_modulus` and `shear_modulus` > 0, and exclude missing data (FR-001). **Note**: This task implements the pivot to DFT proxies as documented in spec.md FR-001/US-1.
 - [X] T013 [P] [US1] Implement `code/feature_encoder.py` to encode compositions using elemental fractions and periodic descriptors (atomic radius, electronegativity) fetched via `pymatgen` or `mendeleev` for all elements present (FR-002)
-- [ ] T014 [US1] Add logic in `code/data_ingestion.py` to log "Insufficient data for statistical analysis (N < 500)" and exit with code 0 if valid entries < 500 (US-1 Acceptance 1)
-- [ ] T015 [US1] Implement `code/main.py` orchestration step to run ingestion and encoding, saving results to `data/processed/encoded_alloys.csv`
-- [ ] T016 [US1] Add validation to ensure feature vectors include at least two periodic descriptors per element
-- [ ] T017 [US1] Add logging for data ingestion counts (total fetched, filtered, encoded)
+- [X] T014 [US1] Add logic in `code/data_ingestion.py` to log "Insufficient data for statistical analysis (N < 500)" and exit with code 0 if valid entries < 500 (US-1 Acceptance 1)
+- [~] T015 [US1] Implement `code/main.py` orchestration step to run ingestion and encoding, saving results to `data/processed/encoded_alloys.csv`
+- [~] T016 [US1] Add validation to ensure feature vectors include at least two periodic descriptors per element
+- [~] T017 [US1] Add logging for data ingestion counts (total fetched, filtered, encoded)
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`: Assert that when input has < 500 rows, the script logs the specific warning and exits with code 0 (Graceful Failure). Assert that when input has >= 500 rows, no warning is logged and exit code is 0.
-- [ ] T011 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_pipeline.py`: assert `data/processed/encoded_alloys.csv` exists and has correct columns
+- [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`: Assert that when input has < 500 rows, the script logs the specific warning and exits with code 0 (Graceful Failure). Assert that when input has >= 500 rows, no warning is logged and exit code is 0.
+- [~] T011 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_pipeline.py`: assert `data/processed/encoded_alloys.csv` exists and has correct columns
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -115,7 +115,7 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/model_training.py` to train separate GradientBoostingRegressor models for Bulk and Shear moduli using `n_jobs=2` and `max_memory=7GB` constraints (FR-003)
+- [X] T020 [P] [US2] Implement `code/model_training.py` to train separate GradientBoostingRegressor models for Bulk and Shear moduli using `n_jobs=2` and `max_memory=7GB` constraints (FR-003)
 - [ ] T021 [US2] Implement Leave-One-System-Out Cross-Validation (LOSO-CV) in `code/model_training.py` to validate generalizability (FR-008)
 - [ ] T022 [US2] Implement uncertainty calculation (cross-validation variance) in `code/model_training.py` and flag regions exceeding threshold (FR-006)
 - [ ] T022b [US2] Implement logic to explicitly link LOSO-CV results (T021) to the uncertainty metrics (FR-006), ensuring FR-008 coverage is integrated with uncertainty flagging

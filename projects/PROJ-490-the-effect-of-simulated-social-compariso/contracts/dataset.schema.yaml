@@ -1,33 +1,51 @@
-# Dataset Schema for Social Comparison Study
-# Defines the required structure for input data (real or synthetic)
-
-required_columns:
+$schema: http://json-schema.org/draft-07/schema#
+title: Social Comparison Dataset Schema
+description: Schema for the raw and processed dataset used in the social comparison study.
+type: object
+required:
+  - participant_id
   - avatar_condition
   - pre_self_esteem
   - post_self_esteem
   - comparison_tendency
-
-column_types:
-  avatar_condition: integer
-  pre_self_esteem: float
-  post_self_esteem: float
-  comparison_tendency: float
-
-descriptions:
-  avatar_condition: "Binary indicator of the avatar condition (0=control, 1=treatment)"
-  pre_self_esteem: "RSES score before the virtual reality intervention"
-  post_self_esteem: "RSES score after the virtual reality intervention"
-  comparison_tendency: "INCOM score measuring tendency to engage in social comparison"
-
-constraints:
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant.
   avatar_condition:
-    allowed_values: [0, 1]
+    type: number
+    description: Numeric encoding of the avatar condition (e.g., 0 for control, 1 for high-status).
+    minimum: 0
+    maximum: 1
   pre_self_esteem:
-    min: 0
-    max: 40
+    type: number
+    description: Baseline self-esteem score (RSES) measured before the intervention.
+    minimum: 0
+    maximum: 30
   post_self_esteem:
-    min: 0
-    max: 40
+    type: number
+    description: Post-intervention self-esteem score (RSES) measured after the virtual social comparison.
+    minimum: 0
+    maximum: 30
   comparison_tendency:
-    min: 1
-    max: 5
+    type: number
+    description: Score from the INCOM scale indicating tendency to engage in social comparison.
+    minimum: 1
+    maximum: 5
+  data_source_type:
+    type: string
+    enum:
+      - real
+      - synthetic
+    description: Indicates whether the data is from a real study or synthetically generated.
+  source_metadata:
+    type: object
+    description: Optional metadata about the source if real data.
+    properties:
+      source_name:
+        type: string
+      license:
+        type: string
+      irb_approved:
+        type: boolean
+additionalProperties: true

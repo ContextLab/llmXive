@@ -1,315 +1,351 @@
-"""
-Analysis module for computing correlations, VIF, training models,
-and performing cross-validation.
-"""
-
 import os
 import json
 import logging
 import csv
 import pickle
 import random
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 import pandas as pd
-from scipy import stats
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.tools import add_constant
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import StratifiedKFold, cross_val_score
-from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import StratifiedKFold, cross_validate
+from sklearn.metrics import r2_score, mean_squared_error
 
-# Constants
-RESULTS_DIR = Path("results")
-MODELS_DIR = Path("models")
-DATA_PROCESSED_DIR = Path("data/processed")
-METRICS_CSV_PATH = DATA_PROCESSED_DIR / "metrics.csv"
-FILTERED_FEATURES_CSV_PATH = DATA_PROCESSED_DIR / "filtered_features.csv"
-CORRELATIONS_JSON_PATH = RESULTS_DIR / "correlations.json"
-MODEL_PERFORMANCE_JSON_PATH = RESULTS_DIR / "model_performance.json"
-POWER_ANALYSIS_LOG_PATH = RESULTS_DIR / "power_analysis.log"
-THERMAL_PREDICTOR_PATH = MODELS_DIR / "thermal_predictor.pkl"
-VIF_THRESHOLD = 5.0
-R2_THRESHOLD = 0.30
+# Configuration
+METRICS_CSV_PATH = "data/processed/metrics.csv"
+FILTERED_FEATURES_CSV_PATH = "data/processed/filtered_features.csv"
+POWER_ANALYSIS_LOG_PATH = "results/power_analysis.log"
+MODEL_PATH = "models/thermal_predictor.pkl"
+MODEL_PERFORMANCE_PATH = "results/model_performance.json"
 
-
-def setup_analysis_logger() -> logging.Logger:
-    """Set up and return the analysis logger."""
-    logger = logging.getLogger("analysis")
+def setup_analysis_logger(name: str, log_file: str) -> logging.Logger:
+    """Setup a logger for the analysis module."""
+    logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
-
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-
+    
+    # File handler
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.INFO)
+    
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    
+    # Formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+    
     return logger
-
 
 def load_metrics_csv() -> pd.DataFrame:
     """Load the metrics CSV file."""
-    if not METRICS_CSV_PATH.exists():
+    if not os.path.exists(METRICS_CSV_PATH):
         raise FileNotFoundError(f"Metrics file not found: {METRICS_CSV_PATH}")
-    return pd.read_csv(METRICS_CSV_PATH)
-
+    
+    df = pd.read_csv(METRICS_CSV_PATH)
+    
+    # Handle comment lines in CSV if present
+    if df.empty or df.columns[0].startswith('#'):
+        # Re-read skipping comments if necessary
+        df = pd.read_csv(METRICS_CSV_PATH, comment='#')
+    
+    return df
 
 def get_network_metrics(df: pd.DataFrame) -> List[str]:
-    """Return list of network metric columns."""
-    metric_cols = [
-        "avg_degree",
-        "avg_shortest_path_length",
-        "clustering_coefficient",
-        "density"
-    ]
-    return [col for col in metric_cols if col in df.columns]
-
+    """Extract network metric columns from the DataFrame."""
+    # Based on T013, these are the network metrics
+    network_metrics = ['avg_degree', 'avg_shortest_path', 'clustering_coefficient']
+    return [col for col in network_metrics if col in df.columns]
 
 def get_thermal_conductivity_col(df: pd.DataFrame) -> Optional[str]:
-    """Return the thermal conductivity column name."""
-    thermal_cols = [col for col in df.columns if "thermal_conductivity" in col.lower()]
-    if not thermal_cols:
-        return None
-    return thermal_cols[0]
+    """Identify the thermal conductivity column."""
+    possible_cols = ['thermal_conductivity', 'mean_thermal_conductivity', 'k_avg']
+    for col in possible_cols:
+        if col in df.columns:
+            return col
+    # Fallback: look for any column with 'thermal' or 'k_' in name
+    for col in df.columns:
+        if 'thermal' in col.lower() or (col.startswith('k_') and col != 'k_x'):
+            return col
+    return None
 
-
-def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
-    """Calculate VIF for each feature."""
-    vif_data = {}
-    for feature in features:
+def calculate_vif(df: pd.DataFrame, feature_cols: List[str]) -> Dict[str, float]:
+    """Calculate Variance Inflation Factor for each feature."""
+    if len(feature_cols) == 0:
+        return {}
+    
+    # Extract features
+    X = df[feature_cols].copy()
+    
+    # Handle constant features (VIF undefined)
+    X = X.loc[:, (X != X.iloc[0]).any()]
+    
+    if X.empty:
+        return {col: float('inf') for col in feature_cols}
+    
+    # Add constant for OLS
+    X_const = add_constant(X)
+    
+    vif_values = {}
+    for i, col in enumerate(X.columns):
+        if col == 'const':
+            continue
         try:
-            vif = variance_inflation_factor(df[features].values, features.index(feature))
-            vif_data[feature] = vif
-        except Exception as e:
-            vif_data[feature] = float('nan')
-    return vif_data
+            vif = variance_inflation_factor(X_const.values, i)
+            vif_values[col] = vif
+        except Exception:
+            vif_values[col] = float('inf')
+    
+    return vif_values
 
+def log_vif_results(vif_values: Dict[str, float], logger: logging.Logger, log_file: str):
+    """Log VIF results to the power analysis log file."""
+    with open(log_file, 'a') as f:
+        f.write("\n=== VIF Analysis Results ===\n")
+        for feature, vif in vif_values.items():
+            f.write(f"{feature}: {vif:.4f}\n")
+        f.write("============================\n")
+    
+    logger.info("VIF analysis completed. Results logged to %s", log_file)
 
-def log_vif_results(vif_data: Dict[str, float], logger: logging.Logger) -> None:
-    """Log VIF results to power_analysis.log."""
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(POWER_ANALYSIS_LOG_PATH, "a") as f:
-        f.write("\n--- VIF Analysis ---\n")
-        for feature, vif in vif_data.items():
-            status = "INCLUDED" if vif < VIF_THRESHOLD else "EXCLUDED"
-            f.write(f"{feature}: VIF={vif:.4f} [{status}]\n")
-
-
-def generate_filtered_features_csv(df: pd.DataFrame, features: List[str], vif_data: Dict[str, float], logger: logging.Logger) -> pd.DataFrame:
-    """Generate filtered_features.csv with only features having VIF < threshold."""
-    filtered_features = [f for f in features if vif_data.get(f, float('nan')) < VIF_THRESHOLD]
-    logger.info(f"Filtered features: {filtered_features}")
+def generate_filtered_features_csv(df: pd.DataFrame, vif_values: Dict[str, float], 
+                                 threshold: float = 5.0, logger: logging.Logger = None) -> pd.DataFrame:
+    """
+    Filter features based on VIF threshold.
+    
+    Args:
+        df: DataFrame with all features
+        vif_values: Dictionary mapping feature names to VIF values
+        threshold: VIF threshold for filtering (default 5.0)
+        logger: Logger instance
+        
+    Returns:
+        DataFrame with only features having VIF < threshold
+    """
+    # Identify features to keep
+    features_to_keep = []
+    excluded_features = []
+    
+    for feature, vif in vif_values.items():
+        if vif < threshold:
+            features_to_keep.append(feature)
+        else:
+            excluded_features.append((feature, vif))
     
     # Log excluded features
-    excluded = [f for f in features if f not in filtered_features]
-    for f in excluded:
-        logger.warning(f"Excluded feature '{f}' (VIF={vif_data.get(f, float('nan')):.4f} >= {VIF_THRESHOLD})")
+    if logger:
+        logger.info("Features excluded (VIF >= %.2f):", threshold)
+        for feature, vif in excluded_features:
+            logger.info("  - %s: VIF = %.4f", feature, vif)
     
-    # Create filtered dataframe
-    thermal_col = get_thermal_conductivity_col(df)
-    if thermal_col:
-        filtered_df = df[filtered_features + [thermal_col]].copy()
-    else:
-        filtered_df = df[filtered_features].copy()
+    # Also log to power_analysis.log
+    log_file = POWER_ANALYSIS_LOG_PATH
+    with open(log_file, 'a') as f:
+        f.write("\n=== VIF Filtering Results ===\n")
+        f.write(f"Threshold: {threshold}\n")
+        if excluded_features:
+            f.write("Excluded features:\n")
+            for feature, vif in excluded_features:
+                f.write(f"  - {feature}: VIF = {vif:.4f}\n")
+        else:
+            f.write("No features excluded.\n")
+        f.write(f"Kept features: {', '.join(features_to_keep)}\n")
+        f.write("============================\n")
     
+    # Create filtered DataFrame
+    # Keep all original columns, but only include filtered feature columns
+    # We need to preserve non-feature columns (like material_id, thermal_conductivity)
+    filtered_cols = []
+    
+    # Add non-feature columns first
+    for col in df.columns:
+        if col not in vif_values:
+            filtered_cols.append(col)
+    
+    # Add filtered feature columns
+    filtered_cols.extend(features_to_keep)
+    
+    filtered_df = df[filtered_cols].copy()
+    
+    # Save to CSV
     filtered_df.to_csv(FILTERED_FEATURES_CSV_PATH, index=False)
-    logger.info(f"Saved filtered features to {FILTERED_FEATURES_CSV_PATH}")
+    
+    if logger:
+        logger.info("Filtered features saved to %s", FILTERED_FEATURES_CSV_PATH)
+        logger.info("Kept %d features: %s", len(features_to_keep), ', '.join(features_to_keep))
+    
     return filtered_df
 
-
-def train_linear_model(X: np.ndarray, y: np.ndarray, logger: logging.Logger) -> LinearRegression:
+def train_linear_model(X: pd.DataFrame, y: pd.Series, logger: logging.Logger = None) -> LinearRegression:
     """Train a linear regression model."""
     model = LinearRegression()
     model.fit(X, y)
-    logger.info("Linear regression model trained.")
+    
+    if logger:
+        logger.info("Linear regression model trained.")
+        logger.info("Model R² score on training data: %.4f", model.score(X, y))
+    
     return model
 
-
-def run_stratified_cross_validation(
-    df: pd.DataFrame, 
-    features: List[str], 
-    thermal_col: str, 
-    logger: logging.Logger
-) -> Tuple[List[float], List[float], Dict[str, Any]]:
+def run_stratified_cross_validation(df: pd.DataFrame, feature_cols: List[str], 
+                                  target_col: str, n_splits: int = 5, 
+                                  logger: logging.Logger = None) -> Dict[str, Any]:
     """
-    Perform 5-fold stratified cross-validation.
-    Bins thermal conductivity into 5 quantile strata.
-    Returns R² scores, RMSE scores, and interpretation.
-    """
-    y = df[thermal_col].values
-    X = df[features].values
-
-    # Handle NaNs in X or y
-    mask = ~np.isnan(X).any(axis=1) & ~np.isnan(y)
-    X_clean = X[mask]
-    y_clean = y[mask]
-
-    if len(y_clean) < 5:
-        logger.warning("Insufficient data for cross-validation.")
-        return [], [], {"r2_interpretation": "Insufficient data."}
-
-    # Bin thermal conductivity into 5 quantile strata
-    try:
-        strata = pd.qcut(y_clean, q=5, labels=False, duplicates='drop')
-    except ValueError:
-        # Fallback to uniform bins if qcut fails
-        strata = pd.cut(y_clean, bins=5, labels=False)
-
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    Run stratified cross-validation for the linear regression model.
     
-    r2_scores = []
-    rmse_scores = []
-
-    for train_idx, test_idx in skf.split(X_clean, strata):
-        X_train, X_test = X_clean[train_idx], X_clean[test_idx]
-        y_train, y_test = y_clean[train_idx], y_clean[test_idx]
-
-        # Scale features
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(X_train)
-        X_test_scaled = scaler.transform(X_test)
-
-        model = LinearRegression()
-        model.fit(X_train_scaled, y_train)
-
-        y_pred = model.predict(X_test_scaled)
-        r2 = r2_score(y_test, y_pred)
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-
-        r2_scores.append(r2)
-        rmse_scores.append(rmse)
-
-    mean_r2 = np.mean(r2_scores)
-    std_r2 = np.std(r2_scores)
-    mean_rmse = np.mean(rmse_scores)
-    std_rmse = np.std(rmse_scores)
-
-    interpretation = ""
-    if mean_r2 < R2_THRESHOLD:
-        interpretation = "Weak predictive power (R² < 0.30), consistent with null hypothesis."
-        logger.warning(interpretation)
-
-    cv_results = {
-        "r2_scores": r2_scores,
-        "rmse_scores": rmse_scores,
-        "mean_r2": mean_r2,
-        "std_r2": std_r2,
-        "mean_rmse": mean_rmse,
-        "std_rmse": std_rmse,
-        "r2_interpretation": interpretation if interpretation else None
+    Args:
+        df: DataFrame with features and target
+        feature_cols: List of feature column names
+        target_col: Target column name
+        n_splits: Number of CV folds
+        logger: Logger instance
+        
+    Returns:
+        Dictionary with CV results
+    """
+    X = df[feature_cols].copy()
+    y = df[target_col].copy()
+    
+    # Create bins for stratification
+    y_binned = pd.qcut(y, q=n_splits, labels=False, duplicates='drop')
+    
+    # Handle case where qcut fails (too few unique values)
+    if len(np.unique(y_binned)) < 2:
+        # Fallback to simple KFold if stratification not possible
+        skf = StratifiedKFold(n_splits=min(n_splits, len(y)), shuffle=True, random_state=42)
+        cv_results = cross_validate(
+            LinearRegression(), X, y_binned, cv=skf,
+            scoring=['r2', 'neg_mean_squared_error'],
+            return_train_score=True
+        )
+    else:
+        skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+        cv_results = cross_validate(
+            LinearRegression(), X, y_binned, cv=skf,
+            scoring=['r2', 'neg_mean_squared_error'],
+            return_train_score=True
+        )
+    
+    # Extract results
+    r2_scores = cv_results['test_r2']
+    rmse_scores = np.sqrt(-cv_results['test_neg_mean_squared_error'])
+    
+    result = {
+        'r2_scores': r2_scores.tolist(),
+        'rmse_scores': rmse_scores.tolist(),
+        'mean_r2': float(np.mean(r2_scores)),
+        'std_r2': float(np.std(r2_scores)),
+        'mean_rmse': float(np.mean(rmse_scores)),
+        'std_rmse': float(np.std(rmse_scores)),
+        'n_splits': n_splits,
+        'r2_interpretation': None
     }
+    
+    # Add interpretation if mean R² < 0.30
+    if result['mean_r2'] < 0.30:
+        result['r2_interpretation'] = "Weak predictive power (R² < 0.30), consistent with null hypothesis."
+    
+    if logger:
+        logger.info("Cross-validation completed.")
+        logger.info("Mean R²: %.4f (±%.4f)", result['mean_r2'], result['std_r2'])
+        logger.info("Mean RMSE: %.4f (±%.4f)", result['mean_rmse'], result['std_rmse'])
+        if result['r2_interpretation']:
+            logger.warning(result['r2_interpretation'])
+    
+    return result
 
-    return r2_scores, rmse_scores, cv_results
+def save_model_performance(results: Dict[str, Any], logger: logging.Logger = None):
+    """Save model performance metrics to JSON."""
+    with open(MODEL_PERFORMANCE_PATH, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    if logger:
+        logger.info("Model performance saved to %s", MODEL_PERFORMANCE_PATH)
 
-
-def main() -> None:
-    """Main entry point for analysis."""
-    logger = setup_analysis_logger()
+def main():
+    """Main entry point for the analysis module."""
+    # Setup logger
+    logger = setup_analysis_logger("analysis", "results/analysis.log")
     logger.info("Starting analysis...")
-
+    
     # Load metrics
-    df = load_metrics_csv()
-    logger.info(f"Loaded {len(df)} records from {METRICS_CSV_PATH}")
-
-    # Get columns
+    try:
+        df = load_metrics_csv()
+        logger.info("Loaded metrics from %s", METRICS_CSV_PATH)
+        logger.info("DataFrame shape: %s", df.shape)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        return 1
+    
+    # Get network metrics
     network_metrics = get_network_metrics(df)
-    thermal_col = get_thermal_conductivity_col(df)
-
-    if not thermal_col:
+    if not network_metrics:
+        logger.error("No network metrics found in the DataFrame.")
+        logger.error("Available columns: %s", list(df.columns))
+        return 1
+    
+    logger.info("Network metrics identified: %s", network_metrics)
+    
+    # Get thermal conductivity column
+    target_col = get_thermal_conductivity_col(df)
+    if not target_col:
         logger.error("Thermal conductivity column not found.")
-        raise ValueError("Thermal conductivity column not found in metrics.csv")
-
-    # 1. Compute Correlations
-    logger.info("Computing correlations...")
-    correlations = {}
-    for metric in network_metrics:
-        if metric in df.columns:
-            pearson_r, pearson_p = stats.pearsonr(df[metric], df[thermal_col])
-            spearman_r, spearman_p = stats.spearmanr(df[metric], df[thermal_col])
-            correlations[metric] = {
-                "pearson": {"r": pearson_r, "p": pearson_p},
-                "spearman": {"r": spearman_r, "p": spearman_p}
-            }
-
-    # Bonferroni correction
-    n_tests = len(network_metrics)
-    alpha = 0.05
-    corrected_alpha = alpha / n_tests
-    logger.info(f"Bonferroni-corrected alpha: {corrected_alpha}")
-
-    correlations["bonferroni"] = {
-        "alpha": alpha,
-        "n_tests": n_tests,
-        "corrected_alpha": corrected_alpha
-    }
-
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(CORRELATIONS_JSON_PATH, "w") as f:
-        json.dump(correlations, f, indent=2)
-    logger.info(f"Saved correlations to {CORRELATIONS_JSON_PATH}")
-
-    # 2. VIF Calculation and Filtering
-    logger.info("Calculating VIF...")
-    vif_data = calculate_vif(df, network_metrics)
-    log_vif_results(vif_data, logger)
+        logger.error("Available columns: %s", list(df.columns))
+        return 1
     
-    filtered_df = generate_filtered_features_csv(df, network_metrics, vif_data, logger)
-    filtered_features = [f for f in network_metrics if vif_data.get(f, float('nan')) < VIF_THRESHOLD]
-
+    logger.info("Target column: %s", target_col)
+    
+    # Calculate VIF
+    logger.info("Calculating VIF for network metrics...")
+    vif_values = calculate_vif(df, network_metrics)
+    
+    # Log VIF results
+    log_vif_results(vif_values, logger, POWER_ANALYSIS_LOG_PATH)
+    
+    # Filter features based on VIF
+    logger.info("Filtering features with VIF threshold = 5.0...")
+    filtered_df = generate_filtered_features_csv(df, vif_values, threshold=5.0, logger=logger)
+    
+    # Check if we have any features left
+    filtered_features = [col for col in filtered_df.columns if col in network_metrics]
     if not filtered_features:
-        logger.warning("No features passed VIF filter. Cannot train model.")
-        return
-
-    # 3. Train Model
+        logger.warning("No features passed the VIF filter. Cannot proceed with model training.")
+        logger.warning("This may indicate high multicollinearity in the network metrics.")
+        # Still save empty results or handle appropriately
+        return 0
+    
+    # Prepare data for model training
+    X = filtered_df[filtered_features]
+    y = filtered_df[target_col]
+    
+    # Train model
     logger.info("Training linear regression model...")
-    X = filtered_df[filtered_features].values
-    y = filtered_df[thermal_col].values
-
-    # Handle NaNs
-      # Remove rows with NaNs
-    mask = ~np.isnan(X).any(axis=1) & ~np.isnan(y)
-    X_clean = X[mask]
-    y_clean = y[mask]
-
-    if len(y_clean) == 0:
-        logger.error("No valid data after NaN removal.")
-        return
-
-    model = train_linear_model(X_clean, y_clean, logger)
+    model = train_linear_model(X, y, logger)
     
-    MODELS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(THERMAL_PREDICTOR_PATH, "wb") as f:
+    # Save model
+    with open(MODEL_PATH, 'wb') as f:
         pickle.dump(model, f)
-    logger.info(f"Model saved to {THERMAL_PREDICTOR_PATH}")
-
-    # 4. Cross-Validation
-    logger.info("Running stratified cross-validation...")
-    r2_scores, rmse_scores, cv_results = run_stratified_cross_validation(
-        filtered_df, filtered_features, thermal_col, logger
-    )
-
-    # Save model performance
-    performance = {
-        "r2_scores": cv_results["r2_scores"],
-        "rmse_scores": cv_results["rmse_scores"],
-        "mean_r2": cv_results["mean_r2"],
-        "std_r2": cv_results["std_r2"],
-        "mean_rmse": cv_results["mean_rmse"],
-        "std_rmse": cv_results["std_rmse"]
-    }
+    logger.info("Model saved to %s", MODEL_PATH)
     
-    if cv_results.get("r2_interpretation"):
-        performance["r2_interpretation"] = cv_results["r2_interpretation"]
-
-    with open(MODEL_PERFORMANCE_JSON_PATH, "w") as f:
-        json.dump(performance, f, indent=2)
-    logger.info(f"Saved model performance to {MODEL_PERFORMANCE_JSON_PATH}")
-
-    logger.info("Analysis complete.")
-
+    # Run cross-validation
+    logger.info("Running stratified cross-validation...")
+    cv_results = run_stratified_cross_validation(
+        filtered_df, filtered_features, target_col, n_splits=5, logger=logger
+    )
+    
+    # Save model performance
+    save_model_performance(cv_results, logger)
+    
+    logger.info("Analysis completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

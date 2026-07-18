@@ -1,9 +1,2 @@
-# This directory contains specification documents for User Story 1:
-# Multi-Property Trade-Offs in Alloy Design
-#
-# Expected files (to be created by subsequent tasks):
-# - spec.md (User stories, acceptance criteria)
-# - plan.md (Implementation plan)
-# - research.md (Literature review, data sources)
-# - data-model.md (Data schemas, entities)
-# - contracts/ (API contracts, validation rules)
+# This file ensures the directory is tracked in version control.
+# Directory: specs/001-multi-property-trade-offs/

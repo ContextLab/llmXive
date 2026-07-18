@@ -1,42 +1,56 @@
 # PROJ-490: The Effect of Simulated Social Comparison on Self-Esteem in Virtual Reality
 
 ## Overview
-This project investigates how simulated social comparison in virtual reality (VR)
-environments affects self-esteem, specifically examining the interaction between
-avatar condition and individual comparison tendencies.
+This project investigates the impact of simulated social comparison on self-esteem within virtual reality environments. It implements a reproducible scientific pipeline for data discovery, preprocessing, statistical analysis (ANCOVA), and robustness checks.
 
 ## Project Structure
 ```
 projects/PROJ-490-the-effect-of-simulated-social-compariso/
-├── code/ # Source code for data processing and analysis
-│ ├── data/ # Data loading, cleaning, and generation
-│ ├── analysis/ # Statistical models and robustness checks
-│ └── utils/ # Logging, validation, and configuration
+├── code/ # Source code modules
+│ ├── analysis/ # Statistical models and validation
+│ ├── data/ # Data loading, preprocessing, generation
+│ └── utils/ # Logging, validation utilities
 ├── data/
-│ ├── raw/ # Raw datasets (downloaded or synthetic)
-│ └── processed/ # Cleaned data and analysis outputs
-├── contracts/ # JSON/YAML schemas for data and outputs
-├── tests/ # Unit and contract tests
+│ ├── raw/ # Downloaded raw datasets
+│ └── processed/ # Cleaned and analyzed data
+├── tests/
+│ ├── contract/ # Schema validation tests
+│ └── unit/ # Unit tests
 ├── docs/ # Documentation
-├── state/ # Project state tracking
+├── state/ # Pipeline state and hashes
+├── contracts/ # Data schema definitions
 ├── requirements.txt # Python dependencies
-└── README.md # This file
+└── README.md
 ```
 
 ## Setup
-1. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-2. Run the analysis pipeline:
- ```bash
- python code/main.py
- ```
+1. Create a virtual environment:
+ `python -m venv venv`
+2. Activate the environment:
+ `source venv/bin/activate` (Linux/Mac) or `venv\Scripts\activate` (Windows)
+3. Install dependencies:
+ `pip install -r requirements.txt`
 
-## Data Contracts
-- `contracts/dataset.schema.yaml`: Schema for input data
-- `contracts/output.schema.yaml`: Schema for regression results
-- `contracts/results.schema.yaml`: Schema for final report
+## Linting and Formatting
+This project enforces code quality using `flake8` and `black`.
+
+**Run Linting:**
+```bash
+flake8 code/ tests/
+```
+
+**Run Formatting:**
+```bash
+black code/ tests/
+```
+
+**Run Pylint:**
+```bash
+pylint code/
+```
+
+## Usage
+Refer to the `docs/` directory for specific analysis plans and execution guides.
 
 ## License
-Research project for educational purposes.
+MIT License

@@ -1,0 +1,46 @@
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation was provided showing a fallback mechanism\
+    \ that detects missing real data, invokes a synthetic data generator, and sets\
+    \ a `data_source_type` flag as required by FR\u2011009. The evidence consists\
+    \ only of the task description and project spec, without any concrete implementation\
+    \ artifact. The missing artifact is the actual implementation (e.g., a script,\
+    \ function, or pipeline component) that performs this logic and records the flag."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, test, or documentation was presented that adds a check for the
+    presence of the four required variables in `data/raw`. Consequently, there is
+    no artifact confirming that the validation step exists or functions as specified.
+    The implementer must provide the actual implementation (e.g., a Python function,
+    CI test, or documentation) that verifies the presence of `avatar_condition`, `pre_self_esteem`,
+    `post_self_esteem`, and `comparison_tendency` before the pipeline proceeds.
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation implementing the required dynamic interpretation\
+    \ logic (\u201CEmpirical Association\u201D for real data vs \u201CSimulated Causal\
+    \ Effect\u201D for synthetic data) was provided. The response contains only the\
+    \ task description and acceptance criteria, but no actual artifact (e.g., a function,\
+    \ module, or test) that demonstrates the logic is present. The implementer must\
+    \ supply the concrete implementation and evidence (e.g., source file, unit test,\
+    \ or usage example) showing the logic works as specified."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV file with regression coefficients nor a JSON file with diagnostics (p\u2011\
+    values, VIF, confidence intervals) was presented in `data/processed/`. The claim\
+    \ lacks any concrete artifacts to verify that the required outputs were generated.\
+    \ The next implementer must create and provide the non\u2011empty CSV and JSON\
+    \ files in the specified directory."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no code, analysis report, or documentation showing\
+    \ that VIF values \u2265\u202F5 are detected, flagged, and that the results are\
+    \ described without asserting independent effects. Without any artifact demonstrating\
+    \ this collinearity handling, the task requirement is unmet. The next implementer\
+    \ must supply the analysis script (or notebook) and the resulting output (e.g.,\
+    \ a table of VIFs with flags and a written interpretation) that explicitly addresses\
+    \ the VIF \u2265\u202F5 scenario."

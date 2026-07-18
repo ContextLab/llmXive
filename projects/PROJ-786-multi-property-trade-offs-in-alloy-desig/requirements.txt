@@ -10,8 +10,6 @@ pyyaml
 pyarrow
 pymatgen
 mendeleev
+datasets
 pydantic
-pytest
-ruff
-black
-python-dotenv
+as

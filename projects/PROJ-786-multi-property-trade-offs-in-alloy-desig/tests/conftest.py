@@ -1,18 +1,12 @@
 """
-Pytest configuration and shared fixtures for the llmXive project.
-
-This file ensures that the test directory structure is recognized
-by pytest and provides common fixtures if needed.
+Pytest configuration and fixtures for the project.
 """
-import os
 import sys
-import pytest
+from pathlib import Path
 
-# Ensure the project root (parent of 'tests') is on the path
-# so imports from 'code' work correctly during tests.
-@pytest.fixture(autouse=True)
-def add_project_root_to_path():
-    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    if root_dir not in sys.path:
-        sys.path.insert(0, root_dir)
-    yield
+# Ensure the project root is in the path for all tests
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+# Optional: Add common fixtures here if needed across all test suites

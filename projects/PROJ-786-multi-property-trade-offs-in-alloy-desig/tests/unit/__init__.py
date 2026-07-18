@@ -1,1 +1,3 @@
-"""Unit tests for individual functions and classes."""
+# Unit tests for PROJ-786
+# These tests verify individual functions and classes in isolation.
+pass

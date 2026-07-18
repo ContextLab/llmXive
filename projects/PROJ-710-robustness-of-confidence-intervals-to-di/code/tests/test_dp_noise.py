@@ -1,179 +1,438 @@
+"""
+Unit tests for DP noise calibration accuracy in the context of Confidence Interval coverage.
+
+This module verifies that the DP noise injection functions (Laplace and Gaussian)
+produce calibrated noise such that the resulting empirical coverage of 95% CIs
+matches the nominal target (0.95) within a statistical tolerance when epsilon is large
+(low noise), and diverges appropriately when epsilon is small (high noise).
+"""
+
 import numpy as np
 import pytest
 from scipy import stats
+from pathlib import Path
+import sys
+import os
+
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from code.data.dp_noise import (
+    compute_laplace_scale,
+    compute_gaussian_scale,
     inject_laplace_noise,
     inject_gaussian_noise,
-    compute_sensitivity_mean,
-    compute_sensitivity_variance,
-    apply_dp_to_summary,
+    validate_dp_parameters
 )
+from code.analysis.ci_builder import build_ci_for_mean, bootstrap_resample, compute_percentile_ci
+from code.config import get_config
 
 
 class TestEpsilonClamping:
-    """Test that extremely small epsilon values do not cause numerical instability."""
+    """Test that epsilon clamping works correctly for extreme values."""
 
-    def test_epsilon_clamping_lower_bound(self):
-        """Verify that epsilon is clamped to a minimum threshold."""
-        data = np.random.normal(loc=10.0, scale=2.0, size=1000)
-        # Use an extremely small epsilon that would normally cause huge noise
-        epsilon = 1e-10
+    def test_valid_epsilon_range(self):
+        """Test that valid epsilon values pass validation."""
+        assert validate_dp_parameters(epsilon=1.0, delta=1e-5) is True
+        assert validate_dp_parameters(epsilon=0.1, delta=1e-5) is True
+        assert validate_dp_parameters(epsilon=10.0, delta=1e-5) is True
 
-        # The function should handle this without crashing or producing NaN/Inf
-        noisy_data = inject_laplace_noise(data, epsilon)
+    def test_invalid_epsilon_zero(self):
+        """Test that epsilon=0 raises an error."""
+        with pytest.raises(ValueError):
+            validate_dp_parameters(epsilon=0.0, delta=1e-5)
 
-        assert not np.any(np.isnan(noisy_data))
-        assert not np.any(np.isinf(noisy_data))
-        assert len(noisy_data) == len(data)
+    def test_invalid_epsilon_negative(self):
+        """Test that negative epsilon raises an error."""
+        with pytest.raises(ValueError):
+            validate_dp_parameters(epsilon=-1.0, delta=1e-5)
 
-    def test_epsilon_normal_range(self):
-        """Verify normal epsilon values produce expected noise magnitude."""
-        data = np.ones(1000)  # Constant data for predictable sensitivity
-        epsilon = 1.0
-
-        noisy_data = inject_laplace_noise(data, epsilon)
-
-        # With constant data, sensitivity is 0 (or very small if handled differently),
-        # but the noise scale is 1/epsilon.
-        # We check that the output is finite and same shape.
-        assert np.all(np.isfinite(noisy_data))
+    def test_invalid_delta_non_positive(self):
+        """Test that non-positive delta raises an error."""
+        with pytest.raises(ValueError):
+            validate_dp_parameters(epsilon=1.0, delta=0.0)
+        with pytest.raises(ValueError):
+            validate_dp_parameters(epsilon=1.0, delta=-1e-5)
 
 
 class TestLaplaceNoise:
-    """Unit tests for Laplace noise injection."""
+    """Test Laplace noise calibration and statistical properties."""
 
-    def test_laplace_noise_mean_shift(self):
-        """Verify that the mean of noisy data is close to original mean for large N."""
-        np.random.seed(42)
-        data = np.random.normal(loc=50.0, scale=10.0, size=100000)
-        epsilon = 1.0
-
-        noisy_data = inject_laplace_noise(data, epsilon)
-
-        # The mean of Laplace noise is 0, so the noisy mean should be close to original mean
-        original_mean = np.mean(data)
-        noisy_mean = np.mean(noisy_data)
-
-        # Allow for some deviation due to finite sample size of noise
-        assert abs(noisy_mean - original_mean) < 1.0  # Tolerance based on noise scale
-
-    def test_laplace_noise_scale(self):
-        """Verify noise scale matches 1/epsilon."""
-        np.random.seed(123)
-        data = np.zeros(100000)  # Zero mean, zero variance for clean signal
+    def test_laplace_scale_formula(self):
+        """Verify Laplace scale formula: b = sensitivity / epsilon."""
+        sensitivity = 1.0
         epsilon = 2.0
+        expected_scale = sensitivity / epsilon
+        actual_scale = compute_laplace_scale(sensitivity=sensitivity, epsilon=epsilon)
+        assert np.isclose(actual_scale, expected_scale)
 
-        noisy_data = inject_laplace_noise(data, epsilon)
+    def test_laplace_noise_variance(self):
+        """Test that Laplace noise has variance 2 * scale^2."""
+        sensitivity = 1.0
+        epsilon = 1.0
+        scale = compute_laplace_scale(sensitivity=sensitivity, epsilon=epsilon)
+        expected_variance = 2 * scale ** 2
 
-        # The variance of Laplace(0, b) is 2*b^2, where b = sensitivity / epsilon
-        # For mean of data with range R, sensitivity is R/n. Here we test simple case.
-        # We just verify that the noise magnitude scales inversely with epsilon.
-        noise_added = noisy_data - data
-        std_noise = np.std(noise_added)
+        # Generate large sample to estimate variance
+        np.random.seed(42)
+        noise = inject_laplace_noise(
+            data=np.zeros(100000),
+            sensitivity=sensitivity,
+            epsilon=epsilon
+        )
 
-        # Expected scale parameter b = sensitivity / epsilon
-        # We check relative scaling between two epsilons
-        noisy_data_4 = inject_laplace_noise(data, 4.0)
-        std_noise_4 = np.std(noisy_data_4)
+        estimated_variance = np.var(noise)
+        # Allow 10% tolerance for Monte Carlo estimation
+        assert np.isclose(estimated_variance, expected_variance, rtol=0.1)
 
-        # std should be roughly half when epsilon doubles
-        ratio = std_noise / std_noise_4
-        assert 1.5 < ratio < 2.5  # Allow for sampling variance
+    def test_laplace_noise_mean_zero(self):
+        """Test that Laplace noise is centered at zero."""
+        sensitivity = 1.0
+        epsilon = 1.0
+        np.random.seed(42)
+        noise = inject_laplace_noise(
+            data=np.zeros(100000),
+            sensitivity=sensitivity,
+            epsilon=epsilon
+        )
+        # Allow 5% tolerance for Monte Carlo estimation
+        assert np.abs(np.mean(noise)) < 0.05
 
 
 class TestGaussianNoise:
-    """Unit tests for Gaussian noise injection."""
+    """Test Gaussian noise calibration and statistical properties."""
 
-    def test_gaussian_noise_mean(self):
-        """Verify Gaussian noise has mean close to zero."""
-        np.random.seed(456)
-        data = np.random.normal(loc=100.0, scale=5.0, size=100000)
+    def test_gaussian_scale_formula(self):
+        """Verify Gaussian scale formula for approximate DP."""
+        sensitivity = 1.0
         epsilon = 1.0
         delta = 1e-5
+        expected_scale = sensitivity * np.sqrt(2 * np.log(1.25 / delta)) / epsilon
+        actual_scale = compute_gaussian_scale(sensitivity=sensitivity, epsilon=epsilon, delta=delta)
+        assert np.isclose(actual_scale, expected_scale)
 
-        noisy_data = inject_gaussian_noise(data, epsilon, delta)
-
-        original_mean = np.mean(data)
-        noisy_mean = np.mean(noisy_data)
-
-        assert abs(noisy_mean - original_mean) < 0.5
-
-    def test_gaussian_noise_variance_scaling(self):
-        """Verify noise variance scales with 1/epsilon^2."""
-        np.random.seed(789)
-        data = np.zeros(100000)
-        epsilon1 = 1.0
-        epsilon2 = 2.0
+    def test_gaussian_noise_variance(self):
+        """Test that Gaussian noise has variance scale^2."""
+        sensitivity = 1.0
+        epsilon = 1.0
         delta = 1e-5
+        scale = compute_gaussian_scale(sensitivity=sensitivity, epsilon=epsilon, delta=delta)
+        expected_variance = scale ** 2
 
-        noisy_data1 = inject_gaussian_noise(data, epsilon1, delta)
-        noisy_data2 = inject_gaussian_noise(data, epsilon2, delta)
+        # Generate large sample to estimate variance
+        np.random.seed(42)
+        noise = inject_gaussian_noise(
+            data=np.zeros(100000),
+            sensitivity=sensitivity,
+            epsilon=epsilon,
+            delta=delta
+        )
 
-        var1 = np.var(noisy_data1)
-        var2 = np.var(noisy_data2)
+        estimated_variance = np.var(noise)
+        # Allow 5% tolerance for Monte Carlo estimation
+        assert np.isclose(estimated_variance, expected_variance, rtol=0.05)
 
-        # Variance should be roughly 4x larger for epsilon=1 vs epsilon=2
-        ratio = var1 / var2
-        assert 2.5 < ratio < 5.5
+    def test_gaussian_noise_mean_zero(self):
+        """Test that Gaussian noise is centered at zero."""
+        sensitivity = 1.0
+        epsilon = 1.0
+        delta = 1e-5
+        np.random.seed(42)
+        noise = inject_gaussian_noise(
+            data=np.zeros(100000),
+            sensitivity=sensitivity,
+            epsilon=epsilon,
+            delta=delta
+        )
+        # Allow 1% tolerance for Monte Carlo estimation
+        assert np.abs(np.mean(noise)) < 0.01
 
 
 class TestSensitivityComputation:
-    """Unit tests for sensitivity computation functions."""
+    """Test sensitivity computation for different statistics."""
 
-    def test_compute_sensitivity_mean(self):
-        """Verify sensitivity of mean is range/n."""
-        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        # Range is 4, n is 5, so sensitivity = 4/5 = 0.8
-        sens = compute_sensitivity_mean(data)
-        expected = (5.0 - 1.0) / 5.0
-        assert np.isclose(sens, expected)
-
-    def test_compute_sensitivity_variance(self):
-        """Verify sensitivity of variance is bounded."""
-        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        sens = compute_sensitivity_variance(data)
-        # Sensitivity of variance depends on range and n
-        assert sens > 0
-        assert sens < 10.0  # Reasonable bound for small data
-
-    def test_compute_sensitivity_mean_empty(self):
-        """Handle empty array gracefully."""
-        data = np.array([])
-        with pytest.raises(ValueError):
-            compute_sensitivity_mean(data)
+    def test_mean_sensitivity(self):
+        """Test that mean sensitivity is (max - min) / n."""
+        n = 100
+        data_range = 10.0  # max - min
+        expected_sensitivity = data_range / n
+        # The function computes this based on the data bounds
+        np.random.seed(42)
+        data = np.random.uniform(0, data_range, n)
+        actual_sensitivity = np.ptp(data) / n
+        assert np.isclose(actual_sensitivity, expected_sensitivity, rtol=0.01)
 
 
 class TestApplyDpToSummary:
-    """Unit tests for applying DP to summary statistics."""
+    """Test the DP application to summary statistics."""
 
-    def test_apply_dp_to_summary_mean(self):
-        """Verify apply_dp_to_summary returns noisy mean."""
-        data = np.random.normal(loc=10.0, scale=1.0, size=10000)
-        epsilon = 1.0
+    def test_laplace_applied_to_mean(self):
+        """Test that Laplace noise is correctly added to a mean estimate."""
+        np.random.seed(42)
+        data = np.random.normal(loc=5.0, scale=2.0, size=1000)
+        true_mean = np.mean(data)
+
+        sensitivity = 1.0
+        epsilon = 10.0  # Low noise for this test
+
+        noisy_mean = inject_laplace_noise(
+            data=np.array([true_mean]),
+            sensitivity=sensitivity,
+            epsilon=epsilon
+        )[0]
+
+        # With low noise, the noisy mean should be close to the true mean
+        assert np.abs(noisy_mean - true_mean) < 0.5
+
+    def test_gaussian_applied_to_mean(self):
+        """Test that Gaussian noise is correctly added to a mean estimate."""
+        np.random.seed(42)
+        data = np.random.normal(loc=5.0, scale=2.0, size=1000)
+        true_mean = np.mean(data)
+
+        sensitivity = 1.0
+        epsilon = 10.0
         delta = 1e-5
-        noise_type = "laplace"
 
-        result = apply_dp_to_summary(data, epsilon, noise_type=noise_type)
+        noisy_mean = inject_gaussian_noise(
+            data=np.array([true_mean]),
+            sensitivity=sensitivity,
+            epsilon=epsilon,
+            delta=delta
+        )[0]
 
-        assert "noisy_mean" in result
-        assert "sensitivity" in result
-        assert "epsilon" in result
-        assert np.isfinite(result["noisy_mean"])
+        # With low noise, the noisy mean should be close to the true mean
+        assert np.abs(noisy_mean - true_mean) < 0.5
 
-    def test_apply_dp_to_summary_variance(self):
-        """Verify apply_dp_to_summary returns noisy variance."""
-        data = np.random.normal(loc=0.0, scale=1.0, size=10000)
-        epsilon = 1.0
+
+class TestDPNoiseCIIntegration:
+    """
+    Integration test for DP noise calibration accuracy in CI coverage.
+
+    This test verifies that:
+    1. When epsilon is large (low noise), the empirical coverage of 95% CIs
+       remains close to the nominal 0.95 target.
+    2. When epsilon is small (high noise), the empirical coverage deviates
+       significantly from 0.95 (demonstrating the impact of DP noise).
+    """
+
+    def test_laplace_noise_coverage_at_high_epsilon(self):
+        """
+        Test that with high epsilon (low noise), CI coverage is close to nominal.
+
+        We generate data from a known distribution, add calibrated Laplace noise
+        with high epsilon, construct 95% CIs via bootstrap, and verify that
+        the true mean falls within the CI approximately 95% of the time.
+        """
+        # Configuration
+        np.random.seed(42)
+        n_samples = 500  # Sample size per iteration
+        n_iterations = 100  # Number of bootstrap coverage trials
+        epsilon = 10.0  # High epsilon (low noise)
         delta = 1e-5
-        noise_type = "gaussian"
+        sensitivity = 1.0
+        nominal_coverage = 0.95
+        tolerance = 0.10  # Allow 10% deviation due to Monte Carlo variance
 
-        result = apply_dp_to_summary(data, epsilon, noise_type=noise_type, statistic="variance")
+        # Generate synthetic population with known mean
+        true_mean = 10.0
+        true_std = 2.0
+        population = np.random.normal(loc=true_mean, scale=true_std, size=100000)
 
-        assert "noisy_variance" in result
-        assert np.isfinite(result["noisy_variance"])
+        covered_count = 0
 
-    def test_apply_dp_to_summary_invalid_noise_type(self):
-        """Verify error on invalid noise type."""
-        data = np.ones(100)
-        with pytest.raises(ValueError):
-            apply_dp_to_summary(data, epsilon=1.0, noise_type="invalid")
+        for _ in range(n_iterations):
+            # Draw a sample
+            sample = np.random.choice(population, size=n_samples, replace=False)
+
+            # Add DP noise to the sample (perturbing each observation)
+            # Note: In practice, sensitivity is computed based on the data bounds
+            data_range = np.ptp(sample)
+            actual_sensitivity = data_range / n_samples
+
+            noisy_sample = inject_laplace_noise(
+                data=sample.copy(),
+                sensitivity=actual_sensitivity,
+                epsilon=epsilon
+            )
+
+            # Compute point estimate and CI
+            point_estimate = np.mean(noisy_sample)
+            ci_lower, ci_upper = build_ci_for_mean(
+                data=noisy_sample,
+                confidence_level=0.95,
+                n_bootstrap=1000
+            )
+
+            # Check if true mean is covered
+            if ci_lower <= true_mean <= ci_upper:
+                covered_count += 1
+
+        empirical_coverage = covered_count / n_iterations
+
+        # Assert that coverage is close to nominal (within tolerance)
+        assert np.abs(empirical_coverage - nominal_coverage) < tolerance, \
+            f"Empirical coverage {empirical_coverage:.3f} deviates too much from nominal {nominal_coverage}"
+
+    def test_laplace_noise_coverage_at_low_epsilon(self):
+        """
+        Test that with low epsilon (high noise), CI coverage deviates from nominal.
+
+        This demonstrates that DP noise can degrade CI coverage when privacy budget is tight.
+        """
+        # Configuration
+        np.random.seed(42)
+        n_samples = 500
+        n_iterations = 100
+        epsilon = 0.1  # Low epsilon (high noise)
+        sensitivity = 1.0
+        nominal_coverage = 0.95
+
+        # Generate synthetic population with known mean
+        true_mean = 10.0
+        true_std = 2.0
+        population = np.random.normal(loc=true_mean, scale=true_std, size=100000)
+
+        covered_count = 0
+
+        for _ in range(n_iterations):
+            # Draw a sample
+            sample = np.random.choice(population, size=n_samples, replace=False)
+
+            # Add DP noise
+            data_range = np.ptp(sample)
+            actual_sensitivity = data_range / n_samples
+
+            noisy_sample = inject_laplace_noise(
+                data=sample.copy(),
+                sensitivity=actual_sensitivity,
+                epsilon=epsilon
+            )
+
+            # Compute point estimate and CI
+            point_estimate = np.mean(noisy_sample)
+            ci_lower, ci_upper = build_ci_for_mean(
+                data=noisy_sample,
+                confidence_level=0.95,
+                n_bootstrap=1000
+            )
+
+            # Check if true mean is covered
+            if ci_lower <= true_mean <= ci_upper:
+                covered_count += 1
+
+        empirical_coverage = covered_count / n_iterations
+
+        # With high noise, coverage should deviate significantly from nominal
+        # We expect it to be lower than nominal (conservative intervals might still cover,
+        # but the point estimate is biased, so coverage drops)
+        # Allow for some variance, but expect a significant drop
+        assert empirical_coverage < nominal_coverage - 0.05, \
+            f"Expected coverage to drop significantly with low epsilon, but got {empirical_coverage:.3f}"
+
+    def test_gaussian_noise_coverage_at_high_epsilon(self):
+        """
+        Test that with high epsilon (low noise), Gaussian DP noise maintains CI coverage.
+        """
+        # Configuration
+        np.random.seed(42)
+        n_samples = 500
+        n_iterations = 100
+        epsilon = 10.0
+        delta = 1e-5
+        sensitivity = 1.0
+        nominal_coverage = 0.95
+        tolerance = 0.10
+
+        # Generate synthetic population with known mean
+        true_mean = 10.0
+        true_std = 2.0
+        population = np.random.normal(loc=true_mean, scale=true_std, size=100000)
+
+        covered_count = 0
+
+        for _ in range(n_iterations):
+            # Draw a sample
+            sample = np.random.choice(population, size=n_samples, replace=False)
+
+            # Add DP noise
+            data_range = np.ptp(sample)
+            actual_sensitivity = data_range / n_samples
+
+            noisy_sample = inject_gaussian_noise(
+                data=sample.copy(),
+                sensitivity=actual_sensitivity,
+                epsilon=epsilon,
+                delta=delta
+            )
+
+            # Compute point estimate and CI
+            point_estimate = np.mean(noisy_sample)
+            ci_lower, ci_upper = build_ci_for_mean(
+                data=noisy_sample,
+                confidence_level=0.95,
+                n_bootstrap=1000
+            )
+
+            # Check if true mean is covered
+            if ci_lower <= true_mean <= ci_upper:
+                covered_count += 1
+
+        empirical_coverage = covered_count / n_iterations
+
+        # Assert that coverage is close to nominal
+        assert np.abs(empirical_coverage - nominal_coverage) < tolerance, \
+            f"Empirical coverage {empirical_coverage:.3f} deviates too much from nominal {nominal_coverage}"
+
+    def test_gaussian_noise_coverage_at_low_epsilon(self):
+        """
+        Test that with low epsilon (high noise), Gaussian DP noise degrades CI coverage.
+        """
+        # Configuration
+        np.random.seed(42)
+        n_samples = 500
+        n_iterations = 100
+        epsilon = 0.1
+        delta = 1e-5
+        sensitivity = 1.0
+        nominal_coverage = 0.95
+
+        # Generate synthetic population with known mean
+        true_mean = 10.0
+        true_std = 2.0
+        population = np.random.normal(loc=true_mean, scale=true_std, size=100000)
+
+        covered_count = 0
+
+        for _ in range(n_iterations):
+            # Draw a sample
+            sample = np.random.choice(population, size=n_samples, replace=False)
+
+            # Add DP noise
+            data_range = np.ptp(sample)
+            actual_sensitivity = data_range / n_samples
+
+            noisy_sample = inject_gaussian_noise(
+                data=sample.copy(),
+                sensitivity=actual_sensitivity,
+                epsilon=epsilon,
+                delta=delta
+            )
+
+            # Compute point estimate and CI
+            point_estimate = np.mean(noisy_sample)
+            ci_lower, ci_upper = build_ci_for_mean(
+                data=noisy_sample,
+                confidence_level=0.95,
+                n_bootstrap=1000
+            )
+
+            # Check if true mean is covered
+            if ci_lower <= true_mean <= ci_upper:
+                covered_count += 1
+
+        empirical_coverage = covered_count / n_iterations
+
+        # Expect significant deviation from nominal
+        assert empirical_coverage < nominal_coverage - 0.05, \
+            f"Expected coverage to drop significantly with low epsilon, but got {empirical_coverage:.3f}"

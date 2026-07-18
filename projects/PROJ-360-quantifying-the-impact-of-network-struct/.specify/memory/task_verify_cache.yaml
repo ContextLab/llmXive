@@ -1,0 +1,37 @@
+T016:
+  c: false
+  h: 01cb32e5ea04d8d6252769d6b6cbb8df9d9496b418806eaea46a0771bde33731
+  r: The repository contains a `code/analyze.py` file, but its content focuses on
+    logging, VIF calculation, and model training rather than computing Pearson and
+    Spearman correlations for the three network metrics, and it does not write a `results/correlations.json`
+    file (the file is missing). Consequently, the required artifact and functionality
+    are not present.
+T018:
+  c: false
+  h: 0ef057f5e24f37d164cba0cd763353e44fb28f217eaa12d828bdb95053a475d5
+  r: The repository contains `code/analyze.py` but the shown code never checks a sample
+    size `n` or writes warnings to `results/power_analysis.log`. Moreover, the `results/power_analysis.log`
+    file is absent. Both the required logging behavior and the resulting log artifact
+    are missing.
+T020:
+  c: false
+  h: 510678e52bc7535a7660d6214bc6152caaa66a6aee7246ff8a0780ebe1907b43
+  r: "The required input file `data/processed/metrics.csv` does not exist, so the\
+    \ script cannot compute VIF. Moreover, the provided `code/analyze.py` is truncated\
+    \ and shows no code that writes or returns the VIF results, leaving the core functionality\
+    \ unverified. The task\u2019s output (VIF values) is therefore not produced."
+T021:
+  c: false
+  h: 65d1674d46d856c158288a94c3570df55fa6dac2d45ca5d0b18c15e248723abd
+  r: "The repository lacks the required `results/power_analysis.log` and `data/processed/filtered_features.csv`\
+    \ files, and the shown `code/analyze.py` is truncated before any VIF\u2011based\
+    \ filtering, logging, or CSV output logic is implemented. Consequently the task\u2019\
+    s core requirements are not met."
+T022:
+  c: false
+  h: 75cf576bc612bce0cc22f08e50ce9a63f632e5d958733a49097a68c2cbe504ee
+  r: "The required `data/processed/filtered_features.csv` file is absent, and the\
+    \ expected model file `models/thermal_predictor.pkl` was not created. Moreover,\
+    \ the provided `code/analyze.py` is truncated and does not contain the logic to\
+    \ load the filtered features, train a scikit\u2011learn Linear Regression model,\
+    \ and save it, so the core task is unfulfilled."

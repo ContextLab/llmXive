@@ -1,23 +1,8 @@
-? 'T001a [P] Create project directory structure: `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/`,
-  `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/data/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/analysis/`,
-  `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/utils/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/tests/`,
-  `projects/PROJ-710-robustness-of-confidence-intervals-to-di/artifacts/`'
-: 2
-? 'T001a [P] Create project directory structure: `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/`,
-  `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/data/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/analysis/`,
-  `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/utils/`, `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/tests/`,
-  `projects/PROJ-710-robustness-of-confidence-intervals-to-di/artifacts/` <!-- ATOMIZE:
-  requested -->'
-: 2
-? 'T005 [P] Implement `code/data/synthetic_pop.py` to generate N=1,000,000 synthetic
-  populations for **UCI Adult**, **UCI Iris**, and **UCI Wine Quality** distributions.
-  The generation MUST create a population with **known parameters** (mean, variance,
-  coefficients) to serve as ground truth, ensuring independence from sample realization.
-  **Output to `code/data/ground_truth.json`** containing these known parameters for
-  each population. <!-- FAILED: unspecified -->'
-: 1
-? T006 [P] Implement `code/data/dp_noise.py` for calibrated Laplace and Gaussian noise
-  injection (CPU-only, no 8-bit quantization)
-: 1
-T008 [P] Implement `code/data/__init__.py` and `code/utils/__init__.py` package initializers: 1
-T009 [P] [US1] Unit test for DP noise calibration accuracy in `code/tests/test_dp_noise.py`: 1
+T001a: 1
+T005: 1
+T011: 1
+T013: 1
+T014: 1
+T015: 1
+T016: 1
+T017: 1

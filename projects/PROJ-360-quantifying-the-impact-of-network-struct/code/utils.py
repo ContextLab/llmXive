@@ -1,6 +1,10 @@
 """
-Utility functions for the llmXive project.
-Provides logging configuration, exponential backoff retry logic, and deterministic seed pinning.
+Utility functions for the project.
+
+Includes:
+- Logging setup.
+- Retry logic with exponential backoff.
+- Seed pinning for reproducibility.
 """
 
 import logging
@@ -9,166 +13,156 @@ import time
 import os
 from typing import Callable, TypeVar, List, Any, Optional
 from functools import wraps
-import numpy as np
-import requests
-from requests.exceptions import RequestException, HTTPError, Timeout
+from pathlib import Path
 
-# Type variable for generic retry wrapper
-T = TypeVar('T')
+# Ensure results directory exists for logs
+LOG_DIR = Path("results")
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# Default configuration
-DEFAULT_LOG_LEVEL = logging.INFO
-DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DEFAULT_SEED = 42
-MAX_RETRIES = 3
-INITIAL_BACKOFF = 1.0  # seconds
-MAX_BACKOFF = 64.0     # seconds
-BACKOFF_FACTOR = 2.0
-
-# Global seed state
-_seed_initialized = False
-
-
-def setup_logging(
-    level: int = DEFAULT_LOG_LEVEL,
-    log_file: Optional[str] = None,
-    format_str: str = DEFAULT_LOG_FORMAT
-) -> logging.Logger:
+def setup_logging(name: str, log_file: Optional[str] = None) -> logging.Logger:
     """
-    Configures the root logger with the specified level and format.
-    Optionally writes logs to a file.
+    Setup a logger with a file handler and console handler.
 
     Args:
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        log_file: Path to a log file. If None, logs to console only.
-        format_str: Format string for log messages.
+        name: Logger name (usually __name__).
+        log_file: Relative path to log file.
 
     Returns:
-        The configured root logger instance.
+        Configured logger instance.
     """
-    logger = logging.getLogger()
-    logger.setLevel(level)
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
 
-    # Clear existing handlers to avoid duplicates in interactive environments
-    logger.handlers.clear()
+    # Clear existing handlers to avoid duplicates in some environments
+    if logger.handlers:
+        logger.handlers.clear()
+
+    # Formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+    # File handler
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        fh = logging.FileHandler(log_path)
+        fh.setFormatter(formatter)
+        fh.setLevel(logging.INFO)
+        logger.addHandler(fh)
 
     # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    console_handler.setFormatter(logging.Formatter(format_str))
-    logger.addHandler(console_handler)
-
-    # File handler (optional)
-    if log_file:
-        # Ensure directory exists
-        log_dir = os.path.dirname(log_file)
-        if log_dir and not os.path.exists(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
-        
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(logging.Formatter(format_str))
-        logger.addHandler(file_handler)
+    ch = logging.StreamHandler()
+    ch.setFormatter(formatter)
+    ch.setLevel(logging.INFO)
+    logger.addHandler(ch)
 
     return logger
 
-
-def pin_seed(seed: int = DEFAULT_SEED) -> None:
+def pin_seed(seed: int = 42):
     """
-    Pins the random seed for reproducibility across numpy, random, and os.environ (if needed).
-    
+    Pin random seeds for reproducibility.
+
     Args:
-        seed: Integer seed value.
+        seed: Random seed integer.
     """
-    global _seed_initialized
     random.seed(seed)
-    np.random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
-    _seed_initialized = True
+    # If numpy is used, it should be seeded there too, but we handle core random here.
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except ImportError:
+        pass
 
+T = TypeVar('T')
 
 def retry_with_exponential_backoff(
-    max_retries: int = MAX_RETRIES,
-    initial_backoff: float = INITIAL_BACKOFF,
-    max_backoff: float = MAX_BACKOFF,
-    backoff_factor: float = BACKOFF_FACTOR,
-    exceptions: tuple = (RequestException, Timeout, HTTPError)
-) -> Callable[[Callable[..., T]], Callable[..., T]]:
+    func: Callable[..., T],
+    max_retries: int = 3,
+    initial_backoff: float = 1.0,
+    backoff_multiplier: float = 2.0,
+    logger: Optional[logging.Logger] = None
+) -> Callable[..., T]:
     """
-    Decorator that retries a function with exponential backoff on specified exceptions.
-    
+    Decorator to retry a function with exponential backoff.
+
     Args:
+        func: The function to wrap.
         max_retries: Maximum number of retry attempts.
-        initial_backoff: Initial wait time in seconds.
-        max_backoff: Maximum wait time in seconds.
-        backoff_factor: Multiplier for the backoff time (e.g., 2.0 doubles the wait).
-        exceptions: Tuple of exception classes to catch and retry on.
+        initial_backoff: Initial backoff time in seconds.
+        backoff_multiplier: Multiplier for backoff time.
+        logger: Optional logger for retry messages.
 
     Returns:
-        A decorator function.
+        Wrapped function.
     """
-    def decorator(func: Callable[..., T]) -> Callable[..., T]:
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> T:
-            last_exception = None
-            current_backoff = initial_backoff
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> T:
+        backoff = initial_backoff
+        last_exception = None
 
-            for attempt in range(1, max_retries + 1):
-                try:
-                    return func(*args, **kwargs)
-                except exceptions as e:
-                    last_exception = e
-                    if attempt == max_retries:
-                        logging.getLogger(func.__module__).error(
-                            f"Failed after {max_retries} attempts: {e}"
+        for attempt in range(1, max_retries + 1):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                last_exception = e
+                if attempt < max_retries:
+                    if logger:
+                        logger.warning(
+                            f"Attempt {attempt} failed: {e}. Retrying in {backoff:.1f}s..."
                         )
-                        raise e
-                    
-                    # Log retry attempt
-                    logging.getLogger(func.__module__).warning(
-                        f"Attempt {attempt} failed: {e}. Retrying in {current_backoff:.2f}s..."
-                    )
-                    
-                    time.sleep(current_backoff)
-                    current_backoff = min(current_backoff * backoff_factor, max_backoff)
-            
-            # Should not be reached, but for type safety
-            raise last_exception  # type: ignore
-        return wrapper
-    return decorator
+                    time.sleep(backoff)
+                    backoff *= backoff_multiplier
+                else:
+                    if logger:
+                        logger.error(f"Attempt {attempt} failed: {e}. No more retries.")
 
+        raise last_exception
+
+    return wrapper
 
 def fetch_with_retry(
-    url: str,
-    method: str = "GET",
-    max_retries: int = MAX_RETRIES,
-    timeout: float = 30.0,
-    **kwargs: Any
-) -> requests.Response:
+    func: Callable[..., T],
+    max_retries: int = 3,
+    initial_backoff: float = 1.0,
+    backoff_multiplier: float = 2.0,
+    logger: Optional[logging.Logger] = None
+) -> T:
     """
-    Fetches a URL with automatic retries using exponential backoff for network errors.
-    
+    Function-level retry wrapper (non-decorator style) for one-off calls.
+    Useful when we need to retry a specific call without decorating the function.
+
     Args:
-        url: The URL to fetch.
-        method: HTTP method (GET, POST, etc.).
-        max_retries: Maximum number of retry attempts.
-        timeout: Request timeout in seconds.
-        **kwargs: Additional arguments passed to requests.request.
+        func: Callable to execute.
+        max_retries: Max retry attempts.
+        initial_backoff: Initial backoff seconds.
+        backoff_multiplier: Backoff multiplier.
+        logger: Logger instance.
 
     Returns:
-        The requests.Response object for a successful request.
+        Result of the function.
 
     Raises:
-        requests.exceptions.RequestException: If all retries fail.
+        The last exception encountered if all retries fail.
     """
-    @retry_with_exponential_backoff(
-        max_retries=max_retries,
-        exceptions=(RequestException, Timeout, HTTPError)
-    )
-    def _do_request() -> requests.Response:
-        response = requests.request(method, url, timeout=timeout, **kwargs)
-        # Raise an HTTPError if the status is 4xx, 5xx
-        response.raise_for_status()
-        return response
+    backoff = initial_backoff
+    last_exception = None
 
-    return _do_request()
+    for attempt in range(1, max_retries + 1):
+        try:
+            return func()
+        except Exception as e:
+            last_exception = e
+            if attempt < max_retries:
+                if logger:
+                    logger.warning(
+                        f"Attempt {attempt} failed: {e}. Retrying in {backoff:.1f}s..."
+                    )
+                time.sleep(backoff)
+                backoff *= backoff_multiplier
+            else:
+                if logger:
+                    logger.error(f"Attempt {attempt} failed: {e}. No more retries.")
+
+    raise last_exception

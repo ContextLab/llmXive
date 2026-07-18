@@ -1,8 +1,6 @@
-T001a Create `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/` root directory: 1
-T001b Create `code/`, `data/`, `tests/`, `docs/` subdirectories: 1
-T001c Create `data/raw/` and `data/processed/` subdirectories: 1
-T001d Create `tests/contract/`, `tests/integration/`, `tests/unit/` subdirectories: 1
-? T001e Create `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs/`
-  directory structure
-: 1
-T001f Create `.gitkeep` files in all empty directories: 1
+T001a: 1
+T001b: 1
+T001c: 1
+T001d: 1
+T001e: 1
+T001f: 1

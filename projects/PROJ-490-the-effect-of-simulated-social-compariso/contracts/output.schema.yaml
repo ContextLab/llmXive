@@ -1,135 +1,31 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Analysis Output Schema
-description: |
-  Schema for the primary analysis output containing regression coefficients
-  and diagnostic metrics from the ANCOVA model.
+description: Schema for the primary regression output CSV containing coefficients and statistics.
 type: object
 required:
-  - model_type
-  - coefficients
-  - diagnostics
-  - assumptions_valid
-  - interpretation_label
+  - term
+  - coefficient
+  - std_error
+  - p_value
+  - ci_lower
+  - ci_upper
 properties:
-  model_type:
+  term:
     type: string
-    const: "ANCOVA"
-    description: Type of statistical model used.
-  coefficients:
-    type: object
-    description: Regression coefficients and statistics for each predictor.
-    required:
-      - intercept
-      - avatar_condition
-      - pre_self_esteem
-      - comparison_tendency
-      - interaction_term
-    properties:
-      intercept:
-        type: object
-        required: [estimate, std_err, t_stat, p_value, ci_lower, ci_upper]
-        properties:
-          estimate: { type: number }
-          std_err: { type: number }
-          t_stat: { type: number }
-          p_value: { type: number }
-          ci_lower: { type: number }
-          ci_upper: { type: number }
-      avatar_condition:
-        type: object
-        required: [estimate, std_err, t_stat, p_value, ci_lower, ci_upper]
-        properties:
-          estimate: { type: number }
-          std_err: { type: number }
-          t_stat: { type: number }
-          p_value: { type: number }
-          ci_lower: { type: number }
-          ci_upper: { type: number }
-      pre_self_esteem:
-        type: object
-        required: [estimate, std_err, t_stat, p_value, ci_lower, ci_upper]
-        properties:
-          estimate: { type: number }
-          std_err: { type: number }
-          t_stat: { type: number }
-          p_value: { type: number }
-          ci_lower: { type: number }
-          ci_upper: { type: number }
-      comparison_tendency:
-        type: object
-        required: [estimate, std_err, t_stat, p_value, ci_lower, ci_upper]
-        properties:
-          estimate: { type: number }
-          std_err: { type: number }
-          t_stat: { type: number }
-          p_value: { type: number }
-          ci_lower: { type: number }
-          ci_upper: { type: number }
-      interaction_term:
-        type: object
-        required: [estimate, std_err, t_stat, p_value, ci_lower, ci_upper]
-        properties:
-          estimate: { type: number }
-          std_err: { type: number }
-          t_stat: { type: number }
-          p_value: { type: number }
-          ci_lower: { type: number }
-          ci_upper: { type: number }
-  diagnostics:
-    type: object
-    description: Model fit and assumption test results.
-    required:
-      - r_squared
-      - adj_r_squared
-      - f_statistic
-      - shapiro_wilk
-      - breusch_pagan
-      - vif_scores
-    properties:
-      r_squared: { type: number }
-      adj_r_squared: { type: number }
-      f_statistic:
-        type: object
-        required: [statistic, p_value]
-        properties:
-          statistic: { type: number }
-          p_value: { type: number }
-      shapiro_wilk:
-        type: object
-        description: Normality test of residuals.
-        required: [statistic, p_value]
-        properties:
-          statistic: { type: number }
-          p_value: { type: number }
-      breusch_pagan:
-        type: object
-        description: Homoscedasticity test.
-        required: [statistic, p_value]
-        properties:
-          statistic: { type: number }
-          p_value: { type: number }
-      vif_scores:
-        type: object
-        description: Variance Inflation Factors for predictors.
-        properties:
-          avatar_condition: { type: number }
-          pre_self_esteem: { type: number }
-          comparison_tendency: { type: number }
-  assumptions_valid:
-    type: boolean
-    description: |
-      Overall flag indicating if all critical assumptions (normality, homoscedasticity,
-      low collinearity) are met. True if p-values > 0.05 and VIF < 5.
-  interpretation_label:
-    type: string
-    enum: ["Empirical Association", "Simulated Causal Effect"]
-    description: |
-      Label derived from data_source_type. "Empirical Association" for real data,
-      "Simulated Causal Effect" for synthetic data.
-  execution_metadata:
-    type: object
-    properties:
-      timestamp: { type: string, format: date-time }
-      seed: { type: integer }
-      software_version: { type: string }
+    description: Name of the regression term (e.g., 'Intercept', 'avatar_condition', 'pre_self_esteem').
+  coefficient:
+    type: number
+    description: Estimated regression coefficient.
+  std_error:
+    type: number
+    description: Standard error of the coefficient.
+  p_value:
+    type: number
+    description: P-value for the hypothesis test that the coefficient is zero.
+  ci_lower:
+    type: number
+    description: Lower bound of the 95% confidence interval.
+  ci_upper:
+    type: number
+    description: Upper bound of the 95% confidence interval.
 additionalProperties: false

@@ -74,11 +74,11 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/ingest.py`: Fetch FDA-approved structures from HuggingFace (`Synthyra/FDA-Approved-Drugs`) and check for degradation columns. **Dependency**: No upstream tasks.
-- [ ] T013 [US1] Implement Data Availability Gate in `code/ingest.py`: If degradation data missing or N < 30, generate `data_insufficiency_report.md` and exit. **Dependency**: T012 (Fetch data).
+- [X] T013 [US1] Implement Data Availability Gate in `code/ingest.py`: If degradation data missing or N < 30, generate `data_insufficiency_report.md` and exit. **Dependency**: T012 (Fetch data).
 - [X] T014 [US1] Implement `code/descriptors.py`: Calculate TPSA, Rotatable Bond Count, MW, Aromatic Ring Count, Wiener Index, Zagreb Index using RDKit. **Dependency**: T012 (Fetch data).
 - [ ] T015 [US1] Implement error handling in `code/descriptors.py`: Flag/exclude molecules with non-standard valence, log SMILES to `data/errors.log`. **Dependency**: T014 (Descriptors).
 - [X] T016 [US1] Merge structural and degradation data in `code/ingest.py`, filter for valid SMILES and non-null degradation values. **Dependency**: T012 (Fetch), T014 (Descriptors).
-- [~] T017 [US1] Save merged dataset to `data/processed/merged_drugs.csv` and generate checksums in `data/checksums.txt`. **Dependency**: T016 (Merge).
+- [ ] T017 [US1] Save merged dataset to `data/processed/merged_drugs.csv` and generate checksums in `data/checksums.txt`. **Dependency**: T016 (Merge).
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -104,7 +104,7 @@
 - [X] T021a [US2] Implement `code/standardize.py`: Data Coverage Check. Calculate the percentage of records in the FULL dataset (pre-stratification) that have pH and temperature data. Log the decision (include/exclude covariates) based on the ≥50% threshold. **Dependency**: T020 (Unit Conversion).
 - [X] T021 [US2] Implement `code/standardize.py`: Stratification logic. Filter for "Standard" conditions (25°C, pH 7.4) OR records normalized by T020b to create the `standard_subset` for primary regression. Exclude 'Unnormalized' records (missing Ea) from the `standard_subset` but retain them in a separate `descriptive_table`. **Dependency**: T020b (Normalization), T021a (Coverage Check).
 - [X] T022 [US2] Implement `code/analysis.py`: Compute Pearson and Spearman correlation matrices on the `standard_subset`; identify pairs with |r| ≥ 0.5 and p < 0.05. **Dependency**: T021 (Stratified data).
-- [~] T022a [US2] Implement sensitivity analysis in `code/analysis.py`: Sweep correlation thresholds over a range of moderate to high values and save the count of significant correlations for each threshold to `data/processed/sensitivity_analysis.json`. **Dependency**: T021 (Stratified data).
+- [ ] T022a [US2] Implement sensitivity analysis in `code/analysis.py`: Sweep correlation thresholds over a range of moderate to high values and save the count of significant correlations for each threshold to `data/processed/sensitivity_analysis.json`. **Dependency**: T021 (Stratified data).
 - [X] T023 [US2] Implement Multiple Linear Regression (MLR) in `code/analysis.py` **operating strictly on the `standard_subset`** defined in T021. **Dependency**: T021 (Stratified data).
 - [X] T023b [US2] Implement conditional covariate modeling in `code/analysis.py`: Use the decision logged in T021a to determine if pH/temp should be included as covariates. If T021a logged "include", add covariates; if "exclude", use baseline model. **Model must run only on `standard_subset`**. **Dependency**: T021a (Coverage Check), T023 (MLR).
 - [X] T024 [US2] Implement LASSO regression with k-fold cross-validation in `code/analysis.py` **operating strictly on the `standard_subset`** to identify parsimonious features. **Dependency**: T023 (MLR) and T021.
@@ -130,15 +130,15 @@
 
 ### Implementation for User Story 3
 
-- [~] T032 [US3] Implement `code/viz.py`: Generate scatter plots with regression lines for top correlated features; **save to `data/outputs/scatter_tpsa_vs_half_life.png`**, etc. **Dependency**: T026 (Analysis results).
+- [ ] T032 [US3] Implement `code/viz.py`: Generate scatter plots with regression lines for top correlated features; **save to `data/outputs/scatter_tpsa_vs_half_life.png`**, etc. **Dependency**: T026 (Analysis results).
 - [ ] T033 [US3] Implement `code/viz.py`: Generate residual diagnostic plots (histogram, QQ-plot, residuals vs fitted); **save to `data/outputs/residuals.png`**, `qq_plot.png`. **Dependency**: T025 (Diagnostics).
-- [ ] T034 [US3] Implement `code/report.py`: Generate `results_report.md` summarizing methodology, coefficients, and R² scores. **Dependency**: T026, T032, T033.
-- [ ] T035 [US3] Implement reproducibility check in `code/report.py`: Log RDKit/scikit-learn versions, dataset URLs, retrieval dates, and file hashes. **Dependency**: T034.
-- [ ] T036 [US3] Save all plots to `data/outputs/` and final report to `results_report.md`; **verify the existence of the required plot files** (`scatter_tpsa_vs_half_life.png`, `residuals.png`, `qq_plot.png`) and the report file, ensuring each plot file has a non-zero size. **Dependency**: T032, T033, T034, T035.
+- [X] T034 [US3] Implement `code/report.py`: Generate `results_report.md` summarizing methodology, coefficients, and R² scores. **Dependency**: T026, T032, T033.
+- [X] T035 [US3] Implement reproducibility check in `code/report.py`: Log RDKit/scikit-learn versions, dataset URLs, retrieval dates, and file hashes. **Dependency**: T034.
+- [~] T036 [US3] Save all plots to `data/outputs/` and final report to `results_report.md`; **verify the existence of the required plot files** (`scatter_tpsa_vs_half_life.png`, `residuals.png`, `qq_plot.png`) and the report file, ensuring each plot file has a non-zero size. **Dependency**: T032, T033, T034, T035.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [US3] Integration test for report generation in `tests/test_pipeline.py`. Function: `test_report_generation_and_plots`. **Assertion**: Verify `results_report.md` contains `dataset_hash` field, code version, and all expected sections; verify `data/outputs/` contains at least 5 PNG files with non-zero size. **Dependency**: T036.
+- [X] T031 [US3] Integration test for report generation in `tests/test_pipeline.py`. Function: `test_report_generation_and_plots`. **Assertion**: Verify `results_report.md` contains `dataset_hash` field, code version, and all expected sections; verify `data/outputs/` contains at least 5 PNG files with non-zero size. **Dependency**: T036.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,9 +148,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `quickstart.md` and `README.md`
-- [ ] T038 Code cleanup and refactoring (ensure no hardcoded paths)
-- [ ] T039 Performance optimization: Ensure chunked processing if dataset > 5GB
+- [~] T037 [P] Documentation updates in `quickstart.md` and `README.md`
+- [~] T038 Code cleanup and refactoring (ensure no hardcoded paths)
+- [~] T039 Performance optimization: Ensure chunked processing if dataset > 5GB
 - [ ] T040 [P] Additional unit tests for edge cases (empty datasets, invalid SMILES) in `tests/unit/`
 - [ ] T041 Run `quickstart.md` validation to ensure full pipeline executes within 6 hours on free-tier runner
 

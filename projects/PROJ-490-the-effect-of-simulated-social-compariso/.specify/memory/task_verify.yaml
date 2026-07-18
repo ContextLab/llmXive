@@ -1,17 +1,7 @@
-? 'T001 [P] Initialize project structure: Create root directory `projects/PROJ-490-the-effect-of-simulated-social-compariso/`
-  and subdirectories `code/`, `data/`, `tests/`, `docs/`, `state/`, `data/raw`, `data/processed`,
-  `tests/contract`, `tests/unit`. Create `requirements.txt`, `README.md`, and configure
-  linting (flake8/pylint) and formatting (black) tools.'
-: 2
-? T002 [P] Create schema contracts in `projects/PROJ-490-the-effect-of-simulated-social-compariso/contracts/`
-  (dataset.schema.yaml, output.schema.yaml, results.schema.yaml)
-: 2
-? T003 [P] Implement schema validation utilities in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/utils/validators.py`
-: 2
-? T006 [P] [US1] Contract test for dataset schema validation in `projects/PROJ-490-the-effect-of-simulated-social-compariso/tests/contract/test_dataset_schema.py`
-: 2
-? T007 [P] [US1] Unit test for synthetic data generator parameter recovery in `projects/PROJ-490-the-effect-of-simulated-social-compariso/tests/unit/test_synthetic_gen.py`
-: 1
-? T008 [P] [US1] Implement dataset discovery script in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py`
-  to query HuggingFace, OpenML, and OSF for RSES/INCOM/PrePost variables.
-: 1
+T002: 1
+T011: 1
+T012: 1
+T013: 1
+T020: 1
+T021: 1
+T022: 1

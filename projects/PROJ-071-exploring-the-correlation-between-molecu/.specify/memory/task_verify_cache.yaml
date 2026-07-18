@@ -1,0 +1,43 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration files, or documentation were provided to demonstrate that
+    error handling and logging for pipeline failures have been set up. The claim lacks
+    any tangible artifact (e.g., logging config, try/except wrappers, log output examples),
+    so the requirement is not satisfied.
+T015:
+  c: false
+  h: 5c31c272254c7387ce4617cfacc6b5f41e62f8c847385393248950e26a31b802
+  r: "The `code/descriptors.py` file is truncated and never calls `log_error_to_file`\
+    \ when a non\u2011standard valence is detected, and the required `data/errors.log`\
+    \ file does not exist. Consequently, the error\u2011handling and logging requirement\
+    \ is not fulfilled."
+T017:
+  c: false
+  h: 1078b4ebf2d2305e1a8e8e9f8854091115eff04bbd25c2e80b87808e1483faaa
+  r: "The required `data/processed/merged_drugs.csv` file does not exist, and `data/checksums.txt`\
+    \ contains only placeholder comments rather than actual SHA256 checksums of generated\
+    \ artifacts. Both required outputs are missing or non\u2011functional."
+T022a:
+  c: false
+  h: 734d8a5edda3fb2168e1780cab47b38782befa4909b4377fb1f9e4337c115e50
+  r: "The required output file `data/processed/sensitivity_analysis.json` does not\
+    \ exist, and the shown portion of `code/analysis.py` ends abruptly without a complete\
+    \ `run_sensitivity_analysis` implementation that sweeps thresholds and writes\
+    \ the counts to that JSON file. Consequently the task\u2019s core requirement\
+    \ is unmet."
+T032:
+  c: false
+  h: a6b6af4b4886b77321f32e2ba056a7d84724a5c6b9d8bfbbc951572bd8306dab
+  r: "The required image `data/outputs/scatter_tpsa_vs_half_life.png` is not present,\
+    \ and the provided `code/viz.py` snippet shows only loading functions and a residual\
+    \ histogram plot \u2013 there is no implementation that creates scatter plots\
+    \ with regression lines for the top correlated features as the task demands. The\
+    \ artifact therefore does not meet the specification."
+T033:
+  c: false
+  h: 7a053c575a2a754df1c0fefc2c3c3e14a6024e77e39c232658cbff8f200c59a9
+  r: "The required output files (`data/outputs/residuals.png` and `qq_plot.png`) are\
+    \ not present, and the provided `code/viz.py` snippet is truncated before showing\
+    \ any code that actually creates and saves those plots. Without the generated\
+    \ plot files, the task\u2019s core requirement is unmet."

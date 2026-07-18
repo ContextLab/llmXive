@@ -1,0 +1,41 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/`
+    directory (or any files within it) is provided; the response contains only a specification
+    description, not the required filesystem artifact. The task remains undone.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required `code/`, `data/`, `tests/`, and `docs/`
+    subdirectories actually exist in the repository; the response contains only the
+    task description and no file listings or directory structures. The implementer
+    must create and show these four directories (with at least placeholder files)
+    to satisfy the task.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the `data/raw/` and `data/processed/` directories
+    actually exist; the response contains only the task description and specifications,
+    with no file listings, screenshots, or code creating those folders. The implementer
+    must create the directories (or provide proof they exist) to satisfy the requirement.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that the `tests/contract/`, `tests/integration/`,
+    or `tests/unit/` directories actually exist in the repository; the response contains
+    no file listings or screenshots confirming their creation. The implementer must
+    add these subdirectories (with at least placeholder files) and provide proof they
+    are present.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs/`
+    directory (or any files within it) was provided; without confirming the directory
+    exists and contains the expected structure, the task cannot be considered completed.
+T001f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitkeep` files or directory listings were provided, so there is no evidence
+    that empty directories now contain the required placeholder files. The implementer
+    must add the missing `.gitkeep` files to every empty folder in the repository.
