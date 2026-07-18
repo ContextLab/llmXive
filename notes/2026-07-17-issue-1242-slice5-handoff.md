@@ -54,14 +54,40 @@ select()". `chat_with_fallback` IS the registry-agent path (`agents/base.py` rea
 entry → chat_with_fallback). Rerouting it = registry agents now resolve through select(). Kept the
 diff small deliberately (the prior Slice 5 was reverted; smaller = reviewable).
 
-## ⏭️ STEP B — remaining corrected-Slice-5 work (next session)
-1. **Retire `reasoning_chat` + `chat_with_model_fallback` as prod entry points** → thin route_chat
-   wrappers (same pattern as chat_with_fallback; `standard_generation` provisional profile;
-   preserve the outage-classification translation). These are the ~52 slice-7 compat consumers'
-   current entry (claims/fill/grounding/convergence-revisers/llm_reviewer). They take a backend
-   INSTANCE — the wrapper must adapt: cleanest is to DROP the instance (execute uses backend_factory
-   per-candidate) and migrate the instance-injection tests. KEEP `chat_one_candidate`/
-   `disposition_of` (execute's 1A primitive) + the `model=None` degrade path used by offline fakes.
+## ⏭️ STEP B — retire `reasoning_chat` + `chat_with_model_fallback` (maintainer: "retire all 3 now")
+
+**GROUND-TRUTH SCOPE (investigated 2026-07-18, before writing code — bigger than the earlier
+estimate):** this is a SUBSYSTEM-WIDE migration, effectively the Slice-7 direct-pin consumer work.
+- The injected backend flows into the walkers through TWO production seams that EVERY reviser/reviewer
+  test drives: `convergence/revisers/_self_consistency.py:invoke_reviser_backend` (→
+  `reasoning_chat(reviser._backend, …)`, used by every reviser) and
+  `convergence/llm_reviewer.py:LLMReviewer._call_backend` (→
+  `chat_with_model_fallback(self._backend, …)`). Plus the direct callers in
+  claims/fill/grounding/triage/plan_cmd.
+- **~18–20 test files break at once** the moment those walkers route through `route_chat`
+  (which acquires a networked snapshot + uses `backend_factory`, ignoring the injected instance):
+  `test_reviser_self_consistency`, `test_llm_reviewer_model_fallback`, `test_review_max_tokens_bound`,
+  `test_llm_reviewer_yaml_recovery`, `test_review_r1_action_items_gate`, `test_concern_text_validation`,
+  `test_convergence_review_cache`, `test_spec_kickback_inplace_revision`, `test_verified_facts_prompt`,
+  `test_llm_reviewer_action_items_compat`, + integration `test_spec_reviser`, `test_paper_spec_reviser`,
+  `test_llm_reviewer`, `test_panels_research`, `test_invariants`, `test_production_flags_active`,
+  `test_tasker_*`. Plus `test_chat_with_model_fallback.py` (25) + the model-level half of
+  `test_model_fallback_outage_classification.py` (RETIRE — superseded by execute/router-primitive).
+- **No clean wrapper seam** keeps these green without touching them: the test fakes set the RESPONSE's
+  `backend="dartmouth"` but do NOT give the fake object `.name="dartmouth"`, so threading
+  `backend_factory = lambda name: injected if name==injected.name else make_backend(name)` sends the
+  fake's candidates to the REAL Dartmouth backend (network). And `lambda name: injected` (fake serves
+  every candidate) BREAKS production per-candidate dispatch (a local candidate would hit the Dartmouth
+  backend — violates e2e #2/#4). So the injected-instance shape genuinely has to be migrated.
+- **Two viable approaches (pick one):** (a) an autouse conftest fixture stubbing
+  `route.runtime_snapshot` → a deterministic offline snapshot + `reset_snapshot_cache()`, PLUS give the
+  test fakes `.name="dartmouth"` so threading works — WIDE blast radius, but few per-file edits; or
+  (b) migrate each of the ~18 files to monkeypatch `_self_consistency.reasoning_chat` /
+  `llm_reviewer.chat_with_model_fallback` (like the chat_with_fallback consumers already monkeypatch
+  their walker symbol) — no production-code change, but ~18 mechanical test rewrites. Either is a
+  dedicated focused effort (its own PR), NOT a tail-of-session add-on — do it fresh with the outage
+  guarantee re-asserted at the wrapper level (as `test_chat_with_fallback_delegation.py` does).
+  KEEP `chat_one_candidate`/`disposition_of` (execute's 1A primitive).
 2. **Triage the superseded walker-mechanics tests** (confirmed RETIRE — execute()/router-primitive
    tests already cover the equivalents):
    - `tests/unit/test_chat_with_model_fallback.py` (25 tests: peer-walk vs MODEL_FALLBACKS +
