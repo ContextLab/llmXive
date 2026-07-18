@@ -1,0 +1,19 @@
+status: none
+intent: OpenNeuro HCP-Aging ds004230 download structural connectome EEG python package
+  dataset
+required_fields:
+- participant_id
+- age
+- sex
+- dwi_raw_path
+- dwi_preprocessed_path
+- structural_connectivity_matrix_360parcels
+- parcellation_name
+- eeg_raw_path
+- eeg_preprocessed_path
+- eeg_time_series
+- eeg_sampling_rate_hz
+- eeg_frequency_band_hz
+cache_key: 84e1c9c2d8d6ae0a608d50724021c0eb71284fdc2ac6aeae93a0d862df12e84e
+searched_at: '2026-07-18T18:40:02.092101+00:00'
+retry_count: 1

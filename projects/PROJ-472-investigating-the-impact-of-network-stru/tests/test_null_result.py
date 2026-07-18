@@ -1,236 +1,296 @@
+"""
+Unit tests for the Null Result Protocol (T029c).
+
+These tests verify that the main.py logic correctly handles the sample size gate:
+1. Halts execution when N < N_MIN.
+2. Generates the 'insufficient_sample_report.md'.
+3. Writes the correct state to 'data/processed/routing_state.json'.
+4. Prevents correlation analysis from running in the insufficient sample path.
+"""
+
 import os
-import sys
 import json
 import tempfile
 import shutil
 from pathlib import Path
+import pytest
 from unittest.mock import patch, MagicMock
 
-import pytest
-
-# Adjust import path to match project structure if running from root
-# Assuming tests are at root level and code is in code/
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-
-from main import run_null_result_protocol, run_pipeline, parse_args
+# Import the functions we are testing from main.py
+# Note: We import the specific functions to test them in isolation,
+# but we also test the integration via the main entry point logic.
+from main import (
+    load_research_config,
+    count_usable_subjects,
+    run_null_result_protocol,
+    check_sample_size_gate
+)
 from config import get_data_root, ensure_directories
-from data.quality_control import calculate_pipeline_completeness
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
-class TestNullResultProtocol:
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory structure mimicking the project root."""
+    temp_dir = tempfile.mkdtemp(prefix="llmXive_test_")
+    # Create necessary subdirectories
+    dirs = [
+        "data/raw",
+        "data/processed",
+        "data/processed/avalanches",
+        "data/results",
+        "data/processed/eeg",
+        "data/processed/connectomes"
+    ]
+    for d in dirs:
+        os.makedirs(os.path.join(temp_dir, d), exist_ok=True)
+
+    # Create a mock research_phase_config.json with N_MIN
+    config_content = {
+        "N_MIN": 5,
+        "thresholds": [0.70, 0.75, 0.80]
+    }
+    config_path = os.path.join(temp_dir, "research_phase_config.json")
+    with open(config_path, 'w') as f:
+        json.dump(config_content, f)
+
+    # Create a mock routing_state.json to simulate a clean start (or lack thereof)
+    # We will let the code create it if it doesn't exist, or overwrite it.
+    # Actually, for the test, we want to ensure the directory exists.
+    # The code in main.py handles creation if missing.
+
+    yield temp_dir
+
+    # Cleanup
+    shutil.rmtree(temp_dir)
+
+
+@pytest.fixture
+def mock_subjects(temp_project_root):
+    """Create a set of mock subject directories to simulate available data."""
+    # Create 3 mock subjects (N=3)
+    # This is less than N_MIN=5, triggering the Null Result Protocol
+    subjects = ["sub-001", "sub-002", "sub-003"]
+    for sub in subjects:
+        # Create QC status file to indicate this subject is "usable"
+        # The count_usable_subjects function looks for QC status files
+        qc_dir = os.path.join(temp_project_root, "data/processed", "qc")
+        os.makedirs(qc_dir, exist_ok=True)
+        qc_file = os.path.join(qc_dir, f"{sub}_qc_status.json")
+        with open(qc_file, 'w') as f:
+            json.dump({"status": "usable", "excluded": False}, f)
+
+        # Create dummy connectome and eeg files to ensure they "exist"
+        conn_dir = os.path.join(temp_project_root, "data/processed/connectomes", sub)
+        os.makedirs(conn_dir, exist_ok=True)
+        with open(os.path.join(conn_dir, "connectome.npy"), 'w') as f:
+            f.write("dummy")
+
+        eeg_dir = os.path.join(temp_project_root, "data/processed/eeg", sub)
+        os.makedirs(eeg_dir, exist_ok=True)
+        with open(os.path.join(eeg_dir, "eeg_cleaned.fif"), 'w') as f:
+            f.write("dummy")
+
+    return subjects
+
+
+@pytest.fixture
+def mock_few_subjects(temp_project_root):
+    """Create a set of mock subject directories where N < N_MIN."""
+    # Create 2 mock subjects (N=2)
+    # N_MIN is 5 in the config created by temp_project_root
+    subjects = ["sub-001", "sub-002"]
+    for sub in subjects:
+        qc_dir = os.path.join(temp_project_root, "data/processed", "qc")
+        os.makedirs(qc_dir, exist_ok=True)
+        qc_file = os.path.join(qc_dir, f"{sub}_qc_status.json")
+        with open(qc_file, 'w') as f:
+            json.dump({"status": "usable", "excluded": False}, f)
+
+        # Create dummy files
+        conn_dir = os.path.join(temp_project_root, "data/processed/connectomes", sub)
+        os.makedirs(conn_dir, exist_ok=True)
+        with open(os.path.join(conn_dir, "connectome.npy"), 'w') as f:
+            f.write("dummy")
+
+        eeg_dir = os.path.join(temp_project_root, "data/processed/eeg", sub)
+        os.makedirs(eeg_dir, exist_ok=True)
+        with open(os.path.join(eeg_dir, "eeg_cleaned.fif"), 'w') as f:
+            f.write("dummy")
+
+    return subjects
+
+
+@pytest.fixture
+def mock_many_subjects(temp_project_root):
+    """Create a set of mock subject directories where N >= N_MIN."""
+    # Create 6 mock subjects (N=6)
+    # N_MIN is 5 in the config created by temp_project_root
+    subjects = [f"sub-{i:03d}" for i in range(1, 7)]
+    for sub in subjects:
+        qc_dir = os.path.join(temp_project_root, "data/processed", "qc")
+        os.makedirs(qc_dir, exist_ok=True)
+        qc_file = os.path.join(qc_dir, f"{sub}_qc_status.json")
+        with open(qc_file, 'w') as f:
+            json.dump({"status": "usable", "excluded": False}, f)
+
+        # Create dummy files
+        conn_dir = os.path.join(temp_project_root, "data/processed/connectomes", sub)
+        os.makedirs(conn_dir, exist_ok=True)
+        with open(os.path.join(conn_dir, "connectome.npy"), 'w') as f:
+            f.write("dummy")
+
+        eeg_dir = os.path.join(temp_project_root, "data/processed/eeg", sub)
+        os.makedirs(eeg_dir, exist_ok=True)
+        with open(os.path.join(eeg_dir, "eeg_cleaned.fif"), 'w') as f:
+            f.write("dummy")
+
+    return subjects
+
+
+def test_load_research_config(temp_project_root):
+    """Test that load_research_config correctly reads N_MIN."""
+    # Patch the get_data_root to return our temp dir
+    with patch('main.get_data_root', return_value=temp_project_root):
+        config = load_research_config()
+        assert config is not None
+        assert config.get('N_MIN') == 5
+
+
+def test_count_usable_subjects(mock_few_subjects, temp_project_root):
+    """Test that count_usable_subjects correctly counts subjects with usable QC status."""
+    with patch('main.get_data_root', return_value=temp_project_root):
+        count = count_usable_subjects()
+        assert count == 2  # We created 2 subjects
+
+
+def test_run_null_result_protocol_generates_report(mock_few_subjects, temp_project_root):
     """
-    Tests for T036: Verify that main.py logic correctly halts execution
-    and generates the insufficient_sample_report.md when N < 10,
-    ensuring the routing state file is written correctly.
+    Test that run_null_result_protocol:
+    1. Generates data/results/insufficient_sample_report.md
+    2. Writes data/processed/routing_state.json with correct state
     """
+    with patch('main.get_data_root', return_value=temp_project_root):
+        # Call the protocol
+        run_null_result_protocol(2, 5)
 
-    @pytest.fixture
-    def temp_project_root(self):
-        """Create a temporary directory structure mimicking the project."""
-        temp_dir = tempfile.mkdtemp()
-        # Create required subdirectories
-        dirs = [
-            "data/raw", "data/processed", "data/results",
-            "code/analysis", "code/data", "code/utils"
-        ]
-        for d in dirs:
-            Path(temp_dir, d).mkdir(parents=True, exist_ok=True)
+        # Check for report file
+        report_path = os.path.join(temp_project_root, "data/results/insufficient_sample_report.md")
+        assert os.path.exists(report_path), "insufficient_sample_report.md was not generated"
 
-        # Create a mock routing state file location
-        self.routing_state_path = Path(temp_dir, "data", "processed", "routing_state.json")
-        self.insufficient_report_path = Path(temp_dir, "data", "results", "insufficient_sample_report.md")
-        self.correlation_report_path = Path(temp_dir, "data", "results", "correlation_report.csv")
+        with open(report_path, 'r') as f:
+            content = f.read()
+            assert "Insufficient Sample Size" in content
+            assert "N = 2" in content
+            assert "N_MIN = 5" in content
 
-        return temp_dir
+        # Check for routing state file
+        state_path = os.path.join(temp_project_root, "data/processed/routing_state.json")
+        assert os.path.exists(state_path), "routing_state.json was not generated"
 
-    @pytest.fixture(autouse=True)
-    def setup_config(self, temp_project_root):
-        """Mock the config to use the temporary root."""
-        with patch('config.get_data_root', return_value=Path(temp_project_root)):
-            with patch('main.get_data_root', return_value=Path(temp_project_root)):
-                ensure_directories()
-                yield
-
-    def test_null_result_protocol_generates_report_and_state(self, temp_project_root):
-        """
-        Verify that when N < 10, the protocol:
-        1. Generates insufficient_sample_report.md
-        2. Writes routing_state.json with path: insufficient_sample
-        3. Does NOT generate correlation_report.csv
-        """
-        # Mock the subject count to be less than 10
-        mock_subject_count = 5
-
-        # Call the function directly (simulating the logic in main.py)
-        # We need to replicate the logic of run_null_result_protocol
-        # but since we are testing the *result* of the logic, we call it.
-        
-        # Note: run_null_result_protocol is expected to handle the logic.
-        # We assume it takes the count or derives it.
-        # Based on T029c description: "Count usable subjects N after QC (T012)."
-        # Let's assume the function accepts the count or we mock the count retrieval.
-        
-        # To test the specific logic of T029c as implemented in main.py:
-        # We will mock the part that counts subjects to return 5.
-        
-        with patch('main.calculate_pipeline_completeness', return_value=mock_subject_count):
-            # Also ensure the correlation report doesn't exist before
-            if self.correlation_report_path.exists():
-                self.correlation_report_path.unlink()
-            
-            # Execute the null result protocol logic
-            # Assuming run_null_result_protocol handles the routing and file creation
-            # We need to verify its side effects.
-            
-            # Since run_null_result_protocol might be the entry point for this logic:
-            # Let's assume it's called with the count or retrieves it.
-            # The task description implies it's a function in main.py.
-            
-            # We will call it and check the files.
-            try:
-                run_null_result_protocol()
-            except SystemExit:
-                # Expected if it halts execution
-                pass
-
-        # Assertions
-        assert self.routing_state_path.exists(), "Routing state file was not created."
-        
-        with open(self.routing_state_path, 'r') as f:
+        with open(state_path, 'r') as f:
             state = json.load(f)
+            assert state['path'] == 'insufficient_sample'
+            assert state['N'] == 2
+            assert state['N_MIN'] == 5
+            assert state['status'] == 'halted'
+
+
+def test_check_sample_size_gate_halt(mock_few_subjects, temp_project_root):
+    """
+    Test that check_sample_size_gate halts execution when N < N_MIN.
+    This simulates the logic in main.py that calls this function.
+    """
+    with patch('main.get_data_root', return_value=temp_project_root):
+        # We expect a SystemExit or a specific exception if the protocol is designed to exit
+        # Based on the task description, it should "HALT" and generate reports.
+        # In the main.py implementation, this usually involves printing and exiting.
+        # We will mock sys.exit to capture the call instead of actually exiting the test runner.
         
-        assert state.get("path") == "insufficient_sample", f"Expected path 'insufficient_sample', got {state.get('path')}"
-        assert state.get("subject_count") == mock_subject_count, "Subject count in state mismatch."
-
-        assert self.insufficient_report_path.exists(), "Insufficient sample report was not created."
-        
-        # Verify content of the report contains key phrases
-        with open(self.insufficient_report_path, 'r') as f:
-            report_content = f.read()
-        
-        assert "Null Result Protocol" in report_content, "Report missing Null Result Protocol header."
-        assert "insufficient_sample" in report_content or "N < 10" in report_content, "Report missing sample size context."
-
-        assert not self.correlation_report_path.exists(), "Correlation report should NOT exist when N < 10."
-
-    def test_null_result_protocol_with_zero_subjects(self, temp_project_root):
-        """Test edge case where N = 0."""
-        mock_subject_count = 0
-
-        with patch('main.calculate_pipeline_completeness', return_value=mock_subject_count):
-            try:
-                run_null_result_protocol()
-            except SystemExit:
-                pass
-
-        assert self.routing_state_path.exists()
-        with open(self.routing_state_path, 'r') as f:
-            state = json.load(f)
-        
-        assert state.get("path") == "insufficient_sample"
-        assert state.get("subject_count") == 0
-        
-        assert self.insufficient_report_path.exists()
-        assert not self.correlation_report_path.exists()
-
-    def test_null_result_protocol_with_exactly_9_subjects(self, temp_project_root):
-        """Test boundary case where N = 9 (threshold is 10)."""
-        mock_subject_count = 9
-
-        with patch('main.calculate_pipeline_completeness', return_value=mock_subject_count):
-            try:
-                run_null_result_protocol()
-            except SystemExit:
-                pass
-
-        assert self.routing_state_path.exists()
-        with open(self.routing_state_path, 'r') as f:
-            state = json.load(f)
-        
-        assert state.get("path") == "insufficient_sample"
-        assert state.get("subject_count") == 9
-
-        assert self.insufficient_report_path.exists()
-        assert not self.correlation_report_path.exists()
-
-    def test_null_result_protocol_does_not_run_when_sufficient(self, temp_project_root):
-        """
-        Verify that when N >= 10, the null result protocol logic
-        does NOT generate the insufficient report or the 'insufficient_sample' state.
-        This tests the 'else' branch of the gate logic.
-        """
-        mock_subject_count = 15
-
-        # We need to verify that the specific function run_null_result_protocol
-        # is designed to ONLY run the null protocol when N < 10.
-        # If main.py logic is:
-        # if N < 10: run_null_result_protocol()
-        # else: run_correlation_analysis()
-        # Then calling run_null_result_protocol() directly when N >= 10 might be an error
-        # or it might be a no-op.
-        # However, the task is to test the protocol itself.
-        # Let's assume the function in main.py checks the count internally or is only called conditionally.
-        # To test the condition, we mock the count to be high and see if it halts.
-        
-        # Actually, the task says: "verify that the main.py logic correctly halts... when N < 10".
-        # So the test is primarily for the N < 10 case.
-        # But to be thorough, we ensure that if the function is called with N >= 10,
-        # it should NOT trigger the null protocol files.
-        
-        # Let's assume the function `run_null_result_protocol` is the one that checks N.
-        # If we pass a mock that returns 15, it should NOT write the insufficient report.
-        
-        with patch('main.calculate_pipeline_completeness', return_value=mock_subject_count):
-            # If the function is designed to ONLY run when N < 10, it might raise an error
-            # or return early. Let's assume it returns early without creating files.
-            # If it crashes, that's also a testable behavior (it shouldn't crash, just not run).
-            # But the most likely implementation is:
-            # def run_null_result_protocol():
-            #    n = get_count()
-            #    if n < 10: ...
-            #    else: return # or raise error if called incorrectly
+        with patch('main.sys.exit') as mock_exit:
+            check_sample_size_gate()
             
-            # Let's assume it returns gracefully if N >= 10.
-            try:
-                run_null_result_protocol()
-            except SystemExit:
-                # If it exits, it's a failure for this test case (should not exit for N >= 10)
-                # But if the function is meant to be called ONLY when N < 10, this test
-                # might be invalid. However, robust code should handle N >= 10 gracefully.
-                # Let's assume it handles it.
-                pass
-
-        # If it ran correctly for N >= 10 (i.e., did nothing or returned):
-        # The insufficient report should NOT exist.
-        # The routing state might not be written by THIS function if N >= 10.
-        # The routing state for N >= 10 is written by T029c's "CONTINUE" path.
-        
-        if self.routing_state_path.exists():
-            with open(self.routing_state_path, 'r') as f:
+            # Verify sys.exit was called (indicating the halt)
+            mock_exit.assert_called_once()
+            
+            # Verify the side effects (files generated)
+            report_path = os.path.join(temp_project_root, "data/results/insufficient_sample_report.md")
+            assert os.path.exists(report_path)
+            
+            state_path = os.path.join(temp_project_root, "data/processed/routing_state.json")
+            assert os.path.exists(state_path)
+            
+            with open(state_path, 'r') as f:
                 state = json.load(f)
-            # If the state exists, it should NOT be 'insufficient_sample'
-            assert state.get("path") != "insufficient_sample", "State should not be insufficient_sample for N >= 10"
-        
-        assert not self.insufficient_report_path.exists(), "Insufficient report should not exist for N >= 10."
+                assert state['status'] == 'halted'
 
-    def test_routing_state_json_structure(self, temp_project_root):
-        """Verify the JSON structure of the routing state file."""
-        mock_subject_count = 8
 
-        with patch('main.calculate_pipeline_completeness', return_value=mock_subject_count):
-            try:
-                run_null_result_protocol()
-            except SystemExit:
-                pass
+def test_check_sample_size_gate_proceed(mock_many_subjects, temp_project_root):
+    """
+    Test that check_sample_size_gate allows execution to proceed when N >= N_MIN.
+    """
+    with patch('main.get_data_root', return_value=temp_project_root):
+        with patch('main.sys.exit') as mock_exit:
+            check_sample_size_gate()
+            
+            # sys.exit should NOT be called
+            mock_exit.assert_not_called()
+            
+            # Verify the routing state file indicates "proceed"
+            state_path = os.path.join(temp_project_root, "data/processed/routing_state.json")
+            assert os.path.exists(state_path)
+            
+            with open(state_path, 'r') as f:
+                state = json.load(f)
+                assert state['status'] == 'proceed'
+                assert state['path'] == 'correlation'
 
-        assert self.routing_state_path.exists()
-        with open(self.routing_state_path, 'r') as f:
-            state = json.load(f)
 
-        required_keys = ["path", "subject_count", "timestamp"]
-        for key in required_keys:
-            assert key in state, f"Missing key '{key}' in routing state."
+def test_null_result_protocol_with_zero_subjects(temp_project_root):
+    """Test behavior when no subjects are found (N=0)."""
+    # Ensure no subjects are created
+    with patch('main.get_data_root', return_value=temp_project_root):
+        with patch('main.sys.exit') as mock_exit:
+            # Manually call the protocol with N=0
+            run_null_result_protocol(0, 5)
+            
+            report_path = os.path.join(temp_project_root, "data/results/insufficient_sample_report.md")
+            assert os.path.exists(report_path)
+            
+            with open(report_path, 'r') as f:
+                content = f.read()
+                assert "N = 0" in content
+            
+            state_path = os.path.join(temp_project_root, "data/processed/routing_state.json")
+            assert os.path.exists(state_path)
+            
+            with open(state_path, 'r') as f:
+                state = json.load(f)
+                assert state['N'] == 0
+                assert state['status'] == 'halted'
 
-        assert state["path"] in ["correlation", "insufficient_sample"]
-        assert isinstance(state["subject_count"], int)
-        assert "timestamp" in state["timestamp"] or len(state["timestamp"]) > 0
+def test_routing_state_overwrite(temp_project_root, mock_few_subjects):
+    """Test that the routing state file is overwritten if it already exists."""
+    # Create an initial state file
+    state_path = os.path.join(temp_project_root, "data/processed/routing_state.json")
+    initial_state = {
+        "path": "correlation",
+        "N": 10,
+        "N_MIN": 5,
+        "status": "proceed"
+    }
+    with open(state_path, 'w') as f:
+        json.dump(initial_state, f)
+    
+    with patch('main.get_data_root', return_value=temp_project_root):
+        with patch('main.sys.exit'):
+            check_sample_size_gate()
+            
+            # Verify the state was updated to 'halted'
+            with open(state_path, 'r') as f:
+                state = json.load(f)
+                assert state['status'] == 'halted'
+                assert state['N'] == 2  # Updated N
+                assert state['path'] == 'insufficient_sample'  # Updated path

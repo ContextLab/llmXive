@@ -1,0 +1,8 @@
+T029c:
+  c: false
+  h: f0b0439f8c89d90c91fd51425f53bcfb84c934ae80812cd4938061f893bf6dd4
+  r: "The repository lacks the required output files (`data/results/insufficient_sample_report.md`,\
+    \ `data/processed/routing_state.json`, `data/results/correlation_report.csv`)\
+    \ and the `code/main.py` implementation is incomplete (truncated logic, undefined\
+    \ variable `j`, and no enforcement of the \u201Cfail if N_MIN missing and no default\u201D\
+    \ rule). Consequently the runtime gate behavior described in the task is not realized."
