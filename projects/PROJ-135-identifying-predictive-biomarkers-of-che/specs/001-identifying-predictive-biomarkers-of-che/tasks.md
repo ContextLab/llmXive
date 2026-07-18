@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` with explicit directories: `src/`, `data/raw/`, `data/processed/`, `results/`, `results/meta_analysis/`, `tests/`, `specs/001-chemo-biomarker-discovery/contracts/`, `state/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scikit-learn, rpy2, biopython, requests, scipy, psutil)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scikit-learn, rpy2, biopython, requests, scipy, psutil)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -59,7 +59,7 @@
 - [ ] T005 [P] Implement `src/utils.py`: Logging setup, checksum generation, and timeout watchdog (5h limit)
 - [ ] T006 [P] Create schema definitions in `specs/001-chemo-biomarker-discovery/contracts/` (dataset.schema.yaml, model_output.schema.yaml, meta_analysis.schema.yaml)
 - [ ] T007 Implement `src/__init__.py` and basic `src/main.py` orchestrator skeleton
-- [~] T008 Setup `pytest` configuration and contract test harness for YAML schema validation
+- [ ] T008 Setup `pytest` configuration and contract test harness for YAML schema validation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,7 +76,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
-- [~] T011 [P] [US1] Integration test for end-to-end download, normalization, and splitting on 2 tumor types in `tests/integration/test_acquisition.py`
+- [ ] T011 [P] [US1] Integration test for end-to-end download, normalization, and splitting on 2 tumor types in `tests/integration/test_acquisition.py`
 
 ### Implementation for User Story 1
 

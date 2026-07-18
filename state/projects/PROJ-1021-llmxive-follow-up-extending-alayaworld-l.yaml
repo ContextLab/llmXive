@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-09T04:51:01.449138Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1021-llmxive-follow-up-extending-alayaworld-l
-last_run_id: null
+last_run_id: 4a9decca-1c5f-429e-ba1f-d3ce1522b5e1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "AlayaWorld: Long-Horizon and Playable Video
   World Generation"'
-updated_at: '2026-07-09T04:51:01.449138Z'
+updated_at: '2026-07-18T19:00:39.217513Z'

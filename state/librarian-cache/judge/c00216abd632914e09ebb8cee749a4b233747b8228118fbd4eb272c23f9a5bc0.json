@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.05131",
+  "judged_at": "2026-07-18T19:00:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"alayaworld: long-horizon and playable video world generation\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the domain of \"world models\" and \"video generation,\" which are the core mechanisms and vocabulary clusters of the user's question regarding extending \"AlayaWorld.\" Even though it is a survey rather than a specific follow-up experiment, it provides the essential empirical baseline and literature context required for a literature review on this topic.",
+  "relevant": true
+}

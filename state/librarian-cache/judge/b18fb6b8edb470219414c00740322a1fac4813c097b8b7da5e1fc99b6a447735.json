@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.14140",
+  "judged_at": "2026-07-18T19:00:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"alayaworld: long-horizon and playable video world generation\" computer science",
+  "rationale": "The paper satisfies criterion (a) by measuring the same core mechanism (\"long-horizon\" capability) in the same domain (computer science/AI), even though it focuses on the reasoning/CoT aspect rather than the specific video generation mechanism of the user's target paper. It also fits criterion (b) as it provides an empirical baseline for the \"long-horizon\" variable within the computer science domain, which is essential for a literature review on extending long-horizon generation systems.",
+  "relevant": true
+}

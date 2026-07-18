@@ -1,20 +1,4 @@
-? T009 Setup environment configuration management for memory limits and runtime caps.
-  Define `check_memory_limit()` and `set_runtime_cap()`.
-: 1
-? 'T010 [P] [US1] Contract test for data validation schema in `tests/contract/test_data_validation.py`.
-  Implement `test_schema_validates_musical_genre_field()` and `test_schema_falls_back_to_stomp_r()`.
-  <!-- SKIPPED: non-mapping output -->'
-: 1
-? 'T011 [P] [US1] Integration test for fMRIPrep wrapper in `tests/integration/test_fmriprep_wrapper.py`.
-  Implement `test_fmriprep_runs_on_mock_data()` and `test_fmriprep_handles_memory_error()`.
-  <!-- ATOMIZE: requested -->'
-: 1
-? 'T012 [P] [US1] Implement `code/data/download.py` to download resting-state fMRI
-  data from OpenNeuro (ds000030, ds000208) using `requests` or `bids-validator` logic.
-  Define `download_dataset(dataset_id: str, output_dir: str)`.'
-: 1
-? T012e [US1] Implement `code/data/validate.py` to dynamically validate dataset IDs
-  against a verified list of datasets containing required behavioral variables. If
-  a hardcoded ID (e.g., ds000030) is not in the verified list, halt with `ERR_INVALID_DATASET`
-  and log the specific missing variable. Define `validate_dataset_id()`.
-: 1
+T009: 1
+T017: 1
+T018: 1
+T028: 1

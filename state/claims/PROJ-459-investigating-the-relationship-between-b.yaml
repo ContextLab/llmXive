@@ -1437,3 +1437,202 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T08:59:23Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Minimum sample size requirement is 85 subjects
+  claim_id: c_c7361526
+  context: 'T012c [US1] Implement code/data/validate.py to perform comprehensive data
+    integrity checks: 1. Check sample size N >= 85 (Hard Gate). If N < 85, log ERR_UNDERPOWERED
+    and halt execution unconditionally.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check sample size N >= 85 (Hard Gate). If N < 85, log ERR_UNDERPOWERED
+    and halt execution unconditionally.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:29:20Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Subject exclusion threshold is 10% missing behavioral data or corrupted
+    fMRI volumes
+  claim_id: c_aada8e13
+  context: T017 [P] [US1] Add validation logic to exclude subjects with >10% missing
+    behavioral data or >10% corrupted fMRI volumes. Define exclude_subjects_by_missing_data().
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude subjects with >10% missing behavioral data or >10% corrupted fMRI
+    volumes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:29:20Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Subject exclusion threshold for head motion is 0.5mm framewise displacement
+  claim_id: c_4c3e29d0
+  context: T018 [P] [US1] Add logic to flag/exclude subjects with excessive head motion
+    (>0.5mm FD). Define exclude_subjects_by_motion().
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag/exclude subjects with excessive head motion (>0.5mm FD).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:29:20Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: fMRIPrep output space is MNI152NLin2009cAsym
+  claim_id: c_d0ab9b0e
+  context: 'T014 [US1] Depends: T008, T012c, T012e. Implement code/data/preprocess.py
+    to run fMRIPrep (Docker) with memory limits and generate standardized BOLD/confounds.
+    Command args: --output-space MNI152NLin2009cAsym --confounds trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FMRIPrep_output_space_is_MNI152NLin2009cAsym
+  kind: entity_fact
+  raw_text: 'Run fMRIPrep (Docker) with command args: --output-space MNI152NLin2009cAsym
+    --confounds trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:30:08Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas used contains 400 ROIs
+  claim_id: c_12898495
+  context: "T015 [US1] Depends: T005, T014. Implement code/data/preprocess.py to extract\
+    \ regional time courses using Schaefer-400 atlas (400 ROIs \xD7 timepoints). Define\
+    \ extract_time_series(subject_id: str)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extract regional time courses using Schaefer-400 atlas (400 ROIs \xD7\
+    \ timepoints)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:31:08Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Static network metrics computed for DMN, Auditory, and Salience networks
+  claim_id: c_64978c8d
+  context: 'T022 [US2] Implement code/analysis/metrics.py to derive static network
+    metrics (global efficiency, modularity, within-module degree) for DMN, Auditory,
+    Salience networks. Define compute_static_metrics(matrix: np.array, network_map:
+    dict).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Static_network_metrics_computed_for_DMN,_Auditory,_and_Salie
+  kind: entity_fact
+  raw_text: Derive static network metrics for DMN, Auditory, Salience networks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:31:39Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sliding window dynamic connectivity uses 30 TR window and 5 TR step
+  claim_id: c_d9d2bd41
+  context: 'T023 [US2] Implement code/analysis/metrics.py for sliding-window dynamic
+    connectivity (window=30 TRs, step=5 TRs). Define compute_dynamic_connectivity(time_series:
+    np.array, window_size: int, step: int).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run sliding-window dynamic connectivity with window=30 TRs, step=5 TRs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:32:01Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis performed with window sizes 30 and 40 TRs
+  claim_id: c_5cb8bcfb
+  context: 'T026 [US2] Implement code/analysis/metrics.py to run sensitivity analysis
+    with window sizes 30, 40 TRs. Define run_sensitivity_analysis(time_series: np.array,
+    window_sizes: list[int]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run sensitivity analysis with window sizes 30, 40 TRs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:32:27Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Power analysis target is 0.8 for effect size 0.3
+  claim_id: c_f4cd3ad1
+  context: "T033 [US3] Implement code/analysis/stats.py to perform post-hoc power\
+    \ analysis (target: power \u2265 0.8 for |r| \u2265 0.3). Define compute_power(sample_size:\
+    \ int, effect_size: float)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform post-hoc power analysis (target: power \u2265 0.8 for |r| \u2265\
+    \ 0.3)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:32:27Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Null distribution validation target false positive rate is 0.05
+  claim_id: c_b51e2e34
+  context: "T034 [US3] Implement code/analysis/stats.py to run null distribution validation\
+    \ (A large number of permutations) to verify false positive rate \u2264 0.05.\
+    \ Generate data/derived/null_validation_report.json with keys: false_positive_rate,\
+    \ permutations_count."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run null distribution validation to verify false positive rate \u2264\
+    \ 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:32:27Z'
+- artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Results flagged as underpowered if power is less than 0.8
+  claim_id: c_0d5b7ff5
+  context: 'T035 [US3] Implement code/analysis/stats.py to flag results as ''Underpowered''
+    if power < 0.8. Define flag_underpowered(power: float).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Results_flagged_as_underpowered_if_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: Flag results as 'Underpowered' if power < 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:32:59Z'

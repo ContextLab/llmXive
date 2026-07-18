@@ -1,24 +1,30 @@
-# Python 3.11 dependencies for llmXive: Identifying Predictive Biomarkers of Chemotherapy Response
-# Core data manipulation and numerical computing
+# Python 3.11+ requirements for llmXive Chemo Biomarker Discovery Project
+# Generated for task T002 initialization
+
+# Core Data Processing
 pandas>=2.0.0
 numpy>=1.24.0
+
+# Machine Learning & Statistics
+scikit-learn>=1.3.0
 scipy>=1.11.0
 
-# Machine Learning
-scikit-learn>=1.3.0
-
-# Bioinformatics
+# Bioinformatics & Genomics
 biopython>=1.81
-
-# R integration for statistical packages (DESeq2, ComBat-seq)
 rpy2>=3.5.0
 
-# HTTP requests and data fetching
+# Networking & Utilities
 requests>=2.31.0
-
-# System monitoring and resource limits
 psutil>=5.9.0
 
-# Testing framework
+# Additional dependencies implied by pipeline (often needed for R interop or data loading)
+# Note: datasets (HuggingFace) is often required for the data acquisition module mentioned in tasks.md
+# but not explicitly in the T002 prompt list. However, T012/T013 require HuggingFace mirror access.
+# Including it here to ensure T012/T013 can run if they rely on 'datasets' package.
+datasets>=2.14.0
+
+# Schema validation (implied by T006/T010 usage of yaml)
+pyyaml>=6.0
+
+# Testing (implied by T008/T010 usage)
 pytest>=7.4.0
-pyyaml>=6.0.1

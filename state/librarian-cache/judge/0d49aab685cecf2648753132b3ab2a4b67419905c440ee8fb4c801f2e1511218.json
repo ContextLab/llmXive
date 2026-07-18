@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.09507",
+  "judged_at": "2026-07-18T19:00:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"alayaworld: long-horizon and playable video world generation\" computer science",
+  "rationale": "This paper belongs in the literature review as it directly addresses the core mechanism of \"extending\" video world models to multi-agent scenarios, which is the specific follow-up direction requested for the \"AlayaWorld\" work. It satisfies criteria (a) and (d) by providing the canonical methodology and empirical evidence for multi-agent video generation, a necessary component for any review discussing the extension of single-observer world models like AlayaWorld.",
+  "relevant": true
+}

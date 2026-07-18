@@ -1,0 +1,35 @@
+{
+  "BRCA": {
+    "expression_downloaded": false,
+    "clinical_downloaded": false,
+    "response_verification": {
+      "status": "skipped"
+    },
+    "paths": {
+      "expression": null,
+      "clinical": null
+    }
+  },
+  "LUAD": {
+    "expression_downloaded": false,
+    "clinical_downloaded": false,
+    "response_verification": {
+      "status": "skipped"
+    },
+    "paths": {
+      "expression": null,
+      "clinical": null
+    }
+  },
+  "COAD": {
+    "expression_downloaded": false,
+    "clinical_downloaded": false,
+    "response_verification": {
+      "status": "skipped"
+    },
+    "paths": {
+      "expression": null,
+      "clinical": null
+    }
+  }
+}

@@ -1,0 +1,29 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure is presented in the provided evidence; the required folders
+    (src/, data/raw/, data/processed/, results/, results/meta_analysis/, tests/, specs/001-chemo-biomarker-discovery/contracts/,
+    state/) are not shown to exist or contain any files. The implementer must create
+    and display this project hierarchy.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    or a `black` config) or setup scripts are present in the provided evidence, so
+    the requirement to configure ruff and black is not satisfied. The implementer
+    must add the appropriate configuration files and ensure they are committed to
+    the repository.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest configuration files (e.g., `pytest.ini`, `conftest.py`), no test modules,
+    and no contract test harness for validating a YAML schema are present in the provided
+    evidence. The claim only contains a feature specification unrelated to setting
+    up pytest or YAML schema tests, so the required artifacts are missing.
+T011:
+  c: false
+  h: 1bbb675296b8e3653c2cdebdae3ea448ee9360e3533ca3472d99bfff71cb628b
+  r: "The required integration test file `tests/integration/test_acquisition.py` does\
+    \ not exist in the repository, so the specified end\u2011to\u2011end download,\
+    \ normalization, and splitting test is absent. The task cannot be considered fulfilled\
+    \ until this test script is added with the appropriate assertions."

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2101.12195",
+  "judged_at": "2026-07-18T19:00:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"alayaworld: long-horizon and playable video world generation\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it introduces the foundational concept and framework for \"Playable Video Generation\" (PVG), which is the core mechanism and domain referenced in the user's question regarding the \"AlayaWorld\" follow-up. Even though the user's question implies a specific extension or model (AlayaWorld), this paper establishes the canonical problem definition and methodology that any literature review on playable video generation must cite.",
+  "relevant": true
+}

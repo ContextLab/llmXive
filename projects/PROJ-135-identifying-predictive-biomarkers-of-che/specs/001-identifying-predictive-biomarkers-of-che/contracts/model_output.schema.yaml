@@ -1,111 +1,98 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Output Schema
-description: Schema for predictive model outputs and validation metrics.
+description: Schema for the output of the predictive modeling pipeline (Elastic-Net models).
 type: object
 required:
-  - model_metadata
+  - metadata
+  - model_params
   - performance_metrics
-  - feature_importance
+  - feature_coefficients
+  - cross_validation_results
 properties:
-  model_metadata:
+  metadata:
     type: object
     required:
-      - model_id
       - tumor_type
       - model_type
-      - trained_at
-      - gene_panel
+      - gene_panel_source
+      - training_timestamp
     properties:
-      model_id:
-        type: string
-        description: Unique model identifier
       tumor_type:
         type: string
-        description: Tumor type this model is specific to
       model_type:
         type: string
-        enum: [ElasticNet, LogisticRegression, RandomForest]
-        description: Type of machine learning model
-      trained_at:
+        enum:
+          - elastic_net_logistic
+      gene_panel_source:
+        type: string
+        description: "Path or ID of the gene panel used (e.g., results/meta_analysis/gene_panel.json)"
+      training_timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of training completion
-      gene_panel:
-        type: array
-        items:
-          type: string
-        description: List of gene symbols used in the model
-      hyperparameters:
-        type: object
-        description: Dictionary of model hyperparameters
       cv_folds:
         type: integer
         minimum: 2
-        description: Number of cross-validation folds used
-      nested_cv_inner_folds:
-        type: integer
-        minimum: 2
-        description: Number of inner CV folds for hyperparameter tuning
+      internal_validation:
+        type: boolean
+      external_validation:
+        type: boolean
+  model_params:
+    type: object
+    required:
+      - alpha
+      - l1_ratio
+      - selected_features
+    properties:
+      alpha:
+        type: number
+        minimum: 0
+      l1_ratio:
+        type: number
+        minimum: 0
+        maximum: 1
+      selected_features:
+        type: array
+        items:
+          type: string
+        description: "List of gene symbols included in the final model"
   performance_metrics:
     type: object
     required:
       - auc_roc
       - auc_pr
+      - accuracy
+      - calibration_slope
     properties:
       auc_roc:
         type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Area Under the Receiver Operating Characteristic Curve
+        minimum: 0
+        maximum: 1
       auc_pr:
         type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Area Under the Precision-Recall Curve
+        minimum: 0
+        maximum: 1
       accuracy:
         type: number
-        minimum: 0.0
-        maximum: 1.0
-      f1_score:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
+        minimum: 0
+        maximum: 1
       calibration_slope:
         type: number
       calibration_intercept:
         type: number
-      sensitivity:
-        type: number
-      specificity:
-        type: number
-      cv_metrics:
+      confusion_matrix:
         type: object
         properties:
-          mean_auc_roc:
-            type: number
-          std_auc_roc:
-            type: number
-          mean_auc_pr:
-            type: number
-          std_auc_pr:
-            type: number
-      external_validation:
-        type: array
-        items:
-          type: object
-          required:
-            - dataset_id
-            - auc_roc
-          properties:
-            dataset_id:
-              type: string
-            auc_roc:
-              type: number
-            auc_pr:
-              type: number
-  feature_importance:
+          tp:
+            type: integer
+          tn:
+            type: integer
+          fp:
+            type: integer
+          fn:
+            type: integer
+  feature_coefficients:
     type: array
-    description: List of features with their importance scores
+    description: "Coefficients for each gene in the model"
     items:
       type: object
       required:
@@ -118,27 +105,41 @@ properties:
           type: number
         p_value:
           type: number
-          minimum: 0.0
-          maximum: 1.0
-        adjusted_p_value:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-  validation_results:
+          minimum: 0
+          maximum: 1
+  cross_validation_results:
     type: object
+    required:
+      - mean_auc
+      - std_auc
+      - fold_aucs
     properties:
-      delong_test:
+      mean_auc:
+        type: number
+      std_auc:
+        type: number
+      fold_aucs:
+        type: array
+        items:
+          type: number
+        description: "AUC for each fold in the nested CV"
+  validation_details:
+    type: object
+    description: "Additional details about validation (LOO, external)"
+    properties:
+      loo_results:
         type: object
         properties:
-          p_value:
+          n_loops:
+            type: integer
+          mean_auc:
             type: number
-          adjusted_p_value:
-            type: number
-          comparison:
-            type: string
-      calibration_plot_path:
-        type: string
-        description: Relative path to calibration plot image
-      roc_plot_path:
-        type: string
-        description: Relative path to ROC curve image
+      external_results:
+        type: array
+        items:
+          type: object
+          properties:
+            dataset_id:
+              type: string
+            auc:
+              type: number

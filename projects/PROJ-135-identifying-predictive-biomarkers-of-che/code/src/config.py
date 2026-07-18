@@ -1,38 +1,47 @@
+"""
+Configuration module for the Chemo Biomarker Discovery project.
+
+Defines paths, random seeds, FDR thresholds, CPU/memory limits, and constants.
+"""
+
 import os
 from pathlib import Path
+from typing import Final
 
 # Project Root
-# Assuming the code is run from the project root or 'code' directory
-# Adjust based on actual project structure if needed
-if "code" in str(Path(__file__).parent):
-    PROJECT_ROOT = Path(__file__).parent.parent
-else:
-    PROJECT_ROOT = Path(__file__).parent
+PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
 
 # Directories
-DATA_DIR = PROJECT_ROOT / "data"
-DATA_RAW = DATA_DIR / "raw"
-DATA_PROCESSED = DATA_DIR / "processed"
-RESULTS_DIR = PROJECT_ROOT / "results"
-RESULTS_META = RESULTS_DIR / "meta_analysis"
-TESTS_DIR = PROJECT_ROOT / "tests"
-SPECS_DIR = PROJECT_ROOT / "specs" / "001-chemo-biomarker-discovery"
-CONTRACTS_DIR = SPECS_DIR / "contracts"
-STATE_DIR = PROJECT_ROOT / "state"
+DATA_DIR: Final[Path] = PROJECT_ROOT / "data"
+RAW_DIR: Final[Path] = DATA_DIR / "raw"
+PROCESSED_DIR: Final[Path] = DATA_DIR / "processed"
+RESULTS_DIR: Final[Path] = PROJECT_ROOT / "results"
+META_ANALYSIS_DIR: Final[Path] = RESULTS_DIR / "meta_analysis"
+TESTS_DIR: Final[Path] = PROJECT_ROOT / "tests"
+SPECS_DIR: Final[Path] = PROJECT_ROOT / "specs" / "001-chemo-biomarker-discovery"
+STATE_DIR: Final[Path] = PROJECT_ROOT / "state"
 
-# Configuration Constants
-RANDOM_SEED = 42
-FDR_THRESHOLD = 0.05
-CPU_LIMIT = None # Set to number of cores if needed
-MEMORY_LIMIT_MB = 16000 # 16GB default
-MAX_VARIANCE_GENES = 5000
-MAX_RUNTIME_HOURS = 5
+# Random Seeds
+RANDOM_SEED: Final[int] = 42
 
-# Feasibility Gate Constants
-MIN_TCQA_TYPES = 3
+# Statistical Thresholds
+FDR_THRESHOLD: Final[float] = 0.05
+LOG2FC_THRESHOLD: Final[float] = 1.0
+
+# Resource Limits
+MAX_VARIANCE_GENES: Final[int] = 10000
+MAX_MEMORY_MB: Final[int] = 8192  # 8 GB
+TIMEOUT_HOURS: Final[int] = 5
+
+# Data Acquisition
+MIN_TUMOR_TYPES: Final[int] = 3
+MIN_SAMPLES_PER_TYPE: Final[int] = 100
 
 def ensure_directories():
-    """Creates all required directories if they do not exist."""
-    dirs = [DATA_RAW, DATA_PROCESSED, RESULTS_DIR, RESULTS_META, STATE_DIR]
+    """Create all required directories if they don't exist."""
+    dirs = [
+        DATA_DIR, RAW_DIR, PROCESSED_DIR, RESULTS_DIR,
+        META_ANALYSIS_DIR, TESTS_DIR, SPECS_DIR, STATE_DIR
+    ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,669 @@
+{
+  "fetched_at": "2026-07-18T19:00:18Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World Generation\"",
+      "target_n": 5
+    },
+    "duration_seconds": 57.486,
+    "ended_at": "2026-07-18T19:00:18Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "playable video world generation"
+        ],
+        [
+          2,
+          "long-horizon video synthesis for interactive environments"
+        ],
+        [
+          3,
+          "generative world models for video games"
+        ],
+        [
+          4,
+          "interactive video generation with long temporal coherence"
+        ],
+        [
+          5,
+          "real-time video world simulation"
+        ],
+        [
+          6,
+          "AI-driven procedural video game content generation"
+        ],
+        [
+          7,
+          "generative agents in dynamic video environments"
+        ],
+        [
+          8,
+          "video generation for embodied AI and simulation"
+        ],
+        [
+          9,
+          "controllable long-duration video synthesis"
+        ],
+        [
+          10,
+          "neural video generation for interactive storytelling"
+        ],
+        [
+          11,
+          "video diffusion models for game engines"
+        ],
+        [
+          12,
+          "generative modeling of playable 3D and video worlds"
+        ],
+        [
+          13,
+          "interactive video world models"
+        ],
+        [
+          14,
+          "long-horizon planning in video generation"
+        ],
+        [
+          15,
+          "generative video for virtual reality environments"
+        ],
+        [
+          16,
+          "AI-generated playable video content"
+        ],
+        [
+          17,
+          "video world generation with user interaction"
+        ],
+        [
+          18,
+          "scalable video synthesis for open-world simulation"
+        ],
+        [
+          19,
+          "generative video agents for game development"
+        ],
+        [
+          20,
+          "temporal consistency in interactive video generation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World Generation\" computer science": 0,
+        "playable video world generation": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "video world model long-horizon generation",
+      "AlayaWorld playable simulation environment",
+      "autoregressive video prediction dynamics",
+      "world model controllability agent interaction",
+      "generative planning video synthesis"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.09507"
+      ]
+    },
+    "per_query_hit_count": {
+      "AlayaWorld playable simulation environment": 3,
+      "autoregressive video prediction dynamics": 3,
+      "generative planning video synthesis": 2,
+      "llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World Generation\" computer science": 3,
+      "video world model long-horizon generation": 3,
+      "world model controllability agent interaction": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-18T18:59:20Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"alayaworld: long-horizon and playable video world generation\" computer science",
+      "raw": "llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World Generation\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-18T18:59:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-18T18:59:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-18T18:59:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The evolution of video generation from text, from animating MNIST to simulating the world with Sora, has progressed at a breakneck speed. Here, we systematically discuss how far text-to-video generation technology supports essential requirements in world modeling. We curate 250+ studies on text-based video synthesis and world modeling. We then observe that recent models increasingly support spatial, action, and strategic intelligences in world modeling through adherence to completeness, consistency, invention, as well as human interaction and control. We conclude that text-to-video generation is adept at world modeling, although homework in several aspects, such as the diversity-consistency trade-offs, remains to be addressed.",
+          "claimed_authors": [
+            "Fachrina Dewi Puspitasari",
+            "Chaoning Zhang",
+            "Joseph Cho",
+            "Adnan Haider",
+            "Noor Ul Eman",
+            "Omer Amin",
+            "Alexis Mankowski",
+            "Muhammad Umair",
+            "Jingyao Zheng",
+            "Sheng Zheng",
+            "Lik-Hang Lee",
+            "Caiyan Qin",
+            "Tae-Ho Kim",
+            "Choong Seon Hong",
+            "Yang Yang",
+            "Heng Tao Shen"
+          ],
+          "claimed_title": "Sora as a World Model? A Complete Survey on Text-to-Video Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.05131"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='Sora as a World Model? A Complete Survey on Text-to-Video Generation')",
+        "failed_at": "2026-07-18T18:59:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video world models can generate realistic futures from a single instruction, but they often fail to track the same physical points consistently across time. As a result, the generated videos appear plausible, yet lack the physical grounding required for reliable action execution, such as robot manipulation. We present GEM-4D, a geometry-grounded video world model that resolves this limitation by injecting dense 4D correspondence supervision distilled from a pretrained geometry foundation model into the video generative backbone during training. This supervision enables the model to jointly capture appearance and geometric structure while retaining a single-stream architecture with no additional inference cost. We further introduce an inverse dynamics module that converts correspondence-consistent video rollouts into executable robot trajectories, enabling direct deployment in both real-world and simulated manipulation. GEM-4D achieves state-of-the-art performance on both video prediction and geometric consistency across both simulation and realistic scenarios and improves real-world manipulation success from 61% to 81%. Additional results are available at https://gem-4d.github.io/.",
+          "claimed_authors": [
+            "Kaichen Zhou",
+            "Yuzhen Chen",
+            "Fangneng Zhan",
+            "Hang Hua",
+            "Grace Chen",
+            "Xinhai Chang",
+            "Ao Qu",
+            "Yilun Du",
+            "Zhuang Liu",
+            "Paul Pu Liang",
+            "Mengyu Wang"
+          ],
+          "claimed_title": "GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.22882"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation')",
+        "failed_at": "2026-07-18T18:59:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As the number of installed meters in buildings increases, there is a growing number of data time-series that could be used to develop data-driven models to support and optimize building operation. However, building data sets are often characterized by errors and missing values, which are considered, by the recent research, among the main limiting factors on the performance of the proposed models. Motivated by the need to address the problem of missing data in building operation, this work presents a data-driven approach to fill these gaps. In this study, three different autoencoder neural networks are trained to reconstruct missing short-term indoor environment data time-series in a data set collected in an office building in Aachen, Germany. This consisted of a four year-long monitoring campaign in and between the years 2014 and 2017, of 84 different rooms. The models are applicable for different time-series obtained from room automation, such as indoor air temperature, relative humidity and $CO_{2}$ data streams. The results prove that the proposed methods outperform classic numerical approaches and they result in reconstructing the corresponding variables with average RMSEs of 0.42 °C, 1.30 % and 78.41 ppm, respectively.",
+          "claimed_authors": [
+            "Antonio Liguori",
+            "Romana Markovic",
+            "Thi Thu Ha Dam",
+            "Jérôme Frisch",
+            "Christoph van Treeck",
+            "Francesco Causone"
+          ],
+          "claimed_title": "Indoor environment data time-series reconstruction using autoencoder neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.08155"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='Indoor environment data time-series reconstruction using autoencoder neural networks')",
+        "failed_at": "2026-07-18T18:59:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present Playable Environments - a new representation for interactive video generation and manipulation in space and time. With a single image at inference time, our novel framework allows the user to move objects in 3D while generating a video by providing a sequence of desired actions. The actions are learnt in an unsupervised manner. The camera can be controlled to get the desired viewpoint. Our method builds an environment state for each frame, which can be manipulated by our proposed action module and decoded back to the image space with volumetric rendering. To support diverse appearances of objects, we extend neural radiance fields with style-based modulation. Our method trains on a collection of various monocular videos requiring only the estimated camera parameters and 2D object locations. To set a challenging benchmark, we introduce two large scale video datasets with significant camera movements. As evidenced by our experiments, playable environments enable several creative applications not attainable by prior video synthesis works, including playable 3D video generation, stylization and manipulation. Further details, code and examples are available at https://willi-menapace.github.io/playable-environments-website",
+          "claimed_authors": [
+            "Willi Menapace",
+            "Stéphane Lathuilière",
+            "Aliaksandr Siarohin",
+            "Christian Theobalt",
+            "Sergey Tulyakov",
+            "Vladislav Golyanik",
+            "Elisa Ricci"
+          ],
+          "claimed_title": "Playable Environments: Video Manipulation in Space and Time",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.01914"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='Playable Environments: Video Manipulation in Space and Time')",
+        "failed_at": "2026-07-18T18:59:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is encouraged to see that progress has been made to bridge videos and natural language. However, mainstream video captioning methods suffer from slow inference speed due to the sequential manner of autoregressive decoding, and prefer generating generic descriptions due to the insufficient training of visual words (e.g., nouns and verbs) and inadequate decoding paradigm. In this paper, we propose a non-autoregressive decoding based model with a coarse-to-fine captioning procedure to alleviate these defects. In implementations, we employ a bi-directional self-attention based network as our language model for achieving inference speedup, based on which we decompose the captioning procedure into two stages, where the model has different focuses. Specifically, given that visual words determine the semantic correctness of captions, we design a mechanism of generating visual words to not only promote the training of scene-related words but also capture relevant details from videos to construct a coarse-grained sentence \"template\". Thereafter, we devise dedicated decoding algorithms that fill in the \"template\" with suitable words and modify inappropriate phrasing via iterative refinement to obtain a fine-grained description. Extensive experiments on two mainstream video captioning benchmarks, i.e., MSVD and MSR-VTT, demonstrate that our approach achieves state-of-the-art performance, generates diverse descriptions, and obtains high inference efficiency. Our code is available at https://github.com/yangbang18/Non-Autoregressive-Video-Captioning.",
+          "claimed_authors": [
+            "Bang Yang",
+            "Yuexian Zou",
+            "Fenglin Liu",
+            "Can Zhang"
+          ],
+          "claimed_title": "Non-Autoregressive Coarse-to-Fine Video Captioning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.12018"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='Non-Autoregressive Coarse-to-Fine Video Captioning')",
+        "failed_at": "2026-07-18T18:59:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In contrast with traditional video, omnidirectional video enables spherical viewing direction with support for head-mounted displays, providing an interactive and immersive experience. Unfortunately, to the best of our knowledge, there are few visual quality assessment (VQA) methods, either subjective or objective, for omnidirectional video coding. This paper proposes both subjective and objective methods for assessing quality loss in encoding omnidirectional video. Specifically, we first present a new database, which includes the viewing direction data from several subjects watching omnidirectional video sequences. Then, from our database, we find a high consistency in viewing directions across different subjects. The viewing directions are normally distributed in the center of the front regions, but they sometimes fall into other regions, related to video content. Given this finding, we present a subjective VQA method for measuring difference mean opinion score (DMOS) of the whole and regional omnidirectional video, in terms of overall DMOS (O-DMOS) and vectorized DMOS (V-DMOS), respectively. Moreover, we propose two objective VQA methods for encoded omnidirectional video, in light of human perception characteristics of omnidirectional video. One method weighs the distortion of pixels with regard to their distances to the center of front regions, which considers human preference in a panorama. The other method predicts viewing directions according to video content, and then the predicted viewing directions are leveraged to allocate weights to the distortion of each pixel in our objective VQA method. Finally, our experimental results verify that both the subjective and objective methods proposed in this paper advance state-of-the-art VQA for omnidirectional video.",
+          "claimed_authors": [
+            "Mai Xu",
+            "Chen Li",
+            "Zulin Wang",
+            "Zhenzhong Chen",
+            "Zhenyu Guan"
+          ],
+          "claimed_title": "Assessing Visual Quality of Omnidirectional Videos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.06342"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='Assessing Visual Quality of Omnidirectional Videos')",
+        "failed_at": "2026-07-18T18:59:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientific research and engineering practice often require the modeling and decomposition of nonlinear systems. The Dynamic Mode Decomposition (DMD) is a novel Koopman-based technique that effectively dissects high-dimensional nonlinear systems into periodically distinct constituents on reduced-order subspaces. As a novel mathematical hatchling, the DMD bears vast potentials yet an equal degree of unknown. This serial effort investigates the nuances of DMD sampling with an engineering-oriented emphasis. This Part I aimed at elucidating how sampling range and resolution affect the convergence of DMD modes. We employed the most classical nonlinear system in fluid mechanics as the test subject--the turbulent free-shear flow over a prism--for optimal pertinency. We numerically simulated the flow by the dynamic-stress Large-Eddies Simulation with Near-Wall Resolution. With the large-quantity, high-fidelity data, we parametrized and identified four global convergence states: Initialization, Transition, Stabilization, and Divergence with increasing sampling range. Results showed that the Stabilization is the optimal state for modal convergence, in which DMD output becomes independent of the sampling range. The Initialization state also yields sufficient accuracy for most system reconstruction tasks. Moreover, defying popular beliefs, over-sampling causes algorithmic instability: as the temporal dimension, n, approaches and transcends the spatial dimension, m (i.e., m < n), the output diverges and becomes meaningless. Additionally, the convergence of the sampling resolution depends on the mode-specific dynamics, such that the resolution of 15 frames per cycle for target activities is suggested for most engineering implementations. Finally, a bi-parametric study revealed that the convergence of the sampling range and resolution are mutually independent.",
+          "claimed_authors": [
+            "Cruz Y. Li",
+            "Zengshun Chen",
+            "Tim K. T. Tse",
+            "Asiri Umenga Weerasuriya",
+            "Xuelin Zhang",
+            "Yunfei Fu",
+            "Xisheng Lin"
+          ],
+          "claimed_title": "A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06573"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States')",
+        "failed_at": "2026-07-18T18:59:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Agents centered around Large Language Models (LLMs) are now capable of automating mobile device operations for users. After fine-tuning to learn a user's mobile operations, these agents can adhere to high-level user instructions online. They execute tasks such as goal decomposition, sequencing of sub-goals, and interactive environmental exploration, until the final objective is achieved. However, privacy concerns related to personalized user data arise during mobile operations, requiring user confirmation. Moreover, users' real-world operations are exploratory, with action data being complex and redundant, posing challenges for agent learning. To address these issues, in our practical application, we have designed interactive tasks between agents and humans to identify sensitive information and align with personalized user needs. Additionally, we integrated Standard Operating Procedure (SOP) information within the model's in-context learning to enhance the agent's comprehension of complex task execution. Our approach is evaluated on the new device control benchmark AitW, which encompasses 30K unique instructions across multi-step tasks, including application operation, web searching, and web shopping. Experimental results show that the SOP-based agent achieves state-of-the-art performance in LLMs without incurring additional inference costs, boasting an overall action success rate of 66.92\\%. The code and data examples are available at https://github.com/alipay/mobile-agent.",
+          "claimed_authors": [
+            "Tinghe Ding"
+          ],
+          "claimed_title": "MobileAgent: enhancing mobile control via human-machine interaction and SOP integration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.04124"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='MobileAgent: enhancing mobile control via human-machine interaction and SOP integration')",
+        "failed_at": "2026-07-18T18:59:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Eye-hand coordinated interaction is becoming a mainstream interaction modality in Virtual Reality (VR) user interfaces.Current paradigms for this multimodal interaction require users to learn predefined gestures and memorize multiple gesture-task associations, which can be summarized as an ``Operation-to-Intent\" paradigm. This paradigm increases users' learning costs and has low interaction error tolerance. In this paper, we propose SIAgent, a novel \"Intent-to-Operation\" framework allowing users to express interaction intents through natural eye-hand motions based on common sense and habits. Our system features two main components: (1) intent recognition that translates spatial interaction data into natural language and infers user intent, and (2) agent-based execution that generates an agent to execute corresponding tasks. This eliminates the need for gesture memorization and accommodates individual motion preferences with high error tolerance. We conduct two user studies across over 60 interaction tasks, comparing our method with two \"Operation-to-Intent\" techniques. Results show our method achieves higher intent recognition accuracy than gaze + pinch interaction (97.2% vs 93.1%) while reducing arm fatigue and improving usability, and user preference. Another study verifies the function of eye gaze and hand motion channels in intent recognition. Our work offers valuable insights into enhancing VR interaction intelligence through intent-driven design. Our source code and LLM prompts will be made available upon publication.",
+          "claimed_authors": [
+            "Zhimin Wang",
+            "Chenyu Gu",
+            "Feng Lu"
+          ],
+          "claimed_title": "SIAgent: Spatial Interaction Agent via LLM-powered Eye-Hand Motion Intent Understanding in VR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.00522"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='SIAgent: Spatial Interaction Agent via LLM-powered Eye-Hand Motion Intent Understanding in VR')",
+        "failed_at": "2026-07-18T18:59:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many video workflows benefit from a mixture of user controls with varying granularity, from exact 4D object trajectories and camera paths to coarse text prompts, while existing video generative models are typically trained for fixed input formats. We develop Ctrl-VI, a video synthesis method that addresses this need and generates samples with high controllability for specified elements while maintaining diversity for under-specified ones. We cast the task as variational inference to approximate a composed distribution, leveraging multiple video generation backbones to account for all task constraints collectively. To address the optimization challenge, we break down the problem into step-wise KL divergence minimization over an annealed sequence of distributions, and further propose a context-conditioned factorization technique that reduces modes in the solution space to circumvent local optima. Experiments suggest that our method produces samples with improved controllability, diversity, and 3D consistency compared to prior works.",
+          "claimed_authors": [
+            "Haoyi Duan",
+            "Yunzhi Zhang",
+            "Yilun Du",
+            "Jiajun Wu"
+          ],
+          "claimed_title": "Ctrl-VI: Controllable Video Synthesis via Variational Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.07670"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='Ctrl-VI: Controllable Video Synthesis via Variational Inference')",
+        "failed_at": "2026-07-18T18:59:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Advances in generative artificial intelligence have altered multimedia creation, allowing for automatic cinematic video synthesis from text inputs. This work describes a method for creating 60-second cinematic movies incorporating Stable Diffusion for high-fidelity image synthesis, GPT-2 for narrative structuring, and a hybrid audio pipeline using gTTS and YouTube-sourced music. It uses a five-scene framework, which is augmented by linear frame interpolation, cinematic post-processing (e.g., sharpening), and audio-video synchronization to provide professional-quality results. It was created in a GPU-accelerated Google Colab environment using Python 3.11. It has a dual-mode Gradio interface (Simple and Advanced), which supports resolutions of up to 1024x768 and frame rates of 15-30 FPS. Optimizations such as CUDA memory management and error handling ensure reliability. The experiments demonstrate outstanding visual quality, narrative coherence, and efficiency, furthering text-to-video synthesis for creative, educational, and industrial applications.",
+          "claimed_authors": [
+            "Sridhar S",
+            "Nithin A",
+            "Shakeel Rifath",
+            "Vasantha Raj"
+          ],
+          "claimed_title": "Multimodal Cinematic Video Synthesis Using Text-to-Image and Audio Generation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.10005"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"AlayaWorld: Long-Horizon and Playable Video World ', candidate_title='Multimodal Cinematic Video Synthesis Using Text-to-Image and Audio Generation Models')",
+        "failed_at": "2026-07-18T18:59:53Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sumeet Ramesh Motwani",
+            "Daniel Nichols",
+            "Charles London",
+            "Peggy Li",
+            "Fabio Pizzati",
+            "Acer Blake",
+            "Hasan Hammoud",
+            "Tavish McDonald",
+            "Akshat Naik",
+            "Alesia Ivanova",
+            "Vignesh Baskaran",
+            "Ivan Laptev",
+            "Ruben Glatt",
+            "Tal Ben-Nun",
+            "Philip Torr",
+            "Natasha Jaques",
+            "Ameya Prabhu",
+            "Brian Bartoldson",
+            "Bhavya Kailkhura",
+            "Christian Schroeder de Witt"
+          ],
+          "title": "LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.14140",
+        "summary": "As language models are increasingly deployed for complex autonomous tasks, their ability to reason accurately over longer horizons becomes critical. An essential component of this ability is planning and managing a long, complex chain-of-thought (CoT). We introduce LongCoT, a scalable benchmark of 2,500 expert-designed problems spanning chemistry, mathematics, computer science, chess, and logic to isolate and directly measure the long-horizon CoT reasoning capabilities of frontier models. Problems consist of a short input with a verifiable answer; solving them requires navigating a graph of interdependent steps that span tens to hundreds of thousands of reasoning tokens. Each local step is individually tractable for frontier models, so failures reflect long-horizon reasoning limitations. At release, the best models achieve <10% accuracy (GPT 5.2: 9.8%; Gemini 3 Pro: 6.1%) on LongCoT, revealing a substantial gap in current capabilities. Overall, LongCoT provides a rigorous measure of long-horizon reasoning, tracking the ability of frontier models to reason reliably over extended periods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.14140",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-18T18:59:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " AlayaWorld Team",
+            "Kaipeng Zhang",
+            "Chuanhao Li",
+            "Yifan Zhan",
+            "Yongtao Ge",
+            "Yuanyang Yin",
+            "Jiaming Tan",
+            "Kang He",
+            "Liaoyuan Fan",
+            "Ruicong Liu",
+            "Xiaojie Xu",
+            "Xuangeng Chu",
+            "Zhen Li",
+            "Zhengyuan Lin",
+            "Zhixiang Wang",
+            "Zian Meng",
+            "Zihui Gao"
+          ],
+          "title": "AlayaWorld: Long-Horizon and Playable Video World Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.06291",
+        "summary": "Game worlds have traditionally been built through labor-intensive production pipelines, making them costly to develop, difficult to customization, and expensive to modify after deployment. Recent advances in video world models offer a fundamentally different paradigm. Rather than explicitly authoring every component of a virtual environment, these models autoregressively synthesize future observations conditioned on the current world state and user interactions, enabling playable worlds to be generated online. Trained on both gameplay recordings and real-world videos, they can capture diverse visual appearances and physical dynamics, opening new opportunities for interactive applications beyond gaming, including embodied intelligence. In this paper, we present \\textbf{AlayaWorld}, a full-stack open-source framework for building interactive generative worlds. AlayaWorld enables open-ended real-time interaction, allowing users to freely navigate and perform diverse actions such as combat, spell casting, and monster summoning. The framework unifies the complete development-from data preparation model architecture, model training, inference acceleration, and deployment-within a modular and extensible architecture. Alongside the framework, we release reproducible pipelines, reference implementations, evaluation tools, and comprehensive documentation, establishing a practical foundation for future research and real-time applications of generative world models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.06291",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5833,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-18T18:59:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Huiqiang Sun",
+            "Zhan Peng",
+            "Size Wu",
+            "Kun Wang",
+            "Kang Liao",
+            "Dianyi Wang",
+            "Xingyu Zeng",
+            "Sheng Jin",
+            "Yangguang Li",
+            "Zhiguo Cao",
+            "Ziwei Liu",
+            "Wei Li"
+          ],
+          "title": "Prisma-World: Camera-Controllable Multi-Agent Video World Model",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.09507",
+        "summary": "Video world models have made rapid progress in generating controllable visual experiences, but most of them still simulate the world from a single observer. Extending such models to multiple agents raises a central challenge: if each agent's future state is generated independently, overlapping views may instantiate different versions of the same scene, leading to inconsistent objects, layouts, and appearances across agents. Conventional camera conditioning controls individual trajectories, but it does not explicitly couple the generation of views that should agree under shared scene geometry. We introduce Prisma-World, a camera-controllable multi-agent world model that formulates multi-agent generation as a joint geometry-aware denoising process for cross-view consistency. Prisma-World processes all agent videos within one full-attention sequence, uses a multi-agent RoPE design to distinguish agent identities while preserving synchronized temporal coordinates, and injects relative camera geometry into attention to bias overlapping viewpoints toward shared scene evidence. To further strengthen multi-view consistency and enhance global spatial perception, we augment our framework with an overlap-decaying curriculum training paradigm alongside minimap-conditioned structural guidance. To facilitate the training and evaluation of multi-agent models, we introduce PrismaDataset, a large-scale UE5 dataset with panoramic acquisition across diverse scenes, composable multi-agent view groups with flexible agent counts and complex camera trajectories, and precise camera/action annotations for consistency training and evaluation. Experiments show that a single Prisma-World model can generate high-fidelity multi-agent videos with flexible agent numbers, camera controllability, improved cross-view consistency, and spatial grounding under minimap guidance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.09507",
+          "http_status": 200,
+          "pdf_sample_score": 0.3441,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-18T18:59:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fachrina Dewi Puspitasari",
+            "Chaoning Zhang",
+            "Joseph Cho",
+            "Adnan Haider",
+            "Noor Ul Eman",
+            "Omer Amin",
+            "Alexis Mankowski",
+            "Muhammad Umair",
+            "Jingyao Zheng",
+            "Sheng Zheng",
+            "Lik-Hang Lee",
+            "Caiyan Qin",
+            "Tae-Ho Kim",
+            "Choong Seon Hong",
+            "Yang Yang",
+            "Heng Tao Shen"
+          ],
+          "title": "Sora as a World Model? A Complete Survey on Text-to-Video Generation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.05131",
+        "summary": "The evolution of video generation from text, from animating MNIST to simulating the world with Sora, has progressed at a breakneck speed. Here, we systematically discuss how far text-to-video generation technology supports essential requirements in world modeling. We curate 250+ studies on text-based video synthesis and world modeling. We then observe that recent models increasingly support spatial, action, and strategic intelligences in world modeling through adherence to completeness, consistency, invention, as well as human interaction and control. We conclude that text-to-video generation is adept at world modeling, although homework in several aspects, such as the diversity-consistency trade-offs, remains to be addressed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.05131",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-18T18:59:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kaichen Zhou",
+            "Yuzhen Chen",
+            "Fangneng Zhan",
+            "Hang Hua",
+            "Grace Chen",
+            "Xinhai Chang",
+            "Ao Qu",
+            "Yilun Du",
+            "Zhuang Liu",
+            "Paul Pu Liang",
+            "Mengyu Wang"
+          ],
+          "title": "GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.22882",
+        "summary": "Video world models can generate realistic futures from a single instruction, but they often fail to track the same physical points consistently across time. As a result, the generated videos appear plausible, yet lack the physical grounding required for reliable action execution, such as robot manipulation. We present GEM-4D, a geometry-grounded video world model that resolves this limitation by injecting dense 4D correspondence supervision distilled from a pretrained geometry foundation model into the video generative backbone during training. This supervision enables the model to jointly capture appearance and geometric structure while retaining a single-stream architecture with no additional inference cost. We further introduce an inverse dynamics module that converts correspondence-consistent video rollouts into executable robot trajectories, enabling direct deployment in both real-world and simulated manipulation. GEM-4D achieves state-of-the-art performance on both video prediction and geometric consistency across both simulation and realistic scenarios and improves real-world manipulation success from 61% to 81%. Additional results are available at https://gem-4d.github.io/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.22882",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-18T19:00:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Willi Menapace",
+            "Stéphane Lathuilière",
+            "Sergey Tulyakov",
+            "Aliaksandr Siarohin",
+            "Elisa Ricci"
+          ],
+          "title": "Playable Video Generation",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2101.12195",
+        "summary": "This paper introduces the unsupervised learning problem of playable video generation (PVG). In PVG, we aim at allowing a user to control the generated video by selecting a discrete action at every time step as when playing a video game. The difficulty of the task lies both in learning semantically consistent actions and in generating realistic videos conditioned on the user input. We propose a novel framework for PVG that is trained in a self-supervised manner on a large dataset of unlabelled videos. We employ an encoder-decoder architecture where the predicted action labels act as bottleneck. The network is constrained to learn a rich action space using, as main driving loss, a reconstruction loss on the generated video. We demonstrate the effectiveness of the proposed approach on several datasets with wide environment variety. Further details, code and examples are available on our project page willi-menapace.github.io/playable-video-generation-website.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2101.12195",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-18T19:00:00Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"alayaworld: long-horizon and playable video world generation\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

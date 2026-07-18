@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.22882",
+  "judged_at": "2026-07-18T19:00:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"alayaworld: long-horizon and playable video world generation\" computer science",
+  "rationale": "This paper belongs in the literature review as it addresses the core domain of \"video world models\" and specifically tackles the \"long-horizon\" and \"physical consistency\" challenges central to the user's query about extending AlayaWorld, satisfying criteria (a) for same-mechanism evidence (geometric grounding in video generation) and (b) for measuring the same dependent variables (video prediction and physical consistency) in the same domain.",
+  "relevant": true
+}

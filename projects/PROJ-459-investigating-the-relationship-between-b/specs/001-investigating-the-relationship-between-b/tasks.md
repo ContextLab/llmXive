@@ -76,21 +76,21 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data validation schema in `tests/contract/test_data_validation.py`. Implement `test_schema_validates_musical_genre_field()` and `test_schema_falls_back_to_stomp_r()`. <!-- SKIPPED: non-mapping output -->
-- [ ] T011 [P] [US1] Integration test for fMRIPrep wrapper in `tests/integration/test_fmriprep_wrapper.py`. Implement `test_fmriprep_runs_on_mock_data()` and `test_fmriprep_handles_memory_error()`. <!-- ATOMIZE: requested -->
+- [X] T010 [P] [US1] Contract test for data validation schema in `tests/contract/test_data_validation.py`. Implement `test_schema_validates_musical_genre_field()` and `test_schema_falls_back_to_stomp_r()`. <!-- SKIPPED: non-mapping output -->
+- [X] T011 [P] [US1] Integration test for fMRIPrep wrapper in `tests/integration/test_fmriprep_wrapper.py`. Implement `test_fmriprep_runs_on_mock_data()` and `test_fmriprep_handles_memory_error()`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/data/download.py` to download resting-state fMRI data from OpenNeuro (ds000030, ds000208) using `requests` or `bids-validator` logic. Define `download_dataset(dataset_id: str, output_dir: str)`.
-- [ ] T012e [US1] Implement `code/data/validate.py` to dynamically validate dataset IDs against a verified list of datasets containing required behavioral variables. If a hardcoded ID (e.g., ds000030) is not in the verified list, halt with `ERR_INVALID_DATASET` and log the specific missing variable. Define `validate_dataset_id()`.
+- [X] T012 [P] [US1] Implement `code/data/download.py` to download resting-state fMRI data from OpenNeuro (ds000030, ds000208) using `requests` or `bids-validator` logic. Define `download_dataset(dataset_id: str, output_dir: str)`.
+- [X] T012e [US1] Implement `code/data/validate.py` to dynamically validate dataset IDs against a verified list of datasets containing required behavioral variables. If a hardcoded ID (e.g., ds000030) is not in the verified list, halt with `ERR_INVALID_DATASET` and log the specific missing variable. Define `validate_dataset_id()`.
 - [X] T012c [US1] Implement `code/data/validate.py` to perform comprehensive data integrity checks:
  1. Check sample size N >= 85 (Hard Gate). If N < 85, log `ERR_UNDERPOWERED` and halt execution unconditionally. No bypass for 'Spec Amendment' is permitted.
  2. Verify dataset variable availability: Check `participants.tsv` for 'musical_genre'. If missing, attempt fallback to 'STOMP-R'. If both missing, halt with `DataValidationError` (code `ERR_DATA_MISSING`). Log specific missing field name.
  3. Verify the dataset source matches the Constitution's Verified Accuracy principle (check against a verified list of datasets).
  Define `check_data_integrity()`.
 - [X] T016 [P] [US1] Implement `code/data/validate.py` to check for 'musical_genre' or 'STOMP-R' in `participants.tsv`; halt with `DataValidationError` (code `ERR_DATA_MISSING`) if missing. Log specific missing field name. (Integrated into T012c logic, but kept as separate task for testability of specific validation step).
-- [~] T017 [P] [US1] Add validation logic to exclude subjects with >10% missing behavioral data or >10% corrupted fMRI volumes. Define `exclude_subjects_by_missing_data()`.
-- [~] T018 [P] [US1] Add logic to flag/exclude subjects with excessive head motion (>0.5mm FD). Define `exclude_subjects_by_motion()`.
+- [ ] T017 [P] [US1] Add validation logic to exclude subjects with >10% missing behavioral data or >10% corrupted fMRI volumes. Define `exclude_subjects_by_missing_data()`.
+- [ ] T018 [P] [US1] Add logic to flag/exclude subjects with excessive head motion (>0.5mm FD). Define `exclude_subjects_by_motion()`.
 - [X] T014 [US1] Depends: T008, T012c, T012e. Implement `code/data/preprocess.py` to run fMRIPrep (Docker) with memory limits and generate standardized BOLD/confounds. Command args: `--output-space MNI152NLin2009cAsym --confounds trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars`. Define `run_fmriprep(subject_id: str)`.
 - [X] T015 [US1] Depends: T005, T014. Implement `code/data/preprocess.py` to extract regional time courses using Schaefer-400 atlas (400 ROIs × timepoints). Define `extract_time_series(subject_id: str)`.
 
@@ -132,7 +132,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Contract test for statistical output schema in `tests/contract/test_stats_schema.py`. Implement `test_stats_schema_has_required_columns()` and `test_bh_correction_applied()`.
+- [X] T029 [P] [US3] Contract test for statistical output schema in `tests/contract/test_stats_schema.py`. Implement `test_stats_schema_has_required_columns()` and `test_bh_correction_applied()`.
 - [ ] T030 [P] [US3] Integration test for null distribution validation in `tests/integration/test_null_distribution.py`. Implement `test_null_distribution_false_positive_rate()`.
 
 ### Implementation for User Story 3
