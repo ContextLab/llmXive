@@ -1,0 +1,4 @@
+# This file is intentionally empty.
+# Configuration is handled in pyproject.toml to keep the project root clean.
+# If you prefer a dedicated config file, move the [tool.ruff] section here
+# and delete the section from pyproject.toml.

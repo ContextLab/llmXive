@@ -1,0 +1,54 @@
+T023:
+  c: true
+  h: 1120ba919c7659bbc09e669b45ac36901a63238a67f8ced43e0d4b2a4a4148c1
+  r: "The file `code/metrics.py` contains a non\u2011empty implementation of `process_batch`\
+    \ that scans a given directory for `*.json` files, computes the required metrics,\
+    \ and writes them to a CSV at the supplied output path, fulfilling the task specification.\
+    \ (The CSV itself is not expected to exist until the function is run.)"
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that the metric functions\
+    \ now return\u202F0.0 for zero\u2011node or zero\u2011edge graphs instead of NaN.\
+    \ The required implementation and verification artifacts are missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation showing that batch processing now logs its
+    progress with `tqdm` was provided; the artifact is missing entirely, so the requirement
+    is not satisfied.
+T029:
+  c: true
+  h: 13c5a16cdf85b31d482e1e6372392e48b25a5d4aaf635eced2687baa684e0bfe
+  r: The `code/evaluator.py` file exists and contains a fully implemented `stratified_split`
+    function that reads a list of metric dicts, separates by the `collapse` label,
+    and returns balanced train and test splits. Supporting load/save utilities are
+    also present, satisfying the required behavior.
+T030:
+  c: false
+  h: 00b422bb569109aba1c755d752a72ab15be0710b350771453208cabf423b026b
+  r: The `calculate_20th_percentile_threshold` function in `code/evaluator.py` is
+    only declared with a docstring and contains no implementation (the file is truncated).
+    Additionally, the required input file `data/processed/train_metrics.csv` does
+    not exist in the repository. Both the core artifact and its input data are missing,
+    so the task is not fulfilled.
+T031:
+  c: false
+  h: 00b422bb569109aba1c755d752a72ab15be0710b350771453208cabf423b026b
+  r: "The repository lacks a `calculate_f1_max_threshold` function in `code/evaluator.py`\
+    \ (the file is truncated before any such implementation) and the required input\
+    \ file `data/processed/train_metrics.csv` is absent, so the task\u2019s core requirement\
+    \ is not fulfilled."
+T032:
+  c: false
+  h: 79940c4e84d0460372b73a6e444edb01b05d4752057612faea17d2f5be5395c3
+  r: "The repository lacks a `predict_collapse` implementation in `code/evaluator.py`\
+    \ (the file ends before such a function appears) and the required input file `data/processed/test_metrics.csv`\
+    \ is absent, so the task\u2019s core functionality cannot be verified."
+T033:
+  c: false
+  h: 79940c4e84d0460372b73a6e444edb01b05d4752057612faea17d2f5be5395c3
+  r: The repository lacks the required `data/processed/test_metrics.csv` file, and
+    the provided `code/evaluator.py` does not contain an implemented `evaluate_performance`
+    function (the file is truncated before any such definition). Consequently the
+    task of computing Precision, Recall, F1, and a Confusion Matrix cannot be satisfied.

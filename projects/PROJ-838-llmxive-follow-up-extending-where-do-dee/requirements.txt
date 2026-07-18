@@ -1,0 +1,12 @@
+pandas
+networkx
+scikit-learn
+spacy
+tqdm
+pyyaml
+requests
+scipy
+datasets
+pytest
+ruff
+black

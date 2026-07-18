@@ -1,0 +1,56 @@
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: manual spot-check sample size for graph validity is 50
+  claim_id: c_d50c8efc
+  context: 'T042 Document construct validity limitations (heuristic proxy vs ground
+    truth) in research.md if edge detection accuracy < 60% (Input: manual spot-check
+    of 50 graphs stored in data/processed/validity_check.json)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: manual spot-check of 50 graphs stored in data/processed/validity_check.json
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:18:38Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: permutation test parameters are 1000 permutations with seed 42
+  claim_id: c_e5c06dad
+  context: 'T037a [US3] Implement calculate_null_distribution in code/evaluator.py
+    (Input: data/processed/test_metrics.csv) to perform permutation test (1000 permutations,
+    seed=42, shuffle labels column in-place) to establish null distribution, compare
+    observed correlation against null to generate p-value and binary pass/fail for
+    SC-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform permutation test (1000 permutations, seed=42, shuffle labels column
+    in-place) to establish null distribution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:19:18Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds are 0.01, 0.05, 0.1 and percentiles 10,
+    15, 20, 25, 30
+  claim_id: c_17c0aa2f
+  context: 'T036 [US3] Implement run_sensitivity_analysis in code/evaluator.py (Input:
+    data/processed/test_metrics.csv) to sweep thresholds over the specific set {0.01,
+    0.05, 0.1} and percentiles [10, 15, 20, 25, 30] and report the full matrix.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep thresholds over the specific set {0.01, 0.05, 0.1} and percentiles
+    [10, 15, 20, 25, 30]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:19:44Z'

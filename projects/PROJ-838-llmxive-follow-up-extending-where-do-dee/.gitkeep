@@ -1,0 +1,2 @@
+# This file ensures the root directory is tracked if needed, 
+# though typically git tracks the folder via files inside.

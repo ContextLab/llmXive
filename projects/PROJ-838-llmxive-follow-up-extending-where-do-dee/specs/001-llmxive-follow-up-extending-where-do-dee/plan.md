@@ -132,4 +132,4 @@ projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/
 * **Risk**: No variance in early spans (all sparse).
  * **Mitigation**: FR-008 explicitly checks for linear reasoning; if all success cases are linear, the hypothesis is adjusted in the report (associational, not causal).
 * **Risk**: Construct Validity of Edge Detection.
- * **Mitigation**: Manual spot-check of 50 graphs to estimate precision/recall of the `spaCy`-based edge inference. If accuracy is < 60%, the study will explicitly qualify the "Connectivity" metric as a "heuristic proxy" rather than a ground-truth structural measure.
+ * **Mitigation**: Manual spot-check of a sample of graphs to estimate precision/recall of the `spaCy`-based edge inference. If accuracy is < 60%, the study will explicitly qualify the "Connectivity" metric as a "heuristic proxy" rather than a ground-truth structural measure.
