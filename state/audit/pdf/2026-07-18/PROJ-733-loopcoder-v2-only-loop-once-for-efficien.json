@@ -1,0 +1,136 @@
+{
+  "pdf_path": "projects/PROJ-733-loopcoder-v2-only-loop-once-for-efficien/paper/pdf/main-llmxive.pdf",
+  "paper_id": "PROJ-733-loopcoder-v2-only-loop-once-for-efficien",
+  "audited_at": "2026-07-18T00:03:58Z",
+  "total_pages": 22,
+  "pages": [
+    {
+      "page": 1,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 2,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 3,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 4,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 5,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 6,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 7,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 8,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 9,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 10,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 11,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 12,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 13,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 14,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "\u00b9",
+          "class": "source_fixable",
+          "recommendation": "bibstyle is producing superscripts; force \\bibliographystyle{unsrt}"
+        }
+      ]
+    },
+    {
+      "page": 15,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 16,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 17,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 18,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 19,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 20,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 21,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 22,
+      "status": "pass",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "total_failures": 1,
+    "failure_classes": {
+      "source_fixable": 1,
+      "unsupported_construct": 0,
+      "source_missing": 0,
+      "audit_tool_crash": 0
+    },
+    "passed_pages": 21,
+    "failed_pages": 1
+  }
+}

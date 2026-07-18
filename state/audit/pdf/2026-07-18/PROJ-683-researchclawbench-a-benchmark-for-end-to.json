@@ -1,0 +1,486 @@
+{
+  "pdf_path": "projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/pdf/main-llmxive.pdf",
+  "paper_id": "PROJ-683-researchclawbench-a-benchmark-for-end-to",
+  "audited_at": "2026-07-18T00:02:04Z",
+  "total_pages": 83,
+  "pages": [
+    {
+      "page": 1,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 2,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 3,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 4,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 5,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "\u00b9",
+          "class": "source_fixable",
+          "recommendation": "bibstyle is producing superscripts; force \\bibliographystyle{unsrt}"
+        }
+      ]
+    },
+    {
+      "page": 6,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 7,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 8,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 9,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 10,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 11,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 12,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 13,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 14,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 15,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 16,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 17,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 18,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 19,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 20,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 21,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 22,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 23,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 24,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 25,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Bunting et al., 2018)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Garner et al., 2021)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Garner et al., 2021)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Garner et al., 2021)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        },
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Emanuel et al., 2006)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 26,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 27,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 28,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 29,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 30,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 31,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 32,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 33,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 34,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 35,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 36,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 37,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 38,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 39,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 40,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 41,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 42,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 43,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 44,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 45,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 46,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 47,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 48,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 49,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 50,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 51,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 52,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 53,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 54,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 55,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 56,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 57,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 58,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 59,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 60,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 61,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Trinh et al., 2024)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 62,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 63,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 64,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 65,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 66,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 67,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 68,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 69,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 70,
+      "status": "fail",
+      "failures": [
+        {
+          "kind": "non_square_bracket_cite",
+          "evidence": "(Vaswani et al., 2017)",
+          "class": "source_fixable",
+          "recommendation": "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source"
+        }
+      ]
+    },
+    {
+      "page": 71,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 72,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 73,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 74,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 75,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 76,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 77,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 78,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 79,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 80,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 81,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 82,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 83,
+      "status": "pass",
+      "failures": []
+    }
+  ],
+  "summary": {
+    "total_failures": 8,
+    "failure_classes": {
+      "source_fixable": 8,
+      "unsupported_construct": 0,
+      "source_missing": 0,
+      "audit_tool_crash": 0
+    },
+    "passed_pages": 79,
+    "failed_pages": 4
+  }
+}
