@@ -16,8 +16,8 @@ This feature implements a gradient-free sensitivity analysis to test the hypothe
 **Target Platform**: Linux (GitHub Actions free-tier runner)  
 **Project Type**: computational research / data science  
 **Performance Goals**: Memory < 7 GB RAM (via layer-wise loading); Runtime < 6 hours for full pipeline on sampled data  
-**Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; no deep-net training from scratch; dataset sampling required if A full dataset exceeds RAM capacity.; **10k** fine-tuning subset explicitly defined  
-**Scale/Scope**: Large-scale model (frozen for inference, pruned for fine-tuning); **10k** synthetic examples for fine-tuning; A large synthetic corpus for sensitivity analysis (sampled)
+**Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; no deep-net training from scratch; dataset sampling required if A full dataset exceeds RAM capacity.; **k** fine-tuning subset explicitly defined  
+**Scale/Scope**: Large-scale model (frozen for inference, pruned for fine-tuning); **k** synthetic examples for fine-tuning; A large synthetic corpus for sensitivity analysis (sampled)
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

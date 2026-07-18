@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-occrag"
+version = "0.1.0"
+description = "OCC-RAG: Optimal Cognitive Core for Faithful Question Answering"
+requires-python = ">=3.11"
+dependencies = [
+    "torch",
+    "transformers",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "datasets",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.0.0",
+    "flake8>=7.0.0",
+    "pytest>=8.0.0",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.venv
+    | venv
+    | __pycache__
+    | data
+    | figures
+    | docs
+)/
+'''
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = [
+    "E203",  # Whitespace before ':' (conflicts with black)
+    "W503",  # Line break before binary operator (conflicts with black)
+]
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "data",
+    "figures",
+    "docs",
+]
+per-file-ignores = []
+max-complexity = 15

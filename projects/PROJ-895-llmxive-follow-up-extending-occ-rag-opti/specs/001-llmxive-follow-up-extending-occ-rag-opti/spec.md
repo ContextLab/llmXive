@@ -34,7 +34,7 @@ The researcher needs to construct a pruned model (OCC-RAG-Pruned-{retention_pct}
 **Acceptance Scenarios**:
 
 1. **Given** the list of critical parameters from User Story 1, **When** the pruning script constructs the new model, **Then** the model weights for the identified critical parameters are non-zero, and all other weights are exactly zero, preserving the original architecture topology.
-2. **Given** the pruned model and 10k synthetic examples, **When** the lightweight fine-tuning script runs with a low learning rate, **Then** the training loop completes on CPU within 4 hours and the final loss gradient magnitude falls below a negligible threshold for 3 consecutive epochs.
+2. **Given** the pruned model and 10k synthetic examples, **When** the lightweight fine-tuning script runs with a low learning rate, **Then** the training loop completes on CPU within 4 hours and the final loss gradient magnitude falls below a negligible threshold for a sustained period of consecutive epochs.
 3. **Given** the fine-tuned pruned model, **When** it is evaluated on the held-out test set, **Then** it produces a Context Faithfulness Score that is within 5% of the original model's score.
 
 ---

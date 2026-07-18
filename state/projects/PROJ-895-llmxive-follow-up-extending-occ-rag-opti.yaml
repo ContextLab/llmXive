@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-895-llmxive-follow-up-extending-occ-rag-opti
-last_run_id: 37fa65de-030c-4688-b37c-09537b6a43b3
+last_run_id: 8fe108c9-057b-4912-834f-cdea6b9b0bd5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti
 title: 'llmXive follow-up: extending "OCC-RAG: Optimal Cognitive Core for Faithful
   Question Answering"'
-updated_at: '2026-07-13T23:22:58.553861Z'
+updated_at: '2026-07-18T03:49:52.683580Z'
