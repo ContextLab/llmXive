@@ -6,10 +6,30 @@ Both Step A (chat_with_fallback) AND Step B (reasoning_chat + chat_with_model_fa
 and green. All routing now flows registry/reasoning/panel calls → `route_chat` → `select()` →
 `execute()`. Slice-5 commits on base `b00d0b71c3`: `5170772b61` (M0) · `dc91dd24e1` (route_chat) ·
 `85361c8edf` (Step A) · `3ce1e794b6` (Step B: 2 walkers retired + autouse offline-snapshot stub +
-mechanics-tests retired). Verified: reviser/reviewer units+integration + claims/fill/grounding/triage
-(655+ tests) green with ZERO per-file edits; full non-slow backstop was running at handoff. **The
-7 e2e tests + SC-008 real-call verification are the remaining Slice-5 acceptance items** (see below);
-then Slice 6. NOT pushed — re-fetch + rebase onto origin/main before the PR.
+mechanics-tests retired) · `3e121792b4` (**review-2 paid-path fixes** F1–F4). Full non-slow backstop
+after Step B: **6970 passed**, only the 2 pre-existing `web_data` dashboard-drift failures (resolve
+on rebase). NOT pushed — re-fetch + rebase onto origin/main before the PR.
+
+### Review-2 fixes (`3e121792b4`) — the guarded paid fallback is now functional end-to-end
+The maintainer found the paid tail could never run through the new chokepoint. Fixed:
+- **F1** `route_chat` defaulted `ledger_repo=None` → execute skipped every paid candidate. Now
+  defaults to `repo_root()` (where the ledger ref is bootstrapped, `cli.py:358`); explicit param =
+  test seam; still fails closed on an unbootstrapped anchor.
+- **F2** `standard_generation` `max_candidates` 4→8: the composite snapshot has 4 free
+  (qwen→gemma-4→gpt-oss→local qwen2.5) so free-before-paid truncated claude. Added an SC-007 golden
+  on the FULL composite proving claude survives last.
+- **F3** `LocalBackend` missing-runtime/checkpoint → `BackendUnavailable` (ADVANCE), not
+  `PermanentBackendError` (which ABORTED the chain before paid). Unit + e2e integration test
+  (`test_route_chat_reaches_paid_after_free_down_and_local_unavailable` — reservation opened→settling
+  on a real git ledger).
+- **F4** US5 delivery split made explicit+BINDING in spec.md (US5 + Delivery Slices) + plan.md
+  (Slice 5/7): the schema-dependent US5 ACs (each agent expresses a profile; AC1 all-agents
+  fixed-snapshot test; AC4 config_consistency→profiles) are deferred to **Slice 7** with the
+  `AgentRegistryEntry` schema migration, and stay open.
+
+**Remaining Slice-5 acceptance:** the 7 e2e tests (most covered by route/execute unit tests; the paid
+e2e is now the integration test above) + SC-008 real-call verification (needs `DARTMOUTH_CHAT_API_KEY`).
+Then Slice 6 (execution-tier ladder). US5 schema-dependent ACs are Slice 7 (see F4).
 
 ### How Step B worked (the autouse-stub approach the maintainer chose)
 `reasoning_chat`/`chat_with_model_fallback` → thin wrappers over a shared `_walker_route` →
