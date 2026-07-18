@@ -1,3 +1,8 @@
+"""
+Synthetic data generation module.
+
+Generates datasets with configurable parameters for validation and testing.
+"""
 import json
 import os
 import numpy as np
@@ -6,125 +11,126 @@ from pathlib import Path
 import logging
 
 from .models import DatasetRecord
-from .logging_config import setup_logging
-from .utils import set_seed
 
-logger = setup_logging(log_file="data/derivation_logs/synthetic.log")
+logger = logging.getLogger(__name__)
+
 
 class SyntheticDataGenerator:
     """
-    Generates synthetic datasets with configurable parameters for statistical validation.
+    Generates synthetic datasets for statistical validation.
+
+    Attributes:
+        mean_difference (float): The intended difference in means between groups.
+        sample_size (int): The number of samples per group.
+        ground_truth (Dict[str, Any]): The ground truth parameters used.
     """
-    
-    def __init__(self, seed: int = 42):
-        self.seed = seed
-        set_seed(seed)
-        self.logger = logging.getLogger("embodied_curriculum.synthetic")
-    
-    def generate(
-        self,
-        n_samples: int = 100,
-        mean_embodied: float = 15.0,
-        mean_static: float = 5.0,
-        std_dev: float = 5.0,
-        pre_test_mean: float = 50.0,
-        pre_test_std: float = 10.0
-    ) -> List[DatasetRecord]:
+
+    def __init__(self, mean_difference: float = 0.5, sample_size: int = 100, seed: int = 42):
         """
-        Generate synthetic dataset.
-        
+        Initialize the generator.
+
         Args:
-            n_samples: Total number of samples.
-            mean_embodied: Mean gain for embodied group.
-            mean_static: Mean gain for static group.
-            std_dev: Standard deviation for gains.
-            pre_test_mean: Mean pre-test score.
-            pre_test_std: Standard deviation for pre-test scores.
-        
-        Returns:
-            List of DatasetRecord objects.
+            mean_difference (float): Difference in means between groups.
+            sample_size (int): Number of samples per group.
+            seed (int): Random seed for reproducibility.
         """
-        self.logger.info(f"Generating {n_samples} synthetic records.")
-        
-        # Ensure half are embodied, half static
-        n_embodied = n_samples // 2
-        n_static = n_samples - n_embodied
-        
-        records = []
-        
-        # Generate Pre-test scores (common distribution)
-        pre_scores = np.random.normal(pre_test_mean, pre_test_std, n_samples)
-        
-        # Generate Post-test scores based on group
-        # Gain = Post - Pre => Post = Pre + Gain
-        
-        # Embodied group
-        embodied_gains = np.random.normal(mean_embodied, std_dev, n_embodied)
-        embodied_pre = pre_scores[:n_embodied]
-        embodied_post = embodied_pre + embodied_gains
-        
-        for i in range(n_embodied):
-            record = DatasetRecord(
-                pre_test_score=float(embodied_pre[i]),
-                post_test_score=float(embodied_post[i]),
-                instruction_type="embodied_physics",
-                covariates={"group": "embodied", "gain": float(embodied_gains[i])}
-            )
-            records.append(record)
-        
-        # Static group
-        static_gains = np.random.normal(mean_static, std_dev, n_static)
-        static_pre = pre_scores[n_embodied:]
-        static_post = static_pre + static_gains
-        
-        for i in range(n_static):
-            record = DatasetRecord(
-                pre_test_score=float(static_pre[i]),
-                post_test_score=float(static_post[i]),
-                instruction_type="static_text",
-                covariates={"group": "static", "gain": float(static_gains[i])}
-            )
-            records.append(record)
-        
-        self.logger.info(f"Synthetic generation complete. Total records: {len(records)}")
-        return records
-    
-    def generate_mapping_log(self, output_path: str = "data/synthetic/mapping_log.json"):
-        """
-        Create a mapping log documenting the causal chain for Constitution Principle VI.
-        """
-        log_path = Path(output_path)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        mapping_data = {
-            "causal_chain": [
-                {
-                    "stage": "Physics_Action",
-                    "description": "Student manipulates virtual objects (e.g., levers, pulleys).",
-                    "variables": ["force", "distance", "work"]
-                },
-                {
-                    "stage": "Virtual_Object_State",
-                    "description": "System updates state based on physical simulation engine.",
-                    "variables": ["position", "velocity", "energy"]
-                },
-                {
-                    "stage": "Abstract_Principle_Inference",
-                    "description": "Student infers mathematical relationship (e.g., Work = Force x Distance).",
-                    "variables": ["gain_score", "concept_mastery"]
-                }
-            ],
-            "generated_parameters": {
-                "seed": self.seed,
-                "embodied_mean_gain": 15.0,
-                "static_mean_gain": 5.0,
-                "std_dev": 5.0
-            },
-            "timestamp": str(np.datetime64('now'))
+        self.mean_difference = mean_difference
+        self.sample_size = sample_size
+        self.ground_truth = {
+            "mean_difference": mean_difference,
+            "sample_size": sample_size,
+            "seed": seed
         }
-        
-        with open(log_path, 'w') as f:
-            json.dump(mapping_data, f, indent=2)
-        
-        self.logger.info(f"Mapping log written to {log_path}")
-        return str(log_path)
+        np.random.seed(seed)
+
+    @classmethod
+    def generate(cls, sample_size: int = 100, mean_diff: float = 0.5, seed: int = 42) -> List[DatasetRecord]:
+        """
+        Generate a synthetic dataset.
+
+        Args:
+            sample_size (int): Total number of samples (split between groups).
+            mean_diff (float): Intended mean difference.
+            seed (int): Random seed.
+
+        Returns:
+            List[DatasetRecord]: List of generated records.
+        """
+        generator = cls(mean_difference=mean_diff, sample_size=sample_size, seed=seed)
+        return generator._create_records()
+
+    def _create_records(self) -> List[DatasetRecord]:
+        """
+        Create the actual records based on configured parameters.
+
+        Returns:
+            List[DatasetRecord]: List of records.
+        """
+        records = []
+        n_per_group = self.sample_size // 2
+
+        # Generate scores for Static group
+        pre_static = np.random.normal(loc=50, scale=10, size=n_per_group)
+        post_static = np.random.normal(loc=55, scale=10, size=n_per_group)
+
+        # Generate scores for Embodied group (with mean difference)
+        pre_embodied = np.random.normal(loc=50, scale=10, size=n_per_group)
+        post_embodied = np.random.normal(loc=55 + self.mean_difference * 10, scale=10, size=n_per_group)
+
+        for i in range(n_per_group):
+            records.append(DatasetRecord(
+                pre_test_score=float(pre_static[i]),
+                post_test_score=float(post_static[i]),
+                instruction_type="static",
+                covariates={"group_id": i}
+            ))
+            records.append(DatasetRecord(
+                pre_test_score=float(pre_embodied[i]),
+                post_test_score=float(post_embodied[i]),
+                instruction_type="embodied",
+                covariates={"group_id": i + n_per_group}
+            ))
+
+        logger.info(f"Generated {len(records)} synthetic records.")
+        return records
+
+
+def generate_mapping_log(output_path: str) -> None:
+    """
+    Generate a mapping log documenting the causal chain for synthetic data.
+
+    This satisfies Constitution Principle VI by documenting:
+    Physics_Action -> Virtual_Object_State -> Abstract_Principle_Inference
+
+    Args:
+        output_path (str): Path to write the mapping log JSON.
+    """
+    log_data = {
+        "causal_chain": [
+            {
+                "stage": "Physics_Action",
+                "description": "User interacts with virtual objects in a physics simulation.",
+                "variables": ["force_applied", "mass", "velocity_change"]
+            },
+            {
+                "stage": "Virtual_Object_State",
+                "description": "Resulting state of objects after interaction.",
+                "variables": ["displacement", "kinetic_energy", "momentum"]
+            },
+            {
+                "stage": "Abstract_Principle_Inference",
+                "description": "Inference of abstract mathematical principles from observed states.",
+                "variables": ["linear_relationship", "proportionality", "conservation_laws"]
+            }
+        ],
+        "mapping_logic": "The synthetic generator simulates the outcome of these interactions to produce pre/post test scores that reflect the understanding of these principles.",
+        "generated_at": "auto"
+    }
+
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(log_data, f, indent=2)
+
+    logger.info(f"Mapping log written to {output_path}")

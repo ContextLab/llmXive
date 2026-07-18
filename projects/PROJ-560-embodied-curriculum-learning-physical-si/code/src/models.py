@@ -2,76 +2,92 @@ from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, List
 import json
 
+
 @dataclass
 class DatasetRecord:
-    """Represents a single record from a dataset."""
+    """
+    Represents a single data record for analysis.
+
+    Attributes:
+        pre_test_score (float): Score before the intervention.
+        post_test_score (float): Score after the intervention.
+        instruction_type (str): Type of instruction received (e.g., 'embodied', 'static').
+        covariates (Dict[str, Any]): Additional static data fields.
+    """
     pre_test_score: float
     post_test_score: float
     instruction_type: str
     covariates: Dict[str, Any] = field(default_factory=dict)
-    
-    def gain_score(self) -> Optional[float]:
-        if self.pre_test_score is not None and self.post_test_score is not None:
-            return self.post_test_score - self.pre_test_score
-        return None
 
-@dataclass
-class SensitivitySweep:
-    """Represents a single result from a sensitivity analysis sweep."""
-    threshold: float
-    t_statistic: float
-    p_value: float
-    adjusted_alpha: float
-    effect_size: float
-    ci_lower: float
-    ci_upper: float
-    power: float
-    inference_text: str
-    collinearity_diagnostic: Dict[str, Any]
-    robustness_warning: bool
-    
     def to_dict(self) -> Dict[str, Any]:
+        """Convert the record to a dictionary."""
         return {
-            "threshold": self.threshold,
-            "t_statistic": self.t_statistic,
-            "p_value": self.p_value,
-            "adjusted_alpha": self.adjusted_alpha,
-            "effect_size": self.effect_size,
-            "ci_lower": self.ci_lower,
-            "ci_upper": self.ci_upper,
-            "power": self.power,
-            "inference_text": self.inference_text,
-            "collinearity_diagnostic": self.collinearity_diagnostic,
-            "robustness_warning": self.robustness_warning
+            "pre_test_score": self.pre_test_score,
+            "post_test_score": self.post_test_score,
+            "instruction_type": self.instruction_type,
+            "covariates": self.covariates
         }
+
 
 @dataclass
 class AnalysisResult:
-    """Aggregates all statistical results for a single analysis run."""
+    """
+    Aggregates the results of a statistical analysis.
+
+    Attributes:
+        t_statistic (float): The calculated t-statistic.
+        p_value (float): The calculated p-value.
+        effect_size (float): Cohen's d effect size.
+        confidence_interval (Optional[Tuple[float, float]]): 95% confidence interval.
+        methodological_caveats (List[str]): List of framing caveats (e.g., "associational").
+        power (Optional[float]): Achieved statistical power.
+        collinearity_report (Optional[Dict[str, Any]]): Collinearity diagnostics.
+        robustness_warning (Optional[bool]): Flag indicating if robustness checks failed.
+    """
     t_statistic: float
     p_value: float
     effect_size: float
-    ci_lower: float
-    ci_upper: float
-    power: float
-    inference_text: str
-    collinearity_diagnostic: Dict[str, Any]
-    robustness_warning: bool
-    sensitivity_sweep: List[SensitivitySweep] = field(default_factory=list)
-    
+    confidence_interval: Optional[tuple] = None
+    methodological_caveats: List[str] = field(default_factory=list)
+    power: Optional[float] = None
+    collinearity_report: Optional[Dict[str, Any]] = None
+    robustness_warning: Optional[bool] = None
+
     def to_dict(self) -> Dict[str, Any]:
+        """Convert the result to a dictionary for JSON serialization."""
         return {
             "t_statistic": self.t_statistic,
             "p_value": self.p_value,
             "effect_size": self.effect_size,
-            "ci_lower": self.ci_lower,
-            "ci_upper": self.ci_upper,
+            "confidence_interval": list(self.confidence_interval) if self.confidence_interval else None,
+            "methodological_caveats": self.methodological_caveats,
             "power": self.power,
-            "inference_text": self.inference_text,
-            "collinearity_diagnostic": self.collinearity_diagnostic,
-            "robustness_warning": self.robustness_warning,
-            "sensitivity_sweep": [s.to_dict() for s in self.sensitivity_sweep]
+            "collinearity_report": self.collinearity_report,
+            "robustness_warning": self.robustness_warning
         }
-    
-    def to_json(self, indent: int = 2) -> str:
-        return json.dumps(self.to_dict(), indent=indent)
+
+
+@dataclass
+class SensitivitySweep:
+    """
+    Represents the results of a sensitivity analysis sweep.
+
+    Attributes:
+        threshold (float): The threshold value used for this sweep point.
+        effect_size (float): The calculated effect size at this threshold.
+        p_value (float): The calculated p-value at this threshold.
+        sample_size (int): The number of samples used in this sweep point.
+    """
+    threshold: float
+    effect_size: float
+    p_value: float
+    sample_size: int
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the sweep result to a dictionary."""
+        return {
+            "threshold": self.threshold,
+            "effect_size": self.effect_size,
+            "p_value": self.p_value,
+            "sample_size": self.sample_size
+        }

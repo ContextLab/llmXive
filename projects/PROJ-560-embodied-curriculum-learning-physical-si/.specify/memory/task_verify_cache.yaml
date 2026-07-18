@@ -1,0 +1,43 @@
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or JSON report showing aggregation of sweep results into `SensitivitySweep`
+    objects and their appending to the main JSON report was provided; the required
+    artifact is missing.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` or documentation files in `docs/` were provided or shown,\
+    \ and there is no evidence they contain explanations of the data processing pipeline,\
+    \ statistical methods, or the associational framing of results as required by\
+    \ task T037. The implementer\u2019s claim cannot be verified without the actual\
+    \ documentation artifacts."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files, diff, or documentation were provided to demonstrate that any modules
+    have been cleaned up, refactored, or enriched with complete type hints and docstrings.
+    Without concrete artifacts showing the updated source code, the claim cannot be
+    verified.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit test files or code artifacts were provided that demonstrate additional\
+    \ tests for the specified edge cases (sample size\u202F<\u202F30, missing columns,\
+    \ collinearity). The claim lacks any concrete test implementations or evidence\
+    \ that such tests exist."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided evidence only describes data processing and statistical analysis
+    specifications; there is no artifact (code, tests, documentation) showing that
+    data loading has been hardened against arbitrary code execution. Security hardening
+    measures, such as safe deserialization, input validation, sandboxing, or related
+    test results, are missing. The task T041 remains unaddressed.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` file, its execution, or any validation logs/output\
+    \ is present; the implementer provided only feature specifications and user stories,\
+    \ without the required artifact demonstrating that the end\u2011to\u2011end flow\
+    \ was run and succeeded."

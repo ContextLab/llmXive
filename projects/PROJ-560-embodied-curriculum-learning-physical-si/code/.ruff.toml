@@ -1,13 +1,32 @@
+# Ruff configuration for PROJ-560
+# Enforces PEP 8, common best practices, and project-specific rules
+line-length = 88
+target-version = "py311"
+
 [lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "ARG"]
-ignore = ["E501", "B008"]
-fixable = ["ALL"]
-unfixable = []
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-allowed-confusables = []
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "N",  # pep8-naming
+]
+ignore = [
+    "E501", # Line too long (handled by black/formatting tools separately if desired, but ruff can enforce)
+    "B008", # Do not perform function call in argument defaults (common in dataclasses)
+    "C408", # Unnecessary dict/list call (sometimes used for clarity in config)
+]
 
 [lint.per-file-ignores]
-"code/tests/*" = ["S101"]
+"code/tests/*" = ["S101", "ARG"] # Allow asserts in tests, allow unused args in fixtures
+
+[lint.isort]
+known-first-party = ["src", "tests"]
+force-single-line = true
+lines-after-imports = 2
 
 [format]
 quote-style = "double"

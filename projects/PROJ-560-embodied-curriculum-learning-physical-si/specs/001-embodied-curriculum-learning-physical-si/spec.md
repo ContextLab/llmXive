@@ -86,7 +86,7 @@ The system must execute a sensitivity analysis sweeping the inclusion threshold 
 
 ## Assumptions
 
-- **Computational Constraints**: The analysis is assumed to run entirely on CPU within the 6-hour GitHub Actions limit, utilizing lightweight Python libraries (pandas, scipy, statsmodels) without GPU acceleration or large model inference.
+- **Computational Constraints**: The analysis is assumed to run entirely on CPU within the standard GitHub Actions time limit, utilizing lightweight Python libraries (pandas, scipy, statsmodels) without GPU acceleration or large model inference.
 - **Variable Definitions**: It is assumed that "gain score" is defined as `post_test_score - pre_test_score` and that a positive gain indicates learning improvement.
 - **Inference Framing**: It is assumed that the available datasets represent observational or quasi-experimental data where random assignment to "embodied" vs. "static" is not guaranteed, necessitating associational framing.
 - **Threshold Justification**: The sensitivity thresholds {0.01, 0.05, 0.10} are assumed to be sufficient to demonstrate robustness; if the effect disappears at 0.01, it is considered unstable.

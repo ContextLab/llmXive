@@ -7,46 +7,49 @@ name = "embodied-curriculum-learning"
 version = "0.1.0"
 description = "Embodied Curriculum Learning: Physical Simulation for Abstract Concept Teaching"
 requires-python = ">=3.11"
-dependencies = []
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-src = ["code"]
-
-[tool.ruff.lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
+dependencies = [
+    "pandas>=2.0.0",
+    "scipy>=1.11.0",
+    "statsmodels>=0.14.0",
+    "numpy>=1.24.0",
+    "pyyaml>=6.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
 ]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["code"]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
-  \.git
-  | \.mypy_cache
-  | \.venv
-  | venv
-  | build
-  | dist
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
+
+[tool.ruff]
+# Inherit settings from .ruff.toml for consistency, or define here if preferred
+# This file serves as the primary entry point for tool configuration
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "N"]
+ignore = ["E501", "B008", "C408"]
+
+[tool.ruff.lint.per-file-ignores]
+"code/tests/*" = ["S101", "ARG"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "tests"]
+force-single-line = true
+lines-after-imports = 2

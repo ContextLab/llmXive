@@ -1,8 +1,6 @@
-? 'T001 Create project structure: `code/src/`, `code/tests/`, `data/raw/`, `data/processed/`,
-  `data/synthetic/`, `data/derivation_logs/`, `state/projects/PROJ-560-embodied-curriculum-learning-physical-si/`'
-: 2
-? T002 Initialize Python 3.11 project with `pandas`, `scipy`, `statsmodels`, `numpy`,
-  `pyyaml`, `json` dependencies in `code/requirements.txt` (pin exact versions)
-: 2
-T003 [P] Configure linting (`ruff` or `flake8`) and formatting (`black`) tools in `code/`: 2
-T004 Setup directory structure for `data/raw`, `data/processed`, `data/synthetic`, `data/derivation_logs`: 2
+T031: 2
+T037: 2
+T038: 2
+T040: 2
+T041: 2
+T042: 1

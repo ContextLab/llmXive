@@ -4,89 +4,92 @@ import os
 import sys
 import json
 import tempfile
-from typing import List, Tuple
-
-# Ensure src is in path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
-
-from src.sensitivity import run_sensitivity_sweep
+from src.sensitivity import run_sensitivity_sweep, check_robustness_warning, aggregate_results_for_report
 from src.models import SensitivitySweep
 
 class TestSensitivitySweepLogic:
-    """Tests for the sensitivity sweep logic in sensitivity.py"""
+    """Unit tests for sensitivity sweep logic."""
 
-    def test_sweep_runs_with_default_thresholds(self):
-        """Test that the sweep runs and returns results for default thresholds."""
-        # Generate deterministic fake data for testing logic (not for final results)
-        np.random.seed(42)
-        emb_scores = np.random.normal(loc=5.0, scale=1.0, size=50).tolist()
-        stat_scores = np.random.normal(loc=4.0, scale=1.0, size=50).tolist()
+    def test_robustness_warning_detection(self):
+        """Test that check_robustness_warning flags when effect size drops."""
+        # Normal effect sizes
+        normal_sizes = [0.5, 0.6, 0.7]
+        assert check_robustness_warning(normal_sizes, meaningful_threshold=0.2) is False
 
-        results = run_sensitivity_sweep(emb_scores, stat_scores)
+        # Small effect size that triggers warning
+        small_sizes = [0.5, 0.1, 0.7]
+        assert check_robustness_warning(small_sizes, meaningful_threshold=0.2) is True
 
-        # Default thresholds are [0.01, 0.05, 0.10]
-        assert len(results) == 3
-        assert all(isinstance(r, SensitivitySweep) for r in results)
+        # Empty list
+        assert check_robustness_warning([], meaningful_threshold=0.2) is True
+
+    def test_aggregate_results_for_report_insufficient_data(self):
+        """Test aggregation when data is insufficient."""
+        sweep_data = {
+            "insufficient_data": True,
+            "message": "Insufficient data for robustness check: N=20 < 30.",
+            "n_observed": 20,
+            "sweep_results": []
+        }
         
-        thresholds = [r.threshold for r in results]
-        assert 0.01 in thresholds
-        assert 0.05 in thresholds
-        assert 0.10 in thresholds
-
-    def test_sweep_respects_custom_thresholds(self):
-        """Test that custom thresholds are used."""
-        np.random.seed(42)
-        emb_scores = np.random.normal(loc=5.0, scale=1.0, size=50).tolist()
-        stat_scores = np.random.normal(loc=4.0, scale=1.0, size=50).tolist()
-
-        custom_thresholds = [0.001, 0.02, 0.05, 0.1]
-        results = run_sensitivity_sweep(emb_scores, stat_scores, thresholds=custom_thresholds)
-
-        assert len(results) == 4
-        for r, t in zip(results, custom_thresholds):
-            assert r.threshold == t
-
-    def test_significance_changes_with_threshold(self):
-        """Test that significance status changes as expected across thresholds."""
-        # Create data with a clear difference
-        np.random.seed(123)
-        emb_scores = np.random.normal(loc=10.0, scale=1.0, size=100).tolist()
-        stat_scores = np.random.normal(loc=5.0, scale=1.0, size=100).tolist()
-
-        # Use a wide range of thresholds
-        results = run_sensitivity_sweep(emb_scores, stat_scores, thresholds=[0.0001, 0.001, 0.5])
-
-        # The difference is large, so it should be significant even at very low alpha
-        # But we test the logic: lower threshold makes it harder to be significant
-        # If p < 0.0001, then it is significant at 0.0001, 0.001, and 0.5
+        report = aggregate_results_for_report(sweep_data)
         
-        # Verify that significance is monotonic (if significant at 0.0001, must be at 0.5)
-        # Actually, if p < 0.0001, it is significant at all.
-        # Let's check the structure of the output
-        for r in results:
-            assert hasattr(r, 'is_significant')
-            assert isinstance(r.is_significant, bool)
+        assert report["robustness_check"]["status"] == "skipped"
+        assert "insufficient data" in report["robustness_check"]["reason"].lower()
+        assert report["robustness_check"]["n_observed"] == 20
 
-    def test_empty_input_returns_empty_list(self):
-        """Test that empty lists return an empty result list."""
-        results = run_sensitivity_sweep([], [])
-        assert results == []
+    def test_aggregate_results_for_report_completed(self):
+        """Test aggregation when sweep completes successfully."""
+        sweep_data = {
+            "insufficient_data": False,
+            "n_observed": 50,
+            "sweep_results": [
+                SensitivitySweep(threshold_value=0.01, t_statistic=2.5, p_value=0.01, effect_size=0.5, n_a=25, n_b=25),
+                SensitivitySweep(threshold_value=0.05, t_statistic=2.6, p_value=0.01, effect_size=0.5, n_a=25, n_b=25)
+            ]
+        }
+        
+        report = aggregate_results_for_report(sweep_data)
+        
+        assert report["robustness_check"]["status"] == "completed"
+        assert report["robustness_check"]["n_observed"] == 50
+        assert "sweep_details" in report["robustness_check"]
+        assert len(report["robustness_check"]["sweep_details"]) == 2
 
-    def test_sensitivity_sweep_dataclass_fields(self):
-        """Verify that SensitivitySweep objects contain all required fields."""
+    def test_run_sensitivity_sweep_with_real_data_simulation(self):
+        """
+        Simulate a run with enough data to ensure the t-test logic works 
+        and the sweep produces results.
+        """
+        # Generate synthetic data that mimics real data structure
         np.random.seed(42)
-        emb_scores = np.random.normal(loc=5.0, scale=1.0, size=50).tolist()
-        stat_scores = np.random.normal(loc=4.0, scale=1.0, size=50).tolist()
-
-        results = run_sensitivity_sweep(emb_scores, stat_scores)
-        r = results[0]
-
-        # Check required attributes exist
-        assert hasattr(r, 'threshold')
-        assert hasattr(r, 't_statistic')
-        assert hasattr(r, 'p_value')
-        assert hasattr(r, 'effect_size')
-        assert hasattr(r, 'is_significant')
-        assert hasattr(r, 'is_significant_corrected')
-        assert hasattr(r, 'adjusted_alpha')
-        assert hasattr(r, 'inference_framing')
+        n = 100
+        data = []
+        
+        # Group A: Embodied (Mean gain = 5, Std = 2)
+        for i in range(n // 2):
+            data.append({
+                "instruction_type": "embodied",
+                "gain_score": np.random.normal(5, 2)
+            })
+        
+        # Group B: Static (Mean gain = 3, Std = 2)
+        for i in range(n - n // 2):
+            data.append({
+                "instruction_type": "static",
+                "gain_score": np.random.normal(3, 2)
+            })
+        
+        result = run_sensitivity_sweep(
+            data=data,
+            instruction_column="instruction_type",
+            outcome_column="gain_score",
+            thresholds=[0.01, 0.05, 0.10]
+        )
+        
+        assert result["insufficient_data"] is False
+        assert len(result["sweep_results"]) == 3
+        
+        # Verify effect sizes are positive (Embodied > Static)
+        for sweep in result["sweep_results"]:
+            assert sweep.effect_size > 0
