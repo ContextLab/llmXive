@@ -1,0 +1,10 @@
+torch==2.3.0
+numpy==1.26.4
+scikit-learn==1.5.0
+sentence-transformers==3.0.0
+transformers==4.41.0
+pandas==2.2.2
+scipy==1.13.1
+llama-cpp-python==0.2.78
+pytest==8.2.1
+faiss-cpu==1.8.0

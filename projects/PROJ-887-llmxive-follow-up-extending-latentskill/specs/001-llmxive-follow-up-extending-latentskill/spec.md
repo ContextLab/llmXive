@@ -92,7 +92,7 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 ## Assumptions
 
 - The original LatentSkill repository (arXiv:2606.06087) provides downloadable LoRA weight files (A and B matrices) and corresponding task descriptions in a format compatible with standard PyTorch/NumPy loading.
-- The base LLM (e.g., Llama-8B) can be run in a quantized mode (e.g., 4-bit or 8-bit via `bitsandbytes` or similar CPU-optimized quantization) within the 7 GB RAM limit of the GitHub Actions free runner.
+- The base LLM (e.g., LlamaB) can be run in a quantized mode (e.g., 4-bit or 8-bit via `bitsandbytes` or similar CPU-optimized quantization) within the 7 GB RAM limit of the GitHub Actions free runner.
 - The "environment's internal logic" for ALFWorld and Search-QA is accessible as a deterministic simulation or script that returns a binary success/failure flag independent of the LLM's internal state, provided the action sequence is correct.
 - The sentence-transformer `all-MiniLM-L6-v2` is small enough to be loaded and executed on the CPU-only runner without exceeding memory constraints.
 - **Scientific Premise**: The latent space geometry of LoRA adapters is assumed to be consistent across different base models if the same fine-tuning protocol is used; any deviation in base model architecture is treated as a confounding variable to be controlled.

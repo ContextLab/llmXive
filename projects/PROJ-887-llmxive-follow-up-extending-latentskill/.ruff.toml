@@ -1,0 +1,4 @@
+# Extend the main pyproject.toml configuration if needed, 
+# or use this as a standalone config if preferred.
+# Currently pointing to the pyproject.toml settings.
+extend = "pyproject.toml"

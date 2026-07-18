@@ -17,7 +17,7 @@ This project implements a CPU-only retrieval and interpolation mechanism to repl
 **Project Type**: Research/Computational Experiment  
 **Performance Goals**: Skill selection latency < 1s; Total job runtime < 6h; Memory footprint < 6.5 GB (leaving GB headroom).  
 **Constraints**: No GPU/CUDA; **Primary Quantization**: `llama-cpp-python` (GGUF format); `bitsandbytes` explicitly excluded for CPU inference due to CUDA dependency and memory overhead. Strict adherence to FR-006 (Benjamini-Hochberg correction).  
-**Scale/Scope**: ~-500 LoRA adapters (inferred from typical benchmark sizes); + runs per task.
+**Scale/Scope**: Multiple LoRA adapters (inferred from typical benchmark sizes); + runs per task.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

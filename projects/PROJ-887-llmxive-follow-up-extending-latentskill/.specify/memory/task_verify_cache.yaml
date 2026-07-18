@@ -1,0 +1,22 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No actual `__init__.py` files were presented for any of the required directories;
+    the evidence consists only of a claim without any file listings or contents. The
+    required artifacts are missing, so the task is not satisfied.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `.gitkeep` files was presented for any of the required directories
+    (`data/raw/`, `data/processed/`, `data/results/`, `artifacts/synthesized_adapters/`,
+    `specs/001-lattentskill-retrieval-geometry/contracts/`). Without these files present,
+    the task requirement is not satisfied. The implementer must add a `.gitkeep` file
+    to each listed path.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `black.toml`) or setup scripts are present in the provided evidence, and the\
+    \ artifacts shown relate to unrelated feature specifications rather than the required\
+    \ ruff/black setup. The task\u2019s requirement to configure linting and formatting\
+    \ tools is therefore not satisfied."

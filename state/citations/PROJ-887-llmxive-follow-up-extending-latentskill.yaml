@@ -53,9 +53,21 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-follow-up
   verified_at: '2026-07-13T20:57:36.300784Z'
-- artifact_hash: 1a0ec6976a6b26f89d8efa84631453c31c6abd14c8ae0cd05feab4880a219c9b
+- artifact_hash: 7dbbf99b6978a25e176345496c5ab046dea938832ee42788a2d3e5d583f83a34
   artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1812.08824] A Sequential Density-Based Empirical Likelihood Ratio
+    Test for Treatment Effects'
+  kind: url
+  value: https://arxiv.org/abs/1812.08824
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1812.08824
+  verified_at: '2026-07-18T00:11:41.694533Z'
+- artifact_hash: 7dbbf99b6978a25e176345496c5ab046dea938832ee42788a2d3e5d583f83a34
+  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -63,4 +75,4 @@
   value: '2606.06087'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-07-13T21:05:18.201263Z'
+  verified_at: '2026-07-18T00:11:41.694533Z'
