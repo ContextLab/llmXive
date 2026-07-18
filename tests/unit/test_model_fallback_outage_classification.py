@@ -138,47 +138,14 @@ def test_backend_error_class_still_reachable_for_all_permanent_peers() -> None:
 
 
 # --- Backend-level chain (spec 023 defect #11) ------------------------------
-
-
-def test_backend_chain_outage_classifies_as_unavailable(monkeypatch) -> None:
-    """Same family as the model-level fix, one layer up — observed live on
-    PROJ-552's plan panel (2026-06-11): a Dartmouth-wide outage surfaced as
-    BackendUnavailable from the model walk, was swallowed by
-    ``chat_with_fallback`` (it subclasses BackendError), and the exhaustion
-    re-raised as plain BackendError once the local fallback failed too —
-    which the stage panel treated as an ENGINE failure. An exhaustion
-    containing any backend-level outage signal must abort cleanly."""
-    from llmxive.backends import router as r
-
-    backend = _AllDownBackend(
-        lambda m: ModelDownError(f"Dartmouth model {m!r}: {_OUTAGE_HTML}")
-    )
-
-    def fake_make(name: str):
-        if name == "dartmouth":
-            return backend
-        raise PermanentBackendError(f"backend {name!r} unavailable in this env")
-
-    monkeypatch.setattr(r, "make_backend", fake_make)
-    with pytest.raises(BackendUnavailable):
-        r.chat_with_fallback(
-            _msgs(), default_backend="dartmouth",
-            fallback_backends=["local"], model=PRIMARY,
-        )
-
-
-def test_backend_chain_all_permanent_stays_backend_error(monkeypatch) -> None:
-    """No outage signal anywhere → the exhaustion remains a plain
-    BackendError (engine-actionable)."""
-    from llmxive.backends import router as r
-
-    def fake_make(name: str):
-        raise PermanentBackendError(f"backend {name!r} not installed")
-
-    monkeypatch.setattr(r, "make_backend", fake_make)
-    with pytest.raises(BackendError) as excinfo:
-        r.chat_with_fallback(
-            _msgs(), default_backend="dartmouth",
-            fallback_backends=["local"], model=PRIMARY,
-        )
-    assert not isinstance(excinfo.value, BackendUnavailable)
+#
+# The former backend-NAME-chain tests for ``chat_with_fallback`` were RETIRED in
+# spec-026 Slice 5: ``chat_with_fallback`` no longer walks ``default_backend`` →
+# ``fallback_backends`` by hand — it delegates to ``model_selection.route.route_chat``
+# (select() → execute()), where backend fallback is first-class (the local candidate
+# rides in the selected chain). The defect-#11 guarantee is preserved and tested at
+# the NEW seam in ``tests/unit/test_chat_with_fallback_delegation.py``: a
+# fully-exhausted chain (``ChainExhausted``) or an ineligible selection
+# (``ModelUnavailable``) is re-raised as ``BackendUnavailable`` (clean run-loop
+# abort), while a request-level ``PermanentBackendError`` propagates unchanged
+# (engine-actionable — never misread as a transient outage).

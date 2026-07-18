@@ -204,6 +204,23 @@ def test_route_chat_cold_start_fails_closed_model_unavailable():
     assert be.calls == []  # nothing was ever attempted
 
 
+def test_route_chat_uses_lkg_snapshot_within_freshness_window():
+    # e2e #5 (requirement-sensitive freshness, the USABLE half): a bounded
+    # last_known_good catalog WITHIN max_catalog_age_s is usable for
+    # standard_generation — route_chat proceeds on it (a Dartmouth outage does not
+    # strand routing while the LKG is still fresh). The cold-start FAIL-CLOSED half
+    # is covered by test_route_chat_cold_start_fails_closed.
+    from llmxive.model_selection.route import route_chat
+
+    be = _RecordingBackend("dartmouth")
+    resp = route_chat(
+        _MSGS, profile="standard_generation", caller_model=QWEN, max_tokens=512,
+        snapshot=_snapshot(catalog_source="last_known_good", catalog_age_s=100.0),
+        backend_factory=_factory(be),
+    )
+    assert resp.model == QWEN  # LKG within the 3600s window is eligible
+
+
 def test_route_chat_derives_allow_paid_from_snapshot_opt_in(monkeypatch):
     # allow_paid=None → derived from the snapshot's credit opt-in, so the guarded
     # paid tail can appear (execute's twice-checked guard still decides per call).

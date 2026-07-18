@@ -432,87 +432,52 @@ def chat_with_fallback(
     max_tokens: int | None = None,
     temperature: float | None = None,
 ) -> ChatResponse:
-    """Try default backend; on TransientBackendError, walk the fallback chain.
+    """Registry-agent routing chokepoint (spec 026 slice 5): resolve the chain
+    through model SELECTION and delegate to ``execute`` — no hand-walk of
+    ``MODEL_FALLBACKS``, no backend-name loop.
 
-    If `max_tokens` is None we default to 131072 (128K) — Spec Kit agents
-    (Tasker, Specifier, Planner, paper-writers) frequently exceed the
-    per-model silent default (often 1024) and produce truncated output
-    otherwise. qwen3.5-122b's real context is 256K (verified 2026-05-29
-    via the Dartmouth model registry), so 128K leaves ample input room.
+    Delegates to :func:`llmxive.model_selection.route.route_chat`, which acquires
+    the real LKG-inclusive runtime snapshot, runs the pure ``select`` for the
+    ``standard_generation`` profile (the slice-5 provisional registry→profile
+    mapping; per-agent profiles are slice 7), promotes ``model`` to the front IFF
+    ``select`` kept it (never resurrecting an absent one), and hands the WHOLE
+    ``ModelChain`` to ``execute`` — which dispatches EACH candidate through its
+    own ``ModelRef.backend`` and does the paid reservation/settlement.
 
-    Per backend, retries the requested `model` 3x. On persistent
-    transient errors, tries each model in MODEL_FALLBACKS[model] (1
-    attempt each) on the SAME backend before falling through to the
-    next backend. This handles single-model vLLM outages on Dartmouth
-    where other models on the same backend are still healthy.
+    ``default_backend`` / ``fallback_backends`` are therefore REDUNDANT and
+    IGNORED: backend fallback is first-class in the selected chain (the local
+    candidate carries ``backend=="local"``), so there is no separate per-backend
+    walk to configure. ``model`` is the caller's pin (promoted, not a chain). If
+    `max_tokens` is None it defaults to the GENERATION budget (131072) — Spec Kit
+    agents emit large artifacts.
+
+    Outage-classification contract (preserved): a fully-INELIGIBLE selection
+    (cold start / all-stale → ``ModelUnavailable``) or a fully-EXHAUSTED chain
+    (transient/outage/paid-skip → ``ChainExhausted``) is NOT engine-actionable —
+    it surfaces as ``BackendUnavailable`` so the run loop clean-aborts with state
+    preserved (never a human escalation). A request-level PERMANENT refusal is
+    re-raised by ``execute`` and propagates unchanged (matching the old
+    primary-permanent abort).
     """
+    from llmxive.model_selection.execute import ChainExhausted
+    from llmxive.model_selection.route import route_chat
+    from llmxive.model_selection.types import ModelUnavailable
+
     if max_tokens is None:
-        # 128K default — tokens cost time but not money on Dartmouth's
-        # community plan, so we use the largest sensible budget. Per
-        # the API model registry (verified 2026-05-29):
-        #   qwen.qwen3.5-122b     max_input_tokens=256000  (was assumed 32K)
-        #   openai.gpt-oss-120b   max_input_tokens=128000
-        #   google.gemma-4-31B-it 128K context
-        # ``max_output_tokens`` is unset on the vLLM-hosted models, so
-        # there is no hard server-side cap; output is bounded by
-        # ``max_input_tokens - input_tokens``. 128K is the highest cap
-        # that fits every model in MODEL_FALLBACKS without per-model
-        # branching. This is the GENERATION budget (spec/plan/tasks/paper
-        # agents emit huge outputs) — the single source of truth.
         max_tokens = GENERATION_MAX_TOKENS
-    chain = [default_backend, *fallback_backends]
-    errors: list[str] = []
-    saw_outage = False
-    msg_list = list(messages)
-    for name in chain:
-        try:
-            backend = make_backend(name)
-        except PermanentBackendError as exc:
-            errors.append(f"{name}(init): {exc}")
-            continue
-        # Try the primary model with retries, then fall back through peer
-        # models on the SAME backend — :func:`chat_with_model_fallback` owns
-        # that walk (and the reviewer/reviser share it). A permanent failure on
-        # the primary model surfaces as PermanentBackendError; a fully-exhausted
-        # transient chain surfaces as BackendUnavailable. Either way we move on
-        # to the next backend in ``chain`` (matching the prior per-backend
-        # semantics).
-        try:
-            return chat_with_model_fallback(
-                backend,
-                msg_list,
-                model=model,
-                max_tokens=max_tokens,
-                temperature=temperature,
-            )
-        except BackendUnavailable as exc:
-            # The backend's WHOLE model chain is in outage (breaker open /
-            # transient exhaustion). Remember it: if every other backend
-            # also fails, the aggregate is an OUTAGE, not an engine error.
-            saw_outage = True
-            errors.append(f"{name}(outage): {exc}")
-            continue
-        except (PermanentBackendError, BackendError) as exc:
-            errors.append(f"{name}: {exc}")
-            continue
-    detail = (
-        "every backend in chain "
-        + repr(chain)
-        + " failed; errors: "
-        + " | ".join(errors)
-    )
-    # Spec 023 defect #11 (same family as the PR-#302 model-level fix, one
-    # layer up): a Dartmouth-wide outage correctly surfaced as
-    # BackendUnavailable from the model walk — and was then SWALLOWED here
-    # (it subclasses BackendError), with the exhaustion re-raised as plain
-    # BackendError once the local fallback failed too. The stage panel's
-    # generic handler treated that as an engine failure. Observed live on
-    # PROJ-552's plan panel (2026-06-11). An exhaustion that includes ANY
-    # backend-level outage signal aborts cleanly so the project retries on
-    # a later tick with state preserved.
-    if saw_outage:
-        raise BackendUnavailable(detail)
-    raise BackendError(detail)
+    try:
+        return route_chat(
+            messages,
+            profile="standard_generation",
+            caller_model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
+    except (ModelUnavailable, ChainExhausted) as exc:
+        raise BackendUnavailable(
+            f"model selection/execution produced no usable candidate "
+            f"(outage or ineligible): {exc}"
+        ) from exc
 
 
 __all__ = [
