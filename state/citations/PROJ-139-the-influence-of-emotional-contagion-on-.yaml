@@ -20,3 +20,14 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68bf2cacc7d10b3bb39998d4/73c8be92884b206b7d3fb064b4e943b97aaa9e8629513f9cf01034079d563fbe?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&Expires=1782938126&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhiZjJjYWNjN2QxMGIzYmIzOTk5OGQ0LzczYzhiZTkyODg0YjIwNmI3ZDNmYjA2NGI0ZTk0M2I5N2FhYTllODYyOTUxM2Y5Y2YwMTAzNDA3OWQ1NjNmYmVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MjkzODEyNn19fV19&Signature=MEUCIBvNLD3tKqjgRgKbHK%7E5W9vdb6mxflfgLjGNjY-S14UbAiEApfu6PfIE7Ey54OiFijoBL8jILPVwTE2UhAsajA-UuA8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-01T19:35:25.701204Z'
+- artifact_hash: d744c4229cb62f987e7c07ae858af5091d998e663d9a90141e331e44c1d611c9
+  artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://api.pushshift.io/reddit/search/comment/`
+  verification_status: pending
+  verified_against_url: http://api.pushshift.io/reddit/search/comment
+  verified_at: '2026-07-18T02:20:42.618628Z'

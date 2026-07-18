@@ -123,7 +123,7 @@ projects/PROJ-139-the-influence-of-emotional-contagion-on-/
 3. **Multiple Comparison Correction**: Benjamini-Hochberg FDR if ≥3 tests.
 
 ### Phase 4: Sensitivity & Reporting
-1. **Threshold Sweep**: Agreement {0.5, 0.6, 0.7}, Entropy {0.2, 0.4, 0.6}.
+1. **Threshold Sweep**: Agreement {, 0.6, 0.7}, Entropy levels ranging from low to moderate..
 2. **FP/FN Calculation**: For valid threads, compute False Positive/Negative rates of Consensus vs. Ground Truth.
 3. **Final Report**: Include SC-006 pass/fail status, Ground Truth percentage, and model results.
 

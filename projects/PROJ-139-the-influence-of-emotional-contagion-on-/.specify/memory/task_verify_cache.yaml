@@ -1,0 +1,37 @@
+T019:
+  c: false
+  h: 92c06802de23737232483c0480b05438cf609539f13fb465ed5af74f95d52a7b
+  r: The provided `validation.py` is truncated and does not show code that logs the
+    total/percentage of valid threads nor writes the resulting DataFrame to `data/processed/valid_threads.csv`.
+    Moreover, the required output file `data/processed/valid_threads.csv` is missing
+    from the repository. The implementer must complete the script (including the missing
+    logic and CSV export) and ensure the CSV file is generated.
+T023:
+  c: false
+  h: a00e16d824cd29e06d3c522d1569c022d527b625a232d0339abab00963306046
+  r: "The repository lacks the required `data/processed/sensitivity_analysis.csv`\
+    \ file, and the provided `code/data/modeling.py` excerpt shows no implementation\
+    \ of a sensitivity\u2011analysis routine that sweeps agreement cutoffs and entropy\
+    \ thresholds or writes the specified CSV. Both the output artifact and the corresponding\
+    \ code are missing."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `state/projects/PROJ-139-...yaml` file (or any similarly named YAML) was presented,
+    and therefore there is no evidence that an `artifact_hashes` section containing
+    checksums was recorded. The required checksum registry is missing.
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No reproducibility artifacts (e.g., a script or notebook that re\u2011runs the\
+    \ entire data\u2011collection, sentiment, and modeling pipeline, nor any generated\
+    \ checksum files or verification logs) were provided. Without such outputs we\
+    \ cannot confirm that the pipeline was re\u2011executed and that its results match\
+    \ previously recorded checksums. The implementer must supply the re\u2011run execution\
+    \ logs and the corresponding checksum comparison results."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `quickstart.md` file (or its contents) was provided, and nothing
+    shows that execution instructions for the full pipeline were added. The required
+    artifact is missing, so the task is not satisfied.

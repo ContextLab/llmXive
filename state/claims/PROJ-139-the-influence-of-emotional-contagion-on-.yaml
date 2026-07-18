@@ -1,0 +1,62 @@
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: 14 GB of free disk space required for raw and processed data
+  claim_id: c_2ab870a0
+  context: Prerequisites list for the research pipeline.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/14_GB_of_free_disk_space_required_for_raw_and_processed_data
+  kind: magnitude
+  raw_text: At least 14 GB of free disk space for raw/processed data
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:55:33Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: 6 hours expected runtime on CPU-only runner for 500 threads
+  claim_id: c_432d269f
+  context: Section 6 Performance listing expected runtime metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Expected Runtime: < 6 hours on a CPU-only runner for N=500 threads'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:56:08Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: 7 GB peak RAM usage
+  claim_id: c_79655604
+  context: Section 6 Performance listing memory usage metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Memory Usage: ~7 GB RAM peak'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:56:33Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/docs/quickstart.md
+  attempts: 1
+  canonical: 14 GB total disk usage for raw and processed data
+  claim_id: c_a86ae08a
+  context: Section 6 Performance listing disk usage metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Disk Usage: ~14 GB (raw + processed data)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:57:10Z'

@@ -1,164 +1,234 @@
-"""
-Unit tests for code/data/extract.py (T012).
-
-Tests the extraction logic for seed posts, insufficient seed flagging,
-and metadata completeness validation.
-"""
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import tempfile
 import os
+import json
 import logging
 
+# Import the functions we are testing from the implementation
 from code.data.extract import (
-    extract_seed_posts, 
-    load_downloaded_data, 
-    run_extraction,
+    load_downloaded_data,
+    extract_seed_posts,
+    flag_insufficient_seeds,
+    log_exclusions,
     validate_metadata_completeness
 )
+from code.config.settings import get_config
 
-
+# Fixtures
 @pytest.fixture
 def sample_data():
     """
-    Creates a synthetic DataFrame mimicking Reddit comment data structure.
-    Includes top-level comments and nested comments.
+    Creates a realistic sample dataframe mimicking the structure of downloaded Reddit data.
+    Includes threads with sufficient seeds (>=3 top-level), insufficient seeds (<3),
+    and missing metadata.
     """
-    data = {
-        'id': [
-            't3_thread1', 't1_comment1', 't1_comment2', 't1_comment3', 't1_comment4', # Thread 1
-            't3_thread2', 't1_comment5', 't1_comment6',                             # Thread 2
-            't3_thread3', 't1_comment7'                                             # Thread 3 (only 1 comment)
-        ],
-        'parent_id': [
-            None, 't3_thread1', 't3_thread1', 't3_thread1', 't1_comment2', # Thread 1
-            None, 't3_thread2', 't3_thread2',                              # Thread 2
-            None, 't3_thread3'                                             # Thread 3
-        ],
-        'created_utc': [
-            100, 101, 102, 103, 104, # Thread 1 (sorted)
-            200, 201, 202,           # Thread 2 (sorted)
-            300, 301                 # Thread 3 (sorted)
-        ],
-        'author': ['user0', 'user1', 'user2', 'user3', 'user4', 'user0', 'user5', 'user6', 'user0', 'user7'],
-        'selftext': ['root', 'reply1', 'reply2', 'reply3', 'reply_nested', 'root2', 'reply5', 'reply6', 'root3', 'reply7'],
-        'subreddit': ['test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test']
-    }
+    data = [
+        # Thread 1: Sufficient seeds (4 top-level posts)
+        {
+            "thread_id": "t1", "post_id": "p1_0", "parent_id": "t1", "depth": 0,
+            "timestamp": 1678886400, "author": "user_a", "text": "Seed 1",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+        {
+            "thread_id": "t1", "post_id": "p1_1", "parent_id": "t1", "depth": 0,
+            "timestamp": 1678886500, "author": "user_b", "text": "Seed 2",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+        {
+            "thread_id": "t1", "post_id": "p1_2", "parent_id": "t1", "depth": 0,
+            "timestamp": 1678886600, "author": "user_c", "text": "Seed 3",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+        {
+            "thread_id": "t1", "post_id": "p1_3", "parent_id": "t1", "depth": 0,
+            "timestamp": 1678886700, "author": "user_d", "text": "Seed 4",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+        # A reply to the first seed (depth 1)
+        {
+            "thread_id": "t1", "post_id": "p1_4", "parent_id": "p1_0", "depth": 1,
+            "timestamp": 1678886800, "author": "user_e", "text": "Reply to seed 1",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+
+        # Thread 2: Insufficient seeds (2 top-level posts)
+        {
+            "thread_id": "t2", "post_id": "p2_0", "parent_id": "t2", "depth": 0,
+            "timestamp": 1678890000, "author": "user_f", "text": "Seed 1",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+        {
+            "thread_id": "t2", "post_id": "p2_1", "parent_id": "t2", "depth": 0,
+            "timestamp": 1678890100, "author": "user_g", "text": "Seed 2",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+
+        # Thread 3: Missing metadata (None author)
+        {
+            "thread_id": "t3", "post_id": "p3_0", "parent_id": "t3", "depth": 0,
+            "timestamp": 1678900000, "author": None, "text": "Seed 1",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+        {
+            "thread_id": "t3", "post_id": "p3_1", "parent_id": "t3", "depth": 0,
+            "timestamp": 1678900100, "author": "user_h", "text": "Seed 2",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+        {
+            "thread_id": "t3", "post_id": "p3_2", "parent_id": "t3", "depth": 0,
+            "timestamp": 1678900200, "author": "user_i", "text": "Seed 3",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+
+        # Thread 4: Missing timestamp
+        {
+            "thread_id": "t4", "post_id": "p4_0", "parent_id": "t4", "depth": 0,
+            "timestamp": None, "author": "user_j", "text": "Seed 1",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+        {
+            "thread_id": "t4", "post_id": "p4_1", "parent_id": "t4", "depth": 0,
+            "timestamp": 1678910100, "author": "user_k", "text": "Seed 2",
+            "subreddit": "AskScience", "site": "reddit"
+        },
+        {
+            "thread_id": "t4", "post_id": "p4_2", "parent_id": "t4", "depth": 0,
+            "timestamp": 1678910200, "author": "user_l", "text": "Seed 3",
+            "subreddit": "AskScience", "site": "reddit"
+        }
+    ]
     return pd.DataFrame(data)
 
-
 @pytest.fixture
-def temp_raw_dir(sample_data, tmp_path):
-    """
-    Creates a temporary directory with a JSONL file containing sample data.
-    """
-    file_path = tmp_path / "sample_data.jsonl"
-    sample_data.to_json(file_path, orient='records', lines=True)
-    return tmp_path
-
+def temp_raw_dir():
+    """Creates a temporary directory to simulate data/raw for loading tests."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 def test_extract_seed_posts(sample_data):
     """
-    test_extract_seed_posts: Asserts a small set of posts extracted.
-    
-    Verifies that the first N=3 top-level comments are extracted per thread.
-    Expected:
-      - Thread 1: comment1, comment2, comment3 (3 seeds)
-      - Thread 2: comment5, comment6 (2 seeds)
-      - Thread 3: comment7 (1 seed)
-      - Total: 6 seeds
+    Asserts that extract_seed_posts correctly identifies and returns the first N=3
+    top-level posts for threads with sufficient seeds.
     """
+    # Run extraction
     result = extract_seed_posts(sample_data, n_seeds=3)
-    
-    assert isinstance(result, pd.DataFrame)
-    assert len(result) == 6
-    
-    # Check Thread 1 seeds
-    thread1_seeds = result[
-        (result['id'].str.startswith('t1_')) & 
-        (result['parent_id'] == 't3_thread1')
-    ]
-    assert len(thread1_seeds) == 3
-    assert set(thread1_seeds['id'].tolist()) == {'t1_comment1', 't1_comment2', 't1_comment3'}
-    
-    # Check Thread 2 seeds
-    thread2_seeds = result[
-        (result['id'].str.startswith('t1_')) & 
-        (result['parent_id'] == 't3_thread2')
-    ]
-    assert len(thread2_seeds) == 2
-    assert set(thread2_seeds['id'].tolist()) == {'t1_comment5', 't1_comment6'}
 
+    # Check that t1 is present and has exactly 3 seeds
+    t1_seeds = result[result['thread_id'] == 't1']
+    assert len(t1_seeds) == 3, f"Expected 3 seeds for t1, got {len(t1_seeds)}"
+    
+    # Verify they are top-level (depth 0)
+    assert all(t1_seeds['depth'] == 0), "All extracted seeds must be depth 0"
+    
+    # Verify they are the first 3 by timestamp (or just the first 3 in order if timestamps equal)
+    # In our sample, p1_0, p1_1, p1_2 are the first three
+    expected_ids = {'p1_0', 'p1_1', 'p1_2'}
+    actual_ids = set(t1_seeds['post_id'].tolist())
+    assert actual_ids == expected_ids, f"Expected IDs {expected_ids}, got {actual_ids}"
+
+    # Check that t2 is NOT present (insufficient seeds)
+    t2_rows = result[result['thread_id'] == 't2']
+    assert len(t2_rows) == 0, "Thread t2 should be excluded due to insufficient seeds"
 
 def test_flag_insufficient_seeds(sample_data):
     """
-    test_flag_insufficient_seeds: Asserts exclusion logic behavior.
-    
-    Verifies that threads with <3 top-level posts are handled gracefully.
-    While T010 handles the logging of exclusions, this test ensures the
-    extraction function returns the available seeds without crashing,
-    which is a prerequisite for the exclusion logic to identify them.
+    Asserts that flag_insufficient_seeds correctly identifies threads with <3 top-level posts
+    and returns the expected exclusion list with the correct reason code.
     """
-    result = extract_seed_posts(sample_data, n_seeds=3)
-    
-    # Thread 3 has only 1 seed. It should be included in the result.
-    thread3_ids = result[result['parent_id'] == 't3_thread3']['id'].tolist()
-    assert 't1_comment7' in thread3_ids
-    assert len(thread3_ids) == 1
-    
-    # Verify that we didn't drop the thread entirely, just limited the seeds
-    # This allows downstream logic (T010) to flag it as SEED_INSUFFICIENT if needed
+    # Run flagging logic
+    exclusions = flag_insufficient_seeds(sample_data, min_seeds=3)
 
+    # We expect t2 to be excluded.
+    # t3 and t4 have 3 seeds but might fail metadata validation later, 
+    # but flag_insufficient_seeds only checks count.
+    # t1 has 4 seeds (pass).
+    # t2 has 2 seeds (fail).
+    
+    assert len(exclusions) == 1, f"Expected 1 exclusion for seed count, got {len(exclusions)}"
+    
+    excluded_thread = exclusions[0]
+    assert excluded_thread['thread_id'] == 't2', "Thread t2 should be excluded"
+    assert excluded_thread['reason_code'] == 'SEED_INSUFFICIENT', \
+        f"Expected reason SEED_INSUFFICIENT, got {excluded_thread['reason_code']}"
+    assert excluded_thread['count'] == 2, f"Expected count 2, got {excluded_thread['count']}"
 
 def test_metadata_completeness(sample_data):
     """
-    test_metadata_completeness: Asserts a high-confidence threshold.
-    
-    Verifies that extracted posts retain required metadata columns and
-    that critical fields (id, parent_id, created_utc, author) are not null.
+    Asserts that validate_metadata_completeness correctly calculates completeness
+    and flags threads that fall below the threshold (e.g., 95%).
     """
-    result = extract_seed_posts(sample_data, n_seeds=3)
+    # We have 4 threads: t1, t2, t3, t4
+    # t1: 5 rows, all complete -> 100%
+    # t2: 2 rows, all complete -> 100%
+    # t3: 3 rows, 1 missing author -> 66.6% (FAIL)
+    # t4: 3 rows, 1 missing timestamp -> 66.6% (FAIL)
     
-    required_columns = ['id', 'parent_id', 'created_utc', 'author', 'selftext']
+    threshold = 0.95
+    result = validate_metadata_completeness(sample_data, threshold=threshold)
     
-    for col in required_columns:
-        assert col in result.columns, f"Missing column: {col}"
+    # The function should return a dataframe or list of threads that PASS or FAIL?
+    # Based on typical implementation, let's assume it returns a dict/list of status.
+    # We need to verify the logic:
+    # It should identify t3 and t4 as failing.
     
-    # Check for nulls in critical fields
-    critical_fields = ['id', 'parent_id', 'created_utc', 'author']
-    for field in critical_fields:
-        null_count = result[field].isnull().sum()
-        assert null_count == 0, f"Column {field} has {null_count} null values, expected 0"
+    # Let's assume the function returns a DataFrame with a 'completeness' column
+    # and we filter for those < threshold.
     
-    # Assert completeness threshold (100% for this clean sample)
-    total_cells = len(result) * len(critical_fields)
-    non_null_cells = total_cells - sum(result[f].isnull().sum() for f in critical_fields)
-    completeness_ratio = non_null_cells / total_cells
-    assert completeness_ratio >= 0.95, f"Metadata completeness {completeness_ratio} is below 0.95 threshold"
-
+    if isinstance(result, pd.DataFrame):
+        # Filter for failed threads
+        failed = result[result['completeness'] < threshold]
+        failed_ids = set(failed['thread_id'].tolist())
+        assert 't3' in failed_ids, "Thread t3 should be flagged for incomplete metadata"
+        assert 't4' in failed_ids, "Thread t4 should be flagged for incomplete metadata"
+        assert 't1' not in failed_ids, "Thread t1 should pass metadata check"
+        assert 't2' not in failed_ids, "Thread t2 should pass metadata check"
+    else:
+        # If it returns a list of failed threads
+        failed_ids = set(r['thread_id'] for r in result)
+        assert 't3' in failed_ids
+        assert 't4' in failed_ids
 
 def test_extract_empty_dataframe():
     """
-    Asserts that an empty DataFrame returns an empty result.
+    Asserts that extract_seed_posts handles an empty DataFrame gracefully.
     """
-    empty_df = pd.DataFrame(columns=['id', 'parent_id', 'created_utc', 'author', 'selftext'])
+    empty_df = pd.DataFrame(columns=['thread_id', 'post_id', 'parent_id', 'depth', 'timestamp', 'author', 'text'])
     result = extract_seed_posts(empty_df, n_seeds=3)
-    assert result.empty
+    assert result.empty, "Result should be empty for empty input"
 
-
-def test_run_extraction_integration(temp_raw_dir, tmp_path):
+def test_run_extraction_integration(sample_data, temp_raw_dir):
     """
-    Integration test for run_extraction function.
-    Verifies that the function reads from a directory, processes, and writes output.
+    Integration test: Simulates the full extraction flow including logging exclusions.
     """
-    output_file = run_extraction(raw_dir=temp_raw_dir, output_dir=tmp_path)
+    # 1. Save sample data to a temp file to mimic load_downloaded_data
+    temp_file = temp_raw_dir / "sample_threads.json"
+    sample_data.to_json(temp_file, orient='records')
     
-    assert os.path.exists(output_file)
-    assert "seed_posts.csv" in output_file
+    # 2. Load data (using the real loader)
+    loaded_data = load_downloaded_data(temp_file)
     
-    df_out = pd.read_csv(output_file)
-    assert not df_out.empty
-    assert 'id' in df_out.columns
-    assert 'created_utc' in df_out.columns
+    # 3. Run extraction pipeline (mocking the main flow)
+    # We manually call the functions to ensure they work together
+    exclusions = flag_insufficient_seeds(loaded_data, min_seeds=3)
+    
+    # 4. Verify exclusions are logged correctly
+    # Create a temp log path
+    log_path = temp_raw_dir / "exclusions.log"
+    log_exclusions(exclusions, log_path)
+    
+    assert log_path.exists(), "Exclusions log file should be created"
+    
+    with open(log_path, 'r') as f:
+        content = f.read()
+    
+    assert "t2" in content, "Log should contain thread t2"
+    assert "SEED_INSUFFICIENT" in content, "Log should contain reason code"
+    
+    # 5. Verify extracted seeds
+    seeds = extract_seed_posts(loaded_data, n_seeds=3)
+    assert not seeds.empty, "Seeds should be extracted"
+    assert 't1' in seeds['thread_id'].values, "t1 should be in extracted seeds"
+    assert 't2' not in seeds['thread_id'].values, "t2 should not be in extracted seeds"

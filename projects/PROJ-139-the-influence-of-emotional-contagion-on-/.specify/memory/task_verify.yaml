@@ -1,24 +1,3 @@
-? 'T007 [P] Setup pytest environment with CPU-only constraints: Create `code/tests/conftest.py`
-  and `pytest.ini` to enforce random seed pinning (e.g., `addopts = --random-seed=42`)
-  and CPU-only execution flags.'
-: 1
-? 'T008 [P] [US1] Implement `code/data/download.py` to fetch data: **Primary**: Pushshift
-  API (if reachable). **Fallback 1**: Reddit Official API. **Fallback 2**: Verified
-  HuggingFace archives or Internet Archive dumps. The script MUST implement the full
-  fallback chain: if the primary fails, automatically attempt the next, and log the
-  origin type used. Do not skip Pushshift; attempt it first as per Spec FR-001.'
-: 1
-? T009 [P] [US1] Implement `code/data/extract.py` to identify threads with decision
-  points and extract the first N=3 top-level posts as seed posts.
-: 1
-? 'T010 [US1] Implement exclusion logic in `code/data/extract.py`: Flag threads with
-  <3 top-level posts with reason code `SEED_INSUFFICIENT` and log to `data/processed/exclusions.log`.'
-: 1
-? "T011 [US1] Implement validation logic in `code/data/extract.py` to ensure metadata\
-  \ (timestamp, author, comment ID) is complete for \u226595% of extracted threads."
-: 1
-? 'T012 [P] [US1] Create unit tests in `code/tests/test_extract.py`: Implement specific
-  functions `test_extract_seed_posts` (asserts a small set of posts extracted), `test_flag_insufficient_seeds`
-  (asserts exclusion logic), and `test_metadata_completeness` (asserts a high-confidence
-  threshold).'
-: 1
+T027: 2
+T028: 2
+T029: 2

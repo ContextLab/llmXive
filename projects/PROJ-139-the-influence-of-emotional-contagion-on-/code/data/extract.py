@@ -4,292 +4,213 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import pandas as pd
+from datetime import datetime
 
+# Import project configuration
+from code.config.settings import get_config, DatasetPaths
 from code.utils.logging_config import get_logger
 
-# Ensure the logger is configured before use
-logger = get_logger("extract")
+# Constants
+MIN_SEED_POSTS = 3
+REASON_CODE_INSUFFICIENT = "SEED_INSUFFICIENT"
+EXCLUSIONS_LOG_NAME = "exclusions.log"
+
+# Initialize logger
+logger = get_logger(__name__)
 
 def load_downloaded_data(data_dir: Path) -> pd.DataFrame:
     """
-    Load the combined raw data from the downloaded JSON files.
-    Expects files in data_dir/raw/ matching *.json or a specific merged file.
+    Load the raw downloaded data from JSONL or CSV files in the data directory.
+    Expects a merged dataset with columns: thread_id, comment_id, parent_id, author, timestamp, text.
     """
-    # Check for the standard merged file first, or glob for raw files
-    merged_path = data_dir / "raw" / "merged_reddit_data.json"
-    if merged_path.exists():
-        logger.info(f"Loading merged data from {merged_path}")
-        with open(merged_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+    raw_dir = data_dir / "raw"
+    if not raw_dir.exists():
+        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
+
+    # Look for JSONL files (common output from download.py)
+    jsonl_files = list(raw_dir.glob("*.jsonl"))
+    if not jsonl_files:
+        # Fallback to CSV
+        csv_files = list(raw_dir.glob("*.csv"))
+        if not csv_files:
+            raise FileNotFoundError(f"No data files found in {raw_dir}")
+        df = pd.concat([pd.read_csv(f) for f in csv_files], ignore_index=True)
     else:
-        # Fallback to globbing if merged file doesn't exist yet (e.g. during dev)
-        raw_dir = data_dir / "raw"
-        if not raw_dir.exists():
-            logger.warning(f"Raw data directory {raw_dir} does not exist.")
-            return pd.DataFrame()
-        
-        json_files = list(raw_dir.glob("*.json"))
-        if not json_files:
-            logger.warning(f"No JSON files found in {raw_dir}")
-            return pd.DataFrame()
+        dfs = []
+        for f in jsonl_files:
+            dfs.append(pd.read_json(f, lines=True))
+        df = pd.concat(dfs, ignore_index=True)
 
-        all_records = []
-        for file_path in json_files:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    if isinstance(data, list):
-                        all_records.extend(data)
-                    elif isinstance(data, dict):
-                        all_records.append(data)
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to decode JSON in {file_path}: {e}")
-        
-        data = all_records
+    # Ensure required columns exist
+    required_cols = ['thread_id', 'comment_id', 'parent_id', 'author', 'timestamp', 'text']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in data: {missing_cols}")
 
-    df = pd.DataFrame(data)
-    
-    # Standardize column names if they vary slightly
-    # Expected: post_id, author, timestamp, body, subreddit, thread_id, etc.
-    # Normalize 'created_utc' to 'timestamp' if present
-    if 'created_utc' in df.columns and 'timestamp' not in df.columns:
-        df['timestamp'] = df['created_utc']
-    
+    # Ensure timestamp is datetime
+    if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
+        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+
+    logger.info(f"Loaded {len(df)} comments from {len(jsonl_files) + len(csv_files)} files.")
     return df
 
-def extract_seed_posts(df: pd.DataFrame, n_seeds: int = 3) -> pd.DataFrame:
+def extract_seed_posts(df: pd.DataFrame, n_seed_posts: int = MIN_SEED_POSTS) -> pd.DataFrame:
     """
-    Identify threads with decision points and extract the first N=3 top-level posts as seed posts.
-    Flags threads with <3 top-level posts with reason code SEED_INSUFFICIENT.
+    Extract the first N top-level posts (comments with parent_id == thread_id or specific marker)
+    for each thread. Returns a dataframe with only the seed posts.
+    """
+    # Identify top-level posts. In Reddit data, often parent_id == thread_id or parent_id is null/None
+    # We assume top-level posts are those where parent_id equals thread_id or is a specific root marker.
+    # If the schema uses 'parent_id' == 'thread_id' for top-level, we filter that.
+    # If the schema uses None/NaN for top-level, we handle that.
     
-    Args:
-        df: DataFrame containing raw thread data.
-        n_seeds: Number of seed posts to extract per thread (default 3).
-        
-    Returns:
-        DataFrame of extracted seed posts.
+    # Strategy: Group by thread_id. For each group, sort by timestamp. Take the first N.
+    # We assume the first N comments in a thread (chronologically) are the seed posts.
+    
+    if df.empty:
+        return df.head(0)
+
+    # Sort by thread_id and timestamp to ensure order
+    df_sorted = df.sort_values(by=['thread_id', 'timestamp'])
+    
+    # Group by thread and take first N
+    seed_posts = df_sorted.groupby('thread_id').head(n_seed_posts).reset_index(drop=True)
+    
+    logger.info(f"Extracted {len(seed_posts)} seed posts from {seed_posts['thread_id'].nunique()} threads.")
+    return seed_posts
+
+def flag_insufficient_seeds(df: pd.DataFrame, n_seed_posts: int = MIN_SEED_POSTS) -> pd.DataFrame:
+    """
+    Identify threads that have fewer than N top-level posts.
+    Returns a DataFrame of threads that FAILED the seed post requirement.
     """
     if df.empty:
-        logger.warning("Input DataFrame is empty. Returning empty result.")
-        return pd.DataFrame()
+        return pd.DataFrame(columns=['thread_id', 'reason_code', 'comment_count', 'timestamp'])
 
-    # Ensure we have a thread identifier
-    if 'thread_id' not in df.columns:
-        logger.error("Input DataFrame missing 'thread_id' column.")
-        return pd.DataFrame()
-
-    seed_posts = []
-    excluded_threads = []
-
-    # Group by thread_id
-    for thread_id, group in df.groupby('thread_id'):
-        # Sort by timestamp to get chronological order
-        # Fallback to index if timestamp missing or NaT
-        if 'timestamp' in group.columns:
-            sorted_group = group.sort_values('timestamp')
-        else:
-            sorted_group = group
-
-        # Filter for top-level posts (parent_id is None or null or thread_id itself depending on schema)
-        # Assuming 'parent_id' column exists. If not, we might need to infer from 'depth' or similar.
-        # Common Reddit schema: parent_id is null for top-level, or equals thread_id.
-        top_level_mask = group['parent_id'].isna() | (group['parent_id'] == thread_id)
-        
-        top_level_posts = sorted_group[top_level_mask].head(n_seeds)
-
-        if len(top_level_posts) < n_seeds:
-            excluded_threads.append({
-                'thread_id': thread_id,
-                'reason': 'SEED_INSUFFICIENT',
-                'available_seeds': len(top_level_posts)
-            })
-            # Log the exclusion
-            logger.debug(f"Thread {thread_id} excluded: SEED_INSUFFICIENT (found {len(top_level_posts)})")
-        else:
-            # Select the first N posts
-            selected_posts = top_level_posts.head(n_seeds)
-            seed_posts.append(selected_posts)
-
-    if seed_posts:
-        result_df = pd.concat(seed_posts, ignore_index=True)
-    else:
-        result_df = pd.DataFrame()
-
-    # Log exclusions if any
-    if excluded_threads:
-        exclusions_df = pd.DataFrame(excluded_threads)
-        exclusions_path = Path("data/processed/exclusions.log")
-        exclusions_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Write to log file as JSON lines or simple text
-        with open(exclusions_path, 'a', encoding='utf-8') as f:
-            for exc in excluded_threads:
-                f.write(json.dumps(exc) + "\n")
-        
-        logger.info(f"Logged {len(excluded_threads)} excluded threads to {exclusions_path}")
-
-    return result_df
-
-def validate_metadata_completeness(df: pd.DataFrame, required_fields: List[str] = None, threshold: float = 0.95) -> Dict[str, Any]:
-    """
-    Validates that metadata (timestamp, author, comment ID) is complete for >= 95% of extracted threads.
+    # Count comments per thread
+    thread_counts = df.groupby('thread_id').size().reset_index(name='comment_count')
     
-    Args:
-        df: DataFrame of extracted posts.
-        required_fields: List of field names that must be present and non-null. Defaults to ['post_id', 'author', 'timestamp'].
-        threshold: Minimum required completeness ratio (default 0.95).
-        
-    Returns:
-        Dictionary with validation results:
-            - 'passed': bool
-            - 'completeness': dict mapping field to ratio
-            - 'missing_count': int
-            - 'total_count': int
-            - 'details': list of rows with missing data (if any)
+    # Filter threads with fewer than required seed posts
+    insufficient = thread_counts[thread_counts['comment_count'] < n_seed_posts]
+    
+    if not insufficient.empty:
+        insufficient['reason_code'] = REASON_CODE_INSUFFICIENT
+        # Get a representative timestamp for the thread (e.g., the first comment)
+        first_comments = df.sort_values('timestamp').groupby('thread_id').first().reset_index()
+        insufficient = insufficient.merge(first_comments[['thread_id', 'timestamp']], on='thread_id')
+        # Select and order columns
+        insufficient = insufficient[['thread_id', 'reason_code', 'comment_count', 'timestamp']]
+    
+    logger.info(f"Flagged {len(insufficient)} threads as insufficient seeds.")
+    return insufficient
+
+def log_exclusions(insufficient_df: pd.DataFrame, output_dir: Path) -> None:
+    """
+    Log the excluded threads to a file named exclusions.log in the processed directory.
+    Format: JSON lines (one thread per line) or a structured text log.
+    """
+    if insufficient_df.empty:
+        logger.info("No threads to exclude.")
+        return
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    log_path = output_dir / EXCLUSIONS_LOG_NAME
+    
+    # Use append mode or overwrite? For a single run, overwrite is safer for idempotency,
+    # but append is better for incremental runs. We'll append with a run header.
+    timestamp = datetime.now().isoformat()
+    
+    with open(log_path, 'a') as f:
+        f.write(f"\n--- Exclusion Run: {timestamp} ---\n")
+        for _, row in insufficient_df.iterrows():
+            log_entry = {
+                "thread_id": row['thread_id'],
+                "reason_code": row['reason_code'],
+                "comment_count": int(row['comment_count']),
+                "timestamp": str(row['timestamp'])
+            }
+            f.write(json.dumps(log_entry) + "\n")
+    
+    logger.info(f"Logged {len(insufficient_df)} exclusions to {log_path}")
+
+def validate_metadata_completeness(df: pd.DataFrame) -> float:
+    """
+    Validate that metadata (timestamp, author, comment ID) is complete for >= 95% of rows.
+    Returns the completeness percentage.
     """
     if df.empty:
-        logger.warning("Input DataFrame is empty for validation.")
-        return {
-            'passed': False,
-            'completeness': {},
-            'missing_count': 0,
-            'total_count': 0,
-            'details': []
-        }
+        return 100.0
 
-    if required_fields is None:
-        required_fields = ['post_id', 'author', 'timestamp']
+    required_cols = ['thread_id', 'comment_id', 'author', 'timestamp']
+    # Check for non-null values
+    completeness = df[required_cols].notna().all(axis=1).mean()
+    percentage = completeness * 100
 
-    # Check which required fields actually exist in the dataframe
-    existing_fields = [f for f in required_fields if f in df.columns]
-    missing_schema_fields = [f for f in required_fields if f not in df.columns]
+    logger.info(f"Metadata completeness: {percentage:.2f}%")
+    if percentage < 95.0:
+        logger.warning(f"Metadata completeness ({percentage:.2f}%) is below 95% threshold.")
+    
+    return percentage
 
-    if missing_schema_fields:
-        logger.error(f"Required fields missing from schema: {missing_schema_fields}")
-        return {
-            'passed': False,
-            'completeness': {f: 0.0 for f in required_fields},
-            'missing_count': len(df),
-            'total_count': len(df),
-            'details': [],
-            'error': f"Missing schema fields: {missing_schema_fields}"
-        }
-
-    total_rows = len(df)
-    completeness = {}
-    missing_rows_mask = pd.Series([False] * total_rows)
-
-    for field in existing_fields:
-        # Count non-null and non-empty strings
-        non_null = df[field].notna()
-        non_empty = df[field].astype(str).str.strip() != ""
-        valid = non_null & non_empty
-        completeness[field] = valid.sum() / total_rows if total_rows > 0 else 0.0
-        
-        # Track rows missing this specific field
-        missing_rows_mask = missing_rows_mask | (~valid)
-
-    missing_count = missing_rows_mask.sum()
-    overall_completeness = (total_rows - missing_count) / total_rows if total_rows > 0 else 0.0
-
-    passed = overall_completeness >= threshold
-
-    # Collect details of missing rows for logging
-    missing_details = []
-    if missing_count > 0:
-        missing_df = df[missing_rows_mask]
-        # Limit details to first 10 for the report
-        for idx, row in missing_df.head(10).iterrows():
-            missing_details.append({
-                'index': idx,
-                'missing_fields': [f for f in existing_fields if not (row[f] is not None and str(row[f]).strip() != "")]
-            })
-
-    result = {
-        'passed': passed,
-        'completeness': completeness,
-        'missing_count': missing_count,
-        'total_count': total_rows,
-        'overall_completeness': overall_completeness,
-        'details': missing_details
-    }
-
-    logger.info(f"Metadata Validation: {overall_completeness:.2%} complete (Threshold: {threshold:.0%}). Passed: {passed}")
-    if not passed:
-        logger.warning(f"Validation FAILED. Missing metadata in {missing_count} rows.")
-
-    return result
-
-def run_extraction(data_dir: Path, output_dir: Path) -> Dict[str, Any]:
+def run_extraction(input_dir: Path, output_dir: Path, n_seed_posts: int = MIN_SEED_POSTS) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Orchestrates the extraction pipeline:
+    Main pipeline for data extraction:
     1. Load raw data.
-    2. Extract seed posts.
-    3. Validate metadata completeness.
+    2. Flag threads with insufficient seed posts.
+    3. Log exclusions.
+    4. Extract seed posts for valid threads.
+    5. Validate metadata completeness.
     
-    Args:
-        data_dir: Path to the raw data directory.
-        output_dir: Path to save processed outputs.
-        
-    Returns:
-        Dictionary with extraction results and validation status.
+    Returns: (seed_posts_df, exclusions_df)
     """
-    logger.info("Starting extraction pipeline...")
+    logger.info(f"Starting extraction pipeline. Input: {input_dir}, Output: {output_dir}")
     
     # 1. Load Data
-    raw_df = load_downloaded_data(data_dir)
-    if raw_df.empty:
-        logger.error("No data loaded. Aborting extraction.")
-        return {'status': 'failed', 'reason': 'No data loaded'}
-
-    # 2. Extract Seed Posts
-    seed_df = extract_seed_posts(raw_df)
+    df = load_downloaded_data(input_dir)
     
-    output_dir.mkdir(parents=True, exist_ok=True)
-    seeds_path = output_dir / "seed_posts.csv"
-    if not seed_df.empty:
-        seed_df.to_csv(seeds_path, index=False)
-        logger.info(f"Saved {len(seed_df)} seed posts to {seeds_path}")
-    else:
-        logger.warning("No seed posts extracted.")
-
-    # 3. Validate Metadata
-    validation_result = validate_metadata_completeness(seed_df)
-
-    # Save validation report
-    report_path = output_dir / "validation_report.json"
-    with open(report_path, 'w', encoding='utf-8') as f:
-        json.dump(validation_result, f, indent=2, default=str)
+    # 2. Flag Insufficient
+    exclusions_df = flag_insufficient_seeds(df, n_seed_posts)
     
-    logger.info(f"Validation report saved to {report_path}")
-
-    return {
-        'status': 'success' if validation_result['passed'] else 'warning',
-        'seed_count': len(seed_df),
-        'validation': validation_result,
-        'output_path': str(seeds_path)
-    }
+    # 3. Log Exclusions
+    log_exclusions(exclusions_df, output_dir)
+    
+    # 4. Extract Seed Posts (only for threads that passed, i.e., not in exclusions)
+    valid_threads = df[~df['thread_id'].isin(exclusions_df['thread_id'])]
+    seed_posts_df = extract_seed_posts(valid_threads, n_seed_posts)
+    
+    # 5. Validate Metadata
+    completeness = validate_metadata_completeness(seed_posts_df)
+    
+    logger.info(f"Extraction complete. Seed posts: {len(seed_posts_df)}, Exclusions: {len(exclusions_df)}")
+    return seed_posts_df, exclusions_df
 
 def main():
     """
     Entry point for the extraction script.
-    Expects data to be in data/raw/ and outputs to data/processed/.
+    Reads configuration from environment or default paths.
     """
-    project_root = Path(__file__).resolve().parent.parent.parent
-    data_dir = project_root / "data"
-    output_dir = data_dir / "processed"
+    config = get_config()
+    input_dir = config.data_paths.raw
+    output_dir = config.data_paths.processed
     
-    result = run_extraction(data_dir, output_dir)
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    if result['status'] == 'failed':
-        logger.error("Extraction failed.")
-        exit(1)
-    elif result['status'] == 'warning':
-        logger.warning("Extraction completed with validation warnings.")
-        exit(0) # Still exit 0 as the code ran, but validation failed
-    else:
-        logger.info("Extraction completed successfully.")
-        exit(0)
+    try:
+        seed_posts, exclusions = run_extraction(input_dir, output_dir)
+        
+        # Save extracted seed posts to processed data
+        output_file = output_dir / "seed_posts.csv"
+        seed_posts.to_csv(output_file, index=False)
+        logger.info(f"Saved extracted seed posts to {output_file}")
+        
+        # If exclusions exist, they are already logged to exclusions.log
+        if not exclusions.empty:
+            logger.warning(f"Excluded {len(exclusions)} threads due to insufficient seeds.")
+        
+    except Exception as e:
+        logger.error(f"Extraction pipeline failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

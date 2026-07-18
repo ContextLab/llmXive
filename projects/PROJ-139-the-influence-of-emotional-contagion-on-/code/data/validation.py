@@ -4,254 +4,172 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
-from datetime import datetime
 
-# Import logging utility from the project's existing API surface
-from utils.logging_config import get_logger
+from code.config.settings import get_config
+from code.utils.logging_config import get_logger
 
 # Constants
-VALIDITY_THRESHOLD = 0.30  # 30% minimum valid threads required
-VALIDITY_REPORT_PATH = "data/processed/validity_failure_report.json"
-VALIDATED_DATASET_PATH = "data/processed/valid_threads.csv"
+VALIDITY_THRESHOLD = 0.30  # 30%
+FAILURE_REASON_CODE = "SC-006_LOW_VALIDITY"
+FAILURE_REASON_MESSAGE = "The proportion of valid threads (with ground truth) is below the required 30% threshold, failing study constraint SC-006."
 
-# Initialize logger
+# Setup logging
 logger = get_logger(__name__)
 
 def load_processed_data() -> pd.DataFrame:
     """
-    Load the processed dataset from data/processed/threads_processed.csv.
-    Returns a DataFrame containing thread-level metrics and metadata.
+    Load the processed dataset containing thread metrics and sentiment analysis.
+    Expected path: data/processed/threads_metrics.csv (or similar processed file)
     """
-    input_path = Path("data/processed/threads_processed.csv")
+    config = get_config()
+    # Assuming the output from T019 (validate_and_classify) is the source for this check
+    # The task T019 produces 'data/processed/valid_threads.csv'
+    input_path = config.dataset_paths.processed_dir / "valid_threads.csv"
+    
     if not input_path.exists():
-        logger.error(f"Processed data file not found at {input_path}")
-        raise FileNotFoundError(f"Processed data file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} threads from {input_path}")
-    return df
-
-def check_ground_truth_availability(thread_row: pd.Series) -> Tuple[bool, Optional[str]]:
-    """
-    Check if a thread has valid ground truth data for external validation.
-    
-    Args:
-        thread_row: A single row from the processed threads DataFrame.
+        # Fallback to the raw processed metrics if the classified file doesn't exist yet,
+        # though T019 should have run first.
+        input_path = config.dataset_paths.processed_dir / "threads_metrics.csv"
         
-    Returns:
-        Tuple of (has_ground_truth, reason_if_missing)
-    """
-    # Check for required ground truth columns
-    gt_columns = ['ground_truth_label', 'ground_truth_source']
-    missing_cols = [col for col in gt_columns if col not in thread_row.index or pd.isna(thread_row[col])]
+    if not input_path.exists():
+        raise FileNotFoundError(f"Processed data file not found at {input_path}")
     
-    if missing_cols:
-        return False, f"Missing ground truth columns: {missing_cols}"
-    
-    # Check if ground truth value is valid (not NaN, not empty string)
-    if pd.isna(thread_row.get('ground_truth_label')) or str(thread_row.get('ground_truth_label')).strip() == '':
-        return False, "Ground truth label is missing or empty"
-    
-    return True, None
+    logger.info(f"Loading processed data from {input_path}")
+    return pd.read_csv(input_path)
 
-def classify_thread(thread_row: pd.Series) -> str:
+def check_ground_truth_availability(row: pd.Series) -> bool:
+    """
+    Check if a specific thread has valid ground truth data.
+    Criteria: 'ground_truth_label' and 'ground_truth_source' must exist and be non-null.
+    """
+    try:
+        has_label = pd.notna(row.get('ground_truth_label'))
+        has_source = pd.notna(row.get('ground_truth_source'))
+        return bool(has_label and has_source)
+    except Exception as e:
+        logger.warning(f"Error checking ground truth for row: {e}")
+        return False
+
+def classify_thread(row: pd.Series) -> Tuple[str, Optional[str]]:
     """
     Classify a thread as 'valid' or 'excluded' based on ground truth availability.
-    
-    Args:
-        thread_row: A single row from the processed threads DataFrame.
-        
-    Returns:
-        'valid' if ground truth is available, 'excluded' otherwise.
+    Returns: (status, reason_code)
     """
-    has_gt, reason = check_ground_truth_availability(thread_row)
-    
-    if has_gt:
-        return 'valid'
+    if check_ground_truth_availability(row):
+        return "valid", None
     else:
-        # Log exclusion reason for debugging
-        logger.debug(f"Thread {thread_row.get('thread_id', 'unknown')} excluded: {reason}")
-        return 'excluded'
+        reason = "MISSING_GROUND_TRUTH"
+        if pd.isna(row.get('ground_truth_label')):
+            reason = "MISSING_LABEL"
+        elif pd.isna(row.get('ground_truth_source')):
+            reason = "MISSING_SOURCE"
+        return "excluded", reason
 
 def validate_and_classify(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Apply classification logic to all threads in the DataFrame.
-    
-    Args:
-        df: DataFrame of processed threads.
-        
-    Returns:
-        DataFrame with an additional 'classification' column.
+    Apply classification to the entire dataframe.
+    Updates the dataframe with 'classification_status' and 'exclusion_reason' columns.
     """
-    logger.info("Starting thread classification based on ground truth availability")
+    logger.info(f"Classifying {len(df)} threads based on ground truth availability.")
     
-    df['classification'] = df.apply(classify_thread, axis=1)
+    results = df.apply(classify_thread, axis=1)
+    df['classification_status'] = results.apply(lambda x: x[0])
+    df['exclusion_reason'] = results.apply(lambda x: x[1])
     
-    valid_count = (df['classification'] == 'valid').sum()
-    excluded_count = (df['classification'] == 'excluded').sum()
+    valid_count = (df['classification_status'] == 'valid').sum()
     total_count = len(df)
+    percentage = (valid_count / total_count * 100) if total_count > 0 else 0.0
     
-    logger.info(f"Classification complete: {valid_count} valid, {excluded_count} excluded out of {total_count} threads")
-    
+    logger.info(f"Classification complete: {valid_count}/{total_count} ({percentage:.2f}%) are valid.")
     return df
 
-def save_validated_dataset(df: pd.DataFrame) -> Path:
+def save_validated_dataset(df: pd.DataFrame, output_path: Optional[Path] = None) -> None:
     """
-    Save the classified dataset to the output file.
+    Save the classified dataset to CSV.
+    """
+    config = get_config()
+    if output_path is None:
+        output_path = config.dataset_paths.processed_dir / "valid_threads.csv"
     
-    Args:
-        df: DataFrame with classification column.
-        
-    Returns:
-        Path to the saved file.
-    """
-    output_path = Path(VALIDATED_DATASET_PATH)
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     df.to_csv(output_path, index=False)
     logger.info(f"Saved validated dataset to {output_path}")
-    
-    return output_path
 
-def generate_failure_report(valid_percentage: float, total_threads: int, valid_threads: int, excluded_threads: int) -> Dict[str, Any]:
+def generate_failure_report(valid_percentage: float, total_threads: int, valid_threads: int, output_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Generate a formal failure report when valid threads < 30%.
+    Generate the formal failure report for SC-006 if valid threads < 30%.
+    This is the core logic for T019b.
+    """
+    config = get_config()
+    if output_path is None:
+        output_path = config.dataset_paths.processed_dir / "validity_failure_report.json"
     
-    Args:
-        valid_percentage: Percentage of valid threads.
-        total_threads: Total number of threads analyzed.
-        valid_threads: Number of valid threads.
-        excluded_threads: Number of excluded threads.
-        
-    Returns:
-        Dictionary containing the failure report data.
-    """
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     report = {
-        "report_type": "validity_failure_report",
-        "timestamp": datetime.now().isoformat(),
-        "specification_reference": "SC-006",
-        "threshold": VALIDITY_THRESHOLD,
-        "result": "FAILED",
-        "statistics": {
-            "total_threads": total_threads,
-            "valid_threads": valid_threads,
-            "excluded_threads": excluded_threads,
-            "valid_percentage": valid_percentage,
-            "excluded_percentage": 100.0 - valid_percentage
-        },
-        "reason": f"Valid threads ({valid_percentage:.2f}%) are below the required threshold of {VALIDITY_THRESHOLD * 100:.0f}%.",
-        "implications": "The study cannot proceed with statistical modeling as per SC-006. This is a valid research outcome indicating insufficient ground truth data availability.",
-        "recommendations": [
-            "Investigate data sources for ground truth labels",
-            "Consider expanding data collection to include more threads with ground truth",
-            "Review ground truth annotation protocol for completeness",
-            "Document this limitation in the final research paper"
-        ]
+        "study_id": "PROJ-139-the-influence-of-emotional-contagion-on-",
+        "constraint_id": "SC-006",
+        "constraint_description": "Minimum 30% of threads must have valid ground truth data.",
+        "status": "FAILED" if valid_percentage < (VALIDITY_THRESHOLD * 100) else "PASSED",
+        "threshold_percentage": VALIDITY_THRESHOLD * 100,
+        "actual_percentage": valid_percentage,
+        "total_threads_analyzed": total_threads,
+        "valid_threads_count": valid_threads,
+        "excluded_threads_count": total_threads - valid_threads,
+        "reason": FAILURE_REASON_MESSAGE if valid_percentage < (VALIDITY_THRESHOLD * 100) else "Threshold met.",
+        "timestamp": pd.Timestamp.now().isoformat()
     }
     
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Generated failure report at {output_path}: Status={report['status']}")
     return report
 
 def run_validation_pipeline() -> Dict[str, Any]:
     """
-    Run the complete validation pipeline:
-    1. Load processed data
-    2. Classify threads
-    3. Save validated dataset
-    4. Check SC-006 threshold and generate failure report if needed
-    
-    Returns:
-        Dictionary containing pipeline results and status.
+    Main pipeline function for T019 and T019b.
+    1. Load processed data.
+    2. Classify threads.
+    3. Save valid threads.
+    4. Check threshold and generate failure report if necessary.
     """
-    logger.info("Starting validation pipeline")
-    
     try:
-        # Load data
         df = load_processed_data()
-        
-        # Classify threads
         df_classified = validate_and_classify(df)
-        
-        # Save validated dataset
         save_validated_dataset(df_classified)
         
-        # Calculate statistics
-        valid_count = (df_classified['classification'] == 'valid').sum()
+        valid_count = (df_classified['classification_status'] == 'valid').sum()
         total_count = len(df_classified)
-        excluded_count = total_count - valid_count
+        valid_percentage = (valid_count / total_count * 100) if total_count > 0 else 0.0
         
-        if total_count == 0:
-            valid_percentage = 0.0
-        else:
-            valid_percentage = (valid_count / total_count) * 100.0
+        report = generate_failure_report(valid_percentage, total_count, valid_count)
         
-        logger.info(f"Valid threads: {valid_count}/{total_count} ({valid_percentage:.2f}%)")
-        
-        # Check SC-006 threshold
-        status = "PASSED"
-        failure_report = None
-        
-        if valid_percentage < (VALIDITY_THRESHOLD * 100):
-            status = "FAILED"
-            logger.warning(f"SC-006 check FAILED: {valid_percentage:.2f}% < {VALIDITY_THRESHOLD * 100:.0f}%")
-            
-            # Generate and save failure report
-            failure_report = generate_failure_report(
-                valid_percentage, total_count, valid_count, excluded_count
-            )
-            
-            report_path = Path(VALIDITY_REPORT_PATH)
-            report_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            with open(report_path, 'w') as f:
-                json.dump(failure_report, f, indent=2)
-            
-            logger.info(f"Generated failure report at {report_path}")
-        else:
-            logger.info(f"SC-006 check PASSED: {valid_percentage:.2f}% >= {VALIDITY_THRESHOLD * 100:.0f}%")
-        
-        return {
-            "status": status,
-            "total_threads": total_count,
-            "valid_threads": int(valid_count),
-            "excluded_threads": int(excluded_count),
-            "valid_percentage": valid_percentage,
-            "threshold": VALIDITY_THRESHOLD,
-            "failure_report_path": str(Path(VALIDITY_REPORT_PATH)) if failure_report else None,
-            "validated_dataset_path": str(Path(VALIDATED_DATASET_PATH))
-        }
+        return report
         
     except Exception as e:
-        logger.error(f"Validation pipeline failed: {str(e)}", exc_info=True)
+        logger.error(f"Validation pipeline failed: {e}")
         raise
 
 def main():
     """
-    Main entry point for the validation script.
+    Entry point for running the validation pipeline as a script.
     """
-    logger.info("Running validation.py main")
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Starting Validation Pipeline (T019/T019b)...")
     
     try:
-        results = run_validation_pipeline()
-        
-        print("\n=== Validation Pipeline Results ===")
-        print(f"Status: {results['status']}")
-        print(f"Total Threads: {results['total_threads']}")
-        print(f"Valid Threads: {results['valid_threads']} ({results['valid_percentage']:.2f}%)")
-        print(f"Excluded Threads: {results['excluded_threads']}")
-        print(f"Threshold: {results['threshold'] * 100:.0f}%")
-        
-        if results['status'] == 'FAILED':
-            print(f"\n⚠ SC-006 FAILURE DETECTED")
-            print(f"Valid threads ({results['valid_percentage']:.2f}%) are below the required threshold.")
-            print(f"Failure report generated at: {results['failure_report_path']}")
+        result = run_validation_pipeline()
+        logger.info(f"Pipeline completed. Status: {result['status']}")
+        if result['status'] == 'FAILED':
+            logger.warning(f"Study Constraint SC-006 FAILED. Valid threads: {result['actual_percentage']:.2f}% (Threshold: {result['threshold_percentage']}%)")
         else:
-            print(f"\n✓ SC-006 PASSED")
-            print(f"Valid threads meet the required threshold.")
-        
-        print(f"\nValidated dataset saved to: {results['validated_dataset_path']}")
-        
+            logger.info("Study Constraint SC-006 PASSED.")
     except Exception as e:
-        logger.error(f"Script execution failed: {str(e)}", exc_info=True)
+        logger.error(f"Pipeline execution failed with error: {e}")
         raise
 
 if __name__ == "__main__":

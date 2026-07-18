@@ -1,11 +1,3 @@
-"""
-Calculate inter-rater reliability (Cohen's Kappa) on the human-annotated corpus.
-
-This script implements T007b:
-- Reads the annotations generated in T007a (data/raw/annotations.json).
-- Computes Cohen's Kappa for the sentiment labels provided by multiple annotators.
-- Generates a validation report at data/processed/vader_validation_report.json.
-"""
 import os
 import json
 import logging
@@ -13,183 +5,142 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from collections import defaultdict
 
-import numpy as np
-from scipy.stats import kappa2
+from code.utils.logging_config import get_logger
 
-from utils.logging_config import get_logger
-
-# Configure logger
 logger = get_logger(__name__)
 
-# Paths
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-ANNOTATIONS_PATH = PROJECT_ROOT / "data" / "raw" / "annotations.json"
-OUTPUT_DIR = PROJECT_ROOT / "data" / "processed"
-OUTPUT_PATH = OUTPUT_DIR / "vader_validation_report.json"
-
-def load_annotations(path: Path) -> List[Dict[str, Any]]:
-    """Load the annotations JSON file."""
-    if not path.exists():
-        raise FileNotFoundError(f"Annotations file not found at {path}. "
-                                "Ensure T007a has completed successfully.")
-    with open(path, 'r', encoding='utf-8') as f:
+def load_annotations(annotations_path: str) -> List[Dict[str, Any]]:
+    """Load annotations from JSON file."""
+    if not os.path.exists(annotations_path):
+        raise FileNotFoundError(f"Annotations file not found: {annotations_path}")
+    
+    with open(annotations_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def prepare_ratings(annotations: List[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
+def prepare_ratings(annotations: List[Dict[str, Any]]) -> Dict[str, Dict[str, List[int]]]:
     """
-    Extract pairs of ratings from the annotations.
-    
-    Expects annotations to be a list of dicts where each dict has:
-    - 'comment_id': str
-    - 'annotations': list of dicts with 'annotator_id' and 'label'
-    
-    Returns two lists: ratings_a and ratings_b, paired by comment_id.
+    Prepare ratings in a format suitable for Kappa calculation.
+    Returns: {comment_id: {annotator_id: rating}}
+    We map labels to ints: positive=1, neutral=0, negative=-1
     """
-    comment_ratings = defaultdict(list)
-    
-    for entry in annotations:
-        comment_id = entry.get('comment_id')
-        if not comment_id:
-            logger.warning(f"Skipping entry without comment_id: {entry}")
-            continue
-        
-        annotator_labels = entry.get('annotations', [])
-        if len(annotator_labels) < 2:
-            logger.warning(f"Skipping comment_id {comment_id}: insufficient annotators ({len(annotator_labels)}).")
-            continue
-        
-        # Sort by annotator_id to ensure consistent pairing if there are exactly 2
-        sorted_labels = sorted(annotator_labels, key=lambda x: x.get('annotator_id', ''))
-        
-        # Take the first two annotators for Cohen's Kappa (requires exactly 2 raters)
-        rater_a = sorted_labels[0].get('label')
-        rater_b = sorted_labels[1].get('label')
-        
-        if rater_a is None or rater_b is None:
-            logger.warning(f"Skipping comment_id {comment_id}: missing label.")
-            continue
-        
-        comment_ratings[comment_id].append((rater_a, rater_b))
-    
-    # Flatten into two lists
-    ratings_a = []
-    ratings_b = []
-    
-    for comment_id, pairs in comment_ratings.items():
-        for a, b in pairs:
-            ratings_a.append(a)
-            ratings_b.append(b)
-    
-    if len(ratings_a) == 0:
-        raise ValueError("No valid rating pairs found in annotations.")
-    
-    return ratings_a, ratings_b
-
-def compute_cohen_kappa(ratings_a: List[str], ratings_b: List[str]) -> Dict[str, Any]:
-    """
-    Compute Cohen's Kappa and summary statistics.
-    
-    Returns a dict with:
-    - kappa: float
-    - n_pairs: int
-    - agreement_observed: float
-    - agreement_expected: float
-    - categories: list of unique categories observed
-    """
-    # Convert to numpy arrays for calculation
-    arr_a = np.array(ratings_a)
-    arr_b = np.array(ratings_b)
-    
-    n = len(arr_a)
-    if n == 0:
-        raise ValueError("Empty rating arrays provided.")
-    
-    # Calculate observed agreement
-    agreement_observed = np.mean(arr_a == arr_b)
-    
-    # Calculate expected agreement
-    # Get unique categories
-    categories = sorted(list(set(arr_a) | set(arr_b)))
-    n_cats = len(categories)
-    
-    # Calculate marginal probabilities
-    p_a = np.array([np.sum(arr_a == cat) / n for cat in categories])
-    p_b = np.array([np.sum(arr_b == cat) / n for cat in categories])
-    
-    agreement_expected = np.dot(p_a, p_b)
-    
-    # Calculate Kappa
-    if agreement_expected == 1.0:
-        kappa = 0.0  # Avoid division by zero if perfect agreement by chance
-    else:
-        kappa = (agreement_observed - agreement_expected) / (1 - agreement_expected)
-    
-    return {
-        "kappa": float(kappa),
-        "n_pairs": int(n),
-        "agreement_observed": float(agreement_observed),
-        "agreement_expected": float(agreement_expected),
-        "categories": categories
+    label_map = {
+        'positive': 1, 'neg': -1, 'neutral': 0,
+        '1': 1, '0': 0, '-1': -1, 'negative': -1
     }
+    
+    ratings = defaultdict(dict)
+    
+    for item in annotations:
+        cid = item['comment_id']
+        aid = item['annotator_id']
+        label = item['label']
+        
+        score = label_map.get(label, 0)
+        ratings[cid][aid] = score
+    
+    return ratings
 
-def generate_report(kappa_stats: Dict[str, Any]) -> Dict[str, Any]:
-    """Generate the final validation report structure."""
-    return {
-        "status": "completed",
-        "metric": "Cohen's Kappa",
-        "description": "Inter-rater reliability on human-annotated sentiment corpus",
-        "results": kappa_stats,
-        "validation": {
-            "is_valid": kappa_stats["kappa"] is not None,
-            "threshold_info": "Corpus considered INVALID if Kappa is not calculated or report missing."
-        },
-        "metadata": {
-            "script": "calculate_reliability.py",
-            "task_id": "T007b"
-        }
+def compute_cohen_kappa(ratings: Dict[str, Dict[str, int]], annotators: List[str]) -> float:
+    """
+    Compute Cohen's Kappa for two annotators.
+    If more than 2, it computes pairwise and averages (simplified).
+    """
+    if len(annotators) != 2:
+        # Fallback for >2: compute average pairwise or use Krippendorff's alpha logic
+        # For this task, we assume exactly 2 annotators as per T007a spec.
+        logger.warning(f"Expected 2 annotators, found {len(annotators)}. Using first two.")
+        annotators = annotators[:2]
+    
+    a1, a2 = annotators
+    agree = 0
+    total = 0
+    
+    for cid, raters in ratings.items():
+        if a1 in raters and a2 in raters:
+            total += 1
+            if raters[a1] == raters[a2]:
+                agree += 1
+    
+    if total == 0:
+        return 0.0
+    
+    po = agree / total
+    
+    # Calculate pe (expected agreement)
+    counts_a1 = defaultdict(int)
+    counts_a2 = defaultdict(int)
+    
+    for cid, raters in ratings.items():
+        if a1 in raters: counts_a1[raters[a1]] += 1
+        if a2 in raters: counts_a2[raters[a2]] += 1
+    
+    # Normalize
+    n = total
+    pe = 0
+    all_values = set(counts_a1.keys()) | set(counts_a2.keys())
+    for val in all_values:
+        p1 = counts_a1.get(val, 0) / n
+        p2 = counts_a2.get(val, 0) / n
+        pe += p1 * p2
+    
+    if 1 - pe == 0:
+        return 0.0
+    
+    kappa = (po - pe) / (1 - pe)
+    return kappa
+
+def compute_cohen_kappa_aggregated(annotations: List[Dict[str, Any]]) -> Tuple[float, List[str]]:
+    """Compute aggregated Kappa across all items."""
+    ratings = prepare_ratings(annotations)
+    annotators = list(set(item['annotator_id'] for item in annotations))
+    
+    if len(annotators) < 2:
+        raise ValueError("Need at least 2 annotators to compute Kappa")
+    
+    kappa = compute_cohen_kappa(ratings, annotators)
+    return kappa, annotators
+
+def interpret_kappa(kappa: float) -> str:
+    """Interpret Kappa value."""
+    if kappa < 0: return "No agreement"
+    if kappa <= 0.20: return "Slight agreement"
+    if kappa <= 0.40: return "Fair agreement"
+    if kappa <= 0.60: return "Moderate agreement"
+    if kappa <= 0.80: return "Substantial agreement"
+    return "Almost perfect agreement"
+
+def generate_report(kappa: float, annotators: List[str], output_path: str) -> None:
+    """Generate the validation report JSON."""
+    report = {
+        "kappa": kappa,
+        "kappa_interpretation": interpret_kappa(kappa),
+        "annotators": annotators,
+        "status": "passed" if kappa > 0.4 else "warning",
+        "notes": "Inter-rater reliability computed for T007b."
     }
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Kappa report saved to {output_path}: {kappa}")
 
 def main():
-    """Main entry point for T007b."""
-    logger.info("Starting inter-rater reliability calculation (T007b).")
-    
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    """Entry point for T007b."""
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Starting T007b: Calculate inter-rater reliability")
     
     try:
-        # 1. Load annotations
-        logger.info(f"Loading annotations from {ANNOTATIONS_PATH}")
-        annotations = load_annotations(ANNOTATIONS_PATH)
-        logger.info(f"Loaded {len(annotations)} annotation entries.")
+        annotations_path = "data/raw/annotations.json"
+        report_path = "data/processed/vader_validation_report.json"
         
-        # 2. Prepare ratings
-        logger.info("Preparing rating pairs...")
-        ratings_a, ratings_b = prepare_ratings(annotations)
-        logger.info(f"Prepared {len(ratings_a)} valid rating pairs.")
+        annotations = load_annotations(annotations_path)
+        kappa, annotators = compute_cohen_kappa_aggregated(annotations)
         
-        # 3. Compute Kappa
-        logger.info("Computing Cohen's Kappa...")
-        kappa_stats = compute_cohen_kappa(ratings_a, ratings_b)
-        logger.info(f"Kappa calculated: {kappa_stats['kappa']:.4f}")
-        
-        # 4. Generate Report
-        report = generate_report(kappa_stats)
-        
-        # 5. Write Output
-        with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
-            json.dump(report, f, indent=2)
-        
-        logger.info(f"Validation report written to {OUTPUT_PATH}")
-        logger.info("Task T007b completed successfully.")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file error: {e}")
-        raise
-    except ValueError as e:
-        logger.error(f"Data processing error: {e}")
-        raise
+        generate_report(kappa, annotators, report_path)
+        logger.info("T007b completed successfully.")
     except Exception as e:
-        logger.exception(f"Unexpected error during reliability calculation: {e}")
+        logger.error(f"T007b failed: {e}")
         raise
 
 if __name__ == "__main__":
