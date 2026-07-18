@@ -1,50 +1,40 @@
-"""
-Logging infrastructure setup.
-"""
 import logging
 import os
 from pathlib import Path
-from ..config import OUTPUTS_LOGS_DIR
+from config import OUTPUTS_LOGS_DIR, LOG_LEVEL, LOG_FILE
 
-def setup_logger(name: str, log_file: str = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logger(name: str, log_file: Optional[str] = None, level: Optional[str] = None) -> logging.Logger:
     """
     Set up a logger with file and console handlers.
-    
-    Args:
-        name: Logger name (typically __name__)
-        log_file: Optional path to log file. If None, only console handler is added.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG)
-    
-    Returns:
-        Configured logger instance with console and optional file handlers.
     """
     logger = logging.getLogger(name)
-    logger.setLevel(level)
+    logger.setLevel(getattr(logging, level or LOG_LEVEL))
 
-    # Prevent duplicate handlers if called multiple times
+    # Avoid adding handlers multiple times
     if logger.handlers:
         return logger
+
+    # Create output directory if it doesn't exist
+    OUTPUTS_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+    # File handler
+    file_handler = logging.FileHandler(
+        os.path.join(OUTPUTS_LOGS_DIR, log_file or LOG_FILE)
+    )
+    file_handler.setLevel(logging.DEBUG)
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
 
     # Formatter
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
 
-    # Console Handler
-    ch = logging.StreamHandler()
-    ch.setLevel(level)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    # File Handler (if log_file provided)
-    if log_file:
-        # Ensure log directory exists
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
 
     return logger

@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "RawObservable"
+description: "Represents a raw or semi-raw measurement from ENSDF (LEGACY/DEPRECATED). This schema is retained for compatibility but is not used in the primary Meta-Analysis pipeline. The 'cross-modal fusion' method requiring raw event-level data is physically invalid."
+required:
+  - value
+  - uncertainty
+  - modality_type
+  - source_experiment
+  - reference_id
+  - data_granularity
+  - covariance_available
+properties:
+  value:
+    type: "number"
+    description: "The measured quantity (momentum or asymmetry)."
+  uncertainty:
+    type: "number"
+    minimum: 0
+    description: "Standard error of the measurement."
+  modality_type:
+    type: "string"
+    enum:
+      - "momentum_spectrum"
+      - "polarization_asymmetry"
+    description: "Type of observable."
+  source_experiment:
+    type: "string"
+    description: "Citation or ID of the experiment."
+  reference_id:
+    type: "string"
+    description: "ENSDF entry ID."
+  data_granularity:
+    type: "string"
+    enum:
+      - "event_level"
+      - "binned_granular"
+      - "binned_aggregate"
+    description: "Granularity of the data."
+  covariance_available:
+    type: "boolean"
+    description: "True if covariance matrix is provided."
+  nucleus_name:
+    type: "string"
+    description: "Name of the nucleus (e.g., 6He)."
+additionalProperties: false

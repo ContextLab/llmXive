@@ -1,0 +1,19 @@
+status: none
+intent: download ENSDF beta decay spectra and polarization asymmetry dataset python
+  package dataset
+required_fields:
+- isotope
+- mass_number
+- element_symbol
+- nuclear_level_energy
+- transition_type
+- momentum_spectrum_energy
+- momentum_spectrum_intensity
+- polarization_asymmetry_coefficient
+- polarization_asymmetry_uncertainty
+- covariance_matrix
+- experimental_reference
+- ensdf_accession_number
+cache_key: 66df4f56e1ae1db5041dd3bd52981e195a62db57370f2a8ad6b16d029c2404e6
+searched_at: '2026-07-18T21:40:00.681193+00:00'
+retry_count: 1

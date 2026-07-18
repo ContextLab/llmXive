@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "FusionResult"
+description: "Statistical output of the data fusion analysis (LEGACY/DEPRECATED). This schema is retained for compatibility but is not used in the primary Meta-Analysis pipeline. The 'cross-modal fusion' method is physically invalid."
+required:
+  - nucleus_id
+  - d_coefficient_estimate
+  - p_value_null
+  - d_upper_bound_95
+  - sensitivity_limit
+  - pdg_comparison_status
+  - fusion_status
+  - shuffles_count
+properties:
+  nucleus_id:
+    type: "string"
+    description: "Unique ID of the nucleus."
+  d_coefficient_estimate:
+    type: "number"
+    description: "Derived D-coefficient estimate."
+  p_value_null:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value from permutation test."
+  d_upper_bound_95:
+    type: "number"
+    minimum: 0
+    description: "95% confidence interval upper bound."
+  sensitivity_limit:
+    type: "number"
+    minimum: 0
+    description: "Standard error of the weighted mean."
+  pdg_comparison_status:
+    type: "string"
+    enum:
+      - "better"
+      - "worse"
+      - "comparable"
+      - "no_data"
+    description: "Comparison against 2024 PDG Review."
+  fusion_status:
+    type: "string"
+    enum:
+      - "success"
+      - "invalid_for_fusion"
+      - "insufficient_data"
+    description: "Status of the fusion attempt."
+  shuffles_count:
+    type: "integer"
+    minimum: 10000
+    description: "Number of permutations performed."
+additionalProperties: false

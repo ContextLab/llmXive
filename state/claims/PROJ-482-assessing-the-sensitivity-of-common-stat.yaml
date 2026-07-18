@@ -450,3 +450,434 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T11:22:30Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 0
+  canonical: CSV checksum is MD5 hash of row data
+  claim_id: c_922a7ee4
+  context: T014 [US1] Create a script `code/run_data_gen.py`... `checksum` must be
+    MD5 (Wikidata Q185235, https://www.wikidata.org/wiki/Q185235) of the row data.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: MD5
+      source_id: Q185235
+      url: https://www.wikidata.org/wiki/Q185235
+      value: MD5
+    filled: true
+  kind: entity_fact
+  raw_text: The checksum must be MD5 of the row data
+  resolved_value: MD5
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T22:00:24Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: quickstart.md excludes simulation execution code snippets
+  claim_id: c_9f9cbfd5
+  context: 'T008d-2 [P] [Foundational] Write content for `quickstart.md` sections:
+    ''Environment Setup'', ''Data Generation'', ''Visualization'', and ''Interpretation''.'
+  evidence:
+    entailment_evidence: md excludes simulation execution code snippets Add languages
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Quickstart.md_excludes_simulation_execution_code_snippets
+  kind: entity_fact
+  raw_text: The file MUST include specific instructions for setup and data generation,
+    excluding the 'Simulation Execution' code snippets for now.
+  resolved_value: quickstart.md excludes simulation execution code snippets
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T22:00:28Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact trigger threshold expected cell count < 5
+  claim_id: c_97409ea1
+  context: 'T019 [US2] Implement test execution logic... Fisher''s Exact (scipy.stats.fisher_exact)
+    triggered when expected cell counts < 5 (Wikipedia: Fisher''s exact test, https://en.wikipedia.org/wiki/Fisher''s_exact_test)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fisher's Exact is triggered when expected cell counts < 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:00:28Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Adaptive control loop starts with 1000 replicates
+  claim_id: c_9cfe3caf
+  context: T020-2 [US2] Implement adaptive control loop... start with 1000 (hep-lat/0202016,
+    https://arxiv.org/abs/hep-lat/0202016) replicates
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adaptive control loop starts with 1000 replicates
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:01:06Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: "Adaptive loop stops when 95% CI width \u2264 0.01"
+  claim_id: c_1548327b
+  context: "T020-2 [US2] Implement adaptive control loop... calculate 95% CI width...\
+    \ and trigger additional replicates until width \u2264 0.01"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The loop triggers additional replicates until 95% CI width \u2264 0.01"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:01:06Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Adaptive loop max replicates limit 10000
+  claim_id: c_cca3d4bb
+  context: T020-2 [US2] Implement adaptive control loop... OR `config.MAX_REPLICATES`
+    (10000) is reached.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The loop terminates if config.MAX_REPLICATES (10000) is reached
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:01:22Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Simulation suite benchmark total time < 6 hours
+  claim_id: c_9d569221
+  context: 'T033 [P] Performance verification... **Verification**: Run the benchmark
+    and confirm the total time is < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark total time must be < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:01:22Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Benchmark log contains JSON key total_runtime_seconds
+  claim_id: c_5a74ab91
+  context: 'T033 [P] Performance verification... **Schema**: The log MUST contain
+    a JSON structure with a key `total_runtime_seconds` and the value in seconds.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_log_contains_JSON_key_total_runtime_seconds
+  kind: entity_fact
+  raw_text: The log MUST contain a JSON structure with a key `total_runtime_seconds`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:01:42Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: "Generated sample statistics match theoretical parameters within \xB1\
+    1e-6 tolerance"
+  claim_id: c_759bec21
+  context: "Independent Test: Verify generated data statistics (mean, variance, shape)\
+    \ match theoretical parameters within tolerance (\xB11e-6) before any testing\
+    \ occurs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The validation routine compares generated sample statistics to theoretical\
+    \ parameters within tolerance (\xB11e-6)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:02:02Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Log epsilon value is 1e-15
+  claim_id: c_ab4037f1
+  context: T004 Create `code/config.py` to define simulation parameters... `LOG_EPSILON=1e-15`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The log epsilon is 1e-15
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:02:32Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 0
+  canonical: Checksum calculation uses MD5 algorithm identified by Wikidata Q185235
+  claim_id: c_5a6821fe
+  context: 'Schema: The CSV MUST include columns: sample_size, distribution_type,
+    effect_size, group_mean_1, group_mean_2, mean_diff, variance, skewness, checksum.
+    Validation: effect_size must match input (0.0 or 0.5); mean_diff must be within
+    1e-6 of theoretical value; checksum must be MD5 (Wikidata Q185235, https://www.wikidata.org/wiki/Q185235)
+    of the row data.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: MD5
+      source_id: Q185235
+      url: https://www.wikidata.org/wiki/Q185235
+      value: MD5
+    filled: true
+  kind: entity_fact
+  raw_text: The checksum must be MD5 (Wikidata Q185235, https://www.wikidata.org/wiki/Q185235)
+    of the row data.
+  resolved_value: MD5
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T22:03:55Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact test triggered when expected cell counts are less than
+    5
+  claim_id: c_aabd04e9
+  context: 'T019 [US2] Implement test execution logic in code/simulation_engine.py:
+    T-test (scipy.stats.ttest_ind) ANOVA (scipy.stats.f_oneway) Chi-squared (scipy.stats.chi2_contingency)
+    Fisher''s Exact (scipy.stats.fisher_exact) triggered when expected cell counts
+    < 5 (Wikipedia: Fisher''s exact test, https://en.wikipedia.org/wiki/Fisher''s_exact_test)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fisher%27s_Exact_test_triggered_when_expected_cell_counts_are
+  kind: magnitude
+  raw_text: 'Fisher''s Exact (scipy.stats.fisher_exact) triggered when expected cell
+    counts < 5 (Wikipedia: Fisher''s exact test, https://en.wikipedia.org/wiki/Fisher''s_exact_test)'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:04:22Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 0
+  canonical: Fisher's Exact test triggered when expected cell counts < 5
+  claim_id: c_1b2917c5
+  context: Fisher's Exact (scipy.stats.fisher_exact) triggered when expected cell
+    counts < 5
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: With large samples, a chi-squared test (or better yet, a G-test) can
+        be used in this situation. However, the significance value it provides is
+        only an approximation, because the sampling distribution of the test statistic
+        that is calculated is only approximately equal to the theoretical chi-squared
+        distribution. The approximation is poor when sample sizes are small, or the
+        data are very unequally distributed among the cells of the table, resulting
+        in the cell counts predicted on the null hypothesis (the "expected values")
+        being low. The usual rule for deciding whether the chi-squared approximation
+        is good enough is that the chi-squared test is not suitable when the expected
+        values in any of the cells of a contingency table are below 5, or below 10
+        when there is only one degree of freedom (this rule is now known to be overly
+        conservative). In fact, for small, sparse, or unbalanced data, the exact and
+        asymptotic p-values can be quite different and may lead to opposite conclusions
+        concerning the hypothesis of interest. In contrast the Fisher exact test is,
+        as its name states, exact as long as the experimental procedure keeps the
+        row and column totals fixed, and it can therefore be used regardless of the
+        sample characteristics. It becomes difficult to calculate with large samples
+        or well-balanced tables, but fortunately these are exactly the conditions
+        where the chi-squared test is appropriate.
+      source_id: Fisher's exact test
+      url: https://en.wikipedia.org/wiki/Fisher's_exact_test
+      value: '5'
+    filled: true
+  kind: magnitude
+  raw_text: The Fisher's Exact test is triggered when expected cell counts are less
+    than 5.
+  resolved_value: '5'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T22:05:54Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: adaptive replication loop starts with 1000 replicates
+  claim_id: c_bf58c9c2
+  context: 'Implement adaptive control loop in code/simulation_engine.py: start with
+    1000 (hep-lat/0202016, https://arxiv.org/abs/hep-lat/0202016) replicates, calculate
+    95% CI width...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adaptive replication loop starts with 1000 replicates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:06:14Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: simulation terminates if replicates reach 10000
+  claim_id: c_8872f156
+  context: "trigger additional replicates until width \u2264 0.01 OR config.MAX_REPLICATES\
+    \ (10000) is reached."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation terminates if the number of replicates reaches 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:06:37Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: MD5 checksum used for row data integrity
+  claim_id: c_2d1f680d
+  context: checksum must be MD5 (Wikidata Q185235, https://www.wikidata.org/wiki/Q185235)
+    of the row data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MD5_checksum_used_for_row_data_integrity
+  kind: entity_fact
+  raw_text: MD5 checksum is used to verify row data integrity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:07:06Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: numerical stability epsilon value is 1e-15
+  claim_id: c_2d801ef9
+  context: Create code/config.py to define simulation parameters (sample sizes n=10..1000,
+    distributions, alpha=0.05, effect sizes, MAX_REPLICATES=10000, LOG_EPSILON=1e-15)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The numerical stability epsilon value is 1e-15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:07:39Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: nominal significance level alpha is 0.05
+  claim_id: c_fe6c47d2
+  context: Create code/config.py to define simulation parameters (sample sizes n=10..1000,
+    distributions, alpha=0.05, effect sizes, MAX_REPLICATES=10000, LOG_EPSILON=1e-15)
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The nominal significance level alpha is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T22:07:55Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 2
+  canonical: simulation uses sample sizes 10 to 1000
+  claim_id: c_994ec8bb
+  context: Create code/config.py to define simulation parameters (sample sizes n=10..1000,
+    distributions, alpha=0.05, effect sizes, MAX_REPLICATES=10000, LOG_EPSILON=1e-15)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation uses sample sizes ranging from 10 to 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:08:54Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: adaptive loop continues until 95% CI width <= 0.01
+  claim_id: c_eb4e791d
+  context: "Perform adaptive Monte Carlo replicates (min 1000, extend until 95% CI\
+    \ width \u2264 0.01) for t-test, ANOVA, and Chi-squared tests..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/adaptive_loop_continues_until_95%25_CI_width_%3C=_0.01
+  kind: magnitude
+  raw_text: The adaptive loop continues until the 95% confidence interval width is
+    less than or equal to 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:09:24Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: benchmark script confirms total runtime < 6 hours
+  claim_id: c_55a0e89e
+  context: 'Verification: Run the benchmark and confirm the total time is < 6 hours.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/benchmark_script_confirms_total_runtime_%3C_6_hours
+  kind: magnitude
+  raw_text: The benchmark script must confirm total runtime is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:10:16Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: validation routine tolerance is 1e-6
+  claim_id: c_87c24c48
+  context: "Independent Test: Verify generated data statistics (mean, variance, shape)\
+    \ match theoretical parameters within tolerance (\xB11e-6) before any testing\
+    \ occurs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation routine compares generated sample statistics to theoretical
+    parameters within a tolerance of 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:10:35Z'

@@ -1,17 +1,13 @@
-# Core dependencies (ensure these are installed)
+# Base dependencies
 -r requirements.txt
 
 # Linting and Formatting
-flake8
-black
-isort
-mypy
+flake8>=7.0.0
+black>=24.2.0
+isort>=5.13.2
+pre-commit>=3.6.0
 
 # Testing
-pytest
-pytest-cov
-pytest-mock
-
-# Type stubs (optional but recommended)
-types-requests
-types-setuptools
+pytest>=8.0.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0

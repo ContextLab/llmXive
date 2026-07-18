@@ -2,75 +2,85 @@
 
 ## Executive Summary
 
-This research plan outlines a meta-analysis of published D-coefficients (T-violation correlation parameters) for beta-decaying nuclei, specifically 6He and 19Ne. The primary challenge is the absence of a verified, programmatic API for the NNDC ENSDF database and the lack of a stable programmatic source for PDG D-coefficient limits. Consequently, the research strategy shifts from direct API scraping to a **Static Fallback Primary** approach: using hardcoded, verified values for the target nuclei to guarantee pipeline execution, with an optional "best-effort" scraper for NNDC. The statistical rigor relies on inverse-variance weighting for meta-analysis, with a **Random Effects** fallback for heterogeneity, and a **Sign-Flip Permutation Test** to validate null hypotheses (the only feasible analog to the original constitutional requirement given the aggregated data).
+This research investigates whether archival data from the NNDC ENSDF database and primary literature contains sufficient published D-coefficients to perform a **Meta-Analysis** for detecting Time-Reversal (T) symmetry violations. The study focuses on nuclei such as 6He and 19Ne. The core hypothesis is that by aggregating independent published D-coefficient measurements via inverse-variance weighting, we can derive a more precise constraint on T-violation than individual experiments. The original proposed "cross-modal covariance" method was found to be physically invalid (requires simultaneous event-level data not available in archival summaries) and has been replaced by this Meta-Analysis approach.
 
 ## Dataset Strategy
 
-### Primary Data Source: NNDC ENSDF (D-Coefficients)
-The spec requires D-coefficients from the NNDC ENSDF database.
-- **Status**: **NO verified programmatic API found** in the "Verified datasets" block.
-- **Strategy**: **Static Fallback Primary**.
-  - **Method**: The `data_retrieval.py` script will first load a hardcoded, verified dataset of D-coefficients for 6He and 19Ne (derived from the latest PDG/ENSDF reviews). This ensures the pipeline always produces results.
-  - **Optional Fetch**: The script will *attempt* to fetch updated data from the NNDC web interface using a targeted scraper with exponential backoff. If successful, these new values are appended to the static dataset with a `source="NNDC_Web"` tag. If failed, the static dataset is used.
-  - **Risk Mitigation**: This approach guarantees reproducibility (PR-001) and avoids the "high-risk" fragility of relying solely on a dynamic HTML scraper.
+### Target Nuclei
+- **Primary**: 6He, 19Ne (as specified in FR-001, but pivoted to D-coefficient retrieval).
+- **Selection Criteria**: Nuclei must have published measurements of the **D-coefficient** (or A, B, a coefficients from which D can be derived if the paper provides the formula).
 
-### Secondary Data Source: Particle Data Group (PDG) Constraints
-The spec requires validation against PDG review limits.
-- **Status**: **NO verified programmatic API found** for specific D-coefficient limits. The previously cited Hugging Face datasets were mismatched (NLP/clustering data).
-- **Strategy**: **Static Reference**.
-  - **Method**: The `validation.py` module will use hardcoded, verified upper bounds for 6He and 19Ne from the latest PDG Review of Particle Physics (2024/2025 edition).
-  - **Rationale**: Parsing PDFs or HTML tables for specific numbers is fragile and non-reproducible. Hardcoding the known values (with a clear comment referencing the specific PDG edition) is the most robust and reproducible strategy for this specific scientific question.
+### Data Sources & Feasibility
 
-### Data Harmonization
-- **Format**: All retrieved data will be normalized to a single CSV schema (`nucleus`, `value`, `uncertainty`, `source`, `reference_id`).
-- **Handling Ranges**: If a D-coefficient is reported as a range (e.g., `[-0.05, 0.05]`), the midpoint will be used as the value, and half the range width as the uncertainty, as per Edge Cases.
-- **Missing Data**: Nuclei with no data will be excluded from the meta-analysis but logged.
+**Source**: NNDC ENSDF (Evaluated Nuclear Structure Data File) and Primary Literature.
+- **Access Method**: The system will query the NNDC ENSDF database via its public web interface or API to retrieve evaluated D-coefficient values. If ENSDF lacks a D-coefficient, the system will search for the primary literature (via the 'Verified Accuracy' gate) to find the specific experiment's reported D-value.
+- **Feasibility Check**: 
+  - **Constraint**: The system must validate for the presence of *D-coefficient values* and their uncertainties. If a study only reports A, B, or a coefficients without a derived D, and does not provide the formula to derive D, the study is excluded.
+  - **Risk**: Many historical beta decay measurements in ENSDF report A, B, or a coefficients but not D.
+  - **Mitigation**: The `fetch_ensdf.py` script will include a validation step to parse the metadata of each entry. If the D-coefficient is missing and not derivable, the entry is excluded, and a "D-value missing" flag is logged.
+  - **CRITICAL DATA LIMITATION**: ENSDF typically does **not** contain the raw event-level momentum spectra or polarization asymmetry coefficients required for the spec's "cross-modal covariance" method. The spec's requirement for such data (FR-001, US-1) is a **fatal feasibility flaw**. This plan proceeds with the only viable path: meta-analysis of *published D-coefficients*. The spec MUST be updated to reflect this.
 
-## Statistical Methodology
+**Note on Verified Datasets**: The provided "Verified datasets" block contains no nuclear physics datasets. This project relies entirely on the **NNDC ENSDF** public interface and primary literature as the primary source. No external HuggingFace/UCI dataset substitutes exist for this specific physics query. The plan assumes NNDC is accessible via public HTTP(S) requests.
 
-### 1. Meta-Analysis (FR-002, FR-003)
-- **Method**: Inverse-variance weighting (Fixed Effect model).
-  - Formula: $D_{combined} = \frac{\sum (D_i / \sigma_i^2)}{\sum (1 / \sigma_i^2)}$
-  - Uncertainty: $\sigma_{combined} = \sqrt{1 / \sum (1 / \sigma_i^2)}$
-- **Random Effects Fallback**: If Cochran's Q test indicates significant heterogeneity (p < 0.05), the system will switch to the **DerSimonian-Laird Random Effects model** to account for between-study variance ($\tau^2$). This addresses the concern that shared systematic errors might inflate the precision of a Fixed Effect model.
-- **Upper Bound**: Calculate the 95% confidence interval upper bound as $D_{combined} + 1.645 \times \sigma_{combined}$ (one-sided).
-- **Rigor**: This method assumes independent measurements. The constitution (Principle VI) confirms that treating D-coefficients from different experiments as independent is valid (independence applies to the *measurements*, not the underlying kinematic variables).
+### Data Availability & Streaming
+- **Size**: ENSDF entries are typically small (text/CSV/XML tables). Streaming is not strictly necessary for the raw data itself, but the system will process datasets sequentially to stay within memory limits.
+- **Download Strategy**: `requests` library with exponential backoff (3 retries) to handle temporary NNDC unavailability (Edge Case 1).
+- **Format**: Data will be normalized to a standard internal JSON/Parquet format (`DMeasurement`) before analysis.
 
-### 2. Consistency Testing (FR-004)
-- **Method**: Cochran's Q test.
-  - Formula: $Q = \sum w_i (D_i - D_{combined})^2$, where $w_i = 1/\sigma_i^2$.
-  - Distribution: Chi-square with $k-1$ degrees of freedom.
-  - Threshold: $p > 0.05$ indicates consistency (SC-002).
-- **Edge Case Handling**: If $p=0$ or $p=1$ due to floating-point precision, values are clamped to $[10^{-10}, 1-10^{-10}]$.
+## Methodology
 
-### 3. Sensitivity Limit (FR-005)
-- **Definition**: The standard error of the weighted mean ($\sigma_{combined}$).
-- **Verification**: Compared against the theoretical minimum uncertainty achievable (SC-003).
+### 1. Data Retrieval & Validation (FR-001 Revised, FR-004)
+- **Step**: Query NNDC for 6He and 19Ne.
+- **Filter**: Extract only entries containing published D-coefficients (or derivable D-values).
+- **Validation**: Check if the D-coefficient is reported or derivable.
+  - *If D-value missing and not derivable*: Flag as "D-value missing", exclude from analysis.
+  - *If D-value present*: Proceed to harmonization.
+- **Note**: The spec's requirement for "raw momentum spectra" is physically impossible to fulfill from ENSDF for this method. The plan uses available D-values.
 
-### 4. Null-Hypothesis Rigor (Constitution Principle VII - Modified)
-- **Constraint**: The original requirement ("shuffling polarization values to momentum bins") is **impossible** because the input data consists solely of pre-calculated D-coefficients (D_i) and their uncertainties (sigma_i). There are no raw momentum/polarization pairs to shuffle.
-- **Method**: **Sign-Flip Permutation Test**.
-  - **Procedure**: Randomly flip the signs of the D-coefficients (multiply by -1) 10,000 times. For each permutation, recalculate the weighted mean.
-  - **Goal**: Generate a null distribution for the *meta-analytic average* under the hypothesis that the true D-coefficient is zero.
-  - **Validation**: The observed weighted mean is compared against the 95th percentile of the null distribution. If the observed mean falls within the null distribution, the result is not statistically significant.
- - **Feasibility**: [deferred] sign-flips on a small dataset (N < 100) is computationally trivial on CPU (< 1 minute).
-  - **Rationale**: This is the standard randomization test for meta-analysis when raw data is unavailable. It satisfies the *intent* of the constitutional requirement (testing D=0 against a null distribution) without requiring non-existent raw data.
+### 2. Meta-Analysis of D-Coefficients (FR-002 Revised)
+- **Input**: Harmonized `DMeasurement` objects for each nucleus.
+- **Assumption**: Each published D-coefficient is an independent measurement with a reported uncertainty.
+- **Operation**: Compute the **inverse-variance weighted mean** of the D-coefficients.
+- **Derivation**: The meta-analytic mean represents the best estimate of the D-coefficient for the nucleus.
+- **Statistical Rigor**: 
+  - **Heterogeneity**: Use Cochran's Q test to check for consistency among measurements.
+  - **Model Selection**: If heterogeneity is significant, use a Random Effects model; otherwise, use a Fixed Effect model.
 
-## Decision/Rationale: CPU vs. GPU
-- **Decision**: **CPU-only execution**.
-- **Rationale**: The statistical operations (weighted average, chi-square, sign-flip permutation) are lightweight matrix/vector operations. No transformer models or heavy numerical simulations requiring CUDA are involved. The entire pipeline fits comfortably within the CPU and RAM constraints of the GitHub Actions free tier.
+### 3. Permutation Testing (FR-003, SC-002, SC-004)
+- **Null Hypothesis**: $H_0$: The true weighted mean D-coefficient is zero (consistent with T-symmetry).
+- **Procedure**: 
+  1. Calculate the observed weighted mean.
+  2. Randomly **flip the signs** of the D-coefficients (or resample with replacement) for a large number of iterations to build a null distribution.
+  3. Calculate p-value: proportion of null means $\ge$ observed mean (one-sided) or $|null| \ge |observed|$ (two-sided).
+- **Stability Check**: Verify p-value variance < 0.01 by doubling shuffles (SC-004).
+- **Clamping**: Clamp p-values to $[10^{-10}, 1-10^{-10}]$ to handle floating-point precision (Edge Case 3).
+- **Note**: The spec's requirement to shuffle "Momentum" and "Polarization" from separate experiments is physically meaningless. This plan applies permutation to the *aggregated D-coefficients*.
 
-## Risks and Mitigations
+### 4. Sensitivity & Validation (FR-005, FR-006, SC-001, SC-003)
+- **Sensitivity Limit**: Calculate as the standard error (SE) of the weighted mean of measurements for the specific nucleus.
+- **PDG Comparison**: Cross-reference derived upper bounds ($|D| < X$) with the Particle Data Group (PDG) Review limits.
+- **Flagging**: If the derived bound is looser (larger) than the PDG limit, flag the result as "less sensitive than current world average" (US-3).
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| NNDC API Unreachable | High (Data Gap) | **Static Fallback Primary**: The pipeline uses hardcoded verified data as the primary source. The scraper is optional. |
-| HTML Structure Change | High (Parsing Error) | **Static Fallback**: The scraper is non-blocking. If it fails, the static data is used. |
-| Single Measurement for a Nucleus | Medium (No Consistency Test) | Skip Cochran's Q for that nucleus; report single measurement result directly (Edge Case). |
-| Range Data | Medium (Uncertainty Propagation) | Use midpoint and half-width as per spec Edge Cases. |
-| Heterogeneity in Data | Medium (Invalid Fixed Effect) | **Random Effects Fallback**: Switch to DerSimonian-Laird model if Cochran's Q indicates heterogeneity. |
+## Statistical Rigor & Assumptions
 
-## References
-- **PDG Data**: Static reference (hardcoded values from 2024/2025 Review of Particle Physics).
-- **NNDC ENSDF**: Public web interface (no verified API URL).
-- **Statistical Methods**: Standard meta-analysis, Cochran's Q, and Sign-Flip permutation tests (Cochran, 1954; standard meta-analysis literature).
+- **Multiple Comparisons**: Since the analysis is performed per nucleus (6He, 19Ne), the family-wise error rate is controlled by the permutation test per nucleus. No global correction is needed unless multiple nuclei are combined in a meta-analysis (not in scope).
+- **Sample Size/Power**: The "sample size" is the number of published D-coefficients. Power is limited by the number of available experiments. If only a few measurements exist, the meta-analysis may lack power; this limitation will be explicitly reported.
+- **Causal Inference**: This is an observational analysis of archival data. Claims are strictly **associational** regarding the existence of a correlation; the T-violation interpretation relies on the Standard Model assumption that $D_{SM} \approx 0$.
+- **Measurement Validity**: The method assumes the uncertainties reported in the primary literature are accurate and that the "D-coefficient" values are not synthetic reconstructions.
+
+## Decision/Rationale: Compute Feasibility
+
+- **CPU-First**: The statistical operations (weighted mean, permutation) are computationally light. [deferred] shuffles on a dataset of a small number of points will run in seconds/minutes on a -core CPU.
+- **No GPU Required**: No deep learning or large matrix decompositions requiring CUDA are planned.
+- **Memory**: Data is small (text/CSV). No streaming of large files is required, but the code will be written to handle data sequentially to respect the GB RAM limit.
+
+## Risks & Mitigations
+
+| Risk | Mitigation |
+| :--- | :--- |
+| **Data Unavailable**: NNDC returns 404 or no D-coefficients. | System flags "D-value missing" and excludes the nucleus. Report explicitly. |
+| **No D-Values**: All entries report only A, B, a coefficients. | The study concludes "Archival data insufficient for meta-analysis" for that nucleus. |
+| **Network Failure**: NNDC API timeout. | Exponential backoff (3 retries) then log failure and proceed with available data. |
+| **Floating Point Issues**: p-value = 0 or 1. | Clamp to $[10^{-10}, 1-10^{-10}]$. |
+| **Single Measurement**: Only one experiment for a nucleus. | Skip permutation consistency check; report single measurement with uncertainty. |
+| **Spec Contradiction**: Spec mandates invalid "cross-modal covariance". | Plan explicitly documents this as a blocking flaw and proceeds with Meta-Analysis. Requires spec kickback. |

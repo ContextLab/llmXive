@@ -37,8 +37,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup logging infrastructure in `projects/PROJ-116-predicting-material-stability-using-mach/code/utils/logging.py` with file and console handlers
-- [ ] T005 [P] Create base data models for `MaterialEntry` and `FeatureVector` in `projects/PROJ-116-predicting-material-stability-using-mach/code/__init__.py` or `data_models.py`
-- [ ] T006 Setup environment configuration management for data paths and random seeds in `projects/PROJ-116-predicting-material-stability-using-mach/code/config.py`
+- [X] T005 [P] Create base data models for `MaterialEntry` and `FeatureVector` in `projects/PROJ-116-predicting-material-stability-using-mach/code/__init__.py` or `data_models.py`
+- [X] T006 Setup environment configuration management for data paths and random seeds in `projects/PROJ-116-predicting-material-stability-using-mach/code/config.py`
 - [X] T007 Implement data validation utilities to check for missing bond lengths and degenerate Voronoi cells in `projects/PROJ-116-predicting-material-stability-using-mach/code/utils/validation.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -60,7 +60,7 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `download_data.py` to fetch OQMD data, filter for Li-rich rock-salt structures, and save to `projects/PROJ-116-predicting-material-stability-using-mach/data/raw/` (FR-001). Explicitly log a warning if the sample count is less than a sufficient threshold and proceed with available data.
+- [ ] T012 [US1] Implement `download_data.py` to fetch OQMD data, filter for Li-rich rock-salt structures, and save to `projects/PROJ-116-predicting-material-stability-using-mach/data/raw/` (FR-001). Explicitly log a warning if the sample count is less than a sufficient threshold and proceed with available data.
 - [ ] T013 [US1] Implement `feature_engineering.py` to compute bulk Magpie features only. Handle missing values by imputing with dataset median. **Explicitly log the count of skipped entries or imputed values to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/logs/imputation_log.txt`**. Output to `projects/PROJ-116-predicting-material-stability-using-mach/data/processed/baseline_features.parquet`.
 - [ ] T014 [US1] Implement `train_baseline.py` to train a Gradient Boosting Regressor on Magpie features with hyperparameter tuning on a validation split. Save model to `projects/PROJ-116-predicting-material-stability-using-mach/data/models/baseline_model.pkl` and save the tuning results (best params, scores) to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/baseline_tuning_results.json`. **Verify that best_params and validation_scores are recorded in the JSON.**
 - [ ] T015 [US1] Implement evaluation logic in `evaluate.py` to generate predictions on the test set and calculate MAE/RMSE. Output results to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/baseline_results.csv`.
@@ -79,7 +79,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for Voronoi tessellation and bond-length histogram calculation in `projects/PROJ-116-predicting-material-stability-using-mach/tests/unit/test_voronoi_features.py`. **Dependencies**: Explicitly requires completion of T005 (data models) and T012 (raw data availability).
+- [X] T018 [P] [US2] Unit test for Voronoi tessellation and bond-length histogram calculation in `projects/PROJ-116-predicting-material-stability-using-mach/tests/unit/test_voronoi_features.py`. **Dependencies**: Explicitly requires completion of T005 (data models) and T012 (raw data availability).
 - [ ] T019 [P] [US2] Integration test for augmented model training and comparison in `projects/PROJ-116-predicting-material-stability-using-mach/tests/integration/test_augmented.py`. **Dependencies**: Explicitly requires completion of T005 (data models) and T012 (raw data availability).
 
 ### Implementation for User Story 2

@@ -6,20 +6,6 @@ T014:
     is absent. Consequently the required dataset with the specified schema and validation
     checks is not present. The implementer must provide a complete script that generates
     the CSV and include the generated `sample_validation.csv` file.
-T017b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No log entry or any other artifact confirming that the ground\u2011truth validation\
-    \ routine from T013 was executed and passed (exit code\u202F0) is present. The\
-    \ required evidence\u2014a non\u2011empty log confirming verification of the current\
-    \ configuration batch\u2014is missing, so the task is not satisfied."
-T021b:
-  c: false
-  h: 894dfe94c372b9d3ad4fbcbc12781b5cf64989df46be751d608cdf521af8dad3
-  r: "The provided `code/simulation_engine.py` is truncated (e.g., `sample_siz` cut\
-    \ off) and contains no code that streams or writes raw p\u2011values to `data/processed/raw_pvalues.csv`.\
-    \ Moreover, the required CSV file does not exist. Consequently, the task\u2019\
-    s output and integration requirements are not met."
 T021c:
   c: false
   h: 4918e42abf222c2f4fcdaa3a382e983b2721ade3bd212113cf629419bacb2c5b

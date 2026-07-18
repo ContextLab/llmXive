@@ -1,4 +1,4 @@
-- artifact_hash: 553b6b76369a30bc8ead168c975a430d212f3405fe9a1c21bb8b6649db0f992c
+- artifact_hash: b9b39c9115004f0b32e014538682b1ef1fb6a5cdb407bb108df4264f805608e7
   artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://www.wikidata.org/wiki/Q185235
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q185235
-  verified_at: '2026-07-17T11:22:30.259308Z'
-- artifact_hash: 553b6b76369a30bc8ead168c975a430d212f3405fe9a1c21bb8b6649db0f992c
+  verified_at: '2026-07-18T22:05:32.679437Z'
+- artifact_hash: b9b39c9115004f0b32e014538682b1ef1fb6a5cdb407bb108df4264f805608e7
   artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://en.wikipedia.org/wiki/Fisher
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Fisher
-  verified_at: '2026-07-17T11:22:30.259308Z'
-- artifact_hash: 553b6b76369a30bc8ead168c975a430d212f3405fe9a1c21bb8b6649db0f992c
+  verified_at: '2026-07-18T22:05:32.679437Z'
+- artifact_hash: b9b39c9115004f0b32e014538682b1ef1fb6a5cdb407bb108df4264f805608e7
   artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://arxiv.org/abs/hep-lat/0202016
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/hep-lat/0202016
-  verified_at: '2026-07-17T11:22:30.259308Z'
+  verified_at: '2026-07-18T22:05:32.679437Z'

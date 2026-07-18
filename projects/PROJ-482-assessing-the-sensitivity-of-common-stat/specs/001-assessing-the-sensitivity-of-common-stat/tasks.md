@@ -3,9 +3,9 @@
 **Input**: Design documents from `/specs/001-assess-test-sensitivity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. [UNRESOLVED-CLAIM: c_018388b7 — status=not_enough_info] Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story. [UNRESOLVED-CLAIM: c_c6628f3b — status=not_enough_info]
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -62,7 +62,7 @@
 - [X] T006 Create `data/raw/` and `data/processed/` directories with `.gitkeep`
 - [X] T007 Setup `tests/unit/` and `tests/contract/` directory structure
 - [X] T008d-1 [P] [Foundational] Create `quickstart.md` file structure with required section headers: 'Environment Setup', 'Data Generation', 'Simulation Execution', 'Visualization', and 'Interpretation'. **Deliverable**: The file MUST exist with these headers but no content yet.
-- [X] T008d-2 [P] [Foundational] Write content for `quickstart.md` sections: 'Environment Setup', 'Data Generation', 'Visualization', and 'Interpretation'. **Deliverable**: The file MUST include specific instructions for setup and data generation, excluding the 'Simulation Execution' code snippets for now. [UNRESOLVED-CLAIM: c_9e49733c — status=not_enough_info]
+- [X] T008d-2 [P] [Foundational] Write content for `quickstart.md` sections: 'Environment Setup', 'Data Generation', 'Visualization', and 'Interpretation'. **Deliverable**: {{claim:c_9f9cbfd5}}
 - [X] T008d-3 [P] [Foundational] Insert code snippets for `python code/main.py` into `quickstart.md` 'Simulation Execution' section as **placeholders** with explicit comments: `# TODO: Replace with actual main.py implementation (T030)`. **Constraint**: Do not write a functional script; write a placeholder that documents the intended command structure.
 - [X] T008d-4 [P] [Foundational] Finalize `quickstart.md` by reviewing all sections and ensuring consistency. **Deliverable**: The file MUST be complete and ready for validation.
 
@@ -90,7 +90,7 @@
 - [X] T011 [US1] Implement `code/data_generator.py` with functions to generate Normal, Uniform, and Log-Normal distributions for both Null (effect=0) and Alternative (effect=0.5) hypotheses
 - [X] T012 [US1] Add logic in `code/data_generator.py` to handle edge cases: ensure log-normal skew is finite and prevent numerical overflow
 - [X] T013 [US1] Implement validation routine in `code/data_generator.py` that compares generated sample statistics to theoretical parameters and raises errors on mismatch
-- [X] T014 [US1] Create a script `code/run_data_gen.py` to generate and save a small sample dataset to `data/raw/sample_validation.csv` for manual verification. **Schema**: The CSV MUST include columns: `sample_size`, `distribution_type`, `effect_size`, `group_mean_1`, `group_mean_2`, `mean_diff`, `variance`, `skewness`, `checksum`. [UNRESOLVED-CLAIM: c_442444d9 — status=not_enough_info] **Validation**: `effect_size` must match input (0.0 or 0.5); `mean_diff` must be within 1e-6 of theoretical value; `checksum` must be MD5 (Wikidata Q185235, https://www.wikidata.org/wiki/Q185235) of the row data.
+- [X] T014 [US1] Create a script `code/run_data_gen.py` to generate and save a small sample dataset to `data/raw/sample_validation.csv` for manual verification. **Schema**: The CSV MUST include columns: `sample_size`, `distribution_type`, `effect_size`, `group_mean_1`, `group_mean_2`, `mean_diff`, `variance`, `skewness`, `checksum`. **Validation**: `effect_size` must match input (0.0 or 0.5); `mean_diff` must be within 1e-6 of theoretical value; `checksum` must be MD5 (Wikidata Q185235, https://www.wikidata.org/wiki/Q185235) of the row data.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -166,7 +166,7 @@
 - [ ] T031 [P] Documentation updates in `README.md` explaining how to run the simulation and interpret results
 - [X] T032a Refactor `code/simulation_engine.py` to separate data generation logic from test execution logic
 - [X] T032b Refactor `code/analyzer.py` to separate aggregation logic from visualization logic
-- [ ] T033 [P] Performance verification: Create `code/benchmark.py` to measure the execution time of the full simulation suite. **Deliverable**: The script MUST write results to `logs/benchmark.log`. **Schema**: The log MUST contain a JSON structure with a key `total_runtime_seconds` and the value in seconds. [UNRESOLVED-CLAIM: c_c8b021a2 — status=not_enough_info] **Verification**: Run the benchmark and confirm the total time is < 6 hours.
+- [ ] T033 [P] Performance verification: Create `code/benchmark.py` to measure the execution time of the full simulation suite. **Deliverable**: The script MUST write results to `logs/benchmark.log`. **Schema**: The log MUST contain a JSON structure with a key `total_runtime_seconds` and the value in seconds. **Verification**: Run the benchmark and confirm the total time is < 6 hours.
 - [X] T034 [P] Add final integration tests in `tests/integration/test_full_pipeline.py`
 - [ ] T036 [P] [Foundational] Implement a `code/checkpoint_manager.py` to save partial results after every periodic interval of replicates per configuration. **Rationale**: Mitigates the risk of losing progress on the 6-hour runner if the process is killed mid-batch. **Output**: Save intermediate state to `data/processed/checkpoints/` and implement a resume flag in `main.py`. **Note**: This is optional scope as per the spec's assumptions, but included for robustness.
 
@@ -271,6 +271,6 @@ With multiple developers:
 - **Task Granularity**: T020, T027b, T027c are atomized into sub-tasks for independent testing and implementation.
 - **Parallel Safety**: T036 is moved to Phase 6 and marked [Foundational] to run before simulation.
 - **Convergence**: T020-2 ensures the final convergence decision uses Bootstrap Resampling, aligning with FR-004.
-- **Data Transformation**: T027b explicitly documents the epsilon transformation as a deviation from raw data for numerical stability, referencing `config.LOG_EPSILON`. [UNRESOLVED-CLAIM: c_0a83a2cc — status=not_enough_info]
+- **Data Transformation**: T027b explicitly documents the epsilon transformation as a deviation from raw data for numerical stability, referencing `config.LOG_EPSILON`.
 - **Scope Creep**: T036 is noted as optional scope but included for robustness.
 - **Removed Tasks**: T035, T035-1 (mock runner) removed as scope creep. T020-1, T020-4 merged into T020-2. T020-3 merged into T020-2.

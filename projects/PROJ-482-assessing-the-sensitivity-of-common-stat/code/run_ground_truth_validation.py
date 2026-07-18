@@ -1,116 +1,112 @@
+"""
+Ground-Truth Validation Gate Script (Task T017b).
+
+This script executes the validation routine from T013 (validate_sample_statistics)
+on a fresh batch of generated data. It serves as a blocking gate before the
+Monte Carlo simulation loop (T018) can begin.
+
+Deliverable: A log entry confirming ground-truth parameters were verified for
+the current configuration batch. The script exits with code 0 on success,
+or non-zero if validation fails.
+"""
 import os
 import sys
 import logging
 import argparse
 from typing import List, Dict, Any, Tuple
 
+# Add project root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from config import SimulationConfig, get_simulation_grid
 from data_generator import generate_data, validate_sample_statistics
 
-# Configure logging for the validation gate
+# Configure logging to ensure the "log entry" requirement is met
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/ground_truth_validation.log', mode='a')
+        logging.FileHandler(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs', 'ground_truth_validation.log'))
     ]
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("GroundTruthValidation")
 
-def run_validation_batch(config: SimulationConfig) -> bool:
+def run_validation_batch(config: SimulationConfig, sample_sizes: List[int], distributions: List[str]) -> bool:
     """
-    Executes the validation routine from T013 on a fresh batch of generated data.
-    
-    This function acts as the Ground-Truth Validation Gate. It generates synthetic data
-    for a representative subset of the simulation grid and validates that the
-    generated statistics match the theoretical ground truth parameters within tolerance.
-    
-    Args:
-        config: The simulation configuration object.
-        
-    Returns:
-        bool: True if all validations pass (exit code 0), False otherwise.
-        
-    Raises:
-        RuntimeError: If validation fails for any scenario in the batch.
+    Run validation on a batch of configurations.
+
+    Returns True if all validations pass, False otherwise.
     """
-    logger.info("Starting Ground-Truth Validation Gate (T017b)...")
-    logger.info(f"Configuration: Alpha={config.alpha}, Max Replicates={config.max_replicates}")
-    
-    # Define a representative batch of scenarios for validation
-    # We test small, medium, and large sample sizes across distributions
-    validation_scenarios = [
-        {"n": 20, "dist": "normal", "effect": 0.0},
-        {"n": 50, "dist": "normal", "effect": 0.5},
-        {"n": 100, "dist": "uniform", "effect": 0.0},
-        {"n": 200, "dist": "log_normal", "effect": 0.5},
-        {"n": 500, "dist": "normal", "effect": 0.0},
-    ]
-    
+    grid = get_simulation_grid(
+        sample_sizes=sample_sizes,
+        distributions=distributions,
+        test_types=['t-test'], # Validation doesn't need test execution, just data gen
+        effect_sizes=[0.0, 0.5],
+        n_replicates=5 # Small batch for validation gate
+    )
+
+    logger.info(f"Starting Ground-Truth Validation Batch for {len(grid)} configurations.")
     all_passed = True
-    
-    for scenario in validation_scenarios:
-        n = scenario["n"]
-        dist_type = scenario["dist"]
-        effect_size = scenario["effect"]
-        
-        logger.info(f"Validating scenario: n={n}, dist={dist_type}, effect={effect_size}")
-        
+
+    for i, scenario in enumerate(grid):
         try:
-            # Generate fresh data
-            group1, group2 = generate_data(
-                sample_size=n,
-                distribution_type=dist_type,
-                effect_size=effect_size
+            # Generate data for this scenario
+            # Note: generate_data returns a dict with 'group1', 'group2' arrays and metadata
+            data_result = generate_data(
+                n=scenario['sample_size'],
+                distribution=scenario['distribution'],
+                effect_size=scenario['effect_size'],
+                seed=i # Deterministic seed for reproducibility in validation
             )
-            
-            # Run the validation routine from T013
-            # This compares generated sample statistics to theoretical parameters
-            # and raises an error on mismatch
+
+            # Call the validation routine from T013
+            # This function raises an error or returns success if stats match theoretical params
             validation_result = validate_sample_statistics(
-                group1, group2, dist_type, effect_size, n, config.alpha
+                group1=data_result['group1'],
+                group2=data_result['group2'],
+                expected_effect=scenario['effect_size'],
+                distribution=scenario['distribution']
             )
-            
-            if validation_result["passed"]:
-                logger.info(f"  [PASS] Scenario n={n}, {dist_type}, effect={effect_size} verified.")
-                logger.info(f"         Stats: {validation_result['details']}")
+
+            if validation_result['passed']:
+                logger.info(f"VALIDATION PASSED: n={scenario['sample_size']}, dist={scenario['distribution']}, effect={scenario['effect_size']}")
             else:
-                logger.error(f"  [FAIL] Scenario n={n}, {dist_type}, effect={effect_size} failed.")
-                logger.error(f"         Reason: {validation_result['reason']}")
+                logger.error(f"VALIDATION FAILED: n={scenario['sample_size']}, dist={scenario['distribution']}, effect={scenario['effect_size']}. Reason: {validation_result['reason']}")
                 all_passed = False
-                
+
         except Exception as e:
-            logger.error(f"  [ERROR] Scenario n={n}, {dist_type}, effect={effect_size} raised exception: {str(e)}")
+            logger.error(f"VALIDATION ERROR: n={scenario['sample_size']}, dist={scenario['distribution']}. Exception: {str(e)}")
             all_passed = False
-    
-    if all_passed:
-        logger.info("GROUND-TRUTH VALIDATION GATE PASSED: All batch scenarios verified.")
-        logger.info("Proceeding to Monte Carlo simulation (T018) is authorized.")
-        return True
-    else:
-        logger.error("GROUND-TRUTH VALIDATION GATE FAILED: One or more scenarios failed verification.")
-        logger.error("Simulation pipeline halted. Fix data generation logic before proceeding.")
-        return False
+
+    return all_passed
 
 def main():
-    """
-    Main entry point for the ground truth validation script.
-    """
-    parser = argparse.ArgumentParser(description="Run Ground-Truth Validation Gate")
-    parser.add_argument("--log-level", default="INFO", help="Logging level")
+    parser = argparse.ArgumentParser(description="Run Ground-Truth Validation Gate (T017b)")
+    parser.add_argument('--n-sizes', type=str, default="10,50,100", help="Comma-separated list of sample sizes to validate")
+    parser.add_argument('--distributions', type=str, default="normal,uniform,log-normal", help="Comma-separated list of distributions to validate")
     args = parser.parse_args()
-    
-    logging.getLogger().setLevel(getattr(logging, args.log_level.upper()))
-    
-    # Load configuration
+
+    # Parse arguments
+    sample_sizes = [int(x.strip()) for x in args.n_sizes.split(',')]
+    distributions = [x.strip() for x in args.distributions.split(',')]
+
+    # Initialize config (uses defaults from config.py)
     config = SimulationConfig()
-    
-    # Run validation
-    success = run_validation_batch(config)
-    
-    # Exit with appropriate code
-    sys.exit(0 if success else 1)
+
+    logger.info(f"--- GROUND-TRUTH VALIDATION GATE STARTED ---")
+    logger.info(f"Configuration: Sample Sizes={sample_sizes}, Distributions={distributions}")
+
+    success = run_validation_batch(config, sample_sizes, distributions)
+
+    if success:
+        logger.info("--- GROUND-TRUTH VALIDATION GATE PASSED ---")
+        logger.info("All generated data matches theoretical ground truth within tolerance.")
+        sys.exit(0)
+    else:
+        logger.error("--- GROUND-TRUTH VALIDATION GATE FAILED ---")
+        logger.error("One or more configurations failed validation. Aborting simulation pipeline.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,10 @@
-T001 Create project structure per implementation plan in `projects/PROJ-116-predicting-material-stability-using-mach/`: 1
-T003 [P] Configure linting and formatting tools in `projects/PROJ-116-predicting-material-stability-using-mach/code/`: 1
-? T005 [P] Create base data models for `MaterialEntry` and `FeatureVector` in `projects/PROJ-116-predicting-material-stability-using-mach/code/__init__.py`
-  or `data_models.py`
-: 1
-? T006 Setup environment configuration management for data paths and random seeds
-  in `projects/PROJ-116-predicting-material-stability-using-mach/code/config.py`
-: 1
+T001: 1
+T003: 1
+T012: 1
+T013: 1
+T014: 1
+T015: 1
+T016: 1
+T017: 1
+T019: 1
+T020: 1

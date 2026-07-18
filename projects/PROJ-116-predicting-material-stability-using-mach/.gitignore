@@ -1,26 +1,49 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Virtual environments
+# Virtual Environments
 venv/
-.venv/
+ENV/
 env/
-
-# Data files (large)
-data/raw/*.gz
-data/raw/*.zip
-data/raw/*.tar
-data/processed/*.parquet
-data/models/*.pkl
-
-# Outputs
-outputs/
-.DS_Store
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# Data & Outputs (Generated)
+data/raw/*.csv
+data/raw/*.json
+data/processed/*.parquet
+data/models/*.pkl
+outputs/
+logs/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db

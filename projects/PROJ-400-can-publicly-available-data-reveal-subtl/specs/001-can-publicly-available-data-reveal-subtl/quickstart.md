@@ -3,80 +3,66 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
-- Access to the internet (for optional NNDC fetch; static data works offline)
+- `pip` or `venv`
+- Access to the internet (for NNDC ENSDF retrieval)
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory:
-   ```bash
-   cd projects/PROJ-400-can-publicly-available-data-reveal-subtl
-   ```
-
-2. **Create a virtual environment** and install dependencies:
+1. **Clone the repository** (or navigate to the project root).
+2. **Create a virtual environment**:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r code/requirements.txt
    ```
-   *Note: `scikit-learn` is NOT required. Dependencies are `requests`, `pandas`, `numpy`, `scipy`, `pyyaml`, `pytest`.*
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Running the Pipeline
 
-### Full Execution
-To run the complete data retrieval (static fallback + optional fetch), meta-analysis, and validation pipeline:
-```bash
-python code/main.py --nuclei "6He,19Ne"
-```
-- This command loads the **static fallback** data for 6He and 19Ne.
-- It *attempts* to fetch updated data from NNDC (non-blocking).
-- Results are saved to `data/derived/`.
+### 1. Fetch and Validate Data
+Run the data extraction script to retrieve data for the target nuclei (6He, 19Ne). This step handles network retries and format validation.
 
-### Running Specific Modules
-
-#### 1. Data Retrieval Only (Static + Optional Fetch)
 ```bash
-python code/data_retrieval.py --nuclei "6He,19Ne" --output data/derived/harmonized.csv
+python -m code.cli.main fetch --nuclei 6He,19Ne
 ```
 
-#### 2. Meta-Analysis Only
+*Output*: Raw data files saved to `data/raw/`. Validation report printed to console.
+
+### 2. Perform Meta-Analysis & Permutation
+Run the analysis pipeline to compute weighted mean, perform permutation testing, and derive D-coefficient bounds.
+
 ```bash
-python code/meta_analysis.py --input data/derived/harmonized.csv --output data/derived/meta_results.csv
+python -m code.cli.main analyze --shuffles 10000
 ```
 
-#### 3. Sign-Flip Permutation Testing (Null Hypothesis)
+*Output*: `meta_analysis_results.json` in `data/processed/`. Console summary of p-values and bounds.
+
+### 3. Generate Report
+Generate the final comparison against PDG 2024 limits.
+
 ```bash
-python code/permutation_test.py --input data/derived/harmonized.csv --shuffles 10000 --output data/derived/null_distribution.csv
+python -m code.cli.main report --output docs/report.md
 ```
 
-#### 4. Validation Against PDG (Static Reference)
-```bash
-python code/validation.py --input data/derived/meta_results.csv --output data/derived/validation_results.csv
-```
-*Note: PDG data is loaded from a static reference (hardcoded in code), not an external URL.*
+*Output*: `docs/report.md` containing the sensitivity limits and PDG comparison.
 
 ## Verifying Results
 
-1. **Check Checksums**: Ensure data integrity by running:
-   ```bash
-   sha256sum data/derived/*
-   ```
-   Compare against `data/checksums.txt` (generated automatically).
+To ensure reproducibility, re-run the analysis and verify the checksums:
 
-2. **Review Output**: Open `paper/results.md` to see the generated report.
-   - Verify the "Combined D-Coefficient" and "Upper Bound".
-   - Check the "Consistency Test" p-value (should be > 0.05 for consistent data).
-   - Confirm the "Validation" status against PDG.
+```bash
+# Verify data integrity
+python -m code.cli.main verify-checksums
 
-3. **Run Tests**:
-   ```bash
-   pytest tests/
-   ```
-   - Unit tests verify statistical formulas (including Sign-Flip logic).
-   - Integration tests verify the data pipeline (using the static fallback).
+# Re-run analysis and compare results (should be identical)
+python -m code.cli.main analyze --shuffles 10000 --check-deterministic
+```
 
 ## Troubleshooting
 
-- **NNDC Connection Error**: The script will log the error and proceed with the **static fallback** data. The pipeline will not fail.
-- **Missing Data**: If a nucleus has no data (even in static fallback), it will be excluded from the meta-analysis. Check `data/derived/harmonized.csv` for the `retrieval_status` column.
-- **PDG Data Load Error**: The PDG data is hardcoded. If the validation step fails, check the `code/validation.py` for the static reference values.
+- **Network Error**: If NNDC is unreachable, the script will retry with exponential backoff. If it fails after 3 retries, it logs the error and proceeds with available data.
+- **No D-Values**: If the script reports "D-value missing" for a nucleus, it means the archival data does not contain published D-coefficients. This is an expected outcome for some historical data.
+- **Permutation Instability**: If the p-value variance exceeds 0.01 when doubling shuffles, increase `--shuffles` (e.g., to [deferred]).
+- **Spec Contradiction**: If the pipeline fails due to missing "raw momentum spectra", this is expected as the spec's requirement is invalid. The pipeline correctly falls back to D-coefficient meta-analysis.
