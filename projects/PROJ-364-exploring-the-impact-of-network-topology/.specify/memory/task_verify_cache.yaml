@@ -1,0 +1,14 @@
+T013:
+  c: false
+  h: 1e9d80d8351dbb7a4e986096f3f9dd4ca93a6d6f42935c1b5b7618950ef2532f
+  r: "The required file `src/data_ingestion/loader.py` does not exist in the repository,\
+    \ so no implementation of CSV/Parquet loading, chunked streaming, missing\u2011\
+    value dropping, or warning logging is present. The task\u2019s deliverable is\
+    \ therefore missing."
+T014:
+  c: false
+  h: 1210376d59530fcb72e78d0bb58c9d133b26d3e0992ba1eb0592d2a77e948a39
+  r: The required file `src/data_ingestion/threshold.py` does not exist, and the dependent
+    module `src/data/materials.py` is also missing, so the implementation cannot retrieve
+    lattice constants or compute the threshold as specified. The only present artifact
+    is `config.yaml`, which alone does not satisfy the task.

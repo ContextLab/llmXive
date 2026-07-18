@@ -1,0 +1,58 @@
+# Configuration for Network Topology Heat Dissipation Study
+# Generated for PROJ-364-exploring-the-impact-of-network-topology
+
+# General settings
+project:
+  name: "network-topology-heat-dissipation"
+  version: "1.0.0"
+  seed: 42
+
+# Simulation Parameters
+simulation:
+  # Distance threshold in nanometers for edge creation in defect graphs
+  # Default based on phonon Mean Free Path (MFP) for graphene
+  distance_threshold_nm: 2.0
+  # Flag to enable statistical override of the fixed threshold
+  statistical_override: false
+  # Multiplier for statistical threshold calculation if override is active
+  threshold_multiplier: 1.5
+
+# Material Constants (Default: Graphene)
+# These can be overridden per sample or via command line
+materials:
+  graphene:
+    lattice_constant_nm: 0.246
+    r_lattice: 1000.0  # Arbitrary units for background resistance
+  mos2:
+    lattice_constant_nm: 0.316
+    r_lattice: 150.0
+
+# Analysis Settings
+analysis:
+  # Confidence interval for bootstrap resampling
+  bootstrap_ci: 0.95
+  # Number of bootstrap iterations
+  bootstrap_iterations: 1000
+  # P-value correction method: "bonferroni" or "fdr"
+  pvalue_correction: "bonferroni"
+  # Sensitivity analysis thresholds (multiples of baseline)
+  sensitivity_factors: [1.5, 2.0, 2.5]
+
+# Data Handling
+data:
+  # Flag to indicate if data is synthetic (disables hypothesis testing)
+  is_synthetic: false
+  # Paths relative to project root
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  results_dir: "results"
+  state_dir: "state"
+  logs_dir: "logs"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "[%(levelname)s] %(asctime)s - %(name)s - %(message)s"
+  file: "logs/pipeline.log"
+  rotation_max_bytes: 10485760  # 10MB
+  rotation_backup_count: 3

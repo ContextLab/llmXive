@@ -76,7 +76,7 @@ As a researcher, I need the system to perform correlation analysis (linear and n
 - **FR-007**: System MUST output all results in a structured JSON format containing metrics, correlations, p-values, confidence intervals, and generate scatter plots of topology metrics vs. thermal conductivity with regression lines (See US-3).
 - **FR-008**: System MUST support population-level correlation analysis when exact sample pairing is unavailable (See US-3).
 - **FR-009**: System MUST allow the proximity threshold to be configured as a fixed physical distance (default 2.0 nm) or as a statistical multiplier of the average nearest-neighbor distance (See US-1).
-- **FR-010**: System MUST perform a sensitivity analysis on the proximity threshold by testing values at sub-3 nm scales and reporting the stability of the correlation coefficient (See US-3).
+- **FR-010**: System MUST perform a sensitivity analysis on the proximity threshold by testing values at sub-nanometer scales and reporting the stability of the correlation coefficient (See US-3).
 
 ### Key Entities
 
@@ -94,7 +94,7 @@ As a researcher, I need the system to perform correlation analysis (linear and n
 - **SC-002**: The stability of the correlation estimates is measured against the bootstrap resampling distribution (95% confidence interval width) (See US-3).
 - **SC-003**: The validity of the multiple-comparison correction is measured against the family-wise error rate control (See US-3).
 - **SC-004**: The computational feasibility is measured against the constraint of execution within 6 hours on a CPU-only environment with ≤7 GB RAM for a dataset of up to 50 samples, each containing up to 10,000 defects (See FR-004).
-- **SC-005**: The methodological robustness is measured by the presence of a sensitivity analysis for the proximity threshold testing values at 1.5x, 2.0x, and 2.5x the default value, with robustness measured by the standard deviation of the correlation coefficient across these thresholds (target ≤ 0.05) (See FR-010).
+- **SC-005**: The methodological robustness is measured by the presence of a sensitivity analysis for the proximity threshold testing values at x, 2.0x, and 2.5x the default value, with robustness measured by the standard deviation of the correlation coefficient across these thresholds (target ≤ 0.05) (See FR-010).
 
 ## Assumptions
 

@@ -1,0 +1,124 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Graph Schema
+description: Schema for NetworkX graphs converted to JSON-compatible dictionaries.
+type: object
+required:
+  - metadata
+  - nodes
+  - edges
+  - metrics
+properties:
+  metadata:
+    type: object
+    required:
+      - sample_id
+      - threshold_nm
+      - node_count
+      - edge_count
+      - is_connected
+    properties:
+      sample_id:
+        type: string
+        description: Reference to the source sample
+      threshold_nm:
+        type: number
+        description: Proximity threshold used for edge creation (nm)
+      node_count:
+        type: integer
+        minimum: 0
+        description: Total number of nodes (defects)
+      edge_count:
+        type: integer
+        minimum: 0
+        description: Total number of edges
+      is_connected:
+        type: boolean
+        description: Whether the graph is fully connected
+      zero_defect_flag:
+        type: boolean
+        description: True if node_count is 0 (perfect crystal case)
+  nodes:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - x
+        - y
+      properties:
+        id:
+          type: integer
+          description: Unique node identifier
+        x:
+          type: number
+          description: X coordinate
+        y:
+          type: number
+          description: Y coordinate
+        degree:
+          type: integer
+          description: Node degree (calculated by metrics)
+  edges:
+    type: array
+    items:
+      type: object
+      required:
+        - source
+        - target
+        - weight
+      properties:
+        source:
+          type: integer
+          description: Source node ID
+        target:
+          type: integer
+          description: Target node ID
+        weight:
+          type: number
+          description: Edge weight (Euclidean distance in nm)
+  metrics:
+    type: object
+    required:
+      - clustering_coefficient
+      - average_path_length
+      - lcc_fraction
+      - density
+    properties:
+      clustering_coefficient:
+        type: ["number", "null"]
+        description: Global clustering coefficient (null if zero_defect_flag)
+      average_path_length:
+        type: ["number", "null"]
+        description: Average shortest path length on LCC (null/infinity if disconnected or zero defects)
+      lcc_fraction:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Fraction of nodes in the Largest Connected Component
+      density:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Graph density
+      percolation_threshold:
+        type: ["number", "null"]
+        description: Critical distance d_c where LCC fraction exceeds threshold
+      degree_distribution:
+        type: array
+        items:
+          type: object
+          properties:
+            degree:
+              type: integer
+            frequency:
+              type: number
+        description: Histogram-ready degree distribution
+      lattice_corrected_metrics:
+        type: object
+        description: Metrics after background lattice correction (if applied)
+        properties:
+          corrected_clustering:
+            type: ["number", "null"]
+          corrected_path_length:
+            type: ["number", "null"]
+additionalProperties: false

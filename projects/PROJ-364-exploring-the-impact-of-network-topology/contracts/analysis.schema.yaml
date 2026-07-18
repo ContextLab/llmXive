@@ -1,0 +1,130 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Schema
+description: Schema for correlation analysis and statistical validation results.
+type: object
+required:
+  - metadata
+  - correlation_results
+  - regression_results
+  - sensitivity_analysis
+properties:
+  metadata:
+    type: object
+    required:
+      - analysis_id
+      - timestamp
+      - threshold_base
+      - is_synthetic
+    properties:
+      analysis_id:
+        type: string
+        description: Unique identifier for this analysis run
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp
+      threshold_base:
+        type: number
+        description: Base threshold used (nm)
+      is_synthetic:
+        type: boolean
+        description: True if analysis was run on synthetic data
+      data_source:
+        type: string
+        description: Source of the data (e.g., 'paired', 'unpaired', 'synthetic')
+  correlation_results:
+    type: object
+    description: Results from Pearson/Spearman correlation tests
+    properties:
+      pearson:
+        type: object
+        properties:
+          coefficient:
+            type: number
+          p_value:
+            type: number
+          confidence_interval:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+      spearman:
+        type: object
+        properties:
+          coefficient:
+            type: number
+          p_value:
+            type: number
+          confidence_interval:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+      corrected_p_values:
+        type: object
+        description: P-values after Bonferroni or FDR correction
+        additionalProperties:
+          type: number
+  regression_results:
+    type: array
+    description: Unified results from linear, polynomial, and GP regression
+    items:
+      type: object
+      required:
+        - metric_name
+        - model_type
+        - score
+        - params
+      properties:
+        metric_name:
+          type: string
+          description: Name of the topological metric used
+        model_type:
+          type: string
+          enum:
+            - linear
+            - polynomial
+            - gaussian_process
+        score:
+          type: object
+          properties:
+            r_squared:
+              type: number
+            rmse:
+              type: number
+        params:
+          type: object
+          description: Model parameters (coefficients, kernel hyperparameters, etc.)
+  sensitivity_analysis:
+    type: object
+    description: Results from sensitivity analysis across different thresholds
+    required:
+      - std_dev_correlation
+      - thresholds_tested
+    properties:
+      std_dev_correlation:
+        type: number
+        description: Standard deviation of correlation coefficient across thresholds
+      thresholds_tested:
+        type: array
+        items:
+          type: number
+        description: List of threshold multipliers tested (e.g., [1.5, 2.0, 2.5])
+      passed_sensitivity_check:
+        type: boolean
+        description: True if std_dev <= 0.05 (SC-005 target)
+  population_analysis:
+    type: object
+    description: Results for unpaired data population-level correlation (optional)
+    properties:
+      mean_topology_metric:
+        type: number
+      mean_thermal_conductivity:
+        type: number
+      correlation_coefficient:
+        type: number
+      p_value:
+        type: number
+additionalProperties: false

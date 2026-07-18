@@ -1,0 +1,6 @@
+# This file extends pyproject.toml settings for standalone ruff usage
+# or can be used as the primary config if pyproject.toml is not preferred.
+# Currently, settings are in pyproject.toml [tool.ruff] section.
+# This file exists for IDE compatibility if needed.
+target-version = "py311"
+line-length = 100
