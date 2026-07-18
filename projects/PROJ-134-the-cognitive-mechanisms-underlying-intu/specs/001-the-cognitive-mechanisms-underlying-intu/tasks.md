@@ -124,14 +124,14 @@
 - [X] T020 [P] [US2] Unit test for model convergence check in `code/tests/test_model_convergence.py`. **Deliverable**: Function `test_convergence_check` that asserts `assert r_hat < 1.05 ` given mock posterior samples.
 - [X] T021 [US2] Unit test for parameter recovery validation in `code/tests/test_model_recovery.py`. **Deliverable**: Function `test_parameter_recovery` injecting `ground_truth_effect=0.5` and asserting recovery within 95% CI.
 - [X] T022 [US2] Implement `code/models/bayesian.py` defining the PyMC3 model structure: Gaussian likelihood, Normal priors, foundation scores as covariates, salience as fixed-effect predictor <!-- FAILED: unspecified -->
-- [ ] T023 [US2] Implement `code/models/bayesian.py` logic to handle convergence failures: log failure, **report the maximum likelihood estimate (MLE) value** in the output artifact, and **flag the run as 'inconclusive'** for that participant. **Deliverable**: The `ModelResult` artifact (JSON/Parquet) MUST include a boolean field `is_inconclusive` and a field `mle_fallback` containing the MLE value when convergence fails. **Dependency**: T051 (ModelResult Schema). **Prerequisite**: Phase 2 must be fully completed (including T051) before Phase 4 implementation tasks can begin. **Verification**: Ensure `code/utils/schemas.py` is importable and contains the `ModelResult` definition before execution.
-- [ ] T026 [US2] Implement `code/analysis/validation.py` to verify **Parameter Recovery**: check if `ground_truth_effect` is within the credible interval of the posterior (Primary Validation Metric)
+- [X] T023 [US2] Implement `code/models/bayesian.py` logic to handle convergence failures: log failure, **report the maximum likelihood estimate (MLE) value** in the output artifact, and **flag the run as 'inconclusive'** for that participant. **Deliverable**: The `ModelResult` artifact (JSON/Parquet) MUST include a boolean field `is_inconclusive` and a field `mle_fallback` containing the MLE value when convergence fails. **Dependency**: T051 (ModelResult Schema). **Prerequisite**: Phase 2 must be fully completed (including T051) before Phase 4 implementation tasks can begin. **Verification**: Ensure `code/utils/schemas.py` is importable and contains the `ModelResult` definition before execution.
+- [X] T026 [US2] Implement `code/analysis/validation.py` to verify **Parameter Recovery**: check if `ground_truth_effect` is within the credible interval of the posterior (Primary Validation Metric)
 
 ### Model Comparison (US2)
 
-- [ ] T024 [US2] Implement `code/analysis/model_comparison.py` to calculate AIC and WAIC for the salience-augmented model vs. baseline (no salience)
-- [ ] T025 [US2] Implement `code/analysis/model_comparison.py` to perform Posterior Predictive Checks (PPC): generate synthetic data from the posterior, compare distributions to observed data, and produce a visual plot (histogram/KDE) of observed vs. generated data. **Deliverable**: A plot and a quantitative metric (e.g., KS-test p-value) for the PPC.
-- [ ] T027 [US2] Implement `code/analysis/model_comparison.py` to explicitly check and report metrics: Detect `RUN_MODE` from `config.py`. **Requirement**: Always calculate and report ΔAIC. If 'simulation', log `LOG: Scientific Metric: Calculated (ΔAIC={val}) - Claim Deferred per Phase 3 Staged Implementation` and prioritize "Parameter Recovery"; if 'real', flag 'strong evidence' (ΔAIC > 10) as required by SC-002. **Authorization**: This override of SC-002 is authorized by the Phase 3 Staged Implementation plan.
+- [X] T024 [US2] Implement `code/analysis/model_comparison.py` to calculate AIC and WAIC for the salience-augmented model vs. baseline (no salience)
+- [X] T025 [US2] Implement `code/analysis/model_comparison.py` to perform Posterior Predictive Checks (PPC): generate synthetic data from the posterior, compare distributions to observed data, and produce a visual plot (histogram/KDE) of observed vs. generated data. **Deliverable**: A plot and a quantitative metric (e.g., KS-test p-value) for the PPC.
+- [X] T027 [US2] Implement `code/analysis/model_comparison.py` to explicitly check and report metrics: Detect `RUN_MODE` from `config.py`. **Requirement**: Always calculate and report ΔAIC. If 'simulation', log `LOG: Scientific Metric: Calculated (ΔAIC={val}) - Claim Deferred per Phase 3 Staged Implementation` and prioritize "Parameter Recovery"; if 'real', flag 'strong evidence' (ΔAIC > 10) as required by SC-002. **Authorization**: This override of SC-002 is authorized by the Phase 3 Staged Implementation plan.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -151,10 +151,10 @@
 ### Implementation for User Story 3
 
 - [X] T030 [US3] Implement `code/models/regression.py` for hierarchical mixed-effects regression testing the salience × foundation interaction
-- [ ] T031 [US3] Implement `code/analysis/validation.py` to apply Bonferroni correction to interaction term p-values
-- [ ] T032 [US3] Implement `code/analysis/validation.py` to conduct sensitivity analysis sweeping decision thresholds over the specific set **{2, 10, 20}** and report model selection stability matrix
-- [ ] T033 [US3] Implement `code/reports/generate_report.py` to generate the final report summarizing findings (Pipeline Validation: PASSED/FAILED)
-- [ ] T034 [US3] Ensure `code/reports/generate_report.py` explicitly states "Pipeline Validation Only" while including a clear statement of findings regarding the hypothesis (as per US-3), deferring final scientific claims to Phase 4 by noting **"Evidence strength (ΔAIC) calculated but claim deferred per Phase 3 Staged Implementation."**
+- [X] T031 [US3] Implement `code/analysis/validation.py` to apply Bonferroni correction to interaction term p-values
+- [X] T032 [US3] Implement `code/analysis/validation.py` to conduct sensitivity analysis sweeping decision thresholds over the specific set **{2, 10, 20}** and report model selection stability matrix
+- [X] T033 [US3] Implement `code/reports/generate_report.py` to generate the final report summarizing findings (Pipeline Validation: PASSED/FAILED) <!-- FAILED: unspecified -->
+- [X] T034 [US3] Ensure `code/reports/generate_report.py` explicitly states "Pipeline Validation Only" while including a clear statement of findings regarding the hypothesis (as per US-3), deferring final scientific claims to Phase 4 by noting **"Evidence strength (ΔAIC) calculated but claim deferred per Phase 3 Staged Implementation."**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -168,7 +168,7 @@
 
 - [X] T041 [P] [US4-Real] Implement `code/data/ingest_real.py` with strict "Fail Loudly" logic: attempt to fetch real MFQ data from OSF and real Moral Stories from HuggingFace; if fetch fails, raise a `DataFetchError` immediately without falling back to synthetic generators. **Deliverable**: A robust fetcher that halts execution on network/source failure, ensuring no synthetic data is used when real data is expected. **Implementation Detail**: Use `OSF_API_URL` from T050 and explicitly implement the OSF endpoint path (`/v2/nodes/{node_id}/files/osfstorage`) with required query parameters and response schema validation. **Trigger**: Only execute if `DATA_MODE='real'`.
 - [X] T042 [P] [US4-Real] Implement `code/data/ingest_real.py` to parse real VR interaction logs from a specified CSV/JSON source and validate against the schema defined in T050. **Deliverable**: A parser that validates real data structure and raises `SchemaError` if real data is malformed, preventing silent data corruption. **Trigger**: Only execute if `DATA_MODE='real'`.
-- [ ] T043 [US4-Real] Update `code/config.py` to add a `DATA_MODE` flag (`'simulation'` | `'real'`). **Default**: `'simulation'`. Ensure `code/data/ingest.py` routes to `ingest_real.py` when `DATA_MODE='real'` and to `simulation.py` when `DATA_MODE='simulation'`, with a hard assertion that `DATA_MODE` cannot be 'real' without a verified source. **Deliverable**: Config-driven routing that enforces the "Real Data Only" constraint when requested. **Trigger**: Only execute if `DATA_MODE='real'`.
+- [X] T043 [US4-Real] Update `code/config.py` to add a `DATA_MODE` flag (`'simulation'` | `'real'`). **Default**: `'simulation'`. Ensure `code/data/ingest.py` routes to `ingest_real.py` when `DATA_MODE='real'` and to `simulation.py` when `DATA_MODE='simulation'`, with a hard assertion that `DATA_MODE` cannot be 'real' without a verified source. **Deliverable**: Config-driven routing that enforces the "Real Data Only" constraint when requested. **Trigger**: Only execute if `DATA_MODE='real'`.
 
 ---
 
@@ -290,4 +290,4 @@ With multiple developers:
 - **Revision Concern**: T052 removed to eliminate redundant scope documentation (plan.md already defines the override).
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T053 Reconcile run-book vs implementation for `code/data/simulation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/data/simulation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T053 Reconcile run-book vs implementation for `code/data/simulation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/data/simulation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

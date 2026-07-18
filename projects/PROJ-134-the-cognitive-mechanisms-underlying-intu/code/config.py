@@ -59,10 +59,25 @@ def validate_data_mode():
     """
     Validates the DATA_MODE configuration.
     Raises ValueError if DATA_MODE is not 'simulation' or 'real'.
+    Also enforces the constraint that 'real' mode requires verified sources.
     """
     valid_modes = ['simulation', 'real']
     if DATA_MODE not in valid_modes:
         raise ValueError(f"Invalid DATA_MODE '{DATA_MODE}'. Must be one of {valid_modes}")
+    
+    if DATA_MODE == 'real':
+        # Verify that the real data interface is populated (T050)
+        # We attempt to import the constants to ensure the interface exists
+        try:
+            from data.ingest_real import OSF_API_URL, HF_DATASET_ID, VR_LOG_SCHEMA_COLUMNS
+            if not OSF_API_URL or not HF_DATASET_ID:
+                raise ValueError("Real data mode enabled but OSF_API_URL or HF_DATASET_ID not defined in ingest_real.py")
+        except ImportError as e:
+            raise ImportError(
+                "DATA_MODE='real' requires the real data interface (T050) to be implemented. "
+                f"Failed to import ingest_real constants: {e}"
+            )
+    
     return True
 
 def get_path(relative_path: str) -> Path:

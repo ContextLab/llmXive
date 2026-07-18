@@ -1,260 +1,271 @@
+"""
+Validation module for statistical analysis and model comparison.
+Implements sensitivity analysis, Bonferroni correction, and parameter recovery checks.
+"""
 import os
 import sys
 import logging
+import json
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
 import pandas as pd
 from scipy import stats
-import json
 
-# Import shared config and utils
-from config import ensure_directories
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from config import get_path, load_yaml_config
 from utils.logging_utils import get_logger, log_pipeline_step
 
-# Setup logger
 logger = get_logger(__name__)
+
+# Constants for sensitivity analysis
+SENSITIVITY_THRESHOLDS = [2, 10, 20]
 
 def apply_bonferroni_correction(p_values: List[float], num_tests: int) -> List[float]:
     """
     Apply Bonferroni correction to a list of p-values.
     
     Args:
-        p_values: List of raw p-values.
-        num_tests: Total number of hypothesis tests performed.
+        p_values: List of raw p-values
+        num_tests: Number of hypothesis tests performed
         
     Returns:
-        List of corrected p-values, capped at 1.0.
+        List of Bonferroni-corrected p-values
     """
     if not p_values:
         return []
     
+    # Cap corrected p-values at 1.0
     corrected = [min(p * num_tests, 1.0) for p in p_values]
-    logger.info(f"Applied Bonferroni correction: {len(p_values)} tests, factor={num_tests}")
+    logger.info(f"Applied Bonferroni correction: {len(p_values)} tests, corrected {len(corrected)} p-values")
     return corrected
 
-def check_parameter_recovery(estimated_params: Dict[str, float], ground_truth: Dict[str, float], 
-                             credible_interval: List[float] = [0.025, 0.975]) -> Dict[str, Any]:
+def check_parameter_recovery(
+    posterior_samples: np.ndarray,
+    ground_truth: float,
+    credible_interval: float = 0.95
+) -> Dict[str, Any]:
     """
-    Check if ground truth parameters fall within the estimated credible intervals.
+    Check if the ground truth parameter value falls within the credible interval
+    of the posterior distribution.
     
     Args:
-        estimated_params: Dict of parameter names to estimated values (mean).
-        ground_truth: Dict of parameter names to true values.
-        credible_interval: The probability mass for the interval (e.g., [0.025, 0.975] for 95%).
+        posterior_samples: Array of posterior samples for a parameter
+        ground_truth: The known ground truth value
+        credible_interval: Credible interval width (default 0.95 for 95% CI)
         
     Returns:
-        Dictionary with recovery status for each parameter.
+        Dictionary with recovery status and interval bounds
     """
-    recovery_status = {}
-    for param, true_val in ground_truth.items():
-        if param in estimated_params:
-            est_val = estimated_params[param]
-            # In a real scenario, we'd have the full posterior distribution.
-            # Here we assume the 'estimated_params' includes a 'ci_lower' and 'ci_upper' 
-            # or we calculate based on standard error if available.
-            # For this simulation context, we assume the input dict might have 'ci' keys or we check proximity.
-            # Since the function signature only gives means, we simulate a check based on proximity 
-            # or assume the caller passes a wider structure. 
-            # However, to strictly follow the task of checking CI, we assume the caller provides 
-            # a structure or we check if the true value is within a reasonable range (e.g., 2 SDs).
-            
-            # Placeholder logic: assume 'estimated_params' might contain 'ci_lower'/'ci_upper' 
-            # or we check if |est - true| < 0.5 (arbitrary for simulation)
-            # A robust implementation would require the full posterior trace.
-            
-            # Let's assume the input 'estimated_params' is actually a dict of dicts for this function
-            # or we return a simple boolean based on mean proximity for now if structure is unknown.
-            # Given the task context, we will assume the input is the mean and we check against a 
-            # hypothetical CI provided in the context or return a 'recovered' flag based on mean closeness.
-            
-            # Re-reading task: "check if ground_truth_effect is within the credible interval"
-            # We will assume the 'estimated_params' dict passed here has the structure:
-            # {'param_name': {'mean': x, 'ci_lower': y, 'ci_upper': z}}
-            
-            if isinstance(estimated_params.get(param), dict):
-                ci_lower = estimated_params[param].get('ci_lower', -np.inf)
-                ci_upper = estimated_params[param].get('ci_upper', np.inf)
-                recovered = ci_lower <= true_val <= ci_upper
-            else:
-                # Fallback for simple float input: check if within 2 SDs (approx 95% for normal)
-                # This is a heuristic for the simulation-only context
-                diff = abs(estimated_params.get(param, 0) - true_val)
-                recovered = diff < 0.5 # Heuristic
-                
-            recovery_status[param] = {
-                "true_value": true_val,
-                "estimated_value": estimated_params.get(param),
-                "recovered": recovered
-            }
-            logger.info(f"Parameter recovery check for {param}: {recovered}")
-        else:
-            recovery_status[param] = {"recovered": False, "reason": "parameter_not_estimated"}
-            
-    return recovery_status
-
-def conduct_sensitivity_analysis(model_results: List[Dict[str, Any]], 
-                                 thresholds: List[int] = [2, 10, 20]) -> Dict[str, Any]:
-    """
-    Conduct sensitivity analysis by sweeping decision thresholds over the specific set {2, 10, 20}.
-    Reports model selection stability matrix.
+    lower_percentile = (1 - credible_interval) / 2
+    upper_percentile = 1 - lower_percentile
     
-    Args:
-        model_results: List of dictionaries containing model comparison metrics (e.g., AIC, WAIC) 
-                       for different models or conditions.
-        thresholds: List of thresholds to sweep. Default is [2, 20, 10] (sorted as {2, 10, 20}).
-        
-    Returns:
-        Dictionary containing the stability matrix and analysis summary.
-    """
-    # Ensure thresholds are sorted as per spec requirement {2, 10, 20}
-    sorted_thresholds = sorted(thresholds)
-    if sorted_thresholds != [2, 10, 20]:
-        logger.warning(f"Requested thresholds {thresholds} do not match spec {2, 10, 20}. Sorting and using {sorted_thresholds}.")
+    ci_lower = np.percentile(posterior_samples, lower_percentile * 100)
+    ci_upper = np.percentile(posterior_samples, upper_percentile * 100)
     
-    stability_matrix = {}
-    results_summary = []
+    recovered = ci_lower <= ground_truth <= ci_upper
     
-    # Assume model_results contains entries like:
-    # {'model_name': 'salience_augmented', 'aic': 120.5, 'waic': 118.2}
-    # {'model_name': 'baseline', 'aic': 130.0, 'waic': 128.5}
-    
-    # We need to determine which model is "better" at each threshold.
-    # The threshold likely refers to a minimum difference (delta) in AIC/WAIC 
-    # required to claim a model is significantly better (e.g., delta AIC > threshold).
-    
-    for threshold in sorted_thresholds:
-        threshold_results = []
-        for i, res in enumerate(model_results):
-            for j, other_res in enumerate(model_results):
-                if i >= j:
-                    continue
-                
-                # Calculate delta AIC (assuming lower is better)
-                delta_aic = other_res.get('aic', 0) - res.get('aic', 0)
-                delta_waic = other_res.get('waic', 0) - res.get('waic', 0)
-                
-                # Determine winner based on threshold
-                winner = None
-                if abs(delta_aic) > threshold:
-                    winner = res['model_name'] if delta_aic > 0 else other_res['model_name']
-                
-                threshold_results.append({
-                    "model_1": res['model_name'],
-                    "model_2": other_res['model_name'],
-                    "delta_aic": delta_aic,
-                    "delta_waic": delta_waic,
-                    "threshold_applied": threshold,
-                    "winner": winner
-                })
-        
-        stability_matrix[str(threshold)] = threshold_results
-        logger.info(f"Sensitivity analysis at threshold {threshold}: {len(threshold_results)} comparisons made.")
-    
-    # Calculate stability: how often the same model is selected across thresholds?
-    # This is a simplified metric.
-    stability_summary = {
-        "thresholds_tested": sorted_thresholds,
-        "matrix": stability_matrix,
-        "stability_note": "Stability matrix generated based on AIC/WAIC delta thresholds."
+    result = {
+        "ground_truth": ground_truth,
+        "ci_lower": ci_lower,
+        "ci_upper": ci_upper,
+        "recovered": recovered,
+        "credible_interval": credible_interval
     }
     
-    return stability_summary
+    logger.info(f"Parameter recovery check: recovered={recovered}, CI=[{ci_lower:.4f}, {ci_upper:.4f}]")
+    return result
 
-def run_validation_pipeline(preprocessed_data_path: str, 
-                            model_comparison_results_path: str,
-                            output_dir: str = "data/reports") -> Dict[str, Any]:
+def conduct_sensitivity_analysis(
+    model_results: List[Dict[str, Any]],
+    thresholds: Optional[List[int]] = None
+) -> Dict[str, Any]:
     """
-    Run the full validation pipeline: Bonferroni correction, parameter recovery, and sensitivity analysis.
+    Conduct sensitivity analysis by sweeping decision thresholds.
+    
+    This function evaluates model selection stability across different
+    decision thresholds (e.g., for ΔAIC or ΔWAIC). It produces a stability
+    matrix showing how often each model is selected at each threshold.
     
     Args:
-        preprocessed_data_path: Path to the preprocessed data CSV.
-        model_comparison_results_path: Path to the JSON file containing model comparison results.
-        output_dir: Directory to save validation reports.
+        model_results: List of model result dictionaries containing:
+            - 'model_name': str
+            - 'aic': float
+            - 'waic': float
+            - 'log_likelihood': float (optional)
+        thresholds: List of thresholds to evaluate (default: [2, 10, 20])
         
     Returns:
-        Dictionary containing the full validation report.
+        Dictionary containing:
+            - 'stability_matrix': Dict mapping threshold -> selected model counts
+            - 'thresholds': List of thresholds used
+            - 'model_names': List of model names
+            - 'summary': Dict with stability statistics
     """
-    ensure_directories(output_dir)
-    logger.info("Starting validation pipeline.")
+    if thresholds is None:
+        thresholds = SENSITIVITY_THRESHOLDS
     
-    # 1. Load Data
-    try:
-        data = pd.read_csv(preprocessed_data_path)
-    except FileNotFoundError:
-        logger.error(f"Preprocessed data not found at {preprocessed_data_path}")
-        return {"status": "failed", "reason": "data_not_found"}
+    if not model_results:
+        logger.warning("No model results provided for sensitivity analysis")
+        return {
+            "stability_matrix": {},
+            "thresholds": thresholds,
+            "model_names": [],
+            "summary": {"total_models": 0, "stable_at_all_thresholds": 0}
+        }
     
-    # 2. Load Model Comparison Results
+    # Extract model names and compute AIC differences
+    model_names = sorted(list(set(r.get("model_name", f"model_{i}") for i, r in enumerate(model_results))))
+    n_models = len(model_names)
+    
+    # Compute ΔAIC for each model relative to the best model at each threshold
+    stability_matrix = {t: {name: 0 for name in model_names} for t in thresholds}
+    
+    for threshold in thresholds:
+        # Calculate AIC for each model
+        aic_values = {}
+        for result in model_results:
+            name = result.get("model_name", f"model_{model_results.index(result)}")
+            aic = result.get("aic")
+            if aic is not None:
+                aic_values[name] = aic
+        
+        if not aic_values:
+            logger.warning(f"No AIC values found for threshold {threshold}")
+            continue
+        
+        min_aic = min(aic_values.values())
+        
+        # Count models within threshold of best
+        for name, aic in aic_values.items():
+            delta_aic = aic - min_aic
+            if delta_aic <= threshold:
+                stability_matrix[threshold][name] += 1
+        
+        # Normalize to proportions
+        total_at_threshold = sum(stability_matrix[threshold].values())
+        if total_at_threshold > 0:
+            for name in model_names:
+                stability_matrix[threshold][name] /= total_at_threshold
+    
+    # Calculate stability summary
+    stable_models = []
+    for name in model_names:
+        # Check if model is stable (selected > 50% of the time) at all thresholds
+        is_stable = all(
+            stability_matrix[t].get(name, 0) > 0.5 
+            for t in thresholds
+        )
+        if is_stable:
+            stable_models.append(name)
+    
+    summary = {
+        "total_models": n_models,
+        "stable_at_all_thresholds": len(stable_models),
+        "stable_models": stable_models,
+        "thresholds_evaluated": len(thresholds)
+    }
+    
+    logger.info(f"Sensitivity analysis complete: {len(stable_models)} stable models across {len(thresholds)} thresholds")
+    
+    return {
+        "stability_matrix": stability_matrix,
+        "thresholds": thresholds,
+        "model_names": model_names,
+        "summary": summary
+    }
+
+def run_validation_pipeline(
+    data_path: str,
+    model_results_path: str,
+    output_path: str
+) -> Dict[str, Any]:
+    """
+    Run the full validation pipeline including parameter recovery and sensitivity analysis.
+    
+    Args:
+        data_path: Path to preprocessed data
+        model_results_path: Path to model results JSON
+        output_path: Path to save validation report
+        
+    Returns:
+        Dictionary with validation results
+    """
+    log_pipeline_step("Starting validation pipeline", logger)
+    
+    # Load model results
     try:
-        with open(model_comparison_results_path, 'r') as f:
+        with open(model_results_path, 'r') as f:
             model_results = json.load(f)
+        if not isinstance(model_results, list):
+            model_results = [model_results]
     except FileNotFoundError:
-        logger.error(f"Model results not found at {model_comparison_results_path}")
-        return {"status": "failed", "reason": "model_results_not_found"}
+        logger.error(f"Model results file not found: {model_results_path}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in model results: {e}")
+        raise
     
-    # 3. Apply Bonferroni Correction
-    # Extract p-values from data (simulated extraction for this task)
-    # In a real scenario, this would come from the regression output
-    p_values = data['p_value'].tolist() if 'p_value' in data.columns else [0.05, 0.01, 0.1]
-    corrected_p_values = apply_bonferroni_correction(p_values, len(p_values))
+    # Run sensitivity analysis
+    sensitivity_results = conduct_sensitivity_analysis(model_results)
     
-    # 4. Parameter Recovery (Mocked for simulation context, as full posterior not available here)
-    # We assume the model_results contain the necessary info or we mock it based on ground truth
-    estimated_params = {
-        "salience_effect": {"mean": 0.5, "ci_lower": 0.2, "ci_upper": 0.8}
-    }
-    ground_truth = {"salience_effect": 0.5}
-    recovery = check_parameter_recovery(estimated_params, ground_truth)
+    # Run parameter recovery if ground truth is available
+    parameter_recovery_results = []
+    for result in model_results:
+        if "ground_truth" in result and "posterior_samples" in result:
+            recovery = check_parameter_recovery(
+                np.array(result["posterior_samples"]),
+                result["ground_truth"]
+            )
+            parameter_recovery_results.append({
+                "model_name": result.get("model_name", "unknown"),
+                "recovery": recovery
+            })
     
-    # 5. Sensitivity Analysis
-    sensitivity = conduct_sensitivity_analysis(model_results, thresholds=[2, 10, 20])
-    
-    # 6. Compile Report
-    report = {
-        "status": "completed",
-        "bonferroni_correction": {
-            "raw_p_values": p_values,
-            "corrected_p_values": corrected_p_values
-        },
-        "parameter_recovery": recovery,
-        "sensitivity_analysis": sensitivity,
-        "summary": "Validation pipeline completed successfully."
+    # Compile final validation report
+    validation_report = {
+        "sensitivity_analysis": sensitivity_results,
+        "parameter_recovery": parameter_recovery_results,
+        "thresholds_used": SENSITIVITY_THRESHOLDS,
+        "status": "PASSED" if sensitivity_results["summary"]["stable_at_all_thresholds"] > 0 else "NEEDS_REVIEW"
     }
     
-    # Save Report
-    report_path = Path(output_dir) / "validation_report.json"
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
+    # Save report
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Validation report saved to {report_path}")
-    return report
+    with open(output_path, 'w') as f:
+        json.dump(validation_report, f, indent=2)
+    
+    logger.info(f"Validation report saved to {output_path}")
+    log_pipeline_step("Validation pipeline complete", logger)
+    
+    return validation_report
 
 def main():
-    """Main entry point for validation pipeline."""
-    # Default paths for simulation
-    data_path = "data/processed/merged_data.csv"
-    model_path = "data/processed/model_comparison_results.json"
-    output_path = "data/reports"
+    """Main entry point for validation analysis."""
+    # Default paths
+    data_path = get_path("data/processed/merged_data.csv")
+    model_results_path = get_path("data/processed/model_results.json")
+    output_path = get_path("data/processed/validation_report.json")
     
-    # Check if files exist, if not, try to generate them or fail
+    # Check if required files exist
     if not os.path.exists(data_path):
-        logger.warning(f"Data file {data_path} not found. Attempting to run from defaults or fail.")
-        # In a real pipeline, this would be triggered by previous steps
-        # For this task, we assume the file exists or we fail loudly
-        # Since we cannot generate data here (T014/T015 do that), we assume it's there for the test
-        # If not, we return a failure status
-        return {"status": "failed", "reason": "input_data_missing"}
+        logger.warning(f"Data file not found: {data_path}. Skipping parameter recovery.")
     
-    if not os.path.exists(model_path):
-        logger.warning(f"Model results {model_path} not found.")
-        # Create a dummy model result for testing if missing? 
-        # No, per "Fail Loudly" principle, we should not fake data.
-        return {"status": "failed", "reason": "model_results_missing"}
+    if not os.path.exists(model_results_path):
+        logger.error(f"Model results file not found: {model_results_path}")
+        sys.exit(1)
     
-    result = run_validation_pipeline(data_path, model_path, output_path)
-    print(json.dumps(result, indent=2))
-    return result
+    # Run validation
+    try:
+        results = run_validation_pipeline(data_path, model_results_path, output_path)
+        print(json.dumps(results, indent=2))
+    except Exception as e:
+        logger.error(f"Validation pipeline failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
