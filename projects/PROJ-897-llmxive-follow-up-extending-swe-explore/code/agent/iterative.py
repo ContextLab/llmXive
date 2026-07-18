@@ -1,237 +1,219 @@
 """
-Iterative Agent Loop Implementation (T023)
-
-Implements a CPU-tractable iterative agent loop with:
-- 3-turn limit (FR-003)
-- Turn logic: Query -> Retrieve -> Static Analysis -> Reformulate
-- Loop detection (repeated queries)
-- Comprehensive logging for pairing with baseline results
+Implement the iterative agent loop with static analysis feedback.
+Enforces turn limits and detects query loops.
 """
-
 import json
 import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
-# Import from project API surface
 from config import get_config_summary
 from agent.static_analysis import run_static_analysis, format_analysis_report
 from agent.prompts import format_reformulation_prompt, get_signal_summary
-from utils.memory_manager import get_global_monitor, clean_up_large_objects
+from utils.memory_manager import get_global_monitor
 
-# Constants
-MAX_TURNS = 3
-QUERY_HISTORY_WINDOW = 3  # Check last N queries for loop detection
 
-def load_curated_dataset(data_path: Path) -> List[Dict[str, Any]]:
-    """Load the curated hard subset dataset."""
-    if not data_path.exists():
-        raise FileNotFoundError(f"Curated dataset not found at {data_path}")
+def load_curated_dataset() -> List[Dict[str, Any]]:
+    """Load the curated dataset from hard_subset.jsonl."""
+    from config import get_path
+    path = get_path("curated", "hard_subset.jsonl")
+    if not path.exists():
+        raise FileNotFoundError(f"Curated dataset not found at {path}")
     
-    with open(data_path, 'r', encoding='utf-8') as f:
-        return [json.loads(line) for line in f if line.strip()]
+    dataset = []
+    with open(path, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.strip():
+                dataset.append(json.loads(line))
+    return dataset
 
-def execute_static_query(issue: Dict[str, Any], turn: int, query: str) -> Dict[str, Any]:
+
+def execute_static_query(issue: Dict[str, Any], query: str) -> Dict[str, Any]:
     """
-    Simulate a static query execution.
-    In a real implementation, this would call an LLM or retrieval system.
-    For this benchmark, we simulate the retrieval based on static analysis.
+    Execute a static query against the issue code.
+    Returns retrieved context and analysis signals.
     """
-    # Simulate retrieval context (in real scenario, this would be LLM output)
-    context = {
-        "query": query,
-        "turn": turn,
-        "retrieved_files": [issue.get("file_path", "unknown.py")],
-        "simulated_coverage": 0.0,  # Placeholder - real implementation would calculate
-        "context_lines": []
+    # Simulate retrieval based on query keywords (simplified for CPU tractability)
+    # In a real implementation, this would use an embedding model or code search
+    retrieved_context = []
+    
+    code = issue.get("code", "")
+    lines = code.split('\n')
+    
+    # Simple keyword-based retrieval for demonstration
+    query_lower = query.lower()
+    for i, line in enumerate(lines):
+        if any(word in line.lower() for word in query_lower.split()):
+            retrieved_context.append({
+                "line_number": i + 1,
+                "content": line,
+                "relevance_score": 0.8
+            })
+    
+    return {
+        "retrieved_context": retrieved_context,
+        "query": query
     }
-    return context
 
-def detect_query_loop(query_history: List[str], new_query: str) -> bool:
-    """Detect if the new query is a repeat of recent queries."""
-    recent_queries = query_history[-QUERY_HISTORY_WINDOW:]
-    return new_query in recent_queries
 
-def run_iterative_loop(issue: Dict[str, Any]) -> Dict[str, Any]:
+def detect_query_loop(history: List[str], current_query: str, threshold: int = 2) -> bool:
     """
-    Run the iterative agent loop for a single issue.
+    Detect if the current query is a repeat of previous queries.
+    Returns True if a loop is detected.
+    """
+    if len(history) < threshold:
+        return False
+    
+    # Check for exact matches in recent history
+    recent = history[-threshold:]
+    return current_query in recent
+
+
+def run_iterative_loop(
+    issue: Dict[str, Any],
+    max_turns: int = 3,
+    seed: int = 42
+) -> Dict[str, Any]:
+    """
+    Run the iterative agent loop with static analysis feedback.
     
     Args:
-        issue: Dictionary containing issue data from curated dataset
+        issue: The issue dictionary containing code and metadata.
+        max_turns: Maximum number of turns (default 3, overridden by sweep).
+        seed: Random seed for reproducibility.
     
     Returns:
-        Dictionary containing the complete agent log for this issue
+        Log entry with query history, analysis signals, and final status.
     """
-    issue_id = issue.get("issue_id", "unknown")
-    file_path = issue.get("file_path", "")
-    initial_code = issue.get("code", "")
-    ground_truth_lines = issue.get("ground_truth_lines", [])
-    initial_coverage = issue.get("initial_coverage", 0.0)
+    import random
+    random.seed(seed)
     
-    log_entry = {
-        "issue_id": issue_id,
-        "file_path": file_path,
-        "initial_coverage": initial_coverage,
-        "turns": [],
-        "query_history": [],
-        "static_analysis_signals": [],
-        "turn_reasons": [],
-        "final_status": "incomplete",
-        "total_turns": 0,
-        "loop_detected": False,
-        "execution_time": 0.0
-    }
-    
-    start_time = time.time()
     query_history: List[str] = []
-    turn_count = 0
+    static_analysis_signals: List[Dict[str, Any]] = []
+    turn_reasons: List[str] = []
+    retrieved_contexts: List[Dict[str, Any]] = []
     
-    # Initial query formulation
-    current_query = f"Analyze the following issue: {issue.get('description', 'No description')}"
+    # Initial query from issue description
+    initial_query = issue.get("description", "Fix this issue")
+    current_query = initial_query
     
-    while turn_count < MAX_TURNS:
-        turn_count += 1
-        turn_start = time.time()
+    turn = 0
+    status = "completed"
+    final_error = None
+    
+    while turn < max_turns:
+        turn += 1
+        print(f"[Iterative] Turn {turn}/{max_turns} for {issue.get('issue_id')}")
         
-        # Step 1: Execute query (simulated retrieval)
-        context = execute_static_query(issue, turn_count, current_query)
-        log_entry["query_history"].append(current_query)
-        
-        # Step 2: Run static analysis on retrieved context
-        analysis_result = run_static_analysis(initial_code)
-        analysis_report = format_analysis_report(analysis_result)
-        
-        log_entry["static_analysis_signals"].append(analysis_result)
-        
-        # Step 3: Determine if reformulation is needed
-        has_errors = any(
-            signal.get("error_type") in ["syntax_error", "undefined_variable", "missing_import"]
-            for signal in analysis_result.get("errors", [])
-        )
-        
-        # Step 4: Check for loop detection
+        # Check for query loop
         if detect_query_loop(query_history, current_query):
-            log_entry["loop_detected"] = True
-            log_entry["final_status"] = "loop_detected"
-            log_entry["turn_reasons"].append(f"Loop detected at turn {turn_count}")
+            status = "loop_detected"
+            turn_reasons.append(f"Query loop detected at turn {turn}")
             break
         
-        # Step 5: Reformulate query if needed
-        if has_errors and turn_count < MAX_TURNS:
-            signal_summary = get_signal_summary(analysis_result)
+        # Execute query
+        query_result = execute_static_query(issue, current_query)
+        retrieved_contexts.append(query_result["retrieved_context"])
+        query_history.append(current_query)
+        
+        # Run static analysis on retrieved context
+        analysis = run_static_analysis(query_result["retrieved_context"])
+        static_analysis_signals.append(analysis)
+        
+        # Check if analysis found issues
+        if analysis.get("has_errors", False):
+            signal_summary = get_signal_summary(analysis)
+            turn_reasons.append(f"Static analysis found errors: {signal_summary}")
+            
+            # Reformulate query based on errors
             reformulation_prompt = format_reformulation_prompt(
-                current_query, 
-                signal_summary, 
-                issue.get("description", "")
+                original_query=current_query,
+                analysis_report=analysis,
+                context=query_result["retrieved_context"]
             )
-            # In real implementation, this would call an LLM
-            # For now, we simulate a reformulated query
-            current_query = f"Reformulated query (turn {turn_count + 1}): Address {signal_summary}"
-            log_entry["turn_reasons"].append(f"Reformulated due to errors: {signal_summary}")
+            
+            # In a real implementation, this would call an LLM
+            # For CPU tractability, we simulate a reformulation
+            current_query = f"Fix error: {signal_summary} in {current_query}"
         else:
-            current_query = f"Final query (turn {turn_count}): {issue.get('description', '')}"
-            log_entry["turn_reasons"].append("Completed analysis cycle")
+            turn_reasons.append("No errors found, proceeding")
             break
-        
-        # Clean up memory for next iteration
-        clean_up_large_objects()
-        
-        turn_duration = time.time() - turn_start
-        log_entry["turns"].append({
-            "turn_number": turn_count,
-            "query": current_query if has_errors else "Final query",
-            "analysis_signals": analysis_result,
-            "duration_seconds": turn_duration,
-            "reformulated": has_errors
-        })
     
-    # Finalize log entry
-    log_entry["total_turns"] = turn_count
-    log_entry["execution_time"] = time.time() - start_time
-    
-    if log_entry["final_status"] == "incomplete":
-        if turn_count >= MAX_TURNS:
-            log_entry["final_status"] = "max_turns_reached"
-        elif log_entry["loop_detected"]:
-            log_entry["final_status"] = "loop_detected"
-        else:
-            log_entry["final_status"] = "completed"
+    # Compile log entry
+    log_entry = {
+        "issue_id": issue.get("issue_id"),
+        "turns_executed": turn,
+        "max_turns_allowed": max_turns,
+        "query_history": query_history,
+        "static_analysis_signals": static_analysis_signals,
+        "turn_reasons": turn_reasons,
+        "retrieved_context": [item for ctx in retrieved_contexts for item in ctx],
+        "status": status,
+        "final_error": final_error,
+        "timestamp": time.time()
+    }
     
     return log_entry
 
+
 def run_iterative_on_dataset(
-    input_path: Path, 
-    output_dir: Path, 
-    sample_size: Optional[int] = None
+    dataset: List[Dict[str, Any]],
+    max_turns: int = 3
 ) -> List[Dict[str, Any]]:
     """
-    Run the iterative agent loop on a dataset.
+    Run iterative loop on a full dataset.
     
     Args:
-        input_path: Path to the curated dataset JSONL file
-        output_dir: Directory to save individual agent logs
-        sample_size: Optional limit on number of issues to process
+        dataset: List of issue dictionaries.
+        max_turns: Maximum turns per issue.
     
     Returns:
-        List of all agent logs
+        List of log entries.
     """
-    if not output_dir.exists():
-        output_dir.mkdir(parents=True, exist_ok=True)
-    
-    dataset = load_curated_dataset(input_path)
-    
-    if sample_size:
-        dataset = dataset[:sample_size]
-    
-    all_logs = []
-    
+    results = []
     for issue in dataset:
-        issue_id = issue.get("issue_id", "unknown")
-        print(f"Processing issue: {issue_id}")
-        
         try:
-            log_entry = run_iterative_loop(issue)
-            all_logs.append(log_entry)
-            
-            # Save individual log
-            log_path = output_dir / f"iterative_{issue_id}.json"
-            with open(log_path, 'w', encoding='utf-8') as f:
-                json.dump(log_entry, f, indent=2)
-            
-            # Clean up between issues
-            clean_up_large_objects()
-            
+            log = run_iterative_loop(issue, max_turns=max_turns)
+            results.append(log)
         except Exception as e:
-            print(f"Error processing issue {issue_id}: {e}")
-            # Continue with next issue
-            continue
-    
-    return all_logs
+            results.append({
+                "issue_id": issue.get("issue_id"),
+                "status": "error",
+                "error": str(e)
+            })
+    return results
+
 
 def main():
-    """Main entry point for the iterative agent loop."""
+    """Main entry point for testing the iterative loop."""
+    print("Running Iterative Agent Loop...")
     config = get_config_summary()
-    print(f"Starting iterative agent loop with config: {config}")
+    print(f"Config: {config}")
     
-    # Define paths
-    curated_path = Path("data/curated/hard_subset.jsonl")
-    output_dir = Path("data/results/agent_logs")
-    
-    if not curated_path.exists():
-        print(f"Error: Curated dataset not found at {curated_path}")
-        sys.exit(1)
-    
-    # Run on full dataset
-    logs = run_iterative_on_dataset(curated_path, output_dir)
-    
-    # Save combined results
-    combined_path = output_dir / "iterative_all_logs.json"
-    with open(combined_path, 'w', encoding='utf-8') as f:
-        json.dump(logs, f, indent=2)
-    
-    print(f"Completed processing {len(logs)} issues")
-    print(f"Results saved to {output_dir}")
+    try:
+        dataset = load_curated_dataset()
+        print(f"Loaded {len(dataset)} issues.")
+        
+        results = run_iterative_on_dataset(dataset, max_turns=3)
+        
+        # Save results
+        from config import get_path
+        output_path = get_path("results", "iterative_logs.json")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=2)
+        
+        print(f"Results saved to {output_path}")
+        return 0
+        
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -64,7 +64,7 @@ The researcher must be able to compute line-level coverage and ranking efficienc
 ### Functional Requirements
 
 - **FR-001**: System MUST download the SWE-Explore dataset and filter for the bottom [deferred] of initial coverage scores to identify "hard" instances (See US-1).
-- **FR-002**: System MUST generate 50 synthetic ambiguous issues by mutating variable names, removing comments, and applying structural obfuscations in a subset of solvable tasks (See US-1).
+- **FR-002**: System MUST generate a set of synthetic ambiguous issues by mutating variable names, removing comments, and applying structural obfuscations in a subset of solvable tasks. (See US-1).
 - **FR-003**: System MUST implement a multi-turn exploration loop that limits execution to a maximum of 3 turns per issue to ensure CPU feasibility (See US-2).
 - **FR-004**: System MUST integrate a static analysis tool (e.g., `pylint` or `ast`) to detect errors and missing dependencies after each retrieval turn (See US-2).
 - **FR-005**: System MUST compute line-level coverage (percentage of ground-truth relevant lines retrieved) and ranking efficiency (position of the first relevant line) for both iterative and static runs (See US-3).

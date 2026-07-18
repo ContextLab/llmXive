@@ -1,3 +1,7 @@
+"""
+Orchestration script for running Baseline and Iterative agents on the curated dataset.
+Produces paired_metrics.json for statistical analysis.
+"""
 import json
 import sys
 import time
@@ -5,220 +9,189 @@ import argparse
 import gc
 import os
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, List, Any, Optional
 
-# Import local modules based on project structure
-# Assuming standard project layout where code/ is the root for imports or PYTHONPATH is set
-try:
-    from config import get_config_summary
-    from data.curate import filter_hard_instances, load_derived_ground_truth
-    from data.validate_hard import load_hard_subset
-    from agent.base import run_baseline
-    from agent.iterative import run_iterative_agent
-    from agent.sweep_turns import run_sweep
-    from utils.hash_artifacts import hash_directory, generate_manifest
-except ImportError as e:
-    # Fallback for direct execution from project root
-    sys.path.insert(0, str(Path(__file__).parent))
-    from config import get_config_summary
-    from data.curate import filter_hard_instances, load_derived_ground_truth
-    from data.validate_hard import load_hard_subset
-    from agent.base import run_baseline
-    from agent.iterative import run_iterative_agent
-    from agent.sweep_turns import run_sweep
-    from utils.hash_artifacts import hash_directory, generate_manifest
-
+# Import from sibling modules based on API surface
+from config import get_path, get_config_summary, ensure_directories
+from utils.memory_manager import MemoryMonitor, clean_up_large_objects
+from agent.base import run_baseline_on_dataset
+from agent.iterative import run_iterative_on_dataset
+from utils.hash_artifacts import compute_sha256, generate_manifest
 
 class ExecutionMonitor:
-    """
-    Runtime monitor to track total execution time and enforce SC-005.
-    If elapsed time > 5.5 hours, abort remaining non-critical sweeps
-    or reduce sample size to ensure completion within 6 hours.
-    """
-    def __init__(self, start_time: Optional[float] = None, max_duration_hours: float = 5.5):
-        self.start_time = start_time if start_time is not None else time.time()
-        self.max_duration_seconds = max_duration_hours * 3600
-        self.check_interval_seconds = 60  # Check every minute
-        self.last_check = self.start_time
-        self.is_aborted = False
-        self.reason = None
+    """Monitors total execution time and enforces time budget (SC-005)."""
+    def __init__(self, max_hours: float = 6.0):
+        self.start_time = time.time()
+        self.max_seconds = max_hours * 3600
+        self.baseline_start: Optional[float] = None
+        self.iterative_start: Optional[float] = None
 
-    def check(self, current_phase: str = "general") -> bool:
-        """
-        Check if execution time exceeds the limit.
-        Returns True if execution should continue, False if it should abort.
-        """
-        now = time.time()
-        elapsed = now - self.start_time
-        elapsed_hours = elapsed / 3600
+    def elapsed(self) -> float:
+        return time.time() - self.start_time
 
-        # Only check at intervals to avoid overhead
-        if now - self.last_check < self.check_interval_seconds:
-            return not self.is_aborted
-
-        self.last_check = now
-
-        if elapsed > self.max_duration_seconds:
-            self.is_aborted = True
-            self.reason = f"Time limit exceeded: {elapsed_hours:.2f} hours > {self.max_duration_hours:.1f} hours"
-            print(f"[ExecutionMonitor] ABORT: {self.reason}")
+    def check_budget(self, phase: str = "general") -> bool:
+        elapsed = self.elapsed()
+        if elapsed > self.max_seconds:
+            print(f"⚠️  TIME BUDGET EXCEEDED: {phase} phase exceeded {self.max_seconds/3600:.2f}h limit. "
+                  f"Elapsed: {elapsed/3600:.2f}h. Aborting remaining tasks.")
             return False
-
-        # Log progress periodically
-        remaining = self.max_duration_seconds - elapsed
-        print(f"[ExecutionMonitor] Progress: {elapsed_hours:.2f}h elapsed, {remaining/3600:.2f}h remaining ({current_phase})")
         return True
 
-    def get_status(self) -> Dict[str, Any]:
-        elapsed = time.time() - self.start_time
-        return {
-            "elapsed_seconds": elapsed,
-            "elapsed_hours": elapsed / 3600,
-            "max_duration_hours": self.max_duration_hours / 3600,
-            "is_aborted": self.is_aborted,
-            "reason": self.reason
-        }
-
 def load_curated_issues() -> List[Dict[str, Any]]:
-    """Load the curated hard subset for execution."""
-    curated_path = Path("data/curated/hard_subset.jsonl")
-    if not curated_path.exists():
-        raise FileNotFoundError(f"Curated dataset not found at {curated_path}. Run data curate tasks first.")
+    """Loads the curated hard subset and synthetic issues."""
+    hard_path = get_path("data/curated/hard_subset.jsonl")
+    synthetic_path = get_path("data/curated/synthetic_issues.jsonl")
     
     issues = []
-    with open(curated_path, 'r') as f:
-        for line in f:
-            if line.strip():
-                issues.append(json.loads(line))
+    
+    if hard_path.exists():
+        with open(hard_path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    issues.append(json.loads(line))
+        print(f"Loaded {len([i for i in issues if i.get('type') == 'original'])} original hard issues.")
+    
+    if synthetic_path.exists():
+        with open(synthetic_path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    issues.append(json.loads(line))
+        print(f"Loaded {len([i for i in issues if i.get('type') == 'synthetic'])} synthetic issues.")
+    
+    if not issues:
+        raise FileNotFoundError("No curated issues found in data/curated/. Run curation tasks first.")
+    
     return issues
 
 def run_single_issue_baseline(issue: Dict[str, Any], monitor: ExecutionMonitor) -> Optional[Dict[str, Any]]:
-    """Run baseline agent on a single issue if time permits."""
-    if not monitor.check("baseline_single"):
+    """Runs the baseline agent on a single issue."""
+    if not monitor.check_budget("baseline"):
         return None
+    
     try:
-        # Placeholder for actual baseline execution logic
-        # In a real scenario, this would call the baseline agent
-        result = run_baseline([issue])
-        return result[0] if result else None
+        result = run_baseline_on_dataset([issue])
+        if result and len(result) > 0:
+            return result[0]
+        return None
     except Exception as e:
-        print(f"[Baseline] Error processing issue {issue.get('issue_id', 'unknown')}: {e}")
+        print(f"❌ Baseline failed for {issue.get('issue_id', 'unknown')}: {e}")
         return None
 
 def run_single_issue_iterative(issue: Dict[str, Any], monitor: ExecutionMonitor) -> Optional[Dict[str, Any]]:
-    """Run iterative agent on a single issue if time permits."""
-    if not monitor.check("iterative_single"):
+    """Runs the iterative agent on a single issue."""
+    if not monitor.check_budget("iterative"):
         return None
+    
     try:
-        # Placeholder for actual iterative execution logic
-        result = run_iterative_agent([issue])
-        return result[0] if result else None
-    except Exception as e:
-        print(f"[Iterative] Error processing issue {issue.get('issue_id', 'unknown')}: {e}")
+        result = run_iterative_on_dataset([issue])
+        if result and len(result) > 0:
+            return result[0]
         return None
+    except Exception as e:
+        print(f"❌ Iterative failed for {issue.get('issue_id', 'unknown')}: {e}")
+        return None
+
+def merge_results(baseline_results: List[Dict], iterative_results: List[Dict]) -> List[Dict]:
+    """Merges baseline and iterative results by issue_id for pairing."""
+    baseline_map = {r["issue_id"]: r for r in baseline_results if r.get("issue_id")}
+    iterative_map = {r["issue_id"]: r for r in iterative_results if r.get("issue_id")}
+    
+    paired = []
+    all_ids = set(baseline_map.keys()) & set(iterative_map.keys())
+    
+    print(f"Found {len(all_ids)} issues with both baseline and iterative results.")
+    
+    for issue_id in sorted(all_ids):
+        b = baseline_map[issue_id]
+        i = iterative_map[issue_id]
+        
+        pair = {
+            "issue_id": issue_id,
+            "baseline": {
+                "query_count": b.get("query_count", 0),
+                "retrieved_context_ids": b.get("retrieved_context_ids", []),
+                "coverage_score": b.get("coverage_score", 0.0),
+                "success": b.get("success", False)
+            },
+            "iterative": {
+                "turn_count": i.get("turn_count", 0),
+                "query_count": i.get("query_count", 0),
+                "retrieved_context_ids": i.get("retrieved_context_ids", []),
+                "coverage_score": i.get("coverage_score", 0.0),
+                "success": i.get("success", False),
+                "static_analysis_signals": i.get("static_analysis_signals", [])
+            }
+        }
+        paired.append(pair)
+    
+    return paired
 
 def main():
-    parser = argparse.ArgumentParser(description="llmXive Execution Pipeline with Runtime Monitoring")
-    parser.add_argument('--mode', choices=['baseline', 'iterative', 'full', 'sweep'], default='full',
-                        help='Execution mode: baseline, iterative, full (both), or sweep')
-    parser.add_argument('--max-hours', type=float, default=5.5,
-                        help='Maximum execution time in hours before aborting non-critical tasks')
-    parser.add_argument('--sample-size', type=int, default=None,
-                        help='Override sample size for sweep mode')
+    parser = argparse.ArgumentParser(description="Orchestrate Baseline and Iterative agents.")
+    parser.add_argument("--max-hours", type=float, default=6.0, help="Max execution time in hours")
     args = parser.parse_args()
 
-    print("Starting llmXive Execution Pipeline...")
-    config_summary = get_config_summary()
-    print(f"Config: {config_summary}")
-
-    monitor = ExecutionMonitor(max_duration_hours=args.max_hours)
+    print("🚀 Starting Orchestration Pipeline")
+    monitor = ExecutionMonitor(max_hours=args.max_hours)
     
-    # Load issues
-    try:
-        issues = load_curated_issues()
-        print(f"Loaded {len(issues)} issues from curated dataset.")
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
-
-    # Determine execution plan
+    ensure_directories()
+    
+    # 1. Load Data
+    print("📂 Loading curated issues...")
+    issues = load_curated_issues()
+    print(f"   Total issues to process: {len(issues)}")
+    
+    # 2. Run Baseline
+    print("🏃 Running Baseline Agent...")
     baseline_results = []
+    monitor.baseline_start = time.time()
+    for i, issue in enumerate(issues):
+        if not monitor.check_budget("baseline"):
+            break
+        res = run_single_issue_baseline(issue, monitor)
+        if res:
+            baseline_results.append(res)
+        # Periodic GC
+        if i % 10 == 0:
+            gc.collect()
+            clean_up_large_objects()
+    print(f"   Baseline complete. {len(baseline_results)} results.")
+
+    # 3. Run Iterative
+    print("🔄 Running Iterative Agent...")
     iterative_results = []
-    sweep_results = []
+    monitor.iterative_start = time.time()
+    for i, issue in enumerate(issues):
+        if not monitor.check_budget("iterative"):
+            break
+        res = run_single_issue_iterative(issue, monitor)
+        if res:
+            iterative_results.append(res)
+        if i % 10 == 0:
+            gc.collect()
+            clean_up_large_objects()
+    print(f"   Iterative complete. {len(iterative_results)} results.")
 
-    if args.mode in ['baseline', 'full']:
-        print("Running Baseline Agent...")
-        for i, issue in enumerate(issues):
-            if not monitor.check("baseline_batch"):
-                print("Aborting baseline due to time limit.")
-                break
-            result = run_single_issue_baseline(issue, monitor)
-            if result:
-                baseline_results.append(result)
-            # Clean up memory periodically
-            if i % 5 == 0:
-                gc.collect()
-
-    if args.mode in ['iterative', 'full']:
-        print("Running Iterative Agent...")
-        for i, issue in enumerate(issues):
-            if not monitor.check("iterative_batch"):
-                print("Aborting iterative due to time limit.")
-                break
-            result = run_single_issue_iterative(issue, monitor)
-            if result:
-                iterative_results.append(result)
-            if i % 5 == 0:
-                gc.collect()
-
-    if args.mode == 'sweep':
-        print("Running Turn Limit Sweep...")
-        sample_size = args.sample_size if args.sample_size else min(20, len(issues))
-        if not monitor.check("sweep_start"):
-            print("Aborting sweep due to time limit.")
-        else:
-            # Reduce sample size if time is critical
-            if monitor.max_duration_seconds - (time.time() - monitor.start_time) < 300:
-                sample_size = min(sample_size, 5)
-                print(f"Reducing sweep sample size to {sample_size} due to time pressure.")
-            
-            sweep_issues = issues[:sample_size]
-            sweep_results = run_sweep(sweep_issues, monitor)
-            monitor.check("sweep_end")
-
-    # Save results
-    results_dir = Path("data/results")
-    results_dir.mkdir(exist_ok=True)
-
-    if baseline_results:
-        with open(results_dir / "baseline_results.json", 'w') as f:
-            json.dump(baseline_results, f, indent=2)
-        print(f"Saved {len(baseline_results)} baseline results.")
-
-    if iterative_results:
-        with open(results_dir / "iterative_results.json", 'w') as f:
-            json.dump(iterative_results, f, indent=2)
-        print(f"Saved {len(iterative_results)} iterative results.")
-
-    if sweep_results:
-        with open(results_dir / "sweep_results.json", 'w') as f:
-            json.dump(sweep_results, f, indent=2)
-        print(f"Saved {len(sweep_results)} sweep results.")
-
-    # Final status
-    final_status = monitor.get_status()
-    with open(results_dir / "execution_status.json", 'w') as f:
-        json.dump(final_status, f, indent=2)
+    # 4. Merge and Save
+    print("🔗 Merging results...")
+    paired_metrics = merge_results(baseline_results, iterative_results)
     
-    print(f"Pipeline finished. Status: {final_status}")
+    output_path = get_path("data/results/paired_metrics.json")
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(paired_metrics, f, indent=2)
     
-    # Hash artifacts if not aborted
-    if not monitor.is_aborted:
-        try:
-            hash_directory(results_dir)
-            print("Artifacts hashed successfully.")
-        except Exception as e:
-            print(f"Warning: Failed to hash artifacts: {e}")
+    print(f"✅ Saved paired metrics to {output_path}")
+    
+    # 5. Hash Artifact
+    print("🔒 Hashing output artifact...")
+    manifest = generate_manifest([output_path], get_path("data/results/"))
+    manifest_path = get_path("data/results/paired_metrics_manifest.json")
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+    print(f"   Manifest saved to {manifest_path}")
+
+    print(f"🏁 Pipeline finished in {monitor.elapsed()/3600:.2f} hours.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

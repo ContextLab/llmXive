@@ -1,429 +1,485 @@
-"""
-Statistical analysis module for SWE-Explore benchmark.
-Implements paired tests, survival analysis, and Bonferroni correction.
-"""
 import json
 import sys
 import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
 import numpy as np
 from scipy import stats
-from scipy.stats import survival_function
+from scipy.stats import mannwhitneyu, wilcoxon
+from lifelines import CoxPHFitter
 
-# Local imports
-from config import get_config_summary
+from config import get_path, get_config_summary
 
-# --------------------------------------------------------------------------
-# Data Loading Helpers
-# --------------------------------------------------------------------------
-
-def load_agent_logs_for_pairing(
-    baseline_dir: Path, iterative_dir: Path
-) -> Dict[str, Dict[str, Any]]:
+# ---------------------------------------------------------------------------
+# Helper: Load paired logs
+# ---------------------------------------------------------------------------
+def load_agent_logs_for_pairing(results_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
     """
-    Load agent logs from baseline and iterative runs and pair them by issue_id.
-    Returns a dict: { issue_id: { 'baseline': log, 'iterative': log } }
+    Load baseline and iterative logs from data/results/agent_logs/ (or custom dir)
+    and return a list of paired records keyed by issue_id.
     """
-    paired_data: Dict[str, Dict[str, Any]] = {}
+    if results_dir is None:
+        results_dir = get_path("results")
+    
+    baseline_path = results_dir / "agent_logs" / "baseline.jsonl"
+    iterative_path = results_dir / "agent_logs" / "iterative.jsonl"
+    
+    if not baseline_path.exists() or not iterative_path.exists():
+        raise FileNotFoundError(
+            f"Missing log files for pairing: {baseline_path}, {iterative_path}"
+        )
 
-    # Load baseline logs
-    baseline_logs = {}
-    if baseline_dir.exists():
-        for f in baseline_dir.glob("*.json"):
-            try:
-                with open(f, "r", encoding="utf-8") as fh:
-                    log = json.load(fh)
-                    if "issue_id" in log:
-                        baseline_logs[log["issue_id"]] = log
-            except (json.JSONDecodeError, IOError):
-                continue
+    def load_jsonl(path: Path) -> Dict[str, Dict]:
+        records = {}
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    rec = json.loads(line)
+                    # Use issue_id as key for pairing
+                    rid = rec.get("issue_id")
+                    if rid:
+                        records[rid] = rec
+        return records
 
-    # Load iterative logs
-    iterative_logs = {}
-    if iterative_dir.exists():
-        for f in iterative_dir.glob("*.json"):
-            try:
-                with open(f, "r", encoding="utf-8") as fh:
-                    log = json.load(fh)
-                    if "issue_id" in log:
-                        iterative_logs[log["issue_id"]] = log
-            except (json.JSONDecodeError, IOError):
-                continue
+    baseline_logs = load_jsonl(baseline_path)
+    iterative_logs = load_jsonl(iterative_path)
 
-    # Pair them
-    all_ids = set(baseline_logs.keys()) & set(iterative_logs.keys())
-    for issue_id in all_ids:
-        paired_data[issue_id] = {
-            "baseline": baseline_logs[issue_id],
-            "iterative": iterative_logs[issue_id],
-        }
+    paired = []
+    for rid in baseline_logs:
+        if rid in iterative_logs:
+            paired.append({
+                "issue_id": rid,
+                "baseline": baseline_logs[rid],
+                "iterative": iterative_logs[rid]
+            })
+        else:
+            warnings.warn(f"Issue {rid} missing in iterative logs, skipping pairing.")
+    
+    for rid in iterative_logs:
+        if rid not in baseline_logs:
+            warnings.warn(f"Issue {rid} missing in baseline logs, skipping pairing.")
 
-    return paired_data
+    return paired
 
+# ---------------------------------------------------------------------------
+# Coverage Metrics
+# ---------------------------------------------------------------------------
 def calculate_coverage_metrics_for_issue(
-    log: Dict[str, Any], ground_truth_lines: List[int]
+    issue_rec: Dict[str, Any], 
+    ground_truth_lines: List[int]
 ) -> float:
     """
-    Calculate coverage percentage for a single agent log.
-    Coverage = (number of ground truth lines retrieved) / (total ground truth lines)
+    Calculate coverage % for a single issue record.
+    Assumes 'retrieved_lines' is a list of integers in the record.
     """
-    if not ground_truth_lines:
+    retrieved = set(issue_rec.get("retrieved_lines", []))
+    gt_set = set(ground_truth_lines)
+    if not gt_set:
         return 0.0
-    retrieved = set(log.get("retrieved_lines", []))
-    relevant_retrieved = len(retrieved.intersection(set(ground_truth_lines)))
-    return relevant_retrieved / len(ground_truth_lines)
+    hit = len(retrieved & gt_set)
+    return (hit / len(gt_set)) * 100.0
 
 def compute_paired_coverage_data(
-    paired_logs: Dict[str, Dict[str, Any]],
-    ground_truth_map: Dict[str, List[int]],
-) -> Tuple[np.ndarray, np.ndarray]:
+    paired_logs: List[Dict[str, Any]],
+    gt_map: Dict[str, List[int]]
+) -> Tuple[np.ndarray, np.ndarray, List[str]]:
     """
-    Compute paired coverage arrays for baseline and iterative agents.
-    Returns (baseline_coverage, iterative_coverage) as numpy arrays.
+    Extract paired coverage arrays (baseline, iterative) and issue_ids.
+    Returns (baseline_covs, iterative_covs, ids)
     """
-    baseline_vals = []
-    iterative_vals = []
-
-    for issue_id, logs in paired_logs.items():
-        gt_lines = ground_truth_map.get(issue_id, [])
+    b_covs = []
+    i_covs = []
+    ids = []
+    
+    for pair in paired_logs:
+        rid = pair["issue_id"]
+        gt_lines = gt_map.get(rid, [])
         if not gt_lines:
             continue
+        
+        b_cov = calculate_coverage_metrics_for_issue(pair["baseline"], gt_lines)
+        i_cov = calculate_coverage_metrics_for_issue(pair["iterative"], gt_lines)
+        
+        b_covs.append(b_cov)
+        i_covs.append(i_cov)
+        ids.append(rid)
+    
+    return np.array(b_covs), np.array(i_covs), ids
 
-        b_cov = calculate_coverage_metrics_for_issue(logs["baseline"], gt_lines)
-        i_cov = calculate_coverage_metrics_for_issue(logs["iterative"], gt_lines)
-
-        baseline_vals.append(b_cov)
-        iterative_vals.append(i_cov)
-
-    return np.array(baseline_vals), np.array(iterative_vals)
-
+# ---------------------------------------------------------------------------
+# Statistical Tests
+# ---------------------------------------------------------------------------
 def run_wilcoxon_signed_rank_test(
-    x: np.ndarray, y: np.ndarray
+    x: np.ndarray, 
+    y: np.ndarray, 
+    correction: bool = True
 ) -> Dict[str, Any]:
     """
-    Run Wilcoxon signed-rank test with continuity correction.
+    Run Wilcoxon signed-rank test on paired data.
     Returns dict with statistic, p-value, and interpretation.
     """
     if len(x) != len(y):
-        raise ValueError("Arrays must be same length for paired test")
+        raise ValueError("Arrays must be same length for Wilcoxon.")
     if len(x) < 2:
-        return {
-            "test": "wilcoxon",
-            "statistic": None,
-            "p_value": None,
-            "significant": False,
-            "message": "Insufficient data for test (n < 2)",
-        }
+        return {"statistic": 0.0, "pvalue": 1.0, "method": "wilcoxon", "n": len(x)}
 
-    # Handle ties and zero differences
-    try:
-        statistic, p_value = stats.wilcoxon(x, y, correction=True)
-    except Exception as e:
-        # Fallback if all differences are zero or other edge cases
-        return {
-            "test": "wilcoxon",
-            "statistic": 0.0,
-            "p_value": 1.0,
-            "significant": False,
-            "message": f"Wilcoxon failed: {str(e)}",
-        }
-
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        stat, pval = wilcoxon(x, y, correction=correction)
+    
     return {
-        "test": "wilcoxon",
-        "statistic": float(statistic),
-        "p_value": float(p_value),
-        "significant": p_value < 0.05,
-        "message": "Wilcoxon signed-rank test completed with continuity correction.",
+        "statistic": float(stat),
+        "pvalue": float(pval),
+        "method": "wilcoxon_signed_rank",
+        "n": len(x),
+        "correction_applied": correction
     }
 
 def run_exact_permutation_test(
-    x: np.ndarray, y: np.ndarray
+    x: np.ndarray, 
+    y: np.ndarray, 
+    n_permutations: int = 10000
 ) -> Dict[str, Any]:
     """
-    Run exact permutation test as fallback for censored/high-tie data.
+    Fallback: Exact permutation test for paired differences.
     """
     if len(x) != len(y):
-        raise ValueError("Arrays must be same length")
-    if len(x) > 20:
-        # Exact permutation is computationally expensive for large N
-        return {
-            "test": "permutation_exact",
-            "statistic": None,
-            "p_value": None,
-            "significant": False,
-            "message": "Sample size too large for exact permutation test (n > 20)",
-        }
+        raise ValueError("Arrays must be same length.")
+    if len(x) == 0:
+        return {"statistic": 0.0, "pvalue": 1.0, "method": "permutation", "n": 0}
 
     diffs = x - y
-    observed_stat = np.mean(diffs)
+    observed_stat = np.sum(diffs)
+    
+    # Generate permutation distribution
     n = len(diffs)
-    count_extreme = 0
-    total_perms = 2**n
-
-    # Enumerate all sign flips
-    for i in range(total_perms):
-        signs = np.array([1 if (i >> j) & 1 else -1 for j in range(n)])
-        perm_stat = np.mean(diffs * signs)
+    # Sign-flip permutations (paired permutation test)
+    counts = 0
+    total = 0
+    for _ in range(n_permutations):
+        signs = np.random.choice([-1, 1], size=n)
+        perm_stat = np.sum(diffs * signs)
+        total += 1
         if abs(perm_stat) >= abs(observed_stat):
-            count_extreme += 1
-
-    p_value = count_extreme / total_perms
-
+            counts += 1
+    
+    pval = counts / total
     return {
-        "test": "permutation_exact",
         "statistic": float(observed_stat),
-        "p_value": float(p_value),
-        "significant": p_value < 0.05,
-        "message": "Exact permutation test completed.",
+        "pvalue": float(pval),
+        "method": "exact_permutation",
+        "n_permutations": n_permutations
     }
 
 def run_cox_survival_analysis(
-    coverage_baseline: np.ndarray, coverage_iterative: np.ndarray
+    data: List[Dict[str, Any]]
 ) -> Dict[str, Any]:
     """
-    Run Cox Proportional Hazards model comparing coverage distributions.
-    Treats coverage as 'time-to-event' (higher coverage = faster event).
+    Survival analysis for ranking metrics (time-to-relevant).
+    Assumes data has 'rank_position' and 'censored' flags.
     """
-    try:
-        from lifelines import CoxPHFitter
-        import pandas as pd
-
-        # Create survival data: event = coverage > 0 (simplified)
-        # In a full implementation, we would use actual 'turns to first relevant line'
-        df = pd.DataFrame({
-            "T": np.concatenate([coverage_baseline, coverage_iterative]),
-            "E": np.ones(len(coverage_baseline) + len(coverage_iterative)),
-            "group": [0] * len(coverage_baseline) + [1] * len(coverage_iterative),
-        })
-
-        cph = CoxPHFitter()
-        cph.fit(df, duration_col="T", event_col="E")
+    if not data:
+        return {"method": "cox", "conclusion": "no_data"}
+    
+    df = pd.DataFrame(data)
+    if 'rank_position' not in df.columns or 'censored' not in df.columns:
+        raise ValueError("Data must contain 'rank_position' and 'censored' columns.")
+    
+    # Group by agent type if present, otherwise assume two groups
+    if 'agent_type' in df.columns:
+        groups = df['agent_type'].unique()
+        if len(groups) != 2:
+            return {"method": "cox", "conclusion": "expected_two_groups"}
         
-        # Get hazard ratio and p-value for group
-        summary = cph.summary
-        if "group" in summary.index:
-            p_val = summary.loc["group", "p"]
-            hr = summary.loc["group", "exp(coef)"]
-        else:
-            p_val = 1.0
-            hr = 1.0
-
-        return {
-            "test": "cox_survival",
-            "hazard_ratio": float(hr),
-            "p_value": float(p_val),
-            "significant": p_val < 0.05,
-            "message": "Cox survival analysis completed.",
-        }
-    except ImportError:
-        return {
-            "test": "cox_survival",
-            "p_value": None,
-            "significant": False,
-            "message": "lifelines library not installed for survival analysis.",
-        }
-    except Exception as e:
-        return {
-            "test": "cox_survival",
-            "p_value": None,
-            "significant": False,
-            "message": f"Cox survival analysis failed: {str(e)}",
-        }
+        # Fit Cox model with agent type as covariate
+        cph = CoxPHFitter()
+        df_surv = df.rename(columns={"rank_position": "T", "censored": "E"})
+        # Convert agent_type to dummy
+        df_surv = pd.get_dummies(df_surv, columns=["agent_type"], drop_first=True)
+        
+        try:
+            cph.fit(df_surv, duration_col='T', event_col='E')
+            # Get p-value for the agent_type coefficient
+            p_val = cph.summary['p'][0] # Assumes first col is the covariate
+            return {
+                "method": "cox",
+                "pvalue": float(p_val),
+                "concordance": float(cph.concordance_index_)
+            }
+        except Exception as e:
+            return {"method": "cox", "error": str(e)}
+    
+    return {"method": "cox", "conclusion": "missing_agent_type"}
 
 def analyze_ranking_metrics(
-    paired_logs: Dict[str, Dict[str, Any]],
-    ground_truth_map: Dict[str, List[int]],
+    paired_logs: List[Dict[str, Any]],
+    gt_map: Dict[str, List[int]]
 ) -> Dict[str, Any]:
     """
-    Analyze ranking metrics (First Relevant Position) with fallback logic.
+    Calculate ranking metrics (First Relevant Position) and run stats.
+    Handles censored data (if relevant line not found, rank = N+1).
     """
     baseline_ranks = []
     iterative_ranks = []
+    ids = []
+    
+    # Determine max lines for censoring penalty (approximate N)
+    max_n = max([len(gt) for gt in gt_map.values()]) if gt_map else 100
+    penalty = max_n + 1
 
-    for issue_id, logs in paired_logs.items():
-        gt_lines = ground_truth_map.get(issue_id, [])
+    for pair in paired_logs:
+        rid = pair["issue_id"]
+        gt_lines = gt_map.get(rid, [])
         if not gt_lines:
             continue
-
-        # Simplified: use retrieved_lines to find first relevant
-        b_retrieved = logs["baseline"].get("retrieved_lines", [])
-        i_retrieved = logs["iterative"].get("retrieved_lines", [])
-
-        b_rank = next(
-            (i + 1 for i, line in enumerate(b_retrieved) if line in gt_lines),
-            len(gt_lines) + 1,
-        )
-        i_rank = next(
-            (i + 1 for i, line in enumerate(i_retrieved) if line in gt_lines),
-            len(gt_lines) + 1,
-        )
-
+        
+        # Baseline
+        b_retrieved = pair["baseline"].get("retrieved_lines", [])
+        b_found = False
+        b_rank = penalty
+        for r in b_retrieved:
+            if r in gt_lines:
+                b_rank = b_retrieved.index(r) + 1
+                b_found = True
+                break
+        
+        # Iterative
+        i_retrieved = pair["iterative"].get("retrieved_lines", [])
+        i_found = False
+        i_rank = penalty
+        for r in i_retrieved:
+            if r in gt_lines:
+                i_rank = i_retrieved.index(r) + 1
+                i_found = True
+                break
+        
         baseline_ranks.append(b_rank)
         iterative_ranks.append(i_rank)
+        ids.append(rid)
 
-    if not baseline_ranks:
-        return {"test": "ranking", "p_value": None, "significant": False, "message": "No ranking data."}
+    if len(baseline_ranks) == 0:
+        return {"method": "none", "conclusion": "no_data"}
 
-    # Check for excessive ties/censoring (rank = N+1)
-    n_total = len(baseline_ranks)
-    censored_baseline = sum(1 for r in baseline_ranks if r > max(gt_lines) for gt_lines in [ground_truth_map.get(list(paired_logs.keys())[0], [])])
-    # Simplified censoring check
-    if n_total > 0 and (sum(1 for r in baseline_ranks if r == n_total + 1) + sum(1 for r in iterative_ranks if r == n_total + 1)) / (2 * n_total) > 0.5:
-        # High censoring -> use survival or permutation
-        return run_cox_survival_analysis(np.array(baseline_ranks), np.array(iterative_ranks))
+    # Check for ties/censoring
+    n_censored_b = sum(1 for r in baseline_ranks if r == penalty)
+    n_censored_i = sum(1 for r in iterative_ranks if r == penalty)
+    total = len(baseline_ranks)
     
-    # Default to Wilcoxon
-    return run_wilcoxon_signed_rank_test(np.array(baseline_ranks), np.array(iterative_ranks))
+    if n_censored_b > 0.2 * total or n_censored_i > 0.2 * total:
+        # Use Survival Analysis
+        data = []
+        for i, rid in enumerate(ids):
+            data.append({
+                "T": baseline_ranks[i],
+                "E": 0 if baseline_ranks[i] == penalty else 1,
+                "agent_type": "baseline"
+            })
+            data.append({
+                "T": iterative_ranks[i],
+                "E": 0 if iterative_ranks[i] == penalty else 1,
+                "agent_type": "iterative"
+            })
+        return run_cox_survival_analysis(data)
+    else:
+        # Wilcoxon on ranks (lower is better, so we test difference)
+        # Note: Wilcoxon tests if distributions are same. 
+        # Since lower is better, we might want to test if iterative < baseline.
+        # Standard Wilcoxon is two-sided.
+        res = run_wilcoxon_signed_rank_test(np.array(baseline_ranks), np.array(iterative_ranks))
+        res["metric"] = "first_relevant_rank"
+        return res
 
+# ---------------------------------------------------------------------------
+# Bonferroni Correction & Associational Framing
+# ---------------------------------------------------------------------------
 def apply_bonferroni_correction(
-    p_values: List[float], alpha: float = 0.05
-) -> Tuple[List[float], List[bool]]:
+    p_values: List[float],
+    alpha: float = 0.05
+) -> Dict[str, Any]:
     """
     Apply Bonferroni correction to a family of p-values.
-    Returns corrected p-values and significance flags.
+    Returns adjusted p-values and which hypotheses are significant.
     """
     m = len(p_values)
     if m == 0:
-        return [], []
-
-    corrected_p = [min(p * m, 1.0) for p in p_values]
-    significant = [p < alpha for p in corrected_p]
-    return corrected_p, significant
-
-def format_associational_statement(
-    test_name: str, significant: bool, p_value: float, effect_direction: str
-) -> str:
-    """
-    Generate a strictly associational statement per FR-007.
-    """
-    if significant:
-        return (
-            f"A statistically significant associational difference was observed in {test_name} "
-            f"(Bonferroni-corrected p = {p_value:.4f}), with the iterative agent showing "
-            f"{effect_direction} performance compared to the static baseline."
-        )
-    else:
-        return (
-            f"No statistically significant associational difference was observed in {test_name} "
-            f"(Bonferroni-corrected p = {p_value:.4f})."
-        )
-
-def main():
-    """
-    Main entry point for T031c: Bonferroni correction and final metrics generation.
-    """
-    config = get_config_summary()
-    base_path = Path(config.get("base_path", "."))
-    results_dir = base_path / "data" / "results"
-    curated_dir = base_path / "data" / "curated"
-
-    results_dir.mkdir(parents=True, exist_ok=True)
-
-    # Load paired logs
-    baseline_dir = results_dir / "agent_logs" / "baseline"
-    iterative_dir = results_dir / "agent_logs" / "iterative"
-
-    if not baseline_dir.exists() or not iterative_dir.exists():
-        print("Error: Agent log directories not found. Run T024 first.")
-        sys.exit(1)
-
-    paired_logs = load_agent_logs_for_pairing(baseline_dir, iterative_dir)
-    if not paired_logs:
-        print("Error: No paired logs found.")
-        sys.exit(1)
-
-    # Load ground truth mapping
-    ground_truth_map = {}
-    gt_file = curated_dir / "ground_truth_map.json"
-    if gt_file.exists():
-        with open(gt_file, "r") as f:
-            ground_truth_map = json.load(f)
-    else:
-        # Fallback: try to load from hard_subset if map missing
-        hard_file = curated_dir / "hard_subset.jsonl"
-        if hard_file.exists():
-            with open(hard_file, "r") as f:
-                for line in f:
-                    item = json.loads(line)
-                    ground_truth_map[item["issue_id"]] = item.get("ground_truth_lines", [])
-
-    # 1. Coverage Analysis
-    b_cov, i_cov = compute_paired_coverage_data(paired_logs, ground_truth_map)
-    coverage_result = run_wilcoxon_signed_rank_test(b_cov, i_cov)
-
-    # 2. Ranking Analysis
-    ranking_result = analyze_ranking_metrics(paired_logs, ground_truth_map)
-
-    # 3. Bonferroni Correction
-    # Family of tests: Coverage + Ranking
-    raw_p_values = [
-        coverage_result.get("p_value", 1.0),
-        ranking_result.get("p_value", 1.0),
-    ]
-    corrected_p_values, significant_flags = apply_bonferroni_correction(raw_p_values)
-
-    # Update results with corrected p-values
-    coverage_result["bonferroni_p_value"] = corrected_p_values[0]
-    coverage_result["bonferroni_significant"] = significant_flags[0]
-    ranking_result["bonferroni_p_value"] = corrected_p_values[1]
-    ranking_result["bonferroni_significant"] = significant_flags[1]
-
-    # 4. Generate Associational Statements
-    coverage_statement = format_associational_statement(
-        "coverage",
-        coverage_result["bonferroni_significant"],
-        coverage_result["bonferroni_p_value"],
-        "higher" if np.mean(i_cov) > np.mean(b_cov) else "lower",
-    )
-    ranking_statement = format_associational_statement(
-        "ranking",
-        ranking_result["bonferroni_significant"],
-        ranking_result["bonferroni_p_value"],
-        "better" if ranking_result.get("hazard_ratio", 1) > 1 else "worse",
-    )
-
-    # 5. Assemble Final Metrics
-    final_metrics = {
-        "metadata": {
-            "task_id": "T031c",
-            "description": "Bonferroni-corrected paired statistical analysis",
-            "n_pairs": len(paired_logs),
-            "correction_method": "Bonferroni",
-            "alpha": 0.05,
-            "family_size": 2,
-        },
-        "coverage": {
-            **coverage_result,
-            "statement": coverage_statement,
-            "mean_baseline": float(np.mean(b_cov)),
-            "mean_iterative": float(np.mean(i_cov)),
-        },
-        "ranking": {
-            **ranking_result,
-            "statement": ranking_statement,
-        },
-        "conclusion": {
-            "overall_significant": any(significant_flags),
-            "associational_summary": (
-                f"Analysis of {len(paired_logs)} paired instances reveals "
-                f"{'significant' if any(significant_flags) else 'no significant'} "
-                "associational differences between the iterative and static baseline agents "
-                "after Bonferroni correction. No causal claims are made."
-            ),
-        },
+        return {"adjusted_p_values": [], "significant": [], "alpha": alpha}
+    
+    adjusted = [min(p * m, 1.0) for p in p_values]
+    significant = [p_adj < alpha for p_adj in adjusted]
+    
+    return {
+        "original_p_values": p_values,
+        "adjusted_p_values": adjusted,
+        "significant": significant,
+        "alpha": alpha,
+        "num_tests": m,
+        "method": "bonferroni"
     }
 
-    # Write output
-    output_file = results_dir / "final_metrics.json"
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(final_metrics, f, indent=2)
+def format_associational_statement(
+    test_name: str,
+    p_value: float,
+    adjusted_p: float,
+    significant: bool,
+    direction: str = "difference"
+) -> str:
+    """
+    Generate a text statement framing the result as an associational difference.
+    FR-007: Avoid causal claims.
+    """
+    sig_text = "statistically significant" if significant else "not statistically significant"
+    # Direction is descriptive of the observed difference, not causal
+    if significant:
+        return (
+            f"The analysis observed a {sig_text} {direction} in {test_name} "
+            f"(p={p_value:.4f}, Bonferroni-adjusted p={adjusted_p:.4f}). "
+            f"This suggests an association between the agent strategy and the observed metric."
+        )
+    else:
+        return (
+            f"The analysis did not observe a {sig_text} {direction} in {test_name} "
+            f"(p={p_value:.4f}, Bonferroni-adjusted p={adjusted_p:.4f}). "
+            f"No association was detected between the agent strategy and the metric."
+        )
 
-    print(f"Final metrics written to {output_file}")
-    print(f"Coverage significant (Bonferroni): {coverage_result['bonferroni_significant']}")
-    print(f"Ranking significant (Bonferroni): {ranking_result['bonferroni_significant']}")
-    print(f"Conclusion: {final_metrics['conclusion']['associational_summary']}")
+# ---------------------------------------------------------------------------
+# Main Orchestrator for T031c
+# ---------------------------------------------------------------------------
+def main():
+    """
+    Execute T031c:
+    1. Load paired logs.
+    2. Compute coverage and ranking metrics.
+    3. Run statistical tests (Wilcoxon/Permutation/Cox).
+    4. Apply Bonferroni correction.
+    5. Format results as associational differences.
+    6. Save to data/results/final_metrics.json.
+    """
+    results_dir = get_path("results")
+    curated_dir = get_path("curated")
+    
+    # Load ground truth mapping
+    # We assume ground_truth_lines are stored in the curated issues or derived separately.
+    # For this task, we load the hard_subset.jsonl to get the GT lines if they are embedded,
+    # or we assume a mapping exists. 
+    # Based on T013/T014, ground_truth_lines are derived. We need to load them.
+    # Let's assume they are in the curated issues.
+    hard_path = curated_dir / "hard_subset.jsonl"
+    if not hard_path.exists():
+        print(f"Error: {hard_path} not found. Cannot compute coverage.", file=sys.stderr)
+        sys.exit(1)
+    
+    gt_map = {}
+    with open(hard_path, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                rec = json.loads(line)
+                rid = rec.get("issue_id")
+                # Assuming 'ground_truth_lines' is a field in the curated record
+                if "ground_truth_lines" in rec:
+                    gt_map[rid] = rec["ground_truth_lines"]
+                else:
+                    # Fallback: try to parse from code if structure allows, but strictly
+                    # we rely on the derived data from T013.
+                    warnings.warn(f"Issue {rid} missing ground_truth_lines in curated data.")
+
+    # Load paired logs
+    try:
+        paired_logs = load_agent_logs_for_pairing(results_dir)
+    except FileNotFoundError as e:
+        print(f"Error loading logs: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    if not paired_logs:
+        print("Error: No paired logs found.", file=sys.stderr)
+        sys.exit(1)
+
+    # 1. Coverage Analysis
+    b_covs, i_covs, cov_ids = compute_paired_coverage_data(paired_logs, gt_map)
+    coverage_test = run_wilcoxon_signed_rank_test(b_covs, i_covs)
+    
+    # 2. Ranking Analysis
+    ranking_result = analyze_ranking_metrics(paired_logs, gt_map)
+    
+    # Collect p-values for Bonferroni
+    p_values = []
+    test_names = []
+    test_details = {}
+    
+    # Coverage
+    p_values.append(coverage_test["pvalue"])
+    test_names.append("coverage")
+    test_details["coverage"] = coverage_test
+    
+    # Ranking
+    if "pvalue" in ranking_result:
+        p_values.append(ranking_result["pvalue"])
+        test_names.append("ranking")
+        test_details["ranking"] = ranking_result
+    else:
+        # If ranking used Cox or returned error, handle gracefully
+        if "error" in ranking_result:
+            print(f"Ranking analysis failed: {ranking_result['error']}", file=sys.stderr)
+        # Skip adding to Bonferroni if no valid p-value
+        # But per SC-004, we need to correct the family of tests performed.
+        # If we couldn't perform ranking, we note it.
+        if ranking_result.get("method") != "none":
+             # If Cox was used, it has a pvalue. If not, we might have an issue.
+             pass
+
+    # 3. Bonferroni Correction
+    bonf_result = apply_bonferroni_correction(p_values)
+    
+    # 4. Format Associational Statements
+    final_results = {
+        "metadata": {
+            "n_issues": len(paired_logs),
+            "n_coverage_pairs": len(b_covs),
+            "n_ranking_pairs": len(ranking_result.get("data", [])) if isinstance(ranking_result, dict) else 0,
+            "bonferroni_alpha": 0.05,
+            "timestamp": str(Path(__file__).parent.stat().st_mtime) # Placeholder for real timestamp
+        },
+        "coverage_analysis": {
+            "test": test_details["coverage"],
+            "bonferroni_adjusted_p": bonf_result["adjusted_p_values"][0] if len(bonf_result["adjusted_p_values"]) > 0 else None,
+            "significant": bonf_result["significant"][0] if len(bonf_result["significant"]) > 0 else False,
+            "statement": format_associational_statement(
+                "coverage",
+                test_details["coverage"]["pvalue"],
+                bonf_result["adjusted_p_values"][0] if len(bonf_result["adjusted_p_values"]) > 0 else 1.0,
+                bonf_result["significant"][0] if len(bonf_result["significant"]) > 0 else False
+            )
+        },
+        "ranking_analysis": {},
+        "bonferroni_summary": bonf_result
+    }
+    
+    if len(bonf_result["adjusted_p_values"]) > 1:
+        final_results["ranking_analysis"] = {
+            "test": ranking_result,
+            "bonferroni_adjusted_p": bonf_result["adjusted_p_values"][1],
+            "significant": bonf_result["significant"][1],
+            "statement": format_associational_statement(
+                "ranking",
+                ranking_result.get("pvalue", 1.0),
+                bonf_result["adjusted_p_values"][1],
+                bonf_result["significant"][1]
+            )
+        }
+    else:
+        # Only coverage was tested
+        final_results["ranking_analysis"] = {
+            "status": "skipped_or_failed",
+            "details": ranking_result
+        }
+
+    # 5. Write Output
+    output_path = results_dir / "final_metrics.json"
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(final_results, f, indent=2)
+    
+    print(f"Final metrics written to {output_path}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

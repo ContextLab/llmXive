@@ -1,30 +1,28 @@
 """
-T015: Validate Hard Subset and Generate Inspection Report
+Validation logic for hard instances and synthetic issues.
+Generates validation_report.md (T015).
 
-Reads the curated hard subset and synthetic issues, samples a subset based on
-VALIDATION_SAMPLE_SIZE from config, and generates a markdown report for manual
-inspection.
+Reads VALIDATION_SAMPLE_SIZE from config.py.
+Outputs a Markdown table with columns: [IssueID, CoverageScore, MutationType, ValidityStatus, Notes].
 """
 import json
 import sys
+import ast
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
-# Import from project modules
-from config import get_config_summary
-from data.curate import load_derived_ground_truth, filter_hard_instances, generate_synthetic_issues
-from utils.schemas import load_schema
+from config import get_path, get_config_summary
 
 
 def load_hard_subset() -> List[Dict[str, Any]]:
-    """Load the curated hard subset from data/curated/hard_subset.jsonl"""
-    config = get_config_summary()
-    path = Path(config["data_curated"]) / "hard_subset.jsonl"
+    """Load the hard subset from data/curated/hard_subset.jsonl."""
+    path = get_path("curated", "hard_subset.jsonl")
     if not path.exists():
-        raise FileNotFoundError(f"Hard subset not found at {path}. Run T014a first.")
+        raise FileNotFoundError(f"Hard subset not found at {path}. "
+                                "Ensure T014a has been executed.")
     
     issues = []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():
                 issues.append(json.loads(line))
@@ -32,147 +30,175 @@ def load_hard_subset() -> List[Dict[str, Any]]:
 
 
 def load_synthetic_issues() -> List[Dict[str, Any]]:
-    """Load synthetic issues from data/curated/synthetic_issues.jsonl"""
-    config = get_config_summary()
-    path = Path(config["data_curated"]) / "synthetic_issues.jsonl"
+    """Load synthetic issues from data/curated/synthetic_issues.jsonl."""
+    path = get_path("curated", "synthetic_issues.jsonl")
     if not path.exists():
-        # Synthetic issues are optional if pool was small, but we try to load
+        # If synthetic issues haven't been generated yet, return empty list
+        # but log a warning in the report
         return []
     
     issues = []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():
                 issues.append(json.loads(line))
     return issues
 
 
-def validate_issue(issue: Dict[str, Any]) -> Dict[str, Any]:
+def validate_issue(issue: Dict[str, Any]) -> Tuple[bool, str]:
     """
-    Validate a single issue for the report.
-    Checks schema compliance and basic structural validity.
+    Validate a single issue.
+    
+    Checks:
+    1. Required fields (issue_id, code)
+    2. AST parse validity of code
+    3. Presence of ground_truth_lines (optional but noted)
+    
+    Returns:
+        Tuple of (is_valid, status_message).
     """
-    result = {
-        "issue_id": issue.get("instance_id", "UNKNOWN"),
-        "coverage_score": issue.get("initial_coverage", "N/A"),
-        "mutation_type": issue.get("mutation_type", "Original"),
-        "validity_status": "VALID",
-        "notes": ""
-    }
-
     # Check required fields
-    required_fields = ["instance_id", "problem_statement", "repo", "commit"]
-    missing = [f for f in required_fields if f not in issue]
-    if missing:
-        result["validity_status"] = "INVALID"
-        result["notes"] = f"Missing fields: {', '.join(missing)}"
-        return result
+    if not issue.get("issue_id"):
+        return False, "Missing issue_id"
+    
+    if not issue.get("code"):
+        return False, "Missing code"
+    
+    # Check AST validity
+    try:
+        ast.parse(issue["code"])
+        ast_valid = True
+    except SyntaxError as e:
+        ast_valid = False
+        return False, f"AST Error: {e}"
+    
+    # Check ground truth lines (optional but noted)
+    if not issue.get("ground_truth_lines"):
+        # Not strictly invalid, but noted
+        return True, "Valid (no ground truth defined)"
+    
+    return True, "Valid"
 
-    # Check code validity if present (for synthetic issues)
-    if "code" in issue:
-        code = issue["code"]
-        if not isinstance(code, str):
-            result["validity_status"] = "INVALID"
-            result["notes"] = "Code field is not a string"
-            return result
+
+def generate_report(
+    hard_issues: List[Dict[str, Any]],
+    synthetic_issues: List[Dict[str, Any]],
+    sample_size: int = 20
+) -> str:
+    """
+    Generate a markdown validation report for manual inspection.
+    
+    Args:
+        hard_issues: List of hard issues from T014a.
+        synthetic_issues: List of synthetic issues from T014b.
+        sample_size: Number of issues to sample for manual inspection (from config).
+    
+    Returns:
+        Markdown string report with a table of sampled issues.
+    """
+    lines = []
+    lines.append("# Validation Report: Hard & Synthetic Issues")
+    lines.append("")
+    lines.append(f"**Generated**: {get_config_summary().get('timestamp', 'N/A')}")
+    lines.append(f"**Sample Size**: {sample_size}")
+    lines.append("")
+    
+    # Summary
+    lines.append("## Summary")
+    lines.append(f"- Total Hard Issues: {len(hard_issues)}")
+    lines.append(f"- Total Synthetic Issues: {len(synthetic_issues)}")
+    lines.append(f"- Sampled for Inspection: {min(sample_size, len(hard_issues) + len(synthetic_issues))}")
+    lines.append("")
+    
+    # Table header
+    lines.append("## Validation Table")
+    lines.append("")
+    lines.append("| IssueID | CoverageScore | MutationType | ValidityStatus | Notes |")
+    lines.append("|---------|---------------|--------------|----------------|-------|")
+    
+    # Sample hard issues
+    sample_hard = hard_issues[:sample_size]
+    for issue in sample_hard:
+        issue_id = issue.get("issue_id", "unknown")
+        coverage = issue.get("initial_coverage", 0.0)
+        mutation = "None"  # Hard instances are not mutated
+        is_valid, status = validate_issue(issue)
+        validity = "Valid" if is_valid else "Invalid"
+        notes = status
         
-        # Try to parse as Python to ensure syntactic validity
-        try:
-            import ast
-            ast.parse(code)
-        except SyntaxError as e:
-            result["validity_status"] = "INVALID"
-            result["notes"] = f"Syntax error: {str(e)}"
-            return result
-
-    # Check ground truth lines presence for synthetic issues
-    if issue.get("mutation_type") == "synthetic" and "ground_truth_lines" not in issue:
-        result["validity_status"] = "WARNING"
-        result["notes"] = "Synthetic issue missing ground_truth_lines metadata"
-
-    return result
-
-
-def generate_report(sampled_issues: List[Dict[str, Any]], output_path: Path) -> None:
-    """Generate the markdown validation report."""
-    lines = [
-        "# Hard Subset Validation Report",
-        "",
-        "This report provides a manual inspection guide for the curated hard subset.",
-        f"Sample size: {len(sampled_issues)} issues.",
-        "",
-        "## Validation Results",
-        "",
-        "| Issue ID | Coverage Score | Mutation Type | Validity Status | Notes |",
-        "|----------|----------------|---------------|-----------------|-------|"
-    ]
-
-    for issue in sampled_issues:
-        validation = validate_issue(issue)
-        lines.append(
-            f"| {validation['issue_id']} | {validation['coverage_score']} | "
-            f"{validation['mutation_type']} | {validation['validity_status']} | "
-            f"{validation['notes']} |"
-        )
-
-    lines.extend([
-        "",
-        "## Instructions for Manual Inspection",
-        "",
-        "1. **Coverage Score**: Verify that issues marked as 'hard' have low initial coverage scores.",
-        "2. **Mutation Type**: For synthetic issues, verify that mutations (variable rename, comment removal, "
-        "control flow reordering) preserve the original logic and ground truth.",
-        "3. **Validity Status**: Ensure all issues are syntactically valid and contain required metadata.",
-        "4. **Ground Truth**: For synthetic issues, confirm that `ground_truth_lines` correctly identify "
-        "the solution lines in the original code.",
-        "",
-        "## Summary",
-        "",
-        f"Total sampled: {len(sampled_issues)}",
-        f"Valid: {sum(1 for i in sampled_issues if validate_issue(i)['validity_status'] == 'VALID')}",
-        f"Warnings: {sum(1 for i in sampled_issues if validate_issue(i)['validity_status'] == 'WARNING')}",
-        f"Invalid: {sum(1 for i in sampled_issues if validate_issue(i)['validity_status'] == 'INVALID')}",
-    ])
-
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(lines))
+        lines.append(f"| {issue_id} | {coverage:.4f} | {mutation} | {validity} | {notes} |")
+    
+    # Sample synthetic issues
+    sample_synth = synthetic_issues[:sample_size]
+    for issue in sample_synth:
+        issue_id = issue.get("issue_id", "unknown")
+        # Synthetic issues might not have coverage score directly, use 0.0 or derived
+        coverage = issue.get("initial_coverage", 0.0)
+        mutation = issue.get("mutation_type", "unknown")
+        is_valid, status = validate_issue(issue)
+        validity = "Valid" if is_valid else "Invalid"
+        notes = status
+        
+        lines.append(f"| {issue_id} | {coverage:.4f} | {mutation} | {validity} | {notes} |")
+    
+    lines.append("")
+    
+    # Footer instructions
+    lines.append("---")
+    lines.append("### Manual Inspection Guide")
+    lines.append("1. Verify that `ValidityStatus` is 'Valid' for all sampled items.")
+    lines.append("2. Check that `MutationType` correctly reflects the transformation applied (for synthetic issues).")
+    lines.append("3. Ensure `CoverageScore` aligns with the selection criteria (bottom percentile).")
+    lines.append("4. If any item is 'Invalid', review the `Notes` column for specific errors.")
+    lines.append("")
+    lines.append("*End of Report*")
+    
+    return "\n".join(lines)
 
 
-def main() -> int:
-    """Main entry point for T015."""
-    config = get_config_summary()
+def main():
+    """Main entry point for validation report generation."""
+    print("Generating Validation Report...")
     
     # Read configuration
+    config = get_config_summary()
     sample_size = config.get("VALIDATION_SAMPLE_SIZE", 20)
     
-    # Load datasets
-    print("Loading hard subset...")
-    hard_issues = load_hard_subset()
+    if not isinstance(sample_size, int) or sample_size <= 0:
+        print(f"Warning: Invalid VALIDATION_SAMPLE_SIZE ({sample_size}), defaulting to 20.", file=sys.stderr)
+        sample_size = 20
     
-    print("Loading synthetic issues...")
-    synthetic_issues = load_synthetic_issues()
-    
-    # Combine all issues for sampling
-    all_issues = hard_issues + synthetic_issues
-    
-    if not all_issues:
-        print("ERROR: No issues found to validate. Run T014a and T014b first.")
+    try:
+        # Load data
+        print("Loading hard subset...")
+        hard_issues = load_hard_subset()
+        
+        print("Loading synthetic issues...")
+        synthetic_issues = load_synthetic_issues()
+        
+        # Generate report
+        print(f"Generating report with sample size {sample_size}...")
+        report = generate_report(hard_issues, synthetic_issues, sample_size)
+        
+        # Write output
+        output_path = get_path("curated", "validation_report.md")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(report)
+        
+        print(f"Validation report successfully saved to {output_path}")
+        return 0
+        
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        print("Ensure T014a (curate.py) has been run to generate hard_subset.jsonl.", file=sys.stderr)
         return 1
-    
-    # Sample subset (deterministic for reproducibility)
-    import random
-    random.seed(config.get("random_seed", 42))
-    sampled = random.sample(all_issues, min(sample_size, len(all_issues)))
-    
-    # Generate report
-    output_path = Path(config["data_curated"]) / "validation_report.md"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    print(f"Generating validation report for {len(sampled)} issues...")
-    generate_report(sampled, output_path)
-    
-    print(f"Report saved to {output_path}")
-    return 0
+    except Exception as e:
+        print(f"Validation failed with unexpected error: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+        return 1
 
 
 if __name__ == "__main__":
