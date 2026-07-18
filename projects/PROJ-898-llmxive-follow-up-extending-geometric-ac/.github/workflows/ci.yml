@@ -1,0 +1,94 @@
+name: CI - CPU Only (Multi-core x64)
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  test-and-profile:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+        arch: [x64]
+
+    # Explicitly disable GPU usage to ensure CPU-only execution
+    # This aligns with the project constraint of CPU-only inference and simulation
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+      TORCH_USE_CUDA_DSA: "0"
+      PYBULLET_USE_NUMBA: "0"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: ${{ matrix.arch }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "Warning: requirements.txt not found, installing core deps"
+            pip install pybullet torch cvxpy diffcp scipy pandas numpy pytest ruff black
+          fi
+
+      - name: Lint with Ruff
+        run: |
+          ruff check code/ tests/ scripts/ || true
+          # Fail only on critical errors if configured, otherwise warn
+          ruff format --check code/ tests/ scripts/ || true
+
+      - name: Run Unit Tests
+        # Timeout set to 15 minutes per job to prevent CI hangs on heavy physics sims
+        timeout-minutes: 15
+        run: |
+          pytest tests/ -v --tb=short
+
+      - name: Run CPU Profiling Simulation (FR-004 Verification)
+        # This step verifies the <300s/step assumption on 2-core hardware
+        # It runs the solver_profiler script which simulates worst-case scenarios
+        timeout-minutes: 30
+        run: |
+          python code/solver_profiler.py --mode=simulate --max-cores=2 --timeout-verify=300
+        # If the script exits with 0, the assumption holds. If it exceeds 300s internally,
+        # the script should raise an error or return a failure code.
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.arch }}-${{ matrix.python-version }}
+          path: |
+            data/results/*.csv
+            data/results/*.json
+            junit.xml
+            coverage.xml
+          retention-days: 7
+
+      - name: Upload Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-logs-${{ matrix.arch }}
+          path: |
+            data/generated/*.log
+            .github/workflows/ci.yml
+          retention-days: 3

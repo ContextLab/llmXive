@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-gam-follow-up"
+version = "0.1.0"
+description = "Extending Geometric Action Model for Robot Policy Learning"
+requires-python = ">=3.11"
+dependencies = [
+    "pybullet",
+    "torch",
+    "cvxpy",
+    "diffcp",
+    "scipy",
+    "pandas",
+    "numpy",
+    "pytest",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+# Inherits from .ruff.toml but can override specific project rules here if needed
+target-version = "py311"

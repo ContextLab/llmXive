@@ -1,0 +1,93 @@
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: generate at least 50 distinct topologies
+  claim_id: c_cbfec236
+  context: Implement code/data_generation.py to generate a unified 'Topology-Shift
+    Test Set' containing BOTH novel kinematic chains (variable hinge counts) AND deformable
+    materials (soft ropes, cloth) in PyBullet, generating at least 50 distinct topologies,
+    ensuring zero overlap with original GAM training data (FR-001)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_50_distinct_topologies
+  kind: magnitude
+  raw_text: generating at least 50 distinct topologies
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:08:44Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: verify solver execution is under 300 seconds per step on 2-core hardware
+  claim_id: c_87c2fe00
+  context: Implement CPU-only profiling script to simulate solver execution and verify
+    <300 seconds/step assumption on 2-core hardware (FR-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify <300 seconds/step assumption on 2-core hardware
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:08:44Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: verify object reaches target zone within 5cm and maintains one-second
+    collision-free duration
+  claim_id: c_4fc014bf
+  context: 'Implement logic to measure and record the success metric: verifying the
+    manipulated object reaches the ''target zone (center within 5cm)'' AND maintains
+    ''one-second collision-free duration'' in raw data logs for each trial'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_object_reaches_target_zone_within_5cm_and_maintains_o
+  kind: entity_fact
+  raw_text: verify the manipulated object reaches the 'target zone (center within
+    5cm)' AND maintains 'one-second collision-free duration'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:09:14Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: target to reduce solver latency to under 300 seconds per step
+  claim_id: c_d87b0d49
+  context: 'Performance optimization for solver execution time (Target: Reduce solver
+    latency to <300 seconds/step)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target: Reduce solver latency to <300 seconds/step'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:09:14Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: generate 50 distinct topologies for topology-shift test set
+  claim_id: c_9f485eb8
+  context: Implement code/data_generation.py to generate a unified 'Topology-Shift
+    Test Set' containing BOTH novel kinematic chains (variable hinge counts) AND deformable
+    materials (soft ropes, cloth) in PyBullet, generating at least 50 distinct topologies,
+    ensuring zero overlap with original GAM training data (FR-001)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_50_distinct_topologies_for_topology-shift_test_set
+  kind: magnitude
+  raw_text: generating at least 50 distinct topologies
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:19:38Z'

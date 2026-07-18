@@ -1,0 +1,63 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided artifacts describe dataset generation and symbolic planner execution,\
+    \ but there is no GitHub Actions workflow file (e.g., `.github/workflows/ci.yml`)\
+    \ or any configuration showing multi\u2011core x64 execution, a timeout setting,\
+    \ or explicit disabling of GPU. Consequently, the required CI workflow is missing."
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No profiling script, log, or benchmark results were found in the provided evidence;\
+    \ the claim that a CPU\u2011only script was implemented and that it verifies the\
+    \ \u201C<300\u202Fseconds per step on 2\u2011core hardware\u201D assumption cannot\
+    \ be confirmed. The required artifact (the profiling script and its execution\
+    \ output) is missing."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code modifications, scripts, or generated data files were presented to demonstrate\
+    \ that latent inputs and ground\u2011truth actions are being recorded at each\
+    \ timestep in `data/generated/`. Without such artifacts, the claim cannot be verified.\
+    \ The next implementer must provide the updated data\u2011generation code and\
+    \ a non\u2011empty example output directory showing the recorded per\u2011timestep\
+    \ latent inputs and actions."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence contains only the feature specification and user stories\
+    \ for dataset generation and symbolic planning; there is no code, module, or documentation\
+    \ showing error\u2011handling logic for physics simulation crashes, nor any logs\
+    \ or recovery mechanisms. Consequently, the required artifact\u2014an implementation\
+    \ of crash recovery and state logging for the physics simulator\u2014is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no code, configuration, tests, or documentation showing\
+    \ a timeout mechanism for solver steps; there is no artifact that implements or\
+    \ verifies a per\u2011step time limit. Consequently the required feature is not\
+    \ demonstrated."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence only describes synthetic dataset generation and symbolic\
+    \ planner execution; there is no code, configuration, test, or documentation showing\
+    \ an \u201Cinfeasible\u201D flag being added to constraint handling or trials\
+    \ being recorded as failures. Consequently, the required artifact for task T018\
+    \ is missing."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing Mahalanobis\u2011based latent\
+    \ drift detection and OOD flagging was provided. The only artifacts described\
+    \ relate to dataset generation and symbolic planning, which do not satisfy the\
+    \ required latent drift detection feature. The task therefore lacks the necessary\
+    \ implementation artifact."
+T019b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, test script, logs, or output demonstrating a gradient verification test
+    are present; the claim provides only the task description and specifications,
+    without any artifact proving that gradients were computed and verified through
+    the loss, decoder, and solver parameters. The required implementation and its
+    execution results are missing.
