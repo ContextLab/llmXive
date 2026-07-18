@@ -1,0 +1,1299 @@
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target reduced from 500 to 24 compositions
+  claim_id: c_fe9a6c27
+  context: Create docs/scope_change_request.md to formally document the reduction
+    of FR-001 target from 500 to 24 compositions due to compute constraints (Pilot
+    Study T001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target was reduced from 500 to 24 compositions due to compute constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:44:35Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Pilot sample size is 24 compositions
+  claim_id: c_f25c96c5
+  context: Task T001.3 documents the reduction of FR-001 target from 500 to 24 compositions
+    due to compute constraints. Task T022 notes the risk mitigation for SC-001 regarding
+    the small sample size (N=24).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a pilot sample of 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:46:39Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Pilot sample size is 24 compositions
+  claim_id: c_4158f428
+  context: 'Notes section states: ''The project uses N=24 compositions.'' and ''Scope:
+    Pilot Sample of 24 compositions.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a pilot sample of 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:46:39Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Target RMSE for Random Forest regression is 15 K
+  claim_id: c_cd719d99
+  context: "Phase 4 Goal: 'Train Random Forest regression... achieving RMSE \u2264\
+    15 K'. Task T016: 'Target: RMSE \u226415 K.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The target RMSE for the Random Forest regression model is \u226415 K."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:46:39Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Target ROC-AUC for Random Forest classification is 0.7
+  claim_id: c_657d80d4
+  context: 'Phase 4 Goal: ''Train Random Forest... classification models... achieving...
+    ROC-AUC > 0.7.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target ROC-AUC for the Random Forest classification model is > 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:46:39Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Total pipeline execution time limit is 6 hours
+  claim_id: c_407e1941
+  context: "Phase 4 Independent Test: 'executes... within 6 hours'. Task T021: 'Verify\
+    \ \u22646 hour limit (SC-005)'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The total end-to-end pipeline execution time must be verified to be \u2264\
+    6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:46:39Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Crystallization binary label threshold is 50 K
+  claim_id: c_f98b5a10
+  context: 'Task T013.1: ''Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the
+    merged dataset.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The crystallization labeling logic applies a binary threshold where 1
+    is assigned if |Tx - Tg| <= 50K.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:46:58Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 25, 50, 75, and 100 K
+  claim_id: c_f2281f49
+  context: 'Task T019: ''varying the crystallization threshold across the specific
+    range: 25K, 50K, 75K, 100K.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis varies the crystallization threshold across the
+    specific range of 25K, 50K, 75K, and 100K.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:47:28Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Collinearity VIF threshold is 5
+  claim_id: c_8f873517
+  context: 'Task T023: ''calculate VIF for all predictors and flag those with VIF
+    > 5''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_VIF_threshold_is_5
+  kind: magnitude
+  raw_text: The collinearity report flags predictors with a Variance Inflation Factor
+    (VIF) greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:48:14Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Hyperparameter grid search time cap is 2 hours
+  claim_id: c_cf9560f2
+  context: 'Task T016: ''Implement Random Forest regression training... with hyperparameter
+    grid search (capped to complete within 2 hours).'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest hyperparameter grid search is capped to complete within
+    2 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:48:31Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Chemical families stratified are oxide, sulfide, and organic
+  claim_id: c_8ba6cf17
+  context: 'Task T024: ''stratified by chemical family (oxide, sulfide, organic)''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chemical_families_stratified_are_oxide,_sulfide,_and_organic
+  kind: entity_fact
+  raw_text: 'The dataset is stratified by three chemical families: oxide, sulfide,
+    and organic.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:48:51Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest regression target RMSE less than or equal to 15 K
+  claim_id: c_e11ccb9d
+  context: "Implement Random Forest regression training in code/models/train.py with\
+    \ hyperparameter grid search (capped to complete within 2 hours). Target: RMSE\
+    \ \u226415 K."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_regression_target_RMSE_less_than_or_equal_to_1
+  kind: magnitude
+  raw_text: "Target: RMSE \u226415 K"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:51:48Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest classifier target ROC-AUC greater than 0.7
+  claim_id: c_7753de1c
+  context: "Train Random Forest regression and classification models on the generated\
+    \ dataset to predict Tg and crystallization propensity, achieving RMSE \u2264\
+    15 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_classifier_target_ROC-AUC_greater_than_0.7
+  kind: magnitude
+  raw_text: ROC-AUC > 0.7
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:52:07Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Training script execution time within 6 hours on 2-CPU runner
+  claim_id: c_9d382413
+  context: The training script executes on a 2-CPU runner within 6 hours, outputting
+    a model file and performance report meeting the RMSE and ROC-AUC targets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script executes on a 2-CPU runner within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:52:58Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Crystallization label defined as 1 if absolute difference between Tx
+    and Tg is less than or equal to 50 K
+  claim_id: c_e9ce876a
+  context: 'Implement crystallization labeling logic in code/data/merge.py: Apply
+    binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Crystallization_label_defined_as_1_if_absolute_difference_be
+  kind: magnitude
+  raw_text: 'crystallization labeling logic: Apply binary logic (1 if |Tx - Tg| <=
+    50K, else 0)'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:53:16Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis varying crystallization threshold at 25 K, 50 K,
+    75 K, and 100 K
+  claim_id: c_31dac78a
+  context: 'Implement Sensitivity Analysis in code/models/evaluate.py varying the
+    crystallization threshold across the specific range: 25K, 50K, 75K, 100K.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'varying the crystallization threshold across the specific range: 25K,
+    50K, 75K, 100K'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:54:29Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Sample size of 24 compositions
+  claim_id: c_7a8bf224
+  context: Train a mean predictor baseline and run a permutation test (sufficient
+    shuffles) to establish statistical significance for the small sample size (N=24)
+    as required by the risk mitigation for SC-001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sample size (N=24)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:55:20Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Collinearity flag for predictors with Variance Inflation Factor greater
+    than 5
+  claim_id: c_23af8af6
+  context: Implement Collinearity Report generation in code/models/evaluate.py to
+    calculate VIF for all predictors and flag those with VIF > 5, outputting docs/reports/collinearity_report.json
+    (FR-007).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: flag those with VIF > 5
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T16:55:32Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Pilot sample size of 24 compositions for interpretability analysis
+  claim_id: c_be16f67a
+  context: 'Generate SHAP values to rank structural descriptors and visualize family-specific
+    vs. universal predictors. Scope: Pilot Sample of 24 compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pilot Sample of 24 compositions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:58:28Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Stratification by oxide, sulfide, and organic chemical families
+  claim_id: c_af5663f8
+  context: Implement SHAP value computation in code/models/evaluate.py for both regressor
+    and classifier, stratified by chemical family (oxide, sulfide, organic).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratification_by_oxide,_sulfide,_and_organic_chemical_famil
+  kind: entity_fact
+  raw_text: stratified by chemical family (oxide, sulfide, organic)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T16:58:51Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 2
+  canonical: project uses 24 compositions
+  claim_id: c_8fc6ecc5
+  context: 'Small Sample Size Mitigation: The project uses N=24 compositions. Tasks
+    T022 (Null Model/Permutation Test) and T023 (Collinearity Report) are mandatory
+    and MUST be executed in Phase 4 after data generation to ensure statistical validity.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses N=24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:02:12Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target RMSE less than or equal to 15 K
+  claim_id: c_642bfd5a
+  context: "Goal: Train Random Forest regression and classification models on the\
+    \ generated dataset to predict Tg and crystallization propensity, achieving RMSE\
+    \ \u226415 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_RMSE_less_than_or_equal_to_15_K
+  kind: magnitude
+  raw_text: "The training script targets an RMSE \u226415 K."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:03:54Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target ROC-AUC greater than 0.7
+  claim_id: c_7fd82eaa
+  context: "Goal: Train Random Forest regression and classification models on the\
+    \ generated dataset to predict Tg and crystallization propensity, achieving RMSE\
+    \ \u226415 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_ROC-AUC_greater_than_0.7
+  kind: magnitude
+  raw_text: The training script targets a ROC-AUC > 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:04:39Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: training script executes on 2-CPU runner within 6 hours
+  claim_id: c_54cb9d4c
+  context: 'Independent Test: The training script executes on a 2-CPU runner within
+    6 hours, outputting a model file and performance report meeting the RMSE and ROC-AUC
+    targets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script executes on a 2-CPU runner within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:04:39Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization labeling logic uses 50K threshold
+  claim_id: c_f289ec2c
+  context: 'Implement crystallization labeling logic in `code/data/merge.py`: Apply
+    binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The crystallization labeling logic applies binary logic (1 if |Tx - Tg|
+    <= 50K, else 0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:04:39Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis varies threshold across 25K, 50K, 75K, 100K
+  claim_id: c_f1a29319
+  context: 'Implement Sensitivity Analysis in `code/models/evaluate.py` varying the
+    crystallization threshold across the specific range: **25K, 50K, 75K, 100K**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_varies_threshold_across_25K,_50K,_75K,
+  kind: entity_fact
+  raw_text: 'The sensitivity analysis varies the crystallization threshold across
+    the specific range: 25K, 50K, 75K, 100K.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:04:41Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: scope is pilot sample of 24 compositions
+  claim_id: c_a49213e2
+  context: 'Goal: Generate SHAP values to rank structural descriptors and visualize
+    family-specific vs. universal predictors. **Scope**: Pilot Sample of 24 compositions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scope_is_pilot_sample_of_24_compositions
+  kind: entity_fact
+  raw_text: The scope is a pilot sample of 24 compositions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:05:17Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: study stratifies by oxide, sulfide, organic families
+  claim_id: c_aa7a5b13
+  context: Implement SHAP value computation in `code/models/evaluate.py` for both
+    regressor and classifier, stratified by chemical family (oxide, sulfide, organic).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_stratifies_by_oxide,_sulfide,_organic_families
+  kind: entity_fact
+  raw_text: The study stratifies analysis by chemical family (oxide, sulfide, organic).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:05:43Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target RMSE less than or equal to 15 K
+  claim_id: c_2f390cbb
+  context: "Implement Random Forest regression training in code/models/train.py with\
+    \ hyperparameter grid search (capped to complete within 2 hours). Target: RMSE\
+    \ \u226415 K."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_RMSE_less_than_or_equal_to_15_K
+  kind: magnitude
+  raw_text: "target: RMSE \u226415 K"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:07:06Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target ROC-AUC greater than 0.7
+  claim_id: c_c3d42fb1
+  context: "Train Random Forest regression and classification models on the generated\
+    \ dataset to predict Tg and crystallization propensity, achieving RMSE \u2264\
+    15 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_ROC-AUC_greater_than_0.7
+  kind: magnitude
+  raw_text: ROC-AUC > 0.7
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:07:08Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: training script execution time on 2-CPU runner is within 6 hours
+  claim_id: c_2a1916f3
+  context: The training script executes on a 2-CPU runner within 6 hours, outputting
+    a model file and performance report meeting the RMSE and ROC-AUC targets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script executes on a 2-CPU runner within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:07:08Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization threshold sensitivity analysis range from 25 K to 100
+    K
+  claim_id: c_67825cd1
+  context: 'Implement Sensitivity Analysis in code/models/evaluate.py varying the
+    crystallization threshold across the specific range: 25K, 50K, 75K, 100K.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'varying the crystallization threshold across the specific range: 25K,
+    50K, 75K, 100K'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:07:08Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization labeling logic uses 50 K threshold
+  claim_id: c_5e10c8df
+  context: 'Implement crystallization labeling logic in code/data/merge.py: Apply
+    binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: binary logic (1 if |Tx - Tg| <= 50K, else 0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:07:27Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample size of 24 compositions
+  claim_id: c_d9fd89d6
+  context: 'Generate SHAP values to rank structural descriptors and visualize family-specific
+    vs. universal predictors. Scope: Pilot Sample of 24 compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pilot Sample of 24 compositions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:07:52Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample size is 24 compositions
+  claim_id: c_f2559d1f
+  context: 'Task T001.3 documents the reduction of FR-001 target from 500 to 24 compositions
+    due to compute constraints. Small Sample Size Mitigation: The project uses N=24
+    compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a pilot sample of 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:08:09Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample size is 24 compositions
+  claim_id: c_36f842cc
+  context: Task T022 (Null Model/Permutation Test) and Task T023 (Collinearity Report)
+    are mandatory... to ensure statistical validity for the small sample size (N=24).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a pilot sample of 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:08:10Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: random forest regression target RMSE 15 K
+  claim_id: c_84249cfd
+  context: "Train Random Forest regression and classification models on the generated\
+    \ dataset to predict Tg and crystallization propensity, achieving RMSE \u2264\
+    15 K and ROC-AUC > 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "target RMSE \u226415 K"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:09:31Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: random forest classification target ROC-AUC 0.7
+  claim_id: c_978dfe4f
+  context: "Train Random Forest regression and classification models on the generated\
+    \ dataset to predict Tg and crystallization propensity, achieving RMSE \u2264\
+    15 K and ROC-AUC > 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: target ROC-AUC > 0.7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:09:31Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization label logic Tx minus Tg less than or equal to 50K
+  claim_id: c_a4db6ee6
+  context: 'Implement crystallization labeling logic in code/data/merge.py: Apply
+    binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Crystallization_label_logic_Tx_minus_Tg_less_than_or_equal_t
+  kind: magnitude
+  raw_text: binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:09:45Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis crystallization thresholds 25K 50K 75K 100K
+  claim_id: c_52fb50fd
+  context: 'Implement Sensitivity Analysis in code/models/evaluate.py varying the
+    crystallization threshold across the specific range: 25K, 50K, 75K, 100K.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_crystallization_thresholds_25K_50K_75K
+  kind: entity_fact
+  raw_text: 'sensitivity analysis varying the crystallization threshold across the
+    specific range: 25K, 50K, 75K, 100K'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:10:09Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: sample size 24 compositions
+  claim_id: c_dc6ba0f3
+  context: Implement Null Model & Permutation Test... to establish statistical significance
+    for the small sample size (N=24) as required by the risk mitigation for SC-001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: small sample size (N=24)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:10:09Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample size 24 compositions
+  claim_id: c_5fb9be52
+  context: 'Goal: Generate SHAP values to rank structural descriptors and visualize
+    family-specific vs. universal predictors. Scope: Pilot Sample of 24 compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pilot Sample of 24 compositions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:10:09Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization labeling logic using 50K threshold
+  claim_id: c_eb7883f0
+  context: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset.
+    If experimental T_x is missing for a composition, exclude the row; do NOT compute
+    a synthetic label.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:11:12Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest classification target ROC-AUC of 0.7
+  claim_id: c_de94cdc4
+  context: "Train Random Forest regression and classification models on the generated\
+    \ dataset to predict Tg and crystallization propensity, achieving RMSE \u2264\
+    15 K and ROC-AUC > 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ROC-AUC > 0.7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:11:12Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: training execution time limit of 6 hours on 2 CPUs
+  claim_id: c_0ecb5749
+  context: The training script executes on a 2-CPU runner within 6 hours, outputting
+    a model file and performance report meeting the RMSE and ROC-AUC targets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: training script executes on a 2-CPU runner within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:11:13Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization threshold sensitivity analysis at 25K, 50K, 75K, and
+    100K
+  claim_id: c_a94f40b6
+  context: 'Implement Sensitivity Analysis in code/models/evaluate.py varying the
+    crystallization threshold across the specific range: 25K, 50K, 75K, 100K.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Crystallization_threshold_sensitivity_analysis_at_25K,_50K,
+  kind: entity_fact
+  raw_text: 'varying the crystallization threshold across the specific range: 25K,
+    50K, 75K, 100K'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:11:15Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 2
+  canonical: sample size of 24 compositions
+  claim_id: c_75a44df9
+  context: Train a mean predictor baseline and run a permutation test (sufficient
+    shuffles) to establish statistical significance for the small sample size (N=24)
+    as required by the risk mitigation for SC-001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: small sample size (N=24)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:11:15Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: stratification by oxide, sulfide, and organic chemical families
+  claim_id: c_4f5ea8b1
+  context: Implement SHAP value computation in code/models/evaluate.py for both regressor
+    and classifier, stratified by chemical family (oxide, sulfide, organic).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratification_by_oxide,_sulfide,_and_organic_chemical_famil
+  kind: entity_fact
+  raw_text: stratified by chemical family (oxide, sulfide, organic)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:11:16Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample of 24 compositions
+  claim_id: c_cd3a2351
+  context: T001.3 Create docs/scope_change_request.md to formally document the reduction
+    of FR-001 target from 500 to 24 compositions due to compute constraints (Pilot
+    Study T001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a pilot sample of 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:12:17Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample of 24 compositions
+  claim_id: c_93edd699
+  context: 'Scope: Pilot Sample of 24 compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a pilot sample of 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:12:17Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample of 24 compositions
+  claim_id: c_55c8023f
+  context: 'Small Sample Size Mitigation: The project uses N=24 compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a pilot sample of 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:12:17Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest regression RMSE target 15 K
+  claim_id: c_edce769d
+  context: "Goal: Train Random Forest regression and classification models on the\
+    \ generated dataset to predict Tg and crystallization propensity, achieving RMSE\
+    \ \u226415 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_regression_RMSE_target_15_K
+  kind: magnitude
+  raw_text: The target Root Mean Square Error (RMSE) for the Random Forest regression
+    model is less than or equal to 15 K.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:12:44Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest classification ROC-AUC target 0.7
+  claim_id: c_db1e6c1b
+  context: "Goal: Train Random Forest regression and classification models on the\
+    \ generated dataset to predict Tg and crystallization propensity, achieving RMSE\
+    \ \u226415 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_classification_ROC-AUC_target_0.7
+  kind: magnitude
+  raw_text: The target Receiver Operating Characteristic Area Under Curve (ROC-AUC)
+    for the Random Forest classification model is greater than 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:13:16Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization label 1 if |Tx - Tg| <= 50K
+  claim_id: c_2e85a187
+  context: 'Implement crystallization labeling logic in code/data/merge.py: Apply
+    binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/crystallization_label_1_if_%7CTx_-_Tg%7C_%3C=_50K
+  kind: magnitude
+  raw_text: The crystallization labeling logic applies a binary classification where
+    1 is assigned if the absolute difference between crystallization temperature (Tx)
+    and glass transition temperature (Tg) is less than or equal to 50 K.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:14:00Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 25K, 50K, 75K, 100K
+  claim_id: c_005d06e3
+  context: 'Implement Sensitivity Analysis in code/models/evaluate.py varying the
+    crystallization threshold across the specific range: 25K, 50K, 75K, 100K.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis varies the crystallization threshold across the
+    specific range of 25 K, 50 K, 75 K, and 100 K.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:14:20Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: total pipeline time limit 6 hours
+  claim_id: c_26cb45ae
+  context: "Verify \u22646 hour limit (SC-005) and output docs/reports/pipeline_timing.json."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_time_limit_6_hours
+  kind: magnitude
+  raw_text: The total end-to-end wall-clock time for the pipeline is verified to be
+    less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:15:37Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: hyperparameter grid search time limit 2 hours
+  claim_id: c_f26b1c47
+  context: Implement Random Forest regression training in code/models/train.py with
+    hyperparameter grid search (capped to complete within 2 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest regression hyperparameter grid search is capped to complete
+    within 2 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:15:54Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: literature subset file name literature_subset.csv
+  claim_id: c_45539721
+  context: Implement code/data/validate_literature_subset.py to check for the existence
+    and integrity of the hard-coded data/raw/literature_subset.csv.
+  evidence:
+    entailment_evidence: Literature subset file name literature subset.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Literature_subset_file_name_literature_subset.csv
+  kind: entity_fact
+  raw_text: The literature subset file used is named literature_subset.csv.
+  resolved_value: literature subset file name literature_subset.csv
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T17:15:56Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: project uses 24 compositions
+  claim_id: c_da42881b
+  context: 'Small Sample Size Mitigation: The project uses N=24 compositions. Tasks
+    T022 (Null Model/Permutation Test) and T023 (Collinearity Report) are mandatory...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses N=24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:16:27Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 2
+  canonical: training script execution time 6 hours on 2 CPUs
+  claim_id: c_9818f50b
+  context: 'Independent Test: The training script executes on a 2-CPU runner within
+    6 hours, outputting a model file and performance report meeting the RMSE and ROC-AUC
+    targets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script is designed to execute on a 2-CPU runner within 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:16:27Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: model target RMSE 15 K
+  claim_id: c_e96f80e8
+  context: "Goal: Train Random Forest regression and classification models on the\
+    \ generated dataset to predict Tg and crystallization propensity, achieving RMSE\
+    \ \u226415 K and ROC-AUC > 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model targets an RMSE of 15 K or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:18:03Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: model target ROC-AUC greater than 0.7
+  claim_id: c_3b0eac4c
+  context: "Goal: Train Random Forest regression and classification models on the\
+    \ generated dataset to predict Tg and crystallization propensity, achieving RMSE\
+    \ \u226415 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_target_ROC-AUC_greater_than_0.7
+  kind: magnitude
+  raw_text: The model targets an ROC-AUC greater than 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:18:31Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization label 1 if absolute difference between Tx and Tg is 50K
+    or less
+  claim_id: c_339181c6
+  context: 'Implement crystallization labeling logic in code/data/merge.py: Apply
+    binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The crystallization labeling logic applies binary logic where 1 is assigned
+    if |Tx - Tg| <= 50K, else 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:18:47Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 25K 50K 75K 100K
+  claim_id: c_19e61794
+  context: 'Implement Sensitivity Analysis in code/models/evaluate.py varying the
+    crystallization threshold across the specific range: 25K, 50K, 75K, 100K.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_thresholds_25K_50K_75K_100K
+  kind: entity_fact
+  raw_text: 'Sensitivity analysis varies the crystallization threshold across the
+    specific range: 25K, 50K, 75K, 100K.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:18:49Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample scope 24 compositions
+  claim_id: c_313bb6ed
+  context: 'Goal: Generate SHAP values to rank structural descriptors and visualize
+    family-specific vs. universal predictors. Scope: Pilot Sample of 24 compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scope of the pilot sample includes 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:19:26Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: SHAP analysis stratified by oxide sulfide organic families
+  claim_id: c_9138d4a0
+  context: Implement SHAP value computation in code/models/evaluate.py for both regressor
+    and classifier, stratified by chemical family (oxide, sulfide, organic).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SHAP_analysis_stratified_by_oxide_sulfide_organic_families
+  kind: entity_fact
+  raw_text: The SHAP value computation is stratified by chemical family including
+    oxide, sulfide, and organic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:19:46Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 2
+  canonical: Random Forest regression target RMSE of 15 K
+  claim_id: c_b822fd6d
+  context: "Implement Random Forest regression training in code/models/train.py with\
+    \ hyperparameter grid search (capped to complete within 2 hours). Target: RMSE\
+    \ \u226415 K."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "target: RMSE \u226415 K"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:20:26Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Random Forest classification target ROC-AUC greater than 0.7
+  claim_id: c_421b55ca
+  context: "Train Random Forest regression and classification models on the generated\
+    \ dataset to predict Tg and crystallization propensity, achieving RMSE \u2264\
+    15 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_classification_target_ROC-AUC_greater_than_0.7
+  kind: magnitude
+  raw_text: achieve ROC-AUC > 0.7
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:20:45Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Training script execution time limit of 6 hours on 2 CPUs
+  claim_id: c_acd04877
+  context: The training script executes on a 2-CPU runner within 6 hours, outputting
+    a model file and performance report meeting the RMSE and ROC-AUC targets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script executes on a 2-CPU runner within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:20:45Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Crystallization labeling logic using 50 K threshold
+  claim_id: c_d79f25b9
+  context: 'Implement crystallization labeling logic in code/data/merge.py: Apply
+    binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:21:02Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds of 25 K, 50 K, 75 K, and 100 K
+  claim_id: c_1edf9cbd
+  context: 'Implement Sensitivity Analysis in code/models/evaluate.py varying the
+    crystallization threshold across the specific range: 25K, 50K, 75K, 100K.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'varying the crystallization threshold across the specific range: 25K,
+    50K, 75K, 100K'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:21:02Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Study sample size of 24 compositions
+  claim_id: c_8040f5d3
+  context: Train a mean predictor baseline and run a permutation test (sufficient
+    shuffles) to establish statistical significance for the small sample size (N=24)
+    as required by the risk mitigation for SC-001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: small sample size (N=24)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:21:03Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Interpretability analysis scope of 24 compositions
+  claim_id: c_e2766c1d
+  context: 'Goal: Generate SHAP values to rank structural descriptors and visualize
+    family-specific vs. universal predictors. Scope: Pilot Sample of 24 compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Scope: Pilot Sample of 24 compositions'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:21:03Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: Chemical families stratified as oxide, sulfide, and organic
+  claim_id: c_87022f35
+  context: Implement SHAP value computation in code/models/evaluate.py for both regressor
+    and classifier, stratified by chemical family (oxide, sulfide, organic).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chemical_families_stratified_as_oxide,_sulfide,_and_organic
+  kind: entity_fact
+  raw_text: stratified by chemical family (oxide, sulfide, organic)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:21:04Z'

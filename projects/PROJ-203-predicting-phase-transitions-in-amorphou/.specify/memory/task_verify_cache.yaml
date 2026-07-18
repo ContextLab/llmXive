@@ -1,0 +1,7 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`data/raw/`, `data/processed/`, `models/`,
+    `docs/reports/`) being created is present; the implementer only provided a textual
+    description without any actual filesystem artifacts. The task therefore remains
+    unfulfilled.

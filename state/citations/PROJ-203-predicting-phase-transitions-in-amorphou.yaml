@@ -9,3 +9,14 @@
   verification_status: unreachable
   verified_against_url: https://openkim.org/id/KIM-XXXXX
   verified_at: '2026-07-15T23:07:50.677992Z'
+- artifact_hash: 7dbb771c6856ab1dd31e8bc06e3c7e617552a29cbf3bdb94f6c1b90753ffb834
+  artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Vif - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q113106917
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q113106917
+  verified_at: '2026-07-18T17:21:05.158177Z'

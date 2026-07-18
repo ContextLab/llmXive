@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T002** — No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings, or corresponding CI scripts) are present in the provided evidence, so the required setup in the `code/` directory is missing. The implementer must add the actual configuration files and ensure they are non‑empty and correctly enable Ruff/Flake8 and Black for the project.
+- **T006** — No files or code snippets for `Composition`, `StructuralDescriptor`, or `ThermalProperty` were presented in `code/models/`; without concrete artifacts we cannot verify that the required data entity classes exist or contain any implementation. The implementer must add the three model classes in the specified directory and provide their contents.
+- **T008** — No evidence of the required directories (`data/raw/`, `data/processed/`, `models/`, `docs/reports/`) being created is present; the implementer only provided a textual description without any actual filesystem artifacts. The task therefore remains unfulfilled.

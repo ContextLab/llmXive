@@ -20,49 +20,48 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-203-predicting-phase-transitions-in-amorphou/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies: `numpy`, `pandas`, `scikit-learn`, `scipy`, `matplotlib`, `seaborn`, `shap`, `mdtraj`, `openmm`, `pyyaml` in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
+- [ ] T001.1 Create project directory structure: `projects/PROJ-203-predicting-phase-transitions-in-amorphou/`, `code/`, `data/raw/`, `data/processed/`, `data/logs/`, `artifacts/`, `tests/`
+- [ ] T001.2 Create `code/requirements.txt` with pinned dependencies: `numpy`, `pandas`, `scikit-learn`, `scipy`, `matplotlib`, `seaborn`, `shap`, `mdtraj`, `openmm`, `pyyaml`, `lammps`, `datasets`
+- [ ] T002 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
+- [ ] T001.3 Create `docs/scope_change_request.md` to formally document the reduction of FR-001 target from 500 to 24 compositions due to compute constraints (Pilot Study T001).
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes early validation steps for statistical significance and collinearity to mitigate small sample size risks.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` to manage environment variables, paths (`data/raw`, `data/processed`, `models`), and simulation parameters (cooling rate, time steps)
-- [ ] T005 [P] Create `code/utils/validators.py` for data integrity checks (NaN detection, physical bound validation for descriptors)
-- [ ] T006 [P] Setup logging infrastructure in `code/utils/logging_config.py` to capture simulation truncations and missing data events
-- [ ] T007 Create base data entities (`Composition`, `StructuralDescriptor`, `ThermalProperty`) in `code/models/`
-- [ ] T008 Implement `code/utils/plots.py` helpers for SHAP and partial dependence visualization
-- [ ] T009 Setup directory structure for `data/raw/`, `data/processed/`, `models/`, and `docs/reports/`
-- [ ] T030 [P] Implement Null Model & Permutation Test in `code/utils/statistics.py`: Train a mean predictor baseline and run a permutation test (sufficient shuffles) to establish statistical significance for the small sample size (N=24) as required by FR-006 and the risk mitigation for SC-001. This step MUST complete before model training.
-- [ ] T031 [P] Implement Collinearity Report generation in `code/utils/statistics.py` to calculate VIF for all predictors and flag those with VIF > 5, outputting `collinearity_report.json` (FR-007). This step MUST complete before model training.
+- [X] T003 Implement `code/config.py` to manage environment variables, paths (`data/raw`, `data/processed`, `models`), and simulation parameters (cooling rate, time steps)
+- [X] T004 [P] Create `code/utils/validators.py` for data integrity checks (NaN detection, physical bound validation for descriptors)
+- [X] T005 [P] Setup logging infrastructure in `code/utils/logging_config.py` to capture simulation truncations and missing data events
+- [ ] T006 Create base data entities (`Composition`, `StructuralDescriptor`, `ThermalProperty`) in `code/models/`
+- [X] T007 Implement `code/utils/plots.py` helpers for SHAP and partial dependence visualization
+- [ ] T008 Setup directory structure for `data/raw/`, `data/processed/`, `models/`, and `docs/reports/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,15 +75,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/data/validate_literature_subset.py` to check for the existence and integrity of the hard-coded `data/raw/literature_subset.csv`. **FAIL LOUDLY**: If the file is missing or corrupted, raise `FileNotFoundError` with message "FATAL: literature_subset.csv missing or corrupted" and exit with code 1. Do NOT attempt to fetch from external sources (Zenodo/NIST).
-- [ ] T011 [US1] Implement `code/data/simulate.py` to run MD simulations (LAMMPS/OpenMM) for the 24 pilot compositions. Enforce a CPU time cap per composition. If exceeded, **truncate trajectory to the final steps** for analysis (per Constitution Principle VII) and flag as "truncated" in metadata. Verify OpenKIM potentials are available.
-- [ ] T012 [US1] Implement `code/data/extract.py` to generate structural descriptors (RDF peak position/width, bond-angle variance, coordination numbers) from MD trajectories. Log NaNs and mark as "failed".
-- [ ] T013 [US1] Implement cooling rate metadata recording in `code/data/simulate.py`: Record the actual simulated cooling rate in metadata. Do NOT attempt physical alignment.
-- [ ] T013.1 [US1] Implement the "Timescale Matching Protocol" logic in `code/data/simulate.py`: Explicitly set the `SRO_Invariance_Assumed` flag in the metadata for all results to satisfy FR-008's requirement for a protocol, acknowledging the conditional nature of the assumption.
-- [ ] T014 [US1] Implement `code/data/merge.py` to join simulation descriptors with experimental labels from `literature_subset.csv`.
-- [ ] T014.1 [US1] Implement crystallization labeling logic in `code/data/merge.py`: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset. **If experimental T_x is missing for a composition, exclude the row; do NOT compute a synthetic label.** Log specific composition IDs for excluded rows.
-- [ ] T015 [US1] Implement collinearity diagnostics (VIF calculation) in `code/utils/validators.py` to verify no predictor is definitionally derived from the target (FR-007). (Note: Full report generation is handled in T031).
-- [ ] T016 [US1] Save final processed dataset to `data/processed/merged_dataset.parquet` with metadata flags for "truncated" simulations and "failed" runs.
+- [X] T009 [US1] Implement `code/data/validate_literature_subset.py` to check for the existence and integrity of the hard-coded `data/raw/literature_subset.csv`. **FAIL LOUDLY**: If the file is missing or corrupted, raise `FileNotFoundError` with message "FATAL: literature_subset.csv missing or corrupted" and exit with code 1. Do NOT attempt to fetch from external sources (Zenodo/NIST).
+- [X] T010 [US1] Implement `code/data/simulate.py` to run MD simulations (LAMMPS/OpenMM) for the pilot compositions. Enforce a CPU time cap per composition. If exceeded, **truncate trajectory to the final steps** for analysis (per Constitution Principle VII) and flag as "truncated" in metadata. Verify OpenKIM potentials are available.
+- [ ] T010.1 [US1] Implement timing logging in `code/data/simulate.py`: Write simulation start/end timestamps and duration for each composition to `data/logs/simulation_times.json` to support SC-005 total pipeline time measurement.
+- [ ] T011 [US1] Implement `code/data/extract.py` to generate structural descriptors (RDF peak position/width, bond-angle variance, coordination numbers) from MD trajectories. Log NaNs and mark as "failed".
+- [ ] T012 [US1] Implement cooling rate metadata recording in `code/data/extract.py`: Record the actual simulated cooling rate in the intermediate descriptor metadata.
+- [ ] T012.1 [US1] Implement the "Timescale Matching Protocol" logic in `code/data/extract.py` and `code/data/merge.py`: Explicitly set the `SRO_Invariance_Assumed` flag in the metadata of intermediate descriptor files and update the final `merged_dataset.parquet` during the merge step to satisfy FR-008's requirement for a protocol, acknowledging the conditional nature of the assumption.
+- [ ] T013 [US1] Implement `code/data/merge.py` to join simulation descriptors with experimental labels from `literature_subset.csv`.
+- [ ] T013.1 [US1] Implement crystallization labeling logic in `code/data/merge.py`: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset [UNRESOLVED-CLAIM: c_d79f25b9 — status=not_enough_info]. **If experimental T_x is missing for a composition, exclude the row; do NOT compute a synthetic label.** Log specific composition IDs for excluded rows.
+- [ ] T014 [US1] Save final processed dataset to `data/processed/merged_dataset.parquet` with metadata flags for "truncated" simulations, "failed" runs, and `SRO_Invariance_Assumed`.
 
 **Checkpoint**: User Story 1 should be fully functional and testable independently (producing valid `merged_dataset.parquet`)
 
@@ -92,19 +91,23 @@
 
 ## Phase 4: User Story 2 - Model Training & Performance Validation (Priority: P2)
 
-**Goal**: Train Random Forest regression and classification models on the generated dataset to predict Tg and crystallization propensity, achieving RMSE ≤15 K and ROC-AUC > 0.7. **Scope**: Pilot Sample of 24 compositions.
+**Goal**: Train Random Forest regression and classification models on the generated dataset to predict Tg and crystallization propensity, achieving RMSE ≤15 K and ROC-AUC > 0.7. **Scope**: Pilot Sample of compositions
 
-**Independent Test**: The training script executes on a 2-CPU runner within 6 hours, outputting a model file and performance report meeting the RMSE and ROC-AUC targets.
+The research question, method, and references remain unchanged as required..
+
+**Independent Test**: The training script executes on a 2-CPU runner within 6 hours [UNRESOLVED-CLAIM: c_acd04877 — status=not_enough_info], outputting a model file and performance report meeting the RMSE and ROC-AUC targets.
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement `code/models/train.py` to load `data/processed/merged_dataset.parquet` (which now includes pre-computed labels from T014.1) and split data (stratified by chemical family) into training/test sets.
-- [ ] T018 [US2] Implement Random Forest regression training in `code/models/train.py` with hyperparameter grid search (capped to complete within 2 hours). Target: RMSE ≤15 K.
-- [ ] T019 [US2] Implement Random Forest classifier training in `code/models/train.py` using the pre-computed crystallization labels from `data/processed/merged_dataset.parquet`. Ensure the confusion matrix is saved to verify the "low stability" labeling logic.
-- [ ] T020 [US2] Implement k-fold cross-validation in `code/models/train.py` and save `models/tg_regressor.pkl` and `models/crystallization_classifier.pkl`.
-- [ ] T021 [US2] Implement sensitivity analysis in `code/models/evaluate.py` varying the crystallization threshold across the specific range: **25K, 50K, 75K, 100K**. Report FPR, Class Balance, and accuracy for each step to distinguish model instability from threshold arbitrariness as per FR-006.
-- [ ] T022 [US2] Generate `docs/reports/metrics.json` containing RMSE, ROC-AUC, and cross-validation fold scores (SC-001, SC-002).
-- [ ] T023 [US2] Implement timing logger in `code/models/train.py` to record total wall-clock time and verify ≤6 hour limit (SC-005).
+- [ ] T015 [US2] Implement `code/models/train.py` to load `data/processed/merged_dataset.parquet` (which now includes pre-computed labels from T013.1) and split data (stratified by chemical family) into training/test sets.
+- [ ] T016 [US2] Implement Random Forest regression training in `code/models/train.py` with hyperparameter grid search (capped to complete within 2 hours). target: RMSE ≤15 K [UNRESOLVED-CLAIM: c_b822fd6d — status=not_enough_info].
+- [ ] T017 [US2] Implement Random Forest classifier training in `code/models/train.py` using the pre-computed crystallization labels from `data/processed/merged_dataset.parquet`. Ensure the confusion matrix is saved to verify the "low stability" labeling logic.
+- [ ] T018 [US2] Implement k-fold cross-validation in `code/models/train.py` and save `models/tg_regressor.pkl` and `models/crystallization_classifier.pkl`.
+- [ ] T019 [US2] Implement Sensitivity Analysis in `code/models/evaluate.py` varying the crystallization threshold across the specific range: **25K, 50K, 75K, 100K**. Report FPR, Class Balance, and accuracy for each step to distinguish model instability from threshold arbitrariness as per FR-006. Output `data/processed/sensitivity_report.json`. **Prerequisite**: Must consume `data/processed/merged_dataset.parquet` (T014).
+- [ ] T020 [US2] Generate `docs/reports/metrics.json` containing RMSE, ROC-AUC, and cross-validation fold scores (SC-001, SC-002).
+- [ ] T021 [US2] Implement total pipeline timing aggregation in `code/utils/timing.py`: Read `data/logs/simulation_times.json` (T010.1) and training logs to compute total end-to-end wall-clock time. Verify ≤6 hour limit (SC-005) and output `docs/reports/pipeline_timing.json`.
+- [ ] T022 [US2] Implement Null Model & Permutation Test in `code/models/evaluate.py`: Train a mean predictor baseline and run a permutation test (sufficient shuffles) to establish statistical significance for the small sample size (N=24) [UNRESOLVED-CLAIM: c_8040f5d3 — status=not_enough_info] as required by the risk mitigation for SC-001. Output `docs/reports/null_model_report.json`.
+- [ ] T023 [US2] Implement Collinearity Report generation in `code/models/evaluate.py` to calculate VIF for all predictors and {{claim:c_23af8af6}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917), outputting `docs/reports/collinearity_report.json` (FR-007). **Prerequisite**: Must consume `data/processed/merged_dataset.parquet` (T014).
 
 **Checkpoint**: User Stories 1 AND 2 should both work independently; model artifacts and metrics reports generated.
 
@@ -118,7 +121,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Implement SHAP value computation in `code/models/evaluate.py` for both regressor and classifier, stratified by chemical family (oxide, sulfide, organic).
+- [ ] T024 [US3] Implement SHAP value computation in `code/models/evaluate.py` for both regressor and classifier, stratified by chemical family (oxide, sulfide, organic) [UNRESOLVED-CLAIM: c_87022f35 — status=not_enough_info].
 - [ ] T025 [US3] Generate SHAP summary plots and ranked feature importance lists for each family in `docs/reports/shap_plots/`.
 - [ ] T026 [US3] Implement partial dependence plots for top predictors per family to verify monotonic/non-linear relationships with Tg.
 - [ ] T027 [US3] Implement multiple-comparison correction (Bonferroni/FDR) logic in `code/models/evaluate.py` when comparing feature importance across families (FR-005).
@@ -133,11 +136,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T032 [P] Documentation updates in `docs/` including `quickstart.md` for running the pipeline
-- [ ] T033 Code cleanup and refactoring in `code/`
-- [ ] T034 Performance optimization for data loading and SHAP calculation
-- [ ] T035 [P] Additional unit tests for data validators and labeling logic in `tests/unit/`
-- [ ] T036 [P] Run `quickstart.md` validation: **execute the end-to-end pipeline script defined in quickstart.md and verify the output Parquet file** is valid and complete.
+- [ ] T030 [P] Documentation updates in `docs/` including `quickstart.md` for running the pipeline
+- [ ] T031 Code cleanup and refactoring in `code/`
+- [ ] T032 Performance optimization for data loading and SHAP calculation
+- [ ] T033 [P] Additional unit tests for data validators and labeling logic in `tests/unit/`
+- [ ] T034 [P] Run `quickstart.md` validation: **execute the end-to-end pipeline script defined in quickstart.md and verify the output Parquet file** is valid and complete.
 
 ---
 
@@ -148,8 +151,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -214,9 +217,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Pipeline)
-   - Developer B: User Story 2 (Model Training) - *Wait for US1 data*
-   - Developer C: User Story 3 (Interpretability) - *Wait for US2 models*
+ - Developer A: User Story 1 (Data Pipeline)
+ - Developer B: User Story 2 (Model Training) - *Wait for US1 data*
+ - Developer C: User Story 3 (Interpretability) - *Wait for US2 models*
 3. Stories complete and integrate independently
 
 ---
@@ -231,5 +234,7 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Data Rule**: `code/data/validate_literature_subset.py` MUST fail loudly if `literature_subset.csv` is missing; no synthetic fallbacks allowed.
-- **Small Sample Size Mitigation**: The project uses N=24 compositions. Tasks T030 (Null Model/Permutation Test) and T031 (Collinearity Report) are mandatory and MUST be executed in Phase 2 before model training to ensure statistical validity.
-- **Timescale Matching**: Task T013.1 implements the protocol to record and flag the cooling rate assumption, satisfying FR-008 without claiming impossible physical alignment.
+- **Small Sample Size Mitigation**: The project uses N=24 compositions. Tasks T022 (Null Model/Permutation Test) and T023 (Collinearity Report) are mandatory and MUST be executed in Phase 4 after data generation to ensure statistical validity.
+- **Timescale Matching**: Task T012.1 implements the protocol to record and flag the cooling rate assumption, satisfying FR-008 without claiming impossible physical alignment.
+- **Scope Change**: Task T001.3 documents the reduction from 500 to 24 compositions.
+- **Total Pipeline Time**: Task T021 aggregates simulation (T010.1) and training times to verify SC-005.
