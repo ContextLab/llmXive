@@ -34,3 +34,9 @@ T042:
     required updates, we cannot confirm the task was completed. The implementer must
     add the updated quickstart markdown file and ensure it reflects the new user stories,
     usage instructions, and testing guidance.
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI logs, timing reports, or any performance measurements were provided to\
+    \ demonstrate that the total runtime is under 6\u202Fhours (or a simulated subset).\
+    \ The required artifact\u2014evidence of runtime verification\u2014is missing."
