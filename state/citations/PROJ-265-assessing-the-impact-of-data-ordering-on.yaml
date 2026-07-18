@@ -9,3 +9,14 @@
   verification_status: verified
   verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip
   verified_at: '2026-07-06T22:02:17.815448Z'
+- artifact_hash: 27420de35f8c97fc89ae033a7f9aa1a3efa95138ff8b6b9ef107346bbaa6c6e1
+  artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/specs/001-assessing-the-impact-of-data-ordering-on/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases
+  verified_at: '2026-07-18T15:16:44.225463Z'

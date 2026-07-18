@@ -38,6 +38,10 @@ def shuffled_bootstrap(data: np.ndarray, n_resamples: int, seed: Optional[int] =
     """
     Perform bootstrap on shuffled data to break temporal dependence.
     
+    This function shuffles the input data to destroy temporal correlations (autocorrelation)
+    before performing standard bootstrap resampling. This serves as a baseline to compare
+    against the ordered bootstrap to assess the impact of data ordering on coverage.
+    
     Args:
         data: Input time series data.
         n_resamples: Number of bootstrap resamples to generate.
@@ -50,8 +54,17 @@ def shuffled_bootstrap(data: np.ndarray, n_resamples: int, seed: Optional[int] =
         seed = get_shuffle_seed()
     
     rng = np.random.default_rng(seed)
+    # Shuffle the data to break temporal dependence
     shuffled_data = rng.permutation(data)
     
+    # Perform standard bootstrap on the shuffled data
+    # Note: We pass the same seed to standard_bootstrap, but the RNG state
+    # is managed internally by standard_bootstrap using its own seed logic.
+    # To ensure reproducibility, we rely on the seed passed to this function
+    # for the permutation, and standard_bootstrap will use its own seed logic.
+    # However, to be consistent with the API surface where standard_bootstrap
+    # accepts a seed, we pass the same seed here. The internal RNG in standard_bootstrap
+    # will be re-initialized with that seed, ensuring deterministic behavior.
     return standard_bootstrap(shuffled_data, n_resamples, seed)
 
 

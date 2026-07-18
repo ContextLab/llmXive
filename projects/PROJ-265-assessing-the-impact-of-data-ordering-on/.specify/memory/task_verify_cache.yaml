@@ -1,3 +1,9 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `tests/`, `data/raw/`, `data/processed/`,
+    `results/`) being present or populated is provided; the artifact list is empty,
+    so the initialization task is not demonstrated as completed.
 T016:
   c: false
   h: 9312d0e4e630887ae50c74f7133e7012e4fcbf609ce02b6f2362a5c27fd33835
@@ -6,24 +12,23 @@ T016:
     \ and the expected output file `results/simulation_logs.json` is missing from\
     \ the repository. The task\u2019s required artifact (a non\u2011empty log file)\
     \ is therefore not present."
-T031:
+T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files, linting reports, or docstring listings were provided; therefore
-    we cannot verify that debug prints were removed, linting errors fixed, or docstrings
-    completed. The required cleanup artifacts are missing.
-T033:
+  r: "No code, configuration, or documentation for error handling and logging logic\
+    \ for real\u2011world data was supplied. The claim lacks any artifact (e.g., Python\
+    \ modules, log configuration files, test cases) demonstrating that such functionality\
+    \ was added, so the requirement is not met."
+T037:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains only the task description and no actual artifacts such\
-    \ as code, simulation results, coverage tables, or analysis of the UCI power consumption\
-    \ dataset. Consequently, the required outputs (synthetic AR(1) generation, bootstrap\
-    \ confidence\u2011interval coverage calculations, ordered vs. shuffled comparisons,\
-    \ and real\u2011world data segment analysis) are missing."
-T035:
+  h: 8d78f2860825a25ecd62abd35ee1be42222134b11a636cbe07237552c0888ed3
+  r: The required file `tests/test_reproducibility.py` does not exist, so the function
+    `verify_reproducibility()` that runs `runner.py` twice and compares the hash of
+    `results/coverage_metrics.csv` is missing. The presence of `results/coverage_metrics.csv`
+    alone does not satisfy the task.
+T039:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or report artifacts were provided; the implementer did not deliver\
-    \ the required stratification logic, simulation outputs, or real\u2011world analysis\
-    \ described in the specification. Consequently the task\u2019s core deliverables\
-    \ are missing."
+  h: 1903f4c67121f1a670ce0ff13363abe7c1accf640bff6baaac0c836f799598f7
+  r: The required test file `tests/test_reproducibility.py` does not exist in the
+    repository, so the reproducibility verification cannot be run. The missing artifact
+    must be added (and the test executed) to satisfy the task.

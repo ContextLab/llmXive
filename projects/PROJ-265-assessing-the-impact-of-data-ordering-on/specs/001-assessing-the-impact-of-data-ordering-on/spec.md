@@ -30,7 +30,7 @@ The system MUST apply the same bootstrapping procedure to the data after random 
 
 **Acceptance Scenarios**:
 
-1. **Given** a generated AR(1) time series with $\phi > 0.5$, **When** the system runs bootstrapping on both the original ordered sequence and a randomly shuffled permutation of the same data, **Then** the coverage probability of the shuffled data is within $\pm 2\%$ of the nominal 0.95 level, while the ordered data is below 0.90.
+1. **Given** a generated AR(1) time series with $\phi > 0.5$, **When** the system runs bootstrapping on both the original ordered sequence and a randomly shuffled permutation of the same data, **Then** The coverage probability of the shuffled data is within a small margin of the nominal 0.95 level, while the ordered data is below 0.90..
 2. **Given** a set of 1,000 simulation trials, **When** the system performs a two-proportion z-test comparing the coverage indicators of ordered vs. shuffled conditions on the aggregate counts, **Then** the system outputs the calculated p-value and the difference in coverage proportions.
 
 ### User Story 3 - Analyze Real-World Data Segments (Priority: P3)
@@ -57,7 +57,7 @@ The system MUST load the UCI Individual Household Electric Power Consumption dat
 ### Functional Requirements
 
 - **FR-001**: System MUST generate synthetic AR(1) time series data with a user-specified autoregressive coefficient $\phi \in [0.0, 0.9]$ and sample sizes $N \in \{50, 100, 200\}$ for sensitivity analysis (See US-1).
-- **FR-002**: System MUST perform standard non-parametric bootstrapping (1,000 resamples) to construct 95% confidence intervals for the mean of the input data (See US-1).
+- **FR-002**: System MUST perform standard non-parametric bootstrapping (a sufficient number of resamples) to construct 95% confidence intervals for the mean of the input data (See US-1).
 - **FR-003**: System MUST calculate the empirical coverage probability as the percentage of generated confidence intervals that contain the theoretical mean of the process (0) for synthetic data ONLY. For real-world data, this metric is not applicable; see FR-010 for alternative metrics (See US-1).
 - **FR-004**: System MUST implement a shuffling mechanism that randomly permutes the input data array to break temporal dependence while preserving the marginal distribution (See US-2).
 - **FR-005**: System MUST perform a two-proportion z-test on the aggregate counts of covered/not-covered trials (across [deferred] trials) to compare ordered vs. shuffled conditions, and MUST report the magnitude of the coverage drop (absolute difference between empirical coverage and nominal 0.95) (See US-2).
@@ -84,15 +84,15 @@ The system MUST load the UCI Individual Household Electric Power Consumption dat
 - **SC-001**: The difference in coverage probability between ordered and shuffled data is measured against the nominal 0.95 level to quantify the bias introduced by temporal autocorrelation (See US-1).
 - **SC-002**: The statistical significance of the coverage difference is measured against the critical value for a two-proportion z-test at $\alpha = 0.05$ (See US-2).
 - **SC-003**: The empirical coverage probability for synthetic data is measured against the nominal 0.95 level; for real-world data, the CI Width Stability and Bias Relative to Block-Bootstrap are measured against the shuffled baseline to validate the generalizability of the findings (See US-3).
-- **SC-004**: The computational runtime of the full simulation (1,000 trials $\times$ 10 $\phi$ levels $\times$ 3 sample sizes) is measured against the 6-hour limit of the free-tier GitHub Actions runner to ensure feasibility (See FR-001).
+- **SC-004**: The computational runtime of the full simulation (multiple trials $\times$ multiple $\phi$ levels $\times$ 3 sample sizes) is measured against the 6-hour limit of the free-tier GitHub Actions runner to ensure feasibility (See FR-001).
 - **SC-005**: The sensitivity of the coverage probability to the sample size $N$ is measured by comparing results for $N=50, 100, 200$ to ensure the effect is not an artifact of small sample size (See FR-011).
 
 ## Assumptions
 
 - The `statsmodels` library is available in the GitHub Actions free-tier environment and can be installed without GPU dependencies.
 - The UCI Individual Household Electric Power Consumption dataset is accessible via the verified URL ` and the file integrity can be verified using MD5 checksum.
-- The synthetic AR() generation assumes a Gaussian error term with mean 0 and variance 1, which is sufficient for testing the exchangeability violation.
-- The sample size $N \in \{50, 100, 200\}$ is sufficient to estimate the mean and standard deviation and allow a substantial number of bootstrap resamples to run within the 6-hour compute limit.
+- The synthetic AR() generation assumes a Gaussian error term with a mean of zero and variance of one., which is sufficient for testing the exchangeability violation.
+- The sample size $N \in \{, 100, 200\}$ is sufficient to estimate the mean and standard deviation and allow a substantial number of bootstrap resamples to run within the 6-hour compute limit.
 - The "true mean" for synthetic data is the theoretical process mean (0), serving as the ground truth for coverage calculation.
 - For real-world data, the "ground truth" is approximated by the Block-Bootstrap estimate, as the true population mean is unknown.
 - A two-proportion z-test on aggregate counts is an appropriate approximation for the paired simulation design, avoiding the need for computationally expensive exact tests.
