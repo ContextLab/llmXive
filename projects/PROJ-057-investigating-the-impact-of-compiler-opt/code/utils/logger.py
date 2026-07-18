@@ -1,18 +1,8 @@
 """
 Logging infrastructure for the compiler optimization impact study.
-
-This module provides a centralized logging setup to record:
-- Compiler versions detected during the experiment
-- Flag combinations used for compilation
-- Runtime warnings, specifically NaN detection events
-- General execution flow and errors
-
-Usage:
-    from utils.logger import get_logger, setup_logging
-    logger = get_logger()
-    logger.info("Starting benchmark...")
+Provides specialized loggers and handlers for compiler versions, flags,
+execution warnings, and stability failures (NaN detection).
 """
-
 import os
 import sys
 import logging
@@ -21,221 +11,181 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 
-# Ensure the log directory exists
-LOG_DIR = Path(__file__).parent.parent.parent / "data" / "logs"
+# Constants for log paths
+LOG_DIR = Path("data/logs")
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# Format string including timestamp, level, module, and message
-LOG_FORMAT = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+# Global logger instance
+_logger: Optional[logging.Logger] = None
 
-# Global logger instance cache to prevent re-initialization issues
-_logger_instance: Optional[logging.Logger] = None
-
-def setup_logging(
-    level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    enable_console: bool = True
-) -> None:
+def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> logging.Logger:
     """
-    Configure the root logger for the project.
-
+    Initialize the logging infrastructure.
+    
     Args:
-        level: Logging level (e.g., logging.DEBUG, logging.INFO)
-        log_file: Optional path to a log file. If None, uses default data/logs/project.log
-        enable_console: Whether to log to stdout/stderr
+        log_level: Logging severity threshold.
+        log_file: Optional path to a log file. Defaults to data/logs/run_<timestamp>.log.
+    
+    Returns:
+        The configured logger instance.
     """
-    global _logger_instance
+    global _logger
+    if _logger is not None:
+        return _logger
 
-    # Default log file path
+    _logger = logging.getLogger("compiler_opt_bench")
+    _logger.setLevel(log_level)
+    _logger.handlers.clear()
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(log_level)
+    console_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    console_handler.setFormatter(console_formatter)
+    _logger.addHandler(console_handler)
+
+    # File handler
     if log_file is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = str(LOG_DIR / f"experiment_{timestamp}.log")
+        log_file = str(LOG_DIR / f"run_{timestamp}.log")
+    
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(log_level)
+    file_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
+    )
+    file_handler.setFormatter(file_formatter)
+    _logger.addHandler(file_handler)
 
-    # Get root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
+    _logger.info(f"Logging initialized. Output file: {log_file}")
+    return _logger
 
-    # Clear existing handlers to avoid duplicates on re-runs
-    if root_logger.hasHandlers():
-        root_logger.handlers.clear()
+def get_logger() -> logging.Logger:
+    """Get the global logger instance, initializing if necessary."""
+    if _logger is None:
+        return setup_logging()
+    return _logger
 
-    # Create formatter
-    formatter = logging.Formatter(LOG_FORMAT, datefmt=DATE_FORMAT)
-
-    # File Handler
-    try:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
-    except Exception as e:
-        # Fallback if file write fails (e.g., permission issues)
-        print(f"Warning: Could not create log file {log_file}: {e}", file=sys.stderr)
-
-    # Console Handler
-    if enable_console:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
-
-    # Set specific level for third-party libraries if needed
-    logging.getLogger("numpy").setLevel(logging.WARNING)
-    logging.getLogger("matplotlib").setLevel(logging.WARNING)
-
-def get_logger(name: str = "compiler_opt") -> logging.Logger:
+def log_compiler_version(compiler: str, version: str, flags: List[str]) -> None:
     """
-    Retrieve a named logger instance.
-
+    Log compiler identification and configuration details.
+    
     Args:
-        name: Name of the logger (e.g., 'compiler_opt.executor')
-
-    Returns:
-        Configured logging.Logger instance
+        compiler: Compiler name (e.g., 'g++', 'clang++').
+        version: Compiler version string.
+        flags: List of optimization flags used.
     """
-    return logging.getLogger(name)
+    logger = get_logger()
+    log_entry = {
+        "event": "compiler_version",
+        "timestamp": datetime.now().isoformat(),
+        "compiler": compiler,
+        "version": version,
+        "flags": flags,
+        "log_level": "INFO"
+    }
+    logger.info(json.dumps(log_entry))
 
-def log_compiler_version(
-    logger: logging.Logger,
-    compiler: str,
-    version_info: str,
-    flags: List[str]
-) -> None:
+def log_flag_combination(config_id: str, flags: List[str], tensor_dim: str) -> None:
     """
-    Log the compiler version and the flags used.
-
+    Log a specific flag combination being tested.
+    
     Args:
-        logger: The logger instance to use
-        compiler: Name of the compiler (e.g., 'g++', 'clang++')
-        version_info: Output from compiler version command
-        flags: List of optimization flags used
+        config_id: Unique identifier for the configuration.
+        flags: List of flags.
+        tensor_dim: Tensor dimension (e.g., '768x768').
     """
-    logger.info(f"Compiler detected: {compiler}")
-    logger.info(f"Version info: {version_info.strip()}")
-    logger.info(f"Optimization flags: {' '.join(flags)}")
+    logger = get_logger()
+    log_entry = {
+        "event": "flag_combination",
+        "timestamp": datetime.now().isoformat(),
+        "config_id": config_id,
+        "flags": flags,
+        "tensor_dimension": tensor_dim,
+        "log_level": "INFO"
+    }
+    logger.info(json.dumps(log_entry))
 
-def log_nan_detection(
-    logger: logging.Logger,
-    config_id: str,
-    kernel_type: str,
-    tensor_shape: str,
-    details: Optional[str] = None
-) -> None:
+def log_execution_warning(warning_type: str, message: str, details: Optional[Dict[str, Any]] = None) -> None:
     """
-    Log a runtime warning regarding NaN detection in output tensors.
-
-    This is a critical stability check that should be flagged prominently.
-
+    Log runtime execution warnings (e.g., memory pressure, timeouts).
+    
     Args:
-        logger: The logger instance to use
-        config_id: Unique identifier for the configuration
-        kernel_type: Type of kernel (e.g., 'matmul', 'softmax')
-        tensor_shape: Shape of the tensor where NaN was found
-        details: Optional additional details about the detection
+        warning_type: Type of warning (e.g., 'Memory Pressure', 'Timeout').
+        message: Human-readable warning message.
+        details: Optional dictionary of additional context.
     """
-    message = f"CRITICAL: NaN detected in output for config={config_id}, kernel={kernel_type}, shape={tensor_shape}"
-    if details:
-        message += f" | Details: {details}"
+    logger = get_logger()
+    log_entry = {
+        "event": "execution_warning",
+        "timestamp": datetime.now().isoformat(),
+        "warning_type": warning_type,
+        "message": message,
+        "details": details or {},
+        "log_level": "WARNING"
+    }
+    logger.warning(json.dumps(log_entry))
 
-    logger.warning(message)
-
-    # Also log to a specific warning file for easy auditing
-    warning_file = LOG_DIR / "nan_warnings.jsonl"
-    try:
-        with open(warning_file, "a", encoding="utf-8") as f:
-            entry = {
-                "timestamp": datetime.now().isoformat(),
-                "config_id": config_id,
-                "kernel_type": kernel_type,
-                "tensor_shape": tensor_shape,
-                "details": details,
-                "type": "nan_detection"
-            }
-            f.write(json.dumps(entry) + "\n")
-    except Exception as e:
-        logger.error(f"Failed to write NaN warning to audit file: {e}")
-
-def log_execution_warning(
-    logger: logging.Logger,
-    config_id: str,
-    warning_type: str,
-    message: str
-) -> None:
+def log_nan_detection(config_id: str, kernel_type: str, tensor_dim: str) -> None:
     """
-    Log a general runtime warning.
-
+    Log detection of NaN values in output tensors.
+    
     Args:
-        logger: The logger instance to use
-        config_id: Unique identifier for the configuration
-        warning_type: Category of warning (e.g., 'memory_pressure', 'timeout')
-        message: The warning message
+        config_id: Configuration ID that produced NaN.
+        kernel_type: Kernel type (e.g., 'matmul', 'softmax').
+        tensor_dim: Tensor dimension.
     """
-    full_message = f"[{warning_type}] Config {config_id}: {message}"
-    logger.warning(full_message)
+    logger = get_logger()
+    log_entry = {
+        "event": "nan_detection",
+        "timestamp": datetime.now().isoformat(),
+        "config_id": config_id,
+        "kernel_type": kernel_type,
+        "tensor_dimension": tensor_dim,
+        "log_level": "ERROR"
+    }
+    logger.error(json.dumps(log_entry))
 
-def log_stability_failure(
-    logger: logging.Logger,
-    config_id: str,
-    kernel_type: str,
-    error_metric: str,
-    error_value: float,
-    threshold: float
-) -> None:
+def log_stability_failure(config_id: str, kernel_type: str, error_metric: float, threshold: float) -> None:
     """
     Log a stability failure where error exceeds the threshold.
-
-    Args:
-        logger: The logger instance to use
-        config_id: Unique identifier for the configuration
-        kernel_type: Type of kernel
-        error_metric: Name of the metric (e.g., 'l2_relative_error')
-        error_value: The calculated error value
-        threshold: The threshold that was exceeded
-    """
-    message = (
-        f"STABILITY FAILURE: Config {config_id}, Kernel {kernel_type} - "
-        f"{error_metric}={error_value:.2e} exceeds threshold {threshold:.2e}"
-    )
-    logger.warning(message)
-
-def main():
-    """
-    Main entry point for testing the logging infrastructure.
-    """
-    setup_logging(level=logging.DEBUG)
-    logger = get_logger("compiler_opt.test")
-
-    logger.info("Logging infrastructure initialized successfully.")
     
-    # Simulate logging compiler info
-    log_compiler_version(
-        logger, 
-        "g++", 
-        "g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0", 
-        ["-O2", "-march=native"]
-    )
+    Args:
+        config_id: Configuration ID.
+        kernel_type: Kernel type.
+        error_metric: Calculated error value (e.g., L2 relative error).
+        threshold: Threshold that was exceeded.
+    """
+    logger = get_logger()
+    log_entry = {
+        "event": "stability_failure",
+        "timestamp": datetime.now().isoformat(),
+        "config_id": config_id,
+        "kernel_type": kernel_type,
+        "error_metric": error_metric,
+        "threshold": threshold,
+        "status": "UNSTABLE",
+        "log_level": "ERROR"
+    }
+    logger.error(json.dumps(log_entry))
 
-    # Simulate a NaN detection event
-    log_nan_detection(
-        logger,
-        config_id="test_config_001",
-        kernel_type="matmul",
-        tensor_shape="(768, 768)",
-        details="First NaN found at index (12, 45)"
-    )
-
-    # Simulate a stability failure
-    log_stability_failure(
-        logger,
-        config_id="test_config_002",
-        kernel_type="softmax",
-        error_metric="max_abs_diff",
-        error_value=1.5e-4,
-        threshold=1e-5
-    )
-
-    logger.info("Test logging sequence completed.")
+def main() -> None:
+    """
+    CLI entry point to test logging functionality.
+    Runs a series of log calls to verify the infrastructure.
+    """
+    setup_logging()
+    logger = get_logger()
+    
+    logger.info("Testing logging infrastructure...")
+    log_compiler_version("g++", "11.4.0", ["-O2", "-march=native"])
+    log_flag_combination("cfg_001", ["-O3", "-ffast-math"], "512x512")
+    log_execution_warning("Memory Pressure", "Allocations exceeded 80% RAM, downscaling requested", {"original": "768x768", "scaled": "512x512"})
+    log_nan_detection("cfg_002", "softmax", "1024x1024")
+    log_stability_failure("cfg_003", "matmul", 1.5e-4, 1e-5)
+    logger.info("Logging test complete.")
 
 if __name__ == "__main__":
     main()

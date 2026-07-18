@@ -1,126 +1,129 @@
-# PROJ-057: Investigating the Impact of Compiler Optimizations on LLM Inference Latency
+# Investigating the Impact of Compiler Optimizations on LLM Inference Latency
+
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
 
-This project benchmarks the latency and numerical stability of LLM inference kernels (Matrix Multiplication, Softmax, LayerNorm) when compiled with various compiler optimization flags. The goal is to identify the Pareto frontier of performance versus numerical accuracy, specifically for CPU-based execution environments.
+This project benchmarks the impact of various compiler optimization flags on LLM inference latency
+by compiling and executing C++ kernels, measuring performance, and analyzing numerical stability.
 
-## Key Features
+## Features
 
-- **Deterministic Synthetic Data Generation**: Produces reproducible input tensors using fixed seeds.
-- **High-Precision Reference Engine**: Computes ground truth using Python's `decimal` module (512-bit precision).
-- **Dynamic Compilation**: Compiles C++ kernels on-the-fly with configurable optimization flags (`-O0` to `-O3`, `-ffast-math`, etc.).
-- **Statistical Analysis**: Performs Welch's t-tests on block-averaged latency distributions to determine statistical significance.
-- **Stability Auditing**: Detects NaNs and calculates L2 relative error and Max Absolute Difference against the reference.
-- **Visualization**: Generates Pareto frontier plots distinguishing stable vs. downsampled configurations.
-
-## Project Structure
-
-```text
-code/
-├── kernels/ # C++ kernel implementations (matmul, softmax, layernorm)
-├── benchmarks/ # Compilation, execution, and configuration logic
-├── analysis/ # Statistical tests, stability checks, and visualization
-├── utils/ # Logging and manifest generation utilities
-├── main.py # Entry point for the full experiment pipeline
-└── requirements.txt # Python dependencies
-
-data/
-├── raw/ # Generated input tensors and reference outputs
-├── intermediates/ # Raw execution logs (JSONL) and binary artifacts
-└── results/ # Aggregated CSVs, stability metrics, and plots
-
-tests/
-├── unit/ # Unit tests for configuration, stats, and stability
-└── integration/ # End-to-end integration tests
-```
-
-## Prerequisites
-
-- **Python 3.8+**: Required for running the analysis and orchestration scripts.
-- **C++ Compiler**: GCC 11+ or Clang 14+ (required for compiling kernels).
-- **Dependencies**: Install via `pip install -r code/requirements.txt`.
+- **Kernel Compilation**: Compile C++ kernels (MatMul, Softmax, LayerNorm) with different optimization flags
+- **Latency Measurement**: Execute binaries and measure latency with statistical rigor
+- **Stability Analysis**: Compare optimized outputs against high-precision reference implementations
+- **Statistical Testing**: Perform Welch's t-test to determine significance of performance differences
+- **Visualization**: Generate Pareto frontier plots exploring the latency-accuracy tradeoff
 
 ## Quick Start
 
-### 1. Setup Environment
+### Prerequisites
+
+- Python 3.9+
+- GCC 11+ or Clang 14+
+- CMake (optional, for building dependencies)
+
+### Installation
 
 ```bash
-cd code
-pip install -r requirements.txt
+# Clone the repository
+git clone <repository-url>
+cd PROJ-057-investigating-the-impact-of-compiler-opt
+
+# Install Python dependencies
+pip install -r code/requirements.txt
 ```
 
-### 2. Run the Full Pipeline
-
-The `main.py` script orchestrates the entire flow:
-1. Generate synthetic tensors.
-2. Compile kernels with various flags.
-3. Execute benchmarks and collect latency data.
-4. Compare results against the high-precision reference.
-5. Perform statistical analysis and generate visualizations.
+### Running the Benchmark
 
 ```bash
-python main.py
+# Run the full experiment flow
+python code/main.py
+
+# Run specific components
+python code/benchmarks/compile_runner.py --test
+python code/analysis/stability_check.py
+python code/analysis/viz.py
 ```
 
-*Note: The first run will take time as it compiles binaries and runs 1000 iterations per configuration.*
+## Project Structure
 
-### 3. Run Specific Components
+```
+.
+ ├── code/
+ │ ├── kernels/ # C++ kernel implementations
+ │ ├── benchmarks/ # Benchmark orchestration
+ │ ├── analysis/ # Analysis and visualization
+ │ ├── utils/ # Utility modules
+ │ ├── main.py # Entry point
+ │ └── requirements.txt # Dependencies
+ ├── data/
+ │ ├── raw/ # Input tensors and references
+ │ ├── intermediates/ # Raw logs and binaries
+ │ └── results/ # Final outputs
+ ├── tests/
+ │ ├── unit/ # Unit tests
+ │ └── integration/ # Integration tests
+ ├── docs/ # Documentation
+ └── README.md # This file
+```
 
-- **Generate Reference Data**:
- ```bash
- python benchmarks/reference.py
- ```
+## Methodology
 
-- **Compile and Run Benchmarks**:
- ```bash
- python benchmarks/compile_runner.py --test
- python benchmarks/executor.py
- ```
-
-- **Analyze Stability**:
- ```bash
- python analysis/stability_check.py
- ```
-
-- **Generate Visualizations**:
- ```bash
- python analysis/viz.py
- ```
-
-## Configuration
-
-Optimization flags and tensor dimensions are managed in `code/benchmarks/config.py`.
-Supported flags include:
-- `-O0`, `-O1`, `-O2`, `-O3`
-- `-Os` (Size optimization)
-- `-march=native`
-- `-ffast-math`
-- `-funroll-loops`
-
-Tensor dimensions can be configured (default: 768x768, with auto-downsampling to 512x512 on memory pressure).
+1. **Tensor Generation**: Deterministic synthetic tensors with fixed seeds
+2. **Reference Implementation**: High-precision (512-bit) reference using Python `decimal` module
+3. **Compilation**: Compile kernels with flags: `-O0`, `-O1`, `-O2`, `-O3`, `-Os`, `-march=native`, `-ffast-math`, `-funroll-loops`
+4. **Execution**: Run binaries 1000 times per configuration, measure latency
+5. **Stability Check**: Calculate L2 relative error and max absolute difference vs reference
+6. **Statistical Analysis**: Block-averaging and Welch's t-test for significance
+7. **Visualization**: Generate Pareto frontier plots
 
 ## Output Artifacts
 
-Upon successful completion, the following artifacts are generated in `data/results/`:
+- `data/results/stability_metrics.csv`: Stability metrics per configuration
+- `data/results/pareto_frontier_exploration.png`: Exploration plot (all stable configs)
+- `data/results/pareto_frontier_final.png`: Final Pareto frontier (excluding unstable)
+- `data/results/aggregated.csv`: Aggregated results
+- `data/manifest.json`: SHA-256 hashes for reproducibility
 
-- `aggregated.csv`: Block-averaged latency and error metrics.
-- `stability_metrics.csv`: L2 error and Max Diff per configuration.
-- `pareto_frontier_exploration.png`: Visualization including downsampled runs.
-- `pareto_frontier_final.png`: Final Pareto frontier excluding unstable runs.
+## Configuration
 
-## Statistical Methodology
+### Compiler Flags
 
-- **Block Averaging**: Latency measurements are averaged in blocks to reduce noise.
-- **Welch's t-test**: Used to compare independent binaries (different flags) to determine statistical significance (p < 0.05).
-- **Stability Threshold**: Configurations with L2 relative error > 1e-5 are flagged as unstable and excluded from final statistical analysis.
+Supported flags: `-O0`, `-O1`, `-O2`, `-O3`, `-Os`, `-march=native`, `-ffast-math`, `-funroll-loops`
+
+### Tensor Dimensions
+
+- 768x768 (default)
+- 512x512 (fallback on memory pressure)
 
 ## Testing
 
-Run the test suite:
 ```bash
-pytest tests/
+# Run all tests
+pytest tests/ -v
+
+# Run specific test suites
+pytest tests/unit/ -v
+pytest tests/integration/ -v
 ```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests
+5. Submit a pull request
 
 ## License
 
-Internal Research Project - PROJ-057
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Built with Python 3.9+
+- Uses NumPy, SciPy, Matplotlib, Pandas for analysis
+- C++17 for kernel implementations
+- GCC/Clang for compilation

@@ -85,7 +85,7 @@ projects/PROJ-057-investigating-the-impact-of-compiler-opt/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | Dual Compiler Support (GCC & Clang) | Compiler-specific optimizations (e.g., vectorization strategies) differ significantly between GCC and Clang. | Using only one compiler would miss critical variance in the "compiler impact" variable. |
-| 512-bit Decimal Reference | Standard `float64` (double) is insufficient to detect drift caused by `-ffast-math` which may drop precision to `float32` or lower. | Using `float64` as reference would result in false negatives for stability failures. |
+| -bit Decimal Reference | Standard `float64` (double) is insufficient to detect drift caused by `-ffast-math` which may drop precision to `float32` or lower. | Using `float64` as reference would result in false negatives for stability failures. |
 | **Welch's Independent Samples t-test** | Each configuration uses a distinct binary; samples are independent, not paired. | Paired t-tests require the same subject under two conditions, which is impossible here. |
 | **Multi-Seed Data (Multiple sets)** | Single random seed may not capture instability in specific activation patterns. | A single seed risks false negatives for stability failures on unseen data distributions. |
 | **Fixed [deferred] Iterations** | Adaptive stopping based on CV introduces selection bias and invalidates t-test assumptions. | Adaptive stopping creates a non-independent sample distribution. A fixed number of iterations allows for multiple blocks, providing sufficient degrees of freedom for statistical testing. |

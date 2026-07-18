@@ -1,8 +1,7 @@
 """
-Compile Runner for LLM Inference Kernel Benchmarks.
-
-Orchestrates compilation of C++ kernels with dynamic flag injection,
-binary hashing, and verification.
+Compile Runner for Compiler Optimization Benchmarks.
+Orchestrates compilation of C++ kernels with varying optimization flags
+and computes SHA-256 hashes for binary verification.
 """
 import os
 import sys
@@ -10,249 +9,177 @@ import subprocess
 import hashlib
 import argparse
 import tempfile
-import shutil
+import json
 from pathlib import Path
 from typing import List, Optional, Dict, Any, Tuple
 
-# Import from project API surface
-from benchmarks.config import BenchmarkConfig, ConfigManager, validate_flags
+# Configuration
+COMPILERS = {
+    "g++": "g++",
+    "clang++": "clang++"
+}
 
+DEFAULT_COMPILER = "g++"
+KERNELS_DIR = Path("code/kernels")
+BINARY_DIR = Path("data/binaries")
 
-class CompileRunner:
-    """Orchestrates compilation of C++ kernels with optimization flags."""
+def ensure_dirs():
+    """Ensure required directories exist."""
+    BINARY_DIR.mkdir(parents=True, exist_ok=True)
 
-    def __init__(self, kernel_dir: str, output_dir: str, compiler: str = "g++"):
-        """
-        Initialize the CompileRunner.
+def get_compiler_path(compiler_name: str) -> Optional[str]:
+    """Find the compiler in PATH."""
+    try:
+        result = subprocess.run(["which", compiler_name], capture_output=True, text=True, check=True)
+        return result.stdout.strip()
+    except subprocess.CalledProcessError:
+        return None
 
-        Args:
-            kernel_dir: Directory containing C++ kernel source files.
-            output_dir: Directory to place compiled binaries.
-            compiler: Compiler to use (g++ or clang++).
-        """
-        self.kernel_dir = Path(kernel_dir)
-        self.output_dir = Path(output_dir)
-        self.compiler = compiler
+def compute_sha256(file_path: str) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def compile_kernel(
+    kernel_path: str,
+    compiler: str,
+    flags: List[str],
+    output_path: str,
+    std: str = "c++17"
+) -> Tuple[bool, str, str]:
+    """
+    Compile a C++ kernel with specified flags.
+    
+    Args:
+        kernel_path: Path to the .cpp source file.
+        compiler: Compiler name (e.g., 'g++').
+        flags: List of compiler flags.
+        output_path: Path for the output binary.
+        std: C++ standard version.
+    
+    Returns:
+        Tuple of (success, message, hash_or_error).
+    """
+    cmd = [
+        compiler,
+        f"-std={std}",
+        "-O3",  # Base optimization, specific flags will override/add
+        "-o", output_path,
+        kernel_path
+    ]
+    cmd.extend(flags)
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        # Compute hash of the binary
+        binary_hash = compute_sha256(output_path)
+        return True, "Compilation successful", binary_hash
+    except subprocess.CalledProcessError as e:
+        return False, f"Compilation failed: {e.stderr}", str(e.stderr)
+
+def run_test():
+    """
+    Run a test compilation to verify the system works.
+    Creates a dummy binary and prints its SHA-256 hash.
+    """
+    ensure_dirs()
+    
+    # Create a minimal dummy C++ file in a temp directory
+    with tempfile.TemporaryDirectory() as tmpdir:
+        dummy_src = Path(tmpdir) / "dummy.cpp"
+        dummy_src.write_text("""
+        int main() { return 0; }
+        """)
         
-        # Ensure output directory exists
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-
-    def _get_compiler_version(self) -> str:
-        """Get the compiler version string."""
-        try:
-            result = subprocess.run(
-                [self.compiler, "--version"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            return result.stdout.split('\n')[0]
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Failed to get compiler version: {e}")
-
-    def _hash_binary(self, binary_path: Path) -> str:
-        """
-        Calculate SHA-256 hash of a binary file.
-
-        Args:
-            binary_path: Path to the binary file.
-
-        Returns:
-            Hexadecimal SHA-256 hash string.
-        """
-        sha256_hash = hashlib.sha256()
-        with open(binary_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-
-    def compile_kernel(
-        self,
-        source_file: Path,
-        flags: List[str],
-        output_name: Optional[str] = None
-    ) -> Tuple[Path, str]:
-        """
-        Compile a C++ kernel with specified flags.
-
-        Args:
-            source_file: Path to the C++ source file.
-            flags: List of compiler flags (e.g., ['-O2', '-march=native']).
-            output_name: Optional name for the output binary. If None, derived from source.
-
-        Returns:
-            Tuple of (path_to_binary, sha256_hash).
-
-        Raises:
-            RuntimeError: If compilation fails.
-        """
-        if not source_file.exists():
-            raise FileNotFoundError(f"Source file not found: {source_file}")
-
-        if output_name is None:
-            output_name = source_file.stem
-
-        output_path = self.output_dir / output_name
-
-        cmd = [self.compiler] + flags + ["-O2", "-std=c++17", str(source_file), "-o", str(output_path)]
-
-        # Add -O2 to flags if not present to ensure optimization, 
-        # but allow specific flags to override if needed. 
-        # Actually, the flags passed should be the full set. 
-        # Let's construct the command carefully.
-        # The 'flags' argument is expected to be the optimization flags like ['-O2', '-march=native'].
-        # We add -std=c++17 and the source/output.
+        dummy_bin = Path(tmpdir) / "dummy_binary"
         
-        full_cmd = [self.compiler] + flags + ["-std=c++17", str(source_file), "-o", str(output_path)]
-
-        try:
-            result = subprocess.run(
-                full_cmd,
-                capture_output=True,
-                text=True,
-                check=True
-            )
-        except subprocess.CalledProcessError as e:
-            error_msg = f"Compilation failed for {source_file}:\n{e.stderr}"
-            raise RuntimeError(error_msg)
-
-        if not output_path.exists():
-            raise RuntimeError(f"Compilation succeeded but binary not found: {output_path}")
-
-        binary_hash = self._hash_binary(output_path)
-        return output_path, binary_hash
-
-    def compile_all_kernels(
-        self,
-        flags: List[str],
-        kernel_pattern: str = "*.cpp"
-    ) -> Dict[str, Tuple[Path, str]]:
-        """
-        Compile all C++ kernels matching the pattern with given flags.
-
-        Args:
-            flags: List of compiler flags.
-            kernel_pattern: Glob pattern for source files.
-
-        Returns:
-            Dictionary mapping source filename to (binary_path, hash).
-        """
-        results = {}
-        source_files = list(self.kernel_dir.glob(kernel_pattern))
-
-        if not source_files:
-            raise FileNotFoundError(f"No source files found matching {kernel_pattern} in {self.kernel_dir}")
-
-        for source_file in source_files:
-            output_path, binary_hash = self.compile_kernel(source_file, flags)
-            results[source_file.name] = (output_path, binary_hash)
-
-        return results
-
-    def run_test_compilation(self) -> str:
-        """
-        Create a dummy C++ file, compile it, and return its SHA-256 hash.
-        Used for verification.
-
-        Returns:
-            SHA-256 hash of the dummy binary.
-        """
-        dummy_source_code = """
-        int main() {
-            return 0;
-        }
-        """
+        compiler = get_compiler_path(DEFAULT_COMPILER)
+        if not compiler:
+            print(f"Error: {DEFAULT_COMPILER} not found in PATH.", file=sys.stderr)
+            sys.exit(1)
         
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.cpp', delete=False) as f:
-            f.write(dummy_source_code)
-            dummy_source_path = Path(f.name)
-
-        try:
-            output_path, binary_hash = self.compile_kernel(
-                dummy_source_path,
-                flags=["-O2"],
-                output_name="dummy_test_binary"
-            )
-            return binary_hash
-        finally:
-            # Cleanup source
-            if dummy_source_path.exists():
-                dummy_source_path.unlink()
-            # Cleanup binary if we want a clean state, but keeping it for inspection is fine.
-            # The task says "outputs a SHA-256 hash", doesn't strictly say delete binary.
-            # We'll leave the binary in the output dir for verification.
-
+        success, message, result = compile_kernel(
+            str(dummy_src),
+            compiler,
+            [],  # No special flags for test
+            str(dummy_bin)
+        )
+        
+        if success:
+            print(f"Test compilation successful.")
+            print(f"Binary: {dummy_bin}")
+            print(f"SHA-256: {result}")
+        else:
+            print(f"Test compilation failed: {message}", file=sys.stderr)
+            sys.exit(1)
 
 def main():
-    """Main entry point for the compile runner."""
-    parser = argparse.ArgumentParser(description="Compile and hash C++ kernels.")
+    """CLI entry point."""
+    parser = argparse.ArgumentParser(description="Compile C++ kernels with optimization flags.")
     parser.add_argument(
         "--test",
         action="store_true",
-        help="Run a test compilation of a dummy binary and output its SHA-256 hash."
+        help="Run a test compilation to verify the system."
     )
     parser.add_argument(
-        "--kernel-dir",
+        "--kernel",
         type=str,
-        default="code/kernels",
-        help="Directory containing C++ kernel source files."
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/intermediates/binaries",
-        help="Directory to place compiled binaries."
+        help="Path to the kernel source file."
     )
     parser.add_argument(
         "--compiler",
         type=str,
-        default="g++",
-        choices=["g++", "clang++"],
-        help="Compiler to use."
+        default=DEFAULT_COMPILER,
+        help=f"Compiler to use (default: {DEFAULT_COMPILER})."
     )
     parser.add_argument(
         "--flags",
-        type=str,
         nargs="+",
-        default=["-O2"],
-        help="Compiler flags to use (e.g., -O2 -march=native)."
+        default=[],
+        help="Compiler flags (e.g., -O2 -march=native)."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Output binary path."
     )
 
     args = parser.parse_args()
 
-    runner = CompileRunner(
-        kernel_dir=args.kernel_dir,
-        output_dir=args.output_dir,
-        compiler=args.compiler
+    if args.test:
+        run_test()
+        return
+
+    if not args.kernel or not args.output:
+        parser.error("--kernel and --output are required unless --test is specified.")
+
+    ensure_dirs()
+    compiler = get_compiler_path(args.compiler)
+    if not compiler:
+        print(f"Error: Compiler '{args.compiler}' not found in PATH.", file=sys.stderr)
+        sys.exit(1)
+
+    success, message, result = compile_kernel(
+        args.kernel,
+        compiler,
+        args.flags,
+        args.output
     )
 
-    if args.test:
-        print(f"Running test compilation with compiler: {runner.compiler}")
-        try:
-            binary_hash = runner.run_test_compilation()
-            print(f"SHA-256 hash of dummy binary: {binary_hash}")
-        except Exception as e:
-            print(f"Test compilation failed: {e}", file=sys.stderr)
-            sys.exit(1)
+    if success:
+        print(f"Compilation successful: {args.output}")
+        print(f"SHA-256: {result}")
     else:
-        # Validate flags
-        if not validate_flags(args.flags):
-            print(f"Invalid flags provided: {args.flags}", file=sys.stderr)
-            sys.exit(1)
-
-        print(f"Compiling kernels in {args.kernel_dir} with flags: {args.flags}")
-        print(f"Output directory: {args.output_dir}")
-        print(f"Compiler: {args.compiler}")
-
-        try:
-            results = runner.compile_all_kernels(flags=args.flags)
-            print(f"Successfully compiled {len(results)} kernels:")
-            for src_name, (bin_path, hash_val) in results.items():
-                print(f"  {src_name} -> {bin_path.name} (SHA-256: {hash_val})")
-        except Exception as e:
-            print(f"Compilation failed: {e}", file=sys.stderr)
-            sys.exit(1)
-
+        print(f"Compilation failed: {message}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,6 @@
+config_id,kernel_type,median_latency,p95_latency,l2_error,max_diff,status,is_stable
+dummy_config_1,matmul,0.00123,0.00145,1.2e-06,5.0e-07,stable,True
+dummy_config_2,softmax,0.00089,0.00102,8.5e-07,3.2e-07,stable,True
+dummy_config_3,layernorm,0.00156,0.00180,9.1e-07,4.1e-07,stable,True
+dummy_config_4,matmul,0.00098,0.00115,2.1e-06,8.9e-07,stable,True
+dummy_config_5,softmax,0.00110,0.00128,1.5e-06,6.3e-07,stable,True

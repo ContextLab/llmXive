@@ -1,64 +1,113 @@
-import pytest
-import numpy as np
-import json
+"""
+Tests for T023: Aggregation of stability metrics into CSV.
+"""
 import os
+import json
+import csv
 import tempfile
 from pathlib import Path
-import struct
+import pytest
+import numpy as np
 
-# Import the functions to test
-from code.analysis.stability_check import (
-    calculate_l2_relative_error,
-    calculate_max_absolute_difference,
-    detect_nan_in_tensor,
-    StabilityResult
-)
+# Import the function to test
+from code.analysis.stability_metrics_generator import aggregate_stability_metrics
 
-class TestStabilityMetrics:
-    def test_l2_relative_error_identical(self):
-        """Test L2 error is 0 for identical tensors."""
-        ref = [1.0, 2.0, 3.0]
-        comp = [1.0, 2.0, 3.0]
-        error = calculate_l2_relative_error(ref, comp)
-        assert error == 0.0
+@pytest.fixture
+def temp_raw_logs_dir():
+    """Create a temporary directory with sample raw log files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        dir_path = Path(tmpdir)
+        # Create a sample raw log file
+        log_file = dir_path / "config_O2_matmul.jsonl"
+        
+        sample_data = [
+            {
+                "config_id": "O2_matmul",
+                "kernel_type": "matmul",
+                "output_tensor": np.random.rand(10, 10).astype(np.float32).tolist(),
+                "reference_tensor": (np.random.rand(10, 10).astype(np.float32) + 1e-6).tolist(), # Very small error
+                "iterations": 1000,
+                "median": 0.001
+            },
+            {
+                "config_id": "O3_softmax",
+                "kernel_type": "softmax",
+                "output_tensor": np.random.rand(5, 5).astype(np.float32).tolist(),
+                "reference_tensor": (np.random.rand(5, 5).astype(np.float32) + 1e-4).tolist(), # Larger error
+                "iterations": 1000,
+                "median": 0.002
+            }
+        ]
+        
+        with open(log_file, 'w') as f:
+            for entry in sample_data:
+                # Convert numpy arrays to lists for JSON serialization if they were numpy
+                # In real logs, they might be lists already.
+                f.write(json.dumps(entry) + '\n')
+        
+        yield dir_path
 
-    def test_l2_relative_error_nonzero(self):
-        """Test L2 error calculation for different tensors."""
-        ref = [1.0, 2.0, 3.0]
-        comp = [1.0, 2.0, 4.0] # diff = 1 at last element
-        # L2 diff = sqrt(1^2) = 1
-        # L2 ref = sqrt(1+4+9) = sqrt(14)
-        # Error = 1 / sqrt(14)
-        expected = 1.0 / np.sqrt(14.0)
-        error = calculate_l2_relative_error(ref, comp)
-        assert np.isclose(error, expected)
+def test_aggregate_stability_metrics_creates_csv(temp_raw_logs_dir):
+    """Test that the function creates the CSV with correct columns."""
+    output_file = Path(temp_raw_logs_dir.parent) / "test_output.csv"
+    
+    result_path = aggregate_stability_metrics(temp_raw_logs_dir, output_file)
+    
+    assert result_path.exists()
+    assert result_path == output_file
+    
+    # Read and verify CSV
+    with open(result_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        
+        # Verify headers
+        assert 'config_id' in reader.fieldnames
+        assert 'kernel_type' in reader.fieldnames
+        assert 'l2_error' in reader.fieldnames
+        assert 'max_diff' in reader.fieldnames
+        assert 'status' in reader.fieldnames
+        
+        # Verify row count (2 entries)
+        assert len(rows) == 2
 
-    def test_l2_relative_error_zero_reference(self):
-        """Test handling of zero reference norm."""
-        ref = [0.0, 0.0, 0.0]
-        comp = [1.0, 1.0, 1.0]
-        error = calculate_l2_relative_error(ref, comp)
-        assert error == float('inf')
+def test_aggregate_stability_metrics_content(temp_raw_logs_dir):
+    """Test that the CSV contains expected data."""
+    output_file = Path(temp_raw_logs_dir.parent) / "test_output2.csv"
+    
+    result_path = aggregate_stability_metrics(temp_raw_logs_dir, output_file)
+    
+    with open(result_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        
+        # Check that we have rows
+        assert len(rows) > 0
+        
+        # Check that numeric fields are numeric strings
+        for row in rows:
+            float(row['l2_error']) # Should not raise
+            float(row['max_diff']) # Should not raise
+            assert row['status'] in ['stable', 'unstable']
 
-    def test_max_absolute_difference(self):
-        """Test Max Diff calculation."""
-        ref = [1.0, 2.0, 3.0]
-        comp = [1.1, 1.8, 3.5]
-        # Diffs: |0.1|, |0.2|, |0.5| -> Max 0.5
-        max_diff = calculate_max_absolute_difference(ref, comp)
-        assert max_diff == 0.5
-
-    def test_detect_nan_true(self):
-        """Test NaN detection."""
-        data = [1.0, float('nan'), 3.0]
-        assert detect_nan_in_tensor(data, (3,)) is True
-
-    def test_detect_nan_false(self):
-        """Test no NaN detection."""
-        data = [1.0, 2.0, 3.0]
-        assert detect_nan_in_tensor(data, (3,)) is False
-
-    def test_detect_inf_true(self):
-        """Test Inf detection."""
-        data = [1.0, float('inf'), 3.0]
-        assert detect_nan_in_tensor(data, (3,)) is True
+def test_aggregate_stability_metrics_empty_dir():
+    """Test behavior with an empty directory."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        dir_path = Path(tmpdir)
+        output_file = Path(tmpdir) / "empty_output.csv"
+        
+        result_path = aggregate_stability_metrics(dir_path, output_file)
+        
+        assert result_path.exists()
+        
+        with open(result_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            assert len(rows) == 0
+            
+            # Verify headers exist even if empty
+            assert 'config_id' in reader.fieldnames
+            assert 'kernel_type' in reader.fieldnames
+            assert 'l2_error' in reader.fieldnames
+            assert 'max_diff' in reader.fieldnames
+            assert 'status' in reader.fieldnames

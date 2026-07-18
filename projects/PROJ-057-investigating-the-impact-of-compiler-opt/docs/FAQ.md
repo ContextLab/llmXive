@@ -2,36 +2,50 @@
 
 ## General
 
-### Q: Why use Python's `decimal` module for reference calculations?
-**A:** The `decimal` module allows for arbitrary-precision arithmetic (512-bit in this project) [UNRESOLVED-CLAIM: c_157374a1 — status=not_enough_info], which is necessary to establish a high-precision ground truth against which the floating-point (float32) optimized kernels can be compared.
+**Q: Why use 512-bit precision for reference?**
+A: To ensure the reference output is effectively exact, allowing accurate measurement of numerical drift in optimized kernels.
 
-### Q: What is the difference between `pareto_frontier_exploration.png` and `pareto_frontier_final.png`?
-**A:** The exploration plot includes all numerically stable configurations, including those that were downsampled due to memory pressure (marked distinctly). The final plot strictly excludes any configuration with an L2 error > 1e-5 [UNRESOLVED-CLAIM: c_e1f8cf61 — status=not_enough_info], representing the validated Pareto frontier.
+**Q: What compiler versions are supported?**
+A: GCC 11+ or Clang 14+.
 
-### Q: Why is Welch's t-test used instead of a paired t-test?
-**A:** The configurations being compared are independent binaries compiled with different flags. They do not share the same execution context in a paired manner. Welch's t-test is statistically appropriate for comparing independent samples with potentially unequal variances.
+**Q: Can I use GPU?**
+A: No, this project is CPU-only as per design constraints.
 
 ## Technical
 
-### Q: What happens if the system runs out of memory?
-**A:** The executor automatically downsamples the tensor dimensions from 768x768 to 512x512, logs a "Memory Pressure" warning, and continues execution. Downsampled runs are included in the exploration plot but marked distinctly.
+**Q: What happens if memory pressure occurs?**
+A: The executor automatically downsamples from 768x768 to 512x512 and logs the event.
 
-### Q: How are NaNs handled?
-**A:** NaNs are detected in the output tensors. Any run producing NaNs is flagged as unstable, excluded from statistical analysis, and logged for audit.
+**Q: How is numerical stability measured?**
+A: By calculating L2 relative error and maximum absolute difference against the 512-bit reference.
 
-### Q: Can I add my own optimization flags?
-**A:** Yes. Add your flags to the list in `code/benchmarks/config.py`. Ensure they are compatible with the C++ standard (C++17) and your compiler.
+**Q: Why Welch's t-test instead of paired t-test?**
+A: Because the binaries are independent (different compilers/flags), Welch's test is statistically appropriate.
 
-### Q: How many iterations are run per configuration?
-**A:** A fixed count of 1000 iterations is mandatory [UNRESOLVED-CLAIM: c_ebec3121 — status=not_enough_info] (Constitution Principle VII). An adaptive stop condition (CV ≤ 1% after 30 iterations) is implemented [UNRESOLVED-CLAIM: c_b157f941 — status=not_enough_info] as a secondary safety check but does not override the fixed count.
+**Q: What is the threshold for instability?**
+A: Relative error > 1e-5.
+
+## Usage
+
+**Q: How do I add a new compiler flag?**
+A: Edit `benchmarks/config.py` and add the flag to the `BenchmarkConfig` list.
+
+**Q: Can I change the iteration count?**
+A: Yes, modify the `ITERATIONS` constant in `benchmarks/executor.py`.
+
+**Q: How do I interpret the Pareto frontier plots?**
+A: Points closer to the origin (lower latency, lower error) are better. The frontier represents the optimal trade-offs.
+
+**Q: What if my results look unstable?**
+A: Check for NaNs in the logs, ensure your compiler supports the flags, and verify the reference data is generated correctly.
 
 ## Troubleshooting
 
-### Q: My compilation fails. What should I check?
-**A:** Ensure you have GCC 11+ or Clang 14+ installed [UNRESOLVED-CLAIM: c_7a7e8b5c — status=not_enough_info] and that the compiler is in your `PATH`. Check the error message in the logs for specific compiler errors.
+**Q: Compilation fails.**
+A: Ensure your C++ compiler is installed and in PATH. Check for syntax errors in the kernel code.
 
-### Q: Why are some configurations marked as "UNSTABLE"?
-**A:** A configuration is marked unstable if its L2 relative error exceeds 1e-5 [UNRESOLVED-CLAIM: c_0c44e8e6 — status=not_enough_info] or if it produces NaN values. This indicates that the optimization flags caused significant numerical drift.
+**Q: Execution times out.**
+A: Reduce the iteration count or tensor dimensions. Check system resources.
 
-### Q: How do I verify that my results are reproducible?
-**A:** Check `data/manifest.json` for SHA-256 hashes of all artifacts. Re-run the experiment and compare the new hashes to the original manifest.
+**Q: Tests fail.**
+A: Run `pytest -v` for detailed output. Ensure dependencies are installed correctly.

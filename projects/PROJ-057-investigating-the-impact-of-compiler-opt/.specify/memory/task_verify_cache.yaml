@@ -1,0 +1,28 @@
+T023:
+  c: false
+  h: a6a04eef6ac6f4a9d2cba0bdba58ca6906ab56bfeb23f0db53d62e54f48ff681
+  r: "The required artifact `data/results/stability_metrics.csv` does not exist, so\
+    \ the aggregation step cannot be verified. The missing file means the task\u2019\
+    s output (the CSV with the specified columns) was not produced."
+T031:
+  c: false
+  h: db828874011271221cd3a218f7e3c2cd6688c02974845d1a37f8d9bab2cd1d2b
+  r: "The required output file `data/results/pareto_frontier_final.png` does not exist,\
+    \ and the provided `code/analysis/viz.py` is incomplete (truncated) with no evidence\
+    \ that it generates the plot while excluding configurations with error\u202F>\u202F\
+    1e\u20115. The task\u2019s core deliverable is missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer only supplied a feature specification excerpt and did not provide
+    any evidence (scripts, logs, or results) that the `quickstart.md` validation was
+    actually run on fresh runners. No validation output, reproducibility report, or
+    related artifacts are present, so the task requirement is unmet.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No compilation scripts, benchmark code, stability comparison tools, or analysis\
+    \ notebooks are present; the required artifacts for the three user stories (kernel\
+    \ compilation/execution, numerical stability measurement, statistical analysis)\
+    \ are missing, so the task\u2019s modularity and code\u2011cleanup goals are not\
+    \ demonstrated."

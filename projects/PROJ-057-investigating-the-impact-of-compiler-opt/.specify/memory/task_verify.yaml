@@ -1,24 +1,2 @@
-? T008 Setup logging infrastructure in `code/utils/logger.py` to record compiler versions,
-  flag combinations, and runtime warnings (NaN detection)
-: 2
-T013 [P] [US1] Implement C++ LayerNorm kernel in `code/kernels/layernorm.cpp`: 1
-? T014 [US1] Implement `code/benchmarks/compile_runner.py` to orchestrate `g++`/`clang++`
-  compilation with dynamic flag injection and SHA-256 hashing of binaries; **Verify
-  by running `python code/benchmarks/compile_runner.py --test` which outputs a SHA-256
-  hash of a dummy binary**
-: 1
-? "T015 [US1] Implement `code/benchmarks/executor.py` to run binaries and measure\
-  \ latency using `std::chrono` (via subprocess). **Enforce a fixed iteration count\
-  \ of 1000 per configuration as mandated by Constitution Principle VII. Implement\
-  \ memory fallback: if 768x768 allocation fails, auto-downsample to 512x512, log\
-  \ 'Memory Pressure' with the new dimension ID, and continue execution. Only exit\
-  \ if the downsampled run also fails. Include a secondary adaptive stop if CV \u2264\
-  \ 1% after 30 iterations, but only as a safety check, not the primary termination\
-  \ condition. Output results to `data/intermediates/raw_logs/{config_id}.jsonl` with\
-  \ fields: `median`, `p95`, `iterations`, `config_id`, `downsampled_flag`**"
-: 1
-? 'T017 [US1] [Depends: T015] Implement NaN detection and exclusion logic in `code/analysis/stability_check.py`;
-  **Post-process raw logs to detect NaNs in output tensors, log specific flag configurations
-  causing stability failures, and EXCLUDE these runs from the statistical dataset
-  (block-averaging and t-test inputs) while retaining them in raw logs for audit**'
-: 1
+T036: 2
+T037: 2
