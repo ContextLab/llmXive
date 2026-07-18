@@ -1,0 +1,7 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file listings were provided showing the required `data/raw`,
+    `data/processed`, `data/traits`, `data/manifests`, and `data/synthetic` folders,
+    nor any confirmation that they have been created. The claim lacks concrete evidence
+    of the requested structure.

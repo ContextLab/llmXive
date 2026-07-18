@@ -4,110 +4,110 @@ import csv
 import json
 import tempfile
 import shutil
-import unittest
-from unittest.mock import patch, mock_open, MagicMock
+import pytest
 
 # Add project root to path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'code'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from features.export_descriptors import write_csv_output, REQUIRED_COLUMNS, load_processed_data
+from features.export_descriptors import write_csv_output, load_processed_data
 
-class TestExportDescriptors(unittest.TestCase):
-    
-    def setUp(self):
-        self.temp_dir = tempfile.mkdtemp()
-        self.test_data = [
+class TestExportDescriptors:
+    @pytest.fixture
+    def temp_dir(self):
+        """Create a temporary directory for test outputs."""
+        path = tempfile.mkdtemp()
+        yield path
+        shutil.rmtree(path)
+
+    def test_write_csv_output_creates_file(self, temp_dir):
+        """Test that write_csv_output creates the file and writes headers."""
+        data = [
             {
-                'system_id': 'Cu-Zn-001',
-                'element_a': 'Cu',
-                'element_b': 'Zn',
-                'element_c': '',
-                'composition_a': 0.70,
-                'composition_b': 0.30,
-                'composition_c': 0.0,
-                'temperature_k': 1000.0,
-                'phase': 'alpha',
-                'mean_atomic_radius': 1.28,
-                'electronegativity_variance': 0.05,
-                'valence_electron_count': 1.3,
-                'hume_rothery_concentration': 0.15
-            },
-            {
-                'system_id': 'Al-Cu-002',
-                'element_a': 'Al',
-                'element_b': 'Cu',
-                'element_c': '',
-                'composition_a': 0.50,
-                'composition_b': 0.50,
-                'composition_c': 0.0,
-                'temperature_k': 800.0,
-                'phase': 'theta',
-                'mean_atomic_radius': 1.42,
-                'electronegativity_variance': 0.12,
-                'valence_electron_count': 2.5,
-                'hume_rothery_concentration': 0.22
+                "system_id": "Cu-Zn-1",
+                "composition": "0.5",
+                "phase": "alpha",
+                "temperature": "1000",
+                "mean_atomic_radius": "1.28",
+                "electronegativity_variance": "0.05",
+                "valence_electron_count": "1.5",
+                "hume_rothery_concentration": "0.8"
             }
         ]
-
-    def tearDown(self):
-        shutil.rmtree(self.temp_dir)
-
-    def test_write_csv_output_schema_compliance(self):
-        """Test that the output CSV contains all required columns."""
-        output_path = os.path.join(self.temp_dir, 'test_descriptors.csv')
+        output_path = os.path.join(temp_dir, "test_descriptors.csv")
         
-        write_csv_output(self.test_data, output_path)
+        write_csv_output(data, output_path)
         
-        self.assertTrue(os.path.exists(output_path), "Output CSV file was not created")
-        
-        with open(output_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            headers = reader.fieldnames
-            
-            # Check all required columns are present
-            for col in REQUIRED_COLUMNS:
-                self.assertIn(col, headers, f"Missing required column: {col}")
-            
-            # Check row count
-            rows = list(reader)
-            self.assertEqual(len(rows), len(self.test_data), "Row count mismatch")
-
-    def test_write_csv_output_data_integrity(self):
-        """Test that data is written correctly without corruption."""
-        output_path = os.path.join(self.temp_dir, 'test_descriptors.csv')
-        
-        write_csv_output(self.test_data, output_path)
-        
-        with open(output_path, 'r', newline='', encoding='utf-8') as f:
+        assert os.path.exists(output_path)
+        with open(output_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
-            
-            # Verify first row data
-            first_row = rows[0]
-            self.assertEqual(first_row['system_id'], 'Cu-Zn-001')
-            self.assertEqual(first_row['element_a'], 'Cu')
-            # Check numeric formatting (should be string in CSV)
-            self.assertIn('1.28', first_row['mean_atomic_radius'])
+            assert len(rows) == 1
+            assert rows[0]['system_id'] == 'Cu-Zn-1'
+            assert 'mean_atomic_radius' in rows[0]
 
-    def test_write_csv_output_empty_directory_creation(self):
-        """Test that the function creates the output directory if it doesn't exist."""
-        nested_path = os.path.join(self.temp_dir, 'subdir', 'nested', 'test.csv')
+    def test_write_csv_output_empty_data(self, temp_dir):
+        """Test that write_csv_output handles empty data by writing headers only."""
+        data = []
+        output_path = os.path.join(temp_dir, "empty_descriptors.csv")
         
-        write_csv_output(self.test_data, nested_path)
+        write_csv_output(data, output_path)
         
-        self.assertTrue(os.path.exists(nested_path), "Nested output file was not created")
+        assert os.path.exists(output_path)
+        with open(output_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            assert len(rows) == 0
+            # Verify headers exist
+            f.seek(0)
+            header_line = f.readline().strip()
+            assert "system_id" in header_line
 
-    def test_write_csv_output_invalid_record_handling(self):
-        """Test that records with invalid descriptors are skipped."""
-        # Note: validate_descriptors is imported in export_descriptors but not exposed here directly.
-        # We rely on the fact that the main logic calls validate_descriptors.
-        # For this test, we assume valid data passes and we just check the flow.
-        # If we had an invalid record, it would be skipped.
-        # Since we don't have the implementation of validate_descriptors here, we test the happy path.
-        # A more robust test would mock validate_descriptors to return False.
-        pass
+    def test_write_csv_output_schema_compliance(self, temp_dir):
+        """Test that output strictly follows the expected schema order."""
+        data = [
+            {
+                "system_id": "Al-Cu-1",
+                "composition": "0.33",
+                "phase": "theta",
+                "temperature": "500",
+                "mean_atomic_radius": "1.43",
+                "electronegativity_variance": "0.12",
+                "valence_electron_count": "3.0",
+                "hume_rothery_concentration": "0.9"
+            }
+        ]
+        output_path = os.path.join(temp_dir, "schema_test.csv")
+        
+        write_csv_output(data, output_path)
+        
+        expected_headers = [
+            "system_id", "composition", "phase", "temperature",
+            "mean_atomic_radius", "electronegativity_variance",
+            "valence_electron_count", "hume_rothery_concentration"
+        ]
+        
+        with open(output_path, 'r', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            headers = next(reader)
+            assert headers == expected_headers
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_load_processed_data_json(self, temp_dir):
+        """Test loading data from a JSON file."""
+        data = [
+            {"system_id": "test-1", "composition": "0.5", "phase": "alpha", "temperature": "1000",
+             "mean_atomic_radius": "1.2", "electronegativity_variance": "0.1", "valence_electron_count": "2.0", "hume_rothery_concentration": "0.5"}
+        ]
+        input_path = os.path.join(temp_dir, "input.json")
+        with open(input_path, 'w') as f:
+            json.dump(data, f)
+        
+        loaded = load_processed_data(input_path)
+        assert len(loaded) == 1
+        assert loaded[0]['system_id'] == 'test-1'
+
+    def test_load_processed_data_missing_file(self):
+        """Test that load_processed_data raises FileNotFoundError for missing input."""
+        with pytest.raises(FileNotFoundError):
+            load_processed_data("non_existent_file.json")

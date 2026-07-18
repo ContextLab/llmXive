@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T00:57:12.981974Z'
-current_stage: planned
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-282-evaluating-the-effectiveness-of-llms-for
-last_run_id: 0593d74f-856d-49c6-bacb-7d3fd4189e4d
+last_run_id: f07287a8-7340-4ba7-b8f5-99625734ab77
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for
 title: Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities
   in Open-Source Code
-updated_at: '2026-07-17T05:10:32.674942Z'
+updated_at: '2026-07-18T00:50:19.461225Z'

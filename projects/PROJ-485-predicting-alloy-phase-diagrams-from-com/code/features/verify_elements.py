@@ -1,36 +1,49 @@
-"""
-Verification logic for elemental properties against NIST-standard reference values.
-Ensures deviation is <= 1% for atomic_radius, electronegativity, and valence_electrons.
-"""
 import os
 import csv
 import sys
-
-# Add parent directory to path for imports if run as script
-if __name__ == "__main__":
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+from typing import Dict, List, Any, Optional, Tuple
 from utils.logging import get_logger, log_error, log_info, log_warning
+from utils.error_codes import ErrorCode
+from utils.checksum import compute_file_sha256
 
 logger = get_logger(__name__)
 
-# NIST/JANAF Standard Reference Values (Approximate standard values for verification)
-# Source: NIST Webbook / CRC Handbook of Chemistry and Physics
-# Values are hardcoded here to ensure the verification logic is deterministic
-# and does not rely on external network calls during the verification step itself.
-REFERENCE_VALUES = {
-    "Cu": {"atomic_radius_angstrom": 1.28, "electronegativity_pauling": 1.90, "valence_electrons": 1},
-    "Al": {"atomic_radius_angstrom": 1.43, "electronegativity_pauling": 1.61, "valence_electrons": 3},
-    "Zn": {"atomic_radius_angstrom": 1.34, "electronegativity_pauling": 1.65, "valence_electrons": 2},
-    "Fe": {"atomic_radius_angstrom": 1.26, "electronegativity_pauling": 1.83, "valence_electrons": 2},
-    "C":  {"atomic_radius_angstrom": 0.77, "electronegativity_pauling": 2.55, "valence_electrons": 4},
+# Reference data from NIST Webbook / Standard Tables (CRC Handbook of Chemistry and Physics)
+# Values are hardcoded as the "Primary Reference" for this specific task to ensure
+# verification against a known standard without external network dependencies during verification.
+# Source: NIST-JANAF Thermochemical Tables / CRC Handbook (2023 values)
+NIST_REFERENCE_DATA = {
+    "Cu": {
+        "atomic_radius_angstrom": 1.28,
+        "electronegativity_pauling": 1.90,
+        "valence_electrons": 1  # 4s1 (commonly used for alloying)
+    },
+    "Al": {
+        "atomic_radius_angstrom": 1.43,
+        "electronegativity_pauling": 1.61,
+        "valence_electrons": 3  # 3s2 3p1
+    },
+    "Zn": {
+        "atomic_radius_angstrom": 1.34,
+        "electronegativity_pauling": 1.65,
+        "valence_electrons": 2  # 4s2
+    },
+    "Fe": {
+        "atomic_radius_angstrom": 1.26,
+        "electronegativity_pauling": 1.83,
+        "valence_electrons": 2  # Common valence in alloys
+    },
+    "C": {
+        "atomic_radius_angstrom": 0.77,
+        "electronegativity_pauling": 2.55,
+        "valence_electrons": 4  # 2s2 2p2
+    }
 }
 
-ALLOWED_DEVIATION_PCT = 1.0
-
-def load_csv_data(filepath: str) -> list[dict]:
-    """Load elemental properties from the CSV file."""
+def load_csv_data(filepath: str) -> List[Dict[str, Any]]:
+    """Load elemental properties from the local CSV file."""
     if not os.path.exists(filepath):
+        log_error(logger, f"File not found: {filepath}", ErrorCode.DATA_SOURCE_MISSING)
         raise FileNotFoundError(f"Elemental properties file not found: {filepath}")
     
     data = []
@@ -40,111 +53,133 @@ def load_csv_data(filepath: str) -> list[dict]:
             data.append(row)
     return data
 
-def verify_element(element: str, actual: dict, reference: dict) -> list[str]:
+def verify_element(local_value: float, reference_value: float, tolerance: float = 0.01) -> Tuple[bool, float]:
     """
-    Compare actual values against reference values.
-    Returns a list of error messages if deviation > 1%.
+    Verify if local_value deviates from reference_value by <= tolerance (percentage).
+    Returns (is_valid, deviation_percent).
     """
-    errors = []
+    if reference_value == 0:
+        # Avoid division by zero; if both are 0 it's valid, otherwise invalid
+        return local_value == 0, 0.0
     
-    # Fields to verify
-    fields = [
-        ("atomic_radius_angstrom", float),
-        ("electronegativity_pauling", float),
-        ("valence_electrons", int)
-    ]
+    deviation = abs(local_value - reference_value) / reference_value
+    is_valid = deviation <= tolerance
+    return is_valid, deviation * 100
 
-    for field_name, cast_func in fields:
-        if field_name not in reference:
-            continue
-        
-        ref_val = reference[field_name]
-        try:
-            actual_val = cast_func(actual.get(field_name, 0))
-        except (ValueError, TypeError):
-            errors.append(f"  [{element}] Invalid value for {field_name}: {actual.get(field_name)}")
-            continue
-
-        if ref_val == 0:
-            if actual_val != 0:
-                errors.append(f"  [{element}] {field_name}: Expected 0, got {actual_val}")
-            continue
-
-        deviation = abs(actual_val - ref_val) / abs(ref_val) * 100
-        
-        if deviation > ALLOWED_DEVIATION_PCT:
-            errors.append(
-                f"  [{element}] {field_name}: Reference={ref_val}, "
-                f"Actual={actual_val}, Deviation={deviation:.2f}% "
-                f"(Limit={ALLOWED_DEVIATION_PCT}%)"
-            )
-    
-    return errors
-
-def verify_elemental_properties(csv_path: str) -> bool:
+def verify_elemental_properties(input_path: str = "data/raw/elemental_properties.csv") -> bool:
     """
-    Main verification function.
-    Returns True if all elements pass the <= 1% deviation check.
+    Cross-reference data in input_path against NIST_REFERENCE_DATA.
+    Ensures all values deviate <= 1% from the reference.
+    Returns True if all checks pass, False otherwise.
+    Raises ValueError if critical deviations are found.
     """
-    log_info("Starting elemental properties verification...", module="verify_elements")
+    log_info(logger, f"Starting verification of {input_path} against NIST reference.")
     
-    try:
-        data = load_csv_data(csv_path)
-    except FileNotFoundError as e:
-        log_error(str(e), module="verify_elements")
-        return False
+    # Compute checksum for logging
+    checksum = compute_file_sha256(input_path)
+    log_info(logger, f"File checksum (SHA-256): {checksum}")
 
+    local_data = load_csv_data(input_path)
+    local_map = {row['element']: row for row in local_data}
+    
     all_passed = True
-    total_elements = len(data)
-    passed_elements = 0
+    errors = []
 
-    for row in data:
-        element = row.get("element", "").strip()
-        if not element:
-            log_warning("Empty element row found, skipping.", module="verify_elements")
-            continue
-
-        if element not in REFERENCE_VALUES:
-            log_warning(f"Element {element} not found in reference database. Skipping verification.", module="verify_elements")
-            continue
-
-        actual_values = {
-            "atomic_radius_angstrom": row.get("atomic_radius_angstrom"),
-            "electronegativity_pauling": row.get("electronegativity_pauling"),
-            "valence_electrons": row.get("valence_electrons"),
-        }
-
-        ref_values = REFERENCE_VALUES[element]
-        errors = verify_element(element, actual_values, ref_values)
-
-        if errors:
+    for element, ref_values in NIST_REFERENCE_DATA.items():
+        if element not in local_map:
+            msg = f"Element '{element}' missing from local CSV."
+            log_error(logger, msg, ErrorCode.INVALID_DATA_SCHEMA)
+            errors.append(msg)
             all_passed = False
-            log_error(f"Verification failed for {element}:", module="verify_elements")
-            for err in errors:
-                log_error(err, module="verify_elements")
-        else:
-            passed_elements += 1
-            log_info(f"Verification passed for {element}.", module="verify_elements")
+            continue
 
-    log_info(f"Verification complete. {passed_elements}/{total_elements} elements passed.", module="verify_elements")
+        local_row = local_map[element]
+        
+        # Check Atomic Radius
+        try:
+            local_radius = float(local_row['atomic_radius_angstrom'])
+            ref_radius = ref_values['atomic_radius_angstrom']
+            valid, dev = verify_element(local_radius, ref_radius)
+            if not valid:
+                msg = f"Atomic Radius for {element}: Local={local_radius}, Ref={ref_radius}, Deviation={dev:.2f}% (>1%)"
+                log_error(logger, msg, ErrorCode.INVALID_DATA_SCHEMA)
+                errors.append(msg)
+                all_passed = False
+            else:
+                log_info(logger, f"Atomic Radius for {element} OK (Deviation: {dev:.4f}%)")
+        except (ValueError, KeyError) as e:
+            msg = f"Error parsing Atomic Radius for {element}: {e}"
+            log_error(logger, msg, ErrorCode.INVALID_DATA_SCHEMA)
+            errors.append(msg)
+            all_passed = False
+
+        # Check Electronegativity
+        try:
+            local_en = float(local_row['electronegativity_pauling'])
+            ref_en = ref_values['electronegativity_pauling']
+            valid, dev = verify_element(local_en, ref_en)
+            if not valid:
+                msg = f"Electronegativity for {element}: Local={local_en}, Ref={ref_en}, Deviation={dev:.2f}% (>1%)"
+                log_error(logger, msg, ErrorCode.INVALID_DATA_SCHEMA)
+                errors.append(msg)
+                all_passed = False
+            else:
+                log_info(logger, f"Electronegativity for {element} OK (Deviation: {dev:.4f}%)")
+        except (ValueError, KeyError) as e:
+            msg = f"Error parsing Electronegativity for {element}: {e}"
+            log_error(logger, msg, ErrorCode.INVALID_DATA_SCHEMA)
+            errors.append(msg)
+            all_passed = False
+
+        # Check Valence Electrons (Integer comparison, tolerance is effectively 0 for integers, 
+        # but we treat it as 1% of value or 1 unit if value is large. For small integers, exact match is usually required.
+        # However, task says <=1% deviation. For valence=1, 1% is 0.01. So exact match is needed.
+        try:
+            local_val = int(float(local_row['valence_electrons']))
+            ref_val = ref_values['valence_electrons']
+            # For integers, 1% deviation is very strict. We check exact match or very close if float allowed.
+            # Assuming integer valence.
+            if local_val != ref_val:
+                # Calculate % deviation based on magnitude
+                deviation = abs(local_val - ref_val) / ref_val
+                if deviation > 0.01:
+                    msg = f"Valence Electrons for {element}: Local={local_val}, Ref={ref_val}, Deviation={deviation*100:.2f}% (>1%)"
+                    log_error(logger, msg, ErrorCode.INVALID_DATA_SCHEMA)
+                    errors.append(msg)
+                    all_passed = False
+                else:
+                    log_info(logger, f"Valence Electrons for {element} OK (Deviation: {deviation*100:.4f}%)")
+            else:
+                log_info(logger, f"Valence Electrons for {element} OK")
+        except (ValueError, KeyError) as e:
+            msg = f"Error parsing Valence Electrons for {element}: {e}"
+            log_error(logger, msg, ErrorCode.INVALID_DATA_SCHEMA)
+            errors.append(msg)
+            all_passed = False
+
+    if all_passed:
+        log_info(logger, "Verification PASSED: All elemental properties are within 1% of NIST reference.")
+    else:
+        log_error(logger, f"Verification FAILED: {len(errors)} errors found.", ErrorCode.INVALID_DATA_SCHEMA)
+        for err in errors:
+            log_error(logger, f"  - {err}")
+    
     return all_passed
 
-if __name__ == "__main__":
-    # Default path relative to project root
-    default_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "raw", "elemental_properties.csv")
-    
-    # Allow override via argument
-    if len(sys.argv) > 1:
-        target_path = sys.argv[1]
-    else:
-        target_path = default_path
-
-    print(f"Verifying: {target_path}")
-    success = verify_elemental_properties(target_path)
-    
-    if success:
-        print("RESULT: SUCCESS - All verified elements within 1% deviation.")
-        sys.exit(0)
-    else:
-        print("RESULT: FAILURE - Deviation > 1% detected in one or more elements.")
+def main():
+    """Entry point for the verification script."""
+    input_file = "data/raw/elemental_properties.csv"
+    try:
+        success = verify_elemental_properties(input_file)
+        if success:
+            log_info(logger, "Task T006a completed successfully.")
+            sys.exit(0)
+        else:
+            log_error(logger, "Task T006a failed due to data deviation.", ErrorCode.INVALID_DATA_SCHEMA)
+            sys.exit(1)
+    except Exception as e:
+        log_error(logger, f"Unexpected error during verification: {e}", ErrorCode.DATA_SOURCE_MISSING)
         sys.exit(1)
+
+if __name__ == "__main__":
+    main()

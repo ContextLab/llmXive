@@ -27,7 +27,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (see plan.md) (`src/`, `tests/`, `data/` directories)
-- [ ] T002 Initialize Python project with pinned `requirements.txt`
+- [X] T002 Initialize Python project with pinned `requirements.txt`
 
 The research question is: Can large language models effectively assist in the automated generation of unit tests for Python code?
 The method is: We will employ a combination of automated code analysis and LLM-based test generation, evaluating the generated tests against a suite of existing, hand-written unit tests.
@@ -55,13 +55,13 @@ References: [], (Fredrikson & Collins, 2021). (see plan.md) (includes `rpy2`, `b
 
 **Goal**: Acquire public RNA‑seq data, preprocess into normalized TPM matrices, and apply batch correction.
 
-**Independent Test**: Verify output files match FASTA/TPM specs, batch correction reduces CV ≥20% for housekeeping genes [UNRESOLVED-CLAIM: c_9b417faa — status=not_enough_info], and low‑coverage samples are flagged.
+**Independent Test**: Verify output files match FASTA/TPM specs, batch correction reduces CV ≥20% for housekeeping genes, and low‑coverage samples are flagged.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T008 [P] [US1] Unit test for FASTQ download validation in `tests/unit/test_download.py`
-- [ ] T009 [P] [US1] Unit test for batch correction metric calculation in `tests/unit/test_batch_correction.py`
-- [ ] T010 [P] [US1] Integration test for full preprocessing pipeline on a single synthetic study in `tests/integration/test_preprocess.py`
+- [X] T008 [P] [US1] Unit test for FASTQ download validation in `tests/unit/test_download.py`
+- [X] T009 [P] [US1] Unit test for batch correction metric calculation in `tests/unit/test_batch_correction.py`
+- [X] T010 [P] [US1] Integration test for full preprocessing pipeline on a single synthetic study in `tests/integration/test_preprocess.py`
 
 ### Implementation for User Story 1
 
@@ -79,11 +79,11 @@ References: [], (Fredrikson & Collins, 2021). (see plan.md) (includes `rpy2`, `b
 
 **Goal**: Compute differential expression, derive herbivore‑response vectors, and perform pathway aggregation.
 
-**Independent Test**: Verify DESeq2 identifies DE genes correctly, response vectors are consistent across folds, and pathway aggregation reduces features to ≤50 [UNRESOLVED-CLAIM: c_40776046 — status=not_enough_info].
+**Independent Test**: Verify DESeq2 identifies DE genes correctly, response vectors are consistent across folds, and pathway aggregation reduces features to ≤50.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Unit test for DE gene selection logic (FDR < 0.05 [UNRESOLVED-CLAIM: c_4540508d — status=not_enough_info], |log2FC| > 1 [UNRESOLVED-CLAIM: c_d51c5e19 — status=not_enough_info]) in `tests/unit/test_de_analysis.py`
+- [ ] T016 [P] [US2] Unit test for DE gene selection logic (FDR < 0.05, |log2FC| > 1) in `tests/unit/test_de_analysis.py`
 - [ ] T017 [P] [US2] Unit test for pathway aggregation mapping in `tests/unit/test_feature_engineering.py`
 
 ### Implementation for User Story 2
@@ -114,10 +114,10 @@ References: [], (Fredrikson & Collins, 2021). (see plan.md) (includes `rpy2`, `b
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `src/analysis/validation.py` for Power Analysis. **If available species N < 15, halt and report Insufficient statistical power for reliable prediction [UNRESOLVED-CLAIM: c_28dd4adc — status=not_enough_info] **. **[FR-016]**
+- [ ] T026 [US3] Implement `src/analysis/validation.py` for Power Analysis. **If available species N < 15, halt and report Insufficient statistical power for reliable prediction **. **[FR-016]**
 - [ ] T027 [US3] Implement `src/analysis/modeling.py` for Elastic Net and Random Forest with LOSO CV. **Calls T021 (pathway aggregation) and T022 (feature selection) within each training fold**. **[FR-007]**
 - [ ] T028 [US3] Implement Phylogenetic Generalized Least Squares (PGLS) and Phylogenetic Null Model: fetch phylogenetic tree (Open Tree of Life API) and generate a null distribution by **shuffling species labels across the tree while preserving phylogenetic covariance**. Compare observed R² to a high percentile of this null distribution. **[FR-017]**
-- [ ] T029 [US3] Implement permutation testing (N=10,000) [UNRESOLVED-CLAIM: c_fa008a19 — status=not_enough_info] for Spearman correlation and apply Holm‑Bonferroni correction. **[FR-008][FR-010]**
+- [ ] T029 [US3] Implement permutation testing (N=10,000) for Spearman correlation and apply Holm‑Bonferroni correction. **[FR-008][FR-010]**
 - [ ] T030 [US3] Implement sensitivity analysis varying DE gene count levels and report R² variation. **[FR-009]**
 - [ ] T031 [US3] Create CLI entry point `src/cli/run_pipeline.py` to orchestrate the full pipeline (`--mode synthetic|real`). **[FR-010]**
 

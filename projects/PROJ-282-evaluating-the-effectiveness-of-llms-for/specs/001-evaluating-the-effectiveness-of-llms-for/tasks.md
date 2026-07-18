@@ -43,20 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (transformers, scikit-learn, pandas, tree-sitter, networkx, requests, pyyaml, bitsandbytes, llama.cpp, pytest)
+- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `state/`)
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (transformers, scikit-learn, pandas, tree-sitter, networkx, requests, pyyaml, bitsandbytes, sentence-transformers, pytest, radon, statsmodels)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Initialize `src/utils/config.py` with seeds, paths, runtime thresholds (hourly limit, gigabyte RAM cap), and the list of candidate LLMs. **CRITICAL**: Implement a **dynamic model selection** strategy that checks available RAM (≤7GB) and selects the smallest viable model from the candidate list (`CodeLlamaB`, `StarCoder-Base`, `distilled Llama-2`) to ensure feasibility (FR-002, SC-005). Do NOT hardcode a single model.
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T005 [P] Implement `src/utils/validate_urls.py` to validate dataset URLs against `research.md` manifest (Constitution II)
+- [ ] T004 [P] Initialize `src/utils/config.py` with seeds, paths, runtime thresholds (hourly limit, gigabyte RAM cap), and the list of candidate LLMs. **CRITICAL**: Implement a **dynamic model selection** strategy that checks available RAM (≤7GB) and selects the smallest viable model from the candidate list: `["starcoderbase-1b-4bit", "codellama-7b-4bit", "distil-llama-2-7b-4bit"]`. **Logic**: If available RAM < 4GB, select `starcoderbase-1b-4bit`; if 4GB ≤ RAM < 8GB, select `codellama-7b-4bit`; else select `distil-llama-2-7b-4bit`. Ensure the selection logic is deterministic and logged. (FR-002, SC-005).
+- [ ] T005 [P] Implement `src/utils/validate_urls.py` to validate dataset URLs against `research.md` manifest (Constitution II)
 - [ ] T006 [P] Implement `src/utils/logger.py` with structured logging for pipeline stages
 - [ ] T007 [P] Create base `CodeSnippet` dataclass in `src/models/code_snippet.py` with `id`, `language`, `source_code`, `ground_truth_label`, `ground_truth_category`
 - [ ] T008 [P] Create base `FeatureVector` dataclass in `src/models/feature_vector.py` with `ast_depth`, `cyclomatic_complexity`, `node_count`, `taint_api_count`, `sanitization_present`, `embedding_similarity_score`
@@ -67,7 +58,7 @@
 
 ---
 
-## Phase 3: User Story 1 - Zero-Shot Vulnerability Detection Pipeline (Priority: P1) 🎯 MVP
+## Phase 2: User Story 1 - Zero-Shot Vulnerability Detection Pipeline (Priority: P1) 🎯 MVP
 
 **Goal**: Ingest dataset, run zero-shot LLM inference, and generate correctness flags against ground truth.
 
@@ -77,9 +68,9 @@
 
 - [ ] T011 [US1] Implement `src/data/download.py` to fetch VulDeePecker and Juliet datasets via `wget`/`git clone` to `data/raw/` with checksum verification. **CRITICAL**: Ensure the script fails loudly if the real fetch fails; do NOT implement a fallback to synthetic/mock data.
 - [ ] T012 [US1] Implement `src/data/preprocess.py` to parse raw datasets, extract code snippets, and map to `CodeSnippet` entity; exclude samples with missing labels.
-- [ ] T013 [US1] Implement `src/models/llm_inference.py` for **Zero-Shot LLM Inference**. **CRITICAL**: This task MUST enforce **Zero-Shot** methodology as per Spec FR-002, explicitly ignoring the Plan's contradictory "Quantization-aware training" summary. Load the selected model (from T004) in 4-bit quantized mode on CPU. **Memory Safety**: Implement runtime memory profiling; if RAM usage approaches a high threshold, dynamically reduce batch size (default small) or pause to satisfy the GB RAM constraint. Use the prompt template: "Identify any security vulnerability in the following code: {code}."
+- [ ] T013 [US1] Implement `src/models/llm_inference.py` for **Zero-Shot LLM Inference**. **CRITICAL**: This task MUST enforce **Zero-Shot** methodology as per Spec FR-002. The Plan's mention of "Quantization-aware training" is a deviation from the Spec; per Constitution Principle II, the Spec takes precedence. Load the selected model (from T004) in 4-bit quantized mode on CPU. **Memory Safety**: Implement runtime memory profiling; if RAM usage approaches a high threshold, dynamically reduce batch size (default small) or pause to satisfy the GB RAM constraint. **Prompt**: Use the prompt template: "Identify any security vulnerability in the following code: {code}." **Parsing Logic**: Implement regex-based parsing to map the LLM's free-text response to the required `PredictionResult` schema: map "SQLi", "sql injection" to "SQLi"; "buffer overflow", "overflow" to "Buffer Overflow"; "none", "no vulnerability" to "none"; and "maybe", "unclear", "possibly", "likely" to "uncertain". (FR-002, SC-003).
 - [ ] T014 [US1] Add logic to `llm_inference.py` to handle context window truncation (log `truncation_event`) and map ambiguous responses ("maybe", "unclear", "possibly", "likely") to "uncertain" or negative using regex matching.
-- [ ] T015 [US1] Implement `src/data/ingest_pipeline.py` to orchestrate download, preprocessing, and LLM inference in batches. **Validation**: Ensure output file `data/processed/predictions.csv` strictly conforms to the `PredictionResult` schema. **Memory Safety**: Implement dynamic batch size adjustment based on T013's memory monitoring. **Dependency**: Calls T013 functions (semantic dependency, not data-flow). Depends on: T011, T012.
+- [ ] T015 [US1] Implement `src/data/ingest_pipeline.py` to orchestrate download, preprocessing, and LLM inference in batches. **Validation**: Ensure output file `data/processed/predictions.csv` strictly conforms to the `PredictionResult` schema. **Memory Safety**: Implement dynamic batch size adjustment based on T013's memory monitoring. **Dependency**: Calls T013 functions (semantic dependency, not data-flow). **Explicit Dependency**: Depends on: T011, T012, T013.
 - [ ] T016 [US1] Add timing logic to `llm_inference.py` to log per-sample inference time and ensure total runtime < 6 hours (FR-007); implement hard-stop logic: if cumulative runtime exceeds a predefined threshold, abort and log 'TIMEOUT' status.
 - [ ] T017 [US1] Implement `tests/unit/test_llm_inference.py` to verify batch processing and memory footprint on a mock dataset.
 
@@ -87,7 +78,7 @@
 
 ---
 
-## Phase 4: User Story 2 - Structural, Semantic & Embedding Feature Extraction (Priority: P2)
+## Phase 3: User Story 2 - Structural, Semantic & Embedding Feature Extraction (Priority: P2)
 
 **Goal**: Extract structural (AST), semantic (taint API), and embedding features for every code snippet.
 
@@ -97,9 +88,9 @@
 
 - [ ] T018 [US2] Implement `src/data/feature_extractor.py` using `tree-sitter` to compute structural metrics (AST depth, node count, cyclomatic complexity).
 - [ ] T019 [US2] Implement semantic metric extraction in `feature_extractor.py` to count taint-source APIs and detect sanitization functions (record 0 if none found).
-- [ ] T019a [US2] Implement `src/data/corpus_loader.py` to download the **BigCode StarCoderBase Code Search Net** dataset (`bigcode/starcoderbase-code-search-net`) and filter for vulnerability-related keywords (e.g., "injection", "overflow", "vulnerability") to create `data/canonical_patterns.json`. **CRITICAL**: This task produces the artifact required by T019b. **Data Hygiene**: Verify checksum of the downloaded dataset shard.
-- [ ] T019b [US2] Implement `src/data/embedding_loader.py` to initialize the pre-trained code encoder `codebert-base` and load canonical vulnerable patterns from `data/canonical_patterns.json` (produced by T019a). **Deliverable**: A loaded encoder object and a list of pattern vectors. **Dependency**: **Depends on T019a** (sequential, NOT parallel).
-- [ ] T020 [US2] Implement embedding similarity calculation in `feature_extractor.py` using the encoder initialized in T019b to compare snippets against the loaded canonical patterns and compute the `embedding_similarity_score` vector. **Dependency**: Explicitly requires the encoder artifact from T019b and patterns from T019a.
+- [ ] T019a [US2] Implement `src/data/corpus_loader.py` to download the **verified vulnerability pattern corpus** from the **NIST National Vulnerability Database (NVD)** (specifically the JSON feed for CWE Top 25, e.g., `https://nvd.nist.gov/feeds/json/cwe/1.2/nvdcve-1.2-CWE_Top25.json.gz`) or a verified HuggingFace dataset `security/vulnerability-patterns` (if available and verified). Filter for vulnerability-related keywords (e.g., "injection", "overflow", "vulnerability") to create `data/canonical_patterns.json`. **CRITICAL**: This task produces the artifact required by T019b. **Data Hygiene**: Verify checksum of the downloaded dataset shard. **Dependency**: None (starts the sequence).
+- [ ] T019b [US2] Implement `src/data/embedding_loader.py` to initialize the pre-trained code encoder `sentence-transformers/all-MiniLM-L6-v2` (selected for compatibility with `sentence-transformers` and `CodeBERT-small` dimensions) and load canonical vulnerable patterns from `data/canonical_patterns.json` (produced by T019a). **Deliverable**: A loaded encoder object and a list of pattern vectors. **Dependency**: **Depends on: T019a**.
+- [ ] T020 [US2] Implement embedding similarity calculation in `feature_extractor.py` using the encoder initialized in T019b to compare snippets against the loaded canonical patterns and compute the `embedding_similarity_score` vector. **Dependency**: **Depends on: T019b** and patterns from T019a.
 - [ ] T021 [US2] Add error handling in `feature_extractor.py` to log malformed code snippets as null/invalid and continue processing remaining batches.
 - [ ] T022 [US2] Implement `src/data/feature_pipeline.py` to run extraction on the full dataset and save `data/processed/features.csv`.
 - [ ] T023 [US2] Implement `tests/unit/test_feature_extractor.py` to verify metric calculation on known test cases (e.g., deeply nested function).
@@ -108,7 +99,7 @@
 
 ---
 
-## Phase 5: User Story 4 - Static Analyzer Baseline Comparison (Priority: P2)
+## Phase 4: User Story 4 - Static Analyzer Baseline Comparison (Priority: P2)
 
 **Goal**: Execute static analysis tools (Bandit, cppcheck) on the dataset to establish a baseline for comparison.
 
@@ -125,7 +116,7 @@
 
 ---
 
-## Phase 6: User Story 3 - Statistical Analysis & Reporting (Priority: P3)
+## Phase 5: User Story 3 - Statistical Analysis & Reporting (Priority: P3)
 
 **Goal**: Compute metrics, correlations, regression, and McNemar's test to derive scientific findings.
 
@@ -135,7 +126,7 @@
 
 - [ ] T028 [US3] Implement `src/analysis/metrics.py` to calculate Precision, Recall, F1, and ROC-AUC per category and model.
 - [ ] T029 [US3] Implement correlation analysis in `src/analysis/regression.py` to compute **Pearson correlation coefficient** (r) between each feature and the per-sample binary `is_correct` outcome, applying **Benjamini-Hochberg (preferred) or Bonferroni** correction to the family of tests for each category as required by FR-005 and SC-004. Depends on: T015 (predictions.csv), T022 (features.csv).
-- [ ] T030 [US3] Implement **Binary Logistic Regression** (GLM) fitting in `src/analysis/regression.py` using `statsmodels` to predict per-sample binary `is_correct` from features, reporting the **Pseudo R² (e.g., McFadden's)** and coefficient significance as required by FR-006 and SC-002. Depends on: T015 (predictions.csv), T022 (features.csv).
+- [ ] T030 [US3] Implement **Binary Logistic Regression** (GLM) fitting in `src/analysis/regression.py` using `statsmodels` to predict per-sample binary `is_correct` from features, reporting the **Pseudo R² (e.g., McFadden's)** and coefficient significance as required by FR-006 and SC-002. **Note**: While the Spec mentions "multiple linear regression", the binary nature of `is_correct` necessitates Logistic Regression (GLM) for statistical validity. This deviation is documented per Constitution Principle II. Depends on: T015 (predictions.csv), T022 (features.csv).
 - [ ] T031 [US3] Implement McNemar's test in `src/analysis/regression.py` using `statsmodels.stats.contingency.mcnemar` (exact binomial method) to compare LLM vs. Static Analyzer predictions on the same samples. Depends on: T015 (predictions.csv), T026 (static_predictions.csv).
 - [ ] T032 [US3] Implement `src/analysis/visualizer.py` to generate plots for feature correlations and ROC curves.
 - [ ] T033 [US3] Implement `src/analysis/report_generator.py` to aggregate all metrics into `data/results/metrics.json`.
@@ -145,23 +136,23 @@
 
 ---
 
-## Phase 7: Human Verification & Sensitivity Analysis (Priority: P3 - FR-011)
+## Phase 6: Human Verification & Sensitivity Analysis (Priority: P3 - FR-011)
 
 **Goal**: Validate the impact of ground-truth label noise on metrics using a real human-verified subset.
 
 **Implementation**
 
 - [ ] T035 [P] Implement `src/analysis/sensitivity.py` to select a random subset of n=100 samples and export them to `data/human_review/export.csv` for manual review.
-- [ ] T035b [P] **External Human Review Step**: This step requires manual human intervention to annotate labels in `data/human_review/verified_labels.csv` (snippet_id, verified_label). **Note**: This is an external process; the pipeline cannot complete this automatically. The system must wait for this file to be provided.
-- [ ] T036 [P] Implement `src/analysis/sensitivity.py` to **wait for** and ingest `data/human_review/verified_labels.csv` (produced by the external human review step). **Dependency**: Explicitly waits for the external file to exist.
-- [ ] T036b [P] **Automated Sensitivity Analysis**: Implement logic in `sensitivity.py` to **re-calculate** metrics (Precision, Recall, F1) using the human-verified labels from T036 and compare them against the original metrics to quantify the impact of label noise. **Dependency**: Depends on T036 and original metrics from T028.
-- [ ] T037 [P] Output `data/results/sensitivity_analysis.json` with adjusted metrics and the noise impact comparison based on the verified subset.
+- [ ] T035b [P] **External Human Review Step**: This step requires manual human intervention to annotate labels in `data/human_review/verified_labels.csv` (snippet_id, verified_label). **Note**: This is an external process; the pipeline cannot complete this automatically. The system must wait for this file to be provided. **Non-Blocking**: If the file is not present, log a warning and proceed to T036 with a flag indicating "human review skipped".
+- [ ] T036 [P] Implement `src/analysis/sensitivity.py` to **check for** and ingest `data/human_review/verified_labels.csv` (produced by the external human review step). **Dependency**: **Depends on: T035b**. **Non-Blocking**: If the file does not exist, log a warning, skip the sensitivity calculation, and output a placeholder result indicating "human review not available".
+- [ ] T036b [P] **Automated Sensitivity Analysis**: Implement logic in `sensitivity.py` to **re-calculate** metrics (Precision, Recall, F1) using the human-verified labels from T036 and compare them against the original metrics to quantify the impact of label noise. **Dependency**: **Depends on: T036**. **Non-Blocking**: If T036 skipped due to missing file, this step also skips and outputs a placeholder result.
+- [ ] T037 [P] Output `data/results/sensitivity_analysis.json` with adjusted metrics and the noise impact comparison based on the verified subset, or a placeholder indicating "human review not available" if the file was missing.
 
 **Checkpoint**: Sensitivity analysis complete
 
 ---
 
-## Phase 8: Versioning & Reporting (Priority: P3)
+## Phase 7: Versioning & Reporting (Priority: P3)
 
 **Goal**: Finalize artifacts and update state.
 
@@ -178,12 +169,11 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3-7)**: All depend on Foundational phase completion
- - **Data Flow Constraint**: Phase 3 (Inference), Phase 4 (Feature Extraction), and Phase 5 (Static Analysis) can run in parallel but **MUST** complete before Phase 6 (Analysis).
- - **Analysis Constraint**: Phase 6 (Analysis) cannot run until `data/processed/predictions.csv`, `data/processed/features.csv`, and `data/processed/static_predictions.csv` exist.
- - **Human Review Constraint**: T036 requires the existence of `data/human_review/verified_labels.csv` (external process).
-- **Polish (Phase 8)**: Depends on all user stories being complete
+- **User Stories (Phase 2-6)**: All depend on Foundational phase completion
+ - **Data Flow Constraint**: Phase 2 (Inference), Phase 3 (Feature Extraction), and Phase 4 (Static Analysis) can run in parallel but **MUST** complete before Phase 5 (Analysis).
+ - **Analysis Constraint**: Phase 5 (Analysis) cannot run until `data/processed/predictions.csv`, `data/processed/features.csv`, and `data/processed/static_predictions.csv` exist.
+ - **Human Review Constraint**: T036 checks for the existence of `data/human_review/verified_labels.csv` (external process) but does not block the pipeline if missing.
+- **Polish (Phase 7)**: Depends on all user stories being complete
 
 ### User Story Dependencies
 
@@ -191,7 +181,7 @@
 - **User Story 2 (P2)**: Feature extraction. Depends on Foundational. Can run parallel to US1.
 - **User Story 4 (P2)**: Static analysis. Depends on Foundational. Can run parallel to US1/US2.
 - **User Story 3 (P3)**: Statistical analysis. **Depends on US1, US2, and US4 completion** (requires predictions and features).
-- **Sensitivity (Phase 7)**: Depends on US1 completion (requires predictions) and external human review completion.
+- **Sensitivity (Phase 6)**: Depends on US1 completion (requires predictions) and external human review (non-blocking).
 
 ### Within Each User Story
 
@@ -202,7 +192,6 @@
 ### Parallel Opportunities
 
 - **Setup**: T001, T003, T004 can run in parallel.
-- **Foundational**: T005-T010 can run in parallel.
 - **Data Processing**: T011 (Download), T018 (Feature Extract), T024 (Static Analyzer) can run in parallel once data is available.
  - **Note**: T019a, T019b, and T020 are **sequential** (T019a -> T019b -> T020) due to artifact dependencies and cannot be parallelized with each other.
 - **Analysis**: T028 (Metrics), T029 (Correlation), T031 (McNemar) can be implemented in parallel, though execution order is fixed.
@@ -214,24 +203,23 @@
 ### MVP First (User Story 1 Only)
 
 1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational
-3. Complete Phase 3: User Story 1 (Ingestion + Inference)
-4. **STOP and VALIDATE**: Verify predictions match ground truth for a small batch.
+2. Complete Phase 2: User Story 1 (Ingestion + Inference)
+3. **STOP and VALIDATE**: Verify predictions match ground truth for a small batch.
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational → Foundation ready
+1. Complete Setup → Foundation ready
 2. Add User Story 1 → Test independently → MVP: Raw predictions generated
 3. Add User Story 2 + User Story 4 → Test independently → Features and Baselines generated
 4. Add User Story 3 → Test independently → Statistical findings generated
-5. Add Sensitivity Analysis → Test independently → Robustness validated
+5. Add Sensitivity Analysis → Test independently → Robustness validated (or skipped if human review unavailable)
 
 ### Parallel Team Strategy
 
 With multiple developers:
 
-1. Team completes Setup + Foundational together.
-2. Once Foundational is done:
+1. Team completes Setup together.
+2. Once Setup is done:
  - Developer A: User Story 1 (LLM Inference)
  - Developer B: User Story 2 (Feature Extraction)
  - Developer C: User Story 4 (Static Analysis)
@@ -250,3 +238,4 @@ With multiple developers:
 - **Verification**: Ensure tests fail before implementing.
 - **Commit**: Commit after each task or logical group.
 - **Stop**: Stop at any checkpoint to validate story independently.
+- **Spec Precedence**: Where the Plan conflicts with the Spec (e.g., "Quantization-aware training" vs "Zero-Shot"), the Spec takes precedence per Constitution Principle II.

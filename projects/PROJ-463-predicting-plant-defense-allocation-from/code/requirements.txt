@@ -1,27 +1,29 @@
-# Core dependencies
-numpy>=1.24.0,<2.0.0
-pandas>=2.0.0,<3.0.0
-scipy>=1.10.0,<2.0.0
-scikit-learn>=1.2.0,<2.0.0
-matplotlib>=3.7.0,<4.0.0
-seaborn>=0.12.0,<1.0.0
+# llmXive Project Dependencies
+# Pinned versions for reproducibility
 
-# Bioinformatics
-biopython>=1.81,<2.0.0
-ete3>=3.1.0,<4.0.0
-rpy2>=3.5.0,<4.0.0
+# Core Data & Analysis
+numpy==1.24.0
+pandas==2.0.0
+scipy==1.10.0
+scikit-learn==1.2.2
 
-# Data handling
-pydantic>=2.0.0,<3.0.0
+# Bioinformatics & Genomics
+biopython==1.81
+ete3==3.1.3
 
-# Utilities
-requests>=2.31.0,<3.0.0
-tqdm>=4.65.0,<5.0.0
+# Machine Learning & Statistics
+statsmodels==0.14.0
+rpy2==3.5.11
+
+# Data Validation & Config
+pydantic==2.0.0
 
 # Testing
-pytest>=7.3.0,<8.0.0
-pytest-cov>=4.1.0,<5.0.0
+pytest==7.3.1
 
-# Linting/Formatting
-ruff>=0.0.280,<1.0.0
-black>=23.0.0,<24.0.0
+# Utilities
+requests==2.31.0
+tqdm==4.65.0
+
+# Note: External tools (fastp, HISAT2, featureCounts) must be installed
+# separately via system package manager (apt, conda, etc.)

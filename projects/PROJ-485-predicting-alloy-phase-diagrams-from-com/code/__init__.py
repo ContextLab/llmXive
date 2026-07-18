@@ -1,1 +1,4 @@
-"""Root package for PROJ-485."""
+"""
+llmXive Project: Predicting Alloy Phase Diagrams from Compositional Data
+Package: code
+"""

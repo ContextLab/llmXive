@@ -1,0 +1,3 @@
+# Data directory for llmXive project
+# This directory contains raw, processed, and synthetic data artifacts.
+# .gitkeep ensures the directory exists in version control.

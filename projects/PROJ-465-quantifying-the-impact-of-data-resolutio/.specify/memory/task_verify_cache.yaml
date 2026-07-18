@@ -1,0 +1,48 @@
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or module implementing the 1\u03C3\u202F\u2192\u202F90\u202F\
+    % confidence scaling (multiplying by 1.645) is present in the provided evidence;\
+    \ the artifact required by task T025 is missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, configuration files, or generated results were provided that\
+    \ implement the flagging mechanism for configurations where bias exceeds the catalog\u2011\
+    reported confidence interval. Consequently, there is no artifact to verify that\
+    \ the required functionality exists or works as specified."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test output, or data file was provided that demonstrates a\
+    \ validation routine for injected\u2011data scenarios and verifies that the computed\
+    \ bias is <\u202F1e\u20116. The required artifact (e.g., a validation module and\
+    \ accompanying test results) is missing, so the task is not satisfied."
+T028:
+  c: false
+  h: bf24cf43952c48af9e0e2e4c9bb4af2c4e378e54bad62006451b6c70b0ebf2b2
+  r: "The required artifact `tests/unit/test_aggregate.py` does not exist in the repository,\
+    \ so no unit test for the majority\u2011rule threshold logic is present. The task\
+    \ cannot be considered done until the file is added with the appropriate test\
+    \ implementation."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, function, notebook, or output file implementing the standard\u2011\
+    deviation calculation of resolution thresholds across the event population was\
+    \ provided. The claim contains only a textual description of the required logic,\
+    \ with no concrete artifact (e.g., a Python module, unit test, or generated statistics)\
+    \ to verify that the minimum\u2011event\u2011count check and NaN handling are\
+    \ actually implemented. The missing implementation must be supplied and demonstrated\
+    \ (e.g., by showing the function, its usage on real event data, and the resulting\
+    \ SD value)."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the \u201CNo threshold found\u201D\
+    \ reporting logic for US\u20113 Scenario\u202F2 is present; the provided evidence\
+    \ only contains high\u2011level feature specifications and user stories, with\
+    \ no concrete artifact to verify the required functionality. The implementer must\
+    \ supply the actual implementation (e.g., source file, function, or test output)\
+    \ that checks bias across high audio frequencies and reports when no threshold\
+    \ is found."

@@ -1,58 +1,48 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+# Data directories - exclude all raw, processed, and artifact data
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/artifacts/*
+!data/artifacts/.gitkeep
+
+# Python bytecode and cache
+*.pyc
+__pycache__
+*.pyo
+*.pyd
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Virtual Environments
-.venv/
-venv/
-ENV/
+# State files - exclude all except project-specific state
+state/*.yaml
+!state/PROJ-485/*.yaml
+
+# Environment and IDE files
+.env
+.env.local
+.env.*.local
+venv
+.venv
 env/
-
-# IDE
+.env/
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# Data (Constitution Principle III)
-# Exclude all data by default, allow specific project state
-data/raw/*
-data/processed/*
-data/artifacts/*
-
-# State (Constitution Principle V)
-# Exclude all state YAMLs EXCEPT the specific project state
-state/*.yaml
-!state/PROJ-485/*.yaml
-
-# OS
-.DS_Store
-Thumbs.db
+# Testing and coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
 
 # Logs
 *.log
 logs/
 
-# Coverage
-.coverage
-htmlcov/
-.pytest_cache/
+# OS files
+.DS_Store
+Thumbs.db
