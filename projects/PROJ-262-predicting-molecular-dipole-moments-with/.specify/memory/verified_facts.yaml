@@ -1,5 +1,7 @@
-'|q126592664 wikidata':
-  quote: 'P9852: verify-fact-check-bias'
-  source_id: Q126592664
-  url: https://www.wikidata.org/wiki/Q126592664
-  value: verify-fact-check-bias
+'|bootstrap ci computed via':
+  quote: In this example, the bootstrapped 95% (percentile) confidence-interval for
+    the population median is (26, 28.5), which is close to the interval for  (25.98,
+    28.46) for the smoothed bootstrap.
+  source_id: Bootstrapping (statistics)
+  url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+  value: (26, 28.5)

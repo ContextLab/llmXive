@@ -40,7 +40,7 @@ The specific version number is not asserted; instead, the study will utilize a r
 - **Hydration state limitation**: QM9 molecules are gas-phase DFT calculations without explicit solvent. Hydration effects acknowledged as out-of-scope per spec assumptions.
 - **Conformational ensembles**: Single lowest-energy conformer per molecule from QM9 used; ensemble sampling documented as future work in research.md.
 - **Feature attribution**: Saliency mapping + permutation importance directly address "which part of the graph is doing the work"; physics-informed loss (Raissi) noted as future enhancement in research.md.
-- **Physical validation**: Physical measurement validation explicitly out-of-scope per spec assumptions; validation against QM9 DFT reference data (BLYP/6-31G(2df,p)) as ground truth.
+- **Physical validation**: Physical measurement validation explicitly out-of-scope per spec assumptions; validation against QM DFT reference data (BLYP/6-31G(2df,p)) as ground truth.
 
 **Note on Scope Boundaries**: Tasks T021-T025, T039-T043, T056-T058 referenced in earlier versions have been renumbered to align with current spec requirements. All tasks now map to explicit FR and SC requirements in spec.md.
 
