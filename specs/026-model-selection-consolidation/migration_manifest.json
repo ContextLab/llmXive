@@ -2241,7 +2241,7 @@
       "symbol": "model"
     },
     {
-      "category": "migration_target",
+      "category": "canonical_layer",
       "file": "src/llmxive/backends/dartmouth.py",
       "kind": "module_constant",
       "line": 86,
@@ -2250,7 +2250,7 @@
         "qwen3",
         "qwen3.5"
       ],
-      "owning_slice": 7,
+      "owning_slice": null,
       "symbol": "_REASONING_MODELS"
     },
     {
@@ -5861,7 +5861,18 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_inventory.py",
       "kind": "model_id_literal",
-      "line": 400,
+      "line": 363,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_inventory.py",
+      "kind": "model_id_literal",
+      "line": 419,
       "models": [
         "qwen.qwen3.5-122b"
       ],

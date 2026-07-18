@@ -93,6 +93,18 @@ _SCHEMA_CLASSES = frozenset({"AgentRegistryEntry"})
 #: so slice-8 enforcement rejects it. Extend this set only for a genuinely
 #: canonical table, in a reviewed PR.
 _CANONICAL_FILES = frozenset({"src/llmxive/model_selection/policy.py"})
+#: Specific ``(file, symbol)`` pins sanctioned as canonical even though their file
+#: is NOT wholly canonical. ``dartmouth._REASONING_MODELS`` is backend serving-mode
+#: knowledge (thinking-mode disable + reasoning-safe token budget) that stays at the
+#: acquisition layer — relocating it into ``policy.py`` would create a ``backends →
+#: model_selection`` import cycle (decision A, 2026-07-17 maintainer review). Its
+#: file-sibling ``KNOWN_FREE_MODELS`` is deliberately NOT here: the live-catalog
+#: pricing + LKG store supersede that hardcoded free-ness allowlist, so it stays a
+#: migration_target (deleted in slice 8). Extend only for a genuinely canonical
+#: symbol, in a reviewed PR.
+_CANONICAL_SYMBOLS = frozenset(
+    {("src/llmxive/backends/dartmouth.py", "_REASONING_MODELS")}
+)
 _TESTS_PREFIX = "tests/"
 _REGISTRY_PATH = "agents/registry.yaml"
 #: The registry sentinel for scaffolding agents that make NO LLM call (spec 015 /
@@ -115,6 +127,8 @@ def categorize(entry: dict) -> tuple[str, int | None]:
     """
     rel = entry["file"]
     if rel in _CANONICAL_FILES:
+        return ("canonical_layer", None)
+    if (rel, entry["symbol"]) in _CANONICAL_SYMBOLS:
         return ("canonical_layer", None)
     if rel.startswith(_TESTS_PREFIX):
         return ("test_double", None)

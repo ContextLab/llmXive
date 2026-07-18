@@ -349,6 +349,25 @@ def test_categorize_maps_paths_to_categories():
     ) == ("registry", 7)
 
 
+def test_categorize_reasoning_models_symbol_is_canonical_but_known_free_migrates():
+    """Decision A (2026-07-17 maintainer review): ``dartmouth._REASONING_MODELS``
+    is backend serving-mode knowledge (thinking-mode disable + reasoning-safe
+    budget) sanctioned as canonical-by-symbol — relocating it into ``policy.py``
+    would create a ``backends → model_selection`` import cycle. Its file-sibling
+    ``KNOWN_FREE_MODELS`` stays a migration target: the live-catalog pricing + LKG
+    store supersede that hardcoded free-ness allowlist (deleted in slice 8). So a
+    symbol-level canonical sanction is required — the whole dartmouth.py file
+    cannot be canonical."""
+    assert _cat(
+        "src/llmxive/backends/dartmouth.py", kind="module_constant",
+        symbol="_REASONING_MODELS", models=("qwen3.5",),
+    ) == ("canonical_layer", None)
+    assert _cat(
+        "src/llmxive/backends/dartmouth.py", kind="module_constant",
+        symbol="KNOWN_FREE_MODELS",
+    ) == ("migration_target", 7)
+
+
 def _mini_repo(root):
     (root / "src/llmxive/backends").mkdir(parents=True)
     (root / "src/llmxive/backends/router.py").write_text(
