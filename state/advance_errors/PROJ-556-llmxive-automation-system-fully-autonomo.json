@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-556-llmxive-automation-system-fully-autonomo",
   "stage": "analyzed",
-  "class": "deterministic_repair",
-  "fingerprint": "filesystem_file_exists",
-  "consecutive_count": 2,
+  "class": "transient",
+  "fingerprint": "unknown",
+  "consecutive_count": 3,
   "first_seen": "2026-07-18T03:05:59.282893+00:00",
-  "last_seen": "2026-07-18T04:10:12.850513+00:00",
-  "retry_after": "2026-07-18T04:30:12.850513+00:00",
-  "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-556-llmxive-automation-system-fully-autonomo/code'",
-  "evidence": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-556-llmxive-automation-system-fully-autonomo/code'",
-  "remediation": "A deterministic filesystem collision (a dir/file already exists). Make the step idempotent (exist_ok=True / reconcile the existing artifact) then retry; backoff spaces the retries so it does not loop every tick meanwhile.",
+  "last_seen": "2026-07-18T05:50:02.222295+00:00",
+  "retry_after": "2026-07-18T06:30:02.222295+00:00",
+  "last_error": "[Errno 20] Not a directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-556-llmxive-automation-system-fully-autonomo/code/utils'",
+  "evidence": "[Errno 20] Not a directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-556-llmxive-automation-system-fully-autonomo/code/utils'",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
   "status": "retry_scheduled"
 }
