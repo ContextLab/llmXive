@@ -1,0 +1,46 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema
+description: Schema for the processed materials science dataset
+type: object
+properties:
+  material_id:
+    type: string
+    description: Unique identifier for the material
+  formula:
+    type: string
+    description: Chemical formula
+  formation_energy:
+    type: number
+    description: Formation energy per atom (eV/atom)
+  crystal_system:
+    type: string
+    description: Crystal system of the material
+  elemental_properties:
+    type: object
+    properties:
+      mean_electronegativity:
+        type: number
+      mean_atomic_radius:
+        type: number
+      mean_valence:
+        type: number
+      mean_melting_point:
+        type: number
+      mean_ionization_energy:
+        type: number
+      var_electronegativity:
+        type: number
+      var_atomic_radius:
+        type: number
+      var_valence:
+        type: number
+      var_melting_point:
+        type: number
+      var_ionization_energy:
+        type: number
+required:
+  - material_id
+  - formula
+  - formation_energy
+  - crystal_system
+  - elemental_properties

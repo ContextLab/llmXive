@@ -1,10 +1,6 @@
 """
-Logging infrastructure for the llmXive research pipeline.
-
-Provides centralized configuration for logging to both console and files,
-ensuring consistent formatting and log levels across the project.
+Logging utilities for the project.
 """
-
 import logging
 import os
 from pathlib import Path
@@ -14,82 +10,56 @@ from config import load_paths
 
 
 def setup_logging(
-    log_level: str = "INFO",
     log_file: Optional[str] = None,
-    project_root: Optional[Path] = None,
-) -> logging.Logger:
+    level: int = logging.INFO
+) -> None:
     """
-    Configure and return a project logger with console and optional file handlers.
-
-    This function sets up a root logger (or a named 'research' logger) with:
-    - A console handler outputting to stdout with a specific format.
-    - An optional file handler if `log_file` is provided.
+    Configure the root logger.
 
     Args:
-        log_level: String representation of the log level (e.g., 'DEBUG', 'INFO').
-        log_file: Relative path to the log file from the project root. If None,
-                  only console logging is configured.
-        project_root: The root directory of the project. If None, inferred from
-                      the config module.
-
-    Returns:
-        logging.Logger: The configured logger instance.
-
-    Examples:
-        >>> logger = setup_logging(log_level="DEBUG", log_file="logs/app.log")
-        >>> logger.info("Logging initialized successfully")
+        log_file: Optional path to a log file. If None, logs to stdout.
+        level: Logging level (e.g., logging.INFO, logging.DEBUG).
     """
-    # Resolve project root if not provided
-    if project_root is None:
-        paths = load_paths()
-        project_root = paths.get("project_root", Path("."))
+    handlers = []
 
-    # Ensure log directory exists
-    log_dir = project_root / "data" / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-
-    # Configure the logger
-    logger = logging.getLogger("research")
-    logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
-
-    # Formatter
-    formatter = logging.Formatter(
-        fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
-    # Console Handler
+    # Console handler
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+    console_handler.setLevel(level)
+    console_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    console_handler.setFormatter(console_formatter)
+    handlers.append(console_handler)
 
-    # File Handler (optional)
+    # File handler (if specified)
     if log_file:
-        full_log_path = project_root / log_file
-        # Ensure parent directories for the log file exist
-        full_log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        file_handler = logging.FileHandler(str(full_log_path))
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(level)
+        file_formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        file_handler.setFormatter(file_formatter)
+        handlers.append(file_handler)
 
-    return logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    # Clear existing handlers to avoid duplicates
+    root_logger.handlers.clear()
+    root_logger.addHandler(console_handler)
+    if log_file:
+        root_logger.addHandler(file_handler)
 
 
-def get_logger(name: str = "research") -> logging.Logger:
+def get_logger(name: str) -> logging.Logger:
     """
-    Retrieve a logger by name. Assumes setup_logging has been called.
+    Get a logger instance with the given name.
 
     Args:
-        name: The name of the logger to retrieve.
+        name: Logger name (usually __name__).
 
     Returns:
-        logging.Logger: The logger instance.
+        Configured logger instance.
     """
     return logging.getLogger(name)

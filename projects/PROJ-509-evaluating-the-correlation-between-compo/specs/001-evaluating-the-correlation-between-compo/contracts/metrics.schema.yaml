@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Metrics Schema"
+description: "Schema for model performance metrics and overfitting detection (Single Source of Truth for R²)"
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "RandomForest"
+      - "GradientBoosting"
+    description: "Type of model trained"
+  r2_train:
+    type: number
+    description: "R² score on training set"
+  r2_val:
+    type: number
+    description: "R² score on validation set"
+  mae_val:
+    type: number
+    description: "Mean Absolute Error on validation set"
+  rmse_val:
+    type: number
+    description: "Root Mean Squared Error on validation set"
+  overfitting_ratio:
+    type: ["number", "null"]
+    description: "Ratio of train_r2 to val_r2; null if val_r2 <= 0 (indicates model failure)"
+  feature_importances:
+    type: object
+    description: "Dictionary of feature names to importance scores"
+    additionalProperties:
+      type: number
+required:
+  - model_type
+  - r2_train
+  - r2_val
+  - mae_val
+  - rmse_val
+  - overfitting_ratio
+  - feature_importances
+additionalProperties: false

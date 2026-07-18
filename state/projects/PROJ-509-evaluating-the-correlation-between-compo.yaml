@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T23:23:29.292368Z'
-current_stage: in_progress
+current_stage: specified
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-509-evaluating-the-correlation-between-compo
-last_run_id: c19d10ab-753a-453c-b2bb-9762369bfde2
+last_run_id: 47c3dd4e-23c9-40cc-9143-82e65637df81
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo
 title: Evaluating the Correlation Between Compositional Features and Predicted Formation
   Energy in Inorganic Materials
-updated_at: '2026-06-29T21:28:51.437917Z'
+updated_at: '2026-07-18T13:31:13.411304Z'

@@ -31,7 +31,18 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4053859
   verified_at: '2026-06-29T21:06:19.286842Z'
-- artifact_hash: be6d47c71d90ed6e7ad70a1451269f42fe2930c1b74e8197a383bab8b8932d01
+- artifact_hash: 85d66bfdddf937fc832e0c1f7f44c7fe02d1f1425ae8c5b88506da28991fee2d
+  artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.4053859
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4053859
+  verified_at: '2026-07-18T12:37:20.511880Z'
+- artifact_hash: 5f456d192b1f1e311989c7afd83b833e79b1b7ff4c5c5fd79d81d28dfb3ea3fb
   artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +52,4 @@
   value: 10.5281/zenodo.4053859
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4053859
-  verified_at: '2026-07-18T10:22:34.088589Z'
+  verified_at: '2026-07-18T12:37:21.316012Z'

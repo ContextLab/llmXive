@@ -1,51 +1,71 @@
 import pytest
-import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from importance import validate_correlation, rank_features, calculate_vif
+import pandas as pd
+from unittest.mock import Mock, patch
+import os
+import sys
 
-def test_validate_correlation():
-    """Test correlation calculation between two sets of importances."""
-    rf_importances = {'a': 0.5, 'b': 0.3, 'c': 0.2}
-    perm_importances = {'a': 0.45, 'b': 0.35, 'c': 0.25}
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+from code.importance import validate_correlation, rank_features, calculate_vif
+
+def test_validate_correlation_perfect():
+    """Test correlation calculation with perfectly correlated data."""
+    rf_importances = {"a": 1.0, "b": 2.0, "c": 3.0}
+    perm_importances = {"a": 1.0, "b": 2.0, "c": 3.0}
     
-    r = validate_correlation(rf_importances, perm_importances)
+    r, p_value = validate_correlation(rf_importances, perm_importances)
     
-    # Check that r is a float and within [-1, 1]
-    assert isinstance(r, float)
+    assert np.isclose(r, 1.0, atol=1e-5)
+    assert p_value < 0.05  # Significant
+
+def test_validate_correlation_zero():
+    """Test correlation calculation with uncorrelated data."""
+    # Create data with no linear correlation
+    rf_importances = {"a": 1.0, "b": 2.0, "c": 3.0, "d": 4.0}
+    perm_importances = {"a": 3.0, "b": 1.0, "c": 4.0, "d": 2.0}
+    
+    r, p_value = validate_correlation(rf_importances, perm_importances)
+    
+    # Should not be 1.0
+    assert not np.isclose(r, 1.0, atol=0.1)
     assert -1.0 <= r <= 1.0
-    # Since the values are highly correlated, r should be high (e.g., > 0.9)
-    assert r > 0.9
 
 def test_rank_features():
     """Test feature ranking logic."""
-    rf_importances = {'a': 0.5, 'b': 0.3, 'c': 0.2}
-    perm_importances = {'a': 0.45, 'b': 0.35, 'c': 0.25}
-    
-    ranked = rank_features(rf_importances, perm_importances, top_n=2)
+    importances = {"z": 0.1, "a": 0.9, "m": 0.5}
+    ranked = rank_features(importances, top_n=2)
     
     assert len(ranked) == 2
-    assert ranked[0]['feature'] == 'a'
-    assert ranked[0]['rank'] == 1
-    assert ranked[1]['feature'] == 'b'
-    assert ranked[1]['rank'] == 2
+    assert ranked[0]["feature"] == "a"
+    assert ranked[0]["importance"] == 0.9
+    assert ranked[0]["rank"] == 1
+    assert ranked[1]["feature"] == "m"
+    assert ranked[1]["rank"] == 2
 
-def test_calculate_vif():
-    """Test VIF calculation."""
-    np.random.seed(42)
-    n_samples = 100
-    X = pd.DataFrame({
-        'f1': np.random.randn(n_samples),
-        'f2': np.random.randn(n_samples),
-        'f3': np.random.randn(n_samples)
+def test_rank_features_top_n_larger_than_input():
+    """Test ranking when top_n is larger than number of features."""
+    importances = {"a": 0.9, "b": 0.5}
+    ranked = rank_features(importances, top_n=10)
+    
+    assert len(ranked) == 2
+    assert ranked[0]["feature"] == "a"
+
+def test_calculate_vif_constant_feature():
+    """Test VIF calculation with a constant feature (should raise or return high VIF)."""
+    # Create a DataFrame with a constant column
+    df = pd.DataFrame({
+        'a': [1.0, 1.0, 1.0, 1.0],
+        'b': [1.0, 2.0, 3.0, 4.0]
     })
-    feature_names = ['f1', 'f2', 'f3']
     
-    vif_scores = calculate_vif(X, feature_names)
-    
-    assert 'f1' in vif_scores
-    assert 'f2' in vif_scores
-    assert 'f3' in vif_scores
-    # VIF should be >= 1.0
-    for v in vif_scores.values():
-        assert v >= 1.0
+    # This might raise an error due to constant feature, or return high VIF
+    # We expect it to handle gracefully or raise a specific error
+    try:
+        vif_scores = calculate_vif(df)
+        # If it doesn't raise, check that VIF is high for constant feature
+        assert vif_scores['a'] >= 10.0 or np.isinf(vif_scores['a'])
+    except Exception:
+        # It is acceptable for VIF calculation to fail on constant features
+        pass

@@ -1,30 +1,19 @@
-T025:
+T047:
   c: false
-  h: afe5cb945f3fd2af460e5af81fc7f239d18a9092c43b95f6707321e3e5f34e0d
-  r: "The required output file `data/evaluation/model_metrics.json` does not exist,\
-    \ and the provided `code/evaluate.py` excerpt shows no implementation of computing\
-    \ `train_r2`, `val_r2`, the `overfitting_ratio`, or appending it to the JSON file.\
-    \ The task\u2019s core functionality and output artifact are missing."
-T038:
+  h: 50e4c53a1a48f992a0fbbff6dec718d4f97a6ff5ff01ea8d32eb22e856754971
+  r: "The provided `code/importance.py` never computes VIF scores nor writes them\
+    \ to `data/evaluation/vif_scores.json`, and the expected JSON file is absent from\
+    \ the repository. Consequently the multi\u2011collinearity check and required\
+    \ output are not implemented."
+T048:
   c: false
-  h: 00de4a29c0769e0985e560bd0e4991950667f11e0c77d70a52c60fbac4d695fc
-  r: The required model file `data/evaluation/trained_models.pkl` is missing, so the
-    script cannot load a trained Random Forest model. Additionally, `code/importance.py`
-    is truncated and does not contain a complete implementation (e.g., missing the
-    final logic to call the functions and output the rankings). Both the artifact
-    and a full, functional script are absent.
-T039:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or quickstart.md files containing the required documentation updates
+    and run instructions were provided; the evidence on disk does not include the
+    claimed documentation artifacts.
+T049:
   c: false
-  h: 4b9c5d19b04ccee1f4bf6c1d3109f5cc3cdaa52dd394d7aed19c33f153eab177
-  r: "The `code/importance.py` file is truncated and does not contain logic to write\
-    \ the correlation `r` and permutation importance scores to `data/evaluation/permutation_importance.json`,\
-    \ nor does it enforce the required correlation threshold (r\u202F\u2265\u202F\
-    0.8). Additionally, the expected JSON output file is missing from the repository.\
-    \ The task therefore remains unfinished."
-T040:
-  c: false
-  h: 1d32984093b5d394cd3abad75a9063c1b6ded85650a9c37b562a1ac03707f0a5
-  r: The required output file `data/evaluation/feature_ranking.json` is missing, and
-    the provided `code/importance.py` is truncated (e.g., the `rank_features` function
-    ends abruptly without writing results). Consequently the script does not fulfill
-    the requirement to rank descriptors and save them to the specified JSON file.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any cleaned or refactored files under `code/utils/` is present;
+    the claim provides no code artifacts, diffs, or documentation showing the required
+    cleanup was performed. The required output (updated utility modules) is missing.

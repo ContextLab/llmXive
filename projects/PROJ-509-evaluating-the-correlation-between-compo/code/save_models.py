@@ -1,192 +1,148 @@
+"""
+Module to save trained model artifacts and evaluation metrics.
+
+This module implements Task T026: Saving model artifacts to 
+`data/evaluation/trained_models.pkl` and metrics to 
+`data/evaluation/model_metrics.json`.
+"""
 import os
 import sys
 import json
 import pickle
 import logging
 from pathlib import Path
+from typing import Dict, Any, Optional
 
-# Add project root to path to allow relative imports if run as script
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
+# Import local utilities
 from config import load_paths
 from utils.logging import get_logger
+from evaluate import load_models, evaluate_models, calculate_tvd, load_data
+from train import train_models, perform_stratified_split
 
+# Setup logger
 logger = get_logger(__name__)
 
-def save_artifacts(models: dict, metrics: dict, output_models_path: str, output_metrics_path: str) -> None:
+def save_artifacts(
+    models: Dict[str, Any], 
+    metrics: Dict[str, Any],
+    output_models_path: Optional[str] = None,
+    output_metrics_path: Optional[str] = None
+) -> None:
     """
-    Save trained model artifacts and evaluation metrics to disk.
-    
-    This function serves as the Single Source of Truth for model outputs.
+    Save trained models and evaluation metrics to disk.
     
     Args:
-        models: Dictionary mapping model names (e.g., 'rf', 'gb') to trained estimator objects.
-        metrics: Dictionary containing evaluation metrics (R2, MAE, RMSE, TVD, etc.).
-        output_models_path: File path (including .pkl extension) for saving the models dictionary.
-        output_metrics_path: File path (including .json extension) for saving the metrics dictionary.
-    
+        models: Dictionary containing trained model objects keyed by name.
+        metrics: Dictionary containing evaluation metrics.
+        output_models_path: Path to save the models pickle file.
+        output_metrics_path: Path to save the metrics JSON file.
+        
     Raises:
-        FileNotFoundError: If the directory for the output path does not exist.
-        IOError: If the file cannot be written.
+        FileNotFoundError: If the output directory does not exist.
+        IOError: If writing to the file fails.
     """
-    models_path = Path(output_models_path)
-    metrics_path = Path(output_metrics_path)
+    paths = load_paths()
     
-    # Ensure output directories exist
-    models_path.parent.mkdir(parents=True, exist_ok=True)
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    # Determine output paths
+    if output_models_path is None:
+        output_models_path = str(paths['data_evaluation'] / 'trained_models.pkl')
+    if output_metrics_path is None:
+        output_metrics_path = str(paths['data_evaluation'] / 'model_metrics.json')
+    
+    # Ensure directory exists
+    models_dir = Path(output_models_path).parent
+    metrics_dir = Path(output_metrics_path).parent
+    
+    models_dir.mkdir(parents=True, exist_ok=True)
+    metrics_dir.mkdir(parents=True, exist_ok=True)
     
     # Save models
-    logger.info(f"Saving models to {models_path}")
+    logger.info(f"Saving models to {output_models_path}")
     try:
-        with open(models_path, 'wb') as f:
+        with open(output_models_path, 'wb') as f:
             pickle.dump(models, f)
-        logger.info(f"Successfully saved {len(models)} models to {models_path}")
-    except IOError as e:
+        logger.info("Models saved successfully.")
+    except Exception as e:
         logger.error(f"Failed to save models: {e}")
         raise
     
     # Save metrics
-    logger.info(f"Saving metrics to {metrics_path}")
+    logger.info(f"Saving metrics to {output_metrics_path}")
     try:
-        with open(metrics_path, 'w') as f:
-            json.dump(metrics, f, indent=4, default=str)
-        logger.info(f"Successfully saved metrics to {metrics_path}")
-    except IOError as e:
+        with open(output_metrics_path, 'w') as f:
+            json.dump(metrics, f, indent=4)
+        logger.info("Metrics saved successfully.")
+    except Exception as e:
         logger.error(f"Failed to save metrics: {e}")
         raise
 
 def main() -> None:
     """
-    Main entry point for saving model artifacts and metrics.
+    Main entry point for saving models and metrics.
     
-    This function assumes that models and metrics have been generated
-    by previous steps (train.py and evaluate.py) and are available in memory
-    or loaded from temporary locations if the pipeline was split.
-    
-    For the purpose of this task, we will simulate loading them from the
-    expected intermediate locations if they exist, or raise an error if not.
-    However, in a strict pipeline execution, this function is typically called
-    with the objects passed directly. To make this script runnable standalone
-    as per the task requirement to "produce real outputs", we will attempt
-    to load the models and metrics from the standard locations defined in the
-    project structure, assuming the previous steps (T020-T025) have run.
-    
-    If the previous steps haven't run, this script will fail loudly as required.
+    This function orchestrates the full pipeline to ensure data is processed,
+    models are trained, metrics are calculated (including overfitting ratio),
+    and finally everything is saved to the designated output files.
     """
+    logger.info("Starting model and metrics saving process (T026).")
     paths = load_paths()
     
-    # Define expected input paths (generated by T020-T025)
-    # Note: In a real pipeline orchestration, these would be passed as arguments.
-    # Since we are implementing T026 which depends on T020-T025, we assume
-    # the artifacts exist at the standard locations.
+    # 1. Load Data
+    logger.info("Loading processed data...")
+    data_path = paths['data_processed'] / 'computed_descriptors.csv'
+    if not data_path.exists():
+        raise FileNotFoundError(f"Required data file not found: {data_path}")
     
-    # We need to load the models and metrics that were created by train.py and evaluate.py.
-    # However, train.py and evaluate.py might have saved them to temporary locations
-    # or not saved them at all yet (depending on how T020-T025 were implemented).
-    #
-    # To satisfy the requirement of T026 "Save model artifacts to data/evaluation/trained_models.pkl",
-    # we must ensure that the final consolidated artifacts are written there.
-    #
-    # Strategy:
-    # 1. Try to load models from the path where train.py might have saved them (if it did).
-    #    Looking at the API surface, train.py has 'save_artifacts' but we don't know where it saves.
-    #    Let's assume for now that train.py saved models to a temp location or we need to re-load and re-save.
-    #    Actually, the task T026 is the final step. It implies that train.py and evaluate.py
-    #    have run and produced the models and metrics in memory or in intermediate files.
-    #
-    #    Since we cannot guarantee the intermediate state of T020-T025 in this isolated implementation,
-    #    and the task requires a runnable script that produces the final output,
-    #    we will implement the logic to load the *final* models and metrics from the
-    #    locations where T020-T025 *should* have placed them if they were implemented correctly.
-    #
-    #    Wait, the task says: "Save model artifacts to data/evaluation/trained_models.pkl".
-    #    This implies T026 is the writer. T020-T025 might have generated the objects.
-    #    If T020-T025 were implemented to save to a temp file, we load from there.
-    #    If they were implemented to print to stdout or return, this script needs to be called
-    #    in a way that passes the data.
-    #
-    #    Given the constraint "Produce real outputs, not demos" and "script must... actually WRITE its declared output",
-    #    and the fact that we are implementing T026 in isolation, we must assume the previous steps
-    #    have left the data in a predictable state OR we must re-run the logic.
-    #
-    #    Re-reading the task: "Save model artifacts...". It does not say "Load and re-save".
-    #    However, to make this script runnable and produce the output, we need the data.
-    #    The most robust way in this pipeline context is to assume the previous steps
-    #    saved the models and metrics to specific intermediate paths, or we need to
-    #    re-execute the training/evaluation logic here (which is bad practice).
-    #
-    #    Let's look at the dependencies. T026 depends on T020-T025.
-    #    T020-T025 are "Implement train.py" and "Implement evaluate.py".
-    #    If T020-T025 are implemented, they should have produced the models and metrics.
-    #    The most likely scenario for a pipeline is that train.py saves models to a temp file
-    #    and evaluate.py saves metrics to a temp file, and T026 consolidates them.
-    #    OR, train.py and evaluate.py are run in the same process and pass objects to T026.
-    #
-    #    Since we are writing a standalone script `code/save_models.py`, we cannot assume
-    #    the same process. We must load from disk.
-    #
-    #    Let's define the standard intermediate paths:
-    #    - Models: data/evaluation/temp_models.pkl (or similar)
-    #    - Metrics: data/evaluation/temp_metrics.json (or similar)
-    #
-    #    But wait, the task T026 says "Save... to data/evaluation/trained_models.pkl".
-    #    This implies the final destination.
-    #
-    #    If T020-T025 were implemented to save to the FINAL destination already, then T026 is redundant.
-    #    If T020-T025 were implemented to save to TEMPORARY locations, then T026 moves/consolidates them.
-    #
-    #    Given the instruction "Implement T026... Save model artifacts...", and the fact that
-    #    T020-T025 are also "Implement... to train... to save...", it's likely T020-T025
-    #    save to the final location, and T026 is the final step that ensures everything is there.
-    #    OR, T026 is the ONLY step that saves to the final location, and T020-T025 just compute.
-    #
-    #    Let's assume the latter: T020-T025 compute and maybe save to a temp location or return.
-    #    But we need to run this script.
-    #
-    #    Alternative interpretation: T026 is the *final* save step. The previous steps (T020-T025)
-    #    might have been implemented to save to `data/evaluation/models_temp.pkl` and `data/evaluation/metrics_temp.json`.
-    #    We will implement T026 to load from these temp locations and save to the final locations.
-    #    If the temp locations don't exist, we fail loudly.
-    #
-    #    Let's define the temp paths:
-    temp_models_path = paths["data_evaluation"] / "models_temp.pkl"
-    temp_metrics_path = paths["data_evaluation"] / "metrics_temp.json"
+    df, feature_cols, target_col = load_data(data_path)
+    logger.info(f"Loaded {len(df)} rows with {len(feature_cols)} features.")
     
-    # Check if temp files exist
-    if not temp_models_path.exists():
-        logger.error(f"Temp models file not found: {temp_models_path}. "
-                     "Ensure T020-T022 (train.py) have run and saved models to the temp location.")
-        raise FileNotFoundError(f"Temp models file not found: {temp_models_path}")
+    # 2. Split Data
+    logger.info("Performing stratified split...")
+    X_train, X_val, y_train, y_val, y_train_sys, y_val_sys = perform_stratified_split(
+        df, feature_cols, target_col
+    )
     
-    if not temp_metrics_path.exists():
-        logger.error(f"Temp metrics file not found: {temp_metrics_path}. "
-                     "Ensure T023-T025 (evaluate.py) have run and saved metrics to the temp location.")
-        raise FileNotFoundError(f"Temp metrics file not found: {temp_metrics_path}")
+    # 3. Train Models
+    logger.info("Training models...")
+    models = train_models(X_train, y_train)
+    logger.info("Models trained.")
     
-    # Load models
-    logger.info(f"Loading models from {temp_models_path}")
-    with open(temp_models_path, 'rb') as f:
-        models = pickle.load(f)
+    # 4. Calculate Metrics
+    logger.info("Calculating evaluation metrics...")
+    metrics = evaluate_models(models, X_val, y_val, X_train, y_train, target_col)
     
-    # Load metrics
-    logger.info(f"Loading metrics from {temp_metrics_path}")
-    with open(temp_metrics_path, 'r') as f:
-        metrics = json.load(f)
+    # 5. Calculate TVD
+    logger.info("Calculating Total Variation Distance...")
+    tvd = calculate_tvd(y_train_sys, y_val_sys)
+    metrics['tvd'] = tvd
+    if tvd > 0.05:
+        logger.warning(f"TVD ({tvd:.4f}) exceeds threshold (0.05). Split may be unbalanced.")
+    else:
+        logger.info(f"TVD ({tvd:.4f}) is within acceptable limits.")
     
-    # Define final output paths
-    final_models_path = paths["data_evaluation"] / "trained_models.pkl"
-    final_metrics_path = paths["data_evaluation"] / "model_metrics.json"
+    # 6. Calculate Overfitting Ratio (from T025)
+    # Ensure we have train and val r2 for both models
+    for model_name in ['random_forest', 'gradient_boosting']:
+        if model_name in metrics:
+            model_metrics = metrics[model_name]
+            if 'train_r2' in model_metrics and 'val_r2' in model_metrics:
+                val_r2 = model_metrics['val_r2']
+                train_r2 = model_metrics['train_r2']
+                
+                # Handle division by zero or near-zero
+                if abs(val_r2) < 1e-9:
+                    model_metrics['overfitting_ratio'] = float('inf') if train_r2 > 0 else 0.0
+                    logger.warning(f"Val R2 near zero for {model_name}. Overfitting ratio set to infinity.")
+                else:
+                    model_metrics['overfitting_ratio'] = train_r2 / val_r2
+                
+                logger.info(f"{model_name} overfitting ratio: {model_metrics['overfitting_ratio']:.4f}")
     
-    # Save to final locations
-    save_artifacts(models, metrics, str(final_models_path), str(final_metrics_path))
+    # 7. Save Artifacts
+    logger.info("Saving artifacts...")
+    save_artifacts(models, metrics)
     
-    # Clean up temp files (optional, but good practice)
-    # temp_models_path.unlink()
-    # temp_metrics_path.unlink()
-    
-    logger.info("T026 completed successfully. Models and metrics saved to final locations.")
+    logger.info("T026 completed successfully.")
 
 if __name__ == "__main__":
     main()

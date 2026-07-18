@@ -626,25 +626,6 @@
   status: verified
   updated_at: '2026-07-18T10:14:55Z'
 - artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
-  attempts: 4
-  canonical: MP-2020.12.1 dataset available at Zenodo DOI 10.5281/zenodo.4053859
-  claim_id: c_79342046
-  context: 'Implement `code/ingest.py` to Download MP-2020.12.1 dataset from Zenodo
-    (DOI: 10.5281/zenodo.4053859), filter for inorganic compounds with complete formation
-    energy/composition, and log excluded rows.'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T10:16:23Z'
-- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
   attempts: 1
   canonical: MP-2020.12.1 dataset DOI 10.5281/zenodo.4053859
   claim_id: c_e0c9a38b
@@ -683,7 +664,150 @@
   status: not_enough_info
   updated_at: '2026-07-18T10:20:33Z'
 - artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
-  attempts: 6
+  attempts: 1
+  canonical: MP-2020.12.1 dataset available on Zenodo with DOI 10.5281/zenodo.4053859
+  claim_id: c_eb0d5325
+  context: 'Implement `code/ingest.py` to Download MP-2020.12.1 dataset from Zenodo
+    (DOI: 10.5281/zenodo.4053859), filter for inorganic compounds with complete formation
+    energy/composition, and log excluded rows.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:22:38Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/README.md
+  attempts: 1
+  canonical: MP-2020.12.1 dataset downloaded from Zenodo with DOI 10.5281/zenodo.4053859
+  claim_id: c_0dfdcc17
+  context: Data Sources section listing the source of the dataset.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'MP-2020.12.1 Dataset: Downloaded from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:25:09Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/quickstart.md
+  attempts: 1
+  canonical: Zenodo DOI 10.5281/zenodo.4053859
+  claim_id: c_841a8117
+  context: 'Data Download Failures: Check your internet connection and verify the
+    Zenodo DOI (10.5281/zenodo.4053859).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Verify your internet connection and verify the Zenodo DOI (10.5281/zenodo.4053859).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:25:15Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 8
+  canonical: MP-2020.12.1 dataset available at Zenodo DOI 10.5281/zenodo.4053859
+  claim_id: c_79342046
+  context: 'Implement `code/ingest.py` to Download MP-2020.12.1 dataset from Zenodo
+    (DOI: 10.5281/zenodo.4053859), filter for inorganic compounds with complete formation
+    energy/composition, and log excluded rows.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:34:14Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Random Forest and Gradient Boosting models complete training within 3
+    hours on 2-core CPU
+  claim_id: c_3acab2d2
+  context: "Independent Test: Run `code/train.py` and `code/evaluate.py`; verify models\
+    \ complete within 3h on 2-core CPU, R\xB2 > 0.0, and crystal system distribution\
+    \ TVD \u2264 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify models complete within 3h on 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:34:26Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Flag if Total Variation Distance between training and validation crystal
+    system distributions exceeds 0.05
+  claim_id: c_3fd3d8c9
+  context: Implement `code/evaluate.py` to calculate Total Variation Distance (TVD)
+    between training and validation crystal system distributions; flag if TVD > 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flag if TVD > 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:34:26Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Flag if Variance Inflation Factor (VIF) exceeds 10
+  claim_id: c_cc3c2ed7
+  context: 'Implement a Multi-Collinearity Check (VIF) in `code/importance.py` to
+    diagnose descriptor stability. **Threshold**: Flag if VIF > 10. **Output**: Save
+    VIF scores to `data/evaluation/vif_scores.json`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if VIF > 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:34:26Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: Trigger chunked processing if RAM usage exceeds 3GB
+  claim_id: c_868e6b24
+  context: Add memory monitoring logic in `code/descriptors.py` to trigger chunked
+    processing if RAM usage > 3GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trigger_chunked_processing_if_RAM_usage_exceeds_3GB
+  kind: entity_fact
+  raw_text: trigger chunked processing if RAM usage > 3GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:34:56Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 18
   canonical: MP-2020.12.1 dataset available at Zenodo DOI 10.5281/zenodo.4053859
   claim_id: c_eb27361c
   context: 'Implement code/ingest.py to Download MP-2020.12.1 dataset from Zenodo
@@ -700,4 +824,41 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-18T10:22:33Z'
+  updated_at: '2026-07-18T12:35:43Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
+  attempts: 1
+  canonical: MP-2020.12.1 dataset available at Zenodo DOI 10.5281/zenodo.4053859
+  claim_id: c_344b75e7
+  context: 'T012 [US1] Implement code/ingest.py to Download MP-2020.12.1 dataset from
+    Zenodo (DOI: 10.5281/zenodo.4053859), filter for inorganic compounds with complete
+    formation energy/composition, and log excluded rows.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download MP-2020.12.1 dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:36:36Z'
+- artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/quickstart.md
+  attempts: 1
+  canonical: Downloads MP-2020.12.1 dataset from Zenodo DOI 10.5281/zenodo.4053859
+  claim_id: c_2312e986
+  context: 'Download and filter the MP-2020.12.1 dataset: ... What this does: Downloads
+    the dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Downloads the dataset from Zenodo (DOI: 10.5281/zenodo.4053859)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T12:37:20Z'

@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Ranking Schema"
+description: "Schema for feature importance rankings and validation metrics"
+type: object
+properties:
+  top_5_features:
+    type: array
+    description: "List of top 5 features by importance"
+    items:
+      type: object
+      properties:
+        rank:
+          type: integer
+          description: "Rank position (1-5)"
+        feature_name:
+          type: string
+          description: "Name of the feature"
+        importance_score:
+          type: number
+          description: "Importance score from Random Forest"
+        permutation_score:
+          type: number
+          description: "Importance score from permutation"
+      required:
+        - rank
+        - feature_name
+        - importance_score
+        - permutation_score
+  correlation_r:
+    type: number
+    description: "Pearson correlation between tree-based and permutation importances"
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factor scores for top features"
+    additionalProperties:
+      type: number
+required:
+  - top_5_features
+  - correlation_r
+  - vif_scores
+additionalProperties: false

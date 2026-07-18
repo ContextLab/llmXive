@@ -1,63 +1,63 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Compound Descriptors Dataset"
-description: "Schema for the processed dataset containing compositional features and formation energy."
+title: "Computed Descriptors Schema"
+description: "Schema for the computed compositional descriptors dataset"
 type: object
 properties:
   material_id:
     type: string
-    description: "Unique identifier for the material (e.g., mp-1234)"
-  composition:
+    description: "Unique identifier for the material"
+  formula:
     type: string
-    description: "Chemical formula (e.g., SiO2)"
+    description: "Chemical formula of the material"
   formation_energy_per_atom:
     type: number
-    description: "Formation energy in eV/atom"
+    description: "Formation energy per atom"
   crystal_system:
     type: string
-    description: "Crystal system class (e.g., cubic, tetragonal)"
+    description: "Crystal system classification"
   mean_electronegativity:
     type: number
     description: "Mean electronegativity of constituent elements"
-  var_electronegativity:
+  variance_electronegativity:
     type: number
     description: "Variance of electronegativity"
   mean_atomic_radius:
     type: number
     description: "Mean atomic radius"
-  var_atomic_radius:
+  variance_atomic_radius:
     type: number
     description: "Variance of atomic radius"
   mean_valence_electrons:
     type: number
     description: "Mean valence electron count"
-  var_valence_electrons:
+  variance_valence_electrons:
     type: number
     description: "Variance of valence electron count"
   mean_melting_point:
     type: number
-    description: "Mean melting point in Kelvin"
-  var_melting_point:
+    description: "Mean melting point"
+  variance_melting_point:
     type: number
     description: "Variance of melting point"
   mean_ionization_energy:
     type: number
-    description: "Mean first ionization energy in eV"
-  var_ionization_energy:
+    description: "Mean first ionization energy"
+  variance_ionization_energy:
     type: number
     description: "Variance of first ionization energy"
 required:
   - material_id
-  - composition
+  - formula
   - formation_energy_per_atom
   - crystal_system
   - mean_electronegativity
-  - var_electronegativity
+  - variance_electronegativity
   - mean_atomic_radius
-  - var_atomic_radius
+  - variance_atomic_radius
   - mean_valence_electrons
-  - var_valence_electrons
+  - variance_valence_electrons
   - mean_melting_point
-  - var_melting_point
+  - variance_melting_point
   - mean_ionization_energy
-  - var_ionization_energy
+  - variance_ionization_energy
 additionalProperties: false

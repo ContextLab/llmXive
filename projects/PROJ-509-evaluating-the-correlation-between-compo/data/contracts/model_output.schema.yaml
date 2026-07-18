@@ -1,0 +1,25 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for model evaluation metrics and outputs
+type: object
+properties:
+  model_name:
+    type: string
+  metrics:
+    type: object
+    properties:
+      r2:
+        type: number
+      mae:
+        type: number
+      rmse:
+        type: number
+      overfitting_ratio:
+        type: number
+    required:
+      - r2
+      - mae
+      - rmse
+required:
+  - model_name
+  - metrics
