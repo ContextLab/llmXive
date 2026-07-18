@@ -91,7 +91,7 @@ As a scientist, I want to compute Bayes factors and perform null tests using ind
 
 - The Planck 2015 SMICA B-mode maps and BICEP/Keck 2018 power spectra are publicly available and accessible via the provided URLs without authentication.
 - The pyHEALPix and emcee libraries are compatible with CPU-only execution and can run within the time limit of the GitHub Actions free-tier runner.
-- The causality-limited phase transition model is theoretically well-defined and computable across the energy scale range $[10^{14}, 10^{16}]$ GeV without requiring GPU-accelerated computation.
+- The causality-limited phase transition model is theoretically well-defined and computable across the energy scale range of high-energy regimes relevant to grand unification. without requiring GPU-accelerated computation.
 - The Planck 2015 Common Mask is sufficient to remove Galactic foreground contamination for the purpose of this analysis, and no additional foreground cleaning is required.
 - The sample size (full-sky CMB data) provides sufficient statistical power to distinguish between inflationary and phase transition models at a statistically significant confidence level, assuming such a distinction exists in the data.
 - Thermodynamic integration is an appropriate method for computing Bayes factors in this context, given the non-nested nature of the models being compared, and the CPU-only constraint is sufficient for the defined parameter grid.

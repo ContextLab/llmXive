@@ -19,6 +19,35 @@ T016:
     ingestion and masking steps, nor any evidence of checksum verification status
     being recorded. The required artifact (implemented logging with checksum reporting)
     is missing.
+T025a:
+  c: false
+  h: 22040bea6de48f2677bac30aa2c94852744c0f8df69d37e137c68a65072ea2af
+  r: The repository lacks the required `data/synthetic/inflation_synthetic.fits` input
+    file and the expected `data/synthetic/inference_results_inflation.json` output.
+    Moreover, the provided `code/inference.py` excerpt does not contain an implementation
+    of the `run_inference_synthetic` function, so the core task is unfulfilled.
+T025b:
+  c: false
+  h: 4a8524cb87a546532db64c820272ac450412d55a86fe36f70e8950b1dfdbd7f7
+  r: "The `validate_inflation_synthetic` function is only partially shown and never\
+    \ writes the constructed report to `output_file`. Moreover, the required artifact\
+    \ `data/validation/validation_report_inflation.json` does not exist on disk. The\
+    \ task\u2019s output file is missing, so the implementation is not complete."
+T025c:
+  c: false
+  h: 6c4bb68a0463c24c6eaae07b784de8b988a2afe0e790f1020ffd7646b88366eb
+  r: "The required synthetic data file `data/synthetic/pt_synthetic.fits` and the\
+    \ output JSON `data/synthetic/inference_results_pt.json` are absent, and the provided\
+    \ `code/inference.py` snippet is truncated before any `run_inference_pt_synthetic`\
+    \ implementation appears. The task\u2019s core artifacts are missing."
+T025d:
+  c: false
+  h: 168c07d7ce7e504007ca9c3c27f9ec898540c49b9cf8fee10f351628e1292d1b
+  r: "The provided `validate_pt_synthetic` implementation is incomplete (truncated\
+    \ before finishing the report dictionary and writing the JSON file) and the required\
+    \ artifact `data/validation/validation_report_pt.json` does not exist on disk.\
+    \ Both the function output and the validation report file are missing, so the\
+    \ task\u2019s requirements are not satisfied."
 T032:
   c: false
   h: a2401bdab85b5abf55a33f89bb3483455de95c8cc5129b328d29337792e11c1e

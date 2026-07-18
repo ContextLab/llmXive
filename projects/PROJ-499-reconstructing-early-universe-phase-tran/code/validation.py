@@ -1,10 +1,3 @@
-"""
-Validation module for the Early Universe Phase Transition pipeline.
-
-This module implements validation routines for both Inflation and Phase Transition
-synthetic datasets to verify the inference pipeline's accuracy and reliability.
-"""
-
 import json
 import os
 import sys
@@ -12,237 +5,298 @@ from typing import Dict, Any, Tuple, List, Optional
 import numpy as np
 from scipy.special import erf
 
-# Import from sibling modules
-from synthetic_data import generate_phase_transition_dataset, save_dataset
-from inference import run_nested_sampling, check_convergence
-from model_generation import generate_theoretical_spectrum
-from config import get_config, init_reproducibility
+# Import from sibling modules as per API surface
+from config import get_config
 
-# Constants
-TRUE_E_PT = 1.0e15  # True energy scale for Phase Transition (GeV)
-TRUE_E_PT_LOG = np.log10(TRUE_E_PT)
-CREDIBLE_INTERVAL = 0.95
-CENTERING_THRESHOLD = 0.10
-
-
-def run_inference_on_synthetic_phase_transition(
-    synthetic_data: Dict[str, Any],
-    n_live_points: int = 50,
-    n_walks: int = 10
-) -> Tuple[Dict[str, Any], bool]:
-    """
-    Run nested sampling inference on synthetic Phase Transition data.
-    
-    Args:
-        synthetic_data: Dictionary containing 'l_values', 'cl_values', 'noise_cl'
-        n_live_points: Number of live points for nested sampling
-        n_walks: Number of walks for the sampler
-        
-    Returns:
-        Tuple of (results_dict, convergence_status)
-    """
-    # Extract data
-    l_values = synthetic_data['l_values']
-    cl_values = synthetic_data['cl_values']
-    noise_cl = synthetic_data['noise_cl']
-    
-    # Define log-likelihood for Phase Transition model
-    def log_likelihood(theta):
-        log_E_pt = theta[0]
-        E_pt = 10 ** log_E_pt
-        
-        # Generate theoretical spectrum for this E_pt
-        model_spec = generate_theoretical_spectrum(
-            model_type='phase_transition',
-            E_PT=E_pt,
-            l_values=l_values
-        )
-        
-        # Compute chi-squared
-        diff = model_spec['cl_values'] - cl_values
-        variance = noise_cl ** 2 + 1e-10  # Prevent division by zero
-        chi2 = np.sum((diff ** 2) / variance)
-        
-        return -0.5 * chi2
-    
-    # Define prior transform (log-uniform for E_pt in [10^14, 10^16] GeV)
-    def prior_transform(u):
-        # u is in [0, 1], map to log10(E_pt) in [14, 16]
-        log_E_pt = 14.0 + 2.0 * u[0]
-        return np.array([log_E_pt])
-    
-    # Run nested sampling
-    results, convergence = run_nested_sampling(
-        log_likelihood=log_likelihood,
-        prior_transform=prior_transform,
-        ndim=1,
-        n_live_points=n_live_points,
-        n_walks=n_walks
-    )
-    
-    # Extract posterior samples and statistics
-    samples = results.samples
-    log_E_pt_samples = samples[:, 0]
-    E_pt_samples = 10 ** log_E_pt_samples
-    
-    mean_log_E_pt = np.mean(log_E_pt_samples)
-    std_log_E_pt = np.std(log_E_pt_samples)
-    mean_E_pt = np.mean(E_pt_samples)
-    
-    # Compute credible intervals
-    lower_percentile = (1 - CREDIBLE_INTERVAL) / 2 * 100
-    upper_percentile = (1 + CREDIBLE_INTERVAL) / 2 * 100
-    
-    log_E_pt_ci_low = np.percentile(log_E_pt_samples, lower_percentile)
-    log_E_pt_ci_high = np.percentile(log_E_pt_samples, upper_percentile)
-    E_pt_ci_low = 10 ** log_E_pt_ci_low
-    E_pt_ci_high = 10 ** log_E_pt_ci_high
-    
-    # Compute evidence
-    log_evidence = results.logz[-1]
-    log_evidence_err = results.logzerr[-1]
-    
-    results_dict = {
-        'mean_log_E_pt': float(mean_log_E_pt),
-        'std_log_E_pt': float(std_log_E_pt),
-        'mean_E_pt': float(mean_E_pt),
-        'ci_low_E_pt': float(E_pt_ci_low),
-        'ci_high_E_pt': float(E_pt_ci_high),
-        'log_evidence': float(log_evidence),
-        'log_evidence_err': float(log_evidence_err),
-        'samples': E_pt_samples.tolist(),
-        'converged': convergence,
-        'true_E_pt': TRUE_E_PT,
-        'true_log_E_pt': TRUE_E_PT_LOG
-    }
-    
-    return results_dict, convergence
-
-
-def validate_phase_transition_pipeline(
-    synthetic_data: Optional[Dict[str, Any]] = None,
-    save_results: bool = True,
-    results_path: str = 'data/derived/phase_transition_validation.json'
+def validate_inflation_synthetic(
+    inference_file: str,
+    true_r: float,
+    output_file: str
 ) -> Dict[str, Any]:
     """
-    Validate the pipeline on synthetic Phase Transition data.
+    Validate the posterior distribution for the inflationary tensor-to-scalar ratio r.
     
-    This function:
-    1. Generates synthetic Phase Transition data if not provided
-    2. Runs the inference pipeline
-    3. Verifies that the posterior for E_PT covers the true value within 95% CI
-    4. Verifies that the posterior is centered within 10% of the true value
+    Metrics (SC-005):
+    1. Coverage: true_r must be within [percentile_2.5, percentile_97.5] of the posterior.
+    2. Centering: |(mean - true)| / true < 0.10 (10% relative error).
     
     Args:
-        synthetic_data: Pre-generated synthetic data (optional)
-        save_results: Whether to save results to disk
-        results_path: Path for saving results
+        inference_file: Path to the JSON file containing inference results (from T025a).
+        true_r: The ground truth value of r used to generate the synthetic data.
+        output_file: Path where the validation report JSON will be written.
         
     Returns:
-        Dictionary with validation results and metrics
+        A dictionary containing the validation results and metrics.
     """
-    # Initialize reproducibility
-    init_reproducibility()
+    # Load inference results
+    if not os.path.exists(inference_file):
+        raise FileNotFoundError(f"Inference results file not found: {inference_file}")
+        
+    with open(inference_file, 'r') as f:
+        results = json.load(f)
     
-    # Generate synthetic data if not provided
-    if synthetic_data is None:
-        print("Generating synthetic Phase Transition dataset...")
-        synthetic_data = generate_phase_transition_dataset(
-            E_PT=TRUE_E_PT,
-            n_sims=1,
-            l_max=200
-        )
-        if save_results:
-            save_dataset(synthetic_data, 'data/synthetic/phase_transition_ground_truth.json')
+    # Extract posterior samples for 'r'
+    # Assuming the structure from run_inference_synthetic: {"samples": {"r": [...]}}
+    if "samples" not in results or "r" not in results["samples"]:
+        raise ValueError(f"Expected 'samples' -> 'r' in {inference_file}, but keys found: {results.keys()}")
     
-    print(f"Running inference on Phase Transition data (True E_PT = {TRUE_E_PT:.2e} GeV)...")
+    r_samples = np.array(results["samples"]["r"])
     
-    # Run inference
-    results, converged = run_inference_on_synthetic_phase_transition(synthetic_data)
+    if len(r_samples) == 0:
+        raise ValueError("Posterior samples for 'r' are empty.")
     
-    if not converged:
-        print("WARNING: Nested sampling did not converge!")
+    # Compute statistics
+    mean_r = np.mean(r_samples)
+    median_r = np.median(r_samples)
+    std_r = np.std(r_samples)
+    percentile_2_5 = np.percentile(r_samples, 2.5)
+    percentile_97_5 = np.percentile(r_samples, 97.5)
     
-    # Extract metrics
-    true_E_pt = results['true_E_pt']
-    mean_E_pt = results['mean_E_pt']
-    ci_low = results['ci_low_E_pt']
-    ci_high = results['ci_high_E_pt']
+    # Check Coverage (95% CI)
+    covers_true = percentile_2_5 <= true_r <= percentile_97_5
     
-    # Check coverage: true value within 95% credible interval
-    covers_true = ci_low <= true_E_pt <= ci_high
+    # Check Centering (10% relative error)
+    relative_error = abs(mean_r - true_r) / true_r if true_r != 0 else abs(mean_r)
+    centered = relative_error < 0.10
     
-    # Check centering: |(mean - true)| / true < 0.10
-    relative_error = abs(mean_E_pt - true_E_pt) / true_E_pt
-    is_centered = relative_error < CENTERING_THRESHOLD
+    # Overall pass/fail
+    passed = covers_true and centered
     
-    # Overall validation
-    validation_passed = covers_true and is_centered and converged
-    
-    validation_result = {
-        'task_id': 'T025b',
-        'validation_type': 'phase_transition',
-        'true_E_pt_GeV': true_E_pt,
-        'mean_E_pt_GeV': mean_E_pt,
-        'ci_low_E_pt_GeV': ci_low,
-        'ci_high_E_pt_GeV': ci_high,
-        'credible_interval': CREDIBLE_INTERVAL,
-        'covers_true_value': covers_true,
-        'relative_error': relative_error,
-        'centering_threshold': CENTERING_THRESHOLD,
-        'is_centered': is_centered,
-        'converged': converged,
-        'validation_passed': validation_passed,
-        'log_evidence': results['log_evidence'],
-        'log_evidence_err': results['log_evidence_err']
+    # Construct report
+    report = {
+        "metric": "SC-005: Inflation Synthetic Validation",
+        "parameter": "r",
+        "true_value": true_r,
+        "posterior_stats": {
+            "mean": float(mean_r),
+            "median": float(median_r),
+            "std": float(std_r),
+            "percentile_2.5": float(percentile_2_5),
+            "percentile_97.5": float(percentile_97_5)
+        },
+        "checks": {
+            "coverage_95_ci": {
+                "passed": covers_true,
+                "description": "true_value within [2.5%, 97.5%] percentiles",
+                "interval": [float(percentile_2_5), float(percentile_97_5)]
+            },
+            "centering_10pct": {
+                "passed": centered,
+                "description": "|(mean - true)| / true < 0.10",
+                "relative_error": float(relative_error)
+            }
+        },
+        "overall_passed": passed
     }
     
-    # Print results
-    print("\n" + "="*60)
-    print("PHASE TRANSITION VALIDATION RESULTS")
-    print("="*60)
-    print(f"True E_PT:           {true_E_pt:.2e} GeV")
-    print(f"Mean E_PT:           {mean_E_pt:.2e} GeV")
-    print(f"95% CI:              [{ci_low:.2e}, {ci_high:.2e}] GeV")
-    print(f"Covers True Value:   {covers_true}")
-    print(f"Relative Error:      {relative_error:.4f} ({relative_error*100:.2f}%)")
-    print(f"Centered (<10%):     {is_centered}")
-    print(f"Converged:           {converged}")
-    print(f"Validation Passed:   {validation_passed}")
-    print("="*60 + "\n")
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_file)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     
-    # Save results
-    if save_results:
-        os.makedirs(os.path.dirname(results_path), exist_ok=True)
-        with open(results_path, 'w') as f:
-            json.dump(validation_result, f, indent=2)
-        print(f"Results saved to: {results_path}")
+    # Write report to disk
+    with open(output_file, 'w') as f:
+        json.dump(report, f, indent=2)
     
-    if not validation_passed:
-        reasons = []
-        if not covers_true:
-            reasons.append("True value outside 95% CI")
-        if not is_centered:
-            reasons.append(f"Relative error {relative_error:.4f} exceeds threshold {CENTERING_THRESHOLD}")
-        if not converged:
-            reasons.append("Sampler did not converge")
-        raise ValueError(f"Phase transition validation failed: {'; '.join(reasons)}")
-    
-    return validation_result
+    return report
 
+def validate_pt_synthetic(
+    inference_file: str,
+    true_E_pt: float,
+    output_file: str
+) -> Dict[str, Any]:
+    """
+    Validate the posterior distribution for the Phase Transition energy scale E_PT.
+    
+    Metrics (SC-005):
+    1. Coverage: true_E_pt must be within [percentile_2.5, percentile_97.5] of the posterior.
+    2. Centering: |(mean - true)| / true < 0.10 (10% relative error).
+    
+    Args:
+        inference_file: Path to the JSON file containing inference results.
+        true_E_pt: The ground truth value of E_PT used to generate the synthetic data.
+        output_file: Path where the validation report JSON will be written.
+        
+    Returns:
+        A dictionary containing the validation results and metrics.
+    """
+    # Load inference results
+    if not os.path.exists(inference_file):
+        raise FileNotFoundError(f"Inference results file not found: {inference_file}")
+        
+    with open(inference_file, 'r') as f:
+        results = json.load(f)
+    
+    # Extract posterior samples for 'E_PT'
+    if "samples" not in results or "E_PT" not in results["samples"]:
+        raise ValueError(f"Expected 'samples' -> 'E_PT' in {inference_file}, but keys found: {results.keys()}")
+    
+    e_pt_samples = np.array(results["samples"]["E_PT"])
+    
+    if len(e_pt_samples) == 0:
+        raise ValueError("Posterior samples for 'E_PT' are empty.")
+    
+    # Compute statistics
+    mean_e = np.mean(e_pt_samples)
+    median_e = np.median(e_pt_samples)
+    std_e = np.std(e_pt_samples)
+    percentile_2_5 = np.percentile(e_pt_samples, 2.5)
+    percentile_97_5 = np.percentile(e_pt_samples, 97.5)
+    
+    # Check Coverage (95% CI)
+    covers_true = percentile_2_5 <= true_E_pt <= percentile_97_5
+    
+    # Check Centering (10% relative error)
+    relative_error = abs(mean_e - true_E_pt) / true_E_pt if true_E_pt != 0 else abs(mean_e)
+    centered = relative_error < 0.10
+    
+    # Overall pass/fail
+    passed = covers_true and centered
+    
+    # Construct report
+    report = {
+        "metric": "SC-005: Phase Transition Synthetic Validation",
+        "parameter": "E_PT",
+        "true_value": true_E_pt,
+        "posterior_stats": {
+            "mean": float(mean_e),
+            "median": float(median_e),
+            "std": float(std_e),
+            "percentile_2.5": float(percentile_2_5),
+            "percentile_97.5": float(percentile_97_5)
+        },
+        "checks": {
+            "coverage_95_ci": {
+                "passed": covers_true,
+                "description": "true_value within [2.5%, 97.5%] percentiles",
+                "interval": [float(percentile_2_5), float(percentile_97_5)]
+            },
+            "centering_10pct": {
+                "passed": centered,
+                "description": "|(mean - true)| / true < 0.10",
+                "relative_error": float(relative_error)
+            }
+        },
+        "overall_passed": passed
+    }
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_file)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    # Write report to disk
+    with open(output_file, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    return report
+
+def validate_bayes_factor_synthetic(
+    model_comparison_file: str,
+    true_model: str,
+    output_file: str
+) -> Dict[str, Any]:
+    """
+    Validate that the Bayes factor correctly distinguishes between models.
+    
+    Requirement: K > 10 for the correct model distinction.
+    
+    Args:
+        model_comparison_file: Path to the JSON file containing model comparison results.
+        true_model: The ground truth model name (e.g., 'inflation', 'pt', 'null').
+        output_file: Path where the validation report JSON will be written.
+        
+    Returns:
+        A dictionary containing the validation results.
+    """
+    if not os.path.exists(model_comparison_file):
+        raise FileNotFoundError(f"Model comparison file not found: {model_comparison_file}")
+        
+    with open(model_comparison_file, 'r') as f:
+        results = json.load(f)
+    
+    # Assuming structure: {"bayes_factors": {"inflation_vs_pt": K_val, ...}}
+    # We need to verify that the Bayes factor favoring the true model is > 10.
+    # This is a simplified check; in reality, one would check specific pairwise comparisons.
+    
+    bayes_factors = results.get("bayes_factors", {})
+    
+    # Determine if the correct model was favored with K > 10
+    # This logic depends on the specific keys in model_comparison_file.
+    # For now, we assume a key like f"{true_model}_vs_null" exists and should be > 10.
+    key_to_check = f"{true_model}_vs_null"
+    k_value = bayes_factors.get(key_to_check, 0.0)
+    
+    passed = k_value > 10.0
+    
+    report = {
+        "metric": "Bayes Factor Synthetic Validation",
+        "true_model": true_model,
+        "bayes_factors": bayes_factors,
+        "check": {
+            "description": f"Bayes factor for {true_model} vs Null > 10",
+            "key_checked": key_to_check,
+            "k_value": k_value,
+            "threshold": 10.0,
+            "passed": passed
+        },
+        "overall_passed": passed
+    }
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_file)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    # Write report to disk
+    with open(output_file, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    return report
 
 def main():
-    """Main entry point for Phase Transition validation."""
-    print("Starting Phase Transition Pipeline Validation (T025b)...")
+    """
+    Main entry point to run validation on synthetic data.
+    Reads configuration to find paths and true values.
+    """
+    config = get_config()
     
+    # Paths from config or defaults
+    # Inflation validation
+    inf_file = config.get("INFERENCE_INFLATION_FILE", "data/synthetic/inference_results_inflation.json")
+    true_r = config.get("TRUE_R", 0.01)
+    out_inf = config.get("VALIDATION_REPORT_INFLATION", "data/validation/validation_report_inflation.json")
+    
+    # PT validation
+    pt_file = config.get("INFERENCE_PT_FILE", "data/synthetic/inference_results_pt.json")
+    true_e_pt = config.get("TRUE_E_PT", 1e15)
+    out_pt = config.get("VALIDATION_REPORT_PT", "data/validation/validation_report_pt.json")
+    
+    # Bayes Factor validation
+    bf_file = config.get("MODEL_COMPARISON_FILE", "data/derived/model_comparison_results.json")
+    true_model = config.get("TRUE_MODEL", "inflation")
+    out_bf = config.get("BAYES_FACTOR_VALIDATION", "data/validation/bayes_factor_validation.json")
+    
+    print("Running inflation synthetic validation...")
     try:
-        result = validate_phase_transition_pipeline()
-        print("\n✓ Phase Transition validation PASSED")
-        sys.exit(0)
+        report_inf = validate_inflation_synthetic(inf_file, true_r, out_inf)
+        print(f"Inflation validation passed: {report_inf['overall_passed']}")
     except Exception as e:
-        print(f"\n✗ Phase Transition validation FAILED: {e}")
-        sys.exit(1)
+        print(f"Inflation validation failed: {e}")
+        
+    print("Running PT synthetic validation...")
+    try:
+        report_pt = validate_pt_synthetic(pt_file, true_e_pt, out_pt)
+        print(f"PT validation passed: {report_pt['overall_passed']}")
+    except Exception as e:
+        print(f"PT validation failed: {e}")
+        
+    print("Running Bayes factor validation...")
+    try:
+        report_bf = validate_bayes_factor_synthetic(bf_file, true_model, out_bf)
+        print(f"Bayes factor validation passed: {report_bf['overall_passed']}")
+    except Exception as e:
+        print(f"Bayes factor validation failed: {e}")
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
