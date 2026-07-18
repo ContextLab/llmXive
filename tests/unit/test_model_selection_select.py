@@ -215,6 +215,46 @@ def test_paid_candidate_carries_pricing_and_ceiling():
 
 
 # --------------------------------------------------------------------------- #
+# require_paid cost-class escalation (spec 026 slice 6)
+# --------------------------------------------------------------------------- #
+
+
+def test_require_paid_excludes_all_free_and_leads_with_paid():
+    # allow_paid + require_paid + live/opted-in credit with headroom → only the
+    # paid candidate (claude-haiku) survives; free (qwen/gemma/gpt-oss/local) excluded.
+    snap = _snapshot(paid_opt_in=True, credit_source="live")
+    req = build_requirement(
+        "deep_review", _cb(), allow_paid=True, require_paid=True, max_candidates=8
+    )
+    chain = select(req, snap)
+    ids = _ids(chain)
+    assert ids and all("claude" in i for i in ids)  # paid-only; no free ids present
+    assert QWEN not in ids
+    assert GEMMA4 not in ids
+    assert GPT_OSS not in ids
+    assert LOCAL not in ids
+
+
+def test_require_paid_with_allow_paid_false_fails_closed():
+    snap = _snapshot(paid_opt_in=True, credit_source="live")
+    req = build_requirement("deep_review", _cb(), allow_paid=False, require_paid=True)
+    with pytest.raises(ModelUnavailable) as exc:
+        select(req, snap)
+    assert "require_paid" in str(exc.value).lower()
+
+
+def test_require_paid_over_ceiling_fails_closed():
+    # paid admissible in general, but per-call worst_case > cap → paid excluded,
+    # free excluded by require_paid → ModelUnavailable (does NOT fall back to free).
+    snap = _snapshot(paid_opt_in=True, credit_source="live", available_headroom=0.0001)
+    req = build_requirement(
+        "deep_review", _cb(), allow_paid=True, require_paid=True, max_candidates=8
+    )
+    with pytest.raises(ModelUnavailable):
+        select(req, snap)
+
+
+# --------------------------------------------------------------------------- #
 # Capability policy ∩ snapshot (US2 scenario 3 / FR-006 / SC-002)
 # --------------------------------------------------------------------------- #
 

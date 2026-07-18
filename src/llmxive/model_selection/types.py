@@ -159,6 +159,12 @@ class ModelRequirement:
     max_credits: int | None = None
     max_catalog_age_s: int = 3600
     max_candidates: int = 4
+    #: Cost-class escalation (spec 026 slice 6): when True, EVERY free candidate is
+    #: excluded so a paid escalation rung genuinely reaches the paid model despite the
+    #: free-before-paid tie-break. Only meaningful with allow_paid=True; the combination
+    #: require_paid=True + allow_paid=False admits no candidate and fails closed
+    #: (ModelUnavailable) — it is never silently reinterpreted.
+    require_paid: bool = False
     #: High-stakes (spec-025 judgment) reviews set this True so ``max_catalog_age_s``
     #: gates BOTH the catalog AND the credit/opt-in components (FR-007) — a stale or
     #: unavailable credit observation fails the WHOLE selection closed

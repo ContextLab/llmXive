@@ -182,6 +182,8 @@ def select(
         if pricing is None or not pricing.is_known:
             continue  # no priced cost → cannot admit (unknown is never free)
         is_free = pricing.is_free
+        if requirement.require_paid and is_free:
+            continue  # require_paid rung: exclude every free candidate (spec 026 slice 6)
         cost = worst_case_credits(pricing, requirement.call_budget)
         if cost is None:
             continue
@@ -256,7 +258,8 @@ def _no_candidate_reason(
         f"no model satisfies capability={requirement.capability!r} "
         f"(required_features={set(requirement.required_features) or '∅'}, "
         f"allow_paid={requirement.allow_paid}, "
-        f"required_independence={set(requirement.required_independence) or '∅'}) "
+        f"required_independence={set(requirement.required_independence) or '∅'}, "
+        f"require_paid={requirement.require_paid}) "
         f"against {n} snapshot model(s); catalog source={src!r}, "
         f"policy_version={policy.version}"
     )
