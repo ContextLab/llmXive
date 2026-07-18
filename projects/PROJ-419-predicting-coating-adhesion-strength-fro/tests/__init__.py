@@ -1,3 +1,1 @@
-"""
-Test suite for the Coating Adhesion Strength Prediction pipeline.
-"""
+# Tests package for llmXive Coating Adhesion Pipeline

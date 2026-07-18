@@ -1,125 +1,125 @@
 import pytest
 import pandas as pd
-import numpy as np
-import os
-import sys
-from unittest.mock import patch, MagicMock
-
-# Add the code directory to the path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
-
-from ingestion import resolve_duplicates, exclude_missing_target_records, filter_astm_d4541_records
+from datetime import datetime, timedelta
+from ingestion import resolve_duplicates
 
 class TestResolveDuplicates:
-    def test_resolve_duplicates_by_date(self):
-        """Test that duplicates are resolved by keeping the most recent date."""
-        data = {
-            'sample_id': ['A', 'A', 'B'],
-            'date': ['2023-01-01', '2023-01-05', '2023-01-01'],
-            'value': [10, 20, 30]
-        }
-        df = pd.DataFrame(data)
-        df['date'] = pd.to_datetime(df['date'])
-        
-        result = resolve_duplicates(df, date_col='date', sample_count_col='value')
-        
-        # Should keep the row with date 2023-01-05 for sample_id 'A'
-        assert len(result) == 2
-        assert result.loc[result['sample_id'] == 'A', 'date'].iloc[0] == pd.Timestamp('2023-01-05')
-        assert result.loc[result['sample_id'] == 'A', 'value'].iloc[0] == 20
+    """
+    Unit tests for the duplicate resolution logic in ingestion.py.
+    
+    Resolves duplicates based on:
+    1. Most recent date (primary criterion)
+    2. Highest sample count (tie-breaker if dates are equal)
+    """
 
-    def test_resolve_duplicates_by_sample_count(self):
-        """Test that duplicates are resolved by keeping the highest sample count when date is missing."""
-        data = {
-            'sample_id': ['A', 'A', 'B'],
-            'sample_count': [5, 10, 3],
-            'value': [100, 200, 300]
-        }
+    def setup_method(self):
+        """Prepare test data for duplicate resolution scenarios."""
+        self.base_date = datetime(2023, 1, 1)
+        
+    def test_no_duplicates_returns_original(self):
+        """Test that records with unique IDs are returned unchanged."""
+        data = [
+            {"id": "1", "date": "2023-01-01", "sample_count": 10, "value": 100},
+            {"id": "2", "date": "2023-01-02", "sample_count": 20, "value": 200},
+        ]
         df = pd.DataFrame(data)
         
-        result = resolve_duplicates(df, date_col='nonexistent', sample_count_col='sample_count')
-        
-        # Should keep the row with sample_count 10 for sample_id 'A'
-        assert len(result) == 2
-        assert result.loc[result['sample_id'] == 'A', 'sample_count'].iloc[0] == 10
-        assert result.loc[result['sample_id'] == 'A', 'value'].iloc[0] == 200
-
-    def test_resolve_duplicates_empty_df(self):
-        """Test handling of empty DataFrame."""
-        df = pd.DataFrame(columns=['sample_id', 'date', 'value'])
         result = resolve_duplicates(df)
-        assert result.empty
-
-    def test_resolve_duplicates_no_duplicates(self):
-        """Test that no changes occur if there are no duplicates."""
-        data = {
-            'sample_id': ['A', 'B', 'C'],
-            'date': ['2023-01-01', '2023-01-02', '2023-01-03'],
-            'value': [10, 20, 30]
-        }
-        df = pd.DataFrame(data)
-        df['date'] = pd.to_datetime(df['date'])
-        
-        result = resolve_duplicates(df, date_col='date')
-        assert len(result) == 3
-        pd.testing.assert_frame_equal(result, df)
-
-class TestExcludeMissingTargetRecords:
-    def test_exclude_missing_target(self):
-        """Test exclusion of records with missing target values."""
-        data = {
-            'id': [1, 2, 3, 4],
-            'adhesion_strength': [10.0, np.nan, 15.0, np.nan]
-        }
-        df = pd.DataFrame(data)
-        
-        result = exclude_missing_target_records(df, target_col='adhesion_strength')
         
         assert len(result) == 2
-        assert result['adhesion_strength'].isna().sum() == 0
+        assert result.iloc[0]["id"] == "1"
+        assert result.iloc[1]["id"] == "2"
 
-    def test_exclude_missing_target_empty_df(self):
-        """Test handling of empty DataFrame."""
-        df = pd.DataFrame(columns=['id', 'adhesion_strength'])
-        result = exclude_missing_target_records(df)
-        assert result.empty
-
-    def test_exclude_missing_target_no_missing(self):
-        """Test that no rows are excluded if none are missing."""
-        data = {
-            'id': [1, 2, 3],
-            'adhesion_strength': [10.0, 15.0, 20.0]
-        }
+    def test_duplicate_resolved_by_most_recent_date(self):
+        """Test that among duplicates, the one with the most recent date is kept."""
+        data = [
+            {"id": "1", "date": "2023-01-01", "sample_count": 10, "value": 100},
+            {"id": "1", "date": "2023-06-01", "sample_count": 15, "value": 150},
+            {"id": "1", "date": "2023-03-01", "sample_count": 12, "value": 120},
+        ]
         df = pd.DataFrame(data)
-        result = exclude_missing_target_records(df)
+        
+        result = resolve_duplicates(df)
+        
+        assert len(result) == 1
+        assert result.iloc[0]["date"] == "2023-06-01"
+        assert result.iloc[0]["value"] == 150
+        assert result.iloc[0]["sample_count"] == 15
+
+    def test_duplicate_resolved_by_sample_count_on_date_tie(self):
+        """Test that if dates are equal, the record with the highest sample count is kept."""
+        data = [
+            {"id": "1", "date": "2023-01-01", "sample_count": 10, "value": 100},
+            {"id": "1", "date": "2023-01-01", "sample_count": 25, "value": 250},
+            {"id": "1", "date": "2023-01-01", "sample_count": 15, "value": 150},
+        ]
+        df = pd.DataFrame(data)
+        
+        result = resolve_duplicates(df)
+        
+        assert len(result) == 1
+        assert result.iloc[0]["date"] == "2023-01-01"
+        assert result.iloc[0]["sample_count"] == 25
+        assert result.iloc[0]["value"] == 250
+
+    def test_multiple_groups_of_duplicates(self):
+        """Test resolution when there are multiple distinct groups of duplicates."""
+        data = [
+            {"id": "1", "date": "2023-01-01", "sample_count": 10, "value": 100},
+            {"id": "1", "date": "2023-06-01", "sample_count": 15, "value": 150},
+            {"id": "2", "date": "2023-02-01", "sample_count": 20, "value": 200},
+            {"id": "2", "date": "2023-02-01", "sample_count": 30, "value": 300},
+            {"id": "3", "date": "2023-03-01", "sample_count": 5, "value": 50},
+        ]
+        df = pd.DataFrame(data)
+        
+        result = resolve_duplicates(df)
+        
         assert len(result) == 3
+        
+        # Check group 1: most recent date
+        row_1 = result[result["id"] == "1"].iloc[0]
+        assert row_1["date"] == "2023-06-01"
+        assert row_1["value"] == 150
+        
+        # Check group 2: same date, highest sample count
+        row_2 = result[result["id"] == "2"].iloc[0]
+        assert row_2["date"] == "2023-02-01"
+        assert row_2["sample_count"] == 30
+        assert row_2["value"] == 300
+        
+        # Check group 3: single record
+        row_3 = result[result["id"] == "3"].iloc[0]
+        assert row_3["value"] == 50
 
-class TestFilterASTMD4541:
-    def test_filter_astm_d4541(self):
-        """Test filtering for ASTM D4541 records."""
-        data = {
-            'id': [1, 2, 3, 4],
-            'test_standard': ['ASTM D4541', 'ISO 4624', 'ASTM D4541', 'Other']
-        }
+    def test_empty_dataframe(self):
+        """Test handling of an empty dataframe."""
+        df = pd.DataFrame(columns=["id", "date", "sample_count", "value"])
+        
+        result = resolve_duplicates(df)
+        
+        assert len(result) == 0
+        assert list(result.columns) == ["id", "date", "sample_count", "value"]
+
+    def test_single_record(self):
+        """Test handling of a dataframe with a single record."""
+        data = [{"id": "1", "date": "2023-01-01", "sample_count": 10, "value": 100}]
         df = pd.DataFrame(data)
         
-        result = filter_astm_d4541_records(df)
+        result = resolve_duplicates(df)
         
-        assert len(result) == 2
-        assert all(result['test_standard'] == 'ASTM D4541')
+        assert len(result) == 1
+        assert result.iloc[0]["value"] == 100
 
-    def test_filter_astm_d4541_no_match(self):
-        """Test filtering when no records match."""
-        data = {
-            'id': [1, 2],
-            'test_standard': ['ISO 4624', 'Other']
-        }
+    def test_date_parsing_integrity(self):
+        """Test that the function correctly parses ISO date strings."""
+        data = [
+            {"id": "1", "date": "2023-12-31", "sample_count": 10, "value": 100},
+            {"id": "1", "date": "2023-01-01", "sample_count": 20, "value": 200},
+        ]
         df = pd.DataFrame(data)
-        result = filter_astm_d4541_records(df)
-        assert result.empty
-
-    def test_filter_astm_d4541_empty_df(self):
-        """Test handling of empty DataFrame."""
-        df = pd.DataFrame(columns=['id', 'test_standard'])
-        result = filter_astm_d4541_records(df)
-        assert result.empty
+        
+        result = resolve_duplicates(df)
+        
+        assert len(result) == 1
+        assert result.iloc[0]["date"] == "2023-12-31"

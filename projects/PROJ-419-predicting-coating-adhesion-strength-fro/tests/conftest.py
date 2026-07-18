@@ -1,31 +1,28 @@
 """
-Pytest configuration and fixtures for the llmXive project.
+Pytest configuration and shared fixtures.
+
+This file configures pytest and provides common fixtures for tests.
 """
 import os
 import sys
 import pytest
-from pathlib import Path
 
-# Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure the code directory is in the Python path for imports
+@pytest.fixture(autouse=True)
+def add_code_to_path():
+    """Automatically add the code directory to sys.path for all tests."""
+    code_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "code")
+    if code_dir not in sys.path:
+        sys.path.insert(0, code_dir)
+    yield
+    # Cleanup not strictly necessary as sys.path is process-local,
+    # but good practice in some contexts.
 
-@pytest.fixture(scope="session")
-def project_root_path():
-    """Return the project root directory path."""
-    return project_root
-
-@pytest.fixture(scope="session")
-def data_dir(project_root_path):
-    """Return the data directory path."""
-    return project_root_path / "data"
-
-@pytest.fixture(scope="session")
-def code_dir(project_root_path):
-    """Return the code directory path."""
-    return project_root_path / "code"
-
-@pytest.fixture(scope="session")
-def state_dir(project_root_path):
-    """Return the state directory path."""
-    return project_root_path / "state"
+def pytest_configure(config):
+    """Configure pytest markers and settings."""
+    config.addinivalue_line(
+        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+    )
+    config.addinivalue_line(
+        "markers", "integration: marks tests as integration tests"
+    )

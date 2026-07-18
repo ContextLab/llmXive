@@ -1,3 +1,11 @@
+T015:
+  c: false
+  h: 6f3c9a924164ba6319b1447ae274bb8cf49ea2c61041dc3fcd568a5b312424bf
+  r: "The `code/preprocessing.py` file contains a partially shown `perform_construct_validity_check`\
+    \ implementation, but the required output file `data/processed/proxy_validation_report.csv`\
+    \ is missing, and the provided code snippet is truncated before any CSV\u2011\
+    writing or halt\u2011signalling logic is demonstrated. Without the generated report\
+    \ (and confirmed halt behavior), the task is not fully satisfied."
 T060:
   c: false
   h: c7b5d44fb4f0b9b82bb18ba1057e3b3c0b07361563ce6c4a7aa69a0e8fec8d4a
@@ -32,15 +40,6 @@ T067:
     \ in raw data headers or writes `state/heuristic_mode_required.yaml`. Moreover,\
     \ the required `state/heuristic_mode_required.yaml` file does not exist. The task\u2019\
     s core requirement is therefore unmet."
-T076:
-  c: false
-  h: 88ed6ba424386663e1b3eff519033b73964b305020a952bb2878241a8aab3af7
-  r: "The repository lacks the required `data/processed/proxy_validation_report.csv`\
-    \ file, so the code cannot actually read and evaluate any proxy statuses. Without\
-    \ this CSV the gate logic cannot be exercised, and the task\u2019s core requirement\
-    \ is unmet. The implementer must provide the missing report file (with appropriate\
-    \ `status`, `proxy_name`, and `reason` columns) and ensure the main script invokes\
-    \ the gate check during execution."
 T080:
   c: false
   h: 1aed912ae473694c8c39cfacf6fc873cc4ebfaffa0ae62c7282c587e81771d1c
@@ -49,6 +48,14 @@ T080:
     \ never invoked in the pipeline. Moreover, the required `state/HALT_SIGNAL.yaml`\
     \ file is absent, indicating the halt\u2011signal writing logic is not implemented\
     \ or functional."
+T084:
+  c: true
+  h: 6eac86cc2ed10a0609a601d967d43ed923e6b76066ed9a6c77ca207291e93a91
+  r: "The provided `code/main.py` contains the required `load_proxy_validation_report`\
+    \ and `check_proxy_validation_gate` functions that read `data/processed/proxy_validation_report.csv`,\
+    \ detect rows with `status == 'EXCLUDED'`, log each proxy\u2019s name and reason,\
+    \ and halt execution via `write_halt_signal`. The implementation fulfills the\
+    \ task\u2019s specification."
 T085:
   c: false
   h: 14ff7ededf8419c47098a53ac6b73d27404845448eda8e0022fa71ce0ba1002a

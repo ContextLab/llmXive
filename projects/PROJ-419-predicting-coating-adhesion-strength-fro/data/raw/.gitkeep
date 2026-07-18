@@ -1,2 +1,3 @@
-# This file ensures the directory exists.
-# Real data files will be downloaded here by the ingestion scripts.
+# This directory is for raw data files.
+# Do not commit actual data files here due to size or privacy.
+# Use .gitkeep to ensure the directory is tracked by git.

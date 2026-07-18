@@ -1,217 +1,155 @@
-"""
-Unit tests for the state_manager module.
-
-Tests checksum calculation, file scanning, and state file generation.
-"""
 import os
 import tempfile
-import yaml
 import pytest
 from pathlib import Path
+import yaml
+
+# Import the module
 import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
-from code.state_manager import (
+from state_manager import (
     calculate_file_checksum,
     scan_raw_data_directory,
     generate_state_checksums,
     write_state_file,
-    verify_state_checksums,
-    STATE_FILE,
-    RAW_DATA_DIR,
-    ALGORITHM
+    verify_state_checksums
 )
 
 @pytest.fixture
 def temp_dir():
-    """Create a temporary directory with test files."""
+    """Create a temporary directory for testing."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        # Create subdirectories
-        subdir = os.path.join(tmpdir, "subdir")
-        os.makedirs(subdir)
-        
-        # Create test files
-        file1 = os.path.join(tmpdir, "test1.txt")
-        with open(file1, 'w') as f:
-            f.write("Hello, World!")
-        
-        file2 = os.path.join(subdir, "test2.txt")
-        with open(file2, 'w') as f:
-            f.write("Test content for checksum")
-        
         yield tmpdir
 
 @pytest.fixture
-def mock_raw_dir(temp_dir):
-    """Mock the RAW_DATA_DIR for testing."""
-    original_dir = RAW_DATA_DIR
-    # We can't easily mock the global constant, so we'll test with the temp_dir directly
-    return temp_dir
+def sample_data_file(temp_dir):
+    """Create a sample data file for testing."""
+    file_path = os.path.join(temp_dir, "test_data.csv")
+    with open(file_path, 'w') as f:
+        f.write("id,value\n1,10\n2,20\n3,30\n")
+    return file_path
 
-def test_calculate_file_checksum():
-    """Test checksum calculation for a known string."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-        f.write("test content")
-        temp_path = f.name
+@pytest.fixture
+def sample_raw_data_dir(temp_dir):
+    """Create a sample raw data directory structure."""
+    raw_dir = os.path.join(temp_dir, "data", "raw")
+    os.makedirs(raw_dir, exist_ok=True)
     
-    try:
-        checksum = calculate_file_checksum(temp_path)
-        assert isinstance(checksum, str)
-        assert len(checksum) == 64  # SHA256 hex length
-        assert all(c in '0123456789abcdef' for c in checksum)
-    finally:
-        os.unlink(temp_path)
+    # Create sample files
+    file1 = os.path.join(raw_dir, "materials.csv")
+    with open(file1, 'w') as f:
+        f.write("material_id,composition\nMP001,Fe2O3\n")
+    
+    file2 = os.path.join(raw_dir, "surface_data.json")
+    with open(file2, 'w') as f:
+        f.write('{"sample_id": "NIST001", "roughness": 0.5}')
+    
+    # Create a nested directory
+    nested_dir = os.path.join(raw_dir, "literature")
+    os.makedirs(nested_dir, exist_ok=True)
+    file3 = os.path.join(nested_dir, "papers.csv")
+    with open(file3, 'w') as f:
+        f.write("paper_id,year,citation\nP001,2020,150\n")
+    
+    return raw_dir
 
-def test_calculate_file_checksum_nonexistent_file():
-    """Test that FileNotFoundError is raised for missing files."""
+def test_calculate_file_checksum(sample_data_file):
+    """Test checksum calculation for a single file."""
+    checksum = calculate_file_checksum(sample_data_file)
+    assert len(checksum) == 64  # SHA256 hex length
+    assert all(c in '0123456789abcdef' for c in checksum)
+
+def test_calculate_file_checksum_missing_file(temp_dir):
+    """Test checksum calculation for a missing file raises error."""
+    missing_file = os.path.join(temp_dir, "nonexistent.csv")
     with pytest.raises(FileNotFoundError):
-        calculate_file_checksum("nonexistent_file.txt")
+        calculate_file_checksum(missing_file)
 
-def test_calculate_file_checksum_different_content():
-    """Test that different content produces different checksums."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f1:
-        f1.write("content 1")
-        path1 = f1.name
+def test_scan_raw_data_directory(sample_raw_data_dir):
+    """Test scanning directory for data files."""
+    files = scan_raw_data_directory(sample_raw_data_dir)
+    assert len(files) == 3
     
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f2:
-        f2.write("content 2")
-        path2 = f2.name
-    
-    try:
-        checksum1 = calculate_file_checksum(path1)
-        checksum2 = calculate_file_checksum(path2)
-        assert checksum1 != checksum2
-    finally:
-        os.unlink(path1)
-        os.unlink(path2)
+    filenames = [os.path.basename(f) for f in files]
+    assert "materials.csv" in filenames
+    assert "surface_data.json" in filenames
+    assert "papers.csv" in filenames
 
-def test_scan_raw_data_directory(temp_dir):
-    """Test scanning a directory for files."""
-    files = scan_raw_data_directory(temp_dir)
+def test_scan_raw_data_directory_empty(temp_dir):
+    """Test scanning empty directory returns empty list."""
+    empty_dir = os.path.join(temp_dir, "empty_data")
+    os.makedirs(empty_dir, exist_ok=True)
     
-    assert isinstance(files, list)
-    assert len(files) >= 2  # We created at least 2 files
-    
-    for file_info in files:
-        assert "path" in file_info
-        assert "full_path" in file_info
-        assert "size_bytes" in file_info
-        assert file_info["size_bytes"] > 0
+    files = scan_raw_data_directory(empty_dir)
+    assert files == []
 
-def test_scan_nonexistent_directory():
-    """Test that FileNotFoundError is raised for missing directory."""
-    with pytest.raises(FileNotFoundError):
-        scan_raw_data_directory("nonexistent_dir")
-
-def test_generate_state_checksums(temp_dir):
-    """Test generating state checksums for a directory."""
-    files = scan_raw_data_directory(temp_dir)
-    state_data = generate_state_checksums(files)
+def test_generate_state_checksums(sample_raw_data_dir, temp_dir):
+    """Test generating checksums for all files in directory."""
+    state_dir = os.path.join(temp_dir, "state")
+    checksums = generate_state_checksums(sample_raw_data_dir, state_dir)
     
-    assert "generated_at" in state_data
-    assert "raw_data_directory" in state_data
-    assert "algorithm" in state_data
-    assert "total_files" in state_data
-    assert "files" in state_data
-    
-    assert state_data["algorithm"] == ALGORITHM
-    assert state_data["total_files"] == len(files)
-    
-    for file_entry in state_data["files"]:
-        assert "path" in file_entry
-        assert "checksum" in file_entry
-        assert "size_bytes" in file_entry
+    assert len(checksums) == 3
+    assert any("materials.csv" in k for k in checksums.keys())
+    assert any("surface_data.json" in k for k in checksums.keys())
+    assert any("papers.csv" in k for k in checksums.keys())
 
 def test_write_state_file(temp_dir):
-    """Test writing state data to a YAML file."""
-    state_data = {
-        "generated_at": "2023-01-01T00:00:00",
-        "raw_data_directory": temp_dir,
-        "algorithm": "sha256",
-        "total_files": 1,
-        "files": [
-            {
-                "path": "test.txt",
-                "checksum": "abc123",
-                "size_bytes": 100
-            }
-        ]
+    """Test writing state file to disk."""
+    state_dir = os.path.join(temp_dir, "state")
+    checksums = {
+        "test.csv": "abc123def456",
+        "data.json": "789xyz000"
     }
     
-    output_path = os.path.join(temp_dir, "test_state.yaml")
-    written_path = write_state_file(state_data, output_path)
+    state_file = write_state_file(checksums, state_dir)
     
-    assert written_path == output_path
-    assert os.path.exists(output_path)
+    assert os.path.exists(state_file)
+    assert state_file.endswith("state_checksums.yaml")
     
-    with open(output_path, 'r') as f:
-        loaded_data = yaml.safe_load(f)
+    with open(state_file, 'r') as f:
+        data = yaml.safe_load(f)
     
-    assert loaded_data["total_files"] == 1
-    assert loaded_data["files"][0]["path"] == "test.txt"
+    assert "files" in data
+    assert "generated_at" in data
+    assert "algorithm" in data
+    assert data["files"] == checksums
 
-def test_verify_state_checksums_positive(temp_dir):
-    """Test verification with matching checksums."""
-    # Create a file
-    test_file = os.path.join(temp_dir, "verify_test.txt")
-    with open(test_file, 'w') as f:
-        f.write("verification content")
+def test_verify_state_checksums_success(sample_raw_data_dir, temp_dir):
+    """Test successful checksum verification."""
+    state_dir = os.path.join(temp_dir, "state")
+    checksums = generate_state_checksums(sample_raw_data_dir, state_dir)
+    state_file = write_state_file(checksums, state_dir)
     
-    # Generate state
-    files = scan_raw_data_directory(temp_dir)
-    state_data = generate_state_checksums(files)
-    
-    # Write state file
-    state_path = os.path.join(temp_dir, "verify_state.yaml")
-    write_state_file(state_data, state_path)
-    
-    # Verify
-    result = verify_state_checksums(state_path)
-    assert result is True
+    assert verify_state_checksums(state_file, sample_raw_data_dir) is True
 
-def test_verify_state_checksums_modified_file(temp_dir):
-    """Test verification fails when file content changes."""
-    # Create a file
-    test_file = os.path.join(temp_dir, "modify_test.txt")
-    with open(test_file, 'w') as f:
-        f.write("original content")
-    
-    # Generate state
-    files = scan_raw_data_directory(temp_dir)
-    state_data = generate_state_checksums(files)
-    
-    # Write state file
-    state_path = os.path.join(temp_dir, "modify_state.yaml")
-    write_state_file(state_data, state_path)
-    
-    # Modify file
-    with open(test_file, 'w') as f:
-        f.write("modified content")
-    
-    # Verify should fail
-    result = verify_state_checksums(state_path)
-    assert result is False
-
-def test_verify_state_checksums_missing_file(temp_dir):
+def test_verify_state_checksums_missing_file(sample_raw_data_dir, temp_dir):
     """Test verification fails when file is missing."""
-    # Create a file
-    test_file = os.path.join(temp_dir, "delete_test.txt")
-    with open(test_file, 'w') as f:
-        f.write("to be deleted")
+    state_dir = os.path.join(temp_dir, "state")
+    checksums = generate_state_checksums(sample_raw_data_dir, state_dir)
     
-    # Generate state
-    files = scan_raw_data_directory(temp_dir)
-    state_data = generate_state_checksums(files)
+    # Remove a file
+    for rel_path in checksums.keys():
+        if "materials.csv" in rel_path:
+            full_path = os.path.join(sample_raw_data_dir, rel_path)
+            os.remove(full_path)
+            break
     
-    # Write state file
-    state_path = os.path.join(temp_dir, "delete_state.yaml")
-    write_state_file(state_data, state_path)
+    state_file = write_state_file(checksums, state_dir)
+    assert verify_state_checksums(state_file, sample_raw_data_dir) is False
+
+def test_verify_state_checksums_corrupted_file(sample_raw_data_dir, temp_dir):
+    """Test verification fails when file content is corrupted."""
+    state_dir = os.path.join(temp_dir, "state")
+    checksums = generate_state_checksums(sample_raw_data_dir, state_dir)
+    state_file = write_state_file(checksums, state_dir)
     
-    # Delete file
-    os.remove(test_file)
+    # Corrupt a file
+    for rel_path in checksums.keys():
+        if "materials.csv" in rel_path:
+            full_path = os.path.join(sample_raw_data_dir, rel_path)
+            with open(full_path, 'w') as f:
+                f.write("corrupted data")
+            break
     
-    # Verify should fail
-    result = verify_state_checksums(state_path)
-    assert result is False
+    assert verify_state_checksums(state_file, sample_raw_data_dir) is False

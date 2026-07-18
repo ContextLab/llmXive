@@ -1,3 +1,1 @@
-# Output directory for generated plots and visualizations.
-# SHAP plots, correlation heatmaps, and performance charts go here.
-.gitkeep
+# Directory for generated figures and plots

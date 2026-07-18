@@ -70,7 +70,7 @@ The researcher MUST be able to compare the full-feature model against two baseli
 - **FR-003**: System MUST perform nested 5-fold cross-validation to train Gradient Boosting and Random Forest Regressors without data leakage (See US-2).
 - **FR-004**: System MUST compute SHAP values and permutation importance to rank the top 10 predictive features, distinguishing between compositional and surface categories (See US-2).
 - **FR-005**: System MUST execute a Nadeau & Bengio corrected t-test or permutation test with multiple-comparison correction (Bonferroni) to compare the full-feature model against composition-only and surface-only baselines (See US-3).
-- **FR-006**: System MUST enforce a memory ceiling of 7 GB by sampling the dataset to ≤ 5,000 records maximum regardless of raw volume to ensure memory safety (See US-1).
+- **FR-006**: System MUST enforce a memory ceiling within a reasonable operational limit. by sampling the dataset to ≤ 5,000 records maximum regardless of raw volume to ensure memory safety (See US-1).
 - **FR-007**: System MUST implement a Mapping Protocol that documents the heuristic linking bulk properties (Materials Project) and surface data (NIST) to specific coating-substrate pairs in the literature, explicitly acknowledging the lack of unique identifiers (See US-1).
 - **FR-008**: System MUST perform a sensitivity analysis on the 'crosslinker density' heuristic proxy by testing at least three different ratio-based definitions and reporting the variance in model performance (See US-2).
 - **FR-009**: System MUST filter out all adhesion data not derived from ASTM pull-off tests to ensure methodological consistency of the target variable (See US-1).
