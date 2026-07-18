@@ -1,0 +1,158 @@
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/docs/paper_draft.md
+  attempts: 1
+  canonical: 12 eligible studies included in quantitative synthesis
+  claim_id: c_b7ebf648
+  context: This meta-analysis investigates the correlation between structural brain
+    connectivity (dMRI metrics) and individual music preferences. The synthesis mode
+    employed was quantitative based on a total of 12 eligible studies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthesis mode employed was quantitative based on a total of 12 eligible
+    studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:51:55Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/docs/paper_draft.md
+  attempts: 1
+  canonical: pooled correlation r 0.34 95% CI 0.21 0.47
+  claim_id: c_57d53fb7
+  context: 'Key Quantitative Findings - Pooled Correlation (r): 0.34 (95% CI: 0.21,
+    0.47)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The pooled correlation (r) was 0.34 (95% CI: 0.21, 0.47).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:53:00Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/docs/paper_draft.md
+  attempts: 1
+  canonical: heterogeneity I2 45.23%
+  claim_id: c_fc97cdb9
+  context: "Key Quantitative Findings - Heterogeneity (I\xB2): 45.23%"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Heterogeneity (I\xB2) was 45.23%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:53:00Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/docs/paper_draft.md
+  attempts: 1
+  canonical: Egger test intercept 1.23 p-value 0.18
+  claim_id: c_3eb49e7b
+  context: 'Publication Bias (Egger''s Test): Intercept: 1.23, p-value: 0.18'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Egger's Test intercept was 1.23 with a p-value of 0.18.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:53:21Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/docs/paper_draft.md
+  attempts: 1
+  canonical: Arcuate Fasciculus effect size r 0.41 5 studies
+  claim_id: c_cbaae1ee
+  context: 'Tract-Specific Effects - Arcuate Fasciculus - Effect Size (r): 0.41 -
+    Studies (N): 5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Arcuate Fasciculus had an effect size (r) of 0.41 based on 5 studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:54:21Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/docs/paper_draft.md
+  attempts: 1
+  canonical: Arcuate Fasciculus Bonferroni adjusted p 0.03
+  claim_id: c_22045541
+  context: 'Tract-Specific Effects - Arcuate Fasciculus - Bonferroni Adjusted p: 0.03'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Arcuate Fasciculus showed a Bonferroni adjusted p-value of 0.03.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:54:43Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/docs/paper_draft.md
+  attempts: 1
+  canonical: Cingulum Bundle effect size r 0.28 4 studies
+  claim_id: c_424b45c9
+  context: 'Tract-Specific Effects - Cingulum Bundle - Effect Size (r): 0.28 - Studies
+    (N): 4'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Cingulum Bundle had an effect size (r) of 0.28 based on 4 studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:55:40Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/docs/paper_draft.md
+  attempts: 1
+  canonical: Cingulum Bundle Bonferroni adjusted p 0.12
+  claim_id: c_bd98f75f
+  context: 'Tract-Specific Effects - Cingulum Bundle - Bonferroni Adjusted p: 0.12'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Cingulum Bundle showed a Bonferroni adjusted p-value of 0.12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:56:07Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/docs/paper_draft.md
+  attempts: 1
+  canonical: Uncinate Fasciculus effect size r 0.32 3 studies
+  claim_id: c_bb532d03
+  context: 'Tract-Specific Effects - Uncinate Fasciculus - Effect Size (r): 0.32 -
+    Studies (N): 3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Uncinate Fasciculus had an effect size (r) of 0.32 based on 3 studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:57:08Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/docs/paper_draft.md
+  attempts: 1
+  canonical: Uncinate Fasciculus Bonferroni adjusted p 0.09
+  claim_id: c_e1a991ad
+  context: 'Tract-Specific Effects - Uncinate Fasciculus - Bonferroni Adjusted p:
+    0.09'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Uncinate Fasciculus showed a Bonferroni adjusted p-value of 0.09.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:57:33Z'

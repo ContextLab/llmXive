@@ -1,61 +1,116 @@
+"""
+Tests for directory initialization functionality.
+
+This module contains tests to verify that the setup_directories.py script
+correctly creates the required project directory structure.
+"""
 import os
 import tempfile
-import shutil
+import pytest
 from pathlib import Path
 import sys
 
-# Add parent directory to path to import the module
+# Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from setup_directories import main
+from setup_directories import create_directories, verify_structure, REQUIRED_DIRS
 
-def test_directory_creation(tmp_path):
-    """
-    Test that the setup_directories script creates the required directories.
-    Since main() assumes the project root is the parent of the script location,
-    we mock the __file__ behavior or run a simplified check.
-    """
-    # Create a temporary directory structure to simulate the project root
-    # We cannot easily mock __file__ for the imported module in a simple test,
-    # so we verify the logic by checking if the function logic is sound
-    # by inspecting the code or running a localized version.
-    
-    # Instead of relying on the global main() which uses __file__, 
-    # we verify the expected directories list exists and logic is sound.
-    # However, to be strict, let's create a temporary project and run the script
-    # by temporarily changing __file__.
-    
-    original_cwd = os.getcwd()
-    temp_root = tmp_path / "mock_project"
-    temp_root.mkdir()
-    
-    # Create a mock script location inside temp_root/code
-    script_dir = temp_root / "code"
-    script_dir.mkdir()
-    
-    # We need to test the logic. Since the script relies on __file__,
-    # we will re-implement the logic locally for the test to verify correctness
-    # without needing to patch the imported module's global state.
-    
-    required_dirs = ["code", "tests", "data", "docs", "data/raw", "data/derived", "data/interim", "figures", "contracts", "specs"]
-    
-    for d in required_dirs:
-        (temp_root / d).mkdir(parents=True, exist_ok=True)
-    
-    # Verify
-    for d in required_dirs:
-        assert (temp_root / d).exists(), f"Directory {d} should exist"
-    
-    # Cleanup
-    os.chdir(original_cwd)
 
-def test_main_execution():
-    """
-    Basic smoke test that main() runs without crashing when called.
-    In a real scenario, this would be run from the project root.
-    """
-    # This test passes if the function exists and has the correct signature
-    assert callable(main)
-    # We do not run main() here because it assumes a specific file system layout
-    # relative to its own location which might not match the test runner's context.
-    pass
+class TestDirectoryInitialization:
+    """Test cases for directory initialization functions."""
+
+    def test_create_directories_creates_all_required_dirs(self):
+        """Test that create_directories creates all required directories."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base_path = Path(tmp_dir)
+            
+            # Create directories
+            result = create_directories(base_path)
+            
+            # Verify result is True
+            assert result is True, "create_directories should return True on success"
+            
+            # Verify all required directories exist
+            for dir_name in REQUIRED_DIRS:
+                dir_path = base_path / dir_name
+                assert dir_path.exists(), f"Directory {dir_name} should exist"
+                assert dir_path.is_dir(), f"{dir_name} should be a directory"
+
+    def test_create_directories_handles_existing_dirs(self):
+        """Test that create_directories handles already existing directories."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base_path = Path(tmp_dir)
+            
+            # Create some directories manually first
+            (base_path / "code").mkdir()
+            (base_path / "data").mkdir()
+            
+            # Create directories again
+            result = create_directories(base_path)
+            
+            # Should still succeed
+            assert result is True
+            
+            # Verify all directories still exist
+            for dir_name in REQUIRED_DIRS:
+                dir_path = base_path / dir_name
+                assert dir_path.exists()
+
+    def test_verify_structure_returns_true_for_complete_structure(self):
+        """Test that verify_structure returns True when all dirs exist."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base_path = Path(tmp_dir)
+            
+            # Create complete structure
+            create_directories(base_path)
+            
+            # Verify structure
+            result = verify_structure(base_path)
+            
+            assert result is True, "verify_structure should return True for complete structure"
+
+    def test_verify_structure_returns_false_for_incomplete_structure(self):
+        """Test that verify_structure returns False when some dirs missing."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base_path = Path(tmp_dir)
+            
+            # Create only some directories
+            (base_path / "code").mkdir()
+            (base_path / "tests").mkdir()
+            
+            # Verify structure (should fail)
+            result = verify_structure(base_path)
+            
+            assert result is False, "verify_structure should return False for incomplete structure"
+
+    def test_required_dirs_list_is_not_empty(self):
+        """Test that REQUIRED_DIRS list contains expected directories."""
+        assert len(REQUIRED_DIRS) > 0, "REQUIRED_DIRS should not be empty"
+        assert "code" in REQUIRED_DIRS, "REQUIRED_DIRS should include 'code'"
+        assert "tests" in REQUIRED_DIRS, "REQUIRED_DIRS should include 'tests'"
+        assert "data" in REQUIRED_DIRS, "REQUIRED_DIRS should include 'data'"
+        assert "docs" in REQUIRED_DIRS, "REQUIRED_DIRS should include 'docs'"
+
+    def test_directory_creation_preserves_parent_structure(self):
+        """Test that nested directories are created with parents."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base_path = Path(tmp_dir)
+            
+            # Create directories
+            create_directories(base_path)
+            
+            # Verify nested directories exist
+            nested_dirs = [
+                "data/raw",
+                "code/utils",
+                "tests/unit"
+            ]
+            
+            for dir_name in nested_dirs:
+                dir_path = base_path / dir_name
+                assert dir_path.exists(), f"Nested directory {dir_name} should exist"
+                assert dir_path.is_dir(), f"{dir_name} should be a directory"
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

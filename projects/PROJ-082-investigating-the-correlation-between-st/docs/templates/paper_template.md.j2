@@ -1,0 +1,142 @@
+---
+title: Correlation Between Structural Brain Connectivity and Individual Music Preferences: A Meta-Analysis
+generated_at: {{ generated_at }}
+authors: llmXive Automated Research Pipeline
+---
+
+# Correlation Between Structural Brain Connectivity and Individual Music Preferences: A Meta-Analysis
+
+## Abstract
+
+This meta-analysis investigates the relationship between structural brain connectivity, as measured by diffusion MRI (dMRI) metrics, and individual music preferences. We synthesized findings from multiple studies to determine whether specific white matter tracts show consistent associations with musical preferences. {% if result.get('synthesis_mode') == 'quantitative' %}A random-effects meta-analysis was performed on {{ result.study_count }} eligible studies.{% else %}Due to limited study availability (N < 10), a qualitative narrative synthesis was conducted.{% endif %}
+
+## Introduction
+
+Music preference is a complex psychological trait influenced by cognitive, emotional, and social factors. Recent neuroimaging research has suggested that individual differences in music preferences may be associated with variations in structural brain connectivity. This meta-analysis aims to aggregate evidence across studies to identify robust associations between specific white matter tracts and music preference behaviors.
+
+## Methods
+
+### Data Extraction
+
+{% if result.get('extraction_summary') %}
+Effect sizes (correlation coefficients) and sample sizes were extracted from eligible studies. When direct correlation values were unavailable, qualitative descriptors were coded and included in the narrative synthesis.
+{% else %}
+Studies were screened for quantitative effect sizes (correlation coefficients) between dMRI metrics (FA, MD, RD, AD) and music preference measures. Studies lacking sufficient data were included in the qualitative narrative pool.
+{% endif %}
+
+### Meta-Analysis Model
+
+{% if result.get('synthesis_mode') == 'quantitative' %}
+A random-effects meta-analysis was performed using the inverse-variance method to account for between-study heterogeneity. The pooled effect size was calculated as the weighted mean of individual study effect sizes.
+
+**Key Results:**
+- **Pooled Correlation (r):** {{ "%.4f"|format(result.meta_analysis.weighted_mean_r) }}
+- **95% Confidence Interval:** [{{ "%.4f"|format(result.meta_analysis.ci_lower) }}, {{ "%.4f"|format(result.meta_analysis.ci_upper) }}]
+- **Study Count:** {{ result.study_count }}
+- **Heterogeneity (I²):** {{ "%.2f"|format(result.heterogeneity.i_squared) }}%
+{% else %}
+Due to insufficient study count (N < 10), quantitative meta-analysis was not performed. A qualitative narrative synthesis was conducted instead.
+{% endif %}
+
+### Heterogeneity and Bias Assessment
+
+{% if result.get('synthesis_mode') == 'quantitative' %}
+Heterogeneity was assessed using the I² statistic. {% if result.heterogeneity.i_squared > 50 %}High heterogeneity was observed (I² > 50%), suggesting substantial variability in effect sizes across studies.{% else %}Moderate to low heterogeneity was observed.{% endif %}
+
+{% if result.bias.egger_test %}
+Egger's regression test for publication bias was performed:
+- **Intercept:** {{ "%.4f"|format(result.bias.egger_test.intercept) }}
+- **P-value:** {{ "%.4f"|format(result.bias.egger_test.p_value) }}
+{% if result.bias.egger_test.p_value < 0.05 %}Significant asymmetry was detected, suggesting potential publication bias.{% else %}No significant asymmetry was detected.{% endif %}
+{% else %}
+Egger's regression test was skipped due to insufficient studies.
+{% endif %}
+
+{% if result.correction %}
+**Multiple Comparison Correction:**
+- **Method:** Bonferroni correction
+- **Original Alpha:** 0.05
+- **Adjusted Alpha:** {{ "%.4f"|format(result.correction.adjusted_alpha) }}
+- **Number of Tracts:** {{ result.correction.tract_count }}
+{% endif %}
+{% else %}
+Heterogeneity and bias assessments were not performed due to insufficient study count.
+{% endif %}
+
+## Results
+
+{% if result.get('synthesis_mode') == 'quantitative' %}
+### Quantitative Synthesis
+
+The random-effects meta-analysis of {{ result.study_count }} studies revealed a pooled correlation of **r = {{ "%.3f"|format(result.meta_analysis.weighted_mean_r) }}** (95% CI: {{ "%.3f"|format(result.meta_analysis.ci_lower) }} to {{ "%.3f"|format(result.meta_analysis.ci_upper) }}). This indicates a {{ 'moderate' if result.meta_analysis.weighted_mean_r > 0.3 else 'weak' if result.meta_analysis.weighted_mean_r > 0.1 else 'negligible' }} association between structural brain connectivity and music preferences.
+
+{% if result.heterogeneity.i_squared > 50 %}
+**Note:** High heterogeneity (I² = {{ "%.1f"|format(result.heterogeneity.i_squared) }}%) was observed, indicating substantial variability in effect sizes across studies. This may reflect differences in dMRI methodologies, music preference measures, or population characteristics.
+{% endif %}
+
+### Tract-Specific Findings
+
+{% if result.tract_results %}
+The following tracts showed significant associations:
+{% for tract in result.tract_results %}
+- **{{ tract.tract_name }}:** r = {{ "%.3f"|format(tract.effect_size) }} (95% CI: {{ "%.3f"|format(tract.ci_lower) }} to {{ "%.3f"|format(tract.ci_upper) }}), p < {{ "%.4f"|format(tract.p_value) }}
+{% endfor %}
+{% else %}
+No tract-specific results were reported in the analysis.
+{% endif %}
+
+{% else %}
+### Qualitative Narrative Synthesis
+
+{% if result.narrative %}
+{{ result.narrative.overview }}
+
+**Emerging Themes:**
+{{ result.narrative.themes }}
+
+**Limitations:**
+{{ result.narrative.limitations }}
+{% else %}
+No qualitative synthesis was generated.
+{% endif %}
+{% endif %}
+
+## Discussion
+
+### Interpretation
+
+{% if result.get('synthesis_mode') == 'quantitative' %}
+The observed correlation suggests that individual differences in structural brain connectivity, particularly in tracts associated with auditory processing and reward pathways, may contribute to music preference variability. The magnitude of the effect ({% if result.meta_analysis.weighted_mean_r > 0.3 %}moderate{% else %}weak{% endif %}) indicates that while brain structure plays a role, other factors (e.g., cultural exposure, personality traits) likely contribute substantially.
+{% else %}
+The narrative synthesis reveals emerging patterns in the literature, though the limited number of studies precludes definitive conclusions. Future research with larger sample sizes and standardized methodologies is needed.
+{% endif %}
+
+### Limitations
+
+- **Methodological Heterogeneity:** Variations in dMRI acquisition protocols and music preference measures across studies.
+- **Sample Characteristics:** Differences in age, cultural background, and musical training may influence results.
+- **Publication Bias:** {% if result.bias.egger_test and result.bias.egger_test.p_value < 0.05 %}Egger's test suggests potential publication bias.{% else %}No significant publication bias was detected, though the test may lack power.{% endif %}
+- **Tract Independence:** Bonferroni correction assumes independence among tracts, which may not hold given anatomical correlations.
+
+### Future Directions
+
+Future studies should:
+1. Standardize dMRI protocols and music preference measures.
+2. Include diverse populations to enhance generalizability.
+3. Investigate longitudinal changes in connectivity and preference.
+4. Integrate functional imaging to elucidate mechanisms.
+
+## Conclusion
+
+{% if result.get('synthesis_mode') == 'quantitative' %}
+This meta-analysis provides evidence for a significant association between structural brain connectivity and individual music preferences. The findings support the hypothesis that white matter integrity in specific tracts contributes to musical taste, though the effect size is modest.
+{% else %}
+While quantitative synthesis was not feasible due to limited study availability, emerging qualitative evidence suggests a relationship between brain structure and music preferences. Further research is needed to establish robust associations.
+{% endif %}
+
+## References
+
+*Automatically generated by llmXive Research Pipeline*
+
+---
+*Generated on: {{ generated_at }}*

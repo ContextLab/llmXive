@@ -1,68 +1,64 @@
-%YAML 1.2
----
-title: Study Record Schema
-description: Schema for individual study records extracted for meta-analysis.
+$schema: http://json-schema.org/draft-07/schema#
+title: StudyRecord
+description: >
+  Schema for a single study record extracted during the data extraction phase.
+  Represents one row from the input CSV/JSON containing effect sizes and qualitative descriptors.
 type: object
 required:
   - study_id
-  - author
-  - year
   - tract_name
   - effect_size_r
   - sample_size_n
+  - extraction_timestamp
+  - extraction_source
 properties:
   study_id:
     type: string
-    description: Unique identifier for the study (e.g., PMID or DOI).
-    pattern: "^[A-Za-z0-9._-]+$"
-  author:
-    type: string
-    description: First author's last name.
+    description: Unique identifier for the study (e.g., "Author_Year_ID").
     minLength: 1
-  year:
-    type: integer
-    description: Publication year.
-    minimum: 1900
-    maximum: 2100
   tract_name:
     type: string
-    description: Name of the brain tract (harmonized via JHU Atlas).
+    description: Name of the brain tract (harmonized via tract_mapping.py).
     minLength: 1
   effect_size_r:
     type: number
     description: Pearson correlation coefficient (r).
     minimum: -1.0
     maximum: 1.0
+  effect_size_se:
+    type: number
+    description: Standard error of the effect size (calculated or provided).
+    minimum: 0.0
   sample_size_n:
     type: integer
-    description: Total sample size of the study.
+    description: Number of participants in the study.
     minimum: 1
   qualitative_notes:
     type: string
-    description: Extracted qualitative descriptors regarding neural circuitry.
+    description: Extracted qualitative descriptors (e.g., "increased connectivity associated with jazz preference").
     default: ""
-  direction:
+  preference_descriptor:
     type: string
-    enum:
-      - positive
-      - negative
-      - null
-    description: Direction of the correlation.
-  p_value:
-    type: number
-    description: Reported p-value.
-    minimum: 0.0
-    maximum: 1.0
-    nullable: true
+    description: Specific music preference mentioned (e.g., "jazz", "classical").
+    default: ""
+  neural_circuitry_descriptor:
+    type: string
+    description: Specific neural circuitry mentioned (e.g., "arcuate fasciculus").
+    default: ""
   no_qualitative_data:
     type: boolean
-    description: Flag indicating if no specific descriptors were found.
+    description: Flag indicating if no specific qualitative data was found for this study.
     default: false
-  source_file:
+  extraction_source:
     type: string
-    description: Original filename where this study was found.
+    description: Source file or URL where this study was found.
+    minLength: 1
   extraction_timestamp:
     type: string
     format: date-time
     description: ISO 8601 timestamp of extraction.
+  raw_data:
+    type: object
+    description: Original raw data row for reference/debugging.
+    additionalProperties: true
 additionalProperties: false

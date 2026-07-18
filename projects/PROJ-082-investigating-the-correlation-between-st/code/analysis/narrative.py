@@ -1,69 +1,53 @@
-"""
-Narrative synthesis module for generating structured text summaries
-when the eligible study count is insufficient for quantitative meta-analysis.
-
-This module consumes qualitative notes extracted by T013 and the study count
-from T014 to produce a standardized report.
-"""
 import json
 import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-# Import from existing project utilities
 from utils.logger import get_logger, log_fallback
-from utils.config import get_project_root, ensure_directory
 
 logger = get_logger(__name__)
 
-
-def load_qualitative_notes(notes_path: str) -> List[Dict[str, Any]]:
+def load_qualitative_notes(input_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """
-    Load qualitative notes from the extraction output JSON.
-
-    Args:
-        notes_path: Path to the JSON file containing extracted descriptors.
-
-    Returns:
-        List of dictionaries containing study details and qualitative notes.
+    Load qualitative notes from a JSON file.
+    If input_path is None or file does not exist, returns an empty list.
     """
-    path = Path(notes_path)
-    if not path.exists():
-        logger.warning(f"Qualitative notes file not found: {notes_path}")
+    if input_path is None:
         return []
-
+    
+    path = Path(input_path)
+    if not path.exists():
+        logger.warning(f"Qualitative notes file not found: {path}")
+        return []
+    
     try:
         with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            # Handle both list format and dict with 'studies' key
             if isinstance(data, list):
                 return data
-            elif isinstance(data, dict) and 'studies' in data:
-                return data['studies']
+            elif isinstance(data, dict) and 'notes' in data:
+                return data['notes']
             else:
-                logger.warning("Unexpected format in qualitative notes JSON")
+                logger.warning("Unexpected format in qualitative notes file")
                 return []
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse qualitative notes JSON: {e}")
         return []
 
-
-def load_study_count(count_path: str) -> int:
+def load_study_count(input_path: Optional[str] = None) -> int:
     """
-    Load the study count from the meta-analysis output JSON.
-
-    Args:
-        count_path: Path to the JSON file containing the study count.
-
-    Returns:
-        The number of eligible studies.
+    Load study count from a JSON file.
+    If input_path is None or file does not exist, returns 0.
     """
-    path = Path(count_path)
-    if not path.exists():
-        logger.warning(f"Study count file not found: {count_path}")
+    if input_path is None:
         return 0
-
+    
+    path = Path(input_path)
+    if not path.exists():
+        logger.warning(f"Study count file not found: {path}")
+        return 0
+    
     try:
         with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -72,228 +56,172 @@ def load_study_count(count_path: str) -> int:
         logger.error(f"Failed to parse study count JSON: {e}")
         return 0
 
-
 def extract_themes(notes: List[Dict[str, Any]]) -> Dict[str, List[str]]:
     """
-    Extract recurring themes from qualitative notes.
-
-    Args:
-        notes: List of study dictionaries with qualitative data.
-
-    Returns:
-        Dictionary mapping tract names to lists of associated behaviors/observations.
+    Extract themes from qualitative notes.
+    Returns a dictionary mapping theme categories to lists of extracted strings.
     """
-    themes = {}
-    target_tracts = [
-        'arcuate fasciculus', 'cingulum bundle', 'uncinate fasciculus',
-        'arcuate', 'cingulum', 'uncinate', 'superior longitudinal fasciculus',
-        'slf', 'corpus callosum', 'inferior longitudinal fasciculus', 'ilf'
-    ]
-
+    themes: Dict[str, List[str]] = {
+        'tracts': [],
+        'behaviors': [],
+        'findings': []
+    }
+    
     for note in notes:
-        if note.get('no_qualitative_data', False):
-            continue
-
-        tract_name = note.get('tract_name', '').lower()
-        observation = note.get('qualitative_description', '')
-
-        # Check if this tract matches our target list
-        for target in target_tracts:
-            if target in tract_name:
-                if target not in themes:
-                    themes[target] = []
-                if observation and observation not in themes[target]:
-                    themes[target].append(observation)
-                break
-
+        if isinstance(note, dict):
+            if note.get('tract'):
+                themes['tracts'].append(note['tract'])
+            if note.get('behavior'):
+                themes['behaviors'].append(note['behavior'])
+            if note.get('finding'):
+                themes['findings'].append(note['finding'])
+    
     return themes
 
-
-def generate_overview(study_count: int, references: List[Dict[str, Any]]) -> str:
+def generate_overview(study_count: int, references: Optional[List[str]] = None) -> str:
     """
-    Generate the Study Overview section.
-
-    Args:
-        study_count: Number of eligible studies.
-        references: List of reference dictionaries with author and year.
-
-    Returns:
-        Formatted overview text.
+    Generate the study overview section of the narrative.
+    Handles the zero-studies edge case explicitly.
     """
-    refs_text = ""
-    if references:
-        ref_strs = []
-        for ref in references:
-            author = ref.get('author', 'Unknown')
-            year = ref.get('year', 'n.d.')
-            ref_strs.append(f"{author} et al. ({year})")
-        refs_text = "References include " + ", ".join(ref_strs) + "."
+    if study_count == 0:
+        return (
+            "## Study Overview\n"
+            "This systematic review investigated the correlation between structural brain "
+            "connectivity (dMRI metrics) and individual music preferences. However, no eligible "
+            "studies were found in the input dataset that met the inclusion criteria. "
+            "Consequently, no quantitative or qualitative synthesis could be performed. "
+            "References: None available."
+        )
+    
+    ref_text = ", ".join(references) if references else "Various authors"
+    return (
+        f"## Study Overview\n"
+        f"This study investigates the correlation between structural brain connectivity "
+        f"(dMRI metrics) and individual music preferences. The methodology employs a qualitative "
+        f"thematic analysis to identify emerging trends regarding neural circuitry. "
+        f"References include {ref_text}."
+    )
 
-    overview = f"""## Study Overview
-This study investigates the correlation between structural brain connectivity (dMRI metrics) and individual music preferences. The methodology employs a qualitative thematic analysis to identify emerging trends regarding neural circuitry. {refs_text}
-"""
-    return overview
-
-
-def generate_themes(themes: Dict[str, List[str]]) -> str:
+def generate_themes(themes: Dict[str, List[str]], study_count: int) -> str:
     """
-    Generate the Qualitative Themes section.
-
-    Args:
-        themes: Dictionary mapping tract names to observations.
-
-    Returns:
-        Formatted themes text.
+    Generate the qualitative themes section.
+    Handles the zero-studies edge case.
     """
-    if not themes:
-        return """## Qualitative Themes
-No specific tract-behavior associations were identified in the extracted qualitative data.
-"""
-
-    theme_text = "## Qualitative Themes\n"
-    theme_text += "The analysis focuses on categorizing recurring themes regarding specific tracts and their reported associations with music preference behaviors.\n\n"
-
-    for tract, observations in sorted(themes.items()):
-        # Capitalize tract name for display
-        display_name = tract.title()
-        theme_text += f"### {display_name}\n"
-        for obs in observations:
-            theme_text += f"- {obs}\n"
-        theme_text += "\n"
-
-    return theme_text
-
+    if study_count == 0:
+        return (
+            "## Qualitative Themes\n"
+            "No qualitative themes could be extracted as no eligible studies were found "
+            "in the input dataset."
+        )
+    
+    lines = [
+        "## Qualitative Themes",
+        "The analysis focuses on categorizing recurring themes regarding specific tracts "
+        "(e.g., arcuate fasciculus, cingulum bundle) and their reported associations with "
+        "music preference behaviors."
+    ]
+    
+    if themes['tracts']:
+        unique_tracts = list(set(themes['tracts']))
+        lines.append(f"\n- **Tracts mentioned**: {', '.join(unique_tracts)}")
+    
+    if themes['behaviors']:
+        unique_behaviors = list(set(themes['behaviors']))
+        lines.append(f"- **Behaviors observed**: {', '.join(unique_behaviors)}")
+    
+    if themes['findings']:
+        lines.append(f"\n- **Key findings**:\n")
+        for finding in themes['findings'][:5]:  # Limit to top 5
+            lines.append(f"  - {finding}")
+    
+    return "\n".join(lines)
 
 def generate_limitations(study_count: int) -> str:
     """
-    Generate the Limitations section.
-
-    Args:
-        study_count: Number of eligible studies.
-
-    Returns:
-        Formatted limitations text.
+    Generate the limitations section.
+    Handles the zero-studies edge case explicitly.
     """
-    limitations = f"""## Limitations
-The scope is constrained by the limited number of eligible studies (N = {study_count} < 10), precluding quantitative meta-analysis.
-This narrative synthesis approach, while informative, lacks the statistical power and precision of a full meta-analytic approach.
-Further research with larger sample sizes is required to draw definitive conclusions about the relationship between structural brain connectivity and music preferences.
-"""
-    return limitations
-
+    if study_count == 0:
+        return (
+            "## Limitations\n"
+            "The primary limitation of this review is the complete absence of eligible studies "
+            "meeting the inclusion criteria. This precludes any form of synthesis, quantitative "
+            "or qualitative. Future research efforts should focus on identifying and extracting "
+            "relevant studies that explicitly report dMRI connectivity metrics in relation to "
+            "music preference behaviors."
+        )
+    
+    return (
+        "## Limitations\n"
+        f"The scope is constrained by the limited number of eligible studies (N = {study_count} < 10), "
+        f"precluding quantitative meta-analysis.\n"
+        "Additionally, the heterogeneity of dMRI methodologies and music preference assessments "
+        "across studies may limit the comparability of effect sizes."
+    )
 
 def generate_narrative_summary(
-    notes_path: str,
-    count_path: str,
+    study_count: int,
+    notes: List[Dict[str, Any]],
     output_path: str
 ) -> Dict[str, Any]:
     """
-    Generate a structured text summary if eligible study count < 10.
-
-    This function consumes qualitative notes from T013 and study count from T014.
-    It produces a markdown report and a JSON metadata block.
-
-    Args:
-        notes_path: Path to the JSON file with qualitative notes (from T013).
-        count_path: Path to the JSON file with study count (from T014).
-        output_path: Path where the markdown report will be saved.
-
-    Returns:
-        Dictionary containing the summary and metadata.
+    Generate the full narrative summary and write it to a JSON file.
+    Handles the zero-studies edge case by producing a valid "No studies found" summary.
     """
-    # Load inputs
-    notes = load_qualitative_notes(notes_path)
-    study_count = load_study_count(count_path)
-
-    # Check eligibility
-    if study_count >= 10:
-        logger.info(f"Study count ({study_count}) >= 10. Narrative mode not triggered.")
-        return {
-            "status": "skipped",
-            "reason": "Study count sufficient for quantitative analysis",
-            "study_count": study_count
-        }
-
-    if study_count == 0:
-        logger.warning("No studies found. Generating empty narrative summary.")
-
-    # Extract data
-    themes = extract_themes(notes)
-    references = [n for n in notes if n.get('author') and n.get('year')]
-
-    # Generate sections
-    overview = generate_overview(study_count, references)
-    themes_text = generate_themes(themes)
-    limitations = generate_limitations(study_count)
-
-    # Assemble full report
     timestamp = datetime.now().isoformat()
-    report = f"""# Narrative Synthesis Report: Brain Connectivity and Music Preferences
-
-## Metadata
-```json
-{{
-  "study_count": {study_count},
-  "synthesis_mode": "narrative",
-  "timestamp": "{timestamp}"
-}}
-```
-
-{overview}
-{themes_text}
-{limitations}
-"""
-
-    # Ensure output directory exists
-    ensure_directory(output_path)
-
-    # Write report
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(report)
-
-    logger.info(f"Narrative summary generated successfully at {output_path}")
-
-    # Return metadata
-    return {
-        "status": "completed",
+    synthesis_mode = "narrative_zero_studies" if study_count == 0 else "narrative"
+    
+    themes = extract_themes(notes)
+    
+    summary_text = "\n\n".join([
+        generate_overview(study_count),
+        generate_themes(themes, study_count),
+        generate_limitations(study_count)
+    ])
+    
+    result = {
         "study_count": study_count,
-        "synthesis_mode": "narrative",
+        "synthesis_mode": synthesis_mode,
         "timestamp": timestamp,
-        "output_path": output_path,
-        "themes_identified": len(themes),
-        "references_count": len(references)
+        "narrative_summary": summary_text,
+        "themes": themes,
+        "eligibility_status": "no_studies_found" if study_count == 0 else "included"
     }
-
+    
+    # Write to output file
+    output_path_obj = Path(output_path)
+    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path_obj, 'w', encoding='utf-8') as f:
+        json.dump(result, f, indent=2, ensure_ascii=False)
+    
+    logger.info(f"Narrative summary generated with {study_count} studies and saved to {output_path}")
+    
+    return result
 
 def main():
     """
-    Main entry point for running the narrative synthesis.
-    Uses default paths based on project structure.
+    Main entry point for the narrative module.
+    Reads study count and qualitative notes, generates narrative summary.
     """
-    project_root = get_project_root()
-
-    # Default paths
-    notes_path = project_root / "data" / "derived" / "qualitative_notes.json"
-    count_path = project_root / "data" / "derived" / "meta_analysis_result.json"
-    output_path = project_root / "data" / "derived" / "narrative_summary.md"
-
-    # Allow override via environment variables
-    notes_path = os.getenv("NARRATIVE_NOTES_PATH", str(notes_path))
-    count_path = os.getenv("NARRATIVE_COUNT_PATH", str(count_path))
-    output_path = os.getenv("NARRATIVE_OUTPUT_PATH", str(output_path))
-
-    logger.info(f"Running narrative synthesis with inputs: notes={notes_path}, count={count_path}")
-
-    result = generate_narrative_summary(notes_path, count_path, output_path)
-
-    # Print result summary
-    if result.get("status") == "skipped":
-        logger.info(f"Narrative synthesis skipped: {result.get('reason')}")
-    else:
-        logger.info(f"Narrative synthesis completed. Themes: {result.get('themes_identified')}, References: {result.get('references_count')}")
-
-    return result
-
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Generate narrative summary from meta-analysis data")
+    parser.add_argument("--study-count", type=str, required=True, help="Path to study count JSON")
+    parser.add_argument("--notes", type=str, required=False, help="Path to qualitative notes JSON")
+    parser.add_argument("--output", type=str, required=True, help="Path to output narrative JSON")
+    
+    args = parser.parse_args()
+    
+    study_count = load_study_count(args.study_count)
+    notes = load_qualitative_notes(args.notes)
+    
+    if study_count == 0:
+        logger.warning("Zero studies found. Generating 'No studies found' narrative summary.")
+    
+    result = generate_narrative_summary(study_count, notes, args.output)
+    
+    print(json.dumps(result, indent=2))
 
 if __name__ == "__main__":
     main()

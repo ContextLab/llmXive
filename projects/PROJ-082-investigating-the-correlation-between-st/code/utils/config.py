@@ -1,3 +1,8 @@
+"""
+Configuration Management Module
+
+Handles seed pinning, path loading, and project root resolution.
+"""
 import os
 import random
 from pathlib import Path
@@ -6,89 +11,72 @@ import numpy as np
 
 def get_project_root() -> Path:
     """
-    Get the project root directory.
-    Assumes the project root is two levels up from this file.
+    Returns the project root directory.
+    Assumes the project root is the parent of the 'code' directory.
     """
-    return Path(__file__).resolve().parent.parent.parent
+    current_file = Path(__file__).resolve()
+    # Traverse up to find 'code' directory, then go one level up
+    for parent in current_file.parents:
+        if parent.name == 'code':
+            return parent
+    # Fallback: assume current directory is root if 'code' not found in path
+    return current_file.parent
 
-def set_seed(seed: int = 42):
+def set_seed(seed: int = 42) -> None:
     """
-    Set random seeds for reproducibility.
+    Sets the random seed for reproducibility across numpy, random, and python's hash.
     
     Args:
         seed: Integer seed value.
     """
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    # Note: Python's hash randomization cannot be disabled globally without env vars,
+    # but we ensure deterministic behavior for our own random operations.
 
 def get_config_path() -> Path:
-    """Get the path to the configuration file."""
+    """Returns the path to the main configuration file."""
     return get_project_root() / "config" / "settings.yaml"
 
 def get_output_path(filename: str) -> Path:
-    """
-    Get the full path for an output file in the data/derived directory.
-    
-    Args:
-        filename: Name of the output file.
-    
-    Returns:
-        Full path to the output file.
-    """
+    """Returns the full path for a data output file."""
     return get_project_root() / "data" / "derived" / filename
 
 def get_figure_path(filename: str) -> Path:
-    """
-    Get the full path for a figure file in the figures/ directory.
-    
-    Args:
-        filename: Name of the figure file.
-    
-    Returns:
-        Full path to the figure file.
-    """
-    return get_project_root() / "figures" / filename
+    """Returns the full path for a figure output file."""
+    return get_project_root() / "data" / "figures" / filename
 
 def load_config_from_env(key: str, default: Optional[str] = None) -> Optional[str]:
-    """
-    Load a configuration value from an environment variable.
-    
-    Args:
-        key: Environment variable name.
-        default: Default value if key is not found.
-    
-    Returns:
-        Value from environment or default.
-    """
-    return os.environ.get(key, default)
+    """Loads a configuration value from environment variables."""
+    return os.getenv(key, default)
 
-def resolve_path(path_str: Union[str, Path], base: Optional[Path] = None) -> Path:
+def resolve_path(path: Union[str, Path], base: Optional[Path] = None) -> Path:
     """
-    Resolve a path relative to a base directory.
+    Resolves a path relative to a base directory.
     
     Args:
-        path_str: Path string or Path object.
+        path: Path string or Path object.
         base: Base directory. Defaults to project root.
-    
+        
     Returns:
-        Resolved absolute Path.
+        Resolved Path object.
     """
-    if base is None:
-        base = get_project_root()
-    
-    path = Path(path_str)
-    if not path.is_absolute():
-        path = base / path
-    
-    return path.resolve()
+    p = Path(path)
+    if p.is_absolute():
+        return p
+    base = base or get_project_root()
+    return base / p
 
-def ensure_directory(path: Union[str, Path]):
+def ensure_directory(path: Union[str, Path]) -> Path:
     """
-    Ensure a directory exists, creating it if necessary.
+    Ensures the directory for the given path exists.
     
     Args:
-        path: Directory path.
+        path: Path to a file or directory.
+        
+    Returns:
+        The directory Path.
     """
-    dir_path = resolve_path(path)
-    dir_path.mkdir(parents=True, exist_ok=True)
+    p = Path(path)
+    p.mkdir(parents=True, exist_ok=True)
+    return p
