@@ -5,107 +5,136 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from utils.logger import get_logger, log_error_context
-from utils.validator import validate_generated_plots
+from utils.config import get_project_root, ensure_directory
+from utils.logger import get_logger
 from extraction.parser import parse_input
 from analysis.meta_analysis import run_meta_analysis
 from analysis.narrative import generate_narrative_summary
 from analysis.bias import run_bias_assessment
+from analysis.heterogeneity import run_heterogeneity_analysis, update_output_json
 from visualization.plots import run_visualization_analysis
 
 logger = get_logger(__name__)
 
-def run_pipeline(input_path: str, output_dir: str, plot_dir: str, max_plot_size_mb: int = 5):
-    """
-    Execute the full research pipeline.
+def run_pipeline(
+    input_path: Path,
+    output_dir: Path,
+    force_narrative: bool = False
+) -> Dict[str, Any]:
+    """Run the complete meta-analysis pipeline."""
+    ensure_directory(output_dir)
     
-    Args:
-        input_path: Path to the raw input data (CSV or JSON).
-        output_dir: Directory to write analysis results.
-        plot_dir: Directory to write generated plots.
-        max_plot_size_mb: Maximum allowed size for plot files in MB.
-    """
-    logger.info(f"Starting pipeline with input: {input_path}")
-    
-    # Ensure output directories exist
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    Path(plot_dir).mkdir(parents=True, exist_ok=True)
-    
-    # 1. Extraction
-    studies = parse_input(input_path)
-    if not studies:
-        logger.warning("No studies found in input. Generating empty narrative.")
-        narrative_result = generate_narrative_summary(studies, 0, "No studies found in input.")
-        output_path = Path(output_dir) / "meta_analysis_result.json"
-        with open(output_path, "w") as f:
-            json.dump(narrative_result, f, indent=2)
-        return 0
-    
-    # 2. Meta-Analysis
-    meta_result = run_meta_analysis(studies)
-    study_count = meta_result.get("study_count", 0)
-    
-    # 3. Bias & Heterogeneity (if N >= 10)
-    bias_result = {}
-    if study_count >= 10:
-        logger.info("Running bias and heterogeneity analysis (N >= 10)")
-        bias_result = run_bias_assessment(studies, meta_result)
-        meta_result.update(bias_result)
-    else:
-        logger.info(f"Skipping bias analysis (N={study_count} < 10)")
-        meta_result["bias_assessment"] = {
-            "egger_test": "Skipped: Insufficient studies (N < 10) for Egger's regression",
-            "heterogeneity": "Skipped: Insufficient studies (N < 10) for I² calculation"
-        }
-    
-    # 4. Narrative Fallback (if N < 10)
-    if study_count < 10:
-        logger.info("Triggering narrative fallback (N < 10)")
-        narrative_summary = generate_narrative_summary(studies, study_count, meta_result)
-        meta_result["narrative_summary"] = narrative_summary
-    
-    # 5. Visualization
-    logger.info("Generating visualizations")
-    plot_files = run_visualization_analysis(meta_result, plot_dir)
-    
-    # 6. File Size Validation (T031)
-    logger.info("Validating generated plot file sizes")
-    max_size_bytes = max_plot_size_mb * 1024 * 1024
-    all_valid, validation_results = validate_generated_plots(plot_dir, max_size_bytes)
-    
-    meta_result["validation"] = {
-        "plot_size_check": "passed" if all_valid else "failed",
-        "max_size_mb": max_plot_size_mb,
-        "details": validation_results
+    results = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "pipeline_version": "1.0.0",
+        "input_file": str(input_path)
     }
     
-    if not all_valid:
-        logger.error("Plot size validation failed. Pipeline completed with warnings.")
-        # We do not exit with error code here to allow inspection, but we log the failure
+    # Step 1: Parse input data
+    logger.info(f"Parsing input file: {input_path}")
+    studies = parse_input(input_path)
+    results["study_count"] = len(studies)
     
-    # 7. Save Final Results
-    output_path = Path(output_dir) / "meta_analysis_result.json"
-    with open(output_path, "w") as f:
-        json.dump(meta_result, f, indent=2)
+    if len(studies) == 0:
+        logger.warning("No studies found in input file.")
+        results["status"] = "no_data"
+        # Generate narrative for zero studies
+        narrative_output = output_dir / "narrative_summary.md"
+        # Create a temporary CSV for narrative generator
+        import csv
+        temp_csv = output_dir / "temp_studies.csv"
+        with open(temp_csv, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['study_id', 'qualitative_desc', 'narrative_pool'])
+            writer.writeheader()
+        generate_narrative_summary(temp_csv, narrative_output)
+        results["synthesis_mode"] = "narrative"
+        results["narrative_summary"] = str(narrative_output)
+        return results
     
-    logger.info(f"Pipeline completed. Results saved to {output_path}")
-    return 0 if all_valid else 1
+    # Save intermediate studies for meta-analysis
+    studies_json = output_dir / "studies_for_analysis.json"
+    with open(studies_json, 'w') as f:
+        json.dump(studies, f, indent=2)
+    
+    # Step 2: Check study count and decide synthesis mode
+    n = len(studies)
+    if n < 10 or force_narrative:
+        logger.info(f"Study count ({n}) < 10. Generating narrative summary.")
+        results["synthesis_mode"] = "narrative"
+        
+        # Generate narrative summary
+        # Convert studies to CSV format for narrative generator
+        import csv
+        temp_csv = output_dir / "temp_studies.csv"
+        with open(temp_csv, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['study_id', 'qualitative_desc', 'narrative_pool'])
+            writer.writeheader()
+            for study in studies:
+                writer.writerow({
+                    'study_id': study.get('study_id', ''),
+                    'qualitative_desc': study.get('qualitative_desc', ''),
+                    'narrative_pool': study.get('narrative_pool', False)
+                })
+        
+        narrative_output = output_dir / "narrative_summary.md"
+        generate_narrative_summary(temp_csv, narrative_output)
+        results["narrative_summary"] = str(narrative_output)
+        
+        # Still run meta-analysis for reference (but mark as not used)
+        meta_output = output_dir / "meta_analysis_results.json"
+        meta_results = run_meta_analysis(studies_json, meta_output)
+        results["meta_analysis"] = meta_results
+        
+    else:
+        logger.info(f"Study count ({n}) >= 10. Proceeding with quantitative analysis.")
+        results["synthesis_mode"] = "quantitative"
+        
+        # Run meta-analysis
+        meta_output = output_dir / "meta_analysis_results.json"
+        meta_results = run_meta_analysis(studies_json, meta_output)
+        results["meta_analysis"] = meta_results
+        
+        # Run heterogeneity analysis
+        hetero_output = output_dir / "heterogeneity_results.json"
+        hetero_results = run_heterogeneity_analysis(studies_json, meta_output)
+        update_output_json(hetero_results, meta_output)
+        results["heterogeneity"] = hetero_results
+        
+        # Run bias assessment
+        bias_output = output_dir / "bias_results.json"
+        bias_results = run_bias_assessment(studies_json, bias_output, meta_output)
+        results["bias"] = bias_results
+        
+        # Generate plots
+        plots_dir = output_dir
+        run_visualization_analysis(meta_output, plots_dir)
+    
+    # Final results
+    final_output = output_dir / "results.json"
+    with open(final_output, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Pipeline complete. Results saved to {final_output}")
+    return results
 
-def main():
-    """CLI entry point for the main pipeline."""
-    parser = argparse.ArgumentParser(description="Run the brain connectivity meta-analysis pipeline")
-    parser.add_argument("--input", required=True, help="Path to input data file (CSV/JSON)")
-    parser.add_argument("--output-dir", default="data/derived", help="Directory for output files")
-    parser.add_argument("--plot-dir", default="figures", help="Directory for generated plots")
-    parser.add_argument("--max-plot-size", type=int, default=5, help="Max plot size in MB")
-    
+def main() -> None:
+    """Main entry point for the pipeline."""
+    parser = argparse.ArgumentParser(description="Meta-analysis pipeline for brain connectivity and music preferences")
+    parser.add_argument("--input", type=str, required=True, help="Input data file (CSV or JSON)")
+    parser.add_argument("--output", type=str, default="data/derived", help="Output directory")
+    parser.add_argument("--force-narrative", action="store_true", help="Force narrative synthesis even if N >= 10")
     args = parser.parse_args()
     
-    try:
-        return run_pipeline(args.input, args.output_dir, args.plot_dir, args.max_plot_size)
-    except Exception as e:
-        log_error_context(logger, e, {"input": args.input})
-        return 1
+    root = get_project_root()
+    input_path = root / args.input
+    output_dir = root / args.output
+    
+    if not input_path.exists():
+        print(f"Error: Input file not found: {input_path}", file=sys.stderr)
+        sys.exit(1)
+    
+    results = run_pipeline(input_path, output_dir, args.force_narrative)
+    print(f"Pipeline completed. Synthesis mode: {results.get('synthesis_mode', 'unknown')}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

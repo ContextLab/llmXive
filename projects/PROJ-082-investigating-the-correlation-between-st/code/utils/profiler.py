@@ -1,109 +1,165 @@
+"""
+Profiling utilities for the llmXive pipeline.
+Measures runtime, memory, and identifies bottlenecks to ensure CI execution < 15 mins.
+"""
 import cProfile
 import pstats
 import io
 import sys
 import json
-from pathlib import Path
-from typing import Dict, Any, Optional
 import time
+import tracemalloc
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Callable, TypeVar
+from functools import wraps
 
-from utils.logger import get_logger
-from utils.config import get_project_root, ensure_directory
+from utils.logger import get_logger, log_error_context
 
 logger = get_logger(__name__)
 
-PROFILE_OUTPUT_PATH = "data/derived/runtime_profile.json"
-MAX_RUNTIME_SECONDS = 900  # 15 minutes
+# Type hint for the decorated function
+F = TypeVar('F', bound=Callable[..., Any])
 
-def profile_pipeline_entrypoint(func, *args, **kwargs) -> Dict[str, Any]:
+def profile_pipeline_entrypoint(func: F) -> F:
     """
-    Profiles a function execution, capturing timing and statistical data.
-    Returns a dictionary with total runtime and top 10 slowest calls.
+    Decorator to profile a pipeline entry point function.
+    Records CPU time, wall time, and saves a profile report.
     """
-    logger.info(f"Starting profiler for {func.__name__}")
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> Any:
+        # Start CPU profiling
+        pr = cProfile.Profile()
+        pr.enable()
+
+        # Start memory profiling
+        tracemalloc.start()
+
+        start_time = time.perf_counter()
+        try:
+            result = func(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Pipeline execution failed during profiling: {e}")
+            raise
+        finally:
+            end_time = time.perf_counter()
+            pr.disable()
+            
+            current, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+
+        # Calculate stats
+        total_time = end_time - start_time
+        elapsed_minutes = total_time / 60.0
+
+        # Check against CI limit (15 minutes)
+        CI_LIMIT_MINUTES = 15.0
+        if elapsed_minutes > CI_LIMIT_MINUTES:
+            logger.warning(
+                f"Pipeline execution exceeded CI limit of {CI_LIMIT_MINUTES} minutes. "
+                f"Actual time: {elapsed_minutes:.2f} minutes."
+            )
+        else:
+            logger.info(
+                f"Pipeline execution completed within CI limit. "
+                f"Time: {elapsed_minutes:.2f} minutes."
+            )
+
+        # Save profile results
+        profile_data = {
+            "function_name": func.__name__,
+            "total_time_seconds": total_time,
+            "elapsed_minutes": elapsed_minutes,
+            "peak_memory_mb": peak / (1024 * 1024),
+            "current_memory_mb": current / (1024 * 1024),
+            "ci_limit_minutes": CI_LIMIT_MINUTES,
+            "status": "PASS" if elapsed_minutes <= CI_LIMIT_MINUTES else "FAIL",
+            "top_10_functions": []
+        }
+
+        # Extract top 10 functions from stats
+        s = io.StringIO()
+        stats = pstats.Stats(pr, stream=s).sort_stats('cumulative')
+        stats.print_stats(10)
+        profile_data["top_10_functions"] = s.getvalue()
+
+        # Save to file
+        output_path = Path("data/logs/profile_report.json")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(profile_data, f, indent=2)
+        
+        logger.info(f"Profile report saved to {output_path}")
+        
+        return result
     
-    start_time = time.time()
-    profiler = cProfile.Profile()
-    
-    try:
-        profiler.enable()
-        result = func(*args, **kwargs)
-        profiler.disable()
-    except Exception as e:
-        profiler.disable()
-        logger.error(f"Pipeline execution failed during profiling: {e}")
-        raise e
-    
-    end_time = time.time()
-    total_runtime = end_time - start_time
-    
-    # Capture stats
-    stream = io.StringIO()
-    stats = pstats.Stats(profiler, stream=stream)
-    stats.sort_stats('cumulative')
-    stats.print_stats(10)  # Top 10 functions by cumulative time
-    
-    # Parse top stats for JSON output
-    stats_lines = stream.getvalue().split('\n')
-    top_functions = []
-    for line in stats_lines[3:13]:  # Skip header lines
-        if line.strip() and '|' in line:
-            top_functions.append(line.strip())
+    return wrapper  # type: ignore
+
+def save_profile_results(pr: cProfile.Profile, output_path: str, top_n: int = 20) -> None:
+    """
+    Saves the results of a cProfile object to a JSON file.
+    """
+    s = io.StringIO()
+    stats = pstats.Stats(pr, stream=s).sort_stats('cumulative')
+    stats.print_stats(top_n)
     
     profile_data = {
-        "function_name": func.__name__,
-        "total_runtime_seconds": round(total_runtime, 3),
-        "max_allowed_seconds": MAX_RUNTIME_SECONDS,
-        "status": "passed" if total_runtime < MAX_RUNTIME_SECONDS else "failed",
-        "top_10_slowest_calls": top_functions
+        "top_functions": s.getvalue()
     }
-    
-    logger.info(f"Pipeline completed in {total_runtime:.3f}s. Status: {profile_data['status']}")
-    return profile_data
 
-def save_profile_results(profile_data: Dict[str, Any], output_path: Optional[str] = None) -> None:
-    """Saves profile results to a JSON file."""
-    if output_path is None:
-        output_path = PROFILE_OUTPUT_PATH
-    
-    project_root = get_project_root()
-    full_path = project_root / output_path
-    ensure_directory(full_path.parent)
-    
-    with open(full_path, 'w', encoding='utf-8') as f:
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(profile_data, f, indent=2)
     
-    logger.info(f"Profile results saved to {full_path}")
+    logger.info(f"Profile results saved to {output_path}")
 
-def run_profiler(output_path: Optional[str] = None) -> Dict[str, Any]:
+def run_profiler(func: Callable, *args, **kwargs) -> Dict[str, Any]:
     """
-    Main entry point for running the profiler on the pipeline.
+    Runs a function under the profiler and returns the metrics dictionary.
     """
-    from main import run_pipeline
+    pr = cProfile.Profile()
+    pr.enable()
     
-    profile_data = profile_pipeline_entrypoint(run_pipeline)
-    save_profile_results(profile_data, output_path)
+    start = time.perf_counter()
+    result = func(*args, **kwargs)
+    end = time.perf_counter()
     
-    if profile_data['status'] == 'failed':
-        logger.error(f"Runtime exceeded limit of {MAX_RUNTIME_SECONDS}s. Optimization required.")
-        sys.exit(1)
+    pr.disable()
     
-    return profile_data
+    s = io.StringIO()
+    stats = pstats.Stats(pr, stream=s).sort_stats('cumulative')
+    stats.print_stats(20)
+    
+    return {
+        "duration_seconds": end - start,
+        "top_stats": s.getvalue()
+    }
 
-def main():
-    """CLI entry point for profiling."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Profile the meta-analysis pipeline runtime.")
-    parser.add_argument('--output', type=str, default=PROFILE_OUTPUT_PATH, 
-                        help='Path to save profile results JSON')
-    args = parser.parse_args()
+def main() -> None:
+    """
+    CLI entry point to run the profiler on the main pipeline.
+    Usage: python code/utils/profiler.py
+    """
+    logger.info("Starting profiler for main pipeline...")
     
+    # Import here to avoid circular imports if this module is imported elsewhere
     try:
-        run_profiler(args.output)
-        print("Profiling completed successfully.")
-    except Exception as e:
-        print(f"Profiling failed: {e}")
+        from main import run_pipeline
+    except ImportError:
+        logger.error("Could not import run_pipeline from main. Ensure code/ is in PYTHONPATH.")
         sys.exit(1)
+
+    try:
+        # Run the pipeline under the decorator logic manually or via wrapper
+        # We'll invoke the decorated version if possible, or wrap it here
+        # Since run_pipeline is likely the entry point, we wrap it
+        wrapped_pipeline = profile_pipeline_entrypoint(run_pipeline)
+        wrapped_pipeline()
+    except Exception as e:
+        logger.error(f"Profiling run failed: {e}")
+        sys.exit(1)
+
+    logger.info("Profiling complete. Check data/logs/profile_report.json")
 
 if __name__ == "__main__":
     main()

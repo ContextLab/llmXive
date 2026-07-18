@@ -1,3 +1,17 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `code/`, `tests/`, `data/`, or `docs/` directories\
+    \ being created is present; the artifact list is empty, so the directory structure\
+    \ initialization cannot be confirmed. The implementer must provide a view of the\
+    \ project root showing these four non\u2011empty directories."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings) or CI integration scripts are present in
+    the provided evidence, so the task of configuring ruff/flake8 and Black has not
+    been demonstrated. The required artifacts are missing.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,37 +26,3 @@ T018:
     \ empty CSV and outputs a \u201CNo studies found\u201D summary is provided. The\
     \ required artifact is missing, so the zero\u2011studies edge case has not been\
     \ demonstrated as handled."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting logs, ruff output, or code diffs are provided to demonstrate that
-    ruff was run and any violations were fixed; the artifact required to verify the
-    task (e.g., a linting report or updated source files) is missing.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no profiling script, runtime logs, CI benchmark results,\
-    \ or any evidence that the total execution time was measured and kept under 15\u202F\
-    minutes. Without these artifacts (e.g., a profiling report, CI timing output,\
-    \ or documented optimizations), the requirement to profile and ensure the CI runtime\
-    \ limit is not satisfied."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `tests/unit/` directory or test files were presented, and there is no evidence\
-    \ of added unit tests covering p\u2011value conversion edge cases. The required\
-    \ artifact (additional unit tests) is missing, so the task is not satisfied."
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing that `quickstart.md` was executed or validated is present;\
-    \ there are no logs, output files, or reports confirming an end\u2011to\u2011\
-    end pipeline run. The implementer must provide evidence (e.g., command output,\
-    \ generated results, or a validation report) that the quickstart workflow completed\
-    \ successfully."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `tasks.md` file or its contents were provided, so we cannot confirm that\
-    \ an execution order is documented or that it matches the required data flow (extraction\
-    \ \u2192 analysis \u2192 visualization). The required artifact is missing."

@@ -6,101 +6,73 @@ from utils.logger import get_logger
 def create_directories():
     """
     Initialize project directory structure.
-    Creates code/, tests/, data/, and docs/ directories in a single step.
+    Creates: code/, tests/, data/, docs/
     """
-    logger = get_logger("setup_directories")
-    project_root = Path.cwd()
-    
+    logger = get_logger(__name__)
+    project_root = Path(__file__).resolve().parent.parent
+
     directories = [
         "code",
         "tests",
         "data",
         "docs"
     ]
-    
-    created = []
+
+    created_count = 0
     for dir_name in directories:
         dir_path = project_root / dir_name
-        if not dir_path.exists():
-          dir_path.mkdir(parents=True, exist_ok=True)
-          created.append(dir_name)
-          logger.info(f"Created directory: {dir_path}")
-        else:
-          logger.info(f"Directory already exists: {dir_path}")
-    
-    # Ensure data subdirectories exist for pipeline outputs
-    data_subdirs = ["raw", "derived", "interim"]
-    data_path = project_root / "data"
-    for subdir in data_subdirs:
-        subdir_path = data_path / subdir
-        if not subdir_path.exists():
-            subdir_path.mkdir(parents=True, exist_ok=True)
-            created.append(f"data/{subdir}")
-            logger.info(f"Created subdirectory: {subdir_path}")
-    
-    # Ensure tests subdirectories exist
-    test_subdirs = ["unit", "integration", "contract"]
-    tests_path = project_root / "tests"
-    for subdir in test_subdirs:
-        subdir_path = tests_path / subdir
-        if not subdir_path.exists():
-            subdir_path.mkdir(parents=True, exist_ok=True)
-            created.append(f"tests/{subdir}")
-            logger.info(f"Created subdirectory: {subdir_path}")
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Directory created/verified: {dir_path}")
+            created_count += 1
+        except OSError as e:
+            logger.error(f"Failed to create directory {dir_path}: {e}")
+            raise
 
-    if not created:
-        logger.info("All required directories already existed.")
-    else:
-        logger.info(f"Successfully created {len(created)} directories.")
-    
-    return created
+    logger.info(f"Successfully initialized {created_count} project directories.")
+    return created_count
 
 def verify_structure():
     """
-    Verify that the required directory structure exists.
-    Returns True if all directories are present, False otherwise.
+    Verify that the required project directories exist.
     """
-    project_root = Path.cwd()
-    required_dirs = [
-        "code",
-        "tests",
-        "data",
-        "docs",
-        "data/raw",
-        "data/derived",
-        "data/interim",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract"
-    ]
-    
+    logger = get_logger(__name__)
+    project_root = Path(__file__).resolve().parent.parent
+
+    required_dirs = ["code", "tests", "data", "docs"]
     missing = []
+
     for dir_name in required_dirs:
         dir_path = project_root / dir_name
         if not dir_path.is_dir():
             missing.append(dir_name)
-    
+        else:
+            logger.debug(f"Verified existence: {dir_path}")
+
     if missing:
-        return False, missing
-    return True, []
+        logger.error(f"Missing required directories: {missing}")
+        return False
+
+    logger.info("Project directory structure verified successfully.")
+    return True
 
 def main():
-    """Entry point for directory setup."""
-    logger = get_logger("setup_directories")
-    logger.info("Starting directory structure initialization...")
-    
+    """
+    Entry point for directory initialization script.
+    """
+    logger = get_logger(__name__)
+    logger.info("Starting project directory initialization...")
+
     try:
-        created = create_directories()
-        is_valid, missing = verify_structure()
-        
-        if is_valid:
-            logger.info("Directory structure verification PASSED.")
+        create_directories()
+        if verify_structure():
+            logger.info("Initialization complete.")
             return 0
         else:
-            logger.error(f"Directory structure verification FAILED. Missing: {missing}")
+            logger.error("Verification failed.")
             return 1
     except Exception as e:
-        logger.error(f"Error during directory setup: {e}")
+        logger.error(f"Initialization failed: {e}")
         return 1
 
 if __name__ == "__main__":

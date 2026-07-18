@@ -1,74 +1,112 @@
-import json
+import pytest
 import time
+import json
 import tempfile
+import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+from io import StringIO
 
-import pytest
+# Mock the logger to avoid file writing issues in tests
+import sys
+from unittest.mock import MagicMock
 
+mock_logger = MagicMock()
+sys.modules['utils.logger'] = MagicMock(get_logger=lambda x: mock_logger)
+sys.modules['utils.config'] = MagicMock(
+    get_project_root=lambda: Path(tempfile.gettempdir()),
+    ensure_directory=lambda x: None
+)
+
+# Now import the module after mocking dependencies
 from utils.profiler import profile_pipeline_entrypoint, save_profile_results, MAX_RUNTIME_SECONDS
 
-def dummy_fast_function():
-    """A function that runs very quickly."""
-    time.sleep(0.01)
-    return {"status": "fast"}
-
-def dummy_slow_function():
-    """A function that simulates a slow operation."""
-    time.sleep(0.1)
-    return {"status": "slow"}
-
 class TestProfiler:
-    def test_profile_pipeline_entrypoint_success(self):
-        """Test that profiling captures runtime correctly for a fast function."""
-        result = profile_pipeline_entrypoint(dummy_fast_function)
+    def test_profile_decorator_runtime_check_pass(self):
+        """Test that a fast function passes the runtime check."""
+        @profile_pipeline_entrypoint
+        def fast_func():
+            time.sleep(0.1)
+            return "done"
         
-        assert result["function_name"] == "dummy_fast_function"
-        assert result["status"] == "passed"
-        assert result["total_runtime_seconds"] > 0
-        assert len(result["top_10_slowest_calls"]) > 0
+        result = fast_func()
+        assert result == "done"
 
-    def test_profile_pipeline_entrypoint_failure(self):
-        """Test that profiling correctly identifies a function exceeding the limit."""
-        # Patch the MAX_RUNTIME_SECONDS to be very small to trigger failure
-        with patch('utils.profiler.MAX_RUNTIME_SECONDS', 0.0001):
-            with pytest.raises(SystemExit) as exc_info:
-                # We need to call run_profiler logic or simulate the exit
-                # Since profile_pipeline_entrypoint doesn't exit, we check the logic
-                pass
+    def test_profile_decorator_runtime_check_fail(self):
+        """Test that a slow function raises RuntimeError."""
+        @profile_pipeline_entrypoint
+        def slow_func():
+            time.sleep(MAX_RUNTIME_SECONDS + 1)
+            return "done"
         
-        # Instead, let's just verify the data structure logic in a controlled way
-        # by manually checking the condition if we were to run it
-        result = profile_pipeline_entrypoint(dummy_slow_function)
-        # In a real scenario with 0.1s sleep, if limit is 0.0001, status would be failed
-        # But since we can't easily patch the global constant inside the function logic without re-importing,
-        # we test the save and data structure primarily.
-        assert result["total_runtime_seconds"] > 0
+        with pytest.raises(RuntimeError, match="exceeded 15-minute limit"):
+            slow_func()
 
-    def test_save_profile_results(self):
-        """Test that profile results are saved to a valid JSON file."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            output_path = Path(tmp_dir) / "test_profile.json"
-            test_data = {
-                "function_name": "test_func",
-                "total_runtime_seconds": 1.5,
-                "max_allowed_seconds": 900,
-                "status": "passed",
-                "top_10_slowest_calls": ["test_call"]
+    def test_save_profile_results_structure(self):
+        """Test that profile results are saved with correct structure."""
+        # Create a mock profiler
+        profiler = MagicMock()
+        profiler.disable = MagicMock()
+        
+        # Mock pstats to return predictable data
+        with patch('utils.profiler.pstats') as mock_pstats:
+            mock_stats_instance = MagicMock()
+            mock_stats_instance.sort_stats = MagicMock()
+            mock_stats_instance.print_stats = MagicMock()
+            mock_stats_instance.stats = {
+                ('test.py', 1, 'func'): (1, 1, 0.01, 0.02, {})
             }
+            mock_pstats.Stats.return_value = mock_stats_instance
             
-            save_profile_results(test_data, str(output_path))
-            
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                saved_data = json.load(f)
-            
-            assert saved_data == test_data
+            with patch('utils.profiler.io.StringIO') as mock_stringio:
+                mock_stringio.return_value.getvalue.return_value = "Mock stats text"
+                
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    with patch('utils.profiler.get_project_root') as mock_root:
+                        mock_root.return_value = Path(tmpdir)
+                        with patch('utils.profiler.ensure_directory'):
+                            save_profile_results(profiler, 0.5)
+                            
+                            output_file = Path(tmpdir) / "data" / "logs" / "profile_results.json"
+                            # Ensure directory exists for check
+                            output_file.parent.mkdir(parents=True, exist_ok=True)
+                            
+                            # Re-run save to actual file for verification logic
+                            # (The mock above prevented actual file write in the patch, 
+                            # so we verify the logic via the mock calls or a real minimal run)
+                            pass
+        
+        # Verify the logic via a real minimal run
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_path = Path(tmpdir)
+            with patch('utils.profiler.get_project_root', return_value=test_path):
+                with patch('utils.profiler.ensure_directory'):
+                    # Create a real cProfile to test the save function logic
+                    import cProfile
+                    p = cProfile.Profile()
+                    p.enable()
+                    time.sleep(0.01)
+                    p.disable()
+                    
+                    save_profile_results(p, 0.01)
+                    
+                    output_file = test_path / "data" / "logs" / "profile_results.json"
+                    assert output_file.exists()
+                    
+                    with open(output_file, 'r') as f:
+                        data = json.load(f)
+                    
+                    assert "total_runtime_seconds" in data
+                    assert "top_functions" in data
+                    assert "status" in data
+                    assert data["status"] == "passed"
 
-    def test_profile_captures_stats(self):
-        """Test that the profiler captures cumulative stats."""
-        result = profile_pipeline_entrypoint(dummy_fast_function)
-        assert "top_10_slowest_calls" in result
-        # The output should contain the function name in the stats
-        stats_text = "\n".join(result["top_10_slowest_calls"])
-        assert "dummy_fast_function" in stats_text or "time" in stats_text
+    def test_profile_decorator_calls_save(self):
+        """Test that the decorator calls save_profile_results."""
+        with patch('utils.profiler.save_profile_results') as mock_save:
+            @profile_pipeline_entrypoint
+            def dummy():
+                return True
+            
+            dummy()
+            mock_save.assert_called_once()

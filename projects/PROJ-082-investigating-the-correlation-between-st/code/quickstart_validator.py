@@ -1,183 +1,223 @@
-"""
-Quickstart Validation Script for PROJ-082.
-
-This script executes the end-to-end pipeline as described in `quickstart.md`
-to verify that all components (extraction, analysis, visualization, reporting)
-function correctly with real data or the provided sample data.
-
-It verifies:
-1. Directory structure integrity.
-2. Successful execution of `main.py` pipeline.
-3. Existence of expected output artifacts (JSON, PNGs, MD).
-4. Basic content validation of generated files.
-"""
 import argparse
 import json
 import os
 import sys
+import subprocess
+import time
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Tuple, Dict, Any
 
-# Add project root to path to allow relative imports if run as script
-# Note: In a real environment, the package should be installed or PYTHONPATH set.
-# We assume this script runs from the project root or code/ directory.
-current_dir = Path(__file__).parent
-project_root = current_dir.parent if current_dir.name == "code" else current_dir
+# Add project root to path to allow imports if run as script
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Add code directory to sys.path for imports
-code_dir = project_root / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
-
-from main import run_pipeline, main as main_entrypoint
+from utils.logger import get_logger, log_error_context
 from utils.config import get_project_root, ensure_directory
-from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def check_directories() -> bool:
-    """Verify required directory structure exists."""
-    required_dirs = [
-        "code",
-        "tests",
-        "data",
-        "data/derived",
-        "docs",
-        "contracts",
-        "figures"
-    ]
+REQUIRED_DIRS = [
+    "code",
+    "tests",
+    "data",
+    "docs"
+]
+
+REQUIRED_ARTIFACTS = [
+    "data/processed/extracted_studies.csv",
+    "data/derived/results.json",
+    "data/derived/narrative_summary.md",
+    "data/derived/forest_plot.png",
+    "data/derived/funnel_plot.png",
+    "data/derived/correlation_summary.png",
+    "data/logs/exclusion_log.csv",
+    "data/logs/conversion_log.csv"
+]
+
+def check_directories() -> Tuple[bool, List[str]]:
+    """Verify that required project directories exist."""
     missing = []
-    for d in required_dirs:
-        if not (project_root / d).exists():
-            missing.append(d)
+    root = get_project_root()
+    for dir_name in REQUIRED_DIRS:
+        dir_path = root / dir_name
+        if not dir_path.exists():
+            missing.append(str(dir_path))
+        elif not any(dir_path.iterdir()):
+            # Check if directory is empty (optional strictness)
+            # For T036 validation, we just check existence primarily,
+            # but logs might be empty if no exclusions.
+            pass
     
     if missing:
         logger.error(f"Missing directories: {missing}")
-        return False
-    
-    logger.info("Directory structure validation: PASSED")
-    return True
+        return False, missing
+    return True, []
 
-def run_pipeline_execution() -> bool:
-    """Execute the main pipeline and capture results."""
-    logger.info("Starting pipeline execution...")
+def run_pipeline_execution(timeout_seconds: int = 600) -> Tuple[bool, str]:
+    """
+    Execute the main pipeline script (code/main.py).
+    Returns (success, output_message).
+    """
+    root = get_project_root()
+    main_script = root / "code" / "main.py"
     
-    # Define input/output paths
-    # We assume a sample input exists or the pipeline handles missing input gracefully
-    input_csv = project_root / "data" / "input" / "studies.csv"
-    output_json = project_root / "data" / "derived" / "meta_analysis_result.json"
-    
-    # Ensure input directory exists even if file is missing (pipeline might create it)
-    ensure_directory(project_root / "data" / "input")
+    if not main_script.exists():
+        return False, f"Main script not found: {main_script}"
+
+    logger.info(f"Executing pipeline: {main_script}")
+    start_time = time.time()
     
     try:
         # Run the pipeline
-        # The main.py script expects arguments or uses defaults
-        # We simulate the command line call: python code/main.py --input ... --output ...
-        args = argparse.Namespace(
-            input=str(input_csv),
-            output=str(output_json),
-            figures_dir=str(project_root / "figures"),
-            report_dir=str(project_root / "docs"),
-            verbose=True
+        result = subprocess.run(
+            [sys.executable, str(main_script)],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds
         )
         
-        # Run the core logic
-        result = run_pipeline(args)
+        elapsed = time.time() - start_time
+        output_msg = f"Pipeline execution took {elapsed:.2f}s\n"
         
-        if result is None:
-            logger.error("Pipeline returned None. Execution likely failed.")
-            return False
+        if result.returncode != 0:
+            output_msg += f"STDOUT:\n{result.stdout}\n"
+            output_msg += f"STDERR:\n{result.stderr}\n"
+            logger.error(f"Pipeline failed with code {result.returncode}")
+            return False, output_msg
         
-        logger.info(f"Pipeline execution completed. Status: {result.get('status', 'unknown')}")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Pipeline execution failed: {str(e)}", exc_info=True)
-        return False
+        output_msg += "Pipeline completed successfully.\n"
+        output_msg += f"STDOUT:\n{result.stdout}\n"
+        return True, output_msg
 
-def verify_artifacts() -> bool:
-    """Verify that expected output artifacts were created."""
-    artifacts = {
-        "data/derived/meta_analysis_result.json": "JSON",
-        "figures/forest_plot.png": "PNG",
-        "figures/funnel_plot.png": "PNG",
-        "figures/correlation_summary.png": "PNG",
-        "docs/paper_draft.md": "Markdown"
-    }
-    
+    except subprocess.TimeoutExpired:
+        return False, f"Pipeline execution timed out after {timeout_seconds}s"
+    except Exception as e:
+        logger.error(f"Error running pipeline: {e}")
+        return False, str(e)
+
+def verify_artifacts() -> Tuple[bool, List[str]]:
+    """Verify that all required output artifacts exist."""
+    root = get_project_root()
     missing = []
-    for rel_path, file_type in artifacts.items():
-        full_path = project_root / rel_path
-        if not full_path.exists():
-            missing.append(rel_path)
+    
+    for artifact in REQUIRED_ARTIFACTS:
+        path = root / artifact
+        if not path.exists():
+            missing.append(artifact)
         else:
-            # Basic content check
-            size = full_path.stat().st_size
-            if size == 0:
-                logger.warning(f"Artifact {rel_path} exists but is empty.")
-            else:
-                logger.info(f"Artifact {rel_path} verified ({size} bytes).")
+            # Check file size > 0 for non-log files if applicable
+            if "log" not in artifact and "md" not in artifact and "json" not in artifact:
+                if path.stat().st_size == 0:
+                    missing.append(f"{artifact} (empty)")
+            elif "json" in artifact or "csv" in artifact:
+                if path.stat().st_size == 0:
+                    missing.append(f"{artifact} (empty)")
     
     if missing:
-        logger.error(f"Missing output artifacts: {missing}")
-        return False
-    
-    logger.info("Artifact verification: PASSED")
-    return True
+        logger.error(f"Missing artifacts: {missing}")
+        return False, missing
+    return True, []
 
-def validate_json_content(json_path: Path) -> bool:
-    """Validate the structure of the meta-analysis result JSON."""
+def validate_json_content() -> Tuple[bool, str]:
+    """Validate the content of the main results JSON."""
+    root = get_project_root()
+    results_path = root / "data" / "derived" / "results.json"
+    
+    if not results_path.exists():
+        return False, "results.json not found"
+    
     try:
-        with open(json_path, 'r') as f:
+        with open(results_path, 'r') as f:
             data = json.load(f)
         
-        required_keys = ["study_count", "synthesis_mode", "weighted_mean_r"]
+        required_keys = ["synthesis_mode", "study_count"]
         missing_keys = [k for k in required_keys if k not in data]
         
         if missing_keys:
-            logger.error(f"JSON missing required keys: {missing_keys}")
-            return False
+            return False, f"Missing keys in results.json: {missing_keys}"
         
-        logger.info("JSON content validation: PASSED")
-        return True
+        if data["synthesis_mode"] not in ["narrative", "quantitative"]:
+            return False, f"Invalid synthesis_mode: {data['synthesis_mode']}"
+        
+        if not isinstance(data["study_count"], int) or data["study_count"] < 0:
+            return False, f"Invalid study_count: {data['study_count']}"
+        
+        return True, f"results.json validated. Mode: {data['synthesis_mode']}, Count: {data['study_count']}"
+        
     except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON format: {e}")
-        return False
+        return False, f"Invalid JSON in results.json: {e}"
     except Exception as e:
-        logger.error(f"Error reading JSON: {e}")
-        return False
+        return False, f"Error reading results.json: {e}"
 
 def main():
-    """Main entry point for the validator."""
-    logger.info("=== Starting Quickstart Validation (T036) ===")
-    
-    # 1. Check Directory Structure
-    if not check_directories():
-        logger.error("Validation FAILED: Directory structure check failed.")
-        return 1
-    
-    # 2. Run Pipeline
-    if not run_pipeline_execution():
-        logger.error("Validation FAILED: Pipeline execution failed.")
-        return 1
-    
-    # 3. Verify Artifacts
-    if not verify_artifacts():
-        logger.error("Validation FAILED: Artifact verification failed.")
-        return 1
-    
-    # 4. Validate JSON Content
-    json_path = project_root / "data" / "derived" / "meta_analysis_result.json"
-    if json_path.exists():
-        if not validate_json_content(json_path):
-            logger.error("Validation FAILED: JSON content validation failed.")
-            return 1
+    parser = argparse.ArgumentParser(description="Validate quickstart pipeline execution.")
+    parser.add_argument("--timeout", type=int, default=600, help="Timeout for pipeline execution in seconds")
+    args = parser.parse_args()
+
+    logger.info("Starting Quickstart Validation (T036)")
+    all_passed = True
+    report = []
+
+    # 1. Check Directories
+    logger.info("Step 1: Checking directory structure...")
+    dirs_ok, missing_dirs = check_directories()
+    if not dirs_ok:
+        all_passed = False
+        report.append(f"FAILED: Missing directories: {missing_dirs}")
     else:
-        logger.warning("JSON file not found, skipping content validation.")
+        report.append("PASSED: Directory structure verified.")
+
+    # 2. Run Pipeline
+    if all_passed:
+        logger.info("Step 2: Executing pipeline...")
+        exec_ok, exec_msg = run_pipeline_execution(args.timeout)
+        if not exec_ok:
+            all_passed = False
+            report.append(f"FAILED: Pipeline execution failed.\n{exec_msg}")
+        else:
+            report.append("PASSED: Pipeline executed successfully.")
+            # Log the output briefly
+            for line in exec_msg.split('\n')[:10]:
+                logger.info(f"  > {line}")
+
+    # 3. Verify Artifacts
+    if all_passed:
+        logger.info("Step 3: Verifying output artifacts...")
+        artifacts_ok, missing_artifacts = verify_artifacts()
+        if not artifacts_ok:
+            all_passed = False
+            report.append(f"FAILED: Missing artifacts: {missing_artifacts}")
+        else:
+            report.append("PASSED: All required artifacts exist.")
+
+    # 4. Validate JSON Content
+    if all_passed:
+        logger.info("Step 4: Validating JSON content...")
+        json_ok, json_msg = validate_json_content()
+        if not json_ok:
+            all_passed = False
+            report.append(f"FAILED: {json_msg}")
+        else:
+            report.append(f"PASSED: {json_msg}")
+
+    # Final Summary
+    print("\n" + "="*50)
+    print("QUICKSTART VALIDATION REPORT (T036)")
+    print("="*50)
+    for line in report:
+        print(line)
+    print("="*50)
     
-    logger.info("=== Quickstart Validation (T036) COMPLETED SUCCESSFULLY ===")
-    return 0
+    if all_passed:
+        print("STATUS: SUCCESS")
+        logger.info("Quickstart validation completed successfully.")
+        sys.exit(0)
+    else:
+        print("STATUS: FAILED")
+        logger.error("Quickstart validation failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

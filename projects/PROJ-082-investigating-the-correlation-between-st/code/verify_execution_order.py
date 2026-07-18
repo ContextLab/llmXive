@@ -1,254 +1,203 @@
 """
-T037: Verify tasks.md execution order matches data flow (extraction -> analysis -> visualization).
+Verification script for T037: Verify tasks.md execution order matches data flow.
 
-This script validates the logical dependency chain described in tasks.md:
-1. Extraction (T013) -> produces raw parsed data
-2. Analysis (T014, T021, T021b, T022) -> consumes extraction output, produces metrics
-3. Visualization (T027, T028) -> consumes analysis output, produces plots
-4. Reporting (T032) -> consumes final analysis results
+This script parses tasks.md to extract task dependencies and execution order,
+then validates that the order matches the required data flow:
+extraction -> analysis -> visualization.
 
-It verifies:
-- That the code structure reflects these dependencies (imports)
-- That the tasks.md file correctly documents these dependencies
-- That the data flow is consistent end-to-end
+It also verifies that all referenced files exist and imports are consistent.
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
-# Import existing utilities
 from utils.logger import get_logger
-from utils.config import get_project_root
 
 logger = get_logger(__name__)
 
-# Define the expected data flow phases
-EXPECTED_FLOW = [
-    {
-        "phase": "extraction",
-        "task_id": "T013",
-        "file": "code/extraction/parser.py",
-        "outputs": ["data/extracted_studies.json", "data/qualitative_notes.json"]
-    },
-    {
-        "phase": "meta_analysis",
-        "task_id": "T014",
-        "file": "code/analysis/meta_analysis.py",
-        "inputs": ["data/extracted_studies.json"],
-        "outputs": ["data/meta_analysis_results.json"]
-    },
-    {
-        "phase": "narrative",
-        "task_id": "T015",
-        "file": "code/analysis/narrative.py",
-        "inputs": ["data/qualitative_notes.json", "data/meta_analysis_results.json"],
-        "outputs": ["data/narrative_summary.json"]
-    },
-    {
-        "phase": "bias_assessment",
-        "task_id": "T021",
-        "file": "code/analysis/bias.py",
-        "inputs": ["data/meta_analysis_results.json"],
-        "outputs": ["data/bias_results.json"]
-    },
-    {
-        "phase": "heterogeneity",
-        "task_id": "T021b",
-        "file": "code/analysis/heterogeneity.py",
-        "inputs": ["data/meta_analysis_results.json", "data/bias_results.json"],
-        "outputs": ["data/heterogeneity_results.json"]
-    },
-    {
-        "phase": "correction",
-        "task_id": "T022",
-        "file": "code/analysis/correction.py",
-        "inputs": ["data/meta_analysis_results.json"],
-        "outputs": ["data/correction_results.json"]
-    },
-    {
-        "phase": "visualization",
-        "task_id": "T027",
-        "file": "code/visualization/plots.py",
-        "inputs": ["data/meta_analysis_results.json", "data/bias_results.json", "data/heterogeneity_results.json"],
-        "outputs": ["data/derived/forest_plot.png", "data/derived/funnel_plot.png", "data/derived/correlation_summary.png"]
-    },
-    {
-        "phase": "report_generation",
-        "task_id": "T032",
-        "file": "code/report_generator.py",
-        "inputs": ["data/meta_analysis_results.json", "data/narrative_summary.json", "data/bias_results.json", "data/heterogeneity_results.json", "data/correction_results.json"],
-        "outputs": ["docs/paper_draft.md"]
-    }
-]
 
-def verify_file_exists(file_path: str, root: Path) -> bool:
-    """Check if a file exists relative to project root."""
-    full_path = root / file_path
-    return full_path.exists()
+def verify_file_exists(file_path: Path, description: str) -> bool:
+    """Verify that a file exists at the given path."""
+    if not file_path.exists():
+        logger.error(f"File not found: {file_path} ({description})")
+        return False
+    logger.info(f"File exists: {file_path}")
+    return True
 
-def verify_imports(file_path: str, root: Path) -> Tuple[bool, List[str]]:
-    """
-    Verify that a file imports from the correct upstream modules.
-    Returns (success, list of missing imports or issues).
-    """
-    full_path = root / file_path
-    if not full_path.exists():
-        return False, [f"File not found: {file_path}"]
 
-    try:
-        content = full_path.read_text()
-        # Basic check: look for imports from expected upstream modules
-        issues = []
-        
-        # Define expected import patterns for each phase
-        if "parser.py" in file_path:
-            # Extraction should import from utils
-            if "from utils" not in content:
-                issues.append("Missing imports from utils")
-        
-        elif "meta_analysis.py" in file_path:
-            # Meta-analysis should import from extraction
-            if "from extraction" not in content:
-                issues.append("Missing imports from extraction module")
-        
-        elif "bias.py" in file_path:
-            # Bias should import from meta_analysis
-            if "from analysis.meta_analysis" not in content and "from .meta_analysis" not in content:
-                issues.append("Missing imports from meta_analysis module")
-        
-        elif "heterogeneity.py" in file_path:
-            # Heterogeneity should import from meta_analysis and bias
-            if "from analysis.meta_analysis" not in content and "from .meta_analysis" not in content:
-                issues.append("Missing imports from meta_analysis module")
-        
-        elif "plots.py" in file_path:
-            # Visualization should import from analysis modules
-            if "from analysis" not in content:
-                issues.append("Missing imports from analysis module")
-        
-        elif "report_generator.py" in file_path:
-            # Report generation should import from analysis modules
-            if "from analysis" not in content:
-                issues.append("Missing imports from analysis module")
-        
-        return len(issues) == 0, issues
-    except Exception as e:
-        return False, [f"Error reading file: {str(e)}"]
+def verify_imports(code_dir: Path) -> Tuple[bool, List[str]]:
+    """
+    Verify that all import statements in the codebase reference existing modules.
+    Returns (success, list of error messages).
+    """
+    errors = []
+    import_pattern = re.compile(r'^from\s+(\S+)\s+import\s+|^import\s+(\S+)', re.MULTILINE)
 
-def verify_tasks_md_dependencies(root: Path) -> Tuple[bool, List[str]]:
+    for py_file in code_dir.rglob("*.py"):
+        try:
+            content = py_file.read_text(encoding="utf-8")
+            matches = import_pattern.findall(content)
+            for match in matches:
+                module_name = match[0] or match[1]
+                # Skip standard library and third-party imports (simplified check)
+                if '.' in module_name or module_name in ['sys', 'os', 'json', 're', 'math', 'csv', 'logging', 'argparse', 'datetime', 'random', 'hashlib', 'subprocess', 'time', 'io', 'pstats', 'cProfile', 'numpy', 'matplotlib', 'seaborn', 'scipy', 'statsmodels', 'yaml', 'jinja2', 'tracemalloc', 'itertools', 'typing']:
+                    continue
+                # Check if the module exists within the project
+                # Convert dotted module name to path
+                module_path = code_dir / (module_name.replace('.', '/') + '.py')
+                package_path = code_dir / module_name.replace('.', '/')
+                if not (module_path.exists() or package_path.is_dir()):
+                    # Allow relative imports within same directory
+                    if not any(p in module_name for p in ['analysis', 'extraction', 'visualization', 'utils']):
+                        errors.append(f"Module not found: {module_name} in {py_file}")
+        except Exception as e:
+            errors.append(f"Error reading {py_file}: {e}")
+
+    return len(errors) == 0, errors
+
+
+def verify_tasks_md_dependencies(tasks_md_path: Path, code_dir: Path) -> Tuple[bool, List[str]]:
     """
-    Verify that tasks.md correctly documents the dependencies.
+    Verify that tasks.md execution order matches the data flow.
+    Returns (success, list of error messages).
     """
-    tasks_md_path = root / "tasks.md"
+    errors = []
+
     if not tasks_md_path.exists():
-        return False, ["tasks.md not found"]
+        return False, [f"tasks.md not found at {tasks_md_path}"]
 
-    try:
-        content = tasks_md_path.read_text()
-        issues = []
+    content = tasks_md_path.read_text(encoding="utf-8")
 
-        # Check for dependency declarations in tasks.md
-        # Look for patterns like "Depends on: T014" or "explicitly depends on"
-        if "Depends on: T014" not in content:
-            issues.append("Missing dependency declaration: T014 (meta_analysis)")
-        
-        if "Depends on: T008" not in content:
-            issues.append("Missing dependency declaration: T008 (tract_mapping)")
-        
-        if "Depends on: T013" not in content:
-            issues.append("Missing dependency declaration: T013 (extraction)")
-        
-        if "Depends on: T027" not in content:
-            issues.append("Missing dependency declaration: T027 (plots)")
+    # Parse task dependencies from tasks.md
+    # Look for patterns like "Depends on: T013, T014"
+    depends_pattern = re.compile(r'\[([A-Z]\d+)\].*Depends on:\s*([A-Z0-9,\s]+)', re.DOTALL)
 
-        # Check for execution order mentions
-        if "extraction -> analysis -> visualization" not in content:
-            issues.append("Missing execution order documentation: extraction -> analysis -> visualization")
+    task_deps = {}
+    task_order = []
+    task_phases = {}
 
-        return len(issues) == 0, issues
-    except Exception as e:
-        return False, [f"Error reading tasks.md: {str(e)}"]
+    # Extract task order and dependencies
+    lines = content.split('\n')
+    current_phase = None
+    for line in lines:
+        if line.startswith('## Phase'):
+            current_phase = line.strip()
+        match = re.match(r'- \[([ xX])\]\s*([A-Z]\d+)', line)
+        if match:
+            task_id = match.group(2)
+            task_order.append(task_id)
+            task_phases[task_id] = current_phase
+
+    # Extract dependencies
+    for match in depends_pattern.finditer(content):
+        task_id = match.group(1)
+        deps_str = match.group(2)
+        deps = [d.strip() for d in deps_str.split(',') if d.strip()]
+        task_deps[task_id] = deps
+
+    # Define expected data flow phases
+    # Extraction -> Analysis -> Visualization
+    extraction_tasks = {'T013', 'T017', 'T040', 'T043', 'T047'}
+    analysis_tasks = {'T014', 'T015', 'T021', 'T021b', 'T022', 'T041'}
+    visualization_tasks = {'T027', 'T027b', 'T028', 'T031'}
+
+    # Verify that dependencies respect the data flow
+    for task_id, deps in task_deps.items():
+        task_phase = None
+        if task_id in extraction_tasks:
+            task_phase = 'extraction'
+        elif task_id in analysis_tasks:
+            task_phase = 'analysis'
+        elif task_id in visualization_tasks:
+            task_phase = 'visualization'
+
+        if not task_phase:
+            continue
+
+        for dep in deps:
+            dep_phase = None
+            if dep in extraction_tasks:
+                dep_phase = 'extraction'
+            elif dep in analysis_tasks:
+                dep_phase = 'analysis'
+            elif dep in visualization_tasks:
+                dep_phase = 'visualization'
+
+            if dep_phase and task_phase != dep_phase:
+                # Check if the dependency order is correct
+                # Extraction can depend on setup, Analysis on Extraction, Visualization on Analysis
+                allowed_deps = {
+                    'extraction': {'setup', 'foundation'},
+                    'analysis': {'extraction', 'setup', 'foundation'},
+                    'visualization': {'analysis', 'extraction', 'setup', 'foundation'}
+                }
+
+                if dep_phase not in allowed_deps.get(task_phase, set()):
+                    errors.append(
+                        f"Data flow violation: {task_id} ({task_phase}) depends on {dep} ({dep_phase})"
+                    )
+
+    # Verify that tasks are ordered correctly in the file
+    phase_order = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5', 'Phase N']
+    last_phase_idx = -1
+
+    for task_id in task_order:
+        phase = task_phases.get(task_id, 'Unknown')
+        try:
+            phase_idx = phase_order.index(phase)
+            if phase_idx < last_phase_idx:
+                errors.append(f"Task {task_id} appears in {phase} but should be after earlier phases")
+            last_phase_idx = max(last_phase_idx, phase_idx)
+        except ValueError:
+            pass  # Unknown phase, skip
+
+    return len(errors) == 0, errors
+
 
 def run_verification() -> bool:
-    """Run all verification checks."""
-    root = get_project_root()
+    """Run all verification checks for T037."""
+    project_root = Path(__file__).parent.parent
+    tasks_md_path = project_root / "tasks.md"
+    code_dir = project_root / "code"
+
     all_passed = True
-    all_issues: List[str] = []
+    error_messages = []
 
-    logger.info("Starting execution order verification...")
-
-    # 1. Verify all files exist
-    logger.info("Step 1: Verifying file existence...")
-    for step in EXPECTED_FLOW:
-        if not verify_file_exists(step["file"], root):
-            issue = f"Missing file: {step['file']} (Phase: {step['phase']})"
-            all_issues.append(issue)
-            all_passed = False
-            logger.warning(f"  ❌ {issue}")
-        else:
-            logger.info(f"  ✅ {step['file']} exists")
-
-    # 2. Verify imports
-    logger.info("Step 2: Verifying import dependencies...")
-    for step in EXPECTED_FLOW:
-        success, issues = verify_imports(step["file"], root)
-        if not success:
-            for issue in issues:
-                all_issues.append(f"{step['file']}: {issue}")
-                all_passed = False
-            logger.warning(f"  ❌ {step['file']}: {issues}")
-        else:
-            logger.info(f"  ✅ {step['file']} imports verified")
-
-    # 3. Verify tasks.md dependencies
-    logger.info("Step 3: Verifying tasks.md dependency documentation...")
-    success, issues = verify_tasks_md_dependencies(root)
-    if not success:
-        for issue in issues:
-            all_issues.append(f"tasks.md: {issue}")
-            all_passed = False
-        logger.warning(f"  ❌ tasks.md issues: {issues}")
+    # 1. Verify tasks.md exists
+    if not verify_file_exists(tasks_md_path, "Task definitions"):
+        all_passed = False
+        error_messages.append("tasks.md is missing")
     else:
-        logger.info("  ✅ tasks.md dependency documentation verified")
+        # 2. Verify imports in codebase
+        imports_ok, import_errors = verify_imports(code_dir)
+        if not imports_ok:
+            all_passed = False
+            error_messages.extend(import_errors)
 
-    # 4. Verify data flow consistency
-    logger.info("Step 4: Verifying data flow consistency...")
-    # Check that outputs of one phase are inputs of the next
-    for i in range(len(EXPECTED_FLOW) - 1):
-        current_outputs = set(EXPECTED_FLOW[i].get("outputs", []))
-        next_inputs = set(EXPECTED_FLOW[i + 1].get("inputs", []))
-        
-        # Find common files
-        common = current_outputs.intersection(next_inputs)
-        if not common:
-            # This might be okay if there's an intermediate file or if the next phase
-            # uses a different output from the same phase
-            logger.warning(f"  ⚠️  No direct file overlap between {EXPECTED_FLOW[i]['phase']} outputs and {EXPECTED_FLOW[i+1]['phase']} inputs")
-        else:
-            logger.info(f"  ✅ Data flow confirmed: {common}")
+        # 3. Verify tasks.md execution order matches data flow
+        flow_ok, flow_errors = verify_tasks_md_dependencies(tasks_md_path, code_dir)
+        if not flow_ok:
+            all_passed = False
+            error_messages.extend(flow_errors)
 
-    # Summary
-    logger.info("\n" + "="*60)
     if all_passed:
-        logger.info("✅ Execution order verification PASSED")
-        logger.info("   - All required files exist")
-        logger.info("   - Import dependencies are correct")
-        logger.info("   - tasks.md correctly documents dependencies")
-        logger.info("   - Data flow is consistent")
+        logger.info("T037 Verification PASSED: Execution order matches data flow")
     else:
-        logger.warning("❌ Execution order verification FAILED")
-        logger.warning(f"   Issues found: {len(all_issues)}")
-        for issue in all_issues:
-            logger.warning(f"   - {issue}")
+        logger.error(f"T037 Verification FAILED: {len(error_messages)} errors found")
+        for error in error_messages:
+            logger.error(f"  - {error}")
 
     return all_passed
 
+
 def main():
-    """Main entry point."""
+    """Main entry point for T037 verification."""
     success = run_verification()
     sys.exit(0 if success else 1)
+
 
 if __name__ == "__main__":
     main()

@@ -1,72 +1,40 @@
-"""
-Setup script for linting (ruff) and formatting (black) tools.
-This script installs the tools, creates configuration files, and provides
-utility functions to run lint and format checks.
-"""
 import subprocess
 import sys
 from pathlib import Path
 import json
 
-# Configuration for the project
-RUFF_CONFIG_NAME = ".ruff.toml"
-BLACK_CONFIG_NAME = "pyproject.toml"  # Black settings go in pyproject.toml usually, or .black.toml
-# We will create a minimal pyproject.toml if it doesn't exist, or append to it.
-# For simplicity in this task, we create a dedicated config file for Black if preferred,
-# but standard practice is pyproject.toml. Let's stick to creating .ruff.toml and ensuring pyproject.toml has black config.
-
 def get_project_root() -> Path:
-    """Get the project root directory."""
+    """Return the project root directory."""
     return Path(__file__).resolve().parent.parent
 
-def install_tools() -> bool:
-    """Install ruff and black using pip."""
-    tools = ["ruff", "black"]
-    for tool in tools:
-        try:
-            print(f"Checking if {tool} is installed...")
-            subprocess.run([sys.executable, "-m", "pip", "show", tool], check=True, capture_output=True)
-            print(f"{tool} is already installed.")
-        except subprocess.CalledProcessError:
-            print(f"Installing {tool}...")
-            result = subprocess.run(
-                [sys.executable, "-m", "pip", "install", tool],
-                check=True,
-                capture_output=False
-            )
-            if result.returncode == 0:
-                print(f"{tool} installed successfully.")
-            else:
-                print(f"Failed to install {tool}.")
-                return False
-    return True
+def install_tools() -> None:
+    """Install ruff and black if not present."""
+    print("Installing linting and formatting tools...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "ruff", "black"], stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to install tools: {e}", file=sys.stderr)
+        sys.exit(1)
 
-def ensure_config_file() -> bool:
-    """Create .ruff.toml and ensure pyproject.toml has black configuration."""
-    project_root = get_project_root()
-    ruff_config_path = project_root / RUFF_CONFIG_NAME
-    black_config_path = project_root / "pyproject.toml"
-
-    # Create .ruff.toml
-    if not ruff_config_path.exists():
-        print(f"Creating {RUFF_CONFIG_NAME}...")
-        ruff_content = """[lint]
+def ensure_config_file() -> None:
+    """Ensure .ruff.toml exists with basic configuration."""
+    root = get_project_root()
+    config_path = root / ".ruff.toml"
+    if not config_path.exists():
+        config_content = """
+[lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # Pyflakes
     "I",  # isort
+    "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
 ]
-
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]
 
 [format]
 quote-style = "double"
@@ -74,91 +42,129 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 """
-        with open(ruff_config_path, "w") as f:
-            f.write(ruff_content)
-        print(f"{RUFF_CONFIG_NAME} created.")
-    else:
-        print(f"{RUFF_CONFIG_NAME} already exists.")
+        config_path.write_text(config_content.strip())
+        print(f"Created {config_path}")
 
-    # Ensure pyproject.toml has black configuration
-    black_config_section = """
-[tool.black]
-line-length = 88
-target-version = ['py311']
-"""
-    if black_config_path.exists():
-        with open(black_config_path, "r") as f:
-            content = f.read()
-        if "[tool.black]" not in content:
-            print(f"Appending Black configuration to {BLACK_CONFIG_NAME}...")
-            with open(black_config_path, "a") as f:
-                f.write(black_config_section)
+def run_lint_check() -> bool:
+    """Run ruff check. Returns True if no violations, False otherwise."""
+    root = get_project_root()
+    try:
+        result = subprocess.run(
+            ["ruff", "check", str(root / "code")],
+            capture_output=True,
+            text=True,
+            cwd=root
+        )
+        if result.returncode != 0:
+            print("Ruff violations found:")
+            print(result.stdout)
+            if result.stderr:
+                print(result.stderr, file=sys.stderr)
+            return False
+        print("No linting violations found.")
+        return True
+    except FileNotFoundError:
+        print("ruff not found. Please install it.", file=sys.stderr)
+        return False
+
+def run_format_check() -> bool:
+    """Run black check. Returns True if formatted correctly, False otherwise."""
+    root = get_project_root()
+    try:
+        result = subprocess.run(
+            ["black", "--check", str(root / "code")],
+            capture_output=True,
+            text=True,
+            cwd=root
+        )
+        if result.returncode != 0:
+            print("Black formatting violations found:")
+            print(result.stdout)
+            if result.stderr:
+                print(result.stderr, file=sys.stderr)
+            return False
+        print("Code is properly formatted.")
+        return True
+    except FileNotFoundError:
+        print("black not found. Please install it.", file=sys.stderr)
+        return False
+
+def run_lint_fix() -> bool:
+    """Run ruff check --fix. Returns True if successful."""
+    root = get_project_root()
+    try:
+        result = subprocess.run(
+            ["ruff", "check", "--fix", str(root / "code")],
+            capture_output=True,
+            text=True,
+            cwd=root
+        )
+        if result.returncode != 0:
+            # Some errors might be unfixable
+            print("Ruff fixed some issues, but others remain:")
+            print(result.stdout)
+            return False
+        print("Ruff fixed all auto-fixable issues.")
+        return True
+    except FileNotFoundError:
+        print("ruff not found.", file=sys.stderr)
+        return False
+
+def run_format_fix() -> bool:
+    """Run black formatting. Returns True if successful."""
+    root = get_project_root()
+    try:
+        result = subprocess.run(
+            ["black", str(root / "code")],
+            capture_output=True,
+            text=True,
+            cwd=root
+        )
+        if result.returncode != 0:
+            print("Black failed to format some files:")
+            print(result.stdout)
+            return False
+        print("Code formatted successfully.")
+        return True
+    except FileNotFoundError:
+        print("black not found.", file=sys.stderr)
+        return False
+
+def main() -> None:
+    """Main entry point for linting setup and execution."""
+    parser = argparse.ArgumentParser(description="Linting and formatting tools")
+    parser.add_argument("--install", action="store_true", help="Install tools")
+    parser.add_argument("--config", action="store_true", help="Ensure config files exist")
+    parser.add_argument("--check", action="store_true", help="Run checks only")
+    parser.add_argument("--fix", action="store_true", help="Run fixers")
+    parser.add_argument("--all", action="store_true", help="Run full cycle: install, config, check, fix, check")
+    args = parser.parse_args()
+
+    if args.install or args.all:
+        install_tools()
+
+    if args.config or args.all:
+        ensure_config_file()
+
+    if args.check or args.all:
+        lint_ok = run_lint_check()
+        fmt_ok = run_format_check()
+        if not (lint_ok and fmt_ok):
+            if args.fix or args.all:
+                print("Fixing issues...")
+                run_lint_fix()
+                run_format_fix()
+                print("Re-checking after fixes...")
+                lint_ok = run_lint_check()
+                fmt_ok = run_format_check()
+            else:
+                print("Violations found. Run with --fix to attempt automatic fixes.")
+                sys.exit(1)
         else:
-            print(f"Black configuration already exists in {BLACK_CONFIG_NAME}.")
-    else:
-        print(f"Creating {BLACK_CONFIG_NAME} with Black configuration...")
-        with open(black_config_path, "w") as f:
-            f.write(black_config_section)
-
-    return True
-
-def run_lint_check() -> int:
-    """Run ruff check on the codebase."""
-    project_root = get_project_root()
-    code_dir = project_root / "code"
-    if not code_dir.exists():
-        print("Code directory not found. Nothing to lint.")
-        return 0
-
-    print("Running ruff check...")
-    try:
-        result = subprocess.run(
-            ["ruff", "check", str(code_dir)],
-            cwd=project_root,
-            capture_output=False,
-            text=True
-        )
-        return result.returncode
-    except FileNotFoundError:
-        print("ruff not found. Please install it.")
-        return 1
-
-def run_format_check() -> int:
-    """Run black check (diff mode) on the codebase."""
-    project_root = get_project_root()
-    code_dir = project_root / "code"
-    if not code_dir.exists():
-        print("Code directory not found. Nothing to format check.")
-        return 0
-
-    print("Running black --check...")
-    try:
-        result = subprocess.run(
-            ["black", "--check", str(code_dir)],
-            cwd=project_root,
-            capture_output=False,
-            text=True
-        )
-        return result.returncode
-    except FileNotFoundError:
-        print("black not found. Please install it.")
-        return 1
-
-def main():
-    """Main entry point for setup_linting."""
-    print("Setting up linting and formatting tools...")
-
-    # Step 1: Install tools
-    if not install_tools():
-        print("Failed to install tools. Exiting.")
-        sys.exit(1)
-
-    # Step 2: Ensure config files exist
-    if not ensure_config_file():
-        print("Failed to create config files. Exiting.")
-        sys.exit(1)
-
-    print("Setup complete. You can now run 'python code/setup_linting.py run' to lint and format.")
+            sys.exit(0)
+    elif args.fix:
+        run_lint_fix()
+        run_format_fix()
 
 if __name__ == "__main__":
     main()

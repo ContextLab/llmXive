@@ -9,7 +9,7 @@ class StructuredFormatter(logging.Formatter):
     """Custom formatter for structured JSON logging."""
     
     def format(self, record: logging.LogRecord) -> str:
-        log_entry = {
+        log_data = {
             "timestamp": datetime.datetime.utcnow().isoformat(),
             "level": record.levelname,
             "logger": record.name,
@@ -17,68 +17,61 @@ class StructuredFormatter(logging.Formatter):
         }
         
         if hasattr(record, "extra_data"):
-            log_entry["data"] = record.extra_data
+            log_data["data"] = record.extra_data
         
         if record.exc_info:
-            log_entry["exception"] = self.formatException(record.exc_info)
+            log_data["exception"] = self.formatException(record.exc_info)
         
-        return json.dumps(log_entry)
+        return json.dumps(log_data)
 
-def get_logger(name: str, log_file: Optional[Path] = None) -> logging.Logger:
-    """
-    Get a configured logger instance.
-    
-    Args:
-        name: Logger name (usually __name__)
-        log_file: Optional path to write logs to. If None, logs to stderr.
-    
-    Returns:
-        Configured logger instance.
-    """
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+def get_logger(name: Optional[str] = None) -> logging.Logger:
+    """Get a configured logger instance."""
+    logger_name = name or "llmXive"
+    logger = logging.getLogger(logger_name)
     
     if logger.handlers:
         return logger
     
-    handler: logging.Handler
-    if log_file:
-        # Ensure directory exists
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        handler = logging.FileHandler(log_file)
-    else:
-        handler = logging.StreamHandler(sys.stderr)
+    logger.setLevel(logging.DEBUG)
     
-    handler.setFormatter(StructuredFormatter())
-    logger.addHandler(handler)
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+    
+    # File handler
+    log_dir = Path(__file__).parent.parent.parent / "data" / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    file_handler = logging.FileHandler(log_dir / "pipeline.log")
+    file_handler.setLevel(logging.DEBUG)
+    file_formatter = StructuredFormatter()
+    file_handler.setFormatter(file_formatter)
+    
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
     
     return logger
 
-def log_convergence_warning(logger: logging.Logger, message: str, details: Optional[Dict] = None):
+def log_convergence_warning(logger: logging.Logger, message: str, details: Optional[Dict[str, Any]] = None) -> None:
     """Log a convergence warning with optional details."""
-    extra = {"details": details} if details else {}
-    record = logger.makeRecord(
-        logger.name, logging.WARNING, "", 0, message, (), None
-    )
-    record.extra_data = extra
-    logger.handle(record)
+    extra = {"data": details} if details else {}
+    logger.warning(message, extra=extra)
 
-def log_fallback(logger: logging.Logger, fallback_reason: str, original_attempt: str):
-    """Log that a fallback mechanism was triggered."""
-    message = f"Fallback triggered: {fallback_reason} (Original: {original_attempt})"
-    extra = {"fallback_reason": fallback_reason, "original_attempt": original_attempt}
-    record = logger.makeRecord(
-        logger.name, logging.WARNING, "", 0, message, (), None
-    )
-    record.extra_data = extra
-    logger.handle(record)
+def log_fallback(logger: logging.Logger, original_method: str, fallback_method: str, reason: str) -> None:
+    """Log a fallback event."""
+    details = {
+        "original_method": original_method,
+        "fallback_method": fallback_method,
+        "reason": reason
+    }
+    logger.warning(f"Falling back from {original_method} to {fallback_method}: {reason}", extra={"data": details})
 
-def log_error_context(logger: logging.Logger, error: Exception, context: Dict[str, Any]):
-    """Log an error with additional context."""
-    message = f"Error occurred: {str(error)}"
-    extra = {"context": context, "error_type": type(error).__name__}
-    record = logger.makeRecord(
-        logger.name, logging.ERROR, "", 0, message, (), None
-    )
-    record.extra_data = extra
-    logger.handle(record)
+def log_error_context(logger: logging.Logger, operation: str, error: Exception, context: Optional[Dict[str, Any]] = None) -> None:
+    """Log an error with context."""
+    details = {"operation": operation, "error_type": type(error).__name__, "error_message": str(error)}
+    if context:
+        details["context"] = context
+    
+    logger.error(f"Error during {operation}: {error}", extra={"data": details}, exc_info=True)
