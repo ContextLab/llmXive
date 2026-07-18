@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-045-investigating-the-relationship-between-d",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/dft_runner.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ger(__name__)          # Mock data for demonstration     mo\u2026\u201d; 5 command(s) failed: python code/download.py (rc=1); python code/validate.py (rc=1); python code/dft_runner.py --test-system Li7La3Zr2O12 (rc=1); 1 declared deliverable(s) absent: data/processed/analysis_results.json",
+  "artifacts": [],
+  "failures": [
+    "python code/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/download.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/validate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/validate.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/dft_runner.py --test-system Li7La3Zr2O12 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/dft_runner.py\", line 9, in <module>\n    from pymatgen.core import Structure\nModuleNotFoundError: No module named 'pymatgen'",
+    "python code/semi_empirical.py --all -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/semi_empirical.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/analysis.py\", line 7, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-18T00:27:06Z"
+}

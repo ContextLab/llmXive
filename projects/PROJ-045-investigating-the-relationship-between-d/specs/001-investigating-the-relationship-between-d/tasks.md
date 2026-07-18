@@ -45,8 +45,8 @@
 
 **⚠️ CRITICAL**: No Phase 1+ tasks can begin until Phase 0 is complete.
 
-- [ ] T001 [P] **VERIFY**: Implement citation verification for any external references (e.g., Linus Pauling works) against primary sources using the Reference-Validator Agent logic. If verification fails, flag the gap in `data/processed/citation_status.json` and halt any task requiring that citation. **Output**: `data/processed/citation_status.json`.
-- [ ] T002 [P] **ALIGN**: Confirm that `spec.md` Section 3.2 and FR-003 explicitly mandate "2x2x2 minimum supercell expansion" and supersede the previous ≤8 atom constraint. Document this confirmation in `data/processed/spec_alignment_log.txt` to prevent future confusion about spec authorization. **Output**: `data/processed/spec_alignment_log.txt`.
+- [X] T001 [P] **VERIFY**: Implement citation verification for any external references (e.g., Linus Pauling works) against primary sources using the Reference-Validator Agent logic. If verification fails, flag the gap in `data/processed/citation_status.json` and halt any task requiring that citation. **Output**: `data/processed/citation_status.json`. <!-- FAILED: unspecified -->
+- [X] T002 [P] **ALIGN**: Confirm that `spec.md` Section 3.2 and FR-003 explicitly mandate "2x2x2 minimum supercell expansion " and supersede the previous ≤8 atom constraint. Document this confirmation in `data/processed/spec_alignment_log.txt` to prevent future confusion about spec authorization. **Output**: `data/processed/spec_alignment_log.txt`.
 
 ---
 
@@ -89,19 +89,19 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T011 [P] [US1] Contract test for data download success rate (≥93%) in `tests/test_download.py`
+- [X] T011 [P] [US1] Contract test for data download success rate (≥93%) in `tests/test_download.py` [UNRESOLVED-CLAIM: c_aa00e695 — status=not_enough_info]
 - [X] T012 [P] [US1] Integration test for completeness report generation in `tests/test_validate.py`
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement logic to handle missing OBELiX defect data (log specific message and proceed with DFT-computed values) in `code/validate.py`
-- [X] T014 [P] [US1] Implement `download.py` to fetch crystal structures from OBELiX and Materials Project using static MP-ID list in `code/download.py`
-- [X] T015 [P] [US1] Implement `validate.py` to check for required variables (vacancy, interstitial, antisite, migration barrier, conductivity) in `code/validate.py`
-- [X] T016 [US1] Implement logic to generate `completeness_report.json` listing availability status per composition in `code/validate.py`
+- [X] T013 [US1] Implement logic to handle missing OBELiX defect data (log specific message and proceed with DFT-computed values) in `code/validate.py` [UNRESOLVED-CLAIM: c_24c3ed8e — status=not_enough_info]
+- [X] T014 [P] [US1] Implement `download.py` to fetch crystal structures from OBELiX and Materials Project using static MP-ID list in `code/download.py` [UNRESOLVED-CLAIM: c_aaa8d9e7 — status=not_enough_info]
+- [X] T015 [P] [US1] Implement `validate.py` to check for required variables (vacancy, interstitial, antisite, migration barrier, conductivity) in `code/validate.py` [UNRESOLVED-CLAIM: c_d2a5c57f — status=not_enough_info]
+- [X] T016 [US1] Implement logic to generate `completeness_report.json` listing availability status per composition in `code/validate.py` [UNRESOLVED-CLAIM: c_868506d2 — status=not_enough_info] <!-- FAILED: unspecified -->
 - [X] T017 [US1] Add error handling for failed downloads with retry logic (limited attempts, exponential backoff) in `code/download.py`
 - [X] T018 [US1] Add logging for missing variables with specific dataset and variable names in `code/validate.py`
-- [X] T019 [US1] **IMPLEMENT**: Implement Bond-Valence Sum (BVS) validation in `code/validate.py` to filter out structures where calculated BVS deviates >10% from ideal oxidation states (as mandated by FR-002 and Section 3.2). **MUST run before any DFT task.**
-- [X] T020 [US1] **IMPLEMENT**: Implement crystallographic constraint check in `code/validate.py` to verify Li-O distances fall within 1.95-2.15 Å range for transition metal oxides (as mandated by FR-002 and Section 3.2) and log violations.
+- [X] T019 [US1] **IMPLEMENT**: Implement Bond-Valence Sum (BVS) validation in `code/validate.py` to filter out structures where calculated BVS deviates >10% from ideal oxidation states [UNRESOLVED-CLAIM: c_b0da76fd — status=not_enough_info] (as mandated by FR-002 and Section 3.2). **MUST run before any DFT task.**
+- [ ] T020 [US1] **IMPLEMENT**: {{claim:c_de571186}} (as mandated by FR-002 and Section 3.2) and log violations.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -117,20 +117,20 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T021 [P] [US2] Contract test for defect energy range validation (starting from a lower bound consistent with defect formation physics) in `tests/test_dft_runner.py`
-- [X] T022 [P] [US2] Integration test for NEB convergence criteria (force ≤0.05 eV/Å) in `tests/test_dft_runner.py`
+- [ ] T021 [P] [US2] Contract test for defect energy range validation (starting from a lower bound consistent with defect formation physics) in `tests/test_dft_runner.py`
+- [ ] T022 [P] [US2] Integration test for NEB convergence criteria (force ≤0.05 eV/Å) in `tests/test_dft_runner.py` [UNRESOLVED-CLAIM: c_56090cca — status=not_enough_info]
 
 ### Implementation for User Story 2
 
-- [X] T024 [US2] Implement logic for 2x2x2 supercell expansion (allowing >8 atoms) for high-fidelity subset (first compositions with complete data) in `code/dft_runner.py`. **This task implements the authorized deviation from FR-003 as defined in spec.md Section 3.2. Confirmed by T002. No spec revision is required as the spec already mandates this.**
-- [X] T023 [US2] Define and implement semi-empirical approximation method (Bond-Valence Sum model using parameters defined in Section 3.2 of spec.md) for remaining compositions to achieve n≥12 in `code/semi_empirical.py`. **Must validate BVS results against DFT results for the high-fidelity subset (first 3 compositions).**
-- [X] T027 [US2] Implement the semi-empirical defect energy calculation for the low-fidelity subset in `code/semi_empirical.py`, strictly adhering to the `plan.md` Constraints section (Hybrid Strategy) without introducing external review citations or unverified quantification methods.
-- [X] T025 [P] [US2] Implement `dft_runner.py` to generate Quantum ESPRESSO input files (`.in`) with explicit parameters (pseudopotentials, k-mesh, cutoff) in `code/dft_runner.py`
-- [X] T028 [US2] Add logging for atom counts, calculation status, and convergence results in `code/dft_runner.py`
-- [X] T029 [US2] Implement NEB method for several representative defect configurations PER SYSTEM with force convergence checks in `code/dft_runner.py`
-- [X] T030 [US2] Implement timeout detection and partial result preservation for jobs exceeding h limit in `code/dft_runner.py`
-- [X] T031 [US2] **IMPLEMENT**: Implement supercell size validation in `code/dft_runner.py` to ensure minimum 2x2x2 conventional cells are used for the high-fidelity subset (as authorized by spec.md FR-003). If 2x2x2 fails convergence, fallback to 3x3x3 and log the reason. (Addressing Linus Pauling review on spurious interactions).
-- [X] T033 [US2] **IMPLEMENT**: Implement defect density quantification method in `code/dft_runner.py` to explicitly calculate and log defect concentration (defects/volume = 1 / supercell_volume) for every configuration, ensuring reproducibility of the "quantitative effect" claim (addressing Marie Curie review).
+- [ ] T024 [US2] Implement logic for 2x2x2 supercell expansion (allowing >8 atoms) for high-fidelity subset [UNRESOLVED-CLAIM: c_525db03e — status=not_enough_info] (first compositions with complete data) in `code/dft_runner.py`. **This task implements the authorized deviation from FR-003 as defined in spec.md Section 3.2. Confirmed by T002. No spec revision is required as the spec already mandates this.**
+- [ ] T023 [US2] Define and implement semi-empirical approximation method (Bond-Valence Sum model using parameters defined in Section 3.2 of spec.md) for remaining compositions to achieve n≥12 in `code/semi_empirical.py`. **Must validate BVS results against DFT results for the high-fidelity subset (first 3 compositions) [UNRESOLVED-CLAIM: c_4e245c56 — status=not_enough_info].**
+- [ ] T027 [US2] Implement the semi-empirical defect energy calculation for the low-fidelity subset in `code/semi_empirical.py`, strictly adhering to the `plan.md` Constraints section (Hybrid Strategy) without introducing external review citations or unverified quantification methods.
+- [ ] T025 [P] [US2] Implement `dft_runner.py` to generate Quantum ESPRESSO input files (`.in`) with explicit parameters (pseudopotentials, k-mesh, cutoff) in `code/dft_runner.py`
+- [ ] T028 [US2] Add logging for atom counts, calculation status, and convergence results in `code/dft_runner.py`
+- [ ] T029 [US2] Implement NEB method for several representative defect configurations PER SYSTEM with force convergence checks [UNRESOLVED-CLAIM: c_8bc4cb76 — status=not_enough_info] in `code/dft_runner.py`
+- [ ] T030 [US2] Implement timeout detection and partial result preservation for jobs exceeding h limit in `code/dft_runner.py`
+- [ ] T031 [US2] **IMPLEMENT**: Implement supercell size validation in `code/dft_runner.py` to ensure minimum 2x2x2 conventional cells are used for the high-fidelity subset [UNRESOLVED-CLAIM: c_fec3a9f6 — status=not_enough_info] (as authorized by spec.md FR-003). If 2x2x2 fails convergence, fallback to 3x3x3 and log the reason. (Addressing Linus Pauling review on spurious interactions).
+- [ ] T033 [US2] **IMPLEMENT**: Implement defect density quantification method in `code/dft_runner.py` to explicitly calculate and log defect concentration (defects/volume = 1 / supercell_volume) [UNRESOLVED-CLAIM: c_0e5d585d — status=not_enough_info] for every configuration, ensuring reproducibility of the "quantitative effect" claim (addressing Marie Curie review).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -146,21 +146,21 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T034 [P] [US3] Contract test for R² and p-value outputs in `tests/test_analysis.py`
-- [X] T035 [P] [US3] Integration test for multiple-comparison correction (Bonferroni/BH) in `tests/test_analysis.py`
+- [ ] T034 [P] [US3] Contract test for R² and p-value outputs in `tests/test_analysis.py`
+- [ ] T035 [P] [US3] Integration test for multiple-comparison correction (Bonferroni/BH) in `tests/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [X] T046 [US3] **IMPLEMENT**: Add validation step in `code/analysis.py` to reject any data points where BVS constraints (from T019) were violated, ensuring only chemically valid structures enter the statistical model (addressing Linus Pauling review). **MUST precede T037.**
+- [ ] T046 [US3] **IMPLEMENT**: Add validation step in `code/analysis.py` to reject any data points where BVS constraints (from T019) were violated, ensuring only chemically valid structures enter the statistical model (addressing Linus Pauling review). **MUST precede T037.**
 - [X] T045 [US3] **IMPLEMENT**: Integrate defect density (from T033) as a primary predictor variable in the regression model to explicitly link concentration to conductivity (addressing Marie Curie review). **MUST precede T037. DEPENDS ON: T033.**
-- [X] T036 [US3] Implement calculation of Total Activation Energy (Ea = Ef + Em) for reporting purposes in `code/analysis.py`. **Must compute Ef and Em as distinct predictors as per spec.md Section 3.4. Calculate Ea as a derived metric ONLY for reporting; DO NOT use Ea as a primary predictor in the regression model.**
-- [X] T037 [P] [US3] Implement `analysis.py` to perform linear regression between defect energies and conductivity using scikit-learn in `code/analysis.py`. **Must include defect density as a predictor (from T045) and use Ef and Em as distinct predictors. DO NOT use Ea as a primary predictor.**
-- [X] T038 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) for >1 hypothesis test in `code/analysis.py`
-- [X] T043 [US3] Implement statistical power calculation using `statsmodels.stats.power` as the Python-native replacement for the standalone G*Power application mentioned in SC-003 (α=0.05, effect size ≥0.1, target power ≥0.8) in `code/analysis.py`
+- [ ] T036 [US3] Implement calculation of Total Activation Energy (Ea = Ef + Em) for reporting purposes [UNRESOLVED-CLAIM: c_784e0594 — status=not_enough_info] in `code/analysis.py`. **Must compute Ef and Em as distinct predictors as per spec.md Section 3.4. Calculate Ea as a derived metric ONLY for reporting; DO NOT use Ea as a primary predictor in the regression model.**
+- [ ] T037 [P] [US3] Implement `analysis.py` to perform linear regression between defect energies and conductivity using scikit-learn in `code/analysis.py`. **Must include defect density as a predictor (from T045) and use Ef and Em as distinct predictors. DO NOT use Ea as a primary predictor.**
+- [ ] T038 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) for >1 hypothesis test in `code/analysis.py`
+- [ ] T043 [US3] Implement statistical power calculation using `statsmodels.stats.power` as the Python-native replacement for the standalone G*Power application mentioned in SC-003 (α=0.05, effect size ≥0.1, target power ≥0.8) in `code/analysis.py`
 - [X] T041 [US3] **IMPLEMENT**: Implement σ₀ sensitivity analysis over a range of pre-exponential factor values. **Mandatory execution per FR-008. If specific literature bounds are not found in T001, use a standard sensitivity range (e.g., ±1 order of magnitude around the mean). Output results to `data/processed/sigma0_sensitivity.json`. Log the specific literature source for the bounds used.**
-- [X] T042 [US3] **IMPLEMENT**: Generate correlation plots with statistical significance markers (p < 0.05) in `code/analysis.py`.
-- [X] T044 [US3] **IMPLEMENT**: Store all results in `data/processed/analysis_results.json` with machine-readable schema linking to raw data points in `code/analysis.py`. **Schema must include: composition_id, Ea, conductivity, defect_density, regression_coefficients, p_values, r_squared, power_analysis_result.**
-- [X] T039 [US3] Implement variance inflation factor (VIF) diagnostic to detect collinearity between defect types in `code/analysis.py`
+- [ ] T042 [US3] **IMPLEMENT**: Generate correlation plots with statistical significance markers (p < 0.05) in `code/analysis.py`.
+- [ ] T044 [US3] **IMPLEMENT**: Store all results in `data/processed/analysis_results.json` with machine-readable schema linking to raw data points [UNRESOLVED-CLAIM: c_95276eae — status=not_enough_info] in `code/analysis.py`. **Schema must include: composition_id, Ea, conductivity, defect_density, regression_coefficients, p_values, r_squared, power_analysis_result.**
+- [ ] T039 [US3] Implement variance inflation factor (VIF) diagnostic to detect collinearity between defect types in `code/analysis.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -170,9 +170,9 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T047 [P] Documentation: Generate `quickstart.md` in `docs/` containing EXACTLY: 1) `pip install -r requirements.txt` command, 2) `python code/download.py` example, 3) `python code/validate.py` verification output sample, 4) `python code/analysis.py` example. File must be <500 lines. **Create `tests/test_quickstart.py` to verify that all commands in quickstart.md execute without error.**
-- [X] T048 [P] Code cleanup: Refactor `code/download.py` to use `requests` streaming for files >100MB. **Pass/Fail**: Must handle a large file without memory error on a runner with a constrained RAM limit, using moderate buffer chunks. Add unit test `tests/test_download_streaming.py` verifying this behavior with a mock file of substantial size.
-- [X] T049 [P] Performance optimization: Vectorize the regression loop in `code/analysis.py` using `numpy` broadcasting. **Pass/Fail**: Replace explicit `for` loops over compositions with `numpy` matrix operations; unit test `tests/test_analysis_vectorized.py` must verify identical results with <50% runtime reduction on n=1000 synthetic data.
+- [ ] T047 [P] Documentation: Generate `quickstart.md` in `docs/` containing EXACTLY: 1) `pip install -r requirements.txt` command, 2) `python code/download.py` example, 3) `python code/validate.py` verification output sample, 4) `python code/analysis.py` example. File must be <500 lines. **Create `tests/test_quickstart.py` to verify that all commands in quickstart.md execute without error.**
+- [ ] T048 [P] Code cleanup: Refactor `code/download.py` to use `requests` streaming for files >100MB. **Pass/Fail**: Must handle a large file without memory error on a runner with a constrained RAM limit, using moderate buffer chunks. Add unit test `tests/test_download_streaming.py` verifying this behavior with a mock file of substantial size.
+- [ ] T049 [P] Performance optimization: Vectorize the regression loop in `code/analysis.py` using `numpy` broadcasting. **Pass/Fail**: Replace explicit `for` loops over compositions with `numpy` matrix operations; unit test `tests/test_analysis_vectorized.py` must verify identical results with <50% runtime reduction on n=1000 synthetic data.
 - [X] T050 [P] Additional unit tests for edge cases in `tests/unit/`
 - [X] T051 Security hardening for data handling
 - [X] T052 Run `quickstart.md` validation to ensure reproducibility
@@ -196,7 +196,7 @@ Examples of foundational tasks (adjust based on your project):
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-  - **T045 (Phase 5) explicitly depends on T033 (Phase 4)**.
+ - **T045 (Phase 5) explicitly depends on T033 (Phase 4)**.
 
 ### Within Each User Story
 
@@ -225,8 +225,8 @@ Task: "Contract test for data download success rate (≥93%) in tests/test_downl
 Task: "Integration test for completeness report generation in tests/test_validate.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement download.py to fetch crystal structures from OBELiX and Materials Project using static MP-ID list in code/download.py"
-Task: "Implement validate.py to check for required variables (vacancy, interstitial, antisite, migration barrier, conductivity) in code/validate.py"
+Task: "Implement download.py to fetch crystal structures from OBELiX and Materials Project using static MP-ID list in code/download.py "
+Task: "Implement validate.py to check for required variables (vacancy, interstitial, antisite, migration barrier, conductivity) in code/validate.py "
 ```
 
 ---

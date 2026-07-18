@@ -1,0 +1,19 @@
+status: none
+intent: OBELiX crystal structures Materials Project dataset pip install python package
+  dataset
+required_fields:
+- material_id
+- chemical_formula
+- space_group_symbol
+- space_group_number
+- lattice_parameters_a
+- lattice_parameters_b
+- lattice_parameters_c
+- lattice_angles_alpha
+- lattice_angles_beta
+- lattice_angles_gamma
+- atomic_species
+- fractional_coordinates_x
+cache_key: c91af92fce2fff014faa4df0fb977f330c2f18c5c4f50a97ed7092ae45d1a582
+searched_at: '2026-07-18T00:28:36.751154+00:00'
+retry_count: 1

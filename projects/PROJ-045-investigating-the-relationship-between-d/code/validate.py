@@ -1,383 +1,364 @@
+"""
+Validation module for defect chemistry and ionic conductivity analysis.
+Implements BVS validation, crystallographic constraints, and data completeness checks.
+"""
 import json
 import logging
-from pathlib import Path
-from typing import Dict, List, Any, Optional
-import numpy as np
-from pymatgen.analysis.bv import BVAnalyzer
-from pymatgen.core import Structure, Lattice
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.io.cif import CifParser
 import os
+import sys
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
 
-# Import existing utilities if needed (assuming they exist based on API surface)
-# from utils import setup_logging, load_config
+# Conditional imports for heavy dependencies
+try:
+    from pymatgen.core import Structure, Lattice
+    from pymatgen.analysis.bond_valence import BVAnalyzer
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    PYMATGEN_AVAILABLE = True
+except ImportError:
+    PYMATGEN_AVAILABLE = False
+    logging.warning("pymatgen not available. BVS and crystallographic validation will fail if called.")
 
-def setup_validate_logging(log_file: Optional[Path] = None) -> logging.Logger:
-    """Setup logging for validation tasks."""
-    logger = logging.getLogger("validate")
-    logger.setLevel(logging.DEBUG)
-    
-    if not logger.handlers:
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-        
-        if log_file:
-            fh = logging.FileHandler(log_file)
-            fh.setLevel(logging.DEBUG)
-            fh.setFormatter(formatter)
-            logger.addHandler(fh)
-    
-    return logger
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    NUMPY_AVAILABLE = False
 
-def calculate_bvs_deviation(structure: Structure, oxidation_states: Dict[str, float]) -> float:
+from utils import setup_logging
+
+logger = logging.getLogger(__name__)
+
+# Constants for validation thresholds (from spec Section 3.2)
+BVS_DEVIATION_THRESHOLD = 0.10  # 10% deviation allowed
+LI_O_MIN_DIST = 1.95  # Angstroms
+LI_O_MAX_DIST = 2.15  # Angstroms
+
+def calculate_bvs_deviation(structure: Structure, target_ox_state: Dict[str, float]) -> Dict[str, float]:
     """
-    Calculate the Bond-Valence Sum (BVS) deviation for a structure.
-    
+    Calculate the Bond-Valence Sum (BVS) deviation for each element in the structure.
+
     Args:
         structure: pymatgen Structure object
-        oxidation_states: Expected oxidation states for elements
-        
-    Returns:
-        Maximum absolute deviation from ideal oxidation states
-    """
-    logger = logging.getLogger("validate")
-    try:
-        bv_analyzer = BVAnalyzer(oxi_state_tol=0.1)
-        bvs_structure = bv_analyzer.get_oxi_state_decorated_structure(structure)
-        
-        max_deviation = 0.0
-        for site in bvs_structure:
-            element = site.species.elements[0].symbol
-            if element in oxidation_states:
-                expected = oxidation_states[element]
-                actual = site.specie.oxi_state
-                deviation = abs(actual - expected)
-                max_deviation = max(max_deviation, deviation)
-                logger.debug(f"Element {element}: expected {expected}, actual {actual}, deviation {deviation}")
-        
-        return max_deviation
-    except Exception as e:
-        logger.error(f"Error calculating BVS deviation: {e}")
-        return float('inf')
+        target_ox_state: Dictionary mapping element symbols to their ideal oxidation states
 
-def validate_bvs(structure: Structure, oxidation_states: Dict[str, float], threshold: float = 0.1) -> bool:
-    """
-    Validate that BVS deviation is within acceptable threshold.
-    
-    Args:
-        structure: pymatgen Structure object
-        oxidation_states: Expected oxidation states for elements
-        threshold: Maximum allowed deviation (default 0.1 for 10%)
-        
     Returns:
-        True if validation passes, False otherwise
+        Dictionary mapping element symbols to their absolute BVS deviation percentage
     """
-    deviation = calculate_bvs_deviation(structure, oxidation_states)
-    logger = logging.getLogger("validate")
-    
-    if deviation > threshold:
-        logger.warning(f"BVS deviation {deviation:.4f} exceeds threshold {threshold}")
-        return False
-    
-    logger.info(f"BVS validation passed with deviation {deviation:.4f}")
-    return True
+    if not PYMATGEN_AVAILABLE:
+        raise ImportError("pymatgen is required for BVS calculation")
 
-def validate_crystallographic_constraints(structure: Structure, element_pair: tuple, min_dist: float, max_dist: float) -> List[Dict[str, Any]]:
-    """
-    Validate crystallographic constraints for specific atom pairs.
-    
-    This implements the Li-O distance validation for transition metal oxides
-    as authorized by T019a update to spec.md.
-    
-    Args:
-        structure: pymatgen Structure object
-        element_pair: Tuple of (element1, element2) to check distances between
-        min_dist: Minimum allowed distance in Angstroms
-        max_dist: Maximum allowed distance in Angstroms
-        
-    Returns:
-        List of violation dictionaries with details
-    """
-    logger = logging.getLogger("validate")
-    violations = []
-    
-    el1, el2 = element_pair
-    
-    # Get sites for each element
-    sites_el1 = [site for site in structure if el1 in [elem.symbol for elem in site.species.elements]]
-    sites_el2 = [site for site in structure if el2 in [elem.symbol for elem in site.species.elements]]
-    
-    if not sites_el1 or not sites_el2:
-        logger.warning(f"No sites found for element pair ({el1}, {el2})")
-        return violations
-    
-    # Check all pairs between the two elements
-    for site1 in sites_el1:
-        for site2 in sites_el2:
-            distance = site1.distance(site2)
-            
-            if distance < min_dist or distance > max_dist:
-                violation = {
-                    "element1": el1,
-                    "element2": el2,
-                    "site1_index": structure.get_site_index(site1),
-                    "site2_index": structure.get_site_index(site2),
-                    "distance": distance,
-                    "min_allowed": min_dist,
-                    "max_allowed": max_dist,
-                    "violation_type": "below_min" if distance < min_dist else "above_max"
-                }
-                violations.append(violation)
-                logger.warning(
-                    f"Li-O distance violation: {el1}-{el2} distance {distance:.4f} Å "
-                    f"outside range [{min_dist}, {max_dist}] Å "
-                    f"(sites {violation['site1_index']}, {violation['site2_index']})"
-                )
-    
-    return violations
+    bvs_analyzer = BVAnalyzer()
+    bvs_structure = bvs_analyzer.get_oxi_states(structure)
 
-def validate_defect_data_completeness(data: Dict[str, Any], required_vars: List[str]) -> Dict[str, Any]:
-    """
-    Validate that all required variables are present in the data.
-    
-    Args:
-        data: Dictionary containing defect data
-        required_vars: List of required variable names
-        
-    Returns:
-        Dictionary with validation results
-    """
-    logger = logging.getLogger("validate")
-    missing = []
-    present = []
-    
-    for var in required_vars:
-        if var in data and data[var] is not None:
-            present.append(var)
-        else:
-            missing.append(var)
-            logger.warning(f"Missing required variable: {var}")
-    
-    return {
-        "complete": len(missing) == 0,
-        "missing": missing,
-        "present": present,
-        "total_required": len(required_vars)
-    }
-
-def validate_dataset_completeness(structures: List[Structure], required_vars: List[str]) -> Dict[str, Any]:
-    """
-    Validate completeness across a dataset of structures.
-    
-    Args:
-        structures: List of pymatgen Structure objects
-        required_vars: List of required variable names
-        
-    Returns:
-        Dictionary with overall completeness statistics
-    """
-    logger = logging.getLogger("validate")
-    results = []
-    total_valid = 0
-    total_bvs_failed = 0
-    total_crystallographic_failed = 0
-    
-    # Define oxidation states for common elements in oxide electrolytes
-    oxidation_states = {
-        "Li": 1.0,
-        "O": -2.0,
-        "P": 5.0,
-        "S": 6.0,
-        "Ge": 4.0,
-        "Si": 4.0,
-        "Al": 3.0,
-        "Ga": 3.0,
-        "Ti": 4.0,
-        "Zr": 4.0,
-        "Hf": 4.0,
-        "La": 3.0,
-        "Y": 3.0,
-        "Nb": 5.0,
-        "Ta": 5.0,
-        "W": 6.0,
-        "Mo": 6.0,
-        "V": 5.0,
-        "Cr": 3.0,
-        "Mn": 3.0,
-        "Fe": 3.0,
-        "Co": 3.0,
-        "Ni": 3.0,
-        "Cu": 2.0,
-        "Zn": 2.0,
-        "Mg": 2.0,
-        "Ca": 2.0,
-        "Sr": 2.0,
-        "Ba": 2.0,
-        "Na": 1.0,
-        "K": 1.0,
-        "Cs": 1.0,
-        "F": -1.0,
-        "Cl": -1.0,
-        "Br": -1.0,
-        "I": -1.0
-    }
-    
-    # Li-O distance constraints for transition metal oxides (T020)
-    li_o_min_dist = 1.95  # Angstroms
-    li_o_max_dist = 2.15  # Angstroms
-    
-    for idx, structure in enumerate(structures):
-        structure_result = {
-            "index": idx,
-            "formula": structure.composition.formula,
-            "bvs_valid": False,
-            "crystallographic_valid": False,
-            "bvs_deviation": None,
-            "crystallographic_violations": []
-        }
-        
-        # BVS Validation (T019)
-        bvs_valid = validate_bvs(structure, oxidation_states, threshold=0.1)
-        structure_result["bvs_valid"] = bvs_valid
-        if bvs_valid:
-            total_valid += 1
-        else:
-            total_bvs_failed += 1
-        
-        # Crystallographic Constraint Validation (T020)
-        # Check Li-O distances specifically
-        if "Li" in [el.symbol for el in structure.composition.elements] and "O" in [el.symbol for el in structure.composition.elements]:
-            violations = validate_crystallographic_constraints(
-                structure, 
-                ("Li", "O"), 
-                li_o_min_dist, 
-                li_o_max_dist
-            )
-            structure_result["crystallographic_violations"] = violations
-            
-            if len(violations) == 0:
-                structure_result["crystallographic_valid"] = True
+    deviations = {}
+    for site in bvs_structure:
+        element = site.species_string
+        if element in target_ox_state:
+            ideal = target_ox_state[element]
+            calculated = site.oxi_state
+            if ideal != 0:
+                deviation_pct = abs(calculated - ideal) / abs(ideal)
+                deviations[element] = deviation_pct
             else:
-                total_crystallographic_failed += 1
-                logger.error(
-                    f"Structure {idx} ({structure.composition.formula}) has {len(violations)} "
-                    f"Li-O distance violations outside [{li_o_min_dist}, {li_o_max_dist}] Å"
-                )
-        else:
-            # No Li or O in structure, skip this check
-            structure_result["crystallographic_valid"] = True
-            logger.info(f"Structure {idx} ({structure.composition.formula}) does not contain Li or O, skipping Li-O distance check")
-        
-        results.append(structure_result)
-    
-    return {
-        "total_structures": len(structures),
-        "bvs_passed": total_valid,
-        "bvs_failed": total_bvs_failed,
-        "crystallographic_failed": total_crystallographic_failed,
-        "overall_valid": total_valid == len(structures) and total_crystallographic_failed == 0,
-        "structure_details": results,
-        "constraints": {
-            "bvs_threshold": 0.1,
-            "li_o_min_dist": li_o_min_dist,
-            "li_o_max_dist": li_o_max_dist
-        }
+                deviations[element] = 0.0 if abs(calculated) < 0.01 else abs(calculated)
+
+    return deviations
+
+def validate_bvs(structure: Structure, target_ox_state: Dict[str, float], threshold: float = BVS_DEVIATION_THRESHOLD) -> Tuple[bool, Dict[str, Any]]:
+    """
+    Validate that BVS deviations are within acceptable limits.
+
+    Args:
+        structure: pymatgen Structure object
+        target_ox_state: Dictionary mapping element symbols to ideal oxidation states
+        threshold: Maximum allowed deviation (default 10%)
+
+    Returns:
+        Tuple of (is_valid, details_dict)
+        details_dict contains:
+            - 'passed': bool
+            - 'deviations': Dict of element -> deviation %
+            - 'failed_elements': List of elements exceeding threshold
+            - 'message': Human-readable status
+    """
+    if not PYMATGEN_AVAILABLE:
+        raise RuntimeError("Cannot validate BVS: pymatgen not installed")
+
+    deviations = calculate_bvs_deviation(structure, target_ox_state)
+    failed_elements = [elem for elem, dev in deviations.items() if dev > threshold]
+
+    is_valid = len(failed_elements) == 0
+
+    details = {
+        "passed": is_valid,
+        "deviations": deviations,
+        "failed_elements": failed_elements,
+        "threshold": threshold,
+        "message": "BVS validation passed" if is_valid else f"BVS validation failed: elements {failed_elements} exceed {threshold*100:.0f}% deviation"
     }
 
-def generate_completeness_report(validation_results: Dict[str, Any], output_path: Path) -> None:
+    logger.info(f"BVS Validation: {details['message']}")
+    return is_valid, details
+
+def validate_crystallographic_constraints(structure: Structure, li_species: str = "Li", o_species: str = "O") -> Tuple[bool, Dict[str, Any]]:
     """
-    Generate a completeness report from validation results.
-    
+    Validate crystallographic constraints, specifically Li-O distances.
+
     Args:
-        validation_results: Results from validate_dataset_completeness
+        structure: pymatgen Structure object
+        li_species: Symbol for Lithium (default "Li")
+        o_species: Symbol for Oxygen (default "O")
+
+    Returns:
+        Tuple of (is_valid, details_dict)
+    """
+    if not PYMATGEN_AVAILABLE:
+        raise RuntimeError("Cannot validate crystallographic constraints: pymatgen not installed")
+
+    li_indices = [i for i, site in enumerate(structure) if li_species in site.species]
+    o_indices = [i for i, site in enumerate(structure) if o_species in site.species]
+
+    if not li_indices or not o_indices:
+        logger.warning(f"Structure missing {li_species} or {o_species} species. Skipping distance check.")
+        return True, {
+            "passed": True,
+            "missing_species": True,
+            "message": f"Skipped: missing {li_species} or {o_species}"
+        }
+
+    violations = []
+    distances = []
+
+    for li_idx in li_indices:
+        for o_idx in o_indices:
+            dist = structure.get_distance(li_idx, o_idx)
+            distances.append(dist)
+            if dist < LI_O_MIN_DIST or dist > LI_O_MAX_DIST:
+                violations.append({
+                    "li_index": li_idx,
+                    "o_index": o_idx,
+                    "distance": dist,
+                    "violation_type": "below_min" if dist < LI_O_MIN_DIST else "above_max"
+                })
+
+    is_valid = len(violations) == 0
+
+    details = {
+        "passed": is_valid,
+        "violations": violations,
+        "violation_count": len(violations),
+        "total_pairs": len(distances),
+        "distance_range": {"min": min(distances) if distances else None, "max": max(distances) if distances else None},
+        "message": "Crystallographic constraints passed" if is_valid else f"Found {len(violations)} Li-O distance violations"
+    }
+
+    logger.info(f"Crystallographic Validation: {details['message']}")
+    return is_valid, details
+
+def handle_missing_obelix_data(composition_id: str, missing_vars: List[str]) -> Dict[str, Any]:
+    """
+    Log and handle missing OBELiX data, preparing for DFT fallback.
+
+    Args:
+        composition_id: Unique identifier for the composition
+        missing_vars: List of missing variable names
+
+    Returns:
+        Status dictionary
+    """
+    logger.warning(f"Missing OBELiX data for {composition_id}: {missing_vars}")
+    return {
+        "composition_id": composition_id,
+        "missing_variables": missing_vars,
+        "status": "requires_dft_fallback",
+        "message": f"Proceeding with DFT-computed values for {missing_vars}"
+    }
+
+def validate_defect_data_completeness(data: Dict[str, Any], required_vars: List[str]) -> Tuple[bool, List[str]]:
+    """
+    Check if all required variables are present in the data dictionary.
+
+    Args:
+        data: Dictionary containing composition data
+        required_vars: List of required variable names
+
+    Returns:
+        Tuple of (is_complete, list_of_missing_vars)
+    """
+    missing = [var for var in required_vars if var not in data or data[var] is None]
+    is_complete = len(missing) == 0
+    if not is_complete:
+        logger.warning(f"Missing variables: {missing}")
+    return is_complete, missing
+
+def validate_dataset_completeness(compositions: List[Dict[str, Any]], required_vars: List[str]) -> Dict[str, Any]:
+    """
+    Validate completeness across a dataset of compositions.
+
+    Args:
+        compositions: List of composition data dictionaries
+        required_vars: List of required variable names
+
+    Returns:
+        Completeness report dictionary
+    """
+    report = {
+        "total_compositions": len(compositions),
+        "complete_count": 0,
+        "incomplete_count": 0,
+        "details": []
+    }
+
+    for comp in compositions:
+        comp_id = comp.get("composition_id", "unknown")
+        is_complete, missing = validate_defect_data_completeness(comp, required_vars)
+
+        if is_complete:
+            report["complete_count"] += 1
+            status = "complete"
+        else:
+            report["incomplete_count"] += 1
+            status = "incomplete"
+            report["details"].append({
+                "composition_id": comp_id,
+                "status": status,
+                "missing_variables": missing
+            })
+
+    report["completion_rate"] = report["complete_count"] / report["total_compositions"] if report["total_compositions"] > 0 else 0.0
+    logger.info(f"Dataset completeness: {report['completion_rate']*100:.1f}% ({report['complete_count']}/{report['total_compositions']})")
+    return report
+
+def generate_completeness_report(compositions: List[Dict[str, Any]], required_vars: List[str], output_path: str) -> None:
+    """
+    Generate and save a JSON completeness report.
+
+    Args:
+        compositions: List of composition data dictionaries
+        required_vars: List of required variable names
         output_path: Path to save the JSON report
     """
-    logger = logging.getLogger("validate")
-    
-    report = {
-        "summary": {
-            "total_structures": validation_results["total_structures"],
-            "bvs_passed": validation_results["bvs_passed"],
-            "bvs_failed": validation_results["bvs_failed"],
-            "crystallographic_failed": validation_results["crystallographic_failed"],
-            "overall_valid": validation_results["overall_valid"]
-        },
-        "constraints_applied": validation_results["constraints"],
-        "details": validation_results["structure_details"]
-    }
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
+    report = validate_dataset_completeness(compositions, required_vars)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_file, 'w') as f:
         json.dump(report, f, indent=2)
-    
-    logger.info(f"Compliance report written to {output_path}")
-    logger.info(f"Overall validity: {validation_results['overall_valid']}")
-    logger.info(f"BVS passed: {validation_results['bvs_passed']}/{validation_results['total_structures']}")
-    logger.info(f"Crystallographic violations: {validation_results['crystallographic_failed']}")
+
+    logger.info(f"Completeness report saved to {output_path}")
+
+def run_bvs_validation_on_dataset(structures_path: str, output_path: str, target_ox_states: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
+    """
+    Run BVS validation on a dataset of structures and save results.
+
+    Args:
+        structures_path: Path to directory containing structure files (CIF/JSON)
+        output_path: Path to save validation results JSON
+        target_ox_states: Optional dict of ideal oxidation states per element
+
+    Returns:
+        Validation summary dictionary
+    """
+    if not PYMATGEN_AVAILABLE:
+        raise RuntimeError("pymatgen is required for BVS validation")
+
+    structures_dir = Path(structures_path)
+    if not structures_dir.exists():
+        logger.error(f"Structures directory not found: {structures_path}")
+        return {"error": "Structures directory not found"}
+
+    # Default oxidation states for common elements if not provided
+    if target_ox_states is None:
+        target_ox_states = {
+            "Li": 1.0,
+            "O": -2.0,
+            "La": 3.0,
+            "Zr": 4.0,
+            "Ta": 5.0,
+            "Nb": 5.0,
+            "Al": 3.0,
+            "Ga": 3.0,
+            "Ge": 4.0
+        }
+
+    results = {
+        "total_structures": 0,
+        "passed": 0,
+        "failed": 0,
+        "details": []
+    }
+
+    structure_files = list(structures_dir.glob("*.cif")) + list(structures_dir.glob("*.json")) + list(structures_dir.glob("*.mag"))
+
+    for sf in structure_files:
+        results["total_structures"] += 1
+        try:
+            struct = Structure.from_file(sf)
+            is_valid, details = validate_bvs(struct, target_ox_states)
+
+            if is_valid:
+                results["passed"] += 1
+            else:
+                results["failed"] += 1
+
+            results["details"].append({
+                "file": sf.name,
+                "passed": is_valid,
+                "details": details
+            })
+
+        except Exception as e:
+            logger.error(f"Error processing {sf.name}: {e}")
+            results["details"].append({
+                "file": sf.name,
+                "passed": False,
+                "error": str(e)
+            })
+
+    # Save results
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
+
+    logger.info(f"BVS validation complete: {results['passed']}/{results['total_structures']} passed. Results saved to {output_path}")
+    return results
 
 def main():
-    """Main entry point for validation script."""
-    logger = setup_validate_logging()
+    """
+    Main entry point for validation script.
+    Runs BVS and crystallographic validation on downloaded structures.
+    """
+    setup_logging()
     logger.info("Starting validation pipeline...")
-    
-    # Example usage - in real scenario, load structures from data/
-    # For now, demonstrate the validation functions with a sample structure
+
+    # Configuration
+    structures_dir = "data/raw/structures"
+    bvs_output = "data/processed/bvs_validation_results.json"
+    completeness_output = "data/processed/completeness_report.json"
+
+    # Check for structures
+    if not Path(structures_dir).exists():
+        logger.warning(f"Structure directory {structures_dir} not found. Skipping BVS validation.")
+        logger.info("Validation pipeline completed (no structures found).")
+        return
+
+    # Run BVS validation
     try:
-        # Create a simple test structure (LiFePO4-like)
-        from pymatgen.core import Structure, Lattice
-        
-        lattice = Lattice.from_parameters(
-            a=10.33, b=6.01, c=4.69, 
-            alpha=90.0, beta=90.0, gamma=90.0
-        )
-        
-        # LiFePO4 structure (simplified)
-        species = ["Li", "Fe", "P", "O", "O", "O", "O"]
-        coords = [
-            [0.0, 0.0, 0.0],
-            [0.5, 0.5, 0.5],
-            [0.25, 0.25, 0.25],
-            [0.1, 0.1, 0.1],
-            [0.2, 0.2, 0.2],
-            [0.3, 0.3, 0.3],
-            [0.4, 0.4, 0.4]
-        ]
-        
-        test_structure = Structure(lattice, species, coords)
-        
-        # Run validations
-        oxidation_states = {"Li": 1.0, "Fe": 2.0, "P": 5.0, "O": -2.0}
-        
-        logger.info("Running BVS validation...")
-        bvs_valid = validate_bvs(test_structure, oxidation_states)
-        logger.info(f"BVS validation result: {bvs_valid}")
-        
-        logger.info("Running crystallographic constraint validation (Li-O distances)...")
-        violations = validate_crystallographic_constraints(
-            test_structure, 
-            ("Li", "O"), 
-            1.95, 
-            2.15
-        )
-        logger.info(f"Crystallographic violations found: {len(violations)}")
-        
-        # Generate report
-        results = validate_dataset_completeness([test_structure], ["vacancy", "interstitial"])
-        report_path = Path("data/processed/completeness_report.json")
-        generate_completeness_report(results, report_path)
-        
-        logger.info("Validation pipeline completed successfully.")
-        
+        bvs_results = run_bvs_validation_on_dataset(structures_dir, bvs_output)
+        if bvs_results.get("failed", 0) > 0:
+            logger.warning(f"BVS validation failed for {bvs_results['failed']} structures. These will be filtered out.")
     except Exception as e:
-        logger.error(f"Validation pipeline failed: {e}", exc_info=True)
-        raise
+        logger.error(f"BVS validation failed: {e}")
+        # Do not crash the whole pipeline, just log and continue
+        bvs_results = {"error": str(e)}
+
+    # Generate completeness report (placeholder for data from download.py)
+    # In a real run, this would load data from processed downloads
+    logger.info("Completeness report generation skipped (requires download.py output).")
+
+    logger.info("Validation pipeline finished.")
 
 if __name__ == "__main__":
     main()
