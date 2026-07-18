@@ -11,7 +11,6 @@ import enum
 from collections.abc import Iterable
 
 from llmxive.backends.base import (
-    BackendError,
     BackendUnavailable,
     BaseBackend,
     ChatMessage,
@@ -266,6 +265,54 @@ def chat_one_candidate(
     raise last_transient
 
 
+def _walker_route(
+    backend: BaseBackend,
+    messages: Iterable[ChatMessage],
+    *,
+    model: str | None,
+    max_tokens: int,
+    temperature: float | None,
+) -> ChatResponse:
+    """Shared body for the retired instance-taking walkers (spec 026 slice 5):
+    delegate to ``route_chat`` (select() → execute()), adapting the caller's
+    injected ``backend`` into a ``backend_factory`` so it serves its OWN
+    candidates (a real backend the caller built, or a test's injected fake) while
+    other backends resolve via :func:`make_backend`.
+
+    A backend whose ``name`` is unset is treated as ``dartmouth`` (the default
+    serving backend), so an injected-fake reviser/reviewer test still serves the
+    offline snapshot's Dartmouth chain without swapping the object it holds.
+
+    Outage-classification contract preserved: ``ModelUnavailable`` (ineligible /
+    cold start) and ``ChainExhausted`` (transient/outage exhaustion) re-raise as
+    ``BackendUnavailable`` (clean run-loop abort with state preserved, never a
+    human escalation); a request-level permanent refusal propagates unchanged.
+    """
+    from llmxive.model_selection.execute import ChainExhausted
+    from llmxive.model_selection.route import route_chat
+    from llmxive.model_selection.types import ModelUnavailable
+
+    injected_name = getattr(backend, "name", None) or "dartmouth"
+
+    def factory(name: str) -> BaseBackend:
+        return backend if name == injected_name else make_backend(name)
+
+    try:
+        return route_chat(
+            messages,
+            profile="standard_generation",
+            caller_model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            backend_factory=factory,
+        )
+    except (ModelUnavailable, ChainExhausted) as exc:
+        raise BackendUnavailable(
+            f"model selection/execution produced no usable candidate "
+            f"(outage or ineligible): {exc}"
+        ) from exc
+
+
 def chat_with_model_fallback(
     backend: BaseBackend,
     messages: Iterable[ChatMessage],
@@ -274,119 +321,20 @@ def chat_with_model_fallback(
     max_tokens: int | None = None,
     temperature: float | None = None,
 ) -> ChatResponse:
-    """Peer-model fallback on a SINGLE, already-constructed backend instance.
-
-    Tries ``model`` (3 retries) then each peer in ``MODEL_FALLBACKS[model]`` (1
-    attempt each) on the GIVEN backend — the same SAME-BACKEND peer-model walk
-    :func:`chat_with_fallback` performs per backend, but operating on an
-    injected backend instance instead of constructing one by name. This is what
-    the convergence panel + reviser use so a transient outage on the primary
-    model (e.g. a qwen3.5-122b vLLM hang) walks to gpt-oss-120b / gemma without
-    swapping the backend object the caller already holds.
-
-    The same reasoning-safe ``max_tokens`` is passed to EVERY model in the
-    chain (the peers are also reasoning models and need the budget). A
-    ``reasoning budget exhausted`` transient skips the remaining same-model
-    retries (the model will exhaust it again) and falls straight to the peer.
-
-    A ``BackendUnavailable`` (the model's circuit breaker is OPEN / the model is
-    down) on ANY model in the chain — INCLUDING the primary — records it and
-    walks to the next peer (the model is down; try the next). It does NOT abort:
-    that is the fix for the per-model breaker composing with fallback. A
-    NON-Unavailable ``PermanentBackendError`` on the primary (paid-model guard, a
-    hard refusal) still aborts immediately (no peer walk). When the whole chain
-    is exhausted, if ANY failure was ``BackendUnavailable`` OR transient-class
-    (``ModelDownError`` / ``TransientBackendError``) we raise
-    ``BackendUnavailable`` (a true full-endpoint outage → the run loop's existing
-    clean-abort path fires with state preserved — NEVER a human escalation);
-    only an all-permanent exhaustion raises the aggregate ``BackendError``. On a
-    ``model=None`` call there is no chain to walk — it is a single
-    signature-degrading ``chat`` (the contract the injected-fake backends rely on;
-    callers talking to a REAL backend must pin a model — see
-    :data:`DEFAULT_MODEL`).
+    """Convergence-panel / reviser reasoning call on a GIVEN backend (spec 026
+    slice 5): a thin wrapper over :func:`_walker_route` → ``route_chat`` (select()
+    → execute()). The peer-model walk is no longer hand-coded here — ``execute``
+    walks the SELECTED ``ModelChain`` (each candidate dispatched through its own
+    ``ModelRef.backend``, breaker + deadline + bounded retry preserved via the
+    ``chat_one_candidate`` primitive), and the injected ``backend`` serves its own
+    candidates. The reasoning-safe :data:`REASONING_MAX_TOKENS` is the default
+    when the caller doesn't pin one.
     """
-    import time as _time
-
-    msg_list = list(messages)
-    if model is None:
-        return _chat_one_model(
-            backend, msg_list, model=None,
-            max_tokens=max_tokens, temperature=temperature,
-        )
-    models_to_try = [model] + [m for m in MODEL_FALLBACKS.get(model, []) if m != model]
-    errors: list[str] = []
-    saw_unavailable = False
-    saw_transient = False
-    for model_idx, m in enumerate(models_to_try):
-        attempts = 3 if model_idx == 0 else 1
-        for attempt in range(attempts):
-            if attempt:
-                _time.sleep(2.0 * attempt)
-            try:
-                return _chat_one_model(
-                    backend, msg_list, model=m,
-                    max_tokens=max_tokens, temperature=temperature,
-                )
-            except BackendUnavailable as exc:
-                # The MODEL is down (breaker OPEN). Retrying the same model is
-                # pointless (it will fast-fail), so skip the remaining same-model
-                # attempts and walk to the next peer — do NOT abort, even on the
-                # primary. A genuinely all-down chain still aborts below (via
-                # BackendUnavailable), preserving the breaker's anti-thrash role.
-                saw_unavailable = True
-                errors.append(f"{m}(unavailable): {exc}")
-                break
-            except ModelDownError as exc:
-                # THIS model is down (hung past its full deadline, or a 302→outage
-                # maintenance redirect) — not flickering. Retrying the SAME model
-                # burns another full deadline / will just re-redirect; skip the
-                # remaining same-model attempts and fall straight to the next peer.
-                saw_transient = True
-                errors.append(f"{m}(model-down attempt {attempt + 1}): {exc}")
-                break
-            except TransientBackendError as exc:
-                saw_transient = True
-                errors.append(f"{m}(transient attempt {attempt + 1}): {exc}")
-                if "reasoning budget exhausted" in str(exc):
-                    break
-                if attempt == attempts - 1:
-                    break
-                continue
-            except PermanentBackendError as exc:
-                # A genuine permanent rejection (paid-model guard / hard refusal)
-                # — NOT a model-down signal. On the primary this won't heal by
-                # walking peers, so abort. On a peer, end this model's attempts.
-                errors.append(f"{m}(permanent): {exc}")
-                if model_idx == 0:
-                    raise
-                break
-    detail = (
-        "every model in chain "
-        + repr(models_to_try)
-        + " failed on backend "
-        + repr(getattr(backend, "name", type(backend).__name__))
-        + "; errors: "
-        + " | ".join(errors)
+    return _walker_route(
+        backend, messages, model=model,
+        max_tokens=REASONING_MAX_TOKENS if max_tokens is None else max_tokens,
+        temperature=temperature,
     )
-    # If a model-down (breaker-open) signal appeared anywhere in an all-failed
-    # chain, surface it as BackendUnavailable so the run loop aborts CLEANLY on a
-    # true full-endpoint outage (rather than as a recoverable BackendError).
-    if saw_unavailable:
-        raise BackendUnavailable(detail)
-    # An all-failed chain whose failures were TRANSIENT-class (deadline hangs,
-    # 302→outage.dartmouth.edu redirects, 5xx flaps on EVERY model) is a
-    # full-endpoint outage that will heal on its own — the run must abort
-    # cleanly with state preserved, exactly like the breaker-open case. Before
-    # this clause, such an exhaustion raised plain BackendError, which the
-    # stage-panel's generic engine-failure handler escalated to
-    # human_input_needed — observed live on PROJ-552 (dispatch 27306941191,
-    # 2026-06-10: qwen deadline-hang + gpt-oss/gemma both 302→outage). A
-    # transient infrastructure outage is NOT human-actionable (bug-#8 family).
-    if saw_transient:
-        raise BackendUnavailable(detail)
-    # All-permanent exhaustion (every peer hard-rejected) — genuinely
-    # engine/config-actionable, keep the recoverable aggregate error.
-    raise BackendError(detail)
 
 
 def reasoning_chat(
@@ -397,27 +345,16 @@ def reasoning_chat(
     max_tokens: int | None = None,
     temperature: float | None = None,
 ) -> ChatResponse:
-    """THE single entry point for a reasoning/analysis LLM call on a GIVEN backend.
-
-    Every claim/fill/grounding/triage/review reasoning call routes through here
-    instead of re-implementing the policy (this replaces the former per-module
-    ``_chat_reasoning_safe`` copies). It delegates to
-    :func:`chat_with_model_fallback`, so it automatically gets the full stack —
-    peer-model fallback (qwen→gpt-oss→gemma), retry+jitter+backoff, the per-model
-    circuit breaker, the per-request deadline, the deadline/302 fast-fail, and
-    stub-backend signature degradation — with the reasoning-safe
-    :data:`REASONING_MAX_TOKENS` default applied when the caller doesn't override
-    it (a generation-style caller passes :data:`GENERATION_MAX_TOKENS`).
-
-    ``model=None`` makes a single no-fallback call (the offline / injected-fake
-    test shape); production callers pass a concrete model and thus get the peer
-    walk. Use this — never call ``backend.chat`` directly (the centralization
-    guard test enforces that).
+    """THE single entry point for a reasoning/analysis LLM call (spec 026 slice 5):
+    a thin wrapper over :func:`_walker_route` → ``route_chat``. Every
+    claim/fill/grounding/triage/review reasoning call routes through here; the
+    reasoning-safe :data:`REASONING_MAX_TOKENS` default applies unless the caller
+    overrides it (a generation-style caller passes :data:`GENERATION_MAX_TOKENS`).
+    Use this — never call ``backend.chat`` directly (the centralization guard test
+    enforces that).
     """
-    return chat_with_model_fallback(
-        backend,
-        messages,
-        model=model,
+    return _walker_route(
+        backend, messages, model=model,
         max_tokens=REASONING_MAX_TOKENS if max_tokens is None else max_tokens,
         temperature=temperature,
     )
