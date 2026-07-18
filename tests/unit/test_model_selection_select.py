@@ -26,6 +26,7 @@ from llmxive.model_selection.types import (
     RuntimeSnapshot,
     SnapshotProvenance,
 )
+from llmxive.state import execution_status
 
 NOW = datetime(2026, 7, 16, 12, 0, 0, tzinfo=UTC)
 DARTMOUTH_EP = "https://chat.dartmouth.edu"
@@ -549,3 +550,68 @@ def test_sc007_composite_snapshot_retains_guarded_paid_tail_after_local():
     assert _ids(chain) == [QWEN, GEMMA4, GPT_OSS, LOCAL, CLAUDE]  # free chain + local, THEN paid
     assert chain.candidates[-1].model_ref.model_id == CLAUDE  # guarded paid tail survives
     assert chain.candidates[-1].model_ref.backend == "dartmouth"
+
+
+# --------------------------------------------------------------------------- #
+# SC-007 / US6: per-tier EXECUTION-LADDER golden model-ID projections.
+# These tie the REAL ``execution_status`` escalation ladder to ``select()`` (no
+# mocks): each rung's ``TierConstraint.to_overrides(default)`` is fed straight
+# into a ``ModelRequirement`` and run against the SC-007 fixture snapshot, so the
+# ladder cannot silently desync from the selector.
+#   - tier 1 = free second opinion → the registered default (qwen) is excluded
+#     across the WHOLE chain and the leader becomes the policy's next-best free
+#     model gemma-4 (the sanctioned gpt-oss → gemma-4 delta, spec.md US6/SC-007).
+#   - tier 2 = the single paid rung (require_paid) → paid-only, leader claude.
+# --------------------------------------------------------------------------- #
+
+QWEN_DEFAULT = QWEN  # the registered execution default the ladder excludes at tier 1
+
+
+def test_execution_tier1_golden_leads_with_gemma4(monkeypatch):
+    # Hermetic: no paid escalation → tier 1 is the free second-opinion rung.
+    monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_ESCALATION", raising=False)
+    monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_TIERS", raising=False)
+
+    ov1 = execution_status.tier_constraint(1).to_overrides(default_model=QWEN_DEFAULT)
+    # The ladder rung really is free-only + excludes the registered default:
+    assert ov1.allow_paid is False
+    assert ov1.require_paid is False
+    assert ov1.exclude_models == frozenset({QWEN_DEFAULT})
+
+    req = build_requirement("standard_generation", _cb(), exclude_models=ov1.exclude_models)
+    snap = _snapshot(model_ids=[QWEN, GEMMA4, GPT_OSS, LOCAL], paid_opt_in=False)
+    chain = select(req, snap)
+
+    # qwen excluded across the whole chain; leader is gemma-4 (was pinned gpt-oss),
+    # then gpt-oss, then the local fallback last — the sanctioned tier-1 delta.
+    assert _ids(chain) == [GEMMA4, GPT_OSS, LOCAL]
+    assert _ids(chain)[0] == GEMMA4
+    assert QWEN not in _ids(chain)
+
+
+def test_execution_tier2_golden_is_paid_only_leader_claude(monkeypatch):
+    # Paid escalation enabled → the ladder gains the single paid rung at tier 2.
+    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    assert len(execution_status.model_tier_ladder()) == 3  # two free rungs + one paid rung
+
+    ov2 = execution_status.tier_constraint(2).to_overrides(QWEN_DEFAULT)
+    assert ov2.allow_paid is True and ov2.require_paid is True
+
+    req = build_requirement(
+        "standard_generation",
+        _cb(),
+        allow_paid=ov2.allow_paid,
+        require_paid=ov2.require_paid,
+        max_candidates=8,
+    )
+    # Paid-admissible SC-007 snapshot: live/opted-in credit with headroom.
+    snap = _snapshot(paid_opt_in=True, credit_source="live", available_headroom=1400.0)
+    chain = select(req, snap)
+
+    # require_paid excludes every free candidate → paid-only chain, leader claude.
+    assert _ids(chain) == [CLAUDE]
+    assert QWEN not in _ids(chain)
+    assert GEMMA4 not in _ids(chain)
+    assert GPT_OSS not in _ids(chain)
+    assert LOCAL not in _ids(chain)

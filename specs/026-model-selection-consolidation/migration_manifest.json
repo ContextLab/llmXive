@@ -5353,7 +5353,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 33,
+      "line": 34,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -5364,7 +5364,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 34,
+      "line": 35,
       "models": [
         "google.gemma-4-31B-it"
       ],
@@ -5375,7 +5375,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 35,
+      "line": 36,
       "models": [
         "openai.gpt-oss-120b"
       ],
@@ -5386,7 +5386,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 36,
+      "line": 37,
       "models": [
         "google.gemma-3-27b-it"
       ],
@@ -5397,7 +5397,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 37,
+      "line": 38,
       "models": [
         "qwen.qwen3-vl:32b"
       ],
@@ -5408,7 +5408,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 38,
+      "line": 39,
       "models": [
         "anthropic.claude-haiku-4-5-20251001"
       ],
@@ -5419,7 +5419,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 39,
+      "line": 40,
       "models": [
         "Qwen/Qwen2.5-3B-Instruct"
       ],
@@ -5430,7 +5430,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 371,
+      "line": 372,
       "models": [
         "gemma-4"
       ],
@@ -5441,7 +5441,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 392,
+      "line": 393,
       "models": [
         "qwen3.5"
       ],
@@ -5452,7 +5452,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 406,
+      "line": 407,
       "models": [
         "gemma-4"
       ],
@@ -5463,7 +5463,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 406,
+      "line": 407,
       "models": [
         "gpt-oss"
       ],
@@ -5474,7 +5474,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 406,
+      "line": 407,
       "models": [
         "qwen3.5"
       ],
@@ -5485,7 +5485,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 421,
+      "line": 422,
       "models": [
         "gemma-4"
       ],
@@ -5496,7 +5496,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 468,
+      "line": 469,
       "models": [
         "gemma-4"
       ],
@@ -5507,7 +5507,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 468,
+      "line": 469,
       "models": [
         "gpt-oss"
       ],
