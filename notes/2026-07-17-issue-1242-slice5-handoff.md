@@ -1,6 +1,28 @@
-# Issue #1242 — Session Handoff (2026-07-17) — Phase 2 Slice 5, Step A landed
+# Issue #1242 — Session Handoff (2026-07-17→18) — Phase 2 Slice 5 COMPLETE (A+B)
 
-## 🟢 STATE: M0 decision-A + route_chat chokepoint + chat_with_fallback delegation DONE
+## ✅ SLICE 5 DONE (all 3 walkers retired) — next up: Slice 6 (execution-tier ladder)
+
+Both Step A (chat_with_fallback) AND Step B (reasoning_chat + chat_with_model_fallback) are landed
+and green. All routing now flows registry/reasoning/panel calls → `route_chat` → `select()` →
+`execute()`. Slice-5 commits on base `b00d0b71c3`: `5170772b61` (M0) · `dc91dd24e1` (route_chat) ·
+`85361c8edf` (Step A) · `3ce1e794b6` (Step B: 2 walkers retired + autouse offline-snapshot stub +
+mechanics-tests retired). Verified: reviser/reviewer units+integration + claims/fill/grounding/triage
+(655+ tests) green with ZERO per-file edits; full non-slow backstop was running at handoff. **The
+7 e2e tests + SC-008 real-call verification are the remaining Slice-5 acceptance items** (see below);
+then Slice 6. NOT pushed — re-fetch + rebase onto origin/main before the PR.
+
+### How Step B worked (the autouse-stub approach the maintainer chose)
+`reasoning_chat`/`chat_with_model_fallback` → thin wrappers over a shared `_walker_route` →
+`route_chat`. The injected backend is adapted into a `backend_factory` (`lambda name: backend if
+name == (backend.name or "dartmouth") else make_backend(name)`) — a fake with NO `.name` is treated
+as the `dartmouth` serving backend. A new **autouse conftest fixture** (`tests/conftest.py`
+`_offline_model_selection_snapshot`) stubs `route.runtime_snapshot` → a fixed free
+qwen→gemma-4→gpt-oss snapshot + `reset_snapshot_cache()`, so injected-fake tests serve the primary
+candidate deterministically offline. Result: the ~18-20 reviser/reviewer/claims test files passed
+UNCHANGED. Retired `test_chat_with_model_fallback.py` + `test_model_fallback_outage_classification.py`
+(peer-walk mechanics superseded by execute/router-primitive + `test_reasoning_walker_delegation.py`).
+
+## 🟢 (historical) STATE: M0 decision-A + route_chat chokepoint + chat_with_fallback delegation DONE
 
 Branch `026-model-selection-consolidation` (NOT pushed — re-fetch + rebase onto origin/main
 before the PR). Base this session = `b00d0b71c3`. Read the prior handoff
