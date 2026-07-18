@@ -465,6 +465,7 @@ class PlannerAgent(SlashCommandAgent):
         spec = build_plan_reviewspec(
             backend=backend, repo_root=repo, project_id=ctx.project_id,
             model=ctx.default_model,
+            requirement_overrides=ctx.requirement_overrides,
         )
         run_stage_panel(
             stage_label="plan",

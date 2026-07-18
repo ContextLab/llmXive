@@ -29,13 +29,19 @@ NEVER the current tasks.md or the current analyze report) through
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
+
+if TYPE_CHECKING:
+    # Type-checking only (avoid a runtime import cycle via the
+    # ``model_selection`` package ``__init__``). ``from __future__ import
+    # annotations`` keeps the ``overrides`` annotation a lazy string.
+    from llmxive.model_selection.types import RequirementOverrides
 from ._reviser_response import (
     RESPONSE_FORMAT_BLOCK,
     build_concern_responses,
@@ -83,6 +89,7 @@ class _AbstractTasksReviser:
         repo_root: Path,
         project_id: str,
         model: str | None = None,
+        overrides: RequirementOverrides | None = None,
         token_budget: int = _DEFAULT_INPUT_TOKEN_BUDGET,
         summarize_cache_dir: Path | None = None,
     ) -> None:
@@ -90,6 +97,7 @@ class _AbstractTasksReviser:
         self._repo_root = Path(repo_root)
         self._project_id = project_id
         self._model = model
+        self._overrides = overrides
         self._token_budget = token_budget
         self._summarize_cache_dir = (
             Path(summarize_cache_dir)

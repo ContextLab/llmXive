@@ -11,7 +11,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.speckit.analyze_cmd import run_analyze
@@ -170,6 +169,7 @@ class PaperTaskerAgent(SlashCommandAgent):
         spec = build_paper_tasks_reviewspec(
             backend=backend, repo_root=repo, project_id=ctx.project_id,
             model=ctx.default_model,
+            requirement_overrides=ctx.requirement_overrides,
         )
         artifact_paths: dict[str, Path] = {
             str(tasks_path.relative_to(repo)): tasks_path,

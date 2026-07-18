@@ -566,6 +566,7 @@ class TaskerAgent(SlashCommandAgent):
                 constitution_text=_const_text,
                 analyze_report_text=first_report,
                 model=ctx.default_model,
+                requirement_overrides=ctx.requirement_overrides,
             )
         except (TransientBackendError, BackendUnavailable):
             # A transiently-degraded / circuit-broken endpoint is NOT

@@ -164,9 +164,14 @@ def invoke_reviser_backend(reviser: Any, messages: list[ChatMessage]) -> str:
     the full document + change-log fit.
     """
     model = getattr(reviser, "_model", None)
+    # Spec 026 slice 6: carry the reviser's escalation constraints (declared
+    # ``_overrides`` field) alongside ``model=`` into ``route_chat``. ``getattr``
+    # default keeps back-compat for placeholder revisers that lack the field.
+    overrides = getattr(reviser, "_overrides", None)
     response = reasoning_chat(
         reviser._backend, messages, model=model,
         max_tokens=GENERATION_MAX_TOKENS,
+        overrides=overrides,
     )
     return getattr(response, "text", "") or ""
 

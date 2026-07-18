@@ -229,6 +229,7 @@ class PaperClarifierAgent(SlashCommandAgent):
         spec = build_paper_spec_reviewspec(
             backend=backend, repo_root=repo, project_id=ctx.project_id,
             model=ctx.default_model,
+            requirement_overrides=ctx.requirement_overrides,
         )
         spec_key = str(spec_path.relative_to(repo))
         run_stage_panel(

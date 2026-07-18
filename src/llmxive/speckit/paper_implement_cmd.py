@@ -297,6 +297,7 @@ class PaperImplementerAgent(SlashCommandAgent):
                 repo_root=repo,
                 project_id=ctx.project_id,
                 model=ctx.default_model,
+                requirement_overrides=ctx.requirement_overrides,
             )
             result = run_convergence(
                 spec, artifacts, producer="paper_implementer",

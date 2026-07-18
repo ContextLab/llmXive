@@ -2408,18 +2408,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/flesh_out_reviser.py",
       "kind": "model_id_literal",
-      "line": 131,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/implementer_reviser.py",
-      "kind": "model_id_literal",
-      "line": 206,
+      "line": 139,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2452,7 +2441,18 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/implementer_reviser.py",
       "kind": "model_id_literal",
-      "line": 299,
+      "line": 230,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/implementer_reviser.py",
+      "kind": "model_id_literal",
+      "line": 307,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2463,7 +2463,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
       "kind": "model_id_literal",
-      "line": 159,
+      "line": 167,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2474,18 +2474,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
       "kind": "model_id_literal",
-      "line": 170,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
-      "kind": "model_id_literal",
-      "line": 181,
+      "line": 178,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2507,7 +2496,18 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
       "kind": "model_id_literal",
-      "line": 241,
+      "line": 197,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": 7,
+      "symbol": "model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
+      "kind": "model_id_literal",
+      "line": 249,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2518,7 +2518,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/paper_spec_reviser.py",
       "kind": "model_id_literal",
-      "line": 117,
+      "line": 125,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2529,7 +2529,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/paper_spec_reviser.py",
       "kind": "model_id_literal",
-      "line": 129,
+      "line": 137,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2540,7 +2540,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/plan_reviser.py",
       "kind": "model_id_literal",
-      "line": 208,
+      "line": 216,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2551,7 +2551,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/plan_reviser.py",
       "kind": "model_id_literal",
-      "line": 219,
+      "line": 227,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2562,7 +2562,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/spec_reviser.py",
       "kind": "model_id_literal",
-      "line": 224,
+      "line": 232,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2573,7 +2573,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/spec_reviser.py",
       "kind": "model_id_literal",
-      "line": 236,
+      "line": 244,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2584,7 +2584,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
       "kind": "model_id_literal",
-      "line": 131,
+      "line": 139,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2595,7 +2595,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
       "kind": "model_id_literal",
-      "line": 142,
+      "line": 150,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2606,7 +2606,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
       "kind": "model_id_literal",
-      "line": 153,
+      "line": 161,
       "models": [
         "qwen3.5-122b"
       ],
@@ -2617,7 +2617,7 @@
       "category": "migration_target",
       "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
       "kind": "model_id_literal",
-      "line": 164,
+      "line": 172,
       "models": [
         "qwen3.5-122b"
       ],
@@ -3006,7 +3006,7 @@
       "category": "migration_target",
       "file": "src/llmxive/speckit/paper_tasks_cmd.py",
       "kind": "field_consumer",
-      "line": 129,
+      "line": 128,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_backend"
@@ -3015,7 +3015,7 @@
       "category": "migration_target",
       "file": "src/llmxive/speckit/paper_tasks_cmd.py",
       "kind": "field_consumer",
-      "line": 130,
+      "line": 129,
       "models": [],
       "owning_slice": 7,
       "symbol": "fallback_backends"
@@ -3024,7 +3024,7 @@
       "category": "migration_target",
       "file": "src/llmxive/speckit/paper_tasks_cmd.py",
       "kind": "field_consumer",
-      "line": 131,
+      "line": 130,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_model"
@@ -3033,7 +3033,7 @@
       "category": "migration_target",
       "file": "src/llmxive/speckit/paper_tasks_cmd.py",
       "kind": "field_consumer",
-      "line": 162,
+      "line": 161,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_backend"
@@ -3042,7 +3042,7 @@
       "category": "migration_target",
       "file": "src/llmxive/speckit/paper_tasks_cmd.py",
       "kind": "field_consumer",
-      "line": 172,
+      "line": 171,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_model"
@@ -3087,19 +3087,10 @@
       "category": "migration_target",
       "file": "src/llmxive/speckit/slash_command.py",
       "kind": "field_consumer",
-      "line": 107,
+      "line": 118,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_backend"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/speckit/slash_command.py",
-      "kind": "field_consumer",
-      "line": 108,
-      "models": [],
-      "owning_slice": 7,
-      "symbol": "default_model"
     },
     {
       "category": "migration_target",
@@ -3108,13 +3099,22 @@
       "line": 119,
       "models": [],
       "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/speckit/slash_command.py",
+      "kind": "field_consumer",
+      "line": 130,
+      "models": [],
+      "owning_slice": 7,
       "symbol": "default_backend"
     },
     {
       "category": "migration_target",
       "file": "src/llmxive/speckit/slash_command.py",
       "kind": "field_consumer",
-      "line": 120,
+      "line": 131,
       "models": [],
       "owning_slice": 7,
       "symbol": "fallback_backends"
@@ -3123,7 +3123,7 @@
       "category": "migration_target",
       "file": "src/llmxive/speckit/slash_command.py",
       "kind": "field_consumer",
-      "line": 121,
+      "line": 132,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_model"
@@ -3132,7 +3132,7 @@
       "category": "migration_target",
       "file": "src/llmxive/speckit/slash_command.py",
       "kind": "field_consumer",
-      "line": 306,
+      "line": 318,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_model"

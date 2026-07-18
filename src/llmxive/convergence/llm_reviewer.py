@@ -35,7 +35,7 @@ import logging
 import re
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
 
@@ -44,6 +44,12 @@ from llmxive.backends.router import chat_with_model_fallback
 
 from . import review_cache
 from .types import Concern, Verdict, coerce_severity
+
+if TYPE_CHECKING:
+    # Type-checking only (avoid a runtime import cycle through the
+    # ``model_selection`` package ``__init__`` → ``execute`` → ``router``).
+    # ``from __future__ import annotations`` keeps the annotation a lazy string.
+    from llmxive.model_selection.types import RequirementOverrides
 
 logger = logging.getLogger(__name__)
 
@@ -836,6 +842,11 @@ class LLMReviewer:
         # plainly says "See US-5". The research/paper reviewers already pin
         # temperature=0; the convergence panels must too.
         temperature: float = 0.0,
+        # Spec 026 slice 6: escalation constraints carried ALONGSIDE ``model=``
+        # and forwarded to ``chat_with_model_fallback`` → ``route_chat``.
+        # Immutable (frozen), so it is safe to share read-only across the panel
+        # ThreadPoolExecutor. ``None`` = no override.
+        overrides: RequirementOverrides | None = None,
     ) -> None:
         self.name = lens
         self._lens = lens
@@ -843,6 +854,7 @@ class LLMReviewer:
         self._backend = backend
         self._repo_root = Path(repo_root)
         self._model = model
+        self._overrides = overrides
         self._temperature = temperature
         # Spec 015: qwen3.5-122b is a *reasoning* model — its hidden
         # chain-of-thought tokens count against the response budget. The
@@ -1100,6 +1112,7 @@ class LLMReviewer:
             model=self._model,
             max_tokens=self._max_tokens,
             temperature=self._temperature,
+            overrides=self._overrides,
         )
         return getattr(response, "text", "") or ""
 
@@ -1114,14 +1127,18 @@ def build_panel(
     backend: Any,
     repo_root: Path,
     model: str | None = None,
+    overrides: RequirementOverrides | None = None,
 ) -> list[LLMReviewer]:
     """Build a full LLMReviewer panel for one stage. Drivers (T068
     calibration, T073 traversal) call this to wire the registry's
-    placeholder reviewers with live implementations."""
+    placeholder reviewers with live implementations.
+
+    ``overrides`` (spec 026 slice 6) is passed to EVERY reviewer so the whole
+    panel carries the same immutable escalation constraints."""
     return [
         LLMReviewer(
             lens=lens, stage=stage, backend=backend,
-            repo_root=repo_root, model=model,
+            repo_root=repo_root, model=model, overrides=overrides,
         )
         for lens in lenses
     ]

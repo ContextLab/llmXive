@@ -37,7 +37,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from llmxive.convergence.project_runner import (
     ProjectRunResult,
@@ -53,6 +53,12 @@ from llmxive.convergence.types import (
 )
 
 from ._legacy_guards import check_legacy_guards
+
+if TYPE_CHECKING:
+    # Type-checking only (avoid a runtime import cycle via the
+    # ``model_selection`` package ``__init__``). ``from __future__ import
+    # annotations`` keeps the ``requirement_overrides`` annotation a lazy string.
+    from llmxive.model_selection.types import RequirementOverrides
 
 
 def tasker_legacy_enabled() -> bool:
@@ -261,6 +267,7 @@ def run_tasker_via_engine(
     constitution_text: str | None = None,
     analyze_report_text: str = "",
     model: str | None = None,
+    requirement_overrides: RequirementOverrides | None = None,
 ) -> ProjectRunResult:
     """Run the spec-015 convergence engine in place of the legacy
     Mode-A/Mode-B loop for the Tasker.
@@ -289,9 +296,13 @@ def run_tasker_via_engine(
     spec_key = f"projects/{project_id}/specs/{spec_path.parent.name}/spec.md"
     plan_key = f"projects/{project_id}/specs/{plan_path.parent.name}/plan.md"
 
+    # Spec 026 slice 6: forward the escalation constraints from the caller
+    # (tasks_cmd.py holds the SlashCommandContext) so the research-``tasked``
+    # panel + reviser can genuinely escalate the model tier — otherwise the
+    # tier ladder for this stage would be a permanent no-op.
     spec = build_tasks_reviewspec(
         backend=backend, repo_root=repo_root, project_id=project_id,
-        model=model,
+        model=model, requirement_overrides=requirement_overrides,
     )
     concerns = analyze_findings_to_concerns(
         analyze_findings, default_artifact_path=tasks_key,

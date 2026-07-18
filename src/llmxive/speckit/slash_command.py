@@ -27,7 +27,7 @@ import os
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from llmxive.backends.base import ChatMessage, ChatResponse
@@ -38,6 +38,13 @@ from llmxive.types import (
     Outcome,
     RunLogEntry,
 )
+
+if TYPE_CHECKING:
+    # Type-checking only: a runtime top-level import of the
+    # ``llmxive.model_selection`` package would run its ``__init__`` (→
+    # ``execute`` → ``backends.router``) and risk a cycle. ``from __future__
+    # import annotations`` (above) makes the field annotation a lazy string.
+    from llmxive.model_selection.types import RequirementOverrides
 
 
 @dataclass
@@ -54,6 +61,10 @@ class SlashCommandContext:
     default_model: str
     prompt_version: str
     agent_name: str
+    #: Spec 026 slice 6 escalation constraints, threaded ALONGSIDE ``model=``
+    #: down to ``route_chat`` (LAST field so it stays defaulted — existing
+    #: construction call sites are unaffected). ``None`` = no override.
+    requirement_overrides: RequirementOverrides | None = None
 
 
 class SlashCommandAgent(abc.ABC):
@@ -119,6 +130,7 @@ class SlashCommandAgent(abc.ABC):
                 default_backend=ctx.default_backend.value,
                 fallback_backends=[b.value for b in ctx.fallback_backends],
                 model=ctx.default_model,
+                overrides=ctx.requirement_overrides,
             )
             backend_used = BackendName(llm_response.backend)
             model_used = llm_response.model
