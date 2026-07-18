@@ -1,71 +1,55 @@
-# Quickstart Guide
+# Quickstart Guide: Predicting Molecular Descriptors from Quantum Chemical Calculations
 
-This guide walks you through running the full pipeline from data download to final analysis.
+This guide provides a 5-step pipeline to execute the end-to-end research workflow.
 
 ## Prerequisites
+
 - Python 3.11+
-- ~14 GB free disk space (for QM9 dataset and features)
-- ~8 GB RAM (pipeline will auto-downsample if necessary)
+- Install dependencies: `pip install -r requirements.txt`
 
-## Step 1: Environment Setup
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
+## 5-Step Pipeline Execution
 
-## Step 2: Run the Pipeline
-Execute the scripts in order. Each script writes artifacts to the `data/` or `artifacts/` directories.
+Run the following commands in order to download data, extract features, train models, and generate analysis.
 
-### 2.1 Download and Validate Data
+### Step 1: Download and Verify Data
+Downloads the QM9 dataset from HuggingFace and validates integrity.
 ```bash
 python code/01_data_download.py
 ```
-**Outputs**:
-- `data/raw/qm9_full.parquet`
-- `data/checksums.json`
-- `data/processed/molecules_cleaned.parquet`
+*Outputs*: `data/raw/qm9_full.parquet`, `data/checksums.json`
 
-### 2.2 Extract Features
+### Step 2: Clean and Validate Molecules
+Parses the raw data, filters invalid molecules, and saves the cleaned dataset.
 ```bash
-python code/02_feature_extraction.py
+python code/02_clean.py
 ```
-**Outputs**:
-- `data/processed/features_2d.npy`
-- `data/processed/features_3d.npy`
-- `data/processed/labels.csv`
+*Outputs*: `data/processed/molecules_cleaned.parquet`
 
-### 2.3 Train Models
+### Step 3: Extract Features (2D & 3D)
+Generates Morgan fingerprints and 3D graph features, splits data, and handles memory constraints.
+**Note**: This step is invoked via the `extract.py` wrapper to match the run-book.
 ```bash
-python code/03_model_training.py
+python code/extract.py
 ```
-**Outputs**:
-- `artifacts/models/model_2d.pkl`
-- `artifacts/models/model_3d.pkl`
-- `artifacts/metrics/cv_metrics.json`
-- `artifacts/metrics/stability_report.json`
+*Outputs*: `data/processed/features_2d.npy`, `data/processed/features_3d.npy`, `data/processed/labels_train.csv`, `data/processed/labels_test.csv`, `data/processed/split_indices_train.json`, `data/processed/split_indices_test.json`
 
-### 2.4 Analysis and Reporting
+### Step 4: Train Models (2D & 3D)
+Trains Random Forest Regressors using 5-fold cross-validation and grid search.
 ```bash
-python code/04_analysis.py
+python code/train.py
 ```
-**Outputs**:
-- `artifacts/metrics/baseline_error.json`
-- `artifacts/metrics/test_predictions.json`
-- `artifacts/metrics/statistics.json`
-- `artifacts/metrics/failure_boundary.json`
-- `artifacts/plots/parity_2d.png`
-- `artifacts/plots/parity_3d.png`
-- `artifacts/report.md`
+*Outputs*: `artifacts/models/model_2d.pkl`, `artifacts/models/model_3d.pkl`, `artifacts/metrics/cv_metrics.json`, `artifacts/metrics/stability_report.json`
 
-## Step 3: Validation
-Run the quickstart validator to ensure all artifacts were generated correctly:
+### Step 5: Analyze and Generate Report
+Computes baselines, statistical tests, failure boundaries, and generates parity plots.
+```bash
+python code/analyze.py
+```
+*Outputs*: `artifacts/metrics/baseline_error.json`, `artifacts/metrics/test_predictions.json`, `artifacts/metrics/statistics.json`, `artifacts/metrics/failure_boundary.json`, `artifacts/plots/parity_2d.png`, `artifacts/plots/parity_3d.png`, `artifacts/report.md`
+
+## Validation
+
+After running the pipeline, verify all artifacts were generated:
 ```bash
 python code/05_quickstart_validator.py
 ```
-This script checks for the existence and integrity of all required files.
-
-## Troubleshooting
-- **Memory Error**: If you encounter memory issues, the pipeline automatically downsamples. Ensure your system has at least 6.5 GB RAM available.
-- **RDKit Errors**: Ensure `rdkit` is installed and `LD_LIBRARY_PATH` is set correctly if running on Linux.
-- **HuggingFace Connection**: If `download_qm9_dataset` fails, check your internet connection and ensure you can access `huggingface.co`.

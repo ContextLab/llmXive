@@ -1,16 +1,15 @@
-# Core scientific stack
-rdkit-pypi>=2022.09.5
-scikit-learn>=1.3.0
-pandas>=2.1.0
-numpy>=1.24.0
-pyarrow>=14.0.0
-tqdm>=4.66.0
-huggingface_hub>=0.20.0
-datasets>=2.16.0
-matplotlib>=3.8.0
-seaborn>=0.13.0
-scipy>=1.11.0
-
-# Linting/formatting (already present in earlier tasks)
-ruff>=0.1.0
-black>=23.9.0
+rdkit
+scikit-learn
+pandas
+numpy
+pyarrow
+tqdm
+huggingface_hub
+matplotlib
+seaborn
+scipy
+datasets
+ruff
+black
+mypy
+pytest

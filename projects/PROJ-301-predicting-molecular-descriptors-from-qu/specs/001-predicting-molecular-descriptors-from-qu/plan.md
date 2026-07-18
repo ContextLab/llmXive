@@ -161,7 +161,7 @@ Every contract schema is exercised by a specific plan element:
 
 ### Task T023: Failure Boundary Report (FR-005, SC-002)
 **Description**:
-1. Calculate Relative Error Increase (REI) = (MAE_2D - MAE_3D) / MAE_3D for each descriptor.
+1. Calculate Relative Error Increase (REI) = (MAE_baseline - MAE_target) / MAE_target for each descriptor.
 2. Perform statistical testing on **per-molecule errors** (N~2000) using **Wilcoxon signed-rank test** (if normality violated) or **paired t-test**.
 3. Apply **Bonferroni correction** (α = 0.05 / 3 ≈ 0.0167).
 4. Determine "Failure Boundary": **REI ≥ 10% OR p-value < 0.0167**.

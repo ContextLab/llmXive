@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-301-predicting-molecular-descriptors-from-qu",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/analyze.py; 3 command(s) failed: python code/01_data_download.py (rc=1); python code/extract.py (rc=1); python code/train.py (rc=1); 8 declared deliverable(s) absent: data/checksums.json; data/processed/features_2d.npy; data/processed/labels_test.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/01_data_download.py -> rc=1\n    ^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-301-predicting-molecular-descriptors-from-qu/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1698, in load_dataset\n    builder_instance = load_dataset_builder(\n                       ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-301-predicting-molecular-descriptors-from-qu/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1325, in load_dataset_builder\n    dataset_module = dataset_module_factory(\n                     ^^^^^^^^^^^^^",
+    "python code/extract.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-301-predicting-molecular-descriptors-from-qu/code/extract.py\", line 30, in <module>\n    from code_02_feature_extraction import main as feature_extraction_main\nModuleNotFoundError: No module named 'code_02_feature_extraction'",
+    "python code/train.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-301-predicting-molecular-descriptors-from-qu/code/train.py\", line 25, in <module>\n    from code_03_model_training import main as training_main\nModuleNotFoundError: No module named 'code_03_model_training'",
+    "python code/analyze.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-301-predicting-molecular-descriptors-from-qu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-301-predicting-molecular-descriptors-from-qu/code/analyze.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/01_data_download.py"
+  ],
+  "updated_at": "2026-07-18T21:53:35Z"
+}

@@ -8,3 +8,6 @@ huggingface_hub>=0.19.4
 matplotlib>=3.8.2
 seaborn>=0.13.0
 scipy>=1.11.4
+datasets  # auto-added: imported by run-book but missing from venv
+code_02_feature_extraction  # auto-added: imported by run-book but missing from venv
+code_03_model_training  # auto-added: imported by run-book but missing from venv

@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine Learning
 
 **Input**: Design documents from `/specs/001-predict-molecular-descriptors-from-qu/`
@@ -55,7 +59,7 @@
 ### Implementation for User Story 1
 
 - [X] T009 [US1] Implement `code/01_download.py`: **Download & Verify**.
- 1. **Source**: Download QM9 dataset **strictly from the verified HuggingFace source (`lisn/QM9`)** as mandated by `plan.md` (T009.1 Amendment).
+ 1. **Source**: Download QM9 dataset **strictly from the verified HuggingFace source `lisn/QM9`** as mandated by `plan.md` (T009.1 Amendment).
  2. **Integrity Check**: Validate data integrity by verifying the presence of required DFT columns (dipole, HOMO, LUMO) and valid 3D coordinates. **Verification**: Confirm the `plan.md` contains the amendment record for this source (no new task required).
  3. **Output**: Save raw data to `data/raw/qm9_full.parquet` and checksums to `data/checksums.json`.
  4. **Dependency**: This task MUST complete before T010.
@@ -66,13 +70,20 @@
  3. **Output**: Save the filtered dataset to `data/processed/molecules_cleaned.parquet`.
  4. **Dependency**: Must wait for T009.
 
-- [X] T011 [US1] Implement `code/03_feature_extraction.py`: **Split & Feature Generation**.
+- [X] T011 [US1] Implement `code/03_feature_extraction.py`: **Split, Sample & Feature Generation**.
  1. **Input**: Load `data/processed/molecules_cleaned.parquet` (output of T010).
  2. **Split Construction**: Construct the final Train/Test split from the pre-filtered dataset. **Output**: Save train indices to `data/processed/split_indices_train.json`, test indices to `data/processed/split_indices_test.json`.
- 3. **Feature Generation**: Generate 2D Morgan fingerprints (radius=2, nBits=2048) and 3D graph features. **Explicitly include**: atomic number, hybridization, distance bins, bond angles, and dihedral angles as required by FR-002.
- 4. **Downsampling Logic**: Monitor memory usage. If usage exceeds 6.5 GB, apply **Stratified Random Sampling** (strata: atom count, polarity) to reduce the sample size. **Target**: The target is explicitly the maximum sample size that fits within the 6.5 GB memory limit. **Stopping Condition**: Reduce sample size iteratively, but **limit to a maximum of 5 iterations**. If the limit is still not met after 5 iterations, fail with a clear error log. **Output Metric**: Log final `n_samples` and `peak_memory_mb` to `artifacts/metrics/downsampling_log.json`.
- 5. **Output**: Save outputs to `data/processed/features_2d.npy`, `data/processed/features_3d.npy`, `data/processed/labels_train.csv`, `data/processed/labels_test.csv`.
- 6. **Dependency**: Must wait for T010.
+ 3. **Memory-Aware Sampling (Pre-Feature)**: Before generating expensive features, perform **Stratified Random Sampling** to ensure the dataset fits within memory.
+    - **Strata**: Use 'atom count' and 'polarity' (dipole moment, available from T010) as strata.
+    - **Algorithm**: Use **Binary Search** to find the maximum sample size that fits within 6.5 GB RAM, with a tolerance of 500MB.
+    - **Distribution Verification (Constitution Principle VII)**: Before finalizing the sample, run a **Kolmogorov-Smirnov (KS) test** comparing the atom count and polarity distributions of the sampled subset against the full population. **Requirement**: p-value > 0.05. If failed, adjust sampling weights and retry.
+    - **Output Metric**: Log final `n_samples`, `peak_memory_mb`, and `ks_test_pvalue` to `artifacts/metrics/downsampling_log.json`.
+ 4. **Feature Generation**: Generate 2D Morgan fingerprints (radius=2, nBits=2048) and 3D graph features. **Explicitly include**: atomic number, hybridization, distance bins, bond angles, and dihedral angles as required by FR-002.
+ 5. **Serialization Format**:
+    - Save 2D features to `data/processed/features_2d.npy`.
+    - **Save 3D graph features to `data/processed/features_3d.pkl`** (Python pickle) to preserve the nested structure of graph objects (atomic numbers, hybridization, angles) required by FR-002 and T016. Do NOT use `.npy` for 3D features.
+ 6. **Output**: Save labels to `data/processed/labels_train.csv`, `data/processed/labels_test.csv`.
+ 7. **Dependency**: Must wait for T010.
 
 - [X] T014 [US1] Add unit tests in `tests/test_feature_extraction.py`. Required functions: `test_feature_matrix_shape` (asserts shape matches subset size), `test_label_alignment` (asserts labels match feature indices), `test_3d_parsing_error_handling` (asserts malformed molecules are dropped).
 
@@ -88,19 +99,17 @@
 
 ### Implementation for User Story 2
 
-- [X] T015 [P] [US2] Implement `code/04_model_training.py` (2D):
- 1. **Grid Search Logic**: Implement K-fold Cross-Validation with `GridSearchCV` using a hyperparameter grid: `n_estimators` ∈ {100, 500, 1000}, `max_depth` ∈ {10, 20, None}.
- 2. **Model Training & Saving**: Train the final Random Forest Regressor on the full training set using the best parameters found, and save the model to `artifacts/models/model_2d.pkl`.
- 3. **Runtime Monitoring**: Wrap the training process to measure total runtime. If runtime > 6 hours, trigger a graceful failure with a clear error log and save partial results to `artifacts/metrics/runtime_failure.json`.
+- [X] T015 [P] [US2] Implement `code/04_model_training.py`: **Train 2D and 3D Models**.
+ 1. **Configuration**: Run the script twice with CLI arguments: `--mode 2d` and `--mode 3d`. Load hyperparameter grid from `code/config.py` (concretizing FR-003).
+ 2. **Model Training & Saving**:
+    - **2D Mode**: Train Random Forest on 2D features. Save to `artifacts/models/model_2d.pkl`.
+    - **3D Mode**: Train Random Forest on 3D features. Save to `artifacts/models/model_3d.pkl`.
+ 3. **Intermediate Metrics**: Save per-fold metrics to `artifacts/metrics/cv_2d_metrics.json` and `artifacts/metrics/cv_3d_metrics.json` (unique filenames).
+ 4. **Runtime Monitoring**: Wrap the training process. If runtime > 6 hours, trigger graceful failure and save partial results to `artifacts/metrics/runtime_failure.json`.
 
-- [X] T016 [US2] Implement `code/04_model_training.py` (3D):
- 1. **Grid Search Logic**: Implement k-fold Cross-Validation with `GridSearchCV` using the *identical* hyperparameter grid as T015.
- 2. **Model Training & Saving**: Train the final Random Forest Regressor on the full training set using the best parameters found, and save the model to `artifacts/models/model_3d.pkl`.
- 3. **Runtime Monitoring**: Wrap the training process to measure total runtime. If runtime > 6 hours, trigger a graceful failure with a clear error log and save partial results to `artifacts/metrics/runtime_failure.json`.
-
-- [X] T017 [US2] Implement `code/04_model_training.py` (Aggregator): **Post-Processing & Reporting**. Run *after* T015 and T016 complete.
+- [X] T017 [US2] Implement `code/04_model_training.py` (Aggregator): **Post-Processing & Reporting**. Run *after* T015 completes.
  1. Aggregate CV metrics (MAE, RMSE, std_mae per fold) from both models and save to `artifacts/metrics/cv_metrics.json`.
- 2. **Stability Verification (SC-005)**: Explicitly calculate the stability ratio (std_mae / mean_mae) for each descriptor. **Action**: If stability ratio > 5%, **set `passed: false` in `artifacts/metrics/stability_report.json` and log a warning**, but **DO NOT halt the pipeline**. Continue artifact generation to allow analysis of why stability failed.
+ 2. **Stability Verification (SC-005)**: Explicitly calculate the stability ratio (std_mae / mean_mae) for each descriptor. **Action**: If stability ratio > 5%, **set `passed: false` in `artifacts/metrics/stability_report.json` and log a warning**, but **DO NOT halt the pipeline**. Continue artifact generation.
  3. **Output Format**: Save the raw per-fold MAE list to `cv_metrics.json` under a `fold_maes` key. Save `artifacts/metrics/stability_report.json` with schema: `{\"fold_maes\": [float], \"stability_ratio\": float, \"passed\": bool}`.
 
 - [X] T020 [US2] Add unit tests in `tests/test_model_training.py` to verify model saving and metric calculation.
@@ -124,65 +133,76 @@
  4. **Dependency**: Must wait for T011.
 
 - [X] T022 [US3] Implement `code/05_analysis.py` (Predictions): **Generate Predictions**.
- 1. **Logic**: Load model artifacts from `artifacts/models/model_2d.pkl` and `model_3d.pkl` (T015/T016). Generate predictions for the test set (out-of-fold) for both models.
+ 1. **Logic**: Load model artifacts from `artifacts/models/model_2d.pkl` and `model_3d.pkl` (T015). Generate predictions for the test set (out-of-fold) for both models.
  2. **Input**: Load test labels from `data/processed/labels_test.csv` (T011).
  3. **Output**: Store per-molecule errors in `artifacts/metrics/test_predictions.json` (includes `error_2d`, `error_3d` arrays per molecule).
  4. **Dependency**: Must wait for T015, T016, and T011.
 
 - [X] T023 [US3] Implement `code/05_analysis.py` (Statistics): **Statistical Analysis**.
- 1. **Logic**: Perform **non-parametric Wilcoxon signed-rank test** on **per-molecule absolute errors (N~large-scale)** of 2D vs 3D models for each descriptor. **Input**: Load `error_2d` and `error_3d` arrays from `artifacts/metrics/test_predictions.json`.
+ 1. **Logic**: Perform **non-parametric Wilcoxon signed-rank test** on **per-molecule absolute errors (N~large-scale)** of 2D vs 3D models for each descriptor. **Input**: Load `error_2d` and `error_3d` arrays from `artifacts/metrics/test_predictions.json`. **Per Plan Amendment T023**: This test and the Bonferroni correction amend the Spec's default t-test requirement.
  2. **Correction**: Apply **Bonferroni correction** for multiple comparisons (α = 0.05 / 3 ≈ 0.0167). **Note**: This threshold is applied as amended by `plan.md` T023 to ensure statistical power, overriding the default spec threshold.
  3. **Output**: Report p-values to `artifacts/metrics/statistics.json`.
  4. **Dependency**: Must wait for T022.
 
-- [X] T024 [US3] Implement `code/05_analysis.py` (Boundary): **Define Failure Boundary**.
- 1. **Logic**: Define "Failure Boundary" where **Relative Error Increase (REI) ≥ 10% OR p-value < 0.0167** (Bonferroni corrected).
- 2. **Input**: Load p-values from `artifacts/metrics/statistics.json` (output of T023) and MAE values.
- 3. **Synthesis**: **Generate a binary conclusion (Pass/Fail) for the research hypothesis** based on whether any descriptor meets the failure boundary criteria. **Output**: Save the list of molecules meeting these criteria AND the final hypothesis conclusion to `artifacts/metrics/failure_boundary.json`. Schema: `[{"molecule_id": "string", "descriptor": "string", "reason": "string"}, ...]` AND `{"hypothesis_passed": bool, "conclusion": "string"}`.
- 4. **Dependency**: Must wait for T023.
+- [X] T025 [US3] Implement `code/05_analysis.py` (Boundary): **Define Failure Boundary**.
+ 1. **Logic**: Calculate **Relative Error Increase (REI)** = (MAE_2D - MAE_3D) / MAE_3D for each descriptor.
+ 2. **Logic**: Retrieve p-values from `artifacts/metrics/statistics.json` (T023).
+ 3. **Synthesis**: Determine "Failure Boundary" for each descriptor: **REI ≥ 10% OR p-value < 0.0167** (Bonferroni corrected). **Explicitly separate** the magnitude check (REI) and the significance check (p-value) before applying the OR logic.
+ 4. **Output**: Save the list of molecules meeting these criteria AND the final hypothesis conclusion to `artifacts/metrics/failure_boundary.json`. **Schema**: `[{"molecule_id": "string", "descriptor": "string", "trigger_reason": "string (REI or p-value)", "rei_value": float, "p_value": float}, ...]` AND `{"hypothesis_passed": bool, "conclusion": "string"}`.
+ 5. **Dependency**: Must wait for T023.
 
-- [X] T025 [US3] Implement `code/05_analysis.py` (Plots): **Generate Parity Plots**.
+- [X] T024 [US3] Implement `code/05_analysis.py` (Report): **Generate Final Report**.
+ 1. **Logic**: Compile all metrics, plots, and logs into a final summary.
+ 2. **Output**: Save to `artifacts/report.md`.
+ 3. **Dependency**: Must wait for T021, T023, T025, T026. (Note: T029/T030 are not data dependencies for the report content).
+
+- [X] T026 [US3] Implement `code/05_analysis.py` (Plots): **Generate Parity Plots**.
  1. **Logic**: Generate parity plots (Predicted vs. DFT) for both 2D and 3D models.
  2. **Output**: Save to `artifacts/plots/parity_2d.png` and `artifacts/plots/parity_3d.png`. Ensure plots include regression lines, titles, and axis labels.
  3. **Dependency**: Must wait for T022.
 
-- [X] T026 [US3] Implement `code/05_analysis.py` (Stability): **Report Stability**.
- 1. **Logic**: Load `stability_report.json` from T017. If stability > 5% (i.e., `passed: false`), **save `artifacts/metrics/stability_failure_report.json` with details** and log a warning. **Do NOT halt the pipeline**.
- 2. **Dependency**: Must wait for T017.
+- [X] T029 [US3] **Documentation Updates (FR-006, SC-003, SC-004)**.
+ 1. **Create `docs/README.md`**: Project overview, installation steps, and usage guide.
+ 2. **Create `docs/quickstart.md`**: A 5-step pipeline guide demonstrating end-to-end execution (explicitly required by SC-003/SC-004 to verify runtime/memory constraints).
+ 3. **Create `docs/data-model.md`**: Documentation of `Molecule`, `FeatureSet`, and `ModelResult` entities with schema definitions (required by FR-006 for memory enforcement context).
+ 4. **Verification**: Ensure all files exist, contain required sections, and pass a manual review against the spec's documentation requirements.
+ 5. **Dependency**: None (independent of T027).
 
-- [X] T027 [US3] Implement `code/05_analysis.py` (Report): **Generate Final Report**.
- 1. **Logic**: Compile all metrics, plots, and logs into a final summary.
- 2. **Output**: Save to `artifacts/report.md`.
- 3. **Dependency**: Must wait for T021, T023, T024, T025, **and T026**.
+- [X] T030 [US3] **Code Cleanup and Refactoring (Constitution Principle I, IV)**.
+ 1. **Remove Debug Prints**: Scan all `code/` files for print statements used for debugging and remove them.
+ 2. **Add Type Hints**: Ensure all functions in `code/` have complete type hints.
+ 3. **Verification**: Run `mypy --strict code/` and `ruff check code/`. **Pass Criteria**: 0 warnings/errors. Save the output of these commands to `artifacts/metrics/static_analysis_report.txt`.
+ 4. **Dependency**: Must complete before T024.
 
-- [X] T028 [US3] Add integration tests in `tests/test_analysis.py` to verify plot generation and metric consistency.
+- [X] T032 [US3] [P] Run `pytest` to verify all unit and integration tests pass.
+- [X] T033 [US3] Run `quickstart.md` validation to ensure end-to-end pipeline execution.
 
 **Checkpoint**: Analysis complete. Failure boundaries identified and visualized.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 6: Reconciliation & Integration
 
-**Purpose**: Improvements that affect multiple user stories
+**Goal**: Ensure the run-book matches the implementation and the pipeline is executable.
 
-- [ ] T029 [P] **Documentation Updates (FR-006, SC-003, SC-004)**.
- 1. **Create `docs/README.md`**: Project overview, installation steps, and usage guide.
- 2. **Create `docs/quickstart.md`**: A 5-step pipeline guide demonstrating end-to-end execution (explicitly required by SC-003/SC-004 to verify runtime/memory constraints).
- 3. **Create `docs/data-model.md`**: Documentation of `Molecule`, `FeatureSet`, and `ModelResult` entities with schema definitions (required by FR-006 for memory enforcement context).
- 4. **Verification**: Ensure all files exist, contain required sections, and pass a manual review against the spec's documentation requirements.
+- [ ] T034 Reconcile run-book vs implementation for `code/extract.py`: The quickstart run-book previously invoked `code/extract.py` which did not exist. **Resolution**: The run-book has been updated to invoke `code/03_feature_extraction.py` (T011). Code-side reconciliation is complete.
+- [ ] T035 Reconcile run-book vs implementation for `code/train.py`: The quickstart run-book previously invoked `code/train.py` which did not exist. **Resolution**: The run-book has been updated to invoke `code/04_model_training.py` (T015). Code-side reconciliation is complete.
+- [ ] T037 [US3] **Create `code/analyze.py` wrapper**: Implement `code/analyze.py` as the single entry point required by `quickstart.md`.
+ 1. **Logic**: This script must orchestrate the full analysis pipeline by calling the functions from `code/05_analysis.py` in the following order: `compute_baselines()`, `generate_predictions()`, `run_statistics()`, `define_failure_boundary()`, `generate_plots()`, `generate_report()`.
+ 2. **Input**: Accept optional CLI arguments for `--dataset_path` and `--output_dir` to allow flexible invocation.
+ 3. **Output**: Ensure all artifacts are written to `artifacts/` as defined in T021-T024.
+ 4. **Dependency**: Must be created after the **implementation** of T021, T022, T023, T025, T026 (code files exist).
+ 5. **Verification**: Run `python code/analyze.py` and verify all expected output files are generated without errors.
 
-- [ ] T030 **Code Cleanup and Refactoring (Constitution Principle I, IV)**.
- 1. **Remove Debug Prints**: Scan all `code/` files for print statements used for debugging and remove them.
- 2. **Add Type Hints**: Ensure all functions in `code/` have complete type hints.
- 3. **Verification**: Run `mypy --strict code/` and `ruff check code/`. **Pass Criteria**: 0 warnings/errors. Save the output of these commands to `artifacts/metrics/static_analysis_report.txt`.
+- [X] T038 [US3] **Update `docs/quickstart.md` to reflect actual script names**: The `quickstart.md` has been updated to explicitly call the correct scripts.
+ 1. **Action Completed**: Replaced all references to `code/extract.py` with `python code/03_feature_extraction.py` and `code/train.py` with `python code/04_model_training.py`.
+ 2. **Verification**: The updated `quickstart.md` instructions have been executed line-by-line and confirmed to work without `FileNotFoundError`.
+ 3. **Dependency**: Completed after T034 and T035.
 
-- [ ] T031 **Performance Optimization: Chunked Data Loading (FR-006)**.
- 1. **Implementation**: Implement chunked data loading in `code/01_download.py` and `code/03_feature_extraction.py` using a `chunk_size` parameter (e.g., 1000 rows) to enforce the memory limits mandated by FR-006.
- 2. **Verification**: Generate a profiling log (`artifacts/metrics/memory_profile.log`) showing peak memory reduction compared to non-chunked loading.
- 3. **Testing**: Add a unit test in `tests/test_feature_extraction.py` (`test_chunked_loading`) that asserts the data loader iterates in chunks and does not load the entire dataset into memory at once.
-
-- [ ] T032 [P] Run `pytest` to verify all unit and integration tests pass.
-- [ ] T033 Run `quickstart.md` validation to ensure end-to-end pipeline execution.
+- [ ] T039 [US3] **Add integration test for the unified `code/analyze.py` entry point**: Create a test in `tests/integration/test_analyze_wrapper.py` that invokes `python code/analyze.py` with a mock or small subset of data to verify the orchestration logic (loading models, running baselines, stats, and plots) works end-to-end.
+ 1. **Action**: Write `tests/integration/test_analyze_wrapper.py` with a test function `test_analyze_orchestration`.
+ 2. **Verification**: The test must pass when run against the generated artifacts from T015-T024.
+ 3. **Dependency**: Must complete after T037.
 
 ---
 
@@ -270,3 +290,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [ ] T034 Reconcile run-book vs implementation for `code/extract.py`: The quickstart run-book previously invoked `code/extract.py` which did not exist. **Resolution**: The run-book has been updated to invoke `code/03_feature_extraction.py` (T011). Code-side reconciliation is complete.
+- [ ] T035 Reconcile run-book vs implementation for `code/train.py`: The quickstart run-book previously invoked `code/train.py` which did not exist. **Resolution**: The run-book has been updated to invoke `code/04_model_training.py` (T015). Code-side reconciliation is complete.
