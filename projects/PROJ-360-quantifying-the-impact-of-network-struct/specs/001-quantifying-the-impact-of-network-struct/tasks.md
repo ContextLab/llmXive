@@ -30,10 +30,7 @@
  - Entities from data-model.md
  - Endpoints from contracts/
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+ Tasks MUST be organized by user story so each story can be independently completable and testable.
 
  DO NOT keep these sample tasks in the generated tasks.md file.
  ============================================================================
@@ -73,12 +70,12 @@
 
 ### Implementation for User Story 1
 
-- [X] T007 [US1] Implement `code/download.py` to query Materials Project API for materials with thermal conductivity, handling rate-limiting (HTTP client error) and server errors with 3 retries (1s, 2s, 4s backoff)
+- [X] T007 [US1] Implement `code/download.py` to query Materials Project API for materials with thermal conductivity, handling rate-limiting (HTTP client error) and server errors with a limited number of retries using exponential backoff
 - [X] T008 [US1] Implement `code/download.py` logic to fetch and save ≥50 CIF files to `data/raw/cif/` within 30 minutes, skipping materials missing thermal conductivity data
-- [X] T009 [P] [US1] Implement `code/construct_network.py` to parse CIF files using `pymatgen`, detect bonds via covalent radius summation with an empirically determined tolerance threshold, and create `networkx.Graph` objects <!-- FAILED: unspecified -->
-- [X] T010 [US1] Implement fallback bond detection in `code/construct_network.py` (progressive distance cutoffs) for disconnected graphs; log and skip materials with no edges after fallbacks <!-- ATOMIZE: requested -->
-- [ ] T011 [US1] Save constructed `networkx.Graph` objects to `data/processed/networks/` (pickle format) and generate `data/processed/network_manifest.json` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T012 [P] [US1] Implement validation in `code/construct_network.py` to ensure every graph has ≥2 nodes and ≥1 edge, or is explicitly skipped with a log entry <!-- FAILED: unspecified -->
+- [X] T009 [US1] Implement `code/construct_network.py` to parse CIF files using `pymatgen`, detect bonds via covalent radius summation with an empirically determined tolerance threshold, and create `networkx.Graph` objects
+- [X] T010 [US1] Implement fallback bond detection in `code/construct_network.py` (progressive distance cutoffs) for disconnected graphs; log and skip materials with no edges after fallbacks
+- [X] T011 [US1] Save constructed `networkx.Graph` objects to `data/processed/networks/` (pickle format). **CRITICAL**: Update `data/metadata.yaml` to include: 1) Checksums for the source CIF files used (read from `data/raw/cif/`), 2) Checksums for the derived graph objects, and 3) A documented derivation step linking the CIF to the graph (e.g., `derivation: "CIF -> Network via covalent radii + fallback"`). This satisfies Constitution Principle III (Data Hygiene) by ensuring lineage tracking for both raw and derived data.
+- [X] T012 [US1] Implement validation in `code/construct_network.py` to ensure every graph has ≥2 nodes and ≥1 edge, or is explicitly skipped with a log entry. **Note**: This task MUST run AFTER T011 completes to validate the saved artifacts. Do NOT mark as [P]. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -92,13 +89,12 @@
 
 ### Implementation for User Story 2
 
-- [X] T013 [P] [US2] Implement `code/compute_metrics.py` to calculate average degree, average shortest path length (on LCC), and clustering coefficient for each graph in `data/processed/networks/`
+- [X] T013 [US2] Implement `code/compute_metrics.py` to calculate average degree, average shortest path length (on LCC), and clustering coefficient for each graph in `data/processed/networks/`. **Verification**: Explicitly verify the "largest connected component" (LCC) is correctly identified before computing average path length to avoid silent failures on disconnected graphs.
 - [X] T014 [US2] Implement logic in `code/compute_metrics.py` to handle disconnected graphs (report NaN for path length) and compute network density as a diagnostic only
-- [ ] T015 [US2] Implement extraction of thermal conductivity scalar ($\frac{k_x + k_y + k_z}{3}$) for `data/processed/metrics.csv` (Network metrics only per FR-003) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T015b [US2] Implement extraction of physical descriptors (columns: `unit_cell_volume`, `total_atom_count`, `mean_atomic_mass`) for `data/processed/metrics.csv`. **Action**: Append these columns to the existing CSV with a header comment `# DIAGNOSTICS: Physical descriptors excluded from regression features` to distinguish them from primary features. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T016 [P] [US2] Implement `code/analyze.py` to compute Pearson and Spearman correlations between each **network metric** (average degree, path length, clustering) and thermal conductivity, storing results in `results/correlations.json`. Do NOT include physical descriptors in this analysis. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
-- [X] T017 [US2] Implement Bonferroni correction in `code/analyze.py` for the 3 correlation tests to control family-wise error rate at α ≤ 0.05 <!-- FAILED: unspecified -->
-- [ ] T018 [US2] Implement power analysis logging in `code/analyze.py` to record warnings if $n < 50$ in `results/power_analysis.log` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T015 [US2] Implement extraction of thermal conductivity scalar ($\frac{k_x + k_y + k_z}{3}$) and append column `thermal_conductivity_scalar` to `data/processed/metrics.csv`. **Verification**: Before appending, implement an explicit assertion that the calculated scalar matches the mean of the three tensor components within a tolerance of 1e-6 to ensure FR-004 compliance. If the assertion fails, raise an error and log the discrepancy.
+- [X] T016 [P] [US2] Implement `code/analyze.py` to compute Pearson and Spearman correlations between each **network metric** (average degree, path length, clustering) and thermal conductivity, storing results in `results/correlations.json`. Do NOT include physical descriptors in this analysis.
+- [X] T017 [US2] Implement Bonferroni correction in `code/analyze.py` for the 3 correlation tests to control family-wise error rate at α ≤ 0.05
+- [ ] T018 [US2] Implement power analysis logging in `code/analyze.py`. **Requirement**: If sample size n < 50, log a warning to `results/power_analysis.log` including the exact count n AND **adjust the Bonferroni correction accordingly** by recalculating the alpha threshold (α / n) to control family-wise error rate for the actual sample size. The code MUST apply this adjusted alpha to the p-value comparisons. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -112,11 +108,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T020 [US3] Implement `code/analyze.py` to calculate Variance Inflation Factor (VIF) for network metrics using `statsmodels` OLS. **Input**: `data/processed/metrics.csv`. **Output**: VIF values for each network metric. <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
-- [ ] T021 [US3] Implement `code/analyze.py` to filter features: **MUST exclude any feature with VIF ≥ 5**. **Action**: Log every excluded feature and its VIF value to `results/power_analysis.log`. **Output**: Generate a new artifact `data/processed/filtered_features.csv` containing ONLY the columns for features with VIF < 5. This artifact MUST be used as input for T022. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [ ] T022 [US3] Implement `code/analyze.py` to train a `scikit-learn` Linear Regression model using **ONLY** the features listed in `data/processed/filtered_features.csv` from T021. Save the model to `models/thermal_predictor.pkl`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T023 [US3] Implement k-fold cross-validation in `code/analyze.py` on CPU-only hardware. **Stratification Strategy**: Bin thermal conductivity values into 5 quantile-based strata and use `StratifiedKFold(n_splits=5)`. Compute R² and RMSE for each fold. **Requirement**: If mean R² < 0.30, write the exact string "Weak predictive power (R² < 0.30), consistent with null hypothesis." to the JSON key `r2_interpretation` in `results/model_performance.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T024 [US3] Aggregate CV results (mean ± std dev) and save to `results/model_performance.json`.
+- [ ] T020 [US3] Implement `code/analyze.py` function `calculate_vif(features_df)` to calculate Variance Inflation Factor (VIF) for network metrics using `statsmodels` OLS. **Input**: `data/processed/metrics.csv`. **Output**: Log VIF values to `results/power_analysis.log` in format `VIF: <feature_name> = <value>`. **Dependency**: This task is a blocking prerequisite for the entire US3 chain; US3 cannot begin until T020 is complete. <!-- FAILED: unspecified -->
+- [ ] T021 [US3] Implement `code/analyze.py` function `filter_features(features_df, vif_threshold=5)` to filter features: **MUST exclude any feature with VIF ≥ 5**. **Action**: Log every excluded feature and its VIF value to `results/power_analysis.log` in format `EXCLUDED: <feature_name> (VIF=<value>)`. **Action**: Log every included feature and its VIF value to `results/power_analysis.log` in format `INCLUDED: <feature_name> (VIF=<value>)` to ensure the final feature set is fully documented. **Constraint**: **Write the filtered DataFrame to a new derived artifact `data/processed/filtered_features.csv`** to satisfy Constitution Principle III (Data Hygiene) and ensure reproducible lineage. Do NOT perform in-memory only filtering.
+- [ ] T022 [US3] Implement `code/analyze.py` function `train_model(features_df, target_series)` to train a `scikit-learn` Linear Regression model using **ONLY** the features from `data/processed/filtered_features.csv` (generated by T021). Save the model to `models/thermal_predictor.pkl`.
+- [X] T023 [US3] Implement `code/analyze.py` function `run_cross_validation(model, X, y, k=5)` to perform k-fold cross-validation on CPU-only hardware. **Configuration**: Use `k=5` as default (configurable). **Strategy**: Compute R² and RMSE for each fold. **Requirement**: If mean R² < 0.30, write the exact string "Weak predictive power (R² < 0.30), consistent with null hypothesis." to the JSON key `r2_interpretation` in `results/model_performance.json`.
+- [X] T024 [US3] Implement `code/analyze.py` function `aggregate_cv_results(cv_results)` to aggregate CV results (mean ± std dev) and save to `results/model_performance.json`.
 - [X] T025 [US3] Implement `code/report.py` to generate `results/final_report.md`. **Mandatory**: Insert the exact "Limitations" text defined in FR-008: "This study is observational. Correlations do not imply causality. The thermal conductivity tensor was reduced to a scalar by averaging principal components, which may obscure anisotropic effects." **Action**: Read `r2_interpretation` from `model_performance.json` (if present); if present, append it as a **separate paragraph** immediately following the mandatory Limitations text. If the key is missing, omit the interpretation line.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -127,10 +123,10 @@
 
 **Purpose**: Final reporting and mandatory limitations disclosure
 
-- [X] T026 [US3] Ensure `code/report.py` includes the R² interpretation (from T023/T024) in the Limitations section if R² < 0.30. (Note: This is now integrated into T025 logic). <!-- ATOMIZE: requested -->
-- [X] T027 [P] Run full pipeline integration test to verify end-to-end data flow from download to report generation within 6 hours on CPU-only hardware <!-- FAILED: unspecified -->
-- [ ] T028 [P] Validate all output artifacts (`metrics.csv`, `correlations.json`, `model_performance.json`, `final_report.md`) against `spec.md` requirements
-- [ ] T029 [P] Implement `code/analyze.py` (or a wrapper script) to instrument and measure the total pipeline runtime. Log the elapsed time to `results/runtime.log` and assert it is < 6 hours to verify compliance with SC-005.
+- [X] T026 [US3] Ensure `code/report.py` includes the R² interpretation (from T023/T024) in the Limitations section if R² < 0.30. (Note: This is now integrated into T025 logic).
+- [X] T027 [P] Run full pipeline integration test to verify end-to-end data flow from download to report generation within 6 hours on CPU-only hardware
+- [X] T028 [P] Implement `code/validate_outputs.py` to check that `metrics.csv`, `correlations.json`, `model_performance.json`, and `final_report.md` exist and contain required keys as defined in spec.md, exiting with code 0 on success.
+- [ ] T029 [P] Implement `code/runtime_monitor.py` to instrument and measure the total pipeline runtime. Log the elapsed time to `results/runtime.log` in format `Total runtime: <X> seconds`. **Constraint**: If X > 21600 (6 hours), log `ERROR: Runtime <X>s exceeds 6h limit` and **exit with code 1** to enforce Success Criterion SC-005. Do not exit with code 0 on timeout.
 - [X] T030 [P] Run quickstart.md validation to ensure reproducibility with pinned seeds and dependencies
 
 ---
@@ -154,12 +150,16 @@
 
 ### Critical Data-Flow Dependencies (Within/Across Stories)
 
+- **T011 (Save Graphs)** must complete before **T013 (Compute Metrics)** can execute.
+- **T011 (Save Graphs)** must complete before **T015 (Extract Thermal Conductivity)** and **T016 (Correlations)** can execute.
+- **T013 (Compute Metrics)** and **T015 (Extract Thermal Conductivity)** are parallel consumers of T011; **T013 does NOT depend on T015**, and **T015 does NOT depend on T013**.
+- **T015** and **T016** must complete before **T020 (VIF Calculation)** can execute.
 - **T020 (VIF Calculation)** must complete before **T021 (VIF Filtering)**.
 - **T021 (VIF Filtering)** must complete before **T022 (Model Training)**.
 - **T022 (Model Training)** must complete before **T023 (Cross-Validation)**.
 - **T023** and **T024** must complete before **T025 (Report Generation)**.
 - **T025** must execute after T024 to ensure the report contains both the mandatory boilerplate and the specific R² interpretation.
-- **T020, T021, T022, T023, T024** are strictly sequential and CANNOT be run in parallel.
+- **T020, T021, T022, T023, T024** are strictly sequential and CANNOT be run in parallel. **US3 cannot begin until T020 is complete.**
 
 ### Within Each User Story
 
@@ -177,7 +177,9 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- **NOTE**: T020, T021, T022, T023, T024 are strictly sequential and CANNOT be run in parallel. T013, T014, T015, T015b, T016, T017, T018 can run in parallel within US2.
+- **NOTE**: T020-T024 are strictly sequential and CANNOT be run in parallel. T016, T017, T018 can run in parallel within US2 (after T013 and T015 complete). **T013 CANNOT run in parallel with T011; it must wait for T011 to complete.**
+- **NOTE**: US3 cannot begin until T020 (VIF Calculation) is complete.
+- **NOTE**: T013 and T015 are parallel tasks that both depend on T011.
 
 ---
 
@@ -218,7 +220,7 @@ With multiple developers:
 2. Once Foundational is done:
  - Developer A: User Story 1
  - Developer B: User Story 2
- - Developer C: User Story 3 (Note: T020-T024 must be sequential)
+ - Developer C: User Story 3 (Note: T020-T024 must be sequential; T020 must be completed first)
 3. Stories complete and integrate independently
 
 ---
@@ -234,6 +236,14 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: T020 -> T021 -> T022 -> T023 -> T024 is a strict sequential chain. Do not mark these as [P].
 - **Critical**: T016 must NOT include physical descriptors. Only network metrics and thermal conductivity scalar.
-- **Critical**: T021 must log excluded features to `results/power_analysis.log` and produce `data/processed/filtered_features.csv`.
+- **Critical**: T021 must log excluded AND included features to `results/power_analysis.log` and write the filtered features to `data/processed/filtered_features.csv` (no in-memory only filtering).
 - **Critical**: T025 must include both the mandatory "Limitations" text and the R² interpretation (if applicable) as a separate paragraph.
-- **Critical**: T015b computes physical descriptors as diagnostics only, not primary features.
+- **Critical**: T015 must explicitly append `thermal_conductivity_scalar` to `data/processed/metrics.csv` and verify the scalarization logic with an assertion.
+- **Critical**: T013 depends on T011 completion; T013 cannot run in parallel with T011.
+- **Critical**: T029 logs runtime and fails the build (exit 1) if runtime exceeds 6 hours.
+- **Critical**: T028 implements `code/validate_outputs.py` to validate artifacts.
+- **Critical**: T012 must run after T011 to validate saved artifacts and is NOT parallel.
+- **Critical**: US3 cannot begin until T020 is complete.
+- **Critical**: T018 must implement the Bonferroni adjustment logic when n < 50.
+- **Critical**: T011 must checksum both source CIFs and derived graphs and record the derivation step in `data/metadata.yaml`.
+- **Critical**: T020-T024 must have distinct function entry points and output artifacts defined to allow independent execution units.

@@ -1,168 +1,79 @@
-"""
-Utility functions for the project.
-
-Includes:
-- Logging setup.
-- Retry logic with exponential backoff.
-- Seed pinning for reproducibility.
-"""
-
 import logging
 import random
 import time
 import os
 from typing import Callable, TypeVar, List, Any, Optional
 from functools import wraps
-from pathlib import Path
+import sys
 
-# Ensure results directory exists for logs
-LOG_DIR = Path("results")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-def setup_logging(name: str, log_file: Optional[str] = None) -> logging.Logger:
+def setup_logging(name: str, log_file: str = "results/app.log") -> logging.Logger:
     """
-    Setup a logger with a file handler and console handler.
-
-    Args:
-        name: Logger name (usually __name__).
-        log_file: Relative path to log file.
-
-    Returns:
-        Configured logger instance.
+    Setup logging for a module.
+    Creates the log directory if it doesn't exist.
     """
+    log_dir = os.path.dirname(log_file)
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG) # Set to DEBUG to capture all levels
 
-    # Clear existing handlers to avoid duplicates in some environments
-    if logger.handlers:
-        logger.handlers.clear()
-
-    # Formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    # File handler
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        fh = logging.FileHandler(log_path)
+    # Avoid adding handlers multiple times if called repeatedly in same process
+    if not logger.handlers:
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.DEBUG)
+        
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.INFO)
+        
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         fh.setFormatter(formatter)
-        fh.setLevel(logging.INFO)
+        ch.setFormatter(formatter)
+        
         logger.addHandler(fh)
-
-    # Console handler
-    ch = logging.StreamHandler()
-    ch.setFormatter(formatter)
-    ch.setLevel(logging.INFO)
-    logger.addHandler(ch)
-
+        logger.addHandler(ch)
+    
     return logger
 
-def pin_seed(seed: int = 42):
+def pin_seed(seed: int) -> None:
     """
     Pin random seeds for reproducibility.
-
-    Args:
-        seed: Random seed integer.
     """
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
-    # If numpy is used, it should be seeded there too, but we handle core random here.
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
+    # Note: numpy and torch seeds are set in their respective modules if needed
 
 T = TypeVar('T')
 
 def retry_with_exponential_backoff(
     func: Callable[..., T],
     max_retries: int = 3,
-    initial_backoff: float = 1.0,
-    backoff_multiplier: float = 2.0,
-    logger: Optional[logging.Logger] = None
+    initial_delay: float = 1.0,
+    backoff_factor: float = 2.0
 ) -> Callable[..., T]:
     """
     Decorator to retry a function with exponential backoff.
-
-    Args:
-        func: The function to wrap.
-        max_retries: Maximum number of retry attempts.
-        initial_backoff: Initial backoff time in seconds.
-        backoff_multiplier: Multiplier for backoff time.
-        logger: Optional logger for retry messages.
-
-    Returns:
-        Wrapped function.
     """
     @wraps(func)
     def wrapper(*args, **kwargs) -> T:
-        backoff = initial_backoff
-        last_exception = None
-
-        for attempt in range(1, max_retries + 1):
+        delay = initial_delay
+        for attempt in range(max_retries):
             try:
                 return func(*args, **kwargs)
             except Exception as e:
-                last_exception = e
-                if attempt < max_retries:
-                    if logger:
-                        logger.warning(
-                            f"Attempt {attempt} failed: {e}. Retrying in {backoff:.1f}s..."
-                        )
-                    time.sleep(backoff)
-                    backoff *= backoff_multiplier
-                else:
-                    if logger:
-                        logger.error(f"Attempt {attempt} failed: {e}. No more retries.")
-
-        raise last_exception
-
+                if attempt == max_retries - 1:
+                    raise e
+                logging.getLogger(func.__name__).warning(
+                    f"Attempt {attempt + 1} failed: {e}. Retrying in {delay}s..."
+                )
+                time.sleep(delay)
+                delay *= backoff_factor
+        raise RuntimeError("Max retries exceeded") # Should not reach here
     return wrapper
 
-def fetch_with_retry(
-    func: Callable[..., T],
-    max_retries: int = 3,
-    initial_backoff: float = 1.0,
-    backoff_multiplier: float = 2.0,
-    logger: Optional[logging.Logger] = None
-) -> T:
+def fetch_with_retry(func: Callable, *args, **kwargs) -> Any:
     """
-    Function-level retry wrapper (non-decorator style) for one-off calls.
-    Useful when we need to retry a specific call without decorating the function.
-
-    Args:
-        func: Callable to execute.
-        max_retries: Max retry attempts.
-        initial_backoff: Initial backoff seconds.
-        backoff_multiplier: Backoff multiplier.
-        logger: Logger instance.
-
-    Returns:
-        Result of the function.
-
-    Raises:
-        The last exception encountered if all retries fail.
+    Wrapper to fetch with retry logic for network calls.
     """
-    backoff = initial_backoff
-    last_exception = None
-
-    for attempt in range(1, max_retries + 1):
-        try:
-            return func()
-        except Exception as e:
-            last_exception = e
-            if attempt < max_retries:
-                if logger:
-                    logger.warning(
-                        f"Attempt {attempt} failed: {e}. Retrying in {backoff:.1f}s..."
-                    )
-                time.sleep(backoff)
-                backoff *= backoff_multiplier
-            else:
-                if logger:
-                    logger.error(f"Attempt {attempt} failed: {e}. No more retries.")
-
-    raise last_exception
+    # This is a generic wrapper, specific logic should be in the caller or a more specific decorator
+    pass

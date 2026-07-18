@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-360-quantifying-the-impact-of-network-struct",
+  "tasks": [
+    {
+      "task_key": "T029",
+      "reject_count": 1,
+      "last_reason": "The provided `code/runtime_monitor.py` is truncated and does not contain the logic that writes \u201cTotal runtime: <X> seconds\u201d or the error message, nor does it exit with code\u202f1 on overruns. Additionally, the required `results/runtime.log` file is absent. The implementation therefore does not meet the specified logging format or exit\u2011code constraint.",
+      "first_seen": "2026-07-18T16:05:03.763717+00:00",
+      "last_seen": "2026-07-18T16:05:03.763717+00:00"
+    }
+  ],
+  "updated_at": "2026-07-18T16:05:03.763717+00:00"
+}
