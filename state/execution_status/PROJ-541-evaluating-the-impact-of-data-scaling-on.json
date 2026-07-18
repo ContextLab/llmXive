@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-541-evaluating-the-impact-of-data-scaling-on",
+  "ok": false,
+  "reason": "6 command(s) failed: python code/main.py --mode simulation (rc=1); python code/main.py --mode real_world (rc=1); python code/main.py --mode simulation --config-id \"test-config-1\" --iterations 100 (rc=1); 1 declared deliverable(s) absent: figures/error_rate_plot.png",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --mode simulation -> rc=1\n    2026-07-18 22:22:54,878 - main - INFO - Starting Main Pipeline\n2026-07-18 22:22:54,878 - main - INFO - Directories ensured.\n2026-07-18 22:22:54,878 - main - INFO - Starting Real-World Dataset Ingestion Pipeline (T034b)\n2026-07-18 22:22:54,884 - main - INFO - Processing dataset: datasets\n2026-07-18 22:22:54,884 - main - WARNING - Failed to process datasets: download_dataset() takes 1 positional argument but 2 were given\n2026-07-18 22:22:54,884 - main - INFO - Real-World Ingestion Pipeline finished.\n2026-07-18 22:22:54,884 - main - INFO - Startin",
+    "python code/main.py --mode real_world -> rc=1\n    2026-07-18 22:22:57,218 - main - INFO - Starting Main Pipeline\n2026-07-18 22:22:57,218 - main - INFO - Directories ensured.\n2026-07-18 22:22:57,218 - main - INFO - Starting Real-World Dataset Ingestion Pipeline (T034b)\n2026-07-18 22:22:57,223 - main - INFO - Processing dataset: datasets\n2026-07-18 22:22:57,223 - main - WARNING - Failed to process datasets: download_dataset() takes 1 positional argument but 2 were given\n2026-07-18 22:22:57,223 - main - INFO - Real-World Ingestion Pipeline finished.\n2026-07-18 22:22:57,223 - main - INFO - Startin",
+    "python code/main.py --mode simulation --config-id \"test-config-1\" --iterations 100 -> rc=1\n    2026-07-18 22:22:59,544 - main - INFO - Starting Main Pipeline\n2026-07-18 22:22:59,544 - main - INFO - Directories ensured.\n2026-07-18 22:22:59,545 - main - INFO - Starting Real-World Dataset Ingestion Pipeline (T034b)\n2026-07-18 22:22:59,550 - main - INFO - Processing dataset: datasets\n2026-07-18 22:22:59,550 - main - WARNING - Failed to process datasets: download_dataset() takes 1 positional argument but 2 were given\n2026-07-18 22:22:59,550 - main - INFO - Real-World Ingestion Pipeline finished.\n20",
+    "python code/main.py --mode visualize -> rc=1\n    2026-07-18 22:23:01,935 - main - INFO - Starting Main Pipeline\n2026-07-18 22:23:01,936 - main - INFO - Directories ensured.\n2026-07-18 22:23:01,936 - main - INFO - Starting Real-World Dataset Ingestion Pipeline (T034b)\n2026-07-18 22:23:01,941 - main - INFO - Processing dataset: datasets\n2026-07-18 22:23:01,941 - main - WARNING - Failed to process datasets: download_dataset() takes 1 positional argument but 2 were given\n2026-07-18 22:23:01,941 - main - INFO - Real-World Ingestion Pipeline finished.\n2026-07-18 22:23:01,941 - main - INFO - Starting",
+    "python code/main.py --mode analyze -> rc=1\n    2026-07-18 22:23:04,276 - main - INFO - Starting Main Pipeline\n2026-07-18 22:23:04,276 - main - INFO - Directories ensured.\n2026-07-18 22:23:04,277 - main - INFO - Starting Real-World Dataset Ingestion Pipeline (T034b)\n2026-07-18 22:23:04,282 - main - INFO - Processing dataset: datasets\n2026-07-18 22:23:04,282 - main - WARNING - Failed to process datasets: download_dataset() takes 1 positional argument but 2 were given\n2026-07-18 22:23:04,282 - main - INFO - Real-World Ingestion Pipeline finished.\n2026-07-18 22:23:04,282 - main - INFO - Starting R",
+    "python code/main.py --mode verify-checksums -> rc=1\n    2026-07-18 22:23:06,652 - main - INFO - Starting Main Pipeline\n2026-07-18 22:23:06,653 - main - INFO - Directories ensured.\n2026-07-18 22:23:06,653 - main - INFO - Starting Real-World Dataset Ingestion Pipeline (T034b)\n2026-07-18 22:23:06,658 - main - INFO - Processing dataset: datasets\n2026-07-18 22:23:06,658 - main - WARNING - Failed to process datasets: download_dataset() takes 1 positional argument but 2 were given\n2026-07-18 22:23:06,658 - main - INFO - Real-World Ingestion Pipeline finished.\n2026-07-18 22:23:06,658 - main - INFO - S"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-18T22:23:07Z"
+}

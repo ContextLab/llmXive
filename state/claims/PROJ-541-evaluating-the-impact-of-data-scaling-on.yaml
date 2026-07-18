@@ -632,3 +632,65 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T09:58:14Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Clopper-Pearson exact method range for n=100 p=0.05 is 0.001 to 0.149
+  claim_id: c_4efc89c8
+  context: 'Contract test for confidence interval calculation. Deliverable: Implement
+    CI calculation using normal approximation and verify against known binomial values
+    for n=100, p=0.05 (expected range: 0.001 to 0.149 using Clopper-Pearson exact
+    method).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'expected range: 0.001 to 0.149 using Clopper-Pearson exact method'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:23:50Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: List of verified dataset IDs includes uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin,
+    uciml/heart-statlog, uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis,
+    uciml/horse-colic, openml/d/2, openml/d/3, openml/d/11
+  claim_id: c_ef60a69c
+  context: 'Create Dataset Configuration: Generate data/config/datasets.yaml containing
+    the list of verified datasets (IDs: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin,
+    uciml/heart-statlog, uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis,
+    uciml/horse-colic, openml/d/2, openml/d/3, openml/d/11).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'IDs: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin, uciml/heart-statlog,
+    uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis, uciml/horse-colic,
+    openml/d/2, openml/d/3, openml/d/11'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:24:12Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: List of verified datasets includes uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin,
+    uciml/heart-statlog, uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis,
+    uciml/horse-colic, openml/d/2, openml/d/3, openml/d/11
+  claim_id: c_1fcc9720
+  context: 'Create Dataset Configuration: Generate data/config/datasets.yaml containing
+    the list of verified datasets (IDs: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin,
+    uciml/heart-statlog, uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis,
+    uciml/horse-colic, openml/d/2, openml/d/3, openml/d/11).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include metadata (source, expected size) for each. If any dataset is unavailable,
+    the ingestion loop must log a warning and skip it (T034b) to ensure robustness;
+    do not fall back to synthetic data. ... openml/d/2, openml/d/3, openml/d/11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:30:56Z'

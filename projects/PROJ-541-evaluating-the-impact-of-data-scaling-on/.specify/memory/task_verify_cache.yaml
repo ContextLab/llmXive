@@ -1,3 +1,20 @@
+T027:
+  c: false
+  h: e514e5dcf44bfcdf4c90e36be280b64e852f39dcb50238614bf914a424a562b1
+  r: The repository contains a partially shown `orchestrator.py` with helper functions
+    but the core simulation loop is truncated, and there is no `results/simulation_results.csv`
+    file. Consequently there is no evidence that the required number of iterations
+    are executed, that each row includes a populated `seed`, or that the CSV follows
+    the specified schema. The essential output artifact is missing.
+T031a:
+  c: false
+  h: 65f27bd822cd062a38733f544e6111b2988001c14d0e6eba7c0c9b87fa31f37f
+  r: The repository lacks the required `results/simulation_results.csv` input and
+    the `results/anova_synthetic.csv` output file. Moreover, the `fit_synthetic_anova`
+    function in `code/analysis/metrics.py` is truncated and does not contain a complete
+    implementation that performs the ANOVA and writes the results to the expected
+    CSV. These missing artifacts and incomplete code mean the task is not genuinely
+    fulfilled.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,15 +22,6 @@ T032:
     artifact (e.g., a document, table, or figure) showing deviations of the scaling
     methods from the nominal 0.05. The required deliverable is missing, so the task
     is not satisfied.
-T034b:
-  c: false
-  h: 781956407f7ae19f6707156056135e3c2722d2b9415c905f8d6a845bdb000aa0
-  r: "`code/main.py` contains a partially\u2011written `run_real_world_ingestion_pipeline`\
-    \ that is truncated before it records any metadata, and there is no logic that\
-    \ writes source, size, or missing_rate to `data/metadata/manifest.json`. The manifest\
-    \ file is still just an empty list (`[]`), showing that no dataset metadata has\
-    \ been tracked or missing\u2011dataset warnings emitted. The required loop and\
-    \ manifest updates are therefore missing."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

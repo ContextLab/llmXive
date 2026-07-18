@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a simulation engine to evaluate how three data scaling methods (Standardization, Min-Max, Robust) affect the *numerical stability* and *invariance* of parametric statistical tests (t-test, ANOVA). The core hypothesis is that while linear scaling transformations should theoretically leave t-test and ANOVA p-values invariant, numerical precision errors or implementation-specific edge cases (e.g., zero variance, extreme outliers) may introduce deviations. The system will generate synthetic data with known ground truth (null and alternative hypotheses) across various distributional properties (normal, skewed, heteroscedastic). It will run a sufficient number of iterations per configuration to calculate empirical Type I error rates and statistical power, comparing them against the nominal alpha level (0.05). Finally, it will validate findings on a curated set of public datasets by measuring the consistency of p-values. The entire pipeline is designed to execute within a 6-hour window on a 2-core CPU GitHub Actions runner (FR-007, SC-003).
+This project implements a simulation engine to evaluate how three data scaling methods (Standardization, Min-Max, Robust) affect the *numerical stability* and *invariance* of parametric statistical tests (t-test, ANOVA). The core hypothesis is that while linear scaling transformations should theoretically leave t-test and ANOVA p-values invariant, numerical precision errors or implementation-specific edge cases (e.g., zero variance, extreme outliers) may introduce deviations. The system will generate synthetic data with known ground truth (null and alternative hypotheses) across various distributional properties (normal, skewed, heteroscedastic). It will run a sufficient number of iterations per configuration to calculate empirical Type I error rates and statistical power, comparing them against the nominal alpha level (0.05). Finally, it will validate findings on a curated set of public datasets by measuring the consistency of p-values. The entire pipeline is designed to execute within a bounded time window on a 2-core CPU GitHub Actions runner (FR-007, SC-003).
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This project implements a simulation engine to evaluate how three data scaling m
 **Project Type**: Computational Research / Simulation Engine  
 **Performance Goals**: Complete [deferred]+ iterations per configuration within 6 hours total runtime (FR-007, SC-003).
 **Constraints**: No GPU usage; memory footprint < 7GB; no external network calls except for initial dataset download (cached for CI).  
-**Scale/Scope**: [deferred] iterations per config; available verified real-world datasets (HAR, Shopper); multiple scaling methods; 2 test types (t-test, ANOVA).
+**Scale/Scope**: [deferred] iterations per config; available verified real-world datasets (HAR, Shopper); multiple scaling methods; Multiple test types (t-test, ANOVA).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

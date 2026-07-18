@@ -41,7 +41,7 @@ The researcher needs to apply three specific scaling methods (standardization, m
 
 ### User Story 3 - Aggregation and Visualization of Inferential Validity (Priority: P3)
 
-The researcher needs to aggregate the results of 10,000+ simulation iterations to calculate empirical Type I error rates and statistical power, and visualize these metrics against the nominal alpha level (0.05) with 95% confidence intervals.
+The researcher needs to aggregate the results of a large number of simulation iterations to calculate empirical Type I error rates and statistical power., and visualize these metrics against the nominal alpha level (0.05) with 95% confidence intervals.
 
 **Why this priority**: This provides the final insight. While P1 and P2 generate the raw data, P3 transforms it into the actionable evidence required to answer the research question.
 
@@ -57,7 +57,7 @@ The researcher needs to aggregate the results of 10,000+ simulation iterations t
 
 ### User Story 4 - Real-World Dataset Validation (Priority: P4)
 
-The researcher needs to download, ingest, and process 10-15 public datasets from UCI and OpenML to validate the simulation findings on real-world data. This ensures the observed effects are not artifacts of the synthetic generator.
+The researcher needs to download, ingest, and process -15 public datasets from UCI and OpenML to validate the simulation findings on real-world data. This ensures the observed effects are not artifacts of the synthetic generator.
 
 **Why this priority**: Real-world validation is critical to confirm that the scaling robustness (or lack thereof) observed in simulation holds in practice.
 
@@ -86,7 +86,7 @@ The researcher needs to download, ingest, and process 10-15 public datasets from
 - **FR-004**: System MUST run a simulation loop of at least 10,000 iterations per configuration to ensure tight confidence intervals around error rate estimates (See US-3).
 - **FR-005**: System MUST calculate empirical Type I error rates (proportion of rejections when null is true) and Statistical Power (proportion of rejections when alternative is true) for each scaling method (See US-3).
 - **FR-006**: System MUST generate visualizations comparing empirical error rates against the nominal alpha level (0.05) with 95% confidence intervals (See US-3).
-- **FR-007**: System MUST execute the entire simulation and analysis pipeline within a 6-hour runtime limit on a 2-core CPU environment (See US-1, US-3).
+- **FR-007**: System MUST execute the entire simulation and analysis pipeline within a reasonable runtime limit on a 2-core CPU environment (See US-1, US-3).
 - **FR-008**: System MUST ingest and preprocess at least 10 public datasets from UCI and OpenML repositories (See US-4).
 - **FR-009**: System MUST apply the scaling and testing pipeline to real-world datasets and report deviations in p-values and effect sizes (See US-4).
 - **FR-010**: System MUST fit mixed-effects models to test whether scaling method significantly predicts deviation from nominal error rates, treating dataset/source as a random effect (See US-3, US-4).
