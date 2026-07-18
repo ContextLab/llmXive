@@ -1,77 +1,69 @@
-"""
-Data model for a single EEG segment (epoch).
-"""
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime
 import numpy as np
-
+import json
 
 @dataclass
 class EEGSegment:
     """
-    Represents a continuous or epoched segment of EEG data.
+    Represents a validated segment of EEG data for a single participant.
     
     Attributes:
         participant_id: Unique identifier for the participant.
-        segment_id: Unique identifier for this specific segment/epoch.
-        recording_date: Date and time of the recording.
-        channel_names: List of channel names included in this segment.
+        channel: The EEG channel name (e.g., 'Fp1', 'Cz').
+        data: The raw time-series data as a numpy array.
         sampling_rate: Sampling rate in Hz.
-        data: 2D numpy array of shape (n_channels, n_samples).
-        metadata: Additional metadata dictionary (e.g., sleep stage, task condition).
-        is_resting: Boolean flag indicating if this segment is a resting-state recording.
+        start_time: Start timestamp of the segment.
         duration_seconds: Duration of the segment in seconds.
-        rejection_reason: Optional string explaining why this segment was rejected (if applicable).
+        metadata: Additional dictionary for segment-specific info.
     """
     participant_id: str
-    segment_id: str
-    sampling_rate: float
-    channel_names: list[str]
+    channel: str
     data: np.ndarray
-    
-    recording_date: Optional[datetime] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    is_resting: bool = False
+    sampling_rate: float
+    start_time: Optional[datetime] = None
     duration_seconds: Optional[float] = None
-    rejection_reason: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
-        """Validate data shape and types after initialization."""
-        if not isinstance(self.channel_names, list):
-            raise TypeError("channel_names must be a list of strings.")
-        
+        """Validate data types and basic constraints."""
         if not isinstance(self.data, np.ndarray):
-            raise TypeError("data must be a numpy ndarray.")
+            raise TypeError(f"data must be a numpy array, got {type(self.data)}")
+        if self.data.ndim != 1:
+            raise ValueError(f"data must be 1D, got {self.data.ndim}D")
+        if self.sampling_rate <= 0:
+            raise ValueError("sampling_rate must be positive")
         
-        if self.data.ndim != 2:
-            raise ValueError(f"Expected 2D data array (channels, samples), got {self.data.ndim}D.")
-        
-        expected_channels = len(self.channel_names)
-        if self.data.shape[0] != expected_channels:
-            raise ValueError(
-                f"Channel count mismatch: {expected_channels} channel names provided, "
-                f"but data array has {self.data.shape[0]} rows."
-            )
-        
-        if self.duration_seconds is None and self.sampling_rate > 0:
-            self.duration_seconds = self.data.shape[1] / self.sampling_rate
+        # Calculate duration if not provided
+        if self.duration_seconds is None and len(self.data) > 0:
+            self.duration_seconds = len(self.data) / self.sampling_rate
 
-    def get_channel_data(self, channel_name: str) -> np.ndarray:
-        """
-        Retrieve data for a specific channel by name.
-        
-        Args:
-            channel_name: The name of the channel.
-            
-        Returns:
-            1D numpy array of channel data.
-            
-        Raises:
-            ValueError: If the channel name is not found.
-        """
-        if channel_name not in self.channel_names:
-            raise ValueError(f"Channel '{channel_name}' not found in segment.")
-        
-        idx = self.channel_names.index(channel_name)
-        return self.data[idx, :]
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the segment to a dictionary for serialization."""
+        return {
+            'participant_id': self.participant_id,
+            'channel': self.channel,
+            'data': self.data.tolist(),
+            'sampling_rate': self.sampling_rate,
+            'start_time': self.start_time.isoformat() if self.start_time else None,
+            'duration_seconds': self.duration_seconds,
+            'metadata': self.metadata
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'EEGSegment':
+        """Reconstruct an EEGSegment from a dictionary."""
+        return cls(
+            participant_id=data['participant_id'],
+            channel=data['channel'],
+            data=np.array(data['data']),
+            sampling_rate=data['sampling_rate'],
+            start_time=datetime.fromisoformat(data['start_time']) if data.get('start_time') else None,
+            duration_seconds=data.get('duration_seconds'),
+            metadata=data.get('metadata', {})
+        )
+
+    def __len__(self) -> int:
+        """Return the number of samples in the segment."""
+        return len(self.data)

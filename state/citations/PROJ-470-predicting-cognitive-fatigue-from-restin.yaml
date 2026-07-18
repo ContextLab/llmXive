@@ -53,14 +53,25 @@
   verification_status: mismatch
   verified_against_url: https://physionet.org/content/shhs/
   verified_at: '2026-07-15T06:41:44.029936Z'
-- artifact_hash: 84b6c2c466f2757ec87b24c1b2b63b2cbd0c8ae5b284e4e7eb358c6bec99095a
-  artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+- artifact_hash: 0d591827cef2376f03e14f090609e2a28c8f4bd70fd8708f22f3647fc7e3e389
+  artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/DATA_SOURCES.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Index of /protected/published-projects/sleep-edf/1.0.0/
+  fetched_title: Sleep-EDF Database Expanded v1.0.0
   kind: url
-  value: https://physionet.org/files/sleep-edf/1.0.0/`
+  value: https://physionet.org/content/sleep-edfx/
   verification_status: pending
-  verified_against_url: https://physionet.org/files/sleep-edf/1.0.0/
-  verified_at: '2026-07-16T11:47:39.798972Z'
+  verified_against_url: https://physionet.org/content/sleep-edfx/1.0.0/
+  verified_at: '2026-07-18T21:09:37.813683Z'
+- artifact_hash: 0aae18fcb22fd38ab89be20a9dfbd23c8f0a2ed60d3708f4041d461d1960c7b1
+  artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/STATISTICAL_INTERPRETATION.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: MNE &#8212; MNE 1.12.1 documentation
+  kind: url
+  value: https://mne.tools/stable/
+  verification_status: pending
+  verified_against_url: https://mne.tools/stable/
+  verified_at: '2026-07-18T21:21:21.415626Z'

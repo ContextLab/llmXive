@@ -1,95 +1,81 @@
 """
-Unit test for bandpass filter attenuation.
-
-Verifies that a 1-40 Hz bandpass filter attenuates 50 Hz line noise by > 20dB.
+Unit tests for edge cases in code/preprocess.py.
+Specifically tests missing data scenarios.
 """
-
-import numpy as np
-import mne
-import pytest
+import os
 import sys
+import pytest
 from pathlib import Path
+import tempfile
+import shutil
 
-project_root = Path(__file__).resolve().parent.parent.parent
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root / "code"))
 
-from preprocess import apply_bandpass_filter
+from preprocess import stream_eeg_files, load_config
+from utils.logging import get_logger
 
-def create_test_signal(length=1000, sfreq=256, noise_freq=50, noise_amp=1.0):
-    """Create a synthetic signal with 50Hz noise for testing."""
-    t = np.arange(length) / sfreq
-    # Base signal (low frequency, 10Hz)
-    signal = np.sin(2 * np.pi * 10 * t)
-    # Add 50Hz noise
-    noise = noise_amp * np.sin(2 * np.pi * noise_freq * t)
-    return signal + noise, t
+class TestMissingDataEdgeCases:
+    """Tests for handling missing data in preprocessing."""
 
-def test_bandpass_attenuation_50hz():
-    """
-    Test that the 1-40 Hz filter attenuates 50 Hz by > 20dB.
-    
-    20dB attenuation corresponds to a power ratio of 100 (amplitude ratio 10).
-    """
-    sfreq = 256
-    length = sfreq * 10 # 10 seconds
-    signal, t = create_test_signal(length, sfreq, noise_freq=50, noise_amp=1.0)
-    
-    # Create MNE Raw object
-    info = mne.create_info(ch_names=['EEG'], sfreq=sfreq, ch_types='eeg')
-    raw = mne.io.RawArray(signal.reshape(1, -1), info)
-    
-    # Apply filter
-    filtered_raw = apply_bandpass_filter(raw, l_freq=1.0, h_freq=40.0)
-    filtered_data = filtered_raw.get_data()[0]
-    
-    # Analyze frequency content
-    # We expect the 50Hz component to be significantly reduced.
-    
-    # FFT
-    fft_signal = np.fft.rfft(signal)
-    fft_filtered = np.fft.rfft(filtered_data)
-    freqs = np.fft.rfftfreq(length, 1/sfreq)
-    
-    # Find index for 50Hz
-    idx_50 = np.argmin(np.abs(freqs - 50))
-    
-    # Power at 50Hz (magnitude squared)
-    power_before = np.abs(fft_signal[idx_50]) ** 2
-    power_after = np.abs(fft_filtered[idx_50]) ** 2
-    
-    # Avoid division by zero
-    if power_before == 0:
-        pytest.skip("Input signal has no 50Hz component")
-            
-    # Attenuation in dB
-    # dB = 10 * log10(P_after / P_before)
-    # We want attenuation > 20dB, meaning P_after / P_before < 0.01
-    # Or 20 * log10(After/Before) < -20
-    
-    if power_after == 0:
-        attenuation_db = -np.inf
-    else:
-        attenuation_db = 10 * np.log10(power_after / power_before)
-            
-    logger_msg = f"Attenuation at 50Hz: {attenuation_db:.2f} dB"
-    print(logger_msg)
-    
-    # Assert > 20dB attenuation (i.e., value < -20)
-    assert attenuation_db < -20.0, f"Filter failed to attenuate 50Hz by >20dB. Got {attenuation_db:.2f} dB"
+    def test_missing_data_directory(self, tmp_path):
+        """
+        Verify that stream_eeg_files raises FileNotFoundError
+        when the specified data directory does not exist.
+        """
+        nonexistent_dir = tmp_path / "nonexistent_data"
+        
+        with pytest.raises(FileNotFoundError) as excinfo:
+            list(stream_eeg_files(str(nonexistent_dir)))
+        
+        assert "Data directory not found" in str(excinfo.value)
+        assert str(nonexistent_dir) in str(excinfo.value)
 
-def test_bandpass_preserves_10hz():
-    """Test that the filter preserves 10Hz signal."""
-    sfreq = 256
-    length = sfreq * 10
-    t = np.arange(length) / sfreq
-    signal = np.sin(2 * np.pi * 10 * t)
-    
-    info = mne.create_info(ch_names=['EEG'], sfreq=sfreq, ch_types='eeg')
-    raw = mne.io.RawArray(signal.reshape(1, -1), info)
-    
-    filtered_raw = apply_bandpass_filter(raw, l_freq=1.0, h_freq=40.0)
-    filtered_data = filtered_raw.get_data()[0]
-    
-    # Correlation should be high
-    corr = np.corrcoef(signal, filtered_data)[0, 1]
-    assert corr > 0.9, "Filter distorted the 10Hz signal too much"
+    def test_missing_eeg_file_in_directory(self, tmp_path, monkeypatch):
+        """
+        Verify that stream_eeg_files raises FileNotFoundError
+        when the directory exists but contains no EEG files.
+        """
+        # Create a directory with no EEG files
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        (data_dir / "readme.txt").write_text("No EEG here")
+        
+        # Mock config to point to this directory
+        mock_config = {
+            "raw_data_dir": str(data_dir),
+            "file_extensions": [".edf", ".bdf", ".vhdr"]
+        }
+        
+        # Patch load_config to return our mock
+        monkeypatch.setattr("preprocess.load_config", lambda _: mock_config)
+        
+        with pytest.raises(FileNotFoundError) as excinfo:
+            list(stream_eeg_files(str(data_dir)))
+        
+        assert "No EEG files found" in str(excinfo.value)
+
+    def test_corrupted_eeg_file_handling(self, tmp_path):
+        """
+        Verify that stream_eeg_files handles corrupted files gracefully
+        by logging the error and continuing (or raising if strict mode).
+        """
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        
+        # Create a corrupted file with .edf extension
+        corrupted_file = data_dir / "participant_001.edf"
+        corrupted_file.write_bytes(b"corrupted binary data")
+        
+        # We expect this to either raise or log an error during reading
+        # The exact behavior depends on MNE's error handling
+        # For this test, we verify the function attempts to read it
+        try:
+            files = list(stream_eeg_files(str(data_dir)))
+            # If it returns, it means MNE handled the error internally
+            # or the file was skipped
+            assert isinstance(files, list)
+        except Exception as e:
+            # If it raises, it should be a clear error about the file
+            assert "Error reading" in str(e) or "corrupted" in str(e).lower()

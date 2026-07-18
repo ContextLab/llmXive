@@ -1,29 +1,6 @@
-# Pipeline Configuration
-paths:
-  raw_data: data/raw
-  processed_data: data/processed
-  analysis_data: data/analysis
-  figures: figures
-
-preprocessing:
-  filter_cutoffs: [1, 40] # Hz
-  artifact_threshold: 100 # microvolts
-  min_segment_duration: 120 # seconds
-  random_seed: 42
-
-features:
-  lzc_window: 1000
-  pe_order: 3
-  pe_delay: 1
-
-analysis:
-  correlation_method: spearman
-  alpha: 0.05
-
-datasets:
-  primary: sleep-edf
-  fallback: shhs
-
-logging:
-  level: INFO
-  file: logs/pipeline.log
+filter_low: 1
+filter_high: 40
+artifact_threshold: 100
+random_seed: 42
+min_participants: 30
+notch_freq: 50

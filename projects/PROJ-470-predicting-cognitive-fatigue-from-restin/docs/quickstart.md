@@ -1,219 +1,87 @@
-# Quick Start Guide
+# Quickstart Guide
 
-This guide provides step-by-step instructions for running the cognitive fatigue prediction pipeline from scratch.
+This guide outlines the steps to run the full pipeline for predicting cognitive fatigue from resting-state EEG.
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- pip package manager
-- Virtual environment tool (venv or virtualenv)
-- PhysioNet account (for dataset access)
+- Python 3.11+
+- Virtual environment activated
 
 ## Installation
-
-### 1. Clone Repository
-
-```bash
-git clone <repository-url>
-cd projects/PROJ-470-predicting-cognitive-fatigue-from-restin
-```
-
-### 2. Create Virtual Environment
-
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
-
-### 3. Install Dependencies
 
 ```bash
 pip install -r code/requirements.txt
 ```
 
-Required packages:
-- `mne`: EEG processing
-- `scikit-learn`: Machine learning utilities
-- `numpy`, `pandas`: Numerical computing
-- `lempel-ziv-complexity`: LZC calculation
-- `scipy`: Scientific computing
-- `pyyaml`: Configuration parsing
-- `pytest`: Testing
+## Execution Steps
 
-### 4. Set Environment Variables
+Run the following commands in order. Each step depends on the output of the previous one.
 
-For PhysioNet access:
+### 1. Download and Validate Data
 
-```bash
-export PHYSIONET_USER="your_username"
-export PHYSIONET_PASSWORD="your_password"
-```
-
-## Running the Pipeline
-
-### Step 1: Environment Check
-
-Verify Python version and package installation:
-
-```bash
-python code/check_env.py
-```
-
-Expected output:
-```
-Python version: 3.11.4 ✓
-mne: 1.5.0 ✓
-scikit-learn: 1.3.0 ✓
-...
-All checks passed.
-```
-
-### Step 2: Download Data
-
-Fetch and validate the Sleep-EDF dataset:
+Fetches the EEG dataset and validates the presence of fatigue ratings.
 
 ```bash
 python code/download.py
 ```
 
-This will:
-- Download raw EEG files from PhysioNet
-- Validate presence of required variables
-- Check participant count (N ≥ 30)
-- Generate `data/analysis/validation_report.json`
+Expected output: `data/processed/validation_report.json` and raw data in `data/raw/`.
 
-**Note**: If Sleep-EDF validation fails, the pipeline will attempt to use the SHHS dataset as a fallback.
+### 2. Preprocess Data
 
-### Step 3: Preprocess Data
-
-Apply filtering and artifact rejection:
+Applies bandpass (1-40Hz) and notch (50Hz) filters, and rejects artifacts.
 
 ```bash
 python code/preprocess.py
 ```
 
-This will:
-- Apply 1-40 Hz bandpass filter
-- Reject epochs exceeding ±100 µV threshold
-- Exclude segments < 120 seconds
-- Write processed data to `data/processed/`
-- Log exclusion counts to `logs/pipeline.log`
+Expected output: `data/processed/cleaned_eeg.fif` and `logs/exclusion_log.csv`.
 
-### Step 4: Extract Features
+### 3. Extract Features
 
-Calculate complexity metrics:
+Calculates Lempel-Ziv Complexity (LZC) and Permutation Entropy (PE).
 
 ```bash
 python code/features.py
 ```
 
-This will:
-- Compute Lempel-Ziv complexity per channel
-- Compute Permutation Entropy per channel
-- Write results to:
- - `data/processed/lzc_metrics.csv`
- - `data/processed/pe_metrics.csv`
+Expected output: `data/processed/lzc_metrics.csv` and `data/processed/pe_metrics.csv`.
 
-### Step 5: Run Analysis
+### 4. Run Analysis
 
-Perform correlation analysis:
+Performs correlation analysis and Benjamini-Hochberg correction.
 
 ```bash
 python code/analysis.py
 ```
 
-This will:
-- Validate metadata structure
-- Select analysis mode (paired or cross-sectional)
-- Compute Pearson/Spearman correlations
-- Apply Benjamini-Hochberg correction
-- Generate sensitivity table
-- Write results to `data/analysis/`
+Expected output: `data/analysis/correlation_results.json` and `data/analysis/sensitivity_table.csv`.
 
-### Step 6: Generate Report
+### 5. Run Collinearity Diagnostics (T023)
 
-Create final report:
+Checks for multicollinearity among complexity metrics using Variance Inflation Factor (VIF).
+
+```bash
+python code/collinearity.py
+```
+
+Expected output: `data/analysis/collinearity_report.json` containing VIF scores and pass/fail status.
+
+### 6. Generate Report
+
+Compiles the final report with all statistical findings.
 
 ```bash
 python code/report.py
 ```
 
-This will:
-- Calculate effect sizes
-- Generate statistical summary
-- Write report to `data/analysis/final_report.md`
+Expected output: `docs/final_report.md`.
 
-## Output Files
+## Verification
 
-After successful pipeline execution:
-
-```
-data/
-├── processed/
-│ ├── lzc_metrics.csv # Lempel-Ziv complexity per channel
-│ └── pe_metrics.csv # Permutation entropy per channel
-└── analysis/
- ├── validation_report.json # Dataset validation status
- ├── correlation_results.csv # Correlation coefficients and p-values
- ├── sensitivity_table.csv # Results at multiple thresholds
- └── final_report.md # Comprehensive analysis report
-```
-
-## Troubleshooting
-
-### "PhysioNet authentication failed"
-
-- Verify credentials in environment variables
-- Ensure data use agreement is signed on PhysioNet
-- Check network connectivity
-
-### "Validation failed: N < 30"
-
-- Check artifact rejection thresholds (may be too strict)
-- Verify fatigue ratings are present in dataset
-- Consider enabling fallback dataset (SHHS)
-
-### "Memory error during preprocessing"
-
-- Ensure streaming is enabled in `config.yaml`
-- Reduce batch size for chunked processing
-- Close other applications to free memory
-
-### "No significant correlations found"
-
-- Check sample size (N ≥ 30 recommended)
-- Verify data quality (artifact rejection rates)
-- Review effect sizes; non-significant results may still be meaningful
-
-## Performance Tips
-
-### CPU-Only Execution
-
-The pipeline is optimized for CPU-only execution:
-- Streaming data loading reduces memory usage (<6 GB peak)
-- Parallel processing is disabled for CI compatibility
-- Batch processing is chunked for large datasets
-
-### Memory Profiling
-
-To profile memory usage:
-
-```bash
-python code/profile_memory.py
-```
-
-This will generate a memory profile report in `logs/memory_profile.json`.
-
-## Next Steps
-
-- Review `docs/statistical_guidelines.md` for interpretation of results
-- Check `docs/pipeline_parameters.md` for configuration options
-- Run `pytest tests/` to execute the test suite
-- Customize parameters in `code/config.yaml` for your use case
-
-## Support
-
-For issues or questions:
-- Check `logs/pipeline.log` for detailed error messages
-- Review `docs/README.md` for comprehensive documentation
-- Consult the project's GitHub issues page
+After running all steps, verify that the following files exist:
+- `data/processed/cleaned_eeg.fif`
+- `data/processed/lzc_metrics.csv`
+- `data/processed/pe_metrics.csv`
+- `data/analysis/collinearity_report.json`
+- `docs/final_report.md`

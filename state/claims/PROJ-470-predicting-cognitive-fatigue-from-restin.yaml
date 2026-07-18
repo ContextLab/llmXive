@@ -1137,3 +1137,85 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T08:41:41Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/DATA_SOURCES.md
+  attempts: 1
+  canonical: 'Sleep-EDF Expanded dataset has 153 subjects: 83 with sleep onset insomnia
+    and 70 controls'
+  claim_id: c_19883912
+  context: 'Subjects: 153 healthy subjects (83 with sleep onset insomnia, 70 controls)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contains 153 healthy subjects (83 with sleep onset insomnia,
+    70 controls).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T21:15:29Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/DATA_SOURCES.md
+  attempts: 1
+  canonical: Sleep-EDF Expanded dataset sampling rate is 100 Hz
+  claim_id: c_1605301f
+  context: 'Sampling Rate: 100 Hz'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset has a sampling rate of 100 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T21:19:53Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/DATA_SOURCES.md
+  attempts: 1
+  canonical: Sleep-EDF Expanded dataset duration is 15-20 hours per subject
+  claim_id: c_62cded7c
+  context: 'Duration: Full night sleep recordings (approx. 15-20 hours per subject)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contains full night sleep recordings of approximately 15-20
+    hours per subject.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T21:21:12Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/DATA_SOURCES.md
+  attempts: 1
+  canonical: Sleep-EDF Expanded dataset channels are Fpz-Cz, Pz-Oz, EOG, EMG, ECG
+  claim_id: c_b37dde8e
+  context: 'Channels: Fpz-Cz, Pz-Oz (EEG), EOG, EMG, ECG'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sleep-EDF_Expanded_dataset_channels_are_Fpz-Cz,_Pz-Oz,_EOG,
+  kind: entity_fact
+  raw_text: The Sleep-EDF Expanded dataset includes EEG channels Fpz-Cz and Pz-Oz,
+    as well as EOG, EMG, and ECG.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T21:21:19Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/DATA_SOURCES.md
+  attempts: 1
+  canonical: Sleep-EDF Expanded dataset license is CC BY 4.0
+  claim_id: c_180f94af
+  context: 'License: Creative Commons Attribution 4.0 International (CC BY 4.0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Sleep-EDF Expanded dataset is licensed under Creative Commons Attribution
+    4.0 International (CC BY 4.0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T21:21:21Z'

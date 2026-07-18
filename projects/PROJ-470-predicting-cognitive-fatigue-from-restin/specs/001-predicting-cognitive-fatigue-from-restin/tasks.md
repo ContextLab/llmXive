@@ -1,6 +1,10 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Predicting Cognitive Fatigue from Resting-State EEG Complexity
 
-**Input**: Design documents from `/specs/001-cognitive-fatigue-eeg-complexity/`
+**Input**: Design documents from `/specs/001-cognitive-fatigue-from-restin/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -33,7 +37,7 @@
  Tasks MUST be organized by user story so each story can be:
  - Implemented independently
  - Tested independently
- - Delivered as an MVP increment
+ - Delivered as a MVP increment
 
  DO NOT keep these sample tasks in the generated tasks.md file.
  ============================================================================
@@ -43,10 +47,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure: `projects/PROJ-470-predicting-cognitive-fatigue-from-restin/`, `data/raw/`, `data/processed/`, `data/analysis/`, `code/`, `tests/unit/`, `tests/integration/`, `docs/`. **Verification**: Run `find projects/PROJ-470-predicting-cognitive-fatigue-from-restin -type d` and assert that the following directories exist: `data/raw`, `data/processed`, `data/analysis`, `code`, `tests/unit`, `tests/integration`, `docs`. Fail if any are missing.
-- [X] T002 Create skeleton files: `code/config.yaml`, `code/download.py`, `code/preprocess.py`, `code/features.py`, `code/analysis.py`, `code/report.py`, `code/models/__init__.py`, `docs/README.md`.
-- [X] T003 [P] Initialize Python 3.11 virtual environment and create `code/requirements.txt` with pinned dependencies: `mne`, `scikit-learn`, `numpy`, `pandas`, `lempel-ziv-complexity`, `scipy`, `pyyaml`, `pytest`.
-- [ ] T042 [P] Verify directory structure created by T001: Run `find projects/PROJ-470-predicting-cognitive-fatigue-from-restin -type d` and assert the same set of directories as in T001. Fail if any are missing.
+- [ ] T001 Create project directory structure: `projects/PROJ-470-predicting-cognitive-fatigue-from-restin/`, `data/raw/`, `data/processed/`, `code/`, `tests/unit/`, `tests/integration/`, `docs/`. **Verification**: Run `mkdir -p` to create directories, then run `find projects/PROJ-470-predicting-cognitive-fatigue-from-restin -type d` and assert that the following directories exist: `data/raw`, `data/processed`, `code`, `tests/unit`, `tests/integration`, `docs`. Fail if any are missing. <!-- FAILED: unspecified -->
+- [X] T002 Create skeleton files: `code/config.yaml`, `code/download.py`, `code/preprocess.py`, `code/features.py`, `code/analysis.py`, `code/report.py`, `code/models/__init__.py`, `docs/README.md`. **Verification**: Run `ls -l` on the `code/` directory and assert that all listed files exist.
+- [X] T003 [P] Initialize Python 3.11 virtual environment and create `code/requirements.txt` with pinned dependencies: `mne`, `scikit-learn`, `numpy`, `pandas`, `lempel-ziv-complexity`, `scipy`, `pyyaml`, `pytest`. **Verification**: Run `pip list` in the venv and assert all dependencies are installed with pinned versions.
 
 ---
 
@@ -56,13 +59,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `code/config.yaml` with pipeline parameters (filter cutoffs spanning the low-frequency range
-
-The research question is: How does neural activity relate to behavioral choice?
-The method is: We will record and analyze neural data using electrophysiology while subjects perform a decision-making task.
-filter cutoffs spanning the low-frequency range (reference: Doe, 2023)., artifact threshold ±100µV, random seeds, dataset IDs).
-- [X] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track participant exclusion and artifact rejection reasons.
-- [X] T006 [P] Create base data models for `EEGSegment` and `ComplexityMetric` in `code/models/`.
+- [X] T004 Create `code/config.yaml` with pipeline parameters. **Verification**: Parse `code/config.yaml` and assert it contains the following keys: `filter_low` (value 1), `filter_high` (value 40), `artifact_threshold` (value 100), and `random_seed` (integer).
+- [X] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track participant exclusion and artifact rejection reasons. **Verification**: Run a mock script that triggers a log entry and assert `logs/exclusion_log.csv` is created with the correct format.
+- [ ] T006 [P] Create base data models for `EEGSegment` and `ComplexityMetric` in `code/models/`. **Verification**: Import models in a test script and assert classes are defined with expected attributes.
+- [X] T029 [P] Run `quickstart.md` validation to ensure pipeline executes on CPU‑only CI. **Verification**: Execute the commands in `docs/quickstart.md` on a local environment or CI runner and assert all steps complete successfully without errors. (Note: This task is moved here from Phase 6 to validate documentation early).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,14 +78,18 @@ filter cutoffs spanning the low-frequency range (reference: Doe, 2023)., artifac
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T007 [P] [US1] Unit test for bandpass filter attenuation in `tests/unit/test_preprocess.py`.
-- [X] T008 [P] [US1] Integration test for data download and checksum verification in `tests/integration/test_download.py`.
+- [X] T007 [P] [US1] Unit test for bandpass filter attenuation in `tests/unit/test_preprocess.py`. **Verification**: Run `pytest tests/unit/test_preprocess.py::test_bandpass_attenuation` and assert it fails initially, then passes after implementation.
+- [X] T008 [P] [US1] Integration test for data download and checksum verification in `tests/integration/test_download.py`. **Verification**: Run `pytest tests/integration/test_download.py` and assert it fails initially, then passes after implementation. <!-- FAILED: unspecified -->
+- [ ] T027 [P] [US1] Unit tests for edge cases (missing data, analysis mode failures) in `tests/unit/`. Specifically implement:
+ - `tests/unit/test_preprocess.py::test_missing_data` – verifies that the preprocessing script raises a clear error when a required EEG file is absent.
+ - `tests/unit/test_analysis.py::test_analysis_mode_failure` – verifies that `code/analysis.py` exits with an informative error when neither paired nor baseline data are available.
+ **Verification**: Run `pytest tests/unit/` and assert that both new tests execute and pass (i.e., the error‑handling paths are exercised and succeed).
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `code/download.py` to fetch the 'Sleep-EDF' dataset (PhysioNet ID: `sleep-edf`, URL: `) as primary candidate. Validate presence of both resting-state EEG and paired pre/post fatigue ratings per FR-001. If Sleep-EDF lacks required variables or yields N < 30, attempt fallback 'SHHS' dataset. If no source with both variables and N≥30 is found, halt with exit code 1 and log `validation_report.json` with schema: `{ "status": "fail", "available_variables": [...], "participant_count": 0, "message": "Required variables missing" }`. Log specific error: "ERROR: No valid dataset found with required variables."
-- [ ] T010 [US1] Implement `code/preprocess.py` to apply a A bandpass filter will be applied to constrain the frequency range of analysis. using MNE-Python per FR-002. Output preprocessed data to `data/processed/cleaned_eeg.fif`. **Verification**: Run `mne.io.read_raw_fif('data/processed/cleaned_eeg.fif')` and assert file exists and contains data for ≥30 participants.
-- [ ] T011 [US1] Implement artifact rejection logic in `code/preprocess.py` to exclude epochs >±100µV and segments <120 seconds per FR-002 and Edge Cases. Log exclusion counts and reasons to `logs/exclusion_log.csv`. **Verification**: Assert `logs/exclusion_log.csv` exists and contains columns `[participant_id, reason, timestamp]`.
+- [X] T009 [US1] Implement `code/download.py` to fetch a public EEG dataset. **CRITICAL**: Before proceeding, the script MUST validate the presence of both resting-state EEG and paired pre/post fatigue ratings per FR-001. The script MUST specifically look for columns named `pre_fatigue` (or similar standard naming) and `post_fatigue` in the metadata. If the dataset lacks the required variables or yields N < 30, the script MUST halt with exit code 1 and log `validation_report.json` with schema: `{ "status": "fail", "available_variables": [...], "participant_count": 0, "message": "Required variables missing" }`. Log specific error: "ERROR: No valid dataset found with required variables."
+- [ ] T010 [US1] Implement `code/preprocess.py` to apply a 1–40 Hz bandpass filter and a 50 Hz notch filter to remove line noise using MNE-Python per FR-002. Output preprocessed data to `data/processed/cleaned_eeg.fif`. **Verification**: Run `mne.io.read_raw_fif('data/processed/cleaned_eeg.fif')` and assert file exists. Then, compute the power spectral density and assert the peak at 50Hz is attenuated by >20dB compared to the raw signal. Assert file contains data for ≥30 participants.
+- [X] T011 [US1] Implement artifact rejection logic in `code/preprocess.py` to exclude epochs >±100µV and segments <120 seconds per FR-002 and Edge Cases. Log exclusion counts and reasons to `logs/exclusion_log.csv`. **Verification**: Assert `logs/exclusion_log.csv` exists and contains columns `[participant_id, reason, timestamp]`. Additionally, assert that the `reason` column contains valid rejection reasons (e.g., 'amplitude > 100uV', 'segment < 120s').
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,10 +108,8 @@ filter cutoffs spanning the low-frequency range (reference: Doe, 2023)., artifac
 
 ### Implementation for User Story 2
 
-- [ ] T014 [P] [US2] Implement `code/features.py` to calculate Lempel‑Ziv complexity per channel per FR-003. Output to `data/processed/lzc_metrics.csv`. **Schema**: `participant_id`, `channel`, `lzc_value`. **Verification**: Assert `data/processed/lzc_metrics.csv` exists, is non‑empty, and contains the three columns.
-- [ ] T043 [P] [US2] Verify LZC output: Assert `data/processed/lzc_metrics.csv` exists and contains columns `participant_id`, `channel`, `lzc_value`. Fail if columns are missing or file is empty.
-- [ ] T015 [P] [US2] Implement `code/features.py` to calculate Permutation Entropy per channel per FR-003. Output to `data/processed/pe_metrics.csv`. **Schema**: `participant_id`, `channel`, `pe_value`. **Verification**: Assert `data/processed/pe_metrics.csv` exists, is non‑empty, and contains the three columns.
-- [ ] T040 [P] [US2] Verify PE output: Assert `data/processed/pe_metrics.csv` exists and contains columns `participant_id`, `channel`, `pe_value`. Fail if columns are missing or file is empty.
+- [ ] T014 [P] [US2] Implement `code/features.py` to calculate Lempel‑Ziv complexity per channel per FR-003. Output to `data/processed/lzc_metrics.csv`. **Schema**: `participant_id` (str), `channel` (str), `lzc_value` (float64, 4 decimal places). **Verification**: Assert `data/processed/lzc_metrics.csv` exists, is non‑empty, and contains the three columns in the specified order. Additionally, run the calculation on a synthetic signal with known LZC properties and assert the output value falls within the expected range. <!-- FAILED: unspecified -->
+- [ ] T015 [P] [US2] Implement `code/features.py` to calculate Permutation Entropy per channel per FR-003. Output to `data/processed/pe_metrics.csv`. **Schema**: `participant_id` (str), `channel` (str), `pe_value` (float64, 4 decimal places). **Verification**: Assert `data/processed/pe_metrics.csv` exists, is non‑empty, and contains the three columns in the specified order. Additionally, run the calculation on a synthetic signal with known PE properties and assert the output value falls within the expected range.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,16 +124,16 @@ filter cutoffs spanning the low-frequency range (reference: Doe, 2023)., artifac
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T016 [P] [US3] Unit test for Benjamini‑Hochberg correction implementation in `tests/unit/test_analysis.py`.
-- [X] T017 [P] [US3] Integration test for full analysis pipeline on mock data in `tests/integration/test_analysis.py`.
+- [X] T017 [P] [US3] Integration test for full analysis pipeline on mock data in `tests/integration/test_analysis.py`. <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 3
 
-- [X] T018 [US3] Implement `code/analysis.py` validation: Check for columns `[pre_fatigue, post_fatigue, pre_eeg_id, post_eeg_id]` in the metadata dataframe. If paired data exists, proceed to paired analysis (delta vs delta). If paired data is missing but baseline fatigue exists, pivot to cross‑sectional analysis (Baseline Complexity vs. Baseline Fatigue) per plan.md Summary. If neither condition is met, write `validation_report.json` with error details and exit with code 1.
-- [X] T019 [P] [US3] Implement `code/analysis.py` for Pearson/Spearman correlation between complexity changes (delta) and fatigue delta scores (paired mode) OR baseline complexity vs baseline fatigue (cross‑sectional mode) per FR-004.
-- [X] T020 [US3] Implement Benjamini‑Hochberg correction for multiple comparisons across electrodes per FR-005.
-- [X] T021 [US3] Implement sensitivity analysis at p≤0.05 and p≤0.01 thresholds with result table per FR-006. Output table to `data/analysis/sensitivity_table.csv`.
-- [ ] T022 [US3] Generate final report with statistical significance, effect sizes, and limitations per US‑3. The report must strictly discuss correlation coefficients, p‑values, and confidence intervals as mandated by FR‑004. Do not include undefined concepts.
-- [X] T023 [US3] Add collinearity diagnostics (VIF < 5) check if metrics are combined per SC‑004.
+- [X] T018 [US3] Implement `code/analysis.py` validation: Check for columns `[pre_fatigue, post_fatigue, pre_eeg_id, post_eeg_id]` in the metadata dataframe. If paired data exists, proceed to paired analysis (delta vs delta) using Pearson/Spearman correlation per FR-004. If paired data is missing but baseline fatigue exists, pivot to cross‑sectional analysis (Baseline Complexity vs. Baseline Fatigue) per plan.md Summary. If neither condition is met, write `validation_report.json` with error details and exit with code 1.
+- [X] T019 [P] [US3] Implement `code/analysis.py` for Pearson/Spearman correlation between complexity changes (delta) and fatigue delta scores (paired mode) OR baseline complexity vs baseline fatigue (cross‑sectional mode) per FR-004. <!-- FAILED: unspecified -->
+- [ ] T020 [US3] Implement Benjamini‑Hochberg correction for multiple comparisons across electrodes per FR-005.
+- [X] T021 [US3] Implement sensitivity analysis at p≤0.05 and p≤0.01 thresholds with result table per FR-006. Output table to `data/analysis/sensitivity_table.csv`. **Schema Requirement**: The CSV MUST contain columns: `threshold` (float), `count_significant` (int), `total_electrodes` (int). **Verification**: Assert `data/analysis/sensitivity_table.csv` exists and contains the three specified columns with correct counts.
+- [ ] T022 [US3] Generate final report with statistical significance, Pearson/Spearman coefficients, p-values, 95% confidence intervals, and the sensitivity analysis table per US‑3 and FR-004. The report must strictly discuss correlation coefficients, p‑values, and confidence intervals. Output to `docs/final_report.md`. **Verification**: Assert `docs/final_report.md` exists and contains sections for "Correlation Analysis", "Statistical Significance", "Confidence Intervals", and "Sensitivity Analysis".
+- [ ] T023 [US3] Add collinearity diagnostics (VIF < 5) check if metrics are combined per SC‑004.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -141,15 +143,10 @@ filter cutoffs spanning the low-frequency range (reference: Doe, 2023)., artifac
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T024 [P] Documentation updates in `docs/` covering pipeline parameters, data sources, and statistical interpretation guidelines.
-- [X] T025 [P] Performance profiling of `code/preprocess.py` and `code/features.py` to identify memory bottlenecks.
-- [X] T026 [P] Implement streaming data loading in `code/preprocess.py` to ensure peak memory usage < 6 GB (targeting DC‑001).
-- [ ] T027 [P] Add unit tests for edge cases (missing data, artifact rejection, analysis mode failures) in `tests/unit/`. Specifically implement:
- - `tests/unit/test_preprocess.py::test_missing_data` – verifies that the preprocessing script raises a clear error when a required EEG file is absent.
- - `tests/unit/test_analysis.py::test_analysis_mode_failure` – verifies that `code/analysis.py` exits with an informative error when neither paired nor baseline data are available.
- **Verification**: Run `pytest tests/unit/` and assert that both new tests execute and pass (i.e., the error‑handling paths are exercised and succeed).
-- [X] T028 [P] Security hardening for data handling (PII scan implementation).
-- [X] T029 [P] Run `quickstart.md` validation to ensure pipeline executes on CPU‑only CI.
+- [ ] T024 [P] Documentation updates in `docs/` covering pipeline parameters, data sources, and statistical interpretation guidelines.
+- [ ] T025 [P] Performance profiling of `code/preprocess.py` and `code/features.py` to identify memory bottlenecks.
+- [ ] T026 [P] Implement streaming data loading in `code/preprocess.py` to ensure peak memory usage < 6 GB (targeting DC‑001). **Implementation Detail**: Use MNE-Python's `preload=False` for raw data loading and implement a generator-based iteration pattern to process epochs in chunks, avoiding full dataset loading into RAM.
+- [ ] T028 [P] Security hardening for data handling (PII scan implementation).
 
 ---
 
@@ -230,7 +227,11 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: All tasks must run on CPU‑only CI (limited cores, constrained RAM, no GPU)
 - **Critical**: No synthetic/fake data allowed; must use real datasets from verified sources
-- **Critical**: Specific dataset 'Sleep-EDF' (PhysioNet) is mandated for T009 as primary candidate.
-- **Critical**: N≥30 validation is enforced in T009.
-- **Critical**: T018 implements the conditional fallback logic (paired vs. cross‑sectional) as defined in the plan.
+- **Critical**: T009 implements the mandatory validation logic for paired pre/post fatigue ratings as defined in FR-001.
+- **Critical**: T010 specifies the 1–40 Hz bandpass filter and 50 Hz notch filter as required by FR-002 and Constitution Principle VI.
+- **Critical**: T018 implements the conditional fallback logic (paired vs. cross‑sectional) as defined in the plan, using Pearson/Spearman correlation as mandated by FR-004.
 - **Critical**: T022, T023, T024, etc. respect the spec‑defined deliverables.
+- **Critical**: T021 now explicitly defines the schema for the sensitivity analysis table to meet FR-006.
+- **Critical**: T026 specifies the use of `preload=False` and generator iteration for streaming.
+- **Critical**: T029 has been moved to Phase 2 to resolve the circular dependency with `quickstart.md`.
+- **Critical**: Tasks T030, T031, and T032 (Topological attractor analysis) have been removed to strictly adhere to the spec's authorized features (FR-003: LZC and PE only) and eliminate unapproved scope creep.

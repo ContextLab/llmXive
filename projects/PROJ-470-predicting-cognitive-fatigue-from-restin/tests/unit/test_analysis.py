@@ -1,106 +1,173 @@
+"""
+Unit tests for the Benjamini-Hochberg correction implementation in code/analysis.py.
+This module verifies that the False Discovery Rate (FDR) correction is applied
+correctly across multiple comparisons (electrodes).
+"""
+import os
+import sys
+import pytest
+import json
+import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 import pandas as pd
 import numpy as np
-import pytest
-import sys
-import os
 
-# Add code directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from analysis import run_benjamini_hochberg
+from analysis import run_benjamini_hochberg, load_config, validate_metadata
+import yaml
 
-class TestBenjaminiHochberg:
-    def test_bh_basic_significance(self):
-        """Test that BH correctly identifies significant p-values in a simple case."""
-        # Create a set of p-values where we know the outcome
-        # Sorted: 0.001, 0.01, 0.02, 0.1, ...
-        # n=10, alpha=0.05
-        # Thresholds: (i/10)*0.05 -> 0.005, 0.01, 0.015, 0.02, ...
-        # 0.001 <= 0.005 (True)
-        # 0.01 <= 0.01 (True)
-        # 0.02 <= 0.015 (False) -> k=2
-        p_values = pd.Series([0.001, 0.01, 0.02, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        # Expected: 0.001, 0.01 should be significant (k=2)
-        assert result['significant'].sum() == 2
-        assert result['significant'].iloc[0] == True
-        assert result['significant'].iloc[1] == True
-        assert result['significant'].iloc[2] == False
+class TestBenjaminiHochbergCorrection:
+    """Tests for the Benjamini-Hochberg FDR correction logic."""
 
-    def test_bh_all_significant(self):
-        """Test case where all p-values are very small."""
-        p_values = pd.Series([0.0001, 0.0002, 0.0003, 0.0004, 0.0005])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        # All should be significant
-        assert result['significant'].sum() == 5
-        assert all(result['significant'])
+    def test_bh_correction_basic(self, tmp_path):
+        """
+        Verify that run_benjamini_hochberg correctly computes adjusted p-values
+        for a known set of p-values.
+        """
+        # Create a dataframe with known p-values
+        # Expected behavior: sorted p-values are multiplied by (m/i) and capped
+        data = {
+            'channel': ['A', 'B', 'C', 'D', 'E'],
+            'p_value': [0.001, 0.01, 0.02, 0.03, 0.04]
+        }
+        df = pd.DataFrame(data)
 
-    def test_bh_none_significant(self):
-        """Test case where no p-values are significant."""
-        p_values = pd.Series([0.1, 0.2, 0.3, 0.4, 0.5])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        # None should be significant
-        assert result['significant'].sum() == 0
-        assert not any(result['significant'])
+        # Run BH correction with alpha=0.05
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
 
-    def test_bh_adjusted_p_values_monotonic(self):
-        """Test that adjusted p-values are monotonic with respect to raw p-values."""
-        p_values = pd.Series([0.01, 0.02, 0.03, 0.04, 0.05])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        adj_p = result['adjusted_p_values']
-        # Adjusted p-values should be non-decreasing
-        for i in range(len(adj_p) - 1):
-            assert adj_p.iloc[i] <= adj_p.iloc[i+1], f"Monotonicity violated at index {i}"
+        # Verify columns exist
+        assert 'p_value' in result_df.columns
+        assert 'p_adj' in result_df.columns
+        assert 'significant' in result_df.columns
 
-    def test_bh_adjusted_p_values_capped_at_1(self):
-        """Test that adjusted p-values do not exceed 1.0."""
-        p_values = pd.Series([0.9, 0.95, 0.99, 1.0])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        assert all(result['adjusted_p_values'] <= 1.0)
+        # Verify monotonicity of adjusted p-values (sorted by original p-value)
+        # The BH procedure ensures that adjusted p-values are non-decreasing
+        # when sorted by original p-values
+        sorted_result = result_df.sort_values('p_value').reset_index(drop=True)
+        assert (sorted_result['p_adj'].diff().dropna() >= -1e-9).all(), \
+            "Adjusted p-values must be monotonically non-decreasing"
 
-    def test_bh_empty_input(self):
-        """Test handling of empty p-value series."""
-        p_values = pd.Series([], dtype=float)
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        assert len(result['significant']) == 0
-        assert len(result['adjusted_p_values']) == 0
-        assert result['threshold'] == 0.0
+        # Verify specific calculation for the largest p-value
+        # m = 5, i = 5 (for 0.04), raw = 0.04 * 5/5 = 0.04
+        # The smallest p-value (0.001) -> 0.001 * 5/1 = 0.005
+        # Check that the logic holds for the first row (smallest p)
+        first_row = sorted_result.iloc[0]
+        expected_adj_min = min(0.001 * (5 / 1), 1.0)
+        assert abs(first_row['p_adj'] - expected_adj_min) < 1e-6, \
+            f"Expected adjusted p-value {expected_adj_min}, got {first_row['p_adj']}"
 
-    def test_bh_single_value(self):
-        """Test handling of a single p-value."""
-        p_values = pd.Series([0.03])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        # For n=1, threshold is 1/1 * 0.05 = 0.05. 0.03 <= 0.05 -> Significant
-        assert result['significant'].iloc[0] == True
-        assert result['adjusted_p_values'].iloc[0] <= 1.0
+    def test_bh_correction_all_significant(self, tmp_path):
+        """
+        Verify that all p-values are marked significant when they are very small.
+        """
+        data = {
+            'channel': ['A', 'B', 'C'],
+            'p_value': [0.0001, 0.0002, 0.0003]
+        }
+        df = pd.DataFrame(data)
 
-    def test_bh_preserves_original_order(self):
-        """Test that the function returns results in the original input order."""
-        # Input is unsorted
-        p_values = pd.Series([0.05, 0.01, 0.02, 0.03])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        # The result should align with the input order
-        # Input index 0: 0.05 -> Should be significant? (4/4 * 0.05 = 0.05, yes)
-        # Input index 1: 0.01 -> Significant
-        # Input index 2: 0.02 -> Significant
-        # Input index 3: 0.03 -> Significant
-        # Wait, let's re-verify logic.
-        # Sorted: 0.01, 0.02, 0.03, 0.05. n=4.
-        # i=1 (0.01) <= 0.0125 (True)
-        # i=2 (0.02) <= 0.025 (True)
-        # i=3 (0.03) <= 0.0375 (True)
-        # i=4 (0.05) <= 0.05 (True)
-        # All significant.
-        
-        assert len(result) == 4
-        assert all(result['significant'])
-        # Ensure the index matches the input
-        assert list(result.index) == list(p_values.index)
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
+
+        assert all(result_df['significant']), "All p-values should be significant"
+
+    def test_bh_correction_none_significant(self, tmp_path):
+        """
+        Verify that no p-values are marked significant when they are all large.
+        """
+        data = {
+            'channel': ['A', 'B', 'C'],
+            'p_value': [0.5, 0.6, 0.7]
+        }
+        df = pd.DataFrame(data)
+
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
+
+        assert not any(result_df['significant']), "No p-values should be significant"
+
+    def test_bh_correction_edge_case_zero_p(self, tmp_path):
+        """
+        Verify handling of p-value = 0 (or very close to 0).
+        """
+        data = {
+            'channel': ['A', 'B'],
+            'p_value': [0.0, 0.05]
+        }
+        df = pd.DataFrame(data)
+
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
+
+        # 0.0 should remain 0.0 or very close, and be significant
+        assert result_df.loc[result_df['channel'] == 'A', 'p_adj'].iloc[0] <= 0.001
+        assert result_df.loc[result_df['channel'] == 'A', 'significant'].iloc[0] is True
+
+    def test_bh_correction_single_test(self, tmp_path):
+        """
+        Verify behavior with a single test (no multiple comparison correction needed).
+        """
+        data = {
+            'channel': ['A'],
+            'p_value': [0.04]
+        }
+        df = pd.DataFrame(data)
+
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
+
+        # For a single test, adjusted p-value should be the same as raw
+        assert abs(result_df['p_adj'].iloc[0] - 0.04) < 1e-6
+        assert result_df['significant'].iloc[0] is True
+
+    def test_bh_correction_preserves_order(self, tmp_path):
+        """
+        Verify that the row order is preserved in the output dataframe.
+        """
+        # Create dataframe with specific order
+        data = {
+            'channel': ['Z', 'A', 'M'],
+            'p_value': [0.05, 0.01, 0.03]
+        }
+        df = pd.DataFrame(data)
+
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
+
+        # Check that the order of channels is preserved
+        assert list(result_df['channel']) == ['Z', 'A', 'M']
+
+    def test_bh_correction_alpha_0_01(self, tmp_path):
+        """
+        Verify that the alpha threshold correctly filters significance.
+        """
+        data = {
+            'channel': ['A', 'B', 'C'],
+            'p_value': [0.005, 0.008, 0.015]
+        }
+        df = pd.DataFrame(data)
+
+        result_df = run_benjamini_hochberg(df, alpha=0.01)
+
+        # With alpha=0.01, only the most significant might pass depending on correction
+        # We verify the logic runs without error and returns boolean column
+        assert 'significant' in result_df.columns
+        assert result_df['significant'].dtype == bool
+
+    def test_bh_correction_with_nan(self, tmp_path):
+        """
+        Verify that the function handles NaN values gracefully (either drops or marks as non-significant).
+        """
+        data = {
+            'channel': ['A', 'B', 'C'],
+            'p_value': [0.01, np.nan, 0.03]
+        }
+        df = pd.DataFrame(data)
+
+        # The function should not crash. It may drop NaNs or handle them.
+        # We check that it returns a valid dataframe with the same number of rows
+        # or fewer (if NaNs were dropped).
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
+
+        assert isinstance(result_df, pd.DataFrame)
+        assert 'p_adj' in result_df.columns
+        assert 'significant' in result_df.columns

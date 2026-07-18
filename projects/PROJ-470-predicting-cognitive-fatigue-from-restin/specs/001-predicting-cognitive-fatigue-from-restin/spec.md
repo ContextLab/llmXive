@@ -90,7 +90,7 @@ The researcher MUST be able to correlate the extracted complexity metrics with s
 
 ## Deployment Constraints
 
-- **DC-001**: System MUST execute on CPU-only infrastructure without CUDA/GPU dependencies, ensuring memory usage ≤ 7 GB and runtime ≤ 6 hours for a cohort of N=30 participants, each with two 120-second resting-state segments (See US-1).
+- **DC-001**: System MUST execute on CPU-only infrastructure without CUDA/GPU dependencies, ensuring memory usage ≤ 7 GB and runtime ≤ 6 hours for a cohort of N=30 participants, each with two -second resting-state segments (See US-1).
 
 ## Assumptions
 

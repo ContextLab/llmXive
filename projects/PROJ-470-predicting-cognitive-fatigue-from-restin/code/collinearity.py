@@ -4,244 +4,190 @@ import json
 import yaml
 import pandas as pd
 import numpy as np
-from statsmodels.stats.outliers_influence import variance_inflation_factor
 from pathlib import Path
+import logging
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.tools import add_constant
 
-# Import shared config loader from analysis.py to ensure consistency
-# Note: We assume analysis.py is importable from the same directory
-try:
-    from analysis import load_config as analysis_load_config
-except ImportError:
-    def analysis_load_config(config_path='code/config.yaml'):
-        with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/collinearity.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-def load_analysis_results(results_path='data/analysis/correlation_results.json'):
-    """
-    Load the results from the correlation analysis.
-    Expects a JSON file containing the correlation matrix or summary statistics.
-    """
-    if not os.path.exists(results_path):
-        raise FileNotFoundError(f"Analysis results not found at {results_path}. "
-                                "Run analysis.py first.")
+def load_config():
+    """Load configuration from code/config.yaml."""
+    config_path = Path('code/config.yaml')
+    if not config_path.exists():
+        logger.error(f"Config file not found: {config_path}")
+        sys.exit(1)
     
-    with open(results_path, 'r') as f:
-        return json.load(f)
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    return config
 
-def calculate_vif(df: pd.DataFrame, feature_columns: list) -> pd.DataFrame:
+def load_analysis_results():
     """
-    Calculate Variance Inflation Factor (VIF) for a set of features.
-    
-    Args:
-        df: DataFrame containing the features.
-        feature_columns: List of column names to calculate VIF for.
-        
-    Returns:
-        DataFrame with columns 'feature' and 'vif'.
+    Load analysis results from the final report or intermediate CSVs.
+    We expect the analysis to have produced a combined metrics file or 
+    we reconstruct from lzc_metrics.csv and pe_metrics.csv if they exist.
     """
-    # Select only the specified columns
-    X = df[feature_columns].copy()
+    # Check for the combined complexity metrics file first (produced by analysis.py or features.py aggregation)
+    combined_path = Path('data/processed/complexity_metrics.csv')
+    lzc_path = Path('data/processed/lzc_metrics.csv')
+    pe_path = Path('data/processed/pe_metrics.csv')
     
-    # Handle constant columns (VIF is undefined for constant variables)
-    # Replace constant columns with NaN or drop them before calculation
-    # For VIF calculation, we need to add a constant for the intercept if using OLS,
-    # but statsmodels' vif function expects the design matrix without the intercept
-    # if we are calculating VIF for each predictor in the context of a model with intercept.
-    # However, the standard formula VIF = 1 / (1 - R^2) where R^2 is from regressing
-    # one predictor against all others.
+    if combined_path.exists():
+        logger.info(f"Loading combined complexity metrics from {combined_path}")
+        return pd.read_csv(combined_path)
     
-    # Check for constant columns
-    constant_cols = []
-    for col in X.columns:
-        if X[col].std() == 0:
-            constant_cols.append(col)
-    
-    if constant_cols:
-        print(f"Warning: The following columns are constant and will be excluded from VIF calculation: {constant_cols}")
-        X = X.drop(columns=constant_cols)
-    
-    if X.shape[1] < 2:
-        # VIF requires at least 2 variables to calculate correlation between them
-        print("Warning: Less than 2 non-constant features provided. VIF cannot be calculated.")
-        return pd.DataFrame(columns=['feature', 'vif'])
-
-    vif_data = []
-    for i, col in enumerate(X.columns):
-        # Regress col against all other columns
-        y = X[col]
-        # Create a design matrix for the regression of y on other X columns
-        # We do NOT add a constant here because the VIF formula inherently accounts for the intercept
-        # by looking at R^2 of the auxiliary regression.
-        # However, statsmodels vif function implementation usually expects the design matrix
-        # that includes the constant if we were fitting a model, but for VIF calculation
-        # specifically, we regress one predictor on the others.
-        
-        # The standard approach for VIF calculation using statsmodels:
-        # VIF for feature j = 1 / (1 - R_j^2)
-        # where R_j^2 is from regressing feature j on all other features.
-        
-        # We need to construct the design matrix for the auxiliary regression
-        # excluding the target column 'col'
-        other_cols = [c for c in X.columns if c != col]
-        X_aux = X[other_cols]
-        
-        # Add constant for the auxiliary regression
-        X_aux_with_const = sm.add_constant(X_aux)
-        
-        # Fit OLS
-        try:
-            model = sm.OLS(y, X_aux_with_const).fit()
-            r_squared = model.rsquared
-            vif = 1.0 / (1.0 - r_squared)
-        except Exception as e:
-            # If regression fails (e.g., perfect multicollinearity), VIF is infinite
-            vif = np.inf
-        
-        vif_data.append({'feature': col, 'vif': vif})
-    
-    return pd.DataFrame(vif_data)
-
-def run_collinearity_diagnostics(
-    results_path: str = 'data/analysis/correlation_results.json',
-    config_path: str = 'code/config.yaml',
-    vif_threshold: float = 5.0,
-    output_path: str = 'data/analysis/collinearity_report.json'
-):
-    """
-    Run collinearity diagnostics on the combined metrics from the analysis.
-    
-    This function checks for multicollinearity among the complexity metrics
-    (e.g., LZC and PE) if they are combined in a model, ensuring VIF < threshold.
-    
-    Args:
-        results_path: Path to the correlation analysis results JSON.
-        config_path: Path to the configuration YAML.
-        vif_threshold: Maximum acceptable VIF value.
-        output_path: Path to write the collinearity report JSON.
-        
-    Returns:
-        Dictionary containing the diagnostics results.
-    """
-    config = analysis_load_config(config_path)
-    
-    # Load analysis results
-    # The structure of results depends on how analysis.py outputs data.
-    # We assume it contains a list of metrics or a correlation matrix.
-    # For VIF, we need the actual data values for the features, not just correlations.
-    # However, if only summary statistics are available, we might need to reconstruct
-    # or use the correlation matrix to estimate VIF.
-    # A more robust approach is to have the analysis script output the feature matrix
-    # used in the regression.
-    
-    # Let's assume the analysis results contain a 'feature_matrix' or we need to
-    # load the processed metrics from data/processed/
-    # If the analysis.py output is just correlations, we can't calculate VIF directly
-    # without the raw data.
-    # The task says "if metrics are combined". This implies a regression model.
-    # We need the data used in that model.
-    
-    # Strategy: Try to load the processed metrics from data/processed/
-    # which are used in the analysis.
-    lzc_path = 'data/processed/lzc_metrics.csv'
-    pe_path = 'data/processed/pe_metrics.csv'
-    
-    combined_data = None
-    
-    if os.path.exists(lzc_path) and os.path.exists(pe_path):
+    # Fallback: try to merge lzc and pe if they exist
+    if lzc_path.exists() and pe_path.exists():
+        logger.info("Merging LZC and PE metrics for collinearity analysis")
         df_lzc = pd.read_csv(lzc_path)
         df_pe = pd.read_csv(pe_path)
         
-        # Merge on participant_id and segment_id (or similar keys)
-        # Assuming common keys: 'participant_id', 'segment_id'
-        # Adjust based on actual data model
-        common_keys = [col for col in df_lzc.columns if col in df_pe.columns]
-        if common_keys:
-            combined_data = pd.merge(df_lzc, df_pe, on=common_keys, suffixes=('_lzc', '_pe'))
-            print(f"Combined data shape: {combined_data.shape}")
-            print(f"Combined columns: {combined_data.columns.tolist()}")
-        else:
-            print("Warning: No common keys found to merge LZC and PE metrics.")
-    else:
-        print(f"Warning: Could not find processed metrics files at {lzc_path} or {pe_path}.")
-        # Fallback: Try to load from results if it contains a matrix
-        results = load_analysis_results(results_path)
-        if 'feature_matrix' in results:
-            combined_data = pd.DataFrame(results['feature_matrix'])
-        else:
-            raise ValueError("Could not locate feature data for VIF calculation. "
-                             "Ensure processed metrics are available or analysis results contain 'feature_matrix'.")
-    
-    if combined_data is None or combined_data.empty:
-        raise ValueError("No data available for collinearity diagnostics.")
-    
-    # Identify numeric columns that are likely features (not IDs or targets)
-    # Exclude target variables (e.g., fatigue scores) if present
-    numeric_cols = combined_data.select_dtypes(include=[np.number]).columns.tolist()
-    
-    # Heuristic: Exclude columns with 'fatigue' or 'score' in name if they are targets
-    feature_cols = [col for col in numeric_cols if 'fatigue' not in col.lower() and 'score' not in col.lower()]
-    
-    if len(feature_cols) < 2:
-        print("Warning: Less than 2 feature columns found for VIF calculation.")
-        report = {
-            'status': 'incomplete',
-            'reason': 'Less than 2 features available.',
-            'vif_results': []
-        }
-    else:
-        vif_results_df = calculate_vif(combined_data, feature_cols)
+        # Pivot to wide format for merging
+        df_lzc_wide = df_lzc.pivot(index='participant_id', columns='channel', values='lzc_value')
+        df_pe_wide = df_pe.pivot(index='participant_id', columns='channel', values='pe_value')
         
-        # Check threshold
-        max_vif = vif_results_df['vif'].max()
-        status = 'passed' if max_vif < vif_threshold else 'failed'
+        # Merge on participant_id
+        merged = df_lzc_wide.join(df_pe_wide, lsuffix='_lzc', rsuffix='_pe')
+        merged = merged.reset_index()
         
-        report = {
-            'status': status,
-            'vif_threshold': vif_threshold,
-            'max_vif': float(max_vif),
-            'vif_results': vif_results_df.to_dict(orient='records'),
-            'message': f"Collinearity check {'passed' if status == 'passed' else 'failed'}. "
-                       f"Max VIF: {max_vif:.2f} (Threshold: {vif_threshold})"
-        }
+        logger.info(f"Merged dataset shape: {merged.shape}")
+        return merged
     
-    # Write report
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # If neither exists, we cannot proceed
+    logger.error("Cannot find complexity metrics files (complexity_metrics.csv or lzc_metrics.csv + pe_metrics.csv).")
+    logger.error("Ensure T014 and T015 have successfully generated the required CSVs.")
+    sys.exit(1)
+
+def calculate_vif(df, feature_columns):
+    """
+    Calculate Variance Inflation Factor (VIF) for a list of features.
+    
+    Parameters:
+    -----------
+    df : pd.DataFrame
+        DataFrame containing the features.
+    feature_columns : list
+        List of column names to calculate VIF for.
+        
+    Returns:
+    --------
+    pd.DataFrame
+        DataFrame with columns: ['feature', 'vif'].
+    """
+    # Select only the requested features
+    X = df[feature_columns].copy()
+    
+    # Drop rows with NaN values in any of the selected features
+    X = X.dropna()
+    
+    if X.empty:
+        logger.warning("No valid data rows after dropping NaNs for VIF calculation.")
+        return pd.DataFrame(columns=['feature', 'vif'])
+    
+    # Add constant for intercept
+    X_const = add_constant(X)
+    
+    # Calculate VIF
+    vif_data = []
+    for i, col in enumerate(X_const.columns):
+        if col == 'const':
+            continue
+        
+        try:
+            vif = variance_inflation_factor(X_const.values, i)
+            vif_data.append({'feature': col, 'vif': vif})
+        except Exception as e:
+            logger.warning(f"Could not calculate VIF for {col}: {e}")
+            vif_data.append({'feature': col, 'vif': np.nan})
+    
+    return pd.DataFrame(vif_data)
+
+def run_collinearity_diagnostics():
+    """
+    Main routine to run collinearity diagnostics.
+    1. Load metrics.
+    2. Identify numeric features (complexity metrics).
+    3. Calculate VIF for all features.
+    4. Check if any VIF >= 5 (threshold per SC-004).
+    5. Save results to data/analysis/collinearity_report.json.
+    """
+    logger.info("Starting collinearity diagnostics.")
+    
+    # Load data
+    df = load_analysis_results()
+    
+    # Identify numeric columns that are likely features (exclude participant_id if present)
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    if 'participant_id' in numeric_cols:
+        numeric_cols.remove('participant_id')
+    
+    if not numeric_cols:
+        logger.error("No numeric feature columns found in the dataset for VIF calculation.")
+        # Write a failure report
+        report = {
+            "status": "fail",
+            "message": "No numeric features found to calculate VIF.",
+            "vif_results": []
+        }
+        save_collinearity_report(report)
+        return report
+    
+    logger.info(f"Calculating VIF for {len(numeric_cols)} features: {numeric_cols}")
+    
+    vif_results = calculate_vif(df, numeric_cols)
+    
+    # Determine if collinearity is acceptable (VIF < 5)
+    high_vif = vif_results[vif_results['vif'] >= 5]
+    
+    status = "pass" if high_vif.empty else "warning"
+    
+    report = {
+        "status": status,
+        "threshold": 5.0,
+        "features_analyzed": len(numeric_cols),
+        "high_vif_count": len(high_vif),
+        "high_vif_features": high_vif['feature'].tolist() if not high_vif.empty else [],
+        "vif_results": vif_results.to_dict(orient='records')
+    }
+    
+    logger.info(f"Collinearity check complete. Status: {status}")
+    if not high_vif.empty:
+        logger.warning(f"Found {len(high_vif)} features with VIF >= 5: {high_vif['feature'].tolist()}")
+    
+    save_collinearity_report(report)
+    return report
+
+def save_collinearity_report(report):
+    """Save the collinearity report to data/analysis/collinearity_report.json."""
+    output_dir = Path('data/analysis')
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_path = output_dir / 'collinearity_report.json'
+    
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
     
-    print(f"Collinearity report written to {output_path}")
-    print(report['message'])
-    
-    return report
+    logger.info(f"Collinearity report saved to {output_path}")
 
 def main():
-    """
-    Main entry point for collinearity diagnostics.
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Run collinearity diagnostics (VIF check).')
-    parser.add_argument('--results', type=str, default='data/analysis/correlation_results.json',
-                        help='Path to correlation analysis results JSON.')
-    parser.add_argument('--config', type=str, default='code/config.yaml',
-                        help='Path to configuration YAML.')
-    parser.add_argument('--threshold', type=float, default=5.0,
-                        help='VIF threshold (default: 5.0).')
-    parser.add_argument('--output', type=str, default='data/analysis/collinearity_report.json',
-                        help='Output path for collinearity report JSON.')
-    
-    args = parser.parse_args()
-    
+    """Entry point for the collinearity diagnostics script."""
     try:
-        run_collinearity_diagnostics(
-            results_path=args.results,
-            config_path=args.config,
-            vif_threshold=args.threshold,
-            output_path=args.output
-        )
-        sys.exit(0)
+        load_config() # Just to ensure config exists, though not strictly used in VIF logic itself
+        run_collinearity_diagnostics()
     except Exception as e:
-        print(f"Error during collinearity diagnostics: {e}", file=sys.stderr)
+        logger.error(f"Collinearity diagnostics failed: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == '__main__':

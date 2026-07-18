@@ -1,87 +1,70 @@
-"""
-Data model for complexity metrics derived from EEG segments.
-"""
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime
 from enum import Enum
+import json
+import numpy as np
 
-
-class MetricType(str, Enum):
+class MetricType(Enum):
     """Enumeration of supported complexity metric types."""
     LEMPEL_ZIV_COMPLEXITY = "lzc"
     PERMUTATION_ENTROPY = "pe"
-    SAMPLE_ENTROPY = "se"
-    DETERMINISM = "det"
-    LAMINARITY = "lam"
-
+    SAMPLE_ENTROPY = "sample_entropy"
+    SPECTRAL_SLOPE = "spectral_slope"
 
 @dataclass
 class ComplexityMetric:
     """
-    Represents a calculated complexity metric for a specific EEG segment and channel.
+    Represents a calculated complexity metric for a specific EEG segment.
     
     Attributes:
-        segment_id: Reference to the EEGSegment ID this metric belongs to.
-        participant_id: Reference to the participant ID.
-        channel_name: Name of the channel the metric was calculated on.
-        metric_type: Type of complexity metric (e.g., LZC, PE).
-        value: The calculated scalar value.
-        parameters: Dictionary of parameters used during calculation (e.g., embedding dimension, delay).
-        calculated_at: Timestamp of calculation.
-        metadata: Additional context (e.g., sleep stage during calculation).
+        participant_id: Unique identifier for the participant.
+        channel: The EEG channel name.
+        metric_type: The type of metric calculated.
+        value: The calculated metric value (float).
+        parameters: Dictionary of parameters used for calculation (e.g., embedding dimension).
+        timestamp: When the calculation was performed.
+        metadata: Additional context (e.g., fatigue score at time of recording).
     """
-    segment_id: str
     participant_id: str
-    channel_name: str
+    channel: str
     metric_type: MetricType
     value: float
-    
     parameters: Dict[str, Any] = field(default_factory=dict)
-    calculated_at: datetime = field(default_factory=datetime.now)
+    timestamp: datetime = field(default_factory=datetime.now)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+    def __post_init__(self):
+        """Ensure value is a valid float."""
+        if not isinstance(self.value, (int, float)):
+            raise TypeError(f"value must be numeric, got {type(self.value)}")
+        if np.isnan(self.value) or np.isinf(self.value):
+            raise ValueError(f"value cannot be NaN or Inf, got {self.value}")
+
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the metric object to a dictionary for serialization (e.g., to CSV/JSON).
-        
-        Returns:
-            Dictionary representation of the metric.
-        """
+        """Convert the metric to a dictionary for serialization."""
         return {
-            "participant_id": self.participant_id,
-            "segment_id": self.segment_id,
-            "channel_name": self.channel_name,
-            "metric_type": self.metric_type.value,
-            "value": self.value,
-            "parameters": self.parameters,
-            "calculated_at": self.calculated_at.isoformat(),
-            "metadata": self.metadata
+            'participant_id': self.participant_id,
+            'channel': self.channel,
+            'metric_type': self.metric_type.value,
+            'value': self.value,
+            'parameters': self.parameters,
+            'timestamp': self.timestamp.isoformat(),
+            'metadata': self.metadata
         }
 
-    @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "ComplexityMetric":
-        """
-        Create a ComplexityMetric instance from a dictionary.
-        
-        Args:
-            data: Dictionary containing metric fields.
-            
-        Returns:
-            ComplexityMetric instance.
-        """
-        metric_type = MetricType(data["metric_type"])
-        calculated_at = data.get("calculated_at")
-        if calculated_at and isinstance(calculated_at, str):
-            calculated_at = datetime.fromisoformat(calculated_at)
-        
-        return ComplexityMetric(
-            segment_id=data["segment_id"],
-            participant_id=data["participant_id"],
-            channel_name=data["channel_name"],
-            metric_type=metric_type,
-            value=data["value"],
-            parameters=data.get("parameters", {}),
-            calculated_at=calculated_at or datetime.now(),
-            metadata=data.get("metadata", {})
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ComplexityMetric':
+        """Reconstruct a ComplexityMetric from a dictionary."""
+        return cls(
+            participant_id=data['participant_id'],
+            channel=data['channel'],
+            metric_type=MetricType(data['metric_type']),
+            value=float(data['value']),
+            parameters=data.get('parameters', {}),
+            timestamp=datetime.fromisoformat(data['timestamp']) if data.get('timestamp') else datetime.now(),
+            metadata=data.get('metadata', {})
         )
+
+    def __str__(self) -> str:
+        return f"{self.metric_type.value.upper()}[{self.channel}]: {self.value:.4f}"

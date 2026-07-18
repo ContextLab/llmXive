@@ -1,65 +1,178 @@
+"""
+Benjamini-Hochberg Correction for Multiple Comparisons.
+
+Implements the Benjamini-Hochberg procedure to control the False Discovery Rate (FDR)
+across multiple hypothesis tests (e.g., correlations across electrodes).
+"""
 import pandas as pd
 import numpy as np
+from pathlib import Path
+import logging
+import os
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def run_benjamini_hochberg(
-    pvals_df: pd.DataFrame,
-    alpha: float = 0.05,
-    pcol: str = "p_value",
-    adj_pcol: str = "p_adj",
-    signif_col: str = "significant",
-) -> pd.DataFrame:
+def load_config(config_path='code/config.yaml'):
+    """Load pipeline configuration."""
+    if not os.path.exists(config_path):
+        logger.warning(f"Config file {config_path} not found. Using defaults.")
+        return {'alpha': 0.05}
+    
+    import yaml
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    return config
+
+def run_benjamini_hochberg(p_values, alpha=0.05, method='indep'):
     """
-    Apply Benjamini‑Hochberg FDR correction to a DataFrame of p‑values.
+    Apply Benjamini-Hochberg correction to a list/array of p-values.
 
     Parameters
     ----------
-    pvals_df : pd.DataFrame
-        DataFrame that contains a column with raw p‑values.
-    alpha : float, optional
-        Desired false discovery rate (default 0.05).
-    pcol : str, optional
-        Name of the column containing the raw p‑values.
-    adj_pcol : str, optional
-        Name of the column to store the adjusted p‑values.
-    signif_col : str, optional
-        Name of the boolean column indicating significance after correction.
+    p_values : array-like
+        List or array of raw p-values.
+    alpha : float
+        Target False Discovery Rate (FDR) level (default 0.05).
+    method : str
+        'indep' for independent tests, 'poscorr' for positive dependency.
+        We use 'indep' as the standard assumption for electrode correlations.
 
     Returns
     -------
-    pd.DataFrame
-        A copy of ``pvals_df`` with two new columns: ``adj_pcol`` and ``signif_col``.
+    df_results : pd.DataFrame
+        DataFrame containing:
+        - raw_p: original p-value
+        - corrected_p: BH-adjusted p-value
+        - is_significant: boolean, True if corrected_p <= alpha
     """
-    if pcol not in pvals_df.columns:
-        raise ValueError(f"Column '{pcol}' not found in input DataFrame.")
+    p_values = np.array(p_values)
+    n = len(p_values)
+    
+    if n == 0:
+        logger.warning("No p-values provided for correction.")
+        return pd.DataFrame(columns=['raw_p', 'corrected_p', 'is_significant'])
 
-    # Work on a copy to avoid side‑effects
-    df = pvals_df.copy().reset_index(drop=True)
+    # Sort p-values and keep track of original indices
+    sorted_indices = np.argsort(p_values)
+    sorted_p = p_values[sorted_indices]
+    
+    # Calculate BH critical values
+    # For 'indep' or 'poscorr' (standard BH)
+    ranks = np.arange(1, n + 1)
+    critical_values = (ranks / n) * alpha
+    
+    # Find the largest k where p_(k) <= critical_value_(k)
+    # Then reject all hypotheses 1..k
+    # Alternatively, compute adjusted p-values:
+    # p_adj(i) = min( (n/k) * p(k), p_adj(i+1) ) going backwards from n to 1
+    
+    adjusted_p = np.zeros(n)
+    adjusted_p[-1] = min(1.0, n * sorted_p[-1] / n) # p_(n) * n / n = p_(n)
+    
+    for i in range(n - 2, -1, -1):
+        # p_adj(i) = min( (n/(i+1)) * p(i), p_adj(i+1) )
+        # Note: ranks are 1-based, so rank of index i is i+1
+        rank = i + 1
+        raw_p_val = sorted_p[i]
+        factor = n / rank
+        candidate = factor * raw_p_val
+        # Ensure monotonicity
+        adjusted_p[i] = min(1.0, candidate, adjusted_p[i+1])
+    
+    # Map back to original order
+    final_adjusted_p = np.zeros(n)
+    final_adjusted_p[sorted_indices] = adjusted_p
+    
+    # Determine significance
+    is_significant = final_adjusted_p <= alpha
+    
+    df_results = pd.DataFrame({
+        'raw_p': p_values,
+        'corrected_p': final_adjusted_p,
+        'is_significant': is_significant
+    })
+    
+    return df_results
 
-    # Number of hypotheses
-    m = df.shape[0]
-    if m == 0:
-        # Nothing to correct
-        df[adj_pcol] = np.nan
-        df[signif_col] = False
-        return df
+def main():
+    """
+    Main entry point to run BH correction on analysis results.
+    Expects data/processed/complexity_metrics.csv or similar to exist.
+    Reads correlation results from data/results/correlation_results.csv (if exists)
+    or expects the user to pipe data. For this task, we assume the input comes
+    from a standard analysis output file.
+    
+    Since T019 (Correlation Analysis) produces the raw p-values, this script
+    reads that file, applies BH correction, and saves the corrected results.
+    """
+    logger.info("Starting Benjamini-Hochberg correction pipeline.")
+    
+    config = load_config()
+    alpha = config.get('alpha', 0.05)
+    
+    # Determine input file
+    # T019 produces data/results/correlation_results.csv with columns:
+    # channel, correlation, p_value, method
+    input_path = Path('data/results/correlation_results.csv')
+    
+    if not input_path.exists():
+        # Fallback: check data/processed if that's where T019 put it (though spec says results)
+        input_path = Path('data/processed/correlation_results.csv')
+    
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}. "
+                     "Run T019 (analysis.py) first to generate correlation results.")
+        # We cannot proceed without data. In a real run, this would exit 1.
+        # However, for the purpose of this task implementation, we must ensure
+        # the script logic is correct. We will create a dummy result if the file
+        # is missing ONLY IF the file is expected to be generated by a previous step
+        # that failed in the environment. But per constraints, we must not fabricate data.
+        # Instead, we raise a clear error.
+        raise FileNotFoundError(f"Correlation results file not found at {input_path}. "
+                                "Ensure T019 (code/analysis.py) has been run successfully.")
 
-    # Sort by p‑value (ascending)
-    order = df[pcol].argsort()
-    sorted_p = df.loc[order, pcol].values
+    logger.info(f"Loading correlation results from {input_path}")
+    df = pd.read_csv(input_path)
+    
+    # Validate columns
+    required_cols = ['p_value', 'channel']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in {input_path}: {missing_cols}")
+    
+    p_values = df['p_value'].values
+    
+    logger.info(f"Applying BH correction with alpha={alpha} to {len(p_values)} tests.")
+    
+    df_corrected = run_benjamini_hochberg(p_values, alpha=alpha)
+    
+    # Merge with original data
+    df_final = pd.concat([df.drop(columns=['p_value']), df_corrected], axis=1)
+    
+    # Ensure output directory exists
+    output_path = Path('data/results/bh_corrected_results.csv')
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    df_final.to_csv(output_path, index=False)
+    logger.info(f"Corrected results saved to {output_path}")
+    
+    # Summary
+    n_sig = df_final['is_significant'].sum()
+    logger.info(f"Significant findings after BH correction: {n_sig} / {len(df_final)}")
+    
+    # Also save a summary table for the report
+    summary_path = Path('data/results/bh_summary.csv')
+    summary_df = pd.DataFrame({
+        'metric': ['total_tests', 'significant_at_alpha', 'alpha_threshold'],
+        'value': [len(df_final), n_sig, alpha]
+    })
+    summary_df.to_csv(summary_path, index=False)
+    logger.info(f"Summary saved to {summary_path}")
 
-    # Compute BH adjusted p‑values
-    ranks = np.arange(1, m + 1)
-    bh_values = sorted_p * m / ranks
-
-    # Ensure monotonicity (non‑increasing when moving from smallest to largest p)
-    bh_adj = np.minimum.accumulate(bh_values[::-1])[::-1]
-
-    # Clip to [0, 1]
-    bh_adj = np.clip(bh_adj, 0, 1)
-
-    # Place adjusted values back to original order
-    adj_series = pd.Series(bh_adj, index=order).reindex(df.index)
-    df[adj_pcol] = adj_series.values
-    df[signif_col] = df[adj_pcol] <= alpha
-    return df
+if __name__ == '__main__':
+    main()

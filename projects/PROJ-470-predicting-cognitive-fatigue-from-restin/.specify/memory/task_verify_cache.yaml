@@ -1,23 +1,51 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/models/EEGSegment.py` or `ComplexityMetric.py` (or equivalent) files
+    were presented, nor any test script importing them and checking attributes. The
+    required model classes and verification code are missing, so the task is not satisfied.
 T014:
   c: false
-  h: 450a9b9809d51304ba87dad884f104f512be838570fd42d80c42efc8a5dbcbda
-  r: The `code/features.py` file is incomplete (the `calculate_lzc` function ends
-    abruptly and the script is truncated), and the required output file `data/processed/lzc_metrics.csv`
-    does not exist. Both the implementation and the expected CSV artifact are missing,
-    so the task is not satisfied.
+  h: e589310c0bde824332ddebabaa1d2077b45913af49b4117cadcbb83556bfd109
+  r: "The repository contains a partially implemented `code/features.py`, but it does\
+    \ not include logic to write the required `data/processed/lzc_metrics.csv` file,\
+    \ nor does it perform the synthetic\u2011signal verification. The expected CSV\
+    \ file is missing entirely, so the task\u2019s output and validation steps are\
+    \ not satisfied."
 T015:
   c: false
-  h: 7e1589574656a8920f9e8a8b04f256df5f2fce3be363a301efca9b29d6291643
-  r: "The repository contains a partially shown `code/features.py` that focuses on\
-    \ Lempel\u2011Ziv complexity and is truncated (the implementation ends abruptly\
-    \ and never defines permutation entropy calculation or any CSV output). Moreover,\
-    \ the required output file `data/processed/pe_metrics.csv` is missing entirely.\
-    \ Hence the task of computing permutation entropy per channel and writing the\
-    \ results to the specified CSV has not been fulfilled."
+  h: 396d9f78ccd075383d2b0c0a77ac3be77f464138ed2b2684d59c64cf8dd52638
+  r: "The repository contains a partial `code/features.py` with a PE function, but\
+    \ it does not include logic to process all channels, generate the required `data/processed/pe_metrics.csv`,\
+    \ or perform the synthetic\u2011signal test. The expected CSV file is missing\
+    \ entirely, so the verification steps cannot be satisfied. The implementer must\
+    \ add code that iterates over EEG channels, writes the three\u2011column CSV in\
+    \ the specified order with four\u2011decimal PE values, and include the synthetic\u2011\
+    signal assertion."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, function, script, or documentation implementing the Benjamini\u2011\
+    Hochberg multiple\u2011comparison correction across electrodes is present. The\
+    \ claim lacks any artifact to verify that FR\u2011005\u2019s correction step has\
+    \ been added, so the required implementation is missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documentation was presented that implements a\
+    \ Variance Inflation Factor (VIF) collinearity diagnostic with a threshold of\u202F\
+    5, nor any evidence that such a check is applied when combining metrics per SC\u2011\
+    004. The required artifact is missing, so the task is not satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/` directory or documentation files were provided, and there is no evidence
+    that any documentation covering pipeline parameters, data sources, or statistical
+    interpretation guidelines exists. The required artifact is missing, so the task
+    is not satisfied.
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any new test files in `tests/unit/` was provided; the implementer\u2019\
-    s claim is unsupported and the required edge\u2011case unit tests (missing data,\
-    \ artifact rejection, analysis mode failures) are not present. The artifact is\
-    \ missing."
+  r: "No evidence of any files under `tests/unit/` containing edge\u2011case unit\
+    \ tests (e.g., handling missing data, analysis mode failures) is provided. The\
+    \ required test artifacts are missing, so the task is not satisfied."
