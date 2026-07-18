@@ -26,10 +26,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/`) matching the exact directory tree in `plan.md:Project Structure` section.
+- [ ] T001 Create project structure under `projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/` matching the exact directory tree in `plan.md`: `data/raw`, `data/curated`, `data/eval`, `src/generation`, `src/filtering`, `src/training`, `src/evaluation`, `src/utils`, `tests/unit`, `tests/integration`.
 - [ ] T002 Initialize Python 3.11 project with CPU-only `torch`, `pybullet`, `mujoco`, `diffusers`, `transformers`, `scikit-learn`, `opencv-python`, `pandas`, `numpy`, `requests`, `sam2`, `zoe_depth`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Create `requirements.txt` with pinned versions and verify `pip install` on CPU-only runner
+- [X] T004 [P] Create `requirements.txt` with pinned versions and verify `pip install` on CPU-only runner
 
 ---
 
@@ -42,8 +42,10 @@
 - [ ] T005 Setup data directory structure: `data/raw`, `data/curated`, `data/eval` with checksumming utilities in `src/utils/io_utils.py`
 - [ ] T006 [P] Implement logging configuration in `src/utils/logging.py` with file rotation and JSON logging for metrics
 - [ ] T007 Create base configuration management in `src/training/config.py` to handle hyperparameters and CPU-only flags
+- [ ] T007b [P] Create `config.yaml` with default key `filter_discard_percent: 0.4` and schema definition for all required keys
 - [ ] T008 Setup environment validation script `src/utils/verify_env.py` to ensure PyBullet/MuJoCo/PyTorch CPU modes are active and no CUDA is detected
-- [ ] T009 Implement deterministic seed setting utility in `src/utils/io_utils.py` for reproducibility across batches
+- [ ] T009 [P] Implement deterministic seed setting utility in `src/utils/seeding.py` for reproducibility across batches
+- [ ] T006b [P] Implement memory profiling script `src/utils/profile_memory.py` to measure peak RAM usage for verification tasks
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,19 +61,22 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T010 [P] [US1] Unit test for prompt-to-scene translation logic in `tests/unit/test_prompt_to_scene.py`
-- [ ] T011 [P] [US1] Integration test for the full generate-filter pipeline on 5 samples in `tests/integration/test_generate_filter_pipeline.py`
+- [X] T010 [P] [US1] Unit test for prompt-to-scene translation logic in `tests/unit/test_prompt_to_scene.py` <!-- ATOMIZE: requested -->
+- [ ] T011 [P] [US1] Integration test for the full generate-filter pipeline on a representative set of samples <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+
+The research question remains: How can the generate-filter pipeline be validated for coherence and accuracy? The method remains: Conducting integration tests on a representative set of samples. References: [Citation to be inserted] in `tests/integration/test_generate_filter_pipeline.py`
 
 ### Implementation for User Story 1
 
 - [ ] T012 [P] [US1] Implement prompt management in `src/generation/prompts.py` loading verified RobotBench prompts
-- [ ] T013 [US1] Implement Wan2.1 video generation wrapper in `src/generation/wan21_generator.py` (CPU-compatible subset/distilled version)
-- [ ] T014 [US1] Implement prompt-to-scene translation in `src/filtering/prompt_to_scene.py` to map text to PyBullet assets and initial poses
+- [ ] T013 [US1] Implement Wan2.1 video generation wrapper in `src/generation/wan21_generator.py` (CPU-compatible subset/distilled version) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T014 [US1] Implement prompt-to-scene translation in `src/filtering/prompt_to_scene.py` to map text to PyBullet assets and initial poses <!-- FAILED: unspecified -->
 - [ ] T015 [US1] Implement canonical simulation in `src/filtering/pybullet_filter.py` (DEPENDS ON T014) to generate ground truth trajectories using PyBullet headless mode
+- [ ] T015b [US1] Implement proxy validation in `src/filtering/pybullet_filter.py` to validate the canonical simulation against a small subset of real-world data or high-fidelity simulation to quantify semantic gap <!-- FAILED: unspecified -->
 - [ ] T016 [P] [US1] Implement CV pipeline in `src/filtering/cv_pipeline.py` using SAM2 and ZoeDepth for 3D trajectory extraction with Kalman filtering
 - [ ] T017a [US1] Implement metric calculation in `src/filtering/score_utils.py` to calculate trajectory continuity and contact conservation scores using ground truth from T015
-- [ ] T017 [US1] Orchestrate physics scoring in `src/filtering/pybullet_filter.py` (DEPENDS ON T015, T016, T017a) to apply metrics and generate raw scores
-- [ ] T018 [US1] Implement filtering logic in `src/filtering/score_utils.py` to read `filter_discard_percent` from `config.yaml`, calculate the corresponding percentile threshold (e.g., 60th for 40% discard), discard bottom videos, and save curated dataset to `data/curated/`
+- [ ] T017 [US1] Orchestrate and aggregate scores in `src/filtering/pybullet_filter.py` (Requires: T015, T016, T017a output) to call T017a functions and generate raw scores
+- [ ] T018 [US1] Implement filtering logic in `src/filtering/score_utils.py` to read `filter_discard_percent` from `config.yaml` (default 0.4), calculate the corresponding percentile threshold, discard bottom videos, and save curated dataset to `data/curated/`
 - [ ] T019 [US1] Add error handling for corrupted video frames (assign score 0.0, log error) in `src/filtering/pybullet_filter.py`
 - [ ] T020 [US1] Add memory usage monitoring to ensure < 6 GB RAM during filtering in `src/utils/io_utils.py`
 
@@ -88,14 +93,14 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T021 [P] [US2] Unit test for NaN loss detection and retry logic in `tests/unit/test_training_stability.py`
-- [ ] T022 [P] [US2] Integration test for training on 10 curated samples in `tests/integration/test_cpu_training.py`
+- [ ] T022 [P] [US2] Integration test for training on curated samples in `tests/integration/test_cpu_training.py`
 
 ### Implementation for User Story 2
 
 - [ ] T023 [P] [US2] Implement data augmentation module in `src/training/augmentation.py` (temporal jittering, geometric flipping) for FR-009
-- [ ] T024 [US2] Implement 50M parameter diffusion model architecture in `src/training/diffusion_trainer.py` (CPU-optimized, no CUDA)
+- [ ] T024 [US2] Implement 50M parameter diffusion model architecture `DiffusionModel50M` in `src/training/diffusion_trainer.py` (CPU-optimized, no CUDA) with verification `count_parameters() == 50,000,000`
 - [ ] T025 [US2] Implement training loop in `src/training/diffusion_trainer.py` with NaN detection, learning rate adjustment, and 4-hour timeout enforcement
-- [ ] T026 [US2] Implement data loader for curated dataset in `src/training/diffusion_trainer.py` with batch size optimization for 7 GB RAM
+- [ ] T026 [US2] Implement data loader for curated dataset in `src/training/diffusion_trainer.py` with batch size optimization for GB RAM
 - [ ] T027 [US2] Add checkpointing and model saving logic in `src/training/diffusion_trainer.py`
 - [ ] T028 [US2] Add resource monitoring to ensure < 6 GB RAM during training in `src/utils/io_utils.py`
 
@@ -112,22 +117,28 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T029 [P] [US3] Unit test for statistical significance calculation (t-test/Mann-Whitney U) in `tests/unit/test_stats.py`
-- [ ] T030 [P] [US3] Integration test for full evaluation pipeline on 30 samples in `tests/integration/test_evaluation_suite.py`
+- [ ] T030 [P] [US3] Integration test for full evaluation pipeline on a representative sample set
+
+The research question is: How does the full evaluation pipeline perform on diverse data inputs?
+The method is: Integration test for full evaluation pipeline on a representative sample set.
+References: (Preserve existing citations as required by the planning document). in `tests/integration/test_evaluation_suite.py`
 
 ### Implementation for User Story 3
 
 - [ ] T031 [P] [US3] Implement R-Bench scorer in `src/evaluation/r_bench.py`
 - [ ] T032 [P] [US3] Implement PAI-Bench scorer in `src/evaluation/pai_bench.py`
-- [ ] T033a [US3] Implement physics-informed loss function in `src/training/losses.py` (DEPENDS ON US2 completion)
-- [ ] T033b [US3] Implement baseline training loop in `src/training/baseline_trainer.py` (DEPENDS ON US2 completion, T033a)
-- [ ] T033c [US3] Implement baseline artifact management in `src/evaluation/baseline_proxy.py` to load and manage the trained proxy model
+- [ ] T033a [US3] Implement physics-informed loss function in `src/training/losses.py` (Requires: US2 completion (T024, T025))
+- [ ] T033b [US3] Implement baseline training loop in `src/training/baseline_trainer.py` (Requires: US2 completion, T033a, T024, T025)
+- [ ] T033c [US3] Implement baseline artifact management in `src/evaluation/baseline_proxy.py` to load and manage the trained proxy model (Requires: T033b)
+- [ ] T033d [US3] Execute baseline training run on raw dataset using the 'Physics-Informed Training Proxy' loss from T033a to generate baseline model artifacts for evaluation
 - [ ] T034 [US3] Implement stratified sampling for evaluation set (n=30) in `src/evaluation/stats.py`
 - [ ] T035a [US3] Implement t-test and Mann-Whitney U statistical testing in `src/evaluation/stats.py` (FR-006 compliance)
 - [ ] T035b [US3] Implement Linear Mixed Model (LMM) testing in `src/evaluation/stats.py` (Plan Phase 4 complexity)
 - [ ] T036 [US3] Implement performance gap calculation and 15% threshold check in `src/evaluation/stats.py`
-- [ ] T037a [US3] Generate distinct ground truth simulation files in `src/evaluation/ground_truth_gen.py` using prompt-to-scene logic for independent validation
-- [ ] T037 [US3] Implement MuJoCo independent validation in `src/evaluation/mujoco_validator.py` (INPUT: curated videos + ground truth from T037a) to produce `data/eval/mujoco_scores.json`
-- [ ] T038 [US3] Implement correlation analysis in `src/evaluation/stats.py` comparing PyBullet scores (on CV-extracted trajectories) vs MuJoCo scores (on distinct ground truth from T037a) to verify correlation < 0.95 (non-circularity)
+- [ ] T037a [US3] Generate distinct ground truth simulation files in `src/evaluation/ground_truth_gen.py` using prompt-to-scene logic for independent validation (Output: JSON format with keys: trajectory, initial_pose, video_id)
+- [ ] T037b [US3] Fetch real-world data or high-fidelity simulation data for independent validation if T037a is insufficient, storing in `data/eval/real_world_data/`
+- [ ] T037 [US3] Implement MuJoCo independent validation in `src/evaluation/mujoco_validator.py` (INPUT: ground truth from T037a OR real-world data from T037b ONLY; FORBIDDEN: CV-extracted trajectories from T016; Requires: T037a AND US1 output (curated videos)) to produce `data/eval/mujoco_scores.json`
+- [ ] T038 [US3] Implement correlation analysis in `src/evaluation/stats.py` comparing PyBullet scores (on CV-extracted trajectories) vs MuJoCo scores (on distinct ground truth from T037a or real-world data from T037b) to verify correlation < 0.95 (non-circularity) (Requires: T015/T016 output (PyBullet scores), T037) (DEPENDS ON T015/T016, T037)
 - [ ] T039 [US3] Generate final JSON report in `data/eval/results.json` with all metrics and p-values
 - [ ] T040 [US3] Add logic to trigger data augmentation if n < 30 before statistical testing in `src/evaluation/stats.py`
 
@@ -140,7 +151,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T041 [P] Documentation updates in `docs/` including `quickstart.md` and `data-model.md`
-- [ ] T042 Code cleanup and refactoring for memory efficiency across all modules to reduce peak RAM by [deferred] (verified by profiling)
+- [ ] T042 Code cleanup and refactoring for memory efficiency across all modules to reduce peak RAM by a substantial margin (verified by `src/utils/profile_memory.py`)
 - [ ] T043 Performance optimization for CV pipeline (SAM2/ZoeDepth) to reduce processing time per video to < 2 minutes
 - [ ] T044 [P] Additional unit tests for edge cases (corrupted frames, NaN loss, small dataset) in `tests/unit/`
 - [ ] T045 Run `quickstart.md` validation to ensure all phases execute correctly on CPU-only runner
@@ -155,8 +166,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -223,9 +234,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Generation & Filtering)
-   - Developer B: User Story 2 (Model Training) - *Wait for US1 output*
-   - Developer C: User Story 3 (Evaluation) - *Wait for US1 & US2 output*
+ - Developer A: User Story 1 (Data Generation & Filtering)
+ - Developer B: User Story 2 (Model Training) - *Wait for US1 output*
+ - Developer C: User Story 3 (Evaluation) - *Wait for US1 & US2 output*
 3. Stories complete and integrate independently
 
 ---
@@ -239,5 +250,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All tasks MUST run on CPU-only (limited cores, 7 GB RAM). No CUDA, no large model training, no GPU-specific libraries.
+- **CRITICAL**: All tasks MUST run on CPU-only (limited cores, constrained RAM). No CUDA, no large model training, no GPU-specific libraries.
 - **CRITICAL**: All data must be real. No fabricated datasets. Use verified URLs for RobotBench prompts and Wan2.1 weights.
+- **CRITICAL**: MuJoCo validation (T037) MUST NOT use CV-extracted trajectories from T016; it must use distinct ground truth (T037a) or real-world data (T037b) to ensure non-circularity.

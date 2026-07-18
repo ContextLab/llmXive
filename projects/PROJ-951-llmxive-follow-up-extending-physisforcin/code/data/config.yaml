@@ -1,0 +1,34 @@
+# llmXive Training Configuration
+# Default configuration for PhysisForcing pipeline
+
+# Filtering parameters
+filter_discard_percent: 0.4
+discard_bottom_percent: 0.4
+physics_score_threshold: 0.0
+contact_conservation_threshold: 0.0
+trajectory_continuity_threshold: 0.0
+
+# Training parameters
+seed: 42
+batch_size: 8
+num_workers: 2
+max_epochs: 100
+learning_rate: 0.0001
+weight_decay: 0.00001
+model_name: "DiffusionModel50M"
+model_path: "data/models/diffusion_model.pt"
+timeout_seconds: 14400
+memory_limit_gb: 6.0
+
+# Environment flags
+cpu_only: true
+
+# Directory paths
+data_raw_dir: "data/raw"
+data_curated_dir: "data/curated"
+data_eval_dir: "data/eval"
+log_dir: "logs"
+checkpoint_dir: "checkpoints"
+
+# Validation parameters
+min_videos_for_training: 30

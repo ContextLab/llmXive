@@ -1,0 +1,5 @@
+# Development dependencies for PROJ-951
+# Linting and Formatting
+ruff>=0.1.0
+black>=23.0.0
+pre-commit>=3.0.0

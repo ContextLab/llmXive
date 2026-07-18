@@ -1,0 +1,92 @@
+# Configuration for llmXive Physics Filter Pipeline
+# This file defines all hyperparameters and operational flags.
+# Used by src/training/config.py for validation and loading.
+
+# --- Filtering Configuration ---
+filter:
+  # Percentage of generated videos to discard based on physics score (bottom percentile).
+  # Default: 0.4 (discard bottom 40%)
+  discard_percent: 0.4
+
+  # Paths for filtering artifacts
+  paths:
+    raw_output_dir: "data/raw/generated_videos"
+    scores_dir: "data/eval/scores"
+    curated_dir: "data/curated"
+    log_file: "logs/filtering.log"
+
+# --- Generation Configuration ---
+generation:
+  model_name: "wan2.1-turbo"
+  # CPU-only execution flags
+  cpu_only: true
+  num_inference_steps: 25
+  guidance_scale: 7.5
+  seed: 42
+
+  # Prompt source
+  prompt_source: "robotbench"
+  prompt_limit: 100  # Max prompts to process per run
+
+# --- Training Configuration ---
+training:
+  model_capacity: 50000000  # 50M parameters target
+  batch_size: 4
+  epochs: 10
+  learning_rate: 1e-4
+  cpu_only: true
+  max_ram_gb: 6.0
+  timeout_seconds: 14400  # 4 hours
+
+  paths:
+    curated_data_dir: "data/curated"
+    checkpoint_dir: "models/checkpoints"
+    log_file: "logs/training.log"
+
+# --- Evaluation Configuration ---
+evaluation:
+  benchmarks:
+    - "r_bench"
+    - "pai_bench"
+  sample_size: 30
+  statistical_tests:
+    - "t_test"
+    - "mann_whitney_u"
+  threshold_performance_gap: 0.15  # 15% improvement required
+
+  paths:
+    eval_dir: "data/eval"
+    ground_truth_dir: "data/eval/ground_truth"
+    real_world_dir: "data/eval/real_world_data"
+    report_file: "data/eval/results.json"
+
+# --- Environment & Safety ---
+environment:
+  verify_cpu_only: true
+  verify_no_cuda: true
+  log_level: "INFO"
+  memory_profile_enabled: true
+  max_memory_gb: 6.0
+
+# --- Schema Validation ---
+# This section is used by src/training/config.py to validate the YAML structure.
+# It is not read by the application logic but serves as documentation and validation reference.
+_schema:
+  required_keys:
+    - filter.discard_percent
+    - generation.cpu_only
+    - training.cpu_only
+    - training.max_ram_gb
+    - evaluation.sample_size
+  types:
+    filter.discard_percent: float (0.0-1.0)
+    generation.cpu_only: bool
+    training.cpu_only: bool
+    training.max_ram_gb: float
+    evaluation.sample_size: int
+    evaluation.threshold_performance_gap: float
+  defaults:
+    filter.discard_percent: 0.4
+    generation.cpu_only: true
+    training.cpu_only: true
+    training.max_ram_gb: 6.0

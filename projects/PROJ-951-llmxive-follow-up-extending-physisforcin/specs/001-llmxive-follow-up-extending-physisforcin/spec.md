@@ -9,7 +9,7 @@
 
 ### User Story 1 - Generate and Filter Synthetic Video Dataset (Priority: P1)
 
-**Describe this user journey**: The researcher generates a dataset of robotic manipulation videos using the Wan2.1 model and immediately processes them through a CPU-based physics filter (PyBullet) to score trajectory continuity and contact conservation. The system automatically discards the bottom [deferred] of videos based on the physics score distribution, producing a curated dataset of high-consistency samples ready for training.
+**Describe this user journey**: The researcher generates a dataset of robotic manipulation videos using the Wan model and immediately processes them through a CPU-based physics filter (PyBullet) to score trajectory continuity and contact conservation. The system automatically discards the bottom [deferred] of videos based on the physics score distribution, producing a curated dataset of high-consistency samples ready for training.
 
 **Why this priority**: This is the foundational data curation step. Without a curated dataset, no downstream training or evaluation can occur. It directly tests the hypothesis that sample exclusion alone can yield high-quality data without expensive training-time optimization.
 
@@ -25,11 +25,11 @@
 
 ### User Story 2 - Train Distilled Diffusion Model on Curated Data (Priority: P2)
 
-**Describe this user journey**: The researcher trains a distilled diffusion model of moderate scale using the curated dataset produced in User Story 1. The training process runs on a CPU-only environment using standard optimization procedures, resulting in a trained policy model capable of generating physically consistent robotic manipulation sequences.
+**Describe this user journey**: The researcher trains a distilled diffusion model of moderate scale using a curated dataset produced in a prior user story. The training process runs on a CPU-only environment using standard optimization procedures, resulting in a trained policy model capable of generating physically consistent robotic manipulation sequences.
 
 **Why this priority**: This step validates whether the curated data is sufficient to train a model that learns physical priors. It is the core experimental manipulation: training a model *only* on filtered data to see if it matches the performance of a model trained with joint optimization.
 
-**Independent Test**: Can be fully tested by training the 50M model on the curated dataset for a fixed number of epochs (e.g., 10) and verifying that the model converges (loss decreases) and produces output videos that do not crash the physics engine during evaluation.
+**Independent Test**: Can be fully tested by training the model on the curated dataset for a fixed number of epochs (e.g., 10) and verifying that the model converges (loss decreases) and produces output videos that do not crash the physics engine during evaluation.
 
 **Acceptance Scenarios**:
 
@@ -41,7 +41,7 @@
 
 ### User Story 3 - Evaluate and Compare Performance on Benchmarks (Priority: P3)
 
-**Describe this user journey**: The researcher evaluates the trained model from User Story 2 against the original PhysisForcing baseline and the unfiltered baseline on R-Bench and PAI-Bench. The system computes physical consistency scores and performs statistical significance testing (unpaired t-tests or Mann-Whitney U) to determine if the filtered model's performance is comparable (within 15%) to the baseline.
+**Describe this user journey**: The researcher evaluates the trained model from the target user story against the original PhysisForcing baseline and the unfiltered baseline on R-Bench and PAI-Bench. The system computes physical consistency scores and performs statistical significance testing (unpaired t-tests or Mann-Whitney U) to determine if the filtered model's performance is comparable (within 15%) to the baseline.
 
 **Why this priority**: This step provides the scientific answer to the research question. It measures the efficacy of the proposed method against the state-of-the-art and determines if the "sample curation" hypothesis holds.
 
@@ -58,7 +58,7 @@
 ### Edge Cases
 
 - **What happens when** the PyBullet simulation fails to load a specific video frame due to format corruption?
-  - *Handling*: The system logs the error, assigns a default low consistency score (0.0) to that video, and excludes it from the dataset.
+  - *Handling*: The system logs the error, assigns a default low consistency score to that video, and excludes it from the dataset.
 - **How does the system handle** a scenario where the 50M model training diverges or produces NaN loss on the CPU?
   - *Handling*: The training script includes a check for NaN loss; if detected, the run is aborted, and a specific error code is returned to trigger a retry with adjusted learning rates (up to 3 attempts).
 - **What happens when** the dataset size is too small to achieve statistical significance in the test (e.g., < 30 samples)?
@@ -93,7 +93,7 @@
 - **SC-002**: The physical consistency score of the trained model is measured against the PhysisForcing baseline score on R-Bench and PAI-Bench. (See US-3)
 - **SC-003**: The performance gap between the filtered model and the PhysisForcing baseline is measured against the 15% threshold (gap ≤ 15%) to determine comparability. (See US-3)
 - **SC-004**: The statistical significance of the performance difference is measured against a conventional p-value threshold. (See US-3)
-- **SC-005**: The total training time for the large-scale parameter model is measured against the 4-hour limit on a CPU-only runner. (See US-2)
+- **SC-005**: The total training time for the large-scale parameter model is measured against a predefined time limit on a CPU-only runner. (See US-2)
 - **SC-006**: The independent validation score (MuJoCo/Real-world) is measured against the PyBullet filter score to verify no circularity (correlation coefficient < 0.95 or distinct metric distribution). (See US-3)
 
 ## Assumptions

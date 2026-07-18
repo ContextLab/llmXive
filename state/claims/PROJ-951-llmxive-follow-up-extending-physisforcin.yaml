@@ -1,0 +1,138 @@
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 50,000,000 parameter diffusion model architecture
+  claim_id: c_7d5b9dad
+  context: 'Phase 4: User Story 2 - Train Distilled Diffusion Model on Curated Data
+    (Priority: P2). Implementation for User Story 2 - T024 [US2]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 50M parameter diffusion model architecture DiffusionModel50M
+    in src/training/diffusion_trainer.py (CPU-optimized, no CUDA) with verification
+    count_parameters() == 50,000,000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:20:50Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: filter_discard_percent default of 0.4
+  claim_id: c_7dab5796
+  context: 'Phase 3: User Story 1 - Generate and Filter Synthetic Video Dataset. Implementation
+    for User Story 1 - T018 [US1]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement filtering logic in src/filtering/score_utils.py to read filter_discard_percent
+    from config.yaml (default 0.4), calculate the corresponding percentile threshold,
+    discard bottom videos, and save curated dataset to data/curated/
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:21:07Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 6 GB RAM limit during filtering
+  claim_id: c_a29cc059
+  context: 'Phase 3: User Story 1 - Generate and Filter Synthetic Video Dataset. Implementation
+    for User Story 1 - T020 [US1]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add memory usage monitoring to ensure < 6 GB RAM during filtering in src/utils/io_utils.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:21:07Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 6 GB RAM limit during training
+  claim_id: c_0a70f074
+  context: 'Phase 4: User Story 2 - Train Distilled Diffusion Model on Curated Data.
+    Implementation for User Story 2 - T028 [US2]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add resource monitoring to ensure < 6 GB RAM during training in src/utils/io_utils.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:21:07Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: stratified sampling evaluation set size of 30
+  claim_id: c_e53103ff
+  context: 'Phase 5: User Story 3 - Evaluate and Compare Performance on Benchmarks.
+    Implementation for User Story 3 - T034 [US3]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling for evaluation set (n=30) in src/evaluation/stats.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:21:21Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: verify correlation less than 0.95 for non-circularity
+  claim_id: c_796c11dc
+  context: 'Phase 5: User Story 3 - Evaluate and Compare Performance on Benchmarks.
+    Implementation for User Story 3 - T038 [US3]'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_correlation_less_than_0.95_for_non-circularity
+  kind: magnitude
+  raw_text: Implement correlation analysis in src/evaluation/stats.py comparing PyBullet
+    scores (on CV-extracted trajectories) vs MuJoCo scores (on distinct ground truth
+    from T037a or real-world data from T037b) to verify correlation < 0.95 (non-circularity)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:22:23Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 15% threshold check for performance gap
+  claim_id: c_a12f3423
+  context: 'Phase 5: User Story 3 - Evaluate and Compare Performance on Benchmarks.
+    Implementation for User Story 3 - T036 [US3]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement performance gap calculation and 15% threshold check in src/evaluation/stats.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:22:23Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: reduce processing time per video to less than 2 minutes
+  claim_id: c_00d64c45
+  context: 'Phase 6: Polish & Cross-Cutting Concerns. T043'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_processing_time_per_video_to_less_than_2_minutes
+  kind: magnitude
+  raw_text: Performance optimization for CV pipeline (SAM2/ZoeDepth) to reduce processing
+    time per video to < 2 minutes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:22:55Z'

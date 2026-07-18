@@ -1,0 +1,82 @@
+[
+  {
+    "id": "rb_001",
+    "text": "A robotic arm picks up a red cube from a table and places it in a blue bin."
+  },
+  {
+    "id": "rb_002",
+    "text": "A robotic gripper grasps a cylindrical object and moves it to a different location."
+  },
+  {
+    "id": "rb_003",
+    "text": "A robot arm pushes a small ball across a flat surface into a target zone."
+  },
+  {
+    "id": "rb_004",
+    "text": "A robotic manipulator lifts a glass of water and pours it into a sink."
+  },
+  {
+    "id": "rb_005",
+    "text": "A robot arm stacks three blocks in a pyramid formation."
+  },
+  {
+    "id": "rb_006",
+    "text": "A robotic hand opens a drawer, retrieves a tool, and closes the drawer."
+  },
+  {
+    "id": "rb_007",
+    "text": "A robot arm rotates a screwdriver to tighten a bolt."
+  },
+  {
+    "id": "rb_008",
+    "text": "A robotic gripper picks up a paperclip and places it in a container."
+  },
+  {
+    "id": "rb_009",
+    "text": "A robot arm pushes a button on a control panel."
+  },
+  {
+    "id": "rb_010",
+    "text": "A robotic manipulator assembles two parts together."
+  },
+  {
+    "id": "rb_011",
+    "text": "A robot arm moves a key to unlock a small box."
+  },
+  {
+    "id": "rb_012",
+    "text": "A robotic gripper lifts a cup and drinks from it."
+  },
+  {
+    "id": "rb_013",
+    "text": "A robot arm pushes a lever to activate a mechanism."
+  },
+  {
+    "id": "rb_014",
+    "text": "A robotic manipulator places a lid on a jar."
+  },
+  {
+    "id": "rb_015",
+    "text": "A robot arm picks up a pen and writes on a piece of paper."
+  },
+  {
+    "id": "rb_016",
+    "text": "A robotic gripper moves a chess piece to a new square on a board."
+  },
+  {
+    "id": "rb_017",
+    "text": "A robot arm opens a bottle cap."
+  },
+  {
+    "id": "rb_018",
+    "text": "A robotic manipulator arranges books on a shelf."
+  },
+  {
+    "id": "rb_019",
+    "text": "A robot arm pushes a toy car across a track."
+  },
+  {
+    "id": "rb_020",
+    "text": "A robotic gripper picks up a coin and deposits it in a slot."
+  }
+]

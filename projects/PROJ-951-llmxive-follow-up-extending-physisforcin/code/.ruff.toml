@@ -1,0 +1,27 @@
+# Ruff configuration for llmXive Physics Filter project
+# Targeting Python 3.11
+target-version = "py311"
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+]
+
+[lint.per-file-ignores]
+# Allow specific patterns in tests
+"code/tests/*" = ["S101"] # assert statements in tests
+
+[lint.isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true
