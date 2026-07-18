@@ -112,7 +112,7 @@ docs/
 - **Task T-007**: Generate `tie_breaking_validator.py` and `tie_breaking_rules.md` (SC-007).
   - *Logic*: Script checks that tie-breaking rules (e.g., lexicographic order for ambiguous knots) are consistent across the dataset and returns exit code 0 on success.
 - **Task T-013**: Generate `data_quality_report.md` with null %, format pass rate, duplicate count (SC-013).
-- **Task T-014**: Validate crossing number and braid index against KnotInfo with 1e-6 tolerance (FR-014).
+- **Task T-014**: Validate crossing number and braid index against KnotInfo with e-6 tolerance (FR-014).
   - *Output*: `docs/reproducibility/core_precision_consistency.md` (SC-015).
 - **Task T-016**: Generate `plot_validation_report.md` to verify resolution and metadata (SC-016).
 

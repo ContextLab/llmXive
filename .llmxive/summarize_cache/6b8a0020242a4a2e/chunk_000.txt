@@ -67,19 +67,3 @@ As a researcher, I need the system to handle edge cases (API unavailability, mis
 
 1. **Given** the Knot Atlas is unavailable, **When** retry logic executes, **Then** exponential backoff is applied and partial results are cached to disk after a threshold of consecutive failures
 2. **Given** a knot record has missing invariant data, **When** the computation module processes it, **Then** the record is flagged with missing_invariant_flags rather than being silently excluded
-3. **Given** a knot has ambiguous alternating/non-alternating classification, **When** stratified analysis runs, **Then** the record is either excluded (with count logged) or marked as "unclassifiable"
-4. **Given** diagram representation ties exist, **When** invariant computations run, **Then** documented tie-breaking rules are applied consistently across all records
-5. **Given** all data transformations complete, **When** reproducibility check runs, **Then** all required artifacts (SHA-256 checksums, derivation notes, random seeds, timestamped logs) are present in docs/reproducibility/ directory
-
-### Edge Cases
-
-- What happens when Knot Atlas is unavailable or rate‑limited during download? (System should implement retry logic with exponential backoff and cache partial results)
-- How does system handle knots where braid index, hyperbolic volume, or other invariants are not computable from available diagram representations? (Records should be flagged with missing_invariant_flags rather than silently excluded)
-- What happens when alternating vs. non‑alternating classification is ambiguous or missing for a knot? (System should either exclude from stratified analysis or mark as unclassifiable)
-- How does system handle diagram representation ties when determining "minimal" representations? (Document tie-breaking rules and ensure consistency across all invariant computations)
-- What happens when hyperbolic volume is zero or undefined (e.g., for torus or satellite knots)? (Records should be flagged and excluded from volume prediction analysis with count logged)
-
-## Requirements *(mandatory)*
-
-### Functional Requirements
-
