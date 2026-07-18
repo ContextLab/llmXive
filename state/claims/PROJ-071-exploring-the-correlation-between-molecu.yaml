@@ -117,3 +117,245 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T10:14:26Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Aspirin TPSA 63.6 angstroms squared
+  claim_id: c_47a304e7
+  context: "Unit test for TPSA in tests/test_descriptors.py. Function: test_tpsa_aspirin.\
+    \ Assertion: Calculated TPSA for Aspirin matches reference value (approx 63.6\
+    \ \xC5\xB2) within 1e-4."
+  evidence:
+    asserted: '0.0001'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Calculated TPSA for Aspirin matches reference value (approx 63.6 \xC5\
+    \xB2) within 1e-4."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T14:17:01Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Aspirin molecular weight 180.16 g/mol
+  claim_id: c_c33f388c
+  context: 'Unit test for Molecular Weight in tests/test_descriptors.py. Function:
+    test_mw_aspirin. Assertion: Calculated MW for Aspirin matches reference value
+    (180.16 g/mol) within 1e-4.'
+  evidence:
+    asserted: '0.0001'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculated MW for Aspirin matches reference value (180.16 g/mol) within
+    1e-4.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T14:17:01Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Aspirin aromatic ring count 1
+  claim_id: c_6f3d1860
+  context: 'Unit test for Aromatic Ring Count in tests/test_descriptors.py. Function:
+    test_aromatic_rings_aspirin. Assertion: Calculated Aromatic Ring Count for Aspirin
+    matches reference value (1) exactly.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculated Aromatic Ring Count for Aspirin matches reference value (1)
+    exactly.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:20:21Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Half-life calculation 69.31 hours for k=0.01
+  claim_id: c_12d1937c
+  context: 'Unit test for unit conversion logic in tests/test_standardize.py. Function:
+    test_k_to_half_life_conversion. Assertion: t1_2 = ln(2)/0.01 equals 69.31 hours
+    within 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: t1_2 = ln(2)/0.01 equals 69.31 hours within 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:20:38Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/quickstart.md
+  attempts: 1
+  canonical: Pipeline ingests FDA-approved drug structures
+  claim_id: c_f36d09be
+  context: This project explores the correlation between molecular complexity and
+    degradation rates in pharmaceuticals. The pipeline ingests FDA-approved drug structures,
+    calculates molecular descriptors, performs correlation analysis, and generates
+    visualizations and reports.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_ingests_FDA-approved_drug_structures
+  kind: entity_fact
+  raw_text: The pipeline ingests FDA-approved drug structures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:26:30Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/quickstart.md
+  attempts: 1
+  canonical: Pipeline fetches FDA-approved drug structures from HuggingFace
+  claim_id: c_939743ad
+  context: 'This will: 1. Fetch FDA-approved drug structures from HuggingFace 2. Check
+    data availability (minimum 30 samples required)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fetches_FDA-approved_drug_structures_from_HuggingFa
+  kind: entity_fact
+  raw_text: The pipeline fetches FDA-approved drug structures from HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:26:57Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/quickstart.md
+  attempts: 1
+  canonical: Pipeline calculates TPSA, MW, and Rotatable Bonds
+  claim_id: c_c4e503cb
+  context: 3. Calculate molecular descriptors (TPSA, MW, Rotatable Bonds, etc.) 4.
+    Perform correlation analysis and regression modeling
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_calculates_TPSA,_MW,_and_Rotatable_Bonds
+  kind: entity_fact
+  raw_text: The pipeline calculates molecular descriptors including TPSA, MW, and
+    Rotatable Bonds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:27:25Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/quickstart.md
+  attempts: 1
+  canonical: Minimum 30 samples required for data availability
+  claim_id: c_40f9f589
+  context: 2. Check data availability (minimum 30 samples required) 3. Calculate molecular
+    descriptors
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline requires a minimum of 30 samples for data availability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:27:48Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/quickstart.md
+  attempts: 1
+  canonical: Project uses Python 3.9 or higher
+  claim_id: c_76ef0001
+  context: '## Prerequisites - Python 3.9+ - pip package manager - 7GB+ RAM recommended'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.9 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:28:16Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/quickstart.md
+  attempts: 1
+  canonical: Project recommends 7GB or more RAM
+  claim_id: c_20eacf56
+  context: '- pip package manager - 7GB+ RAM recommended'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_recommends_7GB_or_more_RAM
+  kind: entity_fact
+  raw_text: The project recommends 7GB or more of RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:28:40Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/quickstart.md
+  attempts: 1
+  canonical: Molecular descriptors calculated using RDKit
+  claim_id: c_52d2329e
+  context: '- FDA-approved drugs: HuggingFace dataset ''Synthyra/FDA-Approved-Drugs''
+    - Molecular descriptors: Calculated using RDKit'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Molecular_descriptors_calculated_using_RDKit
+  kind: entity_fact
+  raw_text: Molecular descriptors are calculated using RDKit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:29:02Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/quickstart.md
+  attempts: 1
+  canonical: FDA-approved drugs dataset hosted on HuggingFace as Synthyra/FDA-Approved-Drugs
+  claim_id: c_60a5bee3
+  context: '- FDA-approved drugs: HuggingFace dataset ''Synthyra/FDA-Approved-Drugs''
+    - Molecular descriptors: Calculated using RDKit'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FDA-approved_drugs_dataset_hosted_on_HuggingFace_as_Synthyra
+  kind: entity_fact
+  raw_text: The FDA-approved drugs dataset is hosted on HuggingFace as 'Synthyra/FDA-Approved-Drugs'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:29:20Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/quickstart.md
+  attempts: 1
+  canonical: Degradation data extracted from FDA dataset if available
+  claim_id: c_9a362a07
+  context: '- Molecular descriptors: Calculated using RDKit - Degradation data: Extracted
+    from the FDA dataset (if available)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Degradation_data_extracted_from_FDA_dataset_if_available
+  kind: entity_fact
+  raw_text: Degradation data is extracted from the FDA dataset if available.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:29:48Z'

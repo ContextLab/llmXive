@@ -1,115 +1,153 @@
-# Quickstart Guide: Molecular Complexity vs. Degradation Rates
+# Quick Start Guide
 
-This guide walks you through setting up and running the full pipeline to explore the correlation between molecular complexity and degradation rates in FDA-approved pharmaceuticals.
+## Overview
+
+This project explores the correlation between molecular complexity and degradation rates in pharmaceuticals. The pipeline ingests FDA-approved drug structures, calculates molecular descriptors, performs correlation analysis, and generates visualizations and reports.
 
 ## Prerequisites
 
 - Python 3.9+
-- pip (Python package manager)
-- Access to the HuggingFace datasets library (for fetching FDA drug data)
+- pip package manager
+- 7GB+ RAM recommended
 
 ## Installation
 
-1. **Clone the repository** (if not already done):
- ```bash
- git clone <repository-url>
- cd PROJ-071-exploring-the-correlation-between-molecu
- ```
-
-2. **Create a virtual environment** (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
- The `requirements.txt` includes:
- - `rdkit`: For molecular descriptor calculation
- - `pandas`, `numpy`: For data manipulation
- - `scikit-learn`: For regression modeling
- - `matplotlib`, `seaborn`: For visualization
- - `pyyaml`, `requests`, `datasets`: For configuration and data fetching
-
-## Data Setup
-
-The pipeline requires a specific directory structure. Run the setup script to create it:
-
+1. Clone the repository:
 ```bash
-python code/setup_data.py
+git clone <repository-url>
+cd projects/PROJ-071-exploring-the-correlation-between-molecu
 ```
 
-This creates:
-- `data/raw/`: For raw downloaded data
-- `data/processed/`: For cleaned and merged datasets
-- `data/output_schema.yaml`: Defines the expected output format
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Verify installation:
+```bash
+python -c "import rdkit; print('RDKit installed successfully')"
+```
 
 ## Running the Pipeline
 
-The pipeline is executed in three main stages, corresponding to the User Stories. You can run them individually or all at once.
+### Full Pipeline Execution
 
-### Stage 1: Data Ingestion & Descriptor Calculation (US1)
+Run the complete pipeline from data ingestion to report generation:
 
-Fetches FDA-approved drug structures, validates degradation data availability, and calculates molecular descriptors.
+```bash
+python code/pipeline_runner.py
+```
 
+This will:
+1. Fetch FDA-approved drug structures from HuggingFace
+2. Check data availability (minimum 30 samples required)
+3. Calculate molecular descriptors (TPSA, MW, Rotatable Bonds, etc.)
+4. Perform correlation analysis and regression modeling
+5. Generate visualizations and reproducibility reports
+
+### Individual Components
+
+#### Data Ingestion
 ```bash
 python code/ingest.py
 ```
 
-**Outputs**:
-- `data/processed/merged_drugs.csv`: Combined structural and degradation data.
-- `data/checksums.txt`: Integrity checksums for the dataset.
-- `data/errors.log`: Logs of any molecules with invalid SMILES or valence issues.
-- `data_insufficiency_report.md`: Generated if data availability checks fail (N < 30).
-
-### Stage 2: Standardization & Correlation Analysis (US2)
-
-Standardizes degradation units (half-lives), normalizes for temperature/pH if possible, and performs statistical analysis.
-
+#### Descriptor Calculation
 ```bash
-python code/standardize.py
+python code/descriptors.py
+```
+
+#### Analysis
+```bash
 python code/analysis.py
 ```
 
-**Outputs**:
-- `data/processed/analysis_results.json`: Contains correlation matrices, regression coefficients, p-values, and R² scores.
-- `data/processed/sensitivity_analysis.json`: Results of threshold sensitivity sweeps.
-
-### Stage 3: Visualization & Reporting (US3)
-
-Generates diagnostic plots and a comprehensive reproducibility report.
-
+#### Visualization
 ```bash
 python code/viz.py
+```
+
+#### Report Generation
+```bash
 python code/report.py
 ```
 
-**Outputs**:
-- `data/outputs/scatter_tpsa_vs_half_life.png`: Scatter plots with regression lines.
-- `data/outputs/residuals.png`, `data/outputs/qq_plot.png`: Residual diagnostic plots.
-- `results_report.md`: Final report summarizing methodology, results, and reproducibility metadata (package versions, dataset hashes).
+### Performance Validation
 
-## Verifying Results
-
-To ensure all outputs were generated correctly and match the expected schema:
+Validate that the pipeline meets operational latency requirements:
 
 ```bash
-python code/verify_outputs.py
+python code/validate_performance.py
 ```
 
-This script checks for the existence and non-zero size of all required files listed in `data/output_schema.yaml`.
+This script:
+- Executes the full pipeline
+- Measures total execution time
+- Compares against the configured threshold (default: 300 seconds)
+- Generates a validation report at `data/processed/performance_validation.json`
+
+Exit codes:
+- 0: Validation passed (execution successful and within threshold)
+- 1: Validation failed (execution failed or exceeded threshold)
+
+## Output Files
+
+The pipeline generates the following outputs:
+
+- `data/processed/merged_drugs.csv`: Combined structural and degradation data
+- `data/processed/analysis_results.json`: Correlation and regression results
+- `data/outputs/scatter_tpsa_vs_half_life.png`: Scatter plot with regression line
+- `data/outputs/residuals.png`: Residual diagnostic plots
+- `data/outputs/qq_plot.png`: Q-Q plot for residual normality
+- `results_report.md`: Comprehensive results report
+- `reproducibility_log.json`: Machine-readable reproducibility metadata
+- `data/processed/performance_validation.json`: Performance validation results
+
+## Testing
+
+Run the test suite:
+
+```bash
+pytest tests/ -v
+```
+
+Run specific test modules:
+
+```bash
+pytest tests/test_descriptors.py -v
+pytest tests/test_analysis.py -v
+pytest tests/test_performance_validation.py -v
+```
+
+## Configuration
+
+Key configuration options can be modified in `code/config.py`:
+
+- `PERFORMANCE_THRESHOLD_SECONDS`: Maximum allowed execution time (default: 300)
+- `MIN_SAMPLES`: Minimum number of samples for data availability gate (default: 30)
+- `CORRELATION_THRESHOLD`: Minimum |r| for significant correlation (default: 0.5)
+- `P_VALUE_THRESHOLD`: Maximum p-value for significance (default: 0.05)
 
 ## Troubleshooting
 
-- **Missing Data**: If the pipeline stops with a `DataIngestionError`, check `data_insufficiency_report.md` to see if the degradation data was missing or insufficient (N < 30).
-- **Valence Errors**: Molecules with non-standard valence are skipped and logged to `data/errors.log`. Review this file if many molecules are excluded.
-- **Missing Dependencies**: Ensure all packages in `requirements.txt` are installed. The pipeline relies heavily on `rdkit` and `scikit-learn`.
-- **Logging**: Detailed logs are written to `logs/pipeline.log` (configured in `code/logging_config.py`). Check this file for stack traces on unexpected failures.
+### Data Availability Gate Failed
 
-## Next Steps
+If you see "Data availability gate failed: N < 30", the dataset does not contain enough samples with both structural and degradation data. The pipeline will generate a `data_insufficiency_report.md` explaining the issue.
 
-- **Explore the Code**: The modular design allows you to inspect `code/descriptors.py`, `code/analysis.py`, and `code/viz.py` to understand the specific algorithms used.
-- **Customize**: Modify `data/output_schema.yaml` or the analysis parameters in `code/analysis.py` to test different hypotheses.
-- **Contribute**: See `CONTRIBUTING.md` for guidelines on adding new user stories or improving existing ones.
+### Memory Issues
+
+If you encounter memory errors, ensure you have at least 7GB of available RAM. The pipeline uses streaming for large datasets where possible.
+
+### Logging
+
+All pipeline logs are written to `data/outputs/pipeline.log`. Check this file for detailed error information.
+
+## Data Sources
+
+- FDA-approved drugs: HuggingFace dataset `Synthyra/FDA-Approved-Drugs`
+- Molecular descriptors: Calculated using RDKit
+- Degradation data: Extracted from the FDA dataset (if available)
+
+## License
+
+This project is for research purposes only. See LICENSE for details.

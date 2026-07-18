@@ -1,84 +1,154 @@
+"""
+Shared fixtures and configuration for test suite.
+
+This file provides common fixtures used across multiple test modules,
+including random seed management, temporary directories, and mock data.
+"""
+
 import os
 import sys
 import random
-import numpy as np
-import pytest
+import tempfile
 from pathlib import Path
+from unittest.mock import MagicMock
 
-# Ensure project root is in path
-root_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(root_dir))
+import pytest
+import numpy as np
 
-@pytest.fixture(autouse=True)
-def set_seed():
-    """
-    Fixture to set random seeds for reproducibility across all tests.
-    This ensures deterministic behavior for any random operations in tests.
-    """
-    seed = 42
-    random.seed(seed)
-    np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    yield
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+@pytest.fixture(scope="session", autouse=True)
+def set_random_seeds():
+    """Set random seeds for reproducible tests."""
+    SEED = 42
+    random.seed(SEED)
+    np.random.seed(SEED)
+    os.environ['PYTHONHASHSEED'] = str(SEED)
 
 @pytest.fixture
-def sample_smiles():
-    """
-    Returns a list of known valid SMILES for testing.
-    Includes Aspirin, Caffeine, and Ibuprofen.
-    """
+def temp_data_dir():
+    """Create a temporary directory for test data."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
+
+@pytest.fixture
+def mock_molecule_data():
+    """Provide mock molecule data for testing."""
     return [
-        "CC(=O)OC1=CC=CC=C1C(=O)O",  # Aspirin
-        "CN1C=NC2=C1C(=O)N(C(=O)N2C)C", # Caffeine
-        "CC(C)C1=CC=C(C=C1)C(C)C(=O)O" # Ibuprofen
+        {
+            "smiles": "CC(=O)Oc1ccccc1C(=O)O",  # Aspirin
+            "name": "Aspirin",
+            "half_life_hours": 12.5
+        },
+        {
+            "smiles": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",  # Caffeine
+            "name": "Caffeine",
+            "half_life_hours": 5.2
+        },
+        {
+            "smiles": "CC(C)Cc1ccc(cc1)C(C)C(=O)O",  # Ibuprofen
+            "name": "Ibuprofen",
+            "half_life_hours": 2.1
+        }
     ]
 
 @pytest.fixture
-def temp_output_dir(tmp_path):
-    """
-    Creates a temporary directory for test outputs.
-    Useful for testing file I/O operations without polluting the filesystem.
-    """
-    output_dir = tmp_path / "test_outputs"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    return output_dir
-
-@pytest.fixture
-def data_directories(tmp_path):
-    """
-    Creates the standard project data directory structure in a temporary location.
-    Returns a dict with paths to raw, processed, and output directories.
-    """
-    base_dir = tmp_path / "data"
-    raw_dir = base_dir / "raw"
-    processed_dir = base_dir / "processed"
-    output_dir = base_dir / "outputs"
-    
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
+def mock_pipeline_result_success():
+    """Mock successful pipeline execution result."""
     return {
-        "raw": raw_dir,
-        "processed": processed_dir,
-        "outputs": output_dir,
-        "base": base_dir
+        "status": "success",
+        "data_files": [
+            "data/processed/merged_drugs.csv",
+            "data/processed/analysis_results.json"
+        ],
+        "execution_time_seconds": 45.2
     }
 
 @pytest.fixture
-def mock_fda_dataset(sample_smiles):
-    """
-    Creates a mock pandas DataFrame mimicking the structure of the FDA dataset
-    fetched from HuggingFace. Includes SMILES and degradation columns.
-    """
-    import pandas as pd
-    
-    data = {
-        "smiles": sample_smiles,
-        "drug_name": ["Aspirin", "Caffeine", "Ibuprofen"],
-        "degradation_half_life_hours": [24.5, 5.2, 18.0],
-        "temperature_c": [25.0, 25.0, 25.0],
-        "ph": [7.4, 7.4, 7.4],
-        "activation_energy_kj_mol": [50.0, 45.0, 55.0]
+def mock_pipeline_result_failure():
+    """Mock failed pipeline execution result."""
+    return {
+        "status": "error",
+        "error": "Data availability gate failed: N < 30"
     }
-    return pd.DataFrame(data)
+
+@pytest.fixture
+def sample_smiles_list():
+    """Provide a list of sample SMILES strings for testing."""
+    return [
+        "CC(=O)Oc1ccccc1C(=O)O",  # Aspirin
+        "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",  # Caffeine
+        "CC(C)Cc1ccc(cc1)C(C)C(=O)O",  # Ibuprofen
+        "CCN(CC)CCOc1ccc(cc1)CN(C)C",  # Diphenhydramine
+        "O=C(O)c1ccccc1C(=O)Nc2ccccc2"  # Acetaminophen analog
+    ]
+
+@pytest.fixture
+def mock_rdkit_molecule():
+    """Create a mock RDKit molecule object."""
+    from rdkit import Chem
+    smiles = "CC(=O)Oc1ccccc1C(=O)O"  # Aspirin
+    mol = Chem.MolFromSmiles(smiles)
+    return mol
+
+@pytest.fixture
+def mock_analysis_results():
+    """Provide mock analysis results for testing."""
+    return {
+        "correlation_matrix": {
+            "tpsa_vs_half_life": -0.65,
+            "mw_vs_half_life": -0.42,
+            "rotatable_bonds_vs_half_life": -0.58
+        },
+        "p_values": {
+            "tpsa_vs_half_life": 0.001,
+            "mw_vs_half_life": 0.023,
+            "rotatable_bonds_vs_half_life": 0.004
+        },
+        "regression": {
+            "coefficients": {
+                "tpsa": -0.023,
+                "mw": -0.001,
+                "rotatable_bonds": -0.15
+            },
+            "r_squared": 0.72,
+            "p_value": 0.0001
+        },
+        "conclusion": {
+            "correlation_exists": True,
+            "significant_features": ["tpsa", "rotatable_bonds"]
+        }
+    }
+
+@pytest.fixture
+def mock_config():
+    """Provide mock configuration for testing."""
+    return {
+        "data_paths": {
+            "raw": "data/raw",
+            "processed": "data/processed",
+            "output": "data/outputs"
+        },
+        "thresholds": {
+            "min_samples": 30,
+            "correlation_threshold": 0.5,
+            "p_value_threshold": 0.05
+        },
+        "performance": {
+            "max_execution_time_seconds": 300
+        }
+    }
+
+@pytest.fixture(autouse=True)
+def mock_logging():
+    """Mock logging to prevent console output during tests."""
+    import logging
+    with patch('logging.getLogger') as mock_get_logger:
+        mock_logger = MagicMock()
+        mock_get_logger.return_value = mock_logger
+        yield mock_logger
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

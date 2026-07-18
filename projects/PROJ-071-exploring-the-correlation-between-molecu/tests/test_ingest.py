@@ -1,105 +1,96 @@
 import pytest
 import pandas as pd
-from pathlib import Path
 import os
-import sys
+import hashlib
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Import functions to test
+from ingest import (
+    fetch_fda_drugs,
+    check_degradation_columns,
+    validate_smiles_series,
+    run_data_availability_gate,
+    filter_valid_records,
+    calculate_checksums,
+    save_merged_dataset
+)
 
-from ingest import generate_insufficiency_report, run_data_availability_gate
+@pytest.fixture
+def sample_df_with_degradation():
+    data = {
+        'smiles': ['CC(=O)Oc1ccccc1C(=O)O', 'CC(C)C1=CC=C(C=C1)C(C)C(=O)O', 'CN1C=NC2=C1C(=O)N(C(=O)N2C)C', 'invalid_smiles'],
+        'half_life': [24.5, 12.0, 8.5, 15.0],
+        'name': ['Aspirin', 'Ibuprofen', 'Caffeine', 'Unknown']
+    }
+    return pd.DataFrame(data)
 
-class TestDataAvailabilityGate:
-    def test_insufficient_data_small_n(self, tmp_path):
-        """
-        Test that the Data Availability Gate fails when N < 30.
-        """
-        # Create a small dataset
-        data = {
-            'smiles': ['CCO', 'CCO', 'CCO'],
-            'half_life': [10.0, 20.0, 30.0]
-        }
-        df = pd.DataFrame(data)
-        
-        # Temporarily override the output path for the report
-        report_path = str(tmp_path / "data_insufficiency_report.md")
-        
-        # Mock the function to use our temp path
-        # We need to patch the function or the internal call
-        # Since run_data_availability_gate calls generate_insufficiency_report with a hardcoded path in the original,
-        # we will test the logic by checking the report generation directly or by patching.
-        
-        # Let's test the logic directly by calling the helper
-        from ingest import check_degradation_columns
-        
-        # Mock the check to return True so we test the N < 30 logic
-        # But run_data_availability_gate is the main function.
-        # We will patch the generate_insufficiency_report to capture the call.
-        
-        import ingest
-        original_report_func = ingest.generate_insufficiency_report
-        
-        captured_reason = None
-        captured_count = None
-        
-        def mock_report(reason, count, path):
-            nonlocal captured_reason, captured_count
-            captured_reason = reason
-            captured_count = count
-            Path(path).write_text(f"Report: {reason} - {count}")
-        
-        ingest.generate_insufficiency_report = mock_report
-        
-        try:
-            result = run_data_availability_gate(df)
-            assert result is False, "Gate should return False for N < 30"
-            assert captured_count == 3, f"Expected count 3, got {captured_count}"
-            assert "Insufficient" in captured_reason or "30" in captured_reason, f"Reason should mention insufficiency: {captured_reason}"
-            
-            # Verify report file exists
-            assert Path("data/data_insufficiency_report.md").exists() or \
-                   Path(tmp_path / "data_insufficiency_report.md").exists(), "Report file should be created"
-        finally:
-            ingest.generate_insufficiency_report = original_report_func
+@pytest.fixture
+def sample_df_missing_degradation():
+    data = {
+        'smiles': ['CC(=O)Oc1ccccc1C(=O)O', 'CC(C)C1=CC=C(C=C1)C(C)C(=O)O'],
+        'name': ['Aspirin', 'Ibuprofen']
+    }
+    return pd.DataFrame(data)
 
-    def test_sufficient_data(self):
-        """
-        Test that the Data Availability Gate passes when N >= 30.
-        """
-        # Create a dataset with 35 rows
-        data = {
-            'smiles': ['CCO'] * 35,
-            'half_life': [float(i) for i in range(35)]
-        }
-        df = pd.DataFrame(data)
-        
-        result = run_data_availability_gate(df)
-        assert result is True, "Gate should return True for N >= 30"
+@pytest.fixture
+def temp_output_dir(tmp_path):
+    processed = tmp_path / "processed"
+    processed.mkdir()
+    return tmp_path
 
-    def test_missing_degradation_columns(self):
-        """
-        Test that the Data Availability Gate fails when degradation columns are missing.
-        """
-        data = {
-            'smiles': ['CCO', 'CCO'],
-            'other_col': [1, 2]
-        }
-        df = pd.DataFrame(data)
-        
-        import ingest
-        original_report_func = ingest.generate_insufficiency_report
-        
-        captured_reason = None
-        
-        def mock_report(reason, count, path):
-            nonlocal captured_reason
-            captured_reason = reason
-        
-        ingest.generate_insufficiency_report = mock_report
-        
-        try:
-            result = run_data_availability_gate(df)
-            assert result is False, "Gate should return False when columns missing"
-            assert "Missing degradation" in captured_reason or "degradation" in captured_reason.lower()
-        finally:
-            ingest.generate_insufficiency_report = original_report_func
+def test_check_degradation_columns_positive(sample_df_with_degradation):
+    assert check_degradation_columns(sample_df_with_degradation) is True
+
+def test_check_degradation_columns_negative(sample_df_missing_degradation):
+    assert check_degradation_columns(sample_df_missing_degradation) is False
+
+def test_validate_smiles_series(sample_df_with_degradation):
+    result = validate_smiles_series(sample_df_with_degradation['smiles'])
+    # First 3 are valid, 4th is invalid
+    assert result.iloc[0] is True
+    assert result.iloc[3] is False
+
+def test_run_data_availability_gate_valid(sample_df_with_degradation):
+    # Should not raise
+    result = run_data_availability_gate(sample_df_with_degradation)
+    assert len(result) > 0
+
+def test_run_data_availability_gate_insufficient_count():
+    data = {
+        'smiles': ['CC(=O)Oc1ccccc1C(=O)O'] * 29,
+        'half_life': [24.5] * 29
+    }
+    df = pd.DataFrame(data)
+    with pytest.raises(ValueError, match="Insufficient valid records"):
+        run_data_availability_gate(df)
+
+def test_filter_valid_records(sample_df_with_degradation):
+    # Contains one invalid SMILES
+    filtered = filter_valid_records(sample_df_with_degradation)
+    assert len(filtered) == 3
+    assert 'invalid_smiles' not in filtered['smiles'].values
+
+def test_save_merged_dataset(temp_output_dir):
+    df = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})
+    output_path = temp_output_dir / "test.csv"
+    save_merged_dataset(df, output_path)
+    assert output_path.exists()
+    loaded = pd.read_csv(output_path)
+    assert len(loaded) == 2
+
+def test_calculate_checksums(temp_output_dir):
+    # Create a dummy file
+    test_file = temp_output_dir / "dummy.txt"
+    test_file.write_text("hello world")
+    
+    checksum_path = temp_output_dir / "checksums.txt"
+    calculate_checksums([test_file], checksum_path)
+    
+    assert checksum_path.exists()
+    content = checksum_path.read_text()
+    assert "dummy.txt" in content
+    
+    # Verify hash
+    expected_hash = hashlib.sha256(b"hello world").hexdigest()
+    assert expected_hash in content

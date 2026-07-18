@@ -1,13 +1,27 @@
-rdkit
-pandas
-scikit-learn
-numpy
-matplotlib
-seaborn
-pyyaml
-requests
-datasets
-scipy
-pydantic
-black
-ruff
+# Core data science and machine learning
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+scipy>=1.11.0
+
+# Molecular chemistry
+rdkit>=2023.9.1
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Data loading and processing
+datasets>=2.14.0
+requests>=2.31.0
+
+# Configuration and serialization
+pyyaml>=6.0
+pydantic>=2.0.0
+
+# Testing
+pytest>=7.4.0
+
+# Code quality (optional, not required for execution)
+# ruff>=0.1.0
+# black>=23.0.0

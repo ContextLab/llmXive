@@ -31,3 +31,26 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/MKEChem/mke-novel-druglike-smiles/d1de6e6ca596d921fb12ca6e62b4a4d04ce2fc62/preview_100_molecules.csv?%2Fdatasets%2FMKEChem%2Fmke-novel-druglike-smiles%2Fresolve%2Fmain%2Fpreview_100_molecules.csv=&etag=%22ec01b4e14b0b8909a6117d0bc936c3b3e65720a0%22
   verified_at: '2026-07-08T14:09:23.918947Z'
+- artifact_hash: 6d7329fbe75c44a9e7ba57686776ed6b4f1ac70fed9dc275265522f287c205ce
+  artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: The RDKit Documentation &#8212; The RDKit 2026.03.4 documentation
+  kind: url
+  value: https://www.rdkit.org/docs/
+  verification_status: pending
+  verified_against_url: https://www.rdkit.org/docs/
+  verified_at: '2026-07-18T14:29:49.252269Z'
+- artifact_hash: 6d7329fbe75c44a9e7ba57686776ed6b4f1ac70fed9dc275265522f287c205ce
+  artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'scikit-learn: machine learning in Python &mdash; scikit-learn 0.16.1
+    documentation'
+  kind: url
+  value: https://scikit-learn.org/
+  verification_status: pending
+  verified_against_url: https://scikit-learn.org/
+  verified_at: '2026-07-18T14:29:49.252269Z'

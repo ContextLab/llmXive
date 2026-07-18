@@ -1,116 +1,172 @@
 # Exploring the Correlation Between Molecular Complexity and Degradation Rates in Pharmaceuticals
 
-This project investigates the relationship between molecular complexity metrics (e.g., TPSA, Wiener Index, Zagreb Index) and the degradation half-lives of FDA-approved pharmaceuticals. By analyzing real-world data, we aim to identify if more complex molecules exhibit different stability profiles compared to simpler ones.
-
 ## Project Overview
 
-The pipeline consists of three main phases:
-1. **Data Ingestion & Descriptor Calculation**: Fetches drug structures from the HuggingFace `Synthyra/FDA-Approved-Drugs` dataset, validates degradation data, and computes molecular descriptors using RDKit.
-2. **Standardization & Analysis**: Standardizes degradation rates to half-lives (hours), applies Arrhenius normalization where possible, and performs correlation analysis and regression modeling (MLR, LASSO).
-3. **Visualization & Reporting**: Generates diagnostic plots (residuals, QQ-plots) and a comprehensive reproducibility report.
+This research project investigates whether molecular complexity metrics (such as TPSA, molecular weight, rotatable bond count, etc.) correlate with pharmaceutical degradation rates. The pipeline ingests FDA-approved drug structures, calculates molecular descriptors, performs statistical analysis, and generates comprehensive reports.
 
-## Key Features
+## Research Question
 
-- **Real Data Processing**: Uses the `Synthyra/FDA-Approved-Drugs` dataset via the HuggingFace `datasets` library. No synthetic data is used.
-- **Robust Error Handling**: Implements a "Data Availability Gate" to ensure statistical validity (N ≥ 30) and flags molecules with valence errors.
-- **Advanced Modeling**: Includes Multiple Linear Regression (MLR), LASSO with cross-validation, and sensitivity analysis.
-- **Reproducibility**: Automatically logs package versions, dataset hashes, and retrieval dates in the final report.
+**Does molecular complexity correlate with degradation rates in pharmaceuticals?**
 
-## Quick Start
+## Methodology
 
-See [`quickstart.md`](quickstart.md) for a step-by-step guide to installation and execution.
-
-### Prerequisites
-
-- Python 3.9+
-- pip
-
-### Installation
-
-```bash
-git clone <repository-url>
-cd PROJ-071-exploring-the-correlation-between-molecu
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-### Running the Pipeline
-
-1. **Setup Data Directories**:
- ```bash
- python code/setup_data.py
- ```
-2. **Run Ingestion & Descriptors**:
- ```bash
- python code/ingest.py
- ```
-3. **Run Standardization & Analysis**:
- ```bash
- python code/standardize.py
- python code/analysis.py
- ```
-4. **Run Visualization & Reporting**:
- ```bash
- python code/viz.py
- python code/report.py
- ```
+1. **Data Ingestion**: Fetch FDA-approved drug structures from HuggingFace
+2. **Descriptor Calculation**: Compute molecular complexity metrics using RDKit
+3. **Data Standardization**: Convert degradation rates to half-lives, stratify by conditions
+4. **Correlation Analysis**: Calculate Pearson and Spearman correlations
+5. **Regression Modeling**: Fit MLR and LASSO models with cross-validation
+6. **Diagnostics**: Perform residual analysis (Shapiro-Wilk, Breusch-Pagan)
+7. **Visualization**: Generate scatter plots, residual plots, and Q-Q plots
+8. **Reporting**: Create comprehensive results and reproducibility reports
 
 ## Project Structure
 
 ```
-PROJ-071-exploring-the-correlation-between-molecu/
+projects/PROJ-071-exploring-the-correlation-between-molecu/
 ├── code/
 │ ├── __init__.py
-│ ├── ingest.py # Data fetching and merging
-│ ├── descriptors.py # RDKit descriptor calculation
-│ ├── standardize.py # Unit conversion and normalization
-│ ├── analysis.py # Correlation and regression
-│ ├── viz.py # Plot generation
-│ ├── report.py # Report generation
-│ ├── models.py # Pydantic data models
-│ ├── error_handlers.py # Error handling utilities
+│ ├── analysis.py # Correlation and regression analysis
+│ ├── config.py # Configuration management
+│ ├── descriptors.py # Molecular descriptor calculations
+│ ├── error_handlers.py # Custom error handling
+│ ├── ingest.py # Data ingestion and validation
 │ ├── logging_config.py # Logging setup
-│ ├── setup_data.py # Directory initialization
-│ └── verify_outputs.py # Output validation
+│ ├── models.py # Data models (Pydantic)
+│ ├── pipeline_runner.py # Main pipeline orchestration
+│ ├── report.py # Report generation
+│ ├── standardize.py # Data standardization
+│ ├── validate_performance.py # Performance validation (T042)
+│ ├── verify_outputs.py # Output verification
+│ └── viz.py # Visualization generation
 ├── data/
-│ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Cleaned/merged data
-│ ├── outputs/ # Generated plots
-│ └── output_schema.yaml # Output schema definition
+│ ├── raw/ # Raw data (downloaded)
+│ ├── processed/ # Processed data and analysis results
+│ └── outputs/ # Visualizations and reports
 ├── tests/
-│ ├── conftest.py
-│ ├── test_pipeline.py
-│ ├── test_descriptors.py
-│ ├── test_standardize.py
-│ └── test_analysis.py
-├── results_report.md # Final generated report
-├── requirements.txt
-├── quickstart.md
-└── README.md
+│ ├── conftest.py # Shared test fixtures
+│ ├── test_analysis.py # Analysis module tests
+│ ├── test_descriptors.py # Descriptor calculation tests
+│ ├── test_performance_validation.py # Performance validation tests
+│ ├── test_pipeline.py # Integration tests
+│ ├── test_standardize.py # Standardization tests
+│ └── test_viz.py # Visualization tests
+├── requirements.txt # Python dependencies
+├── quickstart.md # Quick start guide
+└── README.md # This file
 ```
 
-## Methodology
+## Key Features
 
-1. **Data Source**: `Synthyra/FDA-Approved-Drugs` from HuggingFace.
-2. **Descriptors**: TPSA, Rotatable Bond Count, Molecular Weight, Aromatic Ring Count, Wiener Index, Zagreb Index.
-3. **Degradation Metric**: Half-life (t1/2) converted from rate constants (k) and normalized to standard conditions (25°C, pH 7.4) using the Arrhenius equation where Activation Energy (Ea) is available.
-4. **Statistical Analysis**:
- - Pearson and Spearman correlation matrices.
- - Multiple Linear Regression (MLR) and LASSO with k-fold cross-validation.
- - Residual diagnostics (Shapiro-Wilk, Breusch-Pagan).
+### Data Availability Gate
+The pipeline enforces a minimum sample size (N ≥ 30) before proceeding with analysis. If this threshold is not met, a detailed insufficiency report is generated.
 
-## Results
+### Molecular Descriptors
+Calculated using RDKit:
+- Topological Polar Surface Area (TPSA)
+- Molecular Weight (MW)
+- Rotatable Bond Count
+- Aromatic Ring Count
+- Wiener Index
+- Zagreb Index
 
-Upon successful completion, the project generates:
-- `results_report.md`: A detailed summary of findings, coefficients, and model performance.
-- `data/outputs/*.png`: Visualizations of correlations and residuals.
-- `data/processed/analysis_results.json`: Raw statistical data for further inspection.
+### Statistical Analysis
+- Pearson and Spearman correlation matrices
+- Multiple Linear Regression (MLR)
+- LASSO regression with 5-fold cross-validation
+- Residual diagnostics (Shapiro-Wilk, Breusch-Pagan)
+
+### Performance Validation
+The pipeline includes operational latency validation (T042) to ensure it meets performance requirements. Execution time is measured and compared against a configurable threshold.
+
+## Installation
+
+```bash
+# Clone repository
+git clone <repository-url>
+cd projects/PROJ-071-exploring-the-correlation-between-molecu
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Verify installation
+python -c "import rdkit; print('RDKit installed')"
+```
+
+## Usage
+
+### Run Full Pipeline
+```bash
+python code/pipeline_runner.py
+```
+
+### Validate Performance
+```bash
+python code/validate_performance.py
+```
+
+### Run Tests
+```bash
+pytest tests/ -v
+```
+
+## Output Files
+
+| File | Description |
+|------|-------------|
+| `data/processed/merged_drugs.csv` | Combined structural and degradation data |
+| `data/processed/analysis_results.json` | Correlation and regression results |
+| `data/outputs/scatter_tpsa_vs_half_life.png` | Scatter plot with regression line |
+| `data/outputs/residuals.png` | Residual diagnostic plots |
+| `data/outputs/qq_plot.png` | Q-Q plot for residual normality |
+| `results_report.md` | Comprehensive results report |
+| `reproducibility_log.json` | Reproducibility metadata |
+| `data/processed/performance_validation.json` | Performance validation results |
+
+## Performance Requirements
+
+- **Execution Time Threshold**: 300 seconds (5 minutes)
+- **Memory Requirement**: 7GB+ RAM recommended
+- **Minimum Sample Size**: 30 records with degradation data
+
+## Dependencies
+
+Core dependencies include:
+- `rdkit`: Molecular descriptor calculations
+- `pandas`: Data manipulation
+- `scikit-learn`: Regression modeling
+- `numpy`: Numerical computations
+- `matplotlib`/`seaborn`: Visualization
+- `datasets`: HuggingFace dataset loading
+- `pyyaml`: Configuration management
+
+See `requirements.txt` for the complete list.
+
+## Testing
+
+The project includes comprehensive tests:
+- Unit tests for descriptor calculations (T010a-T010f)
+- Unit tests for analysis functions (T018, T019, T024a)
+- Integration tests for pipeline execution (T031)
+- Performance validation tests (T042)
+
+Run tests with:
+```bash
+pytest tests/ -v --tb=short
+```
 
 ## Contributing
 
-Contributions are welcome! Please refer to the `tasks.md` file for the current implementation roadmap and `CONTRIBUTING.md` for guidelines.
+1. Fork the repository
+2. Create a feature branch
+3. Implement changes with tests
+4. Submit a pull request
 
 ## License
 
-[Insert License Here]
+This project is for research purposes only. See LICENSE for details.
+
+## References
+
+- FDA-approved drugs dataset: HuggingFace `Synthyra/FDA-Approved-Drugs`
+- RDKit documentation: https://www.rdkit.org/docs/
+- scikit-learn documentation: https://scikit-learn.org/

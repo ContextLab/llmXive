@@ -1,3 +1,7 @@
+"""
+Centralized error handling infrastructure for the molecular complexity pipeline.
+Defines custom exceptions, error classification, and recovery utilities.
+"""
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Callable
@@ -6,105 +10,133 @@ import json
 import traceback
 from enum import Enum
 
-from logging_config import get_logger
+from rdkit import Chem
+from rdkit import RDLogger
 
-logger = get_logger(__name__)
+# Suppress RDKit warnings to avoid cluttering logs with valence warnings we handle explicitly
+RDLogger.DisableLog('rdApp.*')
 
 class PipelineStage(Enum):
+    """Enumeration of pipeline stages for structured error reporting."""
+    SETUP = "setup"
     INGESTION = "ingestion"
-    DESCRIPTORS = "descriptors"
-    STANDARDIZATION = "standardization"
+    DESCRIPTOR_CALCULATION = "descriptor_calculation"
+    DATA_STANDARDIZATION = "data_standardization"
     ANALYSIS = "analysis"
     VISUALIZATION = "visualization"
+    REPORTING = "reporting"
+
+
+class PipelineError(Exception):
+    """Base exception for all pipeline-specific errors."""
+    def __init__(self, message: str, stage: PipelineStage, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message)
+        self.stage = stage
+        self.details = details or {}
+        self.timestamp = datetime.utcnow().isoformat()
+
+class DataIngestionError(PipelineError):
+    """Raised when data fetching or validation fails."""
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, PipelineStage.INGESTION, details)
+
+class DescriptorCalculationError(PipelineError):
+    """Raised when molecular descriptor calculation fails."""
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, PipelineStage.DESCRIPTOR_CALCULATION, details)
+
+class AnalysisError(PipelineError):
+    """Raised when statistical analysis or modeling fails."""
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, PipelineStage.ANALYSIS, details)
+
+class VisualizationError(PipelineError):
+    """Raised when plot generation fails."""
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, PipelineStage.VISUALIZATION, details)
+
+class ConfigurationError(PipelineError):
+    """Raised when configuration or environment setup fails."""
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, PipelineStage.SETUP, details)
+
 
 def validate_smiles(smiles: str) -> bool:
     """
-    Basic validation of SMILES string format.
+    Validate a SMILES string using RDKit.
     Returns True if valid, False otherwise.
     """
-    if not isinstance(smiles, str) or not smiles.strip():
+    try:
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return False
+        # Check for sanitization issues (valence, etc.)
+        Chem.SanitizeMol(mol)
+        return True
+    except Exception:
         return False
-    
-    # Basic check: no whitespace inside (unless quoted, but simple check first)
-    # RDKit will do the heavy lifting, but this catches obvious typos
-    if any(c in smiles for c in ['\n', '\r', '\t']):
-        return False
-    return True
 
-def handle_molecule_error(
-    smiles: str, 
-    error_type: str, 
-    stage: PipelineStage, 
-    details: Optional[str] = None
-):
+
+def handle_molecule_error(smiles: str, error: Exception, error_log_path: Path) -> None:
     """
-    Centralized handler for molecule-level errors.
-    Logs to data/errors.log and optional structured JSON log.
+    Log a molecule processing error to the specified file.
+    Format: timestamp | smiles | error_type | error_message
     """
-    timestamp = datetime.now().isoformat()
-    error_record = {
-        "timestamp": timestamp,
-        "stage": stage.value,
-        "error_type": error_type,
+    log_entry = {
+        "timestamp": datetime.utcnow().isoformat(),
         "smiles": smiles,
-        "details": details or "No details provided"
+        "error_type": type(error).__name__,
+        "error_message": str(error),
+        "traceback": traceback.format_exc()
     }
 
-    # Log to standard error log
-    log_path = Path("data/errors.log")
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    log_line = f"[{timestamp}] {stage.value.upper()} - {error_type}: {details or 'Unknown'} | SMILES: {smiles}\n"
-    
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(log_line)
-    
-    logger.error(f"Molecule error logged: {error_type} for {smiles[:50]}...")
+    with open(error_log_path, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(log_entry) + '\n')
 
-def retry_on_failure(
-    func: Callable, 
-    max_retries: int = 3, 
-    stage: PipelineStage = PipelineStage.DESCRIPTORS
-) -> Callable:
+
+def retry_on_failure(func: Callable, max_retries: int = 3, backoff_factor: float = 2.0) -> Callable:
     """
-    Decorator to retry a function on failure.
-    Useful for flaky network calls or transient RDKit issues.
+    Decorator to retry a function on failure with exponential backoff.
+    Only catches transient errors (e.g., network, timeouts).
     """
+    import time
+
     def wrapper(*args, **kwargs):
         last_exception = None
         for attempt in range(1, max_retries + 1):
             try:
                 return func(*args, **kwargs)
-            except Exception as e:
+            except (ConnectionError, TimeoutError, OSError) as e:
                 last_exception = e
-                logger.warning(f"Attempt {attempt}/{max_retries} failed in {stage.value}: {str(e)}")
                 if attempt == max_retries:
-                    logger.error(f"Failed after {max_retries} attempts in {stage.value}")
-                    # Log the final failure
-                    handle_molecule_error(
-                        smiles=str(args[0]) if args else "N/A",
-                        error_type="RETRY_EXHAUSTED",
-                        stage=stage,
-                        details=str(e)
-                    )
                     raise
-        return None
+                wait_time = backoff_factor ** attempt
+                logging.warning(f"Attempt {attempt} failed: {e}. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+        raise last_exception
+
     return wrapper
 
-def create_error_report(errors: List[Dict[str, Any]], output_path: str = "data/error_report.json"):
+
+def create_error_report(errors: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Create a structured JSON report of errors.
+    Generate a JSON error report summarizing all captured errors.
     """
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
     report = {
-        "generated_at": datetime.now().isoformat(),
+        "generated_at": datetime.utcnow().isoformat(),
         "total_errors": len(errors),
+        "errors_by_stage": {},
         "errors": errors
     }
-    
-    with open(output_path, "w", encoding="utf-8") as f:
+
+    # Group by stage
+    for error in errors:
+        stage = error.get('stage', 'unknown')
+        if stage not in report['errors_by_stage']:
+            report['errors_by_stage'][stage] = 0
+        report['errors_by_stage'][stage] += 1
+
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Error report generated: {output_path}")
-    return report
+    logging.info(f"Error report generated: {output_path}")
