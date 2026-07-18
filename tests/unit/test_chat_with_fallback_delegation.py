@@ -23,7 +23,7 @@ from llmxive.backends.base import (
 )
 from llmxive.backends.router import GENERATION_MAX_TOKENS, chat_with_fallback
 from llmxive.model_selection.execute import ChainExhausted
-from llmxive.model_selection.types import ModelUnavailable
+from llmxive.model_selection.types import ModelUnavailable, RequirementOverrides
 
 _MSGS = [ChatMessage(role="user", content="hello")]
 QWEN = "qwen.qwen3.5-122b"
@@ -101,3 +101,25 @@ def test_chat_with_fallback_propagates_permanent_refusal(monkeypatch):
     _patch_route(monkeypatch, _fake_route)
     with pytest.raises(PermanentBackendError):
         chat_with_fallback(_MSGS, default_backend="dartmouth", fallback_backends=[], model=QWEN)
+
+
+def test_chat_with_fallback_forwards_overrides(monkeypatch):
+    # Spec 026 slice 6: escalation constraints (RequirementOverrides) must flow
+    # from the walker through to route_chat's `overrides` kwarg UNCHANGED (same
+    # object), so the caller's escalation ladder actually reaches selection.
+    seen = {}
+
+    def _fake_route(messages, **kwargs):
+        seen.update(kwargs)
+        return ChatResponse(text="OK", model=QWEN, backend="dartmouth")
+
+    _patch_route(monkeypatch, _fake_route)
+    ov = RequirementOverrides(allow_paid=False, exclude_models=frozenset({"m"}))
+    chat_with_fallback(
+        _MSGS,
+        default_backend="dartmouth",
+        fallback_backends=[],
+        model=QWEN,
+        overrides=ov,
+    )
+    assert seen["overrides"] is ov

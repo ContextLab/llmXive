@@ -2285,7 +2285,7 @@
       "category": "migration_target",
       "file": "src/llmxive/backends/router.py",
       "kind": "module_constant",
-      "line": 44,
+      "line": 56,
       "models": [
         "anthropic.claude-haiku-4-5-20251001",
         "google.gemma-3-27b-it",
@@ -2299,7 +2299,7 @@
       "category": "migration_target",
       "file": "src/llmxive/backends/router.py",
       "kind": "module_constant",
-      "line": 85,
+      "line": 97,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -2310,7 +2310,7 @@
       "category": "migration_target",
       "file": "src/llmxive/backends/router.py",
       "kind": "module_constant",
-      "line": 91,
+      "line": 103,
       "models": [
         "anthropic.claude-haiku-4-5-20251001"
       ],

@@ -21,9 +21,9 @@ Checked artifact: regenerate with `python -m llmxive.model_selection.inventory` 
 
 |file|line|kind|symbol|models|
 |-|-|-|-|-|
-|src/llmxive/backends/router.py|44|module_constant|MODEL_FALLBACKS|anthropic.claude-haiku-4-5-20251001, google.gemma-3-27b-it, openai.gpt-oss-120b, qwen.qwen3.5-122b|
-|src/llmxive/backends/router.py|85|module_constant|DEFAULT_MODEL|qwen.qwen3.5-122b|
-|src/llmxive/backends/router.py|91|module_constant|PAID_FALLBACK_MODELS|anthropic.claude-haiku-4-5-20251001|
+|src/llmxive/backends/router.py|56|module_constant|MODEL_FALLBACKS|anthropic.claude-haiku-4-5-20251001, google.gemma-3-27b-it, openai.gpt-oss-120b, qwen.qwen3.5-122b|
+|src/llmxive/backends/router.py|97|module_constant|DEFAULT_MODEL|qwen.qwen3.5-122b|
+|src/llmxive/backends/router.py|103|module_constant|PAID_FALLBACK_MODELS|anthropic.claude-haiku-4-5-20251001|
 
 ### Slice 7 (135)
 

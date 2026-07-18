@@ -28,7 +28,7 @@ from llmxive.backends.router import (
     reasoning_chat,
 )
 from llmxive.model_selection.execute import ChainExhausted
-from llmxive.model_selection.types import ModelUnavailable
+from llmxive.model_selection.types import ModelUnavailable, RequirementOverrides
 
 _MSGS = [ChatMessage(role="user", content="analyze")]
 PRIMARY = "openai.gpt-oss-120b"
@@ -102,6 +102,22 @@ def test_reasoning_chat_propagates_permanent(monkeypatch):
     _patch_route(monkeypatch, lambda *a, **k: (_ for _ in ()).throw(PermanentBackendError("refused")))
     with pytest.raises(PermanentBackendError):
         reasoning_chat(_Fake(), _MSGS, model=PRIMARY)
+
+
+def test_reasoning_chat_forwards_overrides(monkeypatch):
+    # Spec 026 slice 6: escalation constraints (RequirementOverrides) must flow
+    # from the walker through to route_chat's `overrides` kwarg UNCHANGED (same
+    # object), so the caller's escalation ladder actually reaches selection.
+    seen = {}
+
+    def _fake_route(messages, **kwargs):
+        seen.update(kwargs)
+        return ChatResponse(text="OK", model=PRIMARY, backend="dartmouth")
+
+    _patch_route(monkeypatch, _fake_route)
+    ov = RequirementOverrides(allow_paid=False, exclude_models=frozenset({"m"}))
+    reasoning_chat(_Fake(), _MSGS, model=PRIMARY, overrides=ov)
+    assert seen["overrides"] is ov
 
 
 # --------------------------------------------------------------------------- #

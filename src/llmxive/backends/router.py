@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import enum
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 from llmxive.backends.base import (
     BackendUnavailable,
@@ -22,6 +23,17 @@ from llmxive.backends.base import (
 )
 from llmxive.backends.dartmouth import DartmouthBackend
 from llmxive.backends.local import LocalBackend
+
+if TYPE_CHECKING:
+    # Type-checking only: a module-top runtime import here would cycle, since
+    # importing the ``llmxive.model_selection`` PACKAGE (required to reach the
+    # ``types`` submodule) runs its ``__init__``, which imports ``execute.py``,
+    # which imports THIS module (``llmxive.backends.router``) for
+    # ``make_backend``/``chat_one_candidate``/``disposition_of``. ``route_chat``
+    # itself is likewise imported function-locally below for the same reason.
+    # ``from __future__ import annotations`` (above) makes the annotations that
+    # reference ``RequirementOverrides`` lazy strings, so this is safe.
+    from llmxive.model_selection.types import RequirementOverrides
 
 _REGISTRY: dict[str, type[BaseBackend]] = {
     "dartmouth": DartmouthBackend,
@@ -272,6 +284,7 @@ def _walker_route(
     model: str | None,
     max_tokens: int,
     temperature: float | None,
+    overrides: RequirementOverrides | None = None,
 ) -> ChatResponse:
     """Shared body for the retired instance-taking walkers (spec 026 slice 5):
     delegate to ``route_chat`` (select() → execute()), adapting the caller's
@@ -282,6 +295,10 @@ def _walker_route(
     A backend whose ``name`` is unset is treated as ``dartmouth`` (the default
     serving backend), so an injected-fake reviser/reviewer test still serves the
     offline snapshot's Dartmouth chain without swapping the object it holds.
+
+    ``overrides`` (spec 026 slice 6) forwards escalation constraints straight to
+    ``route_chat``, which composes them on top of the profile's base requirement;
+    ``None`` (the default) leaves every existing caller's behavior unchanged.
 
     Outage-classification contract preserved: ``ModelUnavailable`` (ineligible /
     cold start) and ``ChainExhausted`` (transient/outage exhaustion) re-raise as
@@ -305,6 +322,7 @@ def _walker_route(
             max_tokens=max_tokens,
             temperature=temperature,
             backend_factory=factory,
+            overrides=overrides,
         )
     except (ModelUnavailable, ChainExhausted) as exc:
         raise BackendUnavailable(
@@ -320,6 +338,7 @@ def chat_with_model_fallback(
     model: str | None,
     max_tokens: int | None = None,
     temperature: float | None = None,
+    overrides: RequirementOverrides | None = None,
 ) -> ChatResponse:
     """Convergence-panel / reviser reasoning call on a GIVEN backend (spec 026
     slice 5): a thin wrapper over :func:`_walker_route` → ``route_chat`` (select()
@@ -328,12 +347,14 @@ def chat_with_model_fallback(
     ``ModelRef.backend``, breaker + deadline + bounded retry preserved via the
     ``chat_one_candidate`` primitive), and the injected ``backend`` serves its own
     candidates. The reasoning-safe :data:`REASONING_MAX_TOKENS` is the default
-    when the caller doesn't pin one.
+    when the caller doesn't pin one. ``overrides`` (spec 026 slice 6) forwards
+    escalation constraints to ``route_chat``; ``None`` (default) is a no-op.
     """
     return _walker_route(
         backend, messages, model=model,
         max_tokens=REASONING_MAX_TOKENS if max_tokens is None else max_tokens,
         temperature=temperature,
+        overrides=overrides,
     )
 
 
@@ -344,6 +365,7 @@ def reasoning_chat(
     model: str | None = None,
     max_tokens: int | None = None,
     temperature: float | None = None,
+    overrides: RequirementOverrides | None = None,
 ) -> ChatResponse:
     """THE single entry point for a reasoning/analysis LLM call (spec 026 slice 5):
     a thin wrapper over :func:`_walker_route` → ``route_chat``. Every
@@ -351,12 +373,14 @@ def reasoning_chat(
     reasoning-safe :data:`REASONING_MAX_TOKENS` default applies unless the caller
     overrides it (a generation-style caller passes :data:`GENERATION_MAX_TOKENS`).
     Use this — never call ``backend.chat`` directly (the centralization guard test
-    enforces that).
+    enforces that). ``overrides`` (spec 026 slice 6) forwards escalation
+    constraints to ``route_chat``; ``None`` (default) is a no-op.
     """
     return _walker_route(
         backend, messages, model=model,
         max_tokens=REASONING_MAX_TOKENS if max_tokens is None else max_tokens,
         temperature=temperature,
+        overrides=overrides,
     )
 
 
@@ -368,6 +392,7 @@ def chat_with_fallback(
     model: str,
     max_tokens: int | None = None,
     temperature: float | None = None,
+    overrides: RequirementOverrides | None = None,
 ) -> ChatResponse:
     """Registry-agent routing chokepoint (spec 026 slice 5): resolve the chain
     through model SELECTION and delegate to ``execute`` — no hand-walk of
@@ -386,7 +411,9 @@ def chat_with_fallback(
     candidate carries ``backend=="local"``), so there is no separate per-backend
     walk to configure. ``model`` is the caller's pin (promoted, not a chain). If
     `max_tokens` is None it defaults to the GENERATION budget (131072) — Spec Kit
-    agents emit large artifacts.
+    agents emit large artifacts. ``overrides`` (spec 026 slice 6) forwards
+    escalation constraints straight to ``route_chat``; ``None`` (default) is a
+    no-op, leaving every existing caller's behavior unchanged.
 
     Outage-classification contract (preserved): a fully-INELIGIBLE selection
     (cold start / all-stale → ``ModelUnavailable``) or a fully-EXHAUSTED chain
@@ -409,6 +436,7 @@ def chat_with_fallback(
             caller_model=model,
             max_tokens=max_tokens,
             temperature=temperature,
+            overrides=overrides,
         )
     except (ModelUnavailable, ChainExhausted) as exc:
         raise BackendUnavailable(
