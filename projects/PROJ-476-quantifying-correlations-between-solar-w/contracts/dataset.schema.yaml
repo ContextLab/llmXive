@@ -1,33 +1,57 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Synced Solar Wind Dataset
-description: >
-  Schema for the synchronized solar wind and geomagnetic dataset.
-  Contains hourly aligned data for ACE composition and NOAA indices.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Solar Wind and Geomagnetic Synced Dataset"
+description: "Schema for the 1-hour aligned solar wind composition and geomagnetic indices dataset."
 type: object
 properties:
-  timestamp:
-    type: string
-    format: date-time
-    description: UTC timestamp of the observation
-  N_p:
-    type: number
-    description: Proton density (cm^-3)
-  T_p:
-    type: number
-    description: Proton temperature (K)
-  He2+_ratio:
-    type: number
-    description: Helium abundance ratio (He2+/H+)
-  Kp:
-    type: number
-    description: Planetary K-index
-  Dst:
-    type: number
-    description: Disturbance Storm Time index (nT)
+  columns:
+    type: array
+    items:
+      type: string
+    enum:
+      - timestamp
+      - N_p
+      - T_p
+      - He2+_ratio
+      - Kp
+      - Dst
+    description: "Must contain exactly these six columns."
+  rows:
+    type: integer
+    minimum: 1
+    description: "Number of data rows (must be > 0)."
+  data:
+    type: array
+    items:
+      type: object
+      required:
+        - timestamp
+        - N_p
+        - T_p
+        - He2+_ratio
+        - Kp
+        - Dst
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: "ISO 8601 formatted UTC timestamp."
+        N_p:
+          type: number
+          description: "Proton density (cm^-3)."
+        T_p:
+          type: number
+          description: "Proton temperature (K)."
+        He2+_ratio:
+          type: number
+          description: "Helium abundance ratio (He2+/H+)."
+        Kp:
+          type: number
+          description: "Planetary K-index (0-9)."
+        Dst:
+          type: number
+          description: "Disturbance Storm Time index (nT)."
 required:
-  - timestamp
-  - N_p
-  - T_p
-  - He2+_ratio
-  - Kp
-  - Dst
+  - columns
+  - rows
+  - data
+additionalProperties: false

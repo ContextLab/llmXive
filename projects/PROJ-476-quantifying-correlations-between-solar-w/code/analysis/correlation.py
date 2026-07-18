@@ -1,213 +1,212 @@
+"""
+Correlation analysis module for solar wind composition and geomagnetic indices.
+Computes Pearson and Spearman coefficients at various lags, adjusts p-values
+for autocorrelation (Neff), and applies Bonferroni correction.
+"""
 import os
 import pandas as pd
 import numpy as np
 from scipy import stats
 from datetime import timedelta
 from typing import Dict, List, Tuple, Optional
-from code.config import ACE_VARS, NOAA_VARS, TRAIN_START, TRAIN_END, TEST_START, TEST_END
 from code import logger
+from code.config import ACE_VARS, NOAA_VARS, TRAIN_START, TRAIN_END, TEST_START, TEST_END
 from code.analysis.neff import calculate_neff
 
-# Configuration for Bonferroni correction
-# 3 ACE parameters (N_p, T_p, He2+_ratio)
-# 2 NOAA indices (Kp, Dst)
-# 5 lags (0, 1, 2, 3, 6 hours)
-N_PARAMS = len(ACE_VARS)
-N_INDICES = len(NOAA_VARS)
-N_LAGS = 5  # 0, 1, 2, 3, 6
-TOTAL_TESTS = N_PARAMS * N_INDICES * N_LAGS
-ALPHA_RAW = 0.05
-ALPHA_ADJ = ALPHA_RAW / TOTAL_TESTS
-
-logger.info(f"Bonferroni configuration: {N_PARAMS} params x {N_INDICES} indices x {N_LAGS} lags = {TOTAL_TESTS} tests")
-logger.info(f"Adjusted alpha (Bonferroni): {ALPHA_ADJ:.6f}")
+# Constants for lag analysis
+LAGS_HOURS = [0, 1, 2, 3, 6]
+OUTPUT_PATH = "data/processed/correlation_results.csv"
+GLOBAL_THRESHOLD_PATH = "artifacts/thresholds/global_threshold.json"
 
 def load_synced_data() -> pd.DataFrame:
-    """Load the synchronized dataset from the processed directory."""
-    path = "data/processed/synced.csv"
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Synced data not found at {path}. Run US1 pipeline first.")
-    df = pd.read_csv(path, parse_dates=['timestamp'])
-    logger.info(f"Loaded synced data: {df.shape[0]} rows, {df.shape[1]} columns")
+    """
+    Load the pre-aligned and interpolated dataset.
+    Expects 'data/processed/synced.csv' to exist.
+    """
+    input_path = "data/processed/synced.csv"
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(
+            f"Synced data not found at {input_path}. "
+            "Please run the US1 pipeline (T013/T016) first to generate this file."
+        )
+    
+    logger.info(f"Loading synced data from {input_path}")
+    df = pd.read_csv(input_path, parse_dates=['timestamp'])
+    logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
     return df
 
 def compute_correlations_at_lag(
     df: pd.DataFrame,
-    param: str,
-    index_var: str,
-    lag_hours: int,
-    neff: Optional[float] = None
-) -> Dict:
+    ace_var: str,
+    noaa_var: str,
+    lag_hours: int
+) -> Tuple[float, float, float, float, int, int]:
     """
-    Compute Pearson and Spearman correlations for a specific parameter, index, and lag.
+    Compute Pearson and Spearman correlations for a specific ACE variable,
+    NOAA variable, and time lag.
     
     Args:
-        df: The synchronized dataframe.
-        param: The ACE parameter name (e.g., 'N_p').
-        index_var: The NOAA index name (e.g., 'Kp').
-        lag_hours: The lag in hours (0, 1, 2, 3, 6).
-        neff: Optional pre-calculated effective sample size. If None, calculated from data.
+        df: Synced dataframe with 'timestamp', ACE vars, and NOAA vars.
+        ace_var: Name of the ACE variable (e.g., 'N_p').
+        noaa_var: Name of the NOAA variable (e.g., 'Kp').
+        lag_hours: Lag in hours (positive means ACE leads NOAA).
     
     Returns:
-        Dictionary containing correlation metrics.
+        Tuple of (pearson_r, spearman_r, raw_p, bonferroni_p, n_eff, n_obs)
     """
-    if lag_hours > 0:
-        # Shift the ACE data forward by lag_hours to simulate lagged effect
-        # If lag is positive, we align ACE(t) with Index(t+lag)
-        # In the dataframe, we shift the ACE column down by lag_hours
-        shift_rows = lag_hours
-        if shift_rows > 0:
-            df_shifted = df.copy()
-            df_shifted[param] = df_shifted[param].shift(shift_rows)
-            # Drop rows where the shifted value is NaN (the beginning of the series)
-            df_valid = df_shifted.dropna(subset=[param, index_var])
-        else:
-            df_valid = df
-    else:
-        df_valid = df.dropna(subset=[param, index_var])
-
-    if len(df_valid) < 10:
-        logger.warning(f"Insufficient data for {param} vs {index_var} at lag {lag_hours}h: {len(df_valid)} rows")
-        return {
-            'param': param,
-            'index': index_var,
-            'lag': lag_hours,
-            'pearson_r': np.nan,
-            'spearman_rho': np.nan,
-            'p_value_raw': np.nan,
-            'p_value_bonferroni': np.nan,
-            'n_obs': len(df_valid),
-            'neff': np.nan,
-            'is_significant': False
-        }
-
-    x = df_valid[param].values
-    y = df_valid[index_var].values
-
-    # Pearson
-    r, p_raw = stats.pearsonr(x, y)
+    # Shift ACE data forward by lag_hours to simulate leading
+    # If lag > 0, we shift the ACE index forward (or NOAA backward)
+    # To correlate ACE(t) with NOAA(t+lag), we shift ACE forward by lag
+    # Implementation: Shift the ACE series forward by lag_hours relative to NOAA
+    # Since the dataframe is sorted by time, we can shift the index or values.
+    # Easier: Shift the ACE column values down by N rows where N = lag_hours * rows_per_hour.
     
-    # Spearman
-    rho, p_spearman = stats.spearmanr(x, y)
-
-    # Calculate Neff if not provided
-    if neff is None:
-        # We calculate Neff based on the overlapping valid data length
-        # However, the spec implies Neff is calculated on the FULL continuous series.
-        # For this function, we calculate it on the valid subset for accuracy in this specific window,
-        # but the main runner should ideally pass the global Neff or calculate it globally.
-        # Per T021, we use the Pyper & Peterman method on the residuals.
-        # Since we are in a generic function, we calculate it here on the valid data for this pair.
-        # NOTE: The global Neff calculation is handled in run_correlation_analysis for consistency.
-        # Here we compute a local estimate if not passed, but the global one is preferred for the threshold.
-        neff_local = calculate_neff(x)
-    else:
-        neff_local = neff
-
-    # Adjust p-value for Neff? 
-    # The spec says: "adjust p-values for autocorrelation (Neff)".
-    # Standard approach: Use Neff to adjust the degrees of freedom in the t-test for correlation significance.
-    # t = r * sqrt((Neff - 2) / (1 - r^2))
-    # But scipy.stats.pearsonr uses N-2. We can approximate the adjusted p-value by re-calculating it.
+    # Assuming 1-hour resolution
+    shift_rows = lag_hours
     
-    if not np.isnan(r) and neff_local > 2:
-        t_stat = r * np.sqrt((neff_local - 2) / (1 - r**2 + 1e-10))
-        # Two-tailed p-value
-        p_adj = 2 * (1 - stats.t.cdf(abs(t_stat), neff_local - 2))
-    else:
-        p_adj = p_raw
+    # Create shifted series
+    # We want to correlate ACE(t) with NOAA(t+lag) -> ACE leads NOAA
+    # So we compare ACE[t] with NOAA[t+lag]
+    # This is equivalent to shifting NOAA backwards by lag, or ACE forwards.
+    # Let's shift ACE forward: ACE_shifted[t] = ACE[t-lag]
+    # Wait, standard lag definition: y(t) = f(x(t-lag)).
+    # If we say "ACE leads NOAA by 1 hour", we expect ACE(t) to correlate with NOAA(t+1).
+    # So we align ACE[t] with NOAA[t+1].
+    # In a dataframe sorted by time:
+    # Row i: ACE[i], NOAA[i]
+    # We want to correlate ACE[i] with NOAA[i+lag].
+    # So we take ACE[0:N-lag] and NOAA[lag:N].
+    
+    series_ace = df[ace_var].values
+    series_noaa = df[noaa_var].values
+    
+    n = len(series_ace)
+    if n <= shift_rows:
+        logger.warning(f"Lag {lag_hours}h exceeds data length {n} rows. Skipping.")
+        return (0.0, 0.0, 1.0, 1.0, 0, 0)
+    
+    ace_lagged = series_ace[:n-shift_rows]
+    noaa_lagged = series_noaa[shift_rows:]
+    
+    # Remove NaNs resulting from any gaps or shifts
+    mask = ~(np.isnan(ace_lagged) | np.isnan(noaa_lagged))
+    ace_clean = ace_lagged[mask]
+    noaa_clean = noaa_lagged[mask]
+    
+    if len(ace_clean) < 10:
+        logger.warning(f"Not enough valid data points ({len(ace_clean)}) for correlation at lag {lag_hours}h.")
+        return (0.0, 0.0, 1.0, 1.0, 0, len(ace_clean))
+    
+    # Compute Pearson
+    pearson_r, pearson_p = stats.pearsonr(ace_clean, noaa_clean)
+    
+    # Compute Spearman
+    spearman_r, spearman_p = stats.spearmanr(ace_clean, noaa_clean)
+    
+    # Calculate Neff for this specific pair (using the clean data length)
+    # We apply the Neff correction to the p-values.
+    # The formula in neff.py expects a series. We can use the ACE series as the primary driver
+    # or average the Neff of both. Per FR-003/FR-010, we compute Neff based on the time series properties.
+    # We will use the ACE series for Neff calculation as it represents the solar wind driver.
+    neff = calculate_neff(pd.Series(ace_clean))
+    
+    # Adjust p-value for autocorrelation using Neff
+    # For Pearson: p-value adjustment is complex, but often approximated by using Neff in the t-statistic
+    # t = r * sqrt((N-2) / (1-r^2))
+    # We replace N with Neff for the adjusted p-value calculation.
+    # However, scipy.stats.pearsonr returns p based on N.
+    # We recompute the p-value using the t-distribution with Neff.
+    
+    def adjust_pvalue(r, n_eff):
+        if abs(r) >= 1.0:
+            return 0.0 if r != 0 else 1.0
+        t_stat = r * np.sqrt((n_eff - 2) / (1 - r**2))
+        # Two-tailed test
+        p_val = 2 * (1 - stats.t.cdf(abs(t_stat), df=n_eff - 2))
+        return p_val
+    
+    # Apply Neff adjustment to Pearson p-value
+    # Note: Spearman also assumes independence, so similar adjustment applies, 
+    # but usually Pearson is the primary metric for this physics.
+    # We will adjust the Pearson p-value.
+    adjusted_p = adjust_pvalue(pearson_r, neff)
+    
+    return (float(pearson_r), float(spearman_r), float(adjusted_p), 0.0, int(neff), int(len(ace_clean)))
 
-    # Bonferroni correction
-    p_bonf = min(p_adj * TOTAL_TESTS, 1.0)
-    is_significant = p_bonf < ALPHA_ADJ
-
-    logger.debug(f"Lag {lag_hours}h: {param} vs {index_var}, r={r:.4f}, p_raw={p_adj:.4e}, p_bonf={p_bonf:.4e}, sig={is_significant}")
-
-    return {
-        'param': param,
-        'index': index_var,
-        'lag': lag_hours,
-        'pearson_r': r,
-        'spearman_rho': rho,
-        'p_value_raw': p_adj,
-        'p_value_bonferroni': p_bonf,
-        'n_obs': len(df_valid),
-        'neff': neff_local,
-        'is_significant': is_significant
-    }
-
-def run_correlation_analysis(df: Optional[pd.DataFrame] = None, output_path: str = "data/processed/correlation_results.csv") -> pd.DataFrame:
+def run_correlation_analysis() -> pd.DataFrame:
     """
-    Run the full correlation analysis across all parameters, indices, and lags.
-    Implements FR-004: Bonferroni correction with dynamic divisor 30.
-    
-    Args:
-        df: Optional dataframe. If None, loads from disk.
-        output_path: Path to save the results CSV.
+    Main entry point to run correlation analysis on the full dataset.
+    Reads synced data, computes correlations for all pairs at all lags,
+    applies Bonferroni correction, and saves results.
     
     Returns:
-        DataFrame with all correlation results.
+        DataFrame containing all correlation results.
     """
-    if df is None:
-        df = load_synced_data()
-
+    logger.info("Starting correlation analysis (T020)...")
+    
+    # Load data
+    df = load_synced_data()
+    
+    # Ensure we have the required columns
+    required_cols = ACE_VARS + NOAA_VARS
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in synced data: {missing}")
+    
     results = []
     
-    # Define lags explicitly
-    lags = [0, 1, 2, 3, 6]
-
-    logger.info(f"Starting correlation analysis for {len(ACE_VARS)} params x {len(NOAA_VARS)} indices x {len(lags)} lags")
-    logger.info(f"Using Bonferroni divisor: {TOTAL_TESTS} (Alpha adjusted to {ALPHA_ADJ})")
-
-    # Pre-calculate global Neff for the full series if possible, or per variable
-    # The spec emphasizes global Neff for the threshold. 
-    # We will calculate Neff for each ACE variable on the full series (ignoring NaNs in the specific column)
-    # to use as the 'neff' argument for the correlation functions, ensuring consistency.
-    global_neff_map = {}
-    for var in ACE_VARS:
-        if var in df.columns:
-            clean_series = df[var].dropna()
-            if len(clean_series) > 10:
-                global_neff_map[var] = calculate_neff(clean_series.values)
-            else:
-                global_neff_map[var] = None
-        else:
-            global_neff_map[var] = None
-
-    for param in ACE_VARS:
-        if param not in df.columns:
-            logger.warning(f"ACE variable {param} not found in data, skipping.")
-            continue
-
-        for index_var in NOAA_VARS:
-            if index_var not in df.columns:
-                logger.warning(f"NOAA variable {index_var} not found in data, skipping.")
-                continue
-            
-            neff_for_param = global_neff_map.get(param)
-
-            for lag in lags:
-                res = compute_correlations_at_lag(
-                    df, 
-                    param, 
-                    index_var, 
-                    lag,
-                    neff=neff_for_param
+    # Calculate global Bonferroni divisor
+    # 3 params * 2 indices * 5 lags = 30
+    total_tests = len(ACE_VARS) * len(NOAA_VARS) * len(LAGS_HOURS)
+    bonferroni_alpha = 0.05 / total_tests
+    
+    logger.info(f"Total tests: {total_tests}, Bonferroni alpha: {bonferroni_alpha}")
+    
+    for ace_var in ACE_VARS:
+        for noaa_var in NOAA_VARS:
+            for lag in LAGS_HOURS:
+                logger.info(f"Computing correlation: {ace_var} vs {noaa_var} at lag {lag}h")
+                
+                pearson_r, spearman_r, raw_p, _, neff, n_obs = compute_correlations_at_lag(
+                    df, ace_var, noaa_var, lag
                 )
-                results.append(res)
-
+                
+                # Apply Bonferroni correction to the raw (Neff-adjusted) p-value
+                # p_bonf = p_raw * total_tests, capped at 1.0
+                bonferroni_p = min(raw_p * total_tests, 1.0)
+                
+                is_significant = bonferroni_p < 0.05
+                is_strong = abs(pearson_r) > 0.5
+                
+                results.append({
+                    'ace_variable': ace_var,
+                    'noaa_variable': noaa_var,
+                    'lag_hours': lag,
+                    'pearson_r': pearson_r,
+                    'spearman_r': spearman_r,
+                    'p_value_raw_neff': raw_p,
+                    'p_value_bonferroni': bonferroni_p,
+                    'n_eff': neff,
+                    'n_observations': n_obs,
+                    'is_significant': is_significant,
+                    'is_strong': is_strong
+                })
+    
+    # Create DataFrame
     results_df = pd.DataFrame(results)
     
-    # Sort for readability
-    results_df = results_df.sort_values(by=['param', 'index', 'lag'])
-
-    # Save to disk
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    results_df.to_csv(output_path, index=False)
-    logger.info(f"Correlation results saved to {output_path}")
-    logger.info(f"Significant findings (Bonferroni p < {ALPHA_ADJ}): {results_df['is_significant'].sum()}")
-
+    # Save to CSV
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    results_df.to_csv(OUTPUT_PATH, index=False)
+    logger.info(f"Correlation results saved to {OUTPUT_PATH}")
+    
+    # Log summary
+    significant_count = results_df['is_significant'].sum()
+    strong_count = results_df['is_strong'].sum()
+    logger.info(f"Analysis complete. Significant pairs: {significant_count}, Strong pairs (|r|>0.5): {strong_count}")
+    
     return results_df
 
-# Export for main.py
-__all__ = ['load_synced_data', 'compute_correlations_at_lag', 'run_correlation_analysis', 'ALPHA_ADJ', 'TOTAL_TESTS']
+# Backward compatibility for direct imports if needed
+if __name__ == "__main__":
+    run_correlation_analysis()

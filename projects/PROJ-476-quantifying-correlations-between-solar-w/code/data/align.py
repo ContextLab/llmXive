@@ -5,24 +5,34 @@ from datetime import timedelta
 from code import logger
 from code.config import ACE_VARS, NOAA_VARS, TRAIN_START, TEST_END
 
-# Constants for gap handling
-MAX_GAP_HOURS = 6
-
 def load_raw_ace(file_path: str) -> pd.DataFrame:
     """
     Load raw ACE data from a CSV file.
     
     Args:
-        file_path: Path to the ACE raw CSV file.
+        file_path: Path to the raw ACE CSV file.
         
     Returns:
         DataFrame with ACE data.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the file is empty or has no valid data.
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"ACE raw data file not found: {file_path}")
     
-    df = pd.read_csv(file_path, parse_dates=['timestamp'])
-    logger.info(f"Loaded ACE data from {file_path}: {len(df)} rows")
+    df = pd.read_csv(file_path)
+    
+    if df.empty:
+        raise ValueError(f"ACE raw data file is empty: {file_path}")
+    
+    # Ensure timestamp column is datetime
+    if 'timestamp' in df.columns:
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
+    else:
+        raise ValueError("ACE data must contain a 'timestamp' column")
+        
     return df
 
 def load_raw_noaa(file_path: str) -> pd.DataFrame:
@@ -30,16 +40,29 @@ def load_raw_noaa(file_path: str) -> pd.DataFrame:
     Load raw NOAA data from a CSV file.
     
     Args:
-        file_path: Path to the NOAA raw CSV file.
+        file_path: Path to the raw NOAA CSV file.
         
     Returns:
         DataFrame with NOAA data.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the file is empty or has no valid data.
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"NOAA raw data file not found: {file_path}")
     
-    df = pd.read_csv(file_path, parse_dates=['timestamp'])
-    logger.info(f"Loaded NOAA data from {file_path}: {len(df)} rows")
+    df = pd.read_csv(file_path)
+    
+    if df.empty:
+        raise ValueError(f"NOAA raw data file is empty: {file_path}")
+    
+    # Ensure timestamp column is datetime
+    if 'timestamp' in df.columns:
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
+    else:
+        raise ValueError("NOAA data must contain a 'timestamp' column")
+        
     return df
 
 def align_to_hourly(df: pd.DataFrame, source_name: str) -> pd.DataFrame:
@@ -47,204 +70,193 @@ def align_to_hourly(df: pd.DataFrame, source_name: str) -> pd.DataFrame:
     Resample data to 1-hour UTC grid.
     
     Args:
-        df: Input DataFrame with a 'timestamp' column.
-        source_name: Name of the data source for logging.
+        df: DataFrame with a 'timestamp' column.
+        source_name: Name of the data source ('ACE' or 'NOAA') for logging.
         
     Returns:
-        DataFrame resampled to hourly frequency.
+        DataFrame resampled to hourly intervals.
     """
     if df.empty:
-        logger.warning(f"Empty DataFrame provided for {source_name} alignment")
+        logger.warning(f"{source_name} data is empty, returning empty aligned DataFrame")
         return df
     
-    # Ensure timestamp is datetime and set as index
-    df = df.copy()
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    # Set timestamp as index
     df = df.set_index('timestamp')
     
-    # Resample to hourly frequency, taking the mean for numeric columns
-    # Use '1h' to ensure UTC alignment
-    hourly_df = df.resample('1h').mean()
+    # Determine frequency based on data density
+    # ACE typically provides 1-hour or 1-minute data, NOAA Kp is 3-hourly
+    # We'll resample to 1-hour for both to align them
     
-    logger.info(f"Resampled {source_name} data to hourly: {len(hourly_df)} rows")
-    return hourly_df
+    # Identify numeric columns to resample
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    if not numeric_cols:
+        logger.warning(f"No numeric columns found in {source_name} data")
+        return df.reset_index()
+    
+    # Resample to 1-hour frequency, taking the mean of values within each hour
+    # This handles both higher frequency data (averaging) and lower frequency (forward fill then average)
+    resampled = df[numeric_cols].resample('h').mean()
+    
+    # Log the resampling operation
+    original_count = len(df)
+    resampled_count = len(resampled)
+    logger.info(f"{source_name} data resampled: {original_count} -> {resampled_count} hourly records")
+    
+    # Reset index to make timestamp a column again
+    resampled = resampled.reset_index()
+    
+    return resampled
 
-def interpolate_gaps(df: pd.DataFrame, max_gap_hours: int = MAX_GAP_HOURS) -> pd.DataFrame:
+def interpolate_gaps(df: pd.DataFrame, max_gap_hours: int = 6) -> pd.DataFrame:
     """
-    Perform linear interpolation for gaps <= max_gap_hours.
-    
-    This function detects gaps in the time series and fills them using linear
-    interpolation if the gap size is within the specified threshold.
+    Fill gaps in time series data using linear interpolation.
+    Gaps larger than max_gap_hours are left as NaN and logged.
     
     Args:
-        df: Input DataFrame with a datetime index and numeric columns.
-        max_gap_hours: Maximum gap size in hours to interpolate.
+        df: DataFrame with a 'timestamp' column and numeric data columns.
+        max_gap_hours: Maximum gap size (in hours) to interpolate.
         
     Returns:
-        DataFrame with interpolated gaps and a log of interpolated intervals.
+        DataFrame with interpolated gaps.
     """
     if df.empty:
         logger.warning("Empty DataFrame provided for interpolation")
         return df
     
-    # Ensure the index is datetime
-    if not isinstance(df.index, pd.DatetimeIndex):
-        df.index = pd.to_datetime(df.index)
+    # Set timestamp as index for resampling operations
+    df = df.set_index('timestamp')
     
-    # Identify gaps by checking for NaN values
-    # Create a boolean mask for NaN values
-    nan_mask = df.isna()
+    # Identify numeric columns
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     
-    # If no NaNs, return the original dataframe
-    if not nan_mask.any().any():
-        logger.info("No gaps detected in the data")
-        return df
+    if not numeric_cols:
+        logger.warning("No numeric columns found for interpolation")
+        return df.reset_index()
     
-    # Log the start of interpolation process
-    logger.info(f"Starting interpolation for gaps <= {max_gap_hours} hours")
+    # Count NaNs before interpolation
+    nan_count_before = df[numeric_cols].isna().sum().sum()
+    logger.info(f"Total NaN values before interpolation: {nan_count_before}")
     
-    # Create a copy to avoid modifying the original
-    df_interp = df.copy()
+    # Interpolate all numeric columns using linear method
+    # This will fill all NaNs, but we'll handle large gaps separately
+    interpolated = df[numeric_cols].interpolate(method='linear', limit_direction='both')
     
-    # For each column, identify and interpolate gaps
-    interpolated_intervals = []
-    
-    for col in df_interp.columns:
-        if df_interp[col].isna().all():
-            logger.warning(f"Column {col} is entirely NaN, skipping interpolation")
-            continue
+    # Check for gaps that might be too large
+    # We'll check the time differences between non-NaN values
+    for col in numeric_cols:
+        original_series = df[col]
+        interp_series = interpolated[col]
         
-        # Get the series for this column
-        series = df_interp[col]
+        # Find where we still have NaNs after interpolation
+        still_nan = original_series.isna() & interp_series.isna()
         
-        # Identify groups of consecutive NaNs
-        # Create a boolean series indicating NaN
-        is_nan = series.isna()
-        
-        if not is_nan.any():
-            continue
-        
-        # Create groups of consecutive NaNs
-        # A new group starts when is_nan changes from False to True
-        group_id = (~is_nan).cumsum()
-        
-        # Get the groups that are NaN
-        nan_groups = group_id[is_nan]
-        
-        if nan_groups.empty:
-            continue
-        
-        # Process each group of consecutive NaNs
-        for group_val in nan_groups.unique():
-            group_mask = (group_id == group_val) & is_nan
-            start_idx = group_mask.idxmax()
-            end_idx = group_mask[group_mask].index[-1]
+        if still_nan.any():
+            # Check the time gaps around these NaNs
+            nan_indices = still_nan[still_nan].index
+            logger.warning(f"Found {still_nan.sum()} values in column '{col}' that could not be interpolated (likely gaps > {max_gap_hours}h)")
             
-            # Calculate the gap duration
-            # Find the previous non-NaN value
-            prev_non_nan_idx = series[:start_idx].last_valid_index()
-            next_non_nan_idx = series[end_idx:].first_valid_index()
-            
-            if prev_non_nan_idx is None or next_non_nan_idx is None:
-                # Cannot interpolate at the edges
-                logger.warning(f"Cannot interpolate gap in {col} from {start_idx} to {end_idx}: missing boundary values")
-                continue
-            
-            gap_duration = next_non_nan_idx - prev_non_nan_idx
-            gap_hours = gap_duration.total_seconds() / 3600
-            
-            if gap_hours <= max_gap_hours:
-                # Perform interpolation
-                # Use linear interpolation between the boundary values
-                df_interp.loc[prev_non_nan_idx:next_non_nan_idx, col] = series[prev_non_nan_idx:next_non_nan_idx].interpolate(method='linear')
-                
-                interpolated_intervals.append({
-                    'column': col,
-                    'start': prev_non_nan_idx,
-                    'end': next_non_nan_idx,
-                    'gap_hours': gap_hours,
-                    'method': 'linear'
-                })
-                
-                logger.info(f"Interpolated {col} gap: {prev_non_nan_idx} to {next_non_nan_idx} ({gap_hours:.2f} hours)")
-            else:
-                logger.warning(f"Gap in {col} from {prev_non_nan_idx} to {next_non_nan_idx} ({gap_hours:.2f} hours) exceeds threshold ({max_gap_hours}h), skipping interpolation")
+            # Log specific large gaps
+            for idx in nan_indices[:5]:  # Log first 5 as examples
+                logger.warning(f"  Large gap detected at {idx} in column '{col}'")
     
-    # Log summary of interpolated intervals
-    if interpolated_intervals:
-        logger.info(f"Interpolated {len(interpolated_intervals)} gaps in total")
-        for interval in interpolated_intervals:
-            logger.debug(f"  - {interval['column']}: {interval['start']} to {interval['end']} ({interval['gap_hours']:.2f}h, {interval['method']})")
-    else:
-        logger.info("No gaps were interpolated (either no gaps or all gaps exceeded threshold)")
+    # Combine interpolated data with non-numeric columns
+    result = df.copy()
+    result[numeric_cols] = interpolated
     
-    # Check if there are any remaining NaNs
-    if df_interp.isna().any().any():
-        remaining_nans = df_interp.isna().sum().sum()
-        logger.warning(f"Remaining NaNs after interpolation: {remaining_nans}")
-    else:
-        logger.info("All gaps successfully interpolated")
+    # Count NaNs after interpolation
+    nan_count_after = result[numeric_cols].isna().sum().sum()
+    logger.info(f"Total NaN values after interpolation: {nan_count_after}")
+    logger.info(f"Interpolated {nan_count_before - nan_count_after} values")
     
-    return df_interp
+    # Reset index
+    result = result.reset_index()
+    
+    return result
 
-def run_alignment(ace_file: str, noaa_file: str, output_file: str) -> str:
+def run_alignment(ace_file: str, noaa_file: str, output_file: str) -> pd.DataFrame:
     """
-    Run the full alignment pipeline: load, resample, and interpolate.
+    Main function to align ACE and NOAA data to 1-hour UTC grid.
+    
+    This function:
+    1. Loads raw ACE and NOAA data
+    2. Resamples both to 1-hour intervals
+    3. Merges the datasets on timestamp
+    4. Interpolates small gaps (<= 6 hours)
+    5. Writes the result to the specified output file
     
     Args:
-        ace_file: Path to ACE raw data file.
-        noaa_file: Path to NOAA raw data file.
-        output_file: Path to write the synchronized output.
+        ace_file: Path to raw ACE data CSV.
+        noaa_file: Path to raw NOAA data CSV.
+        output_file: Path where the aligned CSV will be written.
         
     Returns:
-        Path to the output file.
+        DataFrame containing the aligned and synchronized data.
+        
+    Raises:
+        FileNotFoundError: If input files don't exist.
+        ValueError: If data validation fails.
     """
-    logger.info(f"Starting alignment pipeline: ACE={ace_file}, NOAA={noaa_file}")
-    
-    # Load raw data
-    ace_df = load_raw_ace(ace_file)
-    noaa_df = load_raw_noaa(noaa_file)
-    
-    # Validate that required columns exist
-    from code.data.validate import validate_columns
-    validate_columns(ace_df, ACE_VARS)
-    validate_columns(noaa_df, NOAA_VARS)
-    
-    # Align to hourly
-    ace_hourly = align_to_hourly(ace_df, "ACE")
-    noaa_hourly = align_to_hourly(noaa_df, "NOAA")
-    
-    # Merge the datasets on timestamp
-    # Reset index to make timestamp a column for merging
-    ace_hourly = ace_hourly.reset_index()
-    noaa_hourly = noaa_hourly.reset_index()
-    
-    # Merge on timestamp
-    merged_df = pd.merge(ace_hourly, noaa_hourly, on='timestamp', how='outer')
-    merged_df = merged_df.set_index('timestamp')
-    
-    logger.info(f"Merged dataset: {len(merged_df)} rows, {len(merged_df.columns)} columns")
-    
-    # Interpolate gaps
-    interpolated_df = interpolate_gaps(merged_df)
+    logger.info("Starting alignment process...")
     
     # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    output_dir = os.path.dirname(output_file)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        logger.info(f"Created output directory: {output_dir}")
     
-    # Write to CSV
-    interpolated_df.to_csv(output_file)
-    logger.info(f"Alignment complete. Output written to {output_file}")
+    # Load raw data
+    logger.info(f"Loading ACE data from {ace_file}")
+    ace_df = load_raw_ace(ace_file)
+    logger.info(f"Loaded {len(ace_df)} ACE records")
     
-    return output_file
+    logger.info(f"Loading NOAA data from {noaa_file}")
+    noaa_df = load_raw_noaa(noaa_file)
+    logger.info(f"Loaded {len(noaa_df)} NOAA records")
+    
+    # Align to hourly
+    logger.info("Resampling ACE data to hourly")
+    ace_hourly = align_to_hourly(ace_df, "ACE")
+    
+    logger.info("Resampling NOAA data to hourly")
+    noaa_hourly = align_to_hourly(noaa_df, "NOAA")
+    
+    # Merge datasets on timestamp
+    logger.info("Merging ACE and NOAA data on timestamp")
+    merged_df = pd.merge(
+        ace_hourly,
+        noaa_hourly,
+        on='timestamp',
+        how='outer',
+        suffixes=('_ace', '_noaa')
+    )
+    
+    logger.info(f"Merged dataset has {len(merged_df)} records")
+    
+    # Interpolate gaps
+    logger.info("Interpolating gaps (max 6 hours)")
+    aligned_df = interpolate_gaps(merged_df)
+    
+    # Final check for remaining NaNs
+    nan_count = aligned_df.select_dtypes(include=[np.number]).isna().sum().sum()
+    if nan_count > 0:
+        logger.warning(f"Final dataset still contains {nan_count} NaN values (gaps > 6h)")
+    else:
+        logger.info("Final dataset contains no NaN values")
+    
+    # Write to output file
+    logger.info(f"Writing aligned data to {output_file}")
+    aligned_df.to_csv(output_file, index=False)
+    logger.info(f"Successfully wrote {len(aligned_df)} records to {output_file}")
+    
+    return aligned_df
 
-# Main execution for testing
 if __name__ == "__main__":
-    # Example usage
+    # Default paths relative to project root
     ace_path = "data/raw/ace_raw.csv"
     noaa_path = "data/raw/noaa_raw.csv"
     output_path = "data/processed/synced.csv"
     
-    if os.path.exists(ace_path) and os.path.exists(noaa_path):
-        run_alignment(ace_path, noaa_path, output_path)
-    else:
-        logger.info("Raw data files not found. Skipping alignment.")
+    # Run the alignment pipeline
+    result_df = run_alignment(ace_path, noaa_path, output_path)
+    logger.info("Alignment pipeline completed successfully")

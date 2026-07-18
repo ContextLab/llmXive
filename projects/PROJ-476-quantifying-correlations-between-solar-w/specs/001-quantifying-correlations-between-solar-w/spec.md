@@ -43,7 +43,7 @@ A researcher needs automatically generated visualisations (time‑series overlay
 
 **Why this priority**: Clear visual communication and out‑of‑sample validation are essential for scientific credibility and for informing downstream forecasting work.
 
-**Independent Test**: After running US on the training period (1998‑2017), execute the validation module on 2018‑2020. Confirm that PNG files are created, each ≤ 5 MB, and that a short Markdown report states whether the helium‑Dst correlation surpasses |r| = 0.5 in the test set.
+**Independent Test**: After running US on the training period (1998‑2017), execute the validation module on ‑2020. Confirm that PNG files are created, each ≤ 5 MB, and that a short Markdown report states whether the helium‑Dst correlation surpasses |r| = 0.5 in the test set.
 
 **Acceptance Scenarios**:
 
@@ -69,7 +69,7 @@ A researcher needs automatically generated visualisations (time‑series overlay
 
 - **FR-001** (See US‑1): The system MUST download ACE composition data (proton density, temperature, helium abundance) and NOAA Kp/Dst indices for any user‑specified date range.  
 - **FR-002** (See US‑1): The system MUST align both datasets to a common 1‑hour UTC grid, handling missing timestamps by linear interpolation (max gap = 6 h) and logging any interpolated intervals.  
-- **FR-003** (See US‑2): The system MUST compute Pearson and Spearman correlation coefficients for each composition‑index pair at lags 0, 1, 2, 3, 6 hours **on the full synchronized dataset** (without filtering for storm intensity). The system MUST output a table with raw p‑values that are calculated using an effective sample size to account for autocorrelation (see FR‑010), and Bonferroni‑corrected p‑values.  
+- **FR-003** (See US‑2): The system MUST compute Pearson and Spearman correlation coefficients for each composition‑index pair at lags 0, 1, 2, 3, 6 hours **on the full synchronized dataset** (without filtering for storm intensity). The system MUST output a table with raw p‑values that are calculated using an effective sample size to account for autocorrelation (see FR‑), and Bonferroni‑corrected p‑values.  
 - **FR-004** (See US‑2): The system MUST apply a Bonferroni correction for the full set of hypothesis tests., controlling the family‑wise error rate at α = 0.05. This method is standard in heliophysics correlation studies.  
 - **FR-006** (See US‑1): The system MUST verify that the downloaded ACE file contains **all** required variables (proton_density, temperature, helium_abundance) and that the NOAA file contains hourly Kp and Dst values.  
   - *In the ACE Level 2 data products used by this pipeline, the exact variable names are:*  
@@ -82,7 +82,7 @@ A researcher needs automatically generated visualisations (time‑series overlay
   2. Correlation heatmap (parameters × lags).  
   All artefacts shall be PNG files ≤ 5 MB each.  
 - **FR-009** (See US‑3): The system MUST produce a concise Markdown validation report summarising: (a) which composition‑index pairs exceed |r| > 0.5, (b) their statistical significance after correction.  
-- **FR-010** (New): The system MUST adjust raw p‑values for autocorrelation by estimating an effective sample size (Neff) using the lag‑1 autocorrelation of each time series (method of Pyper & Peterman, 1998) **on the full continuous time series** before applying the Bonferroni correction. This adjustment is required to prevent false positives arising from the inherent autocorrelation in solar wind and geomagnetic time series data.
+- **FR-010** (New): The system MUST adjust raw p‑values for autocorrelation by estimating an effective sample size (Neff) using the lag‑1 autocorrelation of each time series (method of Pyper & Peterman) **on the full continuous time series** before applying the Bonferroni correction. This adjustment is required to prevent false positives arising from the inherent autocorrelation in solar wind and geomagnetic time series data.
 
 ### Key Entities
 
@@ -94,7 +94,7 @@ A researcher needs automatically generated visualisations (time‑series overlay
 
 ### Measurable Outcomes
 
-- **SC-001** (See US‑2): The full 20‑year lagged correlation analysis (on the full dataset) completes within 6 hours on the CI runner, consuming ≤ 7 GB RAM, and produces a 30‑row results table.  
+- **SC-001** (See US‑2): The full 20‑year lagged correlation analysis (on the full dataset) completes within 6 hours on the CI runner, consuming ≤ 7 GB RAM, and produces a results table.  
 - **SC-002** (See FR‑006): If any required variable is absent from the source files, the pipeline aborts with an explicit error message and logs the missing variable name.  
 - **SC-003** (See US‑3): All visual artefacts (time‑series plots, heatmaps) are generated as PNG files ≤ 5 MB each, and the validation report correctly flags any composition‑index pair with |r| > 0.5 **and** Bonferroni‑corrected p < 0.05. The multiple‑testing correction is recomputed on the validation set using the same Bonferroni procedure applied to p‑values that have been adjusted for autocorrelation via the effective‑sample‑size method (applied to the full validation period data).  
 - **SC-004** (See US‑1): The data‑acquisition and synchronisation pipeline (US‑1) completes within 30 minutes on the CI runner, using ≤ 4 GB RAM, and outputs a CSV file that contains the five required columns with **no missing entries** after imputation.
