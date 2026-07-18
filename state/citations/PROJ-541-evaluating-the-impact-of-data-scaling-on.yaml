@@ -20,3 +20,25 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644837633e498d669199caec/410e57fd181132f1e890fcb5ad539c80fb61fdb75c80c052cbea492d8c743169?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-3316810f8df41d3a.parquet%3B+filename%3D%22train-00000-of-00001-3316810f8df41d3a.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1783102237&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ODM3NjMzZTQ5OGQ2NjkxOTljYWVjLzQxMGU1N2ZkMTgxMTMyZjFlODkwZmNiNWFkNTM5YzgwZmI2MWZkYjc1YzgwYzA1MmNiZWE0OTJkOGM3NDMxNjlcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtMzMxNjgxMGY4ZGY0MWQzYS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtMzMxNjgxMGY4ZGY0MWQzYS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMxMDIyMzd9fX1dfQ__&Signature=MEUCIQCNsUq%7EQ6DXyqMWDvWM5uxvRf%7E2dQkwzZAmz0SbqLDuGwIgOErYzlNss1Jz9v3cRAqBoNnoOw0x5KCEiefCUdbSAHc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-03T17:10:36.501393Z'
+- artifact_hash: 237230a9a7c188b8a25bb9632a04e40296346c12e27e11dcabad045f204885df
+  artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Standard normal table - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Standard_normal_table
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Standard_normal_table
+  verified_at: '2026-07-18T10:27:57.927040Z'
+- artifact_hash: 237230a9a7c188b8a25bb9632a04e40296346c12e27e11dcabad045f204885df
+  artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.wikidata.org/wiki/Q
+  verification_status: mismatch
+  verified_against_url: https://www.wikidata.org/wiki/Q
+  verified_at: '2026-07-18T10:27:57.927040Z'

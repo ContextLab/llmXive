@@ -1,34 +1,3 @@
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or files were presented that create or store synthetic
-    data under `data/synthetic/`, nor any metadata (seed, config) accompanying such
-    files. Without these artifacts, the requirement for reproducible data persistence
-    is not satisfied.
-T027:
-  c: false
-  h: 8146bf0010585af7d6a3283d676b2896e585ea1db96c2f66e48a754799ad6893
-  r: "The provided `code/main.py` is truncated and does not contain a complete simulation\
-    \ loop or a fully implemented `save_partial_results` (the writer call is cut off).\
-    \ The alternative file `code/simulation/orchestrator.py` is absent, and the required\
-    \ output file `results/simulation_results.csv` does not exist. Consequently, the\
-    \ task\u2019s requirement to run iterations and append each `TestResult` to the\
-    \ CSV is not satisfied."
-T031a:
-  c: false
-  h: b45295fffa5aacfa8fb4f71eac97a2c85ae998c4f88d8d997b589777e24d4847
-  r: "The `metrics.py` file contains only placeholder stubs for `fit_synthetic_mixed_effects_model`\
-    \ (returning `None, None`) and does not implement a statsmodels mixed\u2011effects\
-    \ model nor save any CSV. Additionally, the required output file `results/mixed_effects_synthetic.csv`\
-    \ is absent. The task\u2019s core requirements are therefore unmet."
-T031b:
-  c: false
-  h: aaf25799329a6f90e1c786f8d870d3cc08d42da0f242b4669676eb1d04a1dd8c
-  r: "The `metrics.py` file only contains placeholder stubs (e.g., `fit_real_world_mixed_effects_model`\
-    \ returns `None, None`) and does not implement a statsmodels mixed\u2011effects\
-    \ model nor save a CSV. The required output file `results/mixed_effects_summary.csv`\
-    \ is absent. Consequently the task\u2019s functional and output requirements are\
-    \ not met."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -38,8 +7,38 @@ T032:
     is not satisfied.
 T034b:
   c: false
-  h: 0de63462ac30d83a452d94c4a9b580c021725bdf0fe5e411300db90a0bf8caae
-  r: The `data/metadata/manifest.json` file does not exist, and the shown portion
-    of `code/main.py` contains no loop that iterates over `datasets.yaml` nor any
-    code that writes metadata (source, size, missing_rate) to a manifest. The required
-    ingestion orchestration and manifest tracking are therefore missing.
+  h: 781956407f7ae19f6707156056135e3c2722d2b9415c905f8d6a845bdb000aa0
+  r: "`code/main.py` contains a partially\u2011written `run_real_world_ingestion_pipeline`\
+    \ that is truncated before it records any metadata, and there is no logic that\
+    \ writes source, size, or missing_rate to `data/metadata/manifest.json`. The manifest\
+    \ file is still just an empty list (`[]`), showing that no dataset metadata has\
+    \ been tracked or missing\u2011dataset warnings emitted. The required loop and\
+    \ manifest updates are therefore missing."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No documentation files or updates in `docs/` or `quickstart.md` were provided;
+    the only evidence shown relates to feature specifications, not to any changed
+    or added documentation. The required artifacts are missing.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No unit test files were presented in `code/tests/unit/`, and there is no evidence
+    that tests covering extreme outliers or constant data have been added. The required
+    artifacts are missing, so the task is not satisfied.
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a quickstart.md validation run (e.g., execution logs, output\
+    \ screenshots, or a reproducibility report) was provided, and no artifacts confirming\
+    \ end\u2011to\u2011end reproducibility are present. The implementer therefore\
+    \ has not satisfied the task requirement."
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No plots, CSV files, or any programmatically generated artifacts are present
+    in the provided evidence, and nothing is shown to reside under a `results/` directory
+    following the required storage schema. Consequently, the claim that all artifacts
+    have been generated and stored correctly cannot be verified. The missing items
+    are the actual result files (e.g., CSVs of simulation outcomes, visualizations)
+    saved in the expected `results/` location.

@@ -1,203 +1,279 @@
 """
-Data persistence module for synthetic data generation.
-
-Handles saving generated synthetic datasets along with their metadata
-(seed, configuration) to ensure reproducibility.
+Persistence module for synthetic data.
+Handles saving and loading synthetic datasets with metadata for reproducibility.
 """
 import os
 import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
-
 from simulation.config import SimulationConfig
 from simulation.logger import setup_logger
 
-# Ensure logger is available
 logger = setup_logger(__name__)
 
-# Ensure output directory exists
-OUTPUT_DIR = Path("data/synthetic")
+# Base directory for synthetic data
+SYNTHETIC_DATA_DIR = Path("data/synthetic")
 
-def _ensure_output_dir():
-    """Create the output directory if it doesn't exist."""
-    if not OUTPUT_DIR.exists():
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created output directory: {OUTPUT_DIR}")
-
-def _generate_run_id() -> str:
-    """Generate a unique run ID based on timestamp and random suffix."""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    suffix = np.random.randint(1000, 9999)
-    return f"{timestamp}_{suffix}"
+def _ensure_directory():
+    """Ensure the synthetic data directory exists."""
+    SYNTHETIC_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def _serialize_config(config: SimulationConfig) -> Dict[str, Any]:
-    """Convert SimulationConfig to a JSON-serializable dictionary."""
-    # Handle dataclass conversion
-    if hasattr(config, '__dataclass_fields__'):
-        result = {}
-        for field_name, field_obj in config.__dataclass_fields__.items():
-            value = getattr(config, field_name)
-            # Convert numpy types to native Python types
-            if isinstance(value, np.ndarray):
-                result[field_name] = value.tolist()
-            elif isinstance(value, (np.integer, np.floating)):
-                result[field_name] = value.item()
-            elif isinstance(value, (list, tuple)):
-                result[field_name] = [
-                    v.item() if isinstance(v, (np.integer, np.floating)) else v 
-                    for v in value
-                ]
-            else:
-                result[field_name] = value
-        return result
-    return config if isinstance(config, dict) else {}
+    """
+    Serialize SimulationConfig to a JSON-serializable dictionary.
+    Handles numpy types and complex objects.
+    """
+    config_dict = {}
+    for field_name, field_value in config.__dict__.items():
+        if isinstance(field_value, (str, int, float, bool, type(None))):
+            config_dict[field_name] = field_value
+        elif isinstance(field_value, np.integer):
+            config_dict[field_name] = int(field_value)
+        elif isinstance(field_value, np.floating):
+            config_dict[field_name] = float(field_value)
+        elif isinstance(field_value, np.ndarray):
+            config_dict[field_name] = field_value.tolist()
+        elif isinstance(field_value, list):
+            config_dict[field_name] = [
+                int(x) if isinstance(x, np.integer) else
+                float(x) if isinstance(x, np.floating) else
+                x.tolist() if isinstance(x, np.ndarray) else
+                x for x in field_value
+            ]
+        elif isinstance(field_value, dict):
+            config_dict[field_name] = {
+                k: (int(v) if isinstance(v, np.integer) else
+                    float(v) if isinstance(v, np.floating) else
+                    v.tolist() if isinstance(v, np.ndarray) else
+                    v)
+                for k, v in field_value.items()
+            }
+        else:
+            config_dict[field_name] = str(field_value)
+    return config_dict
+
+def _serialize_data(data: Dict[str, np.ndarray]) -> Dict[str, Any]:
+    """
+    Serialize numpy arrays in data dictionary to lists for JSON.
+    """
+    serialized = {}
+    for key, value in data.items():
+        if isinstance(value, np.ndarray):
+            serialized[key] = value.tolist()
+        elif isinstance(value, pd.DataFrame):
+            serialized[key] = value.to_dict(orient='list')
+        else:
+            serialized[key] = value
+    return serialized
 
 def save_synthetic_data(
     data: Dict[str, np.ndarray],
     config: SimulationConfig,
     seed: int,
     run_id: Optional[str] = None,
-    metadata_extra: Optional[Dict[str, Any]] = None
-) -> str:
+    extra_metadata: Optional[Dict[str, Any]] = None
+) -> Tuple[str, str]:
     """
     Save synthetic data and metadata to disk.
-    
+
     Args:
-        data: Dictionary mapping column names to numpy arrays.
-        config: SimulationConfig instance used to generate the data.
-        seed: Random seed used for generation.
-        run_id: Optional unique identifier for this run. If None, generated automatically.
-        metadata_extra: Optional additional metadata to include.
-        
+        data: Dictionary of numpy arrays (e.g., {'group_a': ..., 'group_b': ...})
+        config: SimulationConfig instance used to generate the data
+        seed: Random seed used for generation
+        run_id: Optional unique identifier for this run. If None, generated from timestamp.
+        extra_metadata: Optional additional metadata to include
+
     Returns:
-        Path to the saved CSV file (relative to project root).
-        
+        Tuple of (data_file_path, metadata_file_path) as strings
+
     Raises:
-        ValueError: If data is empty or config is invalid.
-        IOError: If file cannot be written.
+        ValueError: If data is empty
+        IOError: If writing fails
     """
-    _ensure_output_dir()
-    
     if not data:
-        raise ValueError("Data dictionary cannot be empty")
-        
+        raise ValueError("Cannot save empty data dictionary")
+
+    _ensure_directory()
+
     if run_id is None:
-        run_id = _generate_run_id()
-        
-    # Prepare DataFrame
-    df = pd.DataFrame(data)
-    
-    # Generate file paths
-    csv_path = OUTPUT_DIR / f"data_{run_id}.csv"
-    meta_path = OUTPUT_DIR / f"meta_{run_id}.json"
-    
-    # Serialize config
-    config_dict = _serialize_config(config)
-    
-    # Build metadata
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        run_id = f"run_{timestamp}"
+
+    # Create run directory
+    run_dir = SYNTHETIC_DATA_DIR / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    # Prepare metadata
     metadata = {
         "run_id": run_id,
         "seed": seed,
         "generated_at": datetime.now().isoformat(),
-        "config": config_dict,
-        "data_shape": {
-            "rows": len(df),
-            "columns": len(df.columns)
-        },
-        "column_names": list(df.columns),
-        "statistics": {
-            col: {
-                "mean": float(df[col].mean()),
-                "std": float(df[col].std()),
-                "min": float(df[col].min()),
-                "max": float(df[col].max())
-            }
-            for col in df.columns
-        }
+        "config": _serialize_config(config),
+        "data_shape": {k: v.shape if hasattr(v, 'shape') else len(v) for k, v in data.items()},
+        "data_types": {k: str(type(v)) for k, v in data.items()}
     }
-    
-    # Add extra metadata if provided
-    if metadata_extra:
-        metadata.update(metadata_extra)
-    
-    try:
-        # Save CSV
-        df.to_csv(csv_path, index=False)
-        logger.info(f"Saved synthetic data to: {csv_path}")
-        
-        # Save metadata
-        with open(meta_path, 'w') as f:
-            json.dump(metadata, f, indent=2, default=str)
-        logger.info(f"Saved metadata to: {meta_path}")
-        
-        return str(csv_path)
-        
-    except IOError as e:
-        logger.error(f"Failed to write files: {e}")
-        raise
-    
-def load_synthetic_data(run_id: str) -> tuple[pd.DataFrame, Dict[str, Any]]:
-    """
-    Load synthetic data and metadata by run_id.
-    
-    Args:
-        run_id: The unique identifier of the run to load.
-        
-    Returns:
-        Tuple of (DataFrame, metadata dictionary)
-        
-    Raises:
-        FileNotFoundError: If files do not exist.
-    """
-    csv_path = OUTPUT_DIR / f"data_{run_id}.csv"
-    meta_path = OUTPUT_DIR / f"meta_{run_id}.json"
-    
-    if not csv_path.exists():
-        raise FileNotFoundError(f"Data file not found: {csv_path}")
-    if not meta_path.exists():
-        raise FileNotFoundError(f"Metadata file not found: {meta_path}")
-        
-    df = pd.read_csv(csv_path)
-    
-    with open(meta_path, 'r') as f:
-        metadata = json.load(f)
-        
-    logger.info(f"Loaded synthetic data: {csv_path}")
-    return df, metadata
 
-def list_available_runs() -> list[str]:
+    if extra_metadata:
+        metadata.update(extra_metadata)
+
+    # Save metadata
+    metadata_path = run_dir / "metadata.json"
+    try:
+        with open(metadata_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
+        logger.info(f"Saved metadata to {metadata_path}")
+    except IOError as e:
+        logger.error(f"Failed to write metadata: {e}")
+        raise
+
+    # Save data as CSV files for each array
+    data_paths = {}
+    for key, value in data.items():
+        if isinstance(value, np.ndarray):
+            # Convert to DataFrame for CSV saving
+            if value.ndim == 1:
+                df = pd.DataFrame({key: value})
+            elif value.ndim == 2:
+                df = pd.DataFrame(value, columns=[f"{key}_col_{i}" for i in range(value.shape[1])])
+            else:
+                # Flatten higher dimensions
+                df = pd.DataFrame({f"{key}_flat": value.flatten()})
+
+            file_name = f"{key}.csv"
+            file_path = run_dir / file_name
+            df.to_csv(file_path, index=False)
+            data_paths[key] = str(file_path)
+            logger.debug(f"Saved data for '{key}' to {file_path}")
+
+    # Save summary index
+    index_path = SYNTHETIC_DATA_DIR / "index.json"
+    try:
+        # Load existing index or create new
+        if index_path.exists():
+            with open(index_path, 'r') as f:
+                index = json.load(f)
+        else:
+            index = []
+
+        index.append({
+            "run_id": run_id,
+            "seed": seed,
+            "timestamp": metadata["generated_at"],
+            "config_summary": {
+                "distribution": config.distribution_type,
+                "sample_size": config.sample_size,
+                "mean_diff": config.mean_diff
+            },
+            "files": list(data_paths.keys())
+        })
+
+        with open(index_path, 'w') as f:
+            json.dump(index, f, indent=2)
+        logger.info(f"Updated index at {index_path}")
+    except IOError as e:
+        logger.warning(f"Failed to update index: {e}")
+
+    return str(metadata_path), str(run_dir)
+
+def load_synthetic_data(run_id: str) -> Tuple[Dict[str, np.ndarray], Dict[str, Any]]:
+    """
+    Load synthetic data and metadata for a specific run.
+
+    Args:
+        run_id: The run identifier (directory name under data/synthetic/)
+
+    Returns:
+        Tuple of (data_dict, metadata_dict)
+
+    Raises:
+        FileNotFoundError: If the run directory or metadata file doesn't exist
+        ValueError: If data cannot be loaded
+    """
+    run_dir = SYNTHETIC_DATA_DIR / run_id
+
+    if not run_dir.exists():
+        raise FileNotFoundError(f"Run directory not found: {run_dir}")
+
+    metadata_path = run_dir / "metadata.json"
+    if not metadata_path.exists():
+        raise FileNotFoundError(f"Metadata file not found for run {run_id}")
+
+    # Load metadata
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
+
+    # Load data files
+    data = {}
+    data_info = metadata.get("data_shape", {})
+
+    for key in data_info.keys():
+        file_path = run_dir / f"{key}.csv"
+        if not file_path.exists():
+            raise FileNotFoundError(f"Data file not found for key '{key}': {file_path}")
+
+        df = pd.read_csv(file_path)
+        # Convert back to numpy array
+        if len(df.columns) == 1:
+            data[key] = df.iloc[:, 0].values
+        else:
+            data[key] = df.values
+
+    logger.info(f"Loaded data for run {run_id} from {run_dir}")
+    return data, metadata
+
+def list_available_runs() -> list:
     """
     List all available synthetic data runs.
-    
+
     Returns:
-        List of run_ids found in the output directory.
+        List of run_ids (directory names)
     """
-    if not OUTPUT_DIR.exists():
+    if not SYNTHETIC_DATA_DIR.exists():
         return []
-        
+
     runs = []
-    for file in OUTPUT_DIR.glob("data_*.csv"):
-        run_id = file.stem.replace("data_", "")
-        runs.append(run_id)
+    for item in SYNTHETIC_DATA_DIR.iterdir():
+        if item.is_dir() and item.name != "__pycache__":
+            # Check if it has metadata
+            if (item / "metadata.json").exists():
+                runs.append(item.name)
+
     return sorted(runs)
 
 def get_run_summary(run_id: str) -> Optional[Dict[str, Any]]:
     """
-    Get a summary of a specific run without loading the full data.
-    
+    Get a summary of a specific run without loading all data.
+
     Args:
-        run_id: The unique identifier of the run.
-        
+        run_id: The run identifier
+
     Returns:
-        Metadata dictionary or None if not found.
+        Dictionary with run summary or None if not found
     """
-    meta_path = OUTPUT_DIR / f"meta_{run_id}.json"
-    if not meta_path.exists():
+    run_dir = SYNTHETIC_DATA_DIR / run_id
+
+    if not run_dir.exists():
         return None
-        
-    with open(meta_path, 'r') as f:
-        return json.load(f)
+
+    metadata_path = run_dir / "metadata.json"
+    if not metadata_path.exists():
+        return None
+
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
+
+    # Return a summary (exclude large data shapes if needed)
+    summary = {
+        "run_id": metadata.get("run_id"),
+        "seed": metadata.get("seed"),
+        "generated_at": metadata.get("generated_at"),
+        "config": metadata.get("config"),
+        "data_shape": metadata.get("data_shape"),
+        "data_types": metadata.get("data_types")
+    }
+
+    return summary

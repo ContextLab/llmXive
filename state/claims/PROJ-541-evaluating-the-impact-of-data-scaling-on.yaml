@@ -1,0 +1,634 @@
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared test implementation uses Sturges' rule for binning continuous
+    variables
+  claim_id: c_23759c91
+  context: Task T023 requires implementing run_chi_squared with automatic binning
+    logic using Sturges' rule for continuous variables.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q21449779'
+      source_id: Q103833088
+      url: https://www.wikidata.org/wiki/Q103833088
+      value: Q21449779
+    filled: true
+  kind: entity_fact
+  raw_text: Sturges' rule for binning
+  resolved_value: Q21449779
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T09:40:34Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Dataset configuration includes 11 specific UCI and OpenML dataset IDs
+  claim_id: c_50e233fc
+  context: Task T034a requires generating data/config/datasets.yaml containing a list
+    of verified datasets with specific IDs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin, uciml/heart-statlog,
+    uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis, uciml/horse-colic,
+    openml/d/2, openml/d/3, openml/d/11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:40:45Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Vectorizing generate_synthetic_data using NumPy array operations yields
+    a 2x speedup
+  claim_id: c_651fcdb1
+  context: Task T042a specifies that vectorizing the generate_synthetic_data function
+    using NumPy array operations instead of Python loops is a deliverable for a 2x
+    speedup.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Vectorizing_generate_synthetic_data_using_NumPy_array_operat
+  kind: entity_fact
+  raw_text: 2x speedup in generation step
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:41:13Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation loop parallelization is limited to 2 workers
+  claim_id: c_1e9b5c15
+  context: Task T042b specifies parallelizing the simulation loop using multiprocessing
+    limited to 2 workers for CPU constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: limited to 2 workers
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:41:38Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation loop optimization target is 20% time reduction or under 6
+    hours runtime
+  claim_id: c_66212e62
+  context: Task T041 sets a target to reduce simulation loop time by 20% or ensure
+    the runtime is less than 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce simulation loop time by 20% or ensure < 6h runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:41:38Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Error rate plot compares empirical rate against nominal alpha of 0.05
+  claim_id: c_eb621a68
+  context: Task T030 requires generating a plot showing empirical rate versus alpha=0.05
+    with 95% CI.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T09:41:38Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis generation targets a mean difference of 0
+  claim_id: c_92d53ff8
+  context: The independent test for User Story 1 requires generating a dataset with
+    null hypothesis where mean diff = 0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mean diff = 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:43:03Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis generation targets a mean difference of 1.0
+  claim_id: c_79fa2e65
+  context: The independent test for User Story 1 requires generating a dataset with
+    alternative hypothesis where mean diff = 1.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mean diff = 1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:43:03Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis mean difference verification threshold is less than 0.01
+  claim_id: c_5782b286
+  context: The independent test for User Story 1 requires verifying mean difference
+    < 0.01 for the null hypothesis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_mean_difference_verification_threshold_is_le
+  kind: magnitude
+  raw_text: mean difference < 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:43:20Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis mean difference verification threshold is within
+    0.05 of 1.0
+  claim_id: c_1e1cf005
+  context: The independent test for User Story 1 requires verifying |mean_diff - 1.0|
+    < 0.05 for the alternative hypothesis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '|mean_diff - 1.0| < 0.05'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:43:36Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Zero-variance edge case handling triggers when standard deviation is
+    less than 1e-9
+  claim_id: c_b93cba2d
+  context: Task T013 specifies handling zero-variance edge cases by skipping iterations
+    if std_dev < 1e-9.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Zero-variance_edge_case_handling_triggers_when_standard_devi
+  kind: magnitude
+  raw_text: std_dev < 1e-9
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:43:52Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Standardization scaling properties target mean of 0 and standard deviation
+    of 1
+  claim_id: c_d67882ed
+  context: Task T015 requires a contract test for Standardization scaling properties
+    verifying mean=0 and std=1.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In statistics, a standard normal table, also called the unit normal\
+        \ table or Z table, is a mathematical table for the values of \u03A6, the\
+        \ cumulative distribution function of the normal distribution.  It is used\
+        \ to find the probability that a statistic is observed below, above, or between\
+        \ values on the standard normal distribution, and by extension, any normal\
+        \ distribution.  Since probability tables cannot be printed for every normal\
+        \ distribution, as there are an infinite variety of normal distributions,\
+        \ it is common practice to convert a normal to a standard normal (known as\
+        \ a z-score) and then use the standard normal table to find probabilities."
+      source_id: Standard normal table
+      url: https://en.wikipedia.org/wiki/Standard_normal_table
+      value: standard normal distribution
+    filled: true
+  kind: numeric
+  raw_text: mean=0, std=1
+  resolved_value: standard normal distribution
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T09:44:00Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Min-Max scaling properties target minimum of 0 and maximum of 1
+  claim_id: c_4e4b402c
+  context: Task T016 requires a contract test for Min-Max scaling properties verifying
+    min=0 and max=1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: min=0, max=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:44:24Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared test automatic binning uses Sturges' rule
+  claim_id: c_962a031e
+  context: 'T023 [US2] Implement run_chi_squared in code/analysis/tests.py with automatic
+    binning logic using Sturges'' rule for continuous variables. Deliverable: Function
+    must explicitly implement {{claim:c_23759c91}} (Wikidata Q103833088, https://www.wikidata.org/wiki/Q103833088).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q21449779
+        url: https://www.wikidata.org/wiki/Q21449779
+        value: STKS11
+      quote: Sturges
+      source_id: Q103833088
+      url: https://www.wikidata.org/wiki/Q103833088
+      value: Sturges
+    filled: true
+  kind: entity_fact
+  raw_text: Implement run_chi_squared in code/analysis/tests.py with automatic binning
+    logic using Sturges' rule for continuous variables.
+  resolved_value: Sturges
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T09:50:00Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis dataset mean difference verification threshold is 0.01
+  claim_id: c_748609ff
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01; generate alternative (mean diff = 1.0) and
+    verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a dataset with null hypothesis (mean diff = 0) and verify mean
+    difference < 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:50:20Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis dataset mean difference verification threshold
+    is 0.05
+  claim_id: c_cb19d58a
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01; generate alternative (mean diff = 1.0) and
+    verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate alternative hypothesis (mean diff = 1.0) and verify |mean_diff
+    - 1.0| < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:50:37Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Zero variance edge case triggers skip if standard deviation is less than
+    1e-9
+  claim_id: c_16d56bdc
+  context: 'T013 [US1] Add logic to handle zero-variance edge cases in code/simulation/generator.py:
+    Log WARNING with message ''Skipping iteration: zero variance detected'' if std_dev
+    < 1e-9 and skip the specific iteration. Condition: if std_dev < 1e-9.'
+  evidence:
+    asserted: 1e-09
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: 'Log WARNING with message ''Skipping iteration: zero variance detected''
+    if std_dev < 1e-9 and skip the specific iteration'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T09:50:37Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Standardization scaling properties verified against Wikipedia Standard
+    normal table
+  claim_id: c_7e5d3e82
+  context: 'Independent Test: Apply Standardization to a fixed dataset, verify {{claim:c_d67882ed}}
+    (Wikipedia: Standard normal table, https://en.wikipedia.org/wiki/Standard_normal_table),
+    and confirm t-test p-value stability compared to unscaled data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Standardization_scaling_properties_verified_against_Wikipedi
+  kind: entity_fact
+  raw_text: Contract test for Standardization scaling properties ({{claim:c_d67882ed}})
+    in code/tests/unit/preprocessing/test_scaling.py
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:50:56Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Empirical error rate calculation formula is count less than alpha divided
+    by total
+  claim_id: c_8fbd16ab
+  context: T025 [P] [US3] Contract test for empirical error rate calculation (count
+    < alpha / total) in code/tests/unit/analysis/test_metrics.py
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Empirical_error_rate_calculation_formula_is_count_less_than
+  kind: magnitude
+  raw_text: Verify empirical error rate calculation (count < alpha / total)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:51:14Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Scaling method deviations compared against nominal alpha of 0.05
+  claim_id: c_2a42e89b
+  context: T032 [US3] Generate summary report comparing deviations of each scaling
+    method from nominal 0.05
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate summary report comparing deviations of each scaling method from
+    nominal 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:51:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Iris dataset pipeline validation includes scaling, testing, and report
+    generation
+  claim_id: c_5868c301
+  context: 'Independent Test: Run pipeline on Iris dataset, verify scaling, testing,
+    and report generation without crashing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Iris_dataset_pipeline_validation_includes_scaling,_testing,
+  kind: entity_fact
+  raw_text: Verify scaling, testing, and report generation on Iris dataset without
+    crashing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:51:55Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Dataset configuration list includes 11 specific UCI and OpenML dataset
+    IDs
+  claim_id: c_990a7434
+  context: 'T034a [US4] Create Dataset Configuration: Generate data/config/datasets.yaml
+    containing the list of verified datasets (IDs: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin,
+    uciml/heart-statlog, uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis,
+    uciml/horse-colic, openml/d/2, openml/d/3, openml/d/11).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/config/datasets.yaml containing the list of verified datasets
+    (IDs: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin, uciml/heart-statlog,
+    uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis, uciml/horse-colic,
+    openml/d/2, openml/d/3, openml/d/11)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:52:07Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation loop time reduced by 20% or runtime ensured under 6 hours
+  claim_id: c_9e66be45
+  context: 'T041 Code cleanup and refactoring of code/simulation/generator.py for
+    performance. Target: Reduce simulation loop time by 20% or ensure < 6h runtime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactored code with benchmark results showing runtime improvement
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:52:07Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Vectorization of generate_synthetic_data yields 2x speedup
+  claim_id: c_1c870145
+  context: 'T042a [P] Vectorize generate_synthetic_data in code/simulation/generator.py
+    using NumPy array operations instead of Python loops. Deliverable: 2x speedup
+    in generation step.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Vectorization_of_generate_synthetic_data_yields_2x_speedup
+  kind: entity_fact
+  raw_text: 'Deliverable: 2x speedup in generation step'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:52:31Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation loop parallelization limited to 2 workers
+  claim_id: c_cc8d6d6a
+  context: 'T042b [P] Parallelize simulation loop in code/main.py using multiprocessing
+    (limited to 2 workers for CPU constraint). Deliverable: Linear speedup up to 2
+    cores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parallelize simulation loop in code/main.py using multiprocessing (limited
+    to 2 workers for CPU constraint)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:52:42Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared test implementation uses Sturges' rule for binning
+  claim_id: c_1499d466
+  context: T023 [US2] Implement `run_chi_squared` in `code/analysis/tests.py` with
+    automatic binning logic using **Sturges' rule** for continuous variables.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_test_implementation_uses_Sturges'_rule_for_binni
+  kind: entity_fact
+  raw_text: Function must explicitly implement {{claim:c_23759c91}} (Wikidata Q103833088,
+    https://www.wikidata.org/wiki/Q103833088).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:54:20Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared test implementation uses Sturges' rule for binning
+  claim_id: c_fce97246
+  context: 'T023 [US2] Implement `run_chi_squared` in `code/analysis/tests.py` with
+    automatic binning logic using **Sturges'' rule** for continuous variables. **Deliverable**:
+    Function must explicitly implement {{claim:c_23759c91}} (Wikidata Q103833088,
+    https://www.wikidata.org/wiki/Q103833088).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_test_implementation_uses_Sturges'_rule_for_binni
+  kind: entity_fact
+  raw_text: The implementation must explicitly implement Sturges' rule for continuous
+    variables.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:56:10Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared test implementation uses Sturges' rule
+  claim_id: c_cce1bea6
+  context: 'T023 [US2] Implement `run_chi_squared` in `code/analysis/tests.py` with
+    automatic binning logic using **Sturges'' rule** for continuous variables. **Deliverable**:
+    Function must explicitly implement {{claim:c_23759c91}} (Wikidata Q103833088,
+    https://www.wikidata.org/wiki/Q103833088).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_test_implementation_uses_Sturges'_rule
+  kind: entity_fact
+  raw_text: The implementation must use Sturges' rule for continuous variables.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:56:37Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: 'Mixed-effects model formula for real-world data: deviation ~ scaling_method
+    + (1|dataset_id)'
+  claim_id: c_a5ecb057
+  context: 'T031b [US3] Implement mixed-effects model analysis (statsmodels) in `code/analysis/metrics.py`
+    for **real-world data**: Fit mixed-effects model with `scaling_method` as fixed
+    effect, `dataset_id` as random effect. Dependent variable: `deviation from nominal
+    alpha`. Output: `results/mixed_effects_summary.csv`. **Formula**: `deviation ~
+    scaling_method + (1|dataset_id)`.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: dataset_id)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Mixed-effects_model_formula_for_real-world_data:_deviation_~
+    source_value: https://en.wikipedia.org/wiki/Mixed-effects_model_formula_for_real-world_data:_deviation_~
+    subject: 'Mixed-effects model formula for real-world data: deviation ~ scaling_method
+      + (1'
+  kind: relational
+  raw_text: The mixed-effects model analysis for real-world data uses 'scaling_method'
+    as a fixed effect and 'dataset_id' as a random effect.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:57:04Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: 'Mixed-effects model formula for synthetic data: deviation ~ scaling_method
+    + distribution_type + (1|simulation_batch)'
+  claim_id: c_79ca6743
+  context: 'T031a [US3] Implement mixed-effects model analysis (statsmodels) in `code/analysis/metrics.py`
+    for **synthetic data**: Fit mixed-effects model with `scaling_method` and `distribution_type`
+    as fixed effects, and `simulation_batch` as the random effect. Dependent variable:
+    `deviation from nominal alpha`. Output: `results/mixed_effects_synthetic.csv`.
+    **Formula**: `deviation ~ scaling_method + distribution_type + (1|simulation_batch)`.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: simulation_batch)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Mixed-effects_model_formula_for_synthetic_data:_deviation_~
+    source_value: https://en.wikipedia.org/wiki/Mixed-effects_model_formula_for_synthetic_data:_deviation_~_
+    subject: 'Mixed-effects model formula for synthetic data: deviation ~ scaling_method
+      + distribution_type + (1'
+  kind: relational
+  raw_text: The mixed-effects model analysis for synthetic data uses 'scaling_method'
+    and 'distribution_type' as fixed effects, and 'simulation_batch' as the random
+    effect.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:58:01Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: List of verified datasets includes 11 specific UCI and OpenML IDs
+  claim_id: c_763e7bff
+  context: 'T034a [US4] **Create Dataset Configuration**: Generate `data/config/datasets.yaml`
+    containing the list of verified datasets (IDs: `uciml/iris`, `uciml/wine`, `uciml/breast-cancer-wisconsin`,
+    `uciml/heart-statlog`, `uciml/ionosphere`, `uciml/credit-a`, `uciml/credit-g`,
+    `uciml/hepatitis`, `uciml/horse-colic`, `openml/d/2`, `openml/d/3`, `openml/d/11`).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The dataset configuration includes datasets with IDs: uciml/iris, uciml/wine,
+    uciml/breast-cancer-wisconsin, uciml/heart-statlog, uciml/ionosphere, uciml/credit-a,
+    uciml/credit-g, uciml/hepatitis, uciml/horse-colic, openml/d/2, openml/d/3, and
+    openml/d/11.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:58:14Z'

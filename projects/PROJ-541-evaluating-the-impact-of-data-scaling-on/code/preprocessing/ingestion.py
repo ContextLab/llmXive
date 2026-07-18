@@ -5,241 +5,158 @@ from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List, Union
 import pandas as pd
 import numpy as np
-from dataclasses import dataclass, field, asdict
-from datetime import datetime
-from datasets import load_dataset
 import yaml
+from datasets import load_dataset
 
-# Configure logger
 logger = logging.getLogger(__name__)
 
-@dataclass
 class RealWorldDataset:
-    """
-    Entity representing a real-world dataset with its metadata.
-    Used to track source, size, cleaning statistics, and storage paths.
-    """
-    dataset_id: str
-    source: str  # 'uciml' or 'openml'
-    name: str
-    version: Optional[str] = None
-    size_mb: Optional[float] = None
-    row_count: Optional[int] = None
-    column_count: Optional[int] = None
-    missing_rate: Optional[float] = None
-    cleaned_path: Optional[str] = None
-    raw_path: Optional[str] = None
-    created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-    status: str = "pending"  # pending, downloaded, cleaned, failed
-    error_message: Optional[str] = None
+    """Entity representing a loaded real-world dataset."""
+    def __init__(self, dataset_id: str, source: str, data: pd.DataFrame, metadata: Dict[str, Any]):
+        self.dataset_id = dataset_id
+        self.source = source
+        self.data = data
+        self.metadata = metadata
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert dataclass to dictionary for JSON serialization."""
-        return asdict(self)
+def load_dataset_config(config_path: Path) -> Dict[str, Any]:
+    """Load dataset configuration from YAML file."""
+    with open(config_path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'RealWorldDataset':
-        """Create instance from dictionary."""
-        return cls(**data)
-
-def load_dataset_config(config_path: str = "data/config/datasets.yaml") -> List[Dict[str, Any]]:
+def download_dataset(dataset_entry: Dict[str, Any]) -> Tuple[Optional[pd.DataFrame], str]:
     """
-    Load the list of datasets from the YAML configuration file.
+    Download dataset based on configuration.
+    Supports UCI (via datasets library) and OpenML (via datasets library).
+    """
+    dataset_id = dataset_entry.get("id")
+    source = dataset_entry.get("source")
     
-    Args:
-        config_path: Path to the datasets.yaml file.
+    try:
+        # Use HuggingFace datasets library for both UCI and OpenML
+        # This handles the actual download and caching
+        ds = load_dataset(dataset_id)
         
-    Returns:
-        List of dataset configuration dictionaries.
+        # Handle different split structures
+        if "train" in ds:
+            df = ds["train"].to_pandas()
+        elif "test" in ds:
+            df = ds["test"].to_pandas()
+        else:
+            # Fallback: take first available split
+            first_split = next(iter(ds))
+            df = ds[first_split].to_pandas()
         
-    Raises:
-        FileNotFoundError: If config file does not exist.
-        yaml.YAMLError: If YAML parsing fails.
-    """
-    path = Path(config_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Dataset configuration file not found: {config_path}")
-    
-    with open(path, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    if not isinstance(config, list):
-        raise ValueError(f"Expected list of datasets in {config_path}, got {type(config)}")
-    
-    return config
+        return df, "success"
+    except Exception as e:
+        logger.error(f"Failed to download dataset {dataset_id}: {e}")
+        return None, str(e)
 
-def clean_dataset(df: pd.DataFrame, target_col: Optional[str] = None) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def clean_dataset(df: pd.DataFrame) -> Tuple[pd.DataFrame, float]:
     """
-    Clean a dataset by handling missing values and ensuring numeric types.
-    
-    Args:
-        df: Input DataFrame.
-        target_col: Optional name of the target column to exclude from imputation.
-        
-    Returns:
-        Tuple of (cleaned DataFrame, stats dict with missing_rate, rows_before, rows_after).
+    Clean dataset: handle missing values, convert types.
+    Returns cleaned DataFrame and missing rate.
     """
-    stats = {
-        "rows_before": len(df),
-        "cols_before": len(df.columns),
-        "missing_rate": 0.0
-    }
+    if df is None or df.empty:
+        return pd.DataFrame(), 0.0
     
     # Calculate initial missing rate
     total_cells = df.size
     missing_cells = df.isnull().sum().sum()
-    stats["missing_rate"] = missing_cells / total_cells if total_cells > 0 else 0.0
+    missing_rate = missing_cells / total_cells if total_cells > 0 else 0.0
     
-    # Identify numeric columns for imputation
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    # Drop rows with all NaN
+    df = df.dropna(how='all')
     
-    if target_col and target_col in df.columns:
-        # Impute non-target numeric columns
-        cols_to_impute = [c for c in numeric_cols if c != target_col]
-        if cols_to_impute:
-            df[cols_to_impute] = df[cols_to_impute].fillna(df[cols_to_impute].median())
-    else:
-        # Impute all numeric columns
-        if numeric_cols:
-            df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].median())
+    # Impute remaining missing values with median for numeric, mode for categorical
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    categorical_cols = df.select_dtypes(exclude=[np.number]).columns
     
-    # Drop rows with remaining missing values in non-numeric columns
-    non_numeric_cols = df.select_dtypes(exclude=[np.number]).columns.tolist()
-    if non_numeric_cols and df[non_numeric_cols].isnull().any().any():
-        logger.warning(f"Dropping {df[non_numeric_cols].isnull().sum().sum()} rows with missing non-numeric values")
-        df = df.dropna(subset=non_numeric_cols)
+    for col in numeric_cols:
+        if df[col].isnull().any():
+            median_val = df[col].median()
+            df[col] = df[col].fillna(median_val)
     
-    stats["rows_after"] = len(df)
-    stats["cols_after"] = len(df.columns)
+    for col in categorical_cols:
+        if df[col].isnull().any():
+            mode_val = df[col].mode()[0] if not df[col].mode().empty else "Unknown"
+            df[col] = df[col].fillna(mode_val)
     
-    return df, stats
+    return df, missing_rate
 
-def process_real_world_dataset(dataset_id: str, source: str, target_col: Optional[str] = None) -> RealWorldDataset:
+def process_real_world_dataset(dataset_entry: Dict[str, Any]) -> Tuple[Optional[RealWorldDataset], Optional[pd.DataFrame], Dict[str, Any]]:
     """
-    Download, clean, and process a real-world dataset.
+    Full pipeline: download, clean, and wrap dataset.
+    Returns (DatasetObject, CleanedDF, Metadata)
+    """
+    dataset_id = dataset_entry.get("id")
+    source = dataset_entry.get("source")
     
-    Args:
-        dataset_id: The ID of the dataset (e.g., 'uciml/iris', 'openml/d/2').
-        source: Source type ('uciml' or 'openml').
-        target_col: Optional target column name.
-        
-    Returns:
-        RealWorldDataset entity with updated metadata.
-    """
-    dataset = RealWorldDataset(
+    # Download
+    df, status = download_dataset(dataset_entry)
+    
+    if status != "success" or df is None:
+        logger.error(f"Download failed for {dataset_id}")
+        return None, None, {"status": "failed", "error": status}
+    
+    # Clean
+    clean_df, missing_rate = clean_dataset(df)
+    
+    metadata = {
+        "source": source,
+        "original_size": len(df),
+        "cleaned_size": len(clean_df),
+        "missing_rate": missing_rate,
+        "status": "success"
+    }
+    
+    dataset_obj = RealWorldDataset(
         dataset_id=dataset_id,
         source=source,
-        name=dataset_id.split('/')[-1],
-        status="pending"
+        data=clean_df,
+        metadata=metadata
     )
     
-    try:
-        logger.info(f"Downloading dataset: {dataset_id} from {source}")
-        
-        # Load dataset using HuggingFace datasets library
-        ds = load_dataset(dataset_id)
-        
-        # Get the first split (usually 'train' or 'default')
-        split_name = list(ds.keys())[0]
-        df = ds[split_name].to_pandas()
-        
-        # Update metadata
-        dataset.raw_path = f"data/raw/{dataset_id.replace('/', '_')}.csv"
-        dataset.size_mb = df.memory_usage(deep=True).sum() / (1024 * 1024)
-        dataset.row_count = len(df)
-        dataset.column_count = len(df.columns)
-        
-        # Save raw data
-        os.makedirs(os.path.dirname(dataset.raw_path), exist_ok=True)
-        df.to_csv(dataset.raw_path, index=False)
-        
-        # Clean dataset
-        df_clean, clean_stats = clean_dataset(df, target_col)
-        
-        dataset.missing_rate = clean_stats["missing_rate"]
-        dataset.status = "cleaned"
-        
-        # Save cleaned data
-        clean_filename = f"{dataset_id.replace('/', '_')}_cleaned.csv"
-        dataset.cleaned_path = f"data/scaled/{clean_filename}"
-        os.makedirs(os.path.dirname(dataset.cleaned_path), exist_ok=True)
-        df_clean.to_csv(dataset.cleaned_path, index=False)
-        
-        logger.info(f"Successfully processed {dataset_id}: {clean_stats['rows_after']} rows, missing_rate={clean_stats['missing_rate']:.4f}")
-        
-    except Exception as e:
-        logger.error(f"Failed to process dataset {dataset_id}: {str(e)}")
-        dataset.status = "failed"
-        dataset.error_message = str(e)
-    
-    return dataset
+    return dataset_obj, clean_df, metadata
 
-def update_manifest(dataset: RealWorldDataset, manifest_path: str = "data/metadata/manifest.json") -> None:
-    """
-    Update the manifest file with dataset metadata.
-    
-    Args:
-        dataset: RealWorldDataset entity to record.
-        manifest_path: Path to the manifest JSON file.
-    """
-    manifest = {}
-    if os.path.exists(manifest_path):
-        with open(manifest_path, 'r') as f:
-            manifest = json.load(f)
-    
-    manifest[dataset.dataset_id] = dataset.to_dict()
-    
-    os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
-    
-    logger.info(f"Updated manifest for {dataset.dataset_id}")
+def get_cleaned_data_path(dataset_id: str) -> Path:
+    """Generate path for cleaned dataset."""
+    safe_id = dataset_id.replace("/", "_").replace(":", "_")
+    return Path("data/raw") / f"{safe_id}_cleaned.csv"
 
-def get_cleaned_data_path(dataset_id: str, manifest_path: str = "data/metadata/manifest.json") -> Optional[str]:
-    """
-    Retrieve the cleaned data path for a dataset from the manifest.
-    
-    Args:
-        dataset_id: The ID of the dataset.
-        manifest_path: Path to the manifest JSON file.
-        
-    Returns:
-        Path to cleaned data if found, None otherwise.
-    """
-    if not os.path.exists(manifest_path):
-        return None
-    
-    with open(manifest_path, 'r') as f:
-        manifest = json.load(f)
-    
-    if dataset_id in manifest and manifest[dataset_id].get('status') == 'cleaned':
-        return manifest[dataset_id].get('cleaned_path')
-    
-    return None
+def update_manifest(manifest: List[Dict[str, Any]], entry: Dict[str, Any]):
+    """Update manifest list with a new entry."""
+    # Remove existing entry with same ID if present
+    manifest = [e for e in manifest if e.get("id") != entry.get("id")]
+    manifest.append(entry)
+    return manifest
 
-def run_ingestion_pipeline(config_path: str = "data/config/datasets.yaml") -> List[RealWorldDataset]:
+def run_ingestion_pipeline(config_path: Path = Path("data/config/datasets.yaml")) -> List[Dict[str, Any]]:
     """
-    Run the ingestion pipeline for all datasets in the configuration.
-    
-    Args:
-        config_path: Path to datasets.yaml.
-        
-    Returns:
-        List of RealWorldDataset entities with final status.
+    Run full ingestion pipeline for all datasets in config.
+    Returns list of processed entries for manifest.
     """
-    configs = load_dataset_config(config_path)
-    results = []
+    config = load_dataset_config(config_path)
+    datasets = config.get("datasets", [])
+    manifest = []
     
-    for cfg in configs:
-        dataset_id = cfg['id']
-        source = cfg.get('source', 'uciml')
-        target_col = cfg.get('target_col')
-        
-        dataset = process_real_world_dataset(dataset_id, source, target_col)
-        update_manifest(dataset)
-        results.append(dataset)
-        
-        if dataset.status == 'failed':
-            logger.warning(f"Skipping subsequent processing for {dataset_id} due to failure")
+    for ds in datasets:
+        try:
+            _, _, meta = process_real_world_dataset(ds)
+            entry = {
+                "id": ds.get("id"),
+                "source": ds.get("source"),
+                "expected_size": ds.get("expected_size"),
+                "actual_size": meta.get("cleaned_size", 0),
+                "missing_rate": meta.get("missing_rate", 0.0),
+                "status": meta.get("status", "unknown")
+            }
+            manifest.append(entry)
+        except Exception as e:
+            logger.error(f"Pipeline failed for {ds.get('id')}: {e}")
+            manifest.append({
+                "id": ds.get("id"),
+                "status": "failed",
+                "error": str(e)
+            })
     
-    return results
+    return manifest

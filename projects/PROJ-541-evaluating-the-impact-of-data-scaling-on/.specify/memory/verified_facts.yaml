@@ -1,0 +1,13 @@
+0|mean std:
+  quote: "In statistics, a standard normal table, also called the unit normal table\
+    \ or Z table, is a mathematical table for the values of \u03A6, the cumulative\
+    \ distribution function of the normal distribution.  It is used to find the probability\
+    \ that a statistic is observed below, above, or between values on the standard\
+    \ normal distribution, and by extension, any normal distribution.  Since probability\
+    \ tables cannot be printed for every normal distribution, as there are an infinite\
+    \ variety of normal distributions, it is common practice to convert a normal to\
+    \ a standard normal (known as a z-score) and then use the standard normal table\
+    \ to find probabilities."
+  source_id: Standard normal table
+  url: https://en.wikipedia.org/wiki/Standard_normal_table
+  value: standard normal distribution

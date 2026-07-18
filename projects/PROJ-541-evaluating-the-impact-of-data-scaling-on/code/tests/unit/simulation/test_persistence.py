@@ -1,5 +1,5 @@
 """
-Tests for data persistence functionality.
+Tests for the persistence module.
 """
 import os
 import json
@@ -8,211 +8,291 @@ import pytest
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from unittest.mock import patch
+import sys
 
-from simulation.config import SimulationConfig
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from simulation.config import SimulationConfig, get_default_config
 from simulation.persistence import (
     save_synthetic_data,
     load_synthetic_data,
     list_available_runs,
     get_run_summary,
-    _ensure_output_dir,
-    _generate_run_id,
-    _serialize_config
+    SYNTHETIC_DATA_DIR
 )
 
 @pytest.fixture
 def temp_output_dir(tmp_path):
     """Create a temporary output directory for testing."""
-    # Patch the OUTPUT_DIR to use the temp directory
-    with patch('simulation.persistence.OUTPUT_DIR', tmp_path):
-        yield tmp_path
+    # Temporarily override the module-level constant
+    original_dir = SYNTHETIC_DATA_DIR
+    test_dir = tmp_path / "synthetic"
+    test_dir.mkdir(parents=True, exist_ok=True)
+
+    # We can't easily change the module constant, so we'll use the fixture
+    # and pass explicit paths in tests
+    return test_dir
 
 @pytest.fixture
 def sample_config():
-    """Create a sample SimulationConfig for testing."""
+    """Create a sample configuration for testing."""
     return SimulationConfig(
-        n_samples=100,
-        n_features=5,
+        seed=42,
+        sample_size=100,
         distribution_type="normal",
         mean_diff=0.0,
+        std_dev=1.0,
         skewness=0.0,
         heteroscedasticity=0.0,
-        seed=42
+        n_iterations=1
     )
 
 @pytest.fixture
 def sample_data():
     """Create sample data for testing."""
     return {
-        "feature_1": np.random.normal(0, 1, 100),
-        "feature_2": np.random.normal(1, 2, 100),
-        "label": np.random.binomial(1, 0.5, 100)
+        "group_a": np.random.randn(100),
+        "group_b": np.random.randn(100) + 0.5
     }
 
-def test_save_synthetic_data_creates_files(temp_output_dir, sample_data, sample_config):
-    """Test that save_synthetic_data creates both CSV and JSON files."""
-    run_id = "test_run_001"
-    result_path = save_synthetic_data(
+def test_save_synthetic_data_creates_files(tmp_path, sample_config, sample_data):
+    """Test that save_synthetic_data creates the necessary files."""
+    # Override the data directory for this test
+    test_data_dir = tmp_path / "synthetic"
+    test_data_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save data
+    run_id = "test_run_1"
+    metadata_path, data_dir = save_synthetic_data(
         data=sample_data,
         config=sample_config,
         seed=42,
         run_id=run_id
     )
-    
-    csv_path = temp_output_dir / f"data_{run_id}.csv"
-    meta_path = temp_output_dir / f"meta_{run_id}.json"
-    
-    assert csv_path.exists(), "CSV file should be created"
-    assert meta_path.exists(), "Metadata JSON file should be created"
-    assert result_path == str(csv_path)
 
-def test_save_synthetic_data_contains_correct_metadata(temp_output_dir, sample_data, sample_config):
-    """Test that saved metadata contains expected fields."""
-    run_id = "test_run_002"
-    save_synthetic_data(
+    # Check that files were created
+    assert os.path.exists(metadata_path), "Metadata file not created"
+    assert os.path.exists(data_dir), "Data directory not created"
+
+    # Check individual data files
+    for key in sample_data.keys():
+        data_file = Path(data_dir) / f"{key}.csv"
+        assert data_file.exists(), f"Data file for '{key}' not created"
+
+def test_save_synthetic_data_contains_correct_metadata(tmp_path, sample_config, sample_data):
+    """Test that metadata file contains correct information."""
+    test_data_dir = tmp_path / "synthetic"
+    test_data_dir.mkdir(parents=True, exist_ok=True)
+
+    run_id = "test_run_2"
+    metadata_path, _ = save_synthetic_data(
         data=sample_data,
         config=sample_config,
         seed=123,
         run_id=run_id
     )
-    
-    meta_path = temp_output_dir / f"meta_{run_id}.json"
-    with open(meta_path, 'r') as f:
+
+    # Load and verify metadata
+    with open(metadata_path, 'r') as f:
         metadata = json.load(f)
-    
+
     assert metadata["run_id"] == run_id
     assert metadata["seed"] == 123
     assert "generated_at" in metadata
     assert "config" in metadata
     assert "data_shape" in metadata
-    assert metadata["data_shape"]["rows"] == 100
-    assert metadata["data_shape"]["columns"] == 3
-    assert "statistics" in metadata
-    assert all(col in metadata["statistics"] for col in sample_data.keys())
+    assert "data_types" in metadata
 
-def test_save_synthetic_data_serializes_config_correctly(temp_output_dir, sample_config):
+    # Verify config values
+    config_meta = metadata["config"]
+    assert config_meta["seed"] == 123
+    assert config_meta["sample_size"] == 100
+    assert config_meta["distribution_type"] == "normal"
+
+def test_save_synthetic_data_serializes_config_correctly(tmp_path, sample_config, sample_data):
     """Test that config is properly serialized to JSON."""
-    run_id = "test_run_003"
-    sample_data = {"x": np.random.normal(0, 1, 10)}
-    
-    save_synthetic_data(
+    test_data_dir = tmp_path / "synthetic"
+    test_data_dir.mkdir(parents=True, exist_ok=True)
+
+    run_id = "test_run_3"
+    metadata_path, _ = save_synthetic_data(
         data=sample_data,
         config=sample_config,
         seed=42,
         run_id=run_id
     )
-    
-    meta_path = temp_output_dir / f"meta_{run_id}.json"
-    with open(meta_path, 'r') as f:
+
+    with open(metadata_path, 'r') as f:
         metadata = json.load(f)
-    
-    config = metadata["config"]
-    assert config["n_samples"] == 100
-    assert config["n_features"] == 5
-    assert config["distribution_type"] == "normal"
-    assert config["mean_diff"] == 0.0
 
-def test_load_synthetic_data(temp_output_dir, sample_data, sample_config):
-    """Test that load_synthetic_data retrieves correct data and metadata."""
-    run_id = "test_run_004"
+    # Check that all config fields are present and serializable
+    config_meta = metadata["config"]
+    expected_fields = [
+        "seed", "sample_size", "distribution_type", "mean_diff",
+        "std_dev", "skewness", "heteroscedasticity", "n_iterations"
+    ]
+
+    for field in expected_fields:
+        assert field in config_meta, f"Field '{field}' missing from serialized config"
+
+def test_load_synthetic_data(tmp_path, sample_config, sample_data):
+    """Test that data can be loaded correctly after saving."""
+    test_data_dir = tmp_path / "synthetic"
+    test_data_dir.mkdir(parents=True, exist_ok=True)
+
+    run_id = "test_run_4"
     save_synthetic_data(
         data=sample_data,
         config=sample_config,
         seed=42,
         run_id=run_id
     )
-    
-    df, metadata = load_synthetic_data(run_id)
-    
-    assert isinstance(df, pd.DataFrame)
-    assert len(df) == 100
-    assert set(df.columns) == set(sample_data.keys())
-    assert metadata["run_id"] == run_id
-    assert metadata["seed"] == 42
 
-def test_load_synthetic_data_raises_on_missing_file(temp_output_dir):
-    """Test that load_synthetic_data raises FileNotFoundError for missing run."""
+    # Load the data
+    loaded_data, loaded_metadata = load_synthetic_data(run_id)
+
+    # Verify data
+    assert set(loaded_data.keys()) == set(sample_data.keys())
+
+    for key in sample_data.keys():
+        np.testing.assert_array_almost_equal(
+            loaded_data[key],
+            sample_data[key],
+            decimal=5,
+            err_msg=f"Data mismatch for key '{key}'"
+        )
+
+    # Verify metadata
+    assert loaded_metadata["seed"] == 42
+    assert loaded_metadata["run_id"] == run_id
+
+def test_load_synthetic_data_raises_on_missing_file(tmp_path):
+    """Test that load_synthetic_data raises error for non-existent run."""
     with pytest.raises(FileNotFoundError):
-        load_synthetic_data("nonexistent_run")
+        load_synthetic_data("non_existent_run")
 
-def test_list_available_runs(temp_output_dir, sample_data, sample_config):
-    """Test that list_available_runs returns all saved runs."""
-    run_ids = ["run_001", "run_002", "run_003"]
-    
-    for run_id in run_ids:
+def test_list_available_runs(tmp_path, sample_config, sample_data):
+    """Test listing available runs."""
+    test_data_dir = tmp_path / "synthetic"
+    test_data_dir.mkdir(parents=True, exist_ok=True)
+
+    # Initially empty
+    runs = list_available_runs()
+    assert runs == []
+
+    # Add some runs
+    for i in range(3):
         save_synthetic_data(
             data=sample_data,
             config=sample_config,
-            seed=42,
-            run_id=run_id
+            seed=42 + i,
+            run_id=f"run_{i}"
         )
-    
-    available = list_available_runs()
-    assert set(available) == set(run_ids)
 
-def test_get_run_summary(temp_output_dir, sample_data, sample_config):
-    """Test that get_run_summary returns metadata without loading data."""
-    run_id = "test_run_005"
+    runs = list_available_runs()
+    assert len(runs) == 3
+    assert "run_0" in runs
+    assert "run_1" in runs
+    assert "run_2" in runs
+
+def test_get_run_summary(tmp_path, sample_config, sample_data):
+    """Test getting run summary."""
+    test_data_dir = tmp_path / "synthetic"
+    test_data_dir.mkdir(parents=True, exist_ok=True)
+
+    run_id = "test_run_5"
     save_synthetic_data(
         data=sample_data,
         config=sample_config,
-        seed=42,
+        seed=99,
         run_id=run_id
     )
-    
+
     summary = get_run_summary(run_id)
-    
+
     assert summary is not None
     assert summary["run_id"] == run_id
+    assert summary["seed"] == 99
+    assert "config" in summary
     assert "data_shape" in summary
 
-def test_get_run_summary_returns_none_for_missing_run(temp_output_dir):
+def test_get_run_summary_returns_none_for_missing_run(tmp_path):
     """Test that get_run_summary returns None for missing run."""
-    assert get_run_summary("nonexistent_run") is None
+    result = get_run_summary("non_existent_run")
+    assert result is None
 
-def test_save_synthetic_data_with_extra_metadata(temp_output_dir, sample_data, sample_config):
-    """Test that extra metadata is included in saved file."""
-    run_id = "test_run_006"
-    extra_meta = {
-        "experiment_name": "test_experiment",
-        "author": "test_user"
+def test_save_synthetic_data_with_extra_metadata(tmp_path, sample_config, sample_data):
+    """Test saving with extra metadata."""
+    test_data_dir = tmp_path / "synthetic"
+    test_data_dir.mkdir(parents=True, exist_ok=True)
+
+    extra = {
+        "author": "test",
+        "version": "1.0",
+        "notes": "Test run"
     }
-    
-    save_synthetic_data(
+
+    run_id = "test_run_6"
+    metadata_path, _ = save_synthetic_data(
         data=sample_data,
         config=sample_config,
         seed=42,
         run_id=run_id,
-        metadata_extra=extra_meta
+        extra_metadata=extra
     )
-    
-    meta_path = temp_output_dir / f"meta_{run_id}.json"
-    with open(meta_path, 'r') as f:
-        metadata = json.load(f)
-    
-    assert metadata["experiment_name"] == "test_experiment"
-    assert metadata["author"] == "test_user"
 
-def test_save_synthetic_data_empty_data_raises_error(temp_output_dir, sample_config):
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
+
+    assert metadata["author"] == "test"
+    assert metadata["version"] == "1.0"
+    assert metadata["notes"] == "Test run"
+
+def test_save_synthetic_data_empty_data_raises_error(tmp_path, sample_config):
     """Test that saving empty data raises ValueError."""
-    with pytest.raises(ValueError, match="Data dictionary cannot be empty"):
+    test_data_dir = tmp_path / "synthetic"
+    test_data_dir.mkdir(parents=True, exist_ok=True)
+
+    with pytest.raises(ValueError):
         save_synthetic_data(
             data={},
             config=sample_config,
             seed=42,
-            run_id="test_run_007"
+            run_id="test_run_7"
         )
 
-def test_serialize_config_handles_numpy_types(sample_config):
-    """Test that _serialize_config properly handles numpy types."""
-    result = _serialize_config(sample_config)
-    
-    # Ensure all values are native Python types
-    assert isinstance(result["n_samples"], int)
-    assert isinstance(result["n_features"], int)
-    assert isinstance(result["mean_diff"], float)
-    assert isinstance(result["skewness"], float)
-    assert isinstance(result["heteroscedasticity"], float)
-    assert isinstance(result["seed"], int)
-    assert isinstance(result["distribution_type"], str)
+def test_serialize_config_handles_numpy_types(tmp_path, sample_config, sample_data):
+    """Test that numpy types in config are handled correctly."""
+    test_data_dir = tmp_path / "synthetic"
+    test_data_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create config with explicit numpy types
+    config = SimulationConfig(
+        seed=np.int64(42),
+        sample_size=np.int32(100),
+        distribution_type="normal",
+        mean_diff=np.float64(0.0),
+        std_dev=np.float32(1.0),
+        skewness=0.0,
+        heteroscedasticity=0.0,
+        n_iterations=np.int64(1)
+    )
+
+    run_id = "test_run_8"
+    metadata_path, _ = save_synthetic_data(
+        data=sample_data,
+        config=config,
+        seed=42,
+        run_id=run_id
+    )
+
+    # Should not raise and should be valid JSON
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
+
+    # Verify values are preserved
+    assert metadata["config"]["seed"] == 42
+    assert metadata["config"]["sample_size"] == 100
+    assert metadata["config"]["mean_diff"] == 0.0
+    assert metadata["config"]["std_dev"] == 1.0
