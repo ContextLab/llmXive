@@ -11,12 +11,12 @@
         "page": 26
       }
     ],
-    "audited_at": "2026-07-18T17:05:31.758197+00:00"
+    "audited_at": "2026-07-18T17:37:43.041966+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-773-enterpriseclawbench-benchmarking-agents",
-  "updated_at": "2026-07-18T17:05:31.758209+00:00"
+  "updated_at": "2026-07-18T17:37:43.041978+00:00"
 }
