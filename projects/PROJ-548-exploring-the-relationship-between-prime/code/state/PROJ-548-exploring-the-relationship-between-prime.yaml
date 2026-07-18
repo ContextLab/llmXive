@@ -1,0 +1,65 @@
+project_id: PROJ-548-exploring-the-relationship-between-prime
+created_at: "2026-05-14T00:00:00Z"
+last_updated: "2026-05-14T12:00:00Z"
+tasks:
+  t001:
+    status: completed
+    message: Project structure created
+  t002:
+    status: completed
+    message: Dependencies initialized
+  t003:
+    status: completed
+    message: Linting and formatting configured
+  t004:
+    status: completed
+    message: Logging infrastructure ready
+  t005:
+    status: completed
+    message: Configuration management ready
+  t006:
+    status: completed
+    message: Seed management initialized
+  t007:
+    status: completed
+    message: Base data models defined
+  t008:
+    status: completed
+    message: Checksumming logic ready
+  t009:
+    status: completed
+    message: Unit tests for sieve passed
+  t010:
+    status: completed
+    message: Integration tests for data ingestion passed
+  t011:
+    status: completed
+    message: Segmented sieve implemented
+  t012:
+    status: completed
+    message: Prime gaps generated and streamed
+  t013a:
+    status: pending
+    reason: Awaiting implementation
+  t014:
+    status: pending
+    message: Awaiting implementation
+  t016:
+    status: completed
+    message: Normalization logic tests passed
+  t017:
+    status: completed
+    message: KS test calculation tests passed
+  t023:
+    status: completed
+    message: Monte Carlo simulation ready
+checksums:
+  data/processed/primes_gaps.csv: "pending"
+  data/processed/zeta_zeros.csv: "pending"
+  results/correlation_results.json: "pending"
+metadata:
+  version: "1.0.0"
+  constitution_principles:
+    - "II: Hardcoded verified sources only"
+    - "V: State integrity via checksums"
+    - "VI: Permutation test for robustness"

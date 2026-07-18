@@ -1,15 +1,36 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file listings were provided showing the required folders
+    (`src/data/`, `src/analysis/`, `src/utils/`, `src/cli/`, `tests/unit/`, `tests/integration/`,
+    `data/raw/`, `data/processed/`, `data/results/`, `results/`, `state/`). Without
+    concrete evidence that these paths exist, the task is not satisfied. The implementer
+    must create and show the full project structure.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no linting or formatting configuration files (e.g.,
+    `pyproject.toml`, `.ruff.toml`, or `black` settings) nor any evidence that `ruff`
+    and `black` were installed or integrated into the project. Without these artifacts,
+    the requirement to configure linting (ruff) and formatting (black) is not satisfied.
 T009:
   c: false
   h: 4590b66282d73ef584a6040f8912f5e3146b0cfcd19327e9e80ed76f13fa8881
   r: The required file `tests/unit/test_sieve.py` does not exist, so no unit test
     for the segmented sieve logic is present to verify primality or chunk boundaries.
     The task remains undone.
-T022:
+T012:
+  c: false
+  h: f0f68fc769e18c02b7e52a6ab77f5452cd13721b1d73a80d9fb5dcd699a3ae2f
+  r: The provided `src/data/generate_primes.py` ends abruptly (truncated at `set_global_seed(confi`)
+    and does not contain a complete pipeline that writes the required CSV, nor does
+    it define the logic to stream results to `data/processed/primes_gaps.csv`. Moreover,
+    the expected output file `data/processed/primes_gaps.csv` is missing entirely.
+    The task therefore remains unfinished.
+T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., script, results file, KS statistic, p\u2011value, or plot)\
-    \ was provided to demonstrate that the empirical maximal gap distribution was\
-    \ compared to the GUE extreme\u2011value distribution using a Kolmogorov\u2011\
-    Smirnov test. Consequently the claim cannot be verified. The implementer must\
-    \ supply the analysis code and the resulting output (e.g., `ks_results.json` or\
-    \ similar) showing the computed KS statistic and p\u2011value."
+  r: "No code, data, or result files were presented that compute or report the p\u2011\
+    value for the observed distributional alignment against the Cram\xE9r null distribution.\
+    \ The required artifact (e.g., a script or output file containing the calculated\
+    \ p\u2011value) is missing, so the task is not satisfied."

@@ -20,25 +20,25 @@
   verification_status: verified
   verified_against_url: https://www.lmfdb.org/zeros/zeta/
   verified_at: '2026-07-05T22:18:20.077298Z'
-- artifact_hash: 4a62486c21576b9c582b0bf2f2140b6f940461caa23bc1a845a2d49e168367ba
+- artifact_hash: daac1f97241e97ec013c2241d2772e6487e16c20d8a268f1b4ad3b92d88e3d1f
   artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: LMFDB - Zeros of $\zeta(s)$
+  fetched_title: LMFDB - API
   kind: url
-  value: https://www.lmfdb.org/zeros/zeta/`
+  value: https://www.lmfdb.org/api/`
   verification_status: pending
-  verified_against_url: https://www.lmfdb.org/zeros/zeta/
-  verified_at: '2026-07-15T23:49:03.888850Z'
-- artifact_hash: 4a62486c21576b9c582b0bf2f2140b6f940461caa23bc1a845a2d49e168367ba
+  verified_against_url: https://www.lmfdb.org/api/
+  verified_at: '2026-07-18T15:08:02.237787Z'
+- artifact_hash: daac1f97241e97ec013c2241d2772e6487e16c20d8a268f1b4ad3b92d88e3d1f
   artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: http://www.dtc.umn.edu/~odlyzko/doc/zeta.zeros/`
+  value: https://www.dtc.umn.edu/~odlyzko/doc/zeta.zeros/`
   verification_status: mismatch
   verified_against_url: https://www-users.cse.umn.edu/~odlyzko/doc/zeta.zeros/
-  verified_at: '2026-07-15T23:49:03.888850Z'
+  verified_at: '2026-07-18T15:08:02.237787Z'

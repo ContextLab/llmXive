@@ -1,230 +1,269 @@
 import hashlib
 import os
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List, Tuple
 import yaml
 import time
+import json
+from .config import get_project_paths
 
-# Path constants relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-STATE_FILE_PATH = PROJECT_ROOT / "state" / "state.yaml"
-PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
+# Constants for state file
+STATE_FILE_NAME = "PROJ-548-exploring-the-relationship-between-prime.yaml"
+STATE_DIR = "state/projects"
 
-def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
+def _get_state_path() -> Path:
+    """Returns the full path to the project state YAML file."""
+    base, _ = get_project_paths()
+    return base / STATE_DIR / STATE_FILE_NAME
+
+def compute_file_checksum(file_path: Path) -> str:
     """
-    Compute the SHA-256 checksum of a file.
+    Computes the SHA-256 checksum of a file.
     
     Args:
         file_path: Path to the file to checksum.
-        algorithm: Hash algorithm to use (default: sha256).
         
     Returns:
-        Hexadecimal string of the checksum.
+        Hexadecimal string of the SHA-256 hash.
         
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If the algorithm is not supported.
+        IOError: If the file cannot be read.
     """
     if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
+        raise FileNotFoundError(f"File not found for checksum: {file_path}")
     
-    hash_func = hashlib.new(algorithm)
+    sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
-            for chunk in iter(lambda: f.read(8192), b""):
-                hash_func.update(chunk)
-        return hash_func.hexdigest()
-    except Exception as e:
-        raise IOError(f"Failed to compute checksum for {file_path}: {e}")
+            # Read in chunks to handle large files memory efficiently
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
+    except IOError as e:
+        raise IOError(f"Failed to read file {file_path}: {e}")
 
-def compute_directory_checksum(dir_path: Path, algorithm: str = "sha256") -> str:
+def compute_directory_checksum(dir_path: Path, exclude_patterns: Optional[List[str]] = None) -> str:
     """
-    Compute a deterministic checksum for a directory by hashing all files recursively.
-    The checksum depends on relative file paths and their contents.
+    Computes a deterministic checksum for a directory based on its files.
+    
+    This function hashes the sorted list of relative file paths and their 
+    individual checksums to create a directory fingerprint.
     
     Args:
         dir_path: Path to the directory.
-        algorithm: Hash algorithm to use.
+        exclude_patterns: List of glob patterns to exclude (e.g., ['*.pyc', '__pycache__']).
         
     Returns:
         Hexadecimal string of the directory checksum.
-        
-    Raises:
-        FileNotFoundError: If the directory does not exist.
     """
     if not dir_path.exists() or not dir_path.is_dir():
         raise FileNotFoundError(f"Directory not found: {dir_path}")
     
-    dir_hash = hashlib.new(algorithm)
-    # Sort files to ensure deterministic order
-    files = sorted(dir_path.rglob("*"))
+    exclude_patterns = exclude_patterns or []
     
-    for file_path in files:
-        if file_path.is_file():
-          # Include relative path in the hash
-          rel_path = file_path.relative_to(dir_path)
-          dir_hash.update(rel_path.as_posix().encode("utf-8"))
-          # Include file content hash
-          file_content_hash = compute_file_checksum(file_path, algorithm)
-          dir_hash.update(file_content_hash.encode("utf-8"))
-          
-    return dir_hash.hexdigest()
+    def should_exclude(path: Path) -> bool:
+        name = path.name
+        return any(name.endswith(pat.lstrip('*')) for pat in exclude_patterns)
+
+    file_hashes = []
+    for root, _, files in os.walk(dir_path):
+        for filename in sorted(files):
+            if should_exclude(Path(filename)):
+                continue
+            file_path = Path(root) / filename
+            try:
+                rel_path = file_path.relative_to(dir_path)
+                file_hash = compute_file_checksum(file_path)
+                # Include relative path in hash to detect renames
+                file_hashes.append(f"{rel_path}:{file_hash}")
+            except Exception:
+                continue
+    
+    combined = "\n".join(file_hashes)
+    return hashlib.sha256(combined.encode('utf-8')).hexdigest()
 
 def load_state() -> Dict[str, Any]:
     """
-    Load the state.yaml file.
+    Loads the project state from the YAML file.
     
     Returns:
-        Dictionary containing state data.
-        
-    Raises:
-        FileNotFoundError: If state.yaml does not exist.
+        Dictionary containing the state data. Returns an empty dict if file doesn't exist.
     """
-    if not STATE_FILE_PATH.exists():
-        # Initialize with default structure if missing
-        return {
-            "version": "1.0",
-            "last_updated": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "data_checksums": {},
-            "pipeline_status": "pending"
-        }
+    state_path = _get_state_path()
+    if not state_path.exists():
+        return {}
     
-    with open(STATE_FILE_PATH, "r") as f:
-        return yaml.safe_load(f) or {}
+    try:
+        with open(state_path, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+            return data if data else {}
+    except yaml.YAMLError as e:
+        raise RuntimeError(f"Failed to parse state file {state_path}: {e}")
 
-def save_state(state: Dict[str, Any]) -> None:
+def save_state(data: Dict[str, Any]) -> None:
     """
-    Save the state dictionary to state.yaml.
+    Saves the project state to the YAML file.
     
     Args:
-        state: Dictionary to save.
+        data: Dictionary to save.
     """
-    state["last_updated"] = time.strftime("%Y-%m-%d %H:%M:%S")
-    STATE_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(STATE_FILE_PATH, "w") as f:
-        yaml.safe_dump(state, f, sort_keys=False)
+    state_path = _get_state_path()
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(state_path, 'w', encoding='utf-8') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
-def update_state_checksums() -> Dict[str, Any]:
+def update_state_checksums(data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Scan processed data files, compute their checksums, and update state.yaml.
+    Updates the checksums in the state dictionary for key data artifacts.
     
-    This function implements the core requirement of T008:
-    "Implement checksumming logic in src/utils/io.py for state.yaml updates on data changes"
+    This implements Constitution Principle V by recording the cryptographic 
+    fingerprint of processed data files to ensure data integrity and 
+    reproducibility.
     
+    Args:
+        data: Optional existing state dictionary. If None, loads current state.
+        
     Returns:
-        A summary dictionary of changes made.
+        Updated state dictionary with new checksums.
     """
-    state = load_state()
-    current_checksums = {}
-    changes = {"added": [], "updated": [], "removed": []}
+    if data is None:
+        data = load_state()
     
-    if not PROCESSED_DATA_DIR.exists():
-        # Create directory if it doesn't exist
-        PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
-        state["data_checksums"] = {}
-        save_state(state)
-        return changes
+    if "checksums" not in data:
+        data["checksums"] = {}
     
-    # Scan all files in the processed directory
-    for file_path in PROCESSED_DATA_DIR.rglob("*"):
-        if file_path.is_file():
-            rel_path = str(file_path.relative_to(PROCESSED_DATA_DIR))
+    # Define artifacts to checksum based on the project pipeline
+    artifacts = {
+        "primes_gaps": Path("data/processed/primes_gaps.csv"),
+        "zeta_zeros": Path("data/processed/zeta_zeros.csv"),
+        "results": Path("results/correlation_results.json"),
+        "plot": Path("results/correlation_plot.png"),
+        "robustness": Path("results/robustness_report.md"),
+        "permutation": Path("results/permutation_test.json"),
+    }
+    
+    base_dir, _ = get_project_paths()
+    current_timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    
+    for key, rel_path in artifacts.items():
+        full_path = base_dir / rel_path
+        if full_path.exists():
             try:
-                checksum = compute_file_checksum(file_path)
-                current_checksums[rel_path] = {
-                    "checksum": checksum,
-                    "size": file_path.stat().st_size,
-                    "mtime": file_path.stat().st_mtime
+                checksum = compute_file_checksum(full_path)
+                data["checksums"][key] = {
+                    "path": str(rel_path),
+                    "sha256": checksum,
+                    "updated_at": current_timestamp
                 }
-            except Exception as e:
-                # Log error but continue processing other files
-                print(f"Warning: Could not checksum {file_path}: {e}")
+            except (FileNotFoundError, IOError) as e:
+                # Log warning but continue, don't fail the whole update
+                print(f"Warning: Could not checksum {rel_path}: {e}")
+        else:
+            # If file doesn't exist yet, remove old checksum if present
+            if key in data["checksums"]:
+                del data["checksums"][key]
     
-    # Compare with previous state
-    previous_checksums = state.get("data_checksums", {})
+    # Update the metadata for the state file itself
+    if "metadata" not in data:
+        data["metadata"] = {}
+    data["metadata"]["last_checksum_update"] = current_timestamp
     
-    # Detect added/updated files
-    for path, info in current_checksums.items():
-        if path not in previous_checksums:
-            changes["added"].append(path)
-        elif previous_checksums[path]["checksum"] != info["checksum"]:
-            changes["updated"].append(path)
-    
-    # Detect removed files
-    for path in previous_checksums:
-        if path not in current_checksums:
-            changes["removed"].append(path)
-    
-    # Update state
-    state["data_checksums"] = current_checksums
-    state["checksum_version"] = state.get("checksum_version", 0) + 1
-    save_state(state)
-    
-    return changes
+    return data
 
-def verify_data_integrity() -> bool:
+def verify_data_integrity(data: Optional[Dict[str, Any]] = None) -> Tuple[bool, Dict[str, str]]:
     """
-    Verify that all files recorded in state.yaml still exist and match their checksums.
+    Verifies the integrity of data artifacts against stored checksums.
     
+    Args:
+        data: Optional existing state dictionary.
+        
     Returns:
-        True if all files match, False otherwise.
+        Tuple of (is_valid, details_dict). 
+        is_valid is True if all checksums match.
+        details_dict maps artifact keys to status messages.
     """
-    state = load_state()
-    checksums = state.get("data_checksums", {})
+    if data is None:
+        data = load_state()
     
-    if not checksums:
-        return True  # No data to verify
-    
+    checksums = data.get("checksums", {})
+    base_dir, _ = get_project_paths()
+    results = {}
     all_valid = True
-    for rel_path, info in checksums.items():
-        file_path = PROCESSED_DATA_DIR / rel_path
-        if not file_path.exists():
-            print(f"Integrity check failed: File missing {file_path}")
+    
+    for key, info in checksums.items():
+        rel_path = info.get("path")
+        stored_hash = info.get("sha256")
+        
+        if not rel_path or not stored_hash:
+            results[key] = "Invalid state entry"
+            all_valid = False
+            continue
+            
+        full_path = base_dir / rel_path
+        
+        if not full_path.exists():
+            results[key] = "File missing"
             all_valid = False
             continue
         
         try:
-            current_checksum = compute_file_checksum(file_path)
-            if current_checksum != info["checksum"]:
-                print(f"Integrity check failed: Checksum mismatch for {file_path}")
+            current_hash = compute_file_checksum(full_path)
+            if current_hash == stored_hash:
+                results[key] = "Valid"
+            else:
+                results[key] = f"Corrupted (Expected: {stored_hash[:8]}..., Got: {current_hash[:8]}...)"
                 all_valid = False
         except Exception as e:
-            print(f"Integrity check failed: Error reading {file_path}: {e}")
+            results[key] = f"Error verifying: {str(e)}"
             all_valid = False
             
-    return all_valid
+    return all_valid, results
 
-def get_data_change_summary() -> str:
+def get_data_change_summary(data: Optional[Dict[str, Any]] = None) -> str:
     """
-    Generate a human-readable summary of recent data changes.
+    Generates a human-readable summary of data integrity status.
     
+    Args:
+        data: Optional existing state dictionary.
+        
     Returns:
-        Formatted string describing changes.
+        Formatted string report.
     """
-    changes = update_state_checksums()
+    if data is None:
+        data = load_state()
+    
+    is_valid, details = verify_data_integrity(data)
     lines = [
-        f"Data Change Summary ({time.strftime('%Y-%m-%d %H:%M:%S')}):",
-        f"  Added: {len(changes['added'])} files",
-        f"  Updated: {len(changes['updated'])} files",
-        f"  Removed: {len(changes['removed'])} files"
+        f"Data Integrity Report (Generated: {time.strftime('%Y-%m-%d %H:%M:%S')})",
+        "-" * 50,
+        f"Overall Status: {'PASS' if is_valid else 'FAIL'}",
+        ""
     ]
     
-    if changes["added"]:
-        lines.append("  Added files:")
-        for f in changes["added"][:5]:  # Limit to first 5 for readability
-            lines.append(f"    - {f}")
-        if len(changes["added"]) > 5:
-            lines.append(f"    ... and {len(changes['added']) - 5} more")
-            
-    if changes["updated"]:
-        lines.append("  Updated files:")
-        for f in changes["updated"][:5]:
-            lines.append(f"    - {f}")
-            
-    if changes["removed"]:
-        lines.append("  Removed files:")
-        for f in changes["removed"][:5]:
-            lines.append(f"    - {f}")
-            
+    for key, status in details.items():
+        lines.append(f"  [{key}]: {status}")
+        
     return "\n".join(lines)
+
+# Convenience function to ensure the state file is updated after any data operation
+def commit_state(data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Updates checksums and saves the state file.
+    
+    This is the primary entry point for persisting integrity records.
+    
+    Args:
+        data: Optional data to merge into state.
+        
+    Returns:
+        The saved state dictionary.
+    """
+    current_state = load_state()
+    if data:
+        current_state.update(data)
+    
+    updated_state = update_state_checksums(current_state)
+    save_state(updated_state)
+    return updated_state

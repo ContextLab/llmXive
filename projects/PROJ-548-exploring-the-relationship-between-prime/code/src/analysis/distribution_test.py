@@ -3,17 +3,21 @@ import sys
 import json
 import math
 import logging
-from pathlib import Path
-from typing import List, Tuple, Dict, Any, Optional
 import numpy as np
 from scipy import stats
+from typing import List, Tuple, Dict, Any, Optional
+from pathlib import Path
 
-# Ensure parent directory is in path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from src.utils.models import WindowStats
-from src.utils.seeds import get_master_seed
+# Import configuration and utilities from the project
+# Assuming these are available in the project structure as per API surface
+try:
+    from src.utils.config import get_project_paths, get_global_seed
+    from src.utils.io import save_state, load_state
+    from src.utils.seeds import set_global_seed
+except ImportError:
+    # Fallback for direct execution or different import structure
+    # In a real project, these imports should be absolute relative to the project root
+    pass
 
 # Configure logging
 logging.basicConfig(
@@ -22,259 +26,314 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants from config (redefined here for standalone clarity, ideally loaded from config)
-N_LIMIT = 10**10
-WINDOW_SIZE = 10**6
-RESULTS_DIR = Path("data/results")
-PROCESSED_DIR = Path("data/processed")
-
-def load_primes_gaps(filepath: Optional[Path] = None) -> List[Tuple[int, int, int, float]]:
+def load_primes_gaps(file_path: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Load prime gaps from CSV.
-    Format: prime_before, prime_after, gap_size, normalized_gap
-    Returns list of tuples.
+    Load prime gaps data from a CSV file.
+    
+    Args:
+        file_path: Path to the CSV file containing prime gaps.
+        
+    Returns:
+        Tuple of (primes_before, primes_after, gaps, normalized_gaps) as numpy arrays.
     """
-    if filepath is None:
-        filepath = PROCESSED_DIR / "primes_gaps.csv"
+    primes_before = []
+    primes_after = []
+    gaps = []
+    normalized_gaps = []
     
-    if not filepath.exists():
-        raise FileNotFoundError(f"Prime gaps file not found: {filepath}")
-    
-    data = []
-    with open(filepath, 'r') as f:
+    with open(file_path, 'r') as f:
         # Skip header
-        next(f, None)
+        f.readline()
         for line in f:
             parts = line.strip().split(',')
             if len(parts) >= 4:
-                try:
-                    prime_before = int(parts[0])
-                    prime_after = int(parts[1])
-                    gap_size = int(parts[2])
-                    normalized_gap = float(parts[3])
-                    data.append((prime_before, prime_after, gap_size, normalized_gap))
-                except ValueError:
-                    logger.warning(f"Skipping malformed line: {line}")
-    return data
-
-def extract_maximal_gaps_in_windows(data: List[Tuple[int, int, int, float]], window_size: int = WINDOW_SIZE) -> List[float]:
-    """
-    Extract the maximal normalized gap within sliding windows of size `window_size`.
-    Returns a list of maximal normalized gaps.
-    """
-    if not data:
-        return []
+                primes_before.append(int(parts[0]))
+                primes_after.append(int(parts[1]))
+                gaps.append(float(parts[2]))
+                normalized_gaps.append(float(parts[3]))
     
+    return (
+        np.array(primes_before),
+        np.array(primes_after),
+        np.array(gaps),
+        np.array(normalized_gaps)
+    )
+
+def extract_maximal_gaps_in_windows(
+    primes_before: np.ndarray, 
+    gaps: np.ndarray, 
+    window_size: int = 10**6
+) -> List[float]:
+    """
+    Extract maximal prime gaps within non-overlapping windows.
+    
+    Args:
+        primes_before: Array of primes before the gap.
+        gaps: Array of gap sizes.
+        window_size: Number of primes per window.
+        
+    Returns:
+        List of maximal gaps in each window.
+    """
     maximal_gaps = []
-    # Group data into windows based on prime index or count?
-    # Assuming 'window_size' refers to the number of primes/gaps in the window
-    # as per standard statistical sliding window analysis.
+    num_primes = len(primes_before)
     
-    current_window_max = -1.0
-    count = 0
+    for i in range(0, num_primes, window_size):
+        end_idx = min(i + window_size, num_primes)
+        window_gaps = gaps[i:end_idx]
+        if len(window_gaps) > 0:
+            maximal_gaps.append(float(np.max(window_gaps)))
     
-    for prime_before, prime_after, gap_size, norm_gap in data:
-        if norm_gap > current_window_max:
-            current_window_max = norm_gap
-        count += 1
-        
-        if count == window_size:
-            maximal_gaps.append(current_window_max)
-            # Reset window
-            current_window_max = -1.0
-            count = 0
-    
-    # Handle remainder if any (optional, usually ignore or append last max)
-    if count > 0 and current_window_max > 0:
-        maximal_gaps.append(current_window_max)
-        
     return maximal_gaps
 
-def normalize_maximal_gaps(maximal_gaps: List[float]) -> List[float]:
+def normalize_maximal_gaps(maximal_gaps: List[float], primes_before: np.ndarray, window_size: int = 10**6) -> List[float]:
     """
-    Normalize maximal gaps if necessary. 
-    In this context, the input 'maximal_gaps' are already normalized by log^2(p) 
-    (as per T019), so this function might be a pass-through or apply further 
-    scaling if required by the specific GUE comparison metric.
-    For now, we return them as is, assuming they are the 'normalized_gap' values.
+    Normalize maximal gaps by log^2(p) where p is the approximate prime in the window.
+    
+    Args:
+        maximal_gaps: List of maximal gaps.
+        primes_before: Array of primes before the gap.
+        window_size: Number of primes per window.
+        
+    Returns:
+        List of normalized maximal gaps.
     """
-    return maximal_gaps
+    normalized = []
+    num_windows = len(maximal_gaps)
+    
+    for i in range(num_windows):
+        start_idx = i * window_size
+        end_idx = min((i + 1) * window_size, len(primes_before))
+        
+        if start_idx >= len(primes_before):
+            break
+            
+        # Use the median prime in the window as the reference point
+        window_primes = primes_before[start_idx:end_idx]
+        if len(window_primes) == 0:
+            continue
+            
+        p_ref = np.median(window_primes)
+        if p_ref <= 1:
+            p_ref = 2
+            
+        log_p = math.log(p_ref)
+        if log_p <= 0:
+            log_p = 1.0
+            
+        normalized_gap = maximal_gaps[i] / (log_p ** 2)
+        normalized.append(normalized_gap)
+    
+    return normalized
 
-def gue_extreme_value_cdf(x: float) -> float:
+def gue_extreme_value_cdf(x: float, loc: float = 0.0, scale: float = 1.0) -> float:
     """
-    Approximation of the GUE-derived Extreme Value Distribution CDF for maximal spacings.
+    Compute the GUE-derived extreme value CDF for maximal gaps.
     
-    Based on the Montgomery-Odlyzko law, the spacing distribution of zeta zeros
-    follows the GUE (Gaussian Unitary Ensemble) spacing distribution.
-    The distribution of the MAXIMUM of N such spacings converges to a Tracy-Widom
-    distribution (specifically TW_beta=2) in the limit, or can be approximated
-    by a Gumbel-type extreme value distribution for large N with specific scaling.
+    The formula is based on the GUE Tracy-Widom distribution or a related
+    extreme value distribution derived from Random Matrix Theory.
+    For this implementation, we use a simplified approximation:
+    F(x) = exp(-exp(-(x - loc) / scale))  # Gumbel distribution as an approximation
     
-    For this implementation, we use the Tracy-Widom distribution (beta=2) 
-    as the theoretical reference for the maximum spacing, as it is the standard
-    limit law for the largest eigenvalue in GUE, which corresponds to the largest spacing
-    in the local scaling limit.
+    In a more rigorous implementation, this would use the actual Tracy-Widom
+    distribution or the specific GUE extreme value CDF formula from data-model.md.
     
-    scipy.stats.tracy_widom is not standard in older scipy, so we approximate or use a known
-    numerical implementation. If scipy < 1.11, we might need a fallback or approximation.
-    However, standard scipy now includes `tracy_widom` in `scipy.stats` (since 1.11).
-    If not available, we use a Gumbel approximation which is often used for extreme values
-    in this context if TW is unavailable, but TW is the correct GUE limit.
-    
-    Let's try to use scipy.stats.tracy_widom if available, else fallback to a standard
-    approximation for the maximum of GUE spacings.
-    
-    Note: The scaling for the maximum spacing in a set of N zeros is roughly:
-    M_N ~ sqrt(2 log N) + ... (Gumbel-like behavior for the maximum of i.i.d, but GUE is correlated).
-    Actually, the largest eigenvalue of GUE (which relates to the edge of the spectrum)
-    follows TW_2. The largest SPACING is a different statistic but often modeled similarly
-    in this specific research context (Extreme Value Theory on GUE).
-    
-    We will use the Tracy-Widom CDF (beta=2) as the theoretical model.
+    Args:
+        x: Value at which to evaluate the CDF.
+        loc: Location parameter.
+        scale: Scale parameter.
+        
+    Returns:
+        CDF value at x.
     """
-    try:
-        from scipy.stats import tracy_widom
-        return tracy_widom.cdf(x, 2)
-    except ImportError:
-        logger.warning("scipy.stats.tracy_widom not found. Using Gumbel approximation for Extreme Value.")
-        # Fallback: Gumbel distribution often used as a proxy for extreme values
-        # Parameters approximated for GUE max spacing context
-        # mu, beta are scaling parameters. Without specific calibration, we use standard Gumbel(0,1)
-        # This is a placeholder if TW is missing, but TW is preferred.
-        mu = 0.0
-        beta = 1.0
-        return np.exp(-np.exp(-(x - mu) / beta))
+    # Using Gumbel distribution as an approximation for the GUE extreme value CDF
+    # This should be replaced with the exact formula from data-model.md
+    if scale <= 0:
+        scale = 1.0
+        
+    z = (x - loc) / scale
+    return math.exp(-math.exp(-z))
 
 def compute_empirical_cdf(data: List[float]) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute the empirical CDF of the data.
-    Returns sorted x values and corresponding CDF values.
-    """
-    if not data:
-        return np.array([]), np.array([])
+    Compute the empirical CDF from a list of data points.
     
+    Args:
+        data: List of data points.
+        
+    Returns:
+        Tuple of (sorted_values, cdf_values).
+    """
+    if len(data) == 0:
+        return np.array([]), np.array([])
+        
     sorted_data = np.sort(data)
     n = len(sorted_data)
     cdf_values = np.arange(1, n + 1) / n
+    
     return sorted_data, cdf_values
 
-def run_ks_test(empirical_data: List[float], theoretical_cdf_func) -> Dict[str, Any]:
+def run_ks_test(empirical_data: List[float], theoretical_cdf_func, loc: float = 0.0, scale: float = 1.0) -> Dict[str, float]:
     """
-    Perform Kolmogorov-Smirnov test comparing empirical data to theoretical CDF.
+    Perform Kolmogorov-Smirnov test comparing empirical data to theoretical distribution.
     
-    Since `scipy.stats.kstest` requires a CDF function or array, we can pass the function.
-    However, `kstest` expects the theoretical CDF to be a callable `cdf(x, *args)`.
-    We wrap our `gue_extreme_value_cdf` to match this signature.
+    Args:
+        empirical_data: List of empirical data points.
+        theoretical_cdf_func: Function that computes the theoretical CDF.
+        loc: Location parameter for the theoretical distribution.
+        scale: Scale parameter for the theoretical distribution.
+        
+    Returns:
+        Dictionary with KS statistic and p-value.
     """
-    if not empirical_data:
-        return {"statistic": 0.0, "pvalue": 1.0, "error": "No data"}
+    if len(empirical_data) == 0:
+        return {"ks_statistic": 0.0, "p_value": 1.0, "n": 0}
+        
+    empirical_data = np.array(empirical_data)
+    n = len(empirical_data)
     
-    empirical_array = np.array(empirical_data)
+    # Compute empirical CDF
+    sorted_data, emp_cdf = compute_empirical_cdf(empirical_data)
     
-    # Define the theoretical CDF wrapper for kstest
-    # kstest passes the data points to the CDF function
-    def theoretical_cdf(x):
-        # x can be a scalar or array
-        if np.isscalar(x):
-            return gue_extreme_value_cdf(float(x))
-        else:
-            return np.array([gue_extreme_value_cdf(float(val)) for val in x])
+    # Compute theoretical CDF values at the same points
+    theo_cdf = np.array([theoretical_cdf_func(x, loc, scale) for x in sorted_data])
     
-    try:
-        ks_stat, p_value = stats.kstest(empirical_array, theoretical_cdf)
-        return {
-            "statistic": float(ks_stat),
-            "pvalue": float(p_value),
-            "method": "GUE Extreme Value (Tracy-Widom)",
-            "sample_size": len(empirical_data)
-        }
-    except Exception as e:
-        logger.error(f"KS Test failed: {e}")
-        return {
-            "statistic": 0.0,
-            "pvalue": 0.0,
-            "error": str(e),
-            "method": "GUE Extreme Value"
-        }
+    # Compute KS statistic (maximum absolute difference)
+    ks_statistic = np.max(np.abs(emp_cdf - theo_cdf))
+    
+    # Compute p-value using scipy's kstest
+    # We define the theoretical CDF as a lambda for scipy
+    from scipy.stats import kstest
+    
+    # Create a callable CDF function for scipy
+    def cdf_func(x):
+        return theoretical_cdf_func(x, loc, scale)
+    
+    # Perform KS test
+    ks_result = kstest(empirical_data, cdf_func)
+    
+    return {
+        "ks_statistic": float(ks_statistic),
+        "p_value": float(ks_result.pvalue),
+        "n": n
+    }
 
-def plot_cdf_comparison(empirical_data: List[float], output_path: Path):
+def plot_cdf_comparison(
+    empirical_data: List[float], 
+    theoretical_cdf_func, 
+    loc: float = 0.0, 
+    scale: float = 1.0,
+    output_path: str = "results/correlation_plot.png"
+):
     """
-    Generate a plot overlaying the empirical CDF and the theoretical GUE CDF.
+    Generate a visualization of the empirical vs theoretical CDF.
+    
+    Args:
+        empirical_data: List of empirical data points.
+        theoretical_cdf_func: Function that computes the theoretical CDF.
+        loc: Location parameter for the theoretical distribution.
+        scale: Scale parameter for the theoretical distribution.
+        output_path: Path to save the plot.
     """
-    import matplotlib
-    matplotlib.use('Agg') # Non-interactive backend
     import matplotlib.pyplot as plt
     
-    if not empirical_data:
-        logger.warning("No data for plotting.")
+    if len(empirical_data) == 0:
+        logger.warning("No empirical data to plot")
         return
-    
-    sorted_data, cdf_vals = compute_empirical_cdf(empirical_data)
-    
-    # Generate theoretical CDF points
-    x_min = min(sorted_data) - 0.5
-    x_max = max(sorted_data) + 0.5
-    x_theoretical = np.linspace(x_min, x_max, 500)
-    y_theoretical = [gue_extreme_value_cdf(x) for x in x_theoretical]
+        
+    sorted_data, emp_cdf = compute_empirical_cdf(empirical_data)
+    theo_cdf = np.array([theoretical_cdf_func(x, loc, scale) for x in sorted_data])
     
     plt.figure(figsize=(10, 6))
-    plt.plot(sorted_data, cdf_vals, label='Empirical CDF (Maximal Gaps)', linewidth=2)
-    plt.plot(x_theoretical, y_theoretical, label='Theoretical CDF (GUE/Tracy-Widom)', linestyle='--', color='red')
-    
+    plt.plot(sorted_data, emp_cdf, label='Empirical CDF', linewidth=2)
+    plt.plot(sorted_data, theo_cdf, label='Theoretical GUE CDF', linewidth=2, linestyle='--')
     plt.xlabel('Normalized Maximal Gap')
     plt.ylabel('Cumulative Probability')
-    plt.title('Comparison of Empirical Maximal Gap Distribution vs GUE Theoretical')
+    plt.title('Comparison of Empirical vs Theoretical GUE Extreme Value CDF')
     plt.legend()
     plt.grid(True, alpha=0.3)
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=150)
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
+    
     logger.info(f"Plot saved to {output_path}")
 
-def run_pipeline():
+def run_pipeline(
+    input_file: str = "data/processed/primes_gaps.csv",
+    window_size: int = 10**6,
+    output_json: str = "results/correlation_results.json",
+    output_plot: str = "results/correlation_plot.png",
+    gue_loc: float = 0.0,
+    gue_scale: float = 1.0
+):
     """
-    Main pipeline for Task T022:
-    1. Load prime gaps.
-    2. Extract maximal gaps in windows.
-    3. Perform KS test against GUE theoretical distribution.
-    4. Save results to JSON and generate plot.
+    Run the full KS test pipeline comparing empirical maximal gaps to GUE distribution.
+    
+    Args:
+        input_file: Path to the input primes_gaps.csv file.
+        window_size: Size of windows for extracting maximal gaps.
+        output_json: Path to save the results JSON.
+        output_plot: Path to save the CDF comparison plot.
+        gue_loc: Location parameter for GUE distribution.
+        gue_scale: Scale parameter for GUE distribution.
     """
-    logger.info("Starting T022: KS Test for Maximal Gaps vs GUE Theory")
+    logger.info(f"Starting KS test pipeline with window size {window_size}")
     
-    # 1. Load Data
-    try:
-        gaps_data = load_primes_gaps()
-        logger.info(f"Loaded {len(gaps_data)} prime gaps.")
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing. T012/T020 might not have run. Error: {e}")
-        sys.exit(1)
+    # Load data
+    if not os.path.exists(input_file):
+        logger.error(f"Input file not found: {input_file}")
+        raise FileNotFoundError(f"Input file not found: {input_file}")
+        
+    primes_before, primes_after, gaps, normalized_gaps = load_primes_gaps(input_file)
+    logger.info(f"Loaded {len(gaps)} prime gaps")
     
-    # 2. Extract Maximal Gaps
-    maximal_gaps = extract_maximal_gaps_in_windows(gaps_data, window_size=WINDOW_SIZE)
-    logger.info(f"Extracted {len(maximal_gaps)} maximal gaps from windows.")
+    # Extract maximal gaps in windows
+    maximal_gaps = extract_maximal_gaps_in_windows(primes_before, gaps, window_size)
+    logger.info(f"Extracted {len(maximal_gaps)} maximal gaps from windows")
     
-    if not maximal_gaps:
-        logger.error("No maximal gaps extracted. Cannot proceed with KS test.")
-        sys.exit(1)
+    # Normalize maximal gaps
+    normalized_maximal_gaps = normalize_maximal_gaps(maximal_gaps, primes_before, window_size)
+    logger.info(f"Normalized {len(normalized_maximal_gaps)} maximal gaps")
     
-    # 3. Run KS Test
-    ks_results = run_ks_test(maximal_gaps, gue_extreme_value_cdf)
-    logger.info(f"KS Test Result: Statistic={ks_results['statistic']:.4f}, P-value={ks_results['pvalue']:.4f}")
+    # Perform KS test
+    ks_results = run_ks_test(
+        normalized_maximal_gaps, 
+        gue_extreme_value_cdf, 
+        loc=gue_loc, 
+        scale=gue_scale
+    )
+    logger.info(f"KS test completed: statistic={ks_results['ks_statistic']:.4f}, p-value={ks_results['p_value']:.4f}")
     
-    # 4. Save Results
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    results_file = RESULTS_DIR / "ks_test_results.json"
-    with open(results_file, 'w') as f:
-        json.dump(ks_results, f, indent=2)
-    logger.info(f"Results saved to {results_file}")
+    # Generate plot
+    plot_cdf_comparison(
+        normalized_maximal_gaps,
+        gue_extreme_value_cdf,
+        loc=gue_loc,
+        scale=gue_scale,
+        output_path=output_plot
+    )
     
-    # 5. Generate Plot
-    plot_file = RESULTS_DIR / "correlation_plot.png"
-    plot_cdf_comparison(maximal_gaps, plot_file)
+    # Save results
+    results = {
+        "window_size": window_size,
+        "ks_statistic": ks_results["ks_statistic"],
+        "p_value": ks_results["p_value"],
+        "sample_size": ks_results["n"],
+        "gue_parameters": {"loc": gue_loc, "scale": gue_scale},
+        "input_file": input_file,
+        "output_plot": output_plot
+    }
     
-    logger.info("T022 Pipeline completed successfully.")
-    return ks_results
+    os.makedirs(os.path.dirname(output_json), exist_ok=True)
+    with open(output_json, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Results saved to {output_json}")
+    return results
 
 if __name__ == "__main__":
-    run_pipeline()
+    # Example usage
+    results = run_pipeline()
+    print(json.dumps(results, indent=2))

@@ -6,68 +6,115 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, mock_open
+import json
 
-# Add parent to path
+# Adjust path to import the module
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.data.ingest_zeros import verify_url_reachability, load_state, save_state, VERIFIED_SOURCES
+from src.data.ingest_zeros import (
+    verify_url_reachability,
+    verify_sources,
+    parse_zeta_zero_line,
+    ingest_zeros_sample,
+    ZetaZero
+)
 
 class TestVerifyUrlReachability:
     def test_reachable_url(self):
-        """Test that a known reachable URL returns True."""
-        # Using a reliable public URL for testing
-        is_reachable, message = verify_url_reachability("https://www.google.com", timeout=5)
-        assert is_reachable is True
-        assert "HTTP 200" in message or "reachable" in message.lower()
+        # Mock urllib.request.urlopen to simulate success
+        mock_response = MagicMock()
+        mock_response.getcode.return_value = 200
+        
+        with patch('src.data.ingest_zeros.urllib.request.urlopen', return_value=mock_response):
+            with patch('src.data.ingest_zeros.urllib.request.Request'):
+                success, msg = verify_url_reachability("http://example.com")
+                assert success is True
+                assert msg == "Reachable"
 
-    def test_unreachable_domain(self):
-        """Test that a non-existent domain returns False."""
-        is_reachable, message = verify_url_reachability("https://this-domain-definitely-does-not-exist-12345.com", timeout=3)
-        assert is_reachable is False
-        assert "unreachable" in message.lower() or "dns" in message.lower() or "error" in message.lower()
+    def test_unreachable_url_timeout(self):
+        with patch('src.data.ingest_zeros.socket.timeout', side_effect=Exception("Timeout")):
+            with patch('src.data.ingest_zeros.urllib.request.urlopen', side_effect=Exception("Timeout")):
+                success, msg = verify_url_reachability("http://bad.url")
+                assert success is False
+                assert "timed out" in msg or "Timeout" in msg
 
-    def test_timeout_handling(self):
-        """Test timeout handling."""
-        # This is hard to test deterministically without a slow server,
-        # but we can test the logic path if we mock the urlopen to raise timeout
-        with patch('urllib.request.urlopen') as mock_urlopen:
-            mock_urlopen.side_effect = Exception("Socket Timeout")
-            is_reachable, message = verify_url_reachability("http://example.com", timeout=1)
-            assert is_reachable is False
-            assert "Timeout" in message
+    def test_http_error(self):
+        mock_error = MagicMock()
+        mock_error.code = 404
+        mock_error.reason = "Not Found"
+        
+        with patch('src.data.ingest_zeros.urllib.request.urlopen', side_effect=mock_error):
+            success, msg = verify_url_reachability("http://example.com/missing")
+            assert success is False
+            assert "HTTP Error" in msg
 
 class TestStateManagement:
-    def test_load_state_missing_file(self):
-        """Test loading state when file doesn't exist."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Temporarily override the state file path logic if needed, 
-            # but here we just test the function logic with a non-existent file path
-            # by passing a path that doesn't exist
-            pass # load_state handles missing file gracefully internally
-
-    def test_save_and_load_state(self):
-        """Test saving and loading state."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            state_file = Path(tmpdir) / "test_state.yaml"
+    def test_verify_sources_structure(self):
+        # Mock verify_url_reachability to return success
+        with patch('src.data.ingest_zeros.verify_url_reachability', return_value=(True, "OK")):
+            result = verify_sources()
+            assert "verification_successful" in result
+            assert "sources" in result
+            assert result["verification_successful"] is True
             
-            # Mock the global STATE_FILE
-            original_state_file = None
-            # We can't easily mock the global in the module without import tricks,
-            # so we test the logic by creating a file and loading it.
-            
-            # Instead, let's just verify the functions exist and don't crash on basic inputs
-            # by using the actual functions on a temp file if we refactor to accept path.
-            # For now, we assume the global logic works as per the implementation.
-            pass
+            # Check that both expected sources are in the result
+            assert "LMFDB API" in result["sources"]
+            assert "Odlyzko Dataset" in result["sources"]
 
 class TestVerifiedSources:
-    def test_sources_defined(self):
-        """Ensure VERIFIED_SOURCES is not empty."""
-        assert len(VERIFIED_SOURCES) > 0
-        assert all(isinstance(url, str) for url in VERIFIED_SOURCES)
-        assert all(url.startswith(("http://", "https://")) for url in VERIFIED_SOURCES)
+    def test_parse_zeta_zero_line_valid(self):
+        # Odlyzko format: index, imaginary_part
+        line = "1 14.134725"
+        z = parse_zeta_zero_line(line)
+        assert z is not None
+        assert z.index == 1
+        assert z.real_part == 0.5
+        assert abs(z.imaginary_part - 14.134725) < 1e-6
 
-# Note: Full integration tests for actual URL fetching are placed in integration tests
-# to avoid network dependencies in unit tests if the environment is restricted.
-# The unit tests above focus on logic and error handling.
+    def test_parse_zeta_zero_line_invalid(self):
+        line = "invalid data"
+        z = parse_zeta_zero_line(line)
+        assert z is None
+
+    def test_parse_zeta_zero_line_empty(self):
+        line = ""
+        z = parse_zeta_zero_line(line)
+        assert z is None
+
+class TestIngestZerosSample:
+    @pytest.fixture
+    def temp_output_path(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir) / "test_zeros.csv"
+
+    def test_ingest_zeros_fails_if_sources_unreachable(self, temp_output_path):
+        # Mock verify_sources to return failure
+        mock_result = {"verification_successful": False, "sources": {}}
+        
+        with patch('src.data.ingest_zeros.verify_sources', return_value=mock_result):
+            with pytest.raises(RuntimeError, match="Verified data sources are unreachable"):
+                ingest_zeros_sample(temp_output_path)
+
+    def test_ingest_zeros_success(self, temp_output_path):
+        # Mock the URL opening and reading
+        mock_response = MagicMock()
+        mock_response.__enter__ = lambda self: self
+        mock_response.__exit__ = lambda self, *args: None
+        mock_response.__iter__ = lambda self: iter([b"1 14.134725\n2 21.022040\n"])
+        
+        mock_req = MagicMock()
+        
+        with patch('src.data.ingest_zeros.verify_sources', return_value={"verification_successful": True, "sources": {}}):
+            with patch('src.data.ingest_zeros.urllib.request.urlopen', return_value=mock_response):
+                with patch('src.data.ingest_zeros.urllib.request.Request', return_value=mock_req):
+                    count = ingest_zeros_sample(temp_output_path, limit=10)
+                    
+                    assert count == 2
+                    assert temp_output_path.exists()
+                    
+                    with open(temp_output_path, 'r') as f:
+                        content = f.read()
+                        assert "index,real_part,imaginary_part" in content
+                        assert "1,0.5,14.134725" in content
+                        assert "2,0.5,21.022040" in content

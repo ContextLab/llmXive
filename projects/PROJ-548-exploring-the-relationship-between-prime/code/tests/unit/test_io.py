@@ -2,162 +2,271 @@ import pytest
 import os
 import sys
 import tempfile
-from pathlib import Path
 import time
+from pathlib import Path
 import yaml
+import hashlib
 
-# Adjust path to import from src
+# Adjust import to match project structure
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from src.utils.io import (
     compute_file_checksum,
+    compute_directory_checksum,
     load_state,
     save_state,
     update_state_checksums,
     verify_data_integrity,
-    get_data_change_summary
+    get_data_change_summary,
+    commit_state,
+    _get_state_path
 )
+from src.utils.config import get_project_paths
 
 @pytest.fixture
-def temp_state_dir():
-    """Create a temporary directory for testing state management."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Set up environment to use temp directory
-        original_root = Path(__file__).parent.parent.parent
-        # We'll test by mocking paths or using actual temp files
-        state_file = Path(tmpdir) / "state.yaml"
-        processed_dir = Path(tmpdir) / "data" / "processed"
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        
-        yield {
-            "tmpdir": tmpdir,
-            "state_file": state_file,
-            "processed_dir": processed_dir
-        }
+def temp_state_dir(tmp_path):
+    """Creates a temporary directory structure mimicking the project state."""
+    state_dir = tmp_path / "state" / "projects"
+    state_dir.mkdir(parents=True)
+    return state_dir
+
+@pytest.fixture
+def sample_file(tmp_path):
+    """Creates a sample file for checksum testing."""
+    file_path = tmp_path / "test.txt"
+    content = "Hello, World! This is a test file for checksumming."
+    file_path.write_text(content)
+    return file_path
 
 class TestComputeFileChecksum:
-    def test_compute_checksum_known_file(self):
-        """Test checksum computation on a known file."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-            f.write("test content")
-            temp_path = Path(f.name)
-        
-        try:
-            checksum = compute_file_checksum(temp_path)
-            assert len(checksum) == 64  # SHA256 hex length
-            assert all(c in '0123456789abcdef' for c in checksum)
-        finally:
-            os.unlink(temp_path)
+    def test_sha256_correctness(self, sample_file):
+        """Verify that the computed hash matches the expected SHA-256."""
+        content = sample_file.read_text()
+        expected_hash = hashlib.sha256(content.encode('utf-8')).hexdigest()
+        actual_hash = compute_file_checksum(sample_file)
+        assert actual_hash == expected_hash
 
-    def test_compute_checksum_nonexistent_file(self):
-        """Test that FileNotFoundError is raised for missing files."""
+    def test_file_not_found(self, tmp_path):
+        """Verify that FileNotFoundError is raised for missing files."""
+        missing_path = tmp_path / "nonexistent.txt"
         with pytest.raises(FileNotFoundError):
-            compute_file_checksum(Path("/nonexistent/file.txt"))
+            compute_file_checksum(missing_path)
 
-    def test_compute_checksum_large_file(self):
-        """Test checksum on a larger file to ensure chunking works."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-            # Write 1MB of data
-            f.write("x" * (1024 * 1024))
-            temp_path = Path(f.name)
+    def test_large_file_handling(self, tmp_path):
+        """Verify that large files are handled correctly (chunked reading)."""
+        large_file = tmp_path / "large.bin"
+        # Create a 2MB file
+        content = b"x" * (2 * 1024 * 1024)
+        large_file.write_bytes(content)
         
-        try:
-            checksum = compute_file_checksum(temp_path)
-            assert len(checksum) == 64
-        finally:
-            os.unlink(temp_path)
+        expected_hash = hashlib.sha256(content).hexdigest()
+        actual_hash = compute_file_checksum(large_file)
+        assert actual_hash == expected_hash
+
+class TestComputeDirectoryChecksum:
+    def test_empty_directory(self, tmp_path):
+        """Directory with no files should produce a deterministic hash."""
+        hash1 = compute_directory_checksum(tmp_path)
+        hash2 = compute_directory_checksum(tmp_path)
+        assert hash1 == hash2
+        assert len(hash1) == 64 # SHA-256 hex length
+
+    def test_directory_with_files(self, tmp_path):
+        """Directory checksum should change if files change."""
+        file1 = tmp_path / "a.txt"
+        file1.write_text("content A")
+        
+        hash_with_a = compute_directory_checksum(tmp_path)
+        
+        file2 = tmp_path / "b.txt"
+        file2.write_text("content B")
+        
+        hash_with_b = compute_directory_checksum(tmp_path)
+        
+        assert hash_with_a != hash_with_b
+
+    def test_file_content_change(self, tmp_path):
+        """Directory checksum should change if file content changes."""
+        file1 = tmp_path / "test.txt"
+        file1.write_text("original")
+        hash1 = compute_directory_checksum(tmp_path)
+        
+        file1.write_text("modified")
+        hash2 = compute_directory_checksum(tmp_path)
+        
+        assert hash1 != hash2
 
 class TestStateManagement:
-    def test_load_state_initial(self, temp_state_dir):
-        """Test loading state when file doesn't exist."""
-        # Temporarily redirect state path logic would be complex here
-        # Instead, we test the save/load cycle
-        test_state = {
-            "version": "1.0",
-            "data_checksums": {"test.txt": {"checksum": "abc123"}}
-        }
-        state_file = temp_state_dir["state_file"]
+    def test_load_nonexistent_state(self, tmp_path, monkeypatch):
+        """Loading a non-existent state should return empty dict."""
+        # Mock _get_state_path to return a path that doesn't exist
+        def mock_get_path():
+            return tmp_path / "nonexistent.yaml"
+        monkeypatch.setattr("src.utils.io._get_state_path", mock_get_path)
         
-        with open(state_file, 'w') as f:
-            yaml.safe_dump(test_state, f)
-        
-        loaded = load_state()
-        assert loaded["version"] == "1.0"
-        assert "test.txt" in loaded.get("data_checksums", {})
+        state = load_state()
+        assert state == {}
 
-    def test_save_state(self, temp_state_dir):
-        """Test saving state to file."""
-        test_state = {
-            "version": "2.0",
-            "pipeline_status": "running"
-        }
-        state_file = temp_state_dir["state_file"]
+    def test_save_and_load_state(self, tmp_path, monkeypatch):
+        """Verify save_state and load_state roundtrip."""
+        test_data = {"key": "value", "nested": {"a": 1}}
         
-        # Manually save since we can't easily override paths in the module
-        state_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(state_file, 'w') as f:
-            yaml.safe_dump(test_state, f)
+        def mock_get_path():
+            return tmp_path / "test_state.yaml"
+        monkeypatch.setattr("src.utils.io._get_state_path", mock_get_path)
         
-        assert state_file.exists()
-        with open(state_file, 'r') as f:
-            content = yaml.safe_load(f)
-            assert content["version"] == "2.0"
+        save_state(test_data)
+        loaded_data = load_state()
+        
+        assert loaded_data == test_data
+
+    def test_save_creates_directories(self, tmp_path, monkeypatch):
+        """Save state should create parent directories if missing."""
+        deep_path = tmp_path / "deep" / "nested" / "state.yaml"
+        
+        def mock_get_path():
+            return deep_path
+        monkeypatch.setattr("src.utils.io._get_state_path", mock_get_path)
+        
+        save_state({"data": 1})
+        assert deep_path.exists()
 
 class TestChecksumUpdates:
-    def test_update_state_checksums(self, temp_state_dir):
-        """Test updating checksums for processed data files."""
-        processed_dir = temp_state_dir["processed_dir"]
+    def test_update_checksums_adds_metadata(self, tmp_path, monkeypatch):
+        """update_state_checksums should add metadata if missing."""
+        def mock_get_path():
+            return tmp_path / "state.yaml"
+        monkeypatch.setattr("src.utils.io._get_state_path", mock_get_path)
         
-        # Create a test file
-        test_file = processed_dir / "test_data.csv"
-        test_file.write_text("col1,col2\n1,2\n3,4")
+        initial_state = {}
+        updated = update_state_checksums(initial_state)
         
-        # Create initial state
-        state_file = temp_state_dir["state_file"]
-        initial_state = {
-            "version": "1.0",
-            "data_checksums": {}
-        }
-        with open(state_file, 'w') as f:
-            yaml.safe_dump(initial_state, f)
-        
-        # Note: In a real scenario, we'd need to mock the module's path constants
-        # For this test, we verify the function exists and has correct signature
-        # Actual path resolution would need to be tested differently
-        
-        # This is a structural test - the real test would require path mocking
-        assert True  # Placeholder for actual integration test
+        assert "metadata" in updated
+        assert "last_checksum_update" in updated["metadata"]
 
-    def test_verify_data_integrity(self, temp_state_dir):
-        """Test data integrity verification."""
-        processed_dir = temp_state_dir["processed_dir"]
-        test_file = processed_dir / "valid.txt"
-        test_file.write_text("valid content")
-        
-        # Create state with correct checksum
-        checksum = compute_file_checksum(test_file)
-        state_file = temp_state_dir["state_file"]
-        state_data = {
-            "version": "1.0",
-            "data_checksums": {
-                "valid.txt": {
-                    "checksum": checksum,
-                    "size": len("valid content"),
-                    "mtime": test_file.stat().st_mtime
+    def test_update_checksums_removes_missing_files(self, tmp_path, monkeypatch):
+        """If a file in checksums is missing, it should be removed from state."""
+        # Create a fake state with a checksum for a file that doesn't exist
+        fake_state = {
+            "checksums": {
+                "fake_file": {
+                    "path": "data/processed/nonexistent.csv",
+                    "sha256": "abc123"
                 }
             }
         }
         
-        with open(state_file, 'w') as f:
-            yaml.safe_dump(state_data, f)
+        def mock_get_path():
+            return tmp_path / "state.yaml"
+        monkeypatch.setattr("src.utils.io._get_state_path", mock_get_path)
         
-        # Note: Path mocking would be needed for full test
-        # This verifies the function exists and is callable
-        assert True
+        updated = update_state_checksums(fake_state)
+        
+        # The missing file should be removed from the checksums dict
+        assert "fake_file" not in updated.get("checksums", {})
 
 class TestChangeSummary:
-    def test_get_data_change_summary(self, temp_state_dir):
-        """Test generating change summary."""
-        # This test verifies the function exists and returns a string
-        # Full testing would require path mocking
-        assert True
+    def test_summary_generation(self, tmp_path, monkeypatch):
+        """Verify that get_data_change_summary returns a formatted string."""
+        def mock_get_path():
+            return tmp_path / "state.yaml"
+        monkeypatch.setattr("src.utils.io._get_state_path", mock_get_path)
+        
+        # Create a valid state
+        save_state({"checksums": {}})
+        
+        summary = get_data_change_summary()
+        assert "Data Integrity Report" in summary
+        assert "Overall Status" in summary
+
+class TestVerifyDataIntegrity:
+    def test_verify_valid_file(self, tmp_path, monkeypatch):
+        """Verify integrity returns True for a valid file."""
+        # Create a real file
+        data_file = tmp_path / "data" / "processed"
+        data_file.mkdir(parents=True)
+        target_file = data_file / "test.csv"
+        target_file.write_text("col1,col2\n1,2")
+        
+        # Compute real hash
+        real_hash = compute_file_checksum(target_file)
+        
+        state = {
+            "checksums": {
+                "test_file": {
+                    "path": "data/processed/test.csv",
+                    "sha256": real_hash
+                }
+            }
+        }
+        
+        def mock_get_path():
+            return tmp_path / "state.yaml"
+        monkeypatch.setattr("src.utils.io._get_state_path", mock_get_path)
+        
+        # Mock get_project_paths to return tmp_path as base
+        def mock_paths():
+            return tmp_path, None
+        monkeypatch.setattr("src.utils.io.get_project_paths", mock_paths)
+        
+        is_valid, details = verify_data_integrity(state)
+        
+        assert is_valid is True
+        assert details["test_file"] == "Valid"
+
+    def test_verify_corrupted_file(self, tmp_path, monkeypatch):
+        """Verify integrity returns False if file content changed."""
+        data_file = tmp_path / "data" / "processed"
+        data_file.mkdir(parents=True)
+        target_file = data_file / "test.csv"
+        target_file.write_text("original content")
+        
+        original_hash = compute_file_checksum(target_file)
+        
+        # Corrupt the file
+        target_file.write_text("corrupted content")
+        
+        state = {
+            "checksums": {
+                "test_file": {
+                    "path": "data/processed/test.csv",
+                    "sha256": original_hash
+                }
+            }
+        }
+        
+        def mock_get_path():
+            return tmp_path / "state.yaml"
+        monkeypatch.setattr("src.utils.io._get_state_path", mock_get_path)
+        
+        def mock_paths():
+            return tmp_path, None
+        monkeypatch.setattr("src.utils.io.get_project_paths", mock_paths)
+        
+        is_valid, details = verify_data_integrity(state)
+        
+        assert is_valid is False
+        assert "Corrupted" in details["test_file"]
+
+    def test_verify_missing_file(self, tmp_path, monkeypatch):
+        """Verify integrity returns False if file is missing."""
+        state = {
+            "checksums": {
+                "missing_file": {
+                    "path": "data/processed/never_existed.csv",
+                    "sha256": "abc123"
+                }
+            }
+        }
+        
+        def mock_get_path():
+            return tmp_path / "state.yaml"
+        monkeypatch.setattr("src.utils.io._get_state_path", mock_get_path)
+        
+        def mock_paths():
+            return tmp_path, None
+        monkeypatch.setattr("src.utils.io.get_project_paths", mock_paths)
+        
+        is_valid, details = verify_data_integrity(state)
+        
+        assert is_valid is False
+        assert details["missing_file"] == "File missing"

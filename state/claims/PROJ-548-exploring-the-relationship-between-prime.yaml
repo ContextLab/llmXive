@@ -1,0 +1,90 @@
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: primes generated to 10^10
+  claim_id: c_a79bbc42
+  context: Implement segmented sieve algorithm in `src/data/generate_primes.py` to
+    generate primes up to 10^10, processing in chunks to stay within 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate primes up to 10^10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:36:13Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: pipeline halts on zero verification failure
+  claim_id: c_6d961f5e
+  context: '[ ] T013a [US1] **Verified Accuracy Check**: Implement logic in `src/data/ingest_zeros.py`
+    to verify and fetch zeta zeros from the following **hardcoded verified sources**
+    (per Constitution Principle II): 1. LMFDB:  2. Odlyzko:  If these specific URLs
+    are unreachable, the pipeline MUST halt with a clear "Data Unavailable" error.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_on_zero_verification_failure
+  kind: entity_fact
+  raw_text: If verification fails, the pipeline MUST halt with a clear error message.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:36:37Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: window size W = 10^6
+  claim_id: c_c4fc8081
+  context: 'Implement sliding window analysis in `src/analysis/distribution_test.py`
+    to compute *maximal* prime gap $g_{max}$ within windows of length $W=10^6$. **Windowing
+    Logic**: Use non-overlapping windows of size $W$, stepping by $W$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use non-overlapping windows of size $W=10^6$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:37:04Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: RAM usage less than 7 GB
+  claim_id: c_e7939960
+  context: Run `src/data/generate_primes.py` and `src/data/ingest_zeros.py` in isolation;
+    verify `data/processed/primes_gaps.csv` and `data/processed/zeta_zeros.csv` exist,
+    contain correct counts, and peak RAM < 7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_less_than_7_GB
+  kind: magnitude
+  raw_text: peak RAM < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:37:30Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: GUE-derived extreme value CDF formula defined
+  claim_id: c_f5a91288
+  context: Define the mathematical formula for the **GUE-derived extreme value CDF**
+    for maximal gaps in `data-model.md`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GUE-derived_extreme_value_CDF_formula_defined
+  kind: entity_fact
+  raw_text: Define the mathematical formula for the GUE-derived extreme value CDF
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:37:49Z'

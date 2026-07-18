@@ -93,7 +93,7 @@ The researcher MUST be able to verify the stability of the results by repeating 
 ## Assumptions
 
 - The LMFDB or Odlyzko datasets provide the first non-trivial zeros in a machine-readable format accessible via standard HTTP requests without authentication barriers.
-- The segmented sieve implementation for $10^{10}$ primes can be optimized to fit within the available RAM constraint by processing primes in sufficiently small segments (e.g., a manageable number of primes per segment).
+- The segmented sieve implementation for a large number of primes can be optimized to fit within the available RAM constraint by processing primes in sufficiently small segments (e.g., a manageable number of primes per segment).
 - The Cramér model serves as a valid null hypothesis baseline for prime gap distribution, assuming primes behave like a random sequence with density $c/\log n$ for some constant $c > 0$.
 - The correlation analysis does not require GPU acceleration; standard CPU-based linear algebra operations in `numpy` and `scipy` are sufficient for the dataset size.
 - The relationship between prime gaps and zeroes is purely observational; no causal claims will be made, and the analysis will strictly test for distributional alignment via the GUE hypothesis.

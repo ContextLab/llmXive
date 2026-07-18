@@ -1,18 +1,22 @@
+"""
+Project Structure Initialization Script.
+
+This script creates the required directory structure for the llmXive project
+PROJ-548-exploring-the-relationship-between-prime.
+"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """
-    Creates the project directory structure for PROJ-548.
-    Ensures all required folders for data, analysis, utils, tests, and state exist.
-    """
-    # Define the project root relative to this script's location
-    # The script is in code/, so root is parent of code/
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
+    """Create the project directory structure."""
+    # Define the project root (assumed to be the current working directory or 'projects/PROJ-548...')
+    # The task description implies paths relative to the project root.
+    # We will assume the script is run from the project root.
+    project_root = Path.cwd()
 
-    # Define all required directories relative to project root
+    # Define the required directories based on the task description
+    # Paths are relative to project_root
     required_dirs = [
         "src/data",
         "src/analysis",
@@ -24,39 +28,41 @@ def main():
         "data/processed",
         "data/results",
         "results",
-        "state",
-        "figures", # Added for visualization outputs as per common pipeline needs
-        "docs",    # Added for documentation
+        "state"
     ]
 
     created_count = 0
     existing_count = 0
 
-    for dir_path_str in required_dirs:
-        full_path = project_root / dir_path_str
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {full_path}")
-            created_count += 1
-        else:
+    print(f"Initializing project structure in: {project_root}")
+
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        
+        if full_path.exists():
+            print(f"  [OK] Directory already exists: {dir_path}")
             existing_count += 1
+        else:
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"  [CREATED] {dir_path}")
+            created_count += 1
 
-    print(f"\nStructure setup complete.")
-    print(f"Directories created: {created_count}")
-    print(f"Directories already existing: {existing_count}")
-    print(f"Project root: {project_root}")
+    print(f"\nStructure initialization complete.")
+    print(f"  New directories: {created_count}")
+    print(f"  Existing directories: {existing_count}")
+    print(f"  Total directories managed: {created_count + existing_count}")
 
-    # Verify the structure by listing the root contents
-    print("\nProject Directory Tree (Root Level):")
-    for item in sorted(project_root.iterdir()):
-        if item.is_dir():
-            print(f"  [DIR] {item.name}/")
-            # List immediate subdirs for key directories
-            if item.name in ["src", "data", "tests", "results", "state"]:
-                for sub in sorted(item.iterdir()):
-                    if sub.is_dir():
-                        print(f"    [DIR] {item.name}/{sub.name}/")
-
+    # Verify the structure
+    missing = []
+    for dir_path in required_dirs:
+        if not (project_root / dir_path).exists():
+            missing.append(dir_path)
+    
+    if missing:
+        print(f"\n[ERROR] The following directories were NOT created: {missing}")
+        return 1
+    
+    print("\n[SUCCESS] All required directories are present.")
     return 0
 
 if __name__ == "__main__":
