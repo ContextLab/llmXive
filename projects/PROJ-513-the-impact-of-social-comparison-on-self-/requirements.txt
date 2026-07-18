@@ -1,0 +1,11 @@
+# Core dependencies
+pandas>=2.0.0
+statsmodels>=0.14.0
+numpy>=1.24.0
+scipy>=1.11.0
+pytest>=7.4.0
+python-dotenv>=1.0.0
+
+# Linting and Formatting (T006)
+flake8>=6.1.0
+black>=23.0.0

@@ -95,7 +95,7 @@ As a researcher, I want to run a Linear Mixed Effects (LME) model on the collect
 
 ## Assumptions
 
-- **Dataset-variable fit**: The curated set of 20 human images and the generated set of 20 AI images are assumed to be matched for body type, pose, and lighting, such that "Image Type" is the only systematic difference. This matching is verified by FR-008 (metadata) and FR-009 (blind pre-test).
+- **Dataset-variable fit**: The curated set of human images and the generated set of AI images are assumed to be matched for body type, pose, and lighting., such that "Image Type" is the only systematic difference. This matching is verified by FR-008 (metadata) and FR-009 (blind pre-test).
 - **Inference framing**: Since this is an experimental design with random assignment to image order, findings regarding the "Image Type" effect will be framed as causal regarding the *stimulus origin*, provided the within-subjects design holds.
 - **Compute feasibility**: The analysis assumes that the statistical computations (LME) will fit within the RAM (≤ 7GB) and CPU time limits (≤ 3600 seconds) of the GitHub Actions free tier. AI images are PRE-GENERATED and stored as static assets; no runtime generation occurs.
 - **Measurement validity**: The BISS and INCOM instruments are assumed to be valid and reliable for the target population (university students/public volunteers) without requiring re-validation for this specific context.

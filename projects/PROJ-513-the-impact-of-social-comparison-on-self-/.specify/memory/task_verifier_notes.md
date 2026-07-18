@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T006** — No linting or formatting configuration files (e.g., .flake8, pyproject.toml, setup.cfg, or pre‑commit hooks) are present in the provided evidence, nor any documentation showing that flake8 and black have been set up for the project. Without these artifacts the requirement to configure linting and formatting tools is not satisfied.
+- **T014** — No code, data, or documentation was provided showing that the stimulus presentation logic enforces distinct consecutive images, maintains a globally randomized sequence, and excludes partial sessions. The claim lacks any concrete artifact (e.g., implementation files, test scripts, logs, or analysis outputs) to verify the required behavior.
+- **T015** — No code, configuration, or log files were provided showing that logging for session start, image view, and completion events has been added. The artifact list is empty, so the required logging implementation cannot be verified. The implementer must supply the updated source files (e.g., middleware, logger setup) and example log output demonstrating the three event types.

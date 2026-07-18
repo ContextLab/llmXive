@@ -1,0 +1,37 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml,\
+    \ setup.cfg, or pre\u2011commit hooks) are present in the provided evidence, nor\
+    \ any documentation showing that flake8 and black have been set up for the project.\
+    \ Without these artifacts the requirement to configure linting and formatting\
+    \ tools is not satisfied."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or documentation was provided showing that the stimulus presentation
+    logic enforces distinct consecutive images, maintains a globally randomized sequence,
+    and excludes partial sessions. The claim lacks any concrete artifact (e.g., implementation
+    files, test scripts, logs, or analysis outputs) to verify the required behavior.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided showing that logging for session
+    start, image view, and completion events has been added. The artifact list is
+    empty, so the required logging implementation cannot be verified. The implementer
+    must supply the updated source files (e.g., middleware, logger setup) and example
+    log output demonstrating the three event types.
+T036:
+  c: false
+  h: cf31d5a06765856c2971e2fdac32687a5802db76046bddbbbc163f8a154dffb2
+  r: "The provided `code/data_validation.py` contains unrelated completeness and metadata\
+    \ checks and does not include any logic to load `data/pretest/results.json` or\
+    \ compute a visual indistinguishability test (p\u202F>\u202F0.05). Moreover, the\
+    \ required `data/pretest/results.json` file is absent from the repository. Both\
+    \ the code implementation and the data file needed for FR\u2011009 are missing."
+T037:
+  c: false
+  h: cab691a9fcdf5d63f20d0478d3ac0dcbb1ea961cce138bf7b2b843e15e83e881
+  r: The required `scripts/gate_launch.py` script is missing entirely, so no code
+    calls the validation functions or raises `SystemExit(1)` on FR-008/FR-009 failures.
+    The task is therefore not fulfilled.
