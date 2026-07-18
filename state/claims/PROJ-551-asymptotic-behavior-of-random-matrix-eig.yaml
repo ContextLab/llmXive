@@ -1,0 +1,168 @@
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: validate results against theoretical semicircle edge of 2.0
+  claim_id: c_6cdbd72c
+  context: "Setup iterative solver wrapper with tol=1e-10 in code/analysis/eigen_solver.py\
+    \ using scipy.sparse.linalg.eigsh and LinearOperator; validate results STRICTLY\
+    \ against the theoretical semicircle edge (\xB12.0) to ensure outliers are not\
+    \ artifacts, avoiding validation against the predicted BBP threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validate results STRICTLY against the theoretical semicircle edge (\xB1\
+    2.0)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:07:05Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: verify existence of eigenvalue greater than 2.0 for N=1000 rank-1 perturbation
+    with theta=2.5
+  claim_id: c_3e5bde72
+  context: "Independent Test: Run a script generating a single N=1000 instance with\
+    \ a rank-1 diagonal perturbation (\u03B8=2.5) and verify an eigenvalue > 2.0 exists."
+  evidence:
+    candidates:
+    - - ''
+      - 1000.0
+    - - ''
+      - 3.0
+    - - ''
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_existence_of_eigenvalue_greater_than_2.0_for_N%3D1000_r
+  kind: magnitude
+  raw_text: verify an eigenvalue > 2.0 exists
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-18T07:07:31Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: parameter sweep grid N ranges up to 2000
+  claim_id: c_e0911508
+  context: "Implement parameter sweep orchestrator (grid of N ranging from a lower\
+    \ bound to 2000, \u03B8 \u2208 [1.0, 3.0]) in code/analysis/threshold_sweep.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: grid of N ranging from a lower bound to 2000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:08:23Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: parameter sweep theta range from 1.0 to 3.0
+  claim_id: c_ca7e17b1
+  context: "Implement parameter sweep orchestrator (grid of N ranging from a lower\
+    \ bound to 2000, \u03B8 \u2208 [1.0, 3.0]) in code/analysis/threshold_sweep.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u03B8 \u2208 [1.0, 3.0]"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:08:44Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: sweep sparsity density values of 0.1, 0.2, and 0.3
+  claim_id: c_272e87eb
+  context: "Run a script sweeping sparsity density p \u2208 {0.1, 0.2, 0.3} and verify\
+    \ the report explicitly states if \u03B8c shifts > 5%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sweep sparsity density p \u2208 {0.1, 0.2, 0.3}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:09:09Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: verify report states if critical theta shifts greater than 5 percent
+  claim_id: c_359c0f6e
+  context: "Run a script sweeping sparsity density p \u2208 {0.1, 0.2, 0.3} and verify\
+    \ the report explicitly states if \u03B8c shifts > 5%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_report_states_if_critical_theta_shifts_greater_than_5
+  kind: magnitude
+  raw_text: "verify the report explicitly states if \u03B8c shifts > 5%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:09:33Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: memory usage less than 7 GB for matrix size 2000
+  claim_id: c_1336e8f5
+  context: Code cleanup and refactoring for memory efficiency (ensure < 7 GB RAM for
+    N=2000)
+  evidence:
+    candidates:
+    - - GB for matrix size
+      - 2000.0
+    - - Memory usage less than
+      - 7.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7_GB_for_matrix_size_2000
+  kind: magnitude
+  raw_text: ensure < 7 GB RAM for N=2000
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-18T07:09:58Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: full parameter sweep completes within 6 hours
+  claim_id: c_21e1d1fb
+  context: 'Performance optimization: verify full parameter sweep completes within
+    6 hours'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify full parameter sweep completes within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:10:32Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: use ARPACK iterative solvers for matrix operations when N greater than
+    500
+  claim_id: c_dae401d7
+  context: 'Critical Constraint: All matrix operations must use CPU-tractable iterative
+    solvers (ARPACK) for N > 500 to fit within 7GB RAM. No GPU tasks.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_ARPACK_iterative_solvers_for_matrix_operations_when_N_gr
+  kind: magnitude
+  raw_text: All matrix operations must use CPU-tractable iterative solvers (ARPACK)
+    for N > 500
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:11:23Z'

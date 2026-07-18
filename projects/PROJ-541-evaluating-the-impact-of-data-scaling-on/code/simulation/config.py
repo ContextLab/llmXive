@@ -144,3 +144,23 @@ class SimulationConfig:
 
     def __repr__(self) -> str:
         return f"SimulationConfig(n_samples={self.n_samples}, n_iterations={self.n_iterations}, distribution_type='{self.distribution_type}')"
+
+    def save_to_yaml(self, config_path: str) -> None:
+        """
+        Save the current configuration to a YAML file.
+
+        Args:
+            config_path: Path where the YAML file will be written.
+        """
+        os.makedirs(os.path.dirname(config_path), exist_ok=True) if os.path.dirname(config_path) else None
+        with open(config_path, 'w') as f:
+            yaml.dump(self.to_dict(), f, default_flow_style=False)
+
+def get_default_config() -> SimulationConfig:
+    """
+    Create and return a default SimulationConfig instance.
+
+    Returns:
+        A SimulationConfig with default parameter values.
+    """
+    return SimulationConfig()

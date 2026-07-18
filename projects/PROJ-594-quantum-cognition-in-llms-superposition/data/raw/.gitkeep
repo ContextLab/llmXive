@@ -1,3 +1,2 @@
-# This directory holds raw data downloaded from external sources (e.g., SuperGLUE WiC).
-# Do not modify files here; they are managed by data download scripts.
-# Git keeps this directory in the repository even when empty.
+# This directory stores raw data downloaded from external sources (e.g., SuperGLUE WiC).
+# Do not commit large data files directly; use .gitkeep to preserve directory structure.

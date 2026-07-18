@@ -63,40 +63,41 @@ def generate_synthetic_data(config: SimulationConfig, logger: logging.Logger = N
             logger.warning("Skipping iteration: zero variance detected")
             return None, None, False, "Zero variance detected"
 
-        # Generate base data for group A (mean = 0)
+        # Vectorized generation for performance
+        # Pre-allocate arrays
+        
         if distribution_type == "normal":
+            # Vectorized normal generation
             group_a = np.random.normal(loc=0.0, scale=std_dev, size=n_samples)
-        elif distribution_type == "skewed":
-            # Generate skewed data using gamma distribution
-            # Shape parameter affects skewness: lower = more skewed
-            # Ensure shape is always positive and reasonable
-            shape_param = max(1.0, 1.0 / (abs(skewness) + 0.1))
-            group_a = np.random.gamma(shape=shape_param, scale=std_dev / shape_param, size=n_samples)
-            # Center the data to have mean ~ 0
-            group_a = group_a - np.mean(group_a)
-        elif distribution_type == "heteroscedastic":
-            # Generate data with varying variance
-            base_data = np.random.normal(loc=0.0, scale=std_dev, size=n_samples)
-            # Apply heteroscedasticity by scaling based on position
-            scale_factors = 1.0 + heteroscedasticity * (np.arange(n_samples) / n_samples - 0.5) * 2
-            group_a = base_data * scale_factors
-        else:
-            return None, None, False, f"Unknown distribution type: {distribution_type}"
-
-        # Generate group B with specified mean difference
-        if distribution_type == "normal":
             group_b = np.random.normal(loc=mean_diff, scale=std_dev, size=n_samples)
+
         elif distribution_type == "skewed":
-            # Apply mean shift to skewed distribution
+            # Vectorized skewed generation using gamma distribution
+            # Shape parameter affects skewness: lower = more skewed
             shape_param = max(1.0, 1.0 / (abs(skewness) + 0.1))
-            group_b = np.random.gamma(shape=shape_param, scale=std_dev / shape_param, size=n_samples)
+            scale_param = std_dev / shape_param
+
+            # Generate gamma samples
+            raw_a = np.random.gamma(shape=shape_param, scale=scale_param, size=n_samples)
+            raw_b = np.random.gamma(shape=shape_param, scale=scale_param, size=n_samples)
+
             # Center and shift
-            group_b = group_b - np.mean(group_b) + mean_diff
+            group_a = raw_a - np.mean(raw_a)
+            group_b = raw_b - np.mean(raw_b) + mean_diff
+
         elif distribution_type == "heteroscedastic":
-            # Apply mean shift with heteroscedasticity
-            base_data = np.random.normal(loc=mean_diff, scale=std_dev, size=n_samples)
-            scale_factors = 1.0 + heteroscedasticity * (np.arange(n_samples) / n_samples - 0.5) * 2
-            group_b = base_data * scale_factors
+            # Vectorized heteroscedastic generation
+            # Generate base data
+            base_a = np.random.normal(loc=0.0, scale=std_dev, size=n_samples)
+            base_b = np.random.normal(loc=mean_diff, scale=std_dev, size=n_samples)
+
+            # Apply heteroscedasticity using vectorized operations
+            indices = np.arange(n_samples)
+            scale_factors = 1.0 + heteroscedasticity * (indices / n_samples - 0.5) * 2
+
+            group_a = base_a * scale_factors
+            group_b = base_b * scale_factors
+
         else:
             return None, None, False, f"Unknown distribution type: {distribution_type}"
 

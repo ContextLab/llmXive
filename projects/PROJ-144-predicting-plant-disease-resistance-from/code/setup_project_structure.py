@@ -1,56 +1,71 @@
-"""
-Script to initialize the project directory structure for llmXive project PROJ-144.
-Creates necessary folders for code, data (raw/processed), tests, and state.
-"""
 import os
 import sys
+from pathlib import Path
 
-def create_structure(root_dir: str) -> None:
+def create_structure():
     """
-    Creates the standard project directory structure.
+    Creates the required project directory structure for llmXive project PROJ-144.
     
-    Args:
-        root_dir: The root directory of the project (usually current working dir).
+    Directories created:
+    - code/
+    - data/raw
+    - data/processed
+    - tests/
+    - state/
+    - contracts/
+    - results/
+    - figures/
     """
+    # Define the base directory (project root)
+    base_dir = Path(__file__).resolve().parent.parent
+    
+    # Define the directories to create based on the task requirements and standard structure
     directories = [
-        "code",
-        "code/utils",
-        "code/data",
-        "code/modeling",
-        "data/raw",
-        "data/processed",
-        "data/figures",
-        "tests/unit",
-        "tests/integration",
-        "state",
-        "results",
-        "specs",
+        base_dir / "code",
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "tests",
+        base_dir / "state",
+        base_dir / "contracts",
+        base_dir / "results",
+        base_dir / "figures",
+        # Subdirectories for code organization
+        base_dir / "code" / "data",
+        base_dir / "code" / "modeling",
+        base_dir / "code" / "utils",
+        base_dir / "tests" / "unit",
+        base_dir / "tests" / "integration",
     ]
-
+    
     created_count = 0
-    skipped_count = 0
-
-    for dir_path in directories:
-        full_path = os.path.join(root_dir, dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            print(f"Created directory: {dir_path}")
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
             created_count += 1
         else:
-            if os.path.isdir(full_path):
-                print(f"Directory already exists: {dir_path}")
-                skipped_count += 1
-            else:
-                print(f"Warning: Path exists but is not a directory: {dir_path}")
-                skipped_count += 1
-
-    print(f"\nStructure initialization complete.")
-    print(f"Created: {created_count}, Skipped/Exists: {skipped_count}")
+            print(f"Directory already exists: {directory}")
+    
+    # Create __init__.py files to make directories into Python packages
+    init_files = [
+        base_dir / "code" / "__init__.py",
+        base_dir / "code" / "data" / "__init__.py",
+        base_dir / "code" / "modeling" / "__init__.py",
+        base_dir / "code" / "utils" / "__init__.py",
+        base_dir / "tests" / "__init__.py",
+        base_dir / "tests" / "unit" / "__init__.py",
+        base_dir / "tests" / "integration" / "__init__.py",
+    ]
+    
+    for init_file in init_files:
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created init file: {init_file}")
+        else:
+            print(f"Init file already exists: {init_file}")
+    
+    print(f"\nProject structure setup complete. Created {created_count} new directories.")
+    return True
 
 if __name__ == "__main__":
-    # Determine the project root (script is in code/, so go up one level)
-    # However, to be safe, we run relative to the current working directory
-    # which should be the project root when the script is executed.
-    root = os.getcwd()
-    print(f"Initializing structure in: {root}")
-    create_structure(root)
+    create_structure()

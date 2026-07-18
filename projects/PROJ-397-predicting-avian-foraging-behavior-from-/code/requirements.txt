@@ -8,6 +8,6 @@ matplotlib
 seaborn
 pyyaml
 jupyter
-shapely
-fiona
-pyproj
+pytest
+black
+ruff

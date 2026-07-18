@@ -1,18 +1,5 @@
-? 'T001a [P] Create directory structure: `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/{data,models,viz,notebooks,utils,tests}`
-  by running `mkdir -p` and `touch` commands for each subdirectory to ensure the folder
-  hierarchy exists.'
-: 1
-? 'T001b [P] Create placeholder files: `requirements.txt` (containing base dependencies:
-  pandas, numpy, scikit-learn, geopandas, rasterio, requests, matplotlib, seaborn,
-  pyyaml, jupyter), `run_pipeline.sh`, and `README.md` in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/`.'
-: 1
-? 'T002 Initialize Python 3.11 project: Add `pandas`, `geopandas`, `scikit-learn`,
-  `rasterio`, `requests`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `jupyter` to
-  `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/requirements.txt`
-  and verify `python --version` returns 3.11.x.'
-: 1
-? 'T003 [P] Configure linting and formatting: Create `pyproject.toml` in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/`
-  with `[tool.black] line-length=88` and `[tool.ruff]` rules enabled.'
-: 1
-T004 [P] Implement `utils/config.py` to define paths, random seeds, and constants.: 1
-T005 [P] Implement `utils/provenance.py` for metadata logging and hash generation.: 1
+T001a: 1
+T001b: 1
+T002: 1
+T003: 1
+T004: 1

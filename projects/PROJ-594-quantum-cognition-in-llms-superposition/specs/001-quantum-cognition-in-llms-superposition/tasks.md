@@ -48,8 +48,8 @@
 - [ ] T001c [P] Create `projects/PROJ-594-quantum-cognition-in-llms-superposition/data/results/` directory and `.gitkeep`
 - [ ] T001d [P] Create `projects/PROJ-594-quantum-cognition-in-llms-superposition/tests/unit/` directory and `__init__.py`
 - [ ] T001e [P] Create `projects/PROJ-594-quantum-cognition-in-llms-superposition/tests/contract/` directory and `__init__.py`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (torch-cpu, transformers, datasets, scikit-learn, numpy)
-- [~] T003 [P] Configure linting (flake/black) and formatting tools
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (torch-cpu, transformers, datasets, scikit-learn, numpy)
+- [ ] T003 [P] Configure linting (flake/black) and formatting tools
 
 ---
 
@@ -117,10 +117,10 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T022 [US2] Implement `code/models/bert_adapter.py`: Softmax normalization $P_{final} = \frac{e^{P_{raw}}}{e^{P_{raw}} + e^{P_{alt}}}$
 - [X] T023a [US2] [Foundational] Define the FR-009 loss function: Implement `code/models/loss_utils.py` with the specific formula `loss += lambda * (1 + torch.cos(phase_diff))` for ambiguous tokens, where lambda=0.5. Verify this function produces negative gradients for non-anti-parallel phases.
 - [X] T023 [US2] Implement `code/models/bert_adapter.py`: Loss function with penalty term. Depends on T023a. Integrate the specific phase-penalty logic from T023a into the training loop. Verify gradient drives phases toward anti-parallelism in unit test.
-- [ ] T024 [US2] Implement `code/experiments/run_quantum.py` to train the adapter (a limited number of epochs), utilize `detect_nan_inf` from T005, and output `data/results/quantum_metrics.json`.
-- [ ] T024a [US2] [FR-006] Ensure `code/experiments/run_quantum.py` explicitly frames all output in `quantum_metrics.json` and inference logs as "associational improvements" to avoid causal claims, satisfying FR-006 for all system outputs.
+- [~] T024 [US2] Implement `code/experiments/run_quantum.py` to train the adapter (a limited number of epochs), utilize `detect_nan_inf` from T005, and output `data/results/quantum_metrics.json`.
+- [X] T024a [US2] [FR-006] Ensure `code/experiments/run_quantum.py` explicitly frames all output in `quantum_metrics.json` and inference logs as "associational improvements" to avoid causal claims, satisfying FR-006 for all system outputs.
 - [ ] T025 [US2] Verify interference cross-term ($2\text{Re}(c_1 \cdot c_2^*)$) can be negative for ambiguous inputs: Add unit test asserting cross_term < 0 for at least 10% of ambiguous samples, output validation to `data/results/interference_validation.json`.
-- [ ] T025b [US2] [SC-003] Implement stability check for the complex-valued model: Modify `code/experiments/run_quantum.py` to run multiple seeds, calculate variance of accuracy/F1, and assert variance < 0.02, satisfying SC-003 for the primary hypothesis.
+- [X] T025b [US2] [SC-003] Implement stability check for the complex-valued model: Modify `code/experiments/run_quantum.py` to run multiple seeds, calculate variance of accuracy/F1, and assert variance < 0.02, satisfying SC-003 for the primary hypothesis.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,8 +134,8 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for paired t-test calculation (p-value, t-stat, Cohen's d) in `tests/unit/test_stats_test.py`
-- [ ] T028 [P] [US3] Contract test for statistical report schema in `tests/contract/test_stats_schema.py`
+- [X] T027 [P] [US3] Unit test for paired t-test calculation (p-value, t-stat, Cohen's d) in `tests/unit/test_stats_test.py`
+- [X] T028 [P] [US3] Contract test for statistical report schema in `tests/contract/test_stats_schema.py`
 
 ### Implementation for User Story 3
 

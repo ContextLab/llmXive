@@ -1,0 +1,6 @@
+'|benjamini correction fdr hochberg project threshold use':
+  quote: "are small and n\u2217 is relatively large. For example, when \u03B1 = 0.05,\
+    \ \u03C00 = 0.2"
+  source_id: '1906.01701'
+  url: https://arxiv.org/abs/1906.01701
+  value: '0.05'

@@ -1,0 +1,21 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the requested `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/{data,models,viz,notebooks,utils,tests}`
+    directory tree (or any `mkdir`/`touch` commands) was provided; the response contains
+    only the task description and no file or folder listings. The required folder
+    hierarchy is therefore missing.
+T002:
+  c: false
+  h: ad2e755b93a9761d973f450fc92c2d8f52c1aff87397559267216ded0d0bc4a2
+  r: The required `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/requirements.txt`
+    file does not exist, and there is no evidence that `python --version` was checked
+    to confirm a 3.11.x interpreter. The present `code/requirements.txt` is at a different
+    location and does not fulfill the task.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `utils/config.py` file or its contents were provided; without the actual\
+    \ module defining the required paths, random seeds, and constants, the claim cannot\
+    \ be verified. The implementer must add a non\u2011empty `utils/config.py` implementing\
+    \ those configurations."

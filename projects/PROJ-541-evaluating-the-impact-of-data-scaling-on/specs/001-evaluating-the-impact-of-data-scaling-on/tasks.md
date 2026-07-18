@@ -39,7 +39,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup configuration management for `SimulationConfig` entity in `code/simulation/config.py`
+- [X] T004 Setup configuration management for `SimulationConfig` entity in `code/simulation/config.py`
 - [X] T005a [P] Create `code/simulation/logger.py` with `setup_logger` function that returns a logger instance configured with `logging.INFO` and a specific format string `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'`
 - [X] T005b [P] Configure log levels for `code/simulation/logger.py` to handle `DEBUG`, `INFO`, `WARNING`, `ERROR` with file rotation to `logs/simulation.log`
 - [X] T006 [P] Create base test fixtures and seed management in `code/tests/conftest.py` (independent of T005, using standard library logging for fixtures)
@@ -66,7 +66,7 @@
 - [X] T011 [US1] Implement `generate_synthetic_data` function in `code/simulation/generator.py` supporting normal, skewed, and heteroscedastic distributions
 - [X] T012 [US1] Implement ground truth validation logic in `code/simulation/generator.py` that returns a boolean and logs assertion failures if `mean_diff >= 0.01` for null or `|mean_diff - 1.0| >= 0.05` for alternative. **Deliverable**: Function returns `(bool, str)` where bool indicates validity and str contains error message if invalid.
 - [X] T013 [US1] Add logic to handle zero-variance edge cases in `code/simulation/generator.py`: Log `WARNING` with message "Skipping iteration: zero variance detected" if `std_dev < 1e-9` and skip the specific iteration. **Condition**: `if std_dev < 1e-9`. **Log Level**: `WARNING`.
-- [~] T014 [US1] Implement data persistence to `data/synthetic/` with metadata (seed, config) for reproducibility
+- [ ] T014 [US1] Implement data persistence to `data/synthetic/` with metadata (seed, config) for reproducibility
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,13 +111,13 @@
 
 ### Implementation for User Story 3
 
-- [~] T027 [US3] Implement simulation loop orchestration in `code/main.py` (or `code/simulation/orchestrator.py`) to run sufficient iterations per config. **Depends on**: Completion of Phase 3 (US1) and Phase 4 (US2) implementation. **Output**: Append each `TestResult` to `results/simulation_results.csv` per iteration.
+- [ ] T027 [US3] Implement simulation loop orchestration in `code/main.py` (or `code/simulation/orchestrator.py`) to run sufficient iterations per config. **Depends on**: Completion of Phase 3 (US1) and Phase 4 (US2) implementation. **Output**: Append each `TestResult` to `results/simulation_results.csv` per iteration.
 - [X] T028 [US3] Implement checkpointing mechanism in `code/main.py` to save partial results and **report summary** (number of completed iterations) if loop exceeds a **predefined time threshold**, enforcing a **hard stop**. **Deliverable**: Report must explicitly state count of completed iterations and save partial CSV.
 - [X] T029 [US3] Implement `calculate_aggregate_metrics` in `code/analysis/metrics.py` to compute Type I error and Power
 - [X] T030 [US3] Implement `generate_error_rate_plot` in `code/visualization/plots.py` showing empirical rate vs alpha=0.05 with 95% CI
-- [~] T031a [US3] Implement mixed-effects model analysis (statsmodels) in `code/analysis/metrics.py` for **synthetic data**: Fit mixed-effects model with `scaling_method` and `distribution_type` as fixed effects, and `simulation_batch` as the random effect. Dependent variable: `deviation from nominal alpha`. Output: `results/mixed_effects_synthetic.csv`. **Formula**: `deviation ~ scaling_method + distribution_type + (1|simulation_batch)`. **Deliverable**: Function must return model summary and save to CSV.
-- [~] T031b [US3] Implement mixed-effects model analysis (statsmodels) in `code/analysis/metrics.py` for **real-world data**: Fit mixed-effects model with `scaling_method` as fixed effect, `dataset_id` as random effect. Dependent variable: `deviation from nominal alpha`. Output: `results/mixed_effects_summary.csv`. **Formula**: `deviation ~ scaling_method + (1|dataset_id)`. **Deliverable**: Function must return model summary and save to CSV.
-- [~] T032 [US3] Generate summary report comparing deviations of each scaling method from nominal 0.05
+- [ ] T031a [US3] Implement mixed-effects model analysis (statsmodels) in `code/analysis/metrics.py` for **synthetic data**: Fit mixed-effects model with `scaling_method` and `distribution_type` as fixed effects, and `simulation_batch` as the random effect. Dependent variable: `deviation from nominal alpha`. Output: `results/mixed_effects_synthetic.csv`. **Formula**: `deviation ~ scaling_method + distribution_type + (1|simulation_batch)`. **Deliverable**: Function must return model summary and save to CSV.
+- [ ] T031b [US3] Implement mixed-effects model analysis (statsmodels) in `code/analysis/metrics.py` for **real-world data**: Fit mixed-effects model with `scaling_method` as fixed effect, `dataset_id` as random effect. Dependent variable: `deviation from nominal alpha`. Output: `results/mixed_effects_summary.csv`. **Formula**: `deviation ~ scaling_method + (1|dataset_id)`. **Deliverable**: Function must return model summary and save to CSV.
+- [ ] T032 [US3] Generate summary report comparing deviations of each scaling method from nominal 0.05
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -139,10 +139,10 @@
 - [X] T034a [US4] **Create Dataset Configuration**: Generate `data/config/datasets.yaml` containing the list of verified datasets (IDs: `uciml/iris`, `uciml/wine`, `uciml/breast-cancer-wisconsin`, `uciml/heart-statlog`, `uciml/ionosphere`, `uciml/credit-a`, `uciml/credit-g`, `uciml/hepatitis`, `uciml/horse-colic`, `openml/d/2`, `openml/d/3`, `openml/d/11`). Include metadata (source, expected size) for each.
 - [X] T035 [US4] Implement `download_dataset` function in `code/preprocessing/ingestion.py` using specific verified URLs or `datasets.load_dataset` for the datasets listed in `data/config/datasets.yaml`. **Deliverable**: Function must read dataset list from `data/config/datasets.yaml`.
 - [X] T036 [US4] Implement data cleaning and preprocessing (imputation/removal) in `code/preprocessing/ingestion.py`
-- [ ] T037 [US4] Create `RealWorldDataset` entity and metadata storage in `code/preprocessing/ingestion.py`
+- [X] T037 [US4] Create `RealWorldDataset` entity and metadata storage in `code/preprocessing/ingestion.py`
 - [ ] T034b [US4] **Orchestrate Real-World Dataset Ingestion**: Implement loop in `code/main.py` to iterate over the configuration list in `data/config/datasets.yaml`. Track metadata for each source (source, size, missing_rate) in `data/metadata/manifest.json`. Skip missing datasets with warnings. **Depends on**: T034a, T035, T036. **Config**: Read dataset list from `data/config/datasets.yaml`.
-- [ ] T038 [US4] Reuse scaling and testing pipeline (US2) on real data in `code/main.py`. **Depends on**: Completion of Phase 4 (US2) implementation (T019-T024) and Phase 6 setup (T035-T036).
-- [ ] T039 [US4] Implement comparison report generation (p-values, effect sizes before/after scaling) in `code/analysis/metrics.py`
+- [X] T038 [US4] Reuse scaling and testing pipeline (US2) on real data in `code/main.py`. **Depends on**: Completion of Phase 4 (US2) implementation (T019-T024) and Phase 6 setup (T035-T036).
+- [X] T039 [US4] Implement comparison report generation (p-values, effect sizes before/after scaling) in `code/analysis/metrics.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -152,13 +152,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Documentation updates in `docs/` and `quickstart.md`
-- [ ] T041 Code cleanup and refactoring of `code/simulation/generator.py` for performance. **Target**: Reduce simulation loop time by 20% or ensure < 6h runtime. **Actions**: Vectorize loops with NumPy, profile with cProfile. **Deliverable**: Refactored code with benchmark results showing runtime improvement.
-- [ ] T042a [P] Vectorize `generate_synthetic_data` in `code/simulation/generator.py` using NumPy array operations instead of Python loops. **Deliverable**: 2x speedup in generation step.
-- [ ] T042b [P] Parallelize simulation loop in `code/main.py` using `multiprocessing` (limited to 2 workers for CPU constraint). **Deliverable**: Linear speedup up to 2 cores.
-- [ ] T043 [P] Additional unit tests for edge cases (extreme outliers, constant data) in `code/tests/unit/`
-- [ ] T044 Run quickstart.md validation to ensure end-to-end reproducibility
-- [ ] T045 Verify all artifacts (plots, CSVs) are generated programmatically and match `results/` storage schema
+- [~] T040 [P] Documentation updates in `docs/` and `quickstart.md`
+- [X] T041 Code cleanup and refactoring of `code/simulation/generator.py` for performance. **Target**: Reduce simulation loop time by 20% or ensure < 6h runtime. **Actions**: Vectorize loops with NumPy, profile with cProfile. **Deliverable**: Refactored code with benchmark results showing runtime improvement.
+- [X] T042a [P] Vectorize `generate_synthetic_data` in `code/simulation/generator.py` using NumPy array operations instead of Python loops. **Deliverable**: 2x speedup in generation step.
+- [X] T042b [P] Parallelize simulation loop in `code/main.py` using `multiprocessing` (limited to 2 workers for CPU constraint). **Deliverable**: Linear speedup up to 2 cores.
+- [~] T043 [P] Additional unit tests for edge cases (extreme outliers, constant data) in `code/tests/unit/`
+- [~] T044 Run quickstart.md validation to ensure end-to-end reproducibility
+- [~] T045 Verify all artifacts (plots, CSVs) are generated programmatically and match `results/` storage schema
 
 ---
 

@@ -1,69 +1,46 @@
 #!/bin/bash
-# Orchestration script for the Avian Foraging Behavior Prediction Pipeline
-# Executes the full data processing, modeling, and visualization workflow.
-#
-# Usage: bash run_pipeline.sh
-#
-# Prerequisites:
-#   - Python 3.11+ installed
-#   - Virtual environment activated with dependencies from requirements.txt
-#   - Real data sources (eBird, NLCD) accessible via network
+set -e
 
-set -e  # Exit immediately if a command exits with a non-zero status
+echo "Starting Avian Foraging Behavior Pipeline..."
 
-# Determine script directory to ensure relative paths work correctly
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Ensure we are in the code directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-echo "=========================================="
-echo "Starting Avian Foraging Behavior Pipeline"
-echo "=========================================="
-echo "Working directory: $(pwd)"
-echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-echo "------------------------------------------"
-
-# Step 1: Download eBird Data
-echo "[1/7] Downloading eBird data..."
+echo "Step 1: Download EBD Data"
 python data/download_ebd.py
-echo "Step 1 complete."
 
-# Step 2: Download NLCD Data
-echo "[2/7] Downloading NLCD land cover data..."
+echo "Step 2: Download NLCD Data"
 python data/download_nlcd.py
-echo "Step 2 complete."
 
-# Step 3: Merge and Buffer
-echo "[3/7] Merging data and calculating buffers..."
+echo "Step 3: Fetch Guild Mapping"
+python data/fetch_guild_mapping.py
+
+echo "Step 4: Filter Top 25 Species"
+python data/filter_top_25.py
+
+echo "Step 5: Merge and Buffer"
 python data/merge_and_buffer.py
-echo "Step 3 complete."
 
-# Step 4: Train Model
-echo "[4/7] Training Random Forest model..."
+echo "Step 6: Aggregate Profiles"
+python data/aggregate.py
+
+echo "Step 7: Extract Top Species"
+python data/extract_top_species.py
+
+echo "Step 8: Train Model"
 python models/train.py
-echo "Step 4 complete."
 
-# Step 5: Evaluate Model
-echo "[5/7] Evaluating model performance..."
+echo "Step 9: Evaluate Model"
 python models/evaluate.py
-echo "Step 5 complete."
 
-# Step 6: Plot Confusion Matrix
-echo "[6/7] Generating confusion matrix visualization..."
+echo "Step 10: Plot Confusion Matrix"
 python viz/plot_confusion.py
-echo "Step 6 complete."
 
-# Step 7: Plot Feature Importance
-echo "[7/7] Generating feature importance chart..."
+echo "Step 11: Plot Feature Importance"
 python viz/plot_importance.py
-echo "Step 7 complete."
 
-# Note: map_habitat.py is not included in the primary chain in tasks.md description
-# but if needed, it would be run here. The tasks.md specific command list ends at plot_importance.
-# If map_habitat is required by the user, uncomment the line below:
-# echo "Generating habitat map..."
-# python viz/map_habitat.py
+echo "Step 12: Map Habitat"
+python viz/map_habitat.py
 
-echo "------------------------------------------"
-echo "Pipeline completed successfully!"
-echo "Check 'data/processed/' for datasets and 'figures/' for visualizations."
-echo "=========================================="
+echo "Pipeline completed successfully."

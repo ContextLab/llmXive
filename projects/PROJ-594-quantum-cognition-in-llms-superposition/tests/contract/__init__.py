@@ -1,12 +1,8 @@
 """
-Contract tests for PROJ-594: Quantum Cognition in LLMs.
+Contract tests for PROJ-594-Quantum-Cognition-in-LLMs-Superposition.
 
-This module contains schema validation and interface contract tests
-ensuring that model outputs, metrics, and data structures adhere to
-the specifications defined in the research pipeline.
-
-These tests verify that the system produces results in the expected
-format before downstream analysis or statistical testing.
+These tests verify that the output artifacts (JSON schemas, data structures,
+and API responses) strictly adhere to the project's specification contracts.
+They do not test the internal logic of the models, but rather the shape and
+validity of the data they produce.
 """
-
-__all__ = []

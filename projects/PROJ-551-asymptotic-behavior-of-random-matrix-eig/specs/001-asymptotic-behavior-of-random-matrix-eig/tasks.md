@@ -56,9 +56,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup configuration management for seeds, tolerances, and paths in `code/utils/config.py`
-- [ ] T005 [P] Implement data hygiene utilities (checksums) in `code/utils/checksum.py` per Constitution III
+- [X] T005 [P] Implement data hygiene utilities (checksums) in `code/utils/checksum.py` per Constitution III
 - [X] T006 [P] Create base data models/entities in `code/data_models.py` (SimulationRun, PerturbationConfig)
-- [X] T007 [P] Setup iterative solver wrapper with `tol=1e-10` in `code/analysis/eigen_solver.py` using `scipy.sparse.linalg.eigsh` and `LinearOperator`; validate results STRICTLY against the theoretical semicircle edge (±2.0) to ensure outliers are not artifacts, avoiding validation against the predicted BBP threshold.
+- [X] T007 [P] Setup iterative solver wrapper with `tol=1e-10` in `code/analysis/eigen_solver.py` using `scipy.sparse.linalg.eigsh` and `LinearOperator`; validate results STRICTLY against the theoretical semicircle edge (±2.0) [UNRESOLVED-CLAIM: c_6cdbd72c — status=not_enough_info] to ensure outliers are not artifacts, avoiding validation against the predicted BBP threshold.
 - [X] T008 [P] Implement outlier detection logic (bulk edge vs. BBP prediction) in `code/analysis/outlier_detect.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -69,7 +69,7 @@
 
 **Goal**: Generate Wigner matrices, apply deterministic sparse perturbations, and compute eigenvalues to identify outliers.
 
-**Independent Test**: Run a script generating a single N=1000 instance with a rank-1 diagonal perturbation (θ=2.5) and verify an eigenvalue > 2.0 exists.
+**Independent Test**: Run a script generating a single N=1000 instance with a rank-1 diagonal perturbation (θ=2.5) and verify an eigenvalue > 2.0 exists [UNRESOLVED-CLAIM: c_3e5bde72 — status=refuted].
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -81,7 +81,7 @@
 - [X] T012 [P] [US1] Implement Wigner matrix generator (dense, scaled $1/\sqrt{N}$) in `code/generators/wigner.py`
 - [X] T013 [P] [US1] Implement perturbation matrix constructor (diagonal, block-sparse, random sparse) in `code/generators/perturbation.py`; verify rank preservation during sparsity masking per FR-002 and FR-009
 - [X] T014 [US1] Implement core simulation loop: generate $W_N$, add $P_N$, compute top 10 eigenvalues in `code/main.py` (single run mode)
-- [~] T015 [US1] Add logic to record results (eigenvalues, perturbation params) to `data/processed/` with metadata
+- [ ] T015 [US1] Add logic to record results (eigenvalues, perturbation params) to `data/processed/` with metadata
 - [ ] T017 [US1] Add structured logging for simulation run parameters; write structured JSON logs to `data/logs/simulation_run.log` including the exact random seed state, parameter values, and timestamp to satisfy Constitution Principle I (Reproducibility).
 - [ ] T019 [US1] Generate and checksum raw matrix instances and intermediate states in `data/raw/` before aggregation to satisfy Constitution Principle III (Data Hygiene) and ensure traceability.
 
@@ -102,8 +102,8 @@
 ### Implementation for User Story 2
 
 - [ ] T040 [P] [US2] Generate and checksum raw matrix instances and intermediate states for the full parameter sweep in `data/raw/sweep/` before aggregation to satisfy Constitution Principle III (Data Hygiene); this task MUST run before T020 to ensure raw data is preserved and checksummed prior to any derived CSV generation.
-- [ ] T020 [P] [US2] Implement parameter sweep orchestrator (grid of $N$ ranging from a lower bound to 2000, $\theta \in [1.0, 3.0]$) in `code/analysis/threshold_sweep.py`; MUST consume checksummed raw data from T040 (or T019 for single runs) to ensure data hygiene compliance.
-- [ ] T021 [US2] Implement Monte Carlo runner (A sufficient number of iterations per configuration) with random seed management in `code/analysis/monte_carlo_runner.py`; output results to `data/processed/mc_results.csv`
+- [X] T020 [P] [US2] Implement parameter sweep orchestrator (grid of $N$ ranging from a lower bound to 2000, $\theta \in [1.0, 3.0]$) in `code/analysis/threshold_sweep.py`; MUST consume checksummed raw data from T040 (or T019 for single runs) to ensure data hygiene compliance.
+- [~] T021 [US2] Implement Monte Carlo runner (A sufficient number of iterations per configuration) with random seed management in `code/analysis/monte_carlo_runner.py`; output results to `data/processed/mc_results.csv`
 - [ ] T022 [US2] Implement curve fitting using `scipy.optimize.curve_fit` to estimate critical $\theta_c$ from binary outlier probability vs. theta data; output fitted parameters to `data/processed/threshold_fit_params.json`.
 - [ ] T023 [US2] Compare $\theta_c$ across different sparsity patterns (diagonal vs. random sparse) and output statistical comparison
 - [ ] T024 [US2] Generate aggregated results file `data/processed/threshold_sweep_results.csv`
@@ -145,8 +145,8 @@
 
 - [ ] T032 [P] [Docs] Update `quickstart.md` to include instructions for reproducing the full parameter sweep and sensitivity analysis.
 - [ ] T033 [P] [Docs] Update `research.md` to explicitly state the observational nature of the study and the absence of physical observer modeling, ensuring alignment with FR-007.
-- [ ] T034 [P] Code cleanup and refactoring for memory efficiency (ensure < 7 GB RAM for N=2000)
-- [ ] T035 Performance optimization: verify full parameter sweep completes within 6 hours
+- [ ] T034 [P] Code cleanup and refactoring for memory efficiency (ensure < 7 GB RAM for N=2000 [UNRESOLVED-CLAIM: c_1336e8f5 — status=refuted])
+- [ ] T035 Performance optimization: verify full parameter sweep completes within 6 hours [UNRESOLVED-CLAIM: c_21e1d1fb — status=not_enough_info]
 - [ ] T036 [P] Additional unit tests for edge cases (N=100, $\theta=1.0$, rank=0) in `tests/unit/`
 - [ ] T037 Run `quickstart.md` validation to ensure reproducibility
 - [ ] T038 Final checksum generation for all `data/` artifacts in `state/checksums.json`
@@ -249,7 +249,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All matrix operations must use CPU-tractable iterative solvers (ARPACK) for N > 500 to fit within 7GB RAM. No GPU tasks.
+- **Critical Constraint**: All matrix operations must use CPU-tractable iterative solvers (ARPACK) for N > 500 [UNRESOLVED-CLAIM: c_dae401d7 — status=not_enough_info] to fit within 7GB RAM. No GPU tasks.
 - **Scope Note**: This project is purely observational (simulated data) with synthetic variables. All findings are framed as associational correlations (FR-007). No physical "observer" or "frame of reference" modeling is required or permitted.
 - **Review Note**: Phase 6 tasks focus on documentation and reproducibility, ensuring alignment with FR-007 and the Spec's Assumptions regarding the observational nature of the study.
 - **Data Hygiene Note**: Task T040 ensures raw data for the sweep is checksummed before T020 processes it, strictly adhering to Constitution Principle III.

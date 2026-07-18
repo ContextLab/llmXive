@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "predicting-avian-foraging-behavior"
 version = "0.1.0"
 description = "Predicting avian foraging guilds from public eBird data and land cover maps"
-readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -18,7 +17,7 @@ dependencies = [
     "matplotlib",
     "seaborn",
     "pyyaml",
-    "jupyter",
+    "jupyter"
 ]
 
 [tool.black]
@@ -27,8 +26,7 @@ target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -41,28 +39,23 @@ exclude = '''
 '''
 
 [tool.ruff]
-# Same as Black.
 line-length = 88
 target-version = "py311"
-
-# Assume UTF-8
-force-exclude = true
-
-[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
-    "F",  # Pyflakes
+    "F",  # pyflakes
     "I",  # isort
-    "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
 ]
 ignore = [
     "E501", # line too long (handled by black)
-    "B006", # mutable default arguments
-    "B007", # unused loop variables
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
 
-[tool.ruff.lint.isort]
-known-first-party = ["setup_directories", "verify_python_version"]
+[tool.ruff.isort]
+known-first-party = ["data", "models", "viz", "utils", "tests"]
 force-sort-within-sections = true
+combine-as-imports = true

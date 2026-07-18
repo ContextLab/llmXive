@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`, `tests/`, `state/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (pandas, numpy, scikit-learn, statsmodels, shap, biopython, requests, pytest, pyyaml)
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (pandas, numpy, scikit-learn, statsmodels, shap, biopython, requests, pytest, pyyaml)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `.pre-commit-config.yaml`
 
 ---
@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `code/utils/constants.py` with random seeds (`random_state=42`), file paths, and hypothesis thresholds (Balanced Acc > 0.75). **Define `HOLD_OUT_FRACTION = 0.20` for T020.**
-- [ ] T005 [P] Implement `code/utils/io.py` for checksumming (MD5/SHA256) and logging artifacts to `state/artifact_hashes.yaml` <!-- SKIPPED: YAML+regex parse failed (while scanning for the next token
+- [X] T005 [P] Implement `code/utils/io.py` for checksumming (MD5/SHA256) and logging artifacts to `state/artifact_hashes.yaml` <!-- SKIPPED: YAML+regex parse failed (while scanning for the next token
 found character '`' that cannot start any token
  in "<unicode string>", line 2, column 1:
  ```bash
@@ -93,7 +93,7 @@ found character '`' that cannot start any token
  - Align metabolites via InChIKey across studies
  - Perform covariate residualization for biological confounders
  - Apply ComBat batch-effect correction when ≥2 studies are combined (FR-004)
-- [ ] T016 [US1] Add logging for data acquisition and preprocessing steps to `code/utils/io.py`
+- [X] T016 [US1] Add logging for data acquisition and preprocessing steps to `code/utils/io.py`
 - [ ] T017 [US1] Generate `data/processed/batch_corrected_matrix.csv` and `data/processed/labels.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -108,19 +108,19 @@ found character '`' that cannot start any token
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for `code/modeling/train.py` verifying stratified split and hold-out reservation (FR-006) in `tests/unit/test_modeling.py`
+- [X] T018 [P] [US2] Unit test for `code/modeling/train.py` verifying stratified split and hold-out reservation (FR-006) in `tests/unit/test_modeling.py`
 - [ ] T019 [P] [US2] Unit test for `code/modeling/evaluate.py` verifying permutation distribution generation in `tests/unit/test_modeling.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/modeling/train.py` to:
+- [X] T020 [US2] Implement `code/modeling/train.py` to:
  - Reserve **HOLD_OUT_FRACTION (0.20)** of samples as independent hold-out set *before* any feature selection (FR-006)
  - Train Random Forest (n_estimators=500, max_depth=10) with Stratified 5-fold CV (FR-005)
  - Perform GridSearchCV within the CV loop with `param_grid={'max_depth': [10, 15, 20]}` (tunable up to 20)
 - [ ] T021 [US2] Implement `code/modeling/evaluate.py` to:
- - Compute Balanced Accuracy, ROC-AUC, Precision-Recall on the independent hold-out set (SC-001)
+ - Compute Balanced Accuracy, ROC-AUC, Precision-Recall on theindependent hold-out set (SC-001)
  - Run Permutation Testing (≥1,000 permutations) to generate null distribution and assess significance (FR-007, SC-003)
- - Apply Benjamini-Hochberg FDR correction (≤0.05) to pairwise metabolite-resistance correlations **computed on the training fold only** (FR-008, SC-002)
+ - Apply Benjamini-Hochberg FDR correction (≤0.05 (1906.01701, https://arxiv.org/abs/1906.01701)) to pairwise metabolite-resistance correlations **computed on the training fold only** (FR-008, SC-002)
  - Perform Sensitivity Analysis sweeping decision cutoffs over absolute diff ∈ {0.01, 0.05, 0.1} and report FP/FR rates (FR-009, SC-005)
  - Generate Learning Curve to assess sample size sufficiency (SC-004)
 - [ ] T022 [US2] Implement collinearity diagnostics (VIF calculation) for selected metabolites, flagging VIF > 5 (FR-012). **Mandatory diagnostic per FR-012.**

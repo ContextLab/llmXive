@@ -1,0 +1,19 @@
+# Ruff configuration extending pyproject.toml defaults
+# Specific overrides for this project
+
+[lint]
+# Enable specific rules that might be too strict globally
+select = ["ALL"]
+ignore = [
+    "D",    # pydocstyle (docstrings enforced by black/ruff format, not strict here)
+    "ANN",  # flake8-annotations (typing hints enforced by mypy/pyright separately if needed)
+    "S101", # Use of assert detected (allowed in tests)
+    "PLR",  # Pylint refactor
+    "C901", # Complex functions (handled by complexity thresholds)
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

@@ -1,5 +1,6 @@
-'|alpha permutation significance test threshold using validate':
-  quote: the value 0.05 is not in the set mentioned in proposition 1 and hence the
-  source_id: '1411.7565'
-  url: https://arxiv.org/abs/1411.7565
+'|against alpha calculate permutation test threshold':
+  quote: "\u201C\u03B22 = 0\u201D at size \u03B1 = 0 . 05. The empirical sizes (for\
+    \ \u03B22 = 0) and powers (for"
+  source_id: '1003.1002'
+  url: https://arxiv.org/abs/1003.1002
   value: '0.05'

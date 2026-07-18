@@ -5,40 +5,70 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "asymptotic-behavior-random-matrix"
 version = "0.1.0"
-description = "Asymptotic behavior of random matrix eigenvalues with sparse perturbations"
+description = "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations"
 requires-python = ">=3.11"
 dependencies = [
     "numpy>=1.26.0",
     "scipy>=1.12.0",
-    "pydantic>=2.0.0",
+    "pydantic>=2.5.0",
     "pyyaml>=6.0.1",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest>=7.4.0",
+    "ruff>=0.4.0",
+    "black>=24.3.0",
+    "pytest>=8.0.0",
     "pytest-cov>=4.1.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["code"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"code/tests/*" = ["S101"] # assert allowed in tests
 
 [tool.black]
-line-length = 88
-target-version = ["py311"]
+line-length = 100
+target-version = ['py311']
 include = '\.pyi?$'
-
-[tool.ruff]
-# Inherit settings from ruff.toml if desired, or define here for single-file config
-# Currently delegating to code/ruff.toml for readability, but this ensures
-# pyproject.toml is valid for build tools.
-line-length = 88
-target-version = "py311"
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["code/tests"]
 pythonpath = ["code"]
-addopts = "-v --tb=short"
+addopts = "-v --strict-markers"

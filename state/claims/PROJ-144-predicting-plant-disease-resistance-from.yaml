@@ -1,0 +1,191 @@
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_e6642a41
+  context: Initialize Python 3.11 project with pinned dependencies in requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:23:39Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest model uses 500 estimators and max depth 10
+  claim_id: c_36627b71
+  context: Train Random Forest (n_estimators=500, max_depth=10) with Stratified 5-fold
+    CV
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Random Forest with n_estimators=500 and max_depth=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:23:56Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Model training uses Stratified 5-fold Cross-Validation
+  claim_id: c_4dff4867
+  context: Train Random Forest with Stratified 5-fold CV
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Stratified 5-fold Cross-Validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:24:26Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Hold-out fraction is 0.20
+  claim_id: c_1b767cf4
+  context: Reserve HOLD_OUT_FRACTION (0.20) of samples as independent hold-out set
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a hold-out fraction of 0.20 for the independent test
+    set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:24:42Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Permutation testing uses 1000 permutations
+  claim_id: c_4bf057cf
+  context: "Run Permutation Testing (\u22651,000 permutations) to generate null distribution"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_uses_1000_permutations
+  kind: magnitude
+  raw_text: Permutation testing uses at least 1,000 permutations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:25:03Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Balanced accuracy threshold is greater than 0.75
+  claim_id: c_154d1b9e
+  context: hypothesis thresholds (Balanced Acc > 0.75)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Balanced_accuracy_threshold_is_greater_than_0.75
+  kind: magnitude
+  raw_text: The project uses a balanced accuracy threshold greater than 0.75.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:25:48Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Features with more than 30% missing data are discarded
+  claim_id: c_7d08e256
+  context: Log-transform intensities and discard features missing >30%
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Features_with_more_than_30%25_missing_data_are_discarded
+  kind: magnitude
+  raw_text: Features missing more than 30% of data are discarded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:26:13Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction threshold is 0.05
+  claim_id: c_f45deed1
+  context: "Apply Benjamini-Hochberg FDR correction (\u22640.05) to pairwise metabolite-resistance\
+    \ correlations"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "are small and n\u2217 is relatively large. For example, when \u03B1\
+        \ = 0.05, \u03C00 = 0.2"
+      source_id: '1906.01701'
+      url: https://arxiv.org/abs/1906.01701
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The project uses Benjamini-Hochberg FDR correction with a threshold of
+    0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T07:26:32Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Collinearity diagnostics flag VIF greater than 5
+  claim_id: c_d32c1e66
+  context: Implement collinearity diagnostics (VIF calculation) for selected metabolites,
+    flagging VIF > 5
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_diagnostics_flag_VIF_greater_than_5
+  kind: magnitude
+  raw_text: Collinearity diagnostics flag Variance Inflation Factor (VIF) values greater
+    than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:26:48Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit is 6 hours
+  claim_id: c_92527814
+  context: "Run full pipeline integration test on GitHub Actions free-tier (verify\
+    \ \u22646h runtime, \u22647GB RAM)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run within 6 hours on the GitHub Actions free-tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:27:06Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline RAM limit is 7GB
+  claim_id: c_d4f1e82d
+  context: "Run full pipeline integration test on GitHub Actions free-tier (verify\
+    \ \u22646h runtime, \u22647GB RAM)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_RAM_limit_is_7GB
+  kind: magnitude
+  raw_text: The pipeline must use no more than 7GB of RAM on the GitHub Actions free-tier.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:27:42Z'

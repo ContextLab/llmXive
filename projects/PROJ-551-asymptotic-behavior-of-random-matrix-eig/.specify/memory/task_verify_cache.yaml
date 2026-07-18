@@ -1,0 +1,39 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/`
+    directory or any files within it is provided; the claim lacks any tangible artifact
+    showing the required project structure has been created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or `black` settings)
+    or any other evidence of ruff/black being set up in the `code/` directory were
+    presented. Without visible artifacts, the claim cannot be verified as fulfilled.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer only supplied the feature specification and test scenarios but
+    did not provide any code changes, data files, or scripts that actually write eigenvalues
+    and perturbation parameters (with metadata) to `data/processed/`. No artifact
+    exists on disk to verify that the recording logic was implemented. The required
+    output files are missing.
+T018:
+  c: false
+  h: c8d536ad42cbaa1e8cf1e91b480ffadf5ab621bdc34de811c820e85ec2e9d265
+  r: The required artifact `tests/integration/test_sweep.py` does not exist in the
+    repository, so the integration test for the full parameter sweep cannot be verified.
+    The task remains unfinished until the file is added with the appropriate test
+    implementation.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data/raw/` directory or any generated matrix files with checksums are present
+    in the provided evidence; the claim lacks any tangible artifacts demonstrating
+    raw matrix instances or their verification. The task therefore remains unfulfilled.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or directories were presented under `data/raw/sweep/`, and no checksums
+    or intermediate state records were supplied. Consequently, the required raw matrix
+    instances and their verification data are missing, so the task is not satisfied.

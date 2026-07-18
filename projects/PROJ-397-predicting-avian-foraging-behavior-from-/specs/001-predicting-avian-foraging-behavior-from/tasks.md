@@ -45,7 +45,7 @@
 
 - [ ] T001a [P] Create directory structure: `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/{data,models,viz,notebooks,utils,tests}` by running `mkdir -p` and `touch` commands for each subdirectory to ensure the folder hierarchy exists.
 - [ ] T001b [P] Create placeholder files: `requirements.txt` (containing base dependencies: pandas, numpy, scikit-learn, geopandas, rasterio, requests, matplotlib, seaborn, pyyaml, jupyter), `run_pipeline.sh`, and `README.md` in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/`.
-- [ ] T002 Initialize Python 3.11 project: Add `pandas`, `geopandas`, `scikit-learn`, `rasterio`, `requests`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `jupyter` to `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/requirements.txt` and verify `python --version` returns 3.11.x.
+- [ ] T002 Initialize Python 3.11 project: Add `pandas`, `geopandas`, `scikit-learn`, `rasterio`, `requests`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `jupyter` to `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/requirements.txt` and verify `python --version` returns 3.11.x. <!-- ATOMIZE: requested -->
 - [ ] T003 [P] Configure linting and formatting: Create `pyproject.toml` in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/` with `[tool.black] line-length=88` and `[tool.ruff]` rules enabled.
 
 ---
@@ -75,10 +75,10 @@
 ### Implementation for User Story 1
 
 - [ ] T011 [P] [US1] Implement `data/download_ebd.py` to fetch EBD data from official eBird HTTPS URL (or verified S3 fallback per Plan 'Risks & Mitigations' if official fails) and generate checksums in `data/metadata.yaml`.
-- [ ] T012 [P] [US1] Implement `data/download_nlcd.py` to fetch NLCD 2019 land cover data from USGS EarthExplorer and generate checksums. <!-- FAILED: unspecified -->
+- [ ] T012 [P] [US1] Implement `data/download_nlcd.py` to fetch NLCD 2019 land cover data from USGS EarthExplorer [UNRESOLVED-CLAIM: c_7805b34b — status=not_enough_info] and generate checksums. <!-- FAILED: unspecified -->
 - [ ] T012.5 [US1] Implement `data/filter_top_25.py` to load raw EBD data (from T011), calculate record counts per species, select the top 25 species by count, and save the filtered subset to `data/processed/ebd_top25.csv`.
-- [ ] T013 [US1] Implement `data/merge_and_buffer.py` to join filtered EBD records (from T012.5) with NLCD data, calculate 100m buffer land cover proportions, and assign foraging guilds by joining with `data/processed/guild_mapping.csv` (produced by T008).
-- [ ] T014 [US1] Implement filtering logic in `data/merge_and_buffer.py` to retain only species with ≥50 observations and log excluded species to `data/processed/excluded_species.log`.
+- [ ] T013 [US1] Implement `data/merge_and_buffer.py` to join filtered EBD records (from T012.5) with NLCD data, calculate 100m buffer land cover proportions [UNRESOLVED-CLAIM: c_44510cd6 — status=not_enough_info], and assign foraging guilds by joining with `data/processed/guild_mapping.csv` (produced by T008).
+- [ ] T014 [US1] Implement filtering logic in `data/merge_and_buffer.py` to retain only species with ≥50 observations [UNRESOLVED-CLAIM: c_2663e923 — status=not_enough_info] and log excluded species to `data/processed/excluded_species.log`.
 - [ ] T015 [US1] Implement `validate_schema()` in `data/merge_and_buffer.py` that raises `ValueError` if columns `species_id`, `foraging_guild`, `land_cover_proportions` are missing, and add unit test `test_validate_schema`.
 - [ ] T016 [US1] Implement `data/aggregate.py` to aggregate filtered observations into species-level profiles and save to `data/processed/species_profiles.csv`.
 - [ ] T017 [US1] Implement logic to extract the top-ranked species by observation count from `data/processed/species_profiles.csv` and persist to `data/processed/top_species.json`.
@@ -98,7 +98,7 @@
 
 - [ ] T019 [P] [US2] Implement `models/train.py` to load `data/processed/species_profiles.csv` (from T016), train a Random Forest (5-fold CV, CPU-only), and save the model.
 - [ ] T020 [US2] Implement `models/evaluate.py` to compute balanced accuracy and per-class F1 scores.
-- [ ] T021 [US2] Implement `models/evaluate.py` Across-Species Permutation test logic with 1000 iterations, shuffling guild labels across species, and calculate p-value against α = 0.05 (1411.7565, https://arxiv.org/abs/1411.7565) threshold. **Note**: This implements the intent of FR-005 (control for species identity) via the plan's "Across-Species" method, as "stratified by species" is mathematically invalid for constant labels.
+- [ ] T021 [US2] Implement `models/evaluate.py` Across-Species Permutation test logic with 1000 iterations [UNRESOLVED-CLAIM: c_c7663489 — status=not_enough_info], shuffling guild labels across species, and calculate p-value against α = 0.05 (1411.7565, https://arxiv.org/abs/1411.7565) threshold. **Note**: This implements the intent of FR-005 (control for species identity) via the plan's "Across-Species" method, as "stratified by species" is mathematically invalid for constant labels.
 - [ ] T021.5 [US2] Update `notebooks/01_analysis.ipynb` to explicitly document the statistical rationale for using Across-Species Permutation instead of "stratified by species" in Section 3.2, referencing FR-008.
 - [ ] T022 [US2] Add logging in `models/evaluate.py` to record p-values, random seeds, and performance metrics against the α = 0.05 threshold.
 - [ ] T023 [US2] Integrate `models/train.py` and `models/evaluate.py` into the pipeline to ensure the model is trained on the filtered dataset from US1.
@@ -116,7 +116,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement `viz/plot_confusion.py` to generate the confusion matrix image (predicted vs actual foraging guilds) for the top 2 species (using model from T019). (Depends on T019, T020, T021).
+- [ ] T025 [US3] Implement `viz/plot_confusion.py` to generate the confusion matrix image (predicted vs actual foraging guilds) for the top 2 species [UNRESOLVED-CLAIM: c_b92a9d9d — status=not_enough_info] (using model from T019). (Depends on T019, T020, T021).
 - [ ] T026 [US3] Implement `viz/plot_importance.py` to generate the feature importance bar chart and identify top predictors per guild. (Depends on T019, T020, T021).
 - [ ] T027 [US3] Implement `viz/map_habitat.py` to generate a continuous raster prediction surface (GeoJSON/PNG) of high-probability foraging habitats by applying the model to a spatial grid, filtering the visualization scope to a subset of priority species listed in `data/processed/top_species.json`.
 - [ ] T028 [US3] Implement logic in `viz/plot_importance.py` to generate the summary report listing the top land cover predictors for each foraging guild and save to `docs/results/feature_importance_report.md`.
@@ -182,7 +182,7 @@
 ```bash
 # Launch all data download tasks for User Story 1 together:
 Task: "Implement data/download_ebd.py to fetch EBD data via HTTPS or verified S3 fallback"
-Task: "Implement data/download_nlcd.py to fetch NLCD 2019 land cover data from USGS EarthExplorer"
+Task: "Implement data/download_nlcd.py to fetch NLCD 2019 land cover data from USGS EarthExplorer [UNRESOLVED-CLAIM: c_7805b34b — status=not_enough_info] "
 Task: "Implement data/fetch_guild_mapping.py to download external guild lookup"
 ```
 
