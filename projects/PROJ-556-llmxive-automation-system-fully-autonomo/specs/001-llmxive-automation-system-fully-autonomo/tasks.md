@@ -55,7 +55,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup `data/`, `code/`, `lit_search/`, `src/`, `tests/` directory structure
+- [X] T004 Setup `data/`, `code/`, `lit_search/`, `src/`, `tests/` directory structure
 - [ ] T005 [P] Implement `src/utils/seed.py` for deterministic seed management (global seed setting)
 - [ ] T006 [P] Create `src/config/arch_configs.yaml` defining structural parameters (context window, model size, retrieval toggle)
 - [ ] T007 Create base schema contracts in `contracts/` (hypothesis.schema.yaml, execution_log.schema.yaml, dataset_schema.schema.yaml)
