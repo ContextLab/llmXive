@@ -9,3 +9,4 @@ requests
 tqdm
 huggingface_hub
 psutil
+pytest

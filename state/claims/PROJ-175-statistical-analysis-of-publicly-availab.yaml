@@ -177,3 +177,86 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T21:20:04Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: flavor chemistry and functional roles provide statistically significant
+    additional explanatory power for ingredient compatibility beyond co-occurrence
+    frequency
+  claim_id: c_3c47e5fa
+  context: This project investigated whether flavor chemical similarity and functional
+    culinary roles predict ingredient compatibility in recipes, beyond what can be
+    explained by simple co-occurrence frequency. Using a rigorous statistical pipeline
+    on the Recipe1M dataset augmented with FlavorDB chemical profiles, we found that
+    while frequency is a strong predictor, flavor chemistry and functional roles provide
+    statistically significant additional explanatory power.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flavor_chemistry_and_functional_roles_provide_statistically
+  kind: entity_fact
+  raw_text: Using a rigorous statistical pipeline on the Recipe1M dataset augmented
+    with FlavorDB chemical profiles, we found that while frequency is a strong predictor,
+    flavor chemistry and functional roles provide statistically significant additional
+    explanatory power.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:15:56Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: Recipe1M dataset contains approximately 1 million recipes
+  claim_id: c_1967d93a
+  context: 'Data Sources - Recipe1M: ~1M recipes processed via streaming to ensure
+    memory safety (Peak RAM < 6GB).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Recipe1M: ~1M recipes processed via streaming to ensure memory safety
+    (Peak RAM < 6GB).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:19:24Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: Bayesian model achieved R-hat less than 1.05 and ESS greater than 200
+  claim_id: c_beb2b5e6
+  context: 'Model Performance - Bayesian Convergence: R-hat < 1.05 and ESS > 200 for
+    all parameters.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayesian_model_achieved_R-hat_less_than_1.05_and_ESS_greater
+  kind: magnitude
+  raw_text: 'Bayesian Convergence: R-hat < 1.05 and ESS > 200 for all parameters.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:20:24Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: hypothesis that flavor and role predict compatibility beyond frequency
+    is supported
+  claim_id: c_5c318f05
+  context: 'This project successfully meets all success criteria (SC-001 through SC-004)
+    and adheres to all Constitution Principles: ... The hypothesis that ''flavor and
+    role predict compatibility beyond frequency'' is SUPPORTED by the evidence.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_that_flavor_and_role_predict_compatibility_beyond
+  kind: entity_fact
+  raw_text: The hypothesis that 'flavor and role predict compatibility beyond frequency'
+    is SUPPORTED by the evidence.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:21:21Z'

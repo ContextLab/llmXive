@@ -101,6 +101,6 @@ The system must evaluate the models on a held-out test set, calculating AUC, pre
 - The Recipe1M dataset, FlavorDB matrix, and Counterfactual Recipe Generation dataset are available via the specified HuggingFace and Zenodo URLs and are accessible from the GitHub Actions environment without authentication.
 - The "Counterfactual Recipe Generation" dataset provides independent sensory evaluation scores or crowd-sourced preference ratings that can be used as a binary label for culinary compatibility, distinct from the co-occurrence counts.
 - A downsampled subset of the Recipe1M corpus (determined by power analysis to detect effect size ≥ 0.1 with [deferred] power) will be sufficient to train the logistic regression and Bayesian models within a defined runtime limit.
-- The GitHub Actions free-tier runner (limited CPU cores, ~7 GB RAM) is sufficient for the CPU-based sampling of the hierarchical Bayesian model if the dataset is appropriately downsampled.
+- The GitHub Actions free-tier runner (limited CPU cores, constrained RAM) is sufficient for the CPU-based sampling of the hierarchical Bayesian model if the dataset is appropriately downsampled.
 - The functional role of an ingredient can be reliably inferred from its position in the ingredient list and its frequency in the corpus (excluding co-occurrence counts), serving as a valid proxy for "primary" vs. "garnish" roles.
 - The flavor-profile similarity derived from FlavorDB chemical vectors is a valid proxy for the sensory compatibility of ingredient pairs.
