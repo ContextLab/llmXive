@@ -1,63 +1,39 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Benchmark Results Schema"
-description: "Schema for validating comparative benchmark results between baseline and compressed agents."
+# Benchmark Results Schema
+# Validates the output of the benchmarking pipeline
 type: object
 required:
-  - experiment_id
-  - timestamp
-  - baseline_metrics
-  - compressed_metrics
-  - comparison_summary
+  - baseline_results
+  - compressed_results
+  - comparison
 properties:
-  experiment_id:
-    type: string
-    description: "Unique identifier for the benchmark run."
-  timestamp:
-    type: string
-    format: date-time
-  baseline_metrics:
+  baseline_results:
     type: object
-    required:
-      - edit_accuracy
-      - retrieval_latency_ms
     properties:
       edit_accuracy:
         type: number
-        minimum: 0
-        maximum: 1
-        description: "Fraction of edits matching ground truth."
-      retrieval_latency_ms:
+        minimum: 0.0
+        maximum: 1.0
+      avg_latency_ms:
         type: number
-        minimum: 0
-        description: "Time to context-ready in milliseconds."
-  compressed_metrics:
+        minimum: 0.0
+  compressed_results:
     type: object
-    required:
-      - edit_accuracy
-      - retrieval_latency_ms
-      - compression_ratio
     properties:
       edit_accuracy:
         type: number
-        minimum: 0
-        maximum: 1
-      retrieval_latency_ms:
+        minimum: 0.0
+        maximum: 1.0
+      avg_latency_ms:
         type: number
-        minimum: 0
-      compression_ratio:
-        type: number
-        minimum: 0
-        description: "Ratio of compressed size to original size."
-  comparison_summary:
+        minimum: 0.0
+  comparison:
     type: object
-    required:
-      - accuracy_delta
-      - latency_delta_ms
     properties:
       accuracy_delta:
         type: number
-        description: "Difference in accuracy (Compressed - Baseline)."
       latency_delta_ms:
         type: number
-        description: "Difference in latency (Compressed - Baseline)."
-additionalProperties: false
+      fidelity_loss:
+        type: number
+        minimum: 0.0
+        maximum: 1.0

@@ -1,3 +1,3 @@
 """
-Utility functions (I/O, logging, error handling).
+Utility functions package.
 """

@@ -1,0 +1,32 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only high\u2011level feature specifications and user stories;\
+    \ there is no code, script, or documentation implementing an error\u2011handling\
+    \ wrapper for data loading and model inference, nor any tests demonstrating a\
+    \ \u201CFAIL LOUDLY\u201D policy without synthetic fallbacks. The required artifact\
+    \ (the wrapper implementation) is missing."
+T012:
+  c: false
+  h: 3e4ddfd0d1e3b253c19d3616e376939b397bf9ecca312929fafbda736fd8f266
+  r: The provided `src/cli.py` is truncated and does not contain the logic to save
+    embeddings to `data/processed/embeddings/` nor to write the complexity scores
+    CSV. Moreover, the required `data/processed/complexity_scores.csv` file is absent
+    from the repository. These missing artifacts mean the pipeline does not fulfill
+    the stated requirement.
+T016:
+  c: false
+  h: 0d9d9b7ed5a24e04b82e98f281805f5cc8717932b8d3a2840f84d1aa8387e12f
+  r: "The provided `src/cli.py` is truncated and does not contain any code that iterates\
+    \ over the target dimensions (16,\u202F32,\u202F64,\u202F128,\u202F256) or writes\
+    \ aggregated logs to `data/processed/sweep_logs.json`. Moreover, the required\
+    \ `data/processed/sweep_logs.json` file is absent from the repository. Both the\
+    \ orchestrating script and its output are missing, so the task is not satisfied."
+T017:
+  c: false
+  h: 95a3ef611a144e7c8bb8df2658a50009f9b6c0efc5ec50b4e791282c08b095c3
+  r: "The provided `src/cli.py` defines a timeout\u2011checking function, but the\
+    \ script never invokes it (no call after T016 and before T019) and it does not\
+    \ hard\u2011code the required output path `data/results/pipeline_timeout.json`.\
+    \ Moreover, the expected JSON log file is absent. The task\u2019s requirement\
+    \ to abort the job and write that specific file is therefore not satisfied."

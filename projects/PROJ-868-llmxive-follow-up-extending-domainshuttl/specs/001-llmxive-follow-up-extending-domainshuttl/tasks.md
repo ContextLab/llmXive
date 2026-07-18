@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`)
-- [ ] T002 Initialize Python 3.10 project with PyTorch (CPU), scikit-learn, pandas, datasets, pillow, tqdm, opencv-python dependencies in `requirements.txt`
+- [X] T002 Initialize Python 3.10 project with PyTorch (CPU), scikit-learn, pandas, datasets, pillow, tqdm, opencv-python dependencies in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Setup base configuration management in `src/config/settings.py` (paths, seeds, hyperparameters)
-- [ ] T004b [P] Define and validate the 'fidelity_threshold' configuration key in `src/config/settings.py` with a documented default fallback mechanism; raise `ValueError` if missing or invalid
-- [ ] T005 [P] Implement data I/O utilities in `src/utils/io.py` (checksumming, path handling, JSON/CSV serialization)
+- [X] T004 [P] Setup base configuration management in `src/config/settings.py` (paths, seeds, hyperparameters)
+- [X] T004b [P] Define and validate the 'fidelity_threshold' configuration key in `src/config/settings.py` with a documented default fallback mechanism; raise `ValueError` if missing or invalid
+- [X] T005 [P] Implement data I/O utilities in `src/utils/io.py` (checksumming, path handling, JSON/CSV serialization)
 - [ ] T006 [P] Create base entity schemas in `specs/001-gene-regulation/contracts/` (`subject.schema.yaml`, `compressed_vector.schema.yaml`, `fidelity_result.schema.yaml`)
 - [X] T007 Setup logging infrastructure in `src/utils/logging.py` with structured output for pipeline stages
-- [~] T008 Implement error handling wrapper for data loading and model inference to enforce "FAIL LOUDLY" policy (no synthetic fallbacks)
+- [ ] T008 Implement error handling wrapper for data loading and model inference to enforce "FAIL LOUDLY" policy (no synthetic fallbacks)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,7 +74,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement WebVid-10M data loader in `src/data/loaders.py` to fetch exactly 100 diverse subjects via `datasets.load_dataset` using stratified random sampling by the 'category' column (uniform distribution across top 10 categories) with seed=42, with no synthetic fallback <!-- FAILED: unspecified -->
+- [X] T009 [US1] Implement WebVid-10M data loader in `src/data/loaders.py` to fetch exactly 100 diverse subjects via `datasets.load_dataset` using stratified random sampling by the 'category' column (uniform distribution across top 10 categories) with seed=42, with no synthetic fallback <!-- FAILED: unspecified -->
 - [X] T010 [US1] Implement visual complexity scoring in `src/data/complexity.py` using Sobel edge density: calculate mean magnitude of Sobel gradient (kernel size) across 5 equidistant frames per subject, with L2 normalization, to calculate a score for each subject's reference image
 - [ ] T011 [US1] Implement DomainShuttle encoder wrapper in `src/data/embeddings.py` to load frozen weights and extract high-dimensional embeddings for all 100 subjects
 - [ ] T012 [US1] Create pipeline script in `src/cli.py` to orchestrate: Load -> Complexity -> Embed -> Save (outputs to `data/processed/embeddings/` and `data/processed/complexity_scores.csv`)
@@ -92,8 +92,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] Implement CPU-optimized Autoencoder architecture in `src/models/autoencoder.py` supporting configurable target dimensions [16, 32, 64, 128, 256], using a multi-layer perceptron with ReLU, hidden layers sized proportionally to the input dimension, enforcing batch_size=1 and gradient_accumulation_steps=1, and including a runtime memory check that aborts if usage exceeds 5.5GB
-- [ ] T015 [US2] Implement training loop in `src/models/training.py` using cosine similarity loss between reconstructed and original embeddings; save checkpoints to `data/processed/compressed_models/`
+- [X] T014 [US2] Implement CPU-optimized Autoencoder architecture in `src/models/autoencoder.py` supporting configurable target dimensions [16, 32, 64, 128, 256], using a multi-layer perceptron with ReLU, hidden layers sized proportionally to the input dimension, enforcing batch_size=1 and gradient_accumulation_steps=1, and including a runtime memory check that aborts if usage exceeds 5.5GB
+- [X] T015 [US2] Implement training loop in `src/models/training.py` using cosine similarity loss between reconstructed and original embeddings; save checkpoints to `data/processed/compressed_models/`
 - [ ] T016 [US2] Create dimensionality sweep script in `src/cli.py` to orchestrate the sequential execution of T015 for each target dimension [16, 32, 64, 128, 256], aggregating per-dimension logs into `data/processed/sweep_logs.json`
 - [ ] T017 [US2] Implement global pipeline timeout monitor in `src/cli.py` to aggregate training and generation timeouts; if total job time exceeds 6 hours, abort the job and log `data/results/pipeline_timeout.json`; this task must be called after T016 and before T019
 - [ ] T018 [US2] Add validation to exclude subjects where training fails to converge, updating `data/processed/failed_subjects.log`

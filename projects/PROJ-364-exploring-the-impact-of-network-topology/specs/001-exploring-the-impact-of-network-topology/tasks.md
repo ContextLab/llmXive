@@ -77,11 +77,18 @@
 - [ ] T010 [P] [US1] Unit test for coordinate parsing and missing value handling in `tests/unit/test_data_ingestion.py`
 - [ ] T011 [P] [US1] Integration test for graph construction with known threshold in `tests/integration/test_graph_construction.py`
 - [ ] T012 [P] [US1] Contract test validating output against `graph.schema.yaml` in `tests/contract/test_graph_schema.py`
+- [ ] T012a [P] [US1] **Data Availability Verification**: Implement `src/data_ingestion/verify_data.py` to check for the existence of paired real datasets (defect coords + thermal conductivity) vs. unpaired aggregate data. 
+  - If no real data exists, generate a flag in `state/data_status.json` to trigger synthetic fallback or population-level analysis.
+  - Log specific warning if the plan's "no data" assumption conflicts with the spec's "assume data" assumption, forcing a manual review or fallback path (Plan vs Spec Contradiction Resolution).
+  - **Deliverable**: `state/data_status.json` with keys `has_real_data`, `is_unpaired`, `fallback_mode`.
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `src/data_ingestion/loader.py` to load CSV/Parquet with `chunksize` streaming; drop rows with missing x/y and log warnings (FR-001, US1-Scenario 2)
-- [ ] T014 [US1] Implement `src/data_ingestion/threshold.py` to calculate threshold: MUST retrieve material-specific lattice constants from `src/data/materials.py` (T009) and apply statistical multiplier if `statistical_override` is active; otherwise use fixed 2.0nm (FR-009, US1-Scenario 3)
+- [ ] T013 [P] [US1] Implement `src/data_ingestion/loader.py` to load CSV/Parquet with `chunksize` streaming; drop rows with missing x/y and log warnings (FR-001, US1-Scenario 2). **Deliverables**: 
+  - Log message format: `"[US1] Dropped row {row_id}: missing coordinate"`
+  - Exception class: `DataIngestionError` if ALL rows are dropped
+  - Artifact: `data/processed/dropped_rows.csv` for auditability (Constitution III)
+- [ ] T014 [US1] Implement `src/data_ingestion/threshold.py` to calculate threshold: MUST retrieve material-specific lattice constants from `src/data/materials.py` (T009) AND the statistical_override flag from config.yaml (T005). Apply statistical multiplier if `statistical_override` is active; otherwise use fixed 2.0nm (FR-009, US1-Scenario 3). **Dependencies**: T005, T009.
 - [ ] T015 [US1] Implement `src/graphs/constructor.py` using `scipy.spatial.cKDTree` for O(N log N) edge creation within threshold (US1-Scenario 1)
 - [ ] T016 [US1] Implement `src/graphs/serializer.py` to convert NetworkX graphs to JSON-compatible dicts conforming to `graph.schema.yaml`
 - [ ] T017 [P] [US1] Implement `src/data_ingestion/generate_synthetic.py` for validation-only mode (seeded, versioned, checksummed); explicitly NOT for scientific hypothesis testing (Plan Section 5)
@@ -105,11 +112,21 @@
 ### Implementation for User Story 2
 
 - [ ] T021 [P] [US2] Implement `src/metrics/clustering.py` for global clustering coefficient and density-normalized variant (Plan Section 3)
-- [ ] T022 [US2] Implement `src/metrics/paths.py` to calculate Average Path Length ONLY on the Largest Connected Component (LCC); handle disconnected graphs by flagging `is_connected=false` and setting path length to NaN (FR-006, US2-Scenario 2). DO NOT calculate LCC fraction here.
-- [ ] T022a [US2] Implement `src/metrics/lcc_fraction.py` to calculate the LCC fraction metric (nodes in LCC / total nodes) and output it to the TopologyGraph dict (FR-002, US2-Scenario 1).
+- [ ] T022 [US2] Implement `src/metrics/paths_and_lcc.py` to calculate:
+  1. Average Path Length ONLY on the Largest Connected Component (LCC); handle disconnected graphs by flagging `is_connected=false` and setting path length to NaN (FR-006, US2-Scenario 2).
+  2. LCC Fraction (nodes in LCC / total nodes) (FR-002, US2-Scenario 1).
+  (Consolidated from T022a to resolve arbitrary split confusion). **Deliverables**: `TopologyGraph` dict entries for `average_path_length`, `is_connected`, and `lcc_fraction`.
+- [ ] T022b [US2] Implement `src/metrics/edge_cases.py` to handle the "zero defects" (perfect crystal) scenario: 
+  - Detect when `node_count == 0`
+  - Assign `null` to clustering, `infinity` to average_path_length
+  - Set `zero_defect_flag: true` in metadata
+  - Log specific warning: `"[US2] Zero defects detected for sample {sample_id}. Assigning null/infinity metrics."` (Spec Edge Cases)
 - [ ] T023 [US2] Implement `src/metrics/percolation.py` to estimate critical distance `d_c` via binary search where LCC fraction exceeds threshold; MUST serialize `d_c` to the TopologyGraph JSON dict (Constitution VI)
 - [ ] T024 [US2] Implement `src/metrics/degree.py` to output degree distribution as histogram-ready (degree, frequency) pairs (US2-Scenario 3)
-- [ ] T025 [US2] Implement `src/metrics/aggregator.py` to combine all metrics (clustering, path, LCC fraction, percolation, degree) into a single `TopologyGraph` dict. MUST load `R_lattice` from `src/data/materials.py` (T009) and apply the series-parallel resistance correction to the raw metrics before they are passed to the correlation phase (Plan Section 3)
+- [ ] T025b [US2] Implement `src/metrics/lattice_correction.py` to apply the "Background lattice correction" (series-parallel resistance formula) to metrics before correlation. **Deliverables**:
+  - Implement formula: `1/R_total = 1/R_defect + 1/R_lattice`
+  - **Stability Verification**: Calculate variance of corrected metrics across samples; log warning if variance > threshold (Plan Constitution Check). This addresses the gap between the plan's methodology and the spec's sensitivity requirements.
+- [ ] T025 [US2] Implement `src/metrics/aggregator.py` to combine all metrics (clustering, path, LCC fraction, percolation, degree) into a single `TopologyGraph` dict. MUST depend on T022b (zero defects), T022 (LCC metrics), T023 (percolation), and T025b (lattice correction). Load `R_lattice` from `src/data/materials.py` (T009) and apply the series-parallel resistance correction to the raw metrics before they are passed to the correlation phase (Plan Section 3)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,11 +150,28 @@
 - [ ] T030 [US3] Implement `src/analysis/dimensionality.py` to perform PCA on metrics, retaining components explaining ≥95% variance (Plan Section 4)
 - [ ] T031 [US3] Implement `src/analysis/correlation.py` for Pearson/Spearman tests on retained PCs; include linear and polynomial regression (FR-003, US3-Scenario 1)
 - [ ] T031b [US3] Implement `src/analysis/gp_regressor.py` for Gaussian Process regression (kernel selection, hyperparameter optimization) as explicitly required by FR-003
+- [ ] T031c [US3] Implement `src/analysis/regression_unifier.py` to:
+  - Aggregate results from T031 and T031b
+  - Perform model selection/comparison (e.g., AIC/BIC)
+  - Output a single unified `RegressionResult` artifact to `results/regression_comparison.json`
+  - Define schema for `RegressionResult` (metric_name, model_type, params, score) to satisfy FR-003 "fit" requirement
+- [ ] T031d [US3] Implement `src/analysis/population_correlation.py` to handle FR-008: 
+  - Detect unpaired real datasets (missing sample_id pairing) via `state/data_status.json` (T012a)
+  - Aggregate mean topology metrics and mean thermal conductivity per source dataset
+  - Perform population-level correlation analysis
+  - Output results to `results/population_correlation.json`
 - [ ] T032 [US3] Implement `src/analysis/bootstrap.py` for resampling to generate 95% CIs (FR-004, US3-Scenario 2)
 - [ ] T033 [US3] Implement `src/analysis/correction.py` for Bonferroni or Benjamini-Hochberg FDR on p-values (FR-005, US3-Scenario 4)
-- [ ] T034 [US3] Implement `src/analysis/sensitivity.py` to repeat the full pipeline for thresholds of varying magnitudes relative to the baseline. MUST explicitly calculate the standard deviation of the correlation coefficient across these thresholds and output it as the `std_dev` field in the `AnalysisResult` JSON (FR-010, SC-005)
+- [ ] T034 [US3] Implement `src/analysis/sensitivity.py` to repeat the full pipeline (T029-T033) for thresholds 1.5x, 2.0x, 2.5x the baseline. 
+  - Calculate standard deviation of the correlation coefficient across thresholds
+  - **Validation Step**: Assert `std_dev <= 0.05` (SC-005 target); FAIL the run and log error if target is exceeded. This makes the success criterion measurable.
+  - Output `std_dev` field in `AnalysisResult` JSON (FR-010, SC-005)
 - [ ] T035 [US3] Implement `src/analysis/visualizer.py` to generate scatter plots with regression lines and save to `results/` (US3-Scenario 5)
-- [ ] T036 [US3] Implement `src/analysis/reporter.py` to aggregate results into `AnalysisResult` JSON objects, skipping hypothesis testing if synthetic data is detected (Plan Section 4, Section 5)
+- [ ] T036 [US3] Implement `src/analysis/reporter.py` to aggregate results into `AnalysisResult` JSON objects. 
+  - **Synthetic Detection**: Check `config.yaml` flag `is_synthetic` or file hash; if true, skip hypothesis testing
+  - **Artifact**: Generate `results/synthetic_warning.log` with specific message if synthetic data is detected (Plan Section 4, Section 5)
+  - **Unpaired Data**: Route to T031d output if `state/data_status.json` indicates unpaired data (FR-008).
+  - **Dependencies**: MUST depend on T031c (regression_unifier) to aggregate results from T031 and T031b before generating AnalysisResult JSON.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,9 +182,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T037 [P] Update `docs/quickstart.md` with data ingestion examples and synthetic fallback instructions
-- [ ] T038a [P] Run `mypy --strict` on `src/` and generate a list of all type errors
-- [ ] T038b [P] Fix all type errors reported in T038a to ensure type hinting consistency
-- [ ] T038c [P] Re-run `mypy --strict` to verify 0 errors remain (Verification Step)
+- [ ] T038 [P] Ensure type safety: run `mypy --strict` on `src/`, fix all errors, and verify 0 errors remain (Consolidated from T038a/b/c)
 - [ ] T039 Performance optimization: verify streaming ingestion keeps RAM < 7GB for 50 samples
 - [ ] T040 [P] Add comprehensive docstrings to all public API functions
 - [ ] T041 Run `quickstart.md` validation to ensure end-to-end pipeline execution
@@ -249,6 +281,9 @@ With multiple developers:
 - **Data Integrity**: If real data is unavailable, use synthetic data ONLY for pipeline validation; explicitly skip hypothesis testing and log warnings (Plan Section 5).
 - **Compute**: Ensure streaming is used for large datasets to stay within 7GB RAM limit.
 - **Threshold**: Default to 2.0nm (phonon MFP based) unless statistical override is active.
-- **LCC Fraction**: Calculated in T022a, not T022.
-- **GP Regression**: Implemented in T031b, not T031.
-- **Sensitivity**: Outputs `std_dev` field in T034.
+- **LCC Fraction**: Calculated in T022 (merged), not T022a.
+- **Zero Defects**: Handled in T022b with specific null/infinity values.
+- **GP Regression**: Implemented in T031b, unified in T031c.
+- **Sensitivity**: Outputs `std_dev` field and asserts SC-005 target in T034.
+- **Data Source Gap**: No verified real dataset exists pairing defect coordinates with thermal conductivity. T017 and T036 must handle synthetic fallback gracefully; T013 must fail loudly if a real source is specified but unreachable, never substituting fake data. T031d handles population-level analysis for unpaired real data. T012a verifies data availability to resolve plan/spec contradictions.
+- **Lattice Correction**: Implemented and verified in T025b.

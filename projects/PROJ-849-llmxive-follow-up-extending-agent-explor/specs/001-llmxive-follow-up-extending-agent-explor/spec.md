@@ -9,76 +9,80 @@
 
 ### User Story 1 - Compute Semantic Divergence Metrics (Priority: P1)
 
-**User Journey**: A researcher loads a static subset of multimodal reasoning problems (e.g., from MathVista/ScienceQA). The system extracts the "thinking" prefix from the agent's trace and generates a "tool-action distribution" using a deterministic, non-reasoning keyword retrieval system (BM25). It then computes the cosine similarity between these two vectors to produce a "Semantic Divergence Score" for each problem instance.
+**User Journey**: A researcher loads a static subset of multimodal reasoning problems (e.g., from MathVista/ScienceQA). The system extracts the "thinking" prefix from the agent's trace and generates a "tool-action distribution" using a deterministic, non-reasoning keyword retrieval system (BM25) against a curated tool documentation corpus provided via a mapping file. It then computes the cosine similarity between the thinking embedding and the centroid of the retrieved tool descriptions (embedded with the same model) to produce a "Semantic Divergence Score" for each problem instance.
 
 **Why this priority**: This is the core scientific contribution. Without the ability to compute the divergence metric, the entire hypothesis regarding the "thinking-acting gap" cannot be tested. It establishes the independent variable for the study.
 
-**Independent Test**: The system can be tested by processing a small, fixed set of problems and verifying that the output JSON contains a calculated divergence score for each, derived from the specific embeddings of the thinking prefix and the keyword-retrieved tool centroid, without requiring any RL training loops.
+**Independent Test**: The system can be tested by processing a small, fixed set of problems and verifying that the output JSON contains a calculated divergence score for each, derived from the specific embeddings of the thinking prefix and the tool descriptions, without requiring any RL training loops.
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset file containing 500 problems with "thinking" traces and ground-truth tools, **When** the system processes a single record using the DistilBERT encoder and BM25 retrieval, **Then** it outputs a JSON object containing `thinking_embedding`, `tool_centroid_embedding`, `cosine_similarity`, and `semantic_divergence_score`.
+1. **Given** a dataset file containing 500 problems with "thinking" traces and a mapping file `data/tool_mappings/mathvista_tool_map.json`, **When** the system processes a single record using the DistilBERT encoder and BM25 retrieval against the tool descriptions in the mapping file, **Then** it outputs a JSON object containing `thinking_embedding`, `tool_centroid_embedding`, `cosine_similarity`, and `semantic_divergence_score`.
 2. **Given** a synthetic input where the tool description is a verbatim copy of the thinking prefix, **When** the system calculates the metric, **Then** the `cosine_similarity` is ≥ 0.99 and the `semantic_divergence_score` is ≤ 0.01.
 3. **Given** a synthetic input where vector A is orthogonal to vector B, **When** the system calculates the metric, **Then** the `cosine_similarity` is ≤ 0.05 and the `semantic_divergence_score` is ≥ 0.95.
+4. **Given** a record where BM25 retrieval returns zero results, **When** the system calculates the metric, **Then** the `tool_centroid_embedding` is a zero vector and the `semantic_divergence_score` is 1.0.
 
 ---
 
-### User Story 2 - Correlate Divergence with RL Failure Rates (Priority: P2)
+### User Story 2 - Correlate Divergence with Simulated RL Failure Rates (Priority: P2)
 
-**User Journey**: A researcher provides the computed divergence scores alongside the known failure rates (percentage of "all-wrong" rollouts) for each problem type from a distinct, pre-computed external dataset (e.g., a provided CSV). The system performs a Pearson correlation test to determine if high semantic divergence predicts high RL failure rates.
+**User Journey**: A researcher provides the computed divergence scores alongside simulated RL failure rates. The system executes the original AXPO agent on the same MathVista subset (or a cached simulation of it) to generate ground-truth success/failure outcomes for each problem. It then performs a Pearson correlation test to determine if high semantic divergence predicts high failure rates.
 
-**Why this priority**: This validates the hypothesis. It transforms the raw metric into a predictive diagnostic tool, directly addressing the research question of whether the gap predicts failure.
+**Why this priority**: This validates the hypothesis. It transforms the raw metric into a predictive diagnostic tool, directly addressing the research question of whether the gap predicts failure. The use of simulated outcomes ensures the dependent variable is reproducible and verifiable, rather than relying on a missing external CSV.
 
-**Independent Test**: The system can be tested by feeding it a synthetic dataset where divergence scores are perfectly negatively correlated with success rates, verifying that the output correlation coefficient is ≤ -0.90.
+**Independent Test**: The system can be tested by feeding it a synthetic dataset where divergence scores are perfectly negatively correlated with success rates, verifying that the output correlation coefficient demonstrates a strong negative relationship.
 
 **Acceptance Scenarios**:
 
-1. **Given** a CSV of divergence scores and a corresponding external CSV of RL failure rates (sourced from a distinct experimental run, not the same traces) for 500 problem instances, **When** the system runs the correlation analysis, **Then** it outputs a Pearson correlation coefficient and a p-value.
+1. **Given** a dataset of 500 divergence scores and a corresponding set of simulated RL outcomes (Success/Failure) generated by executing the AXPO agent on the same problems, **When** the system runs the correlation analysis, **Then** it outputs a Pearson correlation coefficient and a p-value.
 2. **Given** a dataset where divergence and failure rates are randomly generated (no relationship), **When** the system runs the analysis, **Then** the p-value is > 0.05, indicating no statistically significant correlation.
 3. **Given** a dataset with a strong negative correlation, **When** the system runs the analysis, **Then** it flags the result as "Significant Negative Correlation" and reports the coefficient magnitude.
 
 ---
 
-### User Story 3 - Generate Predictive Gap Risk Classification (Priority: P3)
+### User Story 3 - Predict Failure via Logistic Regression (Priority: P3)
 
-**User Journey**: A researcher uses the divergence scores to categorize problems into "High-Divergence" (high risk) and "Low-Divergence" (low risk) clusters using K-Means. They then train a simple logistic regression classifier to predict the binary success/failure outcome of RL attempts based on these metrics.
+**User Journey**: A researcher uses the divergence scores to train a Logistic Regression classifier to predict the binary success/failure outcome of the simulated RL attempts. The model is trained on an [deferred] train / [deferred] test split and evaluated on the held-out test set.
 
-**Why this priority**: This operationalizes the diagnostic. It moves from correlation to prediction, enabling the "proactive problem characterization" mentioned in the motivation.
+**Why this priority**: This operationalizes the diagnostic. It moves from correlation to prediction, enabling the "proactive problem characterization" mentioned in the motivation. The methodology is corrected to predict the ground-truth outcome directly from the metric, avoiding circular clustering logic.
 
-**Independent Test**: The system can be tested by running the K-Means clustering on a training subset and verifying that the resulting clusters are distinct (silhouette score > 0.25) and that the logistic regression model achieves an accuracy > 60% on a held-out test set.
+**Independent Test**: The system can be tested by running the Logistic Regression on a training subset and verifying that the model achieves an accuracy > 60% on a held-out test set, and that the AUC-ROC is > 0.65.
 
 **Acceptance Scenarios**:
 
-1. **Given** the computed divergence scores split into [deferred] train / [deferred] test (stratified by problem type), **When** the system applies K-Means clustering (k=2) ONLY on the training split, **Then** it outputs two distinct clusters labeled "High-Divergence" and "Low-Divergence" with a silhouette score ≥ 0.25.
-2. **Given** the clustered training data and the binary RL outcome labels, **When** the system trains a logistic regression classifier, **Then** it outputs the model's accuracy, precision, and recall on the held-out test set ([deferred] of data).
-3. **Given** a new problem instance with a calculated divergence score, **When** the system applies the trained classifier, **Then** it returns a predicted binary outcome (Success/Failure) with an associated probability score.
+1. **Given** the computed divergence scores and simulated RL outcomes split into an [deferred] train / [deferred] test split (stratified by problem type), **When** the system trains a logistic regression classifier, **Then** it outputs the model's accuracy, precision, and recall on the held-out test set.
+2. **Given** a new problem instance with a calculated divergence score, **When** the system applies the trained classifier, **Then** it returns a predicted binary outcome (Success/Failure) with an associated probability score.
+3. **Given** the training data, **When** the system evaluates the model, **Then** the Area Under the ROC Curve (AUC-ROC) is ≥ 0.65.
 
 ---
 
 ### Edge Cases
 
-- What happens if the BM25 retrieval returns zero results for a specific problem's tool description? (System should assign a null tool centroid and flag the record for exclusion or imputation).
-- How does the system handle problems where the "thinking" prefix is missing or empty in the dataset? (System should skip the embedding calculation for that field and report a specific error code).
-- What occurs if the dataset size is too small to compute a valid Pearson correlation (e.g., < 30 samples)? (System should raise a "Statistical Power Insufficient" warning and halt the correlation step).
-- How are ties handled in the K-Means clustering when points are equidistant to centroids? (Standard K-Means tie-breaking rules apply, but the system must log the number of such instances).
+- What happens if the BM25 retrieval returns zero results for a specific problem's tool description? (System assigns a zero vector centroid and sets divergence score to 1.0).
+- How does the system handle problems where the "thinking" prefix is missing or empty in the dataset? (System skips the embedding calculation for that field and reports a specific error code).
+- What occurs if the dataset size is too small to compute a valid Pearson correlation (e.g., < 30 samples)? (System raises a "Statistical Power Insufficient" warning and halts the correlation step).
+- How are ties handled in the Logistic Regression training? (Standard regularization applies; the system logs the number of such instances).
+- What happens if the `data/tool_mappings/mathvista_tool_map.json` file is missing or a problem ID is not found? (System halts with a "Tool Mapping Missing" error).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST load a static subset of multimodal reasoning problems (max 500 records) from a specified HuggingFace dataset or local JSON file, extracting the "thinking" prefix and ground-truth tool identifiers. (See US-1)
-- **FR-002**: System MUST generate a tool-action distribution for each problem using a deterministic BM retrieval system against a pre-indexed tool documentation corpus, returning exactly the top 10 plausible tools. (See US-1)
-- **FR-003**: System MUST compute vector embeddings for the "thinking" prefix and the centroid of the retrieved tool distribution using a CPU-optimized encoder (e.g., DistilBERT) without GPU acceleration. (See US-1)
+- **FR-001**: System MUST load a static subset of multimodal reasoning problems (max 500 records) from a specified HuggingFace dataset or local JSON file, extracting the "thinking" prefix and problem ID. (See US-1)
+- **FR-002**: System MUST load a curated tool mapping file `data/tool_mappings/mathvista_tool_map.json` containing `problem_id` to `tool_descriptions` (list of strings). For each problem, the system MUST build a BM25 index from these tool descriptions and retrieve **up to 10** plausible tool descriptions. (See US-1)
+- **FR-003**: System MUST compute vector embeddings for the "thinking" prefix and the centroid of the **retrieved tool description strings** using the SAME CPU-optimized encoder (DistilBERT) without GPU acceleration. If zero tools are retrieved, the centroid MUST be a zero vector. (See US-1)
 - **FR-004**: System MUST calculate the cosine similarity between the thinking and tool embeddings and define the "Semantic Divergence Score" as (1 - cosine_similarity) for every record. (See US-1)
-- **FR-005**: System MUST perform a Pearson correlation test between the calculated divergence scores and the external RL failure rates provided in the input data. (See US-2)
-- **FR-006**: System MUST apply K-Means clustering (k=2) to the divergence scores (on the training split only) to categorize problems into "High-Divergence" and "Low-Divergence" groups. (See US-3)
-- **FR-007**: System MUST train a logistic regression classifier using the semantic metrics to predict the binary success/failure outcome of RL attempts and report accuracy on a hold-out set. (See US-3)
-- **FR-008**: System MUST enforce a memory limit of ≤ 7 GB RAM and a CPU-only execution environment, automatically sampling data if the full dataset exceeds these constraints. Additionally, the system MUST enforce a hard timeout of 5 hours; if exceeded, the job MUST abort and report a "Timeout Exceeded" error. (See Assumptions)
+- **FR-005**: System MUST perform a Pearson correlation test between the calculated divergence scores and the simulated RL failure rates. (See US-2)
+- **FR-006**: System MUST train a logistic regression classifier using the semantic metrics to predict the binary success/failure outcome of the simulated RL attempts and report accuracy on a hold-out set. (See US-3)
+- **FR-007**: System MUST enforce a memory limit of ≤ 7 GB RAM and a CPU-only execution environment, automatically downsampling the dataset to 300 records if the full dataset exceeds these constraints. Additionally, the system MUST enforce a hard timeout of 5 hours; if exceeded, the job MUST abort and report a "Timeout Exceeded" error. (See US-1, US-2, US-3)
+- **FR-008**: System MUST execute the original AXPO agent (or a cached simulation of it) on the same problem subset to generate ground-truth success/failure outcomes for each problem, storing these as `simulated_failure_rate`. (See US-2, US-3)
+- **FR-009**: System MUST ensure that the tool descriptions used for embedding are exactly the strings returned by the BM25 retrieval from the `mathvista_tool_map.json` file. (See US-1)
+- **FR-010**: System MUST verify that the dataset size N is ≥ 30 before performing correlation or classification. If N < 30, the system MUST halt and report "Insufficient Sample Size for Power Analysis". (See US-2, US-3)
 
 ### Key Entities
 
-- **ProblemInstance**: Represents a single multimodal reasoning task; attributes include `problem_id`, `thinking_prefix` (string), `ground_truth_tools` (list), `divergence_score` (float), `rl_failure_rate` (float).
-- **ToolDistribution**: Represents the set of tools retrieved by the non-reasoning system; attributes include `retrieved_tool_ids` (list), `centroid_embedding` (vector), `bm25_scores` (list).
+- **ProblemInstance**: Represents a single multimodal reasoning task; attributes include `problem_id`, `thinking_prefix` (string), `simulated_failure` (boolean, derived from AXPO execution), `divergence_score` (float).
+- **ToolDistribution**: Represents the set of tools retrieved by the non-reasoning system; attributes include `retrieved_tool_descriptions` (list of strings), `centroid_embedding` (vector).
 - **DivergenceMetric**: Represents the calculated relationship between thought and action; attributes include `cosine_similarity` (float), `semantic_divergence_score` (float).
 
 ## Success Criteria
@@ -87,18 +91,18 @@
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The Pearson correlation coefficient between semantic divergence and RL failure rates is measured against the null hypothesis of zero correlation to determine statistical significance (p < 0.05). (See US-2)
+- **SC-001**: The Pearson correlation coefficient between semantic divergence and simulated RL failure rates is measured against the null hypothesis of zero correlation to determine statistical significance (p < 0.05). (See US-2)
 - **SC-002**: The predictive accuracy of the logistic regression classifier is measured against the held-out test set ([deferred] of data) to validate the "Gap Risk Score" utility. (See US-3)
-- **SC-003**: The silhouette score of the K-Means clustering is measured against the threshold of 0.25 to ensure the "High" and "Low" divergence groups are distinct and meaningful. (See US-3)
-- **SC-004**: The total execution time of the analysis pipeline is measured against a fixed threshold of ≤ 4 hours to ensure compute feasibility. (See Assumptions)
-- **SC-005**: The memory usage of the embedding and correlation steps is measured against a peak memory limit of ≤ 7 GB to confirm the method fits the CPU-only constraint. (See Assumptions)
+- **SC-003**: The Area Under the ROC Curve (AUC-ROC) of the logistic regression classifier is measured against a threshold of ≥ 0.65 to ensure the model has predictive value beyond random chance. (See US-3)
+- **SC-004**: The total execution time of the analysis pipeline is measured against a fixed threshold of ≤ 5 hours to ensure compute feasibility. (See FR-007)
+- **SC-005**: The memory usage of the embedding and correlation steps is measured against a peak memory limit of ≤ 7 GB to confirm the method fits the CPU-only constraint. (See FR-007)
 
 ## Assumptions
 
 - The HuggingFace Datasets library can successfully download and cache the MathVista/ScienceQA subset within the disk limit of the free-tier runner.
 - The "thinking" prefixes in the dataset are valid text strings and do not require complex preprocessing to extract; if missing, the record is skipped.
-- The BM25 retrieval corpus (tool documentation) is pre-indexed or can be built in < 5 minutes on a CPU without exceeding memory limits.
-- The "failure rates" for the original RL attempts are available as a static lookup table or CSV provided by the user, as the project does not re-run the expensive RL training.
-- The DistilBERT encoder (or equivalent) runs entirely on CPU in default precision and completes the embedding of 500 records within the 5-hour timeout limit.
-- The dataset size is sufficient to perform a statistically valid Pearson correlation and K-Means clustering without requiring power analysis adjustments.
+- The tool mapping file `data/tool_mappings/mathvista_tool_map.json` exists and contains a valid mapping for at least 30 problem IDs in the target subset.
+- The "simulated failure rates" are generated by executing the original AXPO agent on the same subset, as the project does not re-run the expensive RL training but requires a reproducible ground truth.
+- The DistilBERT encoder (or equivalent) runs entirely on CPU in default precision and completes the embedding of a representative dataset within the 5-hour timeout limit.
+- The dataset size N ≥ 500 is sufficient to perform a statistically valid Pearson correlation and Logistic Regression with power ≥ 0.8 to detect a correlation of r=0.15 at α=0.05.
 - The "thinking-acting gap" phenomenon is observable in the provided static dataset; if the data lacks the necessary variance in RL outcomes, the correlation analysis may yield null results.

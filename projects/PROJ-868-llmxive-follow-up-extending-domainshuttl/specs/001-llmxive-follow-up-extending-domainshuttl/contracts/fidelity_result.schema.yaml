@@ -1,45 +1,48 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: FidelityResult
-description: |
-  Represents the outcome of the identity fidelity validation.
-  Tracks the minimum dimension required to pass the fidelity threshold
-  for a specific subject across different style domains.
+description: >
+  Represents the result of the identity fidelity validation for a specific
+  subject, dimension, and style domain.
 type: object
 required:
   - subject_id
-  - min_dimension
-  - fidelity_threshold
+  - dimension
   - style_domain
-  - clip_scores
+  - clip_similarity_score
+  - passes_threshold
 properties:
   subject_id:
     type: string
-    description: Reference to the subject
-  min_dimension:
+    description: Reference to the parent subject
+  dimension:
     type: integer
-    description: The smallest dimensionality where CLIP score >= fidelity_threshold
-    enum: [16, 32, 64, 128, 256, -1]
-    note: -1 indicates no dimension passed the threshold
-  fidelity_threshold:
-    type: number
-    description: The threshold value used for this check (from config)
+    description: The latent dimension used for generation
   style_domain:
     type: string
-    description: The style domain used for generation (e.g., 'Anime', 'Photorealistic', 'Sketch')
-    enum: ['Anime', 'Photorealistic', 'Sketch']
-  clip_scores:
-    type: object
-    description: Map of dimension -> CLIP similarity score
-    additionalProperties:
-      type: number
-      minimum: 0.0
-      maximum: 1.0
+    description: The style prompt domain used (e.g., 'Anime', 'Photorealistic', 'Sketch')
+    enum:
+      - Anime
+      - Photorealistic
+      - Sketch
+  clip_similarity_score:
+    type: number
+    description: >
+      Mean CLIP ViT-B image similarity score between generated frames and reference.
+      Range: [0.0, 1.0] (or scaled depending on CLIP implementation, typically 0-1 after sigmoid or raw cosine).
+    minimum: 0.0
+    maximum: 1.0
+  fidelity_threshold:
+    type: number
+    description: The threshold value used from config/settings.py for this check
+  passes_threshold:
+    type: boolean
+    description: True if clip_similarity_score >= fidelity_threshold
   generated_video_path:
     type: string
-    description: Path to the generated video if available
-    pattern: "^data/results/.*\\.mp4$"
-  status:
+    description: Optional relative path to the generated video file
+    pattern: "^data/results/generated_videos/.*\\.(mp4|mov|avi)$"
+  evaluation_timestamp:
     type: string
-    description: Status of the validation run
-    enum: ['success', 'timeout', 'failed', 'no_pass']
+    format: date-time
+    description: ISO 8601 timestamp of the evaluation
 additionalProperties: false

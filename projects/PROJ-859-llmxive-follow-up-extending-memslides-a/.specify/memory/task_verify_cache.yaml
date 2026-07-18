@@ -1,0 +1,36 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any files under `code/utils/` implementing data loaders or schema
+    validators was provided; without seeing those artifacts, we cannot confirm that
+    the required code exists or is functional. The implementer must add the actual
+    loader and validator modules in the specified directory.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration (e.g., `pytest.ini` or `conftest.py`) or contract\u2011\
+    test plugin setup was found under `tests/contract/`; the required files and plugin\
+    \ activation are missing, so the task is not satisfied."
+T012:
+  c: false
+  h: 2966d02d6ab4408deeab8733b97ea902819844bffaff138116a9f323db5f8e57
+  r: The repository lacks the required `contracts/trace.schema.yaml` file, so schema
+    compliance cannot be verified. Moreover, the provided `synthetic_trace.py` is
+    incomplete (truncated) and contains no logic to write `session_{uuid}.json` files
+    with the required `exact_tool_sequence` and `raw_arg_variance` fields, nor does
+    it enforce a fixed random seed by default. These essential deliverables are missing.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `synthetic_trace.py` script or any evidence of its existence is provided,
+    and there is no demonstration that the script generates traces with varied sequence
+    lengths, tool types, and argument variance as required. The task lacks the necessary
+    artifact to verify compliance.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or example trace files were provided showing that the
+    `exact_tool_sequence` and `raw_arg_variance` fields are actually recorded in trace
+    artifacts. Without such artifacts, we cannot confirm that the required logic was
+    implemented. The next implementer must supply the modified tracing module and
+    sample trace outputs that contain the new fields.

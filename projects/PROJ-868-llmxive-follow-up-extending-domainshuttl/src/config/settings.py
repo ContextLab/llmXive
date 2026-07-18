@@ -1,122 +1,75 @@
 """
-Project configuration management for llmXive DomainShuttle pipeline.
+Configuration management for the DomainShuttle project.
 
-This module defines global configuration settings, including paths, seeds,
-hyperparameters, and the critical 'fidelity_threshold' used for identity
-validation in User Story 3.
-
-Configuration is loaded from environment variables where specified, with
-documented default fallbacks. Invalid configurations raise ValueError
-immediately to enforce the "FAIL LOUDLY" policy.
+This module handles loading and validating all project settings,
+including paths, seeds, and hyperparameters.
 """
-
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
+# Project Root
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-# --- Project Paths ---
-# Base directory is assumed to be the project root relative to this file
-BASE_DIR = Path(__file__).resolve().parents[2]
-DATA_DIR = BASE_DIR / "data"
-SRC_DIR = BASE_DIR / "src"
-SPECS_DIR = BASE_DIR / "specs"
+# Default Configuration
+_DEFAULT_CONFIG: Dict[str, Any] = {
+    "paths": {
+        "project_root": str(_PROJECT_ROOT),
+        "data": str(_PROJECT_ROOT / "data"),
+        "raw_data": str(_PROJECT_ROOT / "data" / "raw"),
+        "processed_data": str(_PROJECT_ROOT / "data" / "processed"),
+        "results": str(_PROJECT_ROOT / "data" / "results"),
+        "models": str(_PROJECT_ROOT / "data" / "models"),
+        "logs": str(_PROJECT_ROOT / "data" / "logs"),
+    },
+    "seeds": {
+        "global_seed": 42,
+    },
+    "hyperparameters": {
+        "batch_size": 1,
+        "learning_rate": 1e-4,
+        "num_epochs": 50,
+        "early_stopping_patience": 10,
+    },
+    "fidelity_threshold": 0.85,  # Default fallback for US3
+}
 
-# Ensure data directories exist
-(DATA_DIR / "processed").mkdir(parents=True, exist_ok=True)
-(DATA_DIR / "results").mkdir(parents=True, exist_ok=True)
-(DATA_DIR / "figures").mkdir(parents=True, exist_ok=True)
+# In-memory cache for the loaded config
+_config_cache: Dict[str, Any] = {}
 
-
-# --- Seeds ---
-# Global random seed for reproducibility
-RANDOM_SEED: int = int(os.getenv("LMMXIVE_SEED", "42"))
-
-
-# --- Hyperparameters ---
-# Target dimensions for the autoencoder sweep (US2)
-TARGET_DIMENSIONS: list[int] = [16, 32, 64, 128, 256]
-
-# Training batch size (CPU-optimized)
-BATCH_SIZE: int = 1
-
-# Number of frames to sample per video for complexity/fidelity
-NUM_FRAMES_PER_SUBJECT: int = 5
-
-# --- Fidelity Threshold Configuration (T004b) ---
-#
-# This key defines the minimum CLIP Image Similarity score required to
-# consider a compressed video generation as "high fidelity" to the
-# original subject.
-#
-# Default Fallback Mechanism:
-#   1. Check environment variable 'LMMXIVE_FIDELITY_THRESHOLD'.
-#   2. If not set, use the documented default of 0.75.
-#   3. If the value is missing, empty, or cannot be parsed as a float,
-#      or if the parsed float is not in the range (0.0, 1.0], raise ValueError.
-#
-# The threshold is used in src/analysis/fidelity.py to determine the
-# minimum dimensionality required for each subject.
-
-FIDELITY_THRESHOLD_ENV_KEY: str = "LMMXIVE_FIDELITY_THRESHOLD"
-FIDELITY_THRESHOLD_DEFAULT: float = 0.75
-
-def _load_fidelity_threshold() -> float:
+def get_config() -> Dict[str, Any]:
     """
-    Load and validate the fidelity threshold configuration.
+    Retrieves the full configuration dictionary.
+
+    Validates required keys and ensures paths exist (creating them if necessary).
 
     Returns:
-        float: The validated fidelity threshold value between 0.0 and 1.0.
+        The validated configuration dictionary.
 
     Raises:
-        ValueError: If the threshold is missing, invalid, or out of range.
+        ValueError: If 'fidelity_threshold' is missing or invalid.
     """
-    raw_value: Optional[str] = os.getenv(FIDELITY_THRESHOLD_ENV_KEY)
+    if _config_cache:
+        return _config_cache
 
-    if raw_value is None or raw_value.strip() == "":
-        # Fallback to documented default
-        return FIDELITY_THRESHOLD_DEFAULT
+    config = _DEFAULT_CONFIG.copy()
 
-    try:
-        threshold = float(raw_value)
-    except ValueError:
+    # Validate fidelity_threshold
+    if "fidelity_threshold" not in config:
+        raise ValueError("Configuration error: 'fidelity_threshold' is missing.")
+    
+    threshold = config["fidelity_threshold"]
+    if not isinstance(threshold, (int, float)) or not (0.0 <= threshold <= 1.0):
         raise ValueError(
-            f"Invalid {FIDELITY_THRESHOLD_ENV_KEY} value: '{raw_value}'. "
-            f"Must be a valid float or unset to use default {FIDELITY_THRESHOLD_DEFAULT}."
+            f"Configuration error: 'fidelity_threshold' must be a float between 0.0 and 1.0. "
+            f"Got: {threshold}"
         )
 
-    if not (0.0 < threshold <= 1.0):
-        raise ValueError(
-            f"Fidelity threshold must be in the range (0.0, 1.0]. "
-            f"Got: {threshold}. Please set {FIDELITY_THRESHOLD_ENV_KEY} to a valid value."
-        )
+    # Ensure directories exist
+    for key, path_str in config["paths"].items():
+        path = Path(path_str)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
 
-    return threshold
-
-
-# Load and validate immediately at import time to fail fast
-FIDELITY_THRESHOLD: float = _load_fidelity_threshold()
-
-
-# --- DomainShuttle Specifics ---
-GENERATOR_PROMPTS: list[str] = [
-    "Anime style",
-    "Photorealistic style",
-    "Sketch style"
-]
-
-# --- Logging Configuration ---
-LOG_LEVEL: str = os.getenv("LMMXIVE_LOG_LEVEL", "INFO")
-
-# --- Consolidated Config Dict for easy access ---
-CONFIG: Dict[str, Any] = {
-    "base_dir": BASE_DIR,
-    "data_dir": DATA_DIR,
-    "seed": RANDOM_SEED,
-    "target_dimensions": TARGET_DIMENSIONS,
-    "batch_size": BATCH_SIZE,
-    "num_frames": NUM_FRAMES_PER_SUBJECT,
-    "fidelity_threshold": FIDELITY_THRESHOLD,
-    "prompts": GENERATOR_PROMPTS,
-    "log_level": LOG_LEVEL,
-}
+    _config_cache.update(config)
+    return config

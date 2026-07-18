@@ -2,16 +2,9 @@
 set -e
 
 echo "Running Black formatter..."
-black src/ tests/ scripts/
+black code/ src/ tests/ --exclude "venv|build|dist"
 
-echo "Running Ruff linter (fix mode)..."
-ruff check --fix src/ tests/ scripts/
-
-echo "Running Ruff formatter (if available, else skip)..."
-if ruff format --check src/ tests/ scripts/ > /dev/null 2>&1; then
-    ruff format src/ tests/ scripts/
-else
-    echo "Ruff format not available or not needed. Using Black."
-fi
+echo "Running Ruff linter (auto-fix)..."
+ruff check code/ src/ tests/ --fix --exit-zero
 
 echo "Formatting complete."

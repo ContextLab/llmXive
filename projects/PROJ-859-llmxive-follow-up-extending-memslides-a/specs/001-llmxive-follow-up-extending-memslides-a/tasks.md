@@ -60,8 +60,8 @@
 - [X] T004 Create contract schemas in `contracts/` (`trace.schema.yaml`, `metrics.schema.yaml`, `benchmark_results.schema.yaml`, `compressibility_analysis.schema.yaml`). **Note**: `compressibility_analysis.schema.yaml` must validate statistical artifacts (regression coefficients, p-values, and trade-off curve data points) to ensure the Single Source of Truth principle for the paper.
 - [ ] T005 [P] Implement `contracts/trace.schema.yaml` validation logic in `code/contracts/__init__.py`
 - [X] T006 [P] Setup `code/config.py` with seeds, paths, and threshold configurations
-- [~] T007 Create base data loaders and schema validators in `code/utils/`
-- [~] T008 Configure `pytest` with contract test plugins in `tests/contract/`
+- [ ] T007 Create base data loaders and schema validators in `code/utils/`
+- [ ] T008 Configure `pytest` with contract test plugins in `tests/contract/`
 - [ ] T009 Setup environment configuration management (`.env.example`, `config.yaml`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -85,9 +85,9 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/generators/synthetic_trace.py` to generate multi-turn sessions mimicking MemSlides schema (FR-001). **Deliverables**: Output files named `session_{uuid}.json` containing `exact_tool_sequence` and `raw_arg_variance`; use a fixed random seed for reproducibility; ensure schema matches `contracts/trace.schema.yaml`.
-- [~] T013 [US1] Ensure `synthetic_trace.py` varies sequence length, tool types, and argument variance
-- [~] T014 [US1] Implement logic to record `exact_tool_sequence` and `raw_arg_variance` in trace artifacts (Trace Structural Integrity)
+- [ ] T012 [P] [US1] Implement `code/generators/synthetic_trace.py` to generate multi-turn sessions mimicking MemSlides schema (FR-001). **Deliverables**: Output files named `session_{uuid}.json` containing `exact_tool_sequence` and `raw_arg_variance`; use a fixed random seed for reproducibility; ensure schema matches `contracts/trace.schema.yaml`.
+- [ ] T013 [US1] Ensure `synthetic_trace.py` varies sequence length, tool types, and argument variance
+- [ ] T014 [US1] Implement logic to record `exact_tool_sequence` and `raw_arg_variance` in trace artifacts (Trace Structural Integrity)
 - [~] T015 [US1] Write generated traces to `data/raw/` as JSON files with ground-truth slide states
 - [~] T016 [US1] Add edge case handling: zero tool repetitions (high entropy) and undefined argument variance (impute default)
 - [~] T017 [US1] Log generation statistics and checksums to a state file
@@ -112,13 +112,13 @@
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/metrics/extract.py` to compute sequence entropy and tool-repetition frequency (FR-002)
-- [X] T021 [US2] Implement `code/metrics/extract.py` to compute argument semantic variance using `sentence-transformers/all-MiniLM-L6-v2` (CPU-only). **Definition**: Variance = mean pairwise cosine distance of all argument embeddings in a trace. **Note**: Model size ~80MB fits within 7GB RAM constraint.
+- [X] T021 [US2] Implement `code/metrics/extract.py` to compute argument semantic variance using `sentence-transformers/all-MiniLM-L6-v2` (CPU-only). **Definition**: Variance = mean pairwise cosine distance of all argument embeddings in a trace. **Note**: Model size ~80MB fits within 7GB RAM constraint. [UNRESOLVED-CLAIM: c_067a9ddd — status=not_enough_info]
 - [ ] T022 [US2] Generate `data/processed/feature_matrix.csv` containing structural metrics for every trace
 - [X] T023 [P] [US2] Implement `code/models/rule_induction.py` to perform **per-trace rule induction** (FR-003). **Goal**: For EACH trace (or small batch), train a lightweight CPU model (e.g., Decision Tree with strict depth limits) to reproduce the trace's `final_state`. **Deliverable**: A set of symbolic rules and a computed "Compressibility Score" for EACH trace.
 - [~] T024 [US2] Implement logic to calculate "Compressibility Score" for each trace as `RuleSetSize / TraceLength` conditioned on `Fidelity >= 90%`. **Constraint**: Use the per-trace induction results from T023, not a global model.
 - [~] T025 [US2] Ensure rule induction model is CPU-tractable and completes within time limits for the full dataset size.
 - [ ] T026 [US2] Save per-trace rule sets and compressibility scores to `data/processed/per_trace_scores.csv` and `data/processed/rules/`.
-- [ ] T027 [US2] Implement `code/evaluation/calculate_compression_ratio.py` to compute **per-trace fidelity** data points (Fidelity Loss vs. Compression Ratio) required to plot the trade-off curve (SC-002). **Deliverable**: A CSV mapping each trace to its compression ratio and fidelity loss.
+- [X] T027 [US2] Implement `code/evaluation/calculate_compression_ratio.py` to compute **per-trace fidelity** data points (Fidelity Loss vs. Compression Ratio) required to plot the trade-off curve (SC-002). **Deliverable**: A CSV mapping each trace to its compression ratio and fidelity loss.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,18 +134,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Contract test for benchmark results schema in `tests/contract/test_benchmark_results_schema.py`
-- [ ] T029 [P] [US3] Integration test for agent comparison pipeline in `tests/integration/test_agent_benchmark.py`
+- [~] T028 [P] [US3] Contract test for benchmark results schema in `tests/contract/test_benchmark_results_schema.py`
+- [X] T029 [P] [US3] Integration test for agent comparison pipeline in `tests/integration/test_agent_benchmark.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Implement `code/agents/baseline.py` (raw memory agent)
-- [ ] T031 [P] [US3] Implement `code/agents/compressed.py` (symbolic rule agent using global rule set for latency comparison)
-- [ ] T032 [US3] Implement `code/evaluation/benchmark.py` to run both agents on held-out test set (FR-004)
-- [ ] T033 [US3] Measure and record Edit Accuracy (fraction of edits matching ground truth) for both agents (FR-005). **Method**: Exact match on structured slide objects.
-- [ ] T034 [US3] Measure and record Retrieval Latency (time to context-ready) for both agents (FR-005)
-- [ ] T035 [US3] Implement `code/evaluation/stats.py` for Beta regression of **Fidelity Loss** (1 - CompressedAccuracy) on Structural Metrics (FR-006). **Note**: Fidelity Loss is strictly bounded in (0,1), satisfying Beta regression assumptions.
-- [ ] T036 [US3] Implement Spearman correlation analysis between structural metrics and per-trace Compressibility Score (from T026)
+- [X] T030 [P] [US3] Implement `code/agents/baseline.py` (raw memory agent)
+- [X] T031 [P] [US3] Implement `code/agents/compressed.py` (symbolic rule agent using global rule set for latency comparison)
+- [X] T032 [US3] Implement `code/evaluation/benchmark.py` to run both agents on held-out test set (FR-004)
+- [~] T033 [US3] Measure and record Edit Accuracy (fraction of edits matching ground truth) for both agents (FR-005). **Method**: Exact match on structured slide objects.
+- [~] T034 [US3] Measure and record Retrieval Latency (time to context-ready) for both agents (FR-005)
+- [X] T035 [US3] Implement `code/evaluation/stats.py` for Beta regression of **Fidelity Loss** (1 - CompressedAccuracy) on Structural Metrics (FR-006). **Note**: Fidelity Loss is strictly bounded in (0,1), satisfying Beta regression assumptions.
+- [~] T036 [US3] Implement Spearman correlation analysis between structural metrics and per-trace Compressibility Score (from T026)
 - [ ] T037 [US3] Implement sensitivity analysis sweeping the **compression threshold** (e.g., fidelity cutoff or rule pruning threshold) to report how fidelity rates vary (FR-007). **Note**: Sweep the threshold directly, not just hyperparameters.
 - [ ] T038 [US3] Generate comparative JSON report to `data/processed/benchmark_results.json`
 

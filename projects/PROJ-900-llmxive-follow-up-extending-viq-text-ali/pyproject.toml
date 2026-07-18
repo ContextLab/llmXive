@@ -1,11 +1,12 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-follow-up"
 version = "0.1.0"
-description = "Extending ViQ Text-Aligned Visual Quantized Representations"
+description = "llmXive follow-up: extending ViQ Text-Aligned Visual Quantized Representations"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "torch==2.1.0+cpu",
@@ -14,19 +15,72 @@ dependencies = [
     "scikit-learn==1.3.0",
     "pillow==10.1.0",
     "opencv-python-headless==4.8.0",
-    "tqdm==4.66.0",
-    "scikit-image==0.22.0"
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "h5py>=3.10.0",
+    "scikit-image>=0.21.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff==0.1.6",
+    "black==23.12.1",
+    "pytest==7.4.3",
+    "pytest-cov==4.1.0",
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+)/
+'''
 
 [tool.ruff]
-line-length = 88
 target-version = "py311"
-select = ["E", "F", "W", "I"]
-ignore = []
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+exclude = [
+    ".git",
+    ".venv",
+    "data/",
+    "build/",
+    "dist/",
+]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]

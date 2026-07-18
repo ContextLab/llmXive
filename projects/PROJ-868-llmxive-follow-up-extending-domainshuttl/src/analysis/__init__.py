@@ -1,3 +1,3 @@
 """
-Analysis and generation modules.
+Analysis and generation package.
 """

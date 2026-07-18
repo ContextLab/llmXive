@@ -1,1 +1,3 @@
-# This file ensures the tests directory exists in git.
+# Tests directory for llmXive project
+# Contains unit and integration tests
+# See individual files: test_data.py, test_metrics.py, etc.
