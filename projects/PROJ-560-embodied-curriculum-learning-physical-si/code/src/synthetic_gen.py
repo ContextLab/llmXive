@@ -1,136 +1,118 @@
-"""
-Synthetic data generation module.
-
-Generates datasets with configurable parameters for validation and testing.
-"""
 import json
 import os
-import numpy as np
-from typing import Dict, Any, List, Optional
-from pathlib import Path
 import logging
+from pathlib import Path
+from typing import Dict, Any, List, Optional
+import numpy as np
 
 from .models import DatasetRecord
+from .logging_config import setup_logging
+from .utils import set_seed
 
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger('proj_560')
 
 class SyntheticDataGenerator:
     """
-    Generates synthetic datasets for statistical validation.
-
-    Attributes:
-        mean_difference (float): The intended difference in means between groups.
-        sample_size (int): The number of samples per group.
-        ground_truth (Dict[str, Any]): The ground truth parameters used.
+    Generates synthetic datasets with configurable mean differences, sample sizes, 
+    and ground truths for statistical validation.
     """
-
-    def __init__(self, mean_difference: float = 0.5, sample_size: int = 100, seed: int = 42):
+    
+    def __init__(self, seed: int = 42, n_samples: int = 1000, 
+                 mean_diff: float = 0.5, std_dev: float = 1.0):
         """
         Initialize the generator.
-
+        
         Args:
-            mean_difference (float): Difference in means between groups.
-            sample_size (int): Number of samples per group.
-            seed (int): Random seed for reproducibility.
+            seed: Random seed for reproducibility.
+            n_samples: Number of records to generate.
+            mean_diff: The intended mean difference between groups (effect size proxy).
+            std_dev: Standard deviation of the scores.
         """
-        self.mean_difference = mean_difference
-        self.sample_size = sample_size
-        self.ground_truth = {
-            "mean_difference": mean_difference,
-            "sample_size": sample_size,
-            "seed": seed
-        }
-        np.random.seed(seed)
+        self.seed = seed
+        self.n_samples = n_samples
+        self.mean_diff = mean_diff
+        self.std_dev = std_dev
+        set_seed(seed)
+        logger.info(f"SyntheticDataGenerator initialized with seed={seed}, n={n_samples}, diff={mean_diff}")
 
-    @classmethod
-    def generate(cls, sample_size: int = 100, mean_diff: float = 0.5, seed: int = 42) -> List[DatasetRecord]:
+    def generate(self) -> List[DatasetRecord]:
         """
-        Generate a synthetic dataset.
-
-        Args:
-            sample_size (int): Total number of samples (split between groups).
-            mean_diff (float): Intended mean difference.
-            seed (int): Random seed.
-
+        Generates a list of DatasetRecord objects.
+        
         Returns:
-            List[DatasetRecord]: List of generated records.
+            List of synthetic records.
         """
-        generator = cls(mean_difference=mean_diff, sample_size=sample_size, seed=seed)
-        return generator._create_records()
-
-    def _create_records(self) -> List[DatasetRecord]:
-        """
-        Create the actual records based on configured parameters.
-
-        Returns:
-            List[DatasetRecord]: List of records.
-        """
+        logger.info(f"Generating {self.n_samples} synthetic records...")
+        
+        # Define instruction types
+        instruction_types = ['embodied_physics', 'static_text']
+        
         records = []
-        n_per_group = self.sample_size // 2
-
-        # Generate scores for Static group
-        pre_static = np.random.normal(loc=50, scale=10, size=n_per_group)
-        post_static = np.random.normal(loc=55, scale=10, size=n_per_group)
-
-        # Generate scores for Embodied group (with mean difference)
-        pre_embodied = np.random.normal(loc=50, scale=10, size=n_per_group)
-        post_embodied = np.random.normal(loc=55 + self.mean_difference * 10, scale=10, size=n_per_group)
-
-        for i in range(n_per_group):
-            records.append(DatasetRecord(
-                pre_test_score=float(pre_static[i]),
-                post_test_score=float(post_static[i]),
-                instruction_type="static",
-                covariates={"group_id": i}
-            ))
-            records.append(DatasetRecord(
-                pre_test_score=float(pre_embodied[i]),
-                post_test_score=float(post_embodied[i]),
-                instruction_type="embodied",
-                covariates={"group_id": i + n_per_group}
-            ))
-
+        
+        # Generate scores
+        # Group 1: Embodied
+        n1 = self.n_samples // 2
+        # Group 2: Static
+        n2 = self.n_samples - n1
+        
+        # Pre-test scores: same distribution for both
+        pre_scores = np.random.normal(50, self.std_dev, self.n_samples)
+        
+        # Post-test scores: Embodied has higher mean
+        post_scores_embodied = np.random.normal(50 + self.mean_diff, self.std_dev, n1)
+        post_scores_static = np.random.normal(50, self.std_dev, n2)
+        
+        all_post_scores = np.concatenate([post_scores_embodied, post_scores_static])
+        
+        # Create records
+        for i in range(self.n_samples):
+            inst_type = instruction_types[0] if i < n1 else instruction_types[1]
+            record = DatasetRecord(
+                pre_test_score=float(pre_scores[i]),
+                post_test_score=float(all_post_scores[i]),
+                instruction_type=inst_type,
+                covariates={"synthetic": True, "group_index": i}
+            )
+            records.append(record)
+        
         logger.info(f"Generated {len(records)} synthetic records.")
         return records
 
-
-def generate_mapping_log(output_path: str) -> None:
+def generate_mapping_log(output_path: str, generator_params: Dict[str, Any]) -> None:
     """
-    Generate a mapping log documenting the causal chain for synthetic data.
-
-    This satisfies Constitution Principle VI by documenting:
-    Physics_Action -> Virtual_Object_State -> Abstract_Principle_Inference
-
+    Generates a mapping_log file documenting the derivation of synthetic data.
+    This satisfies Constitution Principle VI (Simulation-Pedagogy Alignment).
+    
     Args:
-        output_path (str): Path to write the mapping log JSON.
+        output_path: Path to write the mapping log JSON.
+        generator_params: Parameters used for generation.
     """
-    log_data = {
-        "causal_chain": [
+    logger.info(f"Generating mapping log at {output_path}")
+    
+    mapping_log = {
+        "timestamp": None, # Will be handled by logger or we can use datetime
+        "concepts": [
             {
-                "stage": "Physics_Action",
-                "description": "User interacts with virtual objects in a physics simulation.",
-                "variables": ["force_applied", "mass", "velocity_change"]
+                "physics_concept": "Force and Acceleration (Newton's Second Law)",
+                "mathematical_concept": "Linear Regression / Slope",
+                "mapping_rationale": "The simulation demonstrates that a constant force applied to an object results in a constant acceleration, analogous to a linear relationship between variables.",
+                "instruction_type": "embodied_physics"
             },
             {
-                "stage": "Virtual_Object_State",
-                "description": "Resulting state of objects after interaction.",
-                "variables": ["displacement", "kinetic_energy", "momentum"]
-            },
-            {
-                "stage": "Abstract_Principle_Inference",
-                "description": "Inference of abstract mathematical principles from observed states.",
-                "variables": ["linear_relationship", "proportionality", "conservation_laws"]
+                "physics_concept": "Conservation of Energy",
+                "mathematical_concept": "Summation / Invariance",
+                "mapping_rationale": "The sum of kinetic and potential energy remains constant, illustrating the concept of conservation and invariant totals.",
+                "instruction_type": "embodied_physics"
             }
         ],
-        "mapping_logic": "The synthetic generator simulates the outcome of these interactions to produce pre/post test scores that reflect the understanding of these principles.",
-        "generated_at": "auto"
+        "generation_parameters": generator_params,
+        "constitution_principle": "VI: Simulation-Pedagogy Alignment"
     }
-
+    
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-
+    
     with open(path, 'w', encoding='utf-8') as f:
-        json.dump(log_data, f, indent=2)
-
-    logger.info(f"Mapping log written to {output_path}")
+        json.dump(mapping_log, f, indent=2)
+    
+    logger.info("Mapping log generated successfully.")

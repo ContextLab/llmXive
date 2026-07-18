@@ -1,95 +1,129 @@
+"""
+Unit tests for sensitivity analysis logic.
+"""
 import pytest
 import numpy as np
 import os
 import sys
 import json
 import tempfile
-from src.sensitivity import run_sensitivity_sweep, check_robustness_warning, aggregate_results_for_report
+
+# Ensure project root is in path if running directly
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from src.sensitivity import run_sensitivity_sweep, check_robustness_warning, aggregate_sweep_results
 from src.models import SensitivitySweep
 
+
 class TestSensitivitySweepLogic:
-    """Unit tests for sensitivity sweep logic."""
+    """Tests for the run_sensitivity_sweep function."""
 
-    def test_robustness_warning_detection(self):
-        """Test that check_robustness_warning flags when effect size drops."""
-        # Normal effect sizes
-        normal_sizes = [0.5, 0.6, 0.7]
-        assert check_robustness_warning(normal_sizes, meaningful_threshold=0.2) is False
+    def test_insufficient_data_returns_empty(self):
+        """Test that N < 30 returns an empty list."""
+        small_embodied = [1.0, 2.0, 3.0]
+        small_static = [4.0, 5.0]
+        thresholds = [0.05]
 
-        # Small effect size that triggers warning
-        small_sizes = [0.5, 0.1, 0.7]
-        assert check_robustness_warning(small_sizes, meaningful_threshold=0.2) is True
-
-        # Empty list
-        assert check_robustness_warning([], meaningful_threshold=0.2) is True
-
-    def test_aggregate_results_for_report_insufficient_data(self):
-        """Test aggregation when data is insufficient."""
-        sweep_data = {
-            "insufficient_data": True,
-            "message": "Insufficient data for robustness check: N=20 < 30.",
-            "n_observed": 20,
-            "sweep_results": []
-        }
+        result = run_sensitivity_sweep(small_embodied, small_static, thresholds)
         
-        report = aggregate_results_for_report(sweep_data)
-        
-        assert report["robustness_check"]["status"] == "skipped"
-        assert "insufficient data" in report["robustness_check"]["reason"].lower()
-        assert report["robustness_check"]["n_observed"] == 20
+        assert result == [], "Expected empty list for N < 30"
 
-    def test_aggregate_results_for_report_completed(self):
-        """Test aggregation when sweep completes successfully."""
-        sweep_data = {
-            "insufficient_data": False,
-            "n_observed": 50,
-            "sweep_results": [
-                SensitivitySweep(threshold_value=0.01, t_statistic=2.5, p_value=0.01, effect_size=0.5, n_a=25, n_b=25),
-                SensitivitySweep(threshold_value=0.05, t_statistic=2.6, p_value=0.01, effect_size=0.5, n_a=25, n_b=25)
-            ]
-        }
-        
-        report = aggregate_results_for_report(sweep_data)
-        
-        assert report["robustness_check"]["status"] == "completed"
-        assert report["robustness_check"]["n_observed"] == 50
-        assert "sweep_details" in report["robustness_check"]
-        assert len(report["robustness_check"]["sweep_details"]) == 2
-
-    def test_run_sensitivity_sweep_with_real_data_simulation(self):
-        """
-        Simulate a run with enough data to ensure the t-test logic works 
-        and the sweep produces results.
-        """
-        # Generate synthetic data that mimics real data structure
+    def test_sufficient_data_returns_results(self):
+        """Test that N >= 30 returns a list of SensitivitySweep objects."""
+        # Create enough data points (N=30)
         np.random.seed(42)
-        n = 100
-        data = []
+        embodied = np.random.normal(10, 2, 15).tolist()
+        static = np.random.normal(8, 2, 15).tolist()
+        thresholds = [0.01, 0.05, 0.10]
+
+        result = run_sensitivity_sweep(embodied, static, thresholds)
         
-        # Group A: Embodied (Mean gain = 5, Std = 2)
-        for i in range(n // 2):
-            data.append({
-                "instruction_type": "embodied",
-                "gain_score": np.random.normal(5, 2)
-            })
+        assert len(result) == 3, f"Expected 3 results for 3 thresholds, got {len(result)}"
+        assert all(isinstance(r, SensitivitySweep) for r in result), "All items must be SensitivitySweep instances"
         
-        # Group B: Static (Mean gain = 3, Std = 2)
-        for i in range(n - n // 2):
-            data.append({
-                "instruction_type": "static",
-                "gain_score": np.random.normal(3, 2)
-            })
+        # Verify threshold values
+        thresholds_found = [r.threshold for r in result]
+        assert thresholds_found == thresholds, f"Thresholds mismatch: {thresholds_found} vs {thresholds}"
+
+    def test_effect_size_calculation(self):
+        """Verify effect sizes are calculated and non-random."""
+        np.random.seed(123)
+        # Distinct groups with known difference
+        embodied = [10.0] * 15
+        static = [5.0] * 15
+        thresholds = [0.05]
+
+        result = run_sensitivity_sweep(embodied, static, thresholds)
         
-        result = run_sensitivity_sweep(
-            data=data,
-            instruction_column="instruction_type",
-            outcome_column="gain_score",
-            thresholds=[0.01, 0.05, 0.10]
+        assert len(result) == 1
+        # Effect size should be positive and significant (large difference)
+        assert result[0].effect_size > 0, "Effect size should be positive for distinct groups"
+
+    def test_p_value_in_results(self):
+        """Verify p-values are included in results."""
+        np.random.seed(456)
+        embodied = np.random.normal(10, 2, 20).tolist()
+        static = np.random.normal(10, 2, 10).tolist() # Same mean, should be non-significant
+        thresholds = [0.05]
+
+        result = run_sensitivity_sweep(embodied, static, thresholds)
+        
+        assert len(result) == 1
+        assert 0.0 <= result[0].p_value <= 1.0, "P-value must be between 0 and 1"
+
+class TestRobustnessWarning:
+    """Tests for the check_robustness_warning function."""
+
+    def test_warning_when_effect_drops(self):
+        """Test warning triggers when effect size < minimum."""
+        # Create a mock result with small effect
+        mock_result = SensitivitySweep(
+            threshold=0.05,
+            effect_size=0.1, # Below default 0.2
+            p_value=0.03,
+            sample_size=50
         )
         
-        assert result["insufficient_data"] is False
-        assert len(result["sweep_results"]) == 3
+        assert check_robustness_warning([mock_result]) is True
+
+    def test_no_warning_when_effect_stable(self):
+        """Test no warning when effect size >= minimum."""
+        mock_result = SensitivitySweep(
+            threshold=0.05,
+            effect_size=0.5, # Above default 0.2
+            p_value=0.01,
+            sample_size=50
+        )
         
-        # Verify effect sizes are positive (Embodied > Static)
-        for sweep in result["sweep_results"]:
-            assert sweep.effect_size > 0
+        assert check_robustness_warning([mock_result]) is False
+
+    def test_warning_on_any_drop(self):
+        """Test warning triggers if ANY result in list is below threshold."""
+        good_result = SensitivitySweep(threshold=0.01, effect_size=0.5, p_value=0.01, sample_size=50)
+        bad_result = SensitivitySweep(threshold=0.05, effect_size=0.1, p_value=0.04, sample_size=50)
+        
+        assert check_robustness_warning([good_result, bad_result]) is True
+
+class TestAggregateSweepResults:
+    """Tests for aggregation logic."""
+
+    def test_aggregates_empty_list(self):
+        """Test aggregation of empty list returns error state."""
+        result = aggregate_sweep_results([])
+        
+        assert result["robustness_warning"] is True
+        assert "reason" in result
+
+    def test_aggregates_valid_results(self):
+        """Test aggregation of valid results."""
+        results = [
+            SensitivitySweep(threshold=0.01, effect_size=0.5, p_value=0.01, sample_size=50),
+            SensitivitySweep(threshold=0.05, effect_size=0.4, p_value=0.04, sample_size=50)
+        ]
+        
+        summary = aggregate_sweep_results(results)
+        
+        assert "sweep_data" in summary
+        assert len(summary["sweep_data"]) == 2
+        assert isinstance(summary["sweep_data"][0], dict)
+        assert "effect_size" in summary["sweep_data"][0]

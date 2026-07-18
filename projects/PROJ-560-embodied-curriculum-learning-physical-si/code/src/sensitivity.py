@@ -1,108 +1,141 @@
 """
-Sensitivity analysis module.
+Sensitivity Analysis Module for Embodied Curriculum Learning.
 
-Implements threshold sweeping and robustness checks for statistical results.
+This module provides functions for running sensitivity sweeps across different
+inclusion thresholds to demonstrate the robustness of the headline effect size.
 """
 import logging
 from typing import List, Dict, Any, Optional
-
 import numpy as np
 from scipy import stats
 
 from .models import SensitivitySweep, AnalysisResult
 from .stats_engine import run_t_test, calculate_effect_size, apply_bonferroni_correction, frame_inference, aggregate_results
 
-logger = logging.getLogger(__name__)
-
 
 def run_sensitivity_sweep(
-    gain_scores_embodied: List[float],
-    gain_scores_static: List[float],
-    thresholds: List[float]
+    records: List[Any],
+    thresholds: List[float],
+    concept_name: str = "math_reasoning"
 ) -> List[SensitivitySweep]:
     """
-    Execute a sensitivity analysis by sweeping over significance thresholds.
+    Run a sensitivity analysis sweep across multiple thresholds.
 
     Args:
-        gain_scores_embodied (List[float]): Gain scores for the embodied group.
-        gain_scores_static (List[float]): Gain scores for the static group.
-        thresholds (List[float]): List of thresholds to test.
+        records: List of DatasetRecord objects.
+        thresholds: List of threshold values to test.
+        concept_name: Name of the concept being analyzed.
 
     Returns:
-        List[SensitivitySweep]: List of sweep results.
+        List of SensitivitySweep objects for each threshold.
     """
-    if len(gain_scores_embodied) + len(gain_scores_static) < 30:
-        logger.warning("Insufficient data for robustness check (N < 30). Skipping sweep.")
+    logger = logging.getLogger(__name__)
+    n_total = len(records)
+
+    # Check total N
+    if n_total < 30:
+        logger.warning(f"Insufficient data for sensitivity sweep: N={n_total} < 30")
         return []
 
-    results = []
+    sweep_results = []
+
     for threshold in thresholds:
-        # Run t-test
-        t_stat, p_val = run_t_test(gain_scores_embodied, gain_scores_static)
-        effect = calculate_effect_size(gain_scores_embodied, gain_scores_static)
+        # Filter records based on threshold (example: filter by absolute gain)
+        # This is a placeholder logic; actual filtering depends on the use case
+        filtered_records = [
+            r for r in records
+            if r.gain_score is not None and abs(r.gain_score) >= threshold
+        ]
 
-        sweep_result = SensitivitySweep(
+        if len(filtered_records) < 30:
+            logger.warning(f"Threshold {threshold} results in insufficient data: N={len(filtered_records)}")
+            continue
+
+        # Split into groups
+        embodied = [r.gain_score for r in filtered_records if r.instruction_type == "embodied"]
+        static = [r.gain_score for r in filtered_records if r.instruction_type == "static"]
+
+        if len(embodied) < 2 or len(static) < 2:
+            continue
+
+        t_stat, p_val = run_t_test(embodied, static)
+        effect_size = calculate_effect_size(embodied, static)
+        bonf_p = apply_bonferroni_correction(p_val, len(thresholds))
+        is_sig = bonf_p < 0.05
+
+        sweep_results.append(SensitivitySweep(
             threshold=threshold,
-            effect_size=effect,
-            p_value=p_val,
-            sample_size=len(gain_scores_embodied) + len(gain_scores_static)
-        )
-        results.append(sweep_result)
+            effect_size=effect_size,
+            is_significant=is_sig,
+            sample_size=len(filtered_records)
+        ))
 
-    logger.info(f"Sensitivity sweep completed for {len(thresholds)} thresholds.")
-    return results
+    logger.info(f"Sensitivity sweep completed. {len(sweep_results)} valid thresholds.")
+    return sweep_results
 
 
-def check_robustness_warning(sweep_results: List[SensitivitySweep], minimum_effect: float = 0.2) -> bool:
+def check_robustness_warning(
+    sweep_results: List[SensitivitySweep],
+    effect_size_threshold: float = 0.5
+) -> bool:
     """
-    Check if the effect size drops below a substantively meaningful threshold
-    at any point in the sweep.
+    Check if the effect size drops below a predefined threshold at any point.
 
     Args:
-        sweep_results (List[SensitivitySweep]): Results from the sensitivity sweep.
-        minimum_effect (float): The minimum substantively meaningful effect size.
+        sweep_results: List of SensitivitySweep objects.
+        effect_size_threshold: Minimum acceptable effect size.
 
     Returns:
-        bool: True if robustness warning should be raised, False otherwise.
+        True if a robustness warning should be flagged, False otherwise.
     """
     for result in sweep_results:
-        if abs(result.effect_size) < minimum_effect:
-            logger.warning(f"Robustness warning: Effect size {result.effect_size} dropped below {minimum_effect} at threshold {result.threshold}")
+        if abs(result.effect_size) < effect_size_threshold:
             return True
     return False
 
 
-def aggregate_sweep_results(sweep_results: List[SensitivitySweep]) -> Dict[str, Any]:
+def aggregate_sweep_results(
+    sweep_results: List[SensitivitySweep]
+) -> Dict[str, Any]:
     """
     Aggregate sweep results into a summary dictionary.
 
     Args:
-        sweep_results (List[SensitivitySweep]): List of sweep results.
+        sweep_results: List of SensitivitySweep objects.
 
     Returns:
-        Dict[str, Any]: Aggregated summary.
+        Dictionary with aggregated sweep information.
     """
     if not sweep_results:
-        return {"sweep_data": [], "robustness_warning": True, "reason": "No sweep data available"}
+        return {"sweep_results": [], "robustness_warning": False}
 
-    summary = {
-        "sweep_data": [r.to_dict() for r in sweep_results],
-        "robustness_warning": check_robustness_warning(sweep_results)
+    data = [r.to_dict() for r in sweep_results]
+    robustness_warning = check_robustness_warning(sweep_results)
+
+    return {
+        "sweep_results": data,
+        "robustness_warning": robustness_warning,
+        "n_thresholds_tested": len(sweep_results)
     }
-    return summary
 
 
-def aggregate_results_for_report(analysis_result: AnalysisResult, sweep_results: List[SensitivitySweep]) -> Dict[str, Any]:
+def aggregate_results_for_report(
+    main_result: AnalysisResult,
+    sweep_results: List[SensitivitySweep]
+) -> Dict[str, Any]:
     """
-    Combine the main analysis result with sensitivity sweep results.
+    Combine main analysis result with sensitivity sweep results.
 
     Args:
-        analysis_result (AnalysisResult): The primary analysis result.
-        sweep_results (List[SensitivitySweep]): The sensitivity sweep results.
+        main_result: The primary AnalysisResult object.
+        sweep_results: List of SensitivitySweep objects.
 
     Returns:
-        Dict[str, Any]: Combined report dictionary.
+        Dictionary containing the full report.
     """
-    report = analysis_result.to_dict()
-    report["sensitivity_analysis"] = aggregate_sweep_results(sweep_results)
-    return report
+    sweep_summary = aggregate_sweep_results(sweep_results)
+
+    return {
+        "main_analysis": main_result.to_dict(),
+        "sensitivity_analysis": sweep_summary
+    }

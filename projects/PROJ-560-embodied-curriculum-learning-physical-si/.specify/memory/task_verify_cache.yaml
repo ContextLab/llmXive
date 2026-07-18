@@ -1,9 +1,17 @@
-T031:
+T002a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data, or JSON report showing aggregation of sweep results into `SensitivitySweep`
-    objects and their appending to the main JSON report was provided; the required
-    artifact is missing.
+  r: No `requirements.in` file in the `code/` directory was provided or shown, and
+    thus we cannot confirm that it lists the required dependencies (`pandas`, `scipy`,
+    `statsmodels`, `numpy`, `pyyaml`, `json`) without version specifications. The
+    required artifact is missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation showing a `mapping_log` being generated\
+    \ by the `SyntheticDataGenerator` was provided. The required artifact (implementation\
+    \ of the mapping log logic) is missing, so the task\u2019s requirement is not\
+    \ satisfied."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,28 +20,6 @@ T037:
     \ statistical methods, or the associational framing of results as required by\
     \ task T037. The implementer\u2019s claim cannot be verified without the actual\
     \ documentation artifacts."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files, diff, or documentation were provided to demonstrate that any modules
-    have been cleaned up, refactored, or enriched with complete type hints and docstrings.
-    Without concrete artifacts showing the updated source code, the claim cannot be
-    verified.
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No unit test files or code artifacts were provided that demonstrate additional\
-    \ tests for the specified edge cases (sample size\u202F<\u202F30, missing columns,\
-    \ collinearity). The claim lacks any concrete test implementations or evidence\
-    \ that such tests exist."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The provided evidence only describes data processing and statistical analysis
-    specifications; there is no artifact (code, tests, documentation) showing that
-    data loading has been hardened against arbitrary code execution. Security hardening
-    measures, such as safe deserialization, input validation, sandboxing, or related
-    test results, are missing. The task T041 remains unaddressed.
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

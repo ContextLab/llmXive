@@ -1,3 +1,11 @@
+"""
+Edge case tests for the embodied curriculum learning pipeline.
+Tests cover:
+1. Sample size < 30 (insufficient data for sensitivity sweep)
+2. Missing required columns in input data
+3. High collinearity between predictors
+"""
+
 import pytest
 import numpy as np
 import os
@@ -7,182 +15,378 @@ import tempfile
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Import from the existing project API surface
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from src.models import DatasetRecord, AnalysisResult, SensitivitySweep
-from src.stats_engine import (
-    run_t_test,
-    calculate_effect_size,
-    check_collinearity,
-    calculate_power,
-    aggregate_results
-)
-from src.data_loader import load_public_dataset, calculate_gain_scores, log_skipped_record
+from src.data_loader import log_skipped_record, calculate_gain_scores, load_public_dataset
+from src.stats_engine import run_t_test, calculate_effect_size, check_collinearity
 from src.sensitivity import run_sensitivity_sweep, check_robustness_warning
-from src.utils import set_seed
+from src.synthetic_gen import SyntheticDataGenerator
+from src.logging_config import setup_logging
+import logging
 
 
 class TestEdgeCasesSampleSize:
-    """Tests for edge cases involving small sample sizes (N < 30)."""
-
-    def test_t_test_small_sample_size(self):
-        """Verify t-test handles N < 30 without crashing, returning appropriate stats."""
-        set_seed(42)
-        # Small sample: N=10 per group
-        group_a = np.random.normal(loc=5.0, scale=1.0, size=10)
-        group_b = np.random.normal(loc=5.5, scale=1.2, size=10)
-
-        # Should not raise an exception
-        t_stat, p_val, ci_low, ci_high = run_t_test(group_a, group_b, equal_var=False)
-
-        assert isinstance(t_stat, float)
-        assert isinstance(p_val, float)
-        assert 0 <= p_val <= 1
-        # Even with small N, we expect valid intervals
-        assert ci_low < ci_high
-
-    def test_power_calculation_underpowered(self):
-        """Verify power calculation flags underpowered results (power < 0.80) for small N."""
-        set_seed(42)
-        group_a = np.random.normal(loc=5.0, scale=1.0, size=15)
-        group_b = np.random.normal(loc=5.1, scale=1.0, size=15)
-
-        # Effect size is small, N is small -> should be underpowered
-        effect_d = calculate_effect_size(group_a, group_b)
-        power = calculate_power(group_a, group_b, effect_size=effect_d)
-
-        # We expect low power with small N and small effect
-        assert isinstance(power, float)
-        # Note: The specific threshold logic is in calculate_power, but we assert it returns a number
-        assert 0 <= power <= 1
+    """Tests for N < 30 edge cases"""
 
     def test_sensitivity_sweep_insufficient_data(self):
-        """Verify sensitivity sweep flags insufficient data when N < 30."""
-        set_seed(42)
-        # Create a tiny dataset
-        data = []
-        for i in range(10):
-            data.append({
-                "pre_test_score": 5.0 + np.random.normal(0, 0.1),
-                "post_test_score": 5.2 + np.random.normal(0, 0.1),
-                "instruction_type": "embodied" if i < 5 else "static",
-                "covariates": {}
-            })
+        """Test that sensitivity sweep returns early with insufficient_data flag when N < 30"""
+        # Create small dataset
+        small_gain_scores = [1.0, 2.0, 3.0, 4.0, 5.0]  # N=5
+        instruction_types = ['embodied', 'embodied', 'static', 'static', 'embodied']
+        
+        # Create mock AnalysisResult
+        analysis_result = AnalysisResult(
+            t_statistic=0.0,
+            p_value=1.0,
+            effect_size=0.0,
+            confidence_interval=(0.0, 0.0),
+            sample_size=5,
+            is_significant=False,
+            robustness_warning=False,
+            raw_results={}
+        )
+        
+        # Run sensitivity sweep with small dataset
+        thresholds = [0.01, 0.05, 0.10]
+        sweep_results = run_sensitivity_sweep(
+            gain_scores=small_gain_scores,
+            instruction_types=instruction_types,
+            thresholds=thresholds,
+            analysis_result=analysis_result
+        )
+        
+        # Verify early return with insufficient_data flag
+        assert len(sweep_results) == 0, "Sweep should return empty list for N < 30"
+        assert analysis_result.insufficient_data == True, "Should flag insufficient data"
 
-        # Run sweep with a tiny threshold list
-        thresholds = [0.05, 0.01]
-        results = run_sensitivity_sweep(data, thresholds)
+    def test_t_test_with_very_small_sample(self):
+        """Test t-test behavior with N=2 (minimum for variance calculation)"""
+        group_a = [1.0, 2.0]  # N=2
+        group_b = [3.0, 4.0]  # N=2
+        
+        # Should not raise exception
+        result = run_t_test(group_a, group_b)
+        
+        assert result['t_statistic'] is not None
+        assert result['p_value'] is not None
+        assert result['sample_size_a'] == 2
+        assert result['sample_size_b'] == 2
 
-        # Check that the robustness warning or a specific flag indicates insufficient data
-        # Based on T029 logic, this should trigger a flag
-        if isinstance(results, list) and len(results) > 0:
-            # If results are aggregated, check for the warning
-            pass
-        elif isinstance(results, dict):
-            # If it returns a single status object
-            assert "robustness_warning" in results or "insufficient_data" in results
-
-    def test_aggregate_results_empty_groups(self):
-        """Verify aggregate_results handles cases where one group might be empty or near-empty."""
-        set_seed(42)
-        # One group has data, other is empty
-        group_a = np.array([1.0, 2.0, 3.0])
-        group_b = np.array([])
-
-        with pytest.raises((ValueError, IndexError)):
-            # This should raise an error because we can't compute stats on empty array
-            calculate_effect_size(group_a, group_b)
+    def test_power_calculation_with_small_sample(self):
+        """Test power calculation flags underpowered results for small N"""
+        from src.stats_engine import calculate_power
+        
+        # Small sample, small effect
+        power = calculate_power(
+            effect_size=0.2,
+            sample_size_a=10,
+            sample_size_b=10,
+            alpha=0.05
+        )
+        
+        # Should be underpowered (< 0.80)
+        assert power < 0.80, "Small samples should result in underpowered tests"
 
 
 class TestEdgeCasesMissingColumns:
-    """Tests for edge cases involving missing columns in input data."""
+    """Tests for missing required columns in input data"""
 
-    def test_load_public_dataset_missing_required_column(self):
-        """Verify load_public_dataset fails gracefully or handles missing required columns."""
+    def test_load_dataset_missing_instruction_type(self):
+        """Test that missing instruction_type triggers synthetic generation"""
         with tempfile.TemporaryDirectory() as tmpdir:
-            csv_path = os.path.join(tmpdir, "missing_cols.csv")
-            # Write CSV missing 'instruction_type'
-            with open(csv_path, "w", newline="") as f:
-                writer = csv.DictWriter(f, fieldnames=["pre_test_score", "post_test_score"])
-                writer.writeheader()
-                writer.writerow({"pre_test_score": 5.0, "post_test_score": 6.0})
-
-            # The implementation in T012/T016 should auto-invoke SyntheticDataGenerator
-            # or raise a specific error if it can't proceed.
-            # We test that it doesn't crash with a generic KeyError.
+            # Create CSV with missing instruction_type column
+            csv_path = Path(tmpdir) / "missing_cols.csv"
+            with open(csv_path, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['pre_test_score', 'post_test_score'])
+                writer.writerow([1.0, 2.0])
+                writer.writerow([3.0, 4.0])
+            
+            # Should invoke synthetic generation (which will fail if no real data)
+            # For this test, we verify the validation catches the issue
             try:
-                result = load_public_dataset(csv_path)
-                # If it succeeded, it must have handled the missing column (e.g., via synthetic fallback)
-                assert isinstance(result, list) or isinstance(result, dict)
-            except KeyError as e:
-                # If it raises KeyError, that's a failure of the auto-invocation logic
-                pytest.fail(f"load_public_dataset raised KeyError for missing column: {e}")
+                # This should fail because instruction_type is required for secondary analysis
+                records = load_public_dataset(str(csv_path))
+                # If we get here, synthetic generation was invoked
+                assert len(records) > 0
+            except Exception as e:
+                # Expected if synthetic generation fails
+                assert "instruction_type" in str(e).lower() or "synthetic" in str(e).lower()
 
-    def test_calculate_gain_scores_missing_values(self):
-        """Verify calculate_gain_scores skips rows with missing values and logs them."""
+    def test_load_dataset_missing_pre_score(self):
+        """Test that missing pre_test_score is logged and skipped"""
         with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = os.path.join(tmpdir, "skipped.log")
-            data = [
-                {"pre_test_score": 5.0, "post_test_score": 6.0, "instruction_type": "embodied"},
-                {"pre_test_score": None, "post_test_score": 7.0, "instruction_type": "static"}, # Missing pre
-                {"pre_test_score": 5.0, "post_test_score": None, "instruction_type": "embodied"}, # Missing post
-                {"pre_test_score": 6.0, "post_test_score": 7.0, "instruction_type": "static"}
-            ]
+            # Create CSV with missing pre_test_score
+            csv_path = Path(tmpdir) / "missing_pre.csv"
+            with open(csv_path, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['post_test_score', 'instruction_type'])
+                writer.writerow([2.0, 'embodied'])
+                writer.writerow([4.0, 'static'])
+            
+            # Should skip records with missing pre_test_score
+            records = load_public_dataset(str(csv_path))
+            
+            # All records should be skipped
+            assert len(records) == 0
 
-            gains, skipped_count = calculate_gain_scores(data)
+    def test_load_dataset_missing_post_score(self):
+        """Test that missing post_test_score is logged and skipped"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create CSV with missing post_test_score
+            csv_path = Path(tmpdir) / "missing_post.csv"
+            with open(csv_path, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['pre_test_score', 'instruction_type'])
+                writer.writerow([1.0, 'embodied'])
+                writer.writerow([3.0, 'static'])
+            
+            # Should skip records with missing post_test_score
+            records = load_public_dataset(str(csv_path))
+            
+            # All records should be skipped
+            assert len(records) == 0
 
-            # Should have 2 valid gains
-            assert len(gains) == 2
-            # Should have skipped 2 records
-            assert skipped_count == 2
+    def test_calculate_gain_scores_with_missing_values(self):
+        """Test gain score calculation handles missing values correctly"""
+        records = [
+            DatasetRecord(pre_test_score=1.0, post_test_score=2.0, instruction_type='embodied', covariates={}),
+            DatasetRecord(pre_test_score=None, post_test_score=3.0, instruction_type='static', covariates={}),
+            DatasetRecord(pre_test_score=2.0, post_test_score=None, instruction_type='embodied', covariates={}),
+            DatasetRecord(pre_test_score=3.0, post_test_score=4.0, instruction_type='static', covariates={}),
+        ]
+        
+        gain_scores = calculate_gain_scores(records)
+        
+        # Should only have 2 valid gain scores
+        assert len(gain_scores) == 2
+        assert gain_scores[0]['gain_score'] == 1.0  # 2.0 - 1.0
+        assert gain_scores[1]['gain_score'] == 1.0  # 4.0 - 3.0
+
+    def test_log_skipped_record_creates_log_file(self):
+        """Test that skipped records are logged to file"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = Path(tmpdir) / "skipped_records.log"
+            
+            log_skipped_record(
+                log_path=str(log_path),
+                reason="Missing pre_test_score",
+                record_id="test_001",
+                data={"pre_test_score": None, "post_test_score": 2.0}
+            )
+            
+            # Verify log file was created
+            assert log_path.exists()
+            
+            with open(log_path, 'r') as f:
+                content = f.read()
+                assert "Missing pre_test_score" in content
+                assert "test_001" in content
 
 
 class TestEdgeCasesCollinearity:
-    """Tests for edge cases involving collinearity detection."""
+    """Tests for high collinearity between predictors"""
 
     def test_check_collinearity_high_correlation(self):
-        """Verify check_collinearity detects |r| > 0.8 and reports it."""
-        set_seed(42)
+        """Test collinearity detection when |r| > 0.8"""
         # Create highly correlated predictors
-        x = np.random.normal(0, 1, 100)
-        y = x * 0.9 + np.random.normal(0, 0.1, 100) # High correlation
-
-        predictors = {"feat1": x, "feat2": y}
-        target = np.random.normal(0, 1, 100)
-
-        # Should return a dict with collinearity info
-        collinearity_report = check_collinearity(predictors, target)
-
-        assert isinstance(collinearity_report, dict)
-        # Check if high correlation was detected
-        # The exact key name depends on implementation, but we expect a flag or list
-        assert "high_collinearity" in collinearity_report or "pairs" in collinearity_report
+        np.random.seed(42)
+        n = 100
+        x1 = np.random.normal(0, 1, n)
+        x2 = x1 * 0.95 + np.random.normal(0, 0.1, n)  # Highly correlated with x1
+        
+        predictors = {'x1': x1, 'x2': x2}
+        
+        collinearity_result = check_collinearity(predictors)
+        
+        # Should detect high collinearity
+        assert collinearity_result['high_collinearity'] == True
+        assert collinearity_result['max_correlation'] > 0.8
+        assert 'x1' in collinearity_result['correlated_pairs'][0]
+        assert 'x2' in collinearity_result['correlated_pairs'][0]
 
     def test_check_collinearity_low_correlation(self):
-        """Verify check_collinearity returns clean report for low correlation."""
-        set_seed(42)
-        x1 = np.random.normal(0, 1, 100)
-        x2 = np.random.normal(0, 1, 100)
-        target = x1 + x2 + np.random.normal(0, 0.1, 100)
+        """Test collinearity detection when |r| < 0.8"""
+        np.random.seed(42)
+        n = 100
+        x1 = np.random.normal(0, 1, n)
+        x2 = np.random.normal(0, 1, n)  # Independent of x1
+        
+        predictors = {'x1': x1, 'x2': x2}
+        
+        collinearity_result = check_collinearity(predictors)
+        
+        # Should not detect high collinearity
+        assert collinearity_result['high_collinearity'] == False
+        assert collinearity_result['max_correlation'] < 0.8
 
-        predictors = {"feat1": x1, "feat2": x2}
+    def test_check_collinearity_with_multiple_predictors(self):
+        """Test collinearity detection with multiple predictors"""
+        np.random.seed(42)
+        n = 100
+        x1 = np.random.normal(0, 1, n)
+        x2 = np.random.normal(0, 1, n)
+        x3 = x1 * 0.9 + np.random.normal(0, 0.1, n)  # Correlated with x1
+        
+        predictors = {'x1': x1, 'x2': x2, 'x3': x3}
+        
+        collinearity_result = check_collinearity(predictors)
+        
+        # Should detect collinearity between x1 and x3
+        assert collinearity_result['high_collinearity'] == True
+        assert len(collinearity_result['correlated_pairs']) >= 1
 
-        collinearity_report = check_collinearity(predictors, target)
+    def test_collinearity_with_constant_predictor(self):
+        """Test collinearity detection with constant (zero variance) predictor"""
+        np.random.seed(42)
+        n = 100
+        x1 = np.random.normal(0, 1, n)
+        x2 = np.ones(n)  # Constant predictor
+        
+        predictors = {'x1': x1, 'x2': x2}
+        
+        # Should handle gracefully (constant has undefined correlation)
+        collinearity_result = check_collinearity(predictors)
+        
+        # Should not crash, may report NaN or handle specially
+        assert 'high_collinearity' in collinearity_result
 
-        assert isinstance(collinearity_report, dict)
-        # Should not flag high collinearity
-        if "high_collinearity" in collinearity_report:
-            assert collinearity_report["high_collinearity"] is False
 
-    def test_check_collinearity_single_predictor(self):
-        """Verify check_collinearity handles single predictor gracefully."""
-        set_seed(42)
-        x = np.random.normal(0, 1, 100)
-        target = x + np.random.normal(0, 0.1, 100)
+class TestEdgeCasesDataValidation:
+    """Additional edge case tests for data validation"""
 
-        predictors = {"feat1": x}
+    def test_empty_dataset(self):
+        """Test behavior with completely empty dataset"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "empty.csv"
+            with open(csv_path, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['pre_test_score', 'post_test_score', 'instruction_type'])
+                # No data rows
+            
+            # Should return empty list
+            records = load_public_dataset(str(csv_path))
+            assert len(records) == 0
 
-        collinearity_report = check_collinearity(predictors, target)
+    def test_single_record(self):
+        """Test t-test with single record in each group"""
+        group_a = [1.0]  # N=1
+        group_b = [2.0]  # N=1
+        
+        # T-test requires at least 2 samples for variance calculation
+        # Should handle gracefully
+        with pytest.raises(Exception):
+            run_t_test(group_a, group_b)
 
-        assert isinstance(collinearity_report, dict)
-        # Should not raise error
-        assert "error" not in collinearity_report or collinearity_report["error"] is False
+    def test_all_same_values(self):
+        """Test t-test when all values in a group are identical"""
+        group_a = [1.0, 1.0, 1.0]  # Zero variance
+        group_b = [2.0, 2.0, 2.0]  # Zero variance
+        
+        # Should handle zero variance case
+        result = run_t_test(group_a, group_b)
+        
+        # May return NaN or special value for t-statistic
+        assert result['t_statistic'] is not None
+
+    def test_extreme_outliers(self):
+        """Test robustness to extreme outliers"""
+        np.random.seed(42)
+        group_a = np.random.normal(0, 1, 100).tolist()
+        group_b = np.random.normal(0, 1, 100).tolist()
+        # Add extreme outlier
+        group_a.append(1000.0)
+        
+        # Should not crash
+        result = run_t_test(group_a, group_b)
+        assert result['t_statistic'] is not None
+        assert result['p_value'] is not None
+
+    def test_mixed_instruction_types(self):
+        """Test with mixed instruction types in dataset"""
+        records = [
+            DatasetRecord(pre_test_score=1.0, post_test_score=2.0, instruction_type='embodied', covariates={}),
+            DatasetRecord(pre_test_score=2.0, post_test_score=3.0, instruction_type='static', covariates={}),
+            DatasetRecord(pre_test_score=3.0, post_test_score=4.0, instruction_type='hybrid', covariates={}),
+            DatasetRecord(pre_test_score=4.0, post_test_score=5.0, instruction_type=None, covariates={}),  # Missing
+        ]
+        
+        gain_scores = calculate_gain_scores(records)
+        
+        # Should skip record with None instruction_type
+        assert len(gain_scores) == 3
+        assert all(g['instruction_type'] is not None for g in gain_scores)
+
+    def test_negative_gain_scores(self):
+        """Test handling of negative gain scores (performance decline)"""
+        records = [
+            DatasetRecord(pre_test_score=5.0, post_test_score=3.0, instruction_type='embodied', covariates={}),
+            DatasetRecord(pre_test_score=4.0, post_test_score=6.0, instruction_type='static', covariates={}),
+        ]
+        
+        gain_scores = calculate_gain_scores(records)
+        
+        assert len(gain_scores) == 2
+        assert gain_scores[0]['gain_score'] == -2.0  # 3.0 - 5.0
+        assert gain_scores[1]['gain_score'] == 2.0   # 6.0 - 4.0
+
+    def test_very_large_gain_scores(self):
+        """Test handling of very large gain scores"""
+        records = [
+            DatasetRecord(pre_test_score=0.0, post_test_score=1000.0, instruction_type='embodied', covariates={}),
+            DatasetRecord(pre_test_score=0.0, post_test_score=2000.0, instruction_type='static', covariates={}),
+        ]
+        
+        gain_scores = calculate_gain_scores(records)
+        
+        assert len(gain_scores) == 2
+        assert gain_scores[0]['gain_score'] == 1000.0
+        assert gain_scores[1]['gain_score'] == 2000.0
+
+    def test_synthetic_generation_with_zero_mean_difference(self):
+        """Test synthetic generation with zero mean difference (null hypothesis)"""
+        generator = SyntheticDataGenerator(seed=42)
+        
+        synthetic_data = generator.generate(
+            n_samples=100,
+            mean_difference=0.0,  # Null hypothesis
+            std_dev=1.0,
+            instruction_types=['embodied', 'static']
+        )
+        
+        # Should generate data with approximately equal means
+        embodied_scores = [r['post_test_score'] - r['pre_test_score'] 
+                          for r in synthetic_data if r['instruction_type'] == 'embodied']
+        static_scores = [r['post_test_score'] - r['pre_test_score'] 
+                        for r in synthetic_data if r['instruction_type'] == 'static']
+        
+        embodied_mean = np.mean(embodied_scores)
+        static_mean = np.mean(static_scores)
+        
+        # Means should be close (not exactly equal due to randomness)
+        assert abs(embodied_mean - static_mean) < 0.5
+
+    def test_synthetic_generation_with_large_mean_difference(self):
+        """Test synthetic generation with large mean difference"""
+        generator = SyntheticDataGenerator(seed=42)
+        
+        synthetic_data = generator.generate(
+            n_samples=100,
+            mean_difference=5.0,  # Large effect
+            std_dev=1.0,
+            instruction_types=['embodied', 'static']
+        )
+        
+        embodied_scores = [r['post_test_score'] - r['pre_test_score'] 
+                          for r in synthetic_data if r['instruction_type'] == 'embodied']
+        static_scores = [r['post_test_score'] - r['pre_test_score'] 
+                        for r in synthetic_data if r['instruction_type'] == 'static']
+        
+        embodied_mean = np.mean(embodied_scores)
+        static_mean = np.mean(static_scores)
+        
+        # Embodied should have significantly higher mean
+        assert embodied_mean > static_mean
+        assert embodied_mean - static_mean > 3.0  # Should be close to 5.0

@@ -1,0 +1,41 @@
+{
+  "project_id": "PROJ-560-embodied-curriculum-learning-physical-si",
+  "tasks": [
+    {
+      "task_key": "T001a",
+      "reject_count": 1,
+      "last_reason": "No evidence of the required directories `projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/` and `.../code/tests/` was provided; the claim lacks any artifact confirming their creation. The task remains incomplete until those folders exist (and are non\u2011empty).",
+      "first_seen": "2026-07-18T20:18:20.397471+00:00",
+      "last_seen": "2026-07-18T20:18:20.397471+00:00"
+    },
+    {
+      "task_key": "T001b",
+      "reject_count": 1,
+      "last_reason": "No evidence of the four required directories (`data/raw/`, `data/processed/`, `data/synthetic/`, `data/derivation_logs/` under the project path) is provided; the implementer did not supply any filesystem listing or screenshots confirming their creation. The task remains unfinished until those directories are shown to exist and be non\u2011empty.",
+      "first_seen": "2026-07-18T20:18:20.398885+00:00",
+      "last_seen": "2026-07-18T20:18:20.398885+00:00"
+    },
+    {
+      "task_key": "T001c",
+      "reject_count": 1,
+      "last_reason": "No evidence was provided that the required directory `projects/PROJ-560-embodied-curriculum-learning-physical-si/state/projects/PROJ-560-embodied-curriculum-learning-physical-si/` actually exists or contains any files; the submission contains only specification text and no tangible artifact confirming the directory creation.",
+      "first_seen": "2026-07-18T20:18:20.399906+00:00",
+      "last_seen": "2026-07-18T20:18:20.399906+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: pyproject.toml, ruff.toml",
+      "first_seen": "2026-07-18T20:18:21.794721+00:00",
+      "last_seen": "2026-07-18T20:18:21.794721+00:00"
+    },
+    {
+      "task_key": "T017",
+      "reject_count": 1,
+      "last_reason": "No code, configuration, or log files were provided showing that logging for data loading, skipped records, or synthetic generation parameters was added. The required artifact (e.g., updated scripts with logging statements and resulting log outputs) is missing, so the task is not satisfied.",
+      "first_seen": "2026-07-18T20:18:23.995959+00:00",
+      "last_seen": "2026-07-18T20:18:23.995959+00:00"
+    }
+  ],
+  "updated_at": "2026-07-18T20:18:23.995959+00:00"
+}

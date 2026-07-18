@@ -5,51 +5,37 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "embodied-curriculum-learning"
 version = "0.1.0"
-description = "Embodied Curriculum Learning: Physical Simulation for Abstract Concept Teaching"
-requires-python = ">=3.11"
+description = "Statistical analysis pipeline for embodied curriculum learning research"
+requires-python = ">=3.10"
 dependencies = [
-    "pandas>=2.0.0",
-    "scipy>=1.11.0",
-    "statsmodels>=0.14.0",
-    "numpy>=1.24.0",
-    "pyyaml>=6.0",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
+    "pandas",
+    "scipy",
+    "statsmodels",
+    "numpy",
+    "pyyaml",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py310']
 include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
 
 [tool.ruff]
-# Inherit settings from .ruff.toml for consistency, or define here if preferred
-# This file serves as the primary entry point for tool configuration
+# Inherits configuration from ruff.toml for linting rules
+# This file primarily handles Black configuration and project metadata
 line-length = 88
-target-version = "py311"
+target-version = "py310"
 
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP", "N"]
-ignore = ["E501", "B008", "C408"]
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests"
+]
 
-[tool.ruff.lint.per-file-ignores]
-"code/tests/*" = ["S101", "ARG"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["src", "tests"]
-force-single-line = true
-lines-after-imports = 2
+[tool.setuptools.packages.find]
+where = ["code"]

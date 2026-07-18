@@ -46,8 +46,9 @@
 - [ ] T001a [P] Create code directories: `projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/`, `projects/PROJ-560-embodied-curriculum-learning-physical-si/code/tests/`
 - [ ] T001b [P] Create data directories: `projects/PROJ-560-embodied-curriculum-learning-physical-si/data/raw/`, `projects/PROJ-560-embodied-curriculum-learning-physical-si/data/processed/`, `projects/PROJ-560-embodied-curriculum-learning-physical-si/data/synthetic/`, `projects/PROJ-560-embodied-curriculum-learning-physical-si/data/derivation_logs/`
 - [ ] T001c [P] Create state directories: `projects/PROJ-560-embodied-curriculum-learning-physical-si/state/projects/PROJ-560-embodied-curriculum-learning-physical-si/`
-- [X] T002 Initialize Python project with `pandas`, `scipy`, `statsmodels`, `numpy`, `pyyaml`, `json` dependencies in `code/requirements.txt` (pin exact versions)
-- [ ] T003 [P] Configure linting (`ruff` or `flake8`) and formatting (`black`) tools in `code/`
+- [ ] T002a [P] Create `requirements.in` in `code/` listing `pandas`, `scipy`, `statsmodels`, `numpy`, `pyyaml`, `json` as dependencies (no versions).
+- [X] T002b [P] Resolve and pin exact versions for dependencies in `code/requirements.txt` using `pip-compile requirements.in` (or manual lookup) ensuring reproducibility.
+- [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools in `code/` (create `ruff.toml` and `pyproject.toml` configurations).
 
 ---
 
@@ -59,9 +60,9 @@
 
 - [X] T005 [P] Implement `code/src/__init__.py` and basic logging configuration in `code/src/logging_config.py`
 - [X] T006 [P] Create `DatasetRecord` dataclass in `code/src/models.py` with `pre_test_score`, `post_test_score`, `instruction_type`, `covariates` (static data structure only)
-- [X] T007 Create `AnalysisResult` and `SensitivitySweep` dataclasses in `code/src/models.py`
-- [X] T008 Implement CLI argument parser in `code/src/cli.py` supporting `--mode`, `--input`, `--sweep_thresholds`, and `--seed`
-- [X] T009 Setup deterministic random seed management in `code/src/utils.py` for reproducibility (numpy, python)
+- [X] T007 [P] Create `AnalysisResult` and `SensitivitySweep` dataclasses in `code/src/models.py`
+- [X] T008 [P] Implement CLI argument parser in `code/src/cli.py` supporting `--mode`, `--input`, `--sweep_thresholds`, `--seed`, and `--concept_definition`.
+- [X] T009 [P] Setup deterministic random seed management in `code/src/utils.py` for reproducibility (numpy, python)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,10 +83,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `SyntheticDataGenerator` class in `code/src/synthetic_gen.py` to generate datasets with configurable mean differences, sample sizes, and ground truths for statistical validation (FR-009).
-- [ ] T012 [US1] Implement `load_public_dataset` in `code/src/data_loader.py` to read CSV/JSON, validate required columns (`pre_test_score`, `post_test_score`, `instruction_type`), and **automatically invoke** `SyntheticDataGenerator.generate()` if `instruction_type` is missing (FR-008). **Dependency**: T014 must be implemented first. **Failure Path**: If the generator fails, the system MUST exit with code 1, log "Synthetic generation failed; cannot proceed" to `data/derivation_logs/skipped_records.log`, and explicitly flag that the primary research question (secondary analysis) cannot be answered with synthetic data alone (FR-008). (Dependency: T014 must be implemented first).
-- [ ] T013 [US1] Implement `calculate_gain_scores` in `code/src/data_loader.py` to compute `post - pre`, excluding rows with missing values and logging them to `data/derivation_logs/skipped_records.log` (FR-001).
-- [X] T015 [US1] Implement CLI entry point logic in `code/src/cli.py` to switch between `--mode=secondary_analysis` and `--mode=synthetic` and write output to `data/processed/` or `data/synthetic/` (depends on T008, T012, T014).
+- [X] T014 [US1] Implement `SyntheticDataGenerator` class in `code/src/synthetic_gen.py` to generate datasets with configurable mean differences, sample sizes, and ground truths for statistical validation (FR-009). **Must include**: generation of a `mapping_log` file in `data/synthetic/` linking physics parameters (if any) to math concepts to satisfy Constitution Principle VI.
+- [ ] T016 [US1] Implement `mapping_log` generation logic within `SyntheticDataGenerator` (T014) to explicitly document the derivation of synthetic data, ensuring Constitution Principle VI (Simulation-Pedagogy Alignment) is met.
+- [X] T012 [US1] Implement `load_public_dataset` in `code/src/data_loader.py` to read CSV/JSON, validate required columns (`pre_test_score`, `post_test_score`, `instruction_type`). **Logic**: 1) Attempt to load public data. 2) If `instruction_type` column is missing, invoke `SyntheticDataGenerator.generate()` to create a labeled dataset for validation. 3) If generation fails, exit with code 1, log error to `data/derivation_logs/skipped_records.log` (JSONL: timestamp, error_code, reason, dataset_source), and explicitly state primary research question cannot be answered. (FR-008). **Dependency**: T014 must be implemented first.
+- [X] T013 [US1] Implement `calculate_gain_scores` in `code/src/data_loader.py` to compute `post - pre`, excluding rows with missing values and logging them to `data/derivation_logs/skipped_records.log` (FR-001).
+- [X] T015 [US1] Implement CLI entry point logic in `code/src/cli.py` to switch between `--mode=secondary_analysis` and `--mode=synthetic` and write output to `data/processed/` or `data/synthetic/` (depends on T008, T012, T014). **Dependency**: Phase 2 (Foundational) completion.
 - [ ] T017 [US1] Add logging for data loading, skipped records, and synthetic generation parameters.
 
 ---
@@ -104,12 +106,12 @@
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Implement `run_t_test` in `code/src/stats_engine.py` to perform Student's or Welch's t-test on gain scores based on Levene's test result (FR-002).
-- [X] T021 [US2] Implement `calculate_effect_size` (Cohen's d) and `confidence_interval` in `code/src/stats_engine.py` (FR-002).
-- [X] T022 [US2] Implement `apply_bonferroni_correction` in `code/src/stats_engine.py` to adjust alpha based on number of concepts tested (FR-004).
-- [X] T023 [US2] Implement `frame_inference` in `code/src/stats_engine.py` to explicitly label all findings as "associational" and include methodological caveats (FR-003).
-- [X] T024 [US2] Implement `check_collinearity` in `code/src/stats_engine.py` to detect |r| > 0.8 between predictors and report diagnostics (FR-006).
-- [X] T025 [US2] Implement `calculate_power` in `code/src/stats_engine.py` to compute achieved power and flag "underpowered" results if < 0.80 (FR-007).
-- [X] T026 [US2] Aggregate all statistical results into an `AnalysisResult` object and write to JSON output in `data/processed/results.json`.
+- [ ] T021 [US2] Implement `calculate_effect_size` (Cohen's d) and `confidence_interval` in `code/src/stats_engine.py` (FR-002).
+- [ ] T022 [US2] Implement `apply_bonferroni_correction` in `code/src/stats_engine.py` to adjust alpha based on number of concepts tested (FR-004).
+- [ ] T023 [US2] Implement `frame_inference` in `code/src/stats_engine.py` to explicitly label all findings as "associational" and include methodological caveats (FR-003).
+- [ ] T024 [US2] Implement `check_collinearity` in `code/src/stats_engine.py` to detect |r| > 0.8 between predictors and report diagnostics (FR-006).
+- [ ] T025 [US2] Implement `calculate_power` in `code/src/stats_engine.py` to compute achieved power and flag "underpowered" results if < 0.80 (FR-007).
+- [ ] T026 [US2] Aggregate all statistical results into an `AnalysisResult` object and write to JSON output in `data/processed/results.json`.
 
 ---
 
@@ -121,23 +123,27 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T027 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_sensitivity.py`
+- [ ] T027 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `run_sensitivity_sweep` in `code/src/sensitivity.py` to: (1) check total N; (2) if N < 30, return early with `insufficient_data` flag; (3) if N >= 30, iterate over thresholds {0.01, 0.05, 0.10}, calculate effect sizes, aggregate results into `SensitivitySweep` objects, and append to the main JSON report (FR-005).
-- [X] T030 [US3] Implement `check_robustness_warning` in `code/src/sensitivity.py` to flag `robustness_warning: true` if the effect size drops below a predefined threshold value at any point in the sweep (SC-003).
+- [ ] T028 [US3] Implement `run_sensitivity_sweep` in `code/src/sensitivity.py` to: (1) check total N; (2) if N < 30, return early with `insufficient_data` flag; (3) if N >= 30, iterate over a range of significance thresholds, calculate effect sizes, aggregate results into `SensitivitySweep` objects, and append to the main JSON report (FR-005).
+- [ ] T030 [US3] Implement `check_robustness_warning` in `code/src/sensitivity.py` to flag `robustness_warning: true` in the output if the effect size drops below a negligible threshold at any point in the sweep (SC-003). **Dependency**: Must consume `SensitivitySweep` objects produced by T028.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 6: Scope Boundary & Documentation
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Address scope limitations and constitutional requirements without modifying core statistical logic.
+
+### Implementation for Scope Clarification
 
 - [ ] T037 [P] Documentation updates in `code/../quickstart.md` and `docs/`. Specifically update the "Running the Analysis" section to include an example of running with synthetic data (the fallback scenario) and the "Data Sources" section to explain the `instruction_type` requirement and fallback behavior. The documentation must clarify that if public data lacks `instruction_type`, synthetic data is used for pipeline validation only.
-- [ ] T038 Code cleanup and refactoring to ensure type hinting and docstrings are complete.
-- [X] T039 [P] Performance verification: Run `code/src/cli.py` with N=10,000 synthetic records and verify exit time < 600s (10 minutes) **wall-clock time on a 2-core CPU, 7GB RAM** (SC-001). Write the timing result to `data/processed/perf_log.json` to ensure automated verification.
-- [ ] T040 [P] Additional unit tests for edge cases (N < 30, missing columns, collinearity).
+- [ ] T038 [P] Code cleanup and refactoring to ensure type hinting and docstrings are complete. Run `ruff check --select=ANN` using the configuration from T003 and fix all errors.
+- [ ] T039 [P] Performance verification: Run `code/src/cli.py` with N=10,000 synthetic records and verify exit time < 600s (10 minutes) **wall-clock time on a 2-core CPU, 7GB RAM** (SC-001). Write the timing result to `data/processed/perf_log.json`.
+- [ ] T040a [P] Add unit test `test_t_test_underpowered` in `code/tests/test_stats_engine.py` for N < 30 case.
+- [ ] T040b [P] Add unit test `test_load_missing_columns` in `code/tests/test_data_loader.py` for missing column handling.
+- [ ] T040c [P] Add unit test `test_collinearity_detection` in `code/tests/test_stats_engine.py` for |r| > 0.8 case.
 - [ ] T042 [P] Run `quickstart.md` validation to ensure end-to-end flow works. The test MUST pass using either a valid public dataset OR the synthetic data generator (if public data lacks `instruction_type`), as per the spec's Risk section.
 
 ---
@@ -235,6 +241,10 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All statistical tasks must run on CPU-only CI with a minimal core count and constrained memory allocation. No GPU, no 8-bit quantization, no large model training.
 - **Data Integrity**: Never fabricate input data. Use real public datasets or synthetic data *only* for pipeline validation as per FR-009.
-- **Constitution Principle VI**: The `mapping_log` is required ONLY for Synthetic Data Generation Mode to document the physics-to-math mapping. Secondary Analysis Mode is exempt.
+- **Constitution Principle VI**: The `mapping_log` is required for Synthetic Data Generation Mode to document the physics-to-math mapping. Secondary Analysis Mode is exempt.
 - **FR-008 Compliance**: If `instruction_type` is missing in public data, the system MUST automatically invoke the Synthetic Data Generator. If generation fails, the system MUST exit with code 1 and log a clear error message.
-- **Associational Framing**: All statistical findings MUST be framed as "associational" (FR-003). No causal claims (e.g., "teaching" vs "training") are permitted in the output.
+- **Associational Framing**: All statistical findings MUST be framed as "associational" (FR-003). No causal claims (e.g., "teaching" vs "training") are permitted in the output without explicit qualification.
+- **Scope Boundary**: Philosophical/pedagogical framing (training vs. teaching, abstract concept definitions) is **explicitly out of scope** for this MVP. Addressing these requires a spec amendment. The tasks in Phase 6 are documentation only.
+- **Plan Mismatch**: The plan.md Complexity Tracking table contradicts the spec regarding ANCOVA vs. Gain Scores. **This tasks.md follows the spec (Gain Scores + t-tests).** The plan.md requires a separate update to align with the spec.
+- **Reviewer Response**: Tasks T037-T042 address the need for explicit definition of "abstract concepts" and the distinction between "training" and "teaching" by adding **documentation** to clarify scope, ensuring the tool does not overclaim capabilities, without modifying the statistical engine or data models.
+- **Synthetic Mode Validity**: The `--mode=synthetic` is valid for pipeline validation. The system does not reject `pedagogical_mode` values; it generates data as requested. Documentation must reflect that the tool is a statistical validator, not a pedagogical simulator.

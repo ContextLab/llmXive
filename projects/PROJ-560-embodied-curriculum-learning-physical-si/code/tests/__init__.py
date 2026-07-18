@@ -1,1 +1,4 @@
-# This file is intentionally left empty. It serves as an import point for the tests directory.
+"""
+Embodied Curriculum Learning: Physical Simulation for Abstract Concept Teaching
+Test suite package.
+"""

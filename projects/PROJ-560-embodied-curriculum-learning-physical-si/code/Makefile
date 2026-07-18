@@ -1,32 +1,29 @@
-.PHONY: lint format check test install-dev
+# Makefile for PROJ-560 code quality and formatting
 
-# Lint the codebase using Ruff
+.PHONY: lint format check-format clean
+
+# Run the linter (ruff)
 lint:
-	@echo "Running Ruff lint..."
-	cd code && ruff check .
+	ruff check code/src code/tests
 
-# Format the codebase using Black and Ruff
+# Run the formatter (black) and fix issues automatically
 format:
-	@echo "Running Black formatter..."
-	cd code && black .
-	@echo "Running Ruff formatter..."
-	cd code && ruff format .
+	black code/src code/tests
+	ruff check --fix code/src code/tests
 
-# Check both lint and format
-check: lint format
-	@echo "All checks passed."
+# Check formatting without fixing (for CI)
+check-format:
+	black --check code/src code/tests
+	ruff check code/src code/tests
 
-# Run tests
-test:
-	@echo "Running tests..."
-	cd code && pytest tests/ -v
+# Install pre-commit hooks
+install-hooks:
+	pre-commit install
 
-# Install development dependencies
-install-dev:
-	@echo "Installing development dependencies..."
-	pip install -e code/
-	pip install ruff black pytest
+# Run all checks
+check: lint check-format
 
-# Setup environment
-setup: install-dev
-	@echo "Environment setup complete. Run 'make check' to verify."
+clean:
+	find code/ -type d -name __pycache__ -exec rm -rf {} +
+	find code/ -type f -name "*.pyc" -delete
+	find code/ -type d -name "*.egg-info" -exec rm -rf {} +

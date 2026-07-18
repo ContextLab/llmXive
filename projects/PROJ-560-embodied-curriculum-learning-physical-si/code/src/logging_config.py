@@ -1,45 +1,53 @@
-"""
-Logging configuration module.
-"""
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Optional
 
-def setup_logging(log_level: int = logging.INFO) -> None:
+def setup_logging(log_level: Optional[int] = None, log_file: Optional[str] = None) -> logging.Logger:
     """
-    Configure the root logger.
-
+    Configure and return the root logger for the project.
+    
+    Sets up handlers for both console (stdout/stderr) and optional file output.
+    Ensures log format includes timestamp, level, module, and message.
+    
     Args:
-        log_level (int): Logging level (e.g., logging.INFO, logging.DEBUG).
+        log_level: Optional logging level (e.g., logging.DEBUG). Defaults to INFO.
+        log_file: Optional path to a log file. If provided, logs are written there.
+    
+    Returns:
+        The configured root logger instance.
     """
-    # Create logs directory if it doesn't exist
-    log_dir = Path("data/derivation_logs")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / "pipeline.log"
+    if log_level is None:
+        log_level = logging.INFO
 
-    # Create formatter
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+
+    # Clear existing handlers to avoid duplicates in repeated calls
+    if root_logger.handlers:
+        root_logger.handlers.clear()
+
+    # Define a consistent format
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        fmt='%(asctime)s | %(levelname)-8s | %(name)s | %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
 
-    # Console handler
+    # Console Handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(formatter)
     console_handler.setLevel(log_level)
-
-    # File handler
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(log_level)
-
-    # Root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
+    console_handler.setFormatter(formatter)
     root_logger.addHandler(console_handler)
-    root_logger.addHandler(file_handler)
 
-    logger = logging.getLogger(__name__)
-    logger.info("Logging configuration initialized.")
+    # File Handler (if specified)
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file, mode='a')
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        root_logger.addHandler(file_handler)
+
+    # Return a named logger for the project to ensure specific namespace usage
+    return logging.getLogger('proj_560')

@@ -1,0 +1,30 @@
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "ANN", # flake8-annotations (type hints)
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "ANN002", # Missing type annotation for *args
+    "ANN003", # Missing type annotation for **kwargs
+    "ANN101", # Missing type annotation for self in method
+    "ANN102", # Missing type annotation for cls in classmethod
+]
+
+[lint.per-file-ignores]
+"code/tests/*" = ["ANN", "S101"] # Ignore annotations and assert in tests
+
+[lint.isort]
+known-first-party = ["src"]
+force-single-line = true
+
+[format]
+line-length = 88
+indent-style = "space"
+quote-style = "double"

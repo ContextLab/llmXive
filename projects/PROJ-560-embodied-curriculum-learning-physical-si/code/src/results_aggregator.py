@@ -1,5 +1,8 @@
 """
-Results aggregation module.
+Results Aggregation Module for Embodied Curriculum Learning.
+
+This module aggregates statistical results from the analysis engine and
+sensitivity sweep, then writes the final report to a JSON file.
 """
 import json
 import logging
@@ -8,79 +11,93 @@ from typing import Dict, Any, Optional, List
 
 from .models import AnalysisResult, DatasetRecord, SensitivitySweep
 from .stats_engine import (
-    run_t_test, calculate_effect_size, calculate_confidence_interval,
-    apply_bonferroni_correction, frame_inference, check_collinearity,
-    calculate_power, aggregate_results
+    run_t_test,
+    calculate_effect_size,
+    calculate_confidence_interval,
+    apply_bonferroni_correction,
+    frame_inference,
+    check_collinearity,
+    calculate_power,
+    aggregate_results
 )
-from .sensitivity import run_sensitivity_sweep, aggregate_results_for_report
-
-logger = logging.getLogger(__name__)
-
-
-def aggregate_and_write_results(
-    records: List[DatasetRecord],
-    output_path: str,
-    sweep_thresholds: Optional[List[float]] = None
-) -> None:
-    """
-    Aggregate analysis results and write to a JSON file.
-
-    Args:
-        records (List[DatasetRecord]): List of dataset records.
-        output_path (str): Path to the output JSON file.
-        sweep_thresholds (Optional[List[float]]): Thresholds for sensitivity sweep.
-    """
-    embodied = [r.post_test_score - r.pre_test_score for r in records if r.instruction_type == "embodied"]
-    static = [r.post_test_score - r.pre_test_score for r in records if r.instruction_type == "static"]
-
-    if not embodied or not static:
-        logger.error("Missing groups for analysis.")
-        return
-
-    t_stat, p_val = run_t_test(embodied, static)
-    effect = calculate_effect_size(embodied, static)
-    ci = calculate_confidence_interval(embodied, static)
-    power = calculate_power(embodied, static)
-
-    caveats = frame_inference(effect, p_val, [])
-    collinearity = check_collinearity({"embodied": embodied, "static": static})
-
-    sweep_results = []
-    if sweep_thresholds:
-        sweep_results = run_sensitivity_sweep(embodied, static, sweep_thresholds)
-
-    robustness_warning = None
-    if sweep_results:
-        from .sensitivity import check_robustness_warning
-        robustness_warning = check_robustness_warning(sweep_results)
-
-    result = aggregate_results(t_stat, p_val, effect, ci, caveats, power, collinearity, robustness_warning)
-
-    report = aggregate_results_for_report(result, sweep_results)
-
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-    logger.info(f"Results aggregated and written to {output_path}")
+from .sensitivity import (
+    run_sensitivity_sweep,
+    check_robustness_warning,
+    aggregate_sweep_results,
+    aggregate_results_for_report
+)
 
 
 def process_and_save_analysis(
     records: List[DatasetRecord],
     output_path: str,
-    sweep_thresholds: Optional[List[float]] = None
-) -> Dict[str, Any]:
+    sweep_thresholds: List[float]
+) -> AnalysisResult:
     """
-    Process records, run analysis, and save results.
+    Process records, run analysis and sensitivity sweep, and save results.
 
     Args:
-        records (List[DatasetRecord]): Input records.
-        output_path (str): Output path.
-        sweep_thresholds (Optional[List[float]]): Sweep thresholds.
+        records: List of DatasetRecord objects.
+        output_path: Path to write the JSON results file.
+        sweep_thresholds: List of thresholds for sensitivity analysis.
 
     Returns:
-        Dict[str, Any]: The generated report.
+        The main AnalysisResult object.
     """
-    aggregate_and_write_results(records, output_path, sweep_thresholds)
-    # Re-load for return (inefficient but safe for this context)
-    with open(output_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    logger = logging.getLogger(__name__)
+
+    # Group by instruction type
+    embodied_gain = [r.gain_score for r in records if r.instruction_type == "embodied" and r.gain_score is not None]
+    static_gain = [r.gain_score for r in records if r.instruction_type == "static" and r.gain_score is not None]
+
+    if not embodied_gain or not static_gain:
+        raise ValueError("Insufficient data: missing embodied or static group.")
+
+    # Run main analysis
+    main_result = aggregate_results(
+        embodied_gain,
+        static_gain,
+        concept_name="math_reasoning",
+        n_tests=len(sweep_thresholds)
+    )
+
+    # Run sensitivity sweep
+    sweep_results = run_sensitivity_sweep(records, sweep_thresholds)
+
+    # Aggregate for report
+    report = aggregate_results_for_report(main_result, sweep_results)
+
+    # Write to file
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Results written to {output_path}")
+
+    return main_result
+
+
+def aggregate_and_write_results(
+    results: List[AnalysisResult],
+    output_path: str
+) -> None:
+    """
+    Aggregate multiple analysis results and write to a JSON file.
+
+    Args:
+        results: List of AnalysisResult objects.
+        output_path: Path to write the JSON results file.
+    """
+    logger = logging.getLogger(__name__)
+
+    data = [r.to_dict() for r in results]
+
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    logger.info(f"Wrote {len(results)} results to {output_path}")
