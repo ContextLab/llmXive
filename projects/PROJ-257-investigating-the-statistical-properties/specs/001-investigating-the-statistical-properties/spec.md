@@ -138,7 +138,7 @@ As a researcher, I want to visualize the distributions and highlight regions whe
 - **FR-004**: System MUST compute 1D kernel density estimates for mass_ratio and effective_spin using bandwidth selected via Scott's rule (See US-2)
 - **FR-005**: System MUST apply the Kolmogorov-Smirnov test to compare empirical CDFs for at least 2 parameter dimensions (mass_ratio, effective_spin) (See US-2)
 - **FR-006**: System MUST apply Bonferroni correction for multiple-comparison control when ≥2 hypothesis tests are performed (See US-2)
-- **FR-007**: System MUST generate 1D KDE plots for mass_ratio and effective_spin with simulation and observational distributions overlaid (See US-3)
+- **FR-007**: System MUST generate KDE plots for mass_ratio and effective_spin with simulation and observational distributions overlaid (See US-3)
 - **FR-008**: System MUST annotate regions where p < 0.05 as statistically significant divergence in the final report (See US-3)
 - **FR-009**: System MUST perform sensitivity analysis on the α=0.05 threshold by sweeping α ∈ {0.05, 0.06} for ALL results and report how divergence rates vary, flagging any "borderline" results where significance status flips (See US-2b)
 - **FR-010**: System MUST log a power limitation note when simulation dataset sample size is <50% of the observational catalog sample size, AND MUST report the Minimum Detectable Effect Size (MDES) for the given sample sizes (See US-2c)

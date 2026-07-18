@@ -1,0 +1,14 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The response contains no evidence that a `src/` directory (with the required\
+    \ subdirectories) or a `src/.gitkeep` file actually exist; no `ls src/` output\
+    \ or file\u2011existence check is provided. Without concrete artifacts, the task\
+    \ requirements cannot be confirmed."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no actual file listings, directory structure, or proof that
+    `tests/` exists with the required subdirectories (`unit`, `integration`, `contract`)
+    nor that `tests/.gitkeep` is present. Without concrete evidence (e.g., `ls tests/`
+    output or a file existence check), the task cannot be verified as completed.

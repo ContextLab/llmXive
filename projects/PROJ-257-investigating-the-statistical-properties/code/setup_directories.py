@@ -1,50 +1,54 @@
-"""
-Setup script to create the project directory structure.
-Implements T001a, T001b, and T001c.
-"""
 import os
 from pathlib import Path
 
+def create_directories():
+    """
+    Create the src/ directory and its required subdirectories:
+    data/, analysis/, viz/, utils/.
+    Creates .gitkeep files to ensure git tracks these directories.
+    """
+    base_dir = Path("src")
+    subdirs = ["data", "analysis", "viz", "utils"]
+
+    # Create the main src directory
+    base_dir.mkdir(parents=True, exist_ok=True)
+    (base_dir / ".gitkeep").touch()
+
+    # Create subdirectories and their .gitkeep files
+    for subdir_name in subdirs:
+        subdir_path = base_dir / subdir_name
+        subdir_path.mkdir(parents=True, exist_ok=True)
+        (subdir_path / ".gitkeep").touch()
+    
+    return base_dir
+
 def main():
-    root = Path(".")
+    """
+    Entry point for directory creation.
+    """
+    print("Creating src/ directory structure...")
+    base_dir = create_directories()
     
-    # T001a: Create src/ with subdirectories
-    src_dirs = [
-        "src/data",
-        "src/analysis",
-        "src/viz",
-        "src/utils"
-    ]
-    for d in src_dirs:
-        (root / d).mkdir(parents=True, exist_ok=True)
-        print(f"Created: {root / d}")
+    # Verification
+    subdirs = ["data", "analysis", "viz", "utils"]
+    missing = []
+    for subdir in subdirs:
+        if not (base_dir / subdir).exists():
+            missing.append(subdir)
     
-    # T001b: Create tests/ at repository root
-    tests_dir = root / "tests"
-    tests_dir.mkdir(parents=True, exist_ok=True)
-    # Create an __init__.py to make it a package
-    (tests_dir / "__init__.py").touch()
-    print(f"Created: {tests_dir}")
+    if missing:
+        print(f"ERROR: Missing directories: {missing}")
+        return 1
     
-    # T001c: Create data/ (raw, processed) and output/ (results, figures)
-    data_dirs = [
-        "data/raw",
-        "data/processed"
-    ]
-    output_dirs = [
-        "output/results",
-        "output/figures"
-    ]
-    
-    for d in data_dirs:
-        (root / d).mkdir(parents=True, exist_ok=True)
-        print(f"Created: {root / d}")
-        
-    for d in output_dirs:
-        (root / d).mkdir(parents=True, exist_ok=True)
-        print(f"Created: {root / d}")
-        
-    print("Directory structure setup complete.")
+    if not (base_dir / ".gitkeep").exists():
+        print("ERROR: Missing src/.gitkeep")
+        return 1
+
+    print(f"Successfully created directories under {base_dir}:")
+    for subdir in subdirs:
+        print(f"  - {base_dir / subdir}/")
+    print(f"  - {base_dir}/.gitkeep")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())
