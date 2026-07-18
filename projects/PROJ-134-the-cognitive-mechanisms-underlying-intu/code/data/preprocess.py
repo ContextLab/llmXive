@@ -1,3 +1,15 @@
+"""
+Preprocessing module for mapping text stories to VR scenes and assigning salience levels.
+
+This module handles the transformation of merged datasets into VR-ready formats by:
+1. Loading the merged dataset from the ingestion pipeline
+2. Loading the Unity blend shape configuration
+3. Assigning salience levels (low/high) based on story ID
+4. Mapping stories to VR blend-shape parameters
+5. Logging VR mapping decisions to data/logs/vr_mapping.log
+6. Saving the preprocessed dataset
+"""
+
 import os
 import sys
 import json
@@ -5,205 +17,248 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-# Import from existing project API surface
-from utils.logging_utils import get_logger, log_vr_mapping
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from config import ensure_directories
+from utils.logging_utils import get_vr_mapping_log_path, get_logger, log_vr_mapping
 from utils.schema import MergedDataset, SalienceLevel
-import pandas as pd
-import numpy as np
 
-# Ensure we can import from the project root if run as a script
-if 'code' not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent.parent))
 
-def load_merged_data() -> pd.DataFrame:
+def load_merged_data(merged_path: Path) -> pd.DataFrame:
     """
-    Load the merged dataset from the processed data directory.
-    Returns a pandas DataFrame containing merged MFQ, Stories, and VR logs data.
+    Load the merged dataset from the ingestion pipeline.
+    
+    Args:
+        merged_path: Path to the merged CSV file
+        
+    Returns:
+        pandas DataFrame containing merged MFQ and story data
     """
-    merged_path = Path("data/processed/merged_dataset.csv")
+    import pandas as pd
+    
     if not merged_path.exists():
-        raise FileNotFoundError(f"Merged dataset not found at {merged_path}. "
-                                "Run ingestion pipeline first.")
-    return pd.read_csv(merged_path)
+        raise FileNotFoundError(f"Merged dataset not found at {merged_path}")
+    
+    df = pd.read_csv(merged_path)
+    logging.info(f"Loaded merged dataset with {len(df)} rows from {merged_path}")
+    return df
 
-def load_blend_shape_config() -> Dict[str, Any]:
+
+def load_blend_shape_config(config_path: Path) -> Dict[str, Any]:
     """
-    Load the Unity blend shape configuration from the config directory.
-    Returns a dictionary mapping story IDs to salience parameters.
+    Load the Unity blend shape configuration from YAML/JSON.
+    
+    Args:
+        config_path: Path to the configuration file
+        
+    Returns:
+        Dictionary containing blend shape mappings
     """
-    config_path = Path("data/config/unity_blend_shapes.yaml")
-    # Since yaml is not strictly in the imports list for this file, we use json for safety
-    # or assume yaml is available via the project's requirements. 
-    # Given the task context, we will try to load YAML if pyyaml is available, 
-    # otherwise fallback to a structured JSON approach if the file was converted.
-    # However, the task spec says the file is YAML. We will use the standard yaml library
-    # which is in requirements.txt.
     import yaml
+    
     if not config_path.exists():
-        raise FileNotFoundError(f"Blend shape config not found at {config_path}. "
-                                "Run T044 to create this file.")
+        raise FileNotFoundError(f"Blend shape config not found at {config_path}")
     
     with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
+        config = yaml.safe_load(f)
+    
+    logging.info(f"Loaded blend shape config from {config_path}")
+    return config
+
 
 def assign_salience_level(story_id: str, config: Dict[str, Any]) -> str:
     """
-    Assign a salience level (low/high) to a story ID based on the configuration.
-    """
-    # The config is expected to be a dict like:
-    # { "story_001": { "salience": "high", "blend_shapes": {...} }, ... }
-    if story_id not in config:
-        # Default to low if not explicitly defined, or raise error depending on strictness
-        # For robustness in simulation, we default to 'low' but log it.
-        return "low"
+    Assign a salience level (low/high) to a story based on its ID.
     
-    entry = config[story_id]
-    if isinstance(entry, dict):
-        return entry.get("salience", "low")
-    return str(entry)
-
-def map_to_blend_shapes(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
+    Args:
+        story_id: The unique identifier for the story
+        config: The blend shape configuration dictionary
+        
+    Returns:
+        Salience level string ('low' or 'high')
     """
-    Map text stories to VR scenes by assigning salience levels and blend-shape parameters.
-    Adds 'salience_level' column to the dataframe.
-    """
-    df = df.copy()
+    mapping = config.get('story_to_salience', {})
     
-    # Ensure we have a story_id column
-    if 'story_id' not in df.columns:
-        # Try to find a similar column
-        possible_cols = [c for c in df.columns if 'story' in c.lower() and 'id' in c.lower()]
-        if possible_cols:
-            story_col = possible_cols[0]
-        else:
-            raise ValueError("No story_id column found in merged dataset for VR mapping.")
+    if story_id in mapping:
+        salience = mapping[story_id]
+        if salience not in ['low', 'high']:
+            logging.warning(f"Invalid salience level '{salience}' for story {story_id}, defaulting to 'low'")
+            return 'low'
+        return salience
     else:
-        story_col = 'story_id'
+        logging.warning(f"Story ID {story_id} not found in config, defaulting to 'low'")
+        return 'low'
 
-    # Apply salience assignment
-    df['salience_level'] = df[story_col].apply(lambda x: assign_salience_level(str(x), config))
+
+def map_to_blend_shapes(story_id: str, config: Dict[str, Any]) -> Dict[str, float]:
+    """
+    Map a story ID to VR blend-shape parameters.
     
-    # Convert to enum type for validation if needed, but keeping as string for CSV compatibility
-    # Validate values
-    valid_levels = ['low', 'high']
-    invalid_mask = ~df['salience_level'].isin(valid_levels)
-    if invalid_mask.any():
-        invalid_ids = df.loc[invalid_mask, story_col].unique()
-        logging.warning(f"Found {invalid_mask.sum()} rows with invalid salience levels for stories: {invalid_ids}")
+    Args:
+        story_id: The unique identifier for the story
+        config: The blend shape configuration dictionary
+        
+    Returns:
+        Dictionary of blend shape parameters
+    """
+    blend_shapes = config.get('blend_shapes', {})
+    
+    if story_id in config.get('story_to_salience', {}):
+        salience = assign_salience_level(story_id, config)
+        # Use the salience-specific blend shape parameters
+        if salience in blend_shapes:
+            return blend_shapes[salience]
+    
+    # Default blend shapes if not found
+    return config.get('default_blend_shapes', {
+        'jawOpen': 0.0,
+        'mouthClose': 0.0,
+        'eyeBlinkLeft': 0.0,
+        'eyeBlinkRight': 0.0
+    })
+
+
+def process_salience_mapping(df: pd.DataFrame, config: Dict[str, Any], log_path: Path) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
+    """
+    Process the entire dataset, assigning salience levels and mapping to blend shapes.
+    Logs each mapping decision to the VR mapping log file.
+    
+    Args:
+        df: The merged DataFrame
+        config: The blend shape configuration
+        log_path: Path to the VR mapping log file
+        
+    Returns:
+        Tuple of (processed DataFrame, list of mapping logs)
+    """
+    import pandas as pd
+    
+    # Ensure log directory exists
+    ensure_directories()
+    
+    # Initialize logger for VR mapping
+    vr_logger = get_logger('vr_mapping', log_path)
+    
+    mapping_logs = []
+    
+    for idx, row in df.iterrows():
+        story_id = row['story_id']
+        
+        # Assign salience level
+        salience_level = assign_salience_level(story_id, config)
+        
+        # Map to blend shapes
+        blend_shapes = map_to_blend_shapes(story_id, config)
+        
+        # Update DataFrame
+        df.at[idx, 'salience_level'] = salience_level
+        for shape_name, value in blend_shapes.items():
+            df.at[idx, f'blend_{shape_name}'] = value
+        
+        # Log the mapping decision
+        log_entry = {
+            'story_id': story_id,
+            'salience_level': salience_level,
+            'blend_shapes': blend_shapes,
+            'row_index': int(idx)
+        }
+        
+        # Use the logging utility to write to the log file
+        log_vr_mapping(
+            story_id=story_id,
+            salience_level=salience_level,
+            blend_shapes=blend_shapes,
+            log_path=log_path
+        )
+        
+        mapping_logs.append(log_entry)
+        
+        # Log to standard logger as well
+        vr_logger.info(f"Mapped story {story_id} -> {salience_level} salience")
+    
+    logging.info(f"Processed {len(df)} story mappings, logged to {log_path}")
+    return df, mapping_logs
+
+
+def save_preprocessed_data(df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Save the preprocessed dataset to CSV.
+    
+    Args:
+        df: The processed DataFrame
+        output_path: Path to save the CSV file
+    """
+    df.to_csv(output_path, index=False)
+    logging.info(f"Saved preprocessed data to {output_path}")
+
+
+def run_preprocessing_pipeline(
+    merged_path: Path,
+    config_path: Path,
+    output_path: Path
+) -> pd.DataFrame:
+    """
+    Run the full preprocessing pipeline:
+    1. Load merged data
+    2. Load configuration
+    3. Process salience mapping (with logging)
+    4. Save preprocessed data
+    
+    Args:
+        merged_path: Path to the merged dataset
+        config_path: Path to the blend shape configuration
+        output_path: Path to save the preprocessed dataset
+        
+    Returns:
+        The processed DataFrame
+    """
+    from utils.logging_utils import get_vr_mapping_log_path
+    
+    # Ensure directories exist
+    ensure_directories()
+    
+    # Get the VR mapping log path
+    vr_log_path = get_vr_mapping_log_path()
+    
+    # Load data and config
+    df = load_merged_data(merged_path)
+    config = load_blend_shape_config(config_path)
+    
+    # Process salience mapping and log decisions
+    df, mapping_logs = process_salience_mapping(df, config, vr_log_path)
+    
+    # Save preprocessed data
+    save_preprocessed_data(df, output_path)
     
     return df
 
-def process_salience_mapping(df: pd.DataFrame, logger: logging.Logger) -> List[Dict[str, Any]]:
-    """
-    Process the salience mapping and generate log entries for the VR mapping log.
-    Returns a list of mapping records for potential bulk logging.
-    """
-    mapping_logs = []
-    
-    if 'story_id' not in df.columns:
-        story_col = [c for c in df.columns if 'story' in c.lower() and 'id' in c.lower()]
-        if story_col:
-            story_col = story_col[0]
-        else:
-            story_col = 'story_id' # Fallback, will likely fail later but consistent
-    else:
-        story_col = 'story_id'
-
-    if 'salience_level' not in df.columns:
-        raise ValueError("salience_level column not found. Run map_to_blend_shapes first.")
-
-    for _, row in df.iterrows():
-        story_id = str(row[story_col])
-        salience = row['salience_level']
-        
-        # Create log entry
-        log_entry = {
-            "story_id": story_id,
-            "salience_level": salience,
-            "timestamp": pd.Timestamp.now().isoformat()
-        }
-        mapping_logs.append(log_entry)
-        
-        # Log individually using the utility
-        log_vr_mapping(
-            story_id=story_id,
-            salience_level=salience,
-            logger=logger
-        )
-    
-    return mapping_logs
-
-def save_preprocessed_data(df: pd.DataFrame, output_path: Optional[str] = None) -> Path:
-    """
-    Save the preprocessed dataframe to a CSV file.
-    """
-    if output_path is None:
-        output_path = "data/processed/preprocessed_vr_data.csv"
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    df.to_csv(output_path, index=False)
-    logging.info(f"Preprocessed data saved to {output_path}")
-    return output_path
-
-def run_preprocessing_pipeline() -> pd.DataFrame:
-    """
-    Execute the full preprocessing pipeline:
-    1. Load merged data
-    2. Load configuration
-    3. Map to blend shapes (assign salience)
-    4. Log VR mappings
-    5. Save preprocessed data
-    """
-    # Setup logging
-    logger = get_logger("preprocess")
-    logger.info("Starting VR preprocessing pipeline")
-
-    try:
-        # 1. Load merged data
-        df = load_merged_data()
-        logger.info(f"Loaded merged dataset with {len(df)} rows")
-
-        # 2. Load configuration
-        config = load_blend_shape_config()
-        logger.info("Loaded Unity blend shape configuration")
-
-        # 3. Map to blend shapes
-        df_mapped = map_to_blend_shapes(df, config)
-        logger.info("Mapped stories to VR blend shapes")
-
-        # 4. Process and log salience mapping
-        # This function calls log_vr_mapping for each row, creating data/logs/vr_mapping.log
-        process_salience_mapping(df_mapped, logger)
-        logger.info("VR mapping logs written to data/logs/vr_mapping.log")
-
-        # 5. Save preprocessed data
-        output_path = save_preprocessed_data(df_mapped)
-        
-        logger.info("VR preprocessing pipeline completed successfully")
-        return df_mapped
-
-    except Exception as e:
-        logger.error(f"Pipeline failed: {str(e)}", exc_info=True)
-        raise
 
 def main():
-    """
-    Entry point for running the preprocessing pipeline as a script.
-    """
+    """Main entry point for the preprocessing pipeline."""
+    import pandas as pd
+    
+    # Define paths
+    merged_path = Path('data/processed/merged_dataset.csv')
+    config_path = Path('data/config/unity_blend_shapes.yaml')
+    output_path = Path('data/processed/preprocessed_dataset.csv')
+    
+    # Run pipeline
+    try:
+        df = run_preprocessing_pipeline(merged_path, config_path, output_path)
+        logging.info("Preprocessing pipeline completed successfully")
+    except Exception as e:
+        logging.error(f"Preprocessing pipeline failed: {e}")
+        raise
+
+
+if __name__ == '__main__':
+    # Configure basic logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    try:
-        result_df = run_preprocessing_pipeline()
-        print(f"Pipeline completed. Processed {len(result_df)} records.")
-        print(f"Salience distribution:\n{result_df['salience_level'].value_counts()}")
-    except Exception as e:
-        logging.error(f"Fatal error in main: {e}")
-        sys.exit(1)
-
-if __name__ == "__main__":
+    # Run main
     main()

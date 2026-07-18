@@ -91,7 +91,7 @@ The system MUST perform hierarchical mixed-effects regression to test the intera
 
 - The Open Science Framework (OSF) dataset for the Moral Foundations Questionnaire (MFQ) will be accessible and contain the necessary variables (foundation scores) for all recruited participants.
 - The "Moral Stories" dataset on HuggingFace will be compatible with the Unity VR vignette mapping, requiring the system to explicitly construct the salience variable via text-to-VR transformation (mapping text to specific VR scenes with controlled blend-shapes).
-- The GitHub Actions free-tier runner (multi-core CPU, adequate RAM) is sufficient to run the PyMC Bayesian model on a sample of 200 participants within the 6-hour limit., assuming no GPU acceleration is required.
+- The GitHub Actions free-tier runner (multi-core CPU, adequate RAM) is sufficient to run the PyMC Bayesian model on a sample of participants within the 6-hour limit., assuming no GPU acceleration is required.
 - The Unity Asset Store VR scene ("VR Classroom") will provide the necessary blend-shape parameters to manipulate avatar expressions between "low" and "high" salience without requiring custom 3D asset creation.
 - Participants recruited via Prolific will have access to WebXR-compatible browsers and the necessary hardware (VR headset or compatible display) to experience the vignettes as intended.
 - The Bayesian model will use default precision (float64) and will not require 8-bit or 4-bit quantization, which would necessitate CUDA hardware not available on the free-tier runner.
