@@ -4,214 +4,255 @@ from scipy import stats
 from scipy.stats import multitest
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.regression.linear_model import OLS
-import os
 import json
-from typing import Optional, Dict, List, Tuple, Any
-from config import get_atlas_path, get_atlas_node_count, ATLAS_TYPES, RANDOM_SEED
+import os
+from typing import Dict, List, Optional, Tuple, Any
 
-# ... (existing functions: load_and_prepare_metrics, calculate_vif, etc. remain unchanged) ...
-# To save space, I am appending the new functionality required for T026.
-# In a real file, this would be appended to the existing content.
+# Path constants
+METRIC_FLAGS_PATH = "data/processed/metric_flags.json"
+RESULTS_PATH = "data/processed/correlation_results.csv"
+DATA_SOURCE_LABEL_KEY = "data_source"
 
-def run_sensitivity_analysis(
-    base_results_path: str = "data/processed/correlation_results.csv",
-    output_table_path: str = "data/processed/sensitivity_comparison_table.csv",
-    output_fig_path: str = "data/visualizations/sensitivity_comparison.png",
-    metrics: List[str] = ["clustering_coefficient", "path_length"]
+def load_metric_flags() -> Dict[str, bool]:
+    """
+    Load zero-variance metric flags from the shared state file.
+    Returns a dictionary mapping metric name -> True if flagged as non-informative.
+    """
+    if not os.path.exists(METRIC_FLAGS_PATH):
+        return {}
+    
+    try:
+        with open(METRIC_FLAGS_PATH, 'r') as f:
+            data = json.load(f)
+            # Expecting structure: {"non_informative": ["metric_name", ...]}
+            return {name: True for name in data.get("non_informative", [])}
+    except (json.JSONDecodeError, IOError):
+        return {}
+
+def calculate_spearman_correlations(
+    df: pd.DataFrame, 
+    metric_col: str, 
+    target_col: str,
+    flagged_metrics: Dict[str, bool]
+) -> Tuple[float, float]:
+    """
+    Calculate Spearman correlation between a metric and entrainment strength.
+    Skips calculation if the metric is flagged as non-informative (zero variance).
+    
+    Returns:
+        Tuple (r_value, p_value)
+    """
+    if metric_col in flagged_metrics:
+        # Return NaN to indicate no calculation performed
+        return np.nan, np.nan
+    
+    if metric_col not in df.columns or target_col not in df.columns:
+        raise ValueError(f"Columns {metric_col} or {target_col} not found in dataframe.")
+    
+    # Drop NaNs for calculation
+    valid_data = df[[metric_col, target_col]].dropna()
+    if len(valid_data) < 3:
+        return np.nan, np.nan
+    
+    r, p = stats.spearmanr(valid_data[metric_col], valid_data[target_col])
+    return r, p
+
+def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> float:
+    """
+    Calculate Variance Inflation Factor (VIF) for the first predictor in the list
+    relative to the others.
+    
+    Args:
+        df: DataFrame containing predictor columns
+        predictors: List of predictor column names
+    
+    Returns:
+        VIF value for the first predictor
+    """
+    if len(predictors) < 2:
+        return 1.0
+    
+    # Add intercept for OLS
+    X = df[predictors].dropna()
+    if len(X) < len(predictors) + 1:
+        return np.nan
+    
+    # Calculate VIF for the first predictor
+    # VIF = 1 / (1 - R^2) where R^2 is from regressing predictor_0 on others
+    y = X[predictors[0]]
+    X_other = X[predictors[1:]]
+    X_with_const = sm.add_constant(X_other)
+    
+    try:
+        model = OLS(y, X_with_const).fit()
+        r_squared = model.rsquared
+        vif = 1.0 / (1.0 - r_squared)
+        return vif
+    except Exception:
+        return np.nan
+
+def run_correlation_analysis(
+    df: pd.DataFrame, 
+    metric_cols: List[str], 
+    target_col: str
 ) -> pd.DataFrame:
     """
-    Re-run correlation pipeline for alternative atlases (AAL, Power 264)
-    and generate a comparative result table and visualization.
+    Run correlation analysis for multiple metrics against the target.
+    
+    Args:
+        df: Input dataframe with metrics and target
+        metric_cols: List of metric column names
+        target_col: Name of the entrainment metric column
+    
+    Returns:
+        DataFrame with correlation results
+    """
+    flagged_metrics = load_metric_flags()
+    results = []
+    
+    # Calculate VIF if we have multiple predictors
+    vif_value = 1.0
+    collinearity_warning = False
+    
+    if len(metric_cols) >= 2:
+        # Clean data for VIF calculation
+        clean_df = df[metric_cols].dropna()
+        if len(clean_df) >= len(metric_cols) + 1:
+            vif_value = calculate_vif(clean_df, metric_cols)
+            collinearity_warning = vif_value > 5
+    
+    for metric in metric_cols:
+        r, p_raw = calculate_spearman_correlations(df, metric, target_col, flagged_metrics)
+        
+        results.append({
+            "metric": metric,
+            "raw_p": p_raw,
+            "r_value": r,
+            "vif_value": vif_value,
+            "collinearity_warning": collinearity_warning
+        })
+    
+    return pd.DataFrame(results)
+
+def generate_correlation_results_csv(
+    df: pd.DataFrame,
+    metric_cols: List[str],
+    target_col: str,
+    data_source: str = "Simulated"
+) -> None:
+    """
+    Generate the final correlation results CSV with Holm-Bonferroni correction.
     
     This function:
-    1. Loads the baseline (Schaefer) results.
-    2. Iterates through alternative atlases defined in config.
-    3. Loads/Computes metrics for each atlas (simulating the pipeline if raw data is missing).
-    4. Calculates Spearman correlation for each.
-    5. Compares effect sizes (r-values) against the baseline.
-    6. Saves a comparative table and a bar chart of differences.
+    1. Calculates Spearman correlations
+    2. Calculates VIF
+    3. Applies Holm-Bonferroni correction
+    4. Determines significance
+    5. Saves to data/processed/correlation_results.csv
+    
+    Args:
+        df: Input dataframe
+        metric_cols: List of metric column names
+        target_col: Target column name
+        data_source: Label for the data source ("Real" or "Simulated")
     """
-    # 1. Load Baseline (Schaefer)
-    if not os.path.exists(base_results_path):
-        raise FileNotFoundError(f"Baseline results not found at {base_results_path}. Run US1 first.")
+    # Run initial analysis
+    analysis_df = run_correlation_analysis(df, metric_cols, target_col)
     
-    baseline_df = pd.read_csv(base_results_path)
-    # Extract baseline r-values for the primary metric (assuming 'entrainment_metric' vs 'clustering_coefficient' is the main hypothesis)
-    # We look for the correlation result. If the file contains multiple rows per subject, we need to aggregate or pick the main one.
-    # Based on T015c, the file contains subject IDs, metrics, r, p, etc.
-    # We assume the main correlation of interest is stored in a summary or we calculate it from the subject-level data if needed.
-    # However, T015c says: "generate data/processed/correlation_results.csv containing subject IDs, metrics, r, p..."
-    # This implies the file might be wide or long. Let's assume it's the final summary of the MLR/Correlation run.
-    # If it's subject-level, we need to re-calculate the correlation for the baseline if not stored as a summary.
+    # Filter out NaN p-values for correction calculation
+    valid_p_values = analysis_df["raw_p"].dropna()
     
-    # Let's assume the baseline file has a column 'r' representing the correlation between the main metric and entrainment.
-    # If the file is subject-level, we need to aggregate. 
-    # For this implementation, we assume the file contains the necessary aggregated statistics or we re-run the correlation logic on the raw data for each atlas.
-    
-    # Since we need to re-run for AAL and Power 264, we need the raw data for those atlases.
-    # The task implies re-running the pipeline. We will assume the raw data files exist or are generated by the simulation fallback.
-    
-    atlas_list = [atlas for atlas in ATLAS_TYPES if atlas != "Schaefer"]
-    results_data = []
-    
-    # Get baseline r-value (assuming it's the mean or the single value for the main hypothesis)
-    # If the baseline file has 'r' column, we take the first one or mean. 
-    # Let's assume the file has a row for the overall correlation or we extract it.
-    # If the file is subject-level, we need to group by metric and calculate correlation.
-    # Let's assume the file structure allows us to extract the main 'r' for clustering_coefficient.
-    baseline_r = None
-    if 'r' in baseline_df.columns:
-        # If there are multiple 'r' values (e.g. for different metrics), we need to filter.
-        # Assuming the main result is for 'clustering_coefficient' or 'path_length'.
-        # Let's look for the row where metric is 'clustering_coefficient' if a 'metric_name' column exists.
-        if 'metric_name' in baseline_df.columns:
-            main_metric_rows = baseline_df[baseline_df['metric_name'] == 'clustering_coefficient']
-            if not main_metric_rows.empty:
-                baseline_r = main_metric_rows['r'].iloc[0]
-        else:
-            # Fallback: take mean if it's a summary table
-            baseline_r = baseline_df['r'].mean()
-    
-    if baseline_r is None:
-        # Fallback: re-calculate from subject data if possible
-        # This requires the raw subject data which might not be in this CSV.
-        # We will assume the baseline_r is available or we simulate a fallback for the comparison.
-        baseline_r = 0.5 # Placeholder if extraction fails, but in real run it should be found.
-
-    print(f"Baseline (Schaefer) r-value: {baseline_r}")
-
-    for atlas in atlas_list:
-        print(f"Processing atlas: {atlas}")
+    if len(valid_p_values) > 0:
+        # Apply Holm-Bonferroni correction
+        # We need to map the corrected p-values back to the original rows
+        # multitest.multipletests returns (reject, p_corrected, p_raw, alphacSidak)
+        # We only need p_corrected
+        _, p_corrected, _, _ = multitest.multipletests(
+            valid_p_values, 
+            method='holm', 
+            alpha=0.05
+        )
         
-        # Construct path for raw data for this atlas
-        # Assuming data is in data/raw/ with atlas name in filename
-        raw_data_path = f"data/raw/{atlas.lower().replace(' ', '_')}_correlation_matrices.csv"
-        if not os.path.exists(raw_data_path):
-            # Fallback: If raw data doesn't exist, we simulate the metrics for this atlas
-            # to demonstrate the pipeline robustness, as per FR-009 logic extended to sensitivity.
-            print(f"  Raw data not found for {atlas}. Generating simulated metrics.")
-            # Generate synthetic metrics correlated with entrainment
-            np.random.seed(RANDOM_SEED)
-            n_subjects = 100
-            entrainment = np.random.normal(0, 1, n_subjects)
-            # Simulate correlation with noise
-            metric_values = 0.5 * entrainment + np.random.normal(0, 0.2, n_subjects)
-            
-            # Calculate correlation
-            r_val, p_val = stats.spearmanr(entrainment, metric_values)
-            source_label = "Simulated"
-        else:
-            # Real data path exists - in a full implementation, we would load it,
-            # compute metrics, and then correlate.
-            # For this task, we assume the pipeline would run here.
-            # Since we don't have the full raw data loading logic for all atlases in this snippet,
-            # and to ensure the script runs and produces the required output,
-            # we will simulate the result for the alternative atlases if real data is missing,
-            # mimicking the fallback behavior.
-            # However, the task says "Re-run correlation pipeline". 
-            # If real data is missing, we MUST simulate to show the comparison.
-            # Let's assume we run the simulation for AAL/Power if data is missing.
-            print(f"  Loading raw data for {atlas}...")
-            # Placeholder for actual loading logic which would call graph_metrics
-            # For now, simulate to ensure output is generated as per spec requirements for the chart.
-            np.random.seed(RANDOM_SEED + hash(atlas))
-            n_subjects = 100
-            entrainment = np.random.normal(0, 1, n_subjects)
-            # Vary the correlation slightly to show difference
-            r_val, p_val = stats.spearmanr(entrainment, np.random.normal(0, 1, n_subjects)) 
-            # Adjust to have a realistic r (e.g. around 0.4-0.6)
-            r_val = 0.45 if atlas == "AAL" else 0.52 # Simulating slightly different effects
-            source_label = "Real (Simulated Fallback)"
-
-        diff = abs(r_val - baseline_r)
-        results_data.append({
-            "atlas": atlas,
-            "correlation_r": r_val,
-            "p_value": p_val,
-            "difference_from_baseline": diff,
-            "data_source": source_label
-        })
-
-    comparison_df = pd.DataFrame(results_data)
-    comparison_df.to_csv(output_table_path, index=False)
-    print(f"Saved comparative table to {output_table_path}")
-
-    # Generate Visualization
-    generate_sensitivity_bar_chart(comparison_df, baseline_r, output_fig_path)
+        # Create a mapping from index to corrected p-value
+        valid_indices = valid_p_values.index
+        corrected_map = dict(zip(valid_indices, p_corrected))
+        
+        # Apply corrected p-values to the dataframe
+        analysis_df["adjusted_p_value"] = analysis_df["raw_p"].apply(
+            lambda x: corrected_map.get(x.name) if pd.notna(x) and x.name in corrected_map else np.nan
+        )
+    else:
+        analysis_df["adjusted_p_value"] = np.nan
     
-    return comparison_df
-
-def generate_sensitivity_bar_chart(
-    comparison_df: pd.DataFrame,
-    baseline_r: float,
-    output_path: str
-):
-    """
-    Generate a single comparative bar chart showing the absolute difference 
-    in effect sizes between the primary Schaefer baseline and alternative atlases.
-    """
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Determine significance based on adjusted p-values
+    analysis_df["is_significant"] = analysis_df["adjusted_p_value"] < 0.05
     
-    atlases = comparison_df['atlas'].tolist()
-    diffs = comparison_df['difference_from_baseline'].tolist()
+    # Ensure collinearity_warning is boolean
+    analysis_df["collinearity_warning"] = analysis_df["collinearity_warning"].astype(bool)
     
-    bars = ax.bar(atlases, diffs, color=['steelblue', 'darkorange'], edgecolor='black')
+    # Add data source label
+    analysis_df["data_source"] = data_source
     
-    ax.set_ylabel('Absolute Difference in Effect Size (|r|)')
-    ax.set_title(f'Sensitivity Analysis: Effect Size Differences from Schaefer Baseline (r={baseline_r:.3f})')
-    ax.set_ylim(0, max(diffs) * 1.5 if max(diffs) > 0 else 0.1)
+    # Reorder columns to match acceptance criteria
+    final_columns = [
+        "metric", "data_source", "r_value", "raw_p", "adjusted_p_value", 
+        "is_significant", "vif_value", "collinearity_warning"
+    ]
     
-    # Add numeric values on top of bars
-    for bar, diff in zip(bars, diffs):
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height,
-                f'{diff:.3f}',
-                ha='center', va='bottom', fontsize=10)
+    # Ensure all columns exist
+    for col in final_columns:
+        if col not in analysis_df.columns:
+            analysis_df[col] = np.nan
     
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-    print(f"Saved sensitivity comparison chart to {output_path}")
-
-# ... (existing main function updated to call this if --sensitivity is passed) ...
+    output_df = analysis_df[final_columns]
+    
+    # Ensure correct directory exists
+    os.makedirs(os.path.dirname(RESULTS_PATH), exist_ok=True)
+    
+    # Save to CSV
+    output_df.to_csv(RESULTS_PATH, index=False)
+    
+    print(f"Correlation results saved to {RESULTS_PATH}")
+    return output_df
 
 def main():
-    # ... (existing argument parsing) ...
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--sensitivity', action='store_true', help='Run sensitivity analysis for alternative atlases')
-    args = parser.parse_args()
-    
-    if args.sensitivity:
-        run_sensitivity_analysis()
-    else:
-        # ... (existing main logic) ...
-        pass
+    """
+    Main entry point for running the correlation analysis.
+    This is typically called by main.py orchestration.
+    """
+    # Example usage for testing purposes
+    print("Analysis module loaded. Call generate_correlation_results_csv with data.")
 
-# Re-defining main to ensure it's complete for the artifact
-def main():
-    import argparse
-    parser = argparse.ArgumentParser(description="Analysis pipeline for network topology and entrainment")
-    parser.add_argument('--sensitivity', action='store_true', help='Run sensitivity analysis for alternative atlases')
-    parser.add_argument('--input', type=str, default='data/processed/correlation_results.csv', help='Input results file')
-    parser.add_argument('--output-table', type=str, default='data/processed/sensitivity_comparison_table.csv', help='Output table path')
-    parser.add_argument('--output-fig', type=str, default='data/visualizations/sensitivity_comparison.png', help='Output figure path')
-    
-    args = parser.parse_args()
-    
-    if args.sensitivity:
-        print("Running Sensitivity Analysis (T026)...")
-        try:
-            run_sensitivity_analysis(
-                base_results_path=args.input,
-                output_table_path=args.output_table,
-                output_fig_path=args.output_fig
-            )
-            print("Sensitivity analysis completed successfully.")
-        except Exception as e:
-            print(f"Error during sensitivity analysis: {e}")
-            raise
-    else:
-        print("Use --sensitivity to run T026.")
+# Import sm for VIF calculation if not already available
+try:
+    from statsmodels.regression.linear_model import OLS
+    from statsmodels.tools import add_constant as sm_add_const
+    import statsmodels.api as sm
+except ImportError:
+    # Fallback if statsmodels is not fully available (should not happen in prod)
+    sm = None
 
-if __name__ == "__main__":
-    main()
+# Re-define calculate_vif to handle imports properly
+def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> float:
+    """
+    Calculate Variance Inflation Factor (VIF) for the first predictor in the list
+    relative to the others.
+    """
+    if len(predictors) < 2:
+        return 1.0
+    
+    X = df[predictors].dropna()
+    if len(X) < len(predictors) + 1:
+        return np.nan
+    
+    y = X[predictors[0]]
+    X_other = X[predictors[1:]]
+    
+    try:
+        X_with_const = sm.add_constant(X_other)
+        model = OLS(y, X_with_const).fit()
+        r_squared = model.rsquared
+        vif = 1.0 / (1.0 - r_squared)
+        return vif
+    except Exception:
+        return np.nan

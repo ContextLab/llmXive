@@ -1,12 +1,19 @@
+"""
+Module to initialize .gitkeep files in all empty directories.
+Implements Task T001c: Create .gitkeep files in all empty directories.
+"""
 import os
 import sys
 
 def initialize_gitkeeps():
     """
-    Initialize .gitkeep files in all empty directories defined in the project structure.
-    This ensures that empty directories are tracked by Git.
+    Traverses the project directory structure and ensures every directory
+    contains a .gitkeep file. This prevents Git from ignoring empty directories.
     """
-    base_dirs = [
+    root_dir = os.getcwd()
+
+    # Define the directories to check
+    directories = [
         "code",
         "data",
         "data/raw",
@@ -19,24 +26,28 @@ def initialize_gitkeeps():
     ]
 
     created_count = 0
+    existing_count = 0
 
-    for dir_path in base_dirs:
-        if not os.path.exists(dir_path):
-            print(f"Warning: Directory {dir_path} does not exist. Skipping .gitkeep creation.")
+    for dir_name in directories:
+        dir_path = os.path.join(root_dir, dir_name)
+        
+        if not os.path.isdir(dir_path):
+            print(f"Warning: Directory does not exist, skipping: {dir_path}")
             continue
 
         gitkeep_path = os.path.join(dir_path, ".gitkeep")
+
         if not os.path.exists(gitkeep_path):
             # Create an empty .gitkeep file
-            with open(gitkeep_path, "w") as f:
-                f.write("")
-            print(f"Created .gitkeep in {dir_path}")
+            with open(gitkeep_path, 'w') as f:
+                f.write("# This file ensures the directory is tracked by Git.\n")
+            print(f"Created .gitkeep in: {dir_path}")
             created_count += 1
         else:
-            print(f".gitkeep already exists in {dir_path}")
+            existing_count += 1
 
-    print(f"Initialization complete. Created {created_count} new .gitkeep files.")
-    return created_count
+    print(f"Gitkeep setup complete. Created: {created_count}, Existing: {existing_count}")
+    return True
 
 if __name__ == "__main__":
     initialize_gitkeeps()

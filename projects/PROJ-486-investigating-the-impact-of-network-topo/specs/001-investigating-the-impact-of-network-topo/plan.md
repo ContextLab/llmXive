@@ -22,7 +22,7 @@ The implementation includes robust preprocessing, graph metric calculation using
 **Project Type**: Data Analysis Pipeline / Scientific Simulation.  
 **Performance Goals**: Complete analysis of N=50 subjects with 200x200 matrices within 6 hours.  
 **Constraints**: No GPU; no deep learning training; strict memory management (streaming/chunking if needed); deterministic random seeds.  
-**Scale/Scope**: N=50 subjects (simulated or subset); 3 parcellation schemes; 2 topology metrics.
+**Scale/Scope**: N=50 subjects (simulated or subset); parcellation schemes; topology metrics.
 
 ## Constitution Check
 

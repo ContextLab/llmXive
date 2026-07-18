@@ -1,0 +1,59 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or file system evidence was provided showing that the required
+    subdirectories (`code/`, `data/`, `data/raw/`, `data/processed/`, `data/visualizations/`,
+    `tests/`, `tests/unit/`, `tests/integration/`, `docs/`) actually exist; without
+    such artifacts the task cannot be considered completed.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any `.gitkeep` files was provided; the claim lacks the required
+    artifact showing that every empty directory now contains a `.gitkeep` placeholder.
+    The implementer must add and commit those files in all empty folders.
+T012a:
+  c: false
+  h: 071cf6dfa5228fa80ef4d6a8aac2e2ccd1cc35cd6e776dc46d7576d72dbf6b64
+  r: "The `load_entrainment_csv` function in `code/data_loader.py` is cut off mid\u2011\
+    implementation (the file ends with an incomplete return statement), so it never\
+    \ reaches the logic required to check for file existence, perform column validation,\
+    \ or return the mandated `{\"exists\": false, \"reason\": \"missing\"}` object.\
+    \ The missing implementation must be completed for the task to be satisfied."
+T015c:
+  c: false
+  h: ae609baf3804f7682d40c5e7f2542f5e76ae99a9e8d84371848290750ba0c9c7
+  r: The repository contains a partially shown `code/analysis.py` that does not implement
+    the generation of `data/processed/correlation_results.csv`, and the required CSV
+    file is missing entirely. Consequently, the task of producing the specified correlation
+    results file has not been fulfilled.
+T016:
+  c: false
+  h: afe6c20d12bb0ac4d970b7dcbce614a5268ed7ab8e774ed9b0320eb17a498466
+  r: "The repository contains a `code/viz.py` with a `generate_scatter_plot` function\
+    \ that calculates and draws a 95\u202F% confidence\u2011interval band, but the\
+    \ required output file `data/visualizations/scatter_topology_entrainment.png`\
+    \ is not present, and no script or call is shown that actually creates and saves\
+    \ the plot to that location. The missing PNG (and lack of execution) means the\
+    \ task\u2019s deliverable is not satisfied."
+T017:
+  c: false
+  h: 54d11b7f0ef1ee430319d1259979ee37611ee291fba8a053d3e4fad5dcf69b4d
+  r: "The repository lacks `code/state_manager.py`, and `code/main.py` does not import\
+    \ or call any state\u2011manager functionality to compute a SHA256 hash and atomically\
+    \ update a YAML state file as required. Consequently the pipeline cannot fulfill\
+    \ the specified post\u2011run state\u2011update step."
+T027:
+  c: false
+  h: a05299b1df4e4ecaca95a42c0dc04bbfbea5f905977d5bb8f04852d4df3634ee
+  r: "The required output file `data/visualizations/sensitivity_comparison.png` does\
+    \ not exist, and the `code/viz.py` implementation is truncated (the function `generate_sensitivity_bar_chart`\
+    \ is incomplete and does not show the logic to create a two\u2011bar chart with\
+    \ the specified labels and title). Both the artifact and the full implementation\
+    \ needed to satisfy the task are missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data_gap_report.json` file or any logs/code showing that the pipeline detects\
+    \ missing entrainment data or N\u202F<\u202F30, triggers the Simulated Data Fallback,\
+    \ and continues without raising \u201CInvalid Entrainment Data\u201D. The required\
+    \ artifact demonstrating the fallback behavior is absent."
