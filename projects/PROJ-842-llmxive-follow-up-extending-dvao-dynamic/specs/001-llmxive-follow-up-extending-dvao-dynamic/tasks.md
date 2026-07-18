@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -24,40 +24,34 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create `src/` directory structure
-- [ ] T002 [P] Create `tests/` directory structure
-- [ ] T003 [P] Create `data/` directory structure
-- [ ] T004 [P] Create `scripts/` directory structure
-- [ ] T005 [P] Create `docs/` directory structure
-- [ ] T006 [P] Create `src/derivation/__init__.py`
-- [ ] T007 [P] Create `src/simulation/__init__.py`
-- [ ] T008 [P] Create `src/analysis/__init__.py`
-- [ ] T009 [P] Create `tests/unit/__init__.py`
-- [ ] T010 [P] Create `tests/contract/__init__.py`
-- [ ] T011 [P] Create `tests/integration/__init__.py`
-- [ ] T012 [P] Create `data/raw/.gitkeep`
-- [ ] T013 [P] Create `data/processed/.gitkeep`
+- [ ] T001 [P] Initialize project directory structure: Create `src/`, `tests/`, `data/`, `scripts/`, `docs/` directories and their subdirectories (`src/derivation`, `src/simulation`, `src/analysis`, `tests/unit`, `tests/contract`, `tests/integration`, `data/raw`, `data/processed`) along with `__init__.py` files for all Python packages and `.gitkeep` files for data directories.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **Includes critical memory optimizations to ensure a constrained memory environment is met from the start.**
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T014 [P] Create `src/config/defaults.yaml` with hyperparameters: `N` (5, 10, 20, 50), `k` (window size ratios), `seeds`, `noise_correlation` (ρ ∈ {0, 0.2, 0.5})
-- [ ] T015 [P] Implement `src/simulation/synthetic_mdp.py` with: (1) tabular MDP generation with N objectives using random linear combinations of state features, (2) explicit support for noise correlation parameter ρ ∈ {0, 0.2, 0.5} as required by FR-009, (3) deterministic seeded random state management
-- [ ] T016 [P] Implement `src/simulation/heuristic.py` for the "Moving-Window Heuristic" variance estimation using last k steps (configurable k < rollout group size)
-- [ ] T017 [P] Create `src/simulation/runner.py` with main() function accepting --n-objectives, --seed, --noise-correlation arguments, executing CPU-constrained training loops with memory checks (<7GB), and exiting with code 0 on success
-- [ ] T018 [P] Implement `src/derivation/variance_scaling.py` for symbolic derivation of noise accumulation using sympy, returning a sympy Expr object representing Var(A) as function of N and ε_i
-- [ ] T019 [P] Implement `src/derivation/sample_complexity.py` to invert variance equations to sample complexity bounds, returning closed-form equation as string
-- [ ] T020 [P] Implement `src/analysis/pareto.py` to calculate distance to theoretical Pareto frontier for given policy and reward functions
-- [ ] T021 [P] Implement `src/analysis/stats.py` with: (1) one-sample t-test function for deviation from theoretical bound, (2) paired t-test function for heuristic vs full-batch, (3) sensitivity analysis functions
-- [ ] T022 [P] Create `tests/unit/test_derivation.py` to verify symbolic equations simplify correctly
-- [ ] T023 [P] Create `tests/unit/test_mdp.py` to verify MDP generation determinism and objective counts
-- [ ] T024 [P] Create `tests/unit/test_heuristic.py` to verify windowed variance calculation logic
-- [ ] T025 [P] Create `scripts/update_state.py` to compute checksums for `data/` and `code/` (Constitution Principle V)
+- [X] T014 [P] Create `src/config/defaults.yaml` with hyperparameters: `N` (a range of values including 10, 20, 50), `k` (window size ratios), `seeds`, `noise_correlation` (ρ ∈ {, 0.2, 0.5})
+- [X] T015 [P] Implement `src/simulation/synthetic_mdp.py` with: (1) tabular MDP generation with N objectives using random linear combinations of state features, (2) explicit support for noise correlation parameter ρ across a range of values including the absence of correlation as required by FR-009, (3) deterministic seeded random state management
+- [X] T016 [P] Implement `src/simulation/heuristic.py` for the "Moving-Window Heuristic" variance estimation using last k steps (configurable k < rollout group size)
+- [X] T017 [P] Create `src/simulation/runner.py` with main() function accepting --n-objectives, --seed, --noise-correlation arguments, executing CPU-constrained training loops with memory checks (<7GB), and exiting with code 0 on success
+- [X] T018 [P] Implement `src/derivation/variance_scaling.py` for symbolic derivation of noise accumulation using sympy, returning a sympy Expr object representing Var(A) as function of N and ε_i
+- [ ] T019a [P] Implement inversion logic in `src/derivation/sample_complexity.py` to calculate sample complexity bounds from variance equations. **Deliverable**: Function `calculate_bound(variance_expr, N, epsilon)` returning a sympy expression.
+- [ ] T019b [P] Implement string formatting for sample complexity bound in `src/derivation/sample_complexity.py`. **Deliverable**: Function `format_bound_expression(bound_expr)` returning a human-readable string.
+- [ ] T019c [P] Create `tests/unit/test_sample_complexity.py` to verify the inversion logic and string formatting. **Deliverable**: Unit tests for `calculate_bound` and `format_bound_expression`.
+- [ ] T021a [P] Implement **PAIRED T-TEST** function `run_paired_ttest(heuristic_vals, fullbatch_vals)` in `src/analysis/stats.py` comparing Heuristic variance vs. Full-Batch Empirical variance. **Deliverable**: Function returning p-value and statistic. **Note**: This implements the Plan's revision (Paired T-Test). **Overrides Spec FR-006**.
+- [ ] T021b [P] Implement stability check function `run_stability_check(heuristic_vals, fullbatch_vals)` in `src/analysis/stats.py`. **Deliverable**: Function returning boolean and ratio stats; verifies ratio remains within [0.9, 1.1] for ≥ 95% of steps. **Note**: Explicitly implements SC-003.
+- [ ] T021c [P] Implement sensitivity analysis sweep logic in `src/analysis/stats.py` for window size k. **Deliverable**: Function `run_sensitivity_sweep(...)` returning aggregated results.
+- [X] T022 [P] Create `tests/unit/test_derivation.py` to verify symbolic equations simplify correctly
+- [X] T023 [P] Create `tests/unit/test_mdp.py` to verify MDP generation determinism and objective counts
+- [X] T024 [P] Create `tests/unit/test_heuristic.py` to verify windowed variance calculation logic
+- [X] T025 [P] Create `scripts/update_state.py` to compute checksums for `data/` and `code/` (Constitution Principle V)
+- [ ] T053 [P] Refactor `src/simulation/runner.py` to use generators instead of lists for trajectory storage to ensure memory efficiency (<7GB) under large N. **Deliverable**: Generator-based trajectory iterator.
+- [ ] T054 [P] Create `tests/unit/test_runner_memory.py` to verify memory usage remains <7GB with generators for N=50.
+- [ ] T055 [P] Refactor `src/analysis/stats.py` to use batch processing for variance calculations to reduce memory footprint. **Deliverable**: Batched variance calculation function.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,10 +66,11 @@
 ### Implementation for User Story 1
 
 - [ ] T026 [US1] Verify `src/derivation/variance_scaling.py` outputs correct closed-form equation for Var(A) as function of N and ε_i
-- [ ] T027 [US1] Verify `src/derivation/sample_complexity.py` correctly inverts variance to sample complexity bound
-- [ ] T028 [US1] Add explicit assumption logging (i.i.d. noise) to derivation output
-- [ ] T029 [US1] Create `docs/theoretical_derivation.md` with required sections: (1) closed-form equation for Var(A) as function of N and ε_i, (2) sample complexity bound derivation, (3) explicit assumptions list, (4) verification results from sympy
-- [ ] T030 [US1] Create `docs/peer_review_checklist.md` with verification criteria for SC-001 alternative path, including algebraic consistency checklist and peer review sign-off template
+- [ ] T027 [US1] Verify `src/derivation/sample_complexity.py` correctly inverts variance to sample complexity bound. **Depends on**: T019a, T019b, T019c.
+- [ ] T028 [US1] Add explicit assumption logging (i.i.d. noise) to derivation output. **Format**: Add JSON field `assumptions: ["i.i.d. noise"]` in `docs/theoretical_derivation.md` and log to stdout. **Verification**: Run `python src/derivation/sample_complexity.py --verify-assumptions`.
+- [X] T029 [US1] Create `docs/theoretical_derivation.md` with required sections: (1) closed-form equation for Var(A) as function of N and ε_i, (2) sample complexity bound derivation, (3) explicit assumptions list, (4) verification results from sympy. **Depends on**: T027 completion.
+- [X] T030 [US1] Create `docs/peer_review_checklist.md` with verification criteria for SC-001 alternative path, including algebraic consistency checklist and peer review sign-off template.
+- [ ] T031b [US1] **Execute Peer Review**: Run the peer review checklist defined in T030 against the derivation in T029. **Deliverable**: Update `docs/peer_review_checklist.md` with timestamp, reviewer initials, and `status: PASSED` or `status: FAILED`. **Verification**: File must contain `status: PASSED`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -83,19 +78,20 @@
 
 ## Phase 4: User Story 2 - Synthetic Environment Generation & Heuristic Implementation (Priority: P2)
 
-**Goal**: Generate synthetic multi-objective tabular MDPs (N ∈ {5, 10, 20, 50}) and implement the Moving-Window Heuristic for variance estimation.
+**Goal**: Generate synthetic multi-objective tabular MDPs (N ∈ {, 10, 20, 50}) and implement the Moving-Window Heuristic for variance estimation.
 
 **Independent Test**: The system runs a simulation script that instantiates environments for N=50 and executes multiple episodes using the Moving-Window Heuristic without memory errors.
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] Verify `src/simulation/synthetic_mdp.py` generates correct tabular MDPs with N objectives and noise correlation parameter ρ
-- [ ] T032 [US2] Verify `src/simulation/heuristic.py` correctly calculates variance using only last k steps
-- [ ] T033 [US2] Integrate `src/simulation/runner.py` with memory footprint checks (<7GB) and CPU constraints, ensuring it uses foundational MDP and heuristic modules
-- [ ] T034 [US2] Add logic to handle edge case where N > 50 by degrading state space size or sampling
-- [ ] T035 [US2] Add logging calls to output empirical variance and distance to Pareto frontier in `data/processed/empirical_results.json` with schema: {n_objectives, empirical_variance, pareto_distance, timestamp}
-- [ ] T036 [US2] Extend `src/simulation/synthetic_mdp.py` to support sensitivity analysis for noise correlation structure (ρ ∈ {0, 0.2, 0.5}) as required by FR-009
+- [X] T031 [US2] Verify `src/simulation/synthetic_mdp.py` generates correct tabular MDPs with N objectives and noise correlation parameter ρ
+- [X] T032 [US2] Verify `src/simulation/heuristic.py` correctly calculates variance using only last k steps
+- [X] T033 [US2] Integrate `src/simulation/runner.py` with memory footprint checks (<7GB) and CPU constraints, ensuring it uses foundational MDP and heuristic modules
+- [ ] T034 [US2] Add logic to handle edge case where N > 50. **Behavior**: If N > 50, reduce N to 50, log warning "N reduced to 50 for memory constraints", and proceed. **Verification**: Run with N=100 and verify warning log and successful completion with N=50.
+- [ ] T035 [US2] Add logging calls to output empirical variance and distance to Pareto frontier in `data/processed/empirical_results.json`. **Trigger**: After every N sweep completion. **Schema**: `{n_objectives, empirical_variance, pareto_distance, timestamp}`. **Verification**: Run `python src/simulation/runner.py --n=50` and verify file exists with schema.
+- [X] T036 [US2] Extend `src/simulation/synthetic_mdp.py` to support sensitivity analysis for noise correlation structure (ρ ∈ {0, 0.2, 0.5}) as required by FR-009
 - [ ] T037 [US2] Verify MDP generation is deterministic with seeded random states
+- [ ] T052b [US2] **Run Noise Correlation Sweep**: Execute simulation with noise correlation parameter ρ ∈ {0.2, 0.5} and log results to verify if the scaling law holds. **Deliverable**: `data/processed/correlation_sweep_results.json`. **Verification**: File exists with results for all three ρ values.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -103,21 +99,22 @@
 
 ## Phase 5: User Story 3 - Statistical Validation & Sensitivity Analysis (Priority: P3)
 
-**Goal**: Perform statistical validation (one-sample t-test against theoretical bound AND paired t-test) and sensitivity analysis on window size k.
+**Goal**: Perform statistical validation (Paired T-Test: Heuristic vs. Full-Batch) and sensitivity analysis on window size k. **Note**: The Plan explicitly revises the validation strategy to use Paired T-Test and Correlation Analysis, replacing the Spec's one-sample t-test and coincidence metrics.
 
-**Independent Test**: The system outputs a statistical report containing p-values from one-sample t-test, paired t-test results, and a table showing variation in convergence rates as k varies.
+**Independent Test**: The system outputs a statistical report containing p-values from paired t-tests and a table showing variation in convergence rates as k varies.
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] Implement one-sample t-test in `src/analysis/stats.py` comparing mean deviation of heuristic variance from theoretical lower bound for each N (FR-006 requirement)
-- [ ] T039 [US3] Implement paired t-test in `src/analysis/stats.py` comparing Heuristic variance vs. Full-Batch Empirical variance as additional validation
-- [ ] T040 [US3] Implement stability check: ratio of heuristic/full-batch variance must remain within [0.9, 1.1] for ≥ 95% of steps
-- [ ] T041 [US3] Implement sensitivity analysis sweep for window size k over a range of rollout sizes
-- [ ] T042 [US3] Calculate and log false-positive rates where heuristic reports stable but deviation > 5%
-- [ ] T043 [US3] Compute correlation between variance estimation error and distance to Pareto frontier
-- [ ] T044 [US3] Calculate and verify coincidence point (within ±1 objective count) between statistical failure (p < 0.05) and Pareto frontier distance threshold (>5%) as required by SC-002
-- [ ] T045 [US3] Generate final statistical report in `data/processed/statistical_report.json` with required keys: p_value_one_sample, p_value_paired, n_objectives, k_window, correlation_coefficient, coincidence_flag, failure_point_n
-- [ ] T046 [US3] Add logic to handle non-Gaussian noise distributions and log deviations (Assumptions)
+- [ ] T038 [US3] Implement **PAIRED T-TEST** in `src/analysis/stats.py` comparing Heuristic variance vs. Full-Batch Empirical variance for each N. **Deliverable**: Function `run_paired_ttest` returning p-value. **Note**: This implements the Plan's revision (Paired T-Test). **Overrides Spec FR-006/SC-002**.
+- [ ] T039 [US3] Implement stability check: ratio of heuristic/full-batch variance must remain within [0.9, 1.1] for ≥ 95% of steps. **Deliverable**: Function `run_stability_check` and output file `data/processed/stability_report.json`. **Note**: Explicitly implements SC-003.
+- [ ] T040a [US3] Define window size k sweep parameters (k ∈ {small values} of rollout size) in `src/config/defaults.yaml`.
+- [ ] T040b [US3] Implement sensitivity analysis sweep loop for window size k in `src/analysis/stats.py`.
+- [ ] T040c [US3] Implement result aggregation for sensitivity sweep. **Deliverable**: Function `aggregate_sweep_results(...)` returning a summary table.
+- [ ] T040d [US3] Create unit test for sweep output. **Deliverable**: `tests/unit/test_sensitivity_sweep.py`.
+- [ ] T042 [US3] Compute **Pearson/Spearman correlation coefficient** between variance estimation error (Heuristic vs. Full-Batch) and distance to Pareto frontier. **Note**: This implements Plan's revised SC-002 (Correlation), replacing Spec's coincidence metric. **Plan Revision Note**: Overrides Spec SC-002.
+- [ ] T043 [US3] Determine failure point N (smallest N where p-value < 0.05 for paired test) and verify correlation with Pareto distance. **Note**: Verify correlation, not exact coincidence. **Plan Revision Note**: Overrides Spec SC-002.
+- [ ] T044 [US3] Generate final statistical report in `data/processed/statistical_report.json`. **Command**: `python src/main.py --run-full-sweep`. **Keys**: `p_value_paired`, `n_objectives`, `k_window`, `correlation_coefficient`, `failure_point_n`, `stability_ratio`. **Verification**: Verify all keys present. **Depends on**: T035. **Plan Revision Note**: Overrides Spec SC-002.
+- [ ] T045 [US3] Add logic to handle non-Gaussian noise distributions and log deviations (Assumptions)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -127,12 +124,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T047 [P] Update `docs/quickstart.md` with instructions for running the full experiment suite
-- [ ] T048 Code cleanup and refactoring for memory efficiency in `src/simulation/runner.py` using generators instead of lists for trajectory storage
-- [ ] T049 Refactor `src/analysis/stats.py` to use batch processing for variance calculations to reduce memory footprint
-- [ ] T050 [P] Add comprehensive unit tests for `src/analysis/pareto.py`
-- [ ] T051 Run `scripts/update_state.py` to verify artifact checksums and update `state/` files
-- [ ] T052 Validate `quickstart.md` by running a full end-to-end execution on a local CPU-only environment
+- [ ] T046 [P] Update `docs/quickstart.md` with instructions for running the full experiment suite
+- [ ] T050 [P] Run `scripts/update_state.py` to verify artifact checksums and update `state/` files
+- [ ] T051 Validate `quickstart.md` by running a full end-to-end execution on a local CPU-only environment
 
 ---
 
@@ -208,9 +202,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+  - Developer A: User Story 1
+  - Developer B: User Story 2
+  - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -227,7 +221,9 @@ With multiple developers:
 - **CPU Constraint**: All simulation tasks must strictly adhere to 7GB RAM limit; avoid storing full history for large N.
 - **Real Data**: All synthetic data must be generated deterministically with seeds; no external downloads required for this feature.
 - **Validation Independence**: Ensure `src/derivation` and `src/simulation` remain separate to prevent circular logic.
-- **FR-006 Compliance**: One-sample t-test against theoretical bound must be implemented as primary validation, paired t-test as additional validation.
-- **SC-002 Compliance**: Coincidence point verification (within ±1 objective count) between statistical failure and Pareto distance threshold is mandatory.
+- **FR-006 Compliance**: **Paired T-Test** (Heuristic vs. Full-Batch) is the PRIMARY validation method. One-sample t-test is FORBIDDEN per Plan.
+- **SC-002 Compliance**: **Correlation** analysis is the success metric. Exact coincidence is DISCARDED per Plan.
 - **FR-009 Compliance**: Noise correlation parameter ρ ∈ {0, 0.2, 0.5} must be supported from foundational phase.
 - **SC-001 Compliance**: Both symbolic math engine verification AND peer review checklist must be implemented.
+- **Plan vs Spec Note**: This tasks.md follows the **Plan's** methodological revisions (Paired T-Test, Correlation) which supersede the **Spec's** original requirements (One-sample T-Test, Coincidence) to avoid tautology.
+- **Memory Optimization**: Tasks T053, T054, T055 (Phase 2) ensure memory efficiency is implemented before heavy runs.

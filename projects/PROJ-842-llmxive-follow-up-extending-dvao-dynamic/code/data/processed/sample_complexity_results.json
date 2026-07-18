@@ -1,0 +1,85 @@
+{
+  "verification_passed": true,
+  "scenarios": [
+    {
+      "bound_expression": "C/epsilon_target",
+      "numerical_bound": 50,
+      "parameters": {
+        "n_objectives": 5,
+        "noise_variance": 1.0,
+        "target_variance": 0.1,
+        "correlation": 0.0
+      },
+      "assumptions": [
+        "Noise terms are i.i.d. or follow specified correlation structure.",
+        "Variance of the mean scales as Var(Sum) / n.",
+        "Target variance is a strict upper bound."
+      ],
+      "scenario_id": 0
+    },
+    {
+      "bound_expression": "C/epsilon_target",
+      "numerical_bound": 100,
+      "parameters": {
+        "n_objectives": 10,
+        "noise_variance": 1.0,
+        "target_variance": 0.1,
+        "correlation": 0.0
+      },
+      "assumptions": [
+        "Noise terms are i.i.d. or follow specified correlation structure.",
+        "Variance of the mean scales as Var(Sum) / n.",
+        "Target variance is a strict upper bound."
+      ],
+      "scenario_id": 1
+    },
+    {
+      "bound_expression": "C/epsilon_target",
+      "numerical_bound": 500,
+      "parameters": {
+        "n_objectives": 50,
+        "noise_variance": 1.0,
+        "target_variance": 0.1,
+        "correlation": 0.0
+      },
+      "assumptions": [
+        "Noise terms are i.i.d. or follow specified correlation structure.",
+        "Variance of the mean scales as Var(Sum) / n.",
+        "Target variance is a strict upper bound."
+      ],
+      "scenario_id": 2
+    },
+    {
+      "bound_expression": "C/epsilon_target",
+      "numerical_bound": 140,
+      "parameters": {
+        "n_objectives": 10,
+        "noise_variance": 1.0,
+        "target_variance": 0.1,
+        "correlation": 0.2
+      },
+      "assumptions": [
+        "Noise terms are i.i.d. or follow specified correlation structure.",
+        "Variance of the mean scales as Var(Sum) / n.",
+        "Target variance is a strict upper bound."
+      ],
+      "scenario_id": 3
+    },
+    {
+      "bound_expression": "C/epsilon_target",
+      "numerical_bound": 250,
+      "parameters": {
+        "n_objectives": 10,
+        "noise_variance": 1.0,
+        "target_variance": 0.1,
+        "correlation": 0.5
+      },
+      "assumptions": [
+        "Noise terms are i.i.d. or follow specified correlation structure.",
+        "Variance of the mean scales as Var(Sum) / n.",
+        "Target variance is a strict upper bound."
+      ],
+      "scenario_id": 4
+    }
+  ]
+}

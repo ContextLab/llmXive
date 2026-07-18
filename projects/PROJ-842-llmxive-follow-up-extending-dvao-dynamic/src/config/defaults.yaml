@@ -1,0 +1,66 @@
+# DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward
+# Configuration defaults for llmXive follow-up project.
+#
+# This file defines the hyperparameters and experimental settings required
+# to run the simulation and analysis pipeline.
+#
+# References:
+# - N: Number of objectives (FR-001)
+# - k: Window size ratios for Moving-Window Heuristic (FR-008)
+# - seeds: Random seeds for reproducibility
+# - noise_correlation: Correlation parameter ρ for noise structure (FR-009)
+
+# Number of objectives (N) to simulate.
+# Values correspond to the scaling law study.
+n_objectives:
+  - 5
+  - 10
+  - 20
+  - 50
+
+# Window size ratios (k) for the Moving-Window Heuristic.
+# These are multipliers applied to the rollout group size or fixed steps.
+# Represents the 'k < rollout group size' constraint.
+k_window_ratios:
+  - 0.1
+  - 0.25
+  - 0.5
+  - 0.75
+
+# Random seeds for deterministic execution.
+# Used for MDP generation, noise injection, and policy initialization.
+seeds:
+  - 42
+  - 123
+  - 456
+  - 789
+  - 999
+
+# Noise correlation parameter (ρ) for multi-objective noise structure.
+# Values:
+#   0.0  : Independent noise (i.i.d. assumption)
+#   0.2  : Low correlation
+#   0.5  : Moderate correlation
+# These values are required by FR-009 for sensitivity analysis.
+noise_correlation:
+  - 0.0
+  - 0.2
+  - 0.5
+
+# Simulation constraints (Phase 2 & 4)
+simulation:
+  # Maximum memory footprint in GB (Hard limit for CPU runners)
+  max_memory_gb: 7.0
+  # CPU core limit
+  max_cpu_cores: 4
+  # Rollout group size (base unit for k calculation)
+  rollout_group_size: 100
+
+# Analysis settings
+analysis:
+  # Stability check tolerance (ratio must be within [1 - tolerance, 1 + tolerance])
+  stability_tolerance: 0.1
+  # Significance level for paired t-tests
+  alpha_significance: 0.05
+  # Minimum percentage of steps required to pass stability check
+  stability_pass_threshold: 0.95

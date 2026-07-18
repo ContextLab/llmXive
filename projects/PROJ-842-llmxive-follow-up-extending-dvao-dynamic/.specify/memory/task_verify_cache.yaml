@@ -1,0 +1,35 @@
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No mathematical derivation, code, synthetic environment generator, heuristic
+    implementation, or statistical validation artifacts were supplied; the claim lacks
+    any concrete output to verify that the explicit i.i.d. noise assumption was logged
+    in the derivation output. The required documents and scripts are missing.
+T032:
+  c: false
+  h: 5fd5440414cd3a433ccb07afd8d3fe387833632a7f7196eb7ebe621c032d78ae
+  r: "The required artifact `src/simulation/heuristic.py` does not exist, so there\
+    \ is no code to verify that it calculates variance using only the last\u202Fk\
+    \ steps. The task cannot be considered completed until the file is present and\
+    \ implements the specified behavior."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, documentation, or test results were provided showing logic that detects\
+    \ when the number of objectives\u202FN exceeds\u202F50 and then degrades the state\u2011\
+    space size or applies sampling. Without any artifact demonstrating this edge\u2011\
+    case handling, the task requirement is not met."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, logs, or test output demonstrating that the synthetic MDP generator
+    produces identical environments when initialized with the same random seed is
+    present. The required artifact proving deterministic MDP generation with seeded
+    random states is missing.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, logs, or test output were supplied that demonstrate the implementation\
+    \ of the stability check or that the ratio of heuristic to full\u2011batch variance\
+    \ stays within [0.9,\u202F1.1] for at least 95\u202F% of steps. The claim lacks\
+    \ any concrete artifact to verify the requirement."
