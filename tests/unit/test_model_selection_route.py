@@ -19,10 +19,14 @@ import pytest
 from llmxive.backends.base import ChatMessage, ChatResponse, TransientBackendError
 from llmxive.model_selection.snapshot import _family_of, _vendor_of
 from llmxive.model_selection.types import (
+    Candidate,
     CreditGuardSnapshot,
+    ModelChain,
     ModelPricing,
     ModelRef,
+    ModelRequirement,
     ModelUnavailable,
+    RequirementOverrides,
     RuntimeSnapshot,
     SnapshotProvenance,
 )
@@ -308,3 +312,132 @@ def test_route_chat_negative_caches_snapshot_acquisition(monkeypatch):
         )
     assert fetches["n"] == 1  # cached across the two in-TTL calls
     route_mod.reset_snapshot_cache()
+
+
+# --------------------------------------------------------------------------- #
+# RequirementOverrides: allow_paid precedence + compose-merge onto the base
+# profile's requirement (spec 026 slice 6).
+# --------------------------------------------------------------------------- #
+
+
+def _free_chain(req, snap, model_id: str = QWEN) -> ModelChain:
+    """A REAL minimal ``ModelChain`` for a fake ``select`` stand-in: one free
+    candidate drawn straight from the real snapshot, carrying the captured
+    requirement's own ``call_budget`` so the downstream ``execute()`` call
+    dispatches realistically (no mock chain)."""
+    ref = next(m for m in snap.models if m.model_id == model_id)
+    candidate = Candidate(
+        model_ref=ref,
+        pricing=snap.pricing[model_id],
+        worst_case_credits=0.0,
+        approved_ceiling_credits=0.0,
+    )
+    return ModelChain(
+        candidates=(candidate,),
+        resolved_at=snap.observed_at,
+        call_budget=req.call_budget,
+        snapshot_digest=snap.digest,
+        snapshot_provenance=dict(snap.sources),
+        selection_policy_version=1,
+        explanation=(),
+    )
+
+
+def test_allow_paid_double_supply_raises():
+    # No silent precedence (spec 026 slice 6, round-2 #1): supplying BOTH the
+    # standalone allow_paid param AND overrides.allow_paid (both non-None) is a
+    # caller programming error, not something route_chat should silently resolve.
+    from llmxive.model_selection.route import route_chat
+
+    with pytest.raises(ValueError, match="allow_paid"):
+        route_chat(
+            _MSGS,
+            max_tokens=64,
+            allow_paid=True,
+            overrides=RequirementOverrides(allow_paid=False),
+            snapshot=_snapshot(),
+        )
+
+
+def test_overrides_allow_paid_wins_over_snapshot_optin(monkeypatch):
+    # snapshot opt-in True, but overrides pins allow_paid=False — overrides is
+    # explicit tier authority and must win over the snapshot-derived default.
+    from llmxive.model_selection import route as route_mod
+
+    captured: dict = {}
+
+    def _fake_select(req, snap, **kw):
+        captured["req"] = req
+        return _free_chain(req, snap)
+
+    monkeypatch.setattr(route_mod, "select", _fake_select)
+    be = _RecordingBackend("dartmouth")
+    route_mod.route_chat(
+        _MSGS,
+        max_tokens=64,
+        overrides=RequirementOverrides(allow_paid=False),
+        snapshot=_snapshot(paid_opt_in=True),
+        backend_factory=_factory(be),
+    )
+    assert captured["req"].allow_paid is False
+
+
+def test_overrides_compose_union_and_tighten_with_base_profile(monkeypatch):
+    # The base profile's requirement already carries an exclusion + a
+    # max_credits ceiling; overrides must UNION excludes, take the TIGHTER
+    # max_credits, and OR require_paid — never erase the base's constraints.
+    from llmxive.model_selection import route as route_mod
+
+    captured: dict = {}
+
+    def _fake_select(req, snap, **kw):
+        captured["req"] = req
+        return _free_chain(req, snap)
+
+    def _fake_build_requirement(profile, call_budget, *, independence_against=None, allow_paid=False):
+        return ModelRequirement(
+            capability="standard",
+            call_budget=call_budget,
+            exclude_models=frozenset({"vendor.base-x"}),
+            max_credits=500,
+            allow_paid=allow_paid,
+        )
+
+    monkeypatch.setattr(route_mod, "select", _fake_select)
+    monkeypatch.setattr(route_mod, "build_requirement", _fake_build_requirement)
+    be = _RecordingBackend("dartmouth")
+    route_mod.route_chat(
+        _MSGS,
+        max_tokens=64,
+        overrides=RequirementOverrides(
+            exclude_models=frozenset({"q.default"}), max_credits=200, require_paid=True
+        ),
+        snapshot=_snapshot(),
+        backend_factory=_factory(be),
+    )
+    req = captured["req"]
+    assert req.exclude_models == frozenset({"vendor.base-x", "q.default"})  # union
+    assert req.max_credits == 200  # tighter of 500 / 200
+    assert req.require_paid is True  # base(False) OR True
+
+
+def test_overrides_none_preserves_snapshot_derived_allow_paid(monkeypatch):
+    # overrides=None leaves allow_paid snapshot-derived (unchanged behavior).
+    from llmxive.model_selection import route as route_mod
+
+    captured: dict = {}
+
+    def _fake_select(req, snap, **kw):
+        captured["req"] = req
+        return _free_chain(req, snap)
+
+    monkeypatch.setattr(route_mod, "select", _fake_select)
+    be = _RecordingBackend("dartmouth")
+    route_mod.route_chat(
+        _MSGS,
+        max_tokens=64,
+        overrides=None,
+        snapshot=_snapshot(paid_opt_in=True),
+        backend_factory=_factory(be),
+    )
+    assert captured["req"].allow_paid is True  # from snapshot opt-in (unchanged behavior)

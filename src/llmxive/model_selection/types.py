@@ -175,6 +175,21 @@ class ModelRequirement:
 
 
 @dataclass(frozen=True)
+class RequirementOverrides:
+    """Escalation constraints applied ON TOP of a base profile's requirement
+    (spec 026 slice 6). Frozen/typed so the large call graph carries an immutable
+    value (safe across the panel ThreadPoolExecutor) with a fixed, validated field
+    set — never an arbitrary mapping. Merge semantics (in route_chat): allow_paid is
+    explicit tier authority; require_paid ORs; exclude_models unions; max_credits
+    tightens. ``allow_paid=None`` means 'defer to the standalone param / snapshot'."""
+
+    allow_paid: bool | None = None
+    require_paid: bool = False
+    exclude_models: frozenset[str] = frozenset()
+    max_credits: int | None = None
+
+
+@dataclass(frozen=True)
 class RuntimeSnapshot:
     """Composite over EVERY configured backend + the credit-guard state. The
     pure selector's world: ``select`` reads nothing else (no network, no env).

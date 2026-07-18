@@ -46,11 +46,13 @@ from llmxive.model_selection.types import (
     ExecutionOptions,
     IndependenceBaseline,
     ModelChain,
+    RequirementOverrides,
     RuntimeSnapshot,
 )
 
 __all__ = [
     "DETERMINISTIC_NO_LLM",
+    "RequirementOverrides",
     "reset_snapshot_cache",
     "route_chat",
 ]
@@ -96,6 +98,16 @@ def _acquire_snapshot() -> RuntimeSnapshot:
     return snap
 
 
+def _tighter_credits(a: int | None, b: int | None) -> int | None:
+    """The TIGHTER (smaller) per-call credit ceiling: the set one when only one is
+    set, else min(). None means 'no ceiling' — a set ceiling always wins."""
+    if a is None:
+        return b
+    if b is None:
+        return a
+    return min(a, b)
+
+
 def _promote_primary(chain: ModelChain, caller_model: str | None) -> ModelChain:
     """Reorder ``chain.candidates`` so the caller's pinned ``caller_model`` runs
     FIRST — but ONLY if ``select`` already kept it (present + eligible). If the
@@ -132,7 +144,7 @@ def route_chat(
     snapshot: RuntimeSnapshot | None = None,
     ledger_repo=None,
     ledger_config: LedgerConfig | None = None,
-    **requirement_overrides: object,
+    overrides: RequirementOverrides | None = None,
 ) -> ChatResponse:
     """Route one chat call through select()→execute() and return its response.
 
@@ -143,7 +155,12 @@ def route_chat(
     acquires the real one. Raises :class:`ModelUnavailable` (fail closed) when
     ``select`` finds no eligible candidate, ``ChainExhausted`` when the chain runs
     and none succeeds, re-raises a request-level permanent refusal unchanged, and
-    ``ValueError`` on the fail-fast budget check.
+    ``ValueError`` on the fail-fast budget check (also raised when both the
+    standalone ``allow_paid`` param AND ``overrides.allow_paid`` are supplied
+    non-None — spec 026 slice 6, no silent precedence). ``overrides`` composes ON
+    TOP of the named profile's base requirement (never replaces it): ``exclude_models``
+    unions, ``max_credits`` tightens, ``require_paid`` ORs; ``overrides.allow_paid``
+    (when set) wins over both the standalone param and the snapshot's opt-in.
     """
     # deterministic-no-llm bypasses snapshot / select / execute ENTIRELY: a no-llm
     # agent that reached the model layer is a programming error → fail fast before
@@ -169,18 +186,34 @@ def route_chat(
         ledger_repo = repo_root()
     snap = snapshot if snapshot is not None else _acquire_snapshot()
 
-    # Derive paid admissibility from the snapshot's opt-in when the caller doesn't
-    # pin it; select()/execute() then enforce the live-credit + reservation guards.
-    allow_paid_eff = snap.credit.paid_opt_in if allow_paid is None else allow_paid
+    # allow_paid precedence (spec 026 slice 6, round-2 #1): no silent precedence.
+    if allow_paid is not None and overrides is not None and overrides.allow_paid is not None:
+        raise ValueError(
+            "allow_paid supplied both directly and through overrides — pass exactly one"
+        )
+    if overrides is not None and overrides.allow_paid is not None:
+        allow_paid_eff = overrides.allow_paid
+    elif allow_paid is not None:
+        allow_paid_eff = allow_paid
+    else:
+        allow_paid_eff = snap.credit.paid_opt_in
 
     call_budget = call_budget_for(msg_list, max_tokens)
-    requirement = build_requirement(
+    base = build_requirement(
         profile,
         call_budget,
         independence_against=independence_against,
         allow_paid=allow_paid_eff,
-        **requirement_overrides,
     )
+    if overrides is None:
+        requirement = base
+    else:
+        requirement = replace(
+            base,
+            require_paid=base.require_paid or overrides.require_paid,
+            exclude_models=base.exclude_models | overrides.exclude_models,
+            max_credits=_tighter_credits(base.max_credits, overrides.max_credits),
+        )
     chain = select(requirement, snap)
     chain = _promote_primary(chain, caller_model)
 
