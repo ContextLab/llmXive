@@ -1,2 +1,1 @@
-# This directory stores raw dataset files fetched from OpenML.
-# Do not commit large binary files here; use .gitignore for data files.
+# Placeholder to ensure data/raw directory is tracked

@@ -1,4 +1,4 @@
-- artifact_hash: 420d8f47c34c399d18568d3cace7d5039b135da6a5287bc1e27c010f4e33f825
+- artifact_hash: ae0af4629d2495749a4187514de75c7b2005191c59c1483f986f28ed026d3b94
   artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: 10.21105/joss.01686
   verification_status: pending
   verified_against_url: https://doi.org/10.21105/joss.01686
-  verified_at: '2026-07-15T16:55:15.907716Z'
+  verified_at: '2026-07-18T14:11:05.697564Z'

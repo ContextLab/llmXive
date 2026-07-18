@@ -1,3 +1,11 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory `projects/PROJ-504-evaluating-the-impact-of-variable-select/`\
+    \ or its subfolders (`code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`,\
+    \ `tests/integration/`) was provided. The implementer must create this folder\
+    \ hierarchy and ensure each subdirectory exists and is non\u2011empty (or at least\
+    \ present)."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
