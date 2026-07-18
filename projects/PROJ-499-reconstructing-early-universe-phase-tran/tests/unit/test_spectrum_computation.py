@@ -1,100 +1,126 @@
 """
-Unit tests for spectrum_computation.py
+Unit tests for spectrum_computation module.
 """
-
 import os
-import sys
+import tempfile
 import numpy as np
-import pytest
 import healpy as hp
+import pytest
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# Import the module to test
+# Assuming the module is in the code directory and we are running from project root
+# We need to add the code directory to the path if running as a script
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from spectrum_computation import compute_bb_spectrum, validate_sky_coverage, save_spectrum_results
+from spectrum_computation import validate_sky_coverage, compute_bb_spectrum
 
+def create_test_mask(nside, coverage=0.8):
+    """Helper to create a temporary mask file with specified coverage."""
+    npix = hp.nside2npix(nside)
+    target_valid = int(npix * coverage)
+    mask = np.zeros(npix)
+    mask[:target_valid] = 1.0
+    # Shuffle to make it look more like a real mask
+    np.random.shuffle(mask)
+    
+    fd, path = tempfile.mkstemp(suffix='.fits')
+    hp.write_map(path, mask, nest=True)
+    os.close(fd)
+    return path, mask
 
-class TestComputeBB:
-    def test_compute_bb_spectrum_basic(self):
-        """Test basic spectrum computation with synthetic noise."""
-        nside = 16
-        n_pix = hp.nside2npix(nside)
-        
-        # Create synthetic Q and U maps with known noise
-        np.random.seed(42)
-        map_q = np.random.normal(0, 1e-6, n_pix)
-        map_u = np.random.normal(0, 1e-6, n_pix)
-        
-        l_values, cl_bb, cl_err = compute_bb_spectrum(map_q, map_u, nside, l_max=10)
-        
-        assert len(l_values) > 0
-        assert len(cl_bb) == len(l_values)
-        assert len(cl_err) == len(l_values)
-        assert np.all(l_values >= 2)
-        # Cl values should be positive (or close to zero for noise)
-        assert np.all(cl_bb >= -1e-15)  # Allow small numerical errors
-
-    def test_compute_bb_spectrum_with_signal(self):
-        """Test spectrum computation with a simulated signal."""
-        nside = 32
-        n_pix = hp.nside2npix(nside)
-        
-        # Create a simple signal (e.g., constant B-mode)
-        # In reality, B-modes are not constant, but for testing the pipeline:
-        np.random.seed(123)
-        map_q = np.random.normal(0, 1e-5, n_pix)
-        map_u = np.random.normal(0, 1e-5, n_pix)
-        
-        l_values, cl_bb, cl_err = compute_bb_spectrum(map_q, map_u, nside, l_max=20)
-        
-        assert len(cl_bb) == len(l_values)
-        # Check that error estimation is reasonable
-        assert np.all(cl_err > 0)
-
-
-class TestValidateSkyCoverage:
-    def test_validate_sky_coverage_pass(self):
-        """Test validation with sufficient coverage."""
-        nside = 16
-        n_pix = hp.nside2npix(nside)
-        # Create a mask with 80% coverage
-        mask = np.ones(n_pix)
-        mask[:int(n_pix * 0.2)] = 0.0  # Mask 20%
-        
-        coverage = validate_sky_coverage(mask, nside, min_coverage=0.70)
+def test_validate_sky_coverage_pass():
+    """Test that validation passes when coverage >= 0.70."""
+    nside = 32
+    path, _ = create_test_mask(nside, coverage=0.80)
+    try:
+        coverage = validate_sky_coverage(path, nside=nside)
         assert coverage >= 0.70
-        assert np.isclose(coverage, 0.80, atol=0.01)
+        assert abs(coverage - 0.80) < 0.01
+    finally:
+        os.remove(path)
 
-    def test_validate_sky_coverage_fail(self):
-        """Test validation with insufficient coverage."""
-        nside = 16
-        n_pix = hp.nside2npix(nside)
-        # Create a mask with 50% coverage
-        mask = np.ones(n_pix)
-        mask[:int(n_pix * 0.5)] = 0.0
-        
-        with pytest.raises(ValueError, match="Sky coverage .* is below the minimum threshold"):
-            validate_sky_coverage(mask, nside, min_coverage=0.70)
+def test_validate_sky_coverage_fail():
+    """Test that validation raises ValueError when coverage < 0.70."""
+    nside = 32
+    path, _ = create_test_mask(nside, coverage=0.50)
+    try:
+        with pytest.raises(ValueError, match="Sky coverage .* is below the required threshold of 0.70"):
+            validate_sky_coverage(path, nside=nside)
+    finally:
+        os.remove(path)
 
+def test_validate_sky_coverage_boundary():
+    """Test validation at exactly 0.70 coverage."""
+    nside = 64
+    # 0.70 is the threshold, so it should pass
+    path, _ = create_test_mask(nside, coverage=0.70)
+    try:
+        coverage = validate_sky_coverage(path, nside=nside)
+        assert coverage >= 0.70
+    finally:
+        os.remove(path)
 
-class TestSaveSpectrumResults:
-    def test_save_spectrum_results(self, tmp_path):
-        """Test saving spectrum results to JSON."""
-        l_values = np.array([2, 3, 4])
-        cl_bb = np.array([1.0, 2.0, 3.0])
-        cl_err = np.array([0.1, 0.2, 0.3])
-        output_path = os.path.join(tmp_path, "test_spectrum.json")
-        metadata = {"nside": 16, "test": "unit"}
+def test_validate_sky_coverage_file_not_found():
+    """Test that FileNotFoundError is raised if mask file does not exist."""
+    with pytest.raises(FileNotFoundError):
+        validate_sky_coverage("nonexistent_mask.fits")
+
+def test_compute_bb_spectrum_basic():
+    """Test basic spectrum computation with a simple map."""
+    nside = 16
+    npix = hp.nside2npix(nside)
+    
+    # Create simple Q and U maps
+    q = np.random.randn(npix)
+    u = np.random.randn(npix)
+    
+    fd_map, map_path = tempfile.mkstemp(suffix='.fits')
+    # Write [Q, U] as a list of maps
+    hp.write_map(map_path, [q, u], nest=True)
+    os.close(fd_map)
+    
+    try:
+        result = compute_bb_spectrum(map_path)
         
-        save_spectrum_results(l_values, cl_bb, cl_err, output_path, metadata)
+        assert "l_values" in result
+        assert "cl_bb_values" in result
+        assert result["nside"] == nside
+        assert len(result["l_values"]) == len(result["cl_bb_values"])
+        # lmax should be 2*nside - 2
+        expected_lmax = 2 * nside - 2
+        assert result["lmax"] == expected_lmax
+    finally:
+        os.remove(map_path)
+
+def test_compute_bb_spectrum_with_mask():
+    """Test spectrum computation with a mask applied."""
+    nside = 16
+    npix = hp.nside2npix(nside)
+    
+    q = np.random.randn(npix)
+    u = np.random.randn(npix)
+    
+    # Create a mask
+    mask = np.ones(npix)
+    mask[:npix//2] = 0.0 # Mask half the sky
+    
+    fd_map, map_path = tempfile.mkstemp(suffix='.fits')
+    fd_mask, mask_path = tempfile.mkstemp(suffix='.fits')
+    
+    hp.write_map(map_path, [q, u], nest=True)
+    hp.write_map(mask_path, mask, nest=True)
+    
+    os.close(fd_map)
+    os.close(fd_mask)
+    
+    try:
+        result = compute_bb_spectrum(map_path, mask_path)
         
-        assert os.path.exists(output_path)
-        
-        # Verify content
-        import json
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-        
-        assert data["metadata"]["nside"] == 16
-        assert len(data["l_values"]) == 3
-        assert np.isclose(data["cl_bb"][0], 1.0)
+        assert "l_values" in result
+        assert "cl_bb_values" in result
+        # The values should be computed, though with a mask they might be noisy
+    finally:
+        os.remove(map_path)
+        os.remove(mask_path)

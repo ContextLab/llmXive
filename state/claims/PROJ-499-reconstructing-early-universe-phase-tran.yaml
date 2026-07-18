@@ -464,3 +464,368 @@
   source_type: external
   status: verified
   updated_at: '2026-07-14T19:49:04Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 0
+  canonical: sky coverage threshold 0.70
+  claim_id: c_30afb8a3
+  context: 'T015 [US1] Add validation logic to verify sky coverage. Metric: coverage
+    = non-masked pixels / total pixels. Behavior: Raise ValueError if coverage < 0.70.'
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Raise ValueError if sky coverage is less than 0.70.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T00:30:12Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: verify_checksum uses SHA-256 algorithm
+  claim_id: c_50bd39f7
+  context: 'T005 [P] Implement code/utils.py with the following exact function signatures:
+    verify_checksum(file_path: str, expected_hash: str) -> bool: Uses SHA-256 to verify
+    file integrity.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/utils.py with verify_checksum using SHA-256 to verify file
+    integrity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:30:40Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: synthetic phase transition dataset generated with E_PT=10^15 GeV
+  claim_id: c_4b84fe6d
+  context: T024 [US2] Implement code/synthetic_data.py to generate ground truth datasets
+    for Inflation ($r=0.01$) and Phase Transition ($E_{PT}=10^{15}$ GeV) models with
+    known noise characteristics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/synthetic_data.py to generate ground truth datasets for
+    Phase Transition with E_PT=10^15 GeV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:31:12Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: posterior for r within 95% credible interval and 10% centered
+  claim_id: c_e02b7f57
+  context: T025a [US2] Implement code/validation.py to run the pipeline on synthetic
+    Inflation data and verify that the posterior distribution for $r$ covers the true
+    value within the 95% credible interval and is centered within 10%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify posterior distribution for r covers true value within 95% credible
+    interval and is centered within 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:31:12Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: posterior for E_PT within 95% credible interval and 10% centered
+  claim_id: c_721b291b
+  context: T025b [US2] Implement code/validation.py to run the pipeline on synthetic
+    Phase Transition data and verify that the posterior distribution for $E_{PT}$
+    covers the true value within the 95% credible interval and is centered within
+    10%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify posterior distribution for E_PT covers true value within 95% credible
+    interval and is centered within 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:31:13Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: Bayes factor decision threshold K > 10
+  claim_id: c_6fc7a392
+  context: T025c [US2] Implement code/validation.py to verify that the Bayes factor
+    correctly distinguishes between models by exceeding the decision threshold ($K
+    > 10$) for the ground truth model in both synthetic cases.
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Verify Bayes factor correctly distinguishes between models by exceeding
+    the decision threshold K > 10.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T00:31:13Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: C_l^BB computed using healpy in CPU-only mode
+  claim_id: c_9939b861
+  context: T014 [US1] Implement code/spectrum_computation.py to compute $C_\ell^{BB}$
+    from masked maps using `pyHEALPix` (healpy) in CPU-only mode.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/C_l%5EBB_computed_using_healpy_in_CPU-only_mode
+  kind: entity_fact
+  raw_text: Compute C_l^BB from masked maps using pyHEALPix (healpy) in CPU-only mode.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:32:01Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: E_PT range 10^14 to 10^16 GeV
+  claim_id: c_c8651de9
+  context: 'T020 [P] [US2] Implement code/model_generation.py to generate theoretical
+    spectra. Input: Grid of $r$ over a relevant small-range interval and $E_{PT} \in
+    [10^{14}, 10^{16}]$ GeV (log scale).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate theoretical spectra with E_PT in range [10^14, 10^16] GeV on
+    log scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:32:40Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: dynesty nested sampling with 50 live points
+  claim_id: c_862cf166
+  context: T021a [US2] Implement code/inference.py using `dynesty` (Nested Sampling)
+    with limited live points (e.g., 50 (1904.02180, https://arxiv.org/abs/1904.02180))
+    for CPU feasibility to estimate posteriors for $r$ and $E_{PT}$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/inference.py using dynesty with 50 live points for CPU
+    feasibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:33:17Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: Bayes factor precision 2 decimal places
+  claim_id: c_922b6abc
+  context: T030 [US3] Implement code/model_comparison.py to report Bayes factor $K$
+    with 2 decimal places precision and decision thresholds ($K > 10$).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report Bayes factor K with 2 decimal places precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:35:22Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: 1000-step dynesty run on Nside=64 within 2 hours
+  claim_id: c_c789ce3a
+  context: 'T040 Performance optimization across all stories: Deliverable: Complete
+    a 1000-step `dynesty` run on Nside=64 synthetic data within 2 hours on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Complete a 1000-step dynesty run on Nside=64 synthetic data within 2 hours
+    on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:35:44Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: posterior for r covers true value within 95% credible interval and centered
+    within 10%
+  claim_id: c_8f25557a
+  context: 'Implement code/validation.py to run the pipeline on synthetic Inflation
+    data and verify that the posterior distribution for r covers the true value within
+    the 95% credible interval and is centered within 10%. Metric: Check if true_value
+    is within [percentile_2.5, percentile_97.5] and |(mean - true)|/true < 0.10'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is validated if the posterior distribution for r covers the
+    true value within the 95% credible interval and is centered within 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:44:55Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: posterior for E_PT covers true value within 95% credible interval and
+    centered within 10%
+  claim_id: c_f7628526
+  context: 'Implement code/validation.py to run the pipeline on synthetic Phase Transition
+    data and verify that the posterior distribution for E_PT covers the true value
+    within the 95% credible interval and is centered within 10%. Metric: Check if
+    true_value is within [percentile_2.5, percentile_97.5] and |(mean - true)|/true
+    < 0.10'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is validated if the posterior distribution for E_PT covers
+    the true value within the 95% credible interval and is centered within 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:44:55Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: Bayes factor exceeds decision threshold K > 10 for ground truth model
+  claim_id: c_2d57e728
+  context: Implement code/validation.py to verify that the Bayes factor correctly
+    distinguishes between models by exceeding the decision threshold (K > 10) for
+    the ground truth model in both synthetic cases
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayes factor correctly distinguishes between models by exceeding the
+    decision threshold K > 10 for the ground truth model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:44:55Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: sky coverage threshold 70%
+  claim_id: c_0dd239fd
+  context: 'Add validation logic to verify sky coverage. Metric: coverage = non-masked
+    pixels / total pixels. Behavior: Raise ValueError if coverage < 0.70.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sky_coverage_threshold_70%25
+  kind: magnitude
+  raw_text: Sky coverage must be at least 70% to pass validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:46:09Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: E_PT range 10^14 to 10^16 GeV
+  claim_id: c_49e6fe07
+  context: 'Implement code/model_generation.py to generate theoretical spectra. Input:
+    Grid of r over a relevant small-range interval and E_PT in [10^14, 10^16] GeV
+    (log scale).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Theoretical spectra are generated for E_PT in the range [10^14, 10^16]
+    GeV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:46:50Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: nested sampling live points 50
+  claim_id: c_1d25c3cb
+  context: Implement code/inference.py using dynesty (Nested Sampling) with limited
+    live points (e.g., 50) for CPU feasibility to estimate posteriors for r and E_PT
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nested sampling implementation uses 50 live points.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:47:40Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: Bayes factor reported with 2 decimal places precision
+  claim_id: c_f652c0aa
+  context: Implement code/model_comparison.py to report Bayes factor K with 2 decimal
+    places precision and decision thresholds (K > 10)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bayes factor K is reported with 2 decimal places precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:49:44Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: dynesty 1000-step run on Nside=64 synthetic data within 2 hours on CPU
+  claim_id: c_c4da9016
+  context: 'Performance optimization across all stories: Deliverable: Complete a 1000-step
+    dynesty run on Nside=64 synthetic data within 2 hours on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance optimization goal is to complete a 1000-step dynesty run
+    on Nside=64 synthetic data within 2 hours on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:50:30Z'
+- artifact_path: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran/tasks.md
+  attempts: 1
+  canonical: tasks run on 2 cores 7GB RAM within 6 hours
+  claim_id: c_099faaf7
+  context: 'Critical: All tasks must run on CPU-only (2 cores, 7GB RAM) within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must run on CPU-only (2 cores, 7GB RAM) within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T00:50:58Z'

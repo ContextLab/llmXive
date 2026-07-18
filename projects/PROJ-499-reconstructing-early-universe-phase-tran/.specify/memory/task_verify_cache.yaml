@@ -1,0 +1,67 @@
+T012:
+  c: false
+  h: 514f80790cd0d46438a90d5990f4e85df2f3aadbabe28b016e7f4e3057c52ccf
+  r: "The `data_ingestion.py` script uses hard\u2011coded example URLs, never reads\
+    \ `PLANCK_MAP_ID` or `BICEP_URL` from `config.py`, does not call `retry_download`\
+    \ or `verify_checksum`, and never writes the downloaded bytes to `data/raw/` nor\
+    \ creates `data/hashes.json` (the file is missing). Consequently the required\
+    \ download, verification, and checksum\u2011recording behavior is not implemented."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or test artifact was provided that implements the coverage calculation
+    or raises a `ValueError` when coverage falls below 0.70; the claim is unsupported
+    by any tangible evidence. The required validation logic is missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were presented that add logging to the data
+    ingestion and masking steps, nor any evidence of checksum verification status
+    being recorded. The required artifact (implemented logging with checksum reporting)
+    is missing.
+T032:
+  c: false
+  h: a2401bdab85b5abf55a33f89bb3483455de95c8cc5129b328d29337792e11c1e
+  r: The repository contains a partially shown `code/utils.py` that defines a `generate_model_comparison_results`
+    stub but the implementation is truncated and does not demonstrate writing the
+    required JSON file. Moreover, the expected output file `data/derived/model_comparison_results.json`
+    is absent. Both the generation logic and the resulting artifact are missing, so
+    the task is not satisfied.
+T038b:
+  c: false
+  h: 5b57b1dda1aa8a72ce69905bbd83412d1c90dc1cbd16276412ec1f9f3c76a4e0
+  r: Both required documentation files (`docs/data-model.md` and `docs/research.md`)
+    are missing from the repository, so the claimed updates were not provided. The
+    task is not satisfied.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only the task description and project specifications; there\
+    \ is no artifact such as a log, output file, timing report, or code demonstrating\
+    \ a 1000\u2011step dynesty run on Nside\u202F=\u202F64 synthetic data completed\
+    \ within 2\u202Fhours on a CPU. Without concrete results or performance evidence,\
+    \ the deliverable is not verified."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test files or code snippets for edge cases in the `tests/unit/`\
+    \ directory were presented. Without seeing the actual test files (e.g., new test\
+    \ modules, test functions, or a listing showing they exist and are non\u2011empty),\
+    \ we cannot confirm that additional edge\u2011case tests were added. The required\
+    \ artifact is missing."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided material only contains a cosmology feature specification and user
+    stories; there is no code, configuration, or documentation showing any security
+    hardening of data download URLs. Consequently, the required artifact (e.g., hardened
+    download scripts, URL signing, TLS enforcement, access controls, or related tests)
+    is missing.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence such as execution logs, timing reports, or a completed `quickstart.md`\
+    \ run is present; the required artifact demonstrating that the end\u2011to\u2011\
+    end pipeline finished within six hours is missing. The implementer must provide\
+    \ concrete validation output (e.g., a timestamped log or summary) showing the\
+    \ pipeline execution succeeded and met the time constraint."
