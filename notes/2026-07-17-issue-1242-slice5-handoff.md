@@ -1,14 +1,34 @@
-# Issue #1242 — Session Handoff (2026-07-17→18) — Phase 2 Slice 5 COMPLETE (A+B)
+# Issue #1242 — Session Handoff (2026-07-17→18) — Phase 2 Slice 5 ✅ APPROVED — RESUME AT SLICE 6
 
-## ✅ SLICE 5 DONE (all 3 walkers retired) — next up: Slice 6 (execution-tier ladder)
+## ✅ M0 + SLICE 5 MAINTAINER-APPROVED (3 review rounds, no remaining findings) — next: Slice 6
 
-Both Step A (chat_with_fallback) AND Step B (reasoning_chat + chat_with_model_fallback) are landed
-and green. All routing now flows registry/reasoning/panel calls → `route_chat` → `select()` →
-`execute()`. Slice-5 commits on base `b00d0b71c3`: `5170772b61` (M0) · `dc91dd24e1` (route_chat) ·
-`85361c8edf` (Step A) · `3ce1e794b6` (Step B: 2 walkers retired + autouse offline-snapshot stub +
-mechanics-tests retired) · `3e121792b4` (**review-2 paid-path fixes** F1–F4). Full non-slow backstop
-after Step B: **6970 passed**, only the 2 pre-existing `web_data` dashboard-drift failures (resolve
-on rebase). NOT pushed — re-fetch + rebase onto origin/main before the PR.
+**START HERE for a fresh session.** Slice 5 (all 3 legacy walkers retired; every registry/reasoning/
+panel LLM call now flows `route_chat` → `select()` → `execute()`) is DONE, green, and **maintainer-
+approved on 2026-07-18** — three review rounds resolved (architecture → paid-path F1–F4 → a lone
+unused-noqa lint), verdict "M0 and Slice 5 remain approved and ready for Slice 6." Nothing pushed.
+
+**Commit stack on base `b00d0b71c3`** (re-fetch + rebase onto origin/main BEFORE the PR — local main
+lags; pipeline crons commit constantly): `5170772b61` M0 decision-A · `dc91dd24e1` route_chat
+chokepoint · `85361c8edf` Step A (chat_with_fallback) · `3ce1e794b6` Step B (reasoning_chat +
+chat_with_model_fallback retired) · `3e121792b4` review-2 paid-path fixes (F1–F4) · `c2f860743`
+noqa cleanup (+ interspersed notes commits). Full non-slow backstop after the review fixes:
+**6975 passed**, only the 2 PRE-EXISTING `web_data` dashboard-drift failures
+(`test_web_data_blocks` / `test_web_data_contributors` — reference none of our modules; resolve on the
+rebase). `git diff --check` clean; ruff clean on all session-changed src+test files (the 29 `tests/`
+lints are identical on the base commit = pre-existing, outside the project's normal lint scope).
+
+### ⏭️ SLICE 6 — execution-tier migration (the immediate next work)
+Migrate `src/llmxive/state/execution_status.py` (`FREE_MODEL_TIERS` + `model_tier_ladder()` +
+`paid_tier_usable()` + `execution_model_override` / `next_usable_tier`) and its `graph.py` consumers
+ONTO the mechanism: escalating **requirement profiles / constraints** through `route_chat`/`select`
+(same free→paid ordering: registered default → `openai.gpt-oss-120b` free → optional
+`LLMXIVE_EXECUTION_PAID_TIERS` via the paid opt-in + credit guard). **Preserve** the `free_only`
+fabrication guard + the persisted `model_tier`. Manifest slice-6 row: `execution_status.py` (was
+`:63`, `FREE_MODEL_TIERS`; re-locate via the manifest — the file may have shifted). Regenerate the
+manifest after any pin move (the frozen drift test enforces it). NOTE for Slice-6 tests: the autouse
+`_offline_model_selection_snapshot` conftest fixture already makes `route_chat` deterministic offline
+(free qwen→gemma-4→gpt-oss); paid-tier tests inject a paid-enabled snapshot + a tmp git `ledger_repo`
++ `LedgerConfig(remote=None)` (mirror `tests/integration/test_model_selection_execute.py`).
 
 ### Review-2 fixes (`3e121792b4`) — the guarded paid fallback is now functional end-to-end
 The maintainer found the paid tail could never run through the new chokepoint. Fixed:
