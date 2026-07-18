@@ -1,6 +1,7 @@
 # Slice 6 design — execution-tier ladder → escalating requirement constraints (issue #1242, spec 026)
 
-**Status:** DESIGN APPROVED-IN-PROGRESS (maintainer reviewed 2026-07-18, two decisions locked).
+**Status:** DESIGN APPROVED (maintainer round-1 + round-2 review 2026-07-18; two decisions locked,
+four round-2 clarifications folded in — §"Round-2 clarifications"). Ready to implement.
 **Branch:** `026-model-selection-consolidation`. **Base:** the Slice-5 stack (HEAD `5223f78e66`).
 **Predecessor handoff:** [2026-07-17-issue-1242-slice5-handoff.md](2026-07-17-issue-1242-slice5-handoff.md).
 
@@ -67,6 +68,72 @@ fail-closed pre-check documented as distinct from select()/execute() enforcement
   single paid rung. Legacy `LLMXIVE_EXECUTION_PAID_TIERS`, if set nonempty, collapses to one paid
   rung and logs a deprecation warning that model-ids are no longer honored (documented removal).
 
+## Round-2 clarifications (maintainer, 2026-07-18) — folded into the sections below
+
+These are binding refinements, not new decisions. They are specified here in one place and
+reflected inline in §A–§F.
+
+1. **`allow_paid` precedence (route_chat param vs `overrides.allow_paid`).** No silent precedence.
+   If BOTH the standalone `allow_paid` param AND `overrides.allow_paid` are non-`None`, `route_chat`
+   **raises `ValueError`** ("allow_paid supplied both directly and through overrides"). Resolution
+   order otherwise: `overrides.allow_paid` (if non-None) → standalone `allow_paid` (if non-None) →
+   `snapshot.credit.paid_opt_in`. Tier-generated overrides always carry a concrete boolean, so
+   every escalation rung is explicit; non-tier callers keep using the standalone param during
+   migration. The standalone param is deleted once all callers use the typed contract (Slice 8-ish).
+
+2. **Overrides COMPOSE with (never replace) the base profile — additive/tightening merge.**
+   `route_chat` builds the base requirement from the profile FIRST, then merges overrides:
+   `exclude_models` = **union**; `max_credits` = **tighter non-None** (`min` when both set, else the
+   set one); `require_paid` = `base.require_paid OR overrides.require_paid`; `allow_paid` = the
+   resolved tier authority (rule 1); future set-valued fields **union** unless documented. This
+   matters for Slice 7, when per-agent profiles may already carry exclusions / tighter ceilings —
+   escalation must tighten, not erase policy. Shape:
+   ```python
+   base = build_requirement(profile, budget, independence_against=...)
+   req = replace(base,
+       allow_paid=resolved_allow_paid,
+       require_paid=base.require_paid or ov.require_paid,
+       exclude_models=base.exclude_models | ov.exclude_models,
+       max_credits=_tighter(base.max_credits, ov.max_credits))
+   ```
+   Test with a synthetic base profile that already has an exclusion + a `max_credits`.
+
+3. **Paid-headroom arithmetic lives in `backends/credits.py`, not `execution_status.py`
+   (Constitution I).** Add a canonical helper — `fresh_paid_headroom_available() -> tuple[bool, str]`
+   (or `effective_headroom(balance) -> float`) — that: fetches a **cache-bypassing** balance,
+   applies the canonical `budget_fraction`, **rejects non-finite** spend/max_budget/fraction/cap/
+   headroom, requires opt-in, returns `False` when headroom `<= 0`, and fails closed on any
+   acquisition error. `paid_tier_usable()` **delegates** to it — it owns no financial arithmetic.
+   Keeps selection / execution / escalation on ONE cap definition.
+
+4. **Exact env precedence + parsing.** (a) If `LLMXIVE_EXECUTION_PAID_ESCALATION` is **present**:
+   recognized-true → enable one rung; recognized-false (incl. an explicit `=0`) → disable; invalid
+   value → warn + **fail closed** (disabled); the legacy var is **ignored entirely**. (b) Else if
+   legacy `LLMXIVE_EXECUTION_PAID_TIERS` is nonempty → enable exactly one rung, emit **one**
+   deprecation warning, ignore all listed model-ids. (c) Else disabled. An explicit new `=0` MUST
+   override a lingering legacy list (so an operator can actually turn paid OFF). Parse booleans with
+   the established `{"1","true","yes","on"}` idiom (as `credits.py:129` does); optionally extract a
+   shared `env_bool()` helper (Constitution I — low-priority follow-up). Test matrix: true / false /
+   `0` / blank / invalid / legacy-only / both-set / duplicate legacy values / warn-once.
+
+### Additional recommendations (also folded in)
+
+- **Corrupt `model_tier` validated completely.** Route the persisted `model_tier` through
+  `_nonneg_int` (which excludes `bool` — `isinstance(True, int)` is `True`!). Today `model_tier`
+  (execution_status.py:143) and its sibling `fix_rounds` (:136) use a bool-permissive check, so a
+  persisted `true` reads as tier/round `1`. Fix both (handle-issues-as-you-go). Then `tier_constraint`
+  clamps any valid-but-out-of-range index to **tier 0 / free-only** (never the last paid rung). Test:
+  negative int, `bool`, `float`, numeric string, huge int, missing → all resolve to tier 0/free-only
+  except valid in-range ints.
+- **Reviser overrides are a DECLARED field**, not a dynamically-attached attribute (dynamic attrs
+  break on frozen/slotted classes and are lost on clone). Add `_overrides` to the reviser
+  base / shared construction path so every concrete reviser carries it explicitly. The concurrency
+  test exercises the REAL `build_*_reviewspec → panel → reviewer` path, not `build_panel()` in
+  isolation.
+- **`require_paid=True, allow_paid=False` has an explicit contract**, not silent reinterpretation:
+  it **fails closed with `ModelUnavailable`** carrying an explicit reason (a require-paid requirement
+  with paid disabled admits no candidate). Tested.
+
 ## The design
 
 ### A. `ModelRequirement.require_paid` (contract addition, `model_selection/types.py` + `select.py`)
@@ -83,8 +150,11 @@ if requirement.require_paid and is_free:
 `require_paid=True` is only meaningful with `allow_paid=True`; the paid rung sets both. When paid
 is not admissible (opt-in off / stale credit / over per-call ceiling), select finds NO eligible
 candidate → `ModelUnavailable` (fail closed) — the correct outcome for a rung that demands paid.
-Spec FR-003 + the `ModelRequirement` component description get the new field; bump nothing in the
-policy version (this is a requirement field, not a policy change).
+**Explicit contract for the nonsensical combo `require_paid=True, allow_paid=False`:** it is NOT
+silently reinterpreted — it fails closed with `ModelUnavailable` carrying an explicit reason
+(require-paid excludes every free candidate AND paid is inadmissible → zero candidates). Tested
+directly. Spec FR-003 + the `ModelRequirement` component description get the new field; bump
+nothing in the policy version (this is a requirement field, not a policy change).
 
 ### B. The escalation ladder (`state/execution_status.py`)
 
@@ -126,15 +196,26 @@ collapsed. `LLMXIVE_EXECUTION_PAID_ESCALATION` truthy (or the deprecated
 Function changes:
 - `execution_model_override(...)` (returned a model-id) → **removed**. Replaced by
   `tier_overrides(project_id, *, default_model, repo_root) -> RequirementOverrides`, resolving the
-  CURRENT tier's `TierConstraint`. Corrupt/out-of-range tier → `TierConstraint(allow_paid=False)`
+  CURRENT tier's `TierConstraint`. The persisted `model_tier` is read through `_nonneg_int` (which
+  excludes `bool`), and any valid-but-out-of-range index → `TierConstraint(allow_paid=False)`
   free-only fail-safe (NOT the last rung).
 - `tier_model(tier)` (model-id) → `tier_constraint(tier) -> TierConstraint`, with the same
-  free-only fail-safe for out-of-range.
-- `paid_tier_usable()` → model-agnostic: `paid_opt_in_enabled()` AND a **fresh, cache-bypassing**
-  credit-headroom observation that is **finite and > 0**; fail closed on any error. `next_usable_tier`
-  skips a rung when `constraint.is_paid` and (`free_only` OR not `paid_tier_usable()`).
-- `EXECUTION_PAID_TIERS_ENV` → `PAID_ESCALATION_ENV = "LLMXIVE_EXECUTION_PAID_ESCALATION"`; a
-  private `_legacy_paid_tiers_set()` handles the deprecated var + warning.
+  free-only fail-safe for out-of-range / corrupt.
+- **Bool-safety bug fix (handle-issues-as-you-go):** `model_tier` (:143) and `fix_rounds` (:136)
+  currently use `isinstance(t, int)` WITHOUT excluding `bool`, so a persisted `true` reads as `1`.
+  Route both through `_nonneg_int` (:310, already bool-safe).
+- `paid_tier_usable()` → model-agnostic and **delegates** to a NEW canonical
+  `backends/credits.fresh_paid_headroom_available() -> tuple[bool, str]` (Constitution I: no
+  financial arithmetic in `execution_status.py`). That helper: fetches a **cache-bypassing**
+  balance, applies the canonical `budget_fraction`, rejects **non-finite** spend/max_budget/
+  fraction/cap/headroom, requires opt-in, returns `False` when headroom `<= 0`, and fails closed on
+  any acquisition error. `next_usable_tier` skips a rung when `constraint.is_paid` and (`free_only`
+  OR not `paid_tier_usable()`).
+- `EXECUTION_PAID_TIERS_ENV` → `PAID_ESCALATION_ENV = "LLMXIVE_EXECUTION_PAID_ESCALATION"`. Env
+  precedence is EXACT (Round-2 #4): new var present wins (true→on, false/`0`/invalid→off, legacy
+  ignored; invalid warns + fails closed); else legacy nonempty → one rung + one deprecation warning
+  (model-ids ignored); else off. A private `_paid_escalation_enabled()` owns this; booleans parsed
+  with the `{"1","true","yes","on"}` idiom.
 
 **Layered paid enforcement (documented):** `paid_tier_usable()` = coarse "paid globally enabled
 + some daily headroom" state-machine filter · `select()` = per-call worst-case cost ≤ ceiling ·
@@ -155,9 +236,27 @@ class RequirementOverrides:
 Frozen/immutable → safe to share read-only across the panel `ThreadPoolExecutor`; fixed field set
 → no key collisions with routing-control params (`profile`, `max_tokens`, `snapshot`,
 `ledger_repo`, `backend_factory`). `route_chat` gains one `overrides: RequirementOverrides | None`
-param and centralizes the mapping in ONE place: `allow_paid` → the `allow_paid_eff` derivation;
-`require_paid`/`exclude_models`/`max_credits` → merged into `build_requirement`. The legacy
-`**requirement_overrides` catch-all on `route_chat` is REMOVED (typed replaces untyped).
+param and centralizes the mapping in ONE place. The legacy `**requirement_overrides` catch-all on
+`route_chat` is REMOVED (typed replaces untyped; convert any existing `route.py` tests exercising
+the kwarg path).
+
+**`allow_paid` precedence (Round-2 #1):** if BOTH the standalone `allow_paid` param and
+`overrides.allow_paid` are non-`None` → `raise ValueError`. Else `allow_paid_eff` =
+`overrides.allow_paid` (if set) → standalone `allow_paid` (if set) → `snapshot.credit.paid_opt_in`.
+
+**Compose with the base profile — additive/tightening, never replace (Round-2 #2):** `route_chat`
+builds the base requirement from the profile first, then `replace`s with the MERGE:
+```python
+base = build_requirement(profile, call_budget, independence_against=independence_against)
+req  = replace(base,
+    allow_paid=allow_paid_eff,
+    require_paid=base.require_paid or ov.require_paid,
+    exclude_models=base.exclude_models | ov.exclude_models,   # union
+    max_credits=_tighter(base.max_credits, ov.max_credits))    # tighter non-None (min)
+```
+`_tighter(a, b)` = the set one when only one is set, else `min(a, b)`. Future set-valued override
+fields union unless documented otherwise. (When `overrides is None`, `req = base` and today's
+snapshot-derived `allow_paid` behavior is unchanged.)
 
 ### D. Threading (rides parallel to the existing `model=`; default `None` everywhere)
 
@@ -169,10 +268,11 @@ param and centralizes the mapping in ONE place: `allow_paid` → the `allow_paid
   `chat_with_fallback(overrides=...)` call.
 - `convergence/reviewspecs.py`: the ~10 `build_*_reviewspec` + `_wire_live_panel` +
   `llm_reviewer.build_panel` + `LLMReviewer.__init__` (stores `self._overrides`) thread the
-  overrides; `_call_backend` passes `overrides=self._overrides`. **Revisers get `_overrides` at
-  CONSTRUCTION** (each `build_*_reviewspec` sets it on the reviser object it builds — not only
-  the panel side); `invoke_reviser_backend` reads `getattr(reviser, "_overrides", None)` and
-  passes it to `reasoning_chat(overrides=...)`.
+  overrides; `_call_backend` passes `overrides=self._overrides`. **Revisers carry `_overrides` as a
+  DECLARED field** on the reviser base / shared construction path (NOT a dynamically-attached
+  attribute — that breaks on frozen/slotted classes and is lost on clone), set when each concrete
+  reviser is constructed in `build_*_reviewspec` (not only the panel side); `invoke_reviser_backend`
+  reads it and passes it to `reasoning_chat(overrides=...)`.
 - The 7 speckit command call sites (`clarify_cmd`, `paper_clarify_cmd`, `plan_cmd`,
   `paper_plan_cmd`, `paper_implement_cmd`, `paper_tasks_cmd`, `_tasker_engine_bridge`) pass
   `requirement_overrides=ctx.requirement_overrides` into their `build_*_reviewspec(...)`.
@@ -211,20 +311,40 @@ param and centralizes the mapping in ONE place: `allow_paid` → the `allow_paid
 ## Required tests (maintainer list — all adopted)
 
 - `tier_overrides`/`tier_constraint`: tier 0 sets `allow_paid=False` even when snapshot opt-in is
-  true; tier 1 sets `allow_paid=False`; invalid/corrupt/out-of-range tier resolves free-only.
+  true; tier 1 sets `allow_paid=False`.
+- **Corrupt `model_tier` full matrix** → all resolve to tier 0 / free-only EXCEPT valid in-range
+  ints: negative int, `bool` (`True`/`False`), `float`, numeric string, huge int, missing.
 - Fabrication (`free_only=True`) never reaches a `is_paid` rung.
-- Tier 1 excludes the default across the WHOLE chain (fixed snapshot: tier 0 = `qwen → gemma-4 →
-  gpt-oss → local`; tier 1 = `gemma-4 → gpt-oss → local`), leader is gemma-4.
+- **Explicit tier golden** (fixed snapshot, default = qwen3.5), stated per-tier — not just "free
+  before paid":
+  - tier 0: `qwen → gemma-4 → gpt-oss → local`
+  - tier 1: `gemma-4 → gpt-oss → local` (default excluded across the WHOLE chain; leader gemma-4)
+  - tier 2: `claude` — **paid-only** (require_paid excludes all free; "all free before paid" is
+    vacuously true here, so assert the paid-only leader explicitly).
 - **AC1 / Independent Test**: each tier's overrides fed through `select()` under a fixed snapshot +
-  credit state reproduce the free→paid ordering (all free before any paid).
+  credit state reproduce the above free→paid ordering.
+- `require_paid=True, allow_paid=False` fails closed with `ModelUnavailable` (explicit reason).
+- **`allow_paid` precedence**: both standalone param + `overrides.allow_paid` set → `ValueError`;
+  otherwise overrides wins, then standalone, then snapshot opt-in.
+- **Compose-with-base-profile merge**: synthetic base profile carrying an existing `exclude_models`
+  entry + a `max_credits` → overrides UNION the exclusions and take the TIGHTER `max_credits`
+  (neither erased); `require_paid` is `base OR override`.
+- **Env precedence matrix**: `LLMXIVE_EXECUTION_PAID_ESCALATION` true / false / `0` / blank /
+  invalid(→warn+off) / legacy-`PAID_TIERS`-only(→one rung + one warning) / both-set(new wins,
+  legacy ignored) / duplicate legacy values / warn-emitted-once. Explicit new `=0` overrides a
+  lingering legacy list.
+- **Canonical headroom helper** (`fresh_paid_headroom_available`): opt-in off → False; non-finite
+  spend/max_budget/fraction → False (fail closed); headroom `<= 0` → False; acquisition error →
+  False; healthy → True. `paid_tier_usable` delegates (no arithmetic of its own).
 - A paid rung reaches a paid candidate on *semantic* free exhaustion (require_paid), not only when
   every free backend is unavailable.
 - Multiple configured paid rungs are collapsed/rejected (never duplicated).
-- Missing/low/non-finite headroom skips paid rungs; per-call cost too high still fails closed in
-  `select()`.
+- Per-call cost too high still fails closed in `select()`.
 - Override propagation reaches all five hops: direct SlashCommand exec, every reviewspec builder,
-  panel reviewers **concurrently across the thread pool** (each gets the same immutable value, no
-  cross-review mutation), revisers, and the final `route_chat`.
+  panel reviewers **concurrently across the thread pool** exercised through the REAL
+  `build_*_reviewspec → panel → reviewer` path (not `build_panel` in isolation) — each reviewer
+  gets the same immutable value, no cross-review mutation — revisers (declared `_overrides` field),
+  and the final `route_chat`.
 - Existing `model_tier` / reset / re-plan / fabrication routing tests (`test_execution_exhaustion_flow`,
   `test_execution_replan_cap`, `test_convergence_kickback_flow`) unchanged in OUTCOME; only their
   model-id-literal assertions become constraint assertions.
@@ -235,9 +355,10 @@ param and centralizes the mapping in ONE place: `allow_paid` → the `allow_paid
 | file | change |
 |-|-|
 |`model_selection/types.py`|`ModelRequirement.require_paid`; `RequirementOverrides` dataclass|
-|`model_selection/select.py`|one-line `require_paid` free-exclusion in the paid guard|
-|`model_selection/route.py`|`overrides: RequirementOverrides` param; centralized mapping; drop `**requirement_overrides`|
-|`state/execution_status.py`|`TierConstraint`; `tier_overrides`/`tier_constraint`; `model_tier_ladder`→constraints; `paid_tier_usable` model-agnostic; `PAID_ESCALATION_ENV` + legacy deprecation; remove `FREE_MODEL_TIERS`/`execution_model_override`/`tier_model`|
+|`model_selection/select.py`|one-line `require_paid` free-exclusion in the paid guard; explicit `ModelUnavailable` reason for `require_paid ∧ ¬allow_paid`|
+|`model_selection/route.py`|`overrides: RequirementOverrides` param; `allow_paid` precedence + ValueError; compose/tighten merge with the base profile; drop `**requirement_overrides`|
+|`backends/credits.py`|NEW canonical `fresh_paid_headroom_available()` (cache-bypassing, non-finite-rejecting, opt-in-gated, fail-closed)|
+|`state/execution_status.py`|`TierConstraint`(+`is_paid`); `tier_overrides`/`tier_constraint`; `model_tier_ladder`→constraints; `paid_tier_usable` delegates to credits helper; `_paid_escalation_enabled()` + exact env precedence + legacy deprecation; `model_tier`/`fix_rounds` bool-safety via `_nonneg_int`; remove `FREE_MODEL_TIERS`/`execution_model_override`/`tier_model`|
 |`backends/router.py`|`overrides` param on the 4 walkers → `route_chat`|
 |`speckit/slash_command.py`|`SlashCommandContext.requirement_overrides`; `run()` forwards it|
 |`convergence/reviewspecs.py`|thread `requirement_overrides` through builders/`_wire_live_panel`; set reviser `_overrides` at construction|
@@ -250,14 +371,20 @@ param and centralizes the mapping in ONE place: `allow_paid` → the `allow_paid
 
 ## Delivery order (TDD per slice; commit after each green step)
 
-1. `require_paid` field + select gate (+ unit tests: require_paid excludes free; fails closed).
-2. `RequirementOverrides` typed contract + `route_chat` `overrides=` param + centralized mapping
-   (+ tests incl. the `allow_paid`-collision regression).
-3. `execution_status` ladder → `TierConstraint`/`tier_overrides` + `PAID_ESCALATION` env +
-   deprecation (+ the tier/fabrication/corrupt-state tests; convert the exhaustion-flow assertions).
-4. Walker `overrides` threading (`router.py`) (+ walker→route_chat propagation tests).
-5. Speckit + convergence threading (context, agent, reviewspecs, reviewer, reviser) (+ the
-   5-hop + concurrent-reviewer propagation tests).
-6. Graph rewiring (dispatch + escalation logs) (+ the routing tests stay green).
-7. Spec delta + manifest regen (+ inventory test update; frozen drift test green).
-8. Full non-slow backstop; ruff; `git diff --check`; regenerate the resume handoff note.
+1. `require_paid` field + select gate + explicit `ModelUnavailable` for `require_paid ∧ ¬allow_paid`
+   (+ unit tests: require_paid excludes free; the nonsensical combo fails closed with a reason).
+2. `RequirementOverrides` typed contract + `route_chat` `overrides=` param + `allow_paid` precedence
+   (ValueError on double-supply) + compose/tighten merge with the base profile (+ tests: the
+   collision `ValueError`, the synthetic-base-profile union/tighten merge, snapshot-derived default
+   when `overrides is None`).
+3. Canonical `backends/credits.fresh_paid_headroom_available()` (+ its fail-closed/non-finite tests).
+4. `execution_status` ladder → `TierConstraint`/`tier_overrides` + `_paid_escalation_enabled()` exact
+   env precedence + legacy deprecation + `paid_tier_usable` delegating to the credits helper +
+   `model_tier`/`fix_rounds` bool-safety (+ the tier golden / fabrication / corrupt-state-matrix /
+   env-matrix tests; convert the exhaustion-flow model-id assertions to constraint assertions).
+5. Walker `overrides` threading (`router.py`) (+ walker→route_chat propagation tests).
+6. Speckit + convergence threading (context, agent, reviewspecs, reviewer, reviser) (+ the
+   5-hop + concurrent-reviewer propagation tests through the real reviewspec→panel→reviewer path).
+7. Graph rewiring (dispatch + escalation logs) (+ the routing tests stay green).
+8. Spec delta + manifest regen (+ inventory test update; frozen drift test green).
+9. Full non-slow backstop; ruff; `git diff --check`; regenerate the resume handoff note.
