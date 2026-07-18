@@ -1,27 +1,23 @@
-# Core data science and machine learning
+# Core Data Science & Chemistry
+rdkit>=2023.9.5
 pandas>=2.0.0
 numpy>=1.24.0
 scikit-learn>=1.3.0
 scipy>=1.11.0
-
-# Molecular chemistry
-rdkit>=2023.9.1
-
-# Visualization
 matplotlib>=3.7.0
 seaborn>=0.12.0
-
-# Data loading and processing
-datasets>=2.14.0
+pyyaml>=6.0
 requests>=2.31.0
 
-# Configuration and serialization
-pyyaml>=6.0
-pydantic>=2.0.0
+# Data Loading
+datasets>=2.14.0
 
-# Testing
+# Testing & Quality
 pytest>=7.4.0
+pytest-cov>=4.1.0
+ruff>=0.1.0
+black>=23.0.0
 
-# Code quality (optional, not required for execution)
-# ruff>=0.1.0
-# black>=23.0.0
+# Utilities
+pydantic>=2.0.0
+tqdm>=4.65.0

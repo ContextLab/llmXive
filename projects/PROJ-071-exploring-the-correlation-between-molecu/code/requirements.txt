@@ -1,0 +1,17 @@
+# Project dependencies for PROJ-071
+# Added for T022a: Sensitivity Analysis (scipy is required for stats)
+
+# Core
+rdkit
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+pyyaml
+requests
+datasets
+
+# Sensitivity Analysis & Stats (T022a)
+scipy
+pytest

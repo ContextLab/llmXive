@@ -4,14 +4,6 @@ T017:
   r: "The required `data/processed/merged_drugs.csv` file does not exist, and `data/checksums.txt`\
     \ contains only placeholder comments rather than actual SHA256 checksums of generated\
     \ artifacts. Both required outputs are missing or non\u2011functional."
-T022a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided only a textual statement that the sensitivity\u2011\
-    analysis task was \u201Cremoved/rejected\u201D and supplied no code, data, plots,\
-    \ or report implementing or documenting any sensitivity analysis. Since the required\
-    \ artifact (e.g., analysis results or methodology) is missing, the task is not\
-    \ genuinely satisfied."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,27 +11,6 @@ T036:
     \ or the `results_report.md` were presented, nor any evidence (e.g., directory\
     \ listings, file size checks) confirming their existence and non\u2011zero size.\
     \ The implementer must provide the actual files or proof they were saved as required."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, diff, or report was provided showing that hard\u2011coded file paths\
-    \ were removed or that a refactoring/cleanup was performed. Without any artifact\
-    \ to inspect, we cannot confirm the task was completed. The implementer must supply\
-    \ the updated source files (or a summary of changes) demonstrating the removal\
-    \ of hard\u2011coded paths."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided that demonstrates chunked processing\
-    \ for datasets larger than 5\u202FGB, nor any performance tests or configuration\
-    \ changes. The required artifact proving the optimization is missing."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no new unit\u2011test files, test cases, or test\u2011\
-    run output showing coverage of edge cases; instead they merely argued that existing\
-    \ tests and error\u2011logging suffice. Since the task explicitly required additional\
-    \ edge\u2011case unit tests, the required artifacts are missing."
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -54,3 +25,10 @@ T042:
     \ time, defines the operational threshold, or demonstrates validation against\
     \ that threshold. Consequently the requirement to \u201CValidate pipeline execution\
     \ time against a defined operational threshold\u201D is not satisfied."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or documentation artifact was provided for the \u201CSeparate\
+    \ `scipy` fallback\u201D task, and the claim that the logic was merged into T025\
+    \ is not substantiated with any tangible evidence. Consequently, the required\
+    \ implementation is missing."

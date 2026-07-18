@@ -1,153 +1,43 @@
 # Quick Start Guide
 
-## Overview
+## Getting Started
 
-This project explores the correlation between molecular complexity and degradation rates in pharmaceuticals. The pipeline ingests FDA-approved drug structures, calculates molecular descriptors, performs correlation analysis, and generates visualizations and reports.
+1. **Install Dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-## Prerequisites
+2. **Run the Pipeline**:
+ ```bash
+ python code/pipeline_runner.py
+ ```
 
-- Python 3.9+
-- pip package manager
-- 7GB+ RAM recommended
+3. **View Results**:
+ - Analysis results: `data/processed/analysis_results.json`
+ - Plots: `data/outputs/`
+ - Report: `results_report.md`
 
-## Installation
+## Key Steps
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd projects/PROJ-071-exploring-the-correlation-between-molecu
-```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Verify installation:
-```bash
-python -c "import rdkit; print('RDKit installed successfully')"
-```
-
-## Running the Pipeline
-
-### Full Pipeline Execution
-
-Run the complete pipeline from data ingestion to report generation:
-
-```bash
-python code/pipeline_runner.py
-```
-
-This will:
-1. Fetch FDA-approved drug structures from HuggingFace
-2. Check data availability (minimum 30 samples required)
-3. Calculate molecular descriptors (TPSA, MW, Rotatable Bonds, etc.)
-4. Perform correlation analysis and regression modeling
-5. Generate visualizations and reproducibility reports
-
-### Individual Components
-
-#### Data Ingestion
-```bash
-python code/ingest.py
-```
-
-#### Descriptor Calculation
-```bash
-python code/descriptors.py
-```
-
-#### Analysis
-```bash
-python code/analysis.py
-```
-
-#### Visualization
-```bash
-python code/viz.py
-```
-
-#### Report Generation
-```bash
-python code/report.py
-```
-
-### Performance Validation
-
-Validate that the pipeline meets operational latency requirements:
-
-```bash
-python code/validate_performance.py
-```
-
-This script:
-- Executes the full pipeline
-- Measures total execution time
-- Compares against the configured threshold (default: 300 seconds)
-- Generates a validation report at `data/processed/performance_validation.json`
-
-Exit codes:
-- 0: Validation passed (execution successful and within threshold)
-- 1: Validation failed (execution failed or exceeded threshold)
-
-## Output Files
-
-The pipeline generates the following outputs:
-
-- `data/processed/merged_drugs.csv`: Combined structural and degradation data
-- `data/processed/analysis_results.json`: Correlation and regression results
-- `data/outputs/scatter_tpsa_vs_half_life.png`: Scatter plot with regression line
-- `data/outputs/residuals.png`: Residual diagnostic plots
-- `data/outputs/qq_plot.png`: Q-Q plot for residual normality
-- `results_report.md`: Comprehensive results report
-- `reproducibility_log.json`: Machine-readable reproducibility metadata
-- `data/processed/performance_validation.json`: Performance validation results
-
-## Testing
-
-Run the test suite:
-
-```bash
-pytest tests/ -v
-```
-
-Run specific test modules:
-
-```bash
-pytest tests/test_descriptors.py -v
-pytest tests/test_analysis.py -v
-pytest tests/test_performance_validation.py -v
-```
-
-## Configuration
-
-Key configuration options can be modified in `code/config.py`:
-
-- `PERFORMANCE_THRESHOLD_SECONDS`: Maximum allowed execution time (default: 300)
-- `MIN_SAMPLES`: Minimum number of samples for data availability gate (default: 30)
-- `CORRELATION_THRESHOLD`: Minimum |r| for significant correlation (default: 0.5)
-- `P_VALUE_THRESHOLD`: Maximum p-value for significance (default: 0.05)
+1. **Data Ingestion**: Fetches FDA-approved drugs from HuggingFace.
+2. **Descriptor Calculation**: Computes molecular complexity metrics.
+3. **Standardization**: Converts rate constants to half-lives and filters for standard conditions.
+4. **Analysis**: Performs correlation analysis and regression modeling.
+5. **Visualization**: Generates diagnostic plots.
+6. **Reporting**: Creates a comprehensive report with reproducibility metadata.
 
 ## Troubleshooting
 
-### Data Availability Gate Failed
+- **Data Insufficiency**: If the dataset size is below 30, the pipeline will generate a `data_insufficiency_report.md` and exit.
+- **Missing Columns**: Ensure the dataset contains necessary columns (e.g., `half_life`, `degradation_rate`).
+- **Invalid SMILES**: Invalid SMILES strings are logged to `data/errors.log`.
 
-If you see "Data availability gate failed: N < 30", the dataset does not contain enough samples with both structural and degradation data. The pipeline will generate a `data_insufficiency_report.md` explaining the issue.
+## Configuration
 
-### Memory Issues
+Edit `config.yaml` to customize paths and settings.
 
-If you encounter memory errors, ensure you have at least 7GB of available RAM. The pipeline uses streaming for large datasets where possible.
+## Next Steps
 
-### Logging
-
-All pipeline logs are written to `data/outputs/pipeline.log`. Check this file for detailed error information.
-
-## Data Sources
-
-- FDA-approved drugs: HuggingFace dataset `Synthyra/FDA-Approved-Drugs`
-- Molecular descriptors: Calculated using RDKit
-- Degradation data: Extracted from the FDA dataset (if available)
-
-## License
-
-This project is for research purposes only. See LICENSE for details.
+- Explore the correlation results in `analysis_results.json`.
+- Review the diagnostic plots in `data/outputs/`.
+- Read the full report in `results_report.md`.

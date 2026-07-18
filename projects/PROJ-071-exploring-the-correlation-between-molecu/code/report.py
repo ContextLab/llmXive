@@ -6,17 +6,20 @@ import importlib.metadata
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+import pandas as pd
+
 from config import get_config
 from logging_config import get_logger
 
-# Use config for paths
-def get_data_path(relative_path: str) -> Path:
+logger = get_logger(__name__)
+
+def get_data_path():
     config = get_config()
-    return Path(config.get("data_dir", "data")) / relative_path
+    return Path(config.get("data_dir", "data"))
 
 def calculate_file_hash(file_path: Path) -> str:
     """
-    Calculates SHA256 hash of a file.
+    Calculate SHA256 hash of a file.
     """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -26,16 +29,16 @@ def calculate_file_hash(file_path: Path) -> str:
 
 def get_package_version(package_name: str) -> str:
     """
-    Gets version of a package.
+    Get the version of a package.
     """
     try:
         return importlib.metadata.version(package_name)
     except importlib.metadata.PackageNotFoundError:
-        return "Unknown"
+        return "Not found"
 
 def collect_reproducibility_metadata() -> Dict[str, Any]:
     """
-    Collects reproducibility metadata.
+    Collect reproducibility metadata including versions, URLs, and hashes.
     """
     metadata = {
         'timestamp': datetime.now().isoformat(),
@@ -46,76 +49,91 @@ def collect_reproducibility_metadata() -> Dict[str, Any]:
             'numpy': get_package_version('numpy'),
             'matplotlib': get_package_version('matplotlib'),
             'seaborn': get_package_version('seaborn'),
-            'scipy': get_package_version('scipy'),
-            'statsmodels': get_package_version('statsmodels')
+            'pyyaml': get_package_version('pyyaml'),
+            'requests': get_package_version('requests'),
+            'datasets': get_package_version('datasets')
         },
-        'data_files': {}
+        'dataset_url': "Synthyra/FDA-Approved-Drugs",
+        'retrieval_date': datetime.now().strftime('%Y-%m-%d'),
+        'file_hashes': {}
     }
     
-    # Add file hashes
-    data_dir = get_data_path("")
-    for file in data_dir.glob("**/*"):
-        if file.is_file():
-            metadata['data_files'][str(file)] = calculate_file_hash(file)
+    # Calculate hashes for data files
+    data_dir = get_data_path()
+    raw_file = data_dir / "raw" / "fda_drugs.csv"
+    processed_file = data_dir / "processed" / "merged_drugs.csv"
+    analysis_file = data_dir / "processed" / "analysis_results.json"
+    
+    if raw_file.exists():
+        metadata['file_hashes']['raw'] = calculate_file_hash(raw_file)
+    if processed_file.exists():
+        metadata['file_hashes']['processed'] = calculate_file_hash(processed_file)
+    if analysis_file.exists():
+        metadata['file_hashes']['analysis'] = calculate_file_hash(analysis_file)
     
     return metadata
 
 def save_reproducibility_report(metadata: Dict[str, Any], output_path: Path):
     """
-    Saves reproducibility report to JSON.
+    Save reproducibility report to a JSON file.
     """
     with open(output_path, 'w') as f:
         json.dump(metadata, f, indent=2)
+    logger.info(f"Saved reproducibility report to {output_path}")
 
 def append_reproducibility_to_markdown(metadata: Dict[str, Any], report_path: Path):
     """
-    Appends reproducibility metadata to markdown report.
+    Append reproducibility metadata to the results report.
     """
+    report_content = f"""
+    # Reproducibility Report
+
+    **Generated**: {metadata['timestamp']}
+
+    ## Package Versions
+    - RDKit: {metadata['packages']['rdkit']}
+    - Pandas: {metadata['packages']['pandas']}
+    - Scikit-learn: {metadata['packages']['scikit-learn']}
+    - NumPy: {metadata['packages']['numpy']}
+    - Matplotlib: {metadata['packages']['matplotlib']}
+    - Seaborn: {metadata['packages']['seaborn']}
+    - PyYAML: {metadata['packages']['pyyaml']}
+    - Requests: {metadata['packages']['requests']}
+    - Datasets: {metadata['packages']['datasets']}
+
+    ## Dataset Information
+    - URL: {metadata['dataset_url']}
+    - Retrieval Date: {metadata['retrieval_date']}
+
+    ## File Hashes
+    - Raw Data: {metadata['file_hashes'].get('raw', 'Not found')}
+    - Processed Data: {metadata['file_hashes'].get('processed', 'Not found')}
+    - Analysis Results: {metadata['file_hashes'].get('analysis', 'Not found')}
+    """
+    
     with open(report_path, 'a') as f:
-        f.write("\n## Reproducibility Information\n\n")
-        f.write(f"- **Timestamp**: {metadata['timestamp']}\n\n")
-        f.write("### Package Versions\n\n")
-        for pkg, ver in metadata['packages'].items():
-            f.write(f"- {pkg}: {ver}\n")
-        f.write("\n### Data File Hashes\n\n")
-        for file, hash_val in metadata['data_files'].items():
-            f.write(f"- `{file}`: {hash_val}\n")
+        f.write(report_content.strip())
+    logger.info(f"Appended reproducibility metadata to {report_path}")
 
 def main():
-    """
-    Main entry point for report generation.
-    """
-    logger = get_logger(__name__)
-    logger.info("Starting report generation...")
-    
     config = get_config()
-    data_dir = Path(config.get("data_dir", "data"))
-    outputs_dir = data_dir / "outputs"
+    logger.info("Starting report generation")
     
     # Collect metadata
     metadata = collect_reproducibility_metadata()
     
-    # Save JSON report
-    json_path = data_dir / "reproducibility_log.json"
-    save_reproducibility_report(metadata, json_path)
+    # Save reproducibility report
+    output_path = get_data_path() / "reproducibility_log.json"
+    save_reproducibility_report(metadata, output_path)
     
-    # Generate markdown report
-    md_path = data_dir.parent / "results_report.md"
-    with open(md_path, 'w') as f:
-        f.write("# Research Results Report\n\n")
-        f.write("## Summary\n\n")
-        f.write("This report summarizes the correlation analysis between molecular complexity and degradation rates.\n\n")
-        f.write("## Methodology\n\n")
-        f.write("- Data sourced from HuggingFace: Synthyra/FDA-Approved-Drugs\n")
-        f.write("- Molecular descriptors calculated using RDKit\n")
-        f.write("- Correlation analysis performed using Pearson and Spearman methods\n")
-        f.write("- Regression models: MLR and LASSO with K=5 cross-validation\n\n")
-        
-        # Append reproducibility info
-        append_reproducibility_to_markdown(metadata, md_path)
+    # Append to results report
+    results_report_path = Path("results_report.md")
+    if results_report_path.exists():
+        append_reproducibility_to_markdown(metadata, results_report_path)
+    else:
+        logger.warning("Results report not found. Skipping append.")
     
-    logger.info(f"Report generated at {md_path}")
-    logger.info(f"Reproducibility log saved at {json_path}")
+    logger.info("Report generation complete")
 
 if __name__ == "__main__":
     main()

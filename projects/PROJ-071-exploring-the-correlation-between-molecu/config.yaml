@@ -1,2 +1,4 @@
 data_dir: data
+code_dir: code
 output_dir: data/outputs
+log_level: INFO
