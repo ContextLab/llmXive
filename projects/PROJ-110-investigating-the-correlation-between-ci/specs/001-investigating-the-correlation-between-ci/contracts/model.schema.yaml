@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Logistic Regression Model Results Schema"
+description: "Schema for the logistic regression coefficients and diagnostics. VIF is calculated for all predictors."
+type: "object"
+properties:
+  Predictor:
+    type: "string"
+    description: "Name of the predictor variable."
+  Coefficient:
+    type: "number"
+    description: "Log-odds coefficient."
+  Std_Error:
+    type: "number"
+    description: "Standard error of the coefficient."
+  Odds_Ratio:
+    type: "number"
+    description: "Exponentiated coefficient (Odds Ratio)."
+  CI_Lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval."
+  CI_Upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval."
+  P_Value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the coefficient."
+  VIF:
+    type: "number"
+    description: "Variance Inflation Factor. Calculated for all predictors."
+  Collinearity_Flag:
+    type: "boolean"
+    description: "True if VIF > 5."
+required:
+  - Predictor
+  - Coefficient
+  - Std_Error
+  - Odds_Ratio
+  - CI_Lower
+  - CI_Upper
+  - P_Value
+  - VIF
+  - Collinearity_Flag
+additionalProperties: false

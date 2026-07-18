@@ -2,100 +2,71 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to GitHub Actions (for CI) or local environment.
-- **GTEx v8 Phenotype and RNA-seq Data**: The pipeline requires the specific GTEx v8 files containing clinical variables (BMI, Glucose, BP, Lipids). If these are not available in the `data/raw/` directory, the pipeline will halt with a "Data Gap" error.
+*   Python 3.11+
+*   Git
+*   Access to a terminal with network access (for downloading datasets).
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project directory):
-   ```bash
-   cd projects/PROJ-110-investigating-the-correlation-between-ci
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repository-url>
+    cd projects/PROJ-110-investigating-the-correlation-between-ci
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` will pin specific versions of `pandas`, `scipy`, `scikit-learn`, etc.*
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-## Data Setup
+4.  **Verify environment**:
+    ```bash
+    python -c "import pandas, scipy, statsmodels, sklearn; print('Dependencies OK')"
+    ```
 
-The pipeline attempts to download data from the verified HuggingFace URLs defined in `research.md`. **Note**: If the verified URLs do not contain the required clinical variables, the pipeline will halt.
+## Running the Pipeline
 
-1. **Run the data download script**:
-   ```bash
-   python code/data/loader.py --download
-   ```
-   - This will fetch the GTEx phenotype and expression files from the verified URLs.
-   - Files are saved to `data/raw/`.
-   - Checksums are recorded in `state/.../artifact_hashes.yaml`.
+The pipeline is designed to run end-to-end. It will download data (if missing), classify samples, run statistical tests, and generate plots.
 
-2. **Verify Data Integrity**:
-   ```bash
-   python code/data/loader.py --verify
-   ```
-   - Ensures required columns (BMI, Glucose, BP, Lipids) are present.
-   - **If columns are missing**: The script will halt and report "Data Gap - Study Invalid for Primary Hypothesis".
+1.  **Execute the main script**:
+    ```bash
+    python code/main.py
+    ```
 
-## Running the Analysis
+    *   **Step 1**: Downloads GTEx/TCGA data to `data/raw/`.
+    *   **Step 2**: Validates columns and classifies samples (ATP-III).
+    *   **Step 3**: Runs Wilcoxon tests (Differential Expression).
+    *   **Step 4**: Fits Logistic Regression with 5-fold CV.
+    *   **Step 5**: Generates plots (ROC, Heatmap, Scatter) in `data/processed/figures/`.
 
-Execute the full pipeline:
+2.  **Check outputs**:
+    *   **Classification**: `data/processed/baseline_labels.csv`
+    *   **DE Results**: `data/processed/results/differential_expression.csv`
+    *   **Model Results**: `data/processed/results/logistic_regression.csv`
+    *   **Plots**: `data/processed/figures/` (e.g., `roc_curve.png`, `heatmap_sig_genes.png`)
 
-```bash
-python code/main.py
-```
+## Unit Testing
 
-This script will:
-1. Load and clean data.
-2. **Power Analysis**: Estimate complete case count (N) and perform formal power analysis.
-3. Classify donors (ATP-III).
-4. Run Differential Expression (Wilcoxon + FDR).
-5. Fit Logistic Regression (5-fold CV, global model with tissue covariate).
-6. **Correlation Analysis**: Compute correlations with continuous traits.
-7. **Sensitivity Analysis**: Vary ATP-III thresholds.
-8. Generate plots (Heatmap, ROC, Scatter).
-9. Save results to `data/processed/`.
-10. **Versioning**: Update state file with content hashes.
-
-## Generating Reports
-
-To generate the summary report (JSON/CSV) and plots:
+Run the test suite to verify logic (especially ATP-III classification and statistical methods):
 
 ```bash
-python code/main.py --report
+pytest tests/ -v
 ```
 
-Output files:
-- `data/processed/results/differential_expression.csv`
-- `data/processed/results/correlation_results.csv`
-- `data/processed/results/sensitivity_analysis.csv`
-- `data/processed/results/model_metrics.json`
-- `data/processed/plots/heatmap.png`
-- `data/processed/plots/roc_curve.png`
-- `data/processed/plots/correlation_scatter.png`
-
-## Testing
-
-Run the test suite:
-
-```bash
-pytest tests/
-```
-
-- **Unit Tests**: Verify ATP-III classification logic.
-- **Integration Tests**: Verify end-to-end pipeline execution on a small sample subset.
+*   **Key Tests**:
+    *   `test_classifier_atp_iii`: Verifies correct labeling of MetS vs Control.
+    *   `test_missing_data_exclusion`: Verifies that samples with missing values are excluded.
+    *   `test_fdr_correction`: Verifies Benjamini-Hochberg implementation.
+    *   `test_vif_detection`: Verifies collinearity flagging.
 
 ## Troubleshooting
 
-- **Missing Columns**: If the pipeline fails with "Missing Phenotype Variables", check `research.md` for the current status of the verified GTEx URLs. The specific files listed may not contain the required clinical data. In this case, the study cannot proceed with the primary hypothesis.
-- **Memory Error**: If running out of RAM, ensure the gene filtering step (to ~15 core genes) is active. The pipeline is designed to load only these genes.
-- **No Significant Genes**: This is a valid result. Check `data/processed/results/differential_expression.csv` for raw p-values.
-- **Power Warning**: If N < 100, the pipeline will log a warning but proceed in "Exploratory" mode.
+*   **Missing Columns in Dataset**: If the script fails with "Missing column: [X]", the verified dataset URL may not contain the required phenotype data. Check `research.md` for the dataset strategy and potential power limitations.
+*   **Memory Error**: If the dataset is too large, the script will automatically switch to a sampled subset (if configured) or fail with a clear message. Ensure you have at least 7 GB RAM available.
+*   **Collinearity Warnings**: If VIF > 5 is detected, the model will flag the predictors. Review `data/processed/results/logistic_regression.csv` for the `VIF` column.

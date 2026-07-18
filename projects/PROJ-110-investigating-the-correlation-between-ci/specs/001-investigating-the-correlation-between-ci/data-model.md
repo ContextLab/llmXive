@@ -2,90 +2,69 @@
 
 ## Overview
 
-This document defines the data structures used throughout the pipeline. The model is designed to support the classification of Metabolic Syndrome, differential expression analysis, predictive modeling, correlation analysis, and sensitivity analysis.
-
-## Key Entities
-
-### 1. Donor (Sample)
-Represents a human subject sample from the GTEx dataset.
-
-| Attribute | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `sample_id` | string | Unique GTEx sample identifier. | GTEx Phenotype |
-| `donor_id` | string | Unique donor identifier (may link multiple tissues). | GTEx Phenotype |
-| `age` | int | Age of donor at death. | GTEx Phenotype |
-| `sex` | string | 'M' or 'F'. | GTEx Phenotype |
-| `tissue` | string | Tissue source (e.g., 'Liver', 'Adipose'). | GTEx Phenotype |
-| `bmi` | float | Body Mass Index (kg/m²). | GTEx Phenotype |
-| `glucose` | float | Fasting glucose (mg/dL). | GTEx Phenotype |
-| `systolic_bp` | float | Systolic blood pressure (mmHg). | GTEx Phenotype |
-| `diastolic_bp` | float | Diastolic blood pressure (mmHg). | GTEx Phenotype |
-| `triglycerides` | float | Triglycerides (mg/dL). | GTEx Phenotype |
-| `hdl` | float | HDL cholesterol (mg/dL). | GTEx Phenotype |
-| `metabolic_status` | string | 'MetS' or 'Control'. | Derived (ATP-III) |
-| `criteria_count` | int | Number of ATP-III criteria met (0-5). | Derived |
-
-### 2. GeneExpression
-Represents the transcript abundance for a specific gene in a specific sample.
-
-| Attribute | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `sample_id` | string | FK to Donor. | GTEx RNA-seq |
-| `gene_symbol` | string | Gene symbol (e.g., 'PER1', 'BMAL1'). | GTEx RNA-seq |
-| `tpm` | float | Transcripts Per Million (raw). | GTEx RNA-seq |
-| `log_tpm` | float | Log10(TPM + 1) transformed value. | Derived |
-
-### 3. AnalysisResult (Differential Expression)
-Stores the output of statistical tests.
-
-| Attribute | Type | Description |
-| :--- | :--- | :--- |
-| `gene_symbol` | string | Gene tested. |
-| `tissue` | string | Tissue type. |
-| `test_statistic` | float | Wilcoxon W or U statistic. |
-| `raw_p_value` | float | Uncorrected p-value. |
-| `adj_p_value` | float | Benjamini-Hochberg adjusted p-value. |
-| `effect_size` | float | Rank-biserial correlation or similar. |
-| `significant` | bool | True if `adj_p_value` < 0.05. |
-
-### 4. CorrelationResult
-Stores the output of correlation analysis (FR-007).
-
-| Attribute | Type | Description |
-| :--- | :--- | :--- |
-| `gene_symbol` | string | Gene tested. |
-| `trait` | string | Trait name (e.g., 'BMI', 'Glucose'). |
-| `correlation_method` | string | 'Spearman' or 'Pearson'. |
-| `correlation_coefficient` | float | r value. |
-| `p_value` | float | Raw p-value. |
-| `adj_p_value` | float | FDR adjusted p-value (if applicable). |
-| `significant` | bool | True if `adj_p_value` < 0.05. |
-
-### 5. SensitivityAnalysisResult
-Stores the output of sensitivity analysis (SC-005).
-
-| Attribute | Type | Description |
-| :--- | :--- | :--- |
-| `threshold_variant` | string | Description of threshold variation (e.g., "BMI ±5%"). |
-| `baseline_metS_count` | int | Number of MetS cases in baseline. |
-| `variant_metS_count` | int | Number of MetS cases in variant. |
-| `reclassification_rate` | float | % of samples reclassified. |
+This document defines the data structures, schemas, and transformations used in the project. It ensures that all data artifacts adhere to the project constitution's requirements for hygiene, reproducibility, and traceability.
 
 ## Data Flow
 
-1. **Raw Input:** GTEx Phenotype (CSV/TSV) + GTEx RNA-seq TPM (Matrix).
-2. **Cleaning:**
-   - Filter rows where any of the 5 clinical variables are missing/null/invalid.
-   - Apply log transformation: `log_tpm = log10(tpm + 1)`.
-   - **Filter Genes**: Keep only core circadian genes.
-3. **Classification:**
-   - Apply ATP-III rules to `Donor` table to generate `metabolic_status` and `criteria_count`.
-   - Exclude samples with missing data (handled in cleaning).
-4. **Aggregation:**
-   - Merge `Donor` and `GeneExpression` on `sample_id`.
-5. **Analysis:**
-   - **DE**: Group by `tissue`, run Wilcoxon tests, apply FDR.
-   - **Model**: Fit global Logistic Regression with 'tissue' covariate.
-   - **Correlation**: Compute correlations for all genes and traits.
-   - **Sensitivity**: Re-run classification with varied thresholds.
-6. **Output:** Write results to `data/processed/` in schema-defined formats.
+1.  **Raw Ingestion**: Download GTEx/TCGA files to `data/raw/`.
+2.  **Cleaning & Classification**: Parse raw files, validate columns, apply ATP-III logic, exclude missing data. Output to `data/processed/baseline_labels.csv`.
+3.  **Analysis**: Join expression data with labels. Perform statistical tests. Output results to `data/processed/results/`.
+4.  **Visualization**: Generate plots from results. Output to `data/processed/figures/`.
+
+## Entity Definitions
+
+### Donor (Sample)
+*   **ID**: Unique string identifier (e.g., `GTEx-Sample-001`).
+*   **Age**: Integer (years).
+*   **Sex**: String (`M` or `F`).
+*   **Tissue**: String (e.g., `Adipose - Visceral (Omentum)`, `Liver`).
+*   **BMI**: Float (kg/m²).
+*   **FastingGlucose**: Float (mg/dL).
+*   **SystolicBP**: Float (mmHg).
+*   **DiastolicBP**: Float (mmHg).
+*   **Triglycerides**: Float (mg/dL).
+*   **HDL**: Float (mg/dL).
+*   **MetS_Label**: String (`MetS` or `Control`).
+*   **Criteria_Count**: Integer (0-5).
+
+### GeneExpression
+*   **GeneSymbol**: String (e.g., `PER1`, `BMAL1`).
+*   **SampleID**: String (Foreign Key to Donor).
+*   **TPM**: Float (Transcripts Per Million).
+*   **LogTPM**: Float (Log2(TPM + 1)).
+
+### AnalysisResult
+*   **GeneSymbol**: String.
+*   **Tissue**: String.
+*   **Test_Statistic**: Float (Wilcoxon W).
+*   **P_Value**: Float.
+*   **FDR_Q_Value**: Float.
+*   **Effect_Size**: Float (Cliff's Delta or similar non-parametric effect size).
+*   **Significant**: Boolean.
+
+## File Specifications
+
+### `data/raw/`
+*   **Contents**: Original downloaded files (e.g., `GTEx_raw_data.tsv`, `TCGA_ACC.parquet`).
+*   **Constraint**: Read-only. Checksums recorded in `state/` manifest.
+
+### `data/processed/baseline_labels.csv`
+*   **Purpose**: The "Single Source of Truth" for sample classification.
+*   **Format**: CSV with header.
+*   **Columns**: `SampleID`, `Age`, `Sex`, `Tissue`, `BMI`, `FastingGlucose`, `SystolicBP`, `DiastolicBP`, `Triglycerides`, `HDL`, `MetS_Label`, `Criteria_Count`, `Exclusion_Reason`.
+*   **Constraint**: Generated by `code/data/classifier.py`. Must not be manually edited.
+
+### `data/processed/results/differential_expression.csv`
+*   **Purpose**: Results of Wilcoxon tests.
+*   **Columns**: `GeneSymbol`, `Tissue`, `P_Value`, `FDR_Q_Value`, `Effect_Size`.
+
+### `data/processed/results/logistic_regression.csv`
+*   **Purpose**: Model coefficients and diagnostics.
+*   **Columns**: `Predictor`, `Coefficient`, `Std_Error`, `Odds_Ratio`, `CI_Lower`, `CI_Upper`, `P_Value`, `VIF`.
+
+## Transformation Rules
+
+1.  **Missing Data Handling**: If any of the 5 clinical variables are missing/invalid, `MetS_Label` is set to `NULL` and `Exclusion_Reason` is populated. These rows are filtered out for analysis but retained in the file for audit.
+2.  **Log Transformation**: `LogTPM = log2(TPM + 1)`.
+3.  **FDR Correction**: Benjamini-Hochberg applied to the set of p-values for each tissue (or global set).
+4.  **Collinearity Flag**: If VIF > 5, `VIF` column is populated, and `Significant` logic in downstream interpretation is adjusted.

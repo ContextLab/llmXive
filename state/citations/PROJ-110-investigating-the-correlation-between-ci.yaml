@@ -1,11 +1,33 @@
-- artifact_hash: 0e0a56c09d731870308b2f87b1cbbfbb7eac76e0e1dfbbfad217e3005cd3d00a
+- artifact_hash: f2b6443e343c35440578e38e47ee191e602a8da04b528545b3d2ab0a86473201
   artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: PRAD.csv
+  fetched_title: dev.tsv
   kind: url
-  value: https://huggingface.co/datasets/Codatta/Refined-TCGA-PRAD-Prostate-Cancer-Pathology-Dataset/resolve/main/dataset/PRAD/PRAD.csv`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Codatta/Refined-TCGA-PRAD-Prostate-Cancer-Pathology-Dataset/d7ac47565ae58abb8aa57550d70da3127967defa/dataset%2FPRAD%2FPRAD.csv?%2Fdatasets%2FCodatta%2FRefined-TCGA-PRAD-Prostate-Cancer-Pathology-Dataset%2Fresolve%2Fmain%2Fdataset%2FPRAD%2FPRAD.csv=&etag=%221035cd5101a63f53d0d22459cd07007a07fcf652%22
-  verified_at: '2026-07-07T13:16:53.475338Z'
+  value: https://huggingface.co/datasets/MagicSign/TrASPr_GTEx_data/resolve/main/GTEx_raw_data/dev.tsv`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68cb5f27fa09e354faf92fb2/90fa2f1b7cf47221ec20f0b7f796d0dd1f8fe78fb9c042f2a8664076c7e4d728?X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Ftab-separated-values&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dev.tsv%3B+filename%3D%22dev.tsv%22%3B&Expires=1784411993&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhjYjVmMjdmYTA5ZTM1NGZhZjkyZmIyLzkwZmEyZjFiN2NmNDcyMjFlYzIwZjBiN2Y3OTZkMGRkMWY4ZmU3OGZiOWMwNDJmMmE4NjY0MDc2YzdlNGQ3MjhcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnRhYi1zZXBhcmF0ZWQtdmFsdWVzJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkZXYudHN2JTNCK2ZpbGVuYW1lJTNEJTIyZGV2LnRzdiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg0NDExOTkzfX19XX0_&Signature=MEUCIQCLGMJkwqct0tf13hIr6uDPZVtrLjIJ5W4Voy7m-C9EywIgHKTWkiWY0p2riQK2HzfWvV0fIjSavHduwu9Z9dmpsCc_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-07-18T20:59:53.307965Z'
+- artifact_hash: f2b6443e343c35440578e38e47ee191e602a8da04b528545b3d2ab0a86473201
+  artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/CNX-PathLLM/GTEx-WSI-Description/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/66c4ad728b6dcc57ec653bea/34f41f2e88683820f0fe9948b23f98c7dac417b192456aba6a8448c10ca76201?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1784411994&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjZjNGFkNzI4YjZkY2M1N2VjNjUzYmVhLzM0ZjQxZjJlODg2ODM4MjBmMGZlOTk0OGIyM2Y5OGM3ZGFjNDE3YjE5MjQ1NmFiYTZhODQ0OGMxMGNhNzYyMDFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODQ0MTE5OTR9fX1dfQ__&Signature=MEYCIQDtiZTdvq0K6skesYAFB1YWL5tOvWimRMI8yZX-zWKSeQIhAJijV02SamV5A49Qu4YLmM9bZezVx-MwA5FkDjUKjO13&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-07-18T20:59:53.307965Z'
+- artifact_hash: f2b6443e343c35440578e38e47ee191e602a8da04b528545b3d2ab0a86473201
+  artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: ACC.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Xish/TCGA/resolve/main/data/processed/ACC/ACC.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a34b48aaae636bd90c56f3f/80ae2b1f554f4ac0964fc34ba890e57a9c054e8d03e7d7e1b2afe749e317a56a?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27ACC.parquet%3B+filename%3D%22ACC.parquet%22%3B&user_id=public&Expires=1784411994&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEzNGI0OGFhYWU2MzZiZDkwYzU2ZjNmLzgwYWUyYjFmNTU0ZjRhYzA5NjRmYzM0YmE4OTBlNTdhOWMwNTRlOGQwM2U3ZDdlMWIyYWZlNzQ5ZTMxN2E1NmFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3QUNDLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJBQ0MucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg0NDExOTk0fX19XX0_&Signature=MEYCIQCerEymBDECBCcuJCuecsFO-sRO1OL0lIFEKtpNwk1T%7EwIhAJfX7RY5b85wjhV-un3a58UPjmvUsp%7ENUeYKasyiLLRP&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-07-18T20:59:53.307965Z'

@@ -1,0 +1,18 @@
+status: none
+intent: "download GTEx v8 RNA\u2011seq TPM and phenotype data and TCGA supplement\
+  \ with python package dataset"
+required_fields:
+- sample_id
+- donor_id
+- tissue
+- gene_id
+- tpm
+- BMI
+- fasting_glucose
+- systolic_bp
+- diastolic_bp
+- triglycerides
+- HDL
+cache_key: 52bbb881f0f367041bd28f4dab24e912ba46e41ad565b65f02a51fefa00bf07a
+searched_at: '2026-07-18T20:49:41.881386+00:00'
+retry_count: 1
