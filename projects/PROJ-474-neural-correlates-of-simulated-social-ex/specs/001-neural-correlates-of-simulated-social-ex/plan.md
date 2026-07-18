@@ -5,7 +5,9 @@
 
 ## Summary
 
-This project implements a computational pipeline to investigate how acute simulated social exclusion (Cyberball task) modulates functional connectivity dynamics within the Default Mode Network (DMN). The system ingests **preprocessed fMRI data (NIfTI format)** from **OpenNeuro ds000030**, performs rigorous motion QC (FR-002) on the raw signal, extracts BOLD time-series from PCC, mPFC, and angular gyrus (FR-003), computes condition-specific connectivity strength metrics (FR-004, FR-005), and executes a non-parametric paired permutation test (FR-006) to determine statistical significance. All findings are framed as associational unless randomization is verified (FR-007). The implementation is constrained to CPU-only execution on GitHub Actions free-tier runners (2 CPU, 7GB RAM) using memory-mapped data processing.
+This project implements a computational pipeline to investigate how acute simulated social exclusion (Cyberball task) modulates functional connectivity dynamics within the Default Mode Network (DMN). The system ingests **preprocessed fMRI data (NIfTI format)** from **OpenNeuro dataset
+
+The research question remains: [Research Question]. The method is: [Method]. References: [References].**, performs rigorous motion QC (FR-002) on the raw signal, extracts BOLD time-series from PCC, mPFC, and angular gyrus (FR-003), computes condition-specific connectivity strength metrics (FR-004, FR-005), and executes a non-parametric paired permutation test (FR-006) to determine statistical significance. All findings are framed as associational unless randomization is verified (FR-007). The implementation is constrained to CPU-only execution on GitHub Actions free-tier runners with limited CPU and RAM resources. using memory-mapped data processing.
 
 ## Technical Context
 
@@ -96,12 +98,12 @@ src/
 
 ### Phase 3: Statistical Analysis (FR-006, FR-008, FR-011)
 1. **Global Test**: Paired permutation test on MAC values (Inclusion vs Exclusion).
-2. **Edge-wise Test**: Paired permutation test for each of the 3 edges (PCC-mPFC, etc.).
+2. **Edge-wise Test**: Paired permutation test for each of the selected edges (PCC-mPFC, etc.).
 3. **Correction**: Apply FDR (q ≤ 0.05) to edge-wise p-values.
 4. **Framing**: Set `is_associational` flag based on metadata `randomization_verified`.
 
 ### Phase 4: Sensitivity & Visualization (SC-005)
-1. **Sensitivity Curve**: Re-calculate MAC and p-values for the *fixed set of retained subjects* using alternative motion thresholds (mm, 4mm) for reporting purposes only. **Note**: This does not re-include subjects excluded by the 3mm rule.
+1. **Sensitivity Curve**: Re-calculate MAC and p-values for the *fixed set of retained subjects* using alternative motion thresholds for reporting purposes only. **Note**: This does not re-include subjects excluded by the 3mm rule.
 2. **Visualize**: Generate null distribution, CI bar plots, and sensitivity curve.
 
 ### Phase 5: Reporting & Versioning (Constitution Principle V)

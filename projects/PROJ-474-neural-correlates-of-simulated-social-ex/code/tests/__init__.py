@@ -1,3 +1,3 @@
 """
-Test package for the neural correlates of simulated social exclusion study.
+Tests package for the Neural Correlates of Simulated Social Exclusion pipeline.
 """

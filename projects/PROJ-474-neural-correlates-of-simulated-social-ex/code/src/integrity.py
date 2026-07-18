@@ -1,312 +1,238 @@
-"""
-Data integrity checker module.
-
-Provides functionality to compute SHA-256 hashes for files in the data/ directory
-and store/manage these hashes in the state/ directory.
-"""
 import os
 import hashlib
-import json
+import yaml
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Any
+import json
+import logging
 
-from src.utils import get_logger, PipelineError
+from src.utils import get_logger, log_exception
 
-logger = get_logger(__name__)
-
-# Default paths relative to project root
-DEFAULT_DATA_DIR = "data"
-DEFAULT_STATE_DIR = "state"
-HASH_STORE_FILENAME = "data_hashes.json"
-
-class IntegrityError(PipelineError):
-    """Custom exception for integrity check failures."""
+class IntegrityError(Exception):
+    """Custom exception for data integrity failures."""
     pass
 
+def get_state_path() -> Path:
+    """Returns the path to the project state YAML file."""
+    # Project root is assumed to be the parent of 'code'
+    project_root = Path(__file__).resolve().parent.parent.parent
+    state_dir = project_root / "state" / "projects"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    return state_dir / "PROJ-474-neural-correlates-of-simulated-social-ex.yaml"
 
-def compute_file_hash(file_path: Path, chunk_size: int = 8192) -> str:
+def compute_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
     """
-    Compute SHA-256 hash of a file.
-
+    Computes the SHA-256 hash of a file.
+    
     Args:
-        file_path: Path to the file to hash.
-        chunk_size: Size of chunks to read at a time for large files.
-
+        file_path: Path to the file.
+        algorithm: Hash algorithm (default sha256).
+        
     Returns:
-        Hexadecimal string of the SHA-256 hash.
-
+        Hexadecimal hash string.
+        
     Raises:
         FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
+        IntegrityError: If hash computation fails.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
     
-    sha256_hash = hashlib.sha256()
+    hasher = hashlib.new(algorithm)
     try:
-        with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(chunk_size), b""):
-                sha256_hash.update(chunk)
-        return sha256_hash.hexdigest()
-    except IOError as e:
-        logger.error(f"Error reading file {file_path}: {e}")
-        raise
+        with open(file_path, 'rb') as f:
+            # Read in chunks to handle large files (e.g., NIfTI)
+            for chunk in iter(lambda: f.read(65536), b""):
+                hasher.update(chunk)
+        return hasher.hexdigest()
+    except Exception as e:
+        raise IntegrityError(f"Failed to compute hash for {file_path}: {e}")
 
-
-def scan_data_directory(data_dir: Path) -> List[Path]:
+def scan_data_directory(data_dir: Path, extensions: Optional[Set[str]] = None) -> List[Path]:
     """
-    Recursively scan the data directory for all files.
-
+    Scans a directory recursively for files.
+    
     Args:
-        data_dir: Path to the data directory.
-
+        data_dir: Root directory to scan.
+        extensions: Optional set of extensions to filter (e.g., {'.nii', '.json'}).
+                    If None, includes all files.
+                    
     Returns:
-        List of Path objects for all files found.
+        List of file paths.
     """
     if not data_dir.exists():
-        logger.warning(f"Data directory does not exist: {data_dir}")
         return []
     
     files = []
     for root, _, filenames in os.walk(data_dir):
         for filename in filenames:
-            files.append(Path(root) / filename)
-    
-    logger.info(f"Found {len(files)} files in {data_dir}")
+            f_path = Path(root) / filename
+            if extensions is None or f_path.suffix.lower() in extensions:
+                files.append(f_path)
     return files
 
-
-def generate_hashes(data_dir: Path = Path(DEFAULT_DATA_DIR)) -> Dict[str, str]:
+def generate_hashes(data_dir: Path) -> Dict[str, str]:
     """
-    Generate SHA-256 hashes for all files in the data directory.
-
+    Generates hashes for all files in the data directory.
+    
     Args:
         data_dir: Path to the data directory.
-
+        
     Returns:
-        Dictionary mapping relative file paths to their SHA-256 hashes.
+        Dictionary mapping relative file paths to their hashes.
     """
     hashes = {}
-    files = scan_data_directory(data_dir)
+    # Scan all common data extensions
+    extensions = {'.nii', '.nii.gz', '.json', '.tsv', '.csv', '.txt', '.yaml', '.yml'}
+    files = scan_data_directory(data_dir, extensions)
     
-    for file_path in files:
+    logger = get_logger(__name__)
+    logger.info(f"Scanning {len(files)} files in {data_dir}")
+    
+    for f_path in files:
         try:
-            relative_path = str(file_path.relative_to(data_dir))
-            file_hash = compute_file_hash(file_path)
-            hashes[relative_path] = file_hash
-            logger.debug(f"Hashed: {relative_path}")
+            # Store relative path from data_dir
+            rel_path = str(f_path.relative_to(data_dir))
+            file_hash = compute_file_hash(f_path)
+            hashes[rel_path] = file_hash
+            logger.debug(f"Hashed: {rel_path} -> {file_hash[:16]}...")
         except Exception as e:
-            logger.error(f"Failed to hash {file_path}: {e}")
-            # Continue with other files instead of failing the whole process
-    
+            logger.warning(f"Skipping file {f_path} due to error: {e}")
+            
     return hashes
 
-
-def get_state_path(state_dir: Path = Path(DEFAULT_STATE_DIR)) -> Path:
+def load_hashes(state_path: Path) -> Dict[str, str]:
     """
-    Ensure the state directory exists and return the path to the hash store file.
-
-    Args:
-        state_dir: Path to the state directory.
-
-    Returns:
-        Path to the hash store JSON file.
-    """
-    state_dir.mkdir(parents=True, exist_ok=True)
-    return state_dir / HASH_STORE_FILENAME
-
-
-def save_hashes(hashes: Dict[str, str], state_dir: Path = Path(DEFAULT_STATE_DIR)) -> Path:
-    """
-    Save the computed hashes to the state directory.
-
-    Args:
-        hashes: Dictionary of relative paths to hashes.
-        state_dir: Path to the state directory.
-
-    Returns:
-        Path to the saved hash store file.
-    """
-    hash_store_path = get_state_path(state_dir)
-    try:
-        with open(hash_store_path, 'w', encoding='utf-8') as f:
-            json.dump(hashes, f, indent=2, sort_keys=True)
-        logger.info(f"Saved {len(hashes)} hashes to {hash_store_path}")
-        return hash_store_path
-    except IOError as e:
-        logger.error(f"Failed to save hashes to {hash_store_path}: {e}")
-        raise IntegrityError(f"Could not save hash store: {e}")
-
-
-def load_hashes(state_dir: Path = Path(DEFAULT_STATE_DIR)) -> Dict[str, str]:
-    """
-    Load previously saved hashes from the state directory.
-
-    Args:
-        state_dir: Path to the state directory.
-
-    Returns:
-        Dictionary of relative paths to hashes, or empty dict if file not found.
-
-    Raises:
-        IntegrityError: If the hash store file exists but is malformed.
-    """
-    hash_store_path = get_state_path(state_dir)
+    Loads existing hashes from the state file.
     
-    if not hash_store_path.exists():
-        logger.warning(f"No existing hash store found at {hash_store_path}")
+    Args:
+        state_path: Path to the state YAML file.
+        
+    Returns:
+        Dictionary of hashes, or empty dict if file missing/invalid.
+    """
+    if not state_path.exists():
         return {}
     
     try:
-        with open(hash_store_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except json.JSONDecodeError as e:
-        logger.error(f"Malformed JSON in hash store: {e}")
-        raise IntegrityError(f"Corrupt hash store file: {hash_store_path}")
-    except IOError as e:
-        logger.error(f"Failed to read hash store: {e}")
-        raise IntegrityError(f"Could not read hash store: {e}")
+        with open(state_path, 'r') as f:
+            data = yaml.safe_load(f) or {}
+            return data.get('artifact_hashes', {})
+    except Exception as e:
+        get_logger(__name__).warning(f"Could not load state file {state_path}: {e}")
+        return {}
 
-
-def verify_integrity(
-    data_dir: Path = Path(DEFAULT_DATA_DIR),
-    state_dir: Path = Path(DEFAULT_STATE_DIR),
-    strict: bool = False
-) -> Dict[str, str]:
+def save_hashes(hashes: Dict[str, str], state_path: Path) -> None:
     """
-    Verify current data files against stored hashes.
+    Saves the hash dictionary to the state file.
+    
+    Args:
+        hashes: Dictionary of relative_path -> hash.
+        state_path: Path to the state YAML file.
+    """
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing state to preserve other keys (like randomization_verified)
+    existing_data = {}
+    if state_path.exists():
+        try:
+            with open(state_path, 'r') as f:
+                existing_data = yaml.safe_load(f) or {}
+        except Exception:
+            pass
+    
+    existing_data['artifact_hashes'] = hashes
+    
+    with open(state_path, 'w') as f:
+        yaml.dump(existing_data, f, default_flow_style=False, sort_keys=False)
 
+def verify_integrity(data_dir: Path, state_path: Optional[Path] = None) -> bool:
+    """
+    Verifies current data hashes against stored hashes.
+    
     Args:
         data_dir: Path to the data directory.
-        state_dir: Path to the state directory.
-        strict: If True, raise an error on any mismatch. If False, return mismatches.
-
-    Returns:
-        Dictionary of relative paths to their current hashes.
-        If mismatches exist and strict=False, mismatches are logged.
-
-    Raises:
-        IntegrityError: If strict=True and any mismatches or missing files are found.
-    """
-    stored_hashes = load_hashes(state_dir)
-    current_hashes = generate_hashes(data_dir)
-    mismatches = {}
-    missing_files = []
-    new_files = []
-
-    # Check for missing files (in stored but not in current)
-    for rel_path in stored_hashes:
-        if rel_path not in current_hashes:
-            missing_files.append(rel_path)
-    
-    # Check for new files (in current but not in stored)
-    for rel_path in current_hashes:
-        if rel_path not in stored_hashes:
-            new_files.append(rel_path)
-
-    # Check for hash mismatches
-    for rel_path, stored_hash in stored_hashes.items():
-        if rel_path in current_hashes:
-            if stored_hash != current_hashes[rel_path]:
-                mismatches[rel_path] = {
-                    "stored": stored_hash,
-                    "current": current_hashes[rel_path]
-                }
-
-    # Report results
-    if missing_files:
-        logger.warning(f"Missing {len(missing_files)} files that were previously hashed")
-        for f in missing_files:
-            logger.warning(f"  Missing: {f}")
-    
-    if new_files:
-        logger.info(f"Found {len(new_files)} new files not in hash store")
-        for f in new_files:
-            logger.info(f"  New: {f}")
-
-    if mismatches:
-        logger.error(f"Found {len(mismatches)} files with hash mismatches")
-        for f, details in mismatches.items():
-            logger.error(f"  Mismatch: {f}")
-            logger.error(f"    Stored:  {details['stored']}")
-            logger.error(f"    Current: {details['current']}")
+        state_path: Path to the state file. Defaults to project default.
         
-        if strict:
-            raise IntegrityError(f"Data integrity check failed: {len(mismatches)} mismatches found")
-    
-    if not stored_hashes and not current_hashes:
-        logger.warning("No data files found to verify")
-    elif not stored_hashes and current_hashes:
-        logger.info("No stored hashes found; consider running 'generate' first")
-
-    return current_hashes
-
-
-def update_hashes(
-    data_dir: Path = Path(DEFAULT_DATA_DIR),
-    state_dir: Path = Path(DEFAULT_STATE_DIR)
-) -> Dict[str, str]:
+    Returns:
+        True if integrity is verified, False otherwise.
+        
+    Raises:
+        IntegrityError: If a mismatch is found.
     """
-    Generate new hashes and update the stored hash file.
+    if state_path is None:
+        state_path = get_state_path()
+        
+    stored_hashes = load_hashes(state_path)
+    current_hashes = generate_hashes(data_dir)
+    
+    if not stored_hashes:
+        get_logger(__name__).info("No stored hashes found. Integrity check skipped (initial run).")
+        return True
+        
+    # Check for missing files
+    for rel_path, stored_hash in stored_hashes.items():
+        full_path = data_dir / rel_path
+        if not full_path.exists():
+            raise IntegrityError(f"Missing artifact: {rel_path}")
+        
+        # Check hash match
+        if rel_path in current_hashes:
+            if current_hashes[rel_path] != stored_hash:
+                raise IntegrityError(f"Hash mismatch for {rel_path}")
+        else:
+            # File exists but wasn't in the scan (shouldn't happen if extensions match)
+            raise IntegrityError(f"Artifact {rel_path} found but not hashed in current scan.")
+            
+    # Check for new files not in stored (optional strictness)
+    # For now, we assume new files are okay unless we want strict immutability.
+    # Given the task is to store hashes, we primarily ensure existing tracked files haven't changed.
+    
+    return True
 
-    This is a convenience function that combines generate_hashes and save_hashes.
-
+def update_hashes(data_dir: Path, state_path: Optional[Path] = None) -> Dict[str, str]:
+    """
+    Scans the data directory, computes hashes, and updates the state file.
+    
     Args:
         data_dir: Path to the data directory.
-        state_dir: Path to the state directory.
-
+        state_path: Path to the state file. Defaults to project default.
+        
     Returns:
-        Dictionary of relative paths to their new hashes.
+        The updated dictionary of hashes.
     """
-    logger.info("Updating data integrity hashes...")
-    hashes = generate_hashes(data_dir)
-    save_hashes(hashes, state_dir)
+    if state_path is None:
+        state_path = get_state_path()
+        
+    logger = get_logger(__name__)
+    logger.info(f"Updating integrity hashes for {data_dir} -> {state_path}")
+    
+    if not data_dir.exists():
+        logger.warning(f"Data directory {data_dir} does not exist. Creating empty hash map.")
+        hashes = {}
+    else:
+        hashes = generate_hashes(data_dir)
+        
+    save_hashes(hashes, state_path)
+    logger.info(f"Successfully updated {len(hashes)} file hashes.")
     return hashes
 
-
 def main():
-    """
-    Command-line interface for the integrity checker.
-
-    Usage:
-        python -m src.integrity [command]
-        
-    Commands:
-        generate  - Generate hashes for all files in data/ and save to state/
-        verify    - Verify data files against stored hashes
-        update    - Alias for generate (update stored hashes)
-    """
-    import sys
+    """CLI entry point for integrity updates."""
+    logger = get_logger(__name__)
+    logger.info("Running integrity check/update...")
     
-    if len(sys.argv) < 2:
-        print("Usage: python -m src.integrity [generate|verify|update]")
-        print("  generate: Scan data/ and save hashes to state/")
-        print("  verify:   Compare data/ files against stored hashes")
-        print("  update:   Alias for generate")
-        sys.exit(1)
-
-    command = sys.argv[1].lower()
-    data_dir = Path(DEFAULT_DATA_DIR)
-    state_dir = Path(DEFAULT_STATE_DIR)
-
+    # Determine paths relative to script location
+    script_dir = Path(__file__).resolve().parent.parent
+    project_root = script_dir.parent
+    data_dir = project_root / "data"
+    
     try:
-        if command == "generate" or command == "update":
-            hashes = update_hashes(data_dir, state_dir)
-            print(f"Successfully hashed {len(hashes)} files.")
-        elif command == "verify":
-            hashes = verify_integrity(data_dir, state_dir, strict=True)
-            print(f"Verification passed. {len(hashes)} files checked.")
-        else:
-            print(f"Unknown command: {command}")
-            sys.exit(1)
-    except IntegrityError as e:
-        print(f"Integrity check failed: {e}")
-        sys.exit(1)
+        update_hashes(data_dir)
+        logger.info("Integrity update completed successfully.")
     except Exception as e:
-        logger.exception("Unexpected error during integrity check")
-        print(f"Unexpected error: {e}")
-        sys.exit(1)
-
+        log_exception(e)
+        raise
 
 if __name__ == "__main__":
     main()

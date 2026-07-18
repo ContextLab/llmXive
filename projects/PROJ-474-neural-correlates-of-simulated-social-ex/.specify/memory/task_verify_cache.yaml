@@ -1,6 +1,22 @@
-T007:
+T009:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation for a SHA\u2011256 data integrity checker\
-    \ or for storing the resulting hashes in the `state/` directory is present. The\
-    \ required artifact is missing, so the task is not satisfied."
+  h: fd49331fa793711f9d840bcd2befaef4d3af24dc76c435d634c014653a6fc753
+  r: "The provided `tests/unit/test_qc.py` contains only tests for `verify_conditions`\
+    \ and does not include a stub for `test_motion_calculation` with the required\
+    \ signature or `NotImplementedError` assertion. Additionally, the required source\
+    \ file `src/qc.py` (which should define `calculate_motion`) is missing entirely.\
+    \ Consequently, the task\u2019s deliverables are not present."
+T010:
+  c: false
+  h: fd49331fa793711f9d840bcd2befaef4d3af24dc76c435d634c014653a6fc753
+  r: "The provided `tests/unit/test_qc.py` contains only tests for `verify_conditions`;\
+    \ there is no stub for `test_motion_hard_stop` nor any reference to `check_subject_count`.\
+    \ Moreover, `src/qc.py` is missing entirely, so the required function signature\
+    \ cannot be matched. The task\u2019s required artifacts are absent."
+T011:
+  c: false
+  h: fd49331fa793711f9d840bcd2befaef4d3af24dc76c435d634c014653a6fc753
+  r: The `tests/unit/test_qc.py` file exists but its contents do not assert a `NotImplementedError`
+    as required and instead expect real behavior from `verify_conditions`. Moreover,
+    the referenced `src/qc.py` (which should contain the `verify_conditions` signature)
+    is missing entirely. Both the stub behavior and the required source file are absent.
