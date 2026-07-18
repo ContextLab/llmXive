@@ -1,36 +1,80 @@
 T009a:
-  c: true
-  h: 04f9e34618998f844a0616704a5141b9b6693ead6acc31603a249ce13d2585bb
-  r: The `code/ingest/download.py` file defines a `UnifiedDatasetLoader` that tracks
-    active sources and includes a `_validate_single_source` method which raises a
-    `RuntimeError` when a second source is attempted, fulfilling the required runtime
-    source enforcement. No missing or placeholder files are needed because the enforcement
-    is implemented directly in `download.py`.
-T013:
   c: false
-  h: 8a60c2efe622d61d192292114d5eb4b2ed4d8bcd60696bac010d58d72ccf4618
-  r: "The repository contains `code/ingest/pipeline.py`, but the required output file\
-    \ `data/processed/graphs_v1.parquet` is absent, and the state YAML (`state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml`)\
-    \ does not contain the SHA256 checksum entry. Consequently the pipeline\u2019\
-    s final steps (saving the Parquet file and recording its checksum) have not been\
-    \ fulfilled."
-T018:
+  h: 26e1721953036d94caa7b1d7b4fc7de4578c4b95cb02d03580dc572ea19433a2
+  r: "The `download.py` file only validates that the provided `source` argument is\
+    \ one of the allowed strings; it does not detect or raise an error when more than\
+    \ one data source is used in the same run (no global flag or cross\u2011instance\
+    \ check). Moreover, the optional `validator.py` file is missing, so the required\
+    \ runtime source\u2011enforcement logic is not fully implemented."
+T013d:
   c: false
-  h: 307a2a0a78c91df5d5b62b776e91348a9722ac64a0aefafac386167ac47663e2
-  r: "The provided `train.py` is incomplete (truncated) and shows no early\u2011stopping\
-    \ logic, no use of the `split_indices` artifact, and no code that writes the required\
-    \ `data/results/training_logs.json` or `data/processed/test_indices.json`. Both\
-    \ output files are missing, and the logging schema and disclaimer metadata are\
-    \ not demonstrated. The task requirements are therefore not satisfied."
-T027c:
+  h: d4cd3abb528ba15ad0a138c29f60d5ac0a83b5282aaaa278631acbf52303c996
+  r: The pipeline script is present but the provided excerpt is incomplete and does
+    not show saving a Parquet file, generating a checksum, or writing split indices.
+    Moreover, the required `data/processed/graphs_v1.parquet` and `data/processed/split_indices.json`
+    files are missing, and the state YAML still contains an empty `artifact_hashes`
+    section. These essential artifacts must be created and populated for the task
+    to be considered complete.
+T013e:
   c: false
-  h: e1a1b9dcaff8c3a671b3b0d147b3e8bb3a6682a768bb79e5bba4c4f319d2a7a3
-  r: "The repository contains `code/analysis/report_generator.py`, but the file is\
-    \ truncated and does not show a complete implementation that writes the required\
-    \ Markdown report, applies the p\u2011value filter, handles the \u201Cfewer than\
-    \ 3\u201D case, or adds the mandatory disclaimer. Moreover, the expected output\
-    \ file `data/results/feature_importance_report.md` is missing entirely. The task\u2019\
-    s deliverables are therefore not fulfilled."
+  h: d268dc6ca5035168605848fdf0aa3563b6e2323779ab4d269b7d2b32d27c0082
+  r: "The required `data/processed/graphs_v1.parquet` file does not exist, so the\
+    \ check cannot be performed. Moreover, the shown portion of `code/ingest/pipeline.py`\
+    \ contains no logic that counts unique entries, logs a critical error, or exits\
+    \ with code\u202F1 when the count is below 1,000. Both the artifact and the post\u2011\
+    processing validation are missing."
+T018b:
+  c: false
+  h: 7339ed432854b77d01da15d859cee6221c5e2fcdf538c52eff21c121c3ef1206
+  r: "The provided `code/model/train.py` is truncated (ends mid\u2011line with a syntax\
+    \ error) and does not contain the training loop, memory\u2011peak logging, exit\u2011\
+    on\u2011excess\u2011memory logic, model checkpoint saving, or test\u2011set prediction\
+    \ output. Additionally, the required `data/processed/model_v1.pt` file is missing.\
+    \ These missing/invalid artifacts mean the task requirements are not satisfied."
+T018c:
+  c: false
+  h: a478bf13b7bbadee00c7d173604e21ee026f52b9f68b747d65844c8bf64f143f
+  r: The repository contains `code/model/train_logger.py` with a `TrainingLogger`
+    class that defines the required schema, but the `save_logs` method is truncated
+    and there is no evidence that it actually writes to `data/results/training_logs.json`.
+    Moreover, the expected output file `data/results/training_logs.json` is missing
+    from the project tree. The implementation must ensure the logs are persisted to
+    that exact path (including the disclaimer) and provide checkpointing functionality.
+T019a:
+  c: false
+  h: 8233e4d854541c56e892dfda51fecdf03c96c3756ab8e8a8d7f61e1991a650a2
+  r: "The required output file `data/results/generalization_metrics.json` does not\
+    \ exist, and the provided `eval_runner.py` never computes a MAPE value\u2014it\
+    \ only attempts to read an existing JSON and writes a generic failure report if\
+    \ the file is missing. Consequently the task\u2019s core requirement (calculate\
+    \ MAPE and log pass/fail) is not fulfilled."
+T021:
+  c: false
+  h: 1ac4bb3c8fcf334e602fafe0171cbeaf2f069397fc9d63733a3758c5d19eeb8f
+  r: "The repository lacks the required data files (`data/processed/graphs_v1.parquet`\
+    \ and the resulting `data/results/generalization_metrics.json`). Moreover, the\
+    \ provided `generalization_test.py` is truncated, so it\u2019s unclear whether\
+    \ it writes the required `intra_family_mape`, `inter_family_mape`, and `disclaimer`\
+    \ fields or handles the failure case as specified. These missing artifacts prevent\
+    \ the task from being considered complete."
+T021a:
+  c: false
+  h: 1a76cebabf6172299735f675236fac8a1f26f51706375f5b15b148bd3eebb915
+  r: "The repository lacks the required data files (`data/processed/graphs_v1.parquet`,\
+    \ `predictions.json`, and the expected `split_indices.json`), and the generated\
+    \ output `data/results/generalization_metrics.json` is absent. Moreover, the provided\
+    \ `generalization_test.py` is truncated and does not clearly show the full runtime\
+    \ family\u2011disjoint check, metric computation, or error\u2011reporting logic\
+    \ required by the task. These missing artifacts prevent the task from being considered\
+    \ complete."
+T021b:
+  c: false
+  h: faea1bd45e44a04391c98309ac9e291772c3a214c379eaf8d01b271fb340dc44
+  r: The repository contains `code/model/metrics_aggregator.py`, but the script is
+    incomplete (truncated) and never writes the combined results to `data/results/generalization_metrics.json`.
+    Moreover, the expected output file `data/results/generalization_metrics.json`
+    is absent. The required aggregation and logging functionality is therefore not
+    fulfilled.
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

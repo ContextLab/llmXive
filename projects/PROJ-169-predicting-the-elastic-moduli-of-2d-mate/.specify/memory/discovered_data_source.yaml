@@ -1,0 +1,25 @@
+status: verified
+kind: pypi_package
+ref: matminer
+access_python: "import pandas as pd\nfrom matminer.datasets import load_dataset\n\
+  # Load the 2015 elasticity dataset bundled with matminer\ndf = load_dataset('elastic_tensor_2015')\n\
+  records = len(df)\nprint(f'RECORDS={records}')\n# Determine which of the required\
+  \ fields are present\nrequired = {\n    'material_id': 'material_id',\n    'composition':\
+  \ 'composition',\n    'cif': 'cif',\n    'elastic_tensor_6c': 'elastic_tensor',\n\
+  \    'elastic_tensor_units': 'elastic_tensor_units'\n}\nfields = [req for req, col\
+  \ in required.items() if col in df.columns]\nprint('FIELDS=' + ','.join(fields))"
+record_count: 1181
+sample_fields:
+- material_id
+- cif
+- elastic_tensor_6c
+field_coverage: 0.8
+required_fields:
+- material_id
+- composition
+- cif
+- elastic_tensor_6c
+- elastic_tensor_units
+intent: Materials Project Elasticity pymatgen API CIF elastic tensor python package
+  dataset
+cache_key: e880ea294788ac2ff6aad6f9852891d962e834d3d6c2271aa65290011ef41bce

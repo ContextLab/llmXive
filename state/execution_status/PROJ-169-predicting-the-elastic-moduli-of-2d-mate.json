@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-169-predicting-the-elastic-moduli-of-2d-mate",
+  "ok": false,
+  "reason": "6 command(s) failed: python code/ingest/download.py --output data/raw (rc=2); python code/ingest/bias_check.py --input data/raw --output data/bias_report.json (rc=1); python code/ingest/parse_cif.py --input data/raw --output data/processed (rc=1); 5 declared deliverable(s) absent: data/processed/graphs_v1.parquet; data/processed/test_indices.json; data/results/generalization_metrics.json",
+  "artifacts": [],
+  "failures": [
+    "python code/ingest/download.py --output data/raw -> rc=2\n    usage: download.py [-h] --source {materials_project,aflow,oqmd}\n                   [--output OUTPUT] [--sample SAMPLE]\ndownload.py: error: the following arguments are required: --source",
+    "python code/ingest/bias_check.py --input data/raw --output data/bias_report.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/bias_check.py\", line 143, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/bias_check.py\", line 114, in main\n    exclusion_log_path = config.paths.get('exclusion_log', Path('data/processed/exclusion_log.json'))\n                         ^^^^^^^^^^^^\nAttributeError: 'Config",
+    "python code/ingest/parse_cif.py --input data/raw --output data/processed -> rc=1\n    pymatgen not installed. CIF parsing disabled.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/parse_cif.py\", line 251, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/parse_cif.py\", line 246, in main\n    with open(output_path, 'w') as f:\n         ^^^^^^^^^^^^^^^^^^^^^^\nIsADirectoryError: [Errno 21] Is a directory: 'data/proce",
+    "python code/model/train.py --data-dir data/filtered --epochs 100 --patience 3 --split-strategy family -> rc=2\n    usage: train.py [-h] [--config CONFIG] [--epochs EPOCHS] [--patience PATIENCE]\n                [--batch_size BATCH_SIZE] [--lr LR] [--data_path DATA_PATH]\n                [--split_path SPLIT_PATH] [--output_log OUTPUT_LOG]\n                [--output_test_indices OUTPUT_TEST_INDICES]\ntrain.py: error: unrecognized arguments: --data-dir data/filtered --split-strategy family",
+    "python code/analysis/importance.py --model-path code/model/checkpoints/best.pt --data-dir data/filtered -> rc=2\n    usage: importance.py [-h] --model MODEL --data DATA --indices INDICES --output\n                     OUTPUT --descriptors DESCRIPTORS [DESCRIPTORS ...]\nimportance.py: error: the following arguments are required: --model, --data, --indices, --output, --descriptors",
+    "python code/analysis/ablation.py --model-path code/model/checkpoints/best.pt --data-dir data/filtered -> rc=2\n    usage: ablation.py [-h] --graphs GRAPHS --split SPLIT --gnn-model GNN_MODEL\n                   --output OUTPUT [--config CONFIG]\nablation.py: error: the following arguments are required: --graphs, --split, --gnn-model, --output"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-18T08:39:46Z"
+}

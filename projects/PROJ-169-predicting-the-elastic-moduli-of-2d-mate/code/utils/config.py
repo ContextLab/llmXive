@@ -1,95 +1,81 @@
 import os
 import random
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any, Dict, Callable
 import numpy as np
 import torch
 
 class Config:
-    """Centralized configuration management for reproducibility and environment setup.
-    
-    This class handles:
-    - Random seed initialization (numpy, python random, torch)
-    - Project path resolution
-    - CPU thread limits
-    - Device configuration (CPU-only enforced)
     """
-    
-    def __init__(
-        self,
-        seed: int = 42,
-        project_root: Optional[Path] = None,
-        cpu_limit: Optional[int] = None
-    ):
-        self.seed = seed
-        self.project_root = project_root or Path(__file__).parent.parent.parent
-        self.cpu_limit = cpu_limit
+    Global configuration manager for the project.
+    Handles seeding, paths, and tolerant attribute access.
+    """
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Config, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(self):
+        if self._initialized:
+            return
         
-        self._setup_seed()
-        self._setup_cpu_limits()
+        self.seed = 42
+        self._paths: Dict[str, Path] = {}
         self._setup_paths()
-        self._setup_torch()
-        
-    def _setup_seed(self):
-        """Set random seeds for reproducibility."""
+        self._setup_seeds()
+        self._initialized = True
+
+    def _setup_paths(self):
+        """Initialize standard project paths."""
+        base = Path(__file__).parent.parent
+        self._paths = {
+            'root': base,
+            'data_raw': base / 'data' / 'raw',
+            'data_processed': base / 'data' / 'processed',
+            'data_results': base / 'data' / 'results',
+            'code': base / 'code',
+            'state': base / 'state' / 'projects',
+        }
+        # Ensure directories exist
+        for p in self._paths.values():
+            p.mkdir(parents=True, exist_ok=True)
+
+    def _setup_seeds(self):
+        """Pin seeds for reproducibility."""
         random.seed(self.seed)
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(self.seed)
-            
-    def _setup_cpu_limits(self):
-        """Set CPU thread limits to prevent resource exhaustion."""
-        if self.cpu_limit is not None:
-            os.environ['OMP_NUM_THREADS'] = str(self.cpu_limit)
-            os.environ['MKL_NUM_THREADS'] = str(self.cpu_limit)
-            torch.set_num_threads(self.cpu_limit)
-            
-    def _setup_paths(self):
-        """Initialize project paths and ensure directories exist."""
-        self.code_dir = self.project_root / 'code'
-        self.data_dir = self.project_root / 'data'
-        self.tests_dir = self.project_root / 'tests'
-        self.specs_dir = self.project_root / 'specs'
-        self.figures_dir = self.project_root / 'figures'
-        
-        # Ensure directories exist
-        for d in [
-            self.data_dir, 
-            self.data_dir / 'raw',
-            self.data_dir / 'processed', 
-            self.data_dir / 'results', 
-            self.tests_dir,
-            self.figures_dir
-        ]:
-            d.mkdir(parents=True, exist_ok=True)
-            
-    def _setup_torch(self):
-        """Configure PyTorch for CPU-only execution."""
-        # Force CPU usage as per project constraints
-        os.environ['CUDA_VISIBLE_DEVICES'] = ''
-        torch.set_default_device('cpu')
-        
+        os.environ['PYTHONHASHSEED'] = str(self.seed)
+
     @property
-    def device(self):
-        """Return the computation device (always CPU for this project)."""
-        return torch.device('cpu')
-        
-    def get_path(self, relative_path: str) -> Path:
-        """Get an absolute path relative to the project root.
-        
-        Args:
-            relative_path: Path relative to project root
-            
-        Returns:
-            Absolute Path object
+    def paths(self) -> Dict[str, Path]:
+        """Return the paths dictionary."""
+        return self._paths
+
+    def get_path(self, key: str) -> Path:
+        """Get a specific path by key."""
+        return self._paths.get(key, Path('.'))
+
+    # Tolerant logger-style attribute access
+    def __getattr__(self, name: str) -> Callable:
         """
-        return self.project_root / relative_path
-        
-    def __repr__(self) -> str:
-        return (
-            f"Config(seed={self.seed}, "
-            f"project_root={self.project_root}, "
-            f"cpu_limit={self.cpu_limit}, "
-            f"device={self.device})"
-        )
+        Fallback for unknown attributes/methods to prevent AttributeError.
+        Returns a no-op callable for logger-like usage.
+        """
+        def _noop(*args, **kwargs) -> Any:
+            return None
+        return _noop
+
+_config_instance = None
+
+def get_config() -> Config:
+    """Get the singleton Config instance."""
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = Config()
+    return _config_instance

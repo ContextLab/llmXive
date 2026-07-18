@@ -62,7 +62,7 @@ def analyze_exclusion_bias(logs: List[Dict[str, Any]], config: Optional[Config] 
     # Flag families with high exclusion rates or very small remaining populations
     # Threshold: if > 50% of a family is excluded, or total remaining < 5 (heuristic)
     flagged_families = []
-    min_family_size_threshold = config.min_family_size if hasattr(config, 'min_family_size') else 5
+    min_family_size_threshold = getattr(config, 'min_family_size', 5)
     exclusion_ratio_threshold = 0.5
 
     # We need total counts per family to calculate ratio, but we only have exclusions here.
@@ -111,9 +111,25 @@ def main():
     analyzes bias, and writes a report.
     """
     config = Config()
-    exclusion_log_path = config.paths.get('exclusion_log', Path('data/processed/exclusion_log.json'))
-    output_path = config.paths.get('bias_report', Path('data/results/bias_report.json'))
     
+    # Tolerant path resolution: check for 'paths' attribute dict, then fallback to direct attributes, then defaults
+    exclusion_log_path = None
+    output_path = None
+    
+    if hasattr(config, 'paths') and isinstance(config.paths, dict):
+        exclusion_log_path = config.paths.get('exclusion_log', Path('data/processed/exclusion_log.json'))
+        output_path = config.paths.get('bias_report', Path('data/results/bias_report.json'))
+    else:
+        # Fallback to direct attributes if 'paths' is missing or not a dict
+        exclusion_log_path = getattr(config, 'exclusion_log_path', Path('data/processed/exclusion_log.json'))
+        output_path = getattr(config, 'bias_report_path', Path('data/results/bias_report.json'))
+    
+    # Ensure defaults are Path objects
+    if not isinstance(exclusion_log_path, Path):
+        exclusion_log_path = Path(exclusion_log_path)
+    if not isinstance(output_path, Path):
+        output_path = Path(output_path)
+        
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
