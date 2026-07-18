@@ -1,0 +1,29 @@
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or data file implementing the \u201Chigh variance\u201D\
+    \ flagging and exclusion logic was provided. The response contains only the task\
+    \ description and project specifications, without any artifact that could be inspected\
+    \ to verify the required functionality. Consequently, the requirement is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or data file was provided that adds a categorical\
+    \ encoding for the \u201Csynthesis method\u201D column to the feature matrix.\
+    \ The required artifact (e.g., a function or pipeline step that transforms the\
+    \ synthesis method into one\u2011hot or ordinal features and integrates it into\
+    \ the matrix) is missing, so the task is not satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/model.pkl` file or any evidence of a saved trained model is present;\
+    \ the provided information only describes the feature specifications and user\
+    \ stories, without the required model artifact. The task\u2019s core deliverable\
+    \ is missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., updated model metadata file, JSON/YAML snippet, or documentation)\
+    \ showing the required explicit disclaimer that findings are associational, not\
+    \ causal was provided. The implementer\u2019s claim cannot be verified without\
+    \ such evidence."

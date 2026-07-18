@@ -1,0 +1,2 @@
+# This file ensures the directory is tracked by git but remains empty of data.
+# Actual figure files in this directory are ignored by the root .gitignore.

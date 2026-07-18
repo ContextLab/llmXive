@@ -98,7 +98,7 @@ tests/
 | **Multiple Imputation** | FR-006 requires handling missing critical variables (5-20%) without dropping records. | Simple mean imputation would bias the model and violate "Data Hygiene" by distorting variance. |
 | **Fallback Tree Depth** | FR-003 mandates a 60-minute runtime target with a fallback to reduce depth. **Resolved**: Depth reduces to **6** first, then to **4** if still exceeded. | Fixed depth might exceed the 6-hour CI limit if the dataset is larger than expected, causing job failure. |
 | **Mann-Whitney U Test** | Data is non-normal and observational; parametric t-tests would be invalid. | Parametric tests assume normality and equal variance, which is unlikely in sparse literature data. |
-| **Feature Reduction (RFE)** | **New**: Small-N (30-50) vs High-Dimensionality risk. | Training on all descriptors without reduction leads to severe overfitting and spurious R². RFE is mandatory. |
+| **Feature Reduction (RFE)** | **New**: Small-N vs High-Dimensionality risk. | Training on all descriptors without reduction leads to severe overfitting and spurious R². RFE is mandatory. |
 | **Predicted vs. Predicted Test** | **New**: Avoids comparing model predictions to experimental ground truth (circular). | Comparing predictions to experimental benchmarks conflates model error with material performance. |
 
 ## Implementation Phases
