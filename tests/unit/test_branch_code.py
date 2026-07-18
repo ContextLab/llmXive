@@ -322,7 +322,7 @@ _FREE_MODEL = "openai.gpt-oss-120b"
 def _force_free_model(monkeypatch: pytest.MonkeyPatch) -> None:
     """Override ONLY the model the speckit chain dispatches with, swapping the
     registry's (retired, hanging) default for the live free model. This mirrors
-    production's model-tier override (``execution_status.execution_model_override``)
+    production's model-tier escalation (``execution_status.tier_overrides``)
     — every other code path (mechanical scripts, prompt build, router, artifact
     write, claim layer) runs for real. Not a mock of the unit under test."""
     from llmxive.agents import registry as registry_loader

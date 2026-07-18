@@ -754,38 +754,16 @@ def run_one_step(
                 _verify_already_done = claimed_done_keys(
                     _vt_tasks.read_text(encoding="utf-8")
                 )
-        # MODEL-TIER OVERRIDE (autonomous exhaustion handling — SHARED ladder).
-        # The per-project ``model_tier`` (execution_status) is the SSoT model
-        # ladder for BOTH autonomous loops:
-        #   * the execution fix-loop implementer (IN_PROGRESS), and
-        #   * the doc-stage convergence panels (SPECIFIED/CLARIFIED/PLANNED +
-        #     paper twins): when a panel exhausts its kickback cap, the
-        #     escalate block bumps the tier and re-enters the review loop, so
-        #     the NEXT dispatch of the doc-stage agent must run its convergence
-        #     reviser/panel on the escalated model. Threading the override into
-        #     ``ctx.default_model`` flows it straight to ``build_*_reviewspec(
-        #     model=ctx.default_model)`` — the same `model=` router override the
-        #     execution implementer uses, gated by the same paid credit guard.
-        # Tier 0 = no override = the registered default.
+        # MODEL-TIER ESCALATION (autonomous exhaustion handling — SHARED ladder).
+        # The per-project ``model_tier`` (execution_status) is the SSoT escalation
+        # ladder for BOTH autonomous loops (the execution fix-loop implementer at
+        # IN_PROGRESS and the doc-stage convergence panels). As of spec 026 slice 6
+        # each rung is a REQUIREMENT CONSTRAINT (``execution_status.tier_overrides``
+        # → RequirementOverrides), no longer a model-id override projected onto
+        # ``ctx.default_model``. Threading those overrides into the router
+        # (``route_chat``) is a later slice-6 task; this dispatch passes the agent's
+        # registered default and the escalated tier is applied at selection time.
         _model_for_run = entry.default_model
-        _exec_fix = (
-            agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS
-        )
-        _panel_stage = project.current_stage in _STAGE_PANEL_LABEL
-        if _exec_fix or _panel_stage:
-            _model_for_run = execution_status.execution_model_override(
-                project.id,
-                default_model=entry.default_model,
-                repo_root=repo,
-            )
-            if _model_for_run != entry.default_model:
-                logger.info(
-                    "model-tier escalation: dispatching %s for %s (stage=%s) "
-                    "with escalated model override %r (tier %d)",
-                    agent_name, project.id, project.current_stage.value,
-                    _model_for_run,
-                    execution_status.model_tier(project.id, repo_root=repo),
-                )
         while True:
             sk_ctx = SlashCommandContext(
                 project_id=project.id,
@@ -1536,11 +1514,10 @@ def _decide_next_stage(
                 )
                 logger.info(
                     "convergence panel %r hit the kickback cap for %s — "
-                    "escalating to model tier %d (model=%r) and retrying the "
+                    "escalating to model tier %d (constraint=%r) and retrying the "
                     "review loop (NOT human_input_needed)",
                     decision.stage_label, project.id, new_tier,
-                    execution_status.tier_model(new_tier)
-                    or "<registered default>",
+                    execution_status.tier_constraint(new_tier),
                 )
                 # Stay in the review loop at the current stage: the next tick
                 # re-runs the panel with the escalated model. Returning the
@@ -1787,9 +1764,9 @@ def _decide_next_stage(
                 )
                 logger.info(
                     "execution fix-loop hit the cap for %s — escalating to "
-                    "model tier %d (model=%r) and resetting fix_rounds%s",
+                    "model tier %d (constraint=%r) and resetting fix_rounds%s",
                     project.id, new_tier,
-                    execution_status.tier_model(new_tier) or "<registered default>",
+                    execution_status.tier_constraint(new_tier),
                     " (free-only: fabrication)" if _is_fabrication else "",
                 )
                 return Stage.IN_PROGRESS

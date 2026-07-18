@@ -319,9 +319,9 @@ def test_categorize_maps_paths_to_categories():
         "migration_target",
         5,
     )
-    assert _cat(
-        "src/llmxive/state/execution_status.py", symbol="FREE_MODEL_TIERS"
-    ) == ("migration_target", 6)
+    # (spec 026 slice 6 REMOVED the FREE_MODEL_TIERS model-id ladder from
+    # execution_status.py — it now carries RequirementOverrides constraints and
+    # contributes no model-id pin; see test_execution_status_contributes_no_pin.)
     assert _cat("src/llmxive/claims/extract.py", symbol="_DEFAULT_MODEL") == (
         "migration_target",
         7,
@@ -434,3 +434,19 @@ def test_committed_manifest_is_current_with_the_live_scan():
 
     committed_md = (REPO_ROOT / MANIFEST_MD).read_text()
     assert committed_md == render_markdown(manifest), f"{MANIFEST_MD} is stale — {regen_hint}"
+
+
+def test_execution_status_contributes_no_pin():
+    """spec 026 slice 6: the execution-tier ladder was rebuilt on
+    ``TierConstraint`` → ``RequirementOverrides`` constraints, so
+    ``state/execution_status.py`` must no longer contribute ANY model-id pin to
+    the migration surface (the old ``FREE_MODEL_TIERS`` entry is gone). This is
+    what makes the slice-8 enforcement guarantee hold for that file."""
+    entries = build_manifest(REPO_ROOT)["entries"]
+    es_pins = [
+        e
+        for e in entries
+        if e["file"] == "src/llmxive/state/execution_status.py" and e["models"]
+    ]
+    assert es_pins == [], f"execution_status.py still pins model ids: {es_pins}"
+    assert not any(e["symbol"] == "FREE_MODEL_TIERS" for e in entries)

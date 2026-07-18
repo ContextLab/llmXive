@@ -17,11 +17,13 @@ from __future__ import annotations
 import json
 import logging
 import os
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from llmxive.config import repo_root as _repo_root
+from llmxive.model_selection.types import RequirementOverrides
 from llmxive.state._io import atomic_write_text
 
 logger = logging.getLogger(__name__)
@@ -44,65 +46,141 @@ MAX_EXECUTION_FIX_ROUNDS = 12
 #: burn 843 implementer calls in one day while 400 projects got none.
 MAX_REPLAN_ROUNDS = 3
 
-#: Ordered model ladder for the execution fix-loop (autonomous exhaustion
-#: handling). When the fix-round cap is hit at one tier, the project bumps to
-#: the next tier and retries the FULL cap with a different/stronger model.
+#: Ordered escalation ladder for the execution fix-loop (autonomous exhaustion
+#: handling), expressed as REQUIREMENT CONSTRAINTS — never model-id literals
+#: (spec 026 slice 6). When the fix-round cap is hit at one tier, the project
+#: bumps to the next tier and retries the FULL cap under a stricter constraint;
+#: each rung is resolved to a :class:`RequirementOverrides` at dispatch so the
+#: unified selector (not this layer) picks the actual model from the live catalog.
 #:
-#:   tier 0 → "" (empty) means NO override: the implementer's REGISTERED default
-#:            model (do not hardcode it here — the registry is the SSoT).
-#:   tier 1 → a DIFFERENT capable FREE model (a free "second opinion"). Both
-#:            qwen.qwen3.5-122b and openai.gpt-oss-120b are confirmed live + free
-#:            on Dartmouth; gpt-oss-120b is the canonical second free model.
-#:   tiers 2+ → OPTIONAL paid tiers, read at runtime from
-#:            ``LLMXIVE_EXECUTION_PAID_TIERS`` (comma-separated model ids,
-#:            DEFAULT EMPTY). A paid tier is usable ONLY when paid opt-in is on
-#:            AND it passes the credit-budget guard; otherwise it is SKIPPED.
+#:   tier 0 → the implementer's REGISTERED default (no override; free-only).
+#:   tier 1 → a free "second opinion": exclude the registered default so the
+#:            policy's next-best FREE model leads (SSoT — no id hardcoded here).
+#:   paid rung → a single OPTIONAL paid escalation, appended only when paid
+#:            escalation is enabled (``LLMXIVE_EXECUTION_PAID_ESCALATION``) AND
+#:            usable NOW (opt-in + fresh credit headroom); otherwise SKIPPED.
 #:
 #: This keeps the default behavior FREE-FIRST (tier0 → tier1 → re-plan); paid
-#: escalation (e.g. haiku/sonnet/opus) is enabled later by config, no code change.
-FREE_MODEL_TIERS: tuple[str, ...] = ("", "openai.gpt-oss-120b")
+#: escalation is enabled later by config, no code change and no model-id pin.
 
-#: Env hook for OPTIONAL paid escalation tiers (comma-separated model ids).
-EXECUTION_PAID_TIERS_ENV = "LLMXIVE_EXECUTION_PAID_TIERS"
-
-
-def _paid_model_tiers() -> tuple[str, ...]:
-    """Paid escalation tiers from the env hook (default empty)."""
-    raw = os.environ.get(EXECUTION_PAID_TIERS_ENV, "").strip()
-    if not raw:
-        return ()
-    return tuple(m.strip() for m in raw.split(",") if m.strip())
-
-
-def model_tier_ladder() -> tuple[str, ...]:
-    """The full ordered model ladder: free tiers then any configured paid tiers.
-
-    Index = tier number; the value is a model-id OVERRIDE (``""`` = tier 0 =
-    no override = the agent's registered default). Paid tiers are *listed* here
-    so the tier index is stable; usability is gated separately by
-    :func:`paid_tier_usable` (opt-in + credit budget).
-    """
-    return (*FREE_MODEL_TIERS, *_paid_model_tiers())
+#: Env: enable the single PAID escalation rung (default off). Booleans use the
+#: canonical {"1","true","yes","on"} idiom (mirrors backends.credits).
+PAID_ESCALATION_ENV = "LLMXIVE_EXECUTION_PAID_ESCALATION"
+#: Deprecated: a comma-separated model-id list. Model-ids are NO LONGER honored;
+#: any nonempty value collapses to ONE paid rung (with a one-time warning). Removal
+#: tracked for slice 8.
+_LEGACY_PAID_TIERS_ENV = "LLMXIVE_EXECUTION_PAID_TIERS"
+_BOOL_TRUE = {"1", "true", "yes", "on"}
+_BOOL_FALSE = {"0", "false", "no", "off"}
+_LEGACY_WARNED = False
 
 
-def paid_tier_usable(model: str) -> bool:
-    """Whether a PAID escalation tier may be used right now.
+@dataclass(frozen=True)
+class TierConstraint:
+    """One escalation rung as REQUIREMENT overrides — never a model id (spec 026
+    slice 6). Resolved to RequirementOverrides at dispatch."""
 
-    Requires the process-level paid opt-in AND headroom under the daily credit
-    budget cap (the existing FREE-FIRST guard). Fails closed on any doubt.
-    """
-    if not model:
-        return True  # tier 0 / free models never consult the paid guard
-    try:
-        from llmxive.backends.credits import paid_call_allowed, paid_opt_in_enabled
+    allow_paid: bool = False
+    exclude_registered_default: bool = False
+    require_paid: bool = False
+    max_credits: int | None = None
 
-        if not paid_opt_in_enabled():
+    @property
+    def is_paid(self) -> bool:
+        return self.allow_paid or self.require_paid
+
+    def to_overrides(self, default_model: str) -> RequirementOverrides:
+        return RequirementOverrides(
+            allow_paid=self.allow_paid,  # ALWAYS explicit (incl. False)
+            require_paid=self.require_paid,
+            exclude_models=(
+                frozenset({default_model})
+                if self.exclude_registered_default and default_model
+                else frozenset()
+            ),
+            max_credits=self.max_credits,
+        )
+
+
+#: The free rungs (indices stable): tier 0 = base free; tier 1 = free second opinion
+#: (exclude the registered default so the policy's next-best free leads).
+_FREE_RUNGS: tuple[TierConstraint, ...] = (
+    TierConstraint(allow_paid=False),
+    TierConstraint(allow_paid=False, exclude_registered_default=True),
+)
+#: The single paid rung appended when paid escalation is enabled.
+_PAID_RUNG = TierConstraint(allow_paid=True, require_paid=True)
+
+
+def _paid_escalation_enabled() -> bool:
+    """Exact env precedence (spec 026 slice 6, round-2 #4):
+    (a) PAID_ESCALATION present → true=on, false/0=off, invalid=warn+off; legacy ignored.
+    (b) else legacy PAID_TIERS nonempty → on (one rung) + one-time deprecation warning.
+    (c) else off."""
+    global _LEGACY_WARNED
+    raw = os.environ.get(PAID_ESCALATION_ENV)
+    if raw is not None:
+        v = raw.strip().lower()
+        if v in _BOOL_TRUE:
+            return True
+        if v in _BOOL_FALSE or v == "":
             return False
-        allowed, _reason = paid_call_allowed(model)
-        return bool(allowed)
-    except Exception as exc:  # fail closed — never let the guard crash routing
-        logger.warning("paid_tier_usable check failed for %r: %s", model, exc)
+        logger.warning(
+            "%s=%r is not a recognized boolean — disabling paid escalation (fail closed)",
+            PAID_ESCALATION_ENV, raw,
+        )
         return False
+    legacy = os.environ.get(_LEGACY_PAID_TIERS_ENV, "").strip()
+    if legacy:
+        if not _LEGACY_WARNED:
+            logger.warning(
+                "%s is deprecated; model-ids are no longer honored — collapsing to ONE "
+                "paid escalation rung. Use %s=1 instead.",
+                _LEGACY_PAID_TIERS_ENV, PAID_ESCALATION_ENV,
+            )
+            _LEGACY_WARNED = True
+        return True
+    return False
+
+
+def model_tier_ladder() -> tuple[TierConstraint, ...]:
+    """The ordered escalation ladder as constraints (index = tier). Two free rungs,
+    plus ONE paid rung when paid escalation is enabled."""
+    return (*_FREE_RUNGS, _PAID_RUNG) if _paid_escalation_enabled() else _FREE_RUNGS
+
+
+def tier_constraint(tier: int) -> TierConstraint:
+    """The constraint for ``tier``. Corrupt/out-of-range (incl. bool/float/str) →
+    tier-0 FREE-ONLY (NEVER the last/paid rung — invalid state must not broaden
+    spending authority)."""
+    ladder = model_tier_ladder()
+    t = _nonneg_int(tier)
+    if t == 0 or t >= len(ladder):
+        return ladder[0]
+    return ladder[t]
+
+
+def paid_tier_usable() -> bool:
+    """Coarse gate: is paid escalation globally enabled AND is there fresh daily
+    headroom NOW? Delegates ALL arithmetic to the canonical credits helper
+    (Constitution I). Fails closed on any error."""
+    try:
+        from llmxive.backends.credits import fresh_paid_headroom_available
+
+        ok, _reason = fresh_paid_headroom_available()
+        return bool(ok)
+    except Exception as exc:  # never let the guard crash routing
+        logger.warning("paid_tier_usable check failed: %s", exc)
+        return False
+
+
+def tier_overrides(
+    project_id: str, *, default_model: str, repo_root: Path | None = None
+) -> RequirementOverrides:
+    """The RequirementOverrides for the project's CURRENT model tier."""
+    return tier_constraint(
+        model_tier(project_id, repo_root=repo_root)
+    ).to_overrides(default_model)
 
 
 def _dir(repo_root: Path | None = None) -> Path:
@@ -132,64 +210,20 @@ def is_ok(project_id: str, *, repo_root: Path | None = None) -> bool:
 
 def fix_rounds(project_id: str, *, repo_root: Path | None = None) -> int:
     rec = load(project_id, repo_root=repo_root) or {}
-    n = rec.get("fix_rounds", 0)
-    return int(n) if isinstance(n, int) and n >= 0 else 0
+    return _nonneg_int(rec.get("fix_rounds"))
 
 
 def model_tier(project_id: str, *, repo_root: Path | None = None) -> int:
     """Current execution-fix-loop model tier (default 0 = registered default)."""
     rec = load(project_id, repo_root=repo_root) or {}
-    t = rec.get("model_tier", 0)
-    return int(t) if isinstance(t, int) and t >= 0 else 0
-
-
-def tier_model(tier: int) -> str:
-    """The model-id OVERRIDE for ``tier`` (``""`` = no override = registered
-    default). Out-of-range tiers clamp to the last ladder entry."""
-    ladder = model_tier_ladder()
-    if tier <= 0:
-        return ladder[0]
-    return ladder[min(tier, len(ladder) - 1)]
-
-
-def execution_model_override(
-    project_id: str,
-    *,
-    default_model: str,
-    repo_root: Path | None = None,
-) -> str:
-    """Resolve the model the execution-fix-loop implementer should use NOW.
-
-    Tier 0 (or any tier whose ladder entry is empty) → the agent's registered
-    ``default_model``. A higher tier returns its ladder model id. A PAID tier
-    that is not currently usable (opt-in off / over budget) falls back to the
-    registered default rather than crash — the tier still ADVANCES (so the loop
-    makes progress), it just doesn't get the paid model this run.
-    """
-    override = tier_model(model_tier(project_id, repo_root=repo_root))
-    if not override:
-        return default_model
-    if override not in FREE_MODEL_TIERS and not paid_tier_usable(override):
-        return default_model
-    return override
-
-
-def _is_free_tier(model: str) -> bool:
-    """A ladder entry that costs $0: the empty (registered-default) override or any
-    explicitly-free model."""
-    return (not model) or (model in FREE_MODEL_TIERS)
+    return _nonneg_int(rec.get("model_tier"))
 
 
 def next_usable_tier(current: int, *, free_only: bool = False) -> int | None:
-    """The next tier ABOVE ``current`` whose model is usable, or None if none.
+    """The next tier ABOVE ``current`` whose rung is usable, or None. A paid rung
+    (``constraint.is_paid``) is skipped when ``free_only`` OR paid is not usable now.
 
-    Skips paid tiers that are not currently usable (opt-in off / over budget).
-    Note: tier 0's model is the registered default, so a higher tier whose
-    override happens to equal the default is the caller's concern — here we only
-    skip UNUSABLE paid tiers (the registry default is not known to this layer;
-    the dispatch resolver collapses a same-as-default override harmlessly).
-
-    ``free_only`` refuses to climb onto a PAID tier at all. Used for FABRICATION
+    ``free_only`` refuses to climb onto a PAID rung at all. Used for FABRICATION
     failures: the deterministic fabrication guard fires on the code's OUTPUT
     regardless of which model wrote it, so paying for a stronger model to
     re-attempt fabrication is pure waste (PROJ-284 reached a paid Claude tier still
@@ -197,11 +231,13 @@ def next_usable_tier(current: int, *, free_only: bool = False) -> int | None:
     occasionally help; paid escalation for fabrication never can.
     """
     ladder = model_tier_ladder()
-    for t in range(current + 1, len(ladder)):
-        model = ladder[t]
-        if free_only and not _is_free_tier(model):
+    for t in range(_nonneg_int(current) + 1, len(ladder)):
+        c = ladder[t]
+        if not c.is_paid:
+            return t
+        if free_only:
             continue
-        if _is_free_tier(model) or paid_tier_usable(model):
+        if paid_tier_usable():
             return t
     return None
 
@@ -284,8 +320,7 @@ def bump_model_tier(
     ``free_only`` refuses to climb onto a paid tier (see :func:`next_usable_tier`);
     the caller passes it for FABRICATION failures, where a paid model cannot help."""
     existing = load(project_id, repo_root=repo_root) or {}
-    current = existing.get("model_tier", 0)
-    current = int(current) if isinstance(current, int) and current >= 0 else 0
+    current = _nonneg_int(existing.get("model_tier"))
     nxt = next_usable_tier(current, free_only=free_only)
     if nxt is None:
         raise ValueError(
@@ -448,13 +483,12 @@ def clear_offload(project_id: str, *, repo_root: Path | None = None) -> None:
 
 
 __all__ = [
-    "EXECUTION_PAID_TIERS_ENV",
-    "FREE_MODEL_TIERS",
     "MAX_EXECUTION_FIX_ROUNDS",
     "MAX_REPLAN_ROUNDS",
+    "PAID_ESCALATION_ENV",
+    "TierConstraint",
     "bump_model_tier",
     "clear_offload",
-    "execution_model_override",
     "fix_rounds",
     "is_offload_pending",
     "is_ok",
@@ -468,6 +502,7 @@ __all__ = [
     "record_offload",
     "replan_rounds",
     "reset_fix_loop",
-    "tier_model",
+    "tier_constraint",
+    "tier_overrides",
     "total_attempts",
 ]

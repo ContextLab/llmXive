@@ -2907,7 +2907,7 @@
       "category": "migration_target",
       "file": "src/llmxive/pipeline/graph.py",
       "kind": "field_consumer",
-      "line": 770,
+      "line": 766,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_model"
@@ -2916,25 +2916,7 @@
       "category": "migration_target",
       "file": "src/llmxive/pipeline/graph.py",
       "kind": "field_consumer",
-      "line": 778,
-      "models": [],
-      "owning_slice": 7,
-      "symbol": "default_model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/pipeline/graph.py",
-      "kind": "field_consumer",
-      "line": 781,
-      "models": [],
-      "owning_slice": 7,
-      "symbol": "default_model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/pipeline/graph.py",
-      "kind": "field_consumer",
-      "line": 798,
+      "line": 776,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_backend"
@@ -2943,7 +2925,7 @@
       "category": "migration_target",
       "file": "src/llmxive/pipeline/graph.py",
       "kind": "field_consumer",
-      "line": 799,
+      "line": 777,
       "models": [],
       "owning_slice": 7,
       "symbol": "fallback_backends"
@@ -3253,17 +3235,6 @@
       "models": [],
       "owning_slice": 7,
       "symbol": "default_model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/state/execution_status.py",
-      "kind": "module_constant",
-      "line": 63,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 6,
-      "symbol": "FREE_MODEL_TIERS"
     },
     {
       "category": "migration_target",
@@ -4472,28 +4443,6 @@
       ],
       "owning_slice": null,
       "symbol": "test_non_qwen_models_untouched"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/unit/test_execution_exhaustion_flow.py",
-      "kind": "model_id_literal",
-      "line": 93,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": null,
-      "symbol": "test_ladder_skips_paid_tiers_when_opt_in_off"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/unit/test_execution_exhaustion_flow.py",
-      "kind": "model_id_literal",
-      "line": 143,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": null,
-      "symbol": "test_execution_model_override_resolves_tier"
     },
     {
       "category": "test_double",

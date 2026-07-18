@@ -30,9 +30,10 @@ from llmxive.types import Project, Stage
 
 @pytest.fixture(autouse=True)
 def _free_first_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Default FREE-FIRST: no paid opt-in, no configured paid tiers."""
+    """Default FREE-FIRST: no paid opt-in, no paid escalation configured."""
     monkeypatch.delenv("LLMXIVE_PAID_OPT_IN", raising=False)
     monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_TIERS", raising=False)
+    monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_ESCALATION", raising=False)
 
 
 def _force_fix_rounds_at_cap(repo: Path, pid: str) -> None:
@@ -85,15 +86,14 @@ def test_ladder_skips_paid_tiers_when_opt_in_off(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     (tmp_path / "state" / "execution_status").mkdir(parents=True)
-    monkeypatch.setenv(
-        "LLMXIVE_EXECUTION_PAID_TIERS", "anthropic.claude-haiku,anthropic.claude-sonnet"
-    )
-    # Ladder LISTS paid tiers (stable indices) but they're unusable opt-in off.
-    assert es.model_tier_ladder() == (
-        "", "openai.gpt-oss-120b", "anthropic.claude-haiku", "anthropic.claude-sonnet"
-    )
+    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")
+    # Ladder APPENDS the single paid rung (stable index) but it's unusable
+    # opt-in off: two free rungs + one paid rung = 3 constraints.
+    ladder = es.model_tier_ladder()
+    assert len(ladder) == 3
+    assert [c.is_paid for c in ladder] == [False, False, True]
     assert es.next_usable_tier(0) == 1  # free second opinion
-    assert es.next_usable_tier(1) is None  # paid tiers skipped (opt-in off)
+    assert es.next_usable_tier(1) is None  # paid rung skipped (opt-in off)
     pid = "PROJ-011-paid"
     es.record(pid, ok=False, reason="boom", artifacts=[], failures=["x"],
               repo_root=tmp_path)
@@ -112,8 +112,8 @@ def test_fabrication_escalation_never_climbs_to_a_paid_tier(
     must cap at the last FREE tier; then re-plan (bounded), never pay to re-fabricate.
     """
     (tmp_path / "state" / "execution_status").mkdir(parents=True)
-    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_TIERS", "anthropic.claude-haiku")
-    monkeypatch.setattr(es, "paid_tier_usable", lambda m: True)  # opt-in ON, has budget
+    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")
+    monkeypatch.setattr(es, "paid_tier_usable", lambda: True)  # opt-in ON, has budget
     # A CODE BUG can use the paid tier; fabrication cannot.
     assert es.next_usable_tier(1) == 2                       # paid reachable in general
     assert es.next_usable_tier(1, free_only=True) is None    # ...but not free_only
@@ -127,20 +127,22 @@ def test_fabrication_escalation_never_climbs_to_a_paid_tier(
         es.bump_model_tier(pid, repo_root=tmp_path, free_only=True)  # 1 -> none (no paid)
 
 
-def test_execution_model_override_resolves_tier(tmp_path: Path) -> None:
+def test_tier_overrides_resolves_current_tier(tmp_path: Path) -> None:
     (tmp_path / "state" / "execution_status").mkdir(parents=True)
     pid = "PROJ-012-override"
     es.record(pid, ok=False, reason="boom", artifacts=[], failures=["x"],
               repo_root=tmp_path)
-    # Tier 0 -> the registered default (no override).
-    assert es.execution_model_override(
-        pid, default_model="REGISTERED-DEFAULT", repo_root=tmp_path
-    ) == "REGISTERED-DEFAULT"
+    # Tier 0 -> free-only constraint, no exclusions (the registered default leads).
+    ov0 = es.tier_overrides(pid, default_model="REGISTERED-DEFAULT", repo_root=tmp_path)
+    assert ov0.allow_paid is False
+    assert ov0.require_paid is False
+    assert ov0.exclude_models == frozenset()
     es.bump_model_tier(pid, repo_root=tmp_path)
-    # Tier 1 -> the free second-opinion model id.
-    assert es.execution_model_override(
-        pid, default_model="REGISTERED-DEFAULT", repo_root=tmp_path
-    ) == "openai.gpt-oss-120b"
+    # Tier 1 -> free second opinion: exclude the registered default so the
+    # policy's next-best FREE model leads (no model-id pin at this layer).
+    ov1 = es.tier_overrides(pid, default_model="REGISTERED-DEFAULT", repo_root=tmp_path)
+    assert ov1.allow_paid is False
+    assert ov1.exclude_models == frozenset({"REGISTERED-DEFAULT"})
 
 
 # --- graph routing ----------------------------------------------------------
