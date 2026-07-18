@@ -2907,7 +2907,7 @@
       "category": "migration_target",
       "file": "src/llmxive/pipeline/graph.py",
       "kind": "field_consumer",
-      "line": 766,
+      "line": 767,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_model"
@@ -2916,7 +2916,16 @@
       "category": "migration_target",
       "file": "src/llmxive/pipeline/graph.py",
       "kind": "field_consumer",
-      "line": 776,
+      "line": 773,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/pipeline/graph.py",
+      "kind": "field_consumer",
+      "line": 791,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_backend"
@@ -2925,7 +2934,7 @@
       "category": "migration_target",
       "file": "src/llmxive/pipeline/graph.py",
       "kind": "field_consumer",
-      "line": 777,
+      "line": 792,
       "models": [],
       "owning_slice": 7,
       "symbol": "fallback_backends"
@@ -6131,6 +6140,26 @@
       ],
       "owning_slice": null,
       "symbol": "base"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_slice6_override_propagation.py",
+      "kind": "module_constant",
+      "line": 353,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "_DISPATCH_DEFAULT_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_slice6_override_propagation.py",
+      "kind": "field_consumer",
+      "line": 435,
+      "models": [],
+      "owning_slice": null,
+      "symbol": "default_model"
     },
     {
       "category": "test_double",

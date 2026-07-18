@@ -759,11 +759,26 @@ def run_one_step(
         # ladder for BOTH autonomous loops (the execution fix-loop implementer at
         # IN_PROGRESS and the doc-stage convergence panels). As of spec 026 slice 6
         # each rung is a REQUIREMENT CONSTRAINT (``execution_status.tier_overrides``
-        # → RequirementOverrides), no longer a model-id override projected onto
-        # ``ctx.default_model``. Threading those overrides into the router
-        # (``route_chat``) is a later slice-6 task; this dispatch passes the agent's
-        # registered default and the escalated tier is applied at selection time.
-        _model_for_run = entry.default_model
+        # → RequirementOverrides) threaded onto ``SlashCommandContext.
+        # requirement_overrides`` (Task 6 forwards it into ``chat_with_fallback``
+        # and the panel/reviser review-spec builders), never a model-id override
+        # projected onto ``ctx.default_model`` — the registered default always
+        # flows through unchanged; the escalated tier narrows the ROUTER's choice.
+        _model_for_run = entry.default_model  # registry default (Slice 7 owns per-agent base profiles)
+        _req_overrides = None
+        _exec_fix = agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS
+        _panel_stage = project.current_stage in _STAGE_PANEL_LABEL
+        if _exec_fix or _panel_stage:
+            _req_overrides = execution_status.tier_overrides(
+                project.id, default_model=entry.default_model, repo_root=repo,
+            )
+            _tier = execution_status.model_tier(project.id, repo_root=repo)
+            if _tier > 0:
+                logger.info(
+                    "model-tier escalation: dispatching %s for %s (stage=%s) at tier %d "
+                    "with overrides %r",
+                    agent_name, project.id, project.current_stage.value, _tier, _req_overrides,
+                )
         while True:
             sk_ctx = SlashCommandContext(
                 project_id=project.id,
@@ -778,6 +793,7 @@ def run_one_step(
                 default_model=_model_for_run,
                 prompt_version=entry.prompt_version,
                 agent_name=entry.name,
+                requirement_overrides=_req_overrides,
             )
             _before = (
                 _incomplete_task_count(project_dir, paper=_paper_track)

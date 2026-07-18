@@ -18,7 +18,9 @@ the forwarded value — a module-symbol capture, not a mock object.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -29,8 +31,12 @@ from llmxive.convergence.llm_reviewer import LLMReviewer
 from llmxive.convergence.reviewspecs import build_plan_reviewspec
 from llmxive.convergence.revisers._self_consistency import invoke_reviser_backend
 from llmxive.model_selection.types import RequirementOverrides
+from llmxive.pipeline import graph
+from llmxive.speckit._stage_panel import StagePanelEscalation as _DispatchEscalation
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
-from llmxive.types import BackendName
+from llmxive.state import execution_status as es
+from llmxive.state import project as project_store
+from llmxive.types import BackendName, Project, Stage
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -321,3 +327,166 @@ def test_tasker_bridge_default_overrides_none(monkeypatch):
             backend=_FakeBackend(),
         )
     assert captured["requirement_overrides"] is None
+
+
+# --- (f) Task 7: graph DISPATCH computes + sets the tier's overrides -------
+#
+# Tasks (a)-(e) above prove overrides ride the whole way down ONCE something
+# sets ``ctx.requirement_overrides``. Before Task 7 nothing did: the graph
+# dispatch block (``run_one_step``, the ``elif agent_name in _SPECKIT_AGENTS``
+# branch) always constructed ``SlashCommandContext`` with the field at its
+# ``None`` default, so escalation only ever produced a log line — the
+# ``execution_status.tier_overrides`` value never reached ``route_chat``.
+# These tests drive the REAL ``graph.run_one_step`` dispatch over a synthetic
+# on-disk repo and a REAL ``execution_status`` tier record (Constitution III
+# — no mocks of the unit under test). Only the speckit agent class + the
+# registry/project-store collaborators are stubbed, the established pattern
+# in test_implement_batching.py / test_convergence_kickback_flow.py. The stub
+# agent's ``run(sk_ctx)`` captures the REAL, fully-constructed
+# ``SlashCommandContext`` the graph builds, then raises
+# ``StagePanelEscalation`` — the graph's own proven escape hatch (see
+# ``test_run_one_step_keeps_project_schedulable_on_engine_failure`` in
+# test_convergence_kickback_flow.py) that returns cleanly without touching
+# any further routing machinery, so each test exercises ONLY the
+# dispatch-construction code path under test.
+
+_DISPATCH_DEFAULT_MODEL = "openai.gpt-oss-120b"
+
+
+def _dispatch_stub_entry(name: str) -> SimpleNamespace:
+    return SimpleNamespace(
+        prompt_path=Path("prompts/x.md"),
+        default_backend="dartmouth",
+        fallback_backends=[],
+        default_model=_DISPATCH_DEFAULT_MODEL,
+        prompt_version="1.0.0",
+        name=name,
+    )
+
+
+def _dispatch_project(pid: str, stage: Stage) -> Project:
+    now = datetime.now(UTC)
+    return Project(
+        id=pid,
+        title="X",
+        field="computer science",
+        current_stage=stage,
+        created_at=now,
+        updated_at=now,
+        speckit_research_dir="specs/001-x",
+    )
+
+
+def _dispatch_wire(monkeypatch, agent_name: str, agent_cls, project: Project) -> None:
+    monkeypatch.setitem(graph._SPECKIT_AGENTS, agent_name, agent_cls)
+    monkeypatch.setattr(
+        graph.registry_loader, "get",
+        lambda name, repo_root=None: _dispatch_stub_entry(name),
+    )
+    monkeypatch.setattr(project_store, "load", lambda pid, repo_root=None: project)
+    monkeypatch.setattr(project_store, "save", lambda p, repo_root=None: None)
+
+
+def _dispatch_capturing_agent(captured: dict):
+    class _CaptureAgent:
+        def run(self, sk_ctx) -> None:
+            captured["ctx"] = sk_ctx
+            raise _DispatchEscalation("capture-only stub — no real panel/LLM call")
+
+    return _CaptureAgent
+
+
+@pytest.mark.parametrize(
+    ("pid", "stage", "agent_name"),
+    [
+        ("PROJ-950-tier1-exec", Stage.IN_PROGRESS, "implementer"),
+        ("PROJ-951-tier1-panel", Stage.SPECIFIED, "clarifier"),
+    ],
+)
+def test_dispatch_sets_tier1_overrides_matching_execution_status(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, pid: str, stage: Stage, agent_name: str
+) -> None:
+    """For the two escalation-bearing dispatch paths (the IN_PROGRESS exec-fix
+    implementer, and a doc-stage panel), at model_tier==1 the dispatched
+    ``SlashCommandContext.requirement_overrides`` equals
+    ``execution_status.tier_overrides(project.id, default_model=entry.
+    default_model, repo_root=repo)`` EXACTLY — tier 1 excludes the registered
+    default (``exclude_registered_default=True`` on the ladder's rung 1)."""
+    project = _dispatch_project(pid, stage)
+    new_tier = es.bump_model_tier(pid, repo_root=tmp_path)  # tier 0 -> 1
+    assert new_tier == 1
+    assert es.model_tier(pid, repo_root=tmp_path) == 1
+
+    captured: dict = {}
+    _dispatch_wire(monkeypatch, agent_name, _dispatch_capturing_agent(captured), project)
+
+    graph.run_one_step(project, repo_root=tmp_path)
+
+    ctx = captured.get("ctx")
+    assert ctx is not None, "the agent-run boundary was never reached"
+
+    expected = es.tier_overrides(
+        pid, default_model=_DISPATCH_DEFAULT_MODEL, repo_root=tmp_path
+    )
+    assert ctx.requirement_overrides == expected
+    # Pin the concrete tier-1 shape so a ladder regression is caught directly.
+    assert ctx.requirement_overrides.allow_paid is False
+    assert ctx.requirement_overrides.exclude_models == frozenset({_DISPATCH_DEFAULT_MODEL})
+    assert ctx.default_model == _DISPATCH_DEFAULT_MODEL  # registered default untouched
+
+
+@pytest.mark.parametrize(
+    ("pid", "stage", "agent_name"),
+    [
+        ("PROJ-952-tier0-exec", Stage.IN_PROGRESS, "implementer"),
+        ("PROJ-953-tier0-panel", Stage.SPECIFIED, "clarifier"),
+    ],
+)
+def test_dispatch_sets_tier0_overrides_not_none(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, pid: str, stage: Stage, agent_name: str
+) -> None:
+    """At tier 0 (no escalation yet — no execution_status record at all) the
+    escalation-bearing stages still get a REAL RequirementOverrides object,
+    not ``None``-through-default: a ``None`` here would silently defer to
+    whatever per-call defaults the router applies elsewhere instead of
+    pinning the explicit free-only tier-0 constraint (``allow_paid=False``)."""
+    project = _dispatch_project(pid, stage)
+    assert es.model_tier(pid, repo_root=tmp_path) == 0  # no record yet -> tier 0
+
+    captured: dict = {}
+    _dispatch_wire(monkeypatch, agent_name, _dispatch_capturing_agent(captured), project)
+
+    graph.run_one_step(project, repo_root=tmp_path)
+
+    ctx = captured.get("ctx")
+    assert ctx is not None
+
+    expected = es.tier_overrides(
+        pid, default_model=_DISPATCH_DEFAULT_MODEL, repo_root=tmp_path
+    )
+    assert ctx.requirement_overrides == expected
+    assert ctx.requirement_overrides is not None
+    assert ctx.requirement_overrides.allow_paid is False
+    assert ctx.requirement_overrides.exclude_models == frozenset()
+
+
+def test_dispatch_leaves_overrides_none_for_non_escalation_stage(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """PROJECT_INITIALIZED -> specifier is neither the IN_PROGRESS exec-fix
+    loop nor a panel stage in ``graph._STAGE_PANEL_LABEL`` — the tier ladder
+    does not apply there (spec 026 slice 6 scopes escalation to the two
+    autonomous loops), so dispatch must not compute/attach overrides even
+    when the project's recorded tier is nonzero."""
+    pid = "PROJ-954-no-escalation"
+    project = _dispatch_project(pid, Stage.PROJECT_INITIALIZED)
+    es.bump_model_tier(pid, repo_root=tmp_path)  # tier 1 — still unaffected here
+
+    captured: dict = {}
+    _dispatch_wire(monkeypatch, "specifier", _dispatch_capturing_agent(captured), project)
+
+    graph.run_one_step(project, repo_root=tmp_path)
+
+    ctx = captured.get("ctx")
+    assert ctx is not None
+    assert ctx.requirement_overrides is None
