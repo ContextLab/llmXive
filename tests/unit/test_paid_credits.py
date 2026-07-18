@@ -245,3 +245,54 @@ class TestReservationAwareGuard:
         )
         assert allowed is False
         assert "failing closed" in reason
+
+
+class TestFreshPaidHeadroomAvailable:
+    """spec 026 Slice 6: the canonical coarse escalation-ladder gate — is paid
+    globally enabled AND is there daily headroom RIGHT NOW? All paid-headroom
+    arithmetic stays in this module (Constitution I)."""
+
+    def test_headroom_opt_in_off_false(self, monkeypatch):
+        monkeypatch.delenv(credits.PAID_OPT_IN_ENV, raising=False)
+        ok, reason = credits.fresh_paid_headroom_available(
+            fetch=lambda: _balance(spend=0.0, max_budget=1000.0)
+        )
+        assert ok is False and "opt-in" in reason.lower()
+
+    def test_headroom_positive_true(self, monkeypatch):
+        monkeypatch.setenv(credits.PAID_OPT_IN_ENV, "1")
+        monkeypatch.delenv(credits.BUDGET_FRACTION_ENV, raising=False)  # default 0.75
+        ok, _ = credits.fresh_paid_headroom_available(
+            fetch=lambda: _balance(spend=100.0, max_budget=1000.0)
+        )
+        assert ok is True  # cap 750 - spend 100 = 650 > 0
+
+    def test_headroom_exhausted_false(self, monkeypatch):
+        monkeypatch.setenv(credits.PAID_OPT_IN_ENV, "1")
+        ok, _ = credits.fresh_paid_headroom_available(
+            fetch=lambda: _balance(spend=800.0, max_budget=1000.0)
+        )
+        assert ok is False  # cap 750 <= spend 800
+
+    def test_headroom_nonfinite_fails_closed(self, monkeypatch):
+        monkeypatch.setenv(credits.PAID_OPT_IN_ENV, "1")
+        ok, _ = credits.fresh_paid_headroom_available(
+            fetch=lambda: _balance(spend=float("nan"), max_budget=1000.0)
+        )
+        assert ok is False
+
+    def test_headroom_zero_max_budget_fails_closed(self, monkeypatch):
+        monkeypatch.setenv(credits.PAID_OPT_IN_ENV, "1")
+        ok, reason = credits.fresh_paid_headroom_available(
+            fetch=lambda: _balance(spend=0.0, max_budget=0.0)
+        )
+        assert ok is False and "max_budget" in reason
+
+    def test_headroom_fetch_error_fails_closed(self, monkeypatch):
+        monkeypatch.setenv(credits.PAID_OPT_IN_ENV, "1")
+
+        def boom() -> credits.CreditBalance:
+            raise RuntimeError("network")
+
+        ok, reason = credits.fresh_paid_headroom_available(fetch=boom)
+        assert ok is False and "failing closed" in reason.lower()

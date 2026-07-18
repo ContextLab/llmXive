@@ -39,6 +39,7 @@ module enforces the *runtime* budget side of that contract.
 from __future__ import annotations
 
 import logging
+import math
 import os
 import time
 from collections.abc import Callable
@@ -277,6 +278,44 @@ def paid_call_allowed(
     )
 
 
+def fresh_paid_headroom_available(
+    *, fetch: Callable[[], CreditBalance] | None = None
+) -> tuple[bool, str]:
+    """Coarse escalation gate (spec 026 slice 6): is paid globally enabled AND is
+    there daily headroom RIGHT NOW? Reads a FRESH, cache-bypassing balance (a
+    concurrent burst must not slip past a stale spend), applies the canonical
+    budget_fraction, and FAILS CLOSED on any doubt. This is the ONLY paid-headroom
+    arithmetic outside select()'s per-call ceiling and execute()'s authoritative
+    reservation (Constitution I) — the escalation ladder delegates here rather than
+    re-deriving the cap. Returns (allowed, reason)."""
+    if not paid_opt_in_enabled():
+        return (
+            False,
+            f"paid escalation refused: paid opt-in ({PAID_OPT_IN_ENV}) is not set",
+        )
+    try:
+        balance = (fetch or fetch_credit_balance)()  # cache-bypassing (fresh)
+    except Exception as exc:
+        return (False, f"paid escalation refused: balance unavailable "
+                       f"({type(exc).__name__}: {exc}) — failing closed")
+    frac = budget_fraction()
+    if not all(math.isfinite(v) for v in (balance.spend, balance.max_budget, frac)):
+        return (False, "paid escalation refused: non-finite spend/max_budget/fraction "
+                       "— failing closed")
+    if balance.max_budget <= 0:
+        return (False, f"paid escalation refused: max_budget={balance.max_budget} "
+                       "(no paid budget on this account)")
+    cap = frac * balance.max_budget
+    headroom = cap - balance.spend
+    if not (math.isfinite(cap) and math.isfinite(headroom)):
+        return (False, "paid escalation refused: non-finite cap/headroom — failing closed")
+    if headroom <= 0:
+        return (False, f"paid escalation refused: no headroom "
+                       f"(cap {cap:.2f} <= spend {balance.spend:.2f})")
+    return (True, f"paid escalation allowed: headroom {headroom:.2f} "
+                  f"(cap {cap:.2f}, spend {balance.spend:.2f})")
+
+
 __all__ = [
     "BALANCE_TTL_ENV",
     "BUDGET_FRACTION_ENV",
@@ -286,6 +325,7 @@ __all__ = [
     "CreditBalance",
     "budget_fraction",
     "fetch_credit_balance",
+    "fresh_paid_headroom_available",
     "paid_call_allowed",
     "paid_opt_in_enabled",
     "reset_balance_cache",
