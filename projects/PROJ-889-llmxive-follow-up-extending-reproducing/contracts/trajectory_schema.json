@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CHERRL Trajectory Divergence Schema",
+  "description": "Schema for validating the processed trajectory data containing divergence gap G(t) and its derivative.",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source_dataset": { "type": "string" },
+        "processing_version": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "seed_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["source_dataset", "processing_version", "seed_ids"]
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Timestep index t"
+          },
+          "seed_id": {
+            "type": "string",
+            "description": "Unique identifier for the random seed"
+          },
+          "bias_type": {
+            "type": "string",
+            "enum": ["Lexical", "Format", "Tone", "Self-praise"],
+            "description": "Type of rubric bias applied"
+          },
+          "J_biased": {
+            "type": "number",
+            "description": "Reward score under biased rubric"
+          },
+          "J_unbiased": {
+            "type": "number",
+            "description": "Reward score under unbiased rubric"
+          },
+          "G_t": {
+            "type": "number",
+            "description": "Divergence gap |J_biased - J_unbiased|"
+          },
+          "dG_t": {
+            "type": "number",
+            "description": "Discrete derivative of G(t)"
+          },
+          "z_score_G": {
+            "type": "number",
+            "description": "Rolling z-score of G(t)"
+          },
+          "hacked_label": {
+            "type": "boolean",
+            "description": "Flag indicating if the step is detected as reward hacking"
+          }
+        },
+        "required": ["step", "seed_id", "bias_type", "J_biased", "J_unbiased", "G_t", "dG_t", "z_score_G", "hacked_label"]
+      }
+    }
+  },
+  "required": ["metadata", "data"]
+}

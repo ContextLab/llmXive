@@ -1,0 +1,9 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T003** — No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) or scripts to set up ruff/flake8/black are present in the provided artifacts. Consequently, the requirement to configure these tools is not satisfied.
+- **T004** — No evidence of a `data/` folder with `raw` and `processed` subdirectories is provided, nor any `.gitignore` file containing rules to exclude large data files. The required artifacts are missing, so the task is not satisfied.
+- **T005** — The claim provides no `contracts/trajectory_schema.json` or `contracts/metrics_schema.json` files, nor any content showing they were created or contain the required validation definitions. Without these non‑empty schema artifacts, the task’s requirement is not satisfied.
+- **T013** — No `download_cherrl_logs.py` script is present, and there is no evidence that the required validation of the arXiv paper or real dataset fetching (e.g., `datasets.load_dataset('cherrl', split='train')`) was implemented. Consequently the task’s core requirement is unmet.
+- **T017** — The submission contains only the original task description and specification excerpt; there is no code, script, test, or documentation showing that zero‑variance $G(t)$ is detected and its z‑score set to 0, nor that missing timesteps are interpolated or skipped. Consequently the required validation logic and edge‑case handling are not demonstrated.

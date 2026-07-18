@@ -1,0 +1,61 @@
+# Ignore all data files by default
+# Specific directories can be un-ignored if needed, but raw/processed are always ignored
+
+# Raw data (usually large, downloaded or generated)
+data/raw/*
+!data/raw/.gitkeep
+
+# Processed data (generated artifacts)
+data/processed/*
+!data/processed/.gitkeep
+
+# Figures and plots
+figures/*
+!figures/.gitkeep
+
+# Temporary files
+data/tmp/*
+!data/tmp/.gitkeep
+
+# Cache files
+data/.cache/*
+!data/.cache/.gitkeep
+
+# Large model weights or checkpoints
+data/models/*
+!data/models/.gitkeep
+
+# Exclude common large file formats
+*.csv.gz
+*.parquet
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+*.tfrecord
+*.bin
+*.pt
+*.pth
+
+# Ignore IDE and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore virtual environments
+venv/
+env/
+.venv/
+
+# Ignore test data if generated
+data/test_data/
+
+# Allow tracking of these placeholder files
+*.gitkeep

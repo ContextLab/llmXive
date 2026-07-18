@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T18:50:28.352449Z'
-current_stage: tasked
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-889-llmxive-follow-up-extending-reproducing
-last_run_id: 7348c227-4f27-4171-8638-04724ba41c41
+last_run_id: a0e48950-9c32-47a3-8975-7592167b0e43
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing
 title: 'llmXive follow-up: extending "Reproducing, Analyzing, and Detecting Reward
   Hacking in Rubric-Based R"'
-updated_at: '2026-07-13T22:34:16.168352Z'
+updated_at: '2026-07-18T02:39:20.598110Z'

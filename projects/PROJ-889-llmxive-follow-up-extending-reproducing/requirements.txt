@@ -1,0 +1,11 @@
+pandas
+numpy
+scipy
+requests
+pyyaml
+jsonschema
+pytest
+datasets
+ruff
+black
+flake8

@@ -1,0 +1,22 @@
+T010:
+  c: false
+  h: 3c082aceffdfe435ec9d471f03758f28789e98535fc99e7b01eb96e9e143f60a
+  r: "The required artifact `tests/unit/test_ingestion_math.py` does not exist, so\
+    \ no unit test for the $G(t)$ calculation logic is present. The task cannot be\
+    \ considered completed until a non\u2011empty test file is added at the specified\
+    \ location."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `download_cherrl_logs.py` script is present, and there is no evidence that\
+    \ the required validation of the arXiv paper or real dataset fetching (e.g., `datasets.load_dataset('cherrl',\
+    \ split='train')`) was implemented. Consequently the task\u2019s core requirement\
+    \ is unmet."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the original task description and specification\
+    \ excerpt; there is no code, script, test, or documentation showing that zero\u2011\
+    variance\u202F$G(t)$ is detected and its z\u2011score set to\u202F0, nor that\
+    \ missing timesteps are interpolated or skipped. Consequently the required validation\
+    \ logic and edge\u2011case handling are not demonstrated."

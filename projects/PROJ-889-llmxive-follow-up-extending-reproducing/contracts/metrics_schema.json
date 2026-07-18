@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Evaluation Metrics Schema",
+  "description": "Schema for validating the final evaluation metrics and statistical test results.",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "evaluation_version": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "threshold_config": {
+          "type": "object",
+          "properties": {
+            "z_score_threshold": { "type": "number" },
+            "dG_threshold_multiplier": { "type": "number" }
+          }
+        }
+      },
+      "required": ["evaluation_version", "threshold_config"]
+    },
+    "global_metrics": {
+      "type": "object",
+      "properties": {
+        "precision": { "type": "number", "minimum": 0, "maximum": 1 },
+        "recall": { "type": "number", "minimum": 0, "maximum": 1 },
+        "f1_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "accuracy": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "required": ["precision", "recall", "f1_score", "accuracy"]
+    },
+    "metrics_by_bias_type": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "precision": { "type": "number" },
+          "recall": { "type": "number" },
+          "f1_score": { "type": "number" },
+          "sample_count": { "type": "integer" }
+        },
+        "required": ["precision", "recall", "f1_score", "sample_count"]
+      }
+    },
+    "statistical_tests": {
+      "type": "object",
+      "properties": {
+        "wilcoxon_test": {
+          "type": "object",
+          "properties": {
+            "statistic": { "type": "number" },
+            "p_value": { "type": "number" },
+            "effect_size": { "type": "number" },
+            "baseline_name": { "type": "string" }
+          },
+          "required": ["statistic", "p_value", "effect_size", "baseline_name"]
+        },
+        "independence_check": {
+          "type": "object",
+          "properties": {
+            "j_unbiased_vs_gold_corr": { "type": "number" },
+            "j_biased_vs_gold_corr": { "type": "number" },
+            "threshold": { "type": "number" },
+            "passed": { "type": "boolean" }
+          },
+          "required": ["j_unbiased_vs_gold_corr", "j_biased_vs_gold_corr", "threshold", "passed"]
+        }
+      }
+    },
+    "ground_truth_stats": {
+      "type": "object",
+      "properties": {
+        "total_hacked_steps": { "type": "integer" },
+        "total_steps": { "type": "integer" },
+        "hacking_rate": { "type": "number" }
+      },
+      "required": ["total_hacked_steps", "total_steps", "hacking_rate"]
+    }
+  },
+  "required": ["metadata", "global_metrics", "metrics_by_bias_type", "statistical_tests", "ground_truth_stats"]
+}

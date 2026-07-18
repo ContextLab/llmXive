@@ -1,0 +1,919 @@
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: arXiv paper arXiv:2606.04923 serves as canonical source for CHERRL data
+    repository link
+  claim_id: c_364a3fc8
+  context: Implement `download_cherrl_logs.py` to fetch real data. The task MUST first
+    validate the canonical source by checking the arXiv paper (arXiv:2606.04923) for
+    the official data repository link.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The task MUST first validate the canonical source by checking the arXiv
+    paper (arXiv:2606.04923) for the official data repository link.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:42:40Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: arXiv paper arXiv:2606.04923 contains official data repository link for
+    CHERRL
+  claim_id: c_6478a4b9
+  context: T013 Implement download_cherrl_logs.py to fetch real data. The task MUST
+    first validate the canonical source by checking the arXiv paper (arXiv:2606.04923)
+    for the official data repository link.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The script MUST first validate the canonical source by checking the arXiv
+    paper (arXiv:2606.04923) for the official data repository link.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:43:17Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: CHERRL dataset available on HuggingFace with train split
+  claim_id: c_47300b3c
+  context: If the paper links to HuggingFace, fetch the cherrl dataset using datasets.load_dataset('cherrl',
+    split='train').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CHERRL_dataset_available_on_HuggingFace_with_train_split
+  kind: entity_fact
+  raw_text: If the paper links to HuggingFace, fetch the cherrl dataset using datasets.load_dataset('cherrl',
+    split='train').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:44:03Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Validate data source against arXiv paper arXiv:2606.04923
+  claim_id: c_ad4d6ee5
+  context: Implement download_cherrl_logs.py to fetch real data. The task MUST first
+    validate the canonical source by checking the arXiv paper (arXiv:2606.04923) for
+    the official data repository link.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The task MUST first validate the canonical source by checking the arXiv
+    paper (arXiv:2606.04923) for the official data repository link.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T01:45:37Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Fetch cherrl dataset from HuggingFace with split='train'
+  claim_id: c_f07eab2f
+  context: If the paper links to HuggingFace, fetch the 'cherrl' dataset using datasets.load_dataset('cherrl',
+    split='train').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_cherrl_dataset_from_HuggingFace_with_split='train'
+  kind: entity_fact
+  raw_text: If the paper links to HuggingFace, fetch the 'cherrl' dataset using datasets.load_dataset('cherrl',
+    split='train').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:45:42Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Script raises exception on fetch failure without synthetic fallback
+  claim_id: c_cc4cdc66
+  context: The script MUST fail loudly (raise exception) if the real fetch fails;
+    NO synthetic fallback allowed.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Script_raises_exception_on_fetch_failure_without_synthetic_f
+  kind: entity_fact
+  raw_text: The script MUST fail loudly (raise exception) if the real fetch fails;
+    NO synthetic fallback allowed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:46:56Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Sliding window z-score with W=20 and min 5 samples
+  claim_id: c_033ce49a
+  context: Implement code/detector.py to calculate sliding window z-score ($W=20$,
+    min 5 samples) per FR-002
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate sliding window z-score with window size W=20 and minimum 5 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:47:27Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Flag hacked if z-score of G(t) exceeds 3.0
+  claim_id: c_b522264b
+  context: Implement logic in code/detector.py to flag 'hacked' if $z(G(t)) > 3.0$
+    OR if $\Delta G(t)$ exceeds a dynamic threshold.
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Flag 'hacked' if z(G(t)) > 3.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T01:47:27Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Ground truth derived from J_gold drops >= 0.1 over 50 steps sustained
+    3 steps
+  claim_id: c_26326e85
+  context: "Implement code/ground_truth.py to derive labels from $J_{\\text{gold}}$\
+    \ drops (\u22650.1 decrease over 50 steps, sustained 3 steps) per FR-004"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_derived_from_J_gold_drops_%3E=_0.1_over_50_steps_
+  kind: magnitude
+  raw_text: Derive labels from J_gold drops of at least 0.1 decrease over 50 steps,
+    sustained for 3 steps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:48:16Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Halt execution if Pearson correlation exceeds 0.8
+  claim_id: c_93005d7d
+  context: If EITHER correlation exceeds the threshold defined in code/config.py as
+    CORRELATION_THRESHOLD (default 0.8), raise a RuntimeError and exit with code 1
+    immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise a RuntimeError and exit with code 1 if EITHER correlation exceeds
+    the threshold defined in code/config.py as CORRELATION_THRESHOLD (default 0.8).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:48:32Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Runtime limit is 4 hours
+  claim_id: c_a22b03eb
+  context: Implement sequential seed processing in code/main.py to ensure memory safety
+    and runtime < 4 hours (process seeds one by one if needed).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_limit_is_4_hours
+  kind: magnitude
+  raw_text: Runtime must be less than 4 hours by processing seeds one by one if needed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:49:10Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 0
+  canonical: flag hacked if z-score of G(t) exceeds 3.0
+  claim_id: c_75085ea6
+  context: Implement logic in `code/detector.py` to flag 'hacked' if $z(G(t)) > 3.0$
+    OR if $\Delta G(t)$ exceeds a dynamic threshold.
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Flag 'hacked' if z(G(t)) > 3.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T01:50:43Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: validate CHERRL data source against arXiv:2606.04923
+  claim_id: c_0c64c104
+  context: T013 [US1] Implement download_cherrl_logs.py to fetch real data. The task
+    MUST first validate the canonical source by checking the arXiv paper (arXiv:2606.04923)
+    for the official data repository link.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The script MUST first validate the canonical source by checking the arXiv
+    paper (arXiv:2606.04923) for the official data repository link.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:50:46Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: fetch cherrl dataset from HuggingFace using split=train
+  claim_id: c_61e3bea3
+  context: If the paper links to HuggingFace, fetch the `cherrl` dataset using `datasets.load_dataset('cherrl',
+    split='train')`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_cherrl_dataset_from_HuggingFace_using_split%3Dtrain
+  kind: entity_fact
+  raw_text: If the paper links to HuggingFace, fetch the cherrl dataset using datasets.load_dataset('cherrl',
+    split='train').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:50:49Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: CHERRL fetch script must raise exception on failure without synthetic
+    fallback
+  claim_id: c_921efc97
+  context: The script MUST fail loudly (raise exception) if the real fetch fails;
+    NO synthetic fallback allowed.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CHERRL_fetch_script_must_raise_exception_on_failure_without
+  kind: entity_fact
+  raw_text: The script MUST fail loudly (raise exception) if the real fetch fails;
+    NO synthetic fallback allowed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:50:52Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: sliding window z-score calculation with window size 20 and minimum 5
+    samples
+  claim_id: c_93cd8dd4
+  context: Implement `code/detector.py` to calculate sliding window z-score ($W=20$,
+    min 5 samples) per FR-002
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate sliding window z-score with W=20 and a minimum of 5 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:51:30Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: ground truth derived from J_gold drop >= 0.1 over 50 steps sustained
+    3 steps
+  claim_id: c_2fca4338
+  context: "Implement `code/ground_truth.py` to derive labels from $J_{\\text{gold}}$\
+    \ drops (\u22650.1 decrease over 50 steps, sustained 3 steps) per FR-004"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ground_truth_derived_from_J_gold_drop_%3E=_0.1_over_50_steps_s
+  kind: magnitude
+  raw_text: Derive ground truth labels from J_gold drops of at least 0.1 decrease
+    over 50 steps, sustained for 3 steps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:52:17Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: check Pearson correlation for J_unbiased vs J_gold and J_biased vs J_gold
+  claim_id: c_02e9b50c
+  context: Implement `code/ground_truth.py` to check Pearson correlation for BOTH
+    $J_{\text{unbiased}}$ vs $J_{\text{gold}}$ AND $J_{\text{biased}}$ vs $J_{\text{gold}}$.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Check_Pearson_correlation_for_J_unbiased_vs_J_gold_and_J_bia
+  kind: entity_fact
+  raw_text: Check Pearson correlation for both J_unbiased vs J_gold and J_biased vs
+    J_gold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:53:04Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: raise RuntimeError and exit code 1 if correlation exceeds default 0.8
+    threshold
+  claim_id: c_cce4b1d3
+  context: If EITHER correlation exceeds the threshold defined in `code/config.py`
+    as `CORRELATION_THRESHOLD` (default 0.8), raise a RuntimeError and exit with code
+    1 immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If either correlation exceeds the threshold defined in code/config.py
+    as CORRELATION_THRESHOLD (default 0.8), raise a RuntimeError and exit with code
+    1 immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:53:34Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test of detector F1-scores against random-guess
+    and mean-divergence baselines
+  claim_id: c_59005aa9
+  context: Implement `code/evaluation.py` to perform a **Wilcoxon signed-rank test**
+    ... comparing the detector's F1-scores against **Neutral baselines (random-guess
+    and mean-divergence)**.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_of_detector_F1-scores_against_rand
+  kind: entity_fact
+  raw_text: Perform a Wilcoxon signed-rank test comparing the detector's F1-scores
+    against Neutral baselines (random-guess and mean-divergence).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:54:40Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: sequential seed processing to ensure runtime under 4 hours
+  claim_id: c_6a4b3b2c
+  context: Implement sequential seed processing in `code/main.py` to ensure memory
+    safety and runtime < 4 hours (process seeds one by one if needed).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Process seeds one by one to ensure memory safety and runtime < 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:54:40Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Baseline for Wilcoxon signed-rank test includes random-guess and mean-divergence
+    labels
+  claim_id: c_fa1e24f0
+  context: The baseline logic must generate random labels and mean-divergence labels
+    to compare against the detector. Report p-value and effect size.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_for_Wilcoxon_signed-rank_test_includes_random-guess
+  kind: entity_fact
+  raw_text: The baseline logic must generate random labels and mean-divergence labels
+    to compare against the detector.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T01:59:18Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 2
+  canonical: Validate CHERRL data source against arXiv paper arXiv:2606.04923
+  claim_id: c_7f6f655f
+  context: Implement download_cherrl_logs.py to fetch real data. The task MUST first
+    validate the canonical source by checking the arXiv paper (arXiv:2606.04923) for
+    the official data repository link.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: The script MUST first validate the canonical source by checking the arXiv
+    paper (arXiv:2606.04923) for the official data repository link.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:02:31Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Fetch cherrl dataset from HuggingFace using split=train
+  claim_id: c_4e3f0115
+  context: If the paper links to HuggingFace, fetch the cherrl dataset using datasets.load_dataset('cherrl',
+    split='train'). If the paper links elsewhere, use that verified source.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_cherrl_dataset_from_HuggingFace_using_split=train
+  kind: entity_fact
+  raw_text: If the paper links to HuggingFace, fetch the cherrl dataset using datasets.load_dataset('cherrl',
+    split='train').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:02:35Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Calculate G(t) as absolute difference between J_biased and J_unbiased
+  claim_id: c_841e4021
+  context: Implement code/ingestion.py to load logs, compute G(t) = |J_biased - J_unbiased|
+    (FR-001)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_G(t)_as_absolute_difference_between_J_biased_and_J
+  kind: entity_fact
+  raw_text: Compute G(t) as the absolute difference between J_biased and J_unbiased.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:04:06Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Calculate sliding window z-score with window size 20 and minimum 5 samples
+  claim_id: c_215e9422
+  context: Implement code/detector.py to calculate sliding window z-score (W=20, min
+    5 samples) per FR-002, reading from data/processed/trajectories_divergence.csv
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate sliding window z-score with a window size of 20 and a minimum
+    of 5 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:04:06Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Flag timestep as hacked if z-score of G(t) exceeds 3.0
+  claim_id: c_b0121e6c
+  context: "Implement logic in code/detector.py to flag 'hacked' if z(G(t)) > 3.0\
+    \ OR if \u0394G(t) exceeds a dynamic threshold."
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Flag a timestep as 'hacked' if the z-score of G(t) exceeds 3.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T02:04:06Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Derive ground truth from J_gold drops >=0.1 over 50 steps sustained for
+    3 steps
+  claim_id: c_5f4838ad
+  context: "Implement code/ground_truth.py to derive labels from J_gold drops (\u2265\
+    0.1 decrease over 50 steps, sustained 3 steps) per FR-004"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Derive ground truth labels from J_gold drops of 0.1 or greater over 50
+    steps, sustained for 3 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:04:23Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if Pearson correlation between J_unbiased and J_gold
+    exceeds threshold
+  claim_id: c_13a02d20
+  context: If EITHER correlation exceeds the threshold defined in code/config.py as
+    CORRELATION_THRESHOLD (default 0.8), raise a RuntimeError and exit with code 1
+    immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise a RuntimeError and exit with code 1 if the Pearson correlation between
+    J_unbiased and J_gold exceeds the configured threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:04:31Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if Pearson correlation between J_biased and J_gold
+    exceeds threshold
+  claim_id: c_84113c17
+  context: If EITHER correlation exceeds the threshold defined in code/config.py as
+    CORRELATION_THRESHOLD (default 0.8), raise a RuntimeError and exit with code 1
+    immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise a RuntimeError and exit with code 1 if the Pearson correlation between
+    J_biased and J_gold exceeds the configured threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:04:35Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Perform Wilcoxon signed-rank test comparing detector F1-scores against
+    Neutral baselines
+  claim_id: c_e96d4f27
+  context: Implement code/evaluation.py to perform a Wilcoxon signed-rank test (per
+    Plan.md Complexity Tracking and Summary) comparing the detector's F1-scores against
+    Neutral baselines (random-guess and mean-divergence).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_Wilcoxon_signed-rank_test_comparing_detector_F1-scor
+  kind: entity_fact
+  raw_text: Perform a Wilcoxon signed-rank test comparing the detector's F1-scores
+    against Neutral baselines (random-guess and mean-divergence).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:04:39Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Trigger rubric-specific tuning if F1 std dev exceeds 0.15
+  claim_id: c_be2df8c0
+  context: "Implement code/evaluation.py to check SC-003 (F1 std dev \u2264 0.15);\
+    \ if failed, trigger logic to call code/tune_rubric_specific.py for grid search\
+    \ per rubric type (Lexical, Format, Tone, Self-praise)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger rubric-specific tuning if the standard deviation of F1 scores
+    exceeds 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:04:52Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Validate CHERRL data source via arXiv paper 2606.04923
+  claim_id: c_95f41176
+  context: Task T013 describes the requirement to validate the data source before
+    fetching.
+  evidence:
+    ok: false
+    reason: cited source contradicts the claim (The passages identify CHERRL as a
+      preprint on arXiv:2505, contradicting the claim's citation of arXiv:2606.04923.)
+  kind: citation
+  raw_text: The script MUST first validate the canonical source by checking the arXiv
+    paper (arXiv:2606.04923) for the official data repository link.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-18T02:07:32Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 0
+  canonical: Flag hacked if z-score of G(t) exceeds 3.0
+  claim_id: c_911e54cb
+  context: "T022 [US2] Implement logic in code/detector.py to flag 'hacked' if z(G(t))\
+    \ > 3.0 OR if \u0394G(t) exceeds a dynamic threshold."
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Flag 'hacked' if z(G(t)) > 3.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T02:08:36Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Validate CHERRL data source against arXiv paper arXiv:2606.04923
+  claim_id: c_9c314837
+  context: T013 [US1] Implement download_cherrl_logs.py to fetch real data. The script
+    MUST first validate the canonical source by checking the arXiv paper (arXiv:2606.04923)
+    for the official data repository link.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: The script MUST first validate the canonical source by checking the arXiv
+    paper (arXiv:2606.04923) for the official data repository link.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:08:36Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Fetch cherrl dataset from HuggingFace with split train
+  claim_id: c_103a0c7f
+  context: If the paper links to HuggingFace, fetch the cherrl dataset using datasets.load_dataset('cherrl',
+    split='train').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_cherrl_dataset_from_HuggingFace_with_split_train
+  kind: entity_fact
+  raw_text: If the paper links to HuggingFace, fetch the cherrl dataset using datasets.load_dataset('cherrl',
+    split='train').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:08:40Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Sliding window z-score with window size 20 and minimum 5 samples
+  claim_id: c_073927a5
+  context: T021 [US2] Implement code/detector.py to calculate sliding window z-score
+    (W=20, min 5 samples) per FR-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate sliding window z-score with window size W=20 and minimum 5 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:08:40Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Ground truth J_gold drop threshold 0.1 over 50 steps sustained 3 steps
+  claim_id: c_f4a6822e
+  context: "T029 [US3] Implement code/ground_truth.py to derive labels from J_gold\
+    \ drops (\u22650.1 decrease over 50 steps, sustained 3 steps) per FR-004"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_J_gold_drop_threshold_0.1_over_50_steps_sustain
+  kind: magnitude
+  raw_text: Derive ground truth labels from J_gold drops of at least 0.1 decrease
+    over 50 steps, sustained for 3 steps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:08:43Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Pearson correlation threshold 0.8 for J_unbiased and J_biased against
+    J_gold
+  claim_id: c_806b28e0
+  context: T030 [US3] ...If EITHER correlation exceeds the threshold defined in code/config.py
+    as CORRELATION_THRESHOLD (default 0.8), raise a RuntimeError and exit with code
+    1 immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise a RuntimeError if Pearson correlation exceeds the threshold defined
+    in code/config.py as CORRELATION_THRESHOLD (default 0.8).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:10:00Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Runtime less than 4 hours for sequential seed processing
+  claim_id: c_359c3737
+  context: T038 [P] Implement sequential seed processing in code/main.py to ensure
+    memory safety and runtime < 4 hours (process seeds one by one if needed).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_4_hours_for_sequential_seed_processing
+  kind: magnitude
+  raw_text: Runtime must be less than 4 hours for sequential seed processing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:10:24Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 0
+  canonical: Flag hacking if z-score of G(t) exceeds 3.0
+  claim_id: c_cd58bd2e
+  context: Implement logic in `code/detector.py` to flag 'hacked' if $z(G(t)) > 3.0$
+    OR if $\Delta G(t)$ exceeds a dynamic threshold.
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Flag 'hacked' if z(G(t)) > 3.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T02:12:11Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Validate data source against arXiv paper arXiv:2606.04923
+  claim_id: c_4b8ec2d4
+  context: Implement `download_cherrl_logs.py` to fetch real data. The script MUST
+    first validate the canonical source by checking the arXiv paper (arXiv:2606.04923)
+    for the official data repository link.
+  evidence:
+    ok: true
+    reason: ''
+    status: grounded
+  kind: citation
+  raw_text: The script MUST first validate the canonical source by checking the arXiv
+    paper (arXiv:2606.04923) for the official data repository link.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:12:11Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Fetch cherrl dataset from HuggingFace using datasets.load_dataset with
+    split=train
+  claim_id: c_72069dbe
+  context: If the paper links to HuggingFace, fetch the `cherrl` dataset using `datasets.load_dataset('cherrl',
+    split='train')`. If the paper links elsewhere, use that verified source.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_cherrl_dataset_from_HuggingFace_using_datasets.load_da
+  kind: entity_fact
+  raw_text: If the paper links to HuggingFace, fetch the `cherrl` dataset using `datasets.load_dataset('cherrl',
+    split='train')`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:12:14Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Fail loudly if real data fetch fails without synthetic fallback
+  claim_id: c_d40503b2
+  context: The script MUST fail loudly (raise exception) if the real fetch fails;
+    NO synthetic fallback allowed.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fail_loudly_if_real_data_fetch_fails_without_synthetic_fallb
+  kind: entity_fact
+  raw_text: The script MUST fail loudly (raise exception) if the real fetch fails;
+    NO synthetic fallback allowed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:12:16Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Calculate G(t) as absolute difference between biased and unbiased rewards
+  claim_id: c_d48a00b4
+  context: Implement `code/ingestion.py` to load logs, compute $G(t) = |J_{\text{biased}}
+    - J_{\text{unbiased}}|$ (FR-001)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_G(t)_as_absolute_difference_between_biased_and_unb
+  kind: entity_fact
+  raw_text: Compute $G(t) = |J_{\text{biased}} - J_{\text{unbiased}}|$.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:16:08Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Calculate sliding window z-score with window size 20 and minimum 5 samples
+  claim_id: c_703996c7
+  context: Implement `code/detector.py` to calculate sliding window z-score ($W=20$,
+    min 5 samples) per FR-002
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate sliding window z-score with window size W=20 and minimum 5 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:16:08Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Derive ground truth from J_gold drops >= 0.1 over 50 steps sustained
+    3 steps
+  claim_id: c_69fe2eea
+  context: "Implement `code/ground_truth.py` to derive labels from $J_{\\text{gold}}$\
+    \ drops (\u22650.1 decrease over 50 steps, sustained 3 steps) per FR-004"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Derive_ground_truth_from_J_gold_drops_%3E=_0.1_over_50_steps_s
+  kind: magnitude
+  raw_text: Derive ground truth labels from $J_{\text{gold}}$ drops of at least 0.1
+    decrease over 50 steps, sustained for 3 steps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:16:39Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Raise error if Pearson correlation exceeds threshold 0.8
+  claim_id: c_41267717
+  context: If EITHER correlation exceeds the threshold defined in `code/config.py`
+    as `CORRELATION_THRESHOLD` (default 0.8), raise a RuntimeError and exit with code
+    1 immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise a RuntimeError and exit with code 1 if either Pearson correlation
+    exceeds the threshold defined as CORRELATION_THRESHOLD (default 0.8).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T02:16:45Z'

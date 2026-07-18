@@ -13,7 +13,7 @@ This feature implements a statistical detection pipeline for "reward hacking" in
 **Primary Dependencies**: `pandas` (data manipulation), `numpy` (numerical ops), `scipy` (statistical tests), `requests` (data fetching), `pyyaml` (contract loading), `jsonschema` (schema validation), `pytest` (testing).  
 **Storage**: Local filesystem (`data/raw`, `data/processed`); no external database.  
 **Testing**: `pytest` with contract-based tests validating schema adherence via `jsonschema`.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPU cores, 7GB RAM).  
 **Project Type**: Computational research pipeline / CLI tool.  
 **Performance Goals**: Complete analysis of N=5 seeds within 4 hours; memory usage < 6GB.  
 **Constraints**: CPU-only execution; no GPU; strict adherence to statistical independence of ground truth (extended correlation checks); handling of zero-variance edge cases; contract validation at runtime.  
@@ -31,7 +31,7 @@ This feature implements a statistical detection pipeline for "reward hacking" in
 4.  **IV. Single Source of Truth**: **COMPLIANT**. All figures/stats will trace to `data/processed` CSVs and `code/` scripts; no hand-typed numbers.
 5.  **V. Versioning Discipline**: **COMPLIANT**. Artifacts will carry content hashes; state updates will reflect changes.
 6.  **VI. Statistical Independence of Ground Truth**: **COMPLIANT**. Plan explicitly enforces extended FR-006: ground truth derived *only* from $J_{\text{gold}}$ drops, with runtime correlation checks for both $r(J_{\text{unbiased}}, J_{\text{gold}})$ and $r(J_{\text{biased}}, J_{\text{gold}})$ to prevent circular validation. If either exceeds a predefined threshold, the system halts with an error.
-7.  **VII. Generalization Across Rubric Taxonomies**: **COMPLIANT**. Evaluation phase (FR-005, SC-003) explicitly tests performance across Lexical, Format, Tone, and Self-praise rubrics. If the standard deviation of F1-scores exceeds 0.15 (universal threshold fails), the system triggers a **rubric-specific tuning step** (separate grid search per rubric type, implemented in `code/tune_rubric_specific.py`). Results are reported with explicit statement of whether a universal or rubric-specific threshold was used.
+7.  **VII. Generalization Across Rubric Taxonomies**: **COMPLIANT**. Evaluation phase (FR-005, SC-003) explicitly tests performance across Lexical, Format, Tone, and Self-praise rubrics. If the standard deviation of F-scores exceeds a significant threshold (universal threshold fails), the system triggers a **rubric-specific tuning step** (separate grid search per rubric type, implemented in `code/tune_rubric_specific.py`). Results are reported with explicit statement of whether a universal or rubric-specific threshold was used.
 
 ## Project Structure
 
