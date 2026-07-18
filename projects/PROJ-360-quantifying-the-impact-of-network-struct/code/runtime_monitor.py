@@ -9,6 +9,7 @@ import os
 import time
 import logging
 import json
+import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
@@ -103,8 +104,6 @@ def measure_and_log_runtime() -> bool:
     end_epoch = time.time()
     elapsed_seconds = end_epoch - start_epoch
     elapsed_hours = elapsed_seconds / 3600
-
-    timestamp = datetime.now().isoformat()
 
     # Log format requirement: "Total runtime: <X> seconds"
     log_message = f"Total runtime: {elapsed_seconds} seconds"

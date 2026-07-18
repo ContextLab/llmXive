@@ -1,32 +1,50 @@
-T018:
+T004b:
   c: false
-  h: 4c2ffc95ef4b69275fb3276124e5e7577394dff48d7cdb4b1604ac7160cae55a
-  r: "The repository contains `code/analyze.py` but the shown code never checks a\
-    \ sample size\u202Fn, never logs a warning to `results/power_analysis.log`, and\
-    \ does not recalculate or apply an \u03B1\u202F/\u202Fn Bonferroni threshold.\
-    \ Moreover, the `results/power_analysis.log` file is absent. Consequently the\
-    \ required power\u2011analysis logging and adjusted correction are not implemented."
-T020:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No environment configuration files (e.g., `.env`, `config.yaml`, or a secrets
+    manager setup) or scripts for handling API keys and random seeds are present,
+    and the implementer provided no evidence of such artifacts. Consequently the requirement
+    to set up environment configuration management is not satisfied.
+T013a:
   c: false
-  h: f32050361a4c17819644ff952d44be17e3c46677c4a71571d67c84efb7e2ad65
-  r: "The `calculate_vif` function in `code/analyze.py` is truncated and does not\
-    \ contain a full VIF computation or logging to `results/power_analysis.log`. Additionally,\
-    \ the required input file `data/processed/metrics.csv` and the output log `results/power_analysis.log`\
-    \ are absent. The task\u2019s core output is therefore not produced."
+  h: 48f7399b33ef04cdbec37200b520b57b52aa9dd44783c2de41c1e053fb4b4841
+  r: "The provided `code/compute_metrics.py` is truncated and does not contain a complete\
+    \ `check_distribution(df)` implementation, and the required output file `data/processed/metrics_transformed.csv`\
+    \ is absent. Moreover, `data/metadata.yaml` shows no entry logging whether a log\u2011\
+    transformation was applied, nor any flag linking transformed data to the original.\
+    \ These missing artifacts prevent the task from being satisfied."
+T014a:
+  c: false
+  h: 26dd603230896567d16778ac7fddf7260da10833f2714ba37a1988096a3dd253
+  r: "The repository contains a `code/compute_metrics.py` file, but the required `compute_physical_descriptors(cif_path)`\
+    \ function is not present (the shown excerpt ends abruptly and never defines it).\
+    \ Moreover, the target output file `data/processed/metrics.csv` does not exist.\
+    \ Without the function implementation and the appended CSV, the task\u2019s requirements\
+    \ are not met."
+T016:
+  c: false
+  h: 9e3bada3d9bd5f66e5c6d44d825faa9422987af5aea6b34b4fb02713d8c9b7a9
+  r: "The repository contains a partially shown `code/analyze.py` that never reaches\
+    \ any correlation\u2011computing logic (the file is truncated and lacks functions\
+    \ that calculate Pearson/Spearman and write `results/correlations.json`). Moreover,\
+    \ the required output file `results/correlations.json` is absent. Hence the task\u2019\
+    s core requirement is not satisfied."
 T021:
   c: false
-  h: c3a8ed23e37c01abfa48be1e788df5239c1505f02b5ce33ce4df83555cef1de7
-  r: "The repository lacks a `filter_features` implementation in `code/analyze.py`,\
-    \ and the required output artifacts (`results/power_analysis.log` and `data/processed/filtered_features.csv`)\
-    \ are absent. The task\u2019s core functionality and its documented results are\
-    \ therefore not present."
+  h: 3b5c804a8e43475f17f96978a85eef2cf55b6c10fc30daa700dcd027eb009908
+  r: "The repository lacks the required output artifacts \u2013 `results/power_analysis.log`\
+    \ and `data/processed/filtered_features.csv` do not exist \u2013 and the shown\
+    \ portion of `code/analyze.py` does not contain an implementation of `filter_features`\
+    \ that performs the VIF\u2011based filtering, logging, and CSV writing as specified.\
+    \ The task therefore remains unfinished."
 T022:
   c: false
-  h: 631a21df123b28d0816f23b8775919d49ea1dfe3f7cc7eb78d726b0a9691f00a
-  r: "The required `data/processed/filtered_features.csv` does not exist, so the function\
-    \ cannot be exercised, and the expected model file `models/thermal_predictor.pkl`\
-    \ was never created. Consequently the task\u2019s core requirement\u2014training\
-    \ on the filtered features and saving the model\u2014is not satisfied."
+  h: 88449c0e507e23ec0e830845184d6dd58afb64e064c497cd0bcaf5ca56b4faa9
+  r: "The repository lacks the required `data/processed/filtered_features.csv` and\
+    \ the resulting `models/thermal_predictor.pkl`. Moreover, the provided `code/analyze.py`\
+    \ excerpt does not contain an implementation of the `train_model(features_df,\
+    \ target_series)` function (or it is incomplete/truncated). Hence the task\u2019\
+    s core requirement is not met."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

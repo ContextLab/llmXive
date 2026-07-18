@@ -1,12 +1,3 @@
-"""
-Download module for fetching CIF files from the Materials Project API.
-
-This module handles:
-- Querying materials with thermal conductivity data.
-- Fetching CIF content with retry logic.
-- Saving CIF files to disk.
-"""
-
 import os
 import time
 import logging
@@ -15,227 +6,270 @@ import requests
 from typing import Optional, List, Dict, Any, Tuple
 from pathlib import Path
 
-from utils import setup_logging, retry_with_exponential_backoff, pin_seed
 from config import get_config
+from utils import retry_with_exponential_backoff, pin_seed
 
-# Configure logger for this module
-logger = setup_logging("download", "results/download.log")
+# Setup logging
+logger = logging.getLogger("download_logger")
 
-# Constants
-MP_API_URL = "https://api.materialsproject.org/v2/materials"
-MP_CIF_URL = "https://api.materialsproject.org/v2/materials/{}/cif"
-REQUEST_TIMEOUT = 30
-MAX_RETRIES = 3
-INITIAL_BACKOFF = 1.0
-BACKOFF_MULTIPLIER = 2.0
+def setup_download_logger():
+    """Configure the download logger."""
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger
 
 def fetch_with_retry_rate_limit(
     url: str,
     headers: Dict[str, str],
-    params: Optional[Dict[str, Any]] = None
+    params: Optional[Dict[str, Any]] = None,
+    timeout: int = 30,
+    max_retries: int = 5
 ) -> Optional[Dict[str, Any]]:
     """
-    Fetch data from a URL with exponential backoff retry logic.
-
-    Args:
-        url: The URL to fetch.
-        headers: Request headers.
-        params: Optional query parameters.
-
-    Returns:
-        The JSON response if successful, None otherwise.
+    Fetch data from a URL with rate-limiting and retry logic.
+    Implements exponential backoff for HTTP 429 and 5xx errors.
     """
-    def _do_request():
-        response = requests.get(url, headers=headers, params=params, timeout=REQUEST_TIMEOUT)
-        response.raise_for_status()
-        return response.json()
+    config = get_config()
+    retries = 0
+    base_delay = 1.0
 
-    try:
-        return retry_with_exponential_backoff(
-            _do_request,
-            max_retries=MAX_RETRIES,
-            initial_backoff=INITIAL_BACKOFF,
-            backoff_multiplier=BACKOFF_MULTIPLIER,
-            logger=logger
-        )
-    except Exception as e:
-        logger.error(f"Failed to fetch {url} after retries: {e}")
-        return None
+    while retries < max_retries:
+        try:
+            response = requests.get(url, headers=headers, params=params, timeout=timeout)
+            
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 429:
+                # Rate limited
+                wait_time = base_delay * (2 ** retries)
+                logger.warning(f"Rate limited. Waiting {wait_time:.2f}s before retry {retries+1}/{max_retries}")
+                time.sleep(wait_time)
+                retries += 1
+            elif 500 <= response.status_code < 600:
+                # Server error
+                wait_time = base_delay * (2 ** retries)
+                logger.warning(f"Server error {response.status_code}. Waiting {wait_time:.2f}s before retry {retries+1}/{max_retries}")
+                time.sleep(wait_time)
+                retries += 1
+            else:
+                # Other error, log and fail
+                logger.error(f"Request failed with status {response.status_code}: {response.text[:200]}")
+                return None
+        
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request exception: {e}")
+            retries += 1
+            time.sleep(base_delay * (2 ** retries))
+
+    logger.error(f"Failed to fetch {url} after {max_retries} retries")
+    return None
 
 def fetch_materials_with_thermal_conductivity(
     api_key: str,
-    limit: int = 50
+    limit: int = 100
 ) -> List[Dict[str, Any]]:
     """
-    Fetch a list of materials that have thermal conductivity data.
-
-    Args:
-        api_key: Materials Project API key.
-        limit: Maximum number of materials to fetch.
-
-    Returns:
-        List of material dictionaries containing 'material_id' and thermal conductivity info.
+    Fetch materials from Materials Project API that have thermal conductivity data.
+    Returns a list of material dictionaries containing material_id and thermal conductivity info.
     """
-    headers = {"x-api-key": api_key}
+    base_url = "https://api.materialsproject.org/v2/materials"
+    headers = {
+        "X-API-Key": api_key,
+        "Content-Type": "application/json"
+    }
+    
+    # Query for materials with thermal conductivity tensor
+    # Using the /summary endpoint which includes thermal conductivity if available
     params = {
-        "thermal_conductivity": "true",
-        "fields": "material_id,thermal_conductivity",
-        "page_limit": limit
+        "fields": "material_id,thermo,thermal_conductivity",
+        "limit": limit,
+        "sort_by": "-thermo.form_energy_per_atom"
     }
 
-    logger.info(f"Fetching materials with thermal conductivity (limit={limit})...")
-    data = fetch_with_retry_rate_limit(MP_API_URL, headers, params)
-
+    url = f"{base_url}/search"
+    logger.info(f"Fetching materials with thermal conductivity from {url}")
+    
+    data = fetch_with_retry_rate_limit(url, headers, params)
+    
     if not data or "data" not in data:
-        logger.error("No data returned from Materials Project API.")
+        logger.error("No data returned from Materials Project API")
         return []
 
     materials = data.get("data", [])
-    logger.info(f"Found {len(materials)} materials with thermal conductivity data.")
-    return materials
+    valid_materials = []
+
+    for material in materials:
+        material_id = material.get("material_id")
+        thermo = material.get("thermo", {})
+        thermal_cond = material.get("thermal_conductivity")
+        
+        # Check if thermal conductivity data exists
+        if thermal_cond and isinstance(thermal_cond, dict):
+            # Verify it has the tensor components
+            if all(k in thermal_cond for k in ['k_xx', 'k_yy', 'k_zz']):
+                valid_materials.append({
+                    "material_id": material_id,
+                    "k_xx": thermal_cond.get('k_xx'),
+                    "k_yy": thermal_cond.get('k_yy'),
+                    "k_zz": thermal_cond.get('k_zz'),
+                    "thermo": thermo
+                })
+            else:
+                logger.debug(f"Material {material_id} missing tensor components, skipping")
+        elif thermal_cond and isinstance(thermal_cond, list) and len(thermal_cond) >= 3:
+            # Handle list format if present
+            valid_materials.append({
+                "material_id": material_id,
+                "k_xx": thermal_cond[0],
+                "k_yy": thermal_cond[1],
+                "k_zz": thermal_cond[2] if len(thermal_cond) > 2 else thermal_cond[0],
+                "thermo": thermo
+            })
+        else:
+            logger.debug(f"Material {material_id} missing thermal conductivity, skipping")
+
+    logger.info(f"Found {len(valid_materials)} materials with thermal conductivity data")
+    return valid_materials
 
 def fetch_cif_content(
     material_id: str,
-    api_key: str
+    api_key: str,
+    timeout: int = 30
 ) -> Optional[str]:
     """
-    Fetch the CIF content for a specific material.
-
-    Args:
-        material_id: The Materials Project material ID.
-        api_key: Materials Project API key.
-
-    Returns:
-        The CIF content as a string, or None if fetch fails.
+    Fetch CIF content for a specific material from Materials Project API.
+    Returns the CIF string content or None if failed.
     """
-    url = MP_CIF_URL.format(material_id)
-    headers = {"x-api-key": api_key}
-
-    logger.debug(f"Fetching CIF for {material_id}...")
-    response = fetch_with_retry_rate_limit(url, headers)
-
-    if not response:
-        logger.warning(f"Failed to fetch CIF for {material_id}.")
+    base_url = "https://api.materialsproject.org/v2/materials"
+    headers = {
+        "X-API-Key": api_key,
+        "Content-Type": "application/json"
+    }
+    
+    # Use the specific material endpoint with cif format
+    url = f"{base_url}/{material_id}/cif"
+    
+    logger.debug(f"Fetching CIF for {material_id}")
+    
+    # The API returns the CIF directly as text, not JSON
+    try:
+        response = requests.get(url, headers=headers, timeout=timeout)
+        if response.status_code == 200:
+            return response.text
+        else:
+            logger.warning(f"Failed to fetch CIF for {material_id}: {response.status_code}")
+            return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Exception fetching CIF for {material_id}: {e}")
         return None
-
-    # The API returns the CIF content in the 'cif' field
-    cif_content = response.get("cif")
-    if not cif_content:
-        logger.warning(f"CIF content is empty for {material_id}.")
-        return None
-
-    return cif_content
 
 def download_cif_files(
     materials: List[Dict[str, Any]],
     output_dir: str,
-    api_key: str,
-    limit: Optional[int] = None
-) -> Tuple[int, int]:
+    limit: int = 50
+) -> Tuple[int, List[str]]:
     """
-    Download CIF files for a list of materials.
-
-    Args:
-        materials: List of material dictionaries.
-        output_dir: Directory to save CIF files.
-        api_key: Materials Project API key.
-        limit: Optional limit on the number of files to download.
-
-    Returns:
-        Tuple of (successful_count, skipped_count).
+    Download CIF files for the given materials to the output directory.
+    Returns the count of successfully downloaded files and a list of material IDs.
     """
+    config = get_config()
+    api_key = config.get("MP_API_KEY")
+    
+    if not api_key:
+        logger.error("MP_API_KEY not configured. Please set the environment variable.")
+        return 0, []
+
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
+    
+    downloaded_ids = []
+    skipped_count = 0
+    downloaded_count = 0
 
-    successful = 0
-    skipped = 0
-    count = 0
+    # Limit the number of materials to process
+    materials_to_process = materials[:limit]
+    
+    logger.info(f"Processing {len(materials_to_process)} materials (limit: {limit})")
 
-    for material in materials:
-        if limit and count >= limit:
-            break
-
-        material_id = material.get("material_id")
-        if not material_id:
-            logger.warning(f"Skipping material with missing ID.")
-            skipped += 1
-            continue
-
-        # Check if thermal conductivity data exists in the material dict
-        # The API filter ensures this, but we double-check
-        if "thermal_conductivity" not in material or not material["thermal_conductivity"]:
-            logger.info(f"Skipping {material_id}: No thermal conductivity data.")
-            skipped += 1
+    for idx, material in enumerate(materials_to_process):
+        material_id = material["material_id"]
+        cif_path = output_path / f"{material_id}.cif"
+        
+        # Skip if already exists
+        if cif_path.exists():
+            logger.info(f"Skipping {material_id} (already exists)")
+            downloaded_ids.append(material_id)
+            downloaded_count += 1
             continue
 
         cif_content = fetch_cif_content(material_id, api_key)
-
+        
         if cif_content:
-            file_path = output_path / f"{material_id}.cif"
             try:
-                with open(file_path, "w", encoding="utf-8") as f:
+                with open(cif_path, 'w', encoding='utf-8') as f:
                     f.write(cif_content)
-                successful += 1
-                count += 1
-                logger.debug(f"Saved CIF: {file_path}")
+                downloaded_ids.append(material_id)
+                downloaded_count += 1
+                logger.info(f"Downloaded {material_id} ({downloaded_count}/{limit})")
             except IOError as e:
-                logger.error(f"Failed to write {file_path}: {e}")
-                skipped += 1
+                logger.error(f"Failed to write CIF for {material_id}: {e}")
+                skipped_count += 1
         else:
-            skipped += 1
+            logger.warning(f"Failed to fetch CIF for {material_id}, skipping")
+            skipped_count += 1
 
-        # Rate limiting: sleep slightly between requests to be polite
-        time.sleep(0.1)
+        # Small delay to be polite to the API
+        time.sleep(0.2)
 
-    logger.info(f"Download complete. Saved: {successful}, Skipped: {skipped}")
-    return successful, skipped
+        # Check if we've reached the limit
+        if downloaded_count >= limit:
+            break
+
+    logger.info(f"Download complete. Success: {downloaded_count}, Skipped: {skipped_count}")
+    return downloaded_count, downloaded_ids
 
 def main():
-    """
-    Main entry point for downloading CIF files.
-
-    Usage:
-        python code/download.py --limit 50 --output data/raw/cif/
-    """
+    """Main entry point for downloading CIF files."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Download CIF files from Materials Project.")
-    parser.add_argument("--limit", type=int, default=50, help="Maximum number of CIF files to download.")
-    parser.add_argument("--output", type=str, default="data/raw/cif/", help="Output directory for CIF files.")
+    parser = argparse.ArgumentParser(description="Download CIF files from Materials Project")
+    parser.add_argument("--limit", type=int, default=50, help="Number of materials to download")
+    parser.add_argument("--output", type=str, default="data/raw/cif/", help="Output directory for CIF files")
     args = parser.parse_args()
 
+    setup_download_logger()
+    pin_seed(42)
+    
     config = get_config()
     api_key = config.get("MP_API_KEY")
-
+    
     if not api_key:
-        logger.error("Materials Project API key not found. Set MP_API_KEY in .env or environment.")
+        logger.error("MP_API_KEY not set in environment. Please set MP_API_KEY environment variable.")
         return 1
 
-    # Pin seed for determinism (though download order is API-driven)
-    pin_seed()
-
-    materials = fetch_materials_with_thermal_conductivity(api_key, limit=args.limit)
-
+    logger.info(f"Starting download process with limit={args.limit}, output={args.output}")
+    
+    # Fetch materials with thermal conductivity
+    materials = fetch_materials_with_thermal_conductivity(api_key, limit=args.limit * 2)
+    
     if not materials:
         logger.error("No materials found with thermal conductivity data.")
         return 1
 
-    successful, skipped = download_cif_files(
-        materials,
-        args.output,
-        api_key,
-        limit=args.limit
-    )
+    # Download CIF files
+    count, ids = download_cif_files(materials, args.output, limit=args.limit)
+    
+    if count == 0:
+        logger.error("No files were downloaded.")
+        return 1
 
-    if successful < 50:
-        logger.warning(f"Only downloaded {successful} CIF files. Target was 50.")
-        # Do not fail if we have at least some, but log the warning
-        # However, the task requires >=50. If we can't get 50, we should ideally fail or warn heavily.
-        # For now, we return 0 if we got something, but the pipeline check might fail.
-        # Let's enforce the requirement: if < 50, return error code to signal failure.
-        if successful == 0:
-            return 1
-
+    logger.info(f"Successfully downloaded {count} CIF files.")
     return 0
 
 if __name__ == "__main__":

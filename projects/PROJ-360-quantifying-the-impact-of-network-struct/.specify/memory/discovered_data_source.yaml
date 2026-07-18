@@ -1,10 +1,14 @@
 status: none
-intent: Materials Project CIF thermal conductivity API download python package dataset
+intent: Materials Project CIF download API python package for crystallographic dataset
+  python package dataset
 required_fields:
 - material_id
 - formula
 - cif_content
-- lattice_parameters
+- lattice_vectors
 - atomic_positions
 - element_symbols
 - thermal_conductivity
+cache_key: ba4d94ad2ff4b7698d1a1b01d1a6bce767922c18cb5724cb3d8f9ca20649b6fe
+searched_at: '2026-07-18T16:58:37.088913+00:00'
+retry_count: 1
