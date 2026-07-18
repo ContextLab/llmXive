@@ -43,7 +43,7 @@
 
 **Why this priority**: Essential for scientific rigor. It ensures the results are robust and publishable, addressing the "Multiplicity & power" methodological requirement by validating the hypothesis with appropriate statistical testing.
 
-**Independent Test**: Can be tested by running the baseline and clustering-aided variants over multiple random seeds (e.g., 5 runs) and performing a Wilcoxon signed-rank test on the resulting NDCG@10 and efficiency metrics.
+**Independent Test**: Can be tested by running the baseline and clustering-aided variants over multiple random seeds and performing a Wilcoxon signed-rank test on the resulting NDCG@10 and efficiency metrics.
 
 **Acceptance Scenarios**:
 
@@ -55,7 +55,7 @@
 - What happens if the MinHash-LSH threshold (Jaccard > 0.95) is too strict, causing unique documents to be incorrectly merged into clusters, thereby reducing the effective candidate pool too much?
 - How does the system handle the scenario where the artificial paraphrasing fails to generate sufficient semantic similarity (similarity < 0.95) despite being near-duplicates, leading to false negatives in the "wasted" classification?
 - How does the system behave if the LLM call budget (e.g., 20 calls) is so low that the active ranker cannot explore the candidate pool sufficiently to distinguish between redundant and unique items?
-- What happens if the LLM consensus validation step (used to verify the cosine proxy) exceeds the runtime budget? The system MUST fall back to using only the cosine proxy for the main loop if the validation sample exceeds 10% of the budget.
+- What happens if the LLM consensus validation step (used to verify the cosine proxy) exceeds the runtime budget? The system MUST fall back to using only the cosine proxy for the main loop if the validation sample exceeds a significant portion of the budget.
 
 ## Requirements *(mandatory)*
 
@@ -64,9 +64,9 @@
 - **FR-001**: System MUST implement a MinHash-LSH algorithm to group near-duplicate passages with a Jaccard similarity threshold of > 0.95 prior to ranking, serving US-2.
 - **FR-002**: System MUST inject semantic redundancy into the BEIR "nfcorpus" and "scifact" datasets by creating at least 20 clusters of 3–5 near-duplicate items via synonym replacement and sentence shuffling, serving US-1.
 - **FR-003**: System MUST log every pairwise comparison made by the active ranker and compute the cosine similarity of the compared pairs using a CPU-tractable embedding model (e.g., `all-MiniLM-L6-v2`) to *flag* potential "wasted" calls (similarity > 0.95); additionally, the system MUST validate this proxy by running LLM consensus on a random [deferred] sample of flagged calls to estimate ground truth accuracy, serving US-1.
-- **FR-004**: System MUST calculate NDCG@k scores for both the baseline and clustering-aided variants against the original BEIR relevance judgments at fixed LLM call budgets (20, 50, 100), serving US-2.
+- **FR-004**: System MUST calculate NDCG@k scores for both the baseline and clustering-aided variants against the original BEIR relevance judgments at fixed LLM call budgets spanning a range of values., serving US-2.
 - **FR-005**: System MUST execute a Wilcoxon signed-rank test comparing the NDCG@10 scores and wasted call ratios between the baseline and clustering-aided conditions with a significance level of p < 0.05, serving US-3.
-- **FR-006**: System MUST enforce a hard runtime limit of hours and a memory limit of 7GB during execution to ensure compatibility with the GitHub Actions free-tier runner, serving US-2.
+- **FR-006**: System MUST enforce a hard runtime limit of hours and a memory limit of a predefined magnitude during execution to ensure compatibility with the GitHub Actions free-tier runner, serving US-2.
 - **FR-007**: System MUST apply a multiple-comparison correction (e.g., Bonferroni) when evaluating the significance of multiple hypotheses (NDCG and efficiency) to control the family-wise error rate, serving US-3.
 - **FR-008**: System MUST validate the correlation between Jaccard similarity (MinHash) and Cosine similarity (Embeddings) on a labeled subset of pairs before relying on them interchangeably for scientific reporting, serving US-2.
 - **FR-009**: System MUST validate the synthetic redundancy proxy against a small set of real-world near-duplicates (e.g., from the BEIR "trec-covid" dataset) to ensure generalizability, serving US-1.

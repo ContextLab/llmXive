@@ -1,0 +1,43 @@
+T019:
+  c: false
+  h: 96296957c986942207ca42fece3101dbc6c07a5fb8bfb6ab4fee27a3faa9f70a
+  r: "The required file `tests/integration/test_full_pipeline.py` is missing, so no\
+    \ integration test exists to verify full pipeline execution with the specified\
+    \ resource limits. The task\u2019s primary artifact is absent."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `docs/` files or modifications to `README.md` are provided; the only
+    evidence is a specification excerpt and no actual documentation artifacts are
+    present to verify the claimed updates. The implementer must supply the revised
+    documentation files showing the required changes.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, diff, or documentation artifacts showing any cleanup or refactoring
+    are present; the only evidence is the task description itself, which does not
+    demonstrate that any readability improvements were made. The required artifact
+    (refactored code files or a summary of changes) is missing.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the textual specification of the user stories and\
+    \ acceptance criteria; there are no actual artifacts such as code implementing\
+    \ MinHash\u2011LSH pre\u2011clustering, experimental datasets, runtime logs, memory/CPU\
+    \ usage measurements, or reported NDCG@10 and \u201Cwasted call\u201D ratios.\
+    \ Consequently the required evidence to demonstrate CPU\u2011efficient performance\
+    \ optimization is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that any new unit\u2011test files were added under\
+    \ `tests/unit/`, nor any content showing tests for strict thresholds or low\u2011\
+    budget edge cases. Without the actual test files or their contents, the requirement\
+    \ cannot be confirmed as satisfied."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of running or validating the `quickstart.md` (e.g., execution logs,
+    reproduced results, or a validation report) is provided; the implementer supplied
+    only the feature specification excerpt, which does not address the required quickstart
+    reproducibility check.

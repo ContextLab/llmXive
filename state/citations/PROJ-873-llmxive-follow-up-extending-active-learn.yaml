@@ -20,3 +20,25 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/629cc28da5d6f5fe10e90425/767d677c5518900579305cb7bc440ef4e7be558873a0a2fd2aece608b842cf6b?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27corpus-00000-of-00001.parquet%3B+filename%3D%22corpus-00000-of-00001.parquet%22%3B&Expires=1783750268&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI5Y2MyOGRhNWQ2ZjVmZTEwZTkwNDI1Lzc2N2Q2NzdjNTUxODkwMDU3OTMwNWNiN2JjNDQwZWY0ZTdiZTU1ODg3M2EwYTJmZDJhZWNlNjA4Yjg0MmNmNmJcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Y29ycHVzLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJjb3JwdXMtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzUwMjY4fX19XX0_&Signature=MEQCID-NnMZihnxVuhFrwfGxZwLv6rK63w6vXwr4BZufyM2CAiADnTbaZ%7E-moLhxPWVjOFo5N6QzDZK6oPJQTuGR7uXTzg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-11T05:11:07.842102Z'
+- artifact_hash: fe58aca81e4ec81e4d71d59ec6c2f174cd06aac377d713c198815d7e8aa6f265
+  artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/QUICKSTART.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-18T17:33:35.871984Z'
+- artifact_hash: 2efc3f8a4304151afd61413710402168f973051871c962ba7dbdafedeba6ea47
+  artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/CONTRIBUTING.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-username/llmXive.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-username/llmXive
+  verified_at: '2026-07-18T17:34:25.978828Z'

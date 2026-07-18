@@ -20,3 +20,251 @@
   source_type: external
   status: refuted
   updated_at: '2026-07-11T07:15:37Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Wilcoxon statistic 32.0000 for NDCG@10
+  claim_id: c_3759c514
+  context: Statistical significance was determined using the Wilcoxon signed-rank
+    test with Bonferroni correction for multiple hypothesis testing (alpha = 0.05).
+    | Metric | Wilcoxon Statistic | Raw p-value | Bonferroni-Corrected p-value | Significant
+    (p < 0.05)? | Conclusion | :--- | :--- | :--- | :--- | :--- | :--- | NDCG@10 |
+    32.0000 | 0.1250 | 0.2500 | No | No significant difference
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Wilcoxon statistic for NDCG@10 was 32.0000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:28:42Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Raw p-value 0.1250 for NDCG@10
+  claim_id: c_edd6862e
+  context: Metric | Wilcoxon Statistic | Raw p-value | Bonferroni-Corrected p-value
+    | Significant (p < 0.05)? | Conclusion | :--- | :--- | :--- | :--- | :--- | :---
+    | NDCG@10 | 32.0000 | 0.1250 | 0.2500 | No | No significant difference
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The raw p-value for NDCG@10 was 0.1250.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:29:10Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Bonferroni-corrected p-value 0.2500 for NDCG@10
+  claim_id: c_f0e36ab4
+  context: Metric | Wilcoxon Statistic | Raw p-value | Bonferroni-Corrected p-value
+    | Significant (p < 0.05)? | Conclusion | :--- | :--- | :--- | :--- | :--- | :---
+    | NDCG@10 | 32.0000 | 0.1250 | 0.2500 | No | No significant difference
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni-corrected p-value for NDCG@10 was 0.2500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:29:29Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Mean NDCG@10 0.4520 for Baseline Variant
+  claim_id: c_eb049a9e
+  context: Baseline Variant (Redundant Data) | Metric | Mean | Std Dev | Min | Max
+    | :--- | :--- | :--- | :--- | :--- | NDCG@10 | 0.4520 | 0.0310 | 0.3980 | 0.5120
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean NDCG@10 for the Baseline Variant was 0.4520.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:29:45Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Mean NDCG@10 0.4610 for Clustering-Aided Variant
+  claim_id: c_70c14d58
+  context: Clustering-Aided Variant | Metric | Mean | Std Dev | Min | Max | :--- |
+    :--- | :--- | :--- | :--- | NDCG@10 | 0.4610 | 0.0290 | 0.4050 | 0.5200
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean NDCG@10 for the Clustering-Aided Variant was 0.4610.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:30:00Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Mean Wasted Call Ratio 0.6850 for Baseline Variant
+  claim_id: c_a21fae8a
+  context: Baseline Variant (Redundant Data) | Metric | Mean | Std Dev | Min | Max
+    | :--- | :--- | :--- | :--- | :--- | Wasted Call Ratio | 0.6850 | 0.0420 | - |
+    -
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean Wasted Call Ratio for the Baseline Variant was 0.6850.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:30:19Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Mean Wasted Call Ratio 0.3210 for Clustering-Aided Variant
+  claim_id: c_66a45aa9
+  context: Clustering-Aided Variant | Metric | Mean | Std Dev | Min | Max | :--- |
+    :--- | :--- | :--- | :--- | Wasted Call Ratio | 0.3210 | 0.0380 | - | -
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean Wasted Call Ratio for the Clustering-Aided Variant was 0.3210.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:30:39Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Wilcoxon statistic 0.0000 for Wasted Call Ratio
+  claim_id: c_b7198ebe
+  context: Metric | Wilcoxon Statistic | Raw p-value | Bonferroni-Corrected p-value
+    | Significant (p < 0.05)? | Conclusion | :--- | :--- | :--- | :--- | :--- | :---
+    | Wasted Call Ratio | 0.0000 | 0.0020 | 0.0040 | Yes | Significant reduction
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Wilcoxon statistic for Wasted Call Ratio was 0.0000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:30:59Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Raw p-value 0.0020 for Wasted Call Ratio
+  claim_id: c_ae72473f
+  context: Metric | Wilcoxon Statistic | Raw p-value | Bonferroni-Corrected p-value
+    | Significant (p < 0.05)? | Conclusion | :--- | :--- | :--- | :--- | :--- | :---
+    | Wasted Call Ratio | 0.0000 | 0.0020 | 0.0040 | Yes | Significant reduction
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The raw p-value for Wasted Call Ratio was 0.0020.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:31:17Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Bonferroni-corrected p-value 0.0040 for Wasted Call Ratio
+  claim_id: c_f7edb638
+  context: Metric | Wilcoxon Statistic | Raw p-value | Bonferroni-Corrected p-value
+    | Significant (p < 0.05)? | Conclusion | :--- | :--- | :--- | :--- | :--- | :---
+    | Wasted Call Ratio | 0.0000 | 0.0020 | 0.0040 | Yes | Significant reduction
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni-corrected p-value for Wasted Call Ratio was 0.0040.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:31:35Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Sample size 10 seeds for Baseline Variant
+  claim_id: c_dd124472
+  context: Baseline Variant (Redundant Data) | Metric | Mean | Std Dev | Min | Max
+    | :--- | :--- | :--- | :--- | :--- | Sample Size (Seeds) | 10 | | |
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for seeds in the Baseline Variant was 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:32:07Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/data/results/statistical_report.md
+  attempts: 1
+  canonical: Sample size 10 seeds for Clustering-Aided Variant
+  claim_id: c_afa36963
+  context: Clustering-Aided Variant | Metric | Mean | Std Dev | Min | Max | :--- |
+    :--- | :--- | :--- | :--- | Sample Size (Seeds) | 10 | | |
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for seeds in the Clustering-Aided Variant was 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:32:24Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: Synthetic redundancy injection creates 3-5 near-duplicate clusters
+  claim_id: c_057a13a0
+  context: 'User Story 1: Baseline Efficiency Loss - Synthetic redundancy injection
+    creates 3-5 near-duplicate clusters'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic redundancy injection creates 3-5 near-duplicate clusters
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:34:05Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: MinHash-LSH achieves 30 percent pool reduction
+  claim_id: c_897ae808
+  context: "User Story 2: Clustering Recovery - Achieves \u2265 30% pool reduction"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "MinHash-LSH achieves \u2265 30% pool reduction"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:34:05Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/README.md
+  attempts: 1
+  canonical: Multi-seed execution uses 5 seeds
+  claim_id: c_021d6a08
+  context: 'User Story 3: Statistical Significance - Multi-seed execution (default:
+    5 seeds)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses 5 seeds for multi-seed execution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T17:34:25Z'

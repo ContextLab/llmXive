@@ -4,240 +4,275 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.stats import wilcoxon
 import os
-import json
 import logging
-from dataclasses import dataclass, field
 
-# Local imports based on API surface
-from models import CandidateList, ComparisonPair
-from data_loader import load_beir_corpus, load_trec_covid_corpus
-from config import get_config
-
+# --- Configuration & Caching ---
+_embedding_model: Optional[SentenceTransformer] = None
 logger = logging.getLogger(__name__)
 
-@dataclass
-class StatisticalTestResult:
-    """Result container for a single statistical test."""
-    test_name: str
-    statistic: float
-    p_value: float
-    significant_at_005: bool
-    significant_at_01: bool
-    description: str
-
-@dataclass
-class BonferroniResult:
-    """Result container for Bonferroni-corrected hypothesis testing."""
-    original_tests: List[StatisticalTestResult]
-    corrected_results: List[StatisticalTestResult]
-    alpha_threshold: float
-    num_tests: int
-    corrected_alpha: float
-    summary: Dict[str, Any]
-
 def get_embedding_model() -> SentenceTransformer:
-    """Load the sentence transformer model for embeddings."""
-    config = get_config()
-    model_name = config.get('embedding_model', 'all-MiniLM-L6-v2')
-    logger.info(f"Loading embedding model: {model_name}")
-    return SentenceTransformer(model_name)
+    """Lazy load the embedding model to avoid overhead during imports."""
+    global _embedding_model
+    if _embedding_model is None:
+        logger.info("Loading SentenceTransformer model: all-MiniLM-L6-v2")
+        _embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+    return _embedding_model
 
-def calculate_cosine_similarity_proxy(doc1: str, doc2: str, model: SentenceTransformer) -> float:
-    """Calculate cosine similarity between two document embeddings."""
-    embeddings = model.encode([doc1, doc2], convert_to_numpy=True)
-    sim = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
-    return float(sim)
+# --- Similarity & Proxy Logic ---
+
+def calculate_cosine_similarity_proxy(texts: List[str]) -> np.ndarray:
+    """
+    Calculate cosine similarity between all pairs of texts using embeddings.
+    
+    Args:
+        texts: List of text strings.
+        
+    Returns:
+        2D numpy array of shape (len(texts), len(texts)) containing pairwise similarities.
+    """
+    if not texts:
+        return np.array([])
+    
+    model = get_embedding_model()
+    embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
+    # Normalize for cosine similarity (sklearn cosine_similarity handles this if inputs are normalized, 
+    # but explicit normalization is safer for raw dot product logic if needed. 
+    # sklearn's cosine_similarity computes dot(A, B.T) / (||A|| ||B||)
+    return cosine_similarity(embeddings)
 
 def is_wasted_call(similarity: float, threshold: float = 0.95) -> bool:
-    """Determine if a call is 'wasted' based on similarity threshold."""
+    """
+    Determine if a pairwise comparison is considered 'wasted' based on similarity threshold.
+    
+    Args:
+        similarity: Cosine similarity score between 0 and 1.
+        threshold: Threshold above which a pair is considered near-duplicate (wasted).
+        
+    Returns:
+        True if similarity > threshold, False otherwise.
+    """
     return similarity > threshold
 
-def calculate_ndcg_at_k(relevances: List[int], k: int) -> float:
-    """Calculate NDCG@k for a list of relevance scores."""
-    if not relevances or k <= 0:
+# --- NDCG Metrics ---
+
+def calculate_ndcg_at_k(relevance_scores: List[int], k: int) -> float:
+    """
+    Calculate Normalized Discounted Cumulative Gain at k.
+    
+    Args:
+        relevance_scores: List of integer relevance scores (0 or 1 typically for BEIR).
+        k: The cutoff rank.
+        
+    Returns:
+        NDCG@k score.
+    """
+    if k <= 0 or not relevance_scores:
         return 0.0
     
+    relevance_scores = relevance_scores[:k]
+    if not relevance_scores:
+        return 0.0
+        
     dcg = 0.0
     idcg = 0.0
     
     # Calculate DCG
-    for i, rel in enumerate(relevances[:k]):
-        dcg += (2 ** rel - 1) / np.log2(i + 2)
-    
-    # Calculate IDCG
-    sorted_relevances = sorted(relevances, reverse=True)
-    for i, rel in enumerate(sorted_relevances[:k]):
+    for i, rel in enumerate(relevance_scores):
+        dcg += (2 ** rel - 1) / np.log2(i + 2)  # i+2 because log2(1) is 0, rank starts at 1
+        
+    # Calculate IDCG (Ideal DCG)
+    ideal_scores = sorted(relevance_scores, reverse=True)
+    for i, rel in enumerate(ideal_scores):
         idcg += (2 ** rel - 1) / np.log2(i + 2)
-    
+        
     if idcg == 0:
         return 0.0
-    
+        
     return dcg / idcg
 
-def calculate_ndcg_at_10(relevances: List[int]) -> float:
-    """Calculate NDCG@10 specifically."""
-    return calculate_ndcg_at_k(relevances, 10)
+def calculate_ndcg_at_10(relevance_scores: List[int]) -> float:
+    """Convenience wrapper for NDCG@10."""
+    return calculate_ndcg_at_k(relevance_scores, 10)
 
-def calculate_ndcg_from_beir_results(beir_results: Dict[str, Any], query_id: str, k: int = 10) -> float:
-    """Extract NDCG@k from BEIR evaluation results."""
-    if query_id not in beir_results:
-        return 0.0
-    return beir_results[query_id].get(f'ndcg@{k}', 0.0)
+# --- Data Loading Helpers ---
 
-def load_beir_ground_truth(dataset_name: str) -> Dict[str, Any]:
-    """Load ground truth relevance judgments for a BEIR dataset."""
-    corpus = load_beir_corpus(dataset_name)
-    # In a real implementation, this would load the qrels file
-    # For now, we return the corpus structure which contains ground truth
-    return corpus
+def load_beir_ground_truth(dataset_name: str, query_id: str) -> Dict[str, int]:
+    """
+    Load ground truth relevance judgments for a specific query from BEIR.
+    Note: This is a placeholder for the actual BEIR loading logic which might vary by dataset.
+    In a real implementation, this would interact with the BEIR library's Qrels structure.
+    """
+    # Placeholder: In a real scenario, this would fetch from a loaded Qrels object
+    # For now, returning an empty dict to avoid crashes if called without BEIR setup
+    logger.warning(f"Ground truth for {dataset_name}/{query_id} not implemented in this utility alone.")
+    return {}
 
 def load_results_from_json(file_path: str) -> List[Dict[str, Any]]:
-    """Load experimental results from a JSON file."""
+    """
+    Load ranking results from a JSON file.
+    Expected format: List of dicts with 'query_id', 'doc_id', 'score', 'rank'.
+    """
+    import json
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Results file not found: {file_path}")
-    
     with open(file_path, 'r') as f:
         return json.load(f)
 
-def aggregate_ndcg_scores(results: List[Dict[str, Any]], metric_key: str = 'ndcg@10') -> List[float]:
-    """Aggregate NDCG scores across multiple queries/seeds."""
-    scores = []
-    for result in results:
-        if metric_key in result:
-            scores.append(result[metric_key])
-    return scores
-
-def wilcoxon_signed_rank_test(group1: List[float], group2: List[float]) -> StatisticalTestResult:
-    """Perform Wilcoxon signed-rank test on two paired groups."""
-    if len(group1) != len(group2):
-        raise ValueError("Groups must be of equal length for paired test")
-    
-    statistic, p_value = wilcoxon(group1, group2)
-    
-    return StatisticalTestResult(
-        test_name="Wilcoxon Signed-Rank",
-        statistic=float(statistic),
-        p_value=float(p_value),
-        significant_at_005=p_value < 0.05,
-        significant_at_01=p_value < 0.01,
-        description="Paired non-parametric test comparing two related samples"
-    )
-
-def bonferroni_correction(test_results: List[StatisticalTestResult], alpha: float = 0.05) -> BonferroniResult:
+def aggregate_ndcg_scores(dataset_results: List[Dict[str, Any]]) -> float:
     """
-    Apply Bonferroni correction for multiple hypothesis testing.
+    Aggregate NDCG@10 scores across multiple queries in a dataset.
+    Assumes dataset_results is a list of per-query NDCG scores or objects containing them.
+    """
+    if not dataset_results:
+        return 0.0
+    # Assuming the input is a list of floats or objects with an 'ndcg' attribute
+    scores = []
+    for item in dataset_results:
+        if isinstance(item, dict) and 'ndcg' in item:
+            scores.append(item['ndcg'])
+        elif isinstance(item, (int, float)):
+            scores.append(float(item))
+    
+    if not scores:
+        return 0.0
+    return float(np.mean(scores))
+
+# --- Statistical Testing ---
+
+class StatisticalTestResult:
+    def __init__(self, statistic: float, pvalue: float, method: str):
+        self.statistic = statistic
+        self.pvalue = pvalue
+        self.method = method
+
+class BonferroniResult:
+    def __init__(self, corrected_pvalue: float, original_pvalue: float, alpha: float, significant: bool):
+        self.corrected_pvalue = corrected_pvalue
+        self.original_pvalue = original_pvalue
+        self.alpha = alpha
+        self.significant = significant
+
+def wilcoxon_signed_rank_test(sample_a: List[float], sample_b: List[float]) -> StatisticalTestResult:
+    """
+    Perform Wilcoxon signed-rank test between two paired samples.
     
     Args:
-        test_results: List of StatisticalTestResult objects from individual tests
-        alpha: Original significance level (default 0.05)
-    
+        sample_a: List of values (e.g., NDCG scores for baseline).
+        sample_b: List of values (e.g., NDCG scores for clustering-aided).
+        
     Returns:
-        BonferroniResult containing corrected results and summary
+        StatisticalTestResult object.
     """
-    num_tests = len(test_results)
-    if num_tests == 0:
-        return BonferroniResult(
-            original_tests=[],
-            corrected_results=[],
-            alpha_threshold=alpha,
-            num_tests=0,
-            corrected_alpha=1.0,
-            summary={"message": "No tests to correct"}
-        )
-    
-    # Calculate corrected alpha threshold
-    corrected_alpha = alpha / num_tests
-    
-    corrected_results = []
-    significant_count = 0
-    significant_tests = []
-    
-    for test in test_results:
-        # Apply Bonferroni correction: reject if p-value < alpha/n
-        is_significant = test.p_value < corrected_alpha
+    if len(sample_a) != len(sample_b):
+        raise ValueError("Samples must be of equal length for paired test.")
+    if len(sample_a) < 2:
+        raise ValueError("Need at least 2 samples for Wilcoxon test.")
         
-        corrected_test = StatisticalTestResult(
-            test_name=test.test_name,
-            statistic=test.statistic,
-            p_value=test.p_value,
-            significant_at_005=is_significant,  # Now using corrected threshold
-            significant_at_01=is_significant and test.p_value < (corrected_alpha / 10),
-            description=f"{test.description} (Bonferroni-corrected, n={num_tests})"
-        )
-        
-        corrected_results.append(corrected_test)
-        
-        if is_significant:
-            significant_count += 1
-            significant_tests.append(test.test_name)
+    stat, pval = wilcoxon(sample_a, sample_b)
+    return StatisticalTestResult(float(stat), float(pval), "Wilcoxon Signed-Rank")
+
+def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[BonferroniResult]:
+    """
+    Apply Bonferroni correction to a list of p-values.
     
-    summary = {
-        "num_tests": num_tests,
-        "original_alpha": alpha,
-        "corrected_alpha": corrected_alpha,
-        "significant_tests_count": significant_count,
-        "significant_tests": significant_tests,
-        "correction_method": "Bonferroni"
+    Args:
+        p_values: List of raw p-values.
+        alpha: Significance level.
+        
+    Returns:
+        List of BonferroniResult objects.
+    """
+    n_tests = len(p_values)
+    if n_tests == 0:
+        return []
+        
+    results = []
+    for p in p_values:
+        corrected_p = p * n_tests
+        if corrected_p > 1.0:
+            corrected_p = 1.0
+        significant = corrected_p < alpha
+        results.append(BonferroniResult(corrected_p, p, alpha, significant))
+    return results
+
+# --- Validation & Proxy Logic ---
+
+def validate_proxy_accuracy(flagged_pairs: List[Tuple[str, str]], 
+                            true_labels: List[bool], 
+                            similarity_scores: List[float]) -> Dict[str, Any]:
+    """
+    Validate the accuracy of the cosine similarity proxy against ground truth labels.
+    
+    Args:
+        flagged_pairs: List of (text_a, text_b) that were flagged.
+        true_labels: List of booleans indicating if they were truly duplicates (ground truth).
+        similarity_scores: List of similarity scores used for flagging.
+        
+    Returns:
+        Dictionary with precision, recall, and accuracy metrics.
+    """
+    if not flagged_pairs:
+        return {"precision": 0.0, "recall": 0.0, "accuracy": 0.0}
+        
+    # Threshold for flagging
+    threshold = 0.95
+    predicted_labels = [s > threshold for s in similarity_scores]
+    
+    tp = sum(1 for p, t in zip(predicted_labels, true_labels) if p and t)
+    fp = sum(1 for p, t in zip(predicted_labels, true_labels) if p and not t)
+    fn = sum(1 for p, t in zip(predicted_labels, true_labels) if not p and t)
+    tn = sum(1 for p, t in zip(predicted_labels, true_labels) if not p and not t)
+    
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    accuracy = (tp + tn) / len(true_labels)
+    
+    return {
+        "precision": precision,
+        "recall": recall,
+        "accuracy": accuracy,
+        "tp": tp, "fp": fp, "fn": fn, "tn": tn
     }
-    
-    logger.info(f"Bonferroni correction applied: {num_tests} tests, corrected alpha = {corrected_alpha:.6f}")
-    logger.info(f"Significant results after correction: {significant_count}/{num_tests}")
-    
-    return BonferroniResult(
-        original_tests=test_results,
-        corrected_results=corrected_results,
-        alpha_threshold=alpha,
-        num_tests=num_tests,
-        corrected_alpha=corrected_alpha,
-        summary=summary
-    )
-
-def calculate_ndcg_for_clustering_aided_variant(relevances: List[int], k: int = 10) -> float:
-    """Calculate NDCG@k for clustering-aided variant results."""
-    return calculate_ndcg_at_k(relevances, k)
-
-def validate_proxy_accuracy(flagged_calls: List[Dict[str, Any]], llm_labels: List[bool]) -> float:
-    """Validate the cosine similarity proxy against LLM ground truth."""
-    if len(flagged_calls) != len(llm_labels):
-        raise ValueError("Flagged calls and LLM labels must have same length")
-    
-    correct = sum(1 for call, label in zip(flagged_calls, llm_labels) 
-                 if call.get('is_wasted') == label)
-    
-    return correct / len(llm_labels) if llm_labels else 0.0
 
 def calculate_dynamic_sample_size(total_flagged: int, upper_bound: int = 100) -> int:
-    """Calculate dynamic sample size for LLM validation."""
+    """
+    Calculate dynamic sample size for LLM consensus validation.
+    Formula: min(total_flagged, upper_bound)
+    """
+    if total_flagged <= 0:
+        return 0
     return min(total_flagged, upper_bound)
 
-def validate_jaccard_cosine_correlation(jaccard_scores: List[float], cosine_scores: List[float]) -> float:
-    """Validate correlation between Jaccard (MinHash) and Cosine similarity."""
-    if len(jaccard_scores) != len(cosine_scores):
-        raise ValueError("Score lists must be equal length")
-    
-    if len(jaccard_scores) < 2:
+def validate_jaccard_cosine_correlation(jaccard_scores: List[float], 
+                                        cosine_scores: List[float]) -> float:
+    """
+    Calculate Pearson correlation between Jaccard and Cosine similarity scores.
+    """
+    if len(jaccard_scores) != len(cosine_scores) or len(jaccard_scores) < 2:
         return 0.0
     
-    correlation = np.corrcoef(jaccard_scores, cosine_scores)[0, 1]
-    return float(correlation)
+    j_arr = np.array(jaccard_scores)
+    c_arr = np.array(cosine_scores)
+    
+    # Pearson correlation
+    corr_matrix = np.corrcoef(j_arr, c_arr)
+    return float(corr_matrix[0, 1]) if not np.isnan(corr_matrix[0, 1]) else 0.0
+
+def calculate_ndcg_for_clustering_aided_variant(relevance_scores: List[int], 
+                                                cluster_filter_applied: bool) -> float:
+    """
+    Calculate NDCG@10 for the clustering-aided variant.
+    This is a logical wrapper; the actual calculation is identical to standard NDCG,
+    but this function serves as a marker in the pipeline for where the clustering logic was applied.
+    """
+    if not cluster_filter_applied:
+        logger.warning("Cluster filter not applied, but NDCG calculated for clustering variant.")
+    return calculate_ndcg_at_10(relevance_scores)
 
 def main():
-    """Main entry point for metrics module testing."""
-    logger.info("Metrics module loaded successfully")
-    
-    # Example usage of Bonferroni correction
-    test_results = [
-        StatisticalTestResult("NDCG Comparison", 12.5, 0.003, True, True, "NDCG improvement test"),
-        StatisticalTestResult("Efficiency Ratio", 8.2, 0.012, False, False, "Wasted call ratio test"),
-        StatisticalTestResult("Runtime Overhead", 3.1, 0.045, True, False, "Runtime penalty test")
-    ]
-    
-    bonf_result = bonferroni_correction(test_results, alpha=0.05)
-    
-    print(f"Original tests: {bonf_result.num_tests}")
-    print(f"Corrected alpha: {bonf_result.corrected_alpha:.6f}")
-    print(f"Significant after correction: {bonf_result.summary['significant_tests_count']}")
-    print(f"Significant tests: {bonf_result.summary['significant_tests']}")
+    """Entry point for direct execution (e.g., for quick tests)."""
+    print("Metrics module loaded successfully.")
+    print("Available functions: calculate_cosine_similarity_proxy, is_wasted_call, calculate_ndcg_at_10, ...")
 
 if __name__ == "__main__":
     main()
