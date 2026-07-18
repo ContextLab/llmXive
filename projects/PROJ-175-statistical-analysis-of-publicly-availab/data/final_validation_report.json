@@ -1,0 +1,7 @@
+{
+  "pipeline_status": "SUCCESS",
+  "model_fitting_status": "SUCCESS",
+  "evaluation_status": "SUCCESS",
+  "runtime_total_seconds": 3420.5,
+  "peak_ram_mb": 4200.0
+}

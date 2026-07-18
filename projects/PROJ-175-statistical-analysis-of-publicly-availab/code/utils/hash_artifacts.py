@@ -4,81 +4,86 @@ import json
 import hashlib
 from pathlib import Path
 
-# Ensure the project root is in the path for imports if needed, 
-# though this script uses standard library only.
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_FINAL_DIR = PROJECT_ROOT / "data" / "final"
-DOCS_DIR = PROJECT_ROOT / "docs"
-STATE_DIR = PROJECT_ROOT / "state"
-
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"Artifact not found: {file_path}")
-    
+def compute_sha256(file_path: str) -> str:
+    """Compute the SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        # Read in chunks to handle large files without loading entirely into memory
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            # Read in chunks to handle large files efficiently
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Artifact not found for hashing: {file_path}")
+    except Exception as e:
+        raise RuntimeError(f"Error hashing file {file_path}: {e}")
 
-def hash_artifacts():
+def hash_artifacts(output_path: str = "state/final_artifacts_hashes.json") -> None:
     """
-    Compute SHA-256 hashes for all final data artifacts and the final report.
-    Writes results to state/final_artifacts_hashes.json.
+    Compute SHA-256 hashes for all final data artifacts and write to a JSON file.
+    
+    Artifacts to hash:
+    - All .parquet files in data/final/
+    - All .json files in data/final/
+    - docs/final_report.md
     """
-    # Ensure state directory exists
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-
-    artifacts_to_hash = {}
-
-    # 1. Hash all .parquet files in data/final/
-    if DATA_FINAL_DIR.exists():
-        for file_path in DATA_FINAL_DIR.glob("*.parquet"):
-          relative_path = file_path.relative_to(PROJECT_ROOT)
-          try:
-              hash_val = compute_sha256(file_path)
-              artifacts_to_hash[str(relative_path)] = hash_val
-          except Exception as e:
-              print(f"Error hashing {file_path}: {e}", file=sys.stderr)
-
-    # 2. Hash all .json files in data/final/
-    if DATA_FINAL_DIR.exists():
-        for file_path in DATA_FINAL_DIR.glob("*.json"):
-          relative_path = file_path.relative_to(PROJECT_ROOT)
-          try:
-              hash_val = compute_sha256(file_path)
-              artifacts_to_hash[str(relative_path)] = hash_val
-          except Exception as e:
-              print(f"Error hashing {file_path}: {e}", file=sys.stderr)
-
-    # 3. Hash the final report
-    final_report_path = DOCS_DIR / "final_report.md"
+    project_root = Path(__file__).resolve().parents[2]
+    final_data_dir = project_root / "data" / "final"
+    docs_dir = project_root / "docs"
+    state_dir = project_root / "state"
+    
+    artifacts_to_hash = []
+    
+    # Collect .parquet files from data/final/
+    if final_data_dir.exists():
+        for file_path in final_data_dir.glob("*.parquet"):
+            artifacts_to_hash.append(str(file_path.relative_to(project_root)))
+    
+    # Collect .json files from data/final/
+    if final_data_dir.exists():
+        for file_path in final_data_dir.glob("*.json"):
+            artifacts_to_hash.append(str(file_path.relative_to(project_root)))
+    
+    # Add final report
+    final_report_path = docs_dir / "final_report.md"
     if final_report_path.exists():
-        relative_path = final_report_path.relative_to(PROJECT_ROOT)
-        try:
-            hash_val = compute_sha256(final_report_path)
-            artifacts_to_hash[str(relative_path)] = hash_val
-        except Exception as e:
-            print(f"Error hashing {final_report_path}: {e}", file=sys.stderr)
-    else:
-        print(f"Warning: Final report not found at {final_report_path}", file=sys.stderr)
-
+        artifacts_to_hash.append(str(final_report_path.relative_to(project_root)))
+    
     if not artifacts_to_hash:
-        print("Warning: No artifacts found to hash.", file=sys.stderr)
-
-    # Write the hash map to the state directory
-    output_path = STATE_DIR / "final_artifacts_hashes.json"
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(artifacts_to_hash, f, indent=2)
-
-    print(f"Successfully hashed {len(artifacts_to_hash)} artifacts.")
-    print(f"Output written to: {output_path}")
-    return artifacts_to_hash
+        raise FileNotFoundError(
+            "No artifacts found to hash. Ensure data/final/ contains parquet/json files "
+            "and docs/final_report.md exists."
+        )
+    
+    # Compute hashes
+    hash_map = {}
+    for rel_path in artifacts_to_hash:
+        full_path = project_root / rel_path
+        if not full_path.exists():
+            raise FileNotFoundError(f"Artifact missing during hashing: {full_path}")
+        hash_value = compute_sha256(str(full_path))
+        hash_map[rel_path] = hash_value
+    
+    # Ensure state directory exists
+    state_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Write hashes to JSON
+    output_file = state_dir / output_path
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(hash_map, f, indent=2, sort_keys=True)
+    
+    print(f"Successfully hashed {len(hash_map)} artifacts.")
+    print(f"Hashes written to: {output_file}")
 
 def main():
-    hash_artifacts()
+    """Entry point for the artifact hashing script."""
+    try:
+        hash_artifacts()
+        print("Artifact hashing completed successfully.")
+        sys.exit(0)
+    except Exception as e:
+        print(f"Artifact hashing failed: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

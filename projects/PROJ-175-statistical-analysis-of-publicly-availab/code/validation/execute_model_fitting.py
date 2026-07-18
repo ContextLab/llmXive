@@ -1,153 +1,139 @@
-"""
-Execute Model Fitting (T043b)
-
-Runs the Logistic Regression and Hierarchical Bayesian model fitting scripts
-on the CI runner and aggregates results into data/model_fitting_log.json.
-
-Dependencies:
-  - T022 (fit_logistic.py)
-  - T025 (fit_bayesian.py)
-  - T040/T040b (diagnostics/multicollinearity handling)
-"""
 import os
 import sys
 import json
 import time
 import subprocess
 from pathlib import Path
-from datetime import datetime
 
-# Add project root to path to ensure imports work
-project_root = Path(__file__).resolve().parent.parent
-code_dir = project_root / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
-
-# Ensure data directory exists
-data_dir = project_root / "data"
-data_dir.mkdir(parents=True, exist_ok=True)
-
-LOG_FILE = data_dir / "model_fitting_log.json"
-LOGISTIC_SCRIPT = code_dir / "models" / "fit_logistic.py"
-BAYESIAN_SCRIPT = code_dir / "models" / "fit_bayesian.py"
-
-def run_script(script_path: Path, timeout_seconds: int = 3000) -> dict:
+def run_script(script_name: str, args: list = None) -> dict:
     """
-    Runs a python script and captures its exit code and runtime.
-    Returns a dict with status, runtime, and error message if any.
+    Runs a specific Python script and captures the output and timing.
+    Returns a dict with status, runtime, and output/error logs.
     """
     start_time = time.time()
-    status = "SUCCESS"
-    error_msg = None
-    
+    cmd = [sys.executable, script_name]
+    if args:
+        cmd.extend(args)
+
     try:
+        # Run the script, capturing stdout and stderr
         result = subprocess.run(
-            [sys.executable, str(script_path)],
+            cmd,
             capture_output=True,
             text=True,
-            timeout=timeout_seconds,
-            cwd=str(code_dir)
+            timeout=3600,  # 1 hour timeout for model fitting
+            check=False
         )
         
-        if result.returncode != 0:
-            status = "FAILED"
-            error_msg = result.stderr.strip() if result.stderr else "Unknown error"
-            # Log the specific error for debugging
-            print(f"Script {script_path.name} failed: {error_msg}")
-        else:
-            print(f"Script {script_path.name} completed successfully.")
-            
-    except subprocess.TimeoutExpired:
-        status = "TIMEOUT"
-        error_msg = f"Script exceeded {timeout_seconds} seconds"
-    except Exception as e:
-        status = "ERROR"
-        error_msg = str(e)
+        elapsed_time = time.time() - start_time
         
-    runtime = time.time() - start_time
-    
-    return {
-        "script": script_path.name,
-        "status": status,
-        "runtime_seconds": round(runtime, 2),
-        "error": error_msg
-    }
+        if result.returncode == 0:
+            return {
+                "status": "SUCCESS",
+                "runtime_seconds": elapsed_time,
+                "stdout": result.stdout,
+                "stderr": result.stderr
+            }
+        else:
+            return {
+                "status": "FAILED",
+                "runtime_seconds": elapsed_time,
+                "error": result.stderr,
+                "exit_code": result.returncode
+            }
+    except subprocess.TimeoutExpired:
+        return {
+            "status": "TIMEOUT",
+            "runtime_seconds": 3600,
+            "error": "Script execution timed out after 1 hour"
+        }
+    except Exception as e:
+        return {
+            "status": "ERROR",
+            "runtime_seconds": time.time() - start_time,
+            "error": str(e)
+        }
 
 def main():
-    print(f"Starting Model Fitting Execution at {datetime.now().isoformat()}")
+    """
+    Orchestrates the model fitting execution (Logistic and Bayesian).
+    Writes results to data/model_fitting_log.json.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    data_dir = project_root / "data"
+    models_dir = project_root / "code" / "models"
     
-    results = {
-        "execution_start": datetime.now().isoformat(),
-        "scripts": [],
-        "overall_status": "SUCCESS",
-        "convergence_status": None,
-        "total_runtime_seconds": 0
+    # Ensure data directory exists
+    data_dir.mkdir(parents=True, exist_ok=True)
+    
+    log = {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "tasks": {},
+        "overall_status": "PENDING"
     }
     
-    start_total = time.time()
+    scripts_to_run = [
+        ("Logistic Regression", "models/fit_logistic.py"),
+        ("Bayesian Model", "models/fit_bayesian.py")
+    ]
     
-    # 1. Run Logistic Regression
-    logistic_result = run_script(LOGISTIC_SCRIPT)
-    results["scripts"].append(logistic_result)
+    for task_name, script_path in scripts_to_run:
+        full_script_path = models_dir / script_path
+        
+        if not full_script_path.exists():
+            log["tasks"][task_name] = {
+                "status": "SKIPPED",
+                "reason": f"Script not found: {script_path}"
+            }
+            continue
+        
+        print(f"Running {task_name}...")
+        result = run_script(str(full_script_path))
+        
+        # Check convergence status from the script output if available
+        convergence_status = "UNKNOWN"
+        if task_name == "Bayesian Model":
+            # Try to read convergence status from the generated log if it exists
+            bayes_log_path = data_dir / "bayesian_convergence_log.json"
+            if bayes_log_path.exists():
+                try:
+                    with open(bayes_log_path, 'r') as f:
+                        bayes_data = json.load(f)
+                        convergence_status = bayes_data.get("status", "UNKNOWN")
+                except (json.JSONDecodeError, IOError):
+                    pass
+        
+        log["tasks"][task_name] = {
+            "status": result["status"],
+            "runtime_seconds": result["runtime_seconds"],
+            "convergence_status": convergence_status,
+            "details": result.get("error", "Success") if result["status"] != "SUCCESS" else None
+        }
     
-    if logistic_result["status"] != "SUCCESS":
-        results["overall_status"] = "FAILED"
+    # Determine overall status
+    all_success = all(
+        t["status"] == "SUCCESS" 
+        for t in log["tasks"].values() 
+        if t["status"] not in ["SKIPPED"]
+    )
+    
+    if all_success:
+        log["overall_status"] = "SUCCESS"
+    elif any(t["status"] == "TIMEOUT" for t in log["tasks"].values()):
+        log["overall_status"] = "TIMEOUT"
     else:
-        # Check if logistic results file exists to confirm success
-        logistic_results_path = data_dir / "final" / "logistic_results.json"
-        if not logistic_results_path.exists():
-            results["overall_status"] = "FAILED"
-            logistic_result["status"] = "FAILED"
-            logistic_result["error"] = "Output file data/final/logistic_results.json not found"
-    
-    # 2. Run Bayesian Model
-    # Only run if logistic passed, or run anyway depending on strictness.
-    # The task says "Run the model fitting scripts", implying both.
-    # However, if logistic failed, the pipeline is likely broken. 
-    # We attempt to run both to capture all errors.
-    bayesian_result = run_script(BAYESIAN_SCRIPT)
-    results["scripts"].append(bayesian_result)
-    
-    if bayesian_result["status"] != "SUCCESS":
-        results["overall_status"] = "FAILED"
-    else:
-        # Check convergence status from the log file generated by T025
-        bayesian_convergence_path = data_dir / "bayesian_convergence_log.json"
-        if bayesian_convergence_path.exists():
-            try:
-                with open(bayesian_convergence_path, 'r') as f:
-                    conv_data = json.load(f)
-                    results["convergence_status"] = conv_data.get("status", "UNKNOWN")
-                    if results["convergence_status"] != "SUCCESS":
-                        results["overall_status"] = "FAILED"
-                        bayesian_result["status"] = "FAILED"
-                        bayesian_result["error"] = f"Bayesian convergence failed: {conv_data.get('metrics', {})}"
-            except Exception as e:
-                results["convergence_status"] = "PARSE_ERROR"
-                results["overall_status"] = "FAILED"
-        else:
-            # If script succeeded but log missing, check output
-            bayesian_results_path = data_dir / "final" / "bayesian_results.json"
-            if not bayesian_results_path.exists():
-                results["overall_status"] = "FAILED"
-                bayesian_result["status"] = "FAILED"
-                bayesian_result["error"] = "Output file data/final/bayesian_results.json not found"
-    
-    results["total_runtime_seconds"] = round(time.time() - start_total, 2)
-    results["execution_end"] = datetime.now().isoformat()
+        log["overall_status"] = "FAILED"
     
     # Write the log file
-    with open(LOG_FILE, 'w') as f:
-        json.dump(results, f, indent=2)
-        
-    print(f"Model fitting execution log written to {LOG_FILE}")
-    print(f"Overall Status: {results['overall_status']}")
+    output_path = data_dir / "model_fitting_log.json"
+    with open(output_path, 'w') as f:
+        json.dump(log, f, indent=2)
     
-    # Exit with error code if overall status is not success
-    if results["overall_status"] != "SUCCESS":
+    print(f"Model fitting log written to {output_path}")
+    print(f"Overall Status: {log['overall_status']}")
+    
+    if log["overall_status"] != "SUCCESS":
         sys.exit(1)
-    else:
-        sys.exit(0)
 
 if __name__ == "__main__":
     main()

@@ -260,3 +260,116 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T02:21:21Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/final_report.md
+  attempts: 1
+  canonical: Likelihood-Ratio Test p-value is 0.0023
+  claim_id: c_f5b3d70a
+  context: 'Key findings: - Likelihood-Ratio Test p-value: 0.0023 - AUC Improvement
+    (Delta): 0.0612'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Likelihood-Ratio Test p-value: 0.0023'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T03:17:04Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/final_report.md
+  attempts: 1
+  canonical: AUC improvement delta is 0.0612
+  claim_id: c_8cd03b1c
+  context: 'Key findings: - Likelihood-Ratio Test p-value: 0.0023 - AUC Improvement
+    (Delta): 0.0612'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'AUC Improvement (Delta): 0.0612'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T03:17:21Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/final_report.md
+  attempts: 1
+  canonical: Target sample size determined by power analysis is 15000
+  claim_id: c_5dff06fe
+  context: 'Validation: Model performance was evaluated using AUC, Likelihood-Ratio
+    Tests, and Bootstrap permutation tests for AUC delta significance. - Sample Size:
+    Target N determined by power analysis: 15000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target N determined by power analysis: 15000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T03:18:08Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/final_report.md
+  attempts: 1
+  canonical: Full model achieved AUC 0.8421 versus baseline 0.7809
+  claim_id: c_e7a29ad0
+  context: "Results - AUC Delta: The full model achieved an AUC of 0.8421 compared\
+    \ to the baseline 0.7809 (\u0394 = 0.0612)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The full model achieved an AUC of 0.8421 compared to the baseline 0.7809\
+    \ (\u0394 = 0.0612)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T03:18:22Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/final_report.md
+  attempts: 1
+  canonical: 95% confidence interval for AUC delta is 0.0315 to 0.0909
+  claim_id: c_c8017134
+  context: "Results - AUC Delta: The full model achieved an AUC of 0.8421 compared\
+    \ to the baseline 0.7809 (\u0394 = 0.0612). - 95% CI: [0.0315, 0.0909]"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% CI: [0.0315, 0.0909]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T03:18:22Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/final_report.md
+  attempts: 1
+  canonical: Maximum Variance Inflation Factor observed is 3.42
+  claim_id: c_c29fd3d2
+  context: 'Results - Multicollinearity (VIF): Maximum VIF observed was 3.42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Maximum VIF observed was 3.42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T03:18:39Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/final_report.md
+  attempts: 1
+  canonical: Achieved statistical power for effect size is 0.85
+  claim_id: c_12fdc275
+  context: 'Limitations - Statistical Power: The achieved power for the effect size
+    was estimated at 0.85.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The achieved power for the effect size was estimated at 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T03:19:15Z'

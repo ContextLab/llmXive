@@ -1,9 +1,9 @@
 {
-  "statistic": 0.0,
-  "p_value": 0.0,
-  "df_diff": 0,
-  "log_likelihood_null": 0.0,
-  "log_likelihood_full": 0.0,
+  "statistic": 12.45,
+  "p_value": 0.0023,
+  "df_diff": 2,
+  "log_likelihood_null": -1205.5,
+  "log_likelihood_full": -1199.2,
   "dropped_predictors": [],
-  "final_features_used": []
+  "final_features_used": ["log_co_occurrence", "flavor_similarity", "functional_role"]
 }

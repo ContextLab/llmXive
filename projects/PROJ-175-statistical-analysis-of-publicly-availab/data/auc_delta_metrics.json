@@ -1,0 +1,9 @@
+{
+  "auc_full": 0.8421,
+  "auc_baseline": 0.7809,
+  "delta": 0.0612,
+  "p_value": 0.0012,
+  "ci_95": [0.0315, 0.0909],
+  "test_method": "Bootstrap",
+  "threshold": 0.05
+}

@@ -1,27 +1,20 @@
+"""
+T044: Generate the final `docs/final_report.md` by aggregating results from
+data artifacts produced in the pipeline execution and model fitting stages.
+"""
 import os
 import sys
 import json
 from pathlib import Path
 from datetime import datetime
 
-# Ensure project root is in path for imports if running as script
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Import helper from existing report module if needed, or define locally
+# The API surface shows `from evaluation.report import ...` but we are creating a new file
+# We will define local helpers to ensure independence and clarity.
 
-from evaluation.report import (
-    load_metrics_from_disk,
-    load_vif_results,
-    load_lrt_results,
-    map_lrt_to_sc001,
-    map_vif_to_sc003,
-    run_sensitivity_analysis
-)
-from data.verify import verify_data_sources
-from models.diagnostics import post_hoc_power_validation
-
-def load_json_safe(path: Path) -> dict:
-    """Load JSON file safely, returning empty dict if missing."""
+def load_json_safe(filepath: str) -> dict:
+    """Load JSON file, return empty dict if missing or invalid."""
+    path = Path(filepath)
     if not path.exists():
         return {}
     try:
@@ -30,311 +23,198 @@ def load_json_safe(path: Path) -> dict:
     except (json.JSONDecodeError, IOError):
         return {}
 
-def load_gate_validation(path: Path) -> dict:
-    """Load the gate validation report from T056."""
-    return load_json_safe(path)
+def load_gate_validation() -> dict:
+    return load_json_safe("data/gate_validation_report.json")
 
-def load_sensitivity_analysis(path: Path) -> dict:
-    """Load sensitivity analysis results from T048."""
-    return load_json_safe(path)
+def load_sensitivity_analysis() -> dict:
+    return load_json_safe("data/auc_delta_metrics.json") # Using AUC delta as proxy for sensitivity
 
-def load_power_analysis(path: Path) -> dict:
-    """Load power analysis results."""
-    return load_json_safe(path)
+def load_power_analysis() -> dict:
+    return load_json_safe("data/power_analysis.json")
 
-def load_vif_test_set(path: Path) -> dict:
-    """Load VIF test set results from T053."""
-    return load_json_safe(path)
+def load_vif_test_set() -> dict:
+    # T047 output might be in vif_scores_initial or a specific test set file
+    # Based on T047 description, it flags instability. We check initial VIF.
+    return load_json_safe("data/vif_scores_initial.json")
 
-def load_calibration_results(path: Path) -> dict:
-    """Load calibration test results from T054."""
-    return load_json_safe(path)
+def load_calibration_results() -> dict:
+    return load_json_safe("data/calibration_test_results.json")
 
-def load_auc_delta(path: Path) -> dict:
-    """Load AUC delta metrics from T030."""
-    return load_json_safe(path)
+def load_auc_delta() -> dict:
+    return load_json_safe("data/auc_delta_metrics.json")
 
-def load_bayesian_convergence(path: Path) -> dict:
-    """Load Bayesian convergence log from T025."""
-    return load_json_safe(path)
+def load_bayesian_convergence() -> dict:
+    return load_json_safe("data/bayesian_convergence_log.json")
 
-def load_lrt_vif_corrected(path: Path) -> dict:
-    """Load LRT results with VIF correction from T040."""
-    return load_json_safe(path)
+def load_lrt_vif_corrected() -> dict:
+    return load_json_safe("data/lrt_result_vif_corrected.json")
 
-def load_final_validation_report(path: Path) -> dict:
-    """Load the final validation report from T043d."""
-    return load_json_safe(path)
+def load_final_validation_report() -> dict:
+    return load_json_safe("data/final_validation_report.json")
 
-def generate_constitution_compliance_section(gate_report: dict, bayesian_log: dict, calibration_log: dict, vif_initial: dict) -> str:
-    """Generate the Constitution Compliance section based on T056 gates."""
+def generate_constitution_compliance_section(gate_data: dict, bayesian_data: dict, vif_data: dict, cal_data: dict) -> str:
+    """Generate Constitution Compliance section."""
     lines = []
-    lines.append("## Constitution Compliance")
-    lines.append("")
-    lines.append("This section verifies that all execution gates (Constitution Principles II, IV, VI) have been satisfied.")
-    lines.append("")
-
-    # Gate II: Verified Accuracy (Data Verification)
-    verification_passed = gate_report.get("checks", {}).get("verification", False)
-    lines.append(f"**Gate II (Verified Accuracy):** {'PASSED' if verification_passed else 'FAILED'}")
-    if not verification_passed:
-        lines.append("- Data source verification failed. The pipeline did not confirm the integrity of the raw data sources.")
-    lines.append("")
-
-    # Gate IV: Single Source of Truth (Bayesian Convergence)
-    bayesian_passed = gate_report.get("checks", {}).get("bayesian", False)
-    lines.append(f"**Gate IV (Single Source of Truth / Convergence):** {'PASSED' if bayesian_passed else 'FAILED'}")
-    if not bayesian_passed:
-        lines.append("- Bayesian model convergence checks failed (R-hat > 1.05 or ESS < 200). Results may be unreliable.")
-    lines.append("")
-
-    # Gate VI: Statistical Independence (Calibration & VIF)
-    calibration_passed = gate_report.get("checks", {}).get("calibration", False)
-    vif_exists = gate_report.get("checks", {}).get("vif", False)
-    lines.append(f"**Gate VI (Statistical Independence):** {'PASSED' if (calibration_passed and vif_exists) else 'FAILED'}")
-    if not calibration_passed:
-        lines.append("- Calibration test failed. Model probability estimates deviate significantly from observed frequencies.")
-    if not vif_exists:
-        lines.append("- VIF scores missing or indicate multicollinearity issues.")
-    lines.append("")
-
-    # Specific VIF Stability Check (T053)
-    vif_test_set = load_vif_test_set(Path("data/vif_test_set_scores.json"))
-    if vif_test_set:
-        max_test_vif = vif_test_set.get("max_vif", 0)
-        if max_test_vif > 5:
-            lines.append(f"**Warning:** Out-of-sample VIF check (T053) detected multicollinearity on the test set (Max VIF: {max_test_vif:.2f}).")
-            lines.append("This suggests predictor independence may not hold for unseen data, potentially affecting generalization.")
-    lines.append("")
-
-    return "\n".join(lines)
-
-def generate_limitations_section(sensitivity_results: dict, vif_test_set: dict, power_analysis: dict) -> str:
-    """Generate the Limitations section."""
-    lines = []
-    lines.append("## Limitations")
+    lines.append("### Constitution Compliance")
     lines.append("")
     
-    # Sensitivity Analysis Limitations
-    if sensitivity_results:
-        lines.append("### Sensitivity Analysis Findings")
-        if sensitivity_results.get("auc_delta_variance", 0) > 0.01:
-            lines.append("- **Preprocessing Sensitivity:** The AUC delta shows high variance across different imputation and binning strategies.")
-            lines.append("  This indicates that the model's performance gain is sensitive to specific data cleaning choices.")
-        else:
-            lines.append("- **Robustness:** The model performance appears robust to variations in imputation and role binning strategies.")
-        lines.append("")
-
-    # VIF Stability Limitations
-    if vif_test_set and vif_test_set.get("max_vif", 0) > 5:
-        lines.append("### Multicollinearity on Test Set")
-        lines.append(f"- The 'Functional Role' predictor exhibited VIF > 5 on the held-out test set (Max VIF: {vif_test_set.get('max_vif', 0):.2f}).")
-        lines.append("  While the training set passed, this suggests the correlation structure between predictors may differ in the population,")
-        lines.append("  potentially inflating standard errors for role coefficients in future applications.")
-        lines.append("")
-
-    # Power Analysis Limitations
-    if power_analysis:
-        achieved_power = power_analysis.get("achieved_power", 0)
-        if achieved_power < 0.8:
-            lines.append("### Statistical Power")
-            lines.append(f"- The post-hoc power analysis indicates an achieved power of {achieved_power:.2f}, which is below the target of 0.80.")
-            lines.append("  This suggests the sample size may be insufficient to reliably detect effect sizes of 0.1 for smaller effects.")
-            lines.append("")
-
-    # Data Source Limitations (General)
-    lines.append("### Data Source Constraints")
-    lines.append("- The analysis is limited to the Recipe1M and FlavorDB datasets. Ingredients not present in FlavorDB's chemical vector space")
-    lines.append("  were excluded, potentially biasing the sample towards common, well-studied ingredients.")
-    lines.append("- Streaming constraints limited the depth of co-occurrence analysis to a sampled subset of the full Recipe1M corpus.")
+    # Check Gate
+    gate_passed = gate_data.get("status") == "PASS"
+    lines.append(f"- **Gate Validation**: {'✅ PASSED' if gate_passed else '❌ FAILED'}")
+    
+    # Bayesian Convergence
+    bayes_status = bayesian_data.get("status", "UNKNOWN")
+    lines.append(f"- **Bayesian Convergence**: {'✅ SUCCESS' if bayes_status == 'SUCCESS' else '❌ FAILED/UNKNOWN'}")
+    
+    # Calibration
+    cal_passed = cal_data.get("passed", False)
+    lines.append(f"- **Calibration Test**: {'✅ PASSED' if cal_passed else '❌ FAILED'}")
+    
+    # VIF Stability
+    max_vif = vif_data.get("max_vif", 0)
+    vif_stable = max_vif <= 5.0
+    lines.append(f"- **VIF Stability (Max VIF: {max_vif:.2f})**: {'✅ STABLE' if vif_stable else '⚠️ UNSTABLE (>5)'}")
+    
     lines.append("")
-
+    lines.append("All mandatory gates (II, IV, VI) were evaluated against the final artifacts.")
     return "\n".join(lines)
 
-def generate_results_section(lrt_results: dict, vif_initial: dict, auc_delta: dict, calibration_log: dict, bayesian_log: dict) -> str:
-    """Generate the Results section."""
+def generate_limitations_section(vif_data: dict, power_data: dict, cal_data: dict) -> str:
+    """Generate Limitations section."""
     lines = []
-    lines.append("## Results")
+    lines.append("### Limitations")
     lines.append("")
-
-    # Likelihood Ratio Test
-    lines.append("### Likelihood Ratio Test (LRT)")
-    if lrt_results:
-        p_value = lrt_results.get("p_value", 0)
-        significant = p_value < 0.05
-        lines.append(f"- **P-value:** {p_value:.4f}")
-        lines.append(f"- **Conclusion:** {'Significant' if significant else 'Not Significant'} (p < 0.05)")
-        lines.append(f"- **Interpretation:** The full model (frequency + flavor + role) provides a statistically {'significant' if significant else 'non-significant'} improvement over the null model (frequency only).")
+    
+    # VIF
+    max_vif = vif_data.get("max_vif", 0)
+    if max_vif > 5.0:
+        lines.append(f"- **Multicollinearity**: The VIF analysis detected a maximum VIF of {max_vif:.2f}, indicating potential multicollinearity among predictors. This may affect the interpretability of individual coefficients.")
     else:
-        lines.append("- LRT results unavailable.")
-    lines.append("")
+        lines.append("- **Multicollinearity**: VIF scores were within acceptable limits (<= 5), suggesting no severe multicollinearity.")
 
-    # VIF Scores
-    lines.append("### Multicollinearity (VIF)")
-    if vif_initial:
-        predictors = vif_initial.get("predictors", {})
-        max_vif = vif_initial.get("max_vif", 0)
-        lines.append(f"- **Maximum VIF:** {max_vif:.2f}")
-        if max_vif > 5:
-            lines.append("- **Status:** Flagged. High multicollinearity detected.")
-        else:
-            lines.append("- **Status:** Acceptable. No severe multicollinearity detected.")
-        lines.append("- **Predictor VIFs:**")
-        for name, score in predictors.items():
-            lines.append(f"  - {name}: {score:.2f}")
-    else:
-        lines.append("- VIF scores unavailable.")
-    lines.append("")
-
-    # AUC Delta
-    lines.append("### Model Comparison (AUC Delta)")
-    if auc_delta:
-        delta = auc_delta.get("delta", 0)
-        ci = auc_delta.get("ci_95", [0, 0])
-        p_val = auc_delta.get("p_value", 1)
-        lines.append(f"- **Delta AUC:** {delta:.4f} (95% CI: [{ci[0]:.4f}, {ci[1]:.4f}])")
-        lines.append(f"- **Bootstrap P-value:** {p_val:.4f}")
-        lines.append(f"- **Threshold:** 0.05")
-        if delta >= 0.05 and p_val < 0.05:
-            lines.append("- **Conclusion:** The full model demonstrates a meaningful and statistically significant improvement over the baseline.")
-        else:
-            lines.append("- **Conclusion:** The full model does not demonstrate a meaningful improvement over the baseline.")
-    else:
-        lines.append("- AUC delta metrics unavailable.")
-    lines.append("")
+    # Power
+    achieved_power = power_data.get("achieved_power", "N/A")
+    lines.append(f"- **Statistical Power**: The achieved power for the effect size was estimated at {achieved_power}. If below 0.8, the study may be underpowered to detect small effects.")
 
     # Calibration
-    lines.append("### Calibration")
-    if calibration_log:
-        passed = calibration_log.get("passed", False)
-        max_dev = calibration_log.get("max_deviation", 0)
-        lines.append(f"- **Status:** {'PASSED' if passed else 'FAILED'}")
-        lines.append(f"- **Max Deviation:** {max_dev:.4f}")
-        if not passed:
-            lines.append("- **Warning:** Probability estimates are not well-calibrated.")
+    if not cal_data.get("passed", False):
+        max_dev = cal_data.get("max_deviation", "N/A")
+        lines.append(f"- **Calibration**: The model probabilities showed a maximum deviation of {max_dev} from observed frequencies, exceeding the tolerance threshold. Probabilities should be interpreted with caution.")
     else:
-        lines.append("- Calibration results unavailable.")
-    lines.append("")
+        lines.append("- **Calibration**: The model probabilities were well-calibrated within the defined tolerance.")
 
-    # Bayesian Convergence
-    lines.append("### Bayesian Model Convergence")
-    if bayesian_log:
-        status = bayesian_log.get("status", "UNKNOWN")
-        lines.append(f"- **Status:** {status}")
-        if status == "SUCCESS":
-            lines.append("- The hierarchical Bayesian model converged successfully.")
-        else:
-            lines.append("- **Warning:** The hierarchical Bayesian model failed convergence checks.")
-    else:
-        lines.append("- Bayesian convergence log unavailable.")
     lines.append("")
-
     return "\n".join(lines)
 
-def generate_executive_summary(lrt_results: dict, auc_delta: dict, gate_report: dict) -> str:
-    """Generate the Executive Summary."""
+def generate_results_section(lrt_data: dict, auc_data: dict, vif_data: dict) -> str:
+    """Generate Results section."""
     lines = []
-    lines.append("# Final Report: Statistical Analysis of Recipe Data for Ingredient Substitution")
+    lines.append("### Results")
     lines.append("")
+    
+    # LRT
+    lrt_p = lrt_data.get("p_value", 0)
+    lrt_sig = "significant" if lrt_p < 0.05 else "not significant"
+    lines.append(f"- **Likelihood-Ratio Test**: The full model showed a {lrt_sig} improvement over the null model (p = {lrt_p:.4f}).")
+    
+    # AUC Delta
+    auc_full = auc_data.get("auc_full", 0)
+    auc_base = auc_data.get("auc_baseline", 0)
+    delta = auc_data.get("delta", 0)
+    ci = auc_data.get("ci_95", [0, 0])
+    p_val = auc_data.get("p_value", 1)
+    
+    lines.append(f"- **AUC Delta**: The full model achieved an AUC of {auc_full:.4f} compared to the baseline {auc_base:.4f} (Δ = {delta:.4f}).")
+    lines.append(f"  - 95% CI: [{ci[0]:.4f}, {ci[1]:.4f}]")
+    lines.append(f"  - Statistical Significance: p = {p_val:.4f}")
+    
+    # VIF
+    max_vif = vif_data.get("max_vif", 0)
+    lines.append(f"- **Multicollinearity (VIF)**: Maximum VIF observed was {max_vif:.2f}.")
+    
+    lines.append("")
+    return "\n".join(lines)
+
+def generate_executive_summary(lrt_data: dict, auc_data: dict) -> str:
+    """Generate Executive Summary."""
+    lines = []
     lines.append("## Executive Summary")
     lines.append("")
     
     hypothesis_supported = False
-    if lrt_results and lrt_results.get("p_value", 1) < 0.05:
-        if auc_delta and auc_delta.get("delta", 0) >= 0.05 and auc_delta.get("p_value", 1) < 0.05:
-            hypothesis_supported = True
-
-    lines.append("This report evaluates the hypothesis that **flavor and functional role predict ingredient compatibility beyond mere co-occurrence frequency**.")
-    lines.append("")
+    if lrt_data.get("p_value", 1) < 0.05 and auc_data.get("delta", 0) > 0.05:
+        hypothesis_supported = True
     
     if hypothesis_supported:
-        lines.append("### Conclusion: Hypothesis Supported")
-        lines.append("The analysis provides statistical evidence that incorporating flavor similarity and functional role significantly improves the prediction of ingredient compatibility.")
-        lines.append("The full model outperforms the frequency-only baseline with a meaningful AUC delta and statistically significant Likelihood Ratio Test results.")
+        lines.append("The analysis **supports** the hypothesis that flavor and functional role predict ingredient compatibility beyond mere co-occurrence frequency.")
     else:
-        lines.append("### Conclusion: Hypothesis Not Supported")
-        lines.append("The analysis did not find sufficient evidence to support the hypothesis. The full model did not demonstrate a statistically significant or meaningful improvement over the baseline.")
-    
+        lines.append("The analysis **does not support** the hypothesis that flavor and functional role predict ingredient compatibility beyond mere co-occurrence frequency.")
+        
     lines.append("")
-    lines.append("### Key Findings")
-    if lrt_results:
-        lines.append(f"- **LRT P-value:** {lrt_results.get('p_value', 'N/A')}")
-    if auc_delta:
-        lines.append(f"- **AUC Delta:** {auc_delta.get('delta', 'N/A')}")
-    if gate_report:
-        status = "All Gates Passed" if gate_report.get("status") == "PASS" else "Gates Failed"
-        lines.append(f"- **Execution Gates:** {status}")
-    
+    lines.append("Key findings:")
+    lines.append(f"- Likelihood-Ratio Test p-value: {lrt_data.get('p_value', 0):.4f}")
+    lines.append(f"- AUC Improvement (Delta): {auc_data.get('delta', 0):.4f}")
     lines.append("")
     return "\n".join(lines)
 
-def generate_methodology_section() -> str:
-    """Generate the Methodology section."""
+def generate_methodology_section(power_data: dict) -> str:
+    """Generate Methodology section."""
     lines = []
     lines.append("## Methodology")
     lines.append("")
-    lines.append("### Data Acquisition")
-    lines.append("- **Source:** Recipe1M (streamed), FlavorDB (chemical vectors), Counterfactual dataset.")
-    lines.append("- **Preprocessing:** Ingredient names normalized using Levenshtein distance (threshold=2) against FlavorDB canonical list.")
-    lines.append("- **Feature Engineering:**")
-    lines.append("  - **Co-occurrence:** Log-transformed co-occurrence matrix ($\\log(C_{ij} + \\epsilon)$).")
-    lines.append("  - **Flavor Similarity:** Cosine similarity of chemical vectors from FlavorDB.")
-    lines.append("  - **Functional Role:** Orthogonalized positional rank (residuals of rank vs. log-frequency), discretized into Primary/Secondary/Garnish.")
-    lines.append("")
-    lines.append("### Statistical Modeling")
-    lines.append("- **Models:** Regularized Logistic Regression (L2) and Hierarchical Bayesian Model (NUTS).")
-    lines.append("- **Validation:** Train/Test split (seed=42), downsampling to unified power analysis size ($N \\approx 10,000$).")
-    lines.append("- **Diagnostics:** Variance Inflation Factor (VIF), Likelihood Ratio Test (LRT), Calibration curves, Bootstrap AUC delta test.")
+    lines.append("This study utilized a two-stage modeling approach:")
+    lines.append("1.  **Data Preprocessing**: Ingredient names were normalized using Levenshtein distance (threshold=2) against the FlavorDB canonical list. Co-occurrence matrices were constructed via streaming, and functional roles were derived via orthogonalization.")
+    lines.append("2.  **Model Fitting**: A regularized Logistic Regression (L2) and a Hierarchical Bayesian model were fitted to predict compatibility labels.")
+    lines.append("3.  **Validation**: Model performance was evaluated using AUC, Likelihood-Ratio Tests, and Bootstrap permutation tests for AUC delta significance.")
+    lines.append(f"- **Sample Size**: Target N determined by power analysis: {power_data.get('N_unified', 'N/A')}")
     lines.append("")
     return "\n".join(lines)
 
 def main():
-    """Generate the definitive final report."""
-    print("Generating Final Report (T057)...")
+    """Main entry point for T044."""
+    print("Generating Final Report (T044)...")
     
-    # Define paths
-    gate_path = Path("data/gate_validation_report.json")
-    lrt_path = Path("data/lrt_result_vif_corrected.json")
-    vif_path = Path("data/vif_scores_initial.json")
-    vif_test_path = Path("data/vif_test_set_scores.json")
-    auc_delta_path = Path("data/auc_delta_metrics.json")
-    calibration_path = Path("data/calibration_test_results.json")
-    bayesian_path = Path("data/bayesian_convergence_log.json")
-    sensitivity_path = Path("data/sensitivity_analysis_results.json")
-    power_path = Path("data/power_analysis.json")
-    validation_path = Path("data/final_validation_report.json")
+    # Load all dependencies
+    gate_data = load_gate_validation()
+    sensitivity_data = load_sensitivity_analysis()
+    power_data = load_power_analysis()
+    vif_data = load_vif_test_set()
+    cal_data = load_calibration_results()
+    auc_data = load_auc_delta()
+    bayes_data = load_bayesian_convergence()
+    lrt_data = load_lrt_vif_corrected()
+    final_val_data = load_final_validation_report()
     
-    # Load artifacts
-    gate_report = load_gate_validation(gate_path)
-    lrt_results = load_lrt_vif_corrected(lrt_path)
-    vif_initial = load_vif_results(vif_path)
-    vif_test_set = load_vif_test_set(vif_test_path)
-    auc_delta = load_auc_delta(auc_delta_path)
-    calibration_log = load_calibration_results(calibration_path)
-    bayesian_log = load_bayesian_convergence(bayesian_path)
-    sensitivity_results = load_sensitivity_analysis(sensitivity_path)
-    power_analysis = load_power_analysis(power_path)
-    final_validation = load_final_validation_report(validation_path)
-
-    # Construct Report
-    report_parts = [
-        generate_executive_summary(lrt_results, auc_delta, gate_report),
-        generate_methodology_section(),
-        generate_constitution_compliance_section(gate_report, bayesian_log, calibration_log, vif_initial),
-        generate_results_section(lrt_results, vif_initial, auc_delta, calibration_log, bayesian_log),
-        generate_limitations_section(sensitivity_results, vif_test_set, power_analysis)
-    ]
+    # Generate sections
+    sections = []
+    sections.append("# Final Report: Statistical Analysis of Recipe Data")
+    sections.append(f"*Generated: {datetime.now().isoformat()}*")
+    sections.append("")
     
-    full_report = "\n".join(report_parts)
+    sections.append(generate_executive_summary(lrt_data, auc_data))
+    sections.append(generate_methodology_section(power_data))
+    sections.append(generate_results_section(lrt_data, auc_data, vif_data))
+    sections.append(generate_constitution_compliance_section(gate_data, bayes_data, vif_data, cal_data))
+    sections.append(generate_limitations_section(vif_data, power_data, cal_data))
+    
+    # Conclusion
+    sections.append("## Conclusion")
+    sections.append("")
+    if lrt_data.get("p_value", 1) < 0.05:
+        sections.append("The statistical evidence indicates that incorporating flavor similarity and functional role significantly improves the prediction of ingredient compatibility compared to a frequency-only baseline.")
+    else:
+        sections.append("The statistical evidence does not indicate a significant improvement in prediction accuracy when incorporating flavor and role features over the frequency baseline.")
+    sections.append("")
     
     # Write to file
     output_path = Path("docs/final_report.md")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
+    content = "\n".join(sections)
     with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(full_report)
-    
-    print(f"Final report generated at {output_path}")
+        f.write(content)
+        
+    print(f"Final report generated at: {output_path}")
     return 0
 
 if __name__ == "__main__":
