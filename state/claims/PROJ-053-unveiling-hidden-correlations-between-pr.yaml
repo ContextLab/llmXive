@@ -1,0 +1,126 @@
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: optimize memory usage to ensure less than 7GB peak usage on 500 samples
+  claim_id: c_11445057
+  context: Optimize memory usage in preprocess.py to ensure < 7GB peak usage on N=500
+    samples
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimize_memory_usage_to_ensure_less_than_7GB_peak_usage_on
+  kind: magnitude
+  raw_text: Optimize memory usage in preprocess.py to ensure < 7GB peak usage on N=500
+    samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:25:41Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: optimize GPR training loop to ensure runtime less than 30 minutes
+  claim_id: c_3682743f
+  context: Optimize GPR training loop in gpr_trainer.py to ensure runtime < 30 minutes
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimize_GPR_training_loop_to_ensure_runtime_less_than_30_mi
+  kind: magnitude
+  raw_text: Optimize GPR training loop in gpr_trainer.py to ensure runtime < 30 minutes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:25:53Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: halt execution if sample count is less than 50
+  claim_id: c_d04f0b25
+  context: Implement sample count check (N < 50) to halt execution with specific error
+    message in code/data/preprocess.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_execution_if_sample_count_is_less_than_50
+  kind: magnitude
+  raw_text: Implement sample count check (N < 50) to halt execution
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:26:42Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 4
+  canonical: fetch literature baseline from DOI 10.1016/j.addma.2020.101632
+  claim_id: c_454e85b5
+  context: 'Implement permutation importance correlation analysis: load user-provided
+    baseline OR fetch literature baseline from DOI ''10.1016/j.addma.2020.101632''.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: fetch literature baseline from DOI '10.1016/j.addma.2020.101632'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:29:53Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 2
+  canonical: fetch literature baseline from DOI 10.1016/j.addma.2020.101632
+  claim_id: c_2342a564
+  context: 'Implement permutation importance correlation analysis: load user-provided
+    baseline OR fetch literature baseline from DOI ''10.1016/j.addma.2020.101632''.
+    If fetch fails, use hardcoded default ranking.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: fetch literature baseline from DOI '10.1016/j.addma.2020.101632'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:34:26Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: GPR trainer detects and handles zero-variance features
+  claim_id: c_5dad81d6
+  context: T028 [US2] [DEPENDS ON T014, T015A] Implement stratified analysis by `alloy_type`...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GPR_trainer_detects_and_handles_zero-variance_features
+  kind: entity_fact
+  raw_text: Implement `code/models/gpr_trainer.py` logic to detect and handle zero-variance
+    features if not already caught in preprocessing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:38:58Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Literature baseline fetched from DOI 10.1016/j.addma.2020.101632
+  claim_id: c_5e75aeb5
+  context: 'T030 [US2] [DEPENDS ON T024, T016] Implement permutation importance correlation
+    analysis: load user-provided baseline OR fetch literature baseline from DOI ''10.1016/j.addma.2020.101632''.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Fetch literature baseline from DOI '10.1016/j.addma.2020.101632'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:38:59Z'

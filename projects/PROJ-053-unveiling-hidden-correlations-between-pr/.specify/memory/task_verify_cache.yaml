@@ -1,0 +1,7 @@
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No model files (e.g., `gpr_model.pkl` and `linear_regression.pkl` or similar)
+    are present in the `results/models/` directory, nor any evidence (logs, screenshots,
+    or code) showing that the trained GPR model and Linear Regression baseline were
+    saved there. The required artifacts are missing.

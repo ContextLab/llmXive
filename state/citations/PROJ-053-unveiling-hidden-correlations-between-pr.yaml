@@ -31,3 +31,15 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/AdityaMayukhSom/datasets
   verified_at: '2026-07-14T00:30:32.253913Z'
+- artifact_hash: 3a07fee130a07a21b487acda444699a767bdbfb14181b2aa41c172a4c9a6aaa9
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Grain refinement of stainless steel in ultrasound-assisted additive
+    manufacturing
+  kind: doi
+  value: 10.1016/j.addma.2020.101632
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1016/j.addma.2020.101632
+  verified_at: '2026-07-18T05:01:32.853811Z'

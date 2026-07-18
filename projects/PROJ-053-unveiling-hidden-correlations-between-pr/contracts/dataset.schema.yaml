@@ -1,0 +1,50 @@
+# Dataset Schema Definition for Additively Manufactured Alloys
+# This schema defines the required and optional columns for the dataset
+# used in the llmXive automated science pipeline.
+
+schema_version: "1.0"
+dataset_name: "AM_Alloys_Dataset"
+
+required_columns:
+  - name: "laser_power"
+    type: "numeric"
+    description: "Laser power in Watts"
+  - name: "scan_speed"
+    type: "numeric"
+    description: "Scan speed in mm/s"
+  - name: "layer_thickness"
+    type: "numeric"
+    description: "Layer thickness in mm"
+  - name: "yield_strength"
+    type: "numeric"
+    description: "Yield strength in MPa"
+  - name: "ductility"
+    type: "numeric"
+    description: "Ductility in percent elongation"
+
+optional_columns:
+  - name: "fatigue_life"
+    type: "numeric"
+    description: "Fatigue life in cycles (optional)"
+  - name: "alloy_type"
+    type: "categorical"
+    description: "Type of alloy (e.g., Ti64, Inconel718)"
+
+constraints:
+  min_samples: 50
+  max_missing_ratio: 0.2
+  numeric_range:
+    laser_power: [100, 1000]
+    scan_speed: [100, 2000]
+    layer_thickness: [0.02, 0.1]
+
+target_variables:
+  - "yield_strength"
+  - "ductility"
+  - "fatigue_life"
+
+predictor_variables:
+  - "laser_power"
+  - "scan_speed"
+  - "layer_thickness"
+  - "alloy_type"
