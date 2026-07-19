@@ -27,9 +27,14 @@ class ReproducibilityLogger:
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # Handle both positional (name) and keyword (batch_id, name) arguments
-        self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.batch_id = kwargs.get("batch_id")
+        # Handle both positional (name) and keyword (batch_id, name) calls
+        if args:
+            self.name = str(args[0])
+        else:
+            self.name = kwargs.get("name", kwargs.get("batch_id", "reproducibility"))
+        
+        # Store batch_id if provided for logging context
+        self.batch_id = kwargs.get("batch_id", None)
         self.entries: list = []
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
@@ -76,20 +81,12 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 
 def setup_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
-    """Setup logger function compatible with all call sites.
+    """Tolerant logger setup accepting multiple call signatures.
     
-    Accepts:
+    Supports:
     - setup_logger("name")
     - setup_logger(batch_id="id")
     - setup_logger("name", batch_id="id")
-    - setup_logger(__name__)
+    - setup_logger(name="name")
     """
-    # If a single string argument is passed, treat it as the logger name
-    if len(args) == 1 and isinstance(args[0], str):
-        kwargs["name"] = args[0]
-    
-    # If batch_id is passed but no name, use a default
-    if "batch_id" in kwargs and "name" not in kwargs:
-        kwargs["name"] = kwargs.get("batch_id", "reproducibility")
-        
-    return get_logger(**kwargs)
+    return get_logger(*args, **kwargs)

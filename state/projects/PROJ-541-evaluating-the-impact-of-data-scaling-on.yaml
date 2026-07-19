@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T18:28:52.571717Z'
-current_stage: in_progress
+current_stage: analyzed
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-541-evaluating-the-impact-of-data-scaling-on
-last_run_id: 0885a38c-4cdb-4247-8936-b874e3ca6387
+last_run_id: 0789f1a5-6df9-464a-bf23-222703f31a7a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on
 title: Evaluating the Impact of Data Scaling on Robustness of Statistical Tests
-updated_at: '2026-07-19T06:35:36.424936Z'
+updated_at: '2026-07-19T07:58:22.896178Z'
