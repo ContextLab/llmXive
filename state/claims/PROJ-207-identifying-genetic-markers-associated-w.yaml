@@ -107,3 +107,229 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T10:59:41Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts with error code ERR_SAMPLE_SIZE_INSUFFICIENT if
+    sample size n is less than 80
+  claim_id: c_b46f0cde
+  context: 'Task T005 requires implementing power analysis for FR-012. Logic: If n
+    < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_with_error_code_ERR_SAMPLE_SIZE_INSUFFI
+  kind: magnitude
+  raw_text: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:36:48Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts with error code ERR_POWER_INSUFFICIENT if sample
+    size n is at least 80 and power is less than 0.20
+  claim_id: c_448e695a
+  context: 'Task T005 requires implementing power analysis for FR-012. Logic: If n
+    >= 80 AND Power < 0.20: HALT with error code ERR_POWER_INSUFFICIENT and report
+    the calculated power.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_with_error_code_ERR_POWER_INSUFFICIENT
+  kind: magnitude
+  raw_text: 'If n >= 80 AND Power < 0.20: HALT with error code ERR_POWER_INSUFFICIENT
+    and report the calculated power.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:38:20Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Null distribution for AUC threshold logic is generated via 1000 phenotype
+    permutations with random seed 42
+  claim_id: c_140f597c
+  context: 'Task T030 adds AUC threshold logic. Generate null distribution via 1000
+    phenotype permutations (seed=42). MANDATORY: Use random seed 42 for the 1000 permutations
+    to ensure reproducible null distribution generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate null distribution via 1000 phenotype permutations (seed=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:38:36Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: System reports 'low predictive power' if AUC value is less than 0.75
+  claim_id: c_2bbe427c
+  context: 'Task T030 adds AUC threshold logic. MANDATORY: If AUC < 0.75, the system
+    MUST report the result as ''low predictive power'' in the output artifact. This
+    is a reporting flag for biological interpretation, NOT a pipeline failure condition.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_reports_'low_predictive_power'_if_AUC_value_is_less_t
+  kind: magnitude
+  raw_text: If AUC < 0.75, the system MUST report the result as 'low predictive power'
+    in the output artifact.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:39:22Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Annotated SNPs TSV file must contain at least 10 rows with non-null GO
+    terms for synthetic data
+  claim_id: c_095e86e2
+  context: 'Task T032 implements annotation. Verification: Verify data/processed/annotated_snps.tsv
+    exists and contains at least 10 rows with non-null go_terms (for synthetic data
+    with known annotations).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Annotated_SNPs_TSV_file_must_contain_at_least_10_rows_with_n
+  kind: magnitude
+  raw_text: Verify data/processed/annotated_snps.tsv exists and contains at least
+    10 rows with non-null go_terms (for synthetic data with known annotations).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:39:50Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline halts with error code ERR_VARROA_COVARIATE_MISSING if less than
+    80% of the cohort has Varroa data
+  claim_id: c_d55ce89f
+  context: 'Task T044 implements edge case handler for missing Varroa metadata. Mandatory:
+    If < 80% of the total cohort has Varroa data (i.e., > 20% missing), raise ERR_VARROA_COVARIATE_MISSING
+    and halt.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_with_error_code_ERR_VARROA_COVARIATE_MISSING
+  kind: magnitude
+  raw_text: If < 80% of the total cohort has Varroa data (i.e., > 20% missing), raise
+    ERR_VARROA_COVARIATE_MISSING and halt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:40:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Samples with missing Varroa data are excluded from covariate model if
+    missing rate is less than or equal to 20%
+  claim_id: c_80804cf5
+  context: "Task T044 implements edge case handler for missing Varroa metadata. Mandatory:\
+    \ If missing for \u2264 20%, exclude those samples from the covariate model but\
+    \ retain for genotype-only analysis."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Samples_with_missing_Varroa_data_are_excluded_from_covariate
+  kind: magnitude
+  raw_text: "If missing for \u2264 20%, exclude those samples from the covariate model\
+    \ but retain for genotype-only analysis."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:40:43Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Synthetic FASTQ generation uses dwgsim with error rate 0.02, read length
+    500, and 1000000 reads
+  claim_id: c_f21644e5
+  context: 'Task T013 implements simulated FASTQ generation. Use dwgsim with a fixed
+    random seed to ensure reproducibility. Command: dwgsim -e 0.02 -d 500 -s SEED
+    -N 1000000 data/interim/synthetic.vcf data/interim/synthetic.'
+  evidence:
+    asserted: '0.02'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: 'Use dwgsim with a fixed random seed to ensure reproducibility. Command:
+    dwgsim -e 0.02 -d 500 -s SEED -N 1000000 data/interim/synthetic.vcf data/interim/synthetic.'
+  resolved_value: '2.72'
+  resolver: approximate
+  source_hash: 43f9d428e4053c6b0833b38f4a75232c81cfb415f4e254a9b7852ef8bce7bafd
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T14:40:43Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning is performed with an r-squared threshold of less than 0.2
+  claim_id: c_d19005a0
+  context: "Task T016 implements phenotype preprocessing for LD pruning (r\xB2 < 0.2)\
+    \ and covariate encoding (geographic region, sampling year, Varroa load) (FR-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LD_pruning_is_performed_with_an_r-squared_threshold_of_less
+  kind: magnitude
+  raw_text: "Implement `code/utils/preprocess_phenotype.py` for LD pruning (r\xB2\
+    \ < 0.2) and covariate encoding."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:41:03Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: SNPs are flagged as significant if q-value is less than 0.05
+  claim_id: c_de8399a3
+  context: Task T023 updates code/04_apply_fdr.sh to flag SNPs with q < 0.05 as significant
+    and document the study design.
+  evidence:
+    entailment_evidence: SNPs are flagged as significant if q-value is less than 0.05
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/SNPs_are_flagged_as_significant_if_q-value_is_less_than_0.05
+  kind: magnitude
+  raw_text: Flag SNPs with q < 0.05 as significant.
+  resolved_value: SNPs are flagged as significant if q-value is less than 0.05
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T14:41:05Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Integration test verifies Sample_Rule header and data checksums match
+    artifact_hash in state/verified_sources.yaml
+  claim_id: c_db9f0640
+  context: 'Task T056 adds explicit task to verify ''Real Data + Real Results''. Verification:
+    Assert that the pipeline output contains a Sample_Rule header and that the data
+    checksums match the real source (if real data was used) by comparing against the
+    artifact_hash key in state/verified_sources.yaml.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_test_verifies_Sample_Rule_header_and_data_checks
+  kind: entity_fact
+  raw_text: Verify that the pipeline output contains a Sample_Rule header and that
+    the data checksums match the real source by comparing against the artifact_hash
+    key in state/verified_sources.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:41:21Z'

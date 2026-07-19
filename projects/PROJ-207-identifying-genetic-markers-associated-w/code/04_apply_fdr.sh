@@ -1,40 +1,67 @@
 #!/bin/bash
-# T022: Apply Benjamini-Hochberg FDR correction to GWAS results
-# Input: data/interim/gwas_raw.tsv (produced by T017)
-# Output: data/processed/gwas_results_fdr.tsv
-# Dependencies: code/utils/fdr_correction.py (T020)
+# T022: Apply Benjamini-Hochberg FDR Correction to GWAS Results
+#
+# This script post-processes the raw GWAS output from T017 (PLINK)
+# by applying the Benjamini-Hochberg procedure to control the False
+# Discovery Rate (FDR).
+#
+# Input:  data/interim/gwas_raw.tsv (produced by code/03_gwas.sh / T017)
+# Output: data/processed/gwas_results_fdr.tsv (FR-004, FR-005)
+#
+# Dependencies:
+#   - code/utils/fdr_correction.py (T020)
+#   - data/interim/gwas_raw.tsv (must exist from T017)
 
 set -e
 
-INPUT_FILE="data/interim/gwas_raw.tsv"
-OUTPUT_FILE="data/processed/gwas_results_fdr.tsv"
+# Define paths relative to project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-echo "Starting FDR correction pipeline step..."
+INPUT_FILE="${PROJECT_ROOT}/data/interim/gwas_raw.tsv"
+OUTPUT_FILE="${PROJECT_ROOT}/data/processed/gwas_results_fdr.tsv"
+FDR_SCRIPT="${PROJECT_ROOT}/code/utils/fdr_correction.py"
 
-# Verify input file exists
+echo "=== T022: Applying FDR Correction ==="
+
+# Check input file exists
 if [ ! -f "$INPUT_FILE" ]; then
-    echo "Error: Input file not found: $INPUT_FILE"
-    echo "Ensure T017 (code/03_gwas.sh) has been executed successfully."
+    echo "ERROR: Input file not found: $INPUT_FILE" >&2
+    echo "This file should be produced by code/03_gwas.sh (T017)." >&2
+    exit 1
+fi
+
+# Check FDR script exists
+if [ ! -f "$FDR_SCRIPT" ]; then
+    echo "ERROR: FDR correction script not found: $FDR_SCRIPT" >&2
     exit 1
 fi
 
 # Ensure output directory exists
-mkdir -p "$(dirname "$OUTPUT_FILE")"
+OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
+mkdir -p "$OUTPUT_DIR"
 
-echo "Applying Benjamini-Hochberg FDR correction..."
 echo "Input:  $INPUT_FILE"
 echo "Output: $OUTPUT_FILE"
 
-# Execute the Python FDR correction utility
-python code/utils/fdr_correction.py \
+# Execute FDR correction
+# The Python script handles reading TSV, applying BH correction,
+# and writing the output TSV with q_values.
+python "$FDR_SCRIPT" \
     --input "$INPUT_FILE" \
     --output "$OUTPUT_FILE"
 
-if [ $? -eq 0 ] && [ -f "$OUTPUT_FILE" ]; then
-    echo "SUCCESS: FDR correction complete."
-    echo "Results written to: $OUTPUT_FILE"
-    echo "Significant SNPs (q < 0.05) flagged in 'significant' column."
+# Verify output was created
+if [ -f "$OUTPUT_FILE" ]; then
+    echo "SUCCESS: FDR correction complete. Output written to $OUTPUT_FILE"
+    # Optional: print a quick summary if the file is not empty
+    if [ -s "$OUTPUT_FILE" ]; then
+        LINE_COUNT=$(wc -l < "$OUTPUT_FILE")
+        echo "Output contains $LINE_COUNT lines (including header)."
+    fi
 else
-    echo "Error: FDR correction failed or output file not created."
+    echo "ERROR: Output file was not created: $OUTPUT_FILE" >&2
     exit 1
 fi
+
+echo "=== T022 Complete ==="
