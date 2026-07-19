@@ -1,114 +1,113 @@
 """
-Unit tests for the CheckpointManager.
+Unit tests for the checkpointing infrastructure.
 """
 import os
-import tempfile
+import json
 import torch
+import numpy as np
 import pytest
 from pathlib import Path
+import tempfile
+import shutil
 
 # Import the module under test
-# Adjust import path based on project structure
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
-
-from utils.checkpoint import CheckpointManager
-from utils.logger import setup_logging
-
+try:
+    from utils.checkpoint import CheckpointManager, save_state, load_state
+except ImportError:
+    # Fallback for test execution context
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+    from utils.checkpoint import CheckpointManager, save_state, load_state
 
 @pytest.fixture
-def temp_dir():
-    """Creates a temporary directory for test artifacts."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
+def temp_checkpoint_dir():
+    """Creates a temporary directory for checkpoints."""
+    temp_dir = tempfile.mkdtemp()
+    yield temp_dir
+    # Cleanup after test
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
 
+def test_save_state_basic(temp_checkpoint_dir):
+    """Tests basic state saving functionality."""
+    run_id = "test_run_001"
+    manager = CheckpointManager(run_id, checkpoint_dir=temp_checkpoint_dir)
+    
+    state = {
+        "step": 10,
+        "loss": 0.5,
+        "model_weights": torch.tensor([1.0, 2.0, 3.0]),
+        "metadata": {"key": "value"}
+    }
+    
+    manager.save_state(state)
+    
+    expected_path = os.path.join(temp_checkpoint_dir, f"{run_id}.json")
+    assert os.path.exists(expected_path), f"Checkpoint file not created at {expected_path}"
+    
+    with open(expected_path, 'r') as f:
+        loaded = json.load(f)
+    
+    assert loaded["step"] == 10
+    assert loaded["loss"] == 0.5
+    assert loaded["metadata"] == {"key": "value"}
+    # Check tensor conversion
+    assert np.allclose(np.array(loaded["model_weights"]), np.array([1.0, 2.0, 3.0]))
 
-def test_checkpoint_creation(temp_dir):
-    """Test that a checkpoint is created and saved correctly."""
-    manager = CheckpointManager(
-        checkpoint_dir=temp_dir,
-        experiment_id="test_exp",
-        save_interval=1
-    )
+def test_load_state_success(temp_checkpoint_dir):
+    """Tests successful state loading."""
+    run_id = "test_run_002"
+    manager = CheckpointManager(run_id, checkpoint_dir=temp_checkpoint_dir)
     
-    test_state = {"model_weights": torch.tensor([1.0, 2.0]), "step": 5}
+    state = {
+        "step": 20,
+        "accuracy": 0.95
+    }
+    manager.save_state(state)
     
-    manager.save(test_state, step=5, clip_id="clip_001")
+    loaded_state = manager.load_state()
     
-    path = manager.get_checkpoint_path(5)
-    assert path.exists(), "Checkpoint file was not created"
-    
-    loaded = torch.load(path, map_location="cpu")
-    assert loaded["step"] == 5
-    assert torch.equal(loaded["state"]["model_weights"], torch.tensor([1.0, 2.0]))
-    assert loaded["metadata"]["clip_id"] == "clip_001"
+    assert loaded_state is not None
+    assert loaded_state["step"] == 20
+    assert loaded_state["accuracy"] == 0.95
 
-
-def test_latest_checkpoint_detection(temp_dir):
-    """Test that the latest checkpoint is correctly identified."""
-    manager = CheckpointManager(
-        checkpoint_dir=temp_dir,
-        experiment_id="test_exp",
-        save_interval=1
-    )
+def test_load_state_missing_file(temp_checkpoint_dir):
+    """Tests loading when checkpoint file does not exist."""
+    run_id = "test_run_003"
+    manager = CheckpointManager(run_id, checkpoint_dir=temp_checkpoint_dir)
     
-    # Save checkpoints at different steps
-    manager.save({"data": 1}, step=1)
-    manager.save({"data": 2}, step=2)
-    manager.save({"data": 3}, step=3)
+    loaded_state = manager.load_state()
     
-    latest = manager.get_latest_checkpoint_path()
-    assert latest is not None
-    assert "step_3" in latest.name
+    assert loaded_state is None
 
-
-def test_load_checkpoint(temp_dir):
-    """Test loading a checkpoint."""
-    manager = CheckpointManager(
-        checkpoint_dir=temp_dir,
-        experiment_id="test_exp",
-        save_interval=1
-    )
+def test_delete_checkpoint(temp_checkpoint_dir):
+    """Tests checkpoint deletion."""
+    run_id = "test_run_004"
+    manager = CheckpointManager(run_id, checkpoint_dir=temp_checkpoint_dir)
     
-    manager.save({"value": 42}, step=10)
+    state = {"step": 30}
+    manager.save_state(state)
     
-    loaded_data = manager.load()
-    assert loaded_data is not None
-    assert loaded_data["state"]["value"] == 42
-    assert loaded_data["step"] == 10
-
-
-def test_no_checkpoint_exists(temp_dir):
-    """Test behavior when no checkpoint exists."""
-    manager = CheckpointManager(
-        checkpoint_dir=temp_dir,
-        experiment_id="test_exp",
-        save_interval=1
-    )
+    expected_path = os.path.join(temp_checkpoint_dir, f"{run_id}.json")
+    assert os.path.exists(expected_path)
     
-    loaded_data = manager.load()
-    assert loaded_data is None
+    deleted = manager.delete_checkpoint()
+    assert deleted is True
+    assert not os.path.exists(expected_path)
 
-
-def test_should_save_logic(temp_dir):
-    """Test the should_save logic with different intervals."""
-    manager = CheckpointManager(
-        checkpoint_dir=temp_dir,
-        experiment_id="test_exp",
-        save_interval=5
-    )
+def test_convenience_functions(temp_checkpoint_dir):
+    """Tests the standalone save_state and load_state functions."""
+    run_id = "test_run_005"
     
-    # Should save at 0
-    assert manager.should_save(0) is True
-    # Should not save at 1, 2, 3, 4
-    assert manager.should_save(1) is False
-    assert manager.should_save(4) is False
-    # Should save at 5 (index 4 is 5th item, but logic is (idx+1)%5==0)
-    # Wait, logic: if (current_index + 1) % self.save_interval == 0
-    # Index 4 -> (4+1)%5 = 0 -> True. Correct.
-    assert manager.should_save(4) is True
+    state = {
+        "step": 40,
+        "data": [1, 2, 3]
+    }
     
-    # With interval 1, should save every time
-    manager.save_interval = 1
-    assert manager.should_save(100) is True
-    assert manager.should_save(101) is True
+    save_state(state, run_id, checkpoint_dir=temp_checkpoint_dir)
+    
+    loaded = load_state(run_id, checkpoint_dir=temp_checkpoint_dir)
+    
+    assert loaded is not None
+    assert loaded["step"] == 40
+    assert loaded["data"] == [1, 2, 3]

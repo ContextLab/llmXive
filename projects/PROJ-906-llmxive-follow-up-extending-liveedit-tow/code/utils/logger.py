@@ -1,102 +1,65 @@
-"""
-Robust logging infrastructure for the llmXive pipeline.
-Handles structured logging, file rotation, and CI-friendly output.
-"""
 import logging
 import sys
 import os
 from datetime import datetime
 from typing import Optional, Dict, Any
 from pathlib import Path
+from config import ensure_directories
 
-# Import project config for directory management
-# Using relative import logic handled by the runner's sys.path setup
-# or direct import if in same package context.
-# Since we are in code/utils, we go up one level to code.
-try:
-    from config import ensure_directories
-except ImportError:
-    # Fallback for standalone execution or different import context
-    def ensure_directories(base: str = "data"):
-        os.makedirs(base, exist_ok=True)
-        os.makedirs(os.path.join(base, "flow"), exist_ok=True)
-        os.makedirs(os.path.join(base, "metrics"), exist_ok=True)
+LOG_DIR = "data/logs"
+LOG_FILE_NAME = f"run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 _logger_instance: Optional[logging.Logger] = None
 
-
-def setup_logging(
-    log_dir: str = "data/logs",
-    level: int = logging.INFO,
-    enable_file: bool = True,
-    enable_console: bool = True
-) -> logging.Logger:
+def setup_logging(log_dir: Optional[str] = None) -> None:
     """
-    Configures the root logger with file and console handlers.
-    Ensures log directory exists.
-
+    Configure logging to output to both console and file.
+    
     Args:
-        log_dir: Directory to store log files.
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        enable_file: Whether to write to a file.
-        enable_console: Whether to print to stdout.
-
-    Returns:
-        The configured root logger.
+        log_dir: Optional directory for log files. Defaults to LOG_DIR.
     """
     global _logger_instance
     if _logger_instance is not None:
-        return _logger_instance
+        return  # Already configured
 
-    # Ensure log directory exists
-    ensure_directories(log_dir)
-    # If log_dir is just "data/logs", we might need to create "data" first if it doesn't exist
-    base_dir = os.path.dirname(log_dir)
-    if base_dir:
-        os.makedirs(base_dir, exist_ok=True)
-
-    logger = logging.getLogger("llmXive")
-    logger.setLevel(level)
-    logger.handlers.clear()  # Clear existing handlers to avoid duplicates
-
-    # Formatter with timestamp and level
-    formatter = logging.Formatter(
-        fmt='%(asctime)s | %(levelname)-8s | %(name)s | %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-
-    if enable_console:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-    if enable_file:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = os.path.join(log_dir, f"run_{timestamp}.log")
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-    _logger_instance = logger
-    return logger
-
-
-def get_logger(name: Optional[str] = None) -> logging.Logger:
-    """
-    Retrieves the configured logger instance.
-    If not configured yet, initializes with defaults.
-
-    Args:
-        name: Optional sub-logger name (e.g., "llmXive.models").
-
-    Returns:
-        A logger instance.
-    """
-    if _logger_instance is None:
-        setup_logging()
+    target_dir = log_dir if log_dir else LOG_DIR
+    ensure_directories(target_dir)
     
-    if name:
-        return logging.getLogger(f"llmXive.{name}")
-    return _logger_instance
+    log_path = os.path.join(target_dir, LOG_FILE_NAME)
+    
+    # Create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.INFO)
+    
+    # File handler
+    file_handler = logging.FileHandler(log_path)
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.DEBUG)
+    
+    # Root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    root_logger.addHandler(console_handler)
+    root_logger.addHandler(file_handler)
+    
+    _logger_instance = root_logger
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Get a logger with the specified name.
+    Initializes logging configuration if not already done.
+    
+    Args:
+        name: Logger name (usually module name)
+    
+    Returns:
+        logging.Logger: Configured logger instance
+    """
+    setup_logging()
+    return logging.getLogger(name)

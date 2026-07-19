@@ -21,7 +21,7 @@ The technical approach involves: (1) establishing a CPU-optimized baseline on a 
 **Primary Dependencies**: `torch` (CPU build), `diffusers`, `opencv-python`, `scikit-learn`, `pandas`, `numpy`, `huggingface_hub`, `datasets`, `ruptures` (for change-point detection)  
 **Storage**: Local filesystem (`data/`), Parquet/JSON for metrics  
 **Testing**: `pytest` (contract tests against schemas), statistical validation scripts  
-**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPU cores, approximately 7 GB RAM, no GPU)  
+**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPU cores, substantial RAM capacity, no GPU)  
 **Project Type**: Computational Research Pipeline  
 **Performance Goals**: Total pipeline runtime ≤6 hours; Peak memory ≤7 GB per job; Inference FPS > 0.5 on CPU (for 50 clips)  
 **Constraints**: No GPU/CUDA; No deep-net training; No 8-bit quantization; Must handle invalid flow vectors via identity warp; Must downsample/split clips exceeding RAM limits  

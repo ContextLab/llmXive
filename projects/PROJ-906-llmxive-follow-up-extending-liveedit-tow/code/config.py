@@ -1,135 +1,52 @@
-"""
-Experiment configuration manager for llmXive pipeline.
-
-This module provides centralized configuration for experiments, including
-random seeds, evaluation cutoffs, and other hyperparameters required for
-reproducible research.
-"""
-
 import os
 import random
 from typing import List, Set, Dict, Any, Optional
-
 import numpy as np
 import torch
 
-# ============================================================================
-# SPEC COMPLIANCE: FR-007
-# The CUTOFFS constant MUST be initialized to the specific set {0.01, 0.05, 0.1}
-# ============================================================================
-CUTOFFS: Set[float] = {0.01, 0.05, 0.1}
+# Constants from Spec FR-007 and Plan.md Dataset Strategy
+SENSITIVITY_CUTOFFS: Set[float] = {0.01, 0.05, 0.1}
+STRATIFICATION_THRESHOLDS: Set[float] = {0.5, 5.0}
 
-# Default random seed for reproducibility
-DEFAULT_SEED: int = 42
-
-# Project root directory (relative to where scripts are run)
-PROJECT_ROOT: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Data directories
-DATA_RAW_DIR: str = os.path.join(PROJECT_ROOT, "data", "raw")
-DATA_FLOW_DIR: str = os.path.join(PROJECT_ROOT, "data", "flow")
-DATA_METRICS_DIR: str = os.path.join(PROJECT_ROOT, "data", "metrics")
-RESULTS_DIR: str = os.path.join(PROJECT_ROOT, "results")
-
-# Ensure directories exist
-def ensure_directories() -> None:
-    """Create all required data directories if they do not exist."""
-    for dir_path in [DATA_RAW_DIR, DATA_FLOW_DIR, DATA_METRICS_DIR, RESULTS_DIR]:
-        os.makedirs(dir_path, exist_ok=True)
-
+# Random seeds for reproducibility
+RANDOM_SEED = 42
 
 class ExperimentConfig:
-    """
-    Centralized configuration manager for experiment parameters.
-
-    This class encapsulates all hyperparameters and settings required for
-    running experiments, ensuring consistency across the pipeline.
-    """
-
-    def __init__(
-        self,
-        seed: int = DEFAULT_SEED,
-        device: str = "cpu",
-        batch_size: int = 1,
-        num_clips: int = 50,
-        flow_model: str = "raft-small",
-        cutoffs: Optional[Set[float]] = None,
-    ):
-        """
-        Initialize experiment configuration.
-
-        Args:
-            seed: Random seed for reproducibility.
-            device: Compute device ('cpu' or 'cuda').
-            batch_size: Batch size for inference.
-            num_clips: Number of clips to process in the experiment.
-            flow_model: Optical flow model to use (e.g., 'raft-small', 'farneback').
-            cutoffs: Set of flow magnitude cutoffs for analysis. Defaults to CUTOFFS.
-        """
-        self.seed = seed
-        self.device = device
-        self.batch_size = batch_size
-        self.num_clips = num_clips
-        self.flow_model = flow_model
-        self.cutoffs = cutoffs if cutoffs is not None else CUTOFFS
-
-        # Validate configuration
-        self._validate()
-
-        # Initialize random seeds
-        self._set_seeds()
-
-    def _validate(self) -> None:
-        """Validate configuration parameters."""
-        if self.seed < 0:
-            raise ValueError(f"Seed must be non-negative, got {self.seed}")
-        if self.batch_size < 1:
-            raise ValueError(f"Batch size must be at least 1, got {self.batch_size}")
-        if self.num_clips < 1:
-            raise ValueError(f"Number of clips must be at least 1, got {self.num_clips}")
-        if not isinstance(self.cutoffs, set) or len(self.cutoffs) == 0:
-            raise ValueError(f"Cutoffs must be a non-empty set, got {self.cutoffs}")
-        if self.device not in ["cpu", "cuda"]:
-            raise ValueError(f"Device must be 'cpu' or 'cuda', got {self.device}")
-
-    def _set_seeds(self) -> None:
-        """Set random seeds for reproducibility across libraries."""
-        random.seed(self.seed)
-        np.random.seed(self.seed)
-        torch.manual_seed(self.seed)
-        if self.device == "cuda" and torch.cuda.is_available():
-            torch.cuda.manual_seed_all(self.seed)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert configuration to a dictionary.
-
-        Returns:
-            Dictionary representation of the configuration.
-        """
-        return {
-            "seed": self.seed,
-            "device": self.device,
-            "batch_size": self.batch_size,
-            "num_clips": self.num_clips,
-            "flow_model": self.flow_model,
-            "cutoffs": sorted(list(self.cutoffs)),
-        }
-
-    def __repr__(self) -> str:
-        """String representation of the configuration."""
-        return f"ExperimentConfig(seed={self.seed}, device={self.device}, cutoffs={sorted(self.cutoffs)})"
-
+    def __init__(self, dataset: str = "davis", model: str = "baseline", output_dir: str = "data/metrics"):
+        self.dataset = dataset
+        self.model = model
+        self.output_dir = output_dir
+        self.seed = RANDOM_SEED
+        self.sensitivity_cutoffs = SENSITIVITY_CUTOFFS
+        self.stratification_thresholds = STRATIFICATION_THRESHOLDS
 
 def get_default_config() -> ExperimentConfig:
-    """
-    Get a default experiment configuration.
-
-    Returns:
-        ExperimentConfig with default parameters.
-    """
     return ExperimentConfig()
 
+def ensure_directories(*paths: Any) -> None:
+    """
+    Robust directory creation utility that handles multiple call signatures:
+    1. ensure_directories() -> No-op
+    2. ensure_directories(path_str) -> Creates single path
+    3. ensure_directories(path_obj) -> Creates single path
+    4. ensure_directories([path1, path2, ...]) -> Creates all paths in list
+    5. ensure_directories(*paths) -> Creates all paths passed as args
+    """
+    if not paths:
+        return
 
-# Convenience function to ensure directories exist on import
-ensure_directories()
+    # Flatten the input into a list of paths to process
+    paths_to_create = []
+    for p in paths:
+        if isinstance(p, (list, tuple)):
+            paths_to_create.extend(p)
+        else:
+            paths_to_create.append(p)
+
+    for p in paths_to_create:
+        if p is None:
+            continue
+        # Convert to string if it's a Path object or similar
+        path_str = str(p)
+        if path_str:
+            os.makedirs(path_str, exist_ok=True)

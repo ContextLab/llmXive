@@ -1,271 +1,300 @@
-"""
-Video Processor for llmXive follow-up.
-
-This module handles:
-1. Generation of synthetic masks for video editing tasks.
-2. Stratification of video clips by motion complexity using optical flow magnitude.
-
-Stratification thresholds (derived from Plan.md Dataset Strategy):
-- Static: < 0.5 px
-- Slow Rigid: 0.5 – 5.0 px
-- Fast Non-Rigid: >= 5.0 px
-"""
-
 import os
 import logging
 import json
 import numpy as np
 import cv2
 from typing import List, Dict, Any, Optional, Tuple
+from dataclasses import dataclass, field
 from pathlib import Path
-from dataclasses import dataclass, asdict, replace
-from datetime import datetime
-
-# Import project utilities and models using the provided API surface
-from config import ensure_directories, get_default_config
+from config import ensure_directories, get_default_config, STRATIFICATION_THRESHOLDS
 from utils.logger import get_logger
 from data.models import VideoClip
-from data.flow import aggregate_flow_stats
 
-logger = get_logger(__name__)
+logger = get_logger("processor")
 
 @dataclass
 class ProcessedClip:
-    """Container for a video clip after processing (mask generation + stratification)."""
-    video_id: str
-    source_path: str
-    mask_path: str
+    clip_id: str
+    path: str
     motion_category: str
-    mean_flow_magnitude: float
-    max_flow_magnitude: float
-    raw_flow_stats: Dict[str, float]
-    processed_at: str
+    flow_magnitude: float
+    mask: Optional[np.ndarray] = None
+    frames: List[np.ndarray] = field(default_factory=list)
 
 def generate_synthetic_mask(
-    frame_shape: Tuple[int, int],
-    seed: Optional[int] = None,
-    mask_type: str = "random_blob"
+    shape: Tuple[int, int],
+    center: Tuple[int, int],
+    radius: int,
+    softness: float = 0.5
 ) -> np.ndarray:
     """
-    Generates a synthetic binary mask for a given frame shape.
+    Generate a soft circular mask for editing regions.
     
     Args:
-        frame_shape: Tuple (height, width) of the target frame.
-        seed: Random seed for reproducibility.
-        mask_type: Type of mask to generate ("random_blob").
-        
+        shape: (height, width) of the mask
+        center: (x, y) center of the circle
+        radius: radius of the circle
+        softness: falloff factor for soft edges
+    
     Returns:
-        A binary numpy array (0 or 1) of shape (height, width).
+        np.ndarray: Float mask values in [0, 1]
     """
-    if seed is not None:
-        np.random.seed(seed)
-    
-    h, w = frame_shape
-    mask = np.zeros((h, w), dtype=np.uint8)
-    
-    if mask_type == "random_blob":
-        # Generate a few random elliptical blobs to simulate an object
-        num_blobs = np.random.randint(1, 5)
-        for _ in range(num_blobs):
-            # Random center
-            cy, cx = np.random.randint(h // 4, 3 * h // 4), np.random.randint(w // 4, 3 * w // 4)
-            # Random size (small to medium relative to frame)
-            sy, sx = np.random.randint(h // 10, h // 4), np.random.randint(w // 10, w // 4)
-            # Random angle
-            angle = np.random.uniform(0, 360)
-            
-            # Draw filled ellipse
-            cv2.ellipse(mask, (cx, cy), (int(sx), int(sy)), angle, 0, 360, 255, -1)
-    
+    h, w = shape
+    y, x = np.ogrid[:h, :w]
+    dist_from_center = np.sqrt((x - center[0])**2 + (y - center[1])**2)
+    mask = np.clip(1.0 - (dist_from_center - radius) / (radius * softness), 0, 1)
+    mask = np.clip(mask, 0, 1)
     return mask
 
 def stratify_by_motion(
-    flow_stats: Dict[str, float],
-    thresholds: Tuple[float, float] = (0.5, 5.0)
+    flow_magnitude: float,
+    thresholds: Optional[Set[float]] = None
 ) -> str:
     """
-    Classifies a clip into a motion category based on flow magnitude statistics.
+    Categorize a clip based on its mean optical flow magnitude.
     
-    Thresholds (from Plan.md):
-    - Static: mean_magnitude < 0.5
-    - Slow Rigid: 0.5 <= mean_magnitude < 5.0
-    - Fast Non-Rigid: mean_magnitude >= 5.0
+    Categories:
+        - Static: magnitude < low_threshold (0.5)
+        - Slow Rigid: low_threshold <= magnitude < high_threshold (5.0)
+        - Fast Non-Rigid: magnitude >= high_threshold
     
     Args:
-        flow_stats: Dictionary containing 'mean_magnitude' and 'max_magnitude'.
-        thresholds: Tuple (low_thresh, high_thresh).
-        
-    Returns:
-        String category: "Static", "Slow Rigid", or "Fast Non-Rigid".
-    """
-    mean_mag = flow_stats.get("mean_magnitude", 0.0)
-    low_thresh, high_thresh = thresholds
+        flow_magnitude: Mean magnitude of the optical flow field
+        thresholds: Set of thresholds {low, high}. Defaults to STRATIFICATION_THRESHOLDS.
     
-    if mean_mag < low_thresh:
+    Returns:
+        str: Motion category label
+    """
+    if thresholds is None:
+        thresholds = STRATIFICATION_THRESHOLDS
+    
+    # Sort thresholds to ensure order
+    sorted_thresh = sorted(list(thresholds))
+    if len(sorted_thresh) < 2:
+        # Fallback if config is malformed
+        low, high = 0.5, 5.0
+    else:
+        low, high = sorted_thresh[0], sorted_thresh[1]
+    
+    if flow_magnitude < low:
         return "Static"
-    elif mean_mag < high_thresh:
+    elif flow_magnitude < high:
         return "Slow Rigid"
     else:
         return "Fast Non-Rigid"
 
 def process_video_clip(
-    video_clip: VideoClip,
-    flow_data_path: Optional[str] = None,
-    output_dir: Optional[str] = None,
-    mask_seed: Optional[int] = None
+    clip_path: str,
+    flow_field: Optional[np.ndarray] = None
 ) -> ProcessedClip:
     """
-    Processes a single video clip:
-    1. Loads pre-computed flow data (if available) or computes it.
-    2. Generates a synthetic mask.
-    3. Stratifies the clip based on flow magnitude.
-    4. Saves the mask to disk.
+    Process a single video clip: load frames, compute flow if missing,
+    and assign a motion category.
     
     Args:
-        video_clip: The VideoClip dataclass instance.
-        flow_data_path: Path to the flow data file (NPZ) generated by T009.
-        output_dir: Directory to save the generated mask.
-        mask_seed: Random seed for mask generation.
-        
+        clip_path: Path to the video file
+        flow_field: Pre-computed optical flow field (optional)
+    
     Returns:
-        ProcessedClip instance with metadata and paths.
+        ProcessedClip: Dataclass with processed metadata
     """
-    ensure_directories()
-    config = get_default_config()
+    cap = cv2.VideoCapture(clip_path)
+    if not cap.isOpened():
+        raise ValueError(f"Cannot open video file: {clip_path}")
     
-    if output_dir is None:
-        output_dir = str(Path(config.output_dir) / "masks")
+    frames = []
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    cap.release()
     
-    os.makedirs(output_dir, exist_ok=True)
+    if not frames:
+        raise ValueError(f"No frames found in video: {clip_path}")
     
-    # 1. Determine Flow Magnitude
-    # We rely on T009 (flow.py) having processed the video.
-    # If flow_data_path is provided, we load it. Otherwise, we try to infer from video_id.
-    mean_mag = 0.0
-    max_mag = 0.0
-    flow_stats = {"mean_magnitude": 0.0, "max_magnitude": 0.0}
-    
-    if flow_data_path and os.path.exists(flow_data_path):
-        try:
-            flow_stats = aggregate_flow_stats(flow_data_path)
-            mean_mag = flow_stats.get("mean_magnitude", 0.0)
-            max_mag = flow_stats.get("max_magnitude", 0.0)
-            logger.debug(f"Loaded flow stats for {video_clip.video_id}: mean={mean_mag:.4f}")
-        except Exception as e:
-            logger.warning(f"Could not load flow stats for {video_clip.video_id}: {e}. Assuming Static.")
+    # Compute flow magnitude if not provided
+    if flow_field is None and len(frames) >= 2:
+        # Simple Farneback flow for magnitude estimation
+        prev_gray = cv2.cvtColor(frames[0], cv2.COLOR_RGB2GRAY)
+        curr_gray = cv2.cvtColor(frames[1], cv2.COLOR_RGB2GRAY)
+        flow = cv2.calcOpticalFlowFarneback(
+            prev_gray, curr_gray, None,
+            pyr_scale=0.5, levels=3, winsize=15,
+            iterations=3, poly_n=5, poly_sigma=1.2, flags=0
+        )
+        magnitude = cv2.magnitude(flow[:,:,0], flow[:,:,1])
+        mean_magnitude = float(np.mean(magnitude))
+    elif flow_field is not None:
+        magnitude = cv2.magnitude(flow_field[:,:,0], flow_field[:,:,1])
+        mean_magnitude = float(np.mean(magnitude))
     else:
-        # Fallback if flow path is missing but we need to proceed (strictly speaking T009 should have run)
-        # In a real pipeline, this might raise, but for robustness we log and assume low motion if data missing
-        logger.warning(f"Flow data not found at {flow_data_path} for {video_clip.video_id}. Assuming Static.")
+        # Fallback for single frame or missing flow
+        mean_magnitude = 0.0
     
-    # 2. Stratify
-    category = stratify_by_motion(flow_stats)
-    
-    # 3. Generate Mask
-    # We need the frame shape. If video_clip has it, use it. Otherwise, load first frame.
-    h, w = 0, 0
-    if video_clip.height and video_clip.width:
-        h, w = video_clip.height, video_clip.width
-    elif os.path.exists(video_clip.path):
-        cap = cv2.VideoCapture(video_clip.path)
-        if cap.isOpened():
-            ret, frame = cap.read()
-            if ret:
-                h, w, _ = frame.shape
-            cap.release()
-        else:
-            raise ValueError(f"Cannot determine frame shape for {video_clip.path}")
-    else:
-        raise FileNotFoundError(f"Video file not found: {video_clip.path}")
-    
-    mask = generate_synthetic_mask((h, w), seed=mask_seed)
-    
-    # 4. Save Mask
-    mask_filename = f"{video_clip.video_id}_mask.png"
-    mask_path = os.path.join(output_dir, mask_filename)
-    cv2.imwrite(mask_path, mask)
+    category = stratify_by_motion(mean_magnitude)
     
     return ProcessedClip(
-        video_id=video_clip.video_id,
-        source_path=video_clip.path,
-        mask_path=mask_path,
+        clip_id=os.path.splitext(os.path.basename(clip_path))[0],
+        path=clip_path,
         motion_category=category,
-        mean_flow_magnitude=mean_mag,
-        max_flow_magnitude=max_mag,
-        raw_flow_stats=flow_stats,
-        processed_at=datetime.now().isoformat()
+        flow_magnitude=mean_magnitude,
+        frames=frames
     )
 
 def process_dataset_stratification(
     clips: List[VideoClip],
-    flow_dir: str,
-    output_dir: str,
-    output_report: str
-) -> Dict[str, List[ProcessedClip]]:
+    target_count: int = 50,
+    min_per_category: int = 5
+) -> Tuple[List[VideoClip], Dict[str, Any]]:
     """
-    Processes a list of clips, stratifies them, and saves masks.
-    Returns a dictionary of processed clips grouped by motion category.
+    Stratify a dataset to ensure representative distribution of motion categories.
+    
+    Strategy:
+        1. Group clips by motion category.
+        2. Check if each category meets the minimum threshold.
+        3. If a category is under-represented, attempt to fetch more (simulated by
+           returning the request for additional data).
+        4. If the dataset is exhausted and distribution is still skewed, log a WARNING
+           and proceed, recording the imbalance.
     
     Args:
-        clips: List of VideoClip instances.
-        flow_dir: Directory containing flow data files (from T009).
-        output_dir: Directory to save masks.
-        output_report: Path to save the JSON report of stratification.
-        
-    Returns:
-        Dict mapping category name to list of ProcessedClip.
-    """
-    ensure_directories()
-    os.makedirs(output_dir, exist_ok=True)
+        clips: List of VideoClip objects to stratify
+        target_count: Target number of clips (default 50)
+        min_per_category: Minimum clips required per category (default 5)
     
-    processed_clips = []
-    stratified_data = {
+    Returns:
+        Tuple[List[VideoClip], Dict[str, Any]]:
+            - Selected clips list
+            - Stratification report dict
+    """
+    # Group by category
+    categories: Dict[str, List[VideoClip]] = {
         "Static": [],
         "Slow Rigid": [],
         "Fast Non-Rigid": []
     }
     
-    logger.info(f"Processing {len(clips)} clips for stratification...")
-    
     for clip in clips:
-        # Infer flow file path: {flow_dir}/{video_id}_flow.npz
-        flow_file = os.path.join(flow_dir, f"{clip.video_id}_flow.npz")
-        
-        try:
-            proc = process_video_clip(
-                video_clip=clip,
-                flow_data_path=flow_file,
-                output_dir=output_dir
+        cat = stratify_by_motion(clip.flow_magnitude)
+        categories[cat].append(clip)
+    
+    # Analyze distribution
+    distribution = {cat: len(lst) for cat, lst in categories.items()}
+    total_available = sum(distribution.values())
+    
+    selected_clips: List[VideoClip] = []
+    imbalance_detected = False
+    warnings: List[str] = []
+    
+    # Check minimum thresholds
+    for cat, count in distribution.items():
+        if count < min_per_category:
+            imbalance_detected = True
+            warnings.append(
+                f"Category '{cat}' has only {count} clips (min: {min_per_category}). "
+                "Distribution is skewed."
             )
-            processed_clips.append(proc)
-            stratified_data[proc.motion_category].append(asdict(proc))
-            logger.info(f"Processed {clip.video_id} -> {proc.motion_category}")
-        except Exception as e:
-            logger.error(f"Failed to process {clip.video_id}: {e}")
-            continue
     
-    # Save report
-    with open(output_report, 'w') as f:
-        json.dump({
-            "stratification_summary": {k: len(v) for k, v in stratified_data.items()},
-            "details": stratified_data
-        }, f, indent=2)
+    # Select clips to meet target, prioritizing under-represented categories
+    # Simple stratified sampling: take min(target/3, available) from each, then fill remainder
+    base_per_cat = max(1, target_count // 3)
     
-    logger.info(f"Stratification report saved to {output_report}")
-    return stratified_data
+    for cat in ["Static", "Slow Rigid", "Fast Non-Rigid"]:
+        available = categories[cat]
+        take = min(base_per_cat, len(available))
+        selected_clips.extend(available[:take])
+    
+    # Fill remaining spots if needed
+    remaining = target_count - len(selected_clips)
+    if remaining > 0:
+        # Collect remaining available clips
+        remaining_pool = []
+        for cat in categories:
+            already_taken = set(c.clip_id for c in selected_clips if c.motion_category == cat)
+            remaining_pool.extend([c for c in categories[cat] if c.clip_id not in already_taken])
+        
+        # Take up to 'remaining' from the pool
+        selected_clips.extend(remaining_pool[:remaining])
+    
+    # Final distribution check
+    final_distribution = {}
+    for cat in ["Static", "Slow Rigid", "Fast Non-Rigid"]:
+        count = sum(1 for c in selected_clips if c.motion_category == cat)
+        final_distribution[cat] = count
+    
+    report = {
+        "target_count": target_count,
+        "actual_count": len(selected_clips),
+        "initial_distribution": distribution,
+        "final_distribution": final_distribution,
+        "total_available": total_available,
+        "imbalance_detected": imbalance_detected,
+        "warnings": warnings
+    }
+    
+    if imbalance_detected:
+        logger.warning("Stratification imbalance detected. Proceeding with available data.")
+        for w in warnings:
+            logger.warning(w)
+    
+    return selected_clips, report
 
 def main():
     """
-    Main entry point for the processor.
-    Expected to be called from the main pipeline or via CLI.
+    CLI entry point for dataset stratification validation.
+    Reads processed clips from data/flow/magnitudes.json (or similar),
+    stratifies them, and writes the report to data/metrics/stratification_report.json.
     """
-    logger.info("Starting Video Processor (T013)...")
+    import argparse
     
-    # This function would typically be called by T015 or T014
-    # with a list of VideoClips loaded from T012 and flow paths from T009.
-    # For standalone execution, we log the configuration.
-    logger.info("Video processor module loaded. Ready to process clips.")
-    logger.info("Thresholds: Static < 0.5, Slow Rigid 0.5-5.0, Fast Non-Rigid >= 5.0")
+    parser = argparse.ArgumentParser(description="Stratify dataset for motion categories")
+    parser.add_argument("--input", type=str, default="data/flow/magnitudes.json",
+                        help="Path to input flow magnitudes JSON")
+    parser.add_argument("--output", type=str, default="data/metrics/stratification_report.json",
+                        help="Path to output stratification report")
+    parser.add_argument("--target", type=int, default=50,
+                        help="Target number of clips")
+    parser.add_argument("--min-per-cat", type=int, default=5,
+                        help="Minimum clips per category")
+    
+    args = parser.parse_args()
+    
+    # Load input data
+    if not os.path.exists(args.input):
+        logger.error(f"Input file not found: {args.input}")
+        sys.exit(1)
+    
+    with open(args.input, 'r') as f:
+        data = json.load(f)
+    
+    # Convert to VideoClip objects
+    clips = []
+    for item in data.get("magnitudes", []):
+        clip = VideoClip(
+            id=item.get("clip_id", "unknown"),
+            path=item.get("path", ""),
+            motion_category="",
+            flow_field=None,
+            mask=None,
+            flow_magnitude=item.get("magnitude", 0.0)
+        )
+        clips.append(clip)
+    
+    # Stratify
+    selected, report = process_dataset_stratification(
+        clips, 
+        target_count=args.target, 
+        min_per_category=args.min_per_cat
+    )
+    
+    # Write report
+    ensure_directories(args.output)
+    with open(args.output, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Stratification complete. Report written to {args.output}")
+    logger.info(f"Selected {len(selected)} clips. Imbalance: {report['imbalance_detected']}")
 
 if __name__ == "__main__":
     main()

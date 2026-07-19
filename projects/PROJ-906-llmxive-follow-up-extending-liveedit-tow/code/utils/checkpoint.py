@@ -1,6 +1,6 @@
 """
-Checkpointing infrastructure for long-running inference tasks.
-Supports saving state, resuming from interruptions, and managing CI limits.
+Checkpointing infrastructure for the llmXive pipeline.
+Handles state serialization, resume capability, and CI limit management.
 """
 import os
 import json
@@ -10,160 +10,145 @@ from typing import Dict, Any, Optional, List
 from pathlib import Path
 from datetime import datetime
 
-from .logger import get_logger
+# Import config and logger
+try:
+    from config import ensure_directories
+    from utils.logger import get_logger
+except ImportError:
+    # Fallback for standalone execution
+    def ensure_directories(base: str = "data"):
+        os.makedirs(base, exist_ok=True)
+        os.makedirs(os.path.join(base, "flow"), exist_ok=True)
+        os.makedirs(os.path.join(base, "metrics"), exist_ok=True)
+    
+    # Fallback logger
+    import logging
+    def get_logger(name: Optional[str] = None) -> logging.Logger:
+        logger = logging.getLogger(name or "checkpoint")
+        if not logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+        return logger
 
 logger = get_logger("checkpoint")
-
+CHECKPOINT_DIR = "data/checkpoints"
 
 class CheckpointManager:
     """
-    Manages saving and loading of experiment state to support resumption.
-    Handles CI time limits by tracking progress and allowing restarts.
+    Manages saving and loading of pipeline states.
     """
-
-    def __init__(
-        self,
-        checkpoint_dir: str = "data/checkpoints",
-        experiment_id: str = "default",
-        save_interval: int = 10  # Save every N clips or steps
-    ):
+    def __init__(self, run_id: str, checkpoint_dir: Optional[str] = None):
         """
         Initializes the CheckpointManager.
 
         Args:
-            checkpoint_dir: Directory to store checkpoint files.
-            experiment_id: Unique identifier for this experiment run.
-            save_interval: Frequency of automatic saves (e.g., every N items).
+            run_id: Unique identifier for the current run.
+            checkpoint_dir: Directory to store checkpoints. Defaults to data/checkpoints.
         """
-        self.checkpoint_dir = Path(checkpoint_dir)
-        self.experiment_id = experiment_id
-        self.save_interval = save_interval
+        self.run_id = run_id
+        self.checkpoint_dir = checkpoint_dir or CHECKPOINT_DIR
+        self.logger = get_logger(f"checkpoint.{run_id}")
         
-        # Ensure directory exists
-        self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        # Ensure checkpoint directory exists
+        ensure_directories(self.checkpoint_dir)
         
-        self.last_save_index = -1
-        self.total_processed = 0
-        self.current_step = 0
-        self._logger = get_logger("checkpoint")
+        self.file_path = os.path.join(self.checkpoint_dir, f"{run_id}.json")
+        self.logger.info(f"CheckpointManager initialized for run_id: {run_id}")
 
-    def get_checkpoint_path(self, step: int) -> Path:
-        """Generates the path for a specific step checkpoint."""
-        return self.checkpoint_dir / f"{self.experiment_id}_step_{step}.pt"
-
-    def get_latest_checkpoint_path(self) -> Optional[Path]:
-        """Finds the most recent checkpoint file."""
-        pattern = f"{self.experiment_id}_step_*.pt"
-        matches = list(self.checkpoint_dir.glob(pattern))
-        if not matches:
-            return None
-        # Sort by step number in filename
-        matches.sort(key=lambda p: int(p.stem.split('_')[-1]))
-        return matches[-1]
-
-    def save(
-        self,
-        state: Dict[str, Any],
-        step: int,
-        clip_id: Optional[str] = None
-    ) -> None:
+    def save_state(self, state: Dict[str, Any]) -> None:
         """
-        Saves the current state to a checkpoint file.
+        Saves the current state to a JSON file.
 
         Args:
-            state: Dictionary containing model weights, optimizer state, etc.
-            step: Current step index (e.g., clip index).
-            clip_id: Optional ID of the clip being processed.
+            state: Dictionary containing the state to save (e.g., model weights, optimizer state, current step).
         """
-        checkpoint_data = {
-            "step": step,
-            "timestamp": datetime.now().isoformat(),
-            "experiment_id": self.experiment_id,
-            "state": state,
-            "metadata": {
-                "clip_id": clip_id,
-                "total_processed": self.total_processed
-            }
-        }
-
-        path = self.get_checkpoint_path(step)
         try:
-            torch.save(checkpoint_data, path)
-            self.last_save_index = step
-            self._logger.info(f"Checkpoint saved at step {step} to {path}")
+            # Serialize torch tensors to CPU and lists/arrays if needed
+            serializable_state = {}
+            for key, value in state.items():
+                if isinstance(value, torch.Tensor):
+                    serializable_state[key] = value.cpu().numpy().tolist()
+                elif isinstance(value, (list, dict, str, int, float, bool, type(None))):
+                    serializable_state[key] = value
+                else:
+                    # Try to convert other types to string or skip
+                    try:
+                        serializable_state[key] = json.dumps(value)
+                    except TypeError:
+                        self.logger.warning(f"Skipping non-serializable key: {key}")
+            
+            with open(self.file_path, 'w') as f:
+                json.dump(serializable_state, f, indent=2)
+            
+            self.logger.info(f"State saved to {self.file_path}")
         except Exception as e:
-            self._logger.error(f"Failed to save checkpoint at step {step}: {e}")
+            self.logger.error(f"Failed to save state: {e}")
             raise
 
-    def load(self) -> Optional[Dict[str, Any]]:
+    def load_state(self) -> Optional[Dict[str, Any]]:
         """
-        Loads the latest checkpoint if available.
+        Loads the state from the JSON file if it exists.
 
         Returns:
-            The checkpoint data dictionary, or None if no checkpoint exists.
+            Dictionary containing the loaded state, or None if file doesn't exist.
         """
-        latest_path = self.get_latest_checkpoint_path()
-        if latest_path is None:
-            self._logger.info("No existing checkpoint found. Starting fresh.")
+        if not os.path.exists(self.file_path):
+            self.logger.warning(f"Checkpoint file not found: {self.file_path}")
             return None
 
         try:
-            data = torch.load(latest_path, map_location="cpu")
-            self._logger.info(f"Loaded checkpoint from {latest_path} (Step: {data['step']})")
-            return data
+            with open(self.file_path, 'r') as f:
+                loaded_state = json.load(f)
+            
+            # Convert lists back to numpy arrays/tensors if necessary
+            # For now, returning raw JSON data. The caller should handle conversion.
+            self.logger.info(f"State loaded from {self.file_path}")
+            return loaded_state
         except Exception as e:
-            self._logger.warning(f"Failed to load checkpoint {latest_path}: {e}")
-            return None
+            self.logger.error(f"Failed to load state: {e}")
+            raise
 
-    def should_save(self, current_index: int) -> bool:
+    def delete_checkpoint(self) -> bool:
         """
-        Determines if a save should occur based on the save interval.
-
-        Args:
-            current_index: The current item index being processed.
+        Deletes the checkpoint file.
 
         Returns:
-            True if a save is due, False otherwise.
+            True if deleted, False if file didn't exist or error occurred.
         """
-        # Save at start (0), at intervals, and potentially at end (handled externally)
-        if current_index == 0:
-            return True
-        if (current_index + 1) % self.save_interval == 0:
-            return True
+        if os.path.exists(self.file_path):
+            try:
+                os.remove(self.file_path)
+                self.logger.info(f"Checkpoint deleted: {self.file_path}")
+                return True
+            except Exception as e:
+                self.logger.error(f"Failed to delete checkpoint: {e}")
+                return False
         return False
 
-    def mark_processed(self, clip_id: str, metrics: Optional[Dict[str, float]] = None) -> None:
-        """
-        Updates internal counters after a clip is successfully processed.
-        Does not save to disk unless `should_save` returns True.
-        
-        Args:
-            clip_id: ID of the processed clip.
-            metrics: Optional dictionary of metrics to store in metadata.
-        """
-        self.total_processed += 1
-        self.current_step += 1
-        # Note: Actual saving logic is usually handled by the runner loop
-        # calling save() explicitly when should_save() is true.
-        self._logger.debug(f"Marked clip {clip_id} as processed. Total: {self.total_processed}")
+def save_state(state: Dict[str, Any], run_id: str, checkpoint_dir: Optional[str] = None) -> None:
+    """
+    Convenience function to save state using a CheckpointManager.
 
-    def resume_from_checkpoint(self, state_dict: Optional[Dict[str, Any]] = None) -> int:
-        """
-        Resumes the experiment from the latest checkpoint.
-        
-        Args:
-            state_dict: Optional pre-loaded state dict to use instead of loading from disk.
-        
-        Returns:
-            The step index to resume from.
-        """
-        if state_dict is None:
-            data = self.load()
-            if data is None:
-                return 0
-            state_dict = data
-        
-        self.current_step = state_dict.get("step", 0)
-        self.total_processed = state_dict.get("metadata", {}).get("total_processed", 0)
-        self._logger.info(f"Resuming from step {self.current_step}")
-        return self.current_step
+    Args:
+        state: Dictionary containing the state to save.
+        run_id: Unique identifier for the run.
+        checkpoint_dir: Directory to store checkpoints.
+    """
+    manager = CheckpointManager(run_id, checkpoint_dir)
+    manager.save_state(state)
+
+def load_state(run_id: str, checkpoint_dir: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    """
+    Convenience function to load state using a CheckpointManager.
+
+    Args:
+        run_id: Unique identifier for the run.
+        checkpoint_dir: Directory to store checkpoints.
+
+    Returns:
+        Dictionary containing the loaded state, or None if not found.
+    """
+    manager = CheckpointManager(run_id, checkpoint_dir)
+    return manager.load_state()

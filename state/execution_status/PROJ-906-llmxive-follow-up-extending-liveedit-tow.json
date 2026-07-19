@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-906-llmxive-follow-up-extending-liveedit-tow",
+  "ok": false,
+  "reason": "5 command(s) failed: python code/main.py --stage data_prep --dataset davis --stratify (rc=1); python code/main.py --stage flow_compute --method farneback (rc=1); python code/main.py --stage inference --model baseline (rc=1); 3 declared deliverable(s) absent: data/metrics/analysis_results.json; data/metrics/baseline_results.json; data/metrics/flow_results.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --stage data_prep --dataset davis --stratify -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/main.py\", line 15, in <module>\n    from utils.logger import get_logger, setup_logging\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/utils/__init__.py\", line 6, in <module>\n    from .checkpoint import CheckpointManager\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/cod",
+    "python code/main.py --stage flow_compute --method farneback -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/main.py\", line 15, in <module>\n    from utils.logger import get_logger, setup_logging\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/utils/__init__.py\", line 6, in <module>\n    from .checkpoint import CheckpointManager\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/uti",
+    "python code/main.py --stage inference --model baseline -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/main.py\", line 15, in <module>\n    from utils.logger import get_logger, setup_logging\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/utils/__init__.py\", line 6, in <module>\n    from .checkpoint import CheckpointManager\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/utils/ch",
+    "python code/main.py --stage inference --model flow_coherence -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/main.py\", line 15, in <module>\n    from utils.logger import get_logger, setup_logging\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/utils/__init__.py\", line 6, in <module>\n    from .checkpoint import CheckpointManager\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/ut",
+    "python code/main.py --stage analysis --method ks_test --sweep 0.01,0.05,0.1 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/main.py\", line 15, in <module>\n    from utils.logger import get_logger, setup_logging\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/code/utils/__init__.py\", line 6, in <module>\n    from .checkpoint import CheckpointManager\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-906-llmxive-follow-up-extending-livee"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-19T14:54:03Z"
+}

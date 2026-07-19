@@ -7,3 +7,7 @@ numpy
 datasets
 ruptures
 pydantic>=2.0.0
+psutil  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
+tomli  # auto-added: imported by run-book but missing from venv
+transformers  # auto-added: imported by run-book but missing from venv

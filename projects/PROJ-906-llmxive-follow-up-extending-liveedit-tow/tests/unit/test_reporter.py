@@ -1,169 +1,78 @@
-"""
-Unit tests for the reporter module.
-"""
 import os
 import json
-import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
+import sys
 
-import numpy as np
-import pandas as pd
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from code.analysis.reporter import (
-    aggregate_metrics_to_records,
-    generate_baseline_report,
-    generate_comparative_report
-)
-from code.data.models import MetricRecord
+from analysis.reporter import generate_baseline_report, generate_comparative_report, generate_analysis_report
+from config import ensure_directories
 
+@pytest.fixture
+def temp_metrics_dir(tmp_path):
+    # Create a temporary directory structure mimicking the project
+    metrics_dir = tmp_path / "data" / "metrics"
+    metrics_dir.mkdir(parents=True)
+    os.chdir(tmp_path)
+    return metrics_dir
 
-class TestAggregateMetricsToRecords:
-    def test_valid_metrics_conversion(self):
-        """Test that valid metric dicts are converted to MetricRecord objects."""
-        metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": 1.5,
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
+def test_generate_baseline_report(temp_metrics_dir):
+    """Test that generate_baseline_report creates a valid JSON file."""
+    test_data = [
+        {"clip_id": "clip_001", "peak_memory": 1024.5, "fps": 25.0, "ssim": 0.95, "gradient_variance": 0.01, "flow_magnitude": 2.5, "invalid_flow": False},
+        {"clip_id": "clip_002", "peak_memory": 2048.0, "fps": 24.0, "ssim": 0.92, "gradient_variance": 0.02, "flow_magnitude": 5.1, "invalid_flow": True}
+    ]
+    
+    output_path = "data/metrics/baseline_results.json"
+    result = generate_baseline_report(test_data, output_path)
+    
+    assert os.path.exists(result)
+    with open(result, 'r') as f:
+        data = json.load(f)
+    
+    assert data["model"] == "baseline"
+    assert data["count"] == 2
+    assert "avg_peak_memory" in data
+    assert "individual_records" in data
+    assert len(data["individual_records"]) == 2
 
-        records = aggregate_metrics_to_records(metrics, "test_run", "baseline")
+def test_generate_comparative_report(temp_metrics_dir):
+    """Test that generate_comparative_report creates a valid comparison JSON."""
+    baseline_data = [
+        {"clip_id": "c1", "peak_memory": 100.0, "ssim": 0.9, "fps": 30.0}
+    ]
+    flow_data = [
+        {"clip_id": "c1", "peak_memory": 80.0, "ssim": 0.88, "fps": 32.0}
+    ]
+    
+    output_path = "data/metrics/flow_results.json"
+    result = generate_comparative_report(baseline_data, flow_data, output_path)
+    
+    assert os.path.exists(result)
+    with open(result, 'r') as f:
+        data = json.load(f)
+    
+    assert "comparison" in data
+    assert data["comparison"]["memory_reduction"] == 20.0
+    assert data["comparison"]["ssim_change"] == -0.02
 
-        assert len(records) == 1
-        assert isinstance(records[0], MetricRecord)
-        assert records[0].clip_id == "clip_001"
-        assert records[0].run_id == "test_run"
-        assert records[0].run_type == "baseline"
-
-    def test_invalid_metrics_skipped(self):
-        """Test that invalid metric dicts are skipped."""
-        metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": "not_a_number",  # Invalid type
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            },
-            {
-                "clip_id": "clip_002",
-                "inference_time_s": 1.5,
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
-
-        records = aggregate_metrics_to_records(metrics, "test_run", "baseline")
-
-        # First record should be skipped, second should be valid
-        assert len(records) == 1
-        assert records[0].clip_id == "clip_002"
-
-
-class TestGenerateBaselineReport:
-    def test_generates_json_and_parquet(self, tmp_path):
-        """Test that the function creates both JSON and Parquet files."""
-        metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": 1.5,
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
-
-        result = generate_baseline_report(metrics, output_dir=tmp_path, run_id="test_001")
-
-        assert "json_path" in result
-        assert "parquet_path" in result
-        assert os.path.exists(result["json_path"])
-        assert os.path.exists(result["parquet_path"])
-
-    def test_json_content_valid(self, tmp_path):
-        """Test that the JSON file contains expected structure."""
-        metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": 1.5,
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
-
-        result = generate_baseline_report(metrics, output_dir=tmp_path, run_id="test_002")
-
-        with open(result["json_path"], "r") as f:
-            data = json.load(f)
-
-        assert "run_id" in data
-        assert "run_type" in data
-        assert "stats" in data
-        assert data["run_type"] == "baseline"
-        assert "inference_time_s" in data["stats"]
-
-    def test_empty_metrics_handled(self, tmp_path):
-        """Test that empty metrics list generates a valid empty report."""
-        result = generate_baseline_report([], output_dir=tmp_path, run_id="test_003")
-
-        assert os.path.exists(result["json_path"])
-        with open(result["json_path"], "r") as f:
-            data = json.load(f)
-        assert data["clip_count"] == 0
-
-
-class TestGenerateComparativeReport:
-    def test_generates_comparative_report(self, tmp_path):
-        """Test generation of comparative report."""
-        baseline_metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": 1.5,
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
-        flow_metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": 1.2,
-                "peak_memory_mb": 1024.0,
-                "bss_score": 0.90,
-                "flow_normalized_ssim": 0.88,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
-
-        result = generate_comparative_report(
-            baseline_metrics,
-            flow_metrics,
-            output_dir=tmp_path,
-            run_id="test_004"
-        )
-
-        assert os.path.exists(result["json_path"])
-        with open(result["json_path"], "r") as f:
-            data = json.load(f)
-
-        assert "comparison_stats" in data
-        assert "memory_reduction_pct" in data["comparison_stats"]
+def test_generate_analysis_report(temp_metrics_dir):
+    """Test that generate_analysis_report creates a valid analysis JSON."""
+    ks_result = {"statistic": 0.1, "pvalue": 0.01}
+    reg_result = {"change_point": 4.5, "slope1": 0.1, "slope2": -0.2}
+    sens_result = {"cutoffs": [0.01, 0.05], "inconsistency_rates": [0.0, 0.1]}
+    
+    output_path = "data/metrics/analysis_results.json"
+    result = generate_analysis_report(ks_result, reg_result, sens_result, output_path)
+    
+    assert os.path.exists(result)
+    with open(result, 'r') as f:
+        data = json.load(f)
+    
+    assert "kolmogorov_smirnov_test" in data
+    assert "piecewise_regression" in data
+    assert "conclusion" in data
+    assert data["conclusion"]["significant_difference"] == True
