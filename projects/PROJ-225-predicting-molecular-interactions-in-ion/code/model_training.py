@@ -4,11 +4,13 @@ import os
 import logging
 from typing import Tuple, Dict, Any, Optional
 from sklearn.model_selection import train_test_split
-from xgboost import XGBRegressor
-from .config import ModelTrainingError, HYPERPARAM_BOUNDS, MAX_TRIALS, TRIAL_TIMEOUT, SEED
+import xgboost as xgb
 import optuna
+from .config import ModelTrainingError, load_config
+from .utils import setup_logging
 
-logger = logging.getLogger(__name__)
+# Ensure logging is configured
+logger = setup_logging("training")
 
 def stratified_split(
     df: pd.DataFrame,
@@ -17,265 +19,345 @@ def stratified_split(
     ratios: Tuple[float, float, float] = (0.7, 0.15, 0.15)
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Perform a stratified train/validation/test split based on structural family.
+    Perform a stratified split of the dataset based on structural family.
     
     Args:
-        df: Input dataframe.
-        target_col: Name of the target column (used for sorting/checking, but split is on family).
-        structural_family_col: Column to use for stratification.
-        ratios: Tuple of (train_ratio, val_ratio, test_ratio).
+        df: Input DataFrame
+        target_col: Name of the target column (not used for stratification but kept for API)
+        structural_family_col: Name of the column to stratify by
+        ratios: Tuple of (train_ratio, val_ratio, test_ratio)
     
     Returns:
-        Tuple of (train_df, val_df, test_df).
-    """
-    if abs(sum(ratios) - 1.0) > 0.01:
-        raise ValueError("Ratios must sum to 1.0")
+        Tuple of (train_df, val_df, test_df)
     
+    Raises:
+        ModelTrainingError: If stratification fails due to empty groups
+    """
     train_ratio, val_ratio, test_ratio = ratios
     
-    # First split: Train vs (Val + Test)
+    # First split: train vs (val + test)
     train_df, temp_df = train_test_split(
-        df, 
-        train_size=train_ratio, 
+        df,
+        train_size=train_ratio,
         stratify=df[structural_family_col],
-        random_state=SEED
+        random_state=42
     )
     
-    # Second split: Val vs Test from the remaining
-    remaining_ratio = val_ratio / (val_ratio + test_ratio)
+    # Second split: val vs test from the remaining
+    val_ratio_adjusted = val_ratio / (val_ratio + test_ratio)
     val_df, test_df = train_test_split(
         temp_df,
-        train_size=remaining_ratio,
+        train_size=val_ratio_adjusted,
         stratify=temp_df[structural_family_col],
-        random_state=SEED
+        random_state=42
     )
     
-    logger.info(f"Split sizes - Train: {len(train_df)}, Val: {len(val_df)}, Test: {len(test_df)}")
+    # LOGGING FOR T049: Dataset size and per-family counts
+    total_samples = len(df)
+    logger.info(f"Total dataset size: {total_samples} IonPairs")
+    
+    # Count samples per structural family in the full dataset
+    family_counts_full = df[structural_family_col].value_counts().to_dict()
+    logger.info("Full dataset distribution by Structural Family:")
+    for family, count in sorted(family_counts_full.items()):
+        logger.info(f"  - {family}: {count} samples")
+    
+    # Count samples per structural family in the test set (critical for validation)
+    family_counts_test = test_df[structural_family_col].value_counts().to_dict()
+    logger.info("Test set distribution by Structural Family:")
+    for family, count in sorted(family_counts_test.items()):
+        logger.info(f"  - {family}: {count} samples")
+    
+    # Verify no family is empty in the test set
+    missing_families = set(family_counts_full.keys()) - set(family_counts_test.keys())
+    if missing_families:
+        error_msg = f"Stratification failed: The following families are missing from the test set: {missing_families}"
+        logger.error(error_msg)
+        raise ModelTrainingError(error_msg)
+    
+    logger.info(f"Split successful: Train={len(train_df)}, Val={len(val_df)}, Test={len(test_df)}")
+    
     return train_df, val_df, test_df
 
-def save_splits(train_df: pd.DataFrame, val_df: pd.DataFrame, test_df: pd.DataFrame):
+def save_splits(
+    train_df: pd.DataFrame,
+    val_df: pd.DataFrame,
+    test_df: pd.DataFrame
+) -> None:
     """
     Save the split datasets to parquet files.
+    
+    Args:
+        train_df: Training DataFrame
+        val_df: Validation DataFrame
+        test_df: Test DataFrame
     """
     os.makedirs("data/processed", exist_ok=True)
-    train_df.to_parquet("data/processed/train.parquet", index=False)
-    val_df.to_parquet("data/processed/val.parquet", index=False)
-    test_df.to_parquet("data/processed/test.parquet", index=False)
-    logger.info("Splits saved to data/processed/")
+    
+    train_path = "data/processed/train.parquet"
+    val_path = "data/processed/val.parquet"
+    test_path = "data/processed/test.parquet"
+    
+    train_df.to_parquet(train_path, index=False)
+    val_df.to_parquet(val_path, index=False)
+    test_df.to_parquet(test_path, index=False)
+    
+    logger.info(f"Saved splits to: {train_path}, {val_path}, {test_path}")
 
-def train_electrostatic_model(train_df: pd.DataFrame, val_df: pd.DataFrame) -> XGBRegressor:
+def train_electrostatic_model(
+    train_df: pd.DataFrame,
+    val_df: pd.DataFrame
+) -> xgb.XGBRegressor:
     """
-    Train the electrostatic energy model using XGBoost with Optuna tuning.
-    (Stub implementation for context - T022)
-    """
-    # Placeholder for T022 logic, assuming it follows the pattern of T023
-    logger.info("Training electrostatic model...")
-    # In a real flow, this would call run_optuna_study specifically for electrostatic
-    # For now, returning a dummy model to satisfy the import check if called elsewhere
-    # but the task is to implement T023 (dispersion).
-    return XGBRegressor()
-
-def train_dispersion_model(train_df: pd.DataFrame, val_df: pd.DataFrame) -> XGBRegressor:
-    """
-    Train the dispersion energy model using XGBoost with Optuna hyperparameter tuning.
+    Train XGBoost model for electrostatic energy prediction.
     
     Args:
-        train_df: Training dataset (features + target).
-        val_df: Validation dataset for scoring.
+        train_df: Training DataFrame
+        val_df: Validation DataFrame
     
     Returns:
-        Trained XGBRegressor model.
+        Trained XGBRegressor
     """
-    logger.info("Starting dispersion model training...")
-    
-    # Define features and target
-    # Assuming the dataframe has a specific column for dispersion energy
-    target_col = "dispersion_energy"
-    feature_cols = [col for col in train_df.columns if col not in [target_col, "cation_id", "anion_id", "structural_family"]]
+    feature_cols = [col for col in train_df.columns if col not in 
+                   ['cation_id', 'anion_id', 'electrostatic_energy', 'total_energy']]
     
     X_train = train_df[feature_cols]
-    y_train = train_df[target_col]
+    y_train = train_df['electrostatic_energy']
     X_val = val_df[feature_cols]
-    y_val = val_df[target_col]
+    y_val = val_df['electrostatic_energy']
     
-    if X_train.empty:
-        raise ModelTrainingError("No feature columns found for dispersion model training.")
+    model = xgb.XGBRegressor(
+        objective='reg:squarederror',
+        n_estimators=100,
+        learning_rate=0.1,
+        max_depth=6,
+        random_state=42
+    )
     
-    def objective(trial):
-        param = {
-            "objective": "reg:squarederror",
-            "eval_metric": "mae",
-            "tree_method": "hist",
-            "random_state": SEED,
-            "n_jobs": -1,
-            # Hyperparameter search space
-            "max_depth": trial.suggest_int("max_depth", 3, 12),
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
-            "n_estimators": trial.suggest_int("n_estimators", 100, 2000),
-            "gamma": trial.suggest_float("gamma", 0.0, 10.0),
-            "min_child_weight": trial.suggest_int("min_child_weight", 1, 10),
-            "subsample": trial.suggest_float("subsample", 0.5, 1.0),
-            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
-            "lambda": trial.suggest_float("lambda", 1e-8, 10.0, log=True),
-            "alpha": trial.suggest_float("alpha", 1e-8, 10.0, log=True),
-        }
-        
-        model = XGBRegressor(**param)
-        model.fit(
-            X_train, y_train,
-            eval_set=[(X_val, y_val)],
-            verbose=False
-        )
-        
-        val_pred = model.predict(X_val)
-        # Optuna uses the first metric by default, but we can calculate MAE explicitly if needed
-        # The eval_metric 'mae' is set in params, so trial.report will use it if we use callbacks,
-        # but here we return the negative MAE or the MAE directly. Optuna minimizes by default.
-        from sklearn.metrics import mean_absolute_error
-        mae = mean_absolute_error(y_val, val_pred)
-        return mae
-
-    study = optuna.create_study(direction="minimize", study_name="dispersion_optuna")
-    
-    try:
-        study.optimize(
-            objective,
-            n_trials=MAX_TRIALS,
-            timeout=TRIAL_TIMEOUT,
-            show_progress_bar=True
-        )
-    except Exception as e:
-        logger.error(f"Optuna study failed: {e}")
-        raise ModelTrainingError(f"Optuna optimization failed: {e}")
-    
-    best_params = study.best_params
-    logger.info(f"Best parameters for dispersion model: {best_params}")
-    logger.info(f"Best MAE: {study.best_value}")
-    
-    # Retrain on full training set with best params
-    best_model = XGBRegressor(**best_params)
-    best_model.fit(X_train, y_train)
-    
-    # Save trial history for analysis
-    os.makedirs("models", exist_ok=True)
-    study.trials_dataframe().to_csv("models/dispersion_trials.csv", index=False)
-    
-    return best_model
-
-def train_hbond_model(train_df: pd.DataFrame, val_df: pd.DataFrame) -> XGBRegressor:
-    """
-    Train the hydrogen-bond energy model using XGBoost with Optuna tuning.
-    (Stub implementation for context - T024)
-    """
-    logger.info("Training hydrogen-bond model...")
-    return XGBRegressor()
-
-def optuna_objective(trial, model_type: str, train_df: pd.DataFrame, val_df: pd.DataFrame) -> float:
-    """
-    Generic Optuna objective function for hyperparameter tuning.
-    
-    Args:
-        trial: Optuna trial object.
-        model_type: 'electrostatic', 'dispersion', or 'hbond'.
-        train_df: Training dataframe.
-        val_df: Validation dataframe.
-    
-    Returns:
-        Validation MAE.
-    """
-    # Determine target column based on model type
-    target_map = {
-        "electrostatic": "electrostatic_energy",
-        "dispersion": "dispersion_energy",
-        "hbond": "hbond_energy"
-    }
-    
-    if model_type not in target_map:
-        raise ValueError(f"Unknown model_type: {model_type}")
-    
-    target_col = target_map[model_type]
-    feature_cols = [col for col in train_df.columns if col not in [target_col, "cation_id", "anion_id", "structural_family"]]
-    
-    X_train = train_df[feature_cols]
-    y_train = train_df[target_col]
-    X_val = val_df[feature_cols]
-    y_val = val_df[target_col]
-    
-    param = {
-        "objective": "reg:squarederror",
-        "eval_metric": "mae",
-        "tree_method": "hist",
-        "random_state": SEED,
-        "n_jobs": -1,
-        "max_depth": trial.suggest_int("max_depth", 3, 12),
-        "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
-        "n_estimators": trial.suggest_int("n_estimators", 100, 2000),
-        "gamma": trial.suggest_float("gamma", 0.0, 10.0),
-        "min_child_weight": trial.suggest_int("min_child_weight", 1, 10),
-        "subsample": trial.suggest_float("subsample", 0.5, 1.0),
-        "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
-        "lambda": trial.suggest_float("lambda", 1e-8, 10.0, log=True),
-        "alpha": trial.suggest_float("alpha", 1e-8, 10.0, log=True),
-    }
-    
-    model = XGBRegressor(**param)
     model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
     
-    from sklearn.metrics import mean_absolute_error
-    mae = mean_absolute_error(y_val, model.predict(X_val))
-    return mae
+    val_mae = model.evaluate(X_val, y_val)
+    logger.info(f"Electrostatic model validation MAE: {val_mae}")
+    
+    return model
 
-def run_optuna_study(model_type: str, train_df: pd.DataFrame, val_df: pd.DataFrame):
+def train_dispersion_model(
+    train_df: pd.DataFrame,
+    val_df: pd.DataFrame
+) -> xgb.XGBRegressor:
     """
-    Run the full Optuna study for a specific model type.
+    Train XGBoost model for dispersion energy prediction.
+    
+    Args:
+        train_df: Training DataFrame
+        val_df: Validation DataFrame
+    
+    Returns:
+        Trained XGBRegressor
     """
-    study = optuna.create_study(direction="minimize", study_name=f"{model_type}_optuna")
-    study.optimize(
-        lambda trial: optuna_objective(trial, model_type, train_df, val_df),
-        n_trials=MAX_TRIALS,
-        timeout=TRIAL_TIMEOUT
+    feature_cols = [col for col in train_df.columns if col not in 
+                   ['cation_id', 'anion_id', 'dispersion_energy', 'total_energy']]
+    
+    X_train = train_df[feature_cols]
+    y_train = train_df['dispersion_energy']
+    X_val = val_df[feature_cols]
+    y_val = val_df['dispersion_energy']
+    
+    model = xgb.XGBRegressor(
+        objective='reg:squarederror',
+        n_estimators=100,
+        learning_rate=0.1,
+        max_depth=6,
+        random_state=42
     )
-    return study
+    
+    model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
+    
+    val_mae = model.evaluate(X_val, y_val)
+    logger.info(f"Dispersion model validation MAE: {val_mae}")
+    
+    return model
 
-def save_models(models: Dict[str, XGBRegressor], path_prefix: str):
+def train_hbond_model(
+    train_df: pd.DataFrame,
+    val_df: pd.DataFrame
+) -> xgb.XGBRegressor:
+    """
+    Train XGBoost model for H-bond energy prediction.
+    
+    Args:
+        train_df: Training DataFrame
+        val_df: Validation DataFrame
+    
+    Returns:
+        Trained XGBRegressor
+    """
+    feature_cols = [col for col in train_df.columns if col not in 
+                   ['cation_id', 'anion_id', 'hbond_energy', 'total_energy']]
+    
+    X_train = train_df[feature_cols]
+    y_train = train_df['hbond_energy']
+    X_val = val_df[feature_cols]
+    y_val = val_df['hbond_energy']
+    
+    model = xgb.XGBRegressor(
+        objective='reg:squarederror',
+        n_estimators=100,
+        learning_rate=0.1,
+        max_depth=6,
+        random_state=42
+    )
+    
+    model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
+    
+    val_mae = model.evaluate(X_val, y_val)
+    logger.info(f"H-bond model validation MAE: {val_mae}")
+    
+    return model
+
+def optuna_objective(
+    trial: optuna.Trial,
+    model_type: str,
+    train_df: pd.DataFrame,
+    val_df: pd.DataFrame
+) -> float:
+    """
+    Optuna objective function for hyperparameter optimization.
+    
+    Args:
+        trial: Optuna trial object
+        model_type: Type of model ('electrostatic', 'dispersion', 'hbond')
+        train_df: Training DataFrame
+        val_df: Validation DataFrame
+    
+    Returns:
+        Validation loss (MAE)
+    """
+    # Define search space
+    params = {
+        'max_depth': trial.suggest_int('max_depth', 3, 10),
+        'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.3, log=True),
+        'n_estimators': trial.suggest_int('n_estimators', 50, 200),
+        'subsample': trial.suggest_float('subsample', 0.6, 1.0),
+        'colsample_bytree': trial.suggest_float('colsample_bytree', 0.6, 1.0),
+        'gamma': trial.suggest_float('gamma', 0, 10),
+        'random_state': 42
+    }
+    
+    # Select target column based on model type
+    target_map = {
+        'electrostatic': 'electrostatic_energy',
+        'dispersion': 'dispersion_energy',
+        'hbond': 'hbond_energy'
+    }
+    target_col = target_map[model_type]
+    
+    feature_cols = [col for col in train_df.columns if col not in 
+                   ['cation_id', 'anion_id', target_col, 'total_energy']]
+    
+    X_train = train_df[feature_cols]
+    y_train = train_df[target_col]
+    X_val = val_df[feature_cols]
+    y_val = val_df[target_col]
+    
+    model = xgb.XGBRegressor(**params, objective='reg:squarederror')
+    model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
+    
+    val_mae = model.evaluate(X_val, y_val)
+    return val_mae
+
+def run_optuna_study() -> Dict[str, Any]:
+    """
+    Run Optuna hyperparameter optimization study.
+    
+    Returns:
+        Dictionary containing best parameters and study results
+    """
+    config = load_config()
+    n_trials = config.get('MAX_TRIALS', 60)
+    timeout = config.get('TRIAL_TIMEOUT', 300)
+    
+    # Load data
+    unified_df = pd.read_parquet("data/processed/unified_dataset.parquet")
+    train_df, val_df, _ = stratified_split(
+        unified_df,
+        target_col='total_energy',
+        structural_family_col='structural_family'
+    )
+    
+    results = {}
+    
+    for model_type in ['electrostatic', 'dispersion', 'hbond']:
+        logger.info(f"Starting Optuna study for {model_type} model")
+        study = optuna.create_study(direction='minimize')
+        
+        study.optimize(
+            lambda trial: optuna_objective(trial, model_type, train_df, val_df),
+            n_trials=n_trials,
+            timeout=timeout
+        )
+        
+        results[model_type] = {
+            'best_params': study.best_params,
+            'best_value': study.best_value,
+            'n_trials': len(study.trials)
+        }
+        
+        logger.info(f"{model_type} - Best MAE: {study.best_value}")
+        logger.info(f"{model_type} - Best params: {study.best_params}")
+    
+    # Save best parameters
+    os.makedirs("models", exist_ok=True)
+    with open("models/hyperparams.json", "w") as f:
+        import json
+        json.dump(results, f, indent=2)
+    
+    logger.info("Optuna study completed and saved to models/hyperparams.json")
+    return results
+
+def save_models(
+    models: Dict[str, Any],
+    path_prefix: str = "models"
+) -> None:
     """
     Save trained models to disk.
     
     Args:
-        models: Dictionary mapping model name (e.g., 'electrostatic') to model object.
-        path_prefix: Directory path where models will be saved.
+        models: Dictionary of model names to model objects
+        path_prefix: Directory path prefix for saving
     """
     os.makedirs(path_prefix, exist_ok=True)
+    
     for name, model in models.items():
-        path = os.path.join(path_prefix, f"{name}.pkl")
-        joblib.dump(model, path)
-        logger.info(f"Saved {name} model to {path}")
+        model_path = os.path.join(path_prefix, f"{name}.pkl")
+        joblib.dump(model, model_path)
+        logger.info(f"Saved {name} model to {model_path}")
 
-def check_energy_consistency(predictions: Dict[str, pd.Series], total_sapt_targets: pd.Series, tolerance: float = 0.1):
+def check_energy_consistency(
+    predictions: pd.Series,
+    total_sapt_targets: pd.Series,
+    tolerance: float = 0.1
+) -> Dict[str, Any]:
     """
-    Check if the sum of predicted components is consistent with the total SAPT energy.
+    Check if sum of component predictions approximates total energy target.
     
     Args:
-        predictions: Dict of component predictions (electrostatic, dispersion, hbond).
-        total_sapt_targets: Ground truth total energy.
-        tolerance: Maximum allowed MAE for consistency check.
+        predictions: Series of component predictions (should be summed before calling)
+        total_sapt_targets: Series of total energy targets
+        tolerance: Tolerance in kcal/mol
     
     Returns:
-        Dict with status and MAE.
+        Dictionary with pass/fail status and details
     """
-    if not all(k in predictions for k in ["electrostatic", "dispersion", "hbond"]):
-        raise ValueError("Missing predicted components for consistency check.")
+    # predictions should already be the sum of components
+    mae = (predictions - total_sapt_targets).abs().mean()
+    passed = mae <= tolerance
     
-    total_pred = predictions["electrostatic"] + predictions["dispersion"] + predictions["hbond"]
-    
-    from sklearn.metrics import mean_absolute_error
-    mae = mean_absolute_error(total_sapt_targets, total_pred)
-    
-    status = "PASS" if mae <= tolerance else "FAIL"
     result = {
-        "status": status,
-        "mae": mae,
-        "tolerance": tolerance
+        'mae': float(mae),
+        'tolerance': tolerance,
+        'passed': passed,
+        'status': 'PASS' if passed else 'FAIL'
     }
     
     os.makedirs("models", exist_ok=True)
@@ -283,5 +365,5 @@ def check_energy_consistency(predictions: Dict[str, pd.Series], total_sapt_targe
         import json
         json.dump(result, f, indent=2)
     
-    logger.info(f"Energy consistency check: {status} (MAE: {mae:.4f})")
+    logger.info(f"Energy consistency check: {result['status']} (MAE={mae:.4f})")
     return result

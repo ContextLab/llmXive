@@ -95,7 +95,7 @@ The system MUST group predictions by cation/anion structural families, compute m
 
 - The ILThermo dataset and the curated SAPT/DFT energy decomposition repository are accessible and contain the necessary variables (cation/anion structures, interaction energy components) for the analysis.
 - The **combined** dataset (ILThermo + SAPT) is large enough (≥ 5,000 IonPairs) to support a stratified split (70/15/15) while maintaining sufficient samples per family for ANOVA.
-- The experimental validation calculations (or data retrieval) can be completed within the 6-hour job limit on a CPU-only runner.
+- The experimental validation calculations (or data retrieval) can be completed within the job limit on a CPU-only runner.
 - The XGBoost models trained on the CPU will achieve a reasonable MAE without requiring GPU acceleration or large-scale model architectures.
 - The structural families (e.g., imidazolium, BF4-) are well-defined and can be consistently mapped to the ions in the dataset.
 - The multiple-comparison correction (e.g., Bonferroni) will not overly penalize the statistical power to detect significant family trends.

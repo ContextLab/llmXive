@@ -20,3 +20,36 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/IL-SAPT/IL-SAPT-Subset
   verified_at: '2026-07-11T03:24:44.295106Z'
+- artifact_hash: 7a7d4fc0bb9fb76606c7c3a08ae53d83c4dfd6a69c4a6097663e7ed7d133fe67
+  artifact_path: projects/PROJ-225-predicting-molecular-interactions-in-ion/specs/001-predicting-molecular-interactions-in-ion/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/spice-dataset`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/spice-dataset/datasets
+  verified_at: '2026-07-19T05:06:13.063456Z'
+- artifact_hash: 7a7d4fc0bb9fb76606c7c3a08ae53d83c4dfd6a69c4a6097663e7ed7d133fe67
+  artifact_path: projects/PROJ-225-predicting-molecular-interactions-in-ion/specs/001-predicting-molecular-interactions-in-ion/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/spice-dft-ions`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/spice-dft-ions/datasets
+  verified_at: '2026-07-19T05:06:13.063456Z'
+- artifact_hash: 7a7d4fc0bb9fb76606c7c3a08ae53d83c4dfd6a69c4a6097663e7ed7d133fe67
+  artifact_path: projects/PROJ-225-predicting-molecular-interactions-in-ion/specs/001-predicting-molecular-interactions-in-ion/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/ionic-liquids/sapt-dataset`
+  verification_status: mismatch
+  verified_against_url: https://github.com/ionic-liquids/sapt-dataset
+  verified_at: '2026-07-19T05:06:13.063456Z'
