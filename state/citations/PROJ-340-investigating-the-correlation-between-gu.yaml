@@ -1,1 +1,33 @@
-[]
+- artifact_hash: dca8713be6b0a6ce9e24087ca76f67f99d30d145c1bc9efe858a711fc0b7e10d
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://hmp2.dcc.hmp2.org/
+  verification_status: unreachable
+  verified_against_url: https://hmp2.dcc.hmp2.org/
+  verified_at: '2026-07-19T23:06:55.927596Z'
+- artifact_hash: dca8713be6b0a6ce9e24087ca76f67f99d30d145c1bc9efe858a711fc0b7e10d
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Home - GEO - NCBI
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/geo/
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/
+  verified_at: '2026-07-19T23:06:55.927596Z'
+- artifact_hash: dca8713be6b0a6ce9e24087ca76f67f99d30d145c1bc9efe858a711fc0b7e10d
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: ENA Browser
+  kind: url
+  value: https://www.ebi.ac.uk/ena/browser/home
+  verification_status: pending
+  verified_against_url: https://www.ebi.ac.uk/ena/browser/home
+  verified_at: '2026-07-19T23:06:55.927596Z'
