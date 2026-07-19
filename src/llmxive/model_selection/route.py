@@ -164,8 +164,9 @@ def route_chat(
     """
     # deterministic-no-llm bypasses snapshot / select / execute ENTIRELY: a no-llm
     # agent that reached the model layer is a programming error → fail fast before
-    # touching the mechanism (e2e #7).
-    if caller_model == DETERMINISTIC_NO_LLM:
+    # touching the mechanism (US5 AC3, layer 2). Registry dispatch (graph.py) is
+    # layer 1 and must never let such an agent get here in the first place.
+    if profile == DETERMINISTIC_NO_LLM or caller_model == DETERMINISTIC_NO_LLM:
         raise ValueError(
             "route_chat called with the 'deterministic-no-llm' sentinel — a no-LLM "
             "agent must never reach model selection/execution"

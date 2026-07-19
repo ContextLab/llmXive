@@ -4448,7 +4448,7 @@
       "category": "test_double",
       "file": "tests/unit/test_exclude_leader.py",
       "kind": "model_id_literal",
-      "line": 27,
+      "line": 36,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -4459,7 +4459,7 @@
       "category": "test_double",
       "file": "tests/unit/test_exclude_leader.py",
       "kind": "model_id_literal",
-      "line": 31,
+      "line": 40,
       "models": [
         "google.gemma-4-31B-it"
       ],
@@ -4470,7 +4470,7 @@
       "category": "test_double",
       "file": "tests/unit/test_exclude_leader.py",
       "kind": "model_id_literal",
-      "line": 58,
+      "line": 67,
       "models": [
         "google.gemma-4-31B-it"
       ],
@@ -4481,7 +4481,7 @@
       "category": "test_double",
       "file": "tests/unit/test_exclude_leader.py",
       "kind": "model_id_literal",
-      "line": 60,
+      "line": 69,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -4492,7 +4492,7 @@
       "category": "test_double",
       "file": "tests/unit/test_exclude_leader.py",
       "kind": "model_id_literal",
-      "line": 62,
+      "line": 71,
       "models": [
         "openai.gpt-oss-120b"
       ],
@@ -4503,7 +4503,7 @@
       "category": "test_double",
       "file": "tests/unit/test_exclude_leader.py",
       "kind": "model_id_literal",
-      "line": 72,
+      "line": 81,
       "models": [
         "google.gemma-4-31B-it"
       ],
@@ -4514,7 +4514,7 @@
       "category": "test_double",
       "file": "tests/unit/test_exclude_leader.py",
       "kind": "model_id_literal",
-      "line": 72,
+      "line": 81,
       "models": [
         "openai.gpt-oss-120b"
       ],
@@ -4525,7 +4525,7 @@
       "category": "test_double",
       "file": "tests/unit/test_exclude_leader.py",
       "kind": "model_id_literal",
-      "line": 72,
+      "line": 81,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -4536,7 +4536,7 @@
       "category": "test_double",
       "file": "tests/unit/test_exclude_leader.py",
       "kind": "model_id_literal",
-      "line": 73,
+      "line": 82,
       "models": [
         "Qwen/Qwen2.5-3B-Instruct"
       ],
@@ -4547,12 +4547,144 @@
       "category": "test_double",
       "file": "tests/unit/test_exclude_leader.py",
       "kind": "model_id_literal",
-      "line": 73,
+      "line": 82,
       "models": [
         "anthropic.claude-haiku-4-5-20251001"
       ],
       "owning_slice": null,
       "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 116,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_serves_second_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 117,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_serves_second_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 118,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_serves_second_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 138,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 143,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_resolves_from_merged_requirement"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 144,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_resolves_from_merged_requirement"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 145,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_route_chat_exclude_leader_resolves_from_merged_requirement"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 164,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_two_pass_truncation_reveals_next_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 164,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_two_pass_truncation_reveals_next_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 168,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_two_pass_truncation_reveals_next_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 175,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_two_pass_truncation_reveals_next_candidate"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 175,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_two_pass_truncation_reveals_next_candidate"
     },
     {
       "category": "test_double",
