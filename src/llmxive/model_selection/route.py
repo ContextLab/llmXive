@@ -214,7 +214,15 @@ def route_chat(
             exclude_models=base.exclude_models | overrides.exclude_models,
             max_credits=_tighter_credits(base.max_credits, overrides.max_credits),
         )
-    chain = select(requirement, snap)
+        if overrides.exclude_leader:
+            # PASS 1 (pure, no I/O): resolve who would lead, then exclude exactly
+            # that model. If pass 1 raises ModelUnavailable it propagates
+            # immediately — there is no leader to exclude and pass 2 never runs.
+            leader = select(requirement, snap).candidates[0].model_ref.model_id
+            requirement = replace(
+                requirement, exclude_models=requirement.exclude_models | {leader}
+            )
+    chain = select(requirement, snap)   # PASS 2 — THE decision
     chain = _promote_primary(chain, caller_model)
 
     options = ExecutionOptions(

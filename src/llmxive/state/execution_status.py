@@ -48,14 +48,15 @@ MAX_REPLAN_ROUNDS = 3
 
 #: Ordered escalation ladder for the execution fix-loop (autonomous exhaustion
 #: handling), expressed as REQUIREMENT CONSTRAINTS — never model-id literals
-#: (spec 026 slice 6). When the fix-round cap is hit at one tier, the project
+#: (spec 026 slice 6/7). When the fix-round cap is hit at one tier, the project
 #: bumps to the next tier and retries the FULL cap under a stricter constraint;
 #: each rung is resolved to a :class:`RequirementOverrides` at dispatch so the
 #: unified selector (not this layer) picks the actual model from the live catalog.
 #:
-#:   tier 0 → the implementer's REGISTERED default (no override; free-only).
-#:   tier 1 → a free "second opinion": exclude the registered default so the
-#:            policy's next-best FREE model leads (SSoT — no id hardcoded here).
+#:   tier 0 → the free-only base requirement (no override).
+#:   tier 1 → a free "second opinion": ``exclude_leader`` drops whatever
+#:            ``select`` ranks FIRST so the policy's next-best FREE model leads
+#:            (SSoT — no id hardcoded here, no model id threaded into dispatch).
 #:   paid rung → a single OPTIONAL paid escalation, appended only when paid
 #:            escalation is enabled (``LLMXIVE_EXECUTION_PAID_ESCALATION``) AND
 #:            usable NOW (opt-in + fresh credit headroom); otherwise SKIPPED.
@@ -78,10 +79,10 @@ _LEGACY_WARNED = False
 @dataclass(frozen=True)
 class TierConstraint:
     """One escalation rung as REQUIREMENT overrides — never a model id (spec 026
-    slice 6). Resolved to RequirementOverrides at dispatch."""
+    slice 6; slice 7 removed the last model-id argument)."""
 
     allow_paid: bool = False
-    exclude_registered_default: bool = False
+    exclude_leader: bool = False
     require_paid: bool = False
     max_credits: int | None = None
 
@@ -89,24 +90,20 @@ class TierConstraint:
     def is_paid(self) -> bool:
         return self.allow_paid or self.require_paid
 
-    def to_overrides(self, default_model: str) -> RequirementOverrides:
+    def to_overrides(self) -> RequirementOverrides:
         return RequirementOverrides(
             allow_paid=self.allow_paid,  # ALWAYS explicit (incl. False)
             require_paid=self.require_paid,
-            exclude_models=(
-                frozenset({default_model})
-                if self.exclude_registered_default and default_model
-                else frozenset()
-            ),
+            exclude_leader=self.exclude_leader,
             max_credits=self.max_credits,
         )
 
 
 #: The free rungs (indices stable): tier 0 = base free; tier 1 = free second opinion
-#: (exclude the registered default so the policy's next-best free leads).
+#: (exclude whatever ``select`` ranks first so the policy's next-best free leads).
 _FREE_RUNGS: tuple[TierConstraint, ...] = (
     TierConstraint(allow_paid=False),
-    TierConstraint(allow_paid=False, exclude_registered_default=True),
+    TierConstraint(allow_paid=False, exclude_leader=True),
 )
 #: The single paid rung appended when paid escalation is enabled.
 _PAID_RUNG = TierConstraint(allow_paid=True, require_paid=True)
@@ -174,13 +171,9 @@ def paid_tier_usable() -> bool:
         return False
 
 
-def tier_overrides(
-    project_id: str, *, default_model: str, repo_root: Path | None = None
-) -> RequirementOverrides:
+def tier_overrides(project_id: str, *, repo_root: Path | None = None) -> RequirementOverrides:
     """The RequirementOverrides for the project's CURRENT model tier."""
-    return tier_constraint(
-        model_tier(project_id, repo_root=repo_root)
-    ).to_overrides(default_model)
+    return tier_constraint(model_tier(project_id, repo_root=repo_root)).to_overrides()
 
 
 def _dir(repo_root: Path | None = None) -> Path:

@@ -161,17 +161,17 @@ def test_tier_overrides_resolves_current_tier(tmp_path: Path) -> None:
     pid = "PROJ-012-override"
     es.record(pid, ok=False, reason="boom", artifacts=[], failures=["x"],
               repo_root=tmp_path)
-    # Tier 0 -> free-only constraint, no exclusions (the registered default leads).
-    ov0 = es.tier_overrides(pid, default_model="REGISTERED-DEFAULT", repo_root=tmp_path)
+    # Tier 0 -> free-only constraint, no exclusions (no leader dropped yet).
+    ov0 = es.tier_overrides(pid, repo_root=tmp_path)
     assert ov0.allow_paid is False
     assert ov0.require_paid is False
-    assert ov0.exclude_models == frozenset()
+    assert ov0.exclude_leader is False
     es.bump_model_tier(pid, repo_root=tmp_path)
-    # Tier 1 -> free second opinion: exclude the registered default so the
-    # policy's next-best FREE model leads (no model-id pin at this layer).
-    ov1 = es.tier_overrides(pid, default_model="REGISTERED-DEFAULT", repo_root=tmp_path)
+    # Tier 1 -> free second opinion: exclude_leader drops whatever select() ranks
+    # first so the policy's next-best FREE model leads (no model-id pin here).
+    ov1 = es.tier_overrides(pid, repo_root=tmp_path)
     assert ov1.allow_paid is False
-    assert ov1.exclude_models == frozenset({"REGISTERED-DEFAULT"})
+    assert ov1.exclude_leader is True
 
 
 # --- graph routing ----------------------------------------------------------

@@ -2907,25 +2907,7 @@
       "category": "migration_target",
       "file": "src/llmxive/pipeline/graph.py",
       "kind": "field_consumer",
-      "line": 767,
-      "models": [],
-      "owning_slice": 7,
-      "symbol": "default_model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/pipeline/graph.py",
-      "kind": "field_consumer",
-      "line": 773,
-      "models": [],
-      "owning_slice": 7,
-      "symbol": "default_model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/pipeline/graph.py",
-      "kind": "field_consumer",
-      "line": 791,
+      "line": 788,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_backend"
@@ -2934,10 +2916,19 @@
       "category": "migration_target",
       "file": "src/llmxive/pipeline/graph.py",
       "kind": "field_consumer",
-      "line": 792,
+      "line": 789,
       "models": [],
       "owning_slice": 7,
       "symbol": "fallback_backends"
+    },
+    {
+      "category": "migration_target",
+      "file": "src/llmxive/pipeline/graph.py",
+      "kind": "field_consumer",
+      "line": 790,
+      "models": [],
+      "owning_slice": 7,
+      "symbol": "default_model"
     },
     {
       "category": "migration_target",
@@ -4455,6 +4446,116 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 27,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_drops_rank_one_only"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 31,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_drops_rank_one_only"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 58,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 60,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_composes_with_existing_exclusions"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 62,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_exclude_leader_composes_with_existing_exclusions"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 72,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 72,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 72,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 73,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_exclude_leader.py",
+      "kind": "model_id_literal",
+      "line": 73,
+      "models": [
+        "anthropic.claude-haiku-4-5-20251001"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_graph_advancement_persistence.py",
       "kind": "model_id_literal",
       "line": 114,
@@ -5353,7 +5454,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 34,
+      "line": 35,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -5364,7 +5465,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 35,
+      "line": 36,
       "models": [
         "google.gemma-4-31B-it"
       ],
@@ -5375,7 +5476,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 36,
+      "line": 37,
       "models": [
         "openai.gpt-oss-120b"
       ],
@@ -5386,7 +5487,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 37,
+      "line": 38,
       "models": [
         "google.gemma-3-27b-it"
       ],
@@ -5397,7 +5498,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 38,
+      "line": 39,
       "models": [
         "qwen.qwen3-vl:32b"
       ],
@@ -5408,7 +5509,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 39,
+      "line": 40,
       "models": [
         "anthropic.claude-haiku-4-5-20251001"
       ],
@@ -5419,7 +5520,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "module_constant",
-      "line": 40,
+      "line": 41,
       "models": [
         "Qwen/Qwen2.5-3B-Instruct"
       ],
@@ -5430,7 +5531,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 372,
+      "line": 373,
       "models": [
         "gemma-4"
       ],
@@ -5441,7 +5542,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 393,
+      "line": 394,
       "models": [
         "qwen3.5"
       ],
@@ -5452,7 +5553,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 407,
+      "line": 408,
       "models": [
         "gemma-4"
       ],
@@ -5463,7 +5564,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 407,
+      "line": 408,
       "models": [
         "gpt-oss"
       ],
@@ -5474,7 +5575,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 407,
+      "line": 408,
       "models": [
         "qwen3.5"
       ],
@@ -5485,7 +5586,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 422,
+      "line": 423,
       "models": [
         "gemma-4"
       ],
@@ -5496,7 +5597,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 469,
+      "line": 470,
       "models": [
         "gemma-4"
       ],
@@ -5507,7 +5608,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 469,
+      "line": 470,
       "models": [
         "gpt-oss"
       ],
@@ -6156,7 +6257,7 @@
       "category": "test_double",
       "file": "tests/unit/test_slice6_override_propagation.py",
       "kind": "field_consumer",
-      "line": 435,
+      "line": 434,
       "models": [],
       "owning_slice": null,
       "symbol": "default_model"

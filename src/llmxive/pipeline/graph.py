@@ -764,14 +764,11 @@ def run_one_step(
         # and the panel/reviser review-spec builders), never a model-id override
         # projected onto ``ctx.default_model`` — the registered default always
         # flows through unchanged; the escalated tier narrows the ROUTER's choice.
-        _model_for_run = entry.default_model  # registry default (Slice 7 owns per-agent base profiles)
         _req_overrides = None
         _exec_fix = agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS
         _panel_stage = project.current_stage in _STAGE_PANEL_LABEL
         if _exec_fix or _panel_stage:
-            _req_overrides = execution_status.tier_overrides(
-                project.id, default_model=entry.default_model, repo_root=repo,
-            )
+            _req_overrides = execution_status.tier_overrides(project.id, repo_root=repo)
             _tier = execution_status.model_tier(project.id, repo_root=repo)
             if _tier > 0:
                 logger.info(
@@ -790,7 +787,7 @@ def run_one_step(
                 prompt_template_path=repo / entry.prompt_path,
                 default_backend=entry.default_backend,
                 fallback_backends=entry.fallback_backends,
-                default_model=_model_for_run,
+                default_model=entry.default_model,
                 prompt_version=entry.prompt_version,
                 agent_name=entry.name,
                 requirement_overrides=_req_overrides,

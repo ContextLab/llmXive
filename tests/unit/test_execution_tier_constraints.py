@@ -18,15 +18,17 @@ def _free_first(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_tier0_is_free_only_even_when_opt_in_true(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
-    ov = es.tier_constraint(0).to_overrides("q.default")
+    ov = es.tier_constraint(0).to_overrides()
     assert ov.allow_paid is False and ov.require_paid is False
+    assert ov.exclude_leader is False
     assert ov.exclude_models == frozenset()
 
 
-def test_tier1_free_second_opinion_excludes_default() -> None:
-    ov = es.tier_constraint(1).to_overrides("q.default")
+def test_tier1_free_second_opinion_sets_exclude_leader() -> None:
+    ov = es.tier_constraint(1).to_overrides()
     assert ov.allow_paid is False
-    assert ov.exclude_models == frozenset({"q.default"})
+    assert ov.exclude_leader is True
+    assert ov.exclude_models == frozenset()
 
 
 def test_corrupt_tier_resolves_free_only() -> None:
@@ -63,7 +65,7 @@ def test_paid_rung_present_only_when_enabled(monkeypatch: pytest.MonkeyPatch) ->
 
 def test_paid_rung_to_overrides_is_require_paid(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")
-    ov = es.model_tier_ladder()[-1].to_overrides("q.default")
+    ov = es.model_tier_ladder()[-1].to_overrides()
     assert ov.allow_paid is True and ov.require_paid is True
 
 

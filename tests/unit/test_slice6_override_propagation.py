@@ -409,9 +409,9 @@ def test_dispatch_sets_tier1_overrides_matching_execution_status(
     """For the two escalation-bearing dispatch paths (the IN_PROGRESS exec-fix
     implementer, and a doc-stage panel), at model_tier==1 the dispatched
     ``SlashCommandContext.requirement_overrides`` equals
-    ``execution_status.tier_overrides(project.id, default_model=entry.
-    default_model, repo_root=repo)`` EXACTLY — tier 1 excludes the registered
-    default (``exclude_registered_default=True`` on the ladder's rung 1)."""
+    ``execution_status.tier_overrides(project.id, repo_root=repo)`` EXACTLY —
+    tier 1 sets ``exclude_leader=True`` (spec 026 slice 7: no model id, the
+    router excludes whatever ``select`` ranks first) on the ladder's rung 1."""
     project = _dispatch_project(pid, stage)
     new_tier = es.bump_model_tier(pid, repo_root=tmp_path)  # tier 0 -> 1
     assert new_tier == 1
@@ -425,13 +425,12 @@ def test_dispatch_sets_tier1_overrides_matching_execution_status(
     ctx = captured.get("ctx")
     assert ctx is not None, "the agent-run boundary was never reached"
 
-    expected = es.tier_overrides(
-        pid, default_model=_DISPATCH_DEFAULT_MODEL, repo_root=tmp_path
-    )
+    expected = es.tier_overrides(pid, repo_root=tmp_path)
     assert ctx.requirement_overrides == expected
     # Pin the concrete tier-1 shape so a ladder regression is caught directly.
     assert ctx.requirement_overrides.allow_paid is False
-    assert ctx.requirement_overrides.exclude_models == frozenset({_DISPATCH_DEFAULT_MODEL})
+    assert ctx.requirement_overrides.exclude_leader is True
+    assert ctx.requirement_overrides.exclude_models == frozenset()
     assert ctx.default_model == _DISPATCH_DEFAULT_MODEL  # registered default untouched
 
 
@@ -461,12 +460,11 @@ def test_dispatch_sets_tier0_overrides_not_none(
     ctx = captured.get("ctx")
     assert ctx is not None
 
-    expected = es.tier_overrides(
-        pid, default_model=_DISPATCH_DEFAULT_MODEL, repo_root=tmp_path
-    )
+    expected = es.tier_overrides(pid, repo_root=tmp_path)
     assert ctx.requirement_overrides == expected
     assert ctx.requirement_overrides is not None
     assert ctx.requirement_overrides.allow_paid is False
+    assert ctx.requirement_overrides.exclude_leader is False
     assert ctx.requirement_overrides.exclude_models == frozenset()
 
 

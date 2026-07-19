@@ -187,6 +187,12 @@ class RequirementOverrides:
     require_paid: bool = False
     exclude_models: frozenset[str] = frozenset()
     max_credits: int | None = None
+    #: Routing-only escalation constraint (spec 026 slice 7): drop whatever
+    #: ``select`` ranks FIRST, so the "free second opinion" rung needs no model
+    #: id. Applied by ``route_chat`` as a two-pass translation (pass 1 resolves
+    #: the leader, pass 2 excludes it), NOT inside ``select`` — ``select``
+    #: receives a ``ModelRequirement`` and stays pure.
+    exclude_leader: bool = False
 
 
 @dataclass(frozen=True)

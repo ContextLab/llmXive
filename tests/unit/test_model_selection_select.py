@@ -8,6 +8,7 @@ pure, so the "real" test is exercising it against real ``RuntimeSnapshot``s.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime
 
 import pytest
@@ -555,16 +556,18 @@ def test_sc007_composite_snapshot_retains_guarded_paid_tail_after_local():
 # --------------------------------------------------------------------------- #
 # SC-007 / US6: per-tier EXECUTION-LADDER golden model-ID projections.
 # These tie the REAL ``execution_status`` escalation ladder to ``select()`` (no
-# mocks): each rung's ``TierConstraint.to_overrides(default)`` is fed straight
-# into a ``ModelRequirement`` and run against the SC-007 fixture snapshot, so the
+# mocks): each rung's ``TierConstraint.to_overrides()`` is fed straight into a
+# ``ModelRequirement`` and run against the SC-007 fixture snapshot, so the
 # ladder cannot silently desync from the selector.
-#   - tier 1 = free second opinion → the registered default (qwen) is excluded
-#     across the WHOLE chain and the leader becomes the policy's next-best free
-#     model gemma-4 (the sanctioned gpt-oss → gemma-4 delta, spec.md US6/SC-007).
+#   - tier 1 = free second opinion → ``exclude_leader`` drops whatever ranks
+#     FIRST (qwen, resolved by a pure pass-1 ``select()`` call mirroring
+#     ``route_chat``'s two-pass translation — spec 026 slice 7) and the leader
+#     becomes the policy's next-best free model gemma-4 (the sanctioned
+#     gpt-oss → gemma-4 delta, spec.md US6/SC-007).
 #   - tier 2 = the single paid rung (require_paid) → paid-only, leader claude.
 # --------------------------------------------------------------------------- #
 
-QWEN_DEFAULT = QWEN  # the registered execution default the ladder excludes at tier 1
+QWEN_DEFAULT = QWEN  # rank-one free model the ladder's tier-1 rung excludes
 
 
 def test_execution_tier1_golden_leads_with_gemma4(monkeypatch):
@@ -572,14 +575,21 @@ def test_execution_tier1_golden_leads_with_gemma4(monkeypatch):
     monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_ESCALATION", raising=False)
     monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_TIERS", raising=False)
 
-    ov1 = execution_status.tier_constraint(1).to_overrides(default_model=QWEN_DEFAULT)
-    # The ladder rung really is free-only + excludes the registered default:
+    ov1 = execution_status.tier_constraint(1).to_overrides()
+    # The ladder rung really is free-only + drops whatever leads (no model id):
     assert ov1.allow_paid is False
     assert ov1.require_paid is False
-    assert ov1.exclude_models == frozenset({QWEN_DEFAULT})
+    assert ov1.exclude_leader is True
+    assert ov1.exclude_models == frozenset()
 
-    req = build_requirement("standard_generation", _cb(), exclude_models=ov1.exclude_models)
+    base = build_requirement("standard_generation", _cb())
     snap = _snapshot(model_ids=[QWEN, GEMMA4, GPT_OSS, LOCAL], paid_opt_in=False)
+    # PASS 1 (mirrors route_chat's two-pass exclude_leader translation): resolve
+    # who leads under the base requirement.
+    leader_chain = select(base, snap)
+    assert leader_chain.candidates[0].model_ref.model_id == QWEN_DEFAULT
+    # PASS 2: exclude exactly that leader.
+    req = replace(base, exclude_models=base.exclude_models | {QWEN_DEFAULT})
     chain = select(req, snap)
 
     # qwen excluded across the whole chain; leader is gemma-4 (was pinned gpt-oss),
@@ -595,7 +605,7 @@ def test_execution_tier2_golden_is_paid_only_leader_claude(monkeypatch):
     monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
     assert len(execution_status.model_tier_ladder()) == 3  # two free rungs + one paid rung
 
-    ov2 = execution_status.tier_constraint(2).to_overrides(QWEN_DEFAULT)
+    ov2 = execution_status.tier_constraint(2).to_overrides()
     assert ov2.allow_paid is True and ov2.require_paid is True
 
     req = build_requirement(
