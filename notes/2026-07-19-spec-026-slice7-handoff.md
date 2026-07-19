@@ -9,10 +9,38 @@
 |check|result|
 |-|-|
 |Manifest `owning_slice==7` rows|**0** (was 300)|
-|Full non-slow suite|**7035 passed, 17 skipped, 0 failed**|
+|Full non-slow suite|**7068 passed, 17 skipped, 0 failed**|
 |Real-call vision|**2/2** against live Dartmouth|
 |`git diff --check`|clean|
 |Pushed?|**No** — rebase onto `origin/main` at PR time only|
+
+> **This note originally declared completion PREMATURELY.** A maintainer review then
+> found six defects, two of them blockers, all confirmed and since fixed (see
+> "Review round 3" below). The zero-manifest-rows gate reported success while a whole
+> subsystem was unmigrated. Treat a green automated gate as necessary, never sufficient.
+
+## Review round 3 — six confirmed defects, all fixed
+
+|#|severity|defect|fix|
+|-|-|-|-|
+|F1|**blocker**|`ImagePart` validated the caller's *declared* width/height but never checked them against the encoded bytes. A real 2000×2000 PNG declared 1×1 was accepted, so `TOKENS_PER_IMAGE` bounded nothing and FR-003's cost reservation was fiction.|`73f2562d65` — dimensions parsed canonically from PNG/JPEG/WebP headers (no new hard dep), `from_bytes` constructor, declared-vs-parsed mismatch rejected, plus mime/content, empty-payload and pixel-count checks|
+|—|minor|F1's new `MAX_IMAGE_PIXELS = 2**21` made `TOKENS_PER_IMAGE`'s cited derivation (1536×1536 → 9 tiles) describe an input that can no longer exist|`2d057b53f3` — re-derived over ALL admissible shapes: max 9 tiles, reachable at 1025×1536 → 1615 ≤ 2048. Bound was always sound; only the documentation was wrong|
+|F2|**blocker**|The convergence review panel — the platform's largest LLM consumer — was never migrated. 11 `reviewspecs.py` builders defaulted `model: str = DEFAULT_MODEL`; `llm_reviewer` stored `self._model`; cache keys used the pin.|`71715c2ad7` — `model` channel removed from all builders/wiring, `LLMReviewer` carries `profile="deep_review"`, cache identity keys on profile + `selection_policy_version`, plus a propagation test asserting at `route_chat` across the thread pool|
+|F3|medium|`slash_command.py` still initialized `BackendName.DARTMOUTH` / `"unknown"`, fabricating a backend never contacted on the pre-response failure path|`c19c4c80ce` — nullable locals matching `agents/base.py`, tests at three distinct failure points|
+|F4|medium|AC4 recreated a hardcoded family allowlist under a new name, and the capability policy records *competence*, not cost|`2c5af124d6` — free/paid asserted from snapshot `Candidate.pricing.is_free`; unknown-priced never free; absent families never resurrected|
+|F5|medium|"Exact projections" asserted only `ids[:3]` plus membership — extra candidates, wrong ordering or duplicates would pass|`fc9c370d30` — complete ordered tuples per profile under paid-off and paid-on|
+|F6|low|`spec.md` still said "no other quality-bar change" immediately before documenting a new one; plan EOF whitespace|`e21d314f09` — all four sanctioned deltas enumerated|
+
+**Why the automated gate missed F2 — the transferable lesson.** The migration manifest scans for
+model-id string *literals*. `DEFAULT_MODEL` is a *symbol reference*, so the scan saw nothing while an
+entire subsystem stayed on the provisional profile. The Slice-7 design (§5.1) explicitly predicted
+this — "the manifest finds literals; it cannot see an interface that merely permits a pin" — and the
+gate was trusted anyway. **Grep for the symbols, not just the literals.** F2 also blocked Slice 8,
+which cannot delete `DEFAULT_MODEL` while anything imports it (nothing does now — verified).
+
+**Why my own F1 verification missed it.** I empirically checked that the token bound computed
+correctly using *honest* dimensions, which confirmed the arithmetic while never testing the trust
+boundary. Verifying that a bound is *computed* right is not verifying that it cannot be *evaded*.
 
 Design: [2026-07-19-issue-1242-slice7-design.md](2026-07-19-issue-1242-slice7-design.md) (rev 3).
 Plan: [2026-07-19-spec-026-slice7-plan.md](2026-07-19-spec-026-slice7-plan.md).
