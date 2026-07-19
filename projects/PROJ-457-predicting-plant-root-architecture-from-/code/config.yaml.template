@@ -1,28 +1,46 @@
-# Configuration for llmXive plant root architecture project
-# Template file for environment configuration management
-# Copy this file to config.yaml and fill in the values for your environment
+# Project Configuration for Predicting Plant Root Architecture
+# This is a template file. Copy to config.yaml and override values as needed.
+# The application loads defaults from here, then overrides with config.yaml if present.
 
-# Path to the root data directory
-# Expected to contain 'raw/' and 'processed/' subdirectories
+# --- Paths ---
+# DATA_PATH: Base directory for raw and processed data
 DATA_PATH: "data"
-
-# Directory for all output artifacts
 OUTPUT_PATH: "artifacts"
-
-# Directory for generated figures and plots
 FIGURES_PATH: "artifacts/plots"
-
-# Directory for generated reports
 REPORTS_PATH: "artifacts/reports"
-
-# Directory for trained models and model metadata
 MODELS_PATH: "artifacts/models"
+LOG_PATH: "logs"
 
-# Path to the log file relative to the project root
-LOG_FILE: "logs/pipeline.log"
-
-# Random seed for reproducibility in data splitting and model training
+# --- Reproducibility ---
+# SEED: Random seed for all stochastic processes
 SEED: 42
 
-# Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+# --- Logging ---
+# LOG_LEVEL: DEBUG, INFO, WARNING, ERROR, CRITICAL
 LOG_LEVEL: "INFO"
+
+# --- Thresholds & Constants ---
+# MIN_ROWS_PER_SPECIES: Minimum observations required to include a species
+MIN_ROWS_PER_SPECIES: 20
+
+# --- Literature Ranges (for Sensitivity Analysis FR-011) ---
+# Approximate physiological bounds for nutrient coefficients in root architecture models
+LITERATURE_RANGES:
+  phosphorus:
+    min: -0.5
+    max: 0.5
+    mean: 0.0
+  nitrogen:
+    min: -0.4
+    max: 0.4
+    mean: 0.0
+
+# --- Data Filtering ---
+# MANIPULATED_SOURCE_TYPES: Values in 'data_source_type' that indicate exclusion
+MANIPULATED_SOURCE_TYPES:
+  - "manipulated"
+  - "controlled"
+  - "nutrient_manipulation"
+  - "treatment"
+  - "fertilizer_treatment"
+  - "added_nutrients"

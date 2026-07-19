@@ -1,0 +1,44 @@
+# Contract Schema for Merged Root Phenotype Dataset
+# Validates the structure of the dataset produced by the US1 pipeline
+schema_name: merged_dataset_schema
+version: "1.0"
+description: |
+  Schema for the merged root phenotype and nutrient dataset.
+  Used by contract tests to validate data ingestion and preprocessing outputs.
+required_columns:
+  - name: species
+    type: string
+    description: Scientific name of the plant species
+    nullable: false
+  - name: root_length
+    type: float
+    description: Total root length (cm)
+    nullable: false
+  - name: branching_density
+    type: float
+    description: Number of branches per unit length
+    nullable: false
+  - name: surface_area
+    type: float
+    description: Total root surface area (cm^2)
+    nullable: false
+  - name: phosphorus
+    type: float
+    description: Phosphorus availability/concentration
+    nullable: false
+  - name: nitrogen
+    type: float
+    description: Nitrogen availability/concentration
+    nullable: false
+constraints:
+  min_rows_per_species: 20
+  no_null_predictors: true
+  source_types_allowed:
+    - "field"
+    - "natural"
+    - "observational"
+  source_types_excluded:
+    - "manipulated"
+    - "controlled"
+    - "nutrient_manipulation"
+    - "treatment"

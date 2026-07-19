@@ -1,1 +1,2 @@
-# Models directory - stores trained model artifacts
+# This file ensures the artifacts/models directory is tracked in git
+# Trained model files will be stored here

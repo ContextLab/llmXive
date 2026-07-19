@@ -1,3 +1,11 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory structure or the `logs/setup.log` file\
+    \ is provided; the claim lacks any artifact showing that `mkdir -p \u2026` was\
+    \ executed, that the directories exist, or that a timestamped success message\
+    \ was written. The implementer must supply the actual filesystem layout (e.g.,\
+    \ a directory listing) and the log file content."
 T004:
   c: false
   h: 279b47b8e5a8d8775611d97d9571dca9b03f6496d315db7bf32d89db3e6a9412
@@ -6,6 +14,58 @@ T004:
     The task explicitly calls for loading these values from `config.yaml`, which is
     absent. The implementation also contains a minor bug (uses `sys` without importing
     it), further indicating the artifact is not a complete, functional solution.
+T009:
+  c: false
+  h: c34e25651957f3dd04c4965f2df66ea458ebee99fa74765fb52262892f4601df
+  r: The repository contains `tests/contract/test_schemas.py`, but the required schema
+    file `contracts/dataset.schema.yaml` is absent, so the test cannot validate the
+    specified columns. Additionally, the provided snippet does not show the required
+    `test_merged_dataset_schema_validates_columns` function. Both the schema artifact
+    and the specific test are missing, so the task is not genuinely completed.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or configuration file was provided that actually inspects the\
+    \ PlantPheno dataset for `phosphorus` and `nitrogen` columns, raises the required\
+    \ `ValueError` when they are absent, or sets a global `p_n_available=True` flag\
+    \ when present. Without such artifacts, the task\u2019s acceptance criteria cannot\
+    \ be verified."
+T015:
+  c: false
+  h: 0d887ca4138aba13e76b166a957ab809bbcd0305f5350decc966212f3aa40899
+  r: "The `code/data_ingestion.py` file is incomplete (truncated and contains many\
+    \ placeholder `NotImplementedError` stubs, with no actual filtering, logging,\
+    \ or JSON\u2011writing logic). Additionally, the required output file `artifacts/reports/species_counts.json`\
+    \ does not exist. Both the functional implementation and the required artifact\
+    \ are missing."
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of an `artifacts/deviations.json` file was provided, nor any content\
+    \ showing that the required JSON object for FR\u2011002 was appended. Without\
+    \ the file or its contents, the task\u2019s requirement cannot be confirmed as\
+    \ satisfied."
+T015c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `artifacts/deviations.json` file or its contents were presented, so we cannot
+    confirm that the required JSON object was appended. The implementer must provide
+    the actual file with the specified entry.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or documentation showing that exclusion\u2011count\
+    \ logging has been added to T015 and T016 is present. The claim provides only\
+    \ a textual note, without any concrete artifact to verify the logging behavior.\
+    \ Consequently the required implementation evidence is missing."
+T020:
+  c: false
+  h: c34e25651957f3dd04c4965f2df66ea458ebee99fa74765fb52262892f4601df
+  r: The repository contains `tests/contract/test_schemas.py`, but the file is truncated
+    and does not show the required `test_model_metrics_schema_validates_fields` function,
+    and the referenced schema `contracts/model_results.schema.yaml` is absent. Without
+    the schema file and a visible test that validates the `lmm.adjusted_r_squared`
+    and `lmm.p_values` fields, the task is not satisfied.
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -22,6 +82,13 @@ T029:
     \ for both the LMM and RF models, nor the logic to compare the R\xB2 values and\
     \ set `success_criterion_met`. Without this artifact, the task requirements are\
     \ not met."
+T030:
+  c: false
+  h: c34e25651957f3dd04c4965f2df66ea458ebee99fa74765fb52262892f4601df
+  r: The repository contains a `tests/contract/test_schemas.py` file, but the required
+    `test_final_report_schema_validates_structure` function is not present in the
+    shown excerpt, and the referenced schema file `contracts/output.schema.yaml` does
+    not exist, so the test cannot actually validate the report schema structure.
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,37 +1,40 @@
 # Project Configuration for Predicting Plant Root Architecture
-# This file is loaded by code/config.py via get_config()
+# This file overrides defaults in code/config.py
 
-# Data paths relative to project root
-DATA_PATH: data
+# Paths relative to project root
+DATA_PATH: "data"
+OUTPUT_PATH: "artifacts"
+FIGURES_PATH: "artifacts/plots"
+REPORTS_PATH: "artifacts/reports"
+MODELS_PATH: "artifacts/models"
+LOG_PATH: "logs"
 
 # Random seed for reproducibility
 SEED: 42
 
 # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
-LOG_LEVEL: INFO
+LOG_LEVEL: "INFO"
 
-# Model hyperparameters (defaults, can be overridden)
-MODEL:
-  LMM:
-    REML: true
-    method: 'Satterthwaite'
-  RF:
-    max_depth: 5
-    n_estimators: 100
+# Thresholds and Constants
+MIN_ROWS_PER_SPECIES: 20
 
-# Preprocessing settings
-PREPROCESSING:
-  KNN_K: 5
-  LOG_TRANSFORM: true
-  ZSCORE_NORMALIZE: true
+# Literature ranges for sensitivity analysis (FR-011)
+# These are approximate physiological bounds for nutrient coefficients
+LITERATURE_RANGES:
+  phosphorus:
+    min: -0.5
+    max: 0.5
+    mean: 0.0
+  nitrogen:
+    min: -0.4
+    max: 0.4
+    mean: 0.0
 
-# Validation thresholds
-VALIDATION:
-  MIN_SPECIES_COUNT: 20
-  MAX_MISSING_NUTRIENTS: 0.5
-  MERGE_SUCCESS_THRESHOLD: 0.95
-
-# Output settings
-OUTPUT:
-  FIGURE_DPI: 150
-  MAX_REPORT_SIZE_MB: 100
+# Data source types to exclude (manipulated/controlled conditions)
+MANIPULATED_SOURCE_TYPES:
+  - "manipulated"
+  - "controlled"
+  - "nutrient_manipulation"
+  - "treatment"
+  - "fertilizer_treatment"
+  - "added_nutrients"

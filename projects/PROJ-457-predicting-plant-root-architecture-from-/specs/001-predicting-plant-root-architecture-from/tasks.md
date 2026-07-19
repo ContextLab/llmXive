@@ -43,8 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `code/`, `tests/`, `data/raw/`, `data/processed/`, `artifacts/`, `artifacts/models/`, `artifacts/plots/`, `artifacts/reports/`. **Deliverable**: Run `ls -R` to verify directory creation and output the listing.
-- [X] T002 Initialize Python 3.11+ project: Create `code/requirements.txt` with dependencies `pandas`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `pyyaml`, `geopandas`, `soilgrids`, `rasterio` and run `pip install -r code/requirements.txt`, then pin versions via `pip freeze > code/requirements.txt`
+- [ ] T001 Create project structure per implementation plan: `code/`, `tests/`, `data/raw/`, `data/processed/`, `artifacts/`, `artifacts/models/`, `artifacts/plots/`, `artifacts/reports/`, and `logs/`. **Deliverable**: Execute `mkdir -p code/ tests/ data/raw data/processed artifacts/models artifacts/plots artifacts/reports logs` and verify all directories exist. Write a success confirmation message with timestamp to `logs/setup.log`. **Constraint**: Ensure `logs/` directory is created as it is required for T015 logging.
+- [X] T002 Initialize Python 3.11+ project: Create `code/requirements.txt` with dependencies `pandas`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `pyyaml`, `geopandas` and run `pip install -r code/requirements.txt`, then pin versions via `pip freeze > code/requirements.txt`. **Note**: Removed `soilgrids` and `rasterio` as ISRIC merge is excluded per Plan. <!-- FAILED: unspecified -->
 - [X] T003 [P] Configure linting (flake8/black): Create `.flake8` and `pyproject.toml` with black/flake8 settings and run `black --check code/`
 
 ---
@@ -66,7 +66,7 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest root phenotype data from RootReader/PlantPheno and soil nutrient data from ISRIC, filter for valid observations (n≥20 per species), merge with spatial interpolation, and produce a cleaned, merged dataset.
+**Goal**: Ingest root phenotype data from PlantPheno, check for nutrient columns, filter for valid observations (n≥20 per species, no missing P/N), and produce a cleaned, merged dataset. **Note**: Per Plan "Spec Deviation", ISRIC merging is excluded; missing nutrients are excluded, not imputed.
 
 **Independent Test**: The pipeline can be fully tested by running the data ingestion script on a sample subset and verifying the output CSV contains the required columns (species, root_length, branching_density, surface_area, phosphorus, nitrogen) with no null values in the predictor columns and at least 20 rows per species.
 
@@ -74,33 +74,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_schemas.py` - *Prerequisite: T007 (Schema Definition)*
-- [X] T010 [P] [US1] Unit test for KNN imputation logic (k=5, Euclidean) in `tests/unit/test_preprocessing.py`
-- [X] T011 [P] [US1] Unit test for log-transformation handling of zeros/negatives in `tests/unit/test_preprocessing.py`
+- [ ] T009 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_schemas.py` - **Function**: `test_merged_dataset_schema_validates_columns` - Validates `contracts/dataset.schema.yaml` columns (species, root_length, branching_density, surface_area, phosphorus, nitrogen). *Prerequisite: T007 (Schema Definition)*
+- [X] T010 [P] [US1] Unit test for log-transformation handling of zeros/negatives in `tests/unit/test_preprocessing.py`
 - [X] T012 [US1] Integration test for full ingestion pipeline end-to-end in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [X] T013 [P] [US1] Implement `code/data_ingestion.py` to download/parse RootReader and PlantPheno data (FR-001)
- - **Constraint**: Use `datasets.load_dataset` with `streaming=True` if dataset is large; otherwise use direct URL fetch.
- - **Constraint**: MUST fail loudly (raise Exception) if real data fetch fails; NO synthetic fallback.
-- [X] T014 [P] [US1] Implement `code/data_ingestion.py` logic to fetch ISRIC soil data automatically via `soilgrids` package and handle missing coordinates via nearest neighbor interpolation within a defined spatial radius using `geopandas` (FR-002, FR-012)
- - **Constraint**: Use `soilgrids` package for automated fetching. **Note**: The plan.md statement "ISRIC data requires manual provision" contradicts FR-002/FR-012; this task MUST implement automated fetching to satisfy the spec.
- - **Constraint**: Implement spatial join logic with a strict 10km radius as defined in FR-002.
- - **Constraint**: Log exclusion method if interpolation fails.
- - **Constraint**: NO user-provided file fallback; automated fetching is required for reproducibility.
- - **Research Question**: "How do soil phosphorus and nitrogen levels associate with root architectural traits across species?"
- - **Method**: "Nearest neighbor interpolation within 10km radius using `geopandas`."
- - **References**: "Hengl et al. (2017) [doi:/sdata.2017.62]."
-- [X] T015 [US1] Implement filtering logic in `code/data_ingestion.py` to exclude species with n<20 AND exclude rows where `data_source_type` is 'experimental' or 'controlled' (FR-001, FR-012)
- - **Constraint**: **Data Source Type Detection**: Implement logic to detect `data_source_type` column. If missing, check for known aliases (e.g., `source_type`, `experiment_type`, `data_origin`). Raise a clear `ValueError` if no matching column is found after checking aliases.
- - **Constraint**: **Exclusion Logic**: Filter out rows where the detected column value is in `['experimental', 'controlled', 'manipulated']`.
- - **Constraint**: **Logging**: Log the exact count of rows excluded due to `data_source_type` and the specific method used for detection. Log exclusion counts for species < 20 and missing nutrients.
- - **Constraint**: Verify the exclusion logic was executed by checking the row count difference before and after filtering.
-- [X] T019 [US1] Add logging for exclusion counts (species < 20, missing nutrients, experimental data) and transformation steps - *Prerequisite: T015*
-- [X] T018 [US1] Merge root and soil datasets in `code/data_ingestion.py` ensuring no data leakage (species-level integrity) - *Prerequisite: T013, T014, T015*
-- [X] T016 [US1] Implement `code/preprocessing.py` for log-transformation of root metrics and z-score normalization (global, across all species) of nutrients (FR-003, Const VII) - *Prerequisite: T018*
-- [X] T017 [US1] Implement `code/preprocessing.py` KNN imputation (k=5, Euclidean, numeric only) with mean fallback (FR-003) - *Prerequisite: T018*
+- [X] T013 [US1] Implement `code/data_ingestion.py` to download/parse RootReader and PlantPheno data (FR-001). **Function Signatures**: `fetch_plantpheno() -> pd.DataFrame`, `fetch_rootreader() -> pd.DataFrame`, `parse_rootreader(df: pd.DataFrame) -> pd.DataFrame`. **Constraint**: Use `datasets.load_dataset` with `streaming=True` if dataset is large; otherwise use direct URL fetch. **Constraint**: MUST fail loudly (raise Exception) if real data fetch fails; NO synthetic fallback. **Constraint**: If RootReader source is unverified or missing, proceed with PlantPheno only and log a warning. <!-- FAILED: unspecified -->
+- [ ] T014 [US1] Check for Phosphorus/Nitrogen columns in PlantPheno data. **Action**: Verify existence of columns `phosphorus` and `nitrogen` (or aliases). **Constraint**: If missing, **raise a `ValueError`** with message "Critical: P/N columns missing. Cannot proceed. Spec Deviation required." Do NOT proceed with 'root metrics only' as this violates US-1 acceptance criteria. **Constraint**: If P/N columns exist, set a flag `p_n_available=True` in the global config/state and proceed to T015.
+- [ ] T015 [US1] Implement filtering logic in `code/data_ingestion.py` to exclude species with n<20 AND exclude rows where `data_source_type` indicates 'manipulated' or 'controlled' nutrient conditions (FR-001, FR-012). **Prerequisite**: T014. **Constraint**: **Data Source Type Detection**: Implement logic to detect `data_source_type` column. If missing, check for known aliases (e.g., `source_type`, `experiment_type`, `data_origin`). Raise a clear `ValueError` if no matching column is found after checking aliases. **Constraint**: **Exclusion Logic**: Filter out rows where the detected column value is in `['manipulated', 'controlled', 'nutrient_manipulation', 'treatment']`. **Do NOT** exclude rows simply labeled 'experimental' unless they imply manipulation. **Constraint**: **Missing Nutrient Exclusion**: If `p_n_available` is True, also exclude rows where Phosphorus or Nitrogen values are missing (NaN). **Do NOT impute**. **Constraint**: **Logging**: Log the exact count of rows excluded due to `data_source_type`, missing nutrients, and species < 20 directly within this function. **Constraint**: **Output**: Write a JSON file `artifacts/reports/species_counts.json` containing keys: `total_species_input` (integer), `excluded_species_count` (integer), `excluded_species_list` (list of species names). This file is required for T035b.
+- [ ] T015b [US1] Record Spec Deviation FR-002 (ISRIC Merge Exclusion) in `artifacts/deviations.json`. **Constraint**: Append a JSON object `{"fr_id": "FR-002", "deviation": "ISRIC merge excluded due to lack of verified source; proceeding with PlantPheno only.", "impact": "SC-001 metric redefined as P/N Availability Rate"}` to the list in `artifacts/deviations.json`. **Prerequisite**: T015.
+- [ ] T015c [US1] Record Spec Deviation FR-003 (KNN Imputation Exclusion) in `artifacts/deviations.json`. **Constraint**: Append a JSON object `{"fr_id": "FR-003", "deviation": "KNN imputation excluded to preserve statistical validity; missing nutrients are excluded.", "impact": "Data reduction, not imputation"}` to the list in `artifacts/deviations.json`. **Prerequisite**: T015.
+- [X] T016 [US1] Implement `code/preprocessing.py` for log-transformation of root metrics and z-score normalization (global, across all species) of nutrients (FR-003, Const VII). **Prerequisite**: T014, T015. **Constraint**: **Order of Operations**: Normalize nutrients ONLY after T015 has excluded rows with missing nutrients. **Constraint**: **Conditional Execution**: If `p_n_available` is False (should not happen per T014), skip nutrient normalization but still perform root log-transform. If `p_n_available` is True, calculate z-score on the *remaining* valid rows (after T015 exclusion) and apply.
+- [ ] T019 [US1] **REMOVED**: Logging for exclusion counts is now embedded within T015 and T016.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -114,13 +100,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Contract test for model output schema (R², p-values) in `tests/contract/test_schemas.py`
+- [ ] T020 [P] [US2] Contract test for model output schema (R², p-values) in `tests/contract/test_schemas.py` - **Function**: `test_model_metrics_schema_validates_fields` - Validates `contracts/model_results.schema.yaml` fields (lmm.adjusted_r_squared, lmm.p_values, etc.).
 - [X] T021 [P] [US2] Unit test for species-level stratified split logic in `tests/unit/test_preprocessing.py`
 - [X] T022 [US2] Integration test for model training and evaluation pipeline in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [X] T023 [US2] Implement `code/modeling.py` to perform k-fold cross-validation split strictly by species (FR-006) - *Prerequisite: T018 (US1 output)*
+- [X] T023 [US2] Implement `code/modeling.py` to perform k-fold cross-validation split strictly by species (FR-006) - *Prerequisite: T016 (US1 output)*
  - **Constraint**: Use `GroupKFold` from `scikit-learn` with `groups=species`.
 - [X] T024 [US2] Implement LMM fitting in `code/modeling.py` using `statsmodels` (REML, Satterthwaite p-values, species as random intercept) (FR-004)
  - **Constraint**: Ensure CPU-only execution (no GPU); use REML estimation.
@@ -128,13 +114,8 @@
  - **Constraint**: Ensure CPU-only execution; limit `n_estimators` to ensure runtime < 6h.
 - [X] T026 [US2] Implement F-test for overall model significance and coefficient p-values in `code/modeling.py` (FR-008)
 - [X] T027 [US2] Implement multiple-comparison correction (Bonferroni or FDR) for hypothesis testing in `code/modeling.py` (FR-010)
-- [X] T028 [US2] Implement sensitivity analysis of nutrient coefficients against literature ranges (FR-011)
- - **Constraint**: Use physiological ranges defined in `code/config.py` (hardcoded from literature).
- - **Constraint**: **Output**: Generate `artifacts/reports/sensitivity.csv` containing percent deviation from literature mean for each coefficient. This file MUST exist and be non-empty.
-- [X] T029 [US2] Generate output JSON with adjusted R², RMSE, p-values, and cross-validation mean R² for both models; include logic to calculate R² difference (LMM - RF), evaluate against a predetermined threshold, set `sc002_status` to "PASS" or "FAIL", and update final report artifacts (FR-004, FR-005, FR-006, SC-002) - *Prerequisite: T023, T024, T025, T028*
- - **Constraint**: Explicitly flag success/failure of SC-002 in the output artifact.
- - **Constraint**: Calculate `r2_delta` and `sc002_status` internally before writing the JSON. The JSON MUST contain a key `sc002_status` with value "PASS" or "FAIL".
- - **Constraint**: Ensure the output JSON is written to `artifacts/reports/model_metrics.json`.
+- [X] T028 [US2] Implement sensitivity analysis of nutrient coefficients against literature ranges (FR-011). **Output**: Generate `artifacts/sensitivity/sensitivity_analysis.json`. **Required Keys**: `percent_deviation` (float), `literature_mean` (float), `observed_coefficient` (float), `confidence_interval` (list of 2 floats), `literature_overlap` (boolean). **Constraint**: Use physiological ranges defined in `code/config.py` (hardcoded from literature). **Prerequisite**: T024.
+- [ ] T029 [US2] Generate output JSON with adjusted R², RMSE, p-values, and cross-validation mean R² for both models; include logic to calculate R² difference (LMM - RF) and report raw values (FR-004, FR-005, FR-006, SC-002). **Prerequisite**: T023, T024, T025, T028. **Constraint**: Consume `artifacts/sensitivity/sensitivity_analysis.json` (from T028) and merge results into `artifacts/reports/model_metrics.json`. The final JSON must contain both model metrics and sensitivity findings. **Constraint**: Do NOT invent a `sc002_status` flag. Only report the calculated R² difference and the raw R² values. **Constraint**: Ensure the output JSON is written to `artifacts/reports/model_metrics.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -148,22 +129,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T030 [P] [US3] Contract test for report schema in `tests/contract/test_schemas.py`
+- [ ] T030 [P] [US3] Contract test for report schema in `tests/contract/test_schemas.py` - **Function**: `test_final_report_schema_validates_structure` - Validates `contracts/output.schema.yaml` structure (tables, metrics, deviations).
 - [X] T031 [P] [US3] Unit test for file size constraint enforcement in `tests/unit/test_reporting.py`
 
 ### Implementation for User Story 3
 
-- [X] T032 [P] [US3] Implement `code/visualization.py` to generate partial dependence plots (wide percentile range) for nutrient-architecture relationships (FR-007)
+- [ ] T032 [P] [US3] Implement `code/visualization.py` to generate partial dependence plots (wide percentile range) for nutrient-architecture relationships (FR-007)
  - **Constraint**: Use `seaborn` or `matplotlib`; range of a broad central percentile distribution.
-- [X] T033 [US3] Implement `code/visualization.py` to save figures as PNGs, enforcing total size ≤100MB (FR-007, SC-004)
+- [ ] T033 [US3] Implement `code/visualization.py` to save figures as PNGs, enforcing total size ≤100MB (FR-007, SC-004)
  - **Constraint**: Compress images or reduce DPI if size exceeds limit; log final size.
-- [X] T034 [US3] Implement `code/reporting.py` to compile final report including R², p-values, plots, and associational framing (FR-009)
- - **Constraint**: Explicitly state "associational" not "causal".
-- [X] T035 [US3] Implement `code/reporting.py` to document excluded species and data coverage metrics (SC-001, SC-005)
- - **Constraint**: Calculate merge success rate (merged_count / total_available) and write to `artifacts/reports/metrics.json` under key `merge_success_rate`.
-- [X] T036 [US3] Verify biological plausibility of coefficients against literature in final report (FR-011, SC-006)
- - **Constraint**: **Output**: Include a Markdown table in the final report comparing coefficients to literature ranges. This table MUST be generated from `artifacts/reports/sensitivity.csv` (created in T028) and `code/config.py`.
- - **Constraint**: Ensure the report explicitly states whether coefficients fall within the expected physiological ranges.
+- [ ] T034 [US3] Implement `code/reporting.py` to compile final report including R², p-values, plots, and associational framing (FR-009). **Prerequisite**: T029, T032, T033. **Constraint**: Explicitly state "associational" not "causal". **Constraint**: Read `artifacts/deviations.json` (from T015b/c) and include the list of deviations in the report. **Constraint**: Read `artifacts/reports/model_metrics.json` (from T029) and include the calculated metrics. **Constraint**: Read `artifacts/reports/metrics.json` (from T035a/b) and include the redefined success criteria.
+- [ ] T035a [US3] Calculate 'P/N Availability Rate' (rows with P/N / total rows) as a redefinition of SC-001 due to ISRIC exclusion. Write result to `artifacts/reports/metrics.json`. **Constraint**: **Denominator**: Total rows in raw PlantPheno dataset. **Constraint**: **Output**: Write the calculated rate to `artifacts/reports/metrics.json` under key `pn_availability_rate` and include a note `original_sc001_metric: merge_success_rate (unavailable due to scope deviation)`. **Constraint**: Explicitly state in the JSON that this metric replaces SC-001 due to the exclusion of ISRIC merge. **Prerequisite**: T015.
+- [ ] T035b [US3] Calculate SC-005 ratio (number of species excluded due to n < 20 / total number of species in input) and write to `artifacts/reports/metrics.json`. **Constraint**: **Input**: Read `artifacts/reports/species_counts.json` (from T015) to get `total_species_input` and `excluded_species_count`. **Constraint**: **Output**: Write the calculated ratio to `artifacts/reports/metrics.json` under key `species_exclusion_ratio`. **Prerequisite**: T015, T035a.
+- [ ] T036 [US3] Verify biological plausibility of coefficients against literature in final report (FR-011, SC-006). **Constraint**: **Input**: Read `artifacts/reports/metrics.json` (from T035a/b) and `artifacts/sensitivity/sensitivity_analysis.json` (from T028). **Constraint**: **Output**: Include a Markdown table in the final report comparing coefficients to literature ranges. This table MUST be generated from the JSON files. **Constraint**: Ensure the report explicitly states whether coefficients fall within the expected physiological ranges.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -171,13 +149,11 @@
 
 ## Phase N: Polish & Cross-Cutting Concerns
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Improvements that affect multiple user stories (Plan-mandated)
 
-- [ ] T037 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T038 Code cleanup and refactoring (ensure PEP8 compliance)
-- [ ] T039 Performance optimization (ensure execution ≤ 6 hours, RAM ≤ 6GB)
-- [ ] T040 [P] Additional unit tests for edge cases (zero values, missing coords) in `tests/unit/`
-- [ ] T041 Run `quickstart.md` validation to ensure reproducibility
+- [ ] T037 [P] Update State File: Calculate content hashes for all artifacts in `artifacts/` and update the state file with these hashes (Constitution Principle V, Plan Task 4.3). **Action**: Run `find artifacts/ -type f -exec sha256sum {} \;` and write the output to `state/projects/PROJ-457-predicting-plant-root-architecture-from-.yaml` under `artifact_hashes`. **Constraint**: Ensure the state file is updated with the new timestamp.
+- [ ] T038 Update `README.md` and `docs/` with final results, including the `literature_comparison` findings and the `spec_deviations` list (Plan Task 4.4).
+- [ ] T039 Run `quickstart.md` validation to ensure reproducibility (Plan Task 4.1).
 
 ---
 
@@ -222,10 +198,10 @@
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Contract test for merged dataset schema in tests/contract/test_schemas.py"
-Task: "Unit test for KNN imputation logic in tests/unit/test_preprocessing.py"
+Task: "Unit test for log-transformation handling in tests/unit/test_preprocessing.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement data_ingestion.py to download/parse RootReader and PlantPheno data"
+Task: "Implement data_ingestion.py to download/parse PlantPheno data"
 Task: "Implement preprocessing.py for log-transformation and z-score normalization"
 ```
 
@@ -271,6 +247,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint Check**: All tasks designed for CPU-only (a limited number of cores, 7GB RAM), no GPU, ≤6h runtime. No 8-bit/4-bit quantization or large model training.
+- **Constraint Check**: All tasks designed for CPU-only (a limited number of cores, limited RAM), no GPU, ≤6h runtime. No 8-bit/4-bit quantization or large model training.
 - **Data Integrity**: All data loaders MUST fail loudly on fetch error; no synthetic fallbacks.
 - **Streaming**: Large datasets MUST be streamed or sampled explicitly; no synthetic stand-ins.
+- **Spec Deviation**: ISRIC merge and KNN imputation are excluded per Plan. Missing nutrients are excluded.
+- **State Transfer**: Deviations and metrics are written to persistent JSON files (`artifacts/deviations.json`, `artifacts/reports/metrics.json`) to ensure deterministic consumption by the reporting phase.

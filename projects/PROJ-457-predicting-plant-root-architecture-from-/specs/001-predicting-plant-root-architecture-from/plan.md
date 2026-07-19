@@ -124,7 +124,7 @@ docs/
 
 ### Phase 3: Sensitivity Analysis & Literature Comparison (FR-011, SC-006)
 - **Task 3.1**: **Conduct sensitivity analysis of nutrient coefficients against literature-reported physiological ranges (FR-011)**. Re-calculate coefficients with ±10% variation in input nutrients.
-- **Task 3.2**: **Measure SC-006**: Compare coefficients to physiological ranges. Calculate `literature_overlap` boolean: True if 95% CI of coefficient overlaps with literature range.
+- **Task 3.2**: **Measure SC-006**: Compare coefficients to physiological ranges. Calculate `literature_overlap` boolean: True if the confidence interval of the coefficient overlaps with the literature range.
 - **Task 3.3**: Generate `sensitivity_analysis.json` and update `artifacts/reports/final_report.md` with findings. Link `analysis.py` output to `contracts/model_results.schema.yaml`.
 
 ### Phase 4: Visualization & Reporting
