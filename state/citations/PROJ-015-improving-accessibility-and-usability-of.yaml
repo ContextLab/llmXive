@@ -20,3 +20,14 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1016/S0166-3615
   verified_at: '2026-07-04T09:03:41.721856Z'
+- artifact_hash: 138e67e345f12577b9e22523595198f948deb88a086e01adbe013c15d2942927
+  artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-07-19T13:13:06.366158Z'

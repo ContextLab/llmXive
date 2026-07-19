@@ -1,245 +1,245 @@
 """
-ExplainableInterface renderer for the gene regulation usability study.
+Explainable Interface Renderer for the XAI Accessibility Study.
 
-Implements rule-based XAI overlay logic to visualize decision factors
-during task execution. This renderer extends the TraditionalInterface
-by adding overlay elements based on task difficulty and model confidence.
+This module implements the `ExplainableInterface` class, which renders a
+traditional gene regulation task interface augmented with XAI overlays.
+It adheres to the schema defined in `contracts/session.schema.yaml` for
+data logging and integrates with the `XAIOverlayGenerator` for dynamic
+explanation rendering.
+
+Key Features:
+- Renders UI elements (genes, regulators) with visual overlays.
+- Tracks user interaction time for explanation engagement.
+- Provides a deterministic state for simulation and real-time interaction.
 """
+
 import json
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, asdict
 from pathlib import Path
+from datetime import datetime
+import random
 
-# Import from project API surface
 from utils.logger import get_logger
 from utils.seed import set_seed, seeded_generator
-from config.settings import get_settings
+from simulator.xai_generator import XAIOverlayGenerator
 
 logger = get_logger(__name__)
-
 
 @dataclass
 class XAIOverlay:
     """Represents a single XAI overlay element."""
     element_id: str
-    type: str  # 'heatmap', 'bar', 'text', 'highlight'
-    position: Tuple[float, float]  # (x, y) normalized 0-1
-    size: Tuple[float, float]  # (width, height) normalized
-    opacity: float  # 0.0 to 1.0
-    color: str  # Hex color code
-    label: str
-    value: float
-    confidence: float
-    rule_applied: str
+    type: str  # e.g., 'heatmap', 'feature_importance', 'counterfactual'
+    intensity: float  # 0.0 to 1.0
+    explanation_text: str
+    position: Dict[str, float]  # {'x': 0.5, 'y': 0.5} relative to element
 
 @dataclass
 class ExplainableInterfaceState:
-    """State of the explainable interface for a given task."""
+    """Tracks the state of the explainable interface during a session."""
     session_id: str
-    task_id: str
+    participant_id: str
     interface_type: str = "explainable"
-    overlays: List[XAIOverlay] = None
-    base_task_difficulty: float = 0.0
-    model_confidence: float = 0.0
-    explanation_generated: bool = False
+    sequence: str = "traditional_explainable"
+    current_task_id: int = 0
+    overlays_active: List[XAIOverlay] = None
+    explanation_engagement_start: Optional[datetime] = None
+    explanation_engagement_end: Optional[datetime] = None
+    explanation_engagement_time_seconds: float = 0.0
+    total_interaction_time_seconds: float = 0.0
+    errors: List[Dict[str, Any]] = None
+    completed: bool = False
 
     def __post_init__(self):
-        if self.overlays is None:
-            self.overlays = []
+        if self.overlays_active is None:
+            self.overlays_active = []
+        if self.errors is None:
+            self.errors = []
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert state to a dictionary for logging."""
+        return {
+            "session_id": self.session_id,
+            "participant_id": self.participant_id,
+            "interface_type": self.interface_type,
+            "sequence": self.sequence,
+            "current_task_id": self.current_task_id,
+            "overlays_active": [asdict(o) for o in self.overlays_active],
+            "explanation_engagement_time_seconds": self.explanation_engagement_time_seconds,
+            "total_interaction_time_seconds": self.total_interaction_time_seconds,
+            "errors": self.errors,
+            "completed": self.completed
+        }
 
 class ExplainableInterface:
     """
-    Renderer for the Explainable Interface variant with XAI overlays.
-    
-    This class generates UI states that include rule-based XAI overlays
-    based on task difficulty and simulated model confidence.
-    
-    Rules:
-    - Low difficulty (< 0.3): Simple text explanation, low opacity
-    - Medium difficulty (0.3 - 0.7): Heatmap + text, medium opacity
-    - High difficulty (> 0.7): Full heatmap + confidence bars + detailed text
+    Renders the Explainable Interface with XAI overlays.
+
+    This class manages the rendering logic for the explainable variant of the
+    gene regulation task. It integrates with the XAI generator to produce
+    deterministic overlays based on task difficulty and tracks user engagement
+    with these explanations.
     """
 
-    def __init__(self, seed: Optional[int] = None):
+    def __init__(self, session_id: str, participant_id: str, seed: int = 42):
         """
-        Initialize the ExplainableInterface.
-        
+        Initialize the Explainable Interface.
+
         Args:
-            seed: Optional random seed for reproducibility.
+            session_id: Unique identifier for the session.
+            participant_id: Unique identifier for the participant.
+            seed: Random seed for deterministic behavior in simulation.
         """
-        self.seed = seed if seed is not None else get_settings().random_seed
-        set_seed(self.seed)
-        self.generator = seeded_generator(self.seed)
-        logger.info(f"Initialized ExplainableInterface with seed={self.seed}")
-
-    def _calculate_overlay_opacity(self, difficulty: float, confidence: float) -> float:
-        """
-        Calculate overlay opacity based on task difficulty and model confidence.
+        self.session_id = session_id
+        self.participant_id = participant_id
+        self.seed = seed
+        set_seed(seed)
         
-        Rule: Higher difficulty and lower confidence -> higher opacity to draw attention.
-        """
-        base_opacity = 0.3
-        difficulty_factor = difficulty * 0.4
-        confidence_factor = (1.0 - confidence) * 0.3
-        opacity = min(1.0, base_opacity + difficulty_factor + confidence_factor)
-        return round(opacity, 2)
-
-    def _generate_heatmap_overlay(self, task_id: str, difficulty: float, confidence: float) -> XAIOverlay:
-        """Generate a heatmap overlay element."""
-        opacity = self._calculate_overlay_opacity(difficulty, confidence)
-        # Position based on task ID hash for determinism
-        pos_x = (hash(task_id) % 100) / 100.0
-        pos_y = (hash(task_id + "y") % 100) / 100.0
-        
-        return XAIOverlay(
-            element_id=f"heatmap_{task_id}",
-            type="heatmap",
-            position=(pos_x, pos_y),
-            size=(0.4, 0.4),
-            opacity=opacity,
-            color="#FF5733" if difficulty > 0.5 else "#33FF57",
-            label="Key Decision Factors",
-            value=difficulty,
-            confidence=confidence,
-            rule_applied="difficulty_heatmap"
-        )
-
-    def _generate_confidence_bar(self, task_id: str, confidence: float) -> XAIOverlay:
-        """Generate a confidence bar overlay element."""
-        return XAIOverlay(
-            element_id=f"conf_bar_{task_id}",
-            type="bar",
-            position=(0.1, 0.85),
-            size=(0.3, 0.1),
-            opacity=0.8,
-            color="#3366FF",
-            label=f"Model Confidence: {confidence:.1%}",
-            value=confidence,
-            confidence=confidence,
-            rule_applied="confidence_display"
-        )
-
-    def _generate_text_explanation(self, task_id: str, difficulty: float, confidence: float) -> XAIOverlay:
-        """Generate a text explanation overlay element."""
-        if difficulty < 0.3:
-            text = "Simple task. Primary factor: Base gene expression."
-        elif difficulty < 0.7:
-            text = "Moderate complexity. Consider interaction effects between gene A and B."
-        else:
-            text = "High complexity. Multiple regulatory pathways active. Review all confidence scores."
-        
-        return XAIOverlay(
-            element_id=f"text_{task_id}",
-            type="text",
-            position=(0.1, 0.1),
-            size=(0.8, 0.15),
-            opacity=0.9,
-            color="#000000",
-            label=text,
-            value=difficulty,
-            confidence=confidence,
-            rule_applied="text_explanation_by_difficulty"
-        )
-
-    def render_task(self, session_id: str, task_id: str, difficulty: float, confidence: float) -> Dict[str, Any]:
-        """
-        Render the explainable interface for a specific task.
-        
-        Args:
-            session_id: The current session identifier.
-            task_id: The specific task identifier.
-            difficulty: Task difficulty score (0.0 to 1.0).
-            confidence: Model confidence score (0.0 to 1.0).
-        
-        Returns:
-            A dictionary representing the rendered UI state with XAI overlays.
-        """
-        # Validate inputs
-        if not 0.0 <= difficulty <= 1.0:
-            raise ValueError(f"Difficulty must be between 0.0 and 1.0, got {difficulty}")
-        if not 0.0 <= confidence <= 1.0:
-            raise ValueError(f"Confidence must be between 0.0 and 1.0, got {confidence}")
-
-        logger.debug(f"Rendering explainable interface for session={session_id}, task={task_id}")
-
-        overlays: List[XAIOverlay] = []
-        
-        # Always add text explanation
-        overlays.append(self._generate_text_explanation(task_id, difficulty, confidence))
-        
-        # Add heatmap for medium/high difficulty
-        if difficulty >= 0.3:
-            overlays.append(self._generate_heatmap_overlay(task_id, difficulty, confidence))
-        
-        # Add confidence bar for all tasks
-        overlays.append(self._generate_confidence_bar(task_id, confidence))
-
-        state = ExplainableInterfaceState(
+        self.state = ExplainableInterfaceState(
             session_id=session_id,
-            task_id=task_id,
-            base_task_difficulty=difficulty,
-            model_confidence=confidence,
-            overlays=overlays,
-            explanation_generated=True
+            participant_id=participant_id,
+            interface_type="explainable",
+            sequence="explainable_traditional" # Default, can be overridden
         )
-
-        # Convert to dictionary for serialization
-        result = asdict(state)
-        logger.info(f"Rendered explainable interface with {len(overlays)} overlays")
-        return result
-
-    def get_interface_metadata(self) -> Dict[str, Any]:
-        """
-        Get metadata about the explainable interface implementation.
         
+        self.xai_generator = XAIOverlayGenerator(seed=seed)
+        self.logger = get_logger(__name__)
+
+    def render_task(self, task_config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Render a task with XAI overlays.
+
+        Args:
+            task_config: Dictionary containing task parameters (difficulty, genes, etc.)
+
         Returns:
-            Dictionary containing interface type and rule descriptions.
+            Dictionary containing the rendered UI state and active overlays.
+        """
+        if not task_config:
+            raise ValueError("Task configuration cannot be empty.")
+
+        self.state.current_task_id = task_config.get("task_id", 0)
+        
+        # Generate XAI overlays based on task difficulty
+        overlays = self.xai_generator.generate_overlays(task_config)
+        self.state.overlays_active = [XAIOverlay(**o) if isinstance(o, dict) else o for o in overlays]
+        
+        # Log engagement start
+        self.state.explanation_engagement_start = datetime.now()
+        
+        return {
+            "task_id": self.state.current_task_id,
+            "interface_type": "explainable",
+            "elements": task_config.get("elements", []),
+            "overlays": [asdict(o) for o in self.state.overlays_active],
+            "status": "active"
+        }
+
+    def record_interaction(self, action: str, details: Dict[str, Any] = None):
+        """
+        Record a user interaction.
+
+        Args:
+            action: The type of action (e.g., 'click', 'hover', 'submit').
+            details: Additional details about the action.
+        """
+        if details is None:
+            details = {}
+        
+        timestamp = datetime.now()
+        
+        # Calculate engagement time if an explanation was viewed
+        if self.state.explanation_engagement_start and action in ['submit', 'next_task']:
+            self.state.explanation_engagement_end = timestamp
+            engagement_duration = (self.state.explanation_engagement_end - self.state.explanation_engagement_start).total_seconds()
+            self.state.explanation_engagement_time_seconds += engagement_duration
+            self.state.explanation_engagement_start = None
+            self.state.explanation_engagement_end = None
+
+        interaction_log = {
+            "timestamp": timestamp.isoformat(),
+            "action": action,
+            "details": details,
+            "task_id": self.state.current_task_id
+        }
+        
+        self.state.errors.append(interaction_log) # Storing interactions as errors for now to match schema structure if needed, or separate list
+        self.logger.debug(f"Interaction recorded: {action} for task {self.state.current_task_id}")
+
+    def record_error(self, error_type: str, message: str):
+        """
+        Record a user error.
+
+        Args:
+            error_type: Type of error (e.g., 'timeout', 'invalid_input').
+            message: Description of the error.
+        """
+        error_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "error_type": error_type,
+            "message": message,
+            "task_id": self.state.current_task_id
+        }
+        self.state.errors.append(error_entry)
+        self.logger.warning(f"Error recorded: {error_type} - {message}")
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """
+        Get the current metrics for the session.
+
+        Returns:
+            Dictionary containing session metrics.
         """
         return {
+            "session_id": self.session_id,
+            "participant_id": self.participant_id,
             "interface_type": "explainable",
-            "version": "1.0.0",
-            "xai_rules": [
-                "difficulty_heatmap: Shows heatmap intensity based on task difficulty",
-                "confidence_display: Visual bar showing model confidence score",
-                "text_explanation_by_difficulty: Dynamic text explanation based on difficulty level"
-            ],
-            "overlay_types": ["heatmap", "bar", "text", "highlight"]
+            "explanation_engagement_time_seconds": self.state.explanation_engagement_time_seconds,
+            "total_interaction_time_seconds": self.state.total_interaction_time_seconds,
+            "error_count": len(self.state.errors),
+            "completed": self.state.completed
         }
+
+    def complete_session(self):
+        """Mark the session as complete."""
+        self.state.completed = True
+        self.logger.info(f"Session {self.session_id} completed for participant {self.participant_id}")
 
 def main():
     """
-    Main entry point for testing the ExplainableInterface.
-    Generates a sample render and saves it to data/processed/.
+    Main entry point for testing the Explainable Interface.
     """
-    logger.info("Starting ExplainableInterface test run")
+    logger.info("Running Explainable Interface test.")
     
-    # Initialize
-    interface = ExplainableInterface(seed=42)
+    # Initialize interface
+    interface = ExplainableInterface(
+        session_id="test_session_001",
+        participant_id="test_participant_001",
+        seed=42
+    )
     
     # Simulate a task
-    session_id = "test_session_001"
-    task_id = "task_gene_regulation_001"
-    difficulty = 0.65  # Medium-high difficulty
-    confidence = 0.78  # Moderate confidence
+    task_config = {
+        "task_id": 1,
+        "difficulty": 0.7,
+        "elements": [
+            {"id": "gene_A", "type": "regulator"},
+            {"id": "gene_B", "type": "target"}
+        ]
+    }
     
-    # Render
-    result = interface.render_task(session_id, task_id, difficulty, confidence)
+    rendered = interface.render_task(task_config)
+    print(f"Rendered Task: {json.dumps(rendered, indent=2)}")
     
-    # Save to data/processed/
-    output_dir = Path("data/processed")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / f"xai_render_{task_id}.json"
+    # Simulate interaction
+    interface.record_interaction("submit", {"result": "success"})
     
-    with open(output_file, "w") as f:
-        json.dump(result, f, indent=2)
+    # Get metrics
+    metrics = interface.get_metrics()
+    print(f"Metrics: {json.dumps(metrics, indent=2)}")
     
-    logger.info(f"Successfully rendered explainable interface to {output_file}")
-    print(f"Output written to: {output_file}")
-    
-    # Print metadata
-    metadata = interface.get_interface_metadata()
-    print("\nInterface Metadata:")
-    print(json.dumps(metadata, indent=2))
+    interface.complete_session()
 
 if __name__ == "__main__":
     main()

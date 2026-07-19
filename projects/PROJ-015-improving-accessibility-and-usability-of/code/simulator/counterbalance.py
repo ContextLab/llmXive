@@ -1,91 +1,100 @@
 """
-Counterbalancing module for the usability study.
-Implements Latin Square design to assign interface sequences.
+Counterbalancing Module.
+
+Implements Latin Square Counterbalancing to assign interface sequences.
+This module ensures that for two conditions (Traditional, Explainable),
+the sequences are balanced:
+1. Traditional -> Explainable
+2. Explainable -> Traditional
 """
-from typing import List, Dict, Any
-import random
+
+from typing import List, Dict, Any, Optional
+import hashlib
 from utils.seed import set_seed
 
 class LatinSquareCounterbalancer:
     """
-    Assigns participants to interface sequences (Traditional->Explainable or Explainable->Traditional)
-    using a 2x2 Latin Square design to control for order effects.
+    Generates counterbalanced sequences for A/B testing using a deterministic
+    hash-based approach to ensure reproducibility while balancing the groups.
     """
-    def __init__(self, participants: List[str], seed: int = 42):
+
+    def __init__(self, seed: Optional[int] = None):
         """
         Initialize the counterbalancer.
-        
-        Args:
-            participants: List of participant IDs.
-            seed: Random seed for reproducibility.
-        """
-        set_seed(seed)
-        self.participants = participants
-        self.assignments: Dict[str, List[str]] = {}
-        self._generate_assignments()
 
-    def _generate_assignments(self):
+        Args:
+            seed: Optional seed for reproducibility if needed for future
+                  randomization extensions. Currently, assignment is hash-based.
         """
-        Generate the Latin Square assignments.
-        For 2 conditions, the sequences are [A, B] and [B, A].
-        """
-        # Define the two possible sequences for 2 conditions
-        sequences = [
-            ["Traditional", "Explainable"], 
-            ["Explainable", "Traditional"]
-        ]
-        
-        # Shuffle the order of sequences to randomize which participant gets which start
-        # while maintaining the balance across the group.
-        # For a true Latin Square with N participants, we rotate the base sequence.
-        # Here with 2 sequences, we just shuffle the list and assign round-robin.
-        random.shuffle(sequences)
-        
-        for i, pid in enumerate(self.participants):
-            # Assign sequence cyclically to ensure equal distribution
-            self.assignments[pid] = sequences[i % len(sequences)]
+        if seed is not None:
+            set_seed(seed)
 
     def get_sequence(self, participant_id: str) -> List[str]:
         """
-        Retrieve the interface sequence for a specific participant.
-        
-        Args:
-            participant_id: The ID of the participant.
-            
-        Returns:
-            A list of interface names in the order they should be presented.
-            Returns empty list if participant not found.
-        """
-        return self.assignments.get(participant_id, [])
+        Determine the sequence for a participant using a hash of their ID.
 
-    def get_all_assignments(self) -> Dict[str, List[str]]:
-        """
-        Return a copy of all assignments.
-        
+        This ensures:
+        1. The same participant always gets the same sequence (reproducibility).
+        2. Different participants are distributed roughly 50/50 between sequences
+           (balance).
+
+        Args:
+            participant_id: Unique identifier for the participant.
+
         Returns:
-            Dictionary mapping participant IDs to their interface sequences.
+            List of interface types in the order they should be presented.
+            Options are ["traditional", "explainable"] or ["explainable", "traditional"].
         """
-        return self.assignments.copy()
+        if not participant_id:
+            raise ValueError("participant_id cannot be empty")
+
+        # Use a hash of the participant ID to determine the sequence
+        # This ensures the same participant always gets the same sequence
+        # but different participants get randomized sequences
+        # Using hashlib for a consistent hash across Python versions/sessions
+        hash_obj = hashlib.md5(participant_id.encode('utf-8'))
+        hash_int = int(hash_obj.hexdigest(), 16)
+        
+        # Map even/odd hash to sequence
+        if hash_int % 2 == 0:
+            return ["traditional", "explainable"]
+        else:
+            return ["explainable", "traditional"]
+
+    def get_sequence_index(self, participant_id: str) -> int:
+        """
+        Get the index of the sequence for a participant (0 or 1).
+
+        Args:
+            participant_id: Unique identifier for the participant.
+
+        Returns:
+            0 for traditional->explainable, 1 for explainable->traditional.
+        """
+        sequence = self.get_sequence(participant_id)
+        if sequence == ["traditional", "explainable"]:
+            return 0
+        return 1
 
 def main():
-    """
-    Entry point for testing the counterbalancer module.
-    """
-    # Example usage
-    test_participants = ["P001", "P002", "P003", "P004", "P005"]
-    counterbalancer = LatinSquareCounterbalancer(test_participants, seed=42)
+    """Test the counterbalancer."""
+    counterbalancer = LatinSquareCounterbalancer()
     
-    print("Latin Square Counterbalancer Results:")
-    print("-" * 40)
-    for pid, seq in counterbalancer.get_all_assignments().items():
-        print(f"Participant {pid}: {' -> '.join(seq)}")
+    # Test with a few participant IDs
+    p_ids = ["P001", "P002", "P003", "P004", "P005", "P006"]
+    print("Latin Square Counterbalancer Test Results:")
+    print("-" * 50)
+    for p_id in p_ids:
+        seq = counterbalancer.get_sequence(p_id)
+        idx = counterbalancer.get_sequence_index(p_id)
+        print(f"Participant {p_id}: Sequence {idx} -> {seq}")
     
     # Verify balance
-    traditional_first = sum(1 for seq in counterbalancer.get_all_assignments().values() if seq[0] == "Traditional")
-    explainable_first = sum(1 for seq in counterbalancer.get_all_assignments().values() if seq[0] == "Explainable")
-    print("-" * 40)
-    print(f"Traditional First: {traditional_first}")
-    print(f"Explainable First: {explainable_first}")
+    sequences = [counterbalancer.get_sequence(p) for p in p_ids]
+    traditional_first = sum(1 for s in sequences if s[0] == "traditional")
+    explainable_first = sum(1 for s in sequences if s[0] == "explainable")
+    print("-" * 50)
+    print(f"Traditional first: {traditional_first}, Explainable first: {explainable_first}")
 
 if __name__ == "__main__":
     main()

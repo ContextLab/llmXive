@@ -1,9 +1,31 @@
+T022:
+  c: false
+  h: 70036832bd58cb3c2a8d1918c9953812709c79c38c62b9fc876d564d78d1a3c4
+  r: "The `stat_utils.py` file contains a `log_normality_test` function that performs\
+    \ the Shapiro\u2011Wilk test and writes results to a given path, satisfying the\
+    \ code\u2011side part of the task. However, the required output file `data/processed/normality_log.txt`\
+    \ is missing, and there is no evidence that the function is invoked to create\
+    \ or populate this log. The logging artifact therefore does not exist, so the\
+    \ task is not fully completed."
 T023a:
   c: false
-  h: 4d144170e3a2912be88370722868c227879617f0089eebc7ba2a5462fa5ae489
-  r: "The `stat_utils.py` file only contains a basic ANOVA helper and a Holm\u2011\
-    Bonferroni function; it does not produce the required `data/processed/metrics_summary.csv`,\
-    \ the effect\u2011size calculation is truncated, and there is no logic that runs\
-    \ the analysis for the three specific metrics (completion time, error count, SUS)\
-    \ or writes their F\u2011statistic, p\u2011value, adjusted p\u2011value, and effect\
-    \ size to the CSV. The deliverable is therefore missing."
+  h: eedc55ae90ef10539b663979c6589a845af673641d511b0b7b51d255c8b4e00f
+  r: The required output file `data/processed/metrics_summary.csv` does not exist,
+    so the deliverable is missing. Additionally, the provided `stat_utils.py` is truncated
+    and does not show a complete implementation that generates the specified CSV with
+    the required columns. The task therefore remains unfinished.
+T023b:
+  c: false
+  h: 955ed7ac9e26b5499c05de4081a6a064439c6d4f48983d0ac8c6d85507d38996
+  r: "The required log file `data/processed/exclusion_log.txt` does not exist, so\
+    \ there is no evidence that `explanation_engagement_time` was excluded from the\
+    \ ANOVA input and logged as required. Without this artifact, the task\u2019s core\
+    \ requirement is unmet."
+T035a:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The response includes a non\u2011empty updated `spec.md` excerpt where FR\u2011\
+    002 is replaced with the required \u201CRatified Amendment\u201D text, explicitly\
+    \ mandating Repeated Measures ANOVA, adding Holm\u2011Bonferroni correction, and\
+    \ removing the Levene\u2019s test and T\u2011Test/Wilcoxon decision tree. This\
+    \ matches the task\u2019s deliverable."
