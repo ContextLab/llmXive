@@ -217,3 +217,80 @@ def test_local_backend_rejects_multimodal_with_the_skip_class():
             [ChatMessage(role="user", content=(_img(),))],
             model="Qwen/Qwen2.5-3B-Instruct",
         )
+
+
+# --- Finding 2 (Low) regression: cheap structural framing checks -----------
+#
+# The documented contract (module docstring above / parse_image_dimensions)
+# says malformed/truncated input is rejected, but the old per-format parsers
+# only read a few fixed-offset header bytes and never checked that the rest
+# of the declared structure (a full IHDR chunk + IEND, an EOI marker, a
+# consistent RIFF size) was actually present in the buffer. These prove the
+# specific confirmed gaps are now closed, WITHOUT requiring pixel-level
+# decode or CRC verification (deliberately out of scope — see the docstring).
+
+
+def test_png_24_byte_stub_with_incomplete_ihdr_is_rejected():
+    """The CONFIRMED repro: a 24-byte stub with a signature + a length-13
+    IHDR chunk TYPE + width/height, but no bit-depth/color-type/compression/
+    filter/interlace bytes, no CRC, no IDAT, no IEND. Old code accepted this
+    as a valid 1x1 PNG because it only checked ``len(data) >= 24``."""
+    fake = (
+        b"\x89PNG\r\n\x1a\n"
+        + (13).to_bytes(4, "big")
+        + b"IHDR"
+        + (1).to_bytes(4, "big")
+        + (1).to_bytes(4, "big")
+    )
+    assert len(fake) == 24, "fixture must reproduce the exact confirmed 24-byte stub"
+    with pytest.raises(ValueError):
+        parse_image_dimensions("image/png", fake)
+    with pytest.raises(ValueError):
+        ImagePart.from_bytes(mime="image/png", data=fake)
+
+
+def test_png_missing_iend_is_rejected():
+    """A PNG with a complete, well-formed IHDR chunk (length + data + CRC)
+    but no IEND marker anywhere in the buffer — a truncated download that
+    stopped right after the header — must be rejected."""
+    real = _pil_bytes(16, 16, "PNG")
+    iend_index = real.index(b"IEND")
+    truncated = real[:iend_index]
+    assert b"IEND" not in truncated
+    with pytest.raises(ValueError, match="IEND"):
+        parse_image_dimensions("image/png", truncated)
+
+
+def test_truncated_webp_is_rejected():
+    """A WebP whose RIFF size field declares more bytes than the buffer
+    actually contains (a download cut off mid-stream) must be rejected —
+    the old parser never checked the RIFF size against the buffer length."""
+    real = _pil_bytes(64, 48, "WEBP")
+    truncated = real[: len(real) - 20]
+    declared_size = int.from_bytes(real[4:8], "little")
+    assert len(truncated) < 8 + declared_size, "fixture must actually be short"
+    with pytest.raises(ValueError, match=r"RIFF|truncated"):
+        parse_image_dimensions("image/webp", truncated)
+
+
+def test_jpeg_without_eoi_is_rejected():
+    """A JPEG that has a complete, parseable SOF segment (so dimensions ARE
+    derivable) but never reaches an EOI marker — a truncated download that
+    stopped mid-scan — must be rejected, not silently accepted just because
+    the SOF segment alone looked fine."""
+    real = _pil_bytes(64, 48, "JPEG")
+    assert real.endswith(b"\xff\xd9"), "fixture must actually end in EOI to prove truncation"
+    truncated = real[: len(real) - 2]
+    assert b"\xff\xd9" not in truncated
+    with pytest.raises(ValueError, match="EOI"):
+        parse_image_dimensions("image/jpeg", truncated)
+
+
+@pytest.mark.parametrize("fmt", ["PNG", "JPEG", "WEBP"])
+def test_real_pil_images_still_pass_after_structural_checks(fmt):
+    """No regression: real, well-formed PIL-generated images of every
+    allowed format must still construct cleanly through the new structural
+    framing checks."""
+    data = _pil_bytes(48, 32, fmt, color=(5, 6, 7))
+    part = ImagePart.from_bytes(mime=_MIME_FOR_FMT[fmt], data=data)
+    assert (part.width, part.height) == (48, 32)

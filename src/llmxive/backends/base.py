@@ -29,11 +29,30 @@ def _parse_png_dimensions(data: bytes) -> tuple[int, int]:
     """Parse ``(width, height)`` from a PNG's IHDR chunk (fixed offset: 8-byte
     signature, 4-byte chunk length, 4-byte ``IHDR`` type, then 4+4 bytes of
     width/height, big-endian). Raises :class:`ValueError` for anything that
-    isn't a well-formed PNG header — never guesses."""
+    isn't a well-formed PNG header — never guesses.
+
+    Also applies two CHEAP structural framing checks (not a CRC/pixel
+    decode): the declared IHDR chunk length must actually be present in the
+    buffer (data + trailing CRC), and an IEND marker must exist somewhere —
+    together these reject a stub that only fakes the fixed-offset header
+    bytes (e.g. a signature + IHDR type + width/height with no CRC, no
+    IDAT, no IEND) that the fixed-offset read alone would happily accept.
+    """
     if not data.startswith(b"\x89PNG\r\n\x1a\n"):
         raise ValueError("ImagePart: not a PNG (bad signature)")
     if len(data) < 24 or data[12:16] != b"IHDR":
         raise ValueError("ImagePart: truncated/invalid PNG (missing IHDR chunk)")
+    ihdr_declared_len = int.from_bytes(data[8:12], "big")
+    # IHDR chunk layout after the 8-byte signature: 4(length) + 4(type) +
+    # <declared length> data bytes + 4(CRC). The buffer must actually
+    # contain that many bytes, or this is a truncated/forged chunk.
+    if len(data) < 8 + 4 + 4 + ihdr_declared_len + 4:
+        raise ValueError(
+            "ImagePart: truncated/invalid PNG (declared IHDR chunk length "
+            f"{ihdr_declared_len} exceeds the buffer)"
+        )
+    if b"IEND" not in data:
+        raise ValueError("ImagePart: truncated/invalid PNG (missing IEND marker)")
     width = int.from_bytes(data[16:20], "big")
     height = int.from_bytes(data[20:24], "big")
     if width <= 0 or height <= 0:
@@ -45,10 +64,20 @@ def _parse_jpeg_dimensions(data: bytes) -> tuple[int, int]:
     """Parse ``(width, height)`` by scanning JPEG markers for the first
     Start-Of-Frame (SOF0/SOF2/...) segment, which carries the real decoded
     dimensions. Raises :class:`ValueError` on anything truncated, malformed,
-    or lacking a SOF segment — never guesses."""
+    or lacking a SOF segment — never guesses.
+
+    Also applies a CHEAP structural framing check (not a full entropy-coded
+    scan decode): an EOI (``\\xff\\xd9``) marker must exist somewhere in the
+    buffer. A SOF segment alone can look completely valid — width/height
+    parse cleanly — even when the file was truncated right after the
+    header, before any of the actual compressed scan data / trailer; this
+    check rejects that case instead of returning dimensions for a stream
+    that never closes.
+    """
     if len(data) < 4 or data[0:2] != b"\xff\xd8":
         raise ValueError("ImagePart: not a JPEG (bad SOI marker)")
     i, n = 2, len(data)
+    dims: tuple[int, int] | None = None
     while i < n:
         if data[i] != 0xFF:
             i += 1  # resync: not a marker byte
@@ -76,20 +105,38 @@ def _parse_jpeg_dimensions(data: bytes) -> tuple[int, int]:
             width = int.from_bytes(data[i + 5 : i + 7], "big")
             if width <= 0 or height <= 0:
                 raise ValueError(f"ImagePart: invalid JPEG dimensions {width}x{height}")
-            return width, height
+            dims = (width, height)
+            break
         i += seg_len
         if marker == 0xDA:  # SOS: entropy-coded scan data follows, stop scanning
             break
-    raise ValueError("ImagePart: JPEG has no SOF marker (truncated or unsupported)")
+    if dims is None:
+        raise ValueError("ImagePart: JPEG has no SOF marker (truncated or unsupported)")
+    if b"\xff\xd9" not in data:
+        raise ValueError("ImagePart: truncated JPEG (missing EOI marker)")
+    return dims
 
 
 def _parse_webp_dimensions(data: bytes) -> tuple[int, int]:
     """Parse ``(width, height)`` from a WebP RIFF container: VP8 (lossy),
     VP8L (lossless), or VP8X (extended) chunk layouts. Raises
     :class:`ValueError` on anything truncated, malformed, or an unrecognized
-    chunk type — never guesses."""
+    chunk type — never guesses.
+
+    Also applies a CHEAP structural framing check (not a full chunk walk):
+    the RIFF size field (bytes 4:8, little-endian) declares the byte count
+    of everything after it (``WEBP`` + all chunks) — the buffer must
+    actually contain that many bytes, or this is a truncated download that
+    the fixed-offset VP8/VP8L/VP8X reads alone would not catch.
+    """
     if len(data) < 16 or data[0:4] != b"RIFF" or data[8:12] != b"WEBP":
         raise ValueError("ImagePart: not a WebP (bad RIFF/WEBP header)")
+    riff_declared_size = int.from_bytes(data[4:8], "little")
+    if len(data) < 8 + riff_declared_size:
+        raise ValueError(
+            f"ImagePart: truncated WebP (RIFF size {riff_declared_size} exceeds "
+            f"the buffer, which has only {len(data) - 8} bytes after the RIFF header)"
+        )
     fourcc = data[12:16]
     if fourcc == b"VP8X":
         if len(data) < 30:
@@ -127,10 +174,23 @@ def parse_image_dimensions(mime: str, data: bytes) -> tuple[int, int]:
     of the three allowed mimes — the provider processes the BYTES, not any
     caller-supplied metadata, so this is the only trustworthy source of
     dimensions. A defensive, total function per allowed mime: well-formed
-    input returns real dimensions; anything unparseable, truncated, or whose
-    content doesn't match ``mime`` (each parser checks the format's own
+    input returns real dimensions; anything unparseable or whose content
+    doesn't match ``mime`` (each parser checks the format's own
     magic/signature bytes) raises :class:`ValueError` — it never silently
     passes through a guess.
+
+    What is validated, precisely: the format's magic/signature bytes, cheap
+    STRUCTURAL framing (PNG: the declared IHDR chunk is fully present in the
+    buffer and an IEND marker exists; JPEG: an EOI marker exists; WebP: the
+    RIFF size field is consistent with the buffer length), and the canonical
+    dimension header itself. What is deliberately NOT validated: full
+    pixel-level decodability, chunk/segment CRCs, or a complete walk of
+    every chunk/segment after the header — a file can pass this check and
+    still fail to decode as a real image (e.g. corrupt IDAT data past the
+    header). This is a proportionate, cheap check against the specific
+    failure this module guards against (a caller lying about, or a network
+    truncating, the bytes the token-cost bound is derived from) — not a
+    general-purpose image-integrity verifier.
 
     Deliberately dependency-free (stdlib only, no PIL): this module is
     imported everywhere, so it must not gain a hard imaging dependency.
