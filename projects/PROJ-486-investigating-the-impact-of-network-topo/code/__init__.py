@@ -1,2 +1,2 @@
-# llmXive Research Implementer - Code Package
-# This file marks the code directory as a Python package.
+# llmXive Research Pipeline - Code Module
+# This file makes the code directory a Python package

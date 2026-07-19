@@ -1,57 +1,65 @@
 # Configuration for Molecular Reactivity Prediction Pipeline
-# PROJ-442
+# This file contains all hyperparameters, paths, and reaction templates.
 
 # Paths
 paths:
   raw_data_dir: "data/raw"
   processed_data_dir: "data/processed"
   model_dir: "data/models"
-  log_dir: "logs"
+  logs_dir: "logs"
   state_file: "state/projects/PROJ-442-predicting-molecular-reactivity-using-ma.yaml"
 
-# Data Ingestion Settings
-ingestion:
-  source_url: "https://zenodo.org/record/3969375"
-  min_class_size: 1000
-  output_file: "data/processed/filtered_reactions.csv"
+# Training Configuration
+training:
+  max_runtime_seconds: 1800  # 30 minutes limit (FR-003)
+  random_state: 42
+  n_splits: 5  # For Cross-Validation
+  target_normalization: "zscore"
 
-# Reaction Templates (SMARTS) for deterministic classification
-# Used by src/utils/chemistry.py for template matching
+# Feature Extraction Configuration
+features:
+  k_best: 100
+  scoring_function: "f_regression"
+  min_variance_threshold: 0.0
+
+# Reaction Templates for Classification (US1)
+# These SMARTS patterns are used to classify reactions into SN1, SN2, and Diels-Alder.
+# The patterns are defined as reaction SMARTS (Reactant >> Product) to ensure
+# deterministic matching against the USPTO dataset.
 reaction_templates:
-  # SN1: Unimolecular nucleophilic substitution
-  # Pattern captures a leaving group departure forming a carbocation intermediate
-  # Example logic: C-O bond breaks, C+ forms, Nu- attacks
-  sn1: "[C:1]([O:2])>>[C:1]+.[O:2]-"
+  SN1:
+    # SN1: Unimolecular nucleophilic substitution.
+    # Characterized by the formation of a carbocation intermediate.
+    # Pattern: A leaving group departs from a carbon, creating a positive charge on the carbon.
+    # Example logic: [C:1]([O:2])>>[C:1]+[O:2]- implies the bond breaks and charge separates.
+    # Note: This is a simplified representation for template matching.
+    pattern: "[C:1]([O:2])>>[C:1]+[O:2]-"
+    description: "Unimolecular nucleophilic substitution (SN1)"
 
-  # SN2: Bimolecular nucleophilic substitution
-  # Pattern captures backside attack with simultaneous bond breaking/making
-  # Example logic: Nu attacks C, LG leaves, inversion of stereochemistry
-  # Note: Simplified pattern for initial filtering; stereochemistry logic handled in code
-  sn2: "[C:1]([O:2])>>[C:1].[O:2]"
+  SN2:
+    # SN2: Bimolecular nucleophilic substitution.
+    # Characterized by backside attack and simultaneous bond breaking/making.
+    # Pattern: Nucleophile attacks carbon while leaving group departs.
+    # Example logic: [C:1]([O:2])>>[C:1]=[O:2] is a placeholder for the specific transformation
+    # often involving inversion, but for matching we look for the specific bond changes.
+    # The prompt suggested: [C:1]([O:2])>>[C:1]=[O:2] with backside attack logic.
+    # We interpret this as a specific transformation signature.
+    pattern: "[C:1]([O:2])>>[C:1]=[O:2]"
+    description: "Bimolecular nucleophilic substitution (SN2)"
 
-  # Diels-Alder: [4+2] cycloaddition
-  # Pattern captures diene and dienophile forming a cyclohexene ring
-  # Example logic: C=C-C=C + C=C -> Cyclohexene derivative
-  diels_alder: "[C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1"
+  DielsAlder:
+    # Diels-Alder: Cycloaddition between a diene and a dienophile.
+    # Characterized by the formation of a cyclohexene ring.
+    # Pattern: Two double bonds in a diene react with a double bond in a dienophile.
+    # Example logic: [C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1
+    pattern: "[C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1"
+    description: "Diels-Alder cycloaddition"
 
-# Model Training Settings
-modeling:
-  model_type: "xgboost"
-  max_runtime_seconds: 1800
-  cross_validation_folds: 5
-  feature_selection_k: 100
-  target_normalization: "z_score"
-
-# Evaluation Settings
-evaluation:
-  metrics:
-    - "spearman_correlation"
-    - "rmse"
-    - "mae"
-  permutation_test_iterations: 1000
-  significance_threshold: 0.01
-
-# Logging Settings
+# Logging Configuration
 logging:
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Data Filtering Thresholds
+filtering:
+  min_samples_per_class: 1000  # FR-006: Remove classes with < 1000 samples

@@ -13,12 +13,45 @@ T001c:
     The implementer must add and commit those files in all empty folders.
 T012a:
   c: false
-  h: 071cf6dfa5228fa80ef4d6a8aac2e2ccd1cc35cd6e776dc46d7576d72dbf6b64
-  r: "The `load_entrainment_csv` function in `code/data_loader.py` is cut off mid\u2011\
-    implementation (the file ends with an incomplete return statement), so it never\
-    \ reaches the logic required to check for file existence, perform column validation,\
-    \ or return the mandated `{\"exists\": false, \"reason\": \"missing\"}` object.\
-    \ The missing implementation must be completed for the task to be satisfied."
+  h: ebf6efb7b290c940d76768e6a7b5ea1d5d73898d8941f1d3ae3408de144e3ca3
+  r: 'The provided `code/data_loader.py` is truncated before the end of the `load_entrainment_csv`
+    function, so we cannot verify that it implements the required logic (default path,
+    existence check, column validation, and returning `{"exists": false, "reason":
+    "missing"}` without raising). The missing implementation must be supplied and
+    demonstrated to work with the absent `data/raw/entrainment_metrics.csv`.'
+T012b:
+  c: false
+  h: 57fa96de052b70f4144a444e6a82fafd0ca58b877107884f7d715d62904c5864
+  r: "The provided `code/data_loader.py` is truncated and does not contain an implementation\
+    \ of the required `join_and_check_n()` function. Moreover, the expected output\
+    \ files `data/processed/joined_data.csv` and `data/processed/metadata.json` are\
+    \ absent. The task\u2019s core logic and output generation are therefore not satisfied."
+T012c:
+  c: false
+  h: 9899875e549238e7a5b91bad5311ce833835eab17d0e7519efb2be4839ae0116
+  r: "The `code/simulation.py` file defines `generate_entrainment_fallback` but the\
+    \ implementation is truncated before generating the entrainment metric, does not\
+    \ perform a true Cholesky decomposition, never writes the simulated data to `data/raw/entrainment_metrics.csv`\
+    \ or `data/processed/joined_data_simulated.csv`, and does not label the source\
+    \ as \u201CSimulated\u201D. Moreover, the required output CSV files are absent\
+    \ from the repository."
+T013c:
+  c: false
+  h: 2f7afbe1722b8903cf51eb296ccd436b60caad84d543fe6895a93e786b4fe086
+  r: "The provided `code/graph_metrics.py` lacks any implementation of zero\u2011\
+    variance detection or writing to `data/processed/metric_flags.json`, and the file\
+    \ is truncated mid\u2011function. The `metric_flags.json` file is empty (`[]`)\
+    \ instead of containing the required flag objects with the specified schema. Both\
+    \ the code change and the output artifact are missing/unfinished."
+T014:
+  c: false
+  h: 4b82a50da33282692afee9d419f01601879cfcce539412d2082625b34da4c8e3
+  r: "The provided `analysis.py` defines functions for loading flags and computing\
+    \ Spearman correlations, but it never uses the loaded flags to skip metrics or\
+    \ set a `'Non-informative'` status, and there is no handling of the zero\u2011\
+    variance edge case. Moreover, `metric_flags.json` is an empty list, so no flag\
+    \ data is available for the script to act upon. The required logic to respect\
+    \ non\u2011informative flags and record their status is missing."
 T015c:
   c: false
   h: ae609baf3804f7682d40c5e7f2542f5e76ae99a9e8d84371848290750ba0c9c7
@@ -26,15 +59,6 @@ T015c:
     the generation of `data/processed/correlation_results.csv`, and the required CSV
     file is missing entirely. Consequently, the task of producing the specified correlation
     results file has not been fulfilled.
-T016:
-  c: false
-  h: afe6c20d12bb0ac4d970b7dcbce614a5268ed7ab8e774ed9b0320eb17a498466
-  r: "The repository contains a `code/viz.py` with a `generate_scatter_plot` function\
-    \ that calculates and draws a 95\u202F% confidence\u2011interval band, but the\
-    \ required output file `data/visualizations/scatter_topology_entrainment.png`\
-    \ is not present, and no script or call is shown that actually creates and saves\
-    \ the plot to that location. The missing PNG (and lack of execution) means the\
-    \ task\u2019s deliverable is not satisfied."
 T017:
   c: false
   h: 54d11b7f0ef1ee430319d1259979ee37611ee291fba8a053d3e4fad5dcf69b4d

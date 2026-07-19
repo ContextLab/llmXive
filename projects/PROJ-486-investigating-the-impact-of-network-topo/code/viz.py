@@ -5,174 +5,214 @@ import matplotlib.pyplot as plt
 from scipy import stats
 from typing import Optional, Tuple
 
-def ensure_dir(directory: str) -> None:
-    """Ensure the directory exists."""
-    if not os.path.exists(directory):
+# Ensure directory existence
+def ensure_dir(path: str) -> None:
+    """Ensure the directory for the given path exists."""
+    directory = os.path.dirname(path)
+    if directory and not os.path.exists(directory):
         os.makedirs(directory)
 
+# Confidence Interval Calculation
 def calculate_confidence_interval(
-    data: np.ndarray, confidence: float = 0.95
-) -> Tuple[float, float]:
-    """Calculate the confidence interval for a dataset."""
-    if len(data) == 0:
-        return 0.0, 0.0
-    n = len(data)
-    mean = np.mean(data)
-    std_err = stats.sem(data)
-    h = std_err * stats.t.ppf((1 + confidence) / 2.0, n - 1)
-    return mean - h, mean + h
+    x: np.ndarray, y: np.ndarray, confidence: float = 0.95
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Calculate parametric 95% confidence intervals for a linear fit.
+    Uses t-distribution on residuals.
+    """
+    # Fit linear model
+    slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+    
+    # Predictions
+    y_pred = slope * x + intercept
+    
+    # Residuals
+    residuals = y - y_pred
+    n = len(x)
+    dof = n - 2
+    
+    if dof <= 0:
+        # Not enough points for CI
+        return y_pred, y_pred
+    
+    # Standard error of the estimate
+    s_res = np.sqrt(np.sum(residuals**2) / dof)
+    
+    # t-value for confidence interval
+    t_val = stats.t.ppf((1 + confidence) / 2, dof)
+    
+    # Standard error of the prediction
+    # SE = s_res * sqrt(1/n + (x - x_mean)^2 / sum((x - x_mean)^2))
+    x_mean = np.mean(x)
+    ss_x = np.sum((x - x_mean)**2)
+    
+    if ss_x == 0:
+        # All x values are the same
+        se_pred = s_res * np.sqrt(1 + 1/n)
+    else:
+        se_pred = s_res * np.sqrt(1 + 1/n + (x - x_mean)**2 / ss_x)
+    
+    margin = t_val * se_pred
+    
+    lower = y_pred - margin
+    upper = y_pred + margin
+    
+    return lower, upper
 
+# Scatter Plot Generation
 def generate_scatter_plot(
-    x: np.ndarray,
-    y: np.ndarray,
-    x_label: str,
-    y_label: str,
+    data: pd.DataFrame,
+    x_col: str,
+    y_col: str,
     output_path: str,
-    title: Optional[str] = None,
+    title: str = "Topology vs Entrainment",
+    xlabel: str = "Topology Metric",
+    ylabel: str = "Entrainment Metric",
+    ci: float = 0.95
 ) -> None:
-    """Generate a scatter plot with 95% confidence intervals."""
-    ensure_dir(os.path.dirname(output_path))
+    """
+    Generate a scatter plot with 95% confidence intervals.
+    """
+    ensure_dir(output_path)
     
-    plt.figure(figsize=(10, 8))
+    x = data[x_col].values
+    y = data[y_col].values
     
-    # Calculate regression line and confidence interval
-    if len(x) > 1:
-        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-        x_line = np.linspace(min(x), max(x), 100)
-        y_line = slope * x_line + intercept
-        
-        # Calculate confidence interval for the regression line
-        y_pred = slope * x + intercept
-        residuals = y - y_pred
-        std_res = np.std(residuals, ddof=2)
-        se_line = std_res * np.sqrt(1/len(x) + (x_line - np.mean(x))**2 / np.sum((x - np.mean(x))**2))
-        ci_upper = y_line + 1.96 * se_line
-        ci_lower = y_line - 1.96 * se_line
-        
-        plt.plot(x_line, y_line, 'r-', label=f'Regression (r={r_value:.3f})')
-        plt.fill_between(x_line, ci_lower, ci_upper, color='red', alpha=0.2, label='95% CI')
+    # Sort by x for smooth CI line
+    sort_idx = np.argsort(x)
+    x_sorted = x[sort_idx]
+    y_sorted = y[sort_idx]
     
-    plt.scatter(x, y, alpha=0.6, edgecolors='w', linewidth=0.5)
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
-    if title:
-        plt.title(title)
+    lower, upper = calculate_confidence_interval(x_sorted, y_sorted, confidence=ci)
+    
+    plt.figure(figsize=(10, 6))
+    plt.scatter(x_sorted, y_sorted, alpha=0.6, label='Data Points', edgecolors='k')
+    plt.plot(x_sorted, lower, 'r--', linewidth=1.5, label='95% CI')
+    plt.plot(x_sorted, upper, 'r--', linewidth=1.5)
+    
+    # Add regression line
+    slope, intercept, _, _, _ = stats.linregress(x_sorted, y_sorted)
+    plt.plot(x_sorted, slope * x_sorted + intercept, 'g-', linewidth=2, label='Linear Fit')
+    
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()
 
+# Sensitivity Bar Chart Generation (T027)
 def generate_sensitivity_bar_chart(
-    results_path: str,
+    input_path: str,
     output_path: str,
-    baseline_atlas: str = "Schaefer",
-    comparison_atlases: Optional[list] = None,
+    baseline_atlas: str = "Schaefer"
 ) -> None:
     """
-    Generate a comparative bar chart showing the absolute difference in effect sizes
-    between the primary baseline and alternative atlases.
+    Generate a comparative bar chart showing absolute difference in effect sizes
+    between the primary Schaefer baseline and alternative atlases (AAL, Power).
     
-    Args:
-        results_path: Path to the CSV containing correlation results for all atlases.
-        output_path: Path where the PNG chart will be saved.
-        baseline_atlas: The name of the baseline atlas (default: Schaefer).
-        comparison_atlases: List of alternative atlas names to compare against.
+    Input: data/processed/sensitivity_aggregated.csv
+    Output: data/visualizations/sensitivity_comparison.png
+    
+    Requirements:
+    - Exactly two bars: "AAL Diff" and "Power Diff"
+    - Numeric values in title: "Sensitivity Analysis: AAL Diff: {val:.3f}, Power Diff: {val:.3f}"
     """
-    if comparison_atlases is None:
-        comparison_atlases = ["AAL", "Power 264"]
+    ensure_dir(output_path)
     
-    ensure_dir(os.path.dirname(output_path))
+    # Load data
+    df = pd.read_csv(input_path)
     
-    # Load results
-    df = pd.read_csv(results_path)
+    # Validate columns
+    required_cols = ['atlas_type', 'effect_size', 'absolute_diff']
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Input CSV must contain columns: {required_cols}")
     
-    # Ensure we have the necessary columns
-    required_cols = ['atlas', 'r_value', 'source']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
-    
-    # Filter for valid data (exclude 'Simulated' if we want real comparisons, 
-    # but per spec we might need to handle simulated data too)
-    # The spec implies we compare effect sizes. If the data is simulated, 
-    # we still compare the calculated r-values.
-    
-    # Calculate absolute differences for each comparison atlas
-    diffs = []
-    labels = []
-    title_values = []
-    
-    # Find baseline r-value
-    baseline_row = df[df['atlas'] == baseline_atlas]
-    if baseline_row.empty:
+    # Filter for non-baseline atlases (AAL and Power)
+    # We assume the baseline is the first entry or explicitly named Schaefer
+    baseline_mask = df['atlas_type'] == baseline_atlas
+    if baseline_mask.sum() == 0:
         raise ValueError(f"Baseline atlas '{baseline_atlas}' not found in data.")
-    baseline_r = baseline_row['r_value'].iloc[0]
     
-    for atlas in comparison_atlases:
-        atlas_row = df[df['atlas'] == atlas]
-        if atlas_row.empty:
-            # If an atlas is missing, we skip it or handle gracefully
-            # For this task, we expect exactly two bars: AAL and Power
-            continue
-        
-        atlas_r = atlas_row['r_value'].iloc[0]
-        diff = abs(atlas_r - baseline_r)
-        diffs.append(diff)
-        labels.append(f"{atlas} Diff")
-        title_values.append(f"{atlas}: {diff:.4f}")
+    baseline_effect = df.loc[baseline_mask, 'effect_size'].iloc[0]
     
-    if len(diffs) == 0:
-        raise ValueError("No comparison data found to generate chart.")
+    # Calculate absolute differences if not present (though task T027a says it's calculated)
+    # Just in case, we recalculate to be safe based on the spec logic
+    df['calculated_diff'] = (df['effect_size'] - baseline_effect).abs()
     
-    # Create the plot
-    plt.figure(figsize=(10, 6))
+    # Select rows for AAL and Power
+    alt_atlases = ["AAL", "Power"]
+    alt_df = df[df['atlas_type'].isin(alt_atlases)].copy()
     
-    bars = plt.bar(labels, diffs, color=['#2ecc71', '#3498db'], edgecolor='black')
+    if len(alt_df) != 2:
+        # Try to find by partial match if exact names differ slightly
+        # Or raise error if data is missing
+        raise ValueError(f"Expected 2 alternative atlas rows (AAL, Power), found {len(alt_df)}. Data: {alt_df['atlas_type'].tolist()}")
     
-    # Add numeric values on top of bars
-    for bar, diff in zip(bars, diffs):
+    # Sort by atlas name to ensure consistent order (AAL, then Power)
+    alt_df = alt_df.sort_values('atlas_type')
+    
+    # Extract values
+    labels = [f"{row['atlas_type']} Diff" for _, row in alt_df.iterrows()]
+    values = [row['absolute_diff'] for _, row in alt_df.iterrows()]
+    
+    # Format title
+    aal_val = values[0] if alt_df.iloc[0]['atlas_type'] == 'AAL' else values[1]
+    power_val = values[1] if alt_df.iloc[0]['atlas_type'] == 'AAL' else values[0]
+    
+    title = f"Sensitivity Analysis: AAL Diff: {aal_val:.3f}, Power Diff: {power_val:.3f}"
+    
+    # Plot
+    plt.figure(figsize=(8, 6))
+    bars = plt.bar(labels, values, color=['#4C72B0', '#55A868'], edgecolor='black')
+    
+    # Add value labels on top of bars
+    for bar, val in zip(bars, values):
         height = bar.get_height()
-        plt.text(
-            bar.get_x() + bar.get_width() / 2.0,
-            height,
-            f'{diff:.4f}',
-            ha='center',
-            va='bottom',
-            fontsize=12,
-            fontweight='bold'
-        )
+        plt.text(bar.get_x() + bar.get_width()/2., height,
+                 f'{val:.3f}',
+                 ha='center', va='bottom', fontsize=12)
     
-    # Set title with numeric values as requested
-    title_str = "Sensitivity Analysis: Absolute Difference in Effect Sizes\n" + ", ".join(title_values)
-    plt.title(title_str, fontsize=14, pad=20)
-    
-    plt.ylabel("Absolute Difference in r (Effect Size)", fontsize=12)
-    plt.xlabel("Atlas Comparison", fontsize=12)
-    plt.ylim(0, max(diffs) * 1.2 if max(diffs) > 0 else 0.1)
-    plt.grid(axis='y', alpha=0.3, linestyle='--')
-    
+    plt.title(title, fontsize=14)
+    plt.ylabel("Absolute Difference in Effect Size", fontsize=12)
+    plt.ylim(bottom=0) # Ensure bars start at 0
+    plt.grid(axis='y', alpha=0.3)
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    
+    plt.savefig(output_path, dpi=300)
     plt.close()
 
 def main():
     """
-    Main entry point for visualization generation.
-    Specifically for T027: Generate sensitivity comparison bar chart.
+    Main entry point for visualization scripts.
+    Parses arguments and generates plots based on task requirements.
     """
-    # Define paths
-    results_csv = "data/processed/correlation_results.csv"
-    output_png = "data/visualizations/sensitivity_comparison.png"
+    import argparse
     
-    if not os.path.exists(results_csv):
-        print(f"Error: Input file not found: {results_csv}")
-        print("Please ensure T026 has been run to generate the correlation results.")
-        return
+    parser = argparse.ArgumentParser(description="Generate research visualizations.")
+    parser.add_argument("--type", type=str, required=True, 
+                        choices=["scatter", "sensitivity"],
+                        help="Type of plot to generate.")
+    parser.add_argument("--input", type=str, required=True,
+                        help="Input data file path.")
+    parser.add_argument("--output", type=str, required=True,
+                        help="Output image file path.")
+    parser.add_argument("--x-col", type=str, default=None, help="X column for scatter plot.")
+    parser.add_argument("--y-col", type=str, default=None, help="Y column for scatter plot.")
     
-    print(f"Generating sensitivity comparison chart from {results_csv}...")
-    generate_sensitivity_bar_chart(results_csv, output_png)
-    print(f"Chart saved to: {output_png}")
+    args = parser.parse_args()
+    
+    if args.type == "scatter":
+        if not args.x_col or not args.y_col:
+            parser.error("--x-col and --y-col are required for scatter plots.")
+        df = pd.read_csv(args.input)
+        generate_scatter_plot(df, args.x_col, args.y_col, args.output)
+    elif args.type == "sensitivity":
+        generate_sensitivity_bar_chart(args.input, args.output)
+    
+    print(f"Visualization saved to {args.output}")
 
 if __name__ == "__main__":
     main()

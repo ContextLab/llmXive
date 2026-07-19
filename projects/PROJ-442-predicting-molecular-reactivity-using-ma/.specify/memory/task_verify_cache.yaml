@@ -1,0 +1,25 @@
+T008:
+  c: false
+  h: bfbe4ffef5d588005eefdbcb216e1f4ca2208f124701ff5d95e43157c013fc33
+  r: The repository contains the required `src/modeling/config.yaml` file, but there
+    is no accompanying code or script that actually loads this configuration (e.g.,
+    a Python module using `yaml.safe_load`). The task explicitly requires setting
+    up environment configuration management by loading the file, which is not demonstrated.
+    Implement a loader (e.g., `src/modeling/config.py`) that reads the YAML and makes
+    the settings available.
+T013:
+  c: false
+  h: c8224aa09c120be008c8f3db304531fced85e70d4eb31f098bf5ada6a81f2dd2
+  r: "The `src/utils/chemistry.py` file exists but relies on `config.yaml` for reaction\
+    \ templates, and that file is missing, so no real patterns are available. Moreover,\
+    \ the implementation uses a simplistic string\u2011contain check rather than proper\
+    \ reaction template matching (e.g., RDKit SMARTS), and does not demonstrate classification\
+    \ into the three required types. The required configuration and robust matching\
+    \ logic are absent."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or modified CSV file was presented showing the added logic to
+    count samples per class, log warnings for classes with fewer than 1,000 rows,
+    and physically remove those rows from the output. The required artifact is missing,
+    so the task is not satisfied.

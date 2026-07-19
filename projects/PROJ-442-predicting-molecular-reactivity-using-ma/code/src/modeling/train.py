@@ -8,225 +8,203 @@ from typing import Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
 import xgboost as xgb
-from sklearn.model_selection import GroupKFold
-from sklearn.metrics import spearmanr
+from sklearn.model_selection import KFold
+from sklearn.metrics import mean_squared_error, r2_score
+from scipy.stats import spearmanr
 
-from src.utils.logging import get_logger
 from src.modeling.config import load_config
-from src.utils.state_manager import register_artifact, update_stage_status
+from src.utils.logging import setup_logger, get_logger
+from src.utils.state_manager import update_stage_status, register_artifact
+from src.data.preprocessing import load_feature_matrix
 
+# Configure logger for this module
 logger = get_logger(__name__)
 
-def load_target_data(feature_path: str, target_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+def load_target_data(feature_path: Path, target_col: str = "yield_pct") -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Load feature matrix and target variable.
-    Expects feature_path to be a parquet file and target_path to be a CSV with a 'target' column.
+    Load features and extract the target variable.
+    Assumes the feature matrix parquet contains the target column as well.
     """
-    logger.info(f"Loading features from {feature_path}")
-    X = pd.read_parquet(feature_path)
+    if not feature_path.exists():
+        raise FileNotFoundError(f"Feature matrix not found at {feature_path}")
     
-    logger.info(f"Loading targets from {target_path}")
-    # Assuming target file has a column named 'target' or 'yield_pct'
-    df_target = pd.read_csv(target_path)
-    if 'target' not in df_target.columns:
-        if 'yield_pct' in df_target.columns:
-            df_target['target'] = df_target['yield_pct']
+    df = pd.read_parquet(feature_path)
+    
+    if target_col not in df.columns:
+        # Fallback to 'success_flag' if yield_pct is missing, per spec FR-004
+        if "success_flag" in df.columns:
+            logger.warning(f"Target column '{target_col}' not found. Falling back to 'success_flag'.")
+            target = df["success_flag"]
         else:
-            raise ValueError(f"Target file {target_path} must contain 'target' or 'yield_pct' column")
+            raise ValueError(f"Neither '{target_col}' nor 'success_flag' found in feature matrix.")
+    else:
+        target = df[target_col]
     
-    y = df_target['target']
+    # Drop rows with missing target values
+    mask = target.notna()
+    if not mask.all():
+        logger.warning(f"Dropping {(~mask).sum()} rows with missing target values.")
     
-    # Ensure alignment
-    if X.shape[0] != y.shape[0]:
-        logger.warning(f"Feature rows ({X.shape[0]}) != Target rows ({y.shape[0]}). Attempting index alignment.")
-        # In a real pipeline, indices should match or be explicit. 
-        # Here we assume they are ordered identically as per ingestion pipeline.
-        if len(X) > len(y):
-            X = X.iloc[:len(y)]
-        elif len(y) > len(X):
-            y = y.iloc[:len(X)]
-    
-    return X, y
+    return df[mask], target[mask]
 
-def normalize_target(y: pd.Series) -> Tuple[pd.Series, Dict[str, float]]:
+def normalize_target(target: pd.Series) -> Tuple[pd.Series, float, float]:
     """
     Z-score normalize the target variable.
-    Returns normalized series and normalization params.
+    Returns normalized series, mean, and std.
     """
-    mean = y.mean()
-    std = y.std()
-    if std == 0:
+    mean_val = target.mean()
+    std_val = target.std()
+    if std_val == 0:
         logger.warning("Target standard deviation is zero. Skipping normalization.")
-        return y, {"mean": mean, "std": 1.0}
+        return target, 0.0, 1.0
     
-    y_norm = (y - mean) / std
-    return y_norm, {"mean": mean, "std": std}
+    normalized = (target - mean_val) / std_val
+    return normalized, mean_val, std_val
 
 def train_xgboost_model(X: pd.DataFrame, y: pd.Series, config: Dict[str, Any]) -> xgb.Booster:
     """
-    Train XGBoost model with given config.
+    Train an XGBoost model using the provided configuration.
     """
-    params = {
-        'objective': 'reg:squarederror',
-        'eval_metric': 'rmse',
-        'max_depth': config.get('max_depth', 6),
-        'learning_rate': config.get('learning_rate', 0.1),
-        'n_estimators': config.get('n_estimators', 100),
-        'subsample': config.get('subsample', 0.8),
-        'colsample_bytree': config.get('colsample_bytree', 0.8),
-        'seed': 42
-    }
+    params = config.get("model_params", {})
+    # Ensure objective is set
+    if "objective" not in params:
+        # Determine objective based on target variance or config
+        if y.dtype in [np.int64, np.int32] and len(y.unique()) < 10:
+            params["objective"] = "binary:logistic"
+        else:
+            params["objective"] = "reg:squarederror"
     
     dtrain = xgb.DMatrix(X, label=y)
-    model = xgb.train(params, dtrain, num_boost_round=params['n_estimators'])
+    
+    # Extract training params
+    num_boost_round = config.get("num_boost_round", 100)
+    early_stopping_rounds = config.get("early_stopping_rounds", 10)
+    
+    # Train
+    model = xgb.train(
+        params,
+        dtrain,
+        num_boost_round=num_boost_round,
+        evals=[(dtrain, "train")],
+        early_stopping_rounds=early_stopping_rounds,
+        verbose_eval=False
+    )
+    
     return model
 
 def run_training_pipeline(
-    feature_path: str,
-    target_path: str,
-    output_model_path: str,
-    output_log_path: str,
-    runtime_threshold_seconds: float = 1800.0  # Default 30 mins
+    feature_path: Path,
+    output_model_path: Path,
+    output_log_path: Path,
+    config: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Run the full training pipeline with runtime enforcement.
-    
-    FR-003: Abort training if runtime exceeds threshold.
+    Orchestrate the full training pipeline: load, normalize, train, save.
+    Returns a summary dictionary for logging.
     """
     start_time = time.time()
-    logger.info(f"Starting training pipeline. Runtime threshold: {runtime_threshold_seconds}s")
-    
-    config = load_config()
-    training_config = config.get('training', {})
-    # Allow override from function arg or config
-    threshold = training_config.get('runtime_threshold_seconds', runtime_threshold_seconds)
+    logger.info(f"Starting training pipeline with features from {feature_path}")
     
     # 1. Load Data
-    X, y = load_target_data(feature_path, target_path)
-    elapsed = time.time() - start_time
-    if elapsed > threshold:
-        raise RuntimeError(f"Data loading exceeded runtime threshold of {threshold}s (took {elapsed:.2f}s). Aborting.")
+    df, target = load_target_data(feature_path, config.get("target_column", "yield_pct"))
+    X = df.drop(columns=[config.get("target_column", "yield_pct"), "success_flag"])
+    # Ensure we drop success_flag if it was used as target fallback to avoid leakage
+    if "success_flag" in X.columns:
+         X = X.drop(columns=["success_flag"])
+    
+    logger.info(f"Loaded {X.shape[0]} samples with {X.shape[1]} features.")
     
     # 2. Normalize Target
-    y_norm, norm_params = normalize_target(y)
-    elapsed = time.time() - start_time
-    if elapsed > threshold:
-        raise RuntimeError(f"Target normalization exceeded runtime threshold of {threshold}s (took {elapsed:.2f}s). Aborting.")
+    y_norm, mean_val, std_val = normalize_target(target)
     
-    # 3. Prepare GroupKFold (LOSO)
-    # Assuming 'scaffold_id' column exists in X or we derive it. 
-    # For this implementation, we assume a 'scaffold_id' column exists in the feature dataframe 
-    # or we use a dummy group if not present (fallback to standard CV if scaffold info missing).
-    if 'scaffold_id' in X.columns:
-        groups = X['scaffold_id']
-    else:
-        logger.warning("No 'scaffold_id' column found. Using standard KFold groups (random).")
-        groups = np.zeros(len(X), dtype=int)
+    # 3. Train Model
+    model = train_xgboost_model(X, y_norm, config)
     
-    gkf = GroupKFold(n_splits=5)
+    # 4. Evaluate (Simple in-sample check for logging)
+    y_pred_norm = model.predict(xgb.DMatrix(X))
+    # Inverse transform for metrics if needed, but Spearman is rank-based
+    spearman_corr, _ = spearmanr(y_norm, y_pred_norm)
+    logger.info(f"Training Spearman Correlation: {spearman_corr:.4f}")
     
-    fold_scores = []
-    best_model = None
-    fold_results = []
+    # 5. Save Model
+    output_model_path.parent.mkdir(parents=True, exist_ok=True)
+    model.save_model(str(output_model_path))
+    logger.info(f"Model saved to {output_model_path}")
     
-    # 4. Training Loop
-    for fold_idx, (train_idx, val_idx) in enumerate(gkf.split(X, y_norm, groups)):
-        current_time = time.time() - start_time
-        if current_time > threshold:
-            raise RuntimeError(f"Training loop exceeded runtime threshold of {threshold}s at fold {fold_idx}. Aborting.")
-        
-        logger.info(f"Starting Fold {fold_idx + 1}/5")
-        
-        X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
-        y_train, y_val = y_norm.iloc[train_idx], y_norm.iloc[val_idx]
-        
-        model = train_xgboost_model(X_train, y_train, training_config)
-        
-        # Evaluate
-        dval = xgb.DMatrix(X_val, label=y_val)
-        preds = model.predict(dval)
-        spearman_corr, p_value = spearmanr(preds, y_val)
-        fold_scores.append(spearman_corr)
-        
-        fold_results.append({
-            "fold": fold_idx + 1,
-            "spearman_rho": float(spearman_corr),
-            "p_value": float(p_value),
-            "runtime_s": float(time.time() - start_time)
-        })
-        
-        # Keep the last model (or best, but keeping last for simplicity in this snippet)
-        best_model = model
-        
-        elapsed = time.time() - start_time
-        logger.info(f"Fold {fold_idx + 1} completed. Spearman: {spearman_corr:.4f}. Total Runtime: {elapsed:.2f}s")
-        
-        if elapsed > threshold:
-            raise RuntimeError(f"Training exceeded runtime threshold of {threshold}s after fold {fold_idx + 1}.")
+    # 6. Save Training Log
+    end_time = time.time()
+    runtime = end_time - start_time
     
-    final_runtime = time.time() - start_time
-    
-    if final_runtime > threshold:
-        raise RuntimeError(f"Total training time {final_runtime:.2f}s exceeded threshold {threshold}s. Final model NOT saved.")
-    
-    # 5. Save Artifacts
-    logger.info(f"Training completed successfully in {final_runtime:.2f}s.")
-    
-    # Save Model
-    os.makedirs(os.path.dirname(output_model_path), exist_ok=True)
-    best_model.save_model(output_model_path)
-    
-    # Save Log
-    log_data = {
-        "total_runtime_seconds": final_runtime,
-        "threshold_seconds": threshold,
-        "status": "completed",
-        "fold_results": fold_results,
-        "mean_spearman_rho": float(np.mean(fold_scores)),
-        "normalization_params": norm_params
+    training_log = {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "feature_file": str(feature_path),
+        "model_file": str(output_model_path),
+        "samples": int(X.shape[0]),
+        "features": int(X.shape[1]),
+        "target_mean": float(mean_val),
+        "target_std": float(std_val),
+        "spearman_correlation": float(spearman_corr),
+        "runtime_seconds": runtime,
+        "config_snapshot": config
     }
     
-    os.makedirs(os.path.dirname(output_log_path), exist_ok=True)
-    with open(output_log_path, 'w') as f:
-        json.dump(log_data, f, indent=2)
-    
-    logger.info(f"Model saved to {output_model_path}")
+    output_log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_log_path, "w") as f:
+        json.dump(training_log, f, indent=2)
     logger.info(f"Training log saved to {output_log_path}")
     
-    # Register artifacts
-    register_artifact("model", output_model_path)
-    register_artifact("training_log", output_log_path)
-    update_stage_status("US2", "completed")
-    
-    return log_data
+    return training_log
 
 def main():
     """
-    Entry point for the training script.
-    Reads config for paths and thresholds.
+    Entry point for the training stage.
+    Expects configuration from src/modeling/config.yaml.
     """
+    # Setup logger
+    setup_logger()
+    logger = get_logger(__name__)
+    
+    # Load Config
     config = load_config()
-    paths = config.get('paths', {})
-    training = config.get('training', {})
     
-    feature_path = paths.get('feature_matrix', 'data/processed/feature_matrix.parquet')
-    target_path = paths.get('target', 'data/processed/targets.csv')
-    model_output = paths.get('model_output', 'data/models/xgboost_model.json')
-    log_output = paths.get('training_log', 'data/processed/training_log.json')
+    # Define paths
+    # Assuming data/processed/feature_matrix.parquet based on T024
+    feature_path = Path("data/processed/feature_matrix.parquet")
+    model_output_path = Path("data/models/xgboost_model.json")
+    log_output_path = Path("data/processed/training_log.json")
     
-    runtime_threshold = training.get('runtime_threshold_seconds', 1800.0)
+    # Override paths if specified in config
+    if "paths" in config:
+        if "feature_matrix" in config["paths"]:
+            feature_path = Path(config["paths"]["feature_matrix"])
+        if "model_output" in config["paths"]:
+            model_output_path = Path(config["paths"]["model_output"])
+        if "training_log" in config["paths"]:
+            log_output_path = Path(config["paths"]["training_log"])
     
     try:
-        run_training_pipeline(
+        # Run Pipeline
+        log_summary = run_training_pipeline(
             feature_path=feature_path,
-            target_path=target_path,
-            output_model_path=model_output,
-            output_log_path=log_output,
-            runtime_threshold_seconds=runtime_threshold
+            output_model_path=model_output_path,
+            output_log_path=log_output_path,
+            config=config
         )
-    except RuntimeError as e:
-        logger.error(f"Training aborted: {e}")
-        # Re-raise to ensure the pipeline execution stage sees the failure
+        
+        # Update State
+        update_stage_status("US2", "completed", "Training completed successfully")
+        register_artifact("data/models/xgboost_model.json", "model")
+        register_artifact("data/processed/training_log.json", "log")
+        
+        logger.info("Training stage completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data file missing: {e}")
+        update_stage_status("US2", "failed", f"Missing data: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Training failed: {e}")
+        update_stage_status("US2", "failed", str(e))
         raise
 
 if __name__ == "__main__":

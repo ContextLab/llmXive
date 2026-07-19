@@ -4,162 +4,215 @@ import networkx as nx
 from typing import Union, Dict, List, Optional
 import json
 import os
+from config import RANDOM_SEED
 
-def calculate_clustering_coefficient(correlation_matrix: Union[np.ndarray, pd.DataFrame]) -> float:
+def calculate_clustering_coefficient(adj_matrix: np.ndarray, weighted: bool = True) -> float:
     """
-    Calculate the weighted clustering coefficient for a correlation matrix.
+    Calculate the average clustering coefficient for a network.
     
     Args:
-        correlation_matrix: N x N correlation matrix (numpy array or DataFrame)
-        
+        adj_matrix: Adjacency matrix (numpy array). Can be weighted or binary.
+        weighted: If True, treats the matrix as weighted for the calculation.
+                
     Returns:
-        float: Average clustering coefficient across all nodes
+        Average clustering coefficient (float).
     """
-    if isinstance(correlation_matrix, pd.DataFrame):
-        correlation_matrix = correlation_matrix.values
-        
-    # Convert to networkx graph
-    G = nx.from_numpy_array(correlation_matrix)
+    if weighted:
+        G = nx.from_numpy_array(adj_matrix, create_using=nx.Graph)
+        # NetworkX clustering for weighted graphs uses a specific definition
+        # We'll use the standard weighted clustering coefficient
+        try:
+            coeffs = nx.clustering(G, weight='weight')
+        except Exception:
+            # Fallback to binary if weights cause issues
+            binary_G = nx.from_numpy_array((adj_matrix > 0).astype(float), create_using=nx.Graph)
+            coeffs = nx.clustering(binary_G)
+    else:
+        G = nx.from_numpy_array(adj_matrix, create_using=nx.Graph)
+        coeffs = nx.clustering(G)
     
-    # Calculate weighted clustering coefficient
-    clustering_coeffs = nx.clustering(G, weight='weight')
-    
-    return float(np.mean(list(clustering_coeffs.values())))
+    return float(np.mean(list(coeffs.values())))
 
-def calculate_path_length(correlation_matrix: Union[np.ndarray, pd.DataFrame]) -> float:
+def calculate_path_length(adj_matrix: np.ndarray, weighted: bool = True) -> float:
     """
-    Calculate the characteristic path length for a correlation matrix.
+    Calculate the characteristic path length (average shortest path).
     
     Args:
-        correlation_matrix: N x N correlation matrix (numpy array or DataFrame)
-        
+        adj_matrix: Adjacency matrix (numpy array).
+        weighted: If True, treats the matrix as weighted.
+                
     Returns:
-        float: Characteristic path length
+        Characteristic path length (float). Returns inf if graph is disconnected.
     """
-    if isinstance(correlation_matrix, pd.DataFrame):
-        correlation_matrix = correlation_matrix.values
-        
-    # Convert to networkx graph
-    G = nx.from_numpy_array(correlation_matrix)
+    G = nx.from_numpy_array(adj_matrix, create_using=nx.Graph)
     
-    # Calculate characteristic path length
+    # Check connectivity
+    if not nx.is_connected(G):
+        # For disconnected graphs, we might use the largest connected component
+        # or return infinity. Here we use the largest connected component.
+        largest_cc = max(nx.connected_components(G), key=len)
+        subgraph = G.subgraph(largest_cc)
+    else:
+        subgraph = G
+    
     try:
-        path_length = nx.average_shortest_path_length(G, weight='weight')
-    except nx.NetworkXError:
-        # If graph is disconnected, use infinity or a large number
-        path_length = float('inf')
+        path_lengths = nx.shortest_path_length(subgraph, weight='weight' if weighted else None)
+        # Average of all path lengths
+        total_len = 0.0
+        count = 0
+        for source, targets in path_lengths.items():
+            for target, length in targets.items():
+                if source != target:
+                    total_len += length
+                    count += 1
         
-    return float(path_length)
+        if count == 0:
+            return float('inf')
+        
+        return float(total_len / count)
+    except nx.NetworkXError:
+        return float('inf')
 
-def compute_all_metrics(correlation_matrix: Union[np.ndarray, pd.DataFrame]) -> Dict[str, float]:
+def compute_all_metrics(adj_matrix: np.ndarray) -> Dict[str, float]:
     """
-    Compute all network topology metrics for a given correlation matrix.
+    Compute all network metrics for a given adjacency matrix.
     
     Args:
-        correlation_matrix: N x N correlation matrix (numpy array or DataFrame)
-        
+        adj_matrix: Adjacency matrix (numpy array).
+                
     Returns:
-        Dict containing clustering coefficient and path length
+        Dictionary of metric names to values.
     """
+    clustering = calculate_clustering_coefficient(adj_matrix)
+    path_length = calculate_path_length(adj_matrix)
+    
     return {
-        'clustering_coefficient': calculate_clustering_coefficient(correlation_matrix),
-        'path_length': calculate_path_length(correlation_matrix)
+        'clustering_coefficient': clustering,
+        'characteristic_path_length': path_length
     }
 
-def process_subject_matrices(matrices_df: pd.DataFrame) -> pd.DataFrame:
+def process_subject_matrices(subject_data: pd.DataFrame) -> pd.DataFrame:
     """
-    Process a DataFrame of correlation matrices and compute metrics for each subject.
+    Process a dataframe of subject matrices and compute metrics.
     
     Args:
-        matrices_df: DataFrame with subject_id and correlation matrix columns
-        
+        subject_data: DataFrame with columns: subject_id, matrix_data (flattened upper triangle).
+                
     Returns:
-        DataFrame with subject_id and computed metrics
+        DataFrame with added metric columns.
     """
     results = []
     
-    for _, row in matrices_df.iterrows():
+    for _, row in subject_data.iterrows():
         subject_id = row['subject_id']
-        # Assuming matrix data is stored in columns starting with 'node_'
-        matrix_cols = [col for col in row.index if col.startswith('node_')]
+        matrix_data = row['matrix_data']
         
-        if len(matrix_cols) == 0:
-            continue
-            
-        # Reconstruct matrix (assuming square matrix stored as rows)
-        matrix_size = int(np.sqrt(len(matrix_cols)))
-        if matrix_size * matrix_size != len(matrix_cols):
-            continue
-            
-        matrix_data = row[matrix_cols].values
-        correlation_matrix = matrix_data.reshape(matrix_size, matrix_size)
+        # Reconstruct matrix from upper triangle
+        n = int((1 + np.sqrt(1 + 8 * len(matrix_data))) / 2)
+        adj_matrix = np.zeros((n, n))
         
-        metrics = compute_all_metrics(correlation_matrix)
+        # Fill upper triangle
+        idx = 0
+        for i in range(n):
+            for j in range(i, n):
+                adj_matrix[i, j] = matrix_data[idx]
+                adj_matrix[j, i] = matrix_data[idx]
+                idx += 1
+        
+        metrics = compute_all_metrics(adj_matrix)
         metrics['subject_id'] = subject_id
         results.append(metrics)
-        
+    
     return pd.DataFrame(results)
 
-def detect_zero_variance_metrics(metrics_df: pd.DataFrame, threshold: float = 1e-9) -> List[str]:
+def detect_zero_variance_metrics(metrics_df: pd.DataFrame, threshold: float = 1e-9) -> List[Dict[str, str]]:
     """
-    Detect metrics with zero variance (std < threshold).
+    Detect metrics with zero variance and flag them as non-informative.
     
     Args:
-        metrics_df: DataFrame with metric columns
-        threshold: Variance threshold below which a metric is considered zero-variance
-        
+        metrics_df: DataFrame containing metric columns.
+        threshold: Variance threshold below which a metric is considered zero-variance.
+                
     Returns:
-        List of metric names that have zero variance
+        List of dictionaries with metric_name, status, and reason.
     """
-    zero_var_metrics = []
+    flags = []
     
-    for col in metrics_df.columns:
-        if col == 'subject_id':
-            continue
-            
-        try:
+    # Identify metric columns (exclude subject_id and other non-metric columns)
+    metric_cols = [col for col in metrics_df.columns if col not in ['subject_id']]
+    
+    for col in metric_cols:
+        if col in metrics_df.columns:
             std_val = metrics_df[col].std()
-            if std_val < threshold:
-                zero_var_metrics.append(col)
-        except (TypeError, ValueError):
-            # If column is not numeric, skip
-            continue
-            
-    return zero_var_metrics
+            if np.isnan(std_val) or std_val < threshold:
+                flags.append({
+                    'metric_name': col,
+                    'status': 'Non-informative',
+                    'reason': f'Zero variance detected (std={std_val:.2e} < {threshold})'
+                })
+    
+    return flags
 
-def save_metric_flags(zero_var_metrics: List[str], output_path: str) -> None:
+def save_metric_flags(flags: List[Dict[str, str]], output_path: str) -> None:
     """
-    Save zero-variance metric flags to a JSON file.
+    Save metric flags to a JSON file.
     
     Args:
-        zero_var_metrics: List of metric names with zero variance
-        output_path: Path to save the JSON file
+        flags: List of flag dictionaries.
+        output_path: Path to the output JSON file.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    flags = {
-        'non_informative_metrics': zero_var_metrics,
-        'flag_reason': 'Zero variance detected (std < 1e-9)',
-        'count': len(zero_var_metrics)
-    }
-    
     with open(output_path, 'w') as f:
         json.dump(flags, f, indent=2)
 
-def analyze_and_flag_metrics(metrics_df: pd.DataFrame, output_path: str = 'data/processed/metric_flags.json') -> Dict[str, List[str]]:
+def analyze_and_flag_metrics(input_df_path: str, output_flags_path: str) -> List[Dict[str, str]]:
     """
-    Analyze metrics for zero variance and save flags to JSON.
+    Load metrics, detect zero-variance, and save flags.
     
     Args:
-        metrics_df: DataFrame with computed metrics
-        output_path: Path to save the metric flags JSON file
-        
+        input_df_path: Path to the input CSV with metrics.
+        output_flags_path: Path to save the flags JSON.
+                
     Returns:
-        Dict with 'non_informative_metrics' key containing list of flagged metrics
+        List of detected flags.
     """
-    zero_var_metrics = detect_zero_variance_metrics(metrics_df)
-    save_metric_flags(zero_var_metrics, output_path)
+    if not os.path.exists(input_df_path):
+        raise FileNotFoundError(f"Input file not found: {input_df_path}")
     
-    return {
-        'non_informative_metrics': zero_var_metrics
-    }
+    metrics_df = pd.read_csv(input_df_path)
+    flags = detect_zero_variance_metrics(metrics_df)
+    save_metric_flags(flags, output_flags_path)
+    
+    return flags
+
+def main():
+    """Main entry point for graph metrics analysis."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Compute and flag network metrics.')
+    parser.add_argument('--input', type=str, required=True, help='Input CSV with matrices or precomputed metrics.')
+    parser.add_argument('--output-flags', type=str, default='data/processed/metric_flags.json', help='Output path for flags.')
+    parser.add_argument('--output-metrics', type=str, default='data/processed/topology_metrics.csv', help='Output path for computed metrics.')
+    parser.add_argument('--mode', type=str, choices=['matrices', 'metrics'], default='metrics', help='Input mode.')
+    
+    args = parser.parse_args()
+    
+    if args.mode == 'matrices':
+        # Process raw matrices to compute metrics
+        raw_df = pd.read_csv(args.input)
+        metrics_df = process_subject_matrices(raw_df)
+        metrics_df.to_csv(args.output_metrics, index=False)
+        
+        # Then flag zero-variance
+        flags = analyze_and_flag_metrics(args.output_metrics, args.output_flags)
+    else:
+        # Assume input is already metrics
+        flags = analyze_and_flag_metrics(args.input, args.output_flags)
+    
+    print(f"Flags saved to {args.output_flags}")
+    print(f"Total flags: {len(flags)}")
+    for flag in flags:
+        print(f"  - {flag['metric_name']}: {flag['status']} ({flag['reason']})")
+
+if __name__ == '__main__':
+    main()

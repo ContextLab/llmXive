@@ -1,146 +1,316 @@
-import os
-import logging
+"""
+Real-world dataset ingestion pipeline.
+Handles loading, cleaning, and metadata logging for public datasets.
+"""
+from __future__ import annotations
+
+import csv
+import hashlib
 import json
+import logging
+import os
 import time
+import itertools
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List, Union, Iterator
+
 import pandas as pd
-from datasets import load_dataset
+import yaml
 
-logger = logging.getLogger(__name__)
+# Import streaming and sampling utilities if available, otherwise fallback to standard load
+try:
+    from datasets import load_dataset
+except ImportError:
+    load_dataset = None  # type: ignore
 
+from simulation.logger import setup_logger
+
+# Ensure output directory exists
+RESULTS_DIR = Path("results")
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
+logger = setup_logger("ingestion")
+
+
+@dataclass
 class RealWorldDataset:
-    def __init__(self, name: str, source: str, config: Dict[str, Any]):
-        self.name = name
-        self.source = source
-        self.config = config
-        self.data: Optional[pd.DataFrame] = None
-        self.metadata: Dict[str, Any] = {}
+    """Entity representing a loaded real-world dataset with metadata."""
+    dataset_id: str
+    source_url: str
+    data: pd.DataFrame
+    row_count: int
+    checksum: str
+    status: str = "pending"
+    error_message: Optional[str] = None
+    loaded_at: str = ""
+
+    def __post_init__(self):
+        if not self.loaded_at:
+            self.loaded_at = time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for logging, excluding the DataFrame."""
+        d = asdict(self)
+        d['data'] = "DataFrame Object (not serialized)"
+        return d
+
 
 def load_dataset_config(config_path: str = "data/config/datasets.yaml") -> List[Dict[str, Any]]:
-    """Load dataset configuration from YAML file."""
-    # Placeholder for YAML loading logic
-    # In a real implementation, this would parse the YAML file
-    # For now, we return a default config for the Iris dataset if the file doesn't exist
-    default_config = [
-        {
-            "name": "iris",
-            "source": "sklearn", # Using a mock source identifier for now
-            "config": {"split": "train"}
-        }
-    ]
-    if os.path.exists(config_path):
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except Exception as e:
-            logger.warning(f"Failed to load dataset config: {e}")
-    return default_config
-
-def download_dataset(dataset_id: str, split: str = "train") -> pd.DataFrame:
     """
-    Download a dataset using the datasets library (streaming if large).
-    This function is designed to fail loudly if the dataset is not found.
-    """
-    try:
-        # Using streaming=True to handle large datasets
-        # Note: For very small datasets like Iris, streaming might be overkill but satisfies T024
-        ds = load_dataset(dataset_id, split=split, streaming=True)
+    Load the list of verified datasets from the YAML configuration file.
+    
+    Args:
+        config_path: Path to the datasets.yaml file.
         
-        # Convert to DataFrame (materializing the stream)
-        # For T038, we might want to limit this to N=5000 rows if the dataset is huge
-        # But for now, we materialize the stream
-        df = pd.DataFrame(list(ds))
+    Returns:
+        List of dataset configuration dictionaries.
+        
+    Raises:
+        FileNotFoundError: If the config file does not exist.
+        yaml.YAMLError: If the YAML is invalid.
+    """
+    path = Path(config_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset configuration file not found: {config_path}")
+    
+    with open(path, 'r', encoding='utf-8') as f:
+        config = yaml.safe_load(f)
+    
+    if not config or 'datasets' not in config:
+        logger.warning("No 'datasets' key found in configuration. Returning empty list.")
+        return []
+    
+    return config['datasets']
+
+
+def download_dataset(dataset_id: str, config: Dict[str, Any], streaming: bool = True) -> pd.DataFrame:
+    """
+    Download a dataset using the Hugging Face datasets library.
+    
+    Args:
+        dataset_id: The Hugging Face dataset ID.
+        config: Configuration dictionary for the dataset (splits, etc.).
+        streaming: If True, stream the data; otherwise load fully.
+        
+    Returns:
+        A pandas DataFrame containing the dataset.
+        
+    Raises:
+        RuntimeError: If the dataset cannot be fetched.
+    """
+    if load_dataset is None:
+        raise RuntimeError("The 'datasets' library is not installed. Cannot fetch real data.")
+    
+    try:
+        # Determine split to load. Default to 'train' if not specified or if split list is empty.
+        splits = config.get('splits', ['train'])
+        split = splits[0] if splits else 'train'
+        
+        logger.info(f"Fetching dataset: {dataset_id} (split: {split}, streaming: {streaming})")
+        
+        ds = load_dataset(dataset_id, split=split, streaming=streaming)
+        
+        if streaming:
+            # Convert streaming dataset to dataframe by materializing a sample or full set
+            # For T027c, we ingest available datasets. We will stream and convert to DF.
+            # If the dataset is huge, we might need to sample, but the task says "Ingest Available".
+            # We assume the datasets in config are manageable or we stream to a DF.
+            # Note: pd.DataFrame(list(ds)) works for streaming if we iterate.
+            df = pd.DataFrame(ds)
+        else:
+            df = ds.to_pandas()
+            
         return df
+        
     except Exception as e:
-        # Fail loudly: do not fall back to synthetic data
-        raise RuntimeError(f"Failed to download dataset '{dataset_id}': {e}")
+        # Fail loudly as per T025
+        raise RuntimeError(f"Failed to download dataset '{dataset_id}': {str(e)}") from e
+
 
 def clean_dataset(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean dataset: handle missing values, remove duplicates, etc.
-    """
-    # Simple cleaning: drop rows with any missing values
-    cleaned_df = df.dropna()
-    cleaned_df = cleaned_df.drop_duplicates()
-    return cleaned_df
-
-def get_cleaned_data_path(dataset_name: str) -> Path:
-    """Get the path where cleaned data should be stored."""
-    return Path(f"data/scaled/{dataset_name}_cleaned.parquet")
-
-def update_manifest(dataset_name: str, metadata: Dict[str, Any]):
-    """Update the manifest file with dataset metadata."""
-    manifest_path = Path("data/scaled/manifest.json")
-    manifest = {}
-    if manifest_path.exists():
-        with open(manifest_path, 'r') as f:
-            manifest = json.load(f)
+    Perform basic cleaning on the dataset: drop rows with all NaN, handle simple types.
     
-    manifest[dataset_name] = metadata
+    Args:
+        df: The raw DataFrame.
+        
+    Returns:
+        Cleaned DataFrame.
+    """
+    if df.empty:
+        return df
     
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
+    # Drop rows where ALL values are NaN
+    df_clean = df.dropna(how='all')
+    
+    # Optional: Drop columns that are all NaN
+    df_clean = df_clean.dropna(axis=1, how='all')
+    
+    return df_clean
 
-def process_real_world_dataset(dataset_config: Dict[str, Any]) -> Optional[pd.DataFrame]:
+
+def compute_checksum(df: pd.DataFrame) -> str:
     """
-    Process a real-world dataset: download, clean, and return as DataFrame.
+    Compute a simple checksum of the DataFrame content.
     """
-    name = dataset_config.get('name', 'unknown')
-    source = dataset_config.get('source', '')
-    config = dataset_config.get('config', {})
+    if df.empty:
+        return hashlib.md5(b"empty").hexdigest()
     
-    logger.info(f"Processing dataset: {name}")
+    # Convert to a string representation (sorted to ensure consistency if order varies)
+    # Using a subset of columns for checksum if too large, but for logging we do full.
+    # For robustness, we hash the string representation of the values.
+    csv_buffer = df.to_csv(index=False)
+    return hashlib.md5(csv_buffer.encode('utf-8')).hexdigest()
+
+
+def update_manifest(log_entries: List[RealWorldDataset], output_path: str = "results/real_world_ingestion_log.csv"):
+    """
+    Append or overwrite the ingestion log CSV.
+    
+    Args:
+        log_entries: List of RealWorldDataset objects.
+        output_path: Path to the output CSV file.
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    fieldnames = ['dataset_id', 'source_url', 'status', 'row_count', 'checksum']
+    
+    with open(path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        
+        for entry in log_entries:
+            writer.writerow({
+                'dataset_id': entry.dataset_id,
+                'source_url': entry.source_url,
+                'status': entry.status,
+                'row_count': entry.row_count,
+                'checksum': entry.checksum
+            })
+    
+    logger.info(f"Ingestion log written to {output_path}")
+
+
+def process_real_world_dataset(dataset_config: Dict[str, Any]) -> RealWorldDataset:
+    """
+    Process a single dataset configuration: download, clean, and log.
+    
+    Args:
+        dataset_config: Dictionary containing dataset metadata and ID.
+        
+    Returns:
+        RealWorldDataset object with status and metadata.
+    """
+    dataset_id = dataset_config.get('id', 'unknown')
+    source_url = dataset_config.get('source', 'unknown')
+    description = dataset_config.get('description', '')
+    
+    logger.info(f"Processing dataset: {dataset_id}")
     
     try:
-        # Attempt to download using the datasets library
-        # We assume the 'source' field in config maps to a HuggingFace dataset ID
-        # For 'sklearn', we might need special handling, but for now we try generic load
-        if source == 'sklearn':
-            # Special handling for sklearn datasets if needed
-            # For now, we'll try to load 'iris' from a HF mirror or similar
-            # Since 'sklearn' is not a HF dataset ID, we might need to map it
-            # Let's assume 'iris' is available as 'ucimlrepo/iris' or similar on HF
-            # For this implementation, we'll try a generic ID
-            # In a real scenario, we would have a mapping table
-            hf_id = "ucimlrepo/iris" 
-            split = config.get('split', 'train')
-            df = download_dataset(hf_id, split)
-        else:
-            split = config.get('split', 'train')
-            df = download_dataset(source, split)
+        # Download
+        df = download_dataset(dataset_id, dataset_config, streaming=True)
         
-        # Clean the data
+        # Clean
         df_clean = clean_dataset(df)
         
-        # Save metadata
-        update_manifest(name, {
-            "source": source,
-            "rows": len(df_clean),
-            "columns": list(df_clean.columns)
-        })
+        # Compute stats
+        row_count = len(df_clean)
+        checksum = compute_checksum(df_clean)
         
-        return df_clean
+        entry = RealWorldDataset(
+            dataset_id=dataset_id,
+            source_url=source_url,
+            data=df_clean,
+            row_count=row_count,
+            checksum=checksum,
+            status="success"
+        )
+        
+        logger.info(f"Successfully ingested {dataset_id}: {row_count} rows")
+        return entry
+        
     except Exception as e:
-        logger.warning(f"Failed to process {name}: {e}")
-        return None
+        logger.error(f"Failed to ingest {dataset_id}: {str(e)}")
+        return RealWorldDataset(
+            dataset_id=dataset_id,
+            source_url=source_url,
+            data=pd.DataFrame(),
+            row_count=0,
+            checksum="",
+            status="failed",
+            error_message=str(e)
+        )
 
-def run_ingestion_pipeline() -> pd.DataFrame:
+
+def run_ingestion_pipeline(config_path: str = "data/config/datasets.yaml", output_path: str = "results/real_world_ingestion_log.csv") -> List[RealWorldDataset]:
     """
-    Run the full ingestion pipeline for all configured datasets.
-    Returns a concatenated DataFrame of all processed datasets.
-    """
-    configs = load_dataset_config()
-    all_dfs = []
+    Main entry point for the ingestion pipeline.
+    Reads the config, processes each dataset, and writes the log.
     
+    Args:
+        config_path: Path to the datasets.yaml config.
+        output_path: Path to write the ingestion log CSV.
+        
+    Returns:
+        List of RealWorldDataset objects.
+    """
+    logger.info("Starting real-world dataset ingestion pipeline.")
+    
+    try:
+        configs = load_dataset_config(config_path)
+    except FileNotFoundError as e:
+        logger.error(f"Configuration file missing: {e}")
+        return []
+    except Exception as e:
+        logger.error(f"Error loading configuration: {e}")
+        return []
+    
+    if not configs:
+        logger.warning("No datasets found in configuration. Exiting.")
+        return []
+    
+    results = []
     for config in configs:
-        df = process_real_world_dataset(config)
-        if df is not None:
-            all_dfs.append(df)
+        result = process_real_world_dataset(config)
+        results.append(result)
     
-    if not all_dfs:
-        logger.warning("No datasets were successfully ingested.")
-        return pd.DataFrame()
+    update_manifest(results, output_path)
     
-    return pd.concat(all_dfs, ignore_index=True)
+    success_count = sum(1 for r in results if r.status == "success")
+    logger.info(f"Ingestion pipeline complete. Success: {success_count}/{len(results)}")
+    
+    return results
+
+
+def validate_dataset_availability(config_path: str = "data/config/datasets.yaml") -> Tuple[int, int]:
+    """
+    Helper to validate availability (used by T027a). 
+    Returns (available_count, total_count).
+    """
+    try:
+        configs = load_dataset_config(config_path)
+    except Exception:
+        return 0, 0
+    
+    if not configs:
+        return 0, 0
+    
+    available = 0
+    for config in configs:
+        try:
+            # Attempt a lightweight fetch (streaming metadata)
+            # We don't download full data here, just check if it loads
+            if load_dataset:
+                ds = load_dataset(config['id'], split=config['splits'][0] if config.get('splits') else 'train', streaming=True)
+                # If we get here without exception, it's available
+                available += 1
+            else:
+                logger.warning("datasets library not installed, skipping validation")
+                return 0, len(configs)
+        except Exception:
+            continue
+    
+    return available, len(configs)

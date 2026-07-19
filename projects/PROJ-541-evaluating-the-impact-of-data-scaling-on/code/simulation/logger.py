@@ -27,13 +27,23 @@ class ReproducibilityLogger:
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # Handle both positional (name) and keyword (batch_id, name) calls
+        # Handle various call shapes:
+        # 1. setup_logger("name") -> args[0] is name
+        # 2. setup_logger(batch_id="main_pipeline") -> kwargs has batch_id
+        # 3. setup_logger(__name__) -> args[0] is module name
+        # 4. setup_logger() -> no args/kwargs
+        
         if args:
             self.name = str(args[0])
+        elif "name" in kwargs:
+            self.name = str(kwargs["name"])
+        elif "batch_id" in kwargs:
+            # If called with batch_id, use it as the name for logging context
+            self.name = f"batch_{kwargs['batch_id']}"
         else:
-            self.name = kwargs.get("name", kwargs.get("batch_id", "reproducibility"))
+            self.name = "reproducibility"
         
-        # Store batch_id if provided for logging context
+        # Store batch_id if provided for later reference
         self.batch_id = kwargs.get("batch_id", None)
         self.entries: list = []
 
@@ -81,12 +91,12 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 
 def setup_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
-    """Tolerant logger setup accepting multiple call signatures.
+    """Setup logger compatible with all call sites.
     
-    Supports:
+    Accepts:
     - setup_logger("name")
-    - setup_logger(batch_id="id")
-    - setup_logger("name", batch_id="id")
-    - setup_logger(name="name")
+    - setup_logger(batch_id="main_pipeline")
+    - setup_logger(__name__)
+    - setup_logger()
     """
     return get_logger(*args, **kwargs)

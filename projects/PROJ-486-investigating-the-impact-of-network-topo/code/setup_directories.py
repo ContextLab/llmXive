@@ -1,19 +1,25 @@
-"""
-Module to create the required project directory structure.
-Implements Task T001b: Create subdirectories for code, data, tests, and docs.
-"""
 import os
 import sys
 
 def create_directories():
     """
-    Creates the required directory structure for the project.
-    Ensures all directories exist, creating them if necessary.
+    Create the required project directory structure for the llmXive pipeline.
+    
+    Creates the following directories relative to the project root:
+    - code/
+    - data/
+    - data/raw/
+    - data/processed/
+    - data/visualizations/
+    - tests/
+    - tests/unit/
+    - tests/integration/
+    - docs/
+    
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
     """
-    # Define the root directory (project root)
-    root_dir = os.getcwd()
-
-    # Define the required subdirectories relative to the root
+    # Define the directory structure relative to the project root
     directories = [
         "code",
         "data",
@@ -25,27 +31,39 @@ def create_directories():
         "tests/integration",
         "docs"
     ]
-
+    
     created_count = 0
-    existing_count = 0
-
+    failed_count = 0
+    
     for dir_path in directories:
-        full_path = os.path.join(root_dir, dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            print(f"Created directory: {full_path}")
+        try:
+            # os.makedirs creates parent directories as needed
+            # exist_ok=True prevents errors if directory already exists
+            os.makedirs(dir_path, exist_ok=True)
             created_count += 1
-        else:
-            # Check if it is actually a directory
-            if os.path.isdir(full_path):
-                existing_count += 1
-            else:
-                # Path exists but is a file, which is an error condition
-                print(f"Error: Path exists but is not a directory: {full_path}")
-                sys.exit(1)
-
-    print(f"Directory setup complete. Created: {created_count}, Existing: {existing_count}")
+            print(f"Created directory: {dir_path}")
+        except OSError as e:
+            print(f"Failed to create directory {dir_path}: {e}")
+            failed_count += 1
+    
+    if failed_count > 0:
+        print(f"\nWarning: {failed_count} directory(ies) failed to create.")
+        return False
+    
+    print(f"\nSuccessfully created {created_count} directories.")
     return True
 
+def main():
+    """Entry point for directory creation script."""
+    print("Initializing project directory structure...")
+    success = create_directories()
+    
+    if success:
+        print("Directory structure initialization complete.")
+        sys.exit(0)
+    else:
+        print("Directory structure initialization encountered errors.")
+        sys.exit(1)
+
 if __name__ == "__main__":
-    create_directories()
+    main()

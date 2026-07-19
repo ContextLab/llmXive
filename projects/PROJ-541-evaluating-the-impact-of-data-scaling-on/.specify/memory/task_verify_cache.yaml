@@ -1,11 +1,34 @@
-T027:
+T027c:
   c: false
-  h: e514e5dcf44bfcdf4c90e36be280b64e852f39dcb50238614bf914a424a562b1
-  r: The repository contains a partially shown `orchestrator.py` with helper functions
-    but the core simulation loop is truncated, and there is no `results/simulation_results.csv`
-    file. Consequently there is no evidence that the required number of iterations
-    are executed, that each row includes a populated `seed`, or that the CSV follows
-    the specified schema. The essential output artifact is missing.
+  h: e9e9d9aadaaa1a9997f5d887d69523a0e0c1e388d516378a32d5e8e598e43a43
+  r: The required output file `results/real_world_ingestion_log.csv` does not exist
+    in the repository, so the deliverable specified by the task is missing. Consequently
+    the ingestion result cannot be verified, and the task is not fully satisfied.
+T028a:
+  c: false
+  h: 795a8e9b100e43d0735ed179715246aad5947c5336c0b3760f4813053cc6438e
+  r: "The repository lacks the required `results/simulation_results.csv` file, and\
+    \ the shown `code/main.py` does not contain a completed simulation loop that iterates\
+    \ over all configurations, runs \u226510,000 iterations per config, or writes\
+    \ the specified columns (including seed) to that CSV. Consequently the deliverable\
+    \ and core logic are missing."
+T028b:
+  c: false
+  h: 0aaaf589fdd7c3d4c2e1ed84795107daef8e89080e2f21c906e6ee37b2f84eb8
+  r: "The repository lacks a `results/partial_checkpoint.csv` file and the unit tests\
+    \ do not verify checkpoint saving. Moreover, the provided `test_main.py` contains\
+    \ no assertions about partial results being written, and the visible portion of\
+    \ `code/main.py` does not show any checkpoint\u2011writing logic. Implement the\
+    \ checkpoint mechanism in `main.py` and add a test that confirms `partial_checkpoint.csv`\
+    \ is created and populated as expected."
+T028c:
+  c: false
+  h: 8ac8d12385c148383a81f00eb7239f26ce5bd321ef8d8f0f29dff7f33e742bcb
+  r: The repository does not contain `results/simulation_results.csv` (the file is
+    missing) and the shown portion of `code/main.py` stops after scaling without any
+    code that aggregates iteration results or writes them to a CSV. Moreover, the
+    unit test only checks a CSV created at a custom path, not the required `results/simulation_results.csv`.
+    The required aggregation and default CSV output are therefore not implemented.
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -61,3 +84,19 @@ T050:
     \ the required simulation generator, scaling pipeline, statistical test outputs,\
     \ or any aggregated visualizations. Consequently, the task\u2019s core deliverables\
     \ are absent."
+T064:
+  c: false
+  h: 298b1d41597eadef2e1bac295d860e235529aed726f489d03a81d71525acbf19
+  r: "The provided `code/main.py` snippet defines the time\u2011limit constants but\
+    \ does not show any logic that checks elapsed time, writes a partial checkpoint\
+    \ CSV, logs iteration counts, or exits with a specific code. Moreover, the required\
+    \ `results/partial_checkpoint.csv` file is absent, indicating the hard\u2011stop\
+    \ mechanism was not implemented or never triggered. The verification step comparing\
+    \ `completed_iterations` to `target_iterations` is also not present. The task\
+    \ therefore remains unfinished."
+T065:
+  c: false
+  h: 759ee0a69262705f2a1ca2ead1c276145e0a02b3c86d3051dfff7b334f3e38e8
+  r: The `code/simulation/config.py` file does not contain a `CONFIG_MATRIX` constant
+    defining the required list of dictionaries, and the expected unit test `code/tests/unit/simulation/test_config.py`
+    is missing entirely. Both the artifact and its verification are absent.

@@ -1,141 +1,194 @@
+"""
+Unit tests for the real-world dataset ingestion pipeline.
+"""
 import pytest
 import pandas as pd
 import numpy as np
 import sys
 import os
 from pathlib import Path
-import logging
+from unittest.mock import patch, MagicMock, mock_open
+import yaml
 
-# Add project root to path to allow imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from preprocessing.ingestion import ingest_dataset, RealWorldDataset
+from preprocessing.ingestion import (
+    RealWorldDataset,
+    load_dataset_config,
+    download_dataset,
+    clean_dataset,
+    compute_checksum,
+    update_manifest,
+    process_real_world_dataset,
+    run_ingestion_pipeline,
+    validate_dataset_availability
+)
 
-logger = logging.getLogger(__name__)
 
 class TestDatasetIngestion:
-    """
-    Contract test for dataset ingestion (handle missing values, output clean DF).
-    Validates that the ingestion pipeline correctly handles missing values
-    and returns a clean DataFrame as specified in US4.
-    """
+    """Tests for the ingestion pipeline components."""
 
-    @pytest.fixture
-    def sample_missing_data(self):
-        """Create a sample DataFrame with missing values for testing."""
-        data = {
-            'feature_1': [1.0, 2.0, np.nan, 4.0, 5.0],
-            'feature_2': [10.0, np.nan, 30.0, 40.0, 50.0],
-            'target': [0, 1, 0, 1, 0]
-        }
-        return pd.DataFrame(data)
-
-    @pytest.fixture
-    def sample_complete_data(self):
-        """Create a sample DataFrame without missing values."""
-        data = {
-            'feature_1': [1.0, 2.0, 3.0, 4.0, 5.0],
-            'feature_2': [10.0, 20.0, 30.0, 40.0, 50.0],
-            'target': [0, 1, 0, 1, 0]
-        }
-        return pd.DataFrame(data)
-
-    def test_ingest_dataset_handles_missing_values(self, sample_missing_data, tmp_path):
+    def test_load_dataset_config_success(self, tmp_path):
+        """Test loading a valid YAML config."""
+        config_content = """
+        datasets:
+          - id: "test/dataset"
+            source: "Test Source"
+            splits: ["train"]
         """
-        Contract: ingest_dataset must handle missing values by imputation.
-        Output must be a clean DataFrame with no NaN values.
-        """
-        # Save sample data to a temporary CSV
-        csv_path = tmp_path / "test_missing.csv"
-        sample_missing_data.to_csv(csv_path, index=False)
+        config_file = tmp_path / "datasets.yaml"
+        config_file.write_text(config_content)
+        
+        result = load_dataset_config(str(config_file))
+        
+        assert len(result) == 1
+        assert result[0]['id'] == "test/dataset"
+        assert result[0]['source'] == "Test Source"
 
-        # Ingest the dataset
-        result_df, metadata = ingest_dataset(
-            source_path=str(csv_path),
-            dataset_id="test_missing_dataset",
-            impute_strategy="mean"
-        )
-
-        # Verify no missing values remain
-        assert not result_df.isnull().any().any(), "Ingested dataset still contains missing values"
-
-        # Verify metadata tracks the imputation
-        assert "imputation_count" in metadata, "Metadata should track imputation count"
-        assert metadata["imputation_count"] > 0, "Imputation count should be positive when missing values exist"
-
-        # Verify output is a DataFrame
-        assert isinstance(result_df, pd.DataFrame), "Output must be a pandas DataFrame"
-
-    def test_ingest_dataset_preserves_complete_data(self, sample_complete_data, tmp_path):
-        """
-        Contract: ingest_dataset must preserve complete data without modification.
-        """
-        # Save sample data to a temporary CSV
-        csv_path = tmp_path / "test_complete.csv"
-        sample_complete_data.to_csv(csv_path, index=False)
-
-        # Ingest the dataset
-        result_df, metadata = ingest_dataset(
-            source_path=str(csv_path),
-            dataset_id="test_complete_dataset",
-            impute_strategy="mean"
-        )
-
-        # Verify no missing values (should be zero)
-        assert not result_df.isnull().any().any(), "Complete dataset should have no missing values"
-        assert metadata.get("imputation_count", 0) == 0, "Imputation count should be zero for complete data"
-
-        # Verify data integrity
-        pd.testing.assert_frame_equal(result_df, sample_complete_data)
-
-    def test_ingest_dataset_returns_real_world_dataset_entity(self, sample_missing_data, tmp_path):
-        """
-        Contract: ingest_dataset must return a RealWorldDataset entity with metadata.
-        """
-        csv_path = tmp_path / "test_entity.csv"
-        sample_missing_data.to_csv(csv_path, index=False)
-
-        # Ingest the dataset
-        result_df, metadata = ingest_dataset(
-            source_path=str(csv_path),
-            dataset_id="test_entity_dataset",
-            impute_strategy="mean"
-        )
-
-        # Verify metadata structure matches RealWorldDataset expectations
-        required_fields = ["dataset_id", "source_path", "row_count", "column_count", "missing_rate"]
-        for field in required_fields:
-            assert field in metadata, f"Metadata must contain {field}"
-
-        assert metadata["dataset_id"] == "test_entity_dataset"
-        assert metadata["row_count"] == sample_missing_data.shape[0]
-        assert metadata["column_count"] == sample_missing_data.shape[1]
-        assert metadata["missing_rate"] > 0, "Missing rate should be positive for data with NaNs"
-
-    def test_ingest_dataset_invalid_file_raises_error(self, tmp_path):
-        """
-        Contract: ingest_dataset must raise an error for non-existent files.
-        """
-        non_existent_path = tmp_path / "does_not_exist.csv"
-
+    def test_load_dataset_config_missing_file(self):
+        """Test loading a non-existent config file."""
         with pytest.raises(FileNotFoundError):
-            ingest_dataset(
-                source_path=str(non_existent_path),
-                dataset_id="test_invalid",
-                impute_strategy="mean"
-            )
+            load_dataset_config("non_existent_path.yaml")
 
-    def test_ingest_dataset_invalid_format_raises_error(self, tmp_path):
-        """
-        Contract: ingest_dataset must raise an error for invalid file formats.
-        """
-        invalid_path = tmp_path / "test_invalid.txt"
-        invalid_path.write_text("This is not a CSV file")
+    def test_load_dataset_config_empty(self, tmp_path):
+        """Test loading an empty config file."""
+        config_file = tmp_path / "empty.yaml"
+        config_file.write_text("datasets: []")
+        
+        result = load_dataset_config(str(config_file))
+        assert result == []
 
-        with pytest.raises(Exception):
-            ingest_dataset(
-                source_path=str(invalid_path),
-                dataset_id="test_invalid_format",
-                impute_strategy="mean"
+    def test_clean_dataset_drops_all_nan_rows(self):
+        """Test that clean_dataset removes rows where all values are NaN."""
+        df = pd.DataFrame({
+            'A': [1.0, np.nan, 3.0],
+            'B': [4.0, np.nan, 6.0],
+            'C': [7.0, np.nan, 9.0]
+        })
+        
+        # Row 1 is all NaN
+        cleaned = clean_dataset(df)
+        
+        assert len(cleaned) == 2
+        assert list(cleaned.index) == [0, 2]
+
+    def test_clean_dataset_empty_dataframe(self):
+        """Test cleaning an empty DataFrame."""
+        df = pd.DataFrame()
+        cleaned = clean_dataset(df)
+        assert cleaned.empty
+
+    def test_compute_checksum_consistency(self):
+        """Test that the same DataFrame produces the same checksum."""
+        df1 = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+        df2 = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+        
+        checksum1 = compute_checksum(df1)
+        checksum2 = compute_checksum(df2)
+        
+        assert checksum1 == checksum2
+
+    def test_update_manifest_creates_file(self, tmp_path):
+        """Test that update_manifest creates the CSV file."""
+        output_file = tmp_path / "log.csv"
+        entries = [
+            RealWorldDataset(
+                dataset_id="id1",
+                source_url="url1",
+                data=pd.DataFrame(),
+                row_count=10,
+                checksum="abc123",
+                status="success"
             )
+        ]
+        
+        update_manifest(entries, str(output_file))
+        
+        assert output_file.exists()
+        
+        # Verify content
+        with open(output_file, 'r') as f:
+            content = f.read()
+            assert "id1" in content
+            assert "success" in content
+            assert "10" in content
+
+    @patch('preprocessing.ingestion.load_dataset')
+    def test_download_dataset_streaming(self, mock_load_dataset, tmp_path):
+        """Test downloading a dataset in streaming mode."""
+        # Mock the streaming dataset object
+        mock_ds = MagicMock()
+        mock_ds.__iter__ = lambda self: iter([{'a': 1}, {'a': 2}])
+        mock_load_dataset.return_value = mock_ds
+        
+        config = {'id': 'test/id', 'splits': ['train']}
+        
+        df = download_dataset('test/id', config, streaming=True)
+        
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 2
+        mock_load_dataset.assert_called_once_with('test/id', split='train', streaming=True)
+
+    @patch('preprocessing.ingestion.load_dataset')
+    def test_download_dataset_failure(self, mock_load_dataset):
+        """Test that download_dataset raises RuntimeError on failure."""
+        mock_load_dataset.side_effect = Exception("Network error")
+        
+        config = {'id': 'test/id', 'splits': ['train']}
+        
+        with pytest.raises(RuntimeError, match="Failed to download dataset"):
+            download_dataset('test/id', config, streaming=True)
+
+    @patch('preprocessing.ingestion.download_dataset')
+    @patch('preprocessing.ingestion.clean_dataset')
+    def test_process_real_world_dataset_success(self, mock_clean, mock_download):
+        """Test successful processing of a real-world dataset."""
+        mock_download.return_value = pd.DataFrame({'A': [1, 2, 3]})
+        mock_clean.return_value = pd.DataFrame({'A': [1, 2, 3]})
+        
+        config = {'id': 'test/id', 'source': 'test_source', 'splits': ['train']}
+        
+        result = process_real_world_dataset(config)
+        
+        assert result.status == "success"
+        assert result.row_count == 3
+        assert result.dataset_id == "test/id"
+
+    @patch('preprocessing.ingestion.download_dataset')
+    def test_process_real_world_dataset_failure(self, mock_download):
+        """Test processing a dataset that fails to download."""
+        mock_download.side_effect = RuntimeError("Fetch failed")
+        
+        config = {'id': 'test/id', 'source': 'test_source', 'splits': ['train']}
+        
+        result = process_real_world_dataset(config)
+        
+        assert result.status == "failed"
+        assert "Fetch failed" in result.error_message
+
+    @patch('preprocessing.ingestion.load_dataset_config')
+    @patch('preprocessing.ingestion.process_real_world_dataset')
+    @patch('preprocessing.ingestion.update_manifest')
+    def test_run_ingestion_pipeline(self, mock_update, mock_process, mock_load_config):
+        """Test the full ingestion pipeline."""
+        mock_load_config.return_value = [{'id': 'id1', 'source': 'src1', 'splits': ['train']}]
+        mock_process.return_value = RealWorldDataset(
+            dataset_id="id1", source_url="src1", data=pd.DataFrame(), 
+            row_count=10, checksum="c1", status="success"
+        )
+        
+        results = run_ingestion_pipeline("fake/path.yaml", "fake/output.csv")
+        
+        assert len(results) == 1
+        assert results[0].status == "success"
+        mock_update.assert_called_once()
+
+    @patch('preprocessing.ingestion.load_dataset_config')
+    def test_run_ingestion_pipeline_empty_config(self, mock_load_config):
+        """Test pipeline with empty config."""
+        mock_load_config.return_value = []
+        
+        results = run_ingestion_pipeline("fake/path.yaml", "fake/output.csv")
+        
+        assert results == []

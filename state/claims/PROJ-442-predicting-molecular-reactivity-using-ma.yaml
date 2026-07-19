@@ -421,15 +421,33 @@
   status: refuted
   updated_at: '2026-07-15T07:08:12Z'
 - artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 2
-  canonical: USPTO-MIT subset available at Zenodo record 3969375
-  claim_id: c_25c15d06
-  context: Implement src/data/ingestion.py to The USPTO-MIT subset is available at
-    https://zenodo.org/record/3969375 and parse raw data
+  attempts: 1
+  canonical: Reference to arXiv 2408.08592 in validation test
+  claim_id: c_10b9432b
+  context: verifying that the model outputs a prediction file with a Spearman correlation
+    coefficient > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592).
   evidence:
     ok: false
     reason: claim not found in the cited source's full text
-    status: not_found
+  kind: numeric
+  raw_text: The (2408.08592, https://arxiv.org/abs/2408.08592)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:31:08Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 2
+  canonical: USPTO-MIT subset available at Zenodo record 3969375
+  claim_id: c_8aa543c5
+  context: Implement `src/data/ingestion.py` to The USPTO-MIT subset is available
+    at https://zenodo.org/record/3969375 and parse raw data
+  evidence:
+    ok: false
+    reason: cited source contradicts the claim (The passages reference Zenodo record
+      3969376, which contradicts the claim's specified record 3969375.)
+    status: contradicted
   kind: numeric
   raw_text: The USPTO-MIT subset is available at https://zenodo.org/record/3969375
   resolved_value: null
@@ -437,4 +455,94 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-15T07:09:23Z'
+  updated_at: '2026-07-19T12:32:07Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: USPTO-MIT subset available at Zenodo record 3969375
+  claim_id: c_111cfa8f
+  context: T012 [US1] Implement src/data/ingestion.py to The USPTO-MIT subset is available
+    at https://zenodo.org/record/3969375 and parse raw data
+  evidence:
+    ok: false
+    reason: cited source contradicts the claim (The passages reference Zenodo record
+      3969376, which contradicts the claim's specified record 3969375.)
+    status: contradicted
+  kind: numeric
+  raw_text: The USPTO-MIT subset is available at https://zenodo.org/record/3969375
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:36:49Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Model achieves Spearman correlation > 0.5 on sample of reaction records
+  claim_id: c_6915e762
+  context: 'Independent Test: Can be fully tested by running the training script ona
+    sample of reaction records and verifying that the model outputs a prediction file
+    with a Spearman correlation coefficient > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: The model outputs a prediction file with a Spearman correlation coefficient
+    > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:36:50Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Wikidata Q18615098
+  claim_id: c_ea32db88
+  context: 'Tests: {{claim:c_513b5f9f}} (Wikidata Q18615098, https://www.wikidata.org/wiki/Q18615098)'
+  evidence:
+    entailment_evidence: Wikidata Q18615098 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q18615098
+  kind: entity_fact
+  raw_text: Wikidata Q18615098
+  resolved_value: Wikidata Q18615098
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T12:36:52Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 8
+  canonical: USPTO-MIT subset available at Zenodo record 3969375
+  claim_id: c_25c15d06
+  context: Implement src/data/ingestion.py to The USPTO-MIT subset is available at
+    https://zenodo.org/record/3969375 and parse raw data
+  evidence:
+    ok: false
+    reason: cited source contradicts the claim (The passages reference Zenodo record
+      3969376, which contradicts the claim's specified record 3969375.)
+    status: contradicted
+  kind: numeric
+  raw_text: The USPTO-MIT subset is available at https://zenodo.org/record/3969375
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:39:39Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2408.08592
+  claim_id: c_180c3af6
+  context: verifying that the model outputs a prediction file with a Spearman correlation
+    coefficient > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2408.08592'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:39:39Z'

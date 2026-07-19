@@ -4,255 +4,277 @@ from scipy import stats
 from scipy.stats import multitest
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.regression.linear_model import OLS
-import json
 import os
-from typing import Dict, List, Optional, Tuple, Any
+import json
+from typing import List, Dict, Optional, Tuple, Any
 
-# Path constants
-METRIC_FLAGS_PATH = "data/processed/metric_flags.json"
-RESULTS_PATH = "data/processed/correlation_results.csv"
-DATA_SOURCE_LABEL_KEY = "data_source"
+# Constants
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_PROCESSED_DIR = os.path.join(PROJECT_ROOT, 'data', 'processed')
+METRIC_FLAGS_FILE = os.path.join(DATA_PROCESSED_DIR, 'metric_flags.json')
+SUMMARY_REPORT_FILE = os.path.join(DATA_PROCESSED_DIR, 'summary_report.txt')
+CORRELATION_RESULTS_FILE = os.path.join(DATA_PROCESSED_DIR, 'correlation_results.csv')
+SENSITIVITY_RESULTS_FILE = os.path.join(DATA_PROCESSED_DIR, 'sensitivity_results.csv')
+SENSITIVITY_AGGREGATED_FILE = os.path.join(DATA_PROCESSED_DIR, 'sensitivity_aggregated.csv')
+METADATA_FILE = os.path.join(DATA_PROCESSED_DIR, 'metadata.json')
 
-def load_metric_flags() -> Dict[str, bool]:
-    """
-    Load zero-variance metric flags from the shared state file.
-    Returns a dictionary mapping metric name -> True if flagged as non-informative.
-    """
-    if not os.path.exists(METRIC_FLAGS_PATH):
-        return {}
-    
-    try:
-        with open(METRIC_FLAGS_PATH, 'r') as f:
-            data = json.load(f)
-            # Expecting structure: {"non_informative": ["metric_name", ...]}
-            return {name: True for name in data.get("non_informative", [])}
-    except (json.JSONDecodeError, IOError):
-        return {}
+def load_metric_flags() -> Dict[str, Any]:
+    """Load metric flags from the processed directory."""
+    if os.path.exists(METRIC_FLAGS_FILE):
+        with open(METRIC_FLAGS_FILE, 'r') as f:
+            return json.load(f)
+    return {}
 
 def calculate_spearman_correlations(
-    df: pd.DataFrame, 
-    metric_col: str, 
-    target_col: str,
-    flagged_metrics: Dict[str, bool]
+    df: pd.DataFrame,
+    x_col: str,
+    y_col: str
 ) -> Tuple[float, float]:
-    """
-    Calculate Spearman correlation between a metric and entrainment strength.
-    Skips calculation if the metric is flagged as non-informative (zero variance).
+    """Calculate Spearman correlation between two columns."""
+    if x_col not in df.columns or y_col not in df.columns:
+        raise ValueError(f"Columns {x_col} or {y_col} not found in DataFrame")
     
-    Returns:
-        Tuple (r_value, p_value)
-    """
-    if metric_col in flagged_metrics:
-        # Return NaN to indicate no calculation performed
+    # Drop NaNs
+    valid_data = df[[x_col, y_col]].dropna()
+    if len(valid_data) < 2:
         return np.nan, np.nan
-    
-    if metric_col not in df.columns or target_col not in df.columns:
-        raise ValueError(f"Columns {metric_col} or {target_col} not found in dataframe.")
-    
-    # Drop NaNs for calculation
-    valid_data = df[[metric_col, target_col]].dropna()
-    if len(valid_data) < 3:
-        return np.nan, np.nan
-    
-    r, p = stats.spearmanr(valid_data[metric_col], valid_data[target_col])
-    return r, p
+        
+    corr, p_value = stats.spearmanr(valid_data[x_col], valid_data[y_col])
+    return corr, p_value
 
-def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> float:
-    """
-    Calculate Variance Inflation Factor (VIF) for the first predictor in the list
-    relative to the others.
-    
-    Args:
-        df: DataFrame containing predictor columns
-        predictors: List of predictor column names
-    
-    Returns:
-        VIF value for the first predictor
-    """
+def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> Dict[str, float]:
+    """Calculate Variance Inflation Factor for predictors."""
     if len(predictors) < 2:
-        return 1.0
-    
-    # Add intercept for OLS
+        return {}
+        
+    # Ensure target column exists
+    if 'entrainment_metric' not in df.columns:
+        raise ValueError("Target column 'entrainment_metric' not found")
+        
     X = df[predictors].dropna()
-    if len(X) < len(predictors) + 1:
-        return np.nan
+    if X.empty:
+        return {p: np.nan for p in predictors}
+        
+    # Add constant for intercept
+    X_with_const = sm.add_constant(X)
     
-    # Calculate VIF for the first predictor
-    # VIF = 1 / (1 - R^2) where R^2 is from regressing predictor_0 on others
-    y = X[predictors[0]]
-    X_other = X[predictors[1:]]
-    X_with_const = sm.add_constant(X_other)
-    
-    try:
-        model = OLS(y, X_with_const).fit()
-        r_squared = model.rsquared
-        vif = 1.0 / (1.0 - r_squared)
-        return vif
-    except Exception:
-        return np.nan
+    vif_data = {}
+    for i, col in enumerate(predictors):
+        if col in X_with_const.columns:
+            vif_data[col] = variance_inflation_factor(X_with_const.values, i)
+    return vif_data
 
 def run_correlation_analysis(
-    df: pd.DataFrame, 
-    metric_cols: List[str], 
-    target_col: str
-) -> pd.DataFrame:
-    """
-    Run correlation analysis for multiple metrics against the target.
+    df: pd.DataFrame,
+    topology_cols: List[str],
+    target_col: str = 'entrainment_metric'
+) -> Dict[str, Any]:
+    """Run full correlation analysis including VIF and MLR."""
+    results = {}
     
-    Args:
-        df: Input dataframe with metrics and target
-        metric_cols: List of metric column names
-        target_col: Name of the entrainment metric column
-    
-    Returns:
-        DataFrame with correlation results
-    """
-    flagged_metrics = load_metric_flags()
-    results = []
-    
-    # Calculate VIF if we have multiple predictors
-    vif_value = 1.0
-    collinearity_warning = False
-    
-    if len(metric_cols) >= 2:
-        # Clean data for VIF calculation
-        clean_df = df[metric_cols].dropna()
-        if len(clean_df) >= len(metric_cols) + 1:
-            vif_value = calculate_vif(clean_df, metric_cols)
-            collinearity_warning = vif_value > 5
-    
-    for metric in metric_cols:
-        r, p_raw = calculate_spearman_correlations(df, metric, target_col, flagged_metrics)
+    # Calculate Spearman correlations for each topology metric
+    for col in topology_cols:
+        corr, p_val = calculate_spearman_correlations(df, col, target_col)
+        results[f'correlation_{col}'] = {
+            'r': corr,
+            'p_value': p_val
+        }
         
-        results.append({
-            "metric": metric,
-            "raw_p": p_raw,
-            "r_value": r,
-            "vif_value": vif_value,
-            "collinearity_warning": collinearity_warning
-        })
+    # Calculate VIF
+    vif_values = calculate_vif(df, topology_cols)
+    results['vif_values'] = vif_values
     
-    return pd.DataFrame(results)
+    # Check for collinearity
+    max_vif = max(vif_values.values()) if vif_values else 0
+    results['is_collinear'] = max_vif > 5
+    
+    return results
 
 def generate_correlation_results_csv(
     df: pd.DataFrame,
-    metric_cols: List[str],
-    target_col: str,
-    data_source: str = "Simulated"
+    results: Dict[str, Any],
+    output_path: str
 ) -> None:
-    """
-    Generate the final correlation results CSV with Holm-Bonferroni correction.
+    """Generate the correlation results CSV file."""
+    # Prepare data for CSV
+    data_rows = []
     
-    This function:
-    1. Calculates Spearman correlations
-    2. Calculates VIF
-    3. Applies Holm-Bonferroni correction
-    4. Determines significance
-    5. Saves to data/processed/correlation_results.csv
+    # Extract basic info
+    vif_values = results.get('vif_values', {})
+    is_collinear = results.get('is_collinear', False)
+    
+    # For each subject, we can't easily extract individual metrics from the aggregate results
+    # So we'll create a summary row per topology metric
+    for metric_name, corr_data in results.items():
+        if metric_name.startswith('correlation_'):
+            metric_col = metric_name.replace('correlation_', '')
+            row = {
+                'metric_name': metric_col,
+                'effect_size': corr_data.get('r', np.nan),
+                'raw_p': corr_data.get('p_value', np.nan),
+                'adjusted_p_value': np.nan,  # Will be calculated later
+                'is_significant': False,
+                'vif_value': vif_values.get(metric_col, np.nan),
+                'collinearity_warning': is_collinear,
+                'data_source': 'Simulated'  # Default, updated in main
+            }
+            data_rows.append(row)
+            
+    # Create DataFrame
+    results_df = pd.DataFrame(data_rows)
+    
+    # Apply Holm-Bonferroni correction if not collinear
+    if not is_collinear and len(data_rows) > 0:
+        p_values = results_df['raw_p'].tolist()
+        if all(not np.isnan(p) for p in p_values):
+            reject, adj_p_vals, _, _ = multitest.multipletests(
+                p_values, 
+                method='holm', 
+                alpha=0.05
+            )
+            results_df['adjusted_p_value'] = adj_p_vals
+            results_df['is_significant'] = reject
+            
+    # Load metadata for data source
+    if os.path.exists(METADATA_FILE):
+        with open(METADATA_FILE, 'r') as f:
+            metadata = json.load(f)
+            data_source = metadata.get('data_source', 'Simulated')
+            results_df['data_source'] = data_source
+            
+    # Save to CSV
+    results_df.to_csv(output_path, index=False)
+
+def generate_summary_report(
+    results: Dict[str, Any],
+    n_subjects: int,
+    output_path: str
+) -> None:
+    """Generate the summary report text file."""
+    report_lines = []
+    report_lines.append("=== Network Topology and Entrainment Analysis Report ===")
+    report_lines.append("")
+    
+    # Data source info
+    if os.path.exists(METADATA_FILE):
+        with open(METADATA_FILE, 'r') as f:
+            metadata = json.load(f)
+            data_source = metadata.get('data_source', 'Simulated')
+            report_lines.append(f"Data Source: {data_source}")
+            report_lines.append(f"Number of Subjects: {n_subjects}")
+    else:
+        report_lines.append("Data Source: Simulated")
+        report_lines.append(f"Number of Subjects: {n_subjects}")
+        
+    report_lines.append("")
+    report_lines.append("--- Correlation Results ---")
+    
+    for metric_name, corr_data in results.items():
+        if metric_name.startswith('correlation_'):
+            metric_col = metric_name.replace('correlation_', '')
+            r_val = corr_data.get('r', np.nan)
+            p_val = corr_data.get('p_value', np.nan)
+            report_lines.append(f"{metric_col}: r = {r_val:.4f}, p = {p_val:.4f}")
+            
+    report_lines.append("")
+    report_lines.append("--- Collinearity Analysis ---")
+    vif_values = results.get('vif_values', {})
+    is_collinear = results.get('is_collinear', False)
+    
+    if is_collinear:
+        report_lines.append("WARNING: High collinearity detected (VIF > 5)")
+        report_lines.append("Individual p-values suppressed due to collinearity.")
+    else:
+        report_lines.append("No significant collinearity detected.")
+        
+    for metric, vif in vif_values.items():
+        report_lines.append(f"{metric}: VIF = {vif:.4f}")
+        
+    # Power warning
+    report_lines.append("")
+    if n_subjects < 30:
+        report_lines.append("Power Warning: N < 30 (Exploratory)")
+        
+    # Write to file
+    with open(output_path, 'w') as f:
+        f.write('\n'.join(report_lines))
+
+def aggregate_sensitivity_results(
+    schaefer_path: str,
+    aal_path: str,
+    power_path: str,
+    output_path: str
+) -> pd.DataFrame:
+    """
+    Aggregate results from multiple atlas types into a single dataset.
     
     Args:
-        df: Input dataframe
-        metric_cols: List of metric column names
-        target_col: Target column name
-        data_source: Label for the data source ("Real" or "Simulated")
+        schaefer_path: Path to sensitivity results CSV for Schaefer atlas
+        aal_path: Path to sensitivity results CSV for AAL atlas
+        power_path: Path to sensitivity results CSV for Power atlas
+        output_path: Path to save the aggregated CSV
+        
+    Returns:
+        DataFrame containing aggregated results with absolute differences
     """
-    # Run initial analysis
-    analysis_df = run_correlation_analysis(df, metric_cols, target_col)
+    # Load individual results
+    schaefer_df = pd.read_csv(schaefer_path)
+    aal_df = pd.read_csv(aal_path)
+    power_df = pd.read_csv(power_path)
     
-    # Filter out NaN p-values for correction calculation
-    valid_p_values = analysis_df["raw_p"].dropna()
+    # Extract effect sizes and p-values
+    # Assuming the CSV has columns: metric_name, effect_size, raw_p, etc.
+    # We'll focus on the primary clustering coefficient metric
+    primary_metric = 'clustering_coefficient'
     
-    if len(valid_p_values) > 0:
-        # Apply Holm-Bonferroni correction
-        # We need to map the corrected p-values back to the original rows
-        # multitest.multipletests returns (reject, p_corrected, p_raw, alphacSidak)
-        # We only need p_corrected
-        _, p_corrected, _, _ = multitest.multipletests(
-            valid_p_values, 
-            method='holm', 
-            alpha=0.05
-        )
-        
-        # Create a mapping from index to corrected p-value
-        valid_indices = valid_p_values.index
-        corrected_map = dict(zip(valid_indices, p_corrected))
-        
-        # Apply corrected p-values to the dataframe
-        analysis_df["adjusted_p_value"] = analysis_df["raw_p"].apply(
-            lambda x: corrected_map.get(x.name) if pd.notna(x) and x.name in corrected_map else np.nan
-        )
-    else:
-        analysis_df["adjusted_p_value"] = np.nan
+    schaefer_row = schaefer_df[schaefer_df['metric_name'] == primary_metric]
+    aal_row = aal_df[aal_df['metric_name'] == primary_metric]
+    power_row = power_df[power_df['metric_name'] == primary_metric]
     
-    # Determine significance based on adjusted p-values
-    analysis_df["is_significant"] = analysis_df["adjusted_p_value"] < 0.05
+    # Get baseline values from Schaefer
+    baseline_effect = schaefer_row['effect_size'].values[0] if len(schaefer_row) > 0 else np.nan
+    baseline_p = schaefer_row['raw_p'].values[0] if len(schaefer_row) > 0 else np.nan
     
-    # Ensure collinearity_warning is boolean
-    analysis_df["collinearity_warning"] = analysis_df["collinearity_warning"].astype(bool)
+    # Calculate absolute differences for AAL and Power
+    aal_effect = aal_row['effect_size'].values[0] if len(aal_row) > 0 else np.nan
+    power_effect = power_row['effect_size'].values[0] if len(power_row) > 0 else np.nan
     
-    # Add data source label
-    analysis_df["data_source"] = data_source
+    aal_diff = abs(aal_effect - baseline_effect) if not np.isnan(aal_effect) and not np.isnan(baseline_effect) else np.nan
+    power_diff = abs(power_effect - baseline_effect) if not np.isnan(power_effect) and not np.isnan(baseline_effect) else np.nan
     
-    # Reorder columns to match acceptance criteria
-    final_columns = [
-        "metric", "data_source", "r_value", "raw_p", "adjusted_p_value", 
-        "is_significant", "vif_value", "collinearity_warning"
+    # Create aggregated DataFrame
+    aggregated_data = [
+        {
+            'atlas_type': 'Schaefer',
+            'effect_size': baseline_effect,
+            'p_value': baseline_p,
+            'absolute_diff': 0.0  # Baseline
+        },
+        {
+            'atlas_type': 'AAL',
+            'effect_size': aal_effect,
+            'p_value': aal_row['raw_p'].values[0] if len(aal_row) > 0 else np.nan,
+            'absolute_diff': aal_diff
+        },
+        {
+            'atlas_type': 'Power',
+            'effect_size': power_effect,
+            'p_value': power_row['raw_p'].values[0] if len(power_row) > 0 else np.nan,
+            'absolute_diff': power_diff
+        }
     ]
     
-    # Ensure all columns exist
-    for col in final_columns:
-        if col not in analysis_df.columns:
-            analysis_df[col] = np.nan
-    
-    output_df = analysis_df[final_columns]
-    
-    # Ensure correct directory exists
-    os.makedirs(os.path.dirname(RESULTS_PATH), exist_ok=True)
+    aggregated_df = pd.DataFrame(aggregated_data)
     
     # Save to CSV
-    output_df.to_csv(RESULTS_PATH, index=False)
+    aggregated_df.to_csv(output_path, index=False)
     
-    print(f"Correlation results saved to {RESULTS_PATH}")
-    return output_df
+    return aggregated_df
 
 def main():
-    """
-    Main entry point for running the correlation analysis.
-    This is typically called by main.py orchestration.
-    """
-    # Example usage for testing purposes
-    print("Analysis module loaded. Call generate_correlation_results_csv with data.")
+    """Main function to run the analysis pipeline."""
+    # This would be called from main.py with appropriate arguments
+    pass
 
-# Import sm for VIF calculation if not already available
-try:
-    from statsmodels.regression.linear_model import OLS
-    from statsmodels.tools import add_constant as sm_add_const
-    import statsmodels.api as sm
-except ImportError:
-    # Fallback if statsmodels is not fully available (should not happen in prod)
-    sm = None
-
-# Re-define calculate_vif to handle imports properly
-def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> float:
-    """
-    Calculate Variance Inflation Factor (VIF) for the first predictor in the list
-    relative to the others.
-    """
-    if len(predictors) < 2:
-        return 1.0
-    
-    X = df[predictors].dropna()
-    if len(X) < len(predictors) + 1:
-        return np.nan
-    
-    y = X[predictors[0]]
-    X_other = X[predictors[1:]]
-    
-    try:
-        X_with_const = sm.add_constant(X_other)
-        model = OLS(y, X_with_const).fit()
-        r_squared = model.rsquared
-        vif = 1.0 / (1.0 - r_squared)
-        return vif
-    except Exception:
-        return np.nan
+if __name__ == "__main__":
+    main()
