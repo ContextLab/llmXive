@@ -29,12 +29,17 @@ fallback. The qwen→gemma-4→gpt-oss order is produced by ``select``'s tie-bre
 
 v2 (spec 026 slice 7, 2026-07-19) attributes ``qwen3.5`` the ``vision``
 capability + feature. This is NOT a guess: a real call gave
-``qwen.qwen3.5-122b`` a pure-red 256x256 PNG and a pure-blue 256x256 PNG (as
+``qwen.qwen3.5-122b`` a pure-red 256x256 PNG (as
 :class:`~llmxive.backends.base.ImagePart` content, routed through
-``route_chat(profile="vision")``) and it answered "Red" and "Blue"
-respectively — genuine image UNDERSTANDING, not merely payload acceptance
-(Constitution II; see ``tests/real_call/test_vision_real.py``,
-``test_qwen35_actually_understands_images``). ``qwen3-vl`` remains the
+``route_chat(profile="vision")``) and it correctly answered "Red" — genuine
+image UNDERSTANDING, not merely payload acceptance (Constitution II; see
+``tests/real_call/test_vision_real.py``,
+``test_qwen35_actually_understands_images``). A second real call routed the
+same image to ``qwen.qwen3-vl:32b`` via
+``RequirementOverrides(exclude_leader=True)``
+(``test_qwen3_vl_serves_the_canonical_multimodal_representation``), which
+also correctly answered "Red", confirming that peer independently consumes
+the new ``ContentPart`` representation (SC-008). ``qwen3-vl`` remains the
 dedicated vision peer (its own attribution is unchanged) so the paper
 figure-review call (``paper_reprocess.preprint_figures``) can still reach it
 via ``RequirementOverrides(exclude_leader=True)`` when it needs a second
