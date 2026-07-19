@@ -14,7 +14,7 @@ This feature implements an observational study to compare the frequency of four 
 ## ⚠️ Spec vs. Plan Deviation Notice
 
 **Critical Methodological Conflict**: The source specification (`spec.md`) mandates **FR-001** (≥1000 Human samples) and **FR-002** (≥50 LLM samples), resulting in a total of **SC-001** (1050 samples).
-*   **Issue**: A 1000/50 split creates a statistically invalid design. The power of the study is strictly limited by the minority group (N=50). Bootstrapping or subsampling the N=50 group to match N=1000 does not increase statistical power; it artificially reduces variance estimates without adding true information (as highlighted by panel concern `methodology-f30244be`).
+*   **Issue**: An unbalanced split creates a statistically invalid design. The power of the study is strictly limited by the minority group (N=50). Bootstrapping or subsampling the N=50 group to match N=1000 does not increase statistical power; it artificially reduces variance estimates without adding true information (as highlighted by panel concern `methodology-f30244be`).
 *   **Decision**: To ensure scientific validity and reproducibility, this plan **deviates** from the spec's sample size targets. We will implement a **Balanced Blocked Design** (150 Human / 150 LLM, N=50 blocks).
 *   **Rationale**: This design (Several samples per source per repository) controls for repository-level complexity and provides a statistically valid basis for a permutation test. The spec's 1000/50 requirement is acknowledged as **aspirational but methodologically flawed** for the intended hypothesis testing. The implementation will proceed with the valid 150/150 design, and the `spec.md` is flagged for update to align with this valid methodology.
 

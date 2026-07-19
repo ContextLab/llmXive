@@ -1,7 +1,0 @@
-T009 Setup CI environment check for PMD/JRE availability (Dockerfile or CI script to install PMD CLI): 2
-? T010 [US1] Contract test for repository selection logic in `tests/contract/test_repo_selection.py`
-  (Defines interface for T012)
-: 1
-'T016 [Spec Update] Update `specs/001-code-smell-comparison/spec.md`:': 2
-'T017 [Spec Update] Update `specs/001-code-smell-comparison/spec.md`:': 1
-'T018 [Spec Update] Update `specs/001-code-smell-comparison/spec.md`:': 1

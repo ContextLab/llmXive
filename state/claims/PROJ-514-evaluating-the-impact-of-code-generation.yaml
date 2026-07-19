@@ -259,3 +259,1304 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T22:22:10Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: At least 95% of 150 samples must be syntactically valid
+  claim_id: c_87de59f5
+  context: 'Phase 3, Implementation for User Story 1, Task T014: Implement validate_dataset.py.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95%25_of_150_samples_must_be_syntactically_valid
+  kind: magnitude
+  raw_text: "Verify \u226595% of 150 samples (\u2265143 human, \u2265143 LLM) are\
+    \ syntactically valid Python/Java."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:27:34Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Extract 3 fresh functions per repo for a total of 150
+  claim_id: c_d1935c34
+  context: 'Phase 3, Implementation for User Story 1, Task T012: Implement fetch_human_samples.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract 3 'fresh' functions per repo (total 150) per plan.md 'Balanced
+    Blocked Design'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:28:04Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generate 3 samples per task for a total of 150
+  claim_id: c_bcf8b8b5
+  context: 'Phase 3, Implementation for User Story 1, Task T013: Implement generate_llm_samples.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (total 150) per plan.md 'Balanced Blocked
+    Design'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:28:45Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Query 50 public GitHub repos with at least 100 stars and 5 years history
+  claim_id: c_afcf1a99
+  context: 'Phase 3, Implementation for User Story 1, Task T012: Implement fetch_human_samples.py.'
+  evidence:
+    candidates:
+    - - Query
+      - 50.0
+    - - GitHub repos with at least 100 stars and
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Query_50_public_GitHub_repos_with_at_least_100_stars_and_5_y
+  kind: magnitude
+  raw_text: "Logic to query 50 public GitHub repos (\u2265100 stars, \u22655 years\
+    \ history)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-19T16:29:10Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for 4 hypothesis tests
+  claim_id: c_5169a072
+  context: 'Phase 5, Implementation for User Story 3, Task T027: Implement compare_distributions.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction for 4 hypothesis tests (family-wise error\
+    \ rate \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:29:38Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sweep Long Method threshold values 100, 150, and 200 lines
+  claim_id: c_d4988866
+  context: 'Phase 5, Implementation for User Story 3, Task T028: Implement sensitivity_analysis.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep 'Long Method' threshold values \u2208 {100, 150, 200} lines."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:30:19Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Flag tool configuration as invalid if false-positive rate exceeds 5%
+  claim_id: c_fe800c23
+  context: 'Phase 4, Implementation for User Story 2, Task T023: Implement tool_validity_check.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate false-positive rate; if >5%, flag the tool configuration as
+    invalid in logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:30:19Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: query 50 public GitHub repos with at least 100 stars and 5 years history
+  claim_id: c_538c55ef
+  context: 'Phase 3: Implementation for User Story 1 - T012'
+  evidence:
+    candidates:
+    - - Query
+      - 50.0
+    - - GitHub repos with at least 100 stars and
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Query_50_public_GitHub_repos_with_at_least_100_stars_and_5_y
+  kind: magnitude
+  raw_text: "Query 50 public GitHub repos (\u2265100 stars, \u22655 years history)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-19T16:32:34Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: extract 3 fresh functions per repo for a total of 150
+  claim_id: c_7a626d6f
+  context: 'Phase 3: Implementation for User Story 1 - T012'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract 3 fresh functions per repo (total 150) per plan.md Balanced Blocked
+    Design.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:32:34Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: generate 3 samples per task for a total of 150
+  claim_id: c_4e483f57
+  context: 'Phase 3: Implementation for User Story 1 - T013'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (total 150) per plan.md Balanced Blocked Design.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:32:34Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: verify at least 95 percent of 150 samples are syntactically valid
+  claim_id: c_651063ab
+  context: 'Phase 3: Implementation for User Story 1 - T014'
+  evidence:
+    candidates:
+    - - Verify at least 95 percent of
+      - 150.0
+    - - Create account Log in Verify at least
+      - 95.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_95_percent_of_150_samples_are_syntactically
+  kind: magnitude
+  raw_text: "Verify \u226595% of 150 samples (\u2265143 human, \u2265143 LLM) are\
+    \ syntactically valid Python/Java."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-19T16:32:37Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: enforce per-process memory limit of 2 GB and 2-minute timeout per file
+  claim_id: c_f9261dd8
+  context: 'Phase 4: Implementation for User Story 2 - T021'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce per-process memory limit (\u22642 GB) and 2-minute timeout per\
+    \ file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:32:59Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: flag tool configuration as invalid if false-positive rate is greater
+    than 5 percent
+  claim_id: c_c6ce8bb9
+  context: 'Phase 4: Implementation for User Story 2 - T023'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_tool_configuration_as_invalid_if_false-positive_rate_is
+  kind: magnitude
+  raw_text: Calculate false-positive rate; if >5%, flag the tool configuration as
+    invalid in logs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:33:24Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction for 4 hypothesis tests with family-wise error
+    rate of 0.05
+  claim_id: c_e1c1f205
+  context: 'Phase 5: Implementation for User Story 3 - T027'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction for 4 hypothesis tests (family-wise error\
+    \ rate \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:33:24Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: sweep Long Method threshold values of 100, 150, and 200 lines
+  claim_id: c_da4c2d59
+  context: 'Phase 5: Implementation for User Story 3 - T028'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep Long Method threshold values \u2208 {100, 150, 200} lines."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:33:24Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: ensure total CI job is 2 hours or less with 20 parallel jobs
+  claim_id: c_b60943ad
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T032'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure total CI job \u2264 2 hours with 20 parallel jobs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:33:24Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 50 public GitHub repos with at least 100 stars and 5 years history queried
+  claim_id: c_41498847
+  context: "T012 [US1] Implement code/01_data_collection/fetch_human_samples.py: Logic\
+    \ to query 50 public GitHub repos (\u2265100 stars, \u22655 years history)."
+  evidence:
+    candidates:
+    - - Donate Create account Log in
+      - 50.0
+    - - GitHub repos with at least 100 stars and
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/50_public_GitHub_repos_with_at_least_100_stars_and_5_years_h
+  kind: magnitude
+  raw_text: "Logic to query 50 public GitHub repos (\u2265100 stars, \u22655 years\
+    \ history)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-19T16:38:51Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 3 fresh functions per repo extracted for total of 150 samples
+  claim_id: c_b56948b5
+  context: 'T012 [US1] Implement code/01_data_collection/fetch_human_samples.py: Extract
+    3 ''fresh'' functions per repo (total 150) per plan.md ''Balanced Blocked Design''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract 3 'fresh' functions per repo (total 150) per plan.md 'Balanced
+    Blocked Design'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:38:51Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 3 LLM samples per task generated for total of 150 samples
+  claim_id: c_f41d0974
+  context: 'T013 [US1] Implement code/01_data_collection/generate_llm_samples.py:
+    Generate 3 samples per task (total 150) per plan.md ''Balanced Blocked Design''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (total 150) per plan.md 'Balanced Blocked
+    Design'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:38:51Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 95% of 150 samples (at least 143 human and 143 LLM) syntactically valid
+  claim_id: c_24accdf0
+  context: "T014 [US1] Implement code/01_data_collection/validate_dataset.py: Verify\
+    \ \u226595% of 150 samples (\u2265143 human, \u2265143 LLM) are syntactically\
+    \ valid Python/Java."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/95%25_of_150_samples_(at_least_143_human_and_143_LLM)_syntacti
+  kind: magnitude
+  raw_text: "Verify \u226595% of 150 samples (\u2265143 human, \u2265143 LLM) are\
+    \ syntactically valid Python/Java."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:38:54Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Per-process memory limit of 2 GB and 2-minute timeout per file enforced
+  claim_id: c_5b8111d3
+  context: "T021 [P] [US2] Implement code/02_static_analysis/run_pmd.py: Enforce per-process\
+    \ memory limit (\u22642 GB) and 2-minute timeout per file."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce per-process memory limit (\u22642 GB) and 2-minute timeout per\
+    \ file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:38:54Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Tool configuration flagged as invalid if false-positive rate exceeds
+    5%
+  claim_id: c_33dd7502
+  context: 'T023 [US2] Implement code/02_static_analysis/tool_validity_check.py: Calculate
+    false-positive rate; if >5%, flag the tool configuration as invalid in logs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate false-positive rate; if >5%, flag the tool configuration as
+    invalid in logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:38:54Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for 4 hypothesis tests with family-wise
+    error rate of 0.05
+  claim_id: c_85a4bc9c
+  context: "T027 [US3] Implement code/03_statistical_analysis/compare_distributions.py:\
+    \ Apply Bonferroni correction for 4 hypothesis tests (family-wise error rate \u2264\
+    \ 0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction for 4 hypothesis tests (family-wise error\
+    \ rate \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:38:54Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Long Method threshold values swept at 100, 150, and 200 lines
+  claim_id: c_36092f89
+  context: "T028 [US3] Implement code/03_statistical_analysis/sensitivity_analysis.py:\
+    \ Sweep 'Long Method' threshold values \u2208 {100, 150, 200} lines."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep 'Long Method' threshold values \u2208 {100, 150, 200} lines."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:38:54Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Total CI job time limited to 2 hours with 20 parallel jobs
+  claim_id: c_e6842b7c
+  context: "T032 Performance optimization (ensure total CI job \u2264 2 hours with\
+    \ 20 parallel jobs)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure total CI job \u2264 2 hours with 20 parallel jobs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:38:55Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Query 50 public GitHub repos with at least 100 stars and 5 years history
+  claim_id: c_cebab590
+  context: 'Phase 3: User Story 1 - Data Collection & Sample Preparation - T012 [US1]
+    Implement code/01_data_collection/fetch_human_samples.py'
+  evidence:
+    candidates:
+    - - Query
+      - 50.0
+    - - GitHub repos with at least 100 stars and
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Query_50_public_GitHub_repos_with_at_least_100_stars_and_5_y
+  kind: magnitude
+  raw_text: "Logic to query 50 public GitHub repos (\u2265100 stars, \u22655 years\
+    \ history)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-19T16:40:18Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Extract 3 fresh functions per repo totaling 150 samples
+  claim_id: c_a0aefab2
+  context: 'Phase 3: User Story 1 - Data Collection & Sample Preparation - T012 [US1]
+    Implement code/01_data_collection/fetch_human_samples.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract 3 'fresh' functions per repo (total 150) per plan.md 'Balanced
+    Blocked Design'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:40:18Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generate 3 samples per task totaling 150 LLM samples
+  claim_id: c_94083e1c
+  context: 'Phase 3: User Story 1 - Data Collection & Sample Preparation - T013 [US1]
+    Implement code/01_data_collection/generate_llm_samples.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (total 150) per plan.md 'Balanced Blocked
+    Design'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:40:19Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Verify at least 95% of 150 samples (143 human and 143 LLM) are syntactically
+    valid
+  claim_id: c_20bdbcd1
+  context: 'Phase 3: User Story 1 - Data Collection & Sample Preparation - T014 [US1]
+    Implement code/01_data_collection/validate_dataset.py'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_95%25_of_150_samples_(143_human_and_143_LLM)_a
+  kind: magnitude
+  raw_text: "Verify \u226595% of 150 samples (\u2265143 human, \u2265143 LLM) are\
+    \ syntactically valid Python/Java."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:40:21Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Enforce 2 GB per-process memory limit and 2-minute timeout per file
+  claim_id: c_563654f2
+  context: 'Phase 4: User Story 2 - Static Analysis Execution - T021 [P] [US2] Implement
+    code/02_static_analysis/run_pmd.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce per-process memory limit (\u22642 GB) and 2-minute timeout per\
+    \ file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:40:21Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Flag tool configuration as invalid if false-positive rate exceeds 5%
+  claim_id: c_f450ec66
+  context: 'Phase 4: User Story 2 - Static Analysis Execution - T023 [US2] Implement
+    code/02_static_analysis/tool_validity_check.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate false-positive rate; if >5%, flag the tool configuration as
+    invalid in logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:40:21Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for 4 hypothesis tests with family-wise error
+    rate of 0.05
+  claim_id: c_10e823ff
+  context: 'Phase 5: User Story 3 - Statistical Comparison & Reporting - T027 [US3]
+    Implement code/03_statistical_analysis/compare_distributions.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction for 4 hypothesis tests (family-wise error\
+    \ rate \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:40:21Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sweep Long Method threshold values at 100, 150, and 200 lines
+  claim_id: c_be49a86f
+  context: 'Phase 5: User Story 3 - Statistical Comparison & Reporting - T028 [US3]
+    Implement code/03_statistical_analysis/sensitivity_analysis.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep 'Long Method' threshold values \u2208 {100, 150, 200} lines."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:40:21Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Ensure total CI job duration is at most 2 hours with 20 parallel jobs
+  claim_id: c_00381c5c
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T032 Performance optimization'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_total_CI_job_duration_is_at_most_2_hours_with_20_para
+  kind: magnitude
+  raw_text: "Ensure total CI job \u2264 2 hours with 20 parallel jobs."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:40:56Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Query 50 public GitHub repos with at least 100 stars and 5 years history
+  claim_id: c_ac88d582
+  context: "T012 [US1] Implement code/01_data_collection/fetch_human_samples.py: Logic\
+    \ to query 50 public GitHub repos (\u2265100 stars, \u22655 years history). Extract\
+    \ 3 'fresh' functions per repo (total 150) per plan.md 'Balanced Blocked Design'."
+  evidence:
+    candidates:
+    - - Query
+      - 50.0
+    - - GitHub repos with at least 100 stars and
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Query_50_public_GitHub_repos_with_at_least_100_stars_and_5_y
+  kind: magnitude
+  raw_text: "Logic to query 50 public GitHub repos (\u2265100 stars, \u22655 years\
+    \ history)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-19T16:43:23Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Extract 3 fresh functions per repo for a total of 150 samples
+  claim_id: c_cb0a26a6
+  context: "T012 [US1] Implement code/01_data_collection/fetch_human_samples.py: Logic\
+    \ to query 50 public GitHub repos (\u2265100 stars, \u22655 years history). Extract\
+    \ 3 'fresh' functions per repo (total 150) per plan.md 'Balanced Blocked Design'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract 3 'fresh' functions per repo (total 150) per plan.md 'Balanced
+    Blocked Design'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:43:23Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Verify at least 95% of 150 samples are syntactically valid
+  claim_id: c_40d1b972
+  context: "T014 [US1] Implement code/01_data_collection/validate_dataset.py: Verify\
+    \ \u226595% of 150 samples (\u2265143 human, \u2265143 LLM) are syntactically\
+    \ valid Python/Java. Log failures and exclusion rates."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_95%25_of_150_samples_are_syntactically_valid
+  kind: magnitude
+  raw_text: "Verify \u226595% of 150 samples (\u2265143 human, \u2265143 LLM) are\
+    \ syntactically valid Python/Java."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:43:26Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generate 3 samples per task for a total of 150 LLM samples
+  claim_id: c_552f5b97
+  context: 'T013 [US1] Implement code/01_data_collection/generate_llm_samples.py:
+    Logic to derive 50 tasks from the same Issue/PR descriptions used for human samples.
+    Query HuggingFace Inference API (or similar) with a reasonable timeout and exponential
+    backoff (limited retries). Generate 3 samples per task (total 150) per plan.md
+    ''Balanced Blocked Design''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (total 150) per plan.md 'Balanced Blocked
+    Design'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:43:26Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Enforce per-process memory limit of 2 GB and 2-minute timeout
+  claim_id: c_d2ea4293
+  context: "T021 [P] [US2] Implement code/02_static_analysis/run_pmd.py: Subprocess\
+    \ wrapper to execute PMD CLI with specific rulesets for the 4 target smells. Enforce\
+    \ per-process memory limit (\u22642 GB) and 2-minute timeout per file."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce per-process memory limit (\u22642 GB) and 2-minute timeout per\
+    \ file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:43:27Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Flag tool configuration as invalid if false-positive rate exceeds 5%
+  claim_id: c_ed8107f7
+  context: 'T023 [US2] Implement code/02_static_analysis/tool_validity_check.py: Run
+    analysis on a known ''clean'' reference set. Calculate false-positive rate; if
+    >5%, flag the tool configuration as invalid in logs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate false-positive rate; if >5%, flag the tool configuration as
+    invalid in logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:43:27Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for 4 hypothesis tests with family-wise error
+    rate of 0.05
+  claim_id: c_09203229
+  context: "T027 [US3] Implement code/03_statistical_analysis/compare_distributions.py:\
+    \ Implement Blocked Permutation Test (stratified by repository) per plan.md. Handle\
+    \ zero-inflation and non-normality. Apply Bonferroni correction for 4 hypothesis\
+    \ tests (family-wise error rate \u2264 0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction for 4 hypothesis tests (family-wise error\
+    \ rate \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:43:27Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sweep Long Method threshold values at 100, 150, and 200 lines
+  claim_id: c_d648ad44
+  context: "T028 [US3] Implement code/03_statistical_analysis/sensitivity_analysis.py:\
+    \ Sweep 'Long Method' threshold values \u2208 {100, 150, 200} lines. Compare results\
+    \ against continuous metrics (cyclomatic complexity) to verify stability."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep 'Long Method' threshold values \u2208 {100, 150, 200} lines."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:43:27Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Ensure total CI job duration is 2 hours or less with 20 parallel jobs
+  claim_id: c_87803edb
+  context: "T032 Performance optimization (ensure total CI job \u2264 2 hours with\
+    \ 20 parallel jobs)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure total CI job \u2264 2 hours with 20 parallel jobs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:43:27Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Extract metrics for four code smell categories
+  claim_id: c_ae26fdf3
+  context: 'Phase 4: User Story 2 - Static Analysis Execution (Priority: P2) Goal:
+    Run CPU-tractable static analysis (PMD/SonarQube CLI) on a representative set
+    of samples to extract metrics for four code smell categories (Long Method, Duplicated
+    Code, Feature Envy, Long Parameter List) within CI limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_metrics_for_four_code_smell_categories
+  kind: entity_fact
+  raw_text: Extract metrics for four code smell categories (Long Method, Duplicated
+    Code, Feature Envy, Long Parameter List).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:44:08Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: "50 public GitHub repos selected with \u2265100 stars and \u22655 years\
+    \ history"
+  claim_id: c_797c8f4d
+  context: 'Phase 3: User Story 1 - T012 [US1] Implement code/01_data_collection/fetch_human_samples.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Query 50 public GitHub repos (\u2265100 stars, \u22655 years history)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:45:58Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 3 fresh functions extracted per repo totaling 150
+  claim_id: c_53fdc920
+  context: 'Phase 3: User Story 1 - T012 [US1] Implement code/01_data_collection/fetch_human_samples.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract 3 fresh functions per repo (total 150) per plan.md Balanced Blocked
+    Design.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:45:58Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 3 LLM samples generated per task totaling 150
+  claim_id: c_25cf7766
+  context: 'Phase 3: User Story 1 - T013 [US1] Implement code/01_data_collection/generate_llm_samples.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (total 150) per plan.md Balanced Blocked Design.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:45:58Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 95% of 150 samples must be syntactically valid
+  claim_id: c_3f114549
+  context: 'Phase 3: User Story 1 - T014 [US1] Implement code/01_data_collection/validate_dataset.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u226595% of 150 samples (\u2265143 human, \u2265143 LLM) are\
+    \ syntactically valid Python/Java."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:45:59Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Static analysis memory limit set to 2 GB with 2 minute timeout
+  claim_id: c_a59dfbb3
+  context: 'Phase 4: User Story 2 - T021 [P] [US2] Implement code/02_static_analysis/run_pmd.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce per-process memory limit (\u22642 GB) and 2-minute timeout per\
+    \ file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:45:59Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Tool configuration flagged as invalid if false-positive rate exceeds
+    5%
+  claim_id: c_0d077876
+  context: 'Phase 4: User Story 2 - T023 [US2] Implement code/02_static_analysis/tool_validity_check.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate false-positive rate; if >5%, flag the tool configuration as
+    invalid in logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:45:59Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for 4 hypothesis tests with family-wise
+    error rate 0.05
+  claim_id: c_95ed8678
+  context: 'Phase 5: User Story 3 - T027 [US3] Implement code/03_statistical_analysis/compare_distributions.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction for 4 hypothesis tests (family-wise error\
+    \ rate \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:45:59Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Long Method threshold sensitivity analysis performed at 100, 150, and
+    200 lines
+  claim_id: c_b6474016
+  context: 'Phase 5: User Story 3 - T028 [US3] Implement code/03_statistical_analysis/sensitivity_analysis.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep Long Method threshold values \u2208 {100, 150, 200} lines."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:46:00Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CI job target set to 2 hours with 20 parallel jobs
+  claim_id: c_09cc6a31
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T032 Performance optimization'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure total CI job \u2264 2 hours with 20 parallel jobs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:46:00Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Target sample size for human samples is 150 (3 per repo across 50 repos)
+  claim_id: c_c155e508
+  context: "Modify FR-001 text to state target is **150 human samples** (3 per repo\
+    \ \xD7 50 repos) instead of \u22651000."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target is 150 human samples (3 per repo \xD7 50 repos) instead of \u2265\
+    1000."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:49:55Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Target sample size for LLM samples is 150 (3 per repo across 50 repos)
+  claim_id: c_d7a1d233
+  context: "Modify FR-002 text to state target is **150 LLM samples** (3 per repo\
+    \ \xD7 50 repos) instead of \u226550."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target is 150 LLM samples (3 per repo \xD7 50 repos) instead of \u2265\
+    50."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:50:11Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Total target sample size is 300 (150 human and 150 LLM)
+  claim_id: c_c0af571e
+  context: Modify SC-001 text to state target is **300 total samples** (150/150) instead
+    of 1050.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target is 300 total samples (150/150) instead of 1050.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:50:49Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Data collection queries 50 public GitHub repositories with at least 100
+    stars and 5 years of history
+  claim_id: c_be398e48
+  context: "Logic to query 50 public GitHub repos (\u2265100 stars, \u22655 years\
+    \ history)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_collection_queries_50_public_GitHub_repositories_with_a
+  kind: magnitude
+  raw_text: "Query 50 public GitHub repos (\u2265100 stars, \u22655 years history)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:50:51Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Extract 3 fresh functions per repository for a total of 150 samples
+  claim_id: c_ea1350b4
+  context: Extract 3 'fresh' functions per repo (total 150) per plan.md 'Balanced
+    Blocked Design'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract 3 'fresh' functions per repo (total 150).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:51:12Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generate 3 samples per task for a total of 150 LLM samples
+  claim_id: c_23036632
+  context: Generate 3 samples per task (total 150) per plan.md 'Balanced Blocked Design'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (total 150).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:51:35Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Verify at least 95% of 150 samples (143 human and 143 LLM) are syntactically
+    valid
+  claim_id: c_d6a190bd
+  context: "Verify \u226595% of 150 samples (\u2265143 human, \u2265143 LLM) are syntactically\
+    \ valid Python/Java."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_95%25_of_150_samples_(143_human_and_143_LLM)_a
+  kind: magnitude
+  raw_text: "Verify \u226595% of 150 samples (\u2265143 human, \u2265143 LLM) are\
+    \ syntactically valid."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:51:54Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for 4 hypothesis tests with family-wise error
+    rate of 0.05
+  claim_id: c_573a608a
+  context: "Apply Bonferroni correction for 4 hypothesis tests (family-wise error\
+    \ rate \u2264 0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction for 4 hypothesis tests (family-wise error\
+    \ rate \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:51:54Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sweep Long Method threshold values across 100, 150, and 200 lines
+  claim_id: c_fc8e9dae
+  context: "Sweep 'Long Method' threshold values \u2208 {100, 150, 200} lines."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep 'Long Method' threshold values \u2208 {100, 150, 200} lines."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:51:54Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Enforce per-process memory limit of 2 GB and 2-minute timeout per file
+  claim_id: c_e68e343c
+  context: "Enforce per-process memory limit (\u22642 GB) and 2-minute timeout per\
+    \ file."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce per-process memory limit (\u22642 GB) and 2-minute timeout per\
+    \ file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:51:55Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Flag tool configuration as invalid if false-positive rate exceeds 5%
+  claim_id: c_03eff76a
+  context: Calculate false-positive rate; if >5%, flag the tool configuration as invalid
+    in logs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate false-positive rate; if >5%, flag the tool configuration as
+    invalid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:51:55Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Total CI job duration must be 2 hours or less with 20 parallel jobs
+  claim_id: c_d23418b8
+  context: "Performance optimization (ensure total CI job \u2264 2 hours with 20 parallel\
+    \ jobs)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure total CI job \u2264 2 hours with 20 parallel jobs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:51:55Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Query 50 public GitHub repositories with at least 100 stars and 5 years
+    history
+  claim_id: c_b429cf7f
+  context: "Implement fetch_human_samples.py: Logic to query 50 public GitHub repos\
+    \ (\u2265100 stars, \u22655 years history)."
+  evidence:
+    candidates:
+    - - GitHub repositories with at least
+      - 100.0
+    - - Query
+      - 50.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Query_50_public_GitHub_repositories_with_at_least_100_stars
+  kind: magnitude
+  raw_text: "Logic to query 50 public GitHub repos (\u2265100 stars, \u22655 years\
+    \ history)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-19T16:58:31Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Extract 3 fresh functions per repository for a total of 150 samples
+  claim_id: c_8a99745a
+  context: 'Implement fetch_human_samples.py: Extract 3 ''fresh'' functions per repo
+    (total 150) per plan.md ''Balanced Blocked Design''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract 3 'fresh' functions per repo (total 150) per plan.md 'Balanced
+    Blocked Design'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:58:31Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generate 3 samples per task for a total of 150 LLM samples
+  claim_id: c_f194c9f0
+  context: 'Implement generate_llm_samples.py: Generate 3 samples per task (total
+    150) per plan.md ''Balanced Blocked Design''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 3 samples per task (total 150) per plan.md 'Balanced Blocked
+    Design'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:58:32Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Verify at least 95% of 150 samples (at least 143 human and 143 LLM) are
+    syntactically valid
+  claim_id: c_9038b687
+  context: "Implement validate_dataset.py: Verify \u226595% of 150 samples (\u2265\
+    143 human, \u2265143 LLM) are syntactically valid Python/Java."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_95%25_of_150_samples_(at_least_143_human_and_1
+  kind: magnitude
+  raw_text: "Verify \u226595% of 150 samples (\u2265143 human, \u2265143 LLM) are\
+    \ syntactically valid Python/Java."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:58:34Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Enforce per-process memory limit of 2 GB and 2-minute timeout per file
+  claim_id: c_03fadff9
+  context: "Implement run_pmd.py: Enforce per-process memory limit (\u22642 GB) and\
+    \ 2-minute timeout per file."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce per-process memory limit (\u22642 GB) and 2-minute timeout per\
+    \ file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:58:34Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Flag tool configuration as invalid if false-positive rate exceeds 5%
+  claim_id: c_de466745
+  context: 'Implement tool_validity_check.py: Calculate false-positive rate; if >5%,
+    flag the tool configuration as invalid in logs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate false-positive rate; if >5%, flag the tool configuration as
+    invalid in logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:58:35Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for 4 hypothesis tests with family-wise error
+    rate of 0.05
+  claim_id: c_b1d9253c
+  context: "Implement compare_distributions.py: Apply Bonferroni correction for 4\
+    \ hypothesis tests (family-wise error rate \u2264 0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction for 4 hypothesis tests (family-wise error\
+    \ rate \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:58:35Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sweep Long Method threshold values of 100, 150, and 200 lines
+  claim_id: c_6cd555d6
+  context: "Implement sensitivity_analysis.py: Sweep 'Long Method' threshold values\
+    \ \u2208 {100, 150, 200} lines."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep 'Long Method' threshold values \u2208 {100, 150, 200} lines."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:58:35Z'
+- artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Ensure total CI job is 2 hours or less with 20 parallel jobs
+  claim_id: c_2c0f974c
+  context: "Performance optimization: ensure total CI job \u2264 2 hours with 20 parallel\
+    \ jobs"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "ensure total CI job \u2264 2 hours with 20 parallel jobs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:58:36Z'

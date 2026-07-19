@@ -1,0 +1,34 @@
+# Dockerfile for PMD/JRE Environment
+# Used for local reproduction of the CI static analysis environment
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install OpenJDK 17 (Required for PMD)
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jdk-headless \
+    wget \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Java Environment Variables
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV PATH=$PATH:$JAVA_HOME/bin
+
+# Install PMD CLI
+# Using a specific version for reproducibility
+ARG PMD_VERSION=7.5.0
+RUN wget -q https://github.com/pmd/pmd/releases/download/pmd_releases%2F${PMD_VERSION}/pmd-bin-${PMD_VERSION}.zip -O /tmp/pmd-bin.zip \
+    && unzip -q /tmp/pmd-bin.zip -d /opt \
+    && mv /opt/pmd-bin-${PMD_VERSION} /opt/pmd \
+    && ln -s /opt/pmd/bin/pmd /usr/local/bin/pmd \
+    && rm /tmp/pmd-bin.zip
+
+# Verify installation
+RUN pmd --version && java -version
+
+# Set working directory
+WORKDIR /workspace
+
+# Default command
+CMD ["/bin/bash"]

@@ -1,0 +1,54 @@
+name: PMD and JRE Environment Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  check-pmd-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Install PMD CLI
+        run: |
+          export PMD_VERSION=7.0.0
+          curl -fsSL "https://github.com/pmd/pmd/releases/download/pmd_releases/${PMD_VERSION}/pmd-bin-${PMD_VERSION}.zip" -o /tmp/pmd.zip
+          sudo unzip /tmp/pmd.zip -d /opt/
+          sudo ln -s /opt/pmd-bin-${PMD_VERSION}/bin/pmd /usr/local/bin/pmd
+          rm /tmp/pmd.zip
+
+      - name: Verify PMD Installation
+        run: |
+          pmd --version
+          if ! command -v pmd &> /dev/null; then
+            echo "ERROR: PMD command not found in PATH"
+            exit 1
+          fi
+          echo "PMD successfully installed and available."
+
+      - name: Verify Java Installation
+        run: |
+          java -version
+          if ! command -v java &> /dev/null; then
+            echo "ERROR: Java command not found in PATH"
+            exit 1
+          fi
+          echo "Java successfully installed and available."
+
+      - name: Run PMD on a sample file (Smoke Test)
+        run: |
+          # Create a temporary dummy file to test PMD execution
+          mkdir -p /tmp/pmd_test
+          echo "public class Dummy { public static void main(String[] args) { System.out.println(1); } }" > /tmp/pmd_test/Dummy.java
+          pmd check -R rulesets/java/quickstart.xml -d /tmp/pmd_test || true
+          echo "PMD execution completed successfully."

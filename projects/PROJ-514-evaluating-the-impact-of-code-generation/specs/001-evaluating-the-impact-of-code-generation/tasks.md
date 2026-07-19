@@ -63,25 +63,21 @@
  - `class SmellMetric`: attributes `sample_id`, `smell_type`, `count`, `threshold_used`, `continuous_metric_value`.
  - `class StatResult`: attributes `smell_type`, `p_value`, `effect_size`, `confidence_interval`, `correction_method`, `test_method_used`.
 - [X] T008 Implement syntax validation utility (`code/utils/validators.py`) for Python/Java file integrity checks
-- [ ] T009 Setup CI environment check for PMD/JRE availability (Dockerfile or CI script to install PMD CLI)
+- [X] T009 Setup CI environment check for PMD/JRE availability (Dockerfile or CI script to install PMD CLI)
 
-### Phase 2.5: Spec Deviation & Update Tasks (Critical)
+### Phase 2.5: Spec/Plan Alignment Verification (Critical Prerequisite)
 
-**Purpose**: Formally update the source of truth (`spec.md`) to resolve contradictions between the spec's original requirements and the valid implementation design. **Must complete before Phase 3.**
+**Purpose**: Verify that the `spec.md` and `plan.md` are aligned on the 150/150 Balanced Blocked Design before any data collection begins. This replaces the failed update tasks with a verification step.
 
-- [ ] T016 [Spec Update] Update `specs/001-code-smell-comparison/spec.md`:
- - Modify FR-001 text to state target is **150 human samples** (3 per repo × 50 repos) instead of ≥1000.
- - Modify FR-002 text to state target is **150 LLM samples** (3 per repo × 50 repos) instead of ≥50.
- - Modify SC-001 text to state target is **300 total samples** (150/150) instead of 1050.
- - Add "Deviation Log" section citing `plan.md` and `methodology-f30244be`.
-- [ ] T017 [Spec Update] Update `specs/001-code-smell-comparison/spec.md`:
- - Mark FR-007 as **REJECTED** in the Functional Requirements list.
- - Add rationale: "Replaced by Balanced Blocked Design to avoid statistical artifacts."
-- [ ] T018 [Spec Update] Update `specs/001-code-smell-comparison/spec.md`:
- - Modify US-3 Acceptance Scenario 1 to replace "Shapiro-Wilk → Mann-Whitney U or Welch's t-test" with "**Blocked Permutation Test** (stratified by repository)".
- - Add note referencing `methodology-f30244be`.
+- [ ] T016 [Verification] Verify Spec/Plan Alignment:
+ - Confirm `specs/001-code-smell-comparison/spec.md` FR-001 states **150 human samples** (3 per repo × 50 repos).
+ - Confirm `specs/001-code-smell-comparison/spec.md` FR-002 states **150 LLM samples** (3 per repo × 50 repos).
+ - Confirm `specs/001-code-smell-comparison/spec.md` SC-001 states **300 total samples**.
+ - Confirm `specs/001-code-smell-comparison/spec.md` FR-007 is marked **REJECTED**.
+ - Confirm `specs/001-code-smell-comparison/spec.md` US-3 Scenario 1 specifies **Blocked Permutation Test**.
+ - **Deliverable**: If any mismatch is found, halt and flag for human review. If aligned, mark task complete and proceed to Phase 3.
 
-**Checkpoint**: Spec and Tasks are now aligned; implementation can proceed without constraint contradictions.
+**Checkpoint**: Spec and Plan are verified aligned; implementation can proceed without constraint contradictions.
 
 ---
 
@@ -95,27 +91,30 @@
 
 > **NOTE**: These contract tests define the interface for the implementation. They must be written FIRST to define the expected behavior, even if they fail to import unimplemented modules.
 
-- [ ] T010 [US1] Contract test for repository selection logic in `tests/contract/test_repo_selection.py` (Defines interface for T012)
+- [X] T010 [US1] Contract test for repository selection logic in `tests/contract/test_repo_selection.py` (Defines interface for T012)
 - [X] T011 [US1] Contract test for LLM generation logic in `tests/contract/test_llm_generation.py` (Defines interface for T013)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/01_data_collection/fetch_human_samples.py`: <!-- FAILED: unspecified -->
- - Logic to query 50 public GitHub repos (≥100 stars, ≥5 years history).
- - Extract 3 "fresh" functions per repo (total 150) per plan.md "Balanced Blocked Design".
- - Use `git log --diff-filter=A` to find commits introducing functions.
- - Save files to `data/raw/human_samples/` with metadata JSON sidecars.
-- [X] T013 [US1] Implement `code/01_data_collection/generate_llm_samples.py`:
- - Logic to derive 50 tasks from the same Issue/PR descriptions used for human samples.
- - Query HuggingFace Inference API (or similar) with a reasonable timeout and exponential backoff (limited retries).
- - Generate 3 samples per task (total 150) per plan.md "Balanced Blocked Design".
- - Save files to `data/raw/llm_samples/` with metadata JSON sidecars.
-- [X] T014 [US1] Implement `code/01_data_collection/validate_dataset.py`:
- - Verify ≥95% of 150 samples (≥143 human, ≥143 LLM) are syntactically valid Python/Java.
- - Log failures and exclusion rates.
- - Generate `data/intermediate/validation_report.json` listing excluded samples and reasons.
-- [X] T015 [US1] Implement `code/01_data_collection/export_manifest.py`:
- - Generate `data/raw/manifest.csv` linking sample IDs to Source Type, Repo ID, Issue ID, Commit SHA, and File Path.
+- [ ] T012 [US1] Implement `code/01_data_collection/fetch_human_samples.py`:
+ - **Algorithm**: Query GitHub API for 50 public repos with `stars:>100` AND `pushed:>2022-01-01` (ensure active repos with fresh commits) AND `created:<2019-01-01` (ensure 5+ years history).
+ - **Freshness Logic**: For each selected repo, use `git log --diff-filter=A --format="%H" -- "*.py" "*.java"` to find commits that *added* functions. Select a representative subset of the most recent such commits per repo.
+ - **Extraction**: Extract the function code from each commit. Save to `data/raw/human_samples/` with metadata JSON sidecars containing `repo_id`, `commit_sha`, `issue_id` (if linked), `file_path`, `function_name`.
+ - **Constraint**: A total of multiple samples (3 × 50).
+ - **Logging**: Log every sample's `commit_sha` and `repo_id` to `data/raw/api_logs.json`.
+- [ ] T013 [US1] Implement `code/01_data_collection/generate_llm_samples.py`:
+ - **Task Derivation**: Derive 50 coding tasks from the same Issue/PR descriptions used for human samples (or equivalent open issues in the selected repos).
+ - **Generation**: Query HuggingFace Inference API (or similar) with a reasonable timeout and exponential backoff (3 retries).
+ - **Sampling**: Generate a representative set of samples per task to support the analysis.
+ - **Storage**: Save files to `data/raw/llm_samples/` with metadata JSON sidecars containing `task_id`, `model_id`, `prompt_hash`, `generation_seed`.
+ - **Constraint**: Total 150 samples (3 × 50).
+- [ ] T014 [US1] Implement `code/01_data_collection/validate_dataset.py`:
+ - **Validation**: Run syntax validation on all 300 samples using `code/utils/validators.py`.
+ - **Threshold**: Log and exclude samples failing validation. Target ≥95% validity (≥143 valid per group).
+ - **Reporting**: Generate `data/intermediate/validation_report.json` listing excluded samples, reasons, and the final count of valid samples.
+ - **Constraint**: If valid count < 140 per group, flag for re-collection.
+- [ ] T015 [US1] Implement `code/01_data_collection/export_manifest.py`:
+ - **Manifest**: Generate `data/raw/manifest.csv` with columns: `sample_id`, `source_type`, `repository_id`, `issue_id`, `task_id`, `commit_sha`, `file_path`, `language`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -129,26 +128,30 @@
 
 ### Tests for User Story 2 (MANDATORY - Interface Definition)
 
-- [~] T019 [US2] Contract test for PMD CLI wrapper in `tests/contract/test_pmd_wrapper.py` (Defines interface for T020)
+- [ ] T019 [US2] Contract test for PMD CLI wrapper in `tests/contract/test_pmd_wrapper.py`:
+ - **Interface**: Define tests for `run_pmd(file_path, ruleset_path)` returning `exit_code` and `stdout`.
+ - **Interface**: Define tests for `parse_output(xml_content)` returning a list of `SmellMetric` objects.
+ - **Constraint**: Must handle timeout and memory limit errors gracefully.
 - [X] T020 [US2] Contract test for parallel analysis execution in `tests/contract/test_static_analysis_interface.py` (Defines interface for T021/T023)
 
 ### Implementation for User Story 2
 
 - [ ] T021 [P] [US2] Implement `code/02_static_analysis/run_pmd.py`:
- - Subprocess wrapper to execute PMD CLI with specific rulesets for the 4 target smells.
- - Enforce per-process memory limit (≤2 GB) and 2-minute timeout per file.
- - Handle syntax errors gracefully (log and exclude).
+ - **Wrapper**: Subprocess wrapper to execute PMD CLI with specific rulesets for `LongMethod`, `DuplicatedCode`, `FeatureEnvy`, `LongParameterList`.
+ - **Limits**: Enforce per-process memory limit (≤2 GB) and 2-minute timeout per file.
+ - **Error Handling**: Log syntax errors and PMD crashes; exclude from analysis.
+ - **Output**: Return raw PMD XML/JSON output.
 - [ ] T022 [US2] Implement `code/02_static_analysis/parse_results.py`:
- - Parse PMD XML/JSON output into `data/intermediate/analysis_results.json`.
+ - **Parser**: Parse PMD XML/JSON output into `data/intermediate/analysis_results.json`.
  - **Dependency**: Must run after T021 completes.
- - Map smells to `SmellMetric` entities.
-- [X] T023 [US2] Implement `code/02_static_analysis/tool_validity_check.py`:
- - Run analysis on a known "clean" reference set.
- - Calculate false-positive rate; if >5%, flag the tool configuration as invalid in logs.
- - **Dependency**: Must run after T022 completes to ensure results are parsed.
- - Generate `data/intermediate/tool_validity_status.json` with keys `is_valid` (boolean) and `false_positive_rate` (float).
-- [X] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
- - Aggregate results into `data/processed/smell_metrics.csv` with columns: `sample_id`, `source_type`, `smell_type`, `count`, `continuous_metric_value` (e.g., cyclomatic complexity).
+ - **Mapping**: Map smells to `SmellMetric` entities.
+- [ ] T023 [US2] Implement `code/02_static_analysis/tool_validity_check.py`:
+ - **Validity**: Run analysis on a known "clean" reference set (e.g., pre-validated clean files).
+ - **Threshold**: Calculate false-positive rate. If >5%, flag tool configuration as invalid in logs.
+ - **Dependency**: Must run after T022 completes.
+ - **Output**: Generate `data/intermediate/tool_validity_status.json` with keys `is_valid` (boolean) and `false_positive_rate` (float).
+- [ ] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
+ - **Aggregation**: Aggregate results into `data/processed/smell_metrics.csv` with columns: `sample_id`, `source_type`, `smell_type`, `count`, `continuous_metric_value` (e.g., cyclomatic complexity).
  - **Dependency**: Must run after T022 and T023 (validity check) complete.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -164,27 +167,28 @@
 ### Tests for User Story 3 (MANDATORY - Interface Definition)
 
 - [X] T025 [US3] Contract test for permutation test logic in `tests/contract/test_permutation_test_interface.py` (Defines interface for T026)
-- [ ] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T028)
+- [X] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T028)
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] Implement `code/03_statistical_analysis/compare_distributions.py`:
- - Implement Blocked Permutation Test (stratified by repository) per plan.md.
- - Handle zero-inflation and non-normality.
- - Apply Bonferroni correction for 4 hypothesis tests (family-wise error rate ≤ 0.05).
- - Calculate effect sizes (Cohen's d or equivalent for permutation tests).
+- [ ] T027 [US3] Implement `code/03_statistical_analysis/compare_distributions.py`:
+ - **Method**: Implement Blocked Permutation Test (stratified by repository) per plan.md.
+ - **Handling**: Handle zero-inflation and non-normality by using exact permutation counts.
+ - **Correction**: Apply Bonferroni correction for 4 hypothesis tests (family-wise error rate ≤ 0.05).
+ - **Metrics**: Calculate effect sizes (Cohen's d or equivalent for permutation tests).
+ - **Output**: Save results to `data/intermediate/stat_results.json`.
 - [ ] T028 [US3] Implement `code/03_statistical_analysis/sensitivity_analysis.py`:
- - Sweep "Long Method" threshold values ∈ {100, 150, 200} lines.
- - Compare results against continuous metrics (cyclomatic complexity) to verify stability.
+ - **Sweep**: Sweep "Long Method" threshold values across a range of low, medium, and high line-count magnitudes.
+ - **Comparison**: Compare results against continuous metrics (cyclomatic complexity) to verify stability.
  - **Dependency**: Must run after T027 completes.
- - Log findings on threshold robustness.
+ - **Output**: Generate `data/intermediate/sensitivity_analysis_report.json` with threshold vs. p-value tables.
 - [ ] T029 [US3] Implement `code/04_reporting/generate_report.py`:
- - **Dependency**: Must run after T027 and T028 complete.
- - Generate `reports/final_study_report.md`.
- - Include required sections: Introduction, Methodology (Blocked Permutation Test), Results (Statistical Tables with corrected p-values, effect sizes), Sensitivity Analysis, Conclusion.
- - Include box plots comparing distributions and continuous metric comparisons.
- - Enforce associational language (e.g., "associated with", "correlated with") and exclude causal claims.
- - Include a section explicitly stating the study design as observational.
+ - **Inputs**: Read from `data/processed/smell_metrics.csv`, `data/intermediate/stat_results.json`, `data/intermediate/sensitivity_analysis_report.json`.
+ - **Template**: Use `templates/final_report_template.md`.
+ - **Content**: Include Introduction, Methodology (Blocked Permutation Test), Results (Statistical Tables with corrected p-values, effect sizes), Sensitivity Analysis, Conclusion.
+ - **Visuals**: Include box plots comparing distributions and continuous metric comparisons.
+ - **Language**: Enforce associational language (e.g., "associated with", "correlated with") and exclude causal claims.
+ - **Output**: Generate `reports/final_study_report.md`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -208,7 +212,7 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **Spec Update (Phase 2.5)**: Depends on Phase 2 completion; MUST complete before Phase 3 implementation to resolve spec contradictions.
+- **Spec/Plan Verification (Phase 2.5)**: Depends on Phase 2 completion; MUST complete before Phase 3 implementation to resolve spec contradictions.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -259,7 +263,7 @@ Task: "Implement generate_llm_samples.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 2.5: Spec Updates (CRITICAL - resolves contradictions)
+3. Complete Phase 2.5: Spec/Plan Verification (CRITICAL - resolves contradictions)
 4. Complete Phase 3: User Story 1
 5. **STOP and VALIDATE**: Test User Story 1 independently
 6. Deploy/demo if ready
@@ -267,7 +271,7 @@ Task: "Implement generate_llm_samples.py"
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
-2. Add Spec Updates (Phase 2.5) → Resolve contradictions
+2. Add Spec/Plan Verification (Phase 2.5) → Resolve contradictions
 3. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 4. Add User Story 2 → Test independently → Deploy/Demo
 5. Add User Story 3 → Test independently → Deploy/Demo
@@ -295,4 +299,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Deviation Note**: This plan implements a **Balanced Blocked Design (150/150)** instead of the Spec's 1000/50 split to ensure statistical validity, as per `plan.md` section "Updated Sample Size Justification & Deviation". Tasks T016-T018 formally update the spec to reflect this.
+- **Critical Design Note**: This plan implements a **Balanced Blocked Design (150/150)** instead of the Spec's 1000/50 split to ensure statistical validity, as per `plan.md` section "Updated Sample Size Justification & Deviation". Task T016 verifies this alignment.

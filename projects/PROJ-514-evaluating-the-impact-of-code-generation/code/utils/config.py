@@ -1,47 +1,49 @@
+"""
+Environment configuration management.
+Handles seeds, paths, timeouts, API keys.
+"""
+
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Project Root Detection
-def get_project_root() -> Path:
-    """Returns the absolute path to the project root."""
-    current = Path(__file__).resolve()
-    # Traverse up until we find a marker or hit root
-    while current != current.parent:
-        if (current / "code").exists() and (current / "data").exists():
-            return current
-        current = current.parent
-    # Fallback: assume current working directory is root if structure found
-    return Path.cwd()
+# Project root
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-def get_config() -> Dict[str, Any]:
+# Default configuration
+DEFAULT_CONFIG = {
+    "random_seed": 42,
+    "github_api_timeout": 30,
+    "git_clone_timeout": 300,
+    "pmd_memory_limit_gb": 2,
+    "pmd_timeout_seconds": 120,
+    "max_retries": 3,
+    "retry_delay_seconds": 5,
+    "output_dir": PROJECT_ROOT / "data",
+    "reports_dir": PROJECT_ROOT / "reports",
+    "logs_dir": PROJECT_ROOT / "logs",
+    "temp_dir": PROJECT_ROOT / "temp_clones"
+}
+
+def get_project_root() -> Path:
+    """Get the project root directory."""
+    return PROJECT_ROOT
+
+def get_config(key: Optional[str] = None) -> Any:
     """
-    Returns a dictionary of configuration values.
-    Loads from environment variables or defaults.
-    """
-    project_root = get_project_root()
+    Get configuration value.
     
-    return {
-        "project_root": project_root,
-        "data_dir": project_root / "data",
-        "code_dir": project_root / "code",
-        "reports_dir": project_root / "reports",
-        "raw_human_dir": project_root / "data" / "raw" / "human_samples",
-        "raw_llm_dir": project_root / "data" / "raw" / "llm_samples",
-        "intermediate_dir": project_root / "data" / "intermediate",
-        "processed_dir": project_root / "data" / "processed",
-        
-        # Seeds
-        "random_seed": int(os.getenv("RANDOM_SEED", "42")),
-        
-        # Timeouts & Limits
-        "api_timeout": int(os.getenv("API_TIMEOUT", "30")),
-        "max_retries": int(os.getenv("MAX_RETRIES", "3")),
-        "pmd_timeout_seconds": int(os.getenv("PMD_TIMEOUT_SECONDS", "120")),
-        
-        # API Keys (optional, for LLM)
-        "hf_api_key": os.getenv("HF_API_KEY", ""),
-        
-        # Thresholds
-        "validation_threshold": 0.95, # 95% valid required
-    }
+    Args:
+        key: Specific config key to retrieve, or None for full config
+    
+    Returns:
+        Configuration value or full config dict
+    """
+    # Check environment variables first
+    env_key = key.upper() if key else None
+    if env_key and env_key in os.environ:
+        return os.environ[env_key]
+    
+    if key:
+        return DEFAULT_CONFIG.get(key)
+    return DEFAULT_CONFIG.copy()
