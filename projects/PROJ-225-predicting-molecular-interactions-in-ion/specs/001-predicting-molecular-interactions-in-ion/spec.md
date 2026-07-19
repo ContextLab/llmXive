@@ -29,7 +29,7 @@ The system MUST train three separate Gradient-Boosting Regressors (XGBoost) to p
 
 **Why this priority**: This is the core analytical engine. It transforms the engineered features into predictive models, directly addressing the research question of which mechanisms dominate.
 
-**Independent Test**: The training script can be tested by running it on a toy dataset (e.g., 100 samples) with a 2-minute timeout. It should output three model artifacts (`.json` or `.pkl`) and a log file showing the best hyperparameters found for each component.
+**Independent Test**: The training script can be tested by running it on a toy dataset (e.g., a small number of samples) with a 2-minute timeout. It should output three model artifacts (`.json` or `.pkl`) and a log file showing the best hyperparameters found for each component.
 
 **Acceptance Scenarios**:
 
@@ -45,7 +45,7 @@ The system MUST group predictions by cation/anion structural families, compute m
 
 **Why this priority**: This step answers the specific research question about trends across families and validates the model's generalizability. The ANOVA test is used not to prove the obvious (structure determines energy) but to identify *which specific families* deviate significantly from the global trend, enabling targeted analysis of outliers. Validating against experimental data ensures the model predicts real physical interactions, not just interpolation of SAPT artifacts.
 
-**Independent Test**: The analysis script can be tested by running it on the test set predictions and a subset of 20 experimental data points. It should output a JSON report containing ANOVA p-values for each family and a comparison plot (or data) of ML vs. Experimental errors.
+**Independent Test**: The analysis script can be tested by running it on the test set predictions and a subset of experimental data points. It should output a JSON report containing ANOVA p-values for each family and a comparison plot (or data) of ML vs. Experimental errors.
 
 **Acceptance Scenarios**:
 

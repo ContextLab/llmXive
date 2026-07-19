@@ -1,2 +1,2 @@
-# llmXive: Testing package initialization
-# Contains unit, integration, and contract tests
+# llmXive Tests
+# Package initialization for tests

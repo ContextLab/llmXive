@@ -1,0 +1,15 @@
+status: none
+intent: download ILThermo dataset and SAPT DFT energy decomposition database python
+  package dataset
+required_fields:
+- cation_id
+- anion_id
+- electrostatic_energy
+- dispersion_energy
+- hbond_energy
+- partial_charge
+- polarizability
+- graph_embedding
+cache_key: 9da53a28c403a2cf659238b295eda9d0d3c43839ee1d6ec4554d720d4a68570a
+searched_at: '2026-07-19T17:53:38.228617+00:00'
+retry_count: 1

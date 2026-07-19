@@ -1,36 +1,42 @@
 T012a:
-  c: true
-  h: 8c86f7db8bd3a034642a914222ae21ab9d4c4296cf186442e7ee40b452132d8a
-  r: "The `code/data_ingestion.py` file contains a fully implemented `download_spice(url)`\
-    \ function that downloads the dataset, writes it to `data/raw/spice.parquet`,\
-    \ and loads it into a DataFrame. No placeholder or stub code is present; the missing\
-    \ `spice.parquet` file is expected to be created at runtime, not required as a\
-    \ pre\u2011existing artifact."
+  c: false
+  h: d7e74b7c7be636203a4a29f03a55e1a48bfd7ac9dbe4d5232e81e6008895ef3f
+  r: "The repository contains a partially\u2011implemented `download_spice` function\
+    \ (the code is truncated and does not actually download, verify, or write the\
+    \ dataset). Moreover, the required output file `data/raw/spice.parquet` is absent,\
+    \ so the function\u2019s side\u2011effect and the expected columns cannot be verified.\
+    \ The task is therefore not fulfilled."
+T013:
+  c: false
+  h: cf3e6c7ce5df15f4675a8179ed5efe05d9276c4e5dc7d2646e3b0f1d3f36fb55
+  r: The repository lacks the required `data/raw/sapt.parquet` file, and the provided
+    `code/data_ingestion.py` excerpt shows only a `download_spice` implementation
+    with no visible `download_sapt` function that fetches the SAPT dataset, verifies
+    columns, or raises `DataIngestionError`. Both the output file and the specific
+    function implementation are missing.
 T014:
   c: false
-  h: 799a1ebb6a7c788d46e2901f99eddf6b334cff91bda561360ec3519fec7223b5
-  r: "The repository lacks an `attempt_il_sapt_download` implementation in `code/data_ingestion.py`\
-    \ (the file only contains other placeholder functions) and the required `data/raw/sapt.parquet`\
-    \ file is absent. Consequently the task\u2019s core behavior\u2014downloading\
-    \ or synthesizing SAPT data and saving it with the specified columns\u2014is not\
-    \ fulfilled."
-T016:
-  c: false
-  h: b165a66eb4ba263a53420ff28389d04d75407862d7281b8a0ca9a7122eabe58d
-  r: "The repository contains `code/data_ingestion.py`, but the provided excerpt does\
-    \ not show an `engineer_features(df)` implementation, and the required output\
-    \ file `data/processed/unified_dataset.parquet` is absent. Consequently the task\u2019\
-    s core deliverable\u2014feature engineering with the specified columns, dropping\
-    \ `partial_charge`, adding `charge_reliability`, and saving the parquet file\u2014\
-    has not been fulfilled. The next implementer must add a complete `engineer_features`\
-    \ function and generate the missing parquet dataset."
+  h: f5d527ffe52cae8ec99a654740d7894a38c3bb66be744c29d0056579d8d03992
+  r: The repository lacks the required `data/raw/il_structures.json` and the output
+    `data/raw/sapt_synth.parquet`. Moreover, the provided `code/data_ingestion.py`
+    excerpt does not contain a `generate_synthetic_sapt` function implementing the
+    described fallback logic, psi4 invocation, selection of missing ion pairs, or
+    logging of psi4 version. These essential artifacts and functionality are missing,
+    so the task is not satisfied.
 T017b:
   c: false
-  h: b165a66eb4ba263a53420ff28389d04d75407862d7281b8a0ca9a7122eabe58d
-  r: The repository does not contain the required output file `data/processed/unified_dataset.parquet`,
-    and the shown portion of `code/data_ingestion.py` does not include a `write_unified_dataset(df,
-    path)` implementation. Without the function or the saved Parquet file, the task
-    requirement is not satisfied.
+  h: 5727d48fae8475579b0187c481125617f1e71d5883f6f81f9dd4ee91aea9dc1d
+  r: "The repository lacks the required `data/processed/unified_dataset.parquet` file,\
+    \ the `contracts/ion_pair.schema.yaml` schema, and the `write_unified_dataset(df,\
+    \ path)` function is not present (or not visible) in `code/data_ingestion.py`.\
+    \ Consequently the task\u2019s core requirements are unmet."
+T017c:
+  c: false
+  h: 7c7ae6ddc5ffdbd63f26f8808f128f842990bead6f4b3eaf8d0daac3212ca2c8
+  r: "The repository contains `code/data_ingestion.py`, but the provided excerpt does\
+    \ not show a `filter_raw_sapt(df)` function, nor any code that writes `data/processed/raw_sapt_subset.parquet`.\
+    \ Moreover, the required parquet file is absent from the `data/processed` directory.\
+    \ The task\u2019s core output is therefore missing."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
