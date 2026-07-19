@@ -42,6 +42,30 @@ which cannot delete `DEFAULT_MODEL` while anything imports it (nothing does now 
 correctly using *honest* dimensions, which confirmed the arithmetic while never testing the trust
 boundary. Verifying that a bound is *computed* right is not verifying that it cannot be *evaded*.
 
+## Review round 4 — one blocker introduced BY the round-3 fix
+
+|#|severity|defect|fix|
+|-|-|-|-|
+|G1|**blocker**|F2's fix keyed the review cache on `profile` + `selection_policy_version` but omitted `RequirementOverrides`. Tier-0 and tier-1 keys were byte-identical, so `identify()` returned the cached tier-0 review **before reaching `route_chat`** — the escalation ladder advanced and exhausted while re-serving the original model's opinion, making `exclude_leader` inert.|`5853c6775f` — overrides canonicalized into the key via `dataclasses.fields()` (so a future field is included automatically); `None` and default `RequirementOverrides()` canonicalize identically so a no-escalation run does not spuriously miss; regression test proves a tier-1 reviewer MISSES and REACHES `route_chat`|
+|G2|low|`ImagePart` accepted a 24-byte PNG stub with no IHDR body, CRC, IDAT or IEND, while documenting that malformed input is rejected|`bb84178dc1` — cheap structural framing checks (PNG chunk length + IEND, WebP RIFF size, JPEG EOI) AND the docstring narrowed to what is actually guaranteed: signature, framing, canonical dimensions — not pixel-level decodability|
+|G3|low|ruff UP037 on the `from_bytes` return annotation|`b9f0519649`|
+|—|wording|`tokens.py` claimed the per-side check "bounds neither the total pixel count nor the decoded footprint" — false; it bounds both at 1536². `MAX_IMAGE_PIXELS` is a *tighter* bound.|folded into `bb84178dc1`|
+
+**The lesson from G1, which is the sharpest one in this slice.** My own F2 dispatch said "a cached
+review must not be reused across a materially different selection decision" — and then specified only
+profile + policy version. Escalation overrides ARE a materially different selection decision. I named
+the correct principle and then enumerated an incomplete implementation of it, and the subagent
+implemented exactly what I enumerated, writing a comment that *rationalized* the omission. A cache
+sitting upstream of a routing chokepoint can silently no-op an entire state machine while every test
+passes, because nothing exercised the second tier. **When a cache guards a decision, its key must
+carry every input to that decision — derive the key from the decision's own fields, never from a
+hand-listed subset.**
+
+## Gate after round 4
+
+7080 passed / 17 skipped / 0 failed · 0 slice-7 manifest rows · `git diff --check` clean · 104
+commits ahead of `origin/main`, **not pushed**.
+
 Design: [2026-07-19-issue-1242-slice7-design.md](2026-07-19-issue-1242-slice7-design.md) (rev 3).
 Plan: [2026-07-19-spec-026-slice7-plan.md](2026-07-19-spec-026-slice7-plan.md).
 Ledger: `.superpowers/sdd/progress.md` (git-ignored).
