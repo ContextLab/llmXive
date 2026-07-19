@@ -13,16 +13,27 @@ kickoff for the two REMAINING slices. Slices 1–6 are done, green, and reviewed
 - **`specs/026-model-selection-consolidation/plan.md`** — the Slice 7 and Slice 8 paragraphs (the
   canonical scope; quoted-in-brief below).
 - **`specs/026-model-selection-consolidation/migration_manifest.{md,json}`** — THE WORK-LIST. It is a
-  frozen, drift-tested scan of every model-id pin in the repo. Filter `migration_target` entries by
-  `owning_slice`: **Slice 7 = 136 rows** (each is a `file:line`, `kind`, `symbol` to migrate), Slice 5
-  = 3 (done, will drop when their symbols delete in Slice 8). Regenerate after EVERY pin move:
+  frozen, drift-tested scan of every model-id pin in the repo. **Slice 7 owns ALL 300
+  `owning_slice==7` rows**, which span THREE categories — do NOT scope to the migration targets
+  alone or you will "finish" with the schema + registry untouched:
+  - `category=="migration_target"` — **136** rows (each a `file:line`, `kind`, `symbol` to migrate);
+  - `category=="registry"` — **161** rows (`agents/registry.yaml`: `default_model` /
+    `default_backend` / `fallback_backends` on 54 agents — cleared by the schema rewrite, not
+    one-by-one);
+  - `category=="schema"` — **3** rows (`src/llmxive/types.py` `AgentRegistryEntry` fields).
+
+  Slice 5 = 3 `migration_target` rows (done, will drop when their symbols delete in Slice 8).
+  `test_double` (267) and `canonical_layer` (7) rows carry no `owning_slice` and are NOT Slice-7
+  work. The 1 `exempt` row (`agents/registry.yaml:866`, `paper_publisher`'s `deterministic-no-llm`)
+  also carries no `owning_slice`, but the schema rewrite MUST still give that sentinel a home.
+  Regenerate after EVERY pin move:
   `.venv/bin/python -m llmxive.model_selection.inventory` (writes json+md; `test_model_selection_inventory`
   frozen-drift test enforces they match the live scan).
 - **The Slice-6 design + plan** ([2026-07-18-issue-1242-slice6-{design,plan}.md](2026-07-18-issue-1242-slice6-design.md))
   — the patterns you'll reuse: the TYPE_CHECKING import discipline, the compose-merge, the SDD workflow.
 
 ## Mechanism as-built (what the remaining pins migrate ONTO)
-`route_chat` (`model_selection/route.py`) is the single chokepoint: acquire snapshot → `build_requirement(profile, …)` → pure `select()` → `execute()`. Call sites express a **named profile**, never a model id. The 6 profiles live in **`model_selection/profiles.py`** (`cheap_structured`, `standard_generation`, `deep_review`, `deep_code`, `vision`, `independent_review`). Registry agents currently route through a **provisional `standard_generation`** profile (Slice 5) regardless of their real intent — Slice 7 makes each pick its true profile. `RequirementOverrides` (escalation) composes on top. Paid is gated by opt-in + `credits.fresh_paid_headroom_available` + per-call ceiling + the git ledger.
+`route_chat` (`model_selection/route.py`) is the single chokepoint: acquire snapshot → `build_requirement(profile, …)` → pure `select()` → `execute()`. **TARGET architecture:** call sites express a **named profile**, never a model id. **As-built (pre-Slice-7):** they do NOT yet — the compat walkers (`chat_with_fallback` / `reasoning_chat` / `chat_with_model_fallback`) hardcode a provisional `standard_generation` and still take a `model=` pin, which `route_chat` accepts as `caller_model` and promotes to the front of the chain iff `select` kept it. Registry consumers still read `entry.default_model`. Retiring those pins IS Slice 7's job. The 6 profiles live in **`model_selection/profiles.py`** (`cheap_structured`, `standard_generation`, `deep_review`, `deep_code`, `vision`, `independent_review`). Registry agents currently route through a **provisional `standard_generation`** profile (Slice 5) regardless of their real intent — Slice 7 makes each pick its true profile. `RequirementOverrides` (escalation) composes on top. Paid is gated by opt-in + `credits.fresh_paid_headroom_available` + per-call ceiling + the git ledger.
 
 ## SLICE 7 — compatibility consumers + `AgentRegistryEntry` schema migration
 Plan.md: *"Migrate `types.py` (AgentRegistryEntry fields default_model/default_backend/fallback_backends → capability profile, with a schema migration for persisted execution state that carries model_tier), CLI/web/run-log/paper_reprocess/librarian, the reasoning_chat/chat_with_model_fallback direct-pin consumers (claims/fill/grounding/convergence — currently on provisional standard_generation), and test doubles — each behavior-preserving against the fixed migration snapshot. Also lands US5's deferred schema-dependent acceptance (BINDING): each agent expresses its own requirement profile; the all-LLM-agents fixed-migration-snapshot primary-preservation test (US5 AC1); and test_config_consistency validating capability profiles instead of the KNOWN_FREE_MODELS/MODEL_FALLBACKS allowlists (US5 AC4)."*
@@ -46,7 +57,9 @@ Plan.md: *"Migrate `types.py` (AgentRegistryEntry fields default_model/default_b
    rewrite `tests/unit/test_config_consistency.py` (`test_registry_models_are_free_unless_paid_opt_in`
    :59, `test_model_fallback_chains_are_free` :77) to validate **capability profiles**, NOT the
    `KNOWN_FREE_MODELS` (`backends/dartmouth.py`) / `MODEL_FALLBACKS` allowlists.
-5. **Work-list:** the 136 `owning_slice==7` manifest rows. Regenerate the manifest after each pin move.
+5. **Work-list:** ALL 300 `owning_slice==7` manifest rows — 136 `migration_target` + 161 `registry`
+   (cleared by step 1's schema rewrite) + 3 `schema`. Regenerate the manifest after each pin move.
+   Slice 7 is NOT done while any `owning_slice==7` row still resolves against the live scan.
 
 **Gotchas:** import cycle — import `model_selection` types into `backends`/`agents` under `TYPE_CHECKING`
 + `from __future__ import annotations` (string annotations); if you touch `agents/prompts/**` the
