@@ -1,0 +1,22 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing a `tests/` directory with the required `unit/`
+    and `integration/` subfolders; the claim lacks any artifact confirming the directory
+    structure exists.
+T012:
+  c: false
+  h: c1bff1e826187eab3eb1a1cece811e5a57a99cac56e089f06922747cdf8bdb89
+  r: The required output file `data/processed/organophosphates_filtered.csv` does
+    not exist, and the provided `code/filter.py` is incomplete (truncated, no main
+    routine that actually loads data, applies the exact SMARTS `[P](=O)([O,SC])[O,SC]`,
+    and writes to the specified path). The implementation therefore does not fulfill
+    the task.
+T013:
+  c: false
+  h: a87cfaa168a7ecff44c63fbcb49a44ee69647a55c2c3f220c00f63536672d2fe
+  r: "The provided `code/filter.py` does not contain logic to check for endpoint sample\
+    \ sizes <\u202F50, issue a \u201CLow Sample Size\u201D warning, or skip statistical\
+    \ tests, nor does it write any such limitation to `data/processed/filter_log.txt`\
+    \ (the log file is missing). Consequently the task\u2019s validation and logging\
+    \ requirements are not satisfied."

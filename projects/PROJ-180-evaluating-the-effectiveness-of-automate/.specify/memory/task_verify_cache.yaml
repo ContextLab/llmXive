@@ -1,0 +1,39 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that the required `code/`, `data/raw`, `data/processed`,
+    `results`, and `specs/` directories actually exist in the repository; the claim
+    is unsupported. The implementer must provide a directory listing or screenshots
+    confirming these folders are created.
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No repository, script, or documentation showing that a git repository was initialized
+    or that a Python virtual environment was created was provided; the claim lacks
+    any tangible artifact to verify the required setup.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The only evidence presented concerns a research pipeline for static analysis
+    tools and contains no configuration files, scripts, or documentation for ruff
+    or black. There is no artifact (e.g., pyproject.toml, .ruff.toml, or black configuration)
+    that demonstrates linting/formatting setup, so the required task is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration-management code or `.env` handling script was presented; there\
+    \ is no artifact showing that GitHub tokens or paths are loaded from a `.env`\
+    \ file, so the task\u2019s requirement is not satisfied."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or checksum validation code for `data/raw` and `data/processed`
+    was presented; the response contains no files, scripts, or documentation demonstrating
+    that the required artifacts exist or function as specified.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided showing added logic to detect\
+    \ repositories with zero merged PRs, skip them, log the event, or to catch and\
+    \ log tool execution failures. Without any artifact demonstrating these edge\u2011\
+    case handlers, the task requirement is not satisfied."

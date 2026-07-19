@@ -1,7 +1,3 @@
-"""
-Logging utility for llmXive pipeline.
-Provides JSON-formatted logging to both file and stdout.
-"""
 import json
 import logging
 import sys
@@ -9,98 +5,96 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Ensure the logging directory exists if we are logging to a file
-LOG_DIR = Path("code/logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-
 class JsonFormatter(logging.Formatter):
-    """Custom formatter that outputs logs as JSON lines."""
+    """Custom JSON formatter for structured logging."""
 
     def format(self, record: logging.LogRecord) -> str:
         log_data: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
         }
 
         if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
+            log_data["exc_info"] = self.formatException(record.exc_info)
 
-        # Add extra fields if present
         if hasattr(record, "extra_data"):
-            log_data.update(record.extra_data)
+            log_data.update(record.extra_data)  # type: ignore
 
         return json.dumps(log_data)
 
 def setup_logging(
-    log_file: Optional[str] = None,
+    log_file: Optional[Path] = None,
     level: int = logging.INFO,
-    name: str = "llmxive"
+    console: bool = True,
 ) -> logging.Logger:
     """
-    Configure a logger with JSON formatting for both file and stdout handlers.
+    Configure root logger with JSON formatting for both file and stdout.
 
     Args:
-        log_file: Optional path to a log file. If None, only stdout is used.
+        log_file: Optional path to write log file.
         level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        name: Name of the logger.
+        console: Whether to log to stdout.
 
     Returns:
-        Configured logger instance.
+        The configured root logger.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
 
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
+    # Clear existing handlers to avoid duplicates
+    root_logger.handlers.clear()
 
-    # Create formatters
+    # JSON Formatter
     json_formatter = JsonFormatter()
 
-    # Console Handler (stdout)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_handler.setFormatter(json_formatter)
-    logger.addHandler(console_handler)
+    if console:
+        # Console handler (stdout)
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(json_formatter)
+        console_handler.setLevel(level)
+        root_logger.addHandler(console_handler)
 
-    # File Handler (if path provided)
-    if log_file:
-        file_path = Path(log_file)
+    if log_file is not None:
         # Ensure directory exists
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        file_handler = logging.FileHandler(file_path)
-        file_handler.setLevel(level)
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
         file_handler.setFormatter(json_formatter)
-        logger.addHandler(file_handler)
+        file_handler.setLevel(level)
+        root_logger.addHandler(file_handler)
 
-    return logger
+    return root_logger
 
-def get_logger(name: str = "llmxive") -> logging.Logger:
+def get_logger(name: str) -> logging.Logger:
     """
-    Get or create a logger with the specified name.
-    Assumes setup_logging has been called or will be called.
+    Get a logger instance with the given name.
+
+    Args:
+        name: Logger name (typically __name__ of the module).
+
+    Returns:
+        A configured logger instance.
     """
     return logging.getLogger(name)
 
-# Convenience function for immediate usage
 def init_default_logger() -> logging.Logger:
     """
-    Initialize the default logger for the pipeline.
-    Logs to code/logs/pipeline.log and stdout.
-    """
-    log_path = LOG_DIR / "pipeline.log"
-    return setup_logging(log_file=str(log_path), level=logging.INFO)
+    Initialize a default logger for the project root if not already configured.
+    Creates a 'logs' directory in the project root if needed.
 
-# Example usage / test block
-if __name__ == "__main__":
-    logger = init_default_logger()
-    logger.info("Logger initialized successfully.")
-    logger.debug("This is a debug message.")
-    logger.warning("This is a warning message.", extra={"extra_data": {"key": "value"}})
-    try:
-        1 / 0
-    except ZeroDivisionError:
-        logger.error("An error occurred during execution.", exc_info=True)
+    Returns:
+        The default logger instance.
+    """
+    project_root = Path(__file__).resolve().parents[2]
+    log_dir = project_root / "logs"
+    log_file = log_dir / "pipeline.log"
+
+    # Only setup if root logger has no handlers (prevents re-config on imports)
+    if not logging.getLogger().handlers:
+        setup_logging(log_file=log_file, level=logging.INFO, console=True)
+
+    return get_logger("llmxive")
+
+# Convenience function for immediate use in scripts
+logger = init_default_logger()

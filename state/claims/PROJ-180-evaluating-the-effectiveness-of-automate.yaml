@@ -351,3 +351,39 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T10:06:30Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: select stratified random sample of 500 code changes/comments
+  claim_id: c_0a2f2da6
+  context: 'Phase 4: User Story 2 - Human Review Baseline and Issue Alignment'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement 'Random Stream' sampling logic (independent of keywords) to\
+    \ select a stratified random sample of \u2265500 code changes/comments from the\
+    \ full pool"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:23:16Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: apply Family-Wise Error Rate correction to regression coefficients and
+    Wilcoxon results
+  claim_id: c_d3ba916a
+  context: 'Phase 5: User Story 3 - Metrics Computation and Statistical Analysis'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Family-Wise_Error_Rate_correction_to_regression_coeffi
+  kind: entity_fact
+  raw_text: Apply FWER correction (from T033b) to the regression coefficients and
+    Wilcoxon results
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:23:53Z'

@@ -1,58 +1,45 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "automated-code-review-evaluation"
+name = "evaluating-automated-code-review-tools"
 version = "0.1.0"
 description = "Evaluating the effectiveness of automated code review tools"
 requires-python = ">=3.9"
 dependencies = [
-    "requests",
-    "pandas",
-    "scikit-learn",
-    "statsmodels",
-    "pygithub",
-    "tqdm",
-    "sentence-transformers",
-    "networkx",
-    "pytest",
-    "ruff",
-    "black"
+    "requests>=2.31.0",
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "statsmodels>=0.14.0",
+    "pygithub>=2.1.0",
+    "tqdm>=4.65.0",
+    "sentence-transformers>=2.2.0",
+    "networkx>=3.1",
+    "pytest>=7.4.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
 ]
 
 [tool.ruff]
-# Linter settings
-line-length = 88
-target-version = "py39"
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-    "N",   # pep8-naming
-]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "W", "N", "B", "UP"]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in dataclasses)
-    "C901", # too complex (will be addressed iteratively)
+    "E501", # Line too long (handled by black)
+    "F401", # Unused imports (handled by ruff check --fix or manual review)
+    "B008", # Do not perform function call in argument defaults (often needed for logging)
 ]
-
-[tool.ruff.per-file-ignores]
-"code/__init__.py" = ["F401"]
-"data/__init__.py" = ["F401"]
-"tests/__init__.py" = ["F401"]
+line-length = 100
+target-version = "py39"
 
 [tool.ruff.isort]
-known-first-party = ["utils", "setup_directories"]
-force-sort-within-sections = true
+known-first-party = ["utils", "scripts"]
+force-single-line = true
+order-by-type = true
 
 [tool.black]
-line-length = 88
-target-version = ['py39']
+line-length = 100
+target-version = ["py39", "py310", "py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -65,12 +52,17 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | data
+    | results
 )/
 '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]

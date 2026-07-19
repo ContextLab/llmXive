@@ -1,31 +1,8 @@
 # Project Configuration
-# Generated for task T001b
-project:
-  name: "evaluating-automated-code-review-tools"
-  version: "1.0.0"
-
-paths:
-  data_raw: "../data/raw"
-  data_processed: "../data/processed"
-  results: "../results"
-  specs: "../specs"
-
-# Tool versions (pinned in code/versions.yaml)
-tools:
-  sonarqube: "latest"
-  deepsource: "latest"
-  codeclimate: "latest"
-
-# Embedding model (pinned in code/versions.yaml)
-embeddings:
-  model: "all-MiniLM-L6-v2"
-
-# Analysis parameters
-analysis:
-  max_repos: 40
-  languages:
-    - "Python"
-    - "Java"
-    - "JavaScript"
-    - "Go"
-  confidence_level: 0.95
+github:
+  api_base_url: "https://api.github.com"
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+logging:
+  level: "INFO"

@@ -1,107 +1,110 @@
-# Data Model Specification
+# Data Model: Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction
 
-This document defines the core data entities, their schemas, and relationships for the comparative analysis of molecular fingerprints for pesticide toxicity prediction.
+This document defines the core data entities, their schemas, and relationships used throughout the project pipeline. These definitions align with the requirements in `spec.md` and serve as the contract between the data acquisition, processing, modeling, and evaluation stages.
 
-## Entity: Compound
+## 1. Overview
 
-Represents a unique chemical compound with its molecular structure and toxicity labels.
+The project processes chemical compounds to predict toxicity. The data flow transforms raw molecular structures into numerical fingerprints, which are then used to train machine learning models. The final output consists of performance metrics and statistical analyses.
 
-| Field | Type | Description | Constraints |
+## 2. Entity Definitions
+
+### 2.1. Compound
+
+Represents a single chemical entity. This is the primary unit of analysis.
+
+| Field Name | Type | Description | Source/Notes |
 |:--- |:--- |:--- |:--- |
-| `compound_id` | str | Unique identifier (e.g., Tox21 ID) | Primary Key, Non-null |
-| `smiles` | str | Canonical SMILES string representation | Non-null, Valid chemical structure |
-| `molecular_weight` | float | Calculated molecular weight (g/mol) | Nullable |
-| `is_organophosphate` | bool | Flag indicating if compound matches the SMARTS pattern for organophosphates | Non-null (derived) |
-| `labels` | dict | Dictionary of toxicity endpoints (e.g., `{"NR-AR": 1.0, "NR-AR-LBD": 0.0}`) | Non-null, Keys correspond to dataset columns |
+| `compound_id` | `str` | Unique identifier for the compound (e.g., SMILES string hash or dataset ID). | Generated/External |
+| `smiles` | `str` | Simplified Molecular Input Line Entry System string. | Tox21 / External |
+| `is_organophosphate` | `bool` | Flag indicating if the compound matches the SMARTS pattern `[P](=O)([O,SC])[O,SC]`. | Derived via `code/filter.py` |
+| `toxicity_labels` | `Dict[str, bool]` | Dictionary mapping toxicity endpoints (e.g., "NR-AR", "SR-ARE") to binary labels (1=active, 0=inactive). | Tox21 Dataset |
+| `mol_obj` | `rdkit.Chem.Mol` | (Optional) RDKit molecule object used during intermediate processing. | In-memory only |
 
-**Schema Example (JSON):**
-```json
-{
- "compound_id": "TOX21_100001",
- "smiles": "CC(=O)OC1=CC=CC=C1",
- "molecular_weight": 136.08,
- "is_organophosphate": false,
- "labels": {
- "NR-AR": 0.0,
- "NR-AR-LBD": 0.0,
- "NR-AhR": 1.0
- }
-}
-```
+**Constraints:**
+- `smiles` must be a valid RDKit-parseable string.
+- `is_organophosphate` is `True` if and only if `rdkit.Chem.MolFromSmarts` matches the pattern.
+- Compounds with missing toxicity labels for all endpoints are excluded from training.
 
-## Entity: Fingerprint
+### 2.2. Fingerprint
 
-Represents a vectorized representation of a compound's molecular structure used for similarity calculation and model training.
+Represents the binary vector representation of a compound used for similarity calculation and model input.
 
-| Field | Type | Description | Constraints |
+| Field Name | Type | Description | Source/Notes |
 |:--- |:--- |:--- |:--- |
-| `compound_id` | str | Reference to the parent Compound | Foreign Key, Non-null |
-| `fingerprint_type` | str | Type of fingerprint (e.g., "Morgan", "MACCS") | Enum: ["Morgan", "MACCS"] |
-| `radius` | int | Radius parameter (for Morgan fingerprints) | Nullable (0 for MACCS) |
-| `n_bits` | int | Number of bits in the fingerprint vector | Non-null |
-| `vector` | np.ndarray | Binary vector representation | Shape: (n_bits,), dtype: bool or int |
-| `bit_info` | dict | Mapping of bit indices to atom indices (for interpretability) | Nullable |
+| `compound_id` | `str` | Foreign key linking to `Compound.compound_id`. | |
+| `fingerprint_type` | `str` | Type of fingerprint: `"Morgan"` or `"MACCS"`. | |
+| `bits` | `int` | Number of bits in the fingerprint (2048 for Morgan, 166 for MACCS). | |
+| `radius` | `int` | Radius parameter (only applicable for Morgan). Value: 2. | |
+| `vector` | `np.ndarray` | Binary array of shape `(bits,)`. | Generated via `code/fingerprints.py` |
+| `bit_info` | `Dict[int, List[Tuple[int, int]]]` | (Optional) Mapping of bit index to atom indices contributing to it. Used for feature importance analysis. | RDKit `GetBitInfo` |
 
-**Relationships:**
-- One Compound can have multiple Fingerprints (one per type).
+**Constraints:**
+- `vector` elements must be strictly 0 or 1.
+- `fingerprint_type` must be one of the allowed enum values.
+- The `vector` length must match the `bits` definition for the specific type.
 
-## Entity: Model
+### 2.3. Model
 
-Represents a trained machine learning model (Random Forest) for a specific fold and fingerprint type.
+Represents a trained Random Forest classifier and its associated metadata.
 
-| Field | Type | Description | Constraints |
+| Field Name | Type | Description | Source/Notes |
 |:--- |:--- |:--- |:--- |
-| `model_id` | str | Unique identifier (e.g., `fold-0_morgan_rf`) | Primary Key |
-| `fold_index` | int | The cross-validation fold index (0-4) | Non-null |
-| `fingerprint_type` | str | Type of fingerprint used for training | Enum: ["Morgan", "MACCS"] |
-| `n_estimators` | int | Number of trees in the Random Forest | Non-null (Default: 100) |
-| `max_depth` | int | Maximum depth of the tree | Non-null (Default: 15) |
-| `artifact_path` | str | Filesystem path to the pickled model object | Non-null |
-| `feature_importance` | np.ndarray | Gini importance of each feature (bit) | Shape: (n_bits,) |
+| `model_id` | `str` | Unique identifier (e.g., `fold-<N>-<type>`). | Generated |
+| `fingerprint_type` | `str` | The fingerprint type used for training (`"Morgan"` or `"MACCS"`). | |
+| `fold_index` | `int` | The cross-validation fold index (0-4). | |
+| `n_trees` | `int` | Number of trees in the forest. Value: 100. | |
+| `max_depth` | `int` | Maximum depth of the trees. Value: 15. | |
+| `train_indices` | `List[int]` | List of row indices used for training. | From `code/split.py` |
+| `test_indices` | `List[int]` | List of row indices used for testing. | From `code/split.py` |
+| `rf_model` | `sklearn.ensemble.RandomForestClassifier` | The trained scikit-learn model object. | Saved to `data/processed/models/` |
+| `feature_importance` | `np.ndarray` | Gini importance array of shape `(bits,)`. | Derived from `rf_model` |
 
-**Relationships:**
-- One Model is trained on one specific Fingerprint type.
-- One Model corresponds to one specific Fold split.
+**Constraints:**
+- `train_indices` and `test_indices` must be disjoint.
+- `rf_model` must be fitted on the training data corresponding to `train_indices`.
+- `feature_importance` length must match the fingerprint `bits`.
 
-## Entity: PerformanceMetric
+### 2.4. PerformanceMetric
 
-Stores the evaluation results for a specific model on a specific fold.
+Represents the evaluation results of a specific model on a specific fold.
 
-| Field | Type | Description | Constraints |
+| Field Name | Type | Description | Source/Notes |
 |:--- |:--- |:--- |:--- |
-| `metric_id` | str | Unique identifier (e.g., `fold-0_morgan_roc_auc`) | Primary Key |
-| `model_id` | str | Reference to the trained Model | Foreign Key, Non-null |
-| `metric_name` | str | Name of the metric | Enum: ["ROC-AUC", "PR-AUC", "Balanced Accuracy"] |
-| `value` | float | The calculated metric score | Non-null, Range [0.0, 1.0] |
-| `fold_index` | int | The fold index associated with this metric | Non-null |
-| `confidence_interval` | dict | Bootstrap confidence interval (e.g., `{"lower": 0.75, "upper": 0.85}`) | Nullable |
+| `model_id` | `str` | Foreign key linking to `Model.model_id`. | |
+| `fold_index` | `int` | The cross-validation fold index. | |
+| `fingerprint_type` | `str` | The fingerprint type used. | |
+| `roc_auc` | `float` | Area Under the Receiver Operating Characteristic Curve. | Calculated via `code/evaluate.py` |
+| `pr_auc` | `float` | Area Under the Precision-Recall Curve. | Calculated via `code/evaluate.py` |
+| `balanced_accuracy` | `float` | Balanced accuracy score. | Calculated via `code/evaluate.py` |
+| `confusion_matrix` | `np.ndarray` | 2x2 matrix of predictions vs. actuals. | |
+| `bootstrap_ci_lower` | `float` | Lower bound of the 95% CI for the metric difference (if applicable). | From `code/evaluate.py` |
+| `bootstrap_ci_upper` | `float` | Upper bound of the 95% CI for the metric difference. | From `code/evaluate.py` |
 
-**Relationships:**
-- One PerformanceMetric belongs to one Model.
-- One Model has multiple PerformanceMetrics (one per metric type).
+**Constraints:**
+- All score fields must be in the range [0.0, 1.0].
+- `confusion_matrix` shape must be (2, 2).
 
-## Derived Entities / Aggregates
+## 3. Relationships
 
-### SplitConfiguration
-Defines the parameters for the Greedy Maximal Dissimilarity Split.
-- `threshold`: float (Tanimoto similarity threshold, e.g., 0.85)
-- `min_test_size`: int (Minimum required test set size, e.g., 20)
-- `n_folds`: int (Number of folds, e.g., 5)
+- **Compound 1-to-Many Fingerprint**: A single compound can have multiple fingerprint representations (Morgan and MACCS).
+- **Compound 1-to-Many Model**: A compound appears in the training or test set of multiple models (across different folds).
+- **Model 1-to-1 PerformanceMetric**: Each trained model produces exactly one set of performance metrics per fold.
+- **Fingerprint 1-to-1 Model**: A model is trained on a specific set of fingerprints of a specific type.
 
-### StatisticalTestResult
-Aggregates the results of comparative statistical tests.
-- `test_type`: str (e.g., "Paired t-test")
-- `metric`: str (e.g., "ROC-AUC")
-- `p_value`: float
-- `significant`: bool (p < 0.05)
-- `comparison`: str (e.g., "Morgan vs MACCS")
+## 4. Data Storage Conventions
 
-## Data Flow
+| Artifact | File Path | Format |
+|:--- |:--- |:--- |
+| Filtered Compounds | `data/processed/organophosphates_filtered.csv` | CSV |
+| Fingerprints | `data/processed/fingerprints_morgan.npy`, `data/processed/fingerprints_maccs.npy` | NumPy (.npy) |
+| Split Indices | `data/processed/splits/fold_<N>_indices.pkl` | Pickle |
+| Trained Models | `data/processed/models/fold_<N>_<type>.pkl` | Pickle |
+| Metrics | `data/processed/metrics.csv` | CSV |
+| Final Report | `data/processed/research_results.md` | Markdown |
 
-1. **Ingestion**: Raw data (Tox21) -> `Compound` entities.
-2. **Filtering**: `Compound` -> Filtered `Compound` (Organophosphates only).
-3. **Feature Engineering**: Filtered `Compound` -> `Fingerprint` entities.
-4. **Splitting**: `Fingerprint` -> `SplitConfiguration` -> Train/Test indices.
-5. **Training**: Train indices + `Fingerprint` -> `Model` entities.
-6. **Evaluation**: Test indices + `Model` -> `PerformanceMetric` entities.
-7. **Analysis**: `PerformanceMetric` -> `StatisticalTestResult`.
+## 5. Validation Rules
+
+1. **SMARTS Filter**: All `is_organophosphate` flags must be verified against the pattern `[P](=O)([O,SC])[O,SC]` before inclusion in the final dataset.
+2. **Split Validity**: The Greedy Maximal Dissimilarity Split must ensure `Tanimoto Similarity < 0.85` between any test set compound and the training set mean.
+3. **Minimum Sample Size**: If the number of valid compounds per endpoint is < 50, statistical tests (t-test) must be skipped, and a warning logged.
+4. **Reproducibility**: All random seeds must be initialized to 42 as per `code/utils.py`.

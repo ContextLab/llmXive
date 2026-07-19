@@ -1,0 +1,37 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that a `src/services` directory was created; the only\
+    \ artifacts shown relate to a high\u2011level feature specification, not a filesystem\
+    \ change. The required directory is missing from the provided evidence."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `src/models` directory was presented; the claim provides only\
+    \ a description of higher\u2011level feature work and no filesystem artifact confirming\
+    \ the required directory exists (and is non\u2011empty). The implementer must\
+    \ create the `src/models` folder in the repository and show its presence."
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented that a `src/utils` directory actually exists in the
+    project; the implementer provided no file listing, screenshots, or other proof
+    of its creation. The required artifact is therefore missing.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that a `src/data-models` directory exists in the repository;\
+    \ the implementer did not supply a file\u2011system listing or any artifact confirming\
+    \ the directory was created. The required directory is therefore missing."
+T001f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `tests/unit` directory exists in the repository;
+    the implementer did not supply a directory listing, screenshot, or any file showing
+    the creation of `tests/unit`. Without this artifact, the requirement to create
+    the directory is not satisfied.
+T001g:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `tests/contract` directory exists in the repository;
+    the artifact list is empty, so the required directory was not created.

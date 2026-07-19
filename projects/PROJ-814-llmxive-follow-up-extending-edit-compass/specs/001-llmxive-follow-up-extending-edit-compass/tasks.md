@@ -65,7 +65,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [~] T004 Setup data directory structure: `data/raw/`, `data/filtered/`, `data/scores/`, `outputs/`
-- [ ] T005 [P] Implement basic logging utility in `src/utils/logging.py` (JSON format, file + stdout)
+- [X] T005 [P] Implement basic logging utility in `src/utils/logging.py` (JSON format, file + stdout)
 - [ ] T006 [P] Create `src/data-models.py` defining `EditInstance` Pydantic model (must include fields: `source_image_path`, `edited_image_path`, `instruction`, `category`, `human_judgment_score`) and `ScoreRecord` Pydantic model (must include fields: `instance_id`, `logic_score`, `fidelity_score`, `ssim`, `lpips`, `vllm_description`, `p_value_logic`, `p_value_fidelity`, `beta_logic`, `beta_fidelity`)
 - [ ] T007 [P] Create `contracts/score-record.schema.yaml` for JSON schema validation
 - [ ] T008 [P] Implement `src/cli/main.py` entry point with argument parsing for pipeline stages
@@ -131,7 +131,7 @@
 
 ### Tests for User Story 3 (TDD - Write FIRST) ⚠️
 
-- [ ] T022 [P] [US3] Write `tests/unit/test_analysis.py::test_pearson_threshold_halt`: Assert that if correlation >= 0.5, the function raises `CircularValidationRiskError`.
+- [X] T022 [P] [US3] Write `tests/unit/test_analysis.py::test_pearson_threshold_halt`: Assert that if correlation >= 0.5, the function raises `CircularValidationRiskError`.
 - [ ] T023 [P] [US3] Write `tests/unit/test_analysis.py::test_fisher_z_test`: Assert Fisher's r-to-z transformation calculates the correct z-score and p-value for two independent correlations.
 - [ ] T023b [P] [US3] Write `tests/unit/test_analysis.py::test_fdr_correction`: Assert Benjamini-Hochberg correction correctly adjusts p-values.
 

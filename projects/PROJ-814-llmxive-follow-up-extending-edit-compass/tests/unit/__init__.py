@@ -1,4 +1,1 @@
-"""
-Unit tests package for llmXive follow-up project.
-This directory contains isolated tests for individual components.
-"""
+"""Unit tests package for llmXive pipeline."""

@@ -96,3 +96,247 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-08T12:33:54Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: Tox21 dataset sourced from HuggingFace deepchem/tox21 repository
+  claim_id: c_b992abd5
+  context: Section 1.1 Dataset Acquisition and Filtering
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tox21_dataset_sourced_from_HuggingFace_deepchem/tox21_reposi
+  kind: entity_fact
+  raw_text: The study utilizes the Tox21 dataset, a standard benchmark for toxicity
+    prediction, sourced directly from the HuggingFace 'deepchem/tox21' repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:07:09Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: Organophosphates defined by SMARTS pattern [P](=O)([O,SC])[O,SC]
+  claim_id: c_50b62aed
+  context: Section 1.1 Dataset Acquisition and Filtering
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Organophosphates_defined_by_SMARTS_pattern_%5BP%5D(=O)(%5BO,SC%5D)%5BO
+  kind: entity_fact
+  raw_text: Organophosphates are defined by the SMARTS pattern '[P](=O)([O,SC])[O,SC]'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:08:01Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: Morgan Fingerprints generated with radius 2 and bit vector length 2048
+  claim_id: c_30248ece
+  context: Section 1.2 Feature Representation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Morgan Fingerprints were generated with a radius of 2 and a bit vector
+    length of 2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:08:34Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: MACCS Keys comprise 166 bits
+  claim_id: c_edec4061
+  context: Section 1.2 Feature Representation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MACCS Keys comprise 166 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:08:55Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: Fingerprint generation performed using RDKit library
+  claim_id: c_e88bdf5b
+  context: Section 1.2 Feature Representation
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q54152347
+        url: https://www.wikidata.org/wiki/Q54152347
+        value: RDKit
+      quote: rdkit-pypi
+      source_id: Q120550077
+      url: https://www.wikidata.org/wiki/Q120550077
+      value: rdkit-pypi
+    filled: true
+  kind: entity_fact
+  raw_text: Fingerprint generation was performed using the RDKit library.
+  resolved_value: rdkit-pypi
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T01:09:01Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: 5-Fold Greedy Maximal Dissimilarity Split with Tanimoto similarity threshold
+    0.85
+  claim_id: c_99d2a120
+  context: Section 2.1 Cross-Validation Strategy
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A 5-Fold Greedy Maximal Dissimilarity Split was employed with a Tanimoto
+    similarity threshold of 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:09:39Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: Test set requires minimum 20 samples with Tanimoto similarity less than
+    0.85
+  claim_id: c_1d8045cd
+  context: Section 2.1 Cross-Validation Strategy
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_set_requires_minimum_20_samples_with_Tanimoto_similarit
+  kind: magnitude
+  raw_text: The test set requires a minimum of 20 samples with Tanimoto similarity
+    less than 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:11:20Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: Random Forest model configured with 100 trees and maximum depth 15
+  claim_id: c_2648acdd
+  context: Section 2.2 Model Architecture and Training SLA
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest model was configured with 100 trees and a maximum depth
+    of 15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:11:47Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: Pipeline optimized to complete within 60 minutes on standard 2-core CPU
+  claim_id: c_8a83e593
+  context: Section 2.2 Model Architecture and Training SLA
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entire pipeline is optimized to complete within a 60-minute window
+    on a standard 2-core CPU CI environment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:12:09Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: Models evaluated using ROC-AUC, PR-AUC, and Balanced Accuracy
+  claim_id: c_121f1105
+  context: Section 3.1 Performance Metrics
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Models_evaluated_using_ROC-AUC,_PR-AUC,_and_Balanced_Accurac
+  kind: entity_fact
+  raw_text: Models were evaluated using ROC-AUC, PR-AUC, and Balanced Accuracy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:12:47Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: 95% confidence intervals generated via bootstrap resampling
+  claim_id: c_b2cabf53
+  context: Section 3.2 Significance Testing
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% confidence intervals were generated via bootstrap resampling of the
+    performance differences.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:12:47Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: Tox21 dataset toxicity labels treated as ground truth
+  claim_id: c_50550d86
+  context: Section 4 Constraints and Assumptions
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tox21_dataset_toxicity_labels_treated_as_ground_truth
+  kind: entity_fact
+  raw_text: Toxicity labels from the Tox21 dataset are treated as ground truth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:13:21Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: Statistical tests skipped if filtered dataset yields fewer than 50 samples
+  claim_id: c_4929bd3c
+  context: Section 4 Constraints and Assumptions
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_tests_skipped_if_filtered_dataset_yields_fewer_t
+  kind: magnitude
+  raw_text: Statistical tests are skipped if the filtered dataset yields fewer than
+    50 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:13:55Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/methodology.md
+  attempts: 1
+  canonical: Random seeds fixed to 42
+  claim_id: c_ca4dfa6d
+  context: Section 4 Constraints and Assumptions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All random seeds are fixed to 42 to ensure deterministic results across
+    runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:14:29Z'

@@ -1,2 +1,1 @@
-# This directory holds processed data ready for analysis and modeling.
-# Generated artifacts (CSVs, splits, models) will be stored here.
+# This file ensures the processed data directory is tracked by git.

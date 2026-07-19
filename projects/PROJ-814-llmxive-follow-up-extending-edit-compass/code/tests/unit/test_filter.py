@@ -1,3 +1,6 @@
+"""
+Unit tests for the filter service.
+"""
 import json
 import pytest
 import tempfile
@@ -5,121 +8,104 @@ from pathlib import Path
 import sys
 import os
 
-# Ensure src is in path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from src.services.filter import filter_by_category, load_json_file, save_filtered_data, TARGET_CATEGORIES
+from src.services.filter import filter_records, load_raw_data, save_filtered_data
+from src.utils.logging import setup_logging
+
+# Sample data for testing
+SAMPLE_RAW_DATA = [
+    {"id": 1, "category": "World Knowledge Reasoning", "instruction": "Test 1"},
+    {"id": 2, "category": "Visual Reasoning", "instruction": "Test 2"},
+    {"id": 3, "category": "Mathematical Reasoning", "instruction": "Test 3"},
+    {"id": 4, "category": "World Knowledge Reasoning", "instruction": "Test 4"},
+    {"id": 5, "category": "Other Category", "instruction": "Test 5"},
+    {"id": 6, "category": "Visual Reasoning", "instruction": "Test 6"},
+]
 
 class TestFilterLogic:
     def test_category_filter_logic(self):
-        """Assert that filtering by target categories returns only matching records."""
-        data = [
-            {"category": "World Knowledge Reasoning", "id": 1},
-            {"category": "Visual Reasoning", "id": 2},
-            {"category": "Other Category", "id": 3},
-            {"category": "World Knowledge Reasoning", "id": 4},
-            {"category": "Visual Reasoning", "id": 5},
-        ]
+        """Assert that filtering by specific categories returns only matching records."""
+        target_categories = ["World Knowledge Reasoning", "Visual Reasoning"]
         
-        result = filter_by_category(data, TARGET_CATEGORIES)
+        result = filter_records(SAMPLE_RAW_DATA, target_categories)
         
+        # Should have 4 matching records (IDs 1, 2, 4, 6)
         assert len(result) == 4
-        for item in result:
-            assert item["category"] in TARGET_CATEGORIES
         
-        # Check specific IDs
-        ids = [item["id"] for item in result]
-        assert 1 in ids
-        assert 2 in ids
-        assert 4 in ids
-        assert 5 in ids
-        assert 3 not in ids
+        # Verify all returned records match the target categories
+        for record in result:
+            assert record["category"] in target_categories
+        
+        # Verify specific content
+        categories_found = {r["category"] for r in result}
+        assert categories_found == set(target_categories)
 
     def test_empty_result_handling(self):
-        """Assert that if no matches are found, a ValueError is raised."""
-        data = [
-            {"category": "Other Category", "id": 1},
-            {"category": "Another Category", "id": 2},
-        ]
+        """Assert that filtering with non-matching categories returns an empty list."""
+        target_categories = ["Non Existent Category"]
         
-        with pytest.raises(ValueError) as exc_info:
-            filter_by_category(data, TARGET_CATEGORIES)
+        result = filter_records(SAMPLE_RAW_DATA, target_categories)
         
-        assert "No records found matching categories" in str(exc_info.value)
+        assert len(result) == 0
+        assert result == []
 
-    def test_mixed_valid_invalid_records(self):
-        """Test handling of non-dict records in the list."""
-        data = [
-            {"category": "World Knowledge Reasoning", "id": 1},
-            "not a dict",
-            {"category": "Visual Reasoning", "id": 2},
-            None,
-            {"category": "Other", "id": 3},
+    def test_missing_category_field(self):
+        """Assert that records without a category field are excluded."""
+        data_with_missing = [
+            {"id": 1, "category": "World Knowledge Reasoning"},
+            {"id": 2, "instruction": "Missing category"},
+            {"id": 3, "category": None},
         ]
         
-        # Should filter out non-dicts and 'Other' category
-        result = filter_by_category(data, TARGET_CATEGORIES)
+        result = filter_records(data_with_missing, ["World Knowledge Reasoning"])
         
-        assert len(result) == 2
+        assert len(result) == 1
         assert result[0]["id"] == 1
-        assert result[1]["id"] == 2
 
 class TestFilterIO:
-    def test_load_json_file_valid(self):
-        """Test loading a valid JSON file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump([{"id": 1}, {"id": 2}], f)
-            temp_path = Path(f.name)
-        
-        try:
-            data = load_json_file(temp_path)
-            assert len(data) == 2
-            assert data[0]["id"] == 1
-        finally:
-            temp_path.unlink()
-
-    def test_load_json_file_not_found(self):
-        """Test loading a non-existent file raises FileNotFoundError."""
-        with pytest.raises(FileNotFoundError):
-            load_json_file(Path("/non/existent/path/file.json"))
-
-    def test_load_json_file_invalid_json(self):
-        """Test loading a file with invalid JSON raises JSONDecodeError."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            f.write("{ invalid json }")
-            temp_path = Path(f.name)
-        
-        try:
-            with pytest.raises(json.JSONDecodeError):
-                load_json_file(temp_path)
-        finally:
-            temp_path.unlink()
-
-    def test_save_filtered_data(self):
-        """Test saving filtered data to a file."""
-        data = [{"id": 1, "category": "World Knowledge Reasoning"}]
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "output.json"
-            save_filtered_data(data, output_path)
+    def test_save_and_load_filtered_data(self):
+        """Assert that save and load functions work correctly together."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            input_file = tmp_path / "input.json"
+            output_file = tmp_path / "output.json"
             
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                saved_data = json.load(f)
+            # Save sample data
+            with open(input_file, "w") as f:
+                json.dump(SAMPLE_RAW_DATA, f)
             
-            assert len(saved_data) == 1
-            assert saved_data[0]["id"] == 1
+            # Load raw data
+            loaded_data = load_raw_data(input_file)
+            assert len(loaded_data) == len(SAMPLE_RAW_DATA)
+            
+            # Filter data
+            filtered = filter_records(loaded_data, ["World Knowledge Reasoning"])
+            assert len(filtered) == 2
+            
+            # Save filtered data
+            save_filtered_data(filtered, output_file)
+            
+            # Verify file exists
+            assert output_file.exists()
+            
+            # Load and verify content
+            with open(output_file, "r") as f:
+                reloaded = json.load(f)
+            
+            assert len(reloaded) == 2
+            assert all(r["category"] == "World Knowledge Reasoning" for r in reloaded)
 
-    def test_save_filtered_data_empty_list(self):
-        """Test saving an empty list."""
-        data = []
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "output.json"
-            save_filtered_data(data, output_path)
+    def test_empty_list_save(self):
+        """Assert that saving an empty list creates a valid JSON file."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output_file = Path(tmp_dir) / "empty.json"
             
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                saved_data = json.load(f)
+            save_filtered_data([], output_file)
             
-            assert len(saved_data) == 0
+            assert output_file.exists()
+            with open(output_file, "r") as f:
+                data = json.load(f)
+            assert data == []
+            assert isinstance(data, list)

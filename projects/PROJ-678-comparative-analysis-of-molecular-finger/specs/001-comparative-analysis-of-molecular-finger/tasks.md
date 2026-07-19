@@ -54,12 +54,12 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project directory structure: `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/` with subdirs `data/raw/`, `data/processed/`, `code/`, `tests/`. Note: `specs/` is a sibling to `projects/`, not nested inside.
-- [ ] T002 Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`
+- [X] T002 Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`
 - [ ] T004 [P] Create `data/raw/` and `data/processed/` directories with `.gitkeep` <!-- FAILED: unspecified -->
 - [X] T005 [P] Implement `code/utils.py` with logging configuration, random seed initialization (seed=42), and environment variable loading
-- [ ] T006 [P] Create `code/constants.py` with exact variable definitions: `SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"` (str), `TANIMOTO_THRESHOLD = 0.85` (float), `MORGAN_RADIUS = 2` (int), `MORGAN_BITS = 2048` (int), `MACCS_BITS = 166` (int), `N_FOLDS = 5` (int). Ensure `code/filter.py` imports and applies this exact constant.
-- [~] T007 Setup `tests/` directory structure (`unit/`, `integration/`)
+- [X] T006 [P] Create `code/constants.py` with exact variable definitions: `SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"` (str), `TANIMOTO_THRESHOLD = 0.85` (float), `MORGAN_RADIUS = 2` (int), `MORGAN_BITS = 2048` (int), `MACCS_BITS = 166` (int), `N_FOLDS = 5` (int). Ensure `code/filter.py` imports and applies this exact constant.
+- [ ] T007 Setup `tests/` directory structure (`unit/`, `integration/`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,9 +83,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/download.py` to fetch Tox21 dataset from HuggingFace `datasets.load_dataset("deepchem/tox21")`, including checksum verification
-- [~] T012 [US1] Implement `code/filter.py` to apply SMARTS pattern `[P](=O)([O,SC])[O,SC]` to filter compounds and save to `data/processed/organophosphates_filtered.csv`
-- [~] T013 [US1] Implement validation logic in `code/filter.py` to count rows per toxicity endpoint; if sample size < 50, log a "Low Sample Size" warning and skip statistical tests (do not raise error), recording this limitation in `data/processed/filter_log.txt`
+- [X] T011 [US1] Implement `code/download.py` to fetch Tox21 dataset from HuggingFace `datasets.load_dataset("deepchem/tox21")`, including checksum verification
+- [ ] T012 [US1] Implement `code/filter.py` to apply SMARTS pattern `[P](=O)([O,SC])[O,SC]` to filter compounds and save to `data/processed/organophosphates_filtered.csv`
+- [ ] T013 [US1] Implement validation logic in `code/filter.py` to count rows per toxicity endpoint; if sample size < 50, log a "Low Sample Size" warning and skip statistical tests (do not raise error), recording this limitation in `data/processed/filter_log.txt`
 - [ ] T014 [US1] Add logging for dataset download size, filter counts, and endpoint distribution to `data/processed/filter_log.txt`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -144,8 +144,8 @@
 
 **Purpose**: Address specific research-stage reviews regarding measurement uncertainty and calibration (by documenting their exclusion per spec).
 
-- [ ] T031 [US3] Update `specs/001-comparative-analysis-of-molecular-fingerprints/research.md` to explicitly document that measurement uncertainty was not recalculated and no external calibration was performed, citing the spec's 'Assumptions' section as the reason.
-- [ ] T032 [P] Documentation updates in `specs/001-comparative-analysis-of-molecular-fingerprints/` including a detailed "Methodology and Constraints" section confirming adherence to the specified training SLA duration and 5-Fold CV
+- [~] T031 [US3] Update `specs/001-comparative-analysis-of-molecular-fingerprints/research.md` to explicitly document that measurement uncertainty was not recalculated and no external calibration was performed, citing the spec's 'Assumptions' section as the reason.
+- [~] T032 [P] Documentation updates in `specs/001-comparative-analysis-of-molecular-fingerprints/` including a detailed "Methodology and Constraints" section confirming adherence to the specified training SLA duration and 5-Fold CV
 - [ ] T033 Code cleanup and refactoring to ensure all random seeds are reproducible
 - [ ] T034 Run `quickstart.md` validation to ensure full pipeline execution within 60 minutes on CI
 - [ ] T035 [US3] Implement `code/evaluate.py` to append a section titled "Measurement Uncertainty & Calibration" to `research_results.md` with the exact text: "Measurement uncertainty was not recalculated; toxicity labels treated as ground truth per Spec Assumptions. RDKit fingerprint generation is the industry-standard calibration method." Cite spec.md:Assumptions.

@@ -1,9 +1,17 @@
-rdkit==2024.3.1
-scikit-learn==1.5.0
-pandas==2.2.2
-numpy==1.26.4
-requests==2.32.3
-pytest==8.2.2
-datasets==2.20.0
-black==24.4.2
-flake8==7.1.0
+# Core Data Science & ML
+rdkit==2023.9.5
+scikit-learn==1.3.2
+pandas==2.1.4
+numpy==1.26.2
+
+# Data Fetching & Utilities
+requests==2.31.0
+datasets==2.15.0
+huggingface_hub==0.20.1
+
+# Testing
+pytest==7.4.3
+
+# Linting & Formatting
+flake8==6.1.0
+black==23.12.1

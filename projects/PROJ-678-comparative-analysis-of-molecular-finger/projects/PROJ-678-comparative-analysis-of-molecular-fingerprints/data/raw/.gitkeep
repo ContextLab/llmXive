@@ -1,2 +1,1 @@
-# This directory holds raw, unprocessed data downloaded from external sources.
-# Do not modify files in this directory directly.
+# This file ensures the raw data directory is tracked by git.

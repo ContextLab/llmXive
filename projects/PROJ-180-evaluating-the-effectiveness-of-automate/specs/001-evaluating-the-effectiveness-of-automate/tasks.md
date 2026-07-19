@@ -26,7 +26,7 @@
 
 - [ ] T001a [P] Create `code/`, `data/raw`, `data/processed`, `results`, and `specs/` directories
 - [ ] T001b [P] Create empty `__init__.py` and `config.yaml` files in `code/` and `data/` subfolders
-- [ ] T002a [P] Create `requirements.txt` with pinned dependencies: `requests`, `pandas`, `scikit-learn`, `statsmodels`, `pygithub`, `tqdm`, `sentence-transformers`, `networkx`, `pytest`
+- [X] T002a [P] Create `requirements.txt` with pinned dependencies: `requests`, `pandas`, `scikit-learn`, `statsmodels`, `pygithub`, `tqdm`, `sentence-transformers`, `networkx`, `pytest`
 - [ ] T002b [P] Initialize git repository and virtual environment (venv) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T004 [P] Create `code/versions.yaml` with pinned versions for SonarQube Scanner, DeepSource CLI, and CodeClimate Engine (as per Plan Constitution VI)
@@ -45,8 +45,8 @@
 - [X] T007 Create `code/utils/stats.py` containing utility functions for Wilcoxon tests, VIF calculation, and Mixed-Effects regression wrappers (scipy/statsmodels)
 - [X] T008a [P] Implement skeleton/interface for AST-based diff matching logic in `code/utils/aligner.py`
 - [X] T008b [P] Implement skeleton/interface for CPU-optimized embedding similarity function (using `all-MiniLM-L6-v2`) in `code/utils/aligner.py`
-- [~] T009 Setup environment configuration management (load GitHub tokens, paths from `.env`)
-- [~] T010 Implement data directory structure and checksum validation logic for `data/raw` and `data/processed`
+- [ ] T009 Setup environment configuration management (load GitHub tokens, paths from `.env`)
+- [ ] T010 Implement data directory structure and checksum validation logic for `data/raw` and `data/processed`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,11 +67,11 @@
 
 - [X] T013 [US1] Implement `code/01_data_acquisition.py` to query GitHub API for a representative set of 30–40 repos stratified by language (Java, Python, JS, Go) and activity (FR-001)
 - [X] T014 [US1] Implement PESTO filter logic (license, CI, issues) in `code/01_data_acquisition.py` before cloning (FR-002)
-- [ ] T015 [US1] Implement repository cloning logic with error handling (retry 2x, log exclusion) in `code/01_data_acquisition.py`
-- [ ] T016 [US1] Implement Docker wrappers in `code/01_data_acquisition.py` to execute SonarQube, DeepSource, CodeClimate (using `code/versions.yaml`)
-- [ ] T017 [US1] Implement JSON report parsing and normalization for all three tools into a unified schema in `code/01_data_acquisition.py` (FR-003)
+- [X] T015 [US1] Implement repository cloning logic with error handling (retry 2x, log exclusion) in `code/01_data_acquisition.py`
+- [X] T016 [US1] Implement Docker wrappers in `code/01_data_acquisition.py` to execute SonarQube, DeepSource, CodeClimate (using `code/versions.yaml`)
+- [X] T017 [US1] Implement JSON report parsing and normalization for all three tools into a unified schema in `code/01_data_acquisition.py` (FR-003)
 - [ ] T018 [US1] Add logic to handle repositories with no merged PRs (skip and log) and tool execution failures (FR-Edge Cases)
-- [ ] T019 [US1] Save raw JSON reports to `data/raw/` with checksums and metadata (owner, language, commit hash)
+- [~] T019 [US1] Save raw JSON reports to `data/raw/` with checksums and metadata (owner, language, commit hash)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -85,7 +85,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for keyword heuristic extraction in `code/tests/test_baseline.py`
+- [X] T020 [P] [US2] Contract test for keyword heuristic extraction in `code/tests/test_baseline.py`
 - [ ] T021 [P] [US2] Integration test for alignment logic (AST + semantic) in `code/tests/test_alignment.py`
 
 ### Implementation for User Story 2
