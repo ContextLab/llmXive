@@ -1,0 +1,700 @@
+{
+  "fetched_at": "2026-07-19T10:04:23Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile GUI Agents with Hie\"",
+      "target_n": 5
+    },
+    "duration_seconds": 50.67,
+    "ended_at": "2026-07-19T10:04:23Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "annotation-free mobile GUI agents"
+        ],
+        [
+          2,
+          "hierarchical reinforcement learning for mobile interfaces"
+        ],
+        [
+          3,
+          "zero-shot adaptation for mobile UI agents"
+        ],
+        [
+          4,
+          "self-supervised learning for mobile GUI understanding"
+        ],
+        [
+          5,
+          "automated mobile UI interaction without human labels"
+        ],
+        [
+          6,
+          "transfer learning for mobile graphical user interfaces"
+        ],
+        [
+          7,
+          "large language models for mobile task automation"
+        ],
+        [
+          8,
+          "few-shot learning for mobile app navigation"
+        ],
+        [
+          9,
+          "unsupervised mobile GUI agent adaptation"
+        ],
+        [
+          10,
+          "mobile interface semantic parsing with LLMs"
+        ],
+        [
+          11,
+          "mobile GUI grounding for autonomous agents"
+        ],
+        [
+          12,
+          "cross-app mobile agent generalization"
+        ],
+        [
+          13,
+          "vision-language models for mobile UI control"
+        ],
+        [
+          14,
+          "automated mobile app testing with generative AI"
+        ],
+        [
+          15,
+          "mobile UI element detection without annotations"
+        ],
+        [
+          16,
+          "hierarchical policy learning for mobile agents"
+        ],
+        [
+          17,
+          "self-training mobile GUI agents"
+        ],
+        [
+          18,
+          "mobile agent instruction following without fine-tuning"
+        ],
+        [
+          19,
+          "mobile interface representation learning"
+        ],
+        [
+          20,
+          "agentic workflows for mobile application automation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "annotation-free mobile GUI agents": 5,
+        "llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile GUI Agents with Hie\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "GUI automation zero-shot transfer",
+      "Android UI interaction screenshot navigation",
+      "screen element grounding multimodal agent",
+      "annotation-free adaptation mobile interface",
+      "visual instruction following GUI benchmark"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2508.03700"
+      ]
+    },
+    "per_query_hit_count": {
+      "Android UI interaction screenshot navigation": 3,
+      "GUI automation zero-shot transfer": 3,
+      "annotation-free adaptation mobile interface": 3,
+      "llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile GUI Agents with Hie\" computer science": 3,
+      "screen element grounding multimodal agent": 3,
+      "visual instruction following GUI benchmark": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-19T10:03:32Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"mobileforge: annotation-free adaptation for mobile gui agents with hie\" computer science",
+      "raw": "llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile GUI Agents with Hie\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, Multimodal Large Language Models (MLLMs) have been used as agents to control keyboard and mouse inputs by directly perceiving the Graphical User Interface (GUI) and generating corresponding commands. However, current agents primarily demonstrate strong understanding capabilities in static environments and are mainly applied to relatively simple domains, such as Web or mobile interfaces. We argue that a robust GUI agent should be capable of perceiving temporal information on the GUI, including dynamic Web content and multi-step tasks. Additionally, it should possess a comprehensive understanding of various GUI scenarios, including desktop software and multi-window interactions. To this end, this paper introduces a new dataset, termed GUI-World, which features meticulously crafted Human-MLLM annotations, extensively covering six GUI scenarios and eight types of GUI-oriented questions in three formats. We evaluate the capabilities of current state-of-the-art MLLMs, including Image LLMs and Video LLMs, in understanding various types of GUI content, especially dynamic and sequential content. Our findings reveal that current models struggle with dynamic GUI content without manually annotated keyframes or operation history. On the other hand, Video LLMs fall short in all GUI-oriented tasks given the sparse GUI video dataset. Therefore, we take the initial step of leveraging a fine-tuned Video LLM, GUI-Vid, as a GUI-oriented assistant, demonstrating an improved understanding of various GUI tasks. However, due to the limitations in the performance of base LLMs, we conclude that using video LLMs as GUI agents remains a significant challenge. We believe our work provides valuable insights for future research in dynamic GUI content understanding. All the dataset and code are publicly available at: https://gui-world.github.io.",
+          "claimed_authors": [
+            "Dongping Chen",
+            "Yue Huang",
+            "Siyuan Wu",
+            "Jingyu Tang",
+            "Liuyi Chen",
+            "Yilin Bai",
+            "Zhigang He",
+            "Chenlong Wang",
+            "Huichi Zhou",
+            "Yiqiang Li",
+            "Tianshuo Zhou",
+            "Yue Yu",
+            "Chujie Gao",
+            "Qihui Zhang",
+            "Yi Gui",
+            "Zhen Li",
+            "Yao Wan",
+            "Pan Zhou",
+            "Jianfeng Gao",
+            "Lichao Sun"
+          ],
+          "claimed_title": "GUI-World: A Video Benchmark and Dataset for Multimodal GUI-oriented Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.10819"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='GUI-World: A Video Benchmark and Dataset for Multimodal GUI-oriented Understanding')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Zero-shot cross-lingual knowledge transfer enables the multilingual pretrained language model (mPLM), finetuned on a task in one language, make predictions for this task in other languages. While being broadly studied for natural language understanding tasks, the described setting is understudied for generation. Previous works notice a frequent problem of generation in a wrong language and propose approaches to address it, usually using mT5 as a backbone model. In this work, we test alternative mPLMs, such as mBART and NLLB-200, considering full finetuning and parameter-efficient finetuning with adapters. We find that mBART with adapters performs similarly to mT5 of the same size, and NLLB-200 can be competitive in some cases. We also underline the importance of tuning learning rate used for finetuning, which helps to alleviate the problem of generation in the wrong language.",
+          "claimed_authors": [
+            "Nadezhda Chirkova",
+            "Sheng Liang",
+            "Vassilina Nikoulina"
+          ],
+          "claimed_title": "Empirical study of pretrained multilingual language models for zero-shot cross-lingual knowledge transfer in generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.09917"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='Empirical study of pretrained multilingual language models for zero-shot cross-lingual knowledge transfer in generation')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In various applications of land vehicle navigation and automatic guidance systems, Global Navigation Satellite System/Inertial Measurement Unit (GNSS/IMU) positioning performance crucially depends on the attitude determination accuracy affected by gyro and accelerometer bias instabilities. Traditional bias estimation approaches based on the Kalman filter suffer from implementation complexity and require non-intuitive tuning procedures. In this paper we propose, as an alternative, a simple observer that estimates inertial sensor biases exclusively in terms of quantities with obvious geometrical meaning. By this, any multidimensional vector-matrix operations are avoided and observer tuning is substantially simplified. The observer has been successfully tested in a farming vehicle navigation system.",
+          "claimed_authors": [
+            "Vasiliy M. Tereshkov"
+          ],
+          "claimed_title": "A Simple Observer for Gyro and Accelerometer Biases in Land Navigation Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.06618"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='A Simple Observer for Gyro and Accelerometer Biases in Land Navigation Systems')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Seamless user interface (i.e., UI) translation has emerged as a pivotal technique for modern mobile developers, addressing the challenge of developing separate UI applications for Android and HarmonyOS platforms due to fundamental differences in layout structures and development paradigms. In this paper, we present UITrans, the first automated UI translation tool designed for Android to HarmonyOS. UITrans leverages an LLM-driven multi-agent reflective collaboration framework to convert Android XML layouts into HarmonyOS ArkUI layouts. It not only maps component-level and page-level elements to ArkUI equivalents but also handles project-level challenges, including complex layouts and interaction logic. Our evaluation of six Android applications demonstrates that our UITrans achieves translation success rates of over 90.1%, 89.3%, and 89.2% at the component, page, and project levels, respectively. UITrans is available at https://github.com/OpenSELab/UITrans and the demo video can be viewed at https://www.youtube.com/watch?v=iqKOSmCnJG0.",
+          "claimed_authors": [
+            "Lina Gong",
+            "Chen Wang",
+            "Yujun Huang",
+            "Di Cui",
+            "Mingqiang Wei"
+          ],
+          "claimed_title": "UITrans: Seamless UI Translation from Android to HarmonyOS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.13693"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='UITrans: Seamless UI Translation from Android to HarmonyOS')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated understanding of user interfaces (UIs) from their pixels can improve accessibility, enable task automation, and facilitate interface design without relying on developers to comprehensively provide metadata. A first step is to infer what UI elements exist on a screen, but current approaches are limited in how they infer how those elements are semantically grouped into structured interface definitions. In this paper, we motivate the problem of screen parsing, the task of predicting UI elements and their relationships from a screenshot. We describe our implementation of screen parsing and provide an effective training procedure that optimizes its performance. In an evaluation comparing the accuracy of the generated output, we find that our implementation significantly outperforms current systems (up to 23%). Finally, we show three example applications that are facilitated by screen parsing: (i) UI similarity search, (ii) accessibility enhancement, and (iii) code generation from UI screenshots.",
+          "claimed_authors": [
+            "Jason Wu",
+            "Xiaoyi Zhang",
+            "Jeff Nichols",
+            "Jeffrey P. Bigham"
+          ],
+          "claimed_title": "Screen Parsing: Towards Reverse Engineering of UI Models from Screenshots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.08763"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='Screen Parsing: Towards Reverse Engineering of UI Models from Screenshots')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Unified multimodal models provide a natural and promising architecture for understanding diverse and complex real-world knowledge while generating high-quality images. However, they still rely primarily on frozen parametric knowledge, which makes them struggle with real-world image generation involving long-tail and knowledge-intensive concepts. Inspired by the broad success of agents on real-world tasks, we explore agentic modeling to address this limitation. Specifically, we present Unify-Agent, a unified multimodal agent for world-grounded image synthesis, which reframes image generation as an agentic pipeline consisting of prompt understanding, multimodal evidence searching, grounded recaptioning, and final synthesis. To train our model, we construct a tailored multimodal data pipeline and curate 143K high-quality agent trajectories for world-grounded image synthesis, enabling effective supervision over the full agentic generation process. We further introduce FactIP, a benchmark covering 12 categories of culturally significant and long-tail factual concepts that explicitly requires external knowledge grounding. Extensive experiments show that our proposed Unify-Agent substantially improves over its base unified model across diverse benchmarks and real world generation tasks, while approaching the world knowledge capabilities of the strongest closed-source models. As an early exploration of agent-based modeling for world-grounded image synthesis, our work highlights the value of tightly coupling reasoning, searching, and generation for reliable open-world agentic image synthesis.",
+          "claimed_authors": [
+            "Shuang Chen",
+            "Quanxin Shou",
+            "Hangting Chen",
+            "Yucheng Zhou",
+            "Kaituo Feng",
+            "Wenbo Hu",
+            "Yi-Fan Zhang",
+            "Yunlong Lin",
+            "Wenxuan Huang",
+            "Mingyang Song",
+            "Dasen Dai",
+            "Bolin Jiang",
+            "Manyuan Zhang",
+            "Shi-Xue Zhang",
+            "Zhengkai Jiang",
+            "Lucas Wang",
+            "Zhao Zhong",
+            "Yu Cheng",
+            "Nanyun Peng"
+          ],
+          "claimed_title": "Unify-Agent: A Unified Multimodal Agent for World-Grounded Image Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29620"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='Unify-Agent: A Unified Multimodal Agent for World-Grounded Image Synthesis')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The development of multimodal large language models (MLLMs) enables the evaluation of image quality through natural language descriptions. This advancement allows for more detailed assessments. However, these MLLM-based IQA methods primarily rely on general contextual descriptions, sometimes limiting fine-grained quality assessment. To address this limitation, we introduce a new image quality assessment (IQA) task paradigm, **grounding-IQA**. This paradigm integrates multimodal referring and grounding with IQA to realize more fine-grained quality perception, thereby extending existing IQA. Specifically, grounding-IQA comprises two subtasks: grounding-IQA-description (GIQA-DES) and visual question answering (GIQA-VQA). GIQA-DES involves detailed descriptions with precise locations (e.g., bounding boxes), while GIQA-VQA focuses on quality QA for local regions. To realize grounding-IQA, we construct a corresponding dataset, GIQA-160K, through our proposed automated annotation pipeline. Furthermore, we develop a well-designed benchmark, GIQA-Bench. The benchmark evaluates the grounding-IQA performance from three perspectives: description quality, VQA accuracy, and grounding precision. Experiments demonstrate that our proposed method facilitates the more fine-grained IQA application. Code: https://github.com/zhengchen1999/Grounding-IQA.",
+          "claimed_authors": [
+            "Zheng Chen",
+            "Xun Zhang",
+            "Wenbo Li",
+            "Renjing Pei",
+            "Fenglong Song",
+            "Xiongkuo Min",
+            "Xiaohong Liu",
+            "Xin Yuan",
+            "Yong Guo",
+            "Yulun Zhang"
+          ],
+          "claimed_title": "Grounding-IQA: Grounding Multimodal Language Model for Image Quality Assessment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.17237"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='Grounding-IQA: Grounding Multimodal Language Model for Image Quality Assessment')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Robots collaborating with humans must convert natural language goals into actionable, physically grounded decisions. For example, executing a command such as \"go two meters to the right of the fridge\" requires grounding semantic references, spatial relations, and metric constraints within a 3D scene. While recent vision language models (VLMs) demonstrate strong semantic grounding capabilities, they are not explicitly designed to reason about metric constraints in physically defined spaces. In this work, we empirically demonstrate that state-of-the-art VLM-based grounding approaches struggle with complex metric-semantic language queries. To address this limitation, we propose MAPG (Multi-Agent Probabilistic Grounding), an agentic framework that decomposes language queries into structured subcomponents and queries a VLM to ground each component. MAPG then probabilistically composes these grounded outputs to produce metrically consistent, actionable decisions in 3D space. We evaluate MAPG on the HM-EQA benchmark and show consistent performance improvements over strong baselines. Furthermore, we introduce a new benchmark, MAPG-Bench, specifically designed to evaluate metric-semantic goal grounding, addressing a gap in existing language grounding evaluations. We also present a real-world robot demonstration showing that MAPG transfers beyond simulation when a structured scene representation is available.",
+          "claimed_authors": [
+            "Swagat Padhan",
+            "Lakshya Jain",
+            "Bhavya Minesh Shah",
+            "Omkar Patil",
+            "Thao Nguyen",
+            "Nakul Gopalan"
+          ],
+          "claimed_title": "Meanings and Measurements: Multi-Agent Probabilistic Grounding for Vision-Language Navigation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.19166"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='Meanings and Measurements: Multi-Agent Probabilistic Grounding for Vision-Language Navigation')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ARMrayan Multimedia Mobile CMS (Content Management System) is the first mobile CMS that gives the opportunity to users for creating multimedia J2ME mobile applications with their desired content, design and logo; simply, without any need for writing even a line of code. The low-level programming and compatibility problems of the J2ME, along with UI designing difficulties, makes it hard for most people -even programmers- to broadcast their content to the widespread mobile phones used by nearly all people. This system provides user-friendly, PC-based tools for creating a tree index of pages and inserting multiple multimedia contents (e.g. sound, video and picture) in each page for creating a J2ME mobile application. The output is a stand-alone Java mobile application that has a user interface, shows texts and pictures and plays music and videos regardless of the type of devices used as long as the devices support the J2ME platform. Bitmap fonts have also been used thus Middle Eastern languages can be easily supported on all mobile phone devices. We omitted programming concepts for users in order to simplify multimedia content-oriented mobile application designing for use in educational, cultural or marketing centers. Ordinary operators can now create a variety of multimedia mobile applications such as tutorials, catalogues, books, and guides in minutes rather than months. Simplicity and power has been the goal of this CMS. In this paper, we present the software engineered-designed concepts of the ARMrayan MCMS along with the implementation challenges faces and solutions adapted.",
+          "claimed_authors": [
+            "Ali Reza Manashty",
+            "Mohammad Reza Ahmadzadeh Raji",
+            "Zahra Forootan Jahromi",
+            "Amir Rajabzadeh"
+          ],
+          "claimed_title": "ARMrayan Multimedia Mobile CMS: a Simplified Approach towards Content-Oriented Mobile Application Designing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.5347"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='ARMrayan Multimedia Mobile CMS: a Simplified Approach towards Content-Oriented Mobile Application Designing')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "ARM TrustZone is widely deployed on commercial-off-the-shelf mobile devices for secure execution. However, many Apps cannot enjoy this feature because it brings many constraints to App developers. Previous works have been proposed to build a secure execution environment for developers on top of TrustZone. Unfortunately, these works are still not fully-fledged solutions for mobile Apps, especially for emerging intelligent Apps. To this end, we propose LEAP, which is a lightweight developer-friendly TEE solution for mobile Apps. LEAP enables isolated codes to execute in parallel and access peripheral (e.g., mobile GPUs) with ease, flexibly manages system resources upon different workloads, and offers the auto DevOps tool to help developers prepare the codes running on it. We implement the LEAP prototype on the off-the-shelf ARM platform and conduct extensive experiments on it. The experimental results show that Apps can be adapted to run with LEAP easily and efficiently. Compared to the state-of-the-art work along this research line, LEAP can achieve an average 3.57x speedup in supporting intelligent Apps using mobile GPU acceleration.",
+          "claimed_authors": [
+            "Lizhi Sun",
+            "Shuocheng Wang",
+            "Hao Wu",
+            "Yuhang Gong",
+            "Fengyuan Xu",
+            "Yunxin Liu",
+            "Hao Han",
+            "Sheng Zhong"
+          ],
+          "claimed_title": "LEAP: TrustZone Based Developer-Friendly TEE for Intelligent Mobile Apps",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.02465"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='LEAP: TrustZone Based Developer-Friendly TEE for Intelligent Mobile Apps')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
+          "claimed_authors": [
+            "Zhiyang Xu",
+            "Chao Feng",
+            "Rulin Shao",
+            "Trevor Ashby",
+            "Ying Shen",
+            "Di Jin",
+            "Yu Cheng",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11690"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction-following language models demand robust methodologies for information retrieval to augment instructions for question-answering applications. A primary challenge is the resolution of coreferences in the context of chunking strategies for long documents. The critical barrier to experimentation of handling coreferences is a lack of open source datasets, specifically in question-answering tasks that require coreference resolution. In this work we present our Coreference Resolution in Question-Answering (CRaQAn) dataset, an open-source dataset that caters to the nuanced information retrieval requirements of coreference resolution in question-answering tasks by providing over 250 question-answer pairs containing coreferences. To develop this dataset, we developed a novel approach for creating high-quality datasets using an instruction-following model (GPT-4) and a Recursive Criticism and Improvement Loop.",
+          "claimed_authors": [
+            "Rob Grzywinski",
+            "Joshua D'Arcy",
+            "Rob Naidoff",
+            "Ashish Shukla",
+            "Alex Browne",
+            "Ren Gibbons",
+            "Brinnae Bent"
+          ],
+          "claimed_title": "Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16338"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile', candidate_title='Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models')",
+        "failed_at": "2026-07-19T10:04:00Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Guangyi Liu",
+            "Pengxiang Zhao",
+            "Gao Wu",
+            "Yiwen Yin",
+            "Mading Li",
+            "Liang Liu",
+            "Congxiao Liu",
+            "Zhang Qi",
+            "Mengyan Wang",
+            "Liang Guo",
+            "Yong Liu"
+          ],
+          "title": "MobileForge: Annotation-Free Adaptation for Mobile GUI Agents with Hierarchical Feedback-Guided Policy Optimization",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.19930",
+        "summary": "MLLM-based mobile GUI agents have made substantial progress in UI understanding and action execution, but adapting them to real target apps remains costly because mobile apps are numerous, frequently updated, and hard to cover with human-written tasks, demonstrations, or reward labels. Existing annotation-free GUI learning reduces manual supervision, yet lacks a unified substrate connecting target-app exploration, curriculum mining, rollout execution, and feedback, while policy optimization often relies on isolated rollouts and coarse rewards that are hard to convert into reliable improvement signals. We present MobileForge, an annotation-free adaptation system for mobile GUI agents. MobileForge consists of MobileGym, which grounds task generation and rollout evaluation in real mobile app interaction, and Hierarchical Feedback-Guided Policy Optimization (HiFPO), which turns trajectory outcomes, step-level process feedback, and corrective hints into hint-contextualized step-level GRPO updates. Using only automatically generated annotation-free adaptation data, MobileForge adapts Qwen3-VL-8B to 67.2% Pass@3 on AndroidWorld, close to the closed-data GUI-specialized GUI-Owl-1.5-8B base model at 69.0%. The MobileForge-adapted ForgeOwl-8B further reaches 77.6% Pass@3 on AndroidWorld and 41.0% success on the out-of-domain MobileWorld GUI-only split, establishing the strongest open-data mobile GUI agent in our evaluation. Code, data, and trained models will be released at https://mobile-forge.github.io/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.19930",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5385,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T10:04:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gaole Dai",
+            "Shiqi Jiang",
+            "Ting Cao",
+            "Yuanchun Li",
+            "Yuqing Yang",
+            "Rui Tan",
+            "Mo Li",
+            "Lili Qiu"
+          ],
+          "title": "Advancing Mobile GUI Agents: A Verifier-Driven Approach to Practical Deployment",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.15937",
+        "summary": "We propose V-Droid, a mobile GUI task automation agent. Unlike previous mobile agents that utilize Large Language Models (LLMs) as generators to directly generate actions at each step, V-Droid employs LLMs as verifiers to evaluate candidate actions before making final decisions. To realize this novel paradigm, we introduce a comprehensive framework for constructing verifier-driven mobile agents: the discretized action space construction coupled with the prefilling-only workflow to accelerate the verification process, the pair-wise progress preference training to significantly enhance the verifier's decision-making capabilities, and the scalable human-agent joint annotation scheme to efficiently collect the necessary data at scale. V-Droid obtains a substantial task success rate across several public mobile task automation benchmarks: 59.5% on AndroidWorld, 38.3% on AndroidLab, and 49% on MobileAgentBench, surpassing existing agents by 5.2%, 2.1%, and 9%, respectively. Furthermore, V-Droid achieves a remarkably low latency of 4.3s per step, which is 6.1x faster compared with existing mobile agents. The source code is available at https://github.com/V-Droid-Agent/V-Droid.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.15937",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T10:04:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Liujian Tang",
+            "Shaokang Dong",
+            "Yijia Huang",
+            "Minqi Xiang",
+            "Hongtao Ruan",
+            "Bin Wang",
+            "Shuo Li",
+            "Zhiheng Xi",
+            "Zhihui Cao",
+            "Hailiang Pang",
+            "Heng Kong",
+            "He Yang",
+            "Mingxu Chai",
+            "Zhilin Gao",
+            "Xingyu Liu",
+            "Yingnan Fu",
+            "Jiaming Liu",
+            "Xuanjing Huang",
+            "Yu-Gang Jiang",
+            "Tao Gui",
+            "Qi Zhang",
+            "Kang Wang",
+            "Yunke Zhang",
+            "Yuran Wang"
+          ],
+          "title": "MagicGUI: A Foundational Mobile GUI Agent with Scalable Data Pipeline and Reinforcement Fine-tuning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.03700",
+        "summary": "This paper presents MagicGUI, a foundational mobile GUI agent designed to address critical challenges in perception, grounding, and reasoning within real-world mobile GUI environments. The framework is underpinned by following six key components: (1) a comprehensive and accurate dataset, constructed via the scalable GUI Data Pipeline, which aggregates the largest and most diverse GUI-centric multimodal data to date from open-source repositories, automated crawling, and targeted manual annotation; (2) enhanced perception and grounding capabilities, facilitating fine-grained multimodal alignment for UI element referencing, grounding, and screen comprehension; (3) a comprehensive and unified action space, encompassing both fundamental UI operations and complex interactive intents to support human-agent interactions; (4) planning-oriented reasoning mechanisms that enable the model to decompose complex user instructions into sequential actions with explicit intermediate meta-paln reasoning; (5) an iterative two-stage training procedure, combining large-scale continue pre-training on 7.8M samples with reinforcement fine-tuning utilizing a spatially enhanced composite reward and dual filtering strategy; and (6) competitive performance on both the proprietary Magic-RICH benchmark and over a dozen public benchmarks, achieving superior performance across GUI perception and agent tasks, while demonstrating robust generalization and real-world deployment potential in practical mobile GUI scenarios, as detailed in Figure 1.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.03700",
+          "http_status": 200,
+          "pdf_sample_score": 0.2693,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T10:04:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Junan Hu",
+            "Jian Liu",
+            "Jingxiang Lai",
+            "Jiarui Hu",
+            "Yiwei Sheng",
+            "Shuang Chen",
+            "Jian Li",
+            "Dazhao Du",
+            "Song Guo"
+          ],
+          "title": "GUI Agents with Reinforcement Learning: Toward Digital Inhabitants",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.27955",
+        "summary": "Graphical User Interface (GUI) agents have emerged as a promising paradigm for intelligent systems that perceive and interact with graphical interfaces visually. Yet supervised fine-tuning alone cannot handle long-horizon credit assignment, distribution shifts, and safe exploration in irreversible environments, making Reinforcement Learning (RL) a central methodology for advancing automation. In this work, we present the first comprehensive overview of the intersection between RL and GUI agents, and examine how this research direction may evolve toward digital inhabitants. We propose a principled taxonomy that organizes existing methods into Offline RL, Online RL, and Hybrid Strategies, and complement it with analyses of reward engineering, data efficiency, and key technical innovations. Our analysis reveals several emerging trends: the tension between reliability and scalability is motivating the adoption of composite, multi-tier reward architectures; GUI I/O latency bottlenecks are accelerating the shift toward world-model-based training, which can yield substantial performance gains; and the spontaneous emergence of System-2-style deliberation suggests that explicit reasoning supervision may not be necessary when sufficiently rich reward signals are available. We distill these findings into a roadmap covering process rewards, continual RL, cognitive architectures, and safe deployment, aiming to guide the next generation of robust GUI automation and its agent-native infrastructure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.27955",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T10:04:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chaoyun Zhang",
+            "Shilin He",
+            "Jiaxu Qian",
+            "Bowen Li",
+            "Liqun Li",
+            "Si Qin",
+            "Yu Kang",
+            "Minghua Ma",
+            "Guyue Liu",
+            "Qingwei Lin",
+            "Saravan Rajmohan",
+            "Dongmei Zhang",
+            "Qi Zhang"
+          ],
+          "title": "Large Language Model-Brained GUI Agents: A Survey",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.18279",
+        "summary": "GUIs have long been central to human-computer interaction, providing an intuitive and visually-driven way to access and interact with digital systems. The advent of LLMs, particularly multimodal models, has ushered in a new era of GUI automation. They have demonstrated exceptional capabilities in natural language understanding, code generation, and visual processing. This has paved the way for a new generation of LLM-brained GUI agents capable of interpreting complex GUI elements and autonomously executing actions based on natural language instructions. These agents represent a paradigm shift, enabling users to perform intricate, multi-step tasks through simple conversational commands. Their applications span across web navigation, mobile app interactions, and desktop automation, offering a transformative user experience that revolutionizes how individuals interact with software. This emerging field is rapidly advancing, with significant progress in both research and industry.\n  To provide a structured understanding of this trend, this paper presents a comprehensive survey of LLM-brained GUI agents, exploring their historical evolution, core components, and advanced techniques. We address research questions such as existing GUI agent frameworks, the collection and utilization of data for training specialized GUI agents, the development of large action models tailored for GUI tasks, and the evaluation metrics and benchmarks necessary to assess their effectiveness. Additionally, we examine emerging applications powered by these agents. Through a detailed analysis, this survey identifies key research gaps and outlines a roadmap for future advancements in the field. By consolidating foundational knowledge and state-of-the-art developments, this work aims to guide both researchers and practitioners in overcoming challenges and unlocking the full potential of LLM-brained GUI agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.18279",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T10:04:09Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"mobileforge: annotation-free adaptation for mobile gui agents with hie\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

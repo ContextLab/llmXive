@@ -1,44 +1,42 @@
-"""
-Script to initialize the data directory structure and checksums file.
-Creates data/raw/, data/processed/, and ensures data/checksums.json exists.
-"""
 import json
 import os
 from pathlib import Path
 
 def main():
-    """Initialize data directories and checksums registry."""
-    project_root = Path(__file__).resolve().parent.parent.parent
+    """
+    Initialize the data directory structure and the checksums registry file.
+    Creates:
+      - data/raw/
+      - data/processed/
+      - data/checksums.json (initialized with empty structure)
+    """
+    # Define the project root relative to the script location (code/scripts/)
+    # Assuming standard layout: code/scripts/init_data_dirs.py -> project root is parent of code
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent.parent
+
     data_dir = project_root / "data"
     raw_dir = data_dir / "raw"
     processed_dir = data_dir / "processed"
     checksums_file = data_dir / "checksums.json"
 
-    # Create directory structure
+    # Create directories if they don't exist
     raw_dir.mkdir(parents=True, exist_ok=True)
     processed_dir.mkdir(parents=True, exist_ok=True)
 
-    # Initialize or update checksums.json
-    if checksums_file.exists():
-        with open(checksums_file, 'r') as f:
-            try:
-                checksums = json.load(f)
-            except json.JSONDecodeError:
-                checksums = {"files": {}, "last_updated": None}
+    # Initialize checksums.json if it doesn't exist or is empty
+    if not checksums_file.exists():
+        initial_data = {
+            "version": "1.0.0",
+            "files": {}
+        }
+        with open(checksums_file, "w") as f:
+            json.dump(initial_data, f, indent=2)
+        print(f"Initialized {checksums_file}")
     else:
-        checksums = {"files": {}, "last_updated": None}
+        print(f"Checksums file already exists at {checksums_file}")
 
-    # Ensure structure is valid even if file was empty/corrupt
-    if "files" not in checksums:
-        checksums["files"] = {}
-    if "last_updated" not in checksums:
-        checksums["last_updated"] = None
-
-    # Write back to ensure valid JSON structure
-    with open(checksums_file, 'w') as f:
-        json.dump(checksums, f, indent=2)
-
-    print(f"Initialized data directory structure:")
+    print(f"Data directory structure ready:")
     print(f"  - {raw_dir}")
     print(f"  - {processed_dir}")
     print(f"  - {checksums_file}")

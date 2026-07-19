@@ -802,3 +802,166 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T00:13:09Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: 1,000 label permutations on a stratified subset of 100 subjects
+  claim_id: c_23e5feed
+  context: T022 [US2] Implement code/modeling/evaluate.py to perform 1,000 label permutations
+    on a stratified subset of 100 subjects (based on Sleep Score). Must invoke T020a
+    with the subset parameter.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/modeling/evaluate.py to perform 1,000 label permutations
+    on a stratified subset of 100 subjects (based on Sleep Score).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:55:04Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: RAM usage limit of 6 GB
+  claim_id: c_51481553
+  context: "T025 [US2] Implement code/modeling/evaluate.py to enforce CPU-only execution,\
+    \ monitor RAM usage (\u22646 GB) using psutil, and abort if wall-clock time exceeds\
+    \ a predefined threshold using signal module (FR-009)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce CPU-only execution, monitor RAM usage (\u22646 GB) using psutil,\
+    \ and abort if wall-clock time exceeds a predefined threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:55:04Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: 3-hour time budget for 9 grid points
+  claim_id: c_84b12c3d
+  context: T024 [US2] Implement sensitivity analysis in code/modeling/evaluate.py
+    to iterate variance thresholds including low values and PCA retention {0.95, 0.90,
+    0.85}. Must enforce a cumulative 3-hour time budget for the 9 grid points.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a cumulative 3-hour time budget for the 9 grid points in sensitivity
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:55:17Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Plotting all available connections if fewer than 50 non-zero coefficients
+    exist
+  claim_id: c_98606eca
+  context: T031 [US3] Generate brain-surface plot using Nilearn plot_connectome highlighting
+    top N (configurable) predictive connections. Must handle case where <50 non-zero
+    coefficients exist by plotting all available and logging a warning (SC-004).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Plotting_all_available_connections_if_fewer_than_50_non-zero
+  kind: magnitude
+  raw_text: Handle case where <50 non-zero coefficients exist by plotting all available
+    and logging a warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:56:08Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Verification of at least 50 edges in plot file
+  claim_id: c_ede958a1
+  context: "T033 [P] [US3] Verify plot file exists and contains \u226550 edges: Use\
+    \ Python's built-in xml.etree.ElementTree to parse SVG and count both <line> and\
+    \ <path> elements."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verification_of_at_least_50_edges_in_plot_file
+  kind: magnitude
+  raw_text: "Verify plot file exists and contains \u226550 edges."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:56:26Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Exclusion threshold of 0.3mm framewise displacement
+  claim_id: c_2bfda5c4
+  context: T007b [US1] Implement subject filtering logic in code/data/download_hcp.py
+    (or a helper module) to identify subjects with valid Sleep Scores and exclude
+    those with >0.3mm framewise displacement (US1 Acceptance 2).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude subjects with >0.3mm framewise displacement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:56:26Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Abort threshold of 80% success rate
+  claim_id: c_2d2e8ded
+  context: T016 [US1] Implement error handling to log excluded subjects and abort
+    if success rate <80% (SC-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if success rate <80%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:56:27Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Filtering subjects with framewise displacement greater than 0.3mm
+  claim_id: c_5865bab4
+  context: T007b [US1] Implement subject filtering logic in code/data/download_hcp.py
+    (or a helper module) to identify subjects with valid Sleep Scores and exclude
+    those with >0.3mm framewise displacement (US1 Acceptance 2).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filtering_subjects_with_framewise_displacement_greater_than
+  kind: magnitude
+  raw_text: Filter subjects with >0.3mm framewise displacement.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:56:41Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: PCA retention values of 0.95, 0.90, and 0.85
+  claim_id: c_7d3f5a39
+  context: T024 [US2] Implement sensitivity analysis in code/modeling/evaluate.py
+    to iterate variance thresholds including low values and PCA retention {0.95, 0.90,
+    0.85}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PCA retention values of 0.95, 0.90, and 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:56:58Z'

@@ -1503,6 +1503,10 @@
     "classified_at": "2026-07-16T09:19:59Z",
     "verdict": false
   },
+  "PROJ-930-llmxive-follow-up-extending-mobileforge::1.6.0": {
+    "classified_at": "2026-07-19T10:04:00Z",
+    "verdict": false
+  },
   "PROJ-935-llmxive-follow-up-extending-on-the-scali::1.6.0": {
     "classified_at": "2026-07-19T04:30:18Z",
     "verdict": false
@@ -1565,6 +1569,10 @@
   },
   "PROJ-967-llmxive-follow-up-extending-beyond-scala::1.6.0": {
     "classified_at": "2026-07-05T04:34:01Z",
+    "verdict": false
+  },
+  "PROJ-969-llmxive-follow-up-extending-perception-o::1.6.0": {
+    "classified_at": "2026-07-19T09:53:32Z",
     "verdict": false
   },
   "PROJ-971-llmxive-follow-up-extending-in-context-w::1.6.0": {

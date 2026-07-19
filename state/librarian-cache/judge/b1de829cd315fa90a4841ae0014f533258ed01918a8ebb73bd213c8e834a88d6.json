@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.15937",
+  "judged_at": "2026-07-19T10:04:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mobileforge: annotation-free adaptation for mobile gui agents with hie\" computer science",
+  "rationale": "This paper belongs in the literature review because it is a foundational empirical study on the specific domain of \"Mobile GUI Agents,\" establishing the current state-of-the-art benchmarks (AndroidWorld, AndroidLab) and methodologies (verifier-driven approaches) that any follow-up research on extending or adapting these agents must cite. It satisfies criteria (c) as an empirical baseline and (d) as a canonical reference for the specific sub-field of mobile GUI automation agents.",
+  "relevant": true
+}

@@ -19,25 +19,21 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # Virtual Environments
 venv/
 ENV/
 env/
-.venv/
 
 # IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
-.project
-.settings/
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# OS
+.DS_Store
+Thumbs.db
 
 # Data Artifacts (Raw and Processed)
 data/raw/*
@@ -46,31 +42,8 @@ data/processed/*
 !data/processed/.gitkeep
 
 # State and Logs
-state/*.json
-state/*.log
-state/amendments.md
-logs/
+state/*
+!state/.gitkeep
+*.log
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# Local Configuration
-.env
-.local_settings.py
-config_local.py
-
-# Test Coverage
-.coverage
-htmlcov/
-.pytest_cache/
-
-# Model artifacts (large binaries)
-models/
-*.h5
-*.pkl
-*.joblib
-
-# Temporary files
-*.tmp
-.tmp/
+# Note: .gitkeep files are created to ensure directories are tracked by git

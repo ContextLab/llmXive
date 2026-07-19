@@ -1,10 +1,7 @@
-"""
-T033: Verify plot file exists and contains >=50 edges.
+"""Validation module for generated brain connectivity plots.
 
-Uses Python's built-in xml.etree.ElementTree to parse SVG and count
-both <line> and <path> elements to handle different rendering backends.
-Implements retry logic and error logging if validation fails.
-Does NOT use OpenCV.
+Verifies that the plot file exists and contains the expected number of edges
+by parsing the SVG content using Python's built-in xml.etree.ElementTree.
 """
 from __future__ import annotations
 
@@ -14,211 +11,222 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional
 
-# Import from local utils
-from code.utils.logging import log_stage_start, log_stage_complete, log_stage_error
+# Import logging utility from the project's logging module
+try:
+    from utils.logging import get_logger, log_operation
+except ImportError:
+    # Fallback for direct execution or different import context
+    import logging
+    def get_logger(name=None):
+        return logging.getLogger(name)
+    def log_operation(op, **kwargs):
+        return {"operation": op, **kwargs}
+
+logger = get_logger("validate_plot")
+
+# Configuration constants
+MIN_EDGES_THRESHOLD = 50
+MAX_RETRIES = 3
+RETRY_DELAY_SECONDS = 1.0
+SVG_FILE_EXTENSIONS = {".svg", ".png"}  # PNGs might be converted to SVG for analysis or we check existence
 
 
-def count_svg_edges(svg_path: str, retry_count: int = 3, retry_delay: float = 1.0) -> int:
-    """
-    Parse an SVG file and count the number of <line> and <path> elements.
-    
+def count_svg_edges(svg_path: Path) -> int:
+    """Count the number of edges in an SVG file.
+
+    Parses the SVG file using xml.etree.ElementTree and counts both <line>
+    and <path> elements, as different rendering backends may use either.
+
     Args:
         svg_path: Path to the SVG file.
-        retry_count: Number of times to retry if the file is not ready.
-        retry_delay: Seconds to wait between retries.
-        
+
     Returns:
-        The total count of <line> and <path> elements.
-        
+        The total count of <line> and <path> elements found.
+
     Raises:
-        FileNotFoundError: If the file does not exist after retries.
-        ET.ParseError: If the XML parsing fails.
+        FileNotFoundError: If the file does not exist.
+        ET.ParseError: If the file is not a valid XML/SVG document.
     """
-    path = Path(svg_path)
-    
-    # Retry loop for file availability
-    for attempt in range(retry_count):
-        if not path.exists():
-            if attempt < retry_count - 1:
-                time.sleep(retry_delay)
-                continue
-            else:
-                raise FileNotFoundError(f"Plot file not found after {retry_count} attempts: {svg_path}")
-        
-        try:
-            tree = ET.parse(path)
-            root = tree.getroot()
-            
-            # Handle namespaces if present (Nilearn often uses them)
-            namespace = {'svg': 'http://www.w3.org/2000/svg'}
-            
-            # Count <line> elements
-            # Try with namespace first, then without
-            lines = root.findall('.//svg:line', namespace)
-            if not lines:
-                lines = root.findall('.//line')
-            
-            # Count <path> elements
-            paths = root.findall('.//svg:path', namespace)
-            if not paths:
-                paths = root.findall('.//path')
-            
-            total_edges = len(lines) + len(paths)
-            return total_edges
-            
-        except ET.ParseError as e:
-            # If parsing fails, it might be a binary file or corrupted
-            # Log and retry if attempts remain
-            if attempt < retry_count - 1:
-                time.sleep(retry_delay)
-                continue
-            else:
-                raise e
-                
-    raise FileNotFoundError(f"Failed to access or parse {svg_path} after retries")
+    if not svg_path.exists():
+        raise FileNotFoundError(f"Plot file not found: {svg_path}")
 
-
-def verify_plot_file(plot_path: str, min_edges: int = 50) -> Dict[str, Any]:
-    """
-    Verify that the plot file exists and contains the required number of edges.
-    
-    Args:
-        plot_path: Path to the plot file (SVG).
-        min_edges: Minimum number of edges required (default 50).
-        
-    Returns:
-        A dictionary with validation results:
-        {
-            "success": bool,
-            "file_exists": bool,
-            "edge_count": int,
-            "min_edges": int,
-            "message": str
-        }
-    """
-    result = {
-        "success": False,
-        "file_exists": False,
-        "edge_count": 0,
-        "min_edges": min_edges,
-        "message": ""
-    }
-    
-    path = Path(plot_path)
-    
-    # Check file existence
-    if not path.exists():
-        result["message"] = f"Plot file does not exist: {plot_path}"
-        log_stage_error("T033", result["message"])
-        return result
-        
-    result["file_exists"] = True
-    
-    # Count edges
     try:
-        edge_count = count_svg_edges(str(path))
-        result["edge_count"] = edge_count
-        
-        if edge_count >= min_edges:
-            result["success"] = True
-            result["message"] = f"Validation passed: Found {edge_count} edges (>= {min_edges})"
-            log_stage_complete("T033", result["message"])
-        else:
-            result["success"] = False
-            result["message"] = f"Validation failed: Found {edge_count} edges (< {min_edges})"
-            log_stage_error("T033", result["message"])
-            
+        tree = ET.parse(svg_path)
+        root = tree.getroot()
+
+        # Handle namespaced SVG (common in matplotlib/nilearn outputs)
+        # Typical namespace: http://www.w3.org/2000/svg
+        namespace = {"svg": "http://www.w3.org/2000/svg"}
+
+        line_count = 0
+        path_count = 0
+
+        # Try namespaced search first
+        try:
+            lines = root.findall(".//svg:line", namespace)
+            line_count = len(lines)
+        except Exception:
+            # Fallback: try without namespace if the parser struggles
+            lines = root.findall(".//{http://www.w3.org/2000/svg}line")
+            line_count = len(lines)
+            if not lines:
+                # Try non-namespaced (rare, but possible)
+                line_count = len(root.findall(".//line"))
+
+        try:
+            paths = root.findall(".//svg:path", namespace)
+            path_count = len(paths)
+        except Exception:
+            paths = root.findall(".//{http://www.w3.org/2000/svg}path")
+            path_count = len(paths)
+            if not paths:
+                path_count = len(root.findall(".//path"))
+
+        total_edges = line_count + path_count
+        logger.info(f"SVG edge count: {total_edges} (lines: {line_count}, paths: {path_count})")
+        return total_edges
+
     except ET.ParseError as e:
-        result["message"] = f"Failed to parse SVG file: {str(e)}"
-        log_stage_error("T033", result["message"])
-        
-    return result
+        logger.error(f"Failed to parse SVG file {svg_path}: {e}")
+        # If it's a binary PNG, we cannot parse it as XML.
+        # The task specifically asks to verify SVG content.
+        # If the file is a PNG, we might need to check if it's actually an SVG in disguise
+        # or if the task expects us to handle the case where the file is not SVG.
+        # For now, we raise the error as the validation cannot proceed on a non-SVG.
+        raise ValueError(f"File {svg_path} is not a valid SVG/XML document: {e}") from e
 
 
-def main() -> bool:
-    """
-    Main entry point for T033 validation.
-    
-    Reads the plot path from ResultReport.json (if available) or uses a default.
-    Runs the verification and updates ResultReport.json with the validation status.
-    
+def verify_plot_file(
+    plot_path: Optional[str] = None,
+    min_edges: int = MIN_EDGES_THRESHOLD,
+    result_report_path: Optional[str] = None
+) -> bool:
+    """Verify that the plot file exists and meets the edge count requirement.
+
+    Args:
+        plot_path: Path to the plot file (SVG). Defaults to a standard location
+                   if not provided, but typically this should be passed.
+        min_edges: Minimum number of edges required.
+        result_report_path: Path to the ResultReport.json to update with validation status.
+
     Returns:
-        True if validation passed, False otherwise.
+        True if validation passes, False otherwise.
     """
-    log_stage_start("T033", "Validating plot file")
-    
-    paths_config = {
-        "base_dir": Path(__file__).parent.parent.parent,
-        "results_dir": "data/results",
-        "result_report": "ResultReport.json",
-        "default_plot": "brain_connectome.svg"
-    }
-    
-    base_dir = paths_config["base_dir"]
-    results_dir = base_dir / paths_config["results_dir"]
-    result_report_path = results_dir / paths_config["result_report"]
-    
-    # Determine plot path
-    plot_path = None
-    if result_report_path.exists():
-        try:
-            with open(result_report_path, 'r') as f:
-                report = json.load(f)
-                # Look for visualization path in the report
-                if "visualization" in report and "plot_path" in report["visualization"]:
-                    plot_path = report["visualization"]["plot_path"]
-                elif "plot_path" in report:
-                    plot_path = report["plot_path"]
-        except (json.JSONDecodeError, KeyError) as e:
-            print(f"Warning: Could not read plot path from ResultReport.json: {e}")
-    
-    # Fallback to default
-    if not plot_path:
-        plot_path = str(results_dir / paths_config["default_plot"])
-        
-    # Also check for .png and convert to .svg if needed (though task specifies SVG parsing)
-    # If the file is .png, we cannot parse it with ElementTree. 
-    # We assume the visualization task (T032) produced an SVG or we check for SVG specifically.
-    if not plot_path.endswith('.svg'):
-        # Check if an SVG version exists
-        svg_path = plot_path.rsplit('.', 1)[0] + '.svg'
-        if Path(svg_path).exists():
-            plot_path = svg_path
-        else:
-            # If only PNG exists, we cannot validate edges via XML.
-            # Log this limitation.
-            log_stage_error("T033", f"Plot file is not SVG ({plot_path}). Cannot validate edge count via XML.")
+    # Determine plot path if not provided
+    if plot_path is None:
+        # Default to a standard location in data/results if not specified
+        # This should ideally be passed from the caller based on the actual generated file
+        default_paths = [
+            "data/results/brain_connectivity_plot.svg",
+            "data/results/plot.svg",
+            "data/results/visualization.svg"
+        ]
+        plot_path_obj = None
+        for p in default_paths:
+            candidate = Path(p)
+            if candidate.exists():
+                plot_path_obj = candidate
+                break
+        if plot_path_obj is None:
+            logger.error("No plot file found in default locations.")
             return False
-    
-    print(f"Validating plot: {plot_path}")
-    
-    validation_result = verify_plot_file(plot_path, min_edges=50)
-    
-    # Update ResultReport.json with validation status
-    if result_report_path.exists():
+        plot_path_obj = plot_path_obj
+    else:
+        plot_path_obj = Path(plot_path)
+
+    logger.info(f"Verifying plot file: {plot_path_obj}")
+
+    # Retry logic for file availability
+    retries = 0
+    while retries < MAX_RETRIES:
         try:
-            with open(result_report_path, 'r') as f:
-                report = json.load(f)
-                
-            report["validation"] = report.get("validation", {})
-            report["validation"]["plot_edge_count"] = validation_result["edge_count"]
-            report["validation"]["plot_validation_passed"] = validation_result["success"]
-            report["validation"]["plot_validation_message"] = validation_result["message"]
-            
-            with open(result_report_path, 'w') as f:
-                json.dump(report, f, indent=2)
-                
-            print(f"Updated ResultReport.json with validation results.")
-            
+            if not plot_path_obj.exists():
+                raise FileNotFoundError(f"Plot file not found: {plot_path_obj}")
+
+            edge_count = count_svg_edges(plot_path_obj)
+            logger.info(f"Verified {edge_count} edges in {plot_path_obj}")
+
+            if edge_count >= min_edges:
+                validation_status = "PASS"
+                validation_message = f"Plot contains {edge_count} edges (>= {min_edges})"
+                success = True
+            else:
+                validation_status = "FAIL"
+                validation_message = f"Plot contains only {edge_count} edges (< {min_edges})"
+                success = False
+
+            # Update ResultReport.json if path is provided
+            if result_report_path:
+                report_path = Path(result_report_path)
+                if report_path.exists():
+                    try:
+                        with open(report_path, "r", encoding="utf-8") as f:
+                            report = json.load(f)
+                    except (json.JSONDecodeError, IOError) as e:
+                        logger.warning(f"Could not load/update ResultReport.json: {e}")
+                        report = {}
+
+                    report["visualization_validation"] = {
+                        "file_path": str(plot_path_obj),
+                        "edge_count": edge_count,
+                        "min_edges_required": min_edges,
+                        "status": validation_status,
+                        "message": validation_message,
+                        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+                    }
+
+                    try:
+                        with open(report_path, "w", encoding="utf-8") as f:
+                            json.dump(report, f, indent=2)
+                        logger.info(f"Updated ResultReport.json with validation status")
+                    except IOError as e:
+                        logger.error(f"Failed to write ResultReport.json: {e}")
+
+            return success
+
+        except (FileNotFoundError, ValueError) as e:
+            retries += 1
+            logger.warning(f"Validation attempt {retries}/{MAX_RETRIES} failed: {e}")
+            if retries < MAX_RETRIES:
+                logger.info(f"Retrying in {RETRY_DELAY_SECONDS} seconds...")
+                time.sleep(RETRY_DELAY_SECONDS)
+            else:
+                logger.error("Max retries exceeded. Validation failed.")
+                return False
         except Exception as e:
-            print(f"Warning: Could not update ResultReport.json: {e}")
-    
-    print(f"Validation Result: {validation_result['message']}")
-    return validation_result["success"]
+            logger.error(f"Unexpected error during validation: {e}")
+            return False
+
+
+def main():
+    """Entry point for running the plot validation script."""
+    logger.info("Starting plot validation...")
+
+    # Attempt to load paths from config if available, otherwise use defaults
+    try:
+        from config import get_paths
+        paths = get_paths()
+        plot_path = paths.get("visualization_plot")  # Assuming a key exists or we use default
+        result_report = paths.get("result_report")
+    except (ImportError, KeyError):
+        plot_path = None
+        result_report = "data/results/ResultReport.json"
+
+    success = verify_plot_file(
+        plot_path=plot_path,
+        min_edges=MIN_EDGES_THRESHOLD,
+        result_report_path=result_report
+    )
+
+    if success:
+        logger.info("Plot validation PASSED.")
+        return 0
+    else:
+        logger.error("Plot validation FAILED.")
+        return 1
 
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    sys.exit(main())

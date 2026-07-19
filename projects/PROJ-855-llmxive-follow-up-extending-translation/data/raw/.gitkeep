@@ -1,2 +1,1 @@
-# This directory stores raw generated data (e.g., synthetic_episodes.parquet).
-# Created by T016.
+# This file ensures the directory exists in git

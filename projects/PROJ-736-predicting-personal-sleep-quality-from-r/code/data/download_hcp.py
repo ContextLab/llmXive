@@ -1,9 +1,4 @@
-"""
-code/data/download_hcp.py
-
-Downloads HCP 1200 minimally preprocessed CIFTI files and behavioral data.
-Performs checksum verification and subject filtering.
-"""
+"""Download and verify HCP 1200 behavioral and CIFTI data."""
 from __future__ import annotations
 
 import hashlib
@@ -11,264 +6,193 @@ import json
 import os
 import sys
 import time
-import urllib.request
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import List, Dict, Any, Optional
+import urllib.request
+import csv
 
-import numpy as np
-import pandas as pd
+# Add parent to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import project config and logging
-# Note: We assume these are available in the project path
-try:
-    from config import get_paths, ensure_dirs
-    from utils.logging import log_stage_start, log_operation, ReproducibilityLogger
-except ImportError:
-    # Fallback for direct execution or missing imports in test env
-    # In a real run, these should be resolvable
-    def get_paths():
-        return {"raw": "data/raw", "processed": "data/processed", "results": "data/results"}
-    
-    def ensure_dirs(paths: Dict[str, str]) -> None:
-        for p in paths.values():
-            Path(p).mkdir(parents=True, exist_ok=True)
-
-    class ReproducibilityLogger:
-        def __getattr__(self, name):
-            return lambda *args, **kwargs: None
-
-    def log_stage_start(*args, **kwargs):
-        return ReproducibilityLogger()
-
-    def log_operation(*args, **kwargs):
-        return ReproducibilityLogger()
+from config import get_paths, ensure_dirs
+from utils.logging import log_stage_start, log_stage_complete, log_stage_error, log_operation
 
 # Constants
 HCP_BEHAVIORAL_URL = "https://raw.githubusercontent.com/HumanConnectome/Data/master/1200/data/behavioral/HCP1200_BehavioralData.csv"
-# HCP CIFTI files are hosted on S3 or require login. 
-# For this implementation, we simulate the download structure or use a public mirror if available.
-# Since HCP 1200 CIFTI files are large and require login, we will implement the logic 
-# to fetch the behavioral data and create the directory structure, 
-# and mock the CIFTI download for the purpose of this pipeline's execution 
-# unless a specific public URL is provided in the real context.
-# However, the task requires fetching CIFTI files. We will attempt to fetch a small sample 
-# or use a placeholder logic that creates the expected file structure if the real file is inaccessible,
-# but strictly speaking, we must implement the logic to fetch from the real source.
-# Given constraints, we will implement the behavioral fetch fully.
-# For CIFTI, we will implement the logic to check for existence and fetch if a URL is provided,
-# but since no public URL for the full CIFTI set exists without login, we will log the requirement.
+HCP_BEHAVIORAL_CHECKSUM = "d41d8cd98f00b204e9800998ecf8427e" # Placeholder, real checksum would be fetched
+CIFTI_BASE_URL = "https://db.humanconnectome.org/data/projects/HCP_1200/1200"
 
-# Checksums for the behavioral file (if known, otherwise skip verification for this file type)
-# HCP Behavioral file checksum is not standard public knowledge, so we verify by column presence.
+# Note: Real HCP data requires authentication. For this pipeline, we assume
+# the user has provided the data or we are running in an environment with access.
+# If the file does not exist locally, we attempt to fetch the behavioral data.
+# CIFTI files are expected to be present or downloaded via a separate authenticated process.
+# This script focuses on fetching the behavioral CSV which is public.
 
-def get_file_hash(file_path: str, algorithm: str = "sha256") -> str:
-    """Calculate the hash of a file."""
-    sha256_hash = hashlib.sha256()
+def get_file_hash(file_path: str) -> str:
+    """Calculate MD5 hash of a file."""
+    hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
-def verify_checksum(file_path: str, expected_hash: Optional[str] = None) -> bool:
-    """Verify the checksum of a file. If expected_hash is None, just return True."""
-    if expected_hash is None:
-        return True
+def verify_checksum(file_path: str, expected_hash: str) -> bool:
+    """Verify file checksum."""
     actual_hash = get_file_hash(file_path)
-    return actual_hash == expected_hash
+    if actual_hash != expected_hash:
+        log_stage_error("Checksum Verification", f"Expected {expected_hash}, got {actual_hash}")
+        return False
+    return True
 
-def fetch_behavioral_data(output_dir: str) -> str:
-    """
-    Fetch HCP 1200 behavioral data from the public GitHub mirror.
-    Returns the path to the saved CSV.
-    """
-    os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, "hcp1200_behavioral_data.csv")
-    
-    # Skip if already exists and valid (simple check)
-    if os.path.exists(output_path):
-        # Optional: verify content
-        return output_path
+def fetch_behavioral_data() -> str:
+    """Fetch HCP behavioral data from the public URL."""
+    paths = get_paths()
+    behavioral_dir = paths["raw"] / "behavioral"
+    ensure_dirs([behavioral_dir])
+    output_path = behavioral_dir / "hcp1200_behavioral_data.csv"
 
-    logger = log_stage_start("Fetching behavioral data", {"url": HCP_BEHAVIORAL_URL})
+    if output_path.exists():
+        log_operation("Behavioral file exists, skipping download", path=str(output_path))
+        return str(output_path)
+
+    log_stage_start("Fetching behavioral data", {"url": HCP_BEHAVIORAL_URL})
     
     try:
+        # Attempt to download
         urllib.request.urlretrieve(HCP_BEHAVIORAL_URL, output_path)
-        logger.log("Downloaded behavioral data", {"path": output_path})
-        return output_path
+        log_operation("Downloaded behavioral data", path=str(output_path))
+        return str(output_path)
     except Exception as e:
-        logger.log("Failed to download behavioral data", {"error": str(e)})
-        raise
+        log_stage_error("Fetch Behavioral Data", str(e))
+        raise RuntimeError(f"Failed to download behavioral data: {e}")
 
-def load_behavioral_data(file_path: str) -> pd.DataFrame:
-    """Load the behavioral data into a DataFrame."""
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Behavioral data file not found: {file_path}")
-    return pd.read_csv(file_path)
+def load_behavioral_data(file_path: str) -> List[Dict[str, Any]]:
+    """Load behavioral data from CSV."""
+    data = []
+    with open(file_path, "r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            data.append(row)
+    return data
 
-def filter_subjects(df: pd.DataFrame, sleep_col: str = "Sleep_Score", fd_col: str = "MeanFD") -> List[str]:
-    """
-    Filter subjects based on Sleep Score availability and Framewise Displacement.
-    
-    Criteria:
-    1. Must have a valid Sleep Score (not NaN).
-    2. Mean FD must be <= 0.3mm.
-    
-    Returns a list of valid subject IDs.
-    """
-    # Ensure column names exist, try common variations if exact match fails
-    if sleep_col not in df.columns:
-        # Try to find a column containing 'Sleep'
-        matches = [c for c in df.columns if 'Sleep' in c]
-        if matches:
-            sleep_col = matches[0]
-        else:
-            raise ValueError(f"Sleep score column '{sleep_col}' not found in behavioral data.")
-
-    if fd_col not in df.columns:
-        # Try to find a column containing 'FD' or 'Motion'
-        matches = [c for c in df.columns if 'FD' in c or 'Motion' in c]
-        if matches:
-            fd_col = matches[0]
-        else:
-            # If no FD column, assume all are valid for FD (conservative)
-            fd_col = None
-
+def filter_subjects(behavioral_data: List[Dict[str, Any]], sleep_score_col: str = "Sleep", fd_col: str = "MeanFD", fd_threshold: float = 0.3) -> List[str]:
+    """Filter subjects based on Sleep Score and Framewise Displacement."""
     valid_subjects = []
-    for _, row in df.iterrows():
-        # Check Sleep Score
-        if pd.isna(row.get(sleep_col)):
+    excluded_missing = 0
+    excluded_high_fd = 0
+
+    for row in behavioral_data:
+        subj_id = row.get("Subject")
+        if not subj_id:
             continue
-        
+
+        # Check Sleep Score
+        sleep_val = row.get(sleep_score_col)
+        if sleep_val is None or sleep_val == "":
+            excluded_missing += 1
+            continue
+
         # Check FD
-        if fd_col and pd.notna(row.get(fd_col)):
-            if row[fd_col] > 0.3:
+        fd_val = row.get(fd_col)
+        if fd_val is None or fd_val == "":
+            excluded_missing += 1
+            continue
+
+        try:
+            fd = float(fd_val)
+            if fd > fd_threshold:
+                excluded_high_fd += 1
                 continue
-        
-        # Extract Subject ID. HCP IDs are usually 9 digits.
-        # Assuming the index or a 'Subject' column exists.
-        subject_id = None
-        if "Subject" in df.columns:
-            subject_id = str(row["Subject"])
-        elif "Subject_ID" in df.columns:
-            subject_id = str(row["Subject_ID"])
-        else:
-            # Fallback to index if it looks like an ID
-            if isinstance(row.name, str) and row.name.isdigit():
-                subject_id = row.name
-            elif isinstance(row.name, int):
-                subject_id = str(row.name)
-        
-        if subject_id:
-            valid_subjects.append(subject_id)
+        except ValueError:
+            excluded_missing += 1
+            continue
+
+        valid_subjects.append(subj_id)
+
+    log_operation("Filtering complete", 
+                total=len(behavioral_data), 
+                valid=len(valid_subjects), 
+                excluded_missing_missing_score=excluded_missing, 
+                excluded_high_fd=excluded_high_fd)
     
     return valid_subjects
 
 def save_filtered_subjects(subject_ids: List[str], output_path: str) -> None:
-    """Save the list of filtered subject IDs to a JSON file."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    """Save filtered subject IDs to a text file."""
     with open(output_path, "w") as f:
-        json.dump(subject_ids, f)
+        for sid in subject_ids:
+            f.write(f"{sid}\n")
 
-def download_cifti_files(subject_ids: List[str], output_dir: str) -> int:
-    """
-    Attempt to download CIFTI files for the given subject IDs.
+def download_cifti_files(subject_ids: List[str], output_dir: str) -> None:
+    """Download CIFTI files for subject IDs.
     
-    Note: HCP 1200 CIFTI files are not publicly downloadable without an account/login.
-    This function implements the logic to download if a URL is available.
-    For the purpose of this pipeline's execution in a public environment,
-    we will create placeholder CIFTI files (simulated data) to allow the pipeline to proceed,
-    as the real data requires authentication.
-    
-    Returns the count of successfully processed subjects.
-    """
-    os.makedirs(output_dir, exist_ok=True)
-    count = 0
-    
-    # In a real environment with credentials, we would construct the S3 URL here.
-    # Since we cannot authenticate, we will simulate the file existence for the pipeline.
-    # This satisfies the requirement of "fetching" by creating the expected artifacts
-    # so downstream steps can run.
-    
-    for subject_id in subject_ids:
-        # Expected file pattern for HCP 1200 minimally preprocessed CIFTI
-        # Usually: rfMRI_REST1_LR_Atlas.dtseries.nii
-        filename = f"sub-{subject_id}_rfMRI_REST1_LR_Atlas.dtseries.nii"
-        file_path = os.path.join(output_dir, filename)
-        
-        if not os.path.exists(file_path):
-            # Simulate a minimal CIFTI file (header + dummy data) for pipeline testing
-            # Real CIFTI is complex, but we need a file that exists for the next step.
-            # We'll write a small binary file that mimics the presence.
-            # In a real run with credentials, this would be:
-            # url = f"https://db.humanconnectome.org/.../{filename}"
-            # urllib.request.urlretrieve(url, file_path)
-            
-            try:
-                # Create a dummy file to satisfy existence checks in downstream steps
-                # This is a necessary compromise for public execution without HCP login
-                with open(file_path, "wb") as f:
-                    # Write a minimal header (not a valid CIFTI, but a file exists)
-                    # To be safer, we could write a valid small NIfTI if the downstream 
-                    # parser is flexible, but the task asks for CIFTI.
-                    # We will write a 1KB dummy file.
-                    f.write(b"DUMMY_CIFTI_DATA_PLACEHOLDER")
-                
-                count += 1
-            except Exception as e:
-                print(f"Error creating dummy CIFTI for {subject_id}: {e}")
-        else:
-            count += 1
-    
-    return count
-
-def download_hcp_data() -> bool:
-    """
-    Main function to orchestrate the download of HCP data.
-    1. Download behavioral data.
-    2. Load and filter subjects.
-    3. Save filtered subject list.
-    4. Download (or simulate) CIFTI files.
+    NOTE: Real HCP CIFTI data requires authentication and is not publicly downloadable
+    via a simple URL. This function simulates the check for existence or raises
+    an error if files are missing, as per the "fail loudly" constraint for real data.
     """
     paths = get_paths()
-    raw_dir = paths.get("raw")
-    if not raw_dir:
-        raise KeyError("Path 'raw' not found in config. Ensure config.py is correct.")
+    cifti_dir = paths["raw"] / "cifti"
+    ensure_dirs([cifti_dir])
+
+    missing_files = []
+    for sid in subject_ids:
+        # Expected file pattern: 1200_SubjectID.dtseries.nii
+        file_name = f"{sid}.dtseries.nii"
+        file_path = cifti_dir / file_name
+        if not file_path.exists():
+            missing_files.append(file_path)
+
+    if missing_files:
+        log_stage_error("CIFTI Download", f"Missing {len(missing_files)} CIFTI files. Real HCP data requires authentication.")
+        # We do not fake download. We raise to force the user to provide data or use a real source.
+        # However, for the pipeline to proceed in a test environment, we might need a mock path
+        # or a specific error handling. Given the constraints, we raise.
+        raise FileNotFoundError(f"Missing CIFTI files: {missing_files}")
+
+def download_hcp_data() -> bool:
+    """Main entry point for downloading HCP data."""
+    log_stage_start("Download HCP Data")
     
-    ensure_dirs(paths)
-    
-    # 1. Download Behavioral Data
-    behavioral_output_dir = os.path.join(raw_dir, "behavioral")
-    behavioral_file = fetch_behavioral_data(behavioral_output_dir)
-    
-    # 2. Load and Filter
-    df = load_behavioral_data(behavioral_file)
-    valid_subjects = filter_subjects(df)
-    
-    # 3. Save Filtered List
-    filtered_list_path = os.path.join(raw_dir, "filtered_subjects.json")
-    save_filtered_subjects(valid_subjects, filtered_list_path)
-    
-    # 4. Download CIFTI
-    cifti_dir = os.path.join(raw_dir, "cifti")
-    download_cifti_files(valid_subjects, cifti_dir)
-    
-    return True
+    try:
+        # 1. Fetch Behavioral Data
+        behavioral_path = fetch_behavioral_data()
+        
+        # 2. Load and Filter
+        log_stage_start("Subject Filtering")
+        data = load_behavioral_data(behavioral_path)
+        valid_subjects = filter_subjects(data)
+        save_filtered_subjects(valid_subjects, str(Path(behavioral_path).parent / "filtered_subjects.txt"))
+        log_stage_complete("Subject Filtering")
+
+        # 3. Attempt CIFTI Download (or check existence)
+        # We try to download CIFTI files if they don't exist, but this will fail without auth.
+        # For the purpose of the pipeline running with real data, we assume the user
+        # has placed them or the environment has access. If not, we fail loudly.
+        # We only proceed if we have valid subjects.
+        if valid_subjects:
+            log_stage_start("Download CIFTI Files", {"count": len(valid_subjects)})
+            try:
+                download_cifti_files(valid_subjects, "")
+            except FileNotFoundError as e:
+                # If CIFTI are missing, we cannot proceed with real data.
+                # But we have successfully downloaded behavioral data.
+                # We log the error and return False to indicate partial success/failure.
+                log_stage_error("CIFTI Download", str(e))
+                return False
+            
+            log_stage_complete("Download CIFTI Files")
+
+        log_stage_complete("Download HCP Data")
+        return True
+
+    except Exception as e:
+        log_stage_error("Download HCP Data", str(e))
+        return False
 
 def main() -> bool:
-    """Entry point for the script."""
-    try:
-        success = download_hcp_data()
-        if success:
-            print("HCP Data download and filtering completed successfully.")
-            return True
-        else:
-            print("HCP Data download encountered errors.")
-            return False
-    except Exception as e:
-        print(f"Critical error in download_hcp.py: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+    """CLI entry point."""
+    success = download_hcp_data()
+    return success
 
 if __name__ == "__main__":
     success = main()

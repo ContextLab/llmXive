@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.27955",
+  "judged_at": "2026-07-19T10:04:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mobileforge: annotation-free adaptation for mobile gui agents with hie\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational overview and canonical reference for the specific domain of GUI agents, providing the necessary methodological context (Reinforcement Learning) and taxonomy that a literature review on extending mobile GUI agent adaptation would require. While it does not specifically mention \"MobileForge\" or \"annotation-free\" techniques, it establishes the broader empirical and theoretical baseline for the \"GUI Agents\" variable in the user's question.",
+  "relevant": true
+}

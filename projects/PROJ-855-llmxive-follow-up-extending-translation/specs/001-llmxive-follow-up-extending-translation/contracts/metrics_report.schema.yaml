@@ -1,0 +1,46 @@
+type: object
+properties:
+  model_accuracy:
+    type: number
+    minimum: 0
+    maximum: 1
+  baseline_accuracy:
+    type: number
+    minimum: 0
+    maximum: 1
+  improvement:
+    type: number
+  mcnemar_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+  confusion_matrix:
+    type: object
+    properties:
+      true_positive:
+        type: integer
+      true_negative:
+        type: integer
+      false_positive:
+        type: integer
+      false_negative:
+        type: integer
+    required:
+      - true_positive
+      - true_negative
+      - false_positive
+      - false_negative
+  sensitivity_analysis:
+    type: object
+    properties:
+      variance:
+        type: number
+  associational_framing:
+    type: boolean
+required:
+  - model_accuracy
+  - baseline_accuracy
+  - improvement
+  - mcnemar_p_value
+  - confusion_matrix
+  - associational_framing

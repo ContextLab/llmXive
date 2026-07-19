@@ -1,0 +1,44 @@
+T014:
+  c: false
+  h: d5fbf4a018f66f7bbff96db9b1ab2baeaca7a90f45d34e80e204dffa3c06efed
+  r: The `code/generate_data.py` file exists, but the required `config.yaml` is missing,
+    so thresholds cannot be loaded from it as the task specifies. Without this configuration
+    file the labeling logic cannot use the intended thresholds, violating the requirement.
+T016:
+  c: false
+  h: a5c2c50791b7de3cb36c1311f234e0fd6f2af86438e70a508d7b0251b393b3c4
+  r: The required `data/raw/synthetic_episodes.parquet` file is missing, and `data/checksums.json`
+    does not contain an entry for it (the `"files"` map is empty), so the dataset
+    was not saved nor its checksum recorded. The implementer must generate the dataset,
+    store it at the specified path, and add its checksum to `data/checksums.json`.
+T016c:
+  c: false
+  h: 3ca70bd18db232e35d559cf071866a45c5041a802a4a808519e5a2d322b6e3fa
+  r: "The required output files `data/processed/train.parquet` and `data/processed/test.parquet`\
+    \ are missing, and the provided `code/generate_data.py` does not contain any implementation\
+    \ of a geometry\u2011disjoint train/test split (the script is truncated and shows\
+    \ no such logic). The task\u2019s core requirement\u2014splitting raw data by\
+    \ unique object geometry IDs and saving the resulting datasets\u2014is therefore\
+    \ not satisfied."
+T018:
+  c: false
+  h: d5fbf4a018f66f7bbff96db9b1ab2baeaca7a90f45d34e80e204dffa3c06efed
+  r: "The provided `code/generate_data.py` excerpt shows no added function that accepts\
+    \ custom thresholds, recomputes labels on `synthetic_episodes.parquet`, or re\u2011\
+    runs the geometry\u2011disjoint split logic, and the required `config.yaml` file\
+    \ is missing entirely. Consequently the task\u2019s core requirements are not\
+    \ met."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer did not provide any model summary output or any file showing
+    the total parameter count. No artifact demonstrating that the model has fewer
+    than 10,000,000 parameters before saving is present, so the task requirement is
+    not satisfied.
+T027c:
+  c: false
+  h: 8d98adc483f02296c73b14a12f7530a8c2b8758fe2fb15e421eb2f574d17332f
+  r: "The provided `code/train_shuffled_control.py` is truncated (ends mid\u2011line)\
+    \ and does not clearly show the random shuffling of translation sequences or the\
+    \ training loop that saves a model. Moreover, the expected output file `data/processed/shuffled_control_model.pt`\
+    \ is missing. The task\u2019s required artifacts are therefore absent or incomplete."

@@ -1,0 +1,43 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that the
+    required root folders (`projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/`,
+    `code/`, `data/`, `tests/`, `state/`, `docs/`) actually exist; without such artifacts
+    the claim cannot be verified.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that the
+    required subdirectories (`data/raw/`, `data/processed/`, `tests/contract/`, `tests/unit/`,
+    `tests/integration/`) actually exist; without such artifacts the claim cannot
+    be verified. The implementer must supply a view of the project tree or confirm
+    creation of these folders.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No git repository was initialized and no `.gitignore` file was provided in the
+    evidence; the required artifacts are missing, so the task of creating a repository
+    and ignore file is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml/black\
+    \ settings, pre\u2011commit hooks) are present in the provided evidence, so the\
+    \ requirement to \u201CConfigure linting (flake8/black) and formatting tools\u201D\
+    \ is not satisfied. The implementer must add the appropriate configuration artifacts\
+    \ and ensure they are non\u2011empty."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `data/` directory (with `raw/` and `processed/` subfolders)\
+    \ or a `state/` directory for checksums is present in the provided artifacts;\
+    \ the implementer\u2019s claim cannot be verified. The required directory structure\
+    \ must be created and shown."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `state/amendments.md` file or its contents was provided; without\
+    \ the actual amendment record documenting the Constitution Principle VII deviation\
+    \ and the N=2\u20113 data availability constraint, the task requirement is not\
+    \ satisfied."

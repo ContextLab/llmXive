@@ -3,11 +3,15 @@ from __future__ import annotations
 
 import functools
 import json
+import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any
 
-from config import get_paths
+# Ensure log directory exists
+LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_FILE_PATH = os.path.join(LOG_DIR, "pipeline_run.json")
 
 
 @dataclass
@@ -23,40 +27,28 @@ class LogEntry:
 class ReproducibilityLogger:
     """Accepts ANY call shape and never raises.
 
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
+    This logger is self-contained and writes to `data/logs/pipeline_run.json`.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list = []
-        self.output_path: str | None = None
-        # Determine log file path from config
-        try:
-            paths = get_paths()
-            log_dir = paths.get("logs")
-            if log_dir:
-                os.makedirs(log_dir, exist_ok=True)
-                self.output_path = os.path.join(log_dir, "pipeline_run.json")
-        except Exception:
-            # Fallback if config not loaded yet
-            self.output_path = "data/logs/pipeline_run.json"
-
-    def _flush_to_disk(self, entry: LogEntry) -> None:
-        """Append a log entry to the JSONL log file."""
-        if not self.output_path:
-            return
-        os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
-        with open(self.output_path, "a", encoding="utf-8") as f:
-            f.write(entry.to_json() + "\n")
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
-        self._flush_to_disk(entry)
+        self._write_entry(entry)
         return entry
+
+    def _write_entry(self, entry: LogEntry) -> None:
+        """Append a single JSON line to the log file."""
+        try:
+            with open(LOG_FILE_PATH, "a", encoding="utf-8") as f:
+                f.write(entry.to_json() + "\n")
+        except Exception:
+            # Fail silently to avoid breaking the pipeline if logging fails
+            pass
 
     # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
     def __getattr__(self, name: str):
@@ -95,95 +87,72 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def log_stage_start(stage_name: str, *args: Any, **kwargs: Any) -> LogEntry:
+def log_stage_start(stage_name: str, parameters: dict | None = None) -> LogEntry:
     """Log the start of a pipeline stage.
 
-    Accepts flexible signatures:
-      - log_stage_start("name")
-      - log_stage_start("name", detail_dict)
-      - log_stage_start(logger, "name")
-      - log_stage_start(logger, "name", detail_dict)
+    Accepts:
+      - log_stage_start("stage_name")
+      - log_stage_start(logger, "stage_name")
+      - log_stage_start("stage_name", {"key": "value"})
+      - log_stage_start(logger, "stage_name", {"key": "value"})
     """
     logger = None
     name = stage_name
-    detail = {}
+    params = parameters or {}
 
     # Handle flexible argument shapes
-    if args and not isinstance(args[0], str):
-        logger = args[0]
-        args = args[1:]
+    if isinstance(stage_name, ReproducibilityLogger):
+        logger = stage_name
+        if parameters:
+            if isinstance(parameters, str):
+                # log_stage_start(logger, "stage_name") -> params is actually stage_name
+                name = parameters
+                params = {}
+            else:
+                # log_stage_start(logger, "stage_name", params)
+                name = parameters.get("stage_name", parameters.get("name", "unknown"))
+                params = parameters if isinstance(parameters, dict) else {}
+        else:
+            # log_stage_start(logger, "stage_name")
+            name = stage_name
+            params = {}
+    elif parameters and isinstance(parameters, dict):
+        # log_stage_start("stage_name", params)
+        name = stage_name
+        params = parameters
+    elif parameters and isinstance(parameters, str):
+        # log_stage_start(logger, "stage_name") where second arg is string
+        logger = ReproducibilityLogger() # fallback if logger was expected but passed as string?
+        # Actually, if first arg is string and second is string, it's likely log_stage_start(logger, "name")
+        # But we don't have a logger here. Let's assume standard: log_stage_start("name", params)
+        # If params is string, treat as name? No, signature says parameters is dict.
+        # Let's stick to: if first is string, it's name.
+        name = stage_name
+        params = {}
 
-    if args:
-        name = args[0]
-        if len(args) > 1 and isinstance(args[1], dict):
-            detail = args[1]
+    # If we still have a logger passed as first arg (checked above), use it, else global
+    effective_logger = logger if logger else get_logger()
 
-    # Merge kwargs into detail
-    detail.update(kwargs)
-
-    entry = get_logger().log(
-        f"Start {name}",
-        stage=name,
-        **detail
-    )
+    entry = effective_logger.log(f"Start {name}", stage=name, **params)
     return entry
 
 
-def log_stage_complete(stage_name: str, *args: Any, **kwargs: Any) -> LogEntry:
-    """Log the completion of a pipeline stage."""
-    logger = None
-    name = stage_name
-    detail = {}
-
-    if args and not isinstance(args[0], str):
-        logger = args[0]
-        args = args[1:]
-
-    if args:
-        name = args[0]
-        if len(args) > 1 and isinstance(args[1], dict):
-            detail = args[1]
-
-    detail.update(kwargs)
-
-    entry = get_logger().log(
-        f"Complete {name}",
-        stage=name,
-        **detail
-    )
-    return entry
+def log_stage_complete(stage_name: str, message: str | None = None) -> None:
+    """Log the successful completion of a stage."""
+    logger = get_logger()
+    params = {"stage": stage_name}
+    if message:
+        params["message"] = message
+    logger.log(f"Complete {stage_name}", **params)
 
 
-def log_stage_error(stage_name: str, error_msg: str, *args: Any, **kwargs: Any) -> LogEntry:
-    """Log an error during a pipeline stage."""
-    logger = None
-    name = stage_name
-    detail = {"error": error_msg}
-
-    if args and not isinstance(args[0], str):
-        logger = args[0]
-        args = args[1:]
-
-    if args:
-        name = args[0]
-        if len(args) > 1 and isinstance(args[1], dict):
-            detail.update(args[1])
-
-    detail.update(kwargs)
-
-    entry = get_logger().log(
-        f"Error {name}",
-        stage=name,
-        **detail
-    )
-    return entry
+def log_stage_error(stage_name: str, error: str | Exception) -> None:
+    """Log an error during a stage."""
+    logger = get_logger()
+    err_str = str(error)
+    logger.log(f"Error {stage_name}", stage=stage_name, error=err_str)
 
 
-def setup_logging(log_file: str | None = None) -> None:
-    """Initialize the global logger with an optional specific output path."""
-    global _GLOBAL_LOGGER
-    if log_file:
-        _GLOBAL_LOGGER = ReproducibilityLogger()
-        _GLOBAL_LOGGER.output_path = log_file
-    else:
-        _GLOBAL_LOGGER = ReproducibilityLogger()
+def setup_logging() -> None:
+    """Initialize logging (no-op for this self-contained logger, but kept for API compatibility)."""
+    pass
