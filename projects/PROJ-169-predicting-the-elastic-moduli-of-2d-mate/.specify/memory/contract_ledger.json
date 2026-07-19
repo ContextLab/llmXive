@@ -1,5 +1,9 @@
 [
   {
+    "symbol": "log_bias_check",
+    "owner": null
+  },
+  {
     "symbol": "paths",
     "owner": "Config"
   }

@@ -6,48 +6,13 @@ T009a:
     \ one data source is used in the same run (no global flag or cross\u2011instance\
     \ check). Moreover, the optional `validator.py` file is missing, so the required\
     \ runtime source\u2011enforcement logic is not fully implemented."
-T013d:
+T017:
   c: false
-  h: fe29d10be79ee9ea941925e203f90d10dbd1cb05f8621b210e00807d1bc1883b
-  r: "The repository lacks the required output artifacts: `data/processed/graphs_v1.parquet`\
-    \ and `data/processed/split_indices.json` are missing, and the state YAML still\
-    \ contains an empty `artifact_hashes` section. Moreover, the provided `pipeline.py`\
-    \ is truncated and does not demonstrate saving the parquet file, generating the\
-    \ checksum, or writing the split indices, so the task\u2019s functional requirements\
-    \ are not satisfied."
-T013e:
-  c: false
-  h: eb49fe871ef870ee794be77fe84213cc78251e50a1a6d562cd29ee623e13183e
-  r: "The repository lacks the required `data/processed/graphs_v1.parquet` file, so\
-    \ the check cannot even be performed. Moreover, the shown portion of `code/ingest/pipeline.py`\
-    \ does not contain any logic that counts unique entries, logs a critical error,\
-    \ or exits with code\u202F1 when the count is below 1,000. Both the artifact and\
-    \ the post\u2011processing validation are missing."
-T018b:
-  c: false
-  h: e19e5d90cf35dfd18740e459b651565cf1d3f3d2d34775b0d7398a75ca426864
-  r: "The provided `train.py` is truncated and does not demonstrate consumption of\
-    \ `split_indices`, CPU\u2011only enforcement, memory\u2011peak logging, exit on\
-    \ >7\u202FGB, model checkpoint saving, or test\u2011set prediction output. Moreover,\
-    \ the required `data/processed/model_v1.pt` file is absent. These missing pieces\
-    \ mean the task\u2019s requirements are not satisfied."
-T018c:
-  c: false
-  h: 8a35c7d6e42c77405e3ebf171b3188f85c31eb073ed1a018d11a868cb2cd9e03
-  r: The `train_logger.py` implementation defines the correct schema and includes
-    the required disclaimer, but the required output file `data/results/training_logs.json`
-    does not exist on disk, so the logging target is not materialized. The task is
-    not satisfied until the JSON log file is created (and populated) at the specified
-    location.
-T021:
-  c: false
-  h: 1ac4bb3c8fcf334e602fafe0171cbeaf2f069397fc9d63733a3758c5d19eeb8f
-  r: "The repository lacks the required data files (`data/processed/graphs_v1.parquet`\
-    \ and the resulting `data/results/generalization_metrics.json`). Moreover, the\
-    \ provided `generalization_test.py` is truncated, so it\u2019s unclear whether\
-    \ it writes the required `intra_family_mape`, `inter_family_mape`, and `disclaimer`\
-    \ fields or handles the failure case as specified. These missing artifacts prevent\
-    \ the task from being considered complete."
+  h: 6bf6788e275eea40b8e6bfd98edee5f0e0c64a7718c115f080fd8f5c5697f2bb
+  r: "The required `data/processed/graphs_v1.parquet` file is missing, and `code/model/splitter.py`\
+    \ does not contain code that writes `split_indices.json`, nor does it show the\
+    \ mandated runtime assertion that exits with code\u202F1 on family overlap. Consequently\
+    \ the splitting logic is not fully implemented as specified."
 T021a:
   c: false
   h: 5c187d17c9ab7680f2f97aeb57f3c614ae26aaa6caf3c7a35acfcc96d0218234

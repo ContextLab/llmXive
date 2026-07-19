@@ -17,6 +17,8 @@ class DataLoader(ABC):
     Abstract base class for dataset loaders.
 
     Subclasses must implement fetch_data(), validate_source(), and get_metadata().
+    This class supports dynamic switching between 'materials_project' and 'aflow'
+    via a configuration key in the `source` attribute.
     """
 
     @abstractmethod
@@ -54,7 +56,7 @@ class DataLoader(ABC):
         Initialize the loader.
 
         Args:
-            source: The data source identifier.
+            source: The data source identifier (e.g., 'materials_project', 'aflow').
             output_dir: Directory to save data.
         """
         self.source = source

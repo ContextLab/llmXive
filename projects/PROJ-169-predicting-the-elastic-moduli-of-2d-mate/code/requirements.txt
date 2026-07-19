@@ -10,3 +10,5 @@ black
 matminer
 pyarrow
 rich
+psutil  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

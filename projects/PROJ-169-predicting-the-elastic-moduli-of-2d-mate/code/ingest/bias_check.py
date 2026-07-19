@@ -5,7 +5,7 @@ from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, asdict
 import logging
 
-from utils.logger import log_bias_check, log_exclusion_reason
+from utils.logger import log_bias_check, log_exclusion_reason, get_logger
 from utils.config import Config
 
 @dataclass
@@ -24,6 +24,7 @@ class BiasReport:
 def load_exclusion_log(path: Path) -> List[Dict[str, Any]]:
     """Load exclusion log from JSON file."""
     if not path.exists():
+        # Log to the standard logger as well for visibility
         logging.warning(f"Exclusion log not found at {path}. Returning empty list.")
         return []
     try:
@@ -40,7 +41,7 @@ def analyze_exclusion_bias(logs: List[Dict[str, Any]], config: Optional[Config] 
     Aggregates exclusion reasons, counts occurrences, and flags chemical families
     that are under-represented in the final dataset due to exclusion criteria.
     """
-    if not config:
+    if config is None:
         config = Config()
         
     reasons: Dict[str, int] = {}
@@ -65,8 +66,6 @@ def analyze_exclusion_bias(logs: List[Dict[str, Any]], config: Optional[Config] 
     min_family_size_threshold = getattr(config, 'min_family_size', 5)
     exclusion_ratio_threshold = 0.5
 
-    # We need total counts per family to calculate ratio, but we only have exclusions here.
-    # Assuming the filter log is the only source of truth for this task.
     # We flag families where the exclusion count is high relative to an assumed total,
     # or simply flag any family that has ANY exclusions if the total dataset is small.
     # A more robust approach requires total counts, but we proceed with available data:
@@ -74,6 +73,7 @@ def analyze_exclusion_bias(logs: List[Dict[str, Any]], config: Optional[Config] 
     for fam, count in family_exclusion_counts.items():
         if count >= 2: 
             flagged_families.append(fam)
+            # Use the logger utility
             log_exclusion_reason(f"Flagged family {fam} with {count} exclusions.", level=logging.WARNING)
 
     summary_parts = []
@@ -102,7 +102,8 @@ def write_bias_report(report: BiasReport, path: Path):
         json.dump(report_dict, f, indent=2)
     
     logging.info(f"Bias report written to {path}")
-    log_bias_check(report.summary)
+    # Fix: log_bias_check expects the report object, not just the summary string
+    log_bias_check(report)
 
 def main():
     """

@@ -1,210 +1,348 @@
-import os
+"""
+Training loop for the Lightweight GNN on 2D material elastic moduli.
+Consumes split_indices from T017, enforces CPU-only, logs memory, and outputs predictions.
+"""
+from __future__ import annotations
+
+import argparse
+import gc
 import json
 import logging
-import argparse
+import os
+import sys
 import time
-import gc
-import tracemalloc
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
-from torch_geometric.data import Data, DataLoader as PyGDataLoader
-from torch_geometric.nn import GCNConv, global_mean_pool
+from torch_geometric.data import DataLoader as PyGDataLoader
+from torch_geometric.data import Data
+from torch.utils.data import Dataset
+from tqdm import tqdm
 
-from utils.config import get_config, set_global_config
-from model.gnn import LightweightGNN
+# Project imports
+from model.gnn import LightweightGNN, create_model
 from model.train_config import TrainingConfig, load_config_from_args
 from model.train_logger import TrainingLogger
+from utils.config import get_config
+from utils.logger import get_logger, log_operation
 
-logging.basicConfig(level=logging.INFO)
+# Constants
+MAX_MEMORY_GB = 7.0
+DEVICE = "cpu"  # Enforce CPU-only as per requirement
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
+reproducibility_logger = get_logger()
 
-def load_split_indices(split_path: Path) -> Dict[str, List[Dict[str, Any]]]:
-    if not split_path.exists():
+class GraphDataset(Dataset):
+    """PyTorch Dataset wrapping pre-loaded graphs."""
+
+    def __init__(self, graphs: List[Dict[str, Any]]):
+        self.graphs = graphs
+
+    def __len__(self) -> int:
+        return len(self.graphs)
+
+    def __getitem__(self, idx: int) -> Data:
+        g = self.graphs[idx]
+        # Convert dict to PyG Data object
+        # Expected keys: x (node features), edge_index, edge_attr (optional), y (target), id
+        x = torch.tensor(g["node_features"], dtype=torch.float32)
+        edge_index = torch.tensor(g["edge_index"], dtype=torch.long)
+        if "edge_features" in g and g["edge_features"] is not None:
+            edge_attr = torch.tensor(g["edge_features"], dtype=torch.float32)
+        else:
+            edge_attr = None
+
+        # Target: usually a vector of moduli (Young's, Shear, Poisson) or a scalar
+        # Assuming target_moduli is a list/array of 3 values [E, G, nu]
+        y = torch.tensor(g["target_moduli"], dtype=torch.float32)
+        
+        return Data(x=x, edge_index=edge_index, edge_attr=edge_attr, y=y, id=g.get("id", f"idx_{idx}"))
+
+def collate_fn(batch: List[Data]) -> Tuple[Data, List[str]]:
+    """Custom collate to handle batched data and preserve IDs."""
+    # PyG DataLoader handles batching automatically if we pass a list of Data objects
+    # We just need to return the batch and a list of IDs
+    ids = [item.id for item in batch]
+    # The DataLoader's default collate_fn works for PyG Data objects
+    # We return the batched data and the ids
+    return batch, ids
+
+def load_split_indices(split_path: str) -> Dict[str, List[Dict[str, Any]]]:
+    """Load split indices from JSON."""
+    path = Path(split_path)
+    if not path.exists():
         raise FileNotFoundError(f"Split indices file not found: {split_path}")
-    with open(split_path, 'r') as f:
-        return json.load(f)
-
-def load_graphs_from_parquet(parquet_path: Path) -> pd.DataFrame:
-    if not parquet_path.exists():
-        raise FileNotFoundError(f"Graphs file not found: {parquet_path}")
-    return pd.read_parquet(parquet_path)
-
-def filter_graphs_by_split(df: pd.DataFrame, split_list: List[Dict[str, Any]]) -> pd.DataFrame:
-    ids = [item['id'] for item in split_list]
-    return df[df['material_id'].isin(ids)]
-
-class GraphDataset(torch.utils.data.Dataset):
-    def __init__(self, df: pd.DataFrame):
-        self.df = df
     
-    def __len__(self):
-        return len(self.df)
+    with open(path, "r") as f:
+        data = json.load(f)
     
-    def __getitem__(self, idx):
-        row = self.df.iloc[idx]
-        # Convert features to tensors
-        x = torch.tensor(row['node_features'], dtype=torch.float)
-        edge_index = torch.tensor(row['edge_features'], dtype=torch.long).t().contiguous()
-        y = torch.tensor(row['target_moduli'], dtype=torch.float)
-        
-        # Handle scalar targets
-        if y.dim() == 0:
-            y = y.unsqueeze(0)
-        
-        return Data(x=x, edge_index=edge_index, y=y)
+    # Expected format: {"train": [...], "val": [...], "test": [...]}
+    # Each item in the list is {"id": "...", "family_id": "..."}
+    return data
 
-def collate_fn(batch):
-    return batch # Already Data objects, PyG DataLoader handles collation
+def load_graphs_from_parquet(parquet_path: str) -> List[Dict[str, Any]]:
+    """Load graphs from parquet file."""
+    try:
+        import pandas as pd
+        df = pd.read_parquet(parquet_path)
+        # Convert dataframe rows to list of dicts
+        # Ensure columns are named correctly: node_features, edge_index, edge_features, target_moduli, id
+        graphs = []
+        for _, row in df.iterrows():
+            graph = {
+                "id": row.get("id"),
+                "node_features": row["node_features"],
+                "edge_index": row["edge_index"],
+                "target_moduli": row["target_moduli"],
+            }
+            if "edge_features" in row:
+                graph["edge_features"] = row["edge_features"]
+            graphs.append(graph)
+        return graphs
+    except Exception as e:
+        logger.error(f"Failed to load graphs from {parquet_path}: {e}")
+        raise
 
-def train_epoch(model, loader, optimizer, device):
+def filter_graphs_by_split(
+    all_graphs: List[Dict[str, Any]], 
+    split_indices: Dict[str, List[Dict[str, Any]]], 
+    split_name: str
+) -> List[Dict[str, Any]]:
+    """Filter graphs based on split indices."""
+    if split_name not in split_indices:
+        raise ValueError(f"Split name '{split_name}' not found in split indices.")
+    
+    split_ids = {item["id"] for item in split_indices[split_name]}
+    return [g for g in all_graphs if g["id"] in split_ids]
+
+def get_memory_peak() -> float:
+    """Get peak memory usage in GB."""
+    # tracemalloc should be started before the training loop
+    current, peak = tracemalloc.get_traced_memory()
+    return peak / (1024 ** 3)
+
+def train_epoch(
+    model: nn.Module, 
+    loader: PyGDataLoader, 
+    optimizer: torch.optim.Optimizer, 
+    criterion: nn.Module,
+    device: str
+) -> float:
+    """Train for one epoch."""
     model.train()
-    total_loss = 0
-    for batch in loader:
+    total_loss = 0.0
+    for batch, _ in loader:
         batch = batch.to(device)
         optimizer.zero_grad()
-        out = model(batch.x, batch.edge_index)
-        loss = nn.functional.mse_loss(out, batch.y)
+        out = model(batch.x, batch.edge_index, batch.edge_attr)
+        loss = criterion(out, batch.y)
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
     return total_loss / len(loader)
 
-def evaluate(model, loader, device):
+def evaluate(
+    model: nn.Module, 
+    loader: PyGDataLoader, 
+    criterion: nn.Module,
+    device: str
+) -> Tuple[float, List[np.ndarray], List[np.ndarray]]:
+    """Evaluate model and return loss, predictions, targets."""
     model.eval()
-    preds = []
-    truths = []
+    total_loss = 0.0
+    all_preds = []
+    all_targets = []
+    
     with torch.no_grad():
-        for batch in loader:
+        for batch, _ in loader:
             batch = batch.to(device)
-            out = model(batch.x, batch.edge_index)
-            preds.append(out.cpu().numpy())
-            truths.append(batch.y.cpu().numpy())
-    return np.concatenate(preds), np.concatenate(truths)
+            out = model(batch.x, batch.edge_index, batch.edge_attr)
+            loss = criterion(out, batch.y)
+            total_loss += loss.item()
+            all_preds.append(out.cpu().numpy())
+            all_targets.append(batch.y.cpu().numpy())
+    
+    avg_loss = total_loss / len(loader)
+    preds = np.concatenate(all_preds, axis=0)
+    targets = np.concatenate(all_targets, axis=0)
+    return avg_loss, preds, targets
 
 def main():
-    parser = argparse.ArgumentParser(description="Train the GNN model")
-    parser.add_argument("--config", type=Path, default=None, help="Path to config file")
-    parser.add_argument("--epochs", type=int, default=100)
-    parser.add_argument("--patience", type=int, default=3)
-    parser.add_argument("--batch_size", type=int, default=32)
-    parser.add_argument("--lr", type=float, default=0.001)
-    parser.add_argument("--data_path", type=Path, default=None, help="Path to graphs_v1.parquet")
-    parser.add_argument("--split_path", type=Path, default=None, help="Path to split_indices.json")
-    parser.add_argument("--output_log", type=Path, default=None, help="Path to training_logs.json")
-    parser.add_argument("--output_test_indices", type=Path, default=None, help="Path to test_indices.json")
+    parser = argparse.ArgumentParser(description="Train GNN on 2D material elastic moduli")
+    parser.add_argument("--config", type=str, default=None, help="Path to config file")
+    parser.add_argument("--epochs", type=int, default=100, help="Number of epochs")
+    parser.add_argument("--patience", type=int, default=10, help="Early stopping patience")
+    parser.add_argument("--batch_size", type=int, default=32, help="Batch size")
+    parser.add_argument("--lr", type=float, default=0.001, help="Learning rate")
+    parser.add_argument("--data_path", type=str, required=True, help="Path to graphs_v1.parquet")
+    parser.add_argument("--split_path", type=str, required=True, help="Path to split_indices.json")
+    parser.add_argument("--output_log", type=str, default="data/results/training_logs.json", help="Output log path")
+    parser.add_argument("--output_predictions", type=str, default="data/results/predictions.json", help="Output predictions path")
+    parser.add_argument("--model_path", type=str, default="data/processed/model_v1.pt", help="Output model path")
     
     args = parser.parse_args()
-    
-    config = set_global_config()
-    
-    data_path = args.data_path or config.paths['graphs_v1']
-    split_path = args.split_path or config.paths['split_indices']
-    output_log = args.output_log or config.paths['training_logs']
-    output_test_indices = args.output_test_indices or config.paths['generalization_metrics'].parent / "test_indices.json"
-    
+
+    # Load config
+    if args.config:
+        config = load_config_from_args(args.config)
+    else:
+        config = TrainingConfig(
+            epochs=args.epochs,
+            patience=args.patience,
+            batch_size=args.batch_size,
+            lr=args.lr,
+            hidden_dim=64,
+            num_layers=3,
+            dropout=0.1
+        )
+
+    # Setup seeds
+    seed = 42
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+
+    logger.info(f"Starting training with config: {config}")
+    logger.info(f"Device: {DEVICE}")
+
     # Load data
-    logger.info(f"Loading data from {data_path}")
-    df = load_graphs_from_parquet(data_path)
-    splits = load_split_indices(split_path)
-    
-    train_df = filter_graphs_by_split(df, splits['train'])
-    val_df = filter_graphs_by_split(df, splits['val'])
-    test_df = filter_graphs_by_split(df, splits['test'])
-    
-    if len(train_df) == 0:
-        raise RuntimeError("Training set is empty")
-    
-    # Save test indices for downstream tasks
-    with open(output_test_indices, 'w') as f:
-        json.dump(splits['test'], f, indent=2)
-    logger.info(f"Saved test indices to {output_test_indices}")
-    
-    # Setup dataset and loader
-    train_dataset = GraphDataset(train_df)
-    val_dataset = GraphDataset(val_df)
-    test_dataset = GraphDataset(test_df)
-    
-    train_loader = PyGDataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-    val_loader = PyGDataLoader(val_dataset, batch_size=args.batch_size)
-    test_loader = PyGDataLoader(test_dataset, batch_size=args.batch_size)
-    
-    # Setup model
-    device = torch.device('cpu') # CPU-only as per requirement
-    input_dim = train_dataset[0].x.shape[1]
-    model = LightweightGNN(input_dim=input_dim, hidden_dim=64, out_dim=1).to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-    
-    # Training loop
-    logger.info("Starting training...")
+    logger.info(f"Loading graphs from {args.data_path}")
+    all_graphs = load_graphs_from_parquet(args.data_path)
+    logger.info(f"Loaded {len(all_graphs)} graphs")
+
+    logger.info(f"Loading split indices from {args.split_path}")
+    split_indices = load_split_indices(args.split_path)
+    logger.info(f"Split sizes: train={len(split_indices['train'])}, val={len(split_indices['val'])}, test={len(split_indices['test'])}")
+
+    # Filter graphs
+    train_graphs = filter_graphs_by_split(all_graphs, split_indices, "train")
+    val_graphs = filter_graphs_by_split(all_graphs, split_indices, "val")
+    test_graphs = filter_graphs_by_split(all_graphs, split_indices, "test")
+
+    if not train_graphs:
+        raise ValueError("No training graphs found. Check split indices and data.")
+
+    # Create datasets and loaders
+    train_dataset = GraphDataset(train_graphs)
+    val_dataset = GraphDataset(val_graphs)
+    test_dataset = GraphDataset(test_graphs)
+
+    train_loader = PyGDataLoader(train_dataset, batch_size=config.batch_size, shuffle=True)
+    val_loader = PyGDataLoader(val_dataset, batch_size=config.batch_size, shuffle=False)
+    test_loader = PyGDataLoader(test_dataset, batch_size=config.batch_size, shuffle=False)
+
+    # Create model
+    model = create_model(
+        node_dim=train_graphs[0]["node_features"].shape[1] if train_graphs else 64,
+        edge_dim=train_graphs[0]["edge_features"].shape[1] if train_graphs and "edge_features" in train_graphs[0] and train_graphs[0]["edge_features"] is not None else None,
+        hidden_dim=config.hidden_dim,
+        num_layers=config.num_layers,
+        output_dim=3  # Assuming 3 targets: E, G, nu
+    ).to(DEVICE)
+
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.lr)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
+
+    # Training logger
+    training_logger = TrainingLogger(output_path=args.output_log)
+
+    # Start memory tracking
     tracemalloc.start()
+
     best_val_loss = float('inf')
     patience_counter = 0
-    logs = []
-    
-    for epoch in range(args.epochs):
+    best_model_state = None
+
+    logger.info("Starting training loop...")
+    for epoch in range(config.epochs):
         start_time = time.time()
-        train_loss = train_epoch(model, train_loader, optimizer, device)
-        val_preds, val_truths = evaluate(model, val_loader, device)
-        val_loss = np.mean((val_preds - val_truths) ** 2)
         
-        current_mem, peak_mem = tracemalloc.get_traced_memory()
-        peak_gb = peak_mem / 1024 ** 3
+        # Train
+        train_loss = train_epoch(model, train_loader, optimizer, criterion, DEVICE)
         
-        if peak_gb > 7.0:
-            logger.critical(f"Memory limit exceeded: {peak_gb:.2f}GB > 7GB")
-            tracemalloc.stop()
+        # Validate
+        val_loss, _, _ = evaluate(model, val_loader, criterion, DEVICE)
+        
+        # Schedule
+        scheduler.step(val_loss)
+
+        # Memory check
+        mem_peak = get_memory_peak()
+        if mem_peak > MAX_MEMORY_GB:
+            logger.error(f"SC-004 Violation: Peak memory {mem_peak:.2f}GB exceeds {MAX_MEMORY_GB}GB limit.")
             sys.exit(1)
-        
-        log_entry = {
-            "epoch": epoch + 1,
-            "loss": float(train_loss),
-            "val_loss": float(val_loss),
-            "memory_peak": float(peak_gb),
-            "time": time.time() - start_time
-        }
-        logs.append(log_entry)
-        
-        logger.info(f"Epoch {epoch+1}: Loss={train_loss:.4f}, Val Loss={val_loss:.4f}, Mem={peak_gb:.2f}GB")
-        
+
+        # Log
+        log_entry = training_logger.log_epoch(
+            epoch=epoch,
+            train_loss=train_loss,
+            val_loss=val_loss,
+            lr=optimizer.param_groups[0]['lr'],
+            memory_peak=mem_peak
+        )
+        logger.info(f"Epoch {epoch}: Train Loss={train_loss:.4f}, Val Loss={val_loss:.4f}, LR={optimizer.param_groups[0]['lr']:.6f}, Mem={mem_peak:.2f}GB")
+
+        # Early stopping
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             patience_counter = 0
-            # Save model
-            model_path = config.paths['model_v1']
-            torch.save(model.state_dict(), model_path)
-            logger.info(f"Saved best model to {model_path}")
+            best_model_state = model.state_dict()
         else:
             patience_counter += 1
-            if patience_counter >= args.patience:
-                logger.info(f"Early stopping at epoch {epoch+1}")
+            if patience_counter >= config.patience:
+                logger.info(f"Early stopping at epoch {epoch}")
                 break
+
+        # Garbage collection
+        gc.collect()
+
+    # Save best model
+    if best_model_state:
+        model.load_state_dict(best_model_state)
+        torch.save(model.state_dict(), args.model_path)
+        logger.info(f"Model saved to {args.model_path}")
+
+    # Evaluate on test set
+    logger.info("Evaluating on test set...")
+    test_loss, test_preds, test_targets = evaluate(model, test_loader, criterion, DEVICE)
+    logger.info(f"Test Loss: {test_loss:.4f}")
+
+    # Save predictions
+    predictions_data = {
+        "predictions": test_preds.tolist(),
+        "targets": test_targets.tolist(),
+        "test_loss": test_loss,
+        "metadata": {
+            "disclaimer": "These results are ML interpolations of DFT data, not first-principles solutions.",
+            "device": DEVICE,
+            "epochs_trained": epoch + 1,
+            "best_val_loss": best_val_loss
+        }
+    }
     
+    with open(args.output_predictions, "w") as f:
+        json.dump(predictions_data, f, indent=2)
+    logger.info(f"Predictions saved to {args.output_predictions}")
+
+    # Final memory check
+    mem_peak = get_memory_peak()
+    if mem_peak > MAX_MEMORY_GB:
+        logger.error(f"SC-004 Violation: Final peak memory {mem_peak:.2f}GB exceeds {MAX_MEMORY_GB}GB limit.")
+        sys.exit(1)
+
     tracemalloc.stop()
-    
-    # Save logs
-    output_log.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_log, 'w') as f:
-        json.dump(logs, f, indent=2)
-    logger.info(f"Saved training logs to {output_log}")
-    
-    # Generate predictions for test set
-    test_preds, test_truths = evaluate(model, test_loader, device)
-    predictions = []
-    for i, idx in enumerate(splits['test']):
-        predictions.append({
-            "id": idx['id'],
-            "true": float(test_truths[i]),
-            "pred": float(test_preds[i])
-        })
-    
-    pred_path = config.data_processed / "predictions.json"
-    with open(pred_path, 'w') as f:
-        json.dump(predictions, f, indent=2)
-    logger.info(f"Saved predictions to {pred_path}")
+    logger.info("Training completed successfully.")
 
 if __name__ == "__main__":
     main()

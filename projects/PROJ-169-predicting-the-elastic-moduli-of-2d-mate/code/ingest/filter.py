@@ -1,218 +1,392 @@
 """
-Filtering logic for 2D materials and tensor validation.
+Filtering module for 2D material elastic moduli prediction pipeline.
 
-This module implements the filtering step for User Story 1 (T013c).
-It validates elastic tensors and filters for 2D materials, logging exclusion reasons.
+This module implements the filtering logic to:
+1. Identify 2D materials based on structural criteria
+2. Validate elastic tensor components (6 independent components required)
+3. Log exclusion reasons for bias analysis
 
-WARNING: This model is a surrogate interpolating pre-computed DFT results. It does NOT 
-solve the Schrödinger equation or perform first-principles calculations.
+WARNING: This model is a surrogate interpolating pre-computed DFT results.
+It does NOT solve the Schrödinger equation or perform first-principles calculations.
 """
-import os
+from __future__ import annotations
+
 import json
+import logging
+import os
+import sys
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
-import numpy as np
-import logging
-from data_models.material_graph import MaterialGraph
 
-LOGGER = logging.getLogger(__name__)
+import numpy as np
+import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
+
+# Import from project modules
+from data_models.material_graph import MaterialGraph
+from utils.logger import get_logger, log_operation, log_exclusion_reason
+
+# Setup module logger
+logger = logging.getLogger(__name__)
 
 @dataclass
 class FilterStats:
-    total_parsed: int
-    kept: int
-    excluded: int
-    exclusion_details: List[Dict[str, Any]]
+    """Statistics about the filtering process."""
+    total_entries: int
+    kept_entries: int
+    excluded_2d: int
+    excluded_tensor: int
+    excluded_other: int
+    exclusion_reasons: List[Dict[str, Any]]
 
-def is_valid_6_component_tensor(graph: MaterialGraph) -> bool:
-    """
-    Check if the elastic tensor is valid and has 6 components (Voigt notation).
-    Returns False if tensor is None, not an array, or doesn't have shape (6, 6).
-    Logs the reason for exclusion if invalid.
-    """
-    if graph.target_moduli is None:
-        LOGGER.warning(f"Excluding {graph.material_id}: Tensor is None")
-        return False
-    
-    try:
-        arr = np.array(graph.target_moduli)
-        # Elastic tensor in Voigt notation is 6x6
-        if arr.shape != (6, 6):
-            LOGGER.warning(f"Excluding {graph.material_id}: Invalid tensor shape {arr.shape} (expected 6x6)")
-            return False
-        # Check for NaN or Inf
-        if np.any(np.isnan(arr)) or np.any(np.isinf(arr)):
-            LOGGER.warning(f"Excluding {graph.material_id}: Tensor contains NaN/Inf")
-            return False
-        return True
-    except (ValueError, TypeError) as e:
-        LOGGER.warning(f"Excluding {graph.material_id}: Could not convert tensor - {e}")
-        return False
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
-def is_2d_material(graph: MaterialGraph) -> bool:
+def is_2d_material(graph: MaterialGraph) -> Tuple[bool, str]:
     """
-    Check if the material is 2D.
-    
-    Heuristics used:
-    1. Check metadata flag 'is_2d' if present.
-    2. Check 'family_id' for known 2D families (e.g., TMD, MXene, Graphene-like).
-    3. If no structure data is available to check vacuum, we rely on the source 
-       filtering (T013a) but verify via family_id naming conventions if possible.
-    
-    Returns False if explicitly marked as non-2D or if family_id suggests 3D bulk.
-    Logs exclusion reasons for non-2D materials.
+    Determine if a material is 2D based on structural criteria.
+
+    Criteria for 2D materials:
+    1. Has a vacuum layer (one dimension significantly larger than others)
+    2. Layer thickness is consistent with 2D materials (typically < 3nm)
+    3. Periodic in 2 dimensions, non-periodic in the third
+
+    Args:
+        graph: MaterialGraph object containing structural information
+
+    Returns:
+        Tuple of (is_2d: bool, reason: str)
     """
-    # Check explicit metadata flag if available
+    # Check for vacuum dimension in lattice
+    if graph.lattice is None or len(graph.lattice) < 3:
+        return False, "Missing lattice information"
+
+    lattice_params = graph.lattice
+    # Calculate the ratio between largest and smallest dimensions
+    dimensions = [abs(lattice_params[i]) for i in range(3)]
+    max_dim = max(dimensions)
+    min_dim = min(dimensions)
+
+    # If one dimension is significantly larger (> 2x the others), it's likely a 2D material
+    # with vacuum in that direction
+    if max_dim > 2.0 * min_dim and max_dim > 15.0:  # Vacuum > 15 Angstroms
+        # Check if the layer thickness is reasonable for 2D materials
+        # Typically, 2D materials have thickness < 30 Angstroms
+        layer_thickness = max_dim - (sum(dimensions) - max_dim)
+        if layer_thickness < 30.0:
+            return True, "Vacuum layer detected with appropriate thickness"
+
+    # Alternative check: look for explicit 2D flag in metadata if available
     if hasattr(graph, 'metadata') and graph.metadata:
-        if graph.metadata.get('is_2d') is False:
-            LOGGER.warning(f"Excluding {graph.material_id}: Explicitly marked as non-2D in metadata")
-            return False
-        
-        # If explicitly marked 2D, accept
-        if graph.metadata.get('is_2d') is True:
-            return True
+        if graph.metadata.get('is_2d', False):
+            return True, "Explicit 2D flag in metadata"
 
-    # Fallback: Check family_id for known 2D patterns
-    # This assumes the parser (T013b) has set family_id based on chemical prototype
-    if hasattr(graph, 'family_id') and graph.family_id:
-        family = str(graph.family_id).lower()
-        # Common 2D material families
-        known_2d_families = ['tmd', 'mxene', 'graphene', 'h-bn', 'mos2', 'ws2', 'moos2', 'wos2']
-        if any(k in family for k in known_2d_families):
-            return True
-        
-        # If family_id suggests a bulk 3D structure (e.g., contains 'bulk' or specific 3D prototypes)
-        # We might want to exclude these, but without explicit 3D markers, we assume 2D if source was filtered
-        # For safety, if we can't verify it's 2D and it's not explicitly marked, we exclude it
-        # to ensure data hygiene (SC-001).
-        # However, if the source (Materials Project elasticity dataset) was pre-filtered for 2D,
-        # we might just accept it. Given the task requirement to "Filter for 2D materials",
-        # we must be strict. If we can't confirm 2D, we exclude.
-        LOGGER.warning(f"Excluding {graph.material_id}: Cannot verify 2D nature from family_id '{graph.family_id}'")
-        return False
+    return False, "No vacuum layer or 2D flag detected"
 
-    # If no family_id and no metadata, we cannot confirm it is 2D.
-    # Exclude to maintain data quality.
-    LOGGER.warning(f"Excluding {graph.material_id}: Missing family_id and metadata to verify 2D nature")
-    return False
-
-def filter_graphs(graphs: List[MaterialGraph]) -> Tuple[List[MaterialGraph], FilterStats]:
+def is_valid_6_component_tensor(tensor: np.ndarray) -> Tuple[bool, str]:
     """
-    Filter a list of MaterialGraphs for 2D materials and valid tensors.
-    
-    Logs exclusion reasons for every excluded entry.
-    Returns (filtered_list, stats).
-    """
-    kept = []
-    excluded = []
-    
-    for g in graphs:
-        # Check tensor validity first
-        if not is_valid_6_component_tensor(g):
-            excluded.append({
-                "material_id": g.material_id,
-                "reason": "invalid_tensor",
-                "details": "Tensor missing, wrong shape, or contains NaN/Inf"
-            })
-            continue
-        
-        # Check 2D nature
-        if not is_2d_material(g):
-            excluded.append({
-                "material_id": g.material_id,
-                "reason": "not_2d",
-                "details": "Material does not meet 2D criteria"
-            })
-            continue
-        
-        kept.append(g)
-    
-    stats = FilterStats(
-        total_parsed=len(graphs),
-        kept=len(kept),
-        excluded=len(excluded),
-        exclusion_details=excluded
-    )
-    
-    # Log summary
-    LOGGER.info(f"Filtering complete: Kept {len(kept)}/{len(graphs)} materials. "
-                f"Excluded {len(excluded)} due to invalid tensors or non-2D nature.")
-    
-    return kept, stats
+    Validate that an elastic tensor has 6 independent components.
 
-def save_filter_stats(stats: FilterStats, path: Path):
-    """Save filter statistics to a JSON file."""
+    For cubic and lower symmetry materials, we need at least 6 independent
+    components to fully describe the elastic behavior.
+
+    Args:
+        tensor: 6x6 elastic tensor (Voigt notation)
+
+    Returns:
+        Tuple of (is_valid: bool, reason: str)
+    """
+    if tensor is None:
+        return False, "Tensor is None"
+
+    if not isinstance(tensor, np.ndarray):
+        try:
+            tensor = np.array(tensor)
+        except Exception:
+            return False, "Cannot convert tensor to numpy array"
+
+    if tensor.shape != (6, 6):
+        return False, f"Tensor shape is {tensor.shape}, expected (6, 6)"
+
+    # Check for NaN or Inf values
+    if np.any(np.isnan(tensor)) or np.any(np.isinf(tensor)):
+        return False, "Tensor contains NaN or Inf values"
+
+    # Check for reasonable magnitude (elastic moduli are typically in GPa range)
+    # We allow a wide range to accommodate different materials
+    max_val = np.max(np.abs(tensor))
+    if max_val > 1e6:  # Unreasonably large (> 1 TPa)
+        return False, f"Tensor values too large (max: {max_val} GPa)"
+
+    if max_val < 1e-6:  # Unreasonably small
+        return False, f"Tensor values too small (max: {max_val} GPa)"
+
+    # Check for symmetry (elastic tensor should be symmetric)
+    if not np.allclose(tensor, tensor.T, atol=1e-10):
+        logger.warning("Elastic tensor is not symmetric. This may indicate data quality issues.")
+        # We still accept it but log a warning
+
+    return True, "Valid 6x6 elastic tensor"
+
+def load_graphs_from_parquet(parquet_path: str) -> List[MaterialGraph]:
+    """
+    Load MaterialGraph objects from a Parquet file.
+
+    Args:
+        parquet_path: Path to the Parquet file
+
+    Returns:
+        List of MaterialGraph objects
+    """
+    path = Path(parquet_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Parquet file not found: {parquet_path}")
+
+    # Read Parquet file
+    table = pq.read_table(parquet_path)
+    df = table.to_pandas()
+
+    graphs = []
+    for _, row in df.iterrows():
+        # Reconstruct MaterialGraph from serialized data
+        graph = MaterialGraph(
+            id=row.get('id'),
+            formula=row.get('formula'),
+            structure=row.get('structure'),
+            lattice=row.get('lattice'),
+            node_features=row.get('node_features'),
+            edge_features=row.get('edge_features'),
+            target_moduli=row.get('target_moduli'),
+            metadata=row.get('metadata')
+        )
+        graphs.append(graph)
+
+    return graphs
+
+def save_filter_stats(stats: FilterStats, output_path: str) -> None:
+    """
+    Save filtering statistics to a JSON file.
+
+    Args:
+        stats: FilterStats object
+        output_path: Path to output JSON file
+    """
+    path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(path, 'w') as f:
-        json.dump(asdict(stats), f, indent=2)
-    LOGGER.info(f"Saved filter stats to {path}")
+        json.dump(stats.to_dict(), f, indent=2)
+
+    logger.info(f"Filter statistics saved to {output_path}")
+
+def filter_graphs(
+    graphs: List[MaterialGraph],
+    log_path: Optional[str] = None
+) -> Tuple[List[MaterialGraph], FilterStats]:
+    """
+    Filter graphs for 2D materials with valid elastic tensors.
+
+    This function:
+    1. Checks each material for 2D characteristics
+    2. Validates the elastic tensor has 6 independent components
+    3. Logs exclusion reasons for bias analysis
+    4. Returns filtered list and statistics
+
+    Args:
+        graphs: List of MaterialGraph objects
+        log_path: Optional path to save exclusion log
+
+    Returns:
+        Tuple of (filtered_graphs: List[MaterialGraph], stats: FilterStats)
+    """
+    filtered_graphs = []
+    exclusion_reasons = []
+
+    total = len(graphs)
+    kept = 0
+    excluded_2d = 0
+    excluded_tensor = 0
+    excluded_other = 0
+
+    for i, graph in enumerate(graphs):
+        if graph is None:
+            reason = {"index": i, "id": None, "reason": "None graph", "category": "other"}
+            exclusion_reasons.append(reason)
+            excluded_other += 1
+            continue
+
+        # Check 2D criteria
+        is_2d, reason_2d = is_2d_material(graph)
+        if not is_2d:
+            reason = {"index": i, "id": graph.id, "reason": reason_2d, "category": "not_2d"}
+            exclusion_reasons.append(reason)
+            excluded_2d += 1
+            continue
+
+        # Check elastic tensor
+        if graph.target_moduli is None:
+            reason = {"index": i, "id": graph.id, "reason": "Missing elastic tensor", "category": "invalid_tensor"}
+            exclusion_reasons.append(reason)
+            excluded_tensor += 1
+            continue
+
+        # Convert target_moduli to numpy array if needed
+        tensor = np.array(graph.target_moduli) if not isinstance(graph.target_moduli, np.ndarray) else graph.target_moduli
+        is_valid, reason_tensor = is_valid_6_component_tensor(tensor)
+
+        if not is_valid:
+            reason = {"index": i, "id": graph.id, "reason": reason_tensor, "category": "invalid_tensor"}
+            exclusion_reasons.append(reason)
+            excluded_tensor += 1
+            continue
+
+        # Material passed all filters
+        filtered_graphs.append(graph)
+        kept += 1
+
+        # Log successful inclusion
+        if i % 100 == 0:
+            logger.debug(f"Processed {i}/{total} materials. Kept: {kept}")
+
+    # Log exclusion reasons
+    for reason in exclusion_reasons:
+        log_exclusion_reason(reason)
+
+    # Save exclusion log if path provided
+    if log_path:
+        path = Path(log_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w') as f:
+            json.dump(exclusion_reasons, f, indent=2)
+        logger.info(f"Exclusion log saved to {log_path}")
+
+    stats = FilterStats(
+        total_entries=total,
+        kept_entries=kept,
+        excluded_2d=excluded_2d,
+        excluded_tensor=excluded_tensor,
+        excluded_other=excluded_other,
+        exclusion_reasons=exclusion_reasons
+    )
+
+    logger.info(f"Filtering complete: {kept}/{total} materials kept.")
+    logger.info(f"Excluded 2D: {excluded_2d}, Invalid tensor: {excluded_tensor}, Other: {excluded_other}")
+
+    return filtered_graphs, stats
 
 def main():
-    """Entry point for testing filter logic (standalone execution)."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Filter MaterialGraphs for 2D and valid tensors.")
-    parser.add_argument("--input", type=str, required=True, help="Path to input JSON/Parquet containing graphs")
-    parser.add_argument("--output", type=str, required=True, help="Path to output filtered graphs (JSON)")
-    parser.add_argument("--stats", type=str, default="data/processed/filter_stats.json", help="Path to save filter stats")
-    
+    """
+    Main entry point for the filtering script.
+
+    Usage:
+        python code/ingest/filter.py --input data/processed/graphs_v1.parquet --output data/processed/graphs_v1_filtered.parquet --log data/processed/exclusion_log.json
+
+    This script:
+    1. Loads graphs from input Parquet file
+    2. Filters for 2D materials with valid elastic tensors
+    3. Saves filtered graphs to output Parquet file
+    4. Saves filtering statistics and exclusion log
+    """
+    parser = argparse.ArgumentParser(
+        description="Filter 2D materials with valid elastic tensors"
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        required=True,
+        help="Path to input Parquet file containing MaterialGraph objects"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        required=True,
+        help="Path to output Parquet file for filtered graphs"
+    )
+    parser.add_argument(
+        "--log",
+        type=str,
+        default=None,
+        help="Path to save exclusion log (JSON)"
+    )
+    parser.add_argument(
+        "--stats",
+        type=str,
+        default=None,
+        help="Path to save filtering statistics (JSON)"
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Enable verbose logging"
+    )
+
     args = parser.parse_args()
-    
+
     # Configure logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    # Load graphs (assuming JSON for simplicity in this standalone test)
-    # In the real pipeline, this would come from parse_cif output or parquet
-    graphs = []
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
     input_path = Path(args.input)
-    
-    if input_path.suffix == '.json':
-        with open(input_path, 'r') as f:
-            data = json.load(f)
-            # Reconstruct MaterialGraph objects
-            for item in data:
-                g = MaterialGraph(
-                    material_id=item['material_id'],
-                    composition=item['composition'],
-                    target_moduli=np.array(item['target_moduli']) if item.get('target_moduli') else None,
-                    family_id=item.get('family_id'),
-                    metadata=item.get('metadata', {}),
-                    node_features=item.get('node_features'),
-                    edge_features=item.get('edge_features')
-                )
-                graphs.append(g)
-    else:
-        raise ValueError(f"Unsupported input format: {input_path.suffix}. Use .json for this test.")
-    
-    LOGGER.info(f"Loaded {len(graphs)} graphs from {args.input}")
-    
-    # Filter
-    filtered_graphs, stats = filter_graphs(graphs)
-    
-    # Save stats
-    save_filter_stats(stats, Path(args.stats))
-    
+    if not input_path.exists():
+        logger.error(f"Input file not found: {args.input}")
+        sys.exit(1)
+
+    logger.info(f"Loading graphs from {args.input}...")
+    try:
+        graphs = load_graphs_from_parquet(args.input)
+        logger.info(f"Loaded {len(graphs)} graphs")
+    except Exception as e:
+        logger.error(f"Failed to load graphs: {e}")
+        sys.exit(1)
+
+    logger.info("Filtering for 2D materials with valid elastic tensors...")
+    filtered_graphs, stats = filter_graphs(graphs, log_path=args.log)
+
     # Save filtered graphs
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    filtered_data = []
-    for g in filtered_graphs:
-        filtered_data.append({
-            "material_id": g.material_id,
-            "composition": g.composition,
-            "target_moduli": g.target_moduli.tolist() if g.target_moduli is not None else None,
-            "family_id": g.family_id,
-            "metadata": g.metadata,
-            "node_features": g.node_features,
-            "edge_features": g.edge_features
-        })
-    
-    with open(output_path, 'w') as f:
-        json.dump(filtered_data, f, indent=2)
-    
-    LOGGER.info(f"Saved {len(filtered_graphs)} filtered graphs to {args.output}")
+
+    # Convert filtered graphs to DataFrame for Parquet
+    data = []
+    for graph in filtered_graphs:
+        row = {
+            'id': graph.id,
+            'formula': graph.formula,
+            'structure': graph.structure,
+            'lattice': graph.lattice,
+            'node_features': graph.node_features,
+            'edge_features': graph.edge_features,
+            'target_moduli': graph.target_moduli,
+            'metadata': graph.metadata
+        }
+        data.append(row)
+
+    df = pd.DataFrame(data)
+
+    # Write to Parquet
+    table = pa.Table.from_pandas(df)
+    pq.write_table(table, args.output)
+
+    logger.info(f"Filtered graphs saved to {args.output}")
+    logger.info(f"Total: {stats.total_entries}, Kept: {stats.kept_entries}, Excluded: {stats.total_entries - stats.kept_entries}")
+
+    # Save statistics
+    if args.stats:
+        save_filter_stats(stats, args.stats)
+
+    # Log summary
+    logger.info("=== Filtering Summary ===")
+    logger.info(f"Total entries: {stats.total_entries}")
+    logger.info(f"Kept entries: {stats.kept_entries}")
+    logger.info(f"Excluded (not 2D): {stats.excluded_2d}")
+    logger.info(f"Excluded (invalid tensor): {stats.excluded_tensor}")
+    logger.info(f"Excluded (other): {stats.excluded_other}")
+    logger.info("========================")
 
 if __name__ == "__main__":
     main()

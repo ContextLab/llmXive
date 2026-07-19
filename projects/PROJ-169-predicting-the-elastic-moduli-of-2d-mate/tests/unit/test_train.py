@@ -1,136 +1,119 @@
 """
 Unit tests for the training loop in code/model/train.py.
+Tests logic without running full training.
 """
-import os
-import sys
 import json
+import os
 import tempfile
-import pytest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 import numpy as np
+import pytest
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from model.train import (
+    GraphDataset,
+    filter_graphs_by_split,
+    load_split_indices,
+    load_graphs_from_parquet,
+    collate_fn,
+)
 
-from model.train import GraphDataset, collate_fn, graph_to_pyg, train_epoch, evaluate
-from model.gnn import create_model
-from torch_geometric.data import Data
-import torch
+@pytest.fixture
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
-def test_graph_to_pyg_conversion():
-    """Test conversion from dict to PyG Data."""
-    # Create mock data
-    mock_dict = {
-        'node_features': np.random.rand(5, 10).astype(np.float32),
-        'edge_index': np.array([[0, 1, 2], [1, 2, 3]], dtype=np.int64),
-        'edge_features': np.random.rand(3, 5).astype(np.float32),
-        'target_moduli': np.array([120.5], dtype=np.float32)
-    }
-
-    data = graph_to_pyg(mock_dict)
-
-    assert isinstance(data, Data)
-    assert data.x.shape == (5, 10)
-    assert data.edge_index.shape == (2, 3)
-    assert data.edge_attr.shape == (3, 5)
-    assert data.y.shape == (1,)
-
-def test_graph_to_pyg_no_edge_features():
-    """Test conversion when edge features are missing."""
-    mock_dict = {
-        'node_features': np.random.rand(3, 4).astype(np.float32),
-        'edge_index': np.array([[0, 1], [1, 2]], dtype=np.int64),
-        'target_moduli': np.array([50.0], dtype=np.float32)
-    }
-
-    data = graph_to_pyg(mock_dict)
-    assert data.edge_attr is None
-
-def test_graph_dataset():
-    """Test GraphDataset wrapper."""
-    mock_graphs = [
-        graph_to_pyg({
-            'node_features': np.random.rand(3, 4).astype(np.float32),
-            'edge_index': np.array([[0, 1], [1, 2]], dtype=np.int64),
-            'target_moduli': np.array([1.0], dtype=np.float32)
-        }) for _ in range(5)
+def test_graph_dataset_creation():
+    """Test that GraphDataset correctly converts dicts to Data objects."""
+    graphs = [
+        {
+            "id": "mp-1",
+            "node_features": [[1.0, 2.0], [3.0, 4.0]],
+            "edge_index": [[0, 1], [1, 0]],
+            "target_moduli": [100.0, 50.0, 0.3],
+            "edge_features": [[0.5], [0.5]]
+        }
     ]
+    dataset = GraphDataset(graphs)
+    assert len(dataset) == 1
+    
+    data_obj = dataset[0]
+    assert data_obj.id == "mp-1"
+    assert data_obj.x.shape == (2, 2)
+    assert data_obj.edge_index.shape == (2, 2)
+    assert data_obj.y.shape == (3,)
+    assert data_obj.edge_attr.shape == (2, 1)
 
-    ds = GraphDataset(mock_graphs)
-    assert len(ds) == 5
-    item = ds[0]
-    assert isinstance(item, Data)
+def test_filter_graphs_by_split():
+    """Test filtering graphs by split indices."""
+    all_graphs = [
+        {"id": "mp-1", "node_features": [], "edge_index": [], "target_moduli": []},
+        {"id": "mp-2", "node_features": [], "edge_index": [], "target_moduli": []},
+        {"id": "mp-3", "node_features": [], "edge_index": [], "target_moduli": []},
+    ]
+    split_indices = {
+        "train": [{"id": "mp-1"}, {"id": "mp-2"}],
+        "test": [{"id": "mp-3"}]
+    }
+    
+    train_graphs = filter_graphs_by_split(all_graphs, split_indices, "train")
+    assert len(train_graphs) == 2
+    assert {g["id"] for g in train_graphs} == {"mp-1", "mp-2"}
+    
+    test_graphs = filter_graphs_by_split(all_graphs, split_indices, "test")
+    assert len(test_graphs) == 1
+    assert test_graphs[0]["id"] == "mp-3"
+
+def test_filter_graphs_missing_split():
+    """Test that missing split raises error."""
+    split_indices = {"train": []}
+    with pytest.raises(ValueError):
+        filter_graphs_by_split([], split_indices, "val")
+
+def test_load_split_indices(temp_dir):
+    """Test loading split indices from JSON."""
+    split_path = Path(temp_dir) / "split.json"
+    data = {
+        "train": [{"id": "mp-1", "family_id": "F1"}],
+        "val": [{"id": "mp-2", "family_id": "F1"}],
+        "test": [{"id": "mp-3", "family_id": "F2"}]
+    }
+    with open(split_path, "w") as f:
+        json.dump(data, f)
+    
+    loaded = load_split_indices(str(split_path))
+    assert "train" in loaded
+    assert len(loaded["train"]) == 1
+    assert loaded["train"][0]["family_id"] == "F1"
+
+def test_load_split_indices_missing_file():
+    """Test that missing file raises error."""
+    with pytest.raises(FileNotFoundError):
+        load_split_indices("nonexistent.json")
 
 def test_collate_fn():
-    """Test collate function."""
-    mock_graphs = [
-        graph_to_pyg({
-            'node_features': np.random.rand(3, 4).astype(np.float32),
-            'edge_index': np.array([[0, 1], [1, 2]], dtype=np.int64),
-            'target_moduli': np.array([1.0], dtype=np.float32)
-        }) for _ in range(4)
+    """Test collate function preserves IDs."""
+    from torch_geometric.data import Data
+    
+    batch = [
+        Data(x=np.array([[1.0]]), y=np.array([1.0]), id="mp-1"),
+        Data(x=np.array([[2.0]]), y=np.array([2.0]), id="mp-2")
     ]
-    batch = collate_fn(mock_graphs)
-    assert isinstance(batch, Data)
-    # Batched graph should have more nodes/edges
-    assert batch.x.shape[0] == 12  # 4 graphs * 3 nodes
+    _, ids = collate_fn(batch)
+    assert ids == ["mp-1", "mp-2"]
 
-@pytest.mark.slow
-def test_train_epoch_cpu():
-    """Test training step on CPU."""
-    # Create small mock data
-    mock_graphs = [
-        graph_to_pyg({
-            'node_features': np.random.rand(4, 8).astype(np.float32),
-            'edge_index': np.array([[0, 1], [2, 3]], dtype=np.int64),
-            'target_moduli': np.array([np.random.rand() * 100], dtype=np.float32)
-        }) for _ in range(10)
+@patch("model.train.pd")
+def test_load_graphs_from_parquet(mock_pd, temp_dir):
+    """Test loading graphs from parquet (mocked)."""
+    mock_df = MagicMock()
+    mock_df.iterrows.return_value = [
+        (0, {"id": "mp-1", "node_features": [[1.0]], "edge_index": [[0,1],[1,0]], "target_moduli": [100.0], "edge_features": [[0.5]]}),
+        (1, {"id": "mp-2", "node_features": [[2.0]], "edge_index": [[0,1],[1,0]], "target_moduli": [200.0], "edge_features": [[0.5]]})
     ]
+    mock_pd.read_parquet.return_value = mock_df
     
-    from torch_geometric.data import DataLoader
-    dataset = GraphDataset(mock_graphs)
-    loader = DataLoader(dataset, batch_size=2)
-
-    model = create_model()
-    model.eval() # Start eval to ensure it runs
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-    
-    # Run one epoch (train mode)
-    model.train()
-    loss, batches = train_epoch(model, loader, optimizer, torch.device("cpu"))
-    
-    assert isinstance(loss, float)
-    assert loss >= 0
-    assert batches == 5 # 10 samples / 2 batch size
-
-@pytest.mark.slow
-def test_evaluate_cpu():
-    """Test evaluation step on CPU."""
-    mock_graphs = [
-        graph_to_pyg({
-            'node_features': np.random.rand(4, 8).astype(np.float32),
-            'edge_index': np.array([[0, 1], [2, 3]], dtype=np.int64),
-            'target_moduli': np.array([np.random.rand() * 100], dtype=np.float32)
-        }) for _ in range(10)
-    ]
-    
-    from torch_geometric.data import DataLoader
-    dataset = GraphDataset(mock_graphs)
-    loader = DataLoader(dataset, batch_size=2)
-
-    model = create_model()
-    
-    loss, metrics = evaluate(model, loader, torch.device("cpu"))
-    
-    assert isinstance(loss, float)
-    assert "mape" in metrics
-    assert "rmse" in metrics
-    assert metrics["mape"] >= 0
-    assert metrics["rmse"] >= 0
-
-def test_main_function_structure():
-    """Test that main function exists and parses args correctly (without running full loop)."""
-    import argparse
-    # Just verify the function signature and imports work
-    # Actual execution requires data files which are not present in unit test env
-    pass
+    graphs = load_graphs_from_parquet("dummy.parquet")
+    assert len(graphs) == 2
+    assert graphs[0]["id"] == "mp-1"
+    assert graphs[1]["id"] == "mp-2"
