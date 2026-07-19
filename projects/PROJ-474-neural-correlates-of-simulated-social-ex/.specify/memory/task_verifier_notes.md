@@ -8,4 +8,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T023** — declared artifact(s) missing/empty/invalid: src/preprocessing.py
 - **T028** — declared artifact(s) missing/empty/invalid: src/main.py, data/processed/connectivity_metrics.json
 - **T036** — declared artifact(s) missing/empty/invalid: src/stats.py, data/processed/subject_qc_list.json, data/results/sensitivity_curve.csv, data/results/sensitivity_curve.png
-- **T039** — declared artifact(s) missing/empty/invalid: src/main.py, data/results/statistical_report.json
