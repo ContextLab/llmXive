@@ -974,3 +974,1972 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T20:06:42Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Python version mandated by Plan's Technical Context
+  claim_id: c_6f724a0f
+  context: Task T002 mentions initializing Python 3.14.6 and notes the Plan's Technical
+    Context mandates a specific major version.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Python_version_mandated_by_Plan's_Technical_Context
+  kind: entity_fact
+  raw_text: The Plan's Technical Context mandates a specific major version of Python
+    as a verified fact.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:41:25Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: CSA Index formula definition with five weighted components
+  claim_id: c_e0157ddc
+  context: Task T007b defines the CSA Index formula in data-model.md as a weighted
+    composite of five specific variables.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CSA_Index_formula_definition_with_five_weighted_components
+  kind: entity_fact
+  raw_text: 'The CSA Index formula is defined as a weighted composite: CSA_Index =
+    w1*(Conservation Tillage) + w2*(Crop Diversification) + w3*(Irrigation Efficiency)
+    + w4*(Digital Access) + w5*(Finance Access).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:42:07Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: CSA Index weights defined as equal 0.2 or normalized intensity scores
+  claim_id: c_972037ca
+  context: Task T007b specifies the weighting strategy for the CSA Index components.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The weights for the CSA Index are defined as equal (0.2 each) or practice-specific
+    intensity scores, normalized to [0, 1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:42:40Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: IPW used for statistical model sampling weights distinct from CSA Index
+    weights
+  claim_id: c_b8ddb3bb
+  context: Task T007c defines the sampling weight strategy using IPW for the statistical
+    model, separate from the index weighting.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/IPW_used_for_statistical_model_sampling_weights_distinct_fro
+  kind: entity_fact
+  raw_text: Inverse Probability Weighting (IPW) is defined separately for the statistical
+    model based on country/year sampling fractions and is distinct from the CSA Index
+    weighting.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:43:11Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Target sample size of 5000 households per country for stratified sampling
+  claim_id: c_4cf654a1
+  context: Task T017 specifies the target sample size for stratified sampling in the
+    data cleaning logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The target sample size for stratified sampling is N \u2265 5000 households\
+    \ per country (Kenya, India, Vietnam) if data volume permits."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:43:11Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Stratified sampling triggered when raw data size exceeds 7GB
+  claim_id: c_70336a99
+  context: Task T017 outlines the trigger condition for applying stratified sampling
+    based on file size.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_sampling_triggered_when_raw_data_size_exceeds_7GB
+  kind: magnitude
+  raw_text: Stratified sampling is triggered if the sum of file sizes in data/raw/
+    is greater than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:43:34Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: System proceeds with available data if 5000 household target cannot be
+    met
+  claim_id: c_f7e729e4
+  context: Task T017 describes the resilience logic when data scarcity prevents meeting
+    the target sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If the target N \u2265 5000 cannot be met due to data scarcity, the system\
+    \ logs a warning and proceeds with the available data."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:43:34Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: CSA Index includes digital and finance access variables
+  claim_id: c_5694a794
+  context: Task T022 specifies that the CSA Index construction must include digital
+    and finance variables as per FR-003.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CSA_Index_includes_digital_and_finance_access_variables
+  kind: entity_fact
+  raw_text: The CSA Index construction must include digital-technology access and
+    finance access as variables.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:43:57Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Fixed-Effects Regression used instead of Mixed-Effects due to N=3 countries
+  claim_id: c_f7088ef1
+  context: Task T023 explains the rationale for choosing Fixed-Effects Regression
+    over Mixed-Effects given the number of countries.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model type is Fixed-Effects Regression (OLS with Country Dummies)
+    because Mixed-Effects is statistically invalid for N=3 countries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:44:19Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Model fitting retry reduces sample size by percentage on first retry
+  claim_id: c_6511e149
+  context: Task T023 describes the retry logic for model fitting timeouts, noting
+    a reduction by a percentage on the first retry.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_fitting_retry_reduces_sample_size_by_percentage_on_fir
+  kind: entity_fact
+  raw_text: The model fitting process implements an internal retry logic where the
+    first retry reduces the sample size by a percentage (value missing in text).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:44:41Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Model fitting has minimum sample size floor and maximum 3 retries
+  claim_id: c_aeb7f5ad
+  context: Task T023 specifies the constraints for the retry logic, including a minimum
+    sample size floor and max retries.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model fitting process has a minimum sample size floor (value missing
+    in text) and a maximum of 3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:45:15Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for more than 5 hypotheses
+  claim_id: c_866c5df5
+  context: Task T025 mandates the implementation of Bonferroni correction as per spec
+    FR-006 for multiple hypothesis testing.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_for_more_than_5_hypotheses
+  kind: magnitude
+  raw_text: Bonferroni correction is implemented for more than 5 hypotheses to control
+    the family-wise error rate.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:45:38Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps cutoffs from 0.2 to 0.8
+  claim_id: c_61ed4064
+  context: Task T026 details the robustness check logic, mapping 0.2 to 'moderate'
+    and 0.8 to 'strict' for the CSA adoption threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps cutoff values from a moderate threshold
+    (0.2) to a strict threshold (0.8) in incremental steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:45:56Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Leave-one-country-out used instead of leave-one-region-out due to N=3
+  claim_id: c_8a0f99e5
+  context: Task T035 explains the rationale for interpreting 'Region' as 'Country'
+    due to the small number of countries.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Leave-one-country-out cross-validation is chosen over leave-one-region-out
+    because N=3 countries makes the latter statistically invalid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:46:31Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Project uses only real data sources LSMS FAOSTAT NASA POWER
+  claim_id: c_89513b60
+  context: The Notes section under 'Data Integrity' specifies the use of real data
+    sources only.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_only_real_data_sources_LSMS_FAOSTAT_NASA_POWER
+  kind: entity_fact
+  raw_text: The project uses real data sources (LSMS, FAOSTAT, NASA POWER) only, with
+    no synthetic data fabrication.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:46:59Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Target sample size of 5000 households per country for Kenya, India, and
+    Vietnam
+  claim_id: c_d01f129f
+  context: "T017 [US1] [FR-005] Implement stratified sampling in code/data/clean.py:\
+    \ Target: Aim for N \u2265 5000 households per country (Kenya, India, Vietnam)\
+    \ if data volume permits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target: Aim for N \u2265 5000 households per country (Kenya, India, Vietnam)\
+    \ if data volume permits."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:49:06Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Stratified sampling triggered if raw data file sizes exceed 7GB
+  claim_id: c_eb9bfe67
+  context: 'T017 [US1] [FR-005] Implement stratified sampling in code/data/clean.py:
+    Trigger: If sum of file sizes in data/raw/ > 7GB, apply stratified sampling to
+    reduce size to fit RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratified_sampling_triggered_if_raw_data_file_sizes_exceed
+  kind: entity_fact
+  raw_text: 'Trigger: If sum of file sizes in data/raw/ > 7GB, apply stratified sampling
+    to reduce size to fit RAM.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:49:37Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Sampling applied if estimated processing memory exceeds 7GB despite raw
+    data being under 7GB
+  claim_id: c_6b79a10d
+  context: 'T017 [US1] [FR-005] Implement stratified sampling in code/data/clean.py:
+    Hard Cap: If raw data < 7GB but estimated processing memory > 7GB, apply sampling
+    to ensure the working set does not exceed a predefined memory threshold.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sampling_applied_if_estimated_processing_memory_exceeds_7GB
+  kind: entity_fact
+  raw_text: 'Hard Cap: If raw data < 7GB but estimated processing memory > 7GB, apply
+    sampling to ensure the working set does not exceed a predefined memory threshold.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:50:00Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Proceed with available data and log warning if sample size falls below
+    5000 per country
+  claim_id: c_5d9a11fb
+  context: "T017 [US1] [FR-005] Implement stratified sampling in code/data/clean.py:\
+    \ Resilience: If the target N \u2265 5000 cannot be met due to data scarcity (e.g.,\
+    \ < 5000 available for a country), log a warning and proceed with the available\
+    \ data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Resilience: If the target N \u2265 5000 cannot be met due to data scarcity\
+    \ (e.g., < 5000 available for a country), log a warning and proceed with the available\
+    \ data."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:50:00Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Warning and report generated if sampling fails to reduce dataset size
+    below 7GB
+  claim_id: c_206b8cfa
+  context: 'T017 [US1] [FR-005] Implement stratified sampling in code/data/clean.py:
+    Enforcement: If sampling fails to reduce size below a predefined threshold (7GB),
+    log a warning and generate sampling_report.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Warning_and_report_generated_if_sampling_fails_to_reduce_dat
+  kind: entity_fact
+  raw_text: 'Enforcement: If sampling fails to reduce size below a predefined threshold
+    (7GB), log a warning and generate sampling_report.json.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:50:23Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Flag predictors with Variance Inflation Factor greater than 5.0
+  claim_id: c_74750e6e
+  context: 'T024 [US2] Implement collinearity diagnostics in code/analysis/diagnostics.py:
+    Flag predictors exceeding VIF > 5.0 (log warning, do not auto-exclude mediators).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_Variance_Inflation_Factor_greater_than
+  kind: magnitude
+  raw_text: Flag predictors exceeding VIF > 5.0 (log warning, do not auto-exclude
+    mediators).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:50:41Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Model fitting retry triggered if duration exceeds 6 hours
+  claim_id: c_ffbf01cb
+  context: 'T023 [US2] [FR-002] [FR-004] [FR-010] Implement Fixed-Effects Regression
+    Model (OLS with Country Dummies) in code/analysis/model.py: Timeout Handling:
+    Implement internal retry logic: If model fitting takes > 6 hours, log state and
+    attempt a reduced-batch retry.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Timeout Handling: Implement internal retry logic: If model fitting takes
+    > 6 hours, log state and attempt a reduced-batch retry.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:50:41Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Maximum number of model fitting retries is 3
+  claim_id: c_ad2a48e7
+  context: 'T023 [US2] [FR-002] [FR-004] [FR-010] Implement Fixed-Effects Regression
+    Model (OLS with Country Dummies) in code/analysis/model.py: Max Retries: Maximum
+    3 retries.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Max Retries: Maximum 3 retries.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:51:07Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Integration test verifies data pipeline runs without error and output
+    file exists
+  claim_id: c_5e3e08c1
+  context: 'T011 [P] [US1] Integration test for download and merge pipeline in tests/integration/test_data_pipeline.py:
+    Verify pipeline runs without error and output file exists.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_test_verifies_data_pipeline_runs_without_error_a
+  kind: entity_fact
+  raw_text: Verify pipeline runs without error and output file exists.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:51:29Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Data pipeline output must contain at least 95% valid records with no
+    missing values in key predictors
+  claim_id: c_ebd53fa0
+  context: "Independent Test: Execute code/data/pipeline.py and verify data/processed/merged_sample.parquet\
+    \ contains \u2265 95% valid records, no missing values in key predictors after\
+    \ imputation, and matches the schema."
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_output_must_contain_at_least_95%25_valid_records
+  kind: magnitude
+  raw_text: "Independent Test: Execute code/data/pipeline.py and verify data/processed/merged_sample.parquet\
+    \ contains \u2265 95% valid records, no missing values in key predictors after\
+    \ imputation, and matches the schema."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-19T09:51:50Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Climate data matching uses WGS84 CRS and Haversine formula
+  claim_id: c_f6e7a7df
+  context: 'T015 [US1] Implement data cleaning and merging logic in code/data/clean.py:
+    Match climate data to survey coordinates within a defined proximity radius using
+    the WGS84 (EPSG:4326) CRS and Haversine formula for distance calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Match climate data to survey coordinates within a defined proximity radius
+    using the WGS84 (EPSG:4326) CRS and Haversine formula for distance calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:52:21Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Climate data temporal window is 3-month pre-harvest mean
+  claim_id: c_ba17bdc3
+  context: 'T015 [US1] Implement data cleaning and merging logic in code/data/clean.py:
+    Match climate data using growing season average (3-month pre-harvest mean) as
+    the temporal window.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Match climate data using growing season average (3-month pre-harvest mean)
+    as the temporal window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:52:45Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Spatial interpolation used for climate data gaps of 3 months or less
+  claim_id: c_1c89b6a2
+  context: "T013 [P] [US1] Implement NASA POWER climate downloader in code/data/download.py\
+    \ using requests and nearest-neighbor spatial interpolation for gaps \u2264 3\
+    \ months."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement NASA POWER climate downloader in code/data/download.py using\
+    \ requests and nearest-neighbor spatial interpolation for gaps \u2264 3 months."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:52:45Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python version 3.14.6
+  claim_id: c_8755ca84
+  context: T002 Initialize Python 3.14.6 project with pinned dependencies in code/requirements.txt
+    (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, geopandas>=0.13.0,
+    matplotlib>=3.7.0, seaborn>=0.12.0, requests>=2.31.0, pyyaml>=6.0.0).
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.14.6 project with pinned dependencies.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T09:52:45Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Project dependencies include pandas 2.0.0, numpy 1.24.0, scikit-learn
+    1.3.0, statsmodels 0.14.0, geopandas 0.13.0, matplotlib 3.7.0, seaborn 0.12.0,
+    requests 2.31.0, pyyaml 6.0.0
+  claim_id: c_493e96f9
+  context: T002 Initialize Python 3.14.6 project with pinned dependencies in code/requirements.txt
+    (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, geopandas>=0.13.0,
+    matplotlib>=3.7.0, seaborn>=0.12.0, requests>=2.31.0, pyyaml>=6.0.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Dependency: pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, statsmodels>=0.14.0,
+    geopandas>=0.13.0, matplotlib>=3.7.0, seaborn>=0.12.0, requests>=2.31.0, pyyaml>=6.0.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:52:59Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Mixed-Effects models are statistically invalid for 3 countries
+  claim_id: c_71ac1031
+  context: 'T023 [US2] [FR-002] [FR-004] [FR-010] Implement Fixed-Effects Regression
+    Model (OLS with Country Dummies) in code/analysis/model.py: Model Type: Fixed-Effects
+    Regression (OLS with Country Dummies). Rationale: Mixed-Effects is statistically
+    invalid for N=3 countries.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mixed-Effects is statistically invalid for N=3 countries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:53:35Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Leave-one-region-out cross-validation is statistically invalid for 3
+    countries with 2 training samples
+  claim_id: c_a9dab038
+  context: 'T035 [US3] [FR-009] Implement leave-one-country-out cross-validation in
+    code/analysis/robustness.py: Region Definition: Administrative level 0 (Country).
+    Rationale: With only 3 countries, leave-one-region-out (N=2 training) is statistically
+    invalid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: With only 3 countries, leave-one-region-out (N=2 training) is statistically
+    invalid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:54:09Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.14.6 project with specific pinned dependencies
+  claim_id: c_f57c88a0
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.14.6 project with pinned dependencies in code/requirements.txt
+    (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, geopandas>=0.13.0,
+    matplotlib>=3.7.0, seaborn>=0.12.0, requests>=2.31.0, pyyaml>=6.0.0).
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T09:55:19Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: CSA Index formula definition with five weighted components
+  claim_id: c_fd53dbb0
+  context: 'Phase 2: Foundational - T007b'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CSA_Index_formula_definition_with_five_weighted_components
+  kind: entity_fact
+  raw_text: 'Define the CSA Index formula as a weighted composite: CSA_Index = w1*(Conservation
+    Tillage) + w2*(Crop Diversification) + w3*(Irrigation Efficiency) + w4*(Digital
+    Access) + w5*(Finance Access).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:55:54Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: CSA Index weights defined as equal 0.2 or normalized intensity scores
+  claim_id: c_dda9c745
+  context: 'Phase 2: Foundational - T007b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Weights (w-w) are defined as equal (0.2 each) or practice-specific intensity
+    scores, normalized to [0, 1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:56:23Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Inverse Probability Weighting excluded from CSA Index calculation
+  claim_id: c_52c36e3b
+  context: 'Phase 2: Foundational - T007c'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inverse_Probability_Weighting_excluded_from_CSA_Index_calcul
+  kind: entity_fact
+  raw_text: Do NOT use Inverse Probability Weighting (IPW) for the index itself.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:56:47Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Inverse Probability Weighting used for statistical model based on sampling
+    fractions
+  claim_id: c_4dd8014a
+  context: 'Phase 2: Foundational - T007c'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inverse_Probability_Weighting_used_for_statistical_model_bas
+  kind: entity_fact
+  raw_text: Use Inverse Probability Weighting (IPW) based on country/year sampling
+    fractions for the statistical model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:57:10Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Climate data matching uses WGS84 CRS and Haversine formula
+  claim_id: c_757dc1d4
+  context: 'Phase 3: User Story 1 - T015'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Match climate data to survey coordinates within a defined proximity radius
+    using the WGS84 (EPSG:4326) CRS and Haversine formula for distance calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:57:10Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Climate data matching uses 3-month pre-harvest mean growing season average
+  claim_id: c_a6378e2b
+  context: 'Phase 3: User Story 1 - T015'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Match climate data using growing season average (3-month pre-harvest mean)
+    as the temporal window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:57:11Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Target sample size of 5000 households per country
+  claim_id: c_a5c56682
+  context: 'Phase 3: User Story 1 - T017'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Aim for N \u2265 5000 households per country (Kenya, India, Vietnam)\
+    \ if data volume permits."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:57:11Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Stratified sampling triggered if raw data exceeds 7GB
+  claim_id: c_df786046
+  context: 'Phase 3: User Story 1 - T017'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratified_sampling_triggered_if_raw_data_exceeds_7GB
+  kind: entity_fact
+  raw_text: If sum of file sizes in data/raw/ > 7GB, apply stratified sampling to
+    reduce size to fit RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:57:39Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Sampling applied if estimated processing memory exceeds 7GB
+  claim_id: c_ed312573
+  context: 'Phase 3: User Story 1 - T017'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sampling_applied_if_estimated_processing_memory_exceeds_7GB
+  kind: entity_fact
+  raw_text: If raw data < 7GB but estimated processing memory > 7GB, apply sampling
+    to ensure the working set does not exceed a predefined memory threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:58:04Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Proceed with available data if target of 5000 households per country
+    is not met
+  claim_id: c_3eb9b2de
+  context: 'Phase 3: User Story 1 - T017'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If the target N \u2265 5000 cannot be met due to data scarcity (e.g.,\
+    \ < 5000 available for a country), log a warning and proceed with the available\
+    \ data."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:58:05Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Warning and report generated if sampling fails to reduce size below 7GB
+  claim_id: c_47575af9
+  context: 'Phase 3: User Story 1 - T017'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Warning_and_report_generated_if_sampling_fails_to_reduce_siz
+  kind: entity_fact
+  raw_text: If sampling fails to reduce size below a predefined threshold (7GB), log
+    a warning and generate sampling_report.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:58:24Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Mixed-Effects models are invalid for 3 countries
+  claim_id: c_2f76efce
+  context: 'Phase 4: User Story 2 - T023'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mixed-Effects is statistically invalid for N=3 countries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:58:25Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Fixed-Effects Regression used to control for country-level heterogeneity
+  claim_id: c_6bd800e6
+  context: 'Phase 4: User Story 2 - T023'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed-Effects_Regression_used_to_control_for_country-level_h
+  kind: entity_fact
+  raw_text: Fixed-Effects Regression (OLS with Country Dummies) controls for unobserved
+    country-level heterogeneity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:58:49Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Model fitting retry triggered if time exceeds 6 hours
+  claim_id: c_4a145de8
+  context: 'Phase 4: User Story 2 - T023'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If model fitting takes > 6 hours, log state and attempt a reduced-batch
+    retry.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:58:49Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Maximum of 3 retries for model fitting
+  claim_id: c_411f6ab5
+  context: 'Phase 4: User Story 2 - T023'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Maximum 3 retries for model fitting.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:59:08Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Flag predictors with VIF greater than 5.0
+  claim_id: c_49789fe4
+  context: 'Phase 4: User Story 2 - T024'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_VIF_greater_than_5.0
+  kind: magnitude
+  raw_text: Flag predictors exceeding VIF > 5.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:59:11Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction implemented for more than 5 hypotheses
+  claim_id: c_789a18ba
+  context: 'Phase 4: User Story 2 - T025'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_implemented_for_more_than_5_hypotheses
+  kind: magnitude
+  raw_text: MUST implement Bonferroni correction for > 5 hypotheses to control family-wise
+    error rate.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:59:32Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Leave-one-region-out is invalid for 3 countries with 2 training samples
+  claim_id: c_ea05e1aa
+  context: 'Phase 5: User Story 3 - T035'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: With only 3 countries, leave-one-region-out (N=2 training) is statistically
+    invalid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T09:59:32Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Leave-one-country-out uses Administrative level 0 as region definition
+  claim_id: c_ae2279a4
+  context: 'Phase 5: User Story 3 - T035'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Leave-one-country-out cross-validation uses Administrative level 0 (Country)
+    as the region definition.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:00:12Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Tasks run on CPU-only CI with limited cores and RAM
+  claim_id: c_70b511af
+  context: Notes section
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_run_on_CPU-only_CI_with_limited_cores_and_RAM
+  kind: entity_fact
+  raw_text: All tasks must run on CPU-only CI with a limited number of cores and limited
+    RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:00:43Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Python 3.14.6 project with specific pinned dependencies
+  claim_id: c_8470aacb
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.14.6 project with pinned dependencies in code/requirements.txt
+    (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, geopandas>=0.13.0,
+    matplotlib>=3.7.0, seaborn>=0.12.0, requests>=2.31.0, pyyaml>=6.0.0).
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T10:01:55Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Target 5000 households per country for stratified sampling
+  claim_id: c_7ccd67b3
+  context: 'Phase 3: User Story 1 - Task T017 (Stratified sampling implementation)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target N \u2265 5000 households per country (Kenya, India, Vietnam) if\
+    \ data volume permits."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:01:55Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Data pipeline output must contain 95% valid records
+  claim_id: c_f81c36e3
+  context: 'Phase 3: User Story 1 - Independent Test requirement'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify pipeline runs without error and output file exists, containing\
+    \ \u2265 95% valid records."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:01:55Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Model fitting timeout threshold of 6 hours triggers retry
+  claim_id: c_352cd230
+  context: 'Phase 4: User Story 2 - Task T023 (Fixed-Effects Regression Model implementation)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the model fitting takes > 6 hours, log state and attempt a reduced-batch
+    retry.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:01:55Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Collinearity flagging threshold VIF greater than 5.0
+  claim_id: c_fcfa43bd
+  context: 'Phase 4: User Story 2 - Task T024 (Collinearity diagnostics)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_flagging_threshold_VIF_greater_than_5.0
+  kind: magnitude
+  raw_text: Flag predictors exceeding VIF > 5.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:01:58Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for more than 5 hypotheses
+  claim_id: c_485d1e1a
+  context: 'Phase 4: User Story 2 - Task T025 (Multiple hypothesis correction)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_for_more_than_5_hypotheses
+  kind: magnitude
+  raw_text: Implement Bonferroni correction for > 5 hypotheses to control family-wise
+    error rate.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:02:20Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Inverse Probability Weighting based on country/year sampling fractions
+  claim_id: c_ca9a5620
+  context: 'Phase 2: Foundational - Task T007c (CSA Index Weighting Strategy)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inverse_Probability_Weighting_based_on_country/year_sampling
+  kind: entity_fact
+  raw_text: Use Inverse Probability Weighting (IPW) based on country/year sampling
+    fractions for the statistical model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:02:23Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Plan mandates specific Python major version as verified fact
+  claim_id: c_7817afc1
+  context: 'T002 Initialize Python 3.14.6 project with pinned dependencies... Note:
+    The Plan''s Technical Context mandates a specific major version of Python as a
+    verified fact.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_mandates_specific_Python_major_version_as_verified_fact
+  kind: entity_fact
+  raw_text: The Plan's Technical Context mandates a specific major version of Python
+    as a verified fact.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:03:44Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: CSA Index formula includes conservation tillage, crop diversification,
+    irrigation efficiency, digital access, and finance access
+  claim_id: c_21c01feb
+  context: 'T007b Define CSA Index Formula... CSA Index Definition: Define the CSA
+    Index formula as a weighted composite...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CSA_Index_formula_includes_conservation_tillage,_crop_divers
+  kind: entity_fact
+  raw_text: 'The CSA Index is defined as a weighted composite: CSA_Index = w1*(Conservation
+    Tillage) + w2*(Crop Diversification) + w3*(Irrigation Efficiency) + w4*(Digital
+    Access) + w5*(Finance Access).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:04:12Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: CSA Index weights are equal 0.2 or normalized intensity scores
+  claim_id: c_b375567b
+  context: T007b... Weights (w-w) are defined as equal (0.2 each) or practice-specific
+    intensity scores, normalized to [0, 1].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The weights for the CSA Index are defined as equal (0.2 each) or practice-specific
+    intensity scores, normalized to [0, 1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:04:12Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: IPW used for statistical model based on country/year sampling fractions
+  claim_id: c_0b30d06f
+  context: T007c... Use Inverse Probability Weighting (IPW) based on country/year
+    sampling fractions for the statistical model (T023).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/IPW_used_for_statistical_model_based_on_country/year_samplin
+  kind: entity_fact
+  raw_text: Inverse Probability Weighting (IPW) based on country/year sampling fractions
+    is used for the statistical model, distinct from the CSA Index weighting.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:04:35Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: LSMS data targets Kenya, India, and Vietnam
+  claim_id: c_98f098d2
+  context: T012 Implement LSMS downloader in code/data/download.py targeting Kenya,
+    India, Vietnam...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LSMS_data_targets_Kenya,_India,_and_Vietnam
+  kind: entity_fact
+  raw_text: The pipeline targets Kenya, India, and Vietnam for LSMS data download.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:05:00Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Unmatched rows are flagged and warnings logged
+  claim_id: c_dbb4fea4
+  context: T015... Flag unmatched rows and log warnings.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unmatched_rows_are_flagged_and_warnings_logged
+  kind: entity_fact
+  raw_text: The imputation strategy flags unmatched rows and logs warnings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:05:28Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Stratified sampling target is 5000 households per country
+  claim_id: c_57bf8e96
+  context: "T017... Aim for N \u2265 5000 households per country (Kenya, India, Vietnam)\
+    \ if data volume permits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The target for stratified sampling is N \u2265 5000 households per country."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:05:28Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Memory hard cap is 7GB
+  claim_id: c_afa32b63
+  context: T017... If raw data < 7GB but estimated processing memory > 7GB, apply
+    sampling...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_hard_cap_is_7GB
+  kind: entity_fact
+  raw_text: The hard cap for memory usage is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:05:48Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Sampling enforcement threshold is 7GB
+  claim_id: c_1f9d3277
+  context: T017... If sampling fails to reduce size below a predefined threshold (7GB)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sampling_enforcement_threshold_is_7GB
+  kind: entity_fact
+  raw_text: The sampling enforcement threshold is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:06:07Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Model retry logic triggers after 6 hours
+  claim_id: c_15a1d40b
+  context: T023... If model fitting takes > 6 hours, log state and attempt a reduced-batch
+    retry.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_retry_logic_triggers_after_6_hours
+  kind: magnitude
+  raw_text: The model fitting timeout handling includes a retry logic if the model
+    takes more than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:06:52Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Maximum model retries is 3
+  claim_id: c_66302289
+  context: 'T023... Max Retries: Maximum 3 retries.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of retries for model fitting is 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:06:52Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: VIF flagging threshold is 5.0
+  claim_id: c_f936872c
+  context: T024... Flag predictors exceeding VIF > 5.0...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF flagging threshold is 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:07:07Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction for > 5 hypotheses
+  claim_id: c_459c47da
+  context: T025... MUST implement Bonferroni correction... for > 5 hypotheses...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_for_%3E_5_hypotheses
+  kind: magnitude
+  raw_text: The Bonferroni correction is implemented for more than 5 hypotheses.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:07:33Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis maps 0.2 to moderate and 0.8 to strict
+  claim_id: c_7a4c0c47
+  context: T026... Explicitly map 0.2 to 'moderate' and 0.8 to 'strict'...
+  evidence:
+    asserted: '0.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps cutoff values from a moderate threshold
+    to a strict threshold, explicitly mapping 0.2 to 'moderate' and 0.8 to 'strict'.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T10:07:33Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis maps 0.8 to strict
+  claim_id: c_9028fd31
+  context: T026... Explicitly map 0.2 to 'moderate' and 0.8 to 'strict'...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis maps 0.8 to 'strict'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:07:55Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Leave-one-country-out used for 3 countries
+  claim_id: c_edd9f091
+  context: 'T035... Rationale: With only 3 countries, leave-one-region-out (N=2 training)
+    is statistically invalid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The leave-one-country-out cross-validation interprets 'Region' as 'Country'
+    because there are only 3 countries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:08:39Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Fixed-Effects used instead of Mixed-Effects for 3 countries
+  claim_id: c_22a3c3ea
+  context: 'T023... Rationale: Mixed-Effects is statistically invalid for N=3 countries.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model choice is Fixed-Effects Regression (OLS with Country Dummies)
+    because Mixed-Effects is statistically invalid for N=3 countries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:08:59Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.14.6
+  claim_id: c_7b6d6a33
+  context: T002 Initialize Python 3.14.6 project with pinned dependencies...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.14.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:09:14Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: pandas version >= 2.0.0
+  claim_id: c_771c2a53
+  context: T002... (pandas>=2.0.0, numpy>=1.24.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pandas version 2.0.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:09:32Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: numpy version >= 1.24.0
+  claim_id: c_1a1a15a5
+  context: T002... (pandas>=2.0.0, numpy>=1.24.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires numpy version 1.24.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:09:51Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: scikit-learn version >= 1.3.0
+  claim_id: c_59160e14
+  context: T002... (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires scikit-learn version 1.3.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:10:06Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: statsmodels version >= 0.14.0
+  claim_id: c_25ec39db
+  context: T002... (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, statsmodels>=0.14.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires statsmodels version 0.14.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:10:23Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: geopandas version >= 0.13.0
+  claim_id: c_88e566f3
+  context: T002... (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, statsmodels>=0.14.0,
+    geopandas>=0.13.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires geopandas version 0.13.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:10:37Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: matplotlib version >= 3.7.0
+  claim_id: c_763cb745
+  context: T002... (geopandas>=0.13.0, matplotlib>=3.7.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires matplotlib version 3.7.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:10:51Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: seaborn version >= 0.12.0
+  claim_id: c_960ac762
+  context: T002... (matplotlib>=3.7.0, seaborn>=0.12.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires seaborn version 0.12.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:11:17Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: requests version >= 2.31.0
+  claim_id: c_10a9b93f
+  context: T002... (seaborn>=0.12.0, requests>=2.31.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires requests version 2.31.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:11:32Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: pyyaml version >= 6.0.0
+  claim_id: c_4bef6519
+  context: T002... (requests>=2.31.0, pyyaml>=6.0.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pyyaml version 6.0.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:11:56Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: LSMS data targets recent years
+  claim_id: c_3aee1f9a
+  context: T012... targeting Kenya, India, Vietnam (recent years)...
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P527: International Conference on Life System Modeling and Simulation,
+        LSMS 2017 - and - International Conference on Intelligent Computing for Sustainable
+        Energy and Environment, ICSEE 2017, Nanjing, China, September 22-24, 2017'
+      source_id: Q105700414
+      url: https://www.wikidata.org/wiki/Q105700414
+      value: '2017'
+    filled: true
+  kind: entity_fact
+  raw_text: The data pipeline targets recent years for LSMS data.
+  resolved_value: '2017'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T10:12:11Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Climate data gap interpolation limit is 3 months
+  claim_id: c_e2b3f0b9
+  context: "T013... using requests and nearest-neighbor spatial interpolation for\
+    \ gaps \u2264 3 months"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The climate data gap interpolation limit is 3 months.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:12:33Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Climate data matching uses 3-month pre-harvest mean
+  claim_id: c_e0bde0ed
+  context: T015... Match climate data using growing season average (3-month pre-harvest
+    mean) as the temporal window.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The climate data matching uses a 3-month pre-harvest mean as the temporal
+    window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:12:59Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Spatial interpolation uses WGS84 EPSG:4326
+  claim_id: c_b1cc8233
+  context: T015... using the WGS84 (EPSG:4326) CRS and Haversine formula...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The spatial interpolation uses the WGS84 (EPSG:4326) CRS.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:13:13Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Distance calculation uses Haversine formula
+  claim_id: c_7cad17e3
+  context: T015... using the WGS84 (EPSG:4326) CRS and Haversine formula for distance
+    calculation.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '6161.6'
+      source_id: Haversine formula
+      url: https://en.wikipedia.org/wiki/Haversine_formula
+      value: '6161.6'
+    filled: true
+  kind: entity_fact
+  raw_text: The distance calculation uses the Haversine formula.
+  resolved_value: '6161.6'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T10:13:25Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Sample dataset must contain 95% valid records
+  claim_id: c_d7a63d9a
+  context: "Independent Test: Execute code/data/pipeline.py and verify data/processed/merged_sample.parquet\
+    \ contains \u2265 95% valid records..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sample dataset must contain \u2265 95% valid records."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:13:25Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Mediation analysis uses Baron & Kenny approach
+  claim_id: c_7ba32232
+  context: T023... Implement mediation analysis (Baron & Kenny approach)...
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In 1986 Baron and Kenny introduced principles for detecting and evaluating
+        mediation in a system of linear equations. As of 2014 their paper was the
+        33rd most-cited of all time. That year Greenland and Robins introduced the
+        "exchangeability" approach to handling confounding by considering a counterfactual.
+        They proposed assessing what would have happened to the treatment group if
+        they had not received the treatment and comparing that outcome to that of
+        the control group. If they matched, confounding was said to be absent.
+      source_id: Causal model
+      url: https://en.wikipedia.org/wiki/Causal_model
+      value: 33rd
+    filled: true
+  kind: entity_fact
+  raw_text: The mediation analysis uses the Baron & Kenny approach.
+  resolved_value: 33rd
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T10:13:39Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Leave-one-country-out uses N=2 training
+  claim_id: c_547a5f08
+  context: T035... With only 3 countries, leave-one-region-out (N=2 training) is statistically
+    invalid.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The leave-one-country-out cross-validation uses N=2 training samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:14:12Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 0
+  canonical: Project initialized with Python version 3.14.6
+  claim_id: c_bb0359cf
+  context: 'Task T002: Initialize Python 3.14.6 project. Technical context mandate.'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.14.6 project with pinned dependencies.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T10:22:10Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: LSMS data downloaded for Kenya, India, and Vietnam
+  claim_id: c_842c1928
+  context: 'Phase 3: User Story 1 - Data Ingestion and Preprocessing. Implementation
+    for User Story 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LSMS_data_downloaded_for_Kenya,_India,_and_Vietnam
+  kind: entity_fact
+  raw_text: Implement LSMS downloader in code/data/download.py targeting Kenya, India,
+    Vietnam (recent years) with error handling for missing years
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:22:30Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Stratified sampling target of 5000 households per country
+  claim_id: c_af023936
+  context: 'Task T017: Implement stratified sampling in code/data/clean.py. Target
+    criteria for Kenya, India, and Vietnam.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target for stratified sampling: Aim for N \u2265 5000 households per\
+    \ country (Kenya, India, Vietnam) if data volume permits."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:22:30Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Sampling triggered if raw data size exceeds 7GB
+  claim_id: c_6b35b7d6
+  context: 'Task T017: Implement stratified sampling. Trigger condition based on file
+    size.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sampling_triggered_if_raw_data_size_exceeds_7GB
+  kind: entity_fact
+  raw_text: Apply stratified sampling to reduce size to fit RAM if sum of file sizes
+    in data/raw/ > 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:22:32Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Sampling applied if processing memory exceeds 7GB
+  claim_id: c_8050a592
+  context: 'Task T017: Implement stratified sampling. Hard cap condition based on
+    memory.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sampling_applied_if_processing_memory_exceeds_7GB
+  kind: entity_fact
+  raw_text: If raw data < 7GB but estimated processing memory > 7GB, apply sampling
+    to ensure the working set does not exceed a predefined memory threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:22:34Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: CSA Index formula includes Conservation Tillage, Crop Diversification,
+    Irrigation Efficiency, Digital Access, and Finance Access
+  claim_id: c_b8c3fd6c
+  context: 'Task T007b: Define CSA Index Formula in data-model.md. Definition of the
+    Primary Index.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CSA_Index_formula_includes_Conservation_Tillage,_Crop_Divers
+  kind: entity_fact
+  raw_text: 'CSA Index formula defined as: CSA_Index = w1*(Conservation Tillage) +
+    w2*(Crop Diversification) + w3*(Irrigation Efficiency) + w4*(Digital Access) +
+    w5*(Finance Access).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:23:01Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: CSA Index weights are equal at 0.2 or based on practice-specific intensity
+  claim_id: c_801aad35
+  context: 'Task T007b: Define CSA Index Formula. Specification of weighting strategy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Weights for the CSA Index are defined as equal (0.2 each) or practice-specific
+    intensity scores, normalized to [0, 1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:23:01Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Fixed-Effects Regression used for 3 countries due to Mixed-Effects invalidity
+  claim_id: c_725c7a01
+  context: 'Task T023: Implement Fixed-Effects Regression Model. Rationale for model
+    choice.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Model type is Fixed-Effects Regression (OLS with Country Dummies) because
+    Mixed-Effects is statistically invalid for N=3 countries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:23:01Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for more than 5 hypotheses
+  claim_id: c_cbd1076a
+  context: 'Task T025: Implement multiple hypothesis correction. Mandate for Bonferroni
+    method.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_for_more_than_5_hypotheses
+  kind: magnitude
+  raw_text: Implement multiple hypothesis correction using Bonferroni correction for
+    > 5 hypotheses to control family-wise error rate.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:23:24Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Leave-one-country-out used for 3 countries to ensure statistical validity
+  claim_id: c_79b2db61
+  context: 'Task T035: Implement leave-one-country-out cross-validation. Rationale
+    for region definition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Leave-one-country-out cross-validation is used because with only 3 countries,
+    leave-one-region-out (N=2 training) is statistically invalid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:23:56Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Data pipeline output must contain at least 95% valid records
+  claim_id: c_463f75d7
+  context: Independent Test for User Story 1. Verification criteria for the merged
+    sample.
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_output_must_contain_at_least_95%25_valid_records
+  kind: magnitude
+  raw_text: "Execute code/data/pipeline.py and verify data/processed/merged_sample.parquet\
+    \ contains \u2265 95% valid records."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-19T10:24:10Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: VIF threshold for flagging predictors is 5.0
+  claim_id: c_35c3e3d9
+  context: 'Task T024: Implement collinearity diagnostics. Threshold for Variance
+    Inflation Factor.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag predictors exceeding VIF > 5.0 (log warning, do not auto-exclude
+    mediators).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:24:11Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Model fitting retry triggered if time exceeds 6 hours
+  claim_id: c_743ff6fe
+  context: 'Task T023: Implement Fixed-Effects Regression Model. Timeout handling
+    logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If model fitting takes > 6 hours, log state and attempt a reduced-batch
+    retry.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:24:11Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Minimum sample size enforced during model retry
+  claim_id: c_2cb8adc3
+  context: 'Task T023: Implement Fixed-Effects Regression Model. Retry floor constraint.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_enforced_during_model_retry
+  kind: entity_fact
+  raw_text: Minimum sample size of households is enforced during retry logic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:24:31Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Maximum of 3 retries for model fitting
+  claim_id: c_c18b828b
+  context: 'Task T023: Implement Fixed-Effects Regression Model. Retry limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Maximum 3 retries allowed for model fitting timeout.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T10:24:44Z'

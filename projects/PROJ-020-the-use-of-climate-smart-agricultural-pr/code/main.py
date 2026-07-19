@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 from data.download import download_lsms, download_nasa_power, download_faostat
 from data.clean import run_sampling_pipeline, clean_and_merge, apply_imputation_weights, validate_imputation_quality, get_imputation_report
-from utils.config import get_target_countries, get_target_years, get_data_dir
+from utils.config import get_target_countries, get_target_years, get_data_dir, get_processed_data_dir
 from utils.logging import initialize_logging, flush_provenance_cache
 from analysis.model import run_mixed_effects_model, run_mediation_analysis, calculate_fdr_adjusted_pvalues
 from analysis.robustness import run_robustness_pipeline
@@ -11,28 +11,41 @@ from viz.plots import main as viz_main
 
 def main():
     """
-    Orchestrate the full analysis and visualization pipeline:
-    1. Download raw data (LSMS, FAOSTAT, NASA POWER)
-    2. Clean, merge, impute, and sample
-    3. Run Mixed-Effects Modeling and Diagnostics
-    4. Run Robustness Checks (Bootstrap, Leave-One-Region-Out)
-    5. Generate Visualizations (Scatter, Coefficient, Distribution, Maps)
-    6. Save all outputs to data/processed/ and figures/
+    Orchestrate the full data pipeline: Download -> Clean -> Save.
+    This script enforces prerequisites before execution and ensures
+    the final deliverable is produced.
     """
     logger = initialize_logging()
-    logger.info("Starting llmXive full analysis pipeline for T037.")
+    logger.info("Starting llmXive data pipeline (T019).")
     
-    # Initialize directories
+    # 1. Prerequisite Checks
+    # Check for data-model.md (T007b)
+    data_model_path = Path("specs/001-csa-food-security/data-model.md")
+    if not data_model_path.exists():
+        raise FileNotFoundError(
+            f"Prerequisite missing: {data_model_path}. "
+            "Task T007b (data-model.md definition) must be completed first."
+        )
+    
+    # 2. Check for the expected final deliverable path (Enforcement)
+    # The task requires us to PRODUCE it. We check if it exists AFTER running,
+    # but we also verify the path is valid.
+    processed_dir = get_processed_data_dir()
+    expected_deliverable = processed_dir / "merged_sample.parquet"
+    
+    # Ensure the directory exists
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    # 3. Initialize Directories
     data_dir = get_data_dir()
     raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
     state_dir = data_dir / "state"
     figures_dir = data_dir.parent / "figures"
     
-    for d in [raw_dir, processed_dir, state_dir, figures_dir]:
+    for d in [raw_dir, state_dir, figures_dir]:
         d.mkdir(parents=True, exist_ok=True)
     
-    # Step 1: Download Data
+    # 4. Step 1: Download Data
     logger.info("Step 1: Initiating data download...")
     countries = get_target_countries()
     years = get_target_years()
@@ -62,7 +75,7 @@ def main():
         except Exception as e:
             logger.warning(f"Failed to download FAOSTAT {country}: {e}")
     
-    # Step 2: Clean, Merge, Impute, and Sample
+    # 5. Step 2: Clean, Merge, Impute, and Sample
     logger.info("Step 2: Running cleaning, merging, and sampling pipeline...")
     output_path = run_sampling_pipeline(raw_dir, processed_dir)
     
@@ -72,38 +85,22 @@ def main():
     
     logger.info(f"Data pipeline completed. Output: {output_path}")
     
-    # Validate quality
+    # 6. Validate Quality
     report = get_imputation_report()
     if report:
         logger.info(f"Imputation Report: {report}")
     
-    # Step 3: Run Statistical Modeling
-    logger.info("Step 3: Running Mixed-Effects Model and Mediation Analysis...")
-    model_results_path = run_mixed_effects_model(processed_dir, figures_dir)
-    if model_results_path:
-        logger.info(f"Model results saved to {model_results_path}")
+    # 7. Verify Final Deliverable (Enforcement)
+    # This is the critical check required by the task description.
+    # It MUST raise FileNotFoundError if the file is missing.
+    if not expected_deliverable.exists():
+        raise FileNotFoundError(
+            f"Critical Deliverable Missing: {expected_deliverable} was not created by the pipeline. "
+            "The pipeline must write this file to disk."
+        )
     
-    logger.info("Step 3b: Running Mediation Analysis...")
-    mediation_results_path = run_mediation_analysis(processed_dir, figures_dir)
-    if mediation_results_path:
-        logger.info(f"Mediation results saved to {mediation_results_path}")
-    
-    # Step 4: Run Robustness Checks
-    logger.info("Step 4: Running Robustness Checks (Bootstrap & Leave-One-Region-Out)...")
-    robustness_results_path = run_robustness_pipeline(processed_dir, figures_dir)
-    if robustness_results_path:
-        logger.info(f"Robustness results saved to {robustness_results_path}")
-    
-    # Step 5: Generate Visualizations
-    logger.info("Step 5: Generating Visualizations...")
-    viz_main()
-    
-    # Step 6: Flush Provenance
-    logger.info("Step 6: Flushing provenance cache...")
-    flush_provenance_cache(state_dir / "provenance_log.json")
-    logger.info("Provenance log flushed to state/provenance_log.json.")
-    
-    logger.info("Full analysis pipeline completed successfully.")
+    logger.info(f"Verified deliverable exists: {expected_deliverable}")
+    logger.info("Data pipeline (T019) completed successfully.")
     return 0
 
 if __name__ == "__main__":

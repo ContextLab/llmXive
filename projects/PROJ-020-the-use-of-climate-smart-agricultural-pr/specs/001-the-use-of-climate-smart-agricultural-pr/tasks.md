@@ -45,7 +45,7 @@
 
 - [X] T001a [P] Create project directories: `code/`, `data/`, `tests/`, `specs/`
 - [X] T001b [P] Create `__init__.py` files in all `code/` sub-packages (`data/`, `analysis/`, `viz/`, `utils/`)
-- [X] T002 Initialize Python 3.14.6 project with pinned dependencies in `code/requirements.txt` (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, geopandas>=0.13.0, matplotlib>=3.7.0, seaborn>=0.12.0, requests>=2.31.0, pyyaml>=6.0.0). **Note: The Plan's Technical Context mandates a specific major version of Python as a verified fact.**
+- [X] T002 Initialize Python 3.14.6 project with pinned dependencies in `code/requirements.txt` (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, geopandas>=0.13.0, matplotlib>=3.7.0, seaborn>=0.12.0, requests>=2.31.0, pyyaml>=6.0.0). **Note: The Plan's Technical Context mandates a specific major version of Python as a verified fact. **
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
 
 ---
@@ -104,7 +104,7 @@
 - [X] T017 [US1] [FR-005] Implement **stratified sampling** in `code/data/clean.py`:
  - **Target**: Aim for N ≥ 5000 households **per country** (Kenya, India, Vietnam) if data volume permits.
  - **Trigger**: If sum of file sizes in `data/raw/` > 7GB, apply stratified sampling to reduce size to fit RAM.
- - **Hard Cap**: If raw data < 7GB but estimated processing memory > 7GB, apply sampling to ensure the working set does not exceed a predefined memory threshold.
+ - **Hard Cap**: If raw data < 7GB but estimated processing memory > 7GB, apply sampling to ensure the working set does not exceed a predefined memory threshold. [UNRESOLVED-CLAIM: c_8050a592 — status=not_enough_info]
  - **Else**: If raw data < 7GB and estimated processing memory <= 7GB, retain all data.
  - **Stratification Variables**: Country, Year, Region.
  - **Resilience**: If the target N ≥ 5000 cannot be met due to data scarcity (e.g., < 5000 available for a country), **log a warning** and **proceed with the available data**. **DO NOT raise a critical error.**
@@ -144,17 +144,17 @@
  - **Mediation**: Implement mediation analysis (Baron & Kenny approach) on the Fixed-Effects coefficients to test the indirect effects of digital/finance access (Constitution Principle VII).
  - **Language Constraint**: All findings MUST be framed as **associational**. Explicitly avoid causal language (e.g., "effect", "cause", "impact") in output summaries. Use "association", "correlation", "relationship".
  - **Weights**: Apply Inverse Probability Weighting (IPW) based on sampling fractions (calculated in T017 logic but applied here).
- - **Timeout Handling**: Implement internal retry logic: If model fitting takes > 6 hours, log state and attempt a reduced-batch retry.
-   - **First Retry**: Reduce sample size by **%**.
-   - **Second Retry**: Reduce sample size by a significant margin (from original).
-   - **Floor**: Minimum sample size of ** households**.
-   - **Max Retries**: Maximum 3 retries.
-   - If the retry also times out, **log a warning** and stop (do not retry indefinitely).
+ - **Timeout Handling**: Implement internal retry logic: If model fitting takes > 6 hours, log state and attempt a reduced-batch retry. [UNRESOLVED-CLAIM: c_743ff6fe — status=not_enough_info]
+ - **First Retry**: Reduce sample size by **%**.
+ - **Second Retry**: Reduce sample size by a significant margin (from original).
+ - **Floor**: Minimum sample size of ** households**.
+ - **Max Retries**: Maximum 3 retries.
+ - If the retry also times out, **log a warning** and stop (do not retry indefinitely).
  - **Dependency**: **Must run after T022 and T017**. **Enforcement**: Add a file existence check for `data/processed/merged_sample.parquet` and `data/processed/features.parquet`; raise FileNotFoundError if missing.
 
 - [X] T024 [US2] Implement collinearity diagnostics in `code/analysis/diagnostics.py`:
  - Calculate VIF for all predictors using the **Primary CSA Index** (with digital/finance).
- - Flag predictors exceeding VIF > 5.0 (log warning, do not auto-exclude mediators).
+ - Flag predictors exceeding VIF > 5.0 (log warning, do not auto-exclude mediators). [UNRESOLVED-CLAIM: c_35c3e3d9 — status=not_enough_info]
  - **Dependency**: **Must run after T022**.
  - **Parallel Opportunity**: T024 can run in parallel with T023 after T022 is complete. **Note**: T022 must be fully committed to disk before T023/T024 start.
 
@@ -187,19 +187,19 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T029 [P] [US3] Contract test for plot output files in `tests/contract/test_plot_outputs.py`
-- [ ] T030 [P] [US3] Integration test for robustness check execution in `tests/integration/test_robustness.py`
+- [X] T030 [P] [US3] Integration test for robustness check execution in `tests/integration/test_robustness.py`
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement scatter plot generation in `code/viz/plots.py` (CSA Index vs. Food Security) **(Must run after T022 and T023)**
-- [ ] T032 [US3] Implement coefficient plot generation in `code/viz/plots.py` (standardized coefficients with confidence intervals) **(Must run after T022 and T023)**
-- [ ] T033 [US3] [FR-008] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes **(Must run after T023)**
-- [ ] T034 [US3] Implement distribution plot generation in `code/viz/plots.py` **(Must run after T022 and T023)**
-- [ ] T035 [US3] [FR-009] Implement **leave-one-country-out** cross-validation in `code/analysis/robustness.py`:
+- [X] T031 [US3] Implement scatter plot generation in `code/viz/plots.py` (CSA Index vs. Food Security) **(Must run after T022 and T023)**
+- [X] T032 [US3] Implement coefficient plot generation in `code/viz/plots.py` (standardized coefficients with confidence intervals) **(Must run after T022 and T023)**
+- [X] T033 [US3] [FR-008] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes **(Must run after T023)** <!-- ATOMIZE: requested -->
+- [X] T034 [US3] Implement distribution plot generation in `code/viz/plots.py` **(Must run after T022 and T023)**
+- [X] T035 [US3] [FR-009] Implement **leave-one-country-out** cross-validation in `code/analysis/robustness.py`:
  - **Region Definition**: Administrative level 0 (Country). **Rationale**: With only 3 countries, leave-one-region-out (N=2 training) is statistically invalid. 'Region' is interpreted as 'Country' to satisfy the Spec's intent while ensuring statistical validity.
  - **Metric**: Log coefficient stability (standard deviation of estimates across folds).
  - **Dependency**: **Must run after T023**.
-- [ ] T036 [US3] [FR-009] Implement bootstrap resampling with a sufficient number of iterations in `code/analysis/robustness.py` to validate model stability and report variance estimates.
+- [X] T036 [US3] [FR-009] Implement bootstrap resampling with a sufficient number of iterations in `code/analysis/robustness.py` to validate model stability and report variance estimates.
 - [X] T037 [US3] [FR-004] Create `code/main.py` entry point extension to orchestrate the full analysis and viz pipeline (Model → Diagnostics → Robustness → Plots) and ensure all findings are framed as associational. **Enforcement**: Add file existence checks for `model_results.json` and `robustness_results.json`; raise FileNotFoundError if missing.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -321,7 +321,7 @@ With multiple developers:
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
 - [ ] T043 Reconcile run-book vs implementation for `code/ingestion.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/ingestion.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T044 Reconcile run-book vs implementation for `code/preprocessing.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/preprocessing.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T045 Reconcile run-book vs implementation for `code/modeling.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/modeling.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T044 Reconcile run-book vs implementation for `code/preprocessing.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/preprocessing.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T045 Reconcile run-book vs implementation for `code/modeling.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/modeling.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [ ] T046 Reconcile run-book vs implementation for `code/viz.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/viz.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [ ] T047 Reconcile run-book vs implementation for `code/verify_reproducibility.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/verify_reproducibility.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
