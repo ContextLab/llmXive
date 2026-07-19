@@ -42,6 +42,7 @@ import datetime as _dt
 import json
 import logging
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 from llmxive.agents.prompts import render_prompt
@@ -139,9 +140,9 @@ def classify(
     *,
     project_id: str | None,
     librarian_prompt_version: str,
-    model: str,
-    default_backend: str,
-    fallback_backends: list[str],
+    model: str = "openai.gpt-oss-120b",
+    default_backend: str = "dartmouth",
+    fallback_backends: Sequence[str] = ("local",),
     repo_root: Path | None = None,
 ) -> MathClassifierResult:
     """Decide whether ``question`` is a pure-math theorem/proof/formal-structure

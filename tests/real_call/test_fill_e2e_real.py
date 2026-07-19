@@ -86,7 +86,7 @@ def hermetic(tmp_path):
 class TestFillE2eReal:
     def test_validate_artifact_corrects_wrong_knot_count(self, hermetic, monkeypatch, tmp_path):
         """_validate_artifact_citations rewrites '27,635' → '9988' with fill enabled."""
-        backend, model = _make_backend_and_model()
+        backend, _model = _make_backend_and_model()
         if backend is None:
             pytest.skip("No Dartmouth API key configured")
 
@@ -97,7 +97,6 @@ class TestFillE2eReal:
         monkeypatch.setenv("LLMXIVE_GROUNDING_GUARD", "1")
 
         from llmxive.speckit.slash_command import SlashCommandContext, _validate_artifact_citations
-        from llmxive.types import BackendName
 
         project_id = "PROJ-552-knots-test"
         ctx = SlashCommandContext(
@@ -108,9 +107,7 @@ class TestFillE2eReal:
             inputs=[],
             expected_outputs=[relpath],
             prompt_template_path=Path("/dev/null"),
-            default_backend=BackendName.DARTMOUTH,
-            fallback_backends=[],
-            default_model=model,
+            profile="standard_generation",
             prompt_version="test",
             agent_name="test_fill_e2e",
         )
@@ -146,7 +143,7 @@ class TestFillE2eReal:
 
     def test_without_fill_flag_wrong_value_unmarked(self, tmp_path, monkeypatch):
         """Without LLMXIVE_CLAIM_FILL, artifact is processed but wrong value is NOT corrected by fill."""
-        backend, model = _make_backend_and_model()
+        backend, _model = _make_backend_and_model()
         if backend is None:
             pytest.skip("No Dartmouth API key configured")
 
@@ -156,7 +153,6 @@ class TestFillE2eReal:
         monkeypatch.delenv("LLMXIVE_CLAIM_FILL", raising=False)
 
         from llmxive.speckit.slash_command import SlashCommandContext, _validate_artifact_citations
-        from llmxive.types import BackendName
 
         project_id = "PROJ-552-knots-nofill"
         ctx = SlashCommandContext(
@@ -167,9 +163,7 @@ class TestFillE2eReal:
             inputs=[],
             expected_outputs=[relpath],
             prompt_template_path=Path("/dev/null"),
-            default_backend=BackendName.DARTMOUTH,
-            fallback_backends=[],
-            default_model=model,
+            profile="standard_generation",
             prompt_version="test",
             agent_name="test_fill_e2e_nofill",
         )

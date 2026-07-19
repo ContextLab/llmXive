@@ -1,8 +1,9 @@
 """Backend router (T020) — falls back through a chain on transient errors.
 
-The agent registry declares a default backend and an ordered list of
-fallback backends per agent. The router is configured per-call from
-those declarations.
+The agent registry declares a named capability ``profile`` per agent (spec 026
+US5); the router resolves that profile to a concrete, backend-diverse model
+chain per call via ``model_selection`` — there is no separate per-agent
+backend declaration to configure.
 """
 
 from __future__ import annotations
@@ -288,6 +289,7 @@ def _walker_route(
     max_tokens: int,
     temperature: float | None,
     overrides: RequirementOverrides | None = None,
+    profile: str = "standard_generation",
 ) -> ChatResponse:
     """Shared body for the retired instance-taking walkers (spec 026 slice 5):
     delegate to ``route_chat`` (select() → execute()), adapting the caller's
@@ -302,6 +304,10 @@ def _walker_route(
     ``overrides`` (spec 026 slice 6) forwards escalation constraints straight to
     ``route_chat``, which composes them on top of the profile's base requirement;
     ``None`` (the default) leaves every existing caller's behavior unchanged.
+    ``profile`` (spec 026 slice 7 / US5) is the named capability-requirement
+    profile a caller resolves from its ``AgentRegistryEntry.profile``; it
+    defaults to ``"standard_generation"`` — the slice-5 provisional constant —
+    so unmigrated callers keep their existing behavior.
 
     Outage-classification contract preserved: ``ModelUnavailable`` (ineligible /
     cold start) and ``ChainExhausted`` (transient/outage exhaustion) re-raise as
@@ -320,7 +326,7 @@ def _walker_route(
     try:
         return route_chat(
             messages,
-            profile="standard_generation",
+            profile=profile,
             caller_model=model,
             max_tokens=max_tokens,
             temperature=temperature,
@@ -342,6 +348,7 @@ def chat_with_model_fallback(
     max_tokens: int | None = None,
     temperature: float | None = None,
     overrides: RequirementOverrides | None = None,
+    profile: str = "standard_generation",
 ) -> ChatResponse:
     """Convergence-panel / reviser reasoning call on a GIVEN backend (spec 026
     slice 5): a thin wrapper over :func:`_walker_route` → ``route_chat`` (select()
@@ -352,12 +359,15 @@ def chat_with_model_fallback(
     candidates. The reasoning-safe :data:`REASONING_MAX_TOKENS` is the default
     when the caller doesn't pin one. ``overrides`` (spec 026 slice 6) forwards
     escalation constraints to ``route_chat``; ``None`` (default) is a no-op.
+    ``profile`` (spec 026 slice 7) selects the capability class; default
+    ``"standard_generation"`` preserves prior behavior for unmigrated callers.
     """
     return _walker_route(
         backend, messages, model=model,
         max_tokens=REASONING_MAX_TOKENS if max_tokens is None else max_tokens,
         temperature=temperature,
         overrides=overrides,
+        profile=profile,
     )
 
 
@@ -369,6 +379,7 @@ def reasoning_chat(
     max_tokens: int | None = None,
     temperature: float | None = None,
     overrides: RequirementOverrides | None = None,
+    profile: str = "standard_generation",
 ) -> ChatResponse:
     """THE single entry point for a reasoning/analysis LLM call (spec 026 slice 5):
     a thin wrapper over :func:`_walker_route` → ``route_chat``. Every
@@ -377,46 +388,55 @@ def reasoning_chat(
     overrides it (a generation-style caller passes :data:`GENERATION_MAX_TOKENS`).
     Use this — never call ``backend.chat`` directly (the centralization guard test
     enforces that). ``overrides`` (spec 026 slice 6) forwards escalation
-    constraints to ``route_chat``; ``None`` (default) is a no-op.
+    constraints to ``route_chat``; ``None`` (default) is a no-op. ``profile``
+    (spec 026 slice 7) selects the capability class for callers that resolve one
+    from an ``AgentRegistryEntry``; default ``"standard_generation"`` preserves
+    prior behavior for the many non-registry reasoning callers (claim/fill/
+    grounding/triage) that have no profile of their own.
     """
     return _walker_route(
         backend, messages, model=model,
         max_tokens=REASONING_MAX_TOKENS if max_tokens is None else max_tokens,
         temperature=temperature,
         overrides=overrides,
+        profile=profile,
     )
 
 
 def chat_with_fallback(
     messages: Iterable[ChatMessage],
     *,
-    default_backend: str,
-    fallback_backends: list[str],
-    model: str,
+    default_backend: str = "dartmouth",
+    fallback_backends: list[str] | None = None,
+    model: str | None = None,
     max_tokens: int | None = None,
     temperature: float | None = None,
     overrides: RequirementOverrides | None = None,
+    profile: str = "standard_generation",
 ) -> ChatResponse:
     """Registry-agent routing chokepoint (spec 026 slice 5): resolve the chain
     through model SELECTION and delegate to ``execute`` — no hand-walk of
     ``MODEL_FALLBACKS``, no backend-name loop.
 
     Delegates to :func:`llmxive.model_selection.route.route_chat`, which acquires
-    the real LKG-inclusive runtime snapshot, runs the pure ``select`` for the
-    ``standard_generation`` profile (the slice-5 provisional registry→profile
-    mapping; per-agent profiles are slice 7), promotes ``model`` to the front IFF
-    ``select`` kept it (never resurrecting an absent one), and hands the WHOLE
-    ``ModelChain`` to ``execute`` — which dispatches EACH candidate through its
-    own ``ModelRef.backend`` and does the paid reservation/settlement.
+    the real LKG-inclusive runtime snapshot, runs the pure ``select`` for
+    ``profile`` (spec 026 slice 7: the caller's real ``AgentRegistryEntry.profile``;
+    default ``"standard_generation"`` preserves the slice-5 provisional constant
+    for unmigrated callers), promotes ``model`` to the front IFF ``select`` kept
+    it (never resurrecting an absent one), and hands the WHOLE ``ModelChain`` to
+    ``execute`` — which dispatches EACH candidate through its own
+    ``ModelRef.backend`` and does the paid reservation/settlement.
 
     ``default_backend`` / ``fallback_backends`` are therefore REDUNDANT and
-    IGNORED: backend fallback is first-class in the selected chain (the local
-    candidate carries ``backend=="local"``), so there is no separate per-backend
-    walk to configure. ``model`` is the caller's pin (promoted, not a chain). If
-    `max_tokens` is None it defaults to the GENERATION budget (131072) — Spec Kit
-    agents emit large artifacts. ``overrides`` (spec 026 slice 6) forwards
-    escalation constraints straight to ``route_chat``; ``None`` (default) is a
-    no-op, leaving every existing caller's behavior unchanged.
+    IGNORED (kept only for source-compatibility with not-yet-migrated callers):
+    backend fallback is first-class in the selected chain (the local candidate
+    carries ``backend=="local"``), so there is no separate per-backend walk to
+    configure. ``model`` is the caller's pin (promoted, not a chain); ``None``
+    (default) selects purely from ``profile``. If `max_tokens` is None it
+    defaults to the GENERATION budget (131072) — Spec Kit agents emit large
+    artifacts. ``overrides`` (spec 026 slice 6) forwards escalation constraints
+    straight to ``route_chat``; ``None`` (default) is a no-op, leaving every
+    existing caller's behavior unchanged.
 
     Outage-classification contract (preserved): a fully-INELIGIBLE selection
     (cold start / all-stale → ``ModelUnavailable``) or a fully-EXHAUSTED chain
@@ -435,7 +455,7 @@ def chat_with_fallback(
     try:
         return route_chat(
             messages,
-            profile="standard_generation",
+            profile=profile,
             caller_model=model,
             max_tokens=max_tokens,
             temperature=temperature,

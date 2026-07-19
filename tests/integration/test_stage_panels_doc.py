@@ -29,7 +29,6 @@ import yaml
 from llmxive.convergence.types import Concern, Severity, Verdict
 from llmxive.speckit._stage_panel import StagePanelKickback
 from llmxive.speckit.slash_command import SlashCommandContext
-from llmxive.types import BackendName
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -97,9 +96,7 @@ def _ctx(project_id: str, project_dir: Path, agent_name: str) -> SlashCommandCon
         run_id="r", task_id="t",
         inputs=[], expected_outputs=[],
         prompt_template_path=project_dir / "ignored.md",
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[],
-        default_model="fake-model",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name=agent_name,
     )

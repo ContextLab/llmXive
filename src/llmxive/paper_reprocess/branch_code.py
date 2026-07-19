@@ -440,7 +440,7 @@ def _run_speckit_chain(project: Project, pdir: Path, repo_root: Path) -> str:
 
     def _ctx(agent_name: str) -> SlashCommandContext:
         # Mirror graph.py's SlashCommandContext construction exactly: pull
-        # backend/model/prompt fields straight off the registry entry.
+        # the profile/prompt fields straight off the registry entry.
         entry = registry_loader.get(agent_name, repo_root=repo_root)
         return SlashCommandContext(
             project_id=project.id,
@@ -450,9 +450,7 @@ def _run_speckit_chain(project: Project, pdir: Path, repo_root: Path) -> str:
             inputs=[],
             expected_outputs=[],
             prompt_template_path=repo_root / entry.prompt_path,
-            default_backend=entry.default_backend,
-            fallback_backends=entry.fallback_backends,
-            default_model=entry.default_model,
+            profile=entry.profile,
             prompt_version=entry.prompt_version,
             agent_name=entry.name,
         )

@@ -99,7 +99,6 @@ def _make_planner_ctx(tmp_path: Path):
     exactly as in a real repo.
     """
     from llmxive.speckit.slash_command import SlashCommandContext
-    from llmxive.types import BackendName
 
     proj_id = "PROJ-TEST-plan-revloop"
     proj_dir = tmp_path / "projects" / proj_id
@@ -129,8 +128,8 @@ def _make_planner_ctx(tmp_path: Path):
         project_id=proj_id, project_dir=proj_dir, run_id="r", task_id="t",
         inputs=[], expected_outputs=[],
         prompt_template_path=tmp_path / "ignored.md",
-        default_backend=BackendName.DARTMOUTH, fallback_backends=[],
-        default_model="m", prompt_version="1.0.0", agent_name="planner",
+        profile="standard_generation",
+        prompt_version="1.0.0", agent_name="planner",
     )
     # dataset_block="" so build_prompt skips the live dataset resolver.
     mech = {

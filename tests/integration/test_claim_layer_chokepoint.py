@@ -238,7 +238,6 @@ class TestChokepoint:
         """Build a minimal SlashCommandContext with a real backend."""
 
         from llmxive.speckit.slash_command import SlashCommandContext
-        from llmxive.types import BackendName
 
         return SlashCommandContext(
             project_id=project_id,
@@ -248,9 +247,7 @@ class TestChokepoint:
             inputs=[],
             expected_outputs=[],
             prompt_template_path=project_dir / "prompt.md",
-            default_backend=BackendName.DARTMOUTH,
-            fallback_backends=[],
-            default_model="gpt-4o-mini",
+            profile="standard_generation",
             prompt_version="test",
             agent_name="test_chokepoint",
         )

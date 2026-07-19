@@ -1062,8 +1062,15 @@ class LLMXiveImplementer(Agent):
         outcome = Outcome.SUCCESS
         failure_reason: str | None = None
         outputs: list[str] = []
-        backend_used = self.entry.default_backend
-        model_used = self.entry.default_model
+        # Placeholder values for the run-log entry if the call fails before a
+        # response is captured (overwritten below on success). The registry no
+        # longer pins a raw backend/model per agent (spec 026 US5); the real
+        # values are captured per-task by ``_process_task`` onto
+        # ``self._last_model_used`` / ``self._last_backend_used``.
+        backend_used = BackendName.DARTMOUTH
+        model_used = "unknown"
+        self._last_model_used: str | None = None
+        self._last_backend_used: str | None = None
         repo = _repo_root()
 
         try:
@@ -1171,7 +1178,8 @@ class LLMXiveImplementer(Agent):
                 # (collected from the run-log). This round's model is injected
                 # via `also` because its own run-log entry is not written yet.
                 metadata_path = paper_dir / "metadata.json"
-                this_model = self.entry.default_model
+                this_model = self._last_model_used or "unknown"
+                this_backend = self._last_backend_used or "dartmouth"
                 prior_models = {
                     a.model_name for a in authors_module.list_authors(metadata_path)
                     if a.kind == "llm" and a.model_name
@@ -1180,7 +1188,7 @@ class LLMXiveImplementer(Agent):
                     metadata_path,
                     project.id,
                     repo_root=repo,
-                    also=(this_model, self.entry.default_backend.value, ended),
+                    also=(this_model, this_backend, ended),
                 )
                 author_added = this_model not in prior_models
                 # Update LaTeX \author{} block.
@@ -1196,7 +1204,7 @@ class LLMXiveImplementer(Agent):
                         name=this_model,
                         kind="llm",
                         model_name=this_model,
-                        backend=self.entry.default_backend.value,
+                        backend=this_backend,
                         first_contributed_at=ended,
                     )
                 # Final recompile (FR-010). Compilation needs lualatex. When it
@@ -1238,11 +1246,11 @@ class LLMXiveImplementer(Agent):
                 revision_spec_path=str(project.revision_spec_path),
                 implementer_agent=CANONICAL_IMPLEMENTER_NAME,
                 agent_version=self.entry.prompt_version,
-                model_name=self.entry.default_model,
-                backend=self.entry.default_backend.value,
+                model_name=self._last_model_used or "unknown",
+                backend=self._last_backend_used or "dartmouth",
                 canonical_identity=(
-                    f"{CANONICAL_IMPLEMENTER_NAME} ({self.entry.default_model} on "
-                    f"{self.entry.default_backend.value}, {ended.strftime('%Y-%m-%d')})"
+                    f"{CANONICAL_IMPLEMENTER_NAME} ({self._last_model_used or 'unknown'} on "
+                    f"{self._last_backend_used or 'dartmouth'}, {ended.strftime('%Y-%m-%d')})"
                 ),
                 started_at=started,
                 ended_at=ended,
@@ -1709,11 +1717,15 @@ class LLMXiveImplementer(Agent):
                     ChatMessage(role="system", content=system_prompt),
                     ChatMessage(role="user", content=edit_prompt),
                 ],
-                default_backend=self.entry.default_backend.value,
-                fallback_backends=[b.value for b in self.entry.fallback_backends],
-                model=self.entry.default_model,
+                profile=self.entry.profile,
             )
             response_text = response.text or ""
+            # Track the REAL model/backend that answered (spec 026 US5: the
+            # registry no longer pins a raw model id, so authorship/log
+            # attribution uses the actual response instead of a static
+            # per-agent default).
+            self._last_model_used = response.model
+            self._last_backend_used = response.backend
         except Exception as exc:
             return ImplementerLogEntry(
                 task_id=task_id,

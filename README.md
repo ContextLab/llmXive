@@ -183,18 +183,20 @@ All inference runs free-first on Dartmouth's
 [Discovery cluster](https://rc.dartmouth.edu/ai/computing-resources/discovery-cluster/)
 (primary) with local [transformers](https://huggingface.co/docs/transformers)
 (open-weight Hugging Face models, no API token) as a backend fallback.
-Every agent defaults to **Qwen 3.5 122B** (registry id `qwen.qwen3.5-122b`), a
-capable free reasoning model on the Dartmouth catalog. When a model's endpoint
-flaps, the router walks free same-backend peers first — **Gemma 3 27B**
-(`google.gemma-3-27b-it`, fast) then **GPT-OSS 120B** (`openai.gpt-oss-120b`,
-reasoning) — and only as a last resort, when every free model is unavailable,
-the guarded paid model **Claude Haiku 4.5** (`anthropic.claude-haiku-4-5-20251001`).
-That paid fallback is off unless `LLMXIVE_PAID_OPT_IN` is set and is hard-capped
-by the Dartmouth daily credit budget (~$2/day, auto-renewing) via the guard in
+Each agent in [`agents/registry.yaml`](agents/registry.yaml) declares a named
+capability **profile** (`cheap_structured`, `standard_generation`,
+`deep_review`, `deep_code`, `vision`, `independent_review`) rather than a raw
+model id; [`model_selection/profiles.py`](src/llmxive/model_selection/profiles.py)
+resolves each profile against the live Dartmouth model catalog at call time
+into a free-first, backend-diverse model chain (e.g. **Qwen 3.5 122B** →
+**Gemma 3 27B** → **GPT-OSS 120B** for a standard reasoning call), so a single
+model's endpoint flapping never strands an agent. Only as a last resort, when
+every free candidate is unavailable, does the chain reach the guarded paid
+model **Claude Haiku 4.5** (`anthropic.claude-haiku-4-5-20251001`). That paid
+fallback is off unless `LLMXIVE_PAID_OPT_IN` is set and is hard-capped by the
+Dartmouth daily credit budget (~$2/day, auto-renewing) via the guard in
 [`backends/credits.py`](src/llmxive/backends/credits.py), so it costs $0 and
-free models are always tried first (Constitution Principle IV — free-first). The
-single source of truth for per-agent model assignments is
-[`agents/registry.yaml`](agents/registry.yaml).
+free models are always tried first (Constitution Principle IV — free-first).
 
 **GPU-bound analyses** (8-bit `bitsandbytes` inference, CUDA kernels, large-RAM
 jobs) that cannot run on the free CPU-only GitHub Actions runner are not parked.

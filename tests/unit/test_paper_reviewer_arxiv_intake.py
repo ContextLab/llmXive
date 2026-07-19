@@ -536,7 +536,7 @@ class TestMixedAuthorsByline:
         assert author_display_name(None) == ""
 
     def _agent_for(self, tmp_path: Path, monkeypatch, project_id: str):
-        from dataclasses import dataclass, field
+        from dataclasses import dataclass
 
         from llmxive.agents.base import AgentContext
         from llmxive.agents.paper_reviewer import PaperReviewerAgent
@@ -550,9 +550,7 @@ class TestMixedAuthorsByline:
             name: str = "paper_reviewer_writing_quality"
             prompt_version: str = "1.1.0"
             prompt_path: str | None = None
-            default_backend: object = None
-            default_model: str | None = None
-            fallback_backends: list = field(default_factory=list)
+            profile: str = "deep_review"
 
         agent = object.__new__(PaperReviewerAgent)
         agent.entry = _E()

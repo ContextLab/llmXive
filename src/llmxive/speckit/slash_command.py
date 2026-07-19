@@ -56,9 +56,12 @@ class SlashCommandContext:
     inputs: list[str]
     expected_outputs: list[str]
     prompt_template_path: Path
-    default_backend: BackendName
-    fallback_backends: list[BackendName]
-    default_model: str
+    #: Named capability-requirement profile (spec 026 FR-012), replacing the
+    #: raw default_backend/fallback_backends/default_model triple (US5).
+    #: Task 6 migrates this context's consumers to resolve a model chain
+    #: from the profile via model_selection; this task only carries the
+    #: field through construction.
+    profile: str
     prompt_version: str
     agent_name: str
     #: Spec 026 slice 6 escalation constraints, threaded ALONGSIDE ``model=``
@@ -115,8 +118,13 @@ class SlashCommandAgent(abc.ABC):
         outcome = Outcome.SUCCESS
         failure_reason: str | None = None
         outputs: list[str] = []
-        backend_used: BackendName = ctx.default_backend
-        model_used: str = ctx.default_model
+        # Placeholder values for the run-log entry if the call fails before a
+        # response is captured (overwritten below on success). The registry no
+        # longer pins a raw backend/model per agent (spec 026 US5 — routing is
+        # profile-driven); ``dartmouth`` is the platform's sole live serving
+        # backend today.
+        backend_used: BackendName = BackendName.DARTMOUTH
+        model_used: str = "unknown"
         # Spec 011 inspection-hook locals — initialized so the finally block
         # can capture even when build_prompt or chat_with_fallback raises.
         messages: list[ChatMessage] = []
@@ -127,9 +135,7 @@ class SlashCommandAgent(abc.ABC):
             messages = self.build_prompt(ctx, mechanical_output)
             llm_response = chat_with_fallback(
                 messages,
-                default_backend=ctx.default_backend.value,
-                fallback_backends=[b.value for b in ctx.fallback_backends],
-                model=ctx.default_model,
+                profile=ctx.profile,
                 overrides=ctx.requirement_overrides,
             )
             backend_used = BackendName(llm_response.backend)
@@ -304,21 +310,23 @@ def _validate_artifact_citations(
 
         # T019 / FR-016: run the claim layer AFTER the F-18 citation pass.
         # Requires a backend (LLM extraction) — skip gracefully on maintenance
-        # paths where ctx has no backend (e.g. dispatch-only callers).
-        _backend = getattr(ctx, "default_backend", None)
-        if _backend is None:
+        # paths where ctx has no profile (e.g. dispatch-only callers). Claim
+        # extraction/resolution is not the WRITING agent's own capability
+        # profile (spec 026 US5) — it always serves off ``dartmouth`` with no
+        # model pin, same as before this registry migration.
+        if getattr(ctx, "profile", None) is None:
             continue
         try:
             from llmxive.backends.router import make_backend
             from llmxive.claims.service import process_document
 
-            backend_obj = make_backend(_backend.value if hasattr(_backend, "value") else str(_backend))
+            backend_obj = make_backend("dartmouth")
             rendered, _claims, gate_report = process_document(
                 text,
                 artifact_path=relpath,
                 project_id=ctx.project_id,
                 backend=backend_obj,
-                model=ctx.default_model,
+                model=None,
                 repo_root=repo,
                 stage_label=stage_label,
             )

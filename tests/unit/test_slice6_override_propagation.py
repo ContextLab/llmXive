@@ -36,7 +36,7 @@ from llmxive.speckit._stage_panel import StagePanelEscalation as _DispatchEscala
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 from llmxive.state import execution_status as es
 from llmxive.state import project as project_store
-from llmxive.types import BackendName, Project, Stage
+from llmxive.types import Project, Stage
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -94,9 +94,7 @@ def _min_ctx(*, requirement_overrides) -> SlashCommandContext:
         inputs=[],
         expected_outputs=[],
         prompt_template_path=Path("/tmp/x.md"),
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[],
-        default_model="m",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name="a",
         requirement_overrides=requirement_overrides,
@@ -350,15 +348,10 @@ def test_tasker_bridge_default_overrides_none(monkeypatch):
 # any further routing machinery, so each test exercises ONLY the
 # dispatch-construction code path under test.
 
-_DISPATCH_DEFAULT_MODEL = "openai.gpt-oss-120b"
-
-
 def _dispatch_stub_entry(name: str) -> SimpleNamespace:
     return SimpleNamespace(
         prompt_path=Path("prompts/x.md"),
-        default_backend="dartmouth",
-        fallback_backends=[],
-        default_model=_DISPATCH_DEFAULT_MODEL,
+        profile="standard_generation",
         prompt_version="1.0.0",
         name=name,
     )
@@ -431,7 +424,7 @@ def test_dispatch_sets_tier1_overrides_matching_execution_status(
     assert ctx.requirement_overrides.allow_paid is False
     assert ctx.requirement_overrides.exclude_leader is True
     assert ctx.requirement_overrides.exclude_models == frozenset()
-    assert ctx.default_model == _DISPATCH_DEFAULT_MODEL  # registered default untouched
+    assert ctx.profile == "standard_generation"  # registered profile untouched
 
 
 @pytest.mark.parametrize(

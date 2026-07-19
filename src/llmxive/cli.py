@@ -273,7 +273,7 @@ def _cmd_agents_run(args: argparse.Namespace) -> int:
     if args.dry_run:
         print(
             f"[agents run --dry-run] would invoke {entry.name} on {args.project} "
-            f"(backend={entry.default_backend.value}, model={entry.default_model})"
+            f"(profile={entry.profile})"
         )
         return 0
     # Real invocation is wired per user story; until then this is a no-op
@@ -502,12 +502,10 @@ def _cmd_brainstorm(args: argparse.Namespace) -> int:
                     ChatMessage(role="system", content=system),
                     ChatMessage(role="user", content=user),
                 ],
-                default_backend=entry.default_backend.value,
-                fallback_backends=[b.value for b in entry.fallback_backends],
-                model=entry.default_model,
+                profile=entry.profile,
             )
             body = response.text.strip()
-            model_used = response.model or entry.default_model
+            model_used = response.model
         except Exception as exc:
             print(f"[brainstorm] LLM call failed ({exc!r}); skipping seed {i+1}", file=sys.stderr)
             continue

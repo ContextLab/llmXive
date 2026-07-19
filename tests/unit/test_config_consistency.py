@@ -7,28 +7,30 @@ Constitution VI convergence), plus "points threshold" prose surviving in
 live website-generation code. These tests pin the reconciled state so the
 contradictions cannot silently return:
 
-  1. ``agents/registry.yaml`` remains the single model-config source of
-     truth, and every model it names is in the known-free set unless the
-     agent explicitly sets ``paid_opt_in: true``.
-  2. The legacy config files stay deleted.
-  3. Point-system language stays out of live code and user-facing docs.
-  4. README model prose matches the registry (no drift like the
-     "Gemma 3 27B" vs ``google.gemma-4-31B-it`` discrepancy).
+  1. The legacy config files stay deleted.
+  2. Point-system language stays out of live code and user-facing docs.
+
+Spec 026 US5 (slice 7) retired ``agents/registry.yaml``'s per-agent
+``default_model`` field in favor of a named capability ``profile``; the
+Constitution IV free-first / guarded-paid-fallback guarantee this file used
+to check against raw registry model ids is now enforced (and exhaustively
+tested) one layer down, in ``model_selection`` — see
+``tests/unit/test_model_selection_select.py`` (free-before-paid ordering,
+paid-opt-in gating, credit-headroom checks) and
+``tests/unit/test_profile_schema.py`` (every agent carries a canonical
+profile; ``paid_opt_in`` defaults false). ``test_model_fallback_chains_are_free``
+below is independent of the registry (it checks ``MODEL_FALLBACKS`` itself)
+and stays.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
-
 from llmxive.backends.dartmouth import KNOWN_FREE_MODELS
 from llmxive.backends.router import MODEL_FALLBACKS
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-
-#: Registry sentinel for scaffolding agents that make no LLM calls.
-NO_LLM = "deterministic-no-llm"
 
 #: Phrases of the abolished point system that must not reappear in live
 #: code or user-facing text (spec 015 / Constitution VI).
@@ -37,41 +39,6 @@ BANNED_PHRASES = (
     "Human reviews count double",
     "review_points_threshold",
 )
-
-#: Paid frontier-model name fragments that must never appear as a
-#: configured model for a free agent (Constitution IV).
-PAID_MODEL_FRAGMENTS = ("claude", "gpt-4", "gpt-5", "gemini-")
-
-
-def _registry() -> dict:
-    return yaml.safe_load(
-        (REPO_ROOT / "agents" / "registry.yaml").read_text(encoding="utf-8")
-    )
-
-
-def _registry_models() -> set[str]:
-    models: set[str] = set()
-    for agent in _registry()["agents"]:
-        models.add(agent["default_model"])
-    return models - {NO_LLM}
-
-
-def test_registry_models_are_free_unless_paid_opt_in():
-    for agent in _registry()["agents"]:
-        model = agent["default_model"]
-        if agent.get("paid_opt_in", False):
-            continue  # explicit opt-in is the only sanctioned paid path
-        if model == NO_LLM:
-            continue
-        assert model in KNOWN_FREE_MODELS, (
-            f"agent {agent['name']!r} configures {model!r}, which is not in "
-            f"the known-free model set, without paid_opt_in: true "
-            f"(Constitution IV)"
-        )
-        lowered = model.lower()
-        assert not any(frag in lowered for frag in PAID_MODEL_FRAGMENTS), (
-            f"agent {agent['name']!r} names paid-looking model {model!r}"
-        )
 
 
 def test_model_fallback_chains_are_free():
@@ -90,14 +57,6 @@ def test_model_fallback_chains_are_free():
             assert model in allowed, (
                 f"MODEL_FALLBACKS references non-free, non-sanctioned model {model!r}"
             )
-
-
-def test_every_llm_registry_model_has_a_fallback_chain():
-    missing = _registry_models() - set(MODEL_FALLBACKS)
-    assert not missing, (
-        f"registry models with no peer-fallback chain (a single vLLM outage "
-        f"would strand these agents): {sorted(missing)}"
-    )
 
 
 def test_legacy_pipeline_config_stays_deleted():
@@ -129,13 +88,3 @@ def test_no_point_system_language_in_live_code_or_docs():
         "abolished point-system language found (spec 015 / Constitution VI): "
         + "; ".join(offenders)
     )
-
-
-def test_readme_model_names_match_registry():
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
-    for model in sorted(_registry_models()):
-        assert model in readme, (
-            f"README 'Models & cost' section must name registry model "
-            f"{model!r} verbatim so prose cannot drift from config "
-            f"(issue #294: 'Gemma 3 27B' vs google.gemma-4-31B-it)"
-        )

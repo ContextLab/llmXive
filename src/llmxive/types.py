@@ -686,6 +686,22 @@ class BackendEntry(_Strict):
     is_paid: Literal[False]  # v1 invariant: Constitution Principle IV
 
 
+#: The canonical requirement-profile names (spec 026 FR-012) plus the no-LLM
+#: sentinel. Declared as a Literal HERE rather than imported from
+#: llmxive.model_selection.profiles, because a runtime import would cycle
+#: (model_selection/__init__ -> execute -> backends.router -> llmxive.types).
+#: tests/unit/test_profile_schema.py asserts this stays in sync with PROFILES.
+ProfileName = Literal[
+    "cheap_structured",
+    "standard_generation",
+    "deep_review",
+    "deep_code",
+    "vision",
+    "independent_review",
+    "deterministic-no-llm",
+]
+
+
 class AgentRegistryEntry(_Strict):
     name: SnakeNameField
     purpose: str = Field(min_length=10, max_length=200)
@@ -693,16 +709,17 @@ class AgentRegistryEntry(_Strict):
     outputs: list[ArtifactKind] = Field(default_factory=list)
     prompt_path: Annotated[str, Field(pattern=PROMPT_PATH_RE.pattern)]
     prompt_version: SemverField
-    default_backend: BackendName
-    fallback_backends: list[BackendName] = Field(default_factory=list)
-    default_model: str = Field(min_length=1)
+    profile: ProfileName
     tools: list[SnakeNameField] = Field(default_factory=list)
     wall_clock_budget_seconds: int = Field(ge=30, le=1800)
-    # Default False (Constitution Principle IV free-first). True is
-    # sanctioned ONLY via the credit-managed Dartmouth daily-budget path
-    # (issue #295; runtime-gated by LLMXIVE_PAID_OPT_IN + the live credit
-    # cap in backends/credits.py) and requires written justification in
-    # the introducing PR.
+    # Default False (Constitution Principle IV free-first). True permits this
+    # agent to configure a paid-PREFERRING default/profile, and is sanctioned
+    # ONLY via the credit-managed Dartmouth daily-budget path (issue #295;
+    # runtime-gated by LLMXIVE_PAID_OPT_IN + the live credit cap in
+    # backends/credits.py), requiring written justification in the introducing
+    # PR. It does NOT gate the platform's guarded paid FALLBACK: that tail is
+    # governed process-wide by the credit guard (spec 026 SC-007(b)), exactly as
+    # the legacy MODEL_FALLBACKS chain was.
     paid_opt_in: bool = False
 
 
@@ -941,6 +958,7 @@ __all__ = [
     "ImplementerStatus",
     "Lock",
     "Outcome",
+    "ProfileName",
     "Project",
     "Publication",
     "ReviewRecord",

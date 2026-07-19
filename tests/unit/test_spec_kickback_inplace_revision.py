@@ -40,7 +40,7 @@ from llmxive.speckit.paper_specify_cmd import PaperSpecifierAgent
 from llmxive.speckit.slash_command import SlashCommandContext
 from llmxive.speckit.specify_cmd import SpecifierAgent
 from llmxive.state import project as project_store
-from llmxive.types import BackendName, Project, Stage
+from llmxive.types import Project, Stage
 
 _SPEC_BODY = (
     "# Feature Specification: Knot Diagram Complexity\n\n"
@@ -57,9 +57,7 @@ def _ctx(project_id: str, project_dir: Path, *, agent_name: str) -> SlashCommand
         inputs=[],
         expected_outputs=[],
         prompt_template_path=project_dir / "ignored.md",
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[],
-        default_model="m",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name=agent_name,
     )

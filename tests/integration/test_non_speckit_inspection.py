@@ -15,14 +15,13 @@ Verifies the new ``_capture_non_speckit_inspection`` hook in
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
 
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.backends.base import ChatMessage, ChatResponse, ImagePart, TextPart
-from llmxive.types import BackendName
 
 # --- Test doubles ---------------------------------------------------------
 
@@ -33,9 +32,7 @@ class _FakeRegistryEntry:
 
     name: str = "fake_test_agent"
     prompt_version: str = "1.0.0"
-    default_model: str = "fake-model"
-    default_backend: BackendName = BackendName.DARTMOUTH
-    fallback_backends: list[BackendName] = field(default_factory=list)
+    profile: str = "standard_generation"
 
 
 class _FakeAgent(Agent):

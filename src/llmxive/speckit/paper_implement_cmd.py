@@ -254,7 +254,7 @@ class PaperImplementerAgent(SlashCommandAgent):
         from llmxive.convergence.reviewspecs import build_paper_implement_reviewspec
 
         try:
-            backend = make_backend(ctx.default_backend.value)
+            backend = make_backend("dartmouth")
         except Exception:
             backend = None
 
@@ -296,7 +296,6 @@ class PaperImplementerAgent(SlashCommandAgent):
                 backend=backend,
                 repo_root=repo,
                 project_id=ctx.project_id,
-                model=ctx.default_model,
                 requirement_overrides=ctx.requirement_overrides,
             )
             result = run_convergence(

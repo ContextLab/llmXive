@@ -33,10 +33,9 @@ def test_build_prompt_injects_verified_datasets(tmp_path, monkeypatch):
     (proj / ".specify" / "templates" / "plan-template.md").write_text("# Plan template\n")
 
     from llmxive.speckit.slash_command import SlashCommandContext
-    from llmxive.types import BackendName
     ctx = SlashCommandContext(project_id="PROJ-X", project_dir=proj, run_id="r", task_id="t",
         inputs=[], expected_outputs=[], prompt_template_path=tmp_path / "x.md",
-        default_backend=BackendName.DARTMOUTH, fallback_backends=[], default_model="m",
+        profile="standard_generation",
         prompt_version="1.0.0", agent_name="planner")
     mech = {"feature_dir": str(fdir), "spec_path": str(fdir / "spec.md")}
 

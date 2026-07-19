@@ -762,8 +762,8 @@ def run_one_step(
         # → RequirementOverrides) threaded onto ``SlashCommandContext.
         # requirement_overrides`` (Task 6 forwards it into ``chat_with_fallback``
         # and the panel/reviser review-spec builders), never a model-id override
-        # projected onto ``ctx.default_model`` — the registered default always
-        # flows through unchanged; the escalated tier narrows the ROUTER's choice.
+        # projected onto ``ctx.profile`` — the registered profile always flows
+        # through unchanged; the escalated tier narrows the ROUTER's choice.
         _req_overrides = None
         _exec_fix = agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS
         _panel_stage = project.current_stage in _STAGE_PANEL_LABEL
@@ -785,9 +785,7 @@ def run_one_step(
                 inputs=[],
                 expected_outputs=[],
                 prompt_template_path=repo / entry.prompt_path,
-                default_backend=entry.default_backend,
-                fallback_backends=entry.fallback_backends,
-                default_model=entry.default_model,
+                profile=entry.profile,
                 prompt_version=entry.prompt_version,
                 agent_name=entry.name,
                 requirement_overrides=_req_overrides,

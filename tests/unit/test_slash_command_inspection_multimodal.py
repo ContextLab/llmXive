@@ -29,9 +29,7 @@ def _ctx(spec_root: Path) -> SlashCommandContext:
         inputs=[],
         expected_outputs=[],
         prompt_template_path=Path("agents/prompts/fake.md"),
-        default_backend=BackendName.DARTMOUTH,
-        fallback_backends=[],
-        default_model="fake-model",
+        profile="standard_generation",
         prompt_version="1.0.0",
         agent_name="fake_speckit_agent",
     )

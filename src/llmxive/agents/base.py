@@ -1,7 +1,7 @@
 """Agent base class (T023).
 
 Every agent in agents/registry.yaml extends Agent. The base class
-declares input/output artifact types, default backend, fallback chain,
+declares input/output artifact types, capability profile (spec 026 US5),
 prompt path, prompt version, wall-clock budget, and emits a run-log
 entry on every invocation.
 
@@ -134,8 +134,13 @@ class Agent(abc.ABC):
         outcome = Outcome.SUCCESS
         failure_reason: str | None = None
         outputs: list[str] = []
-        backend_used = self.entry.default_backend
-        model_used = self.entry.default_model
+        # Placeholder values for the run-log entry if the call fails before a
+        # response is captured (overwritten below on success). The registry no
+        # longer pins a raw backend/model per agent (spec 026 US5 — routing is
+        # profile-driven); ``dartmouth`` is the platform's sole live serving
+        # backend today.
+        backend_used = BackendName.DARTMOUTH
+        model_used = "unknown"
         # Spec 015 T080: capture verbatim I/O for inspection-record audit
         # when LLMXIVE_INSPECTION_DIR is set. Mirrors the speckit
         # SlashCommandAgent's inspection-capture flow so flesh_out /
@@ -151,9 +156,7 @@ class Agent(abc.ABC):
             for attempt in range(MAX_MALFORMED_RESPONSE_RETRIES + 1):
                 response = chat_with_fallback(
                     attempt_messages,
-                    default_backend=self.entry.default_backend.value,
-                    fallback_backends=[b.value for b in self.entry.fallback_backends],
-                    model=self.entry.default_model,
+                    profile=self.entry.profile,
                     temperature=self.chat_temperature,
                     max_tokens=self.chat_max_tokens,
                 )

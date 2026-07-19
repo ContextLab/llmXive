@@ -1160,9 +1160,9 @@ def _call_llm_for_persona(persona: Personality, catalog: list[CatalogEntry],
                           repo_root: Path, *, extra_hint: str | None = None) -> str:
     """One LLM call per tick. Returns the raw response text.
 
-    Uses the existing chat_with_fallback router with the personality
-    agent's registry entry (default_backend=dartmouth, model=openai.gpt-oss-120b,
-    no fallback_backends for the persona role — see registry entry in T002).
+    Uses the existing chat_with_fallback router with the personality agent's
+    registry entry (spec 026 US5: routed by its named capability ``profile``,
+    "standard_generation" — see registry entry in T002).
 
     ``extra_hint`` (spec 009 FR-004 retry path): when present, an additional
     coaching instruction appended to the user prompt. Used by the rubric gate
@@ -1195,9 +1195,7 @@ def _call_llm_for_persona(persona: Personality, catalog: list[CatalogEntry],
     )
     response = chat_with_fallback(
         [ChatMessage(role="user", content=user_content)],
-        default_backend=entry.default_backend.value,
-        fallback_backends=[b.value for b in (entry.fallback_backends or [])],
-        model=entry.default_model,
+        profile=entry.profile,
         max_tokens=8192,
         temperature=0.7,
     )
