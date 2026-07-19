@@ -1,59 +1,120 @@
-# Architecture Overview
+# Architecture Documentation
 
-## System Design
+## High-Level Design
 
-The research pipeline is designed as a modular, stage-based workflow. Each stage is an independent Python script that produces specific artifacts consumed by subsequent stages.
+The project follows a linear pipeline architecture with clear separation of concerns:
 
-### Data Flow
+1. **Data Acquisition Layer**: Downloads and validates raw datasets
+2. **Generation Layer**: Produces code samples using LLMs
+3. **Analysis Layer**: Computes metrics from generated code
+4. **Statistical Layer**: Performs hypothesis testing
+5. **Reporting Layer**: Generates visualizations and documentation
 
-1. **Input**: Raw HumanEval dataset (downloaded from HuggingFace).
-2. **Processing**:
- - **Generation**: LLM generates code for each task.
- - **Analysis**: Static analysis and test execution compute metrics.
- - **Statistics**: Hypothesis testing on aggregated metrics.
-3. **Output**: `metrics.json`, statistical results, and `results_report.md`.
+## Module Responsibilities
 
-### Component Interaction
+### `code/download_data.py`
+- Downloads HumanEval dataset from HuggingFace
+- Verifies SHA256 checksums
+- Performs stratified sampling based on human pass-rate quartiles
+- Outputs: `data/raw/humaneval.json`
 
-```mermaid
-graph TD
-A[download_data.py] -->|HumanEval JSON| B(generate_code.py)
-B -->|Generated Code| C(analyze_metrics.py)
-C -->|metrics.json| D(statistical_tests.py)
-D -->|Statistical Results| E(report_generator.py)
-E -->|Final Report| F[results_report.md]
+### `code/generate_code.py`
+- Loads `Salesforce/codegen-mono-350M` model
+- Generates code completions for HumanEval tasks
+- Implements 3-retry logic for failed generations
+- Supports sensitivity analysis with CodeLlama models
+- Outputs: `data/generated/code_samples.json`
 
-G[utils.py] -.-> A
-G -.-> B
-G -.-> C
-G -.-> D
-G -.-> E
+### `code/analyze_metrics.py`
+- Computes Cyclomatic Complexity via `radon`
+- Computes Halstead Volume via `radon`
+- Executes pytest for pass rate determination
+- Executes pytest --cov for branch coverage
+- Handles execution failures gracefully (records `[deferred]`)
+- Outputs: `data/analysis/metrics.json`
 
-H[artifact_manager.py] -.-> A
-H -.-> C
-H -.-> E
+### `code/statistical_tests.py`
+- Wilcoxon Signed-Rank Test for continuous metrics
+- McNemar's Test for binary pass rates
+- Fisher's Exact Test for exploratory unpaired checks
+- Permutation Test for paired coverage data
+- A priori and post-hoc power analysis
+- Outputs: `data/analysis/statistical_results.json`
+
+### `code/report_generator.py`
+- Generates histograms and boxplots via `matplotlib`
+- Compiles Jinja2 template into Markdown report
+- Includes sensitivity analysis comparisons
+- Outputs: `results_report.md`, `results/figures/*.png`
+
+### `code/utils.py`
+- Centralized logging with task ID tracking
+- SHA256 checksum computation and verification
+- Utility functions for directory management
+
+### `code/artifact_manager.py`
+- Tracks artifact hashes in `state/artifact_hashes.yaml`
+- Ensures data integrity across pipeline runs
+- Implements versioned artifact storage
+
+## Data Flow
+
 ```
+[HumanEval] → download_data.py → [Raw Data]
+ ↓
+ stratified_sample()
+ ↓
+ [Sampled Tasks]
+ ↓
+ generate_code.py
+ ↓
+ [Generated Code]
+ ↓
+ analyze_metrics.py
+ ↓
+ [Metrics JSON]
+ ↓
+ statistical_tests.py
+ ↓
+ [Statistical Results]
+ ↓
+ report_generator.py
+ ↓
+ [Final Report + Figures]
+```
+
+## State Management
+
+The `state/` directory tracks:
+- `artifact_hashes.yaml`: SHA256 hashes of all outputs
+- `citations.yaml`: Reference validation state
+- `model_availability.json`: CodeLlama availability status
+- `metrics_versions.yaml`: Versioned metrics file index
+- `collision_log.json`: Merge conflict resolution log
 
 ## Error Handling Strategy
 
-- **Fail Loudly**: Data download or integrity verification failures raise exceptions immediately.
-- **Graceful Degradation**: Code generation failures are logged, and the sample is marked as missing (not synthetic).
-- **Deferred Metrics**: If coverage execution fails, the metric is marked as `[deferred]` but the pass rate is still recorded.
+- **Data Download**: Fails loudly if verified source is unreachable (no synthetic fallback)
+- **Code Generation**: Logs failures to `errors.log`, marks samples as missing
+- **Metric Analysis**: Records `[deferred]` for failed executions, continues processing
+- **Statistical Tests**: Handles zero-variance cases, logs warnings
 
-## Reproducibility Mechanisms
+## Parallelization Opportunities
 
-- **Hashing**: All inputs and outputs are hashed (SHA256) and stored in `state/artifact_hashes.yaml`.
-- **Logging**: Every step logs to `logs/pipeline.log` with timestamps and task IDs.
-- **Seeding**: Random seeds are set for sampling and model generation where applicable.
+- **Phase 1 (Setup)**: All tasks can run in parallel
+- **Phase 2 (Foundational)**: Independent utilities can be parallelized
+- **User Stories**: Once foundation is complete, US1, US2, US3 can run in parallel
+- **Within US1**: Code generation for different tasks can be parallelized
 
-## Scalability
+## Dependencies
 
-- **Batch Processing**: `analyze_metrics.py` supports batch processing of tasks.
-- **Parallelism**: Independent tasks (e.g., generation vs. analysis) can be run in parallel if resources allow.
-- **Streaming**: Large datasets can be processed in chunks if memory is constrained.
-
-## Security & Compliance
-
-- **API Keys**: HuggingFace tokens are read from environment variables, never hardcoded.
-- **Data Privacy**: No user data is processed; only public benchmark data (HumanEval) is used.
-- **Citation Validation**: The `validate_citations.py` agent ensures all generated reports cite sources correctly.
+See `code/requirements.txt` for pinned dependencies:
+- `datasets`: HuggingFace dataset loading
+- `transformers`: Model loading and inference
+- `radon`: Code metric analysis
+- `pytest`: Test execution
+- `coverage`: Branch coverage measurement
+- `scipy`: Statistical tests
+- `matplotlib`: Visualization
+- `jinja2`: Report templating
+- `pyyaml`: State management

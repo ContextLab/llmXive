@@ -46,6 +46,7 @@
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-294-evaluating-the-impact-of-code-generation/`)
 - [X] T002 Initialize a Python project with pinned dependencies in `code/requirements.txt`
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T009 [P] Create results directory structure: `results/figures/` (FR-006, Plan: Project Structure)
 
 ---
 
@@ -58,9 +59,10 @@
 - [X] T004 Setup logging infrastructure in `code/utils.py` with timestamp and task ID tracking (FR-007)
 - [X] T005 Implement SHA256 checksum utility in `code/utils.py` for dataset and artifact verification (FR-001, FR-011)
 - [X] T006 Create `state/artifact_hashes.yaml` structure and update logic (FR-011)
-- [ ] T007 [US1] Implement Reference-Validator Agent wrapper in `code/validate_citations.py` (FR-010). **BLOCKING**: Pipeline runner MUST execute T007 and verify exit code 0 before starting T010. **Logic**: Must raise `SystemExit` with non-zero code if any citation fails validation, causing the pipeline script to terminate with a non-zero exit code (CI failure) and preventing any subsequent tasks from running. This enforces the pipeline abort as per Plan "Pipeline Execution Order" Step 1.
-- [ ] T008 Create data directory structure: `data/raw/`, `data/generated/`, `data/analysis/`
-- [ ] T009 Create results directory structure: `results/figures/`
+- [ ] T006b [US1] Implement `code/extract_citations.py` to scan `spec.md`, `plan.md`, and `research.md` for citations and populate `state/citations.yaml` with a structured list of URLs and titles. **Constraint**: This task MUST run before T007a to ensure the input artifact exists. (FR-010, Plan: Pipeline Execution Order Step 1)
+- [ ] T007a [US1] Implement `code/validate_citations.py` wrapper for the Reference-Validator Agent (FR-010). **Logic**: Must read citations from `state/citations.yaml`, verify against primary sources, and return exit code 0 on success, non-zero on failure. **Dependency**: T006b. (FR-010)
+- [ ] T007b [US1] **Pipeline Gate**: Implement the execution logic to invoke `python code/validate_citations.py` as the first step of the pipeline. **Constraint**: If T007a returns non-zero, the pipeline MUST abort immediately with `SystemExit(1)`. **Dependency**: T007a must complete before T007b runs. **Status**: Pending until T007a is implemented. (Plan: Pipeline Execution Order Step 1)
+- [X] T008 Create data directory structure: `data/raw/`, `data/generated/`, `data/analysis/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,35 +76,41 @@
 
 ### Implementation for User Story 1
 
-- [X] T010 [US1] Implement `code/download_data.py` to download HumanEval from HuggingFace, verify SHA256, and save to `data/raw/` (FR-001)
-- [X] T011 [US1] Implement stratified sampling logic in `code/download_data.py` to select a representative subset of tasks based on human pass-rate quartiles (Plan: Sampling Strategy). **Includes assertion**: Verify the final selected subset size is exactly 50, as specified in the Plan's Sampling Strategy and US1 Independent Test. **Implementation Detail**: Divide tasks into quartiles by historical pass-rate, then randomly select a subset from each quartile to reach exactly 50 tasks. **Source**: Constraint originates from Plan: Sampling Strategy, not FR-001.
-- [X] T012 [US1] Implement `code/generate_code.py` to load `Salesforce/codegen-mono` on CPU and generate code for a set of tasks with 3-retry logic (FR-002)
-- [X] T013 [US1] Implement error handling in `code/generate_code.py` to log failures to `errors.log` and mark samples as missing (Edge Cases)
-- [X] T014 [US1] Implement `code/analyze_metrics.py` to run `radon` for cyclomatic complexity and Halstead volume on all samples (FR-003). **Metric Specifics**: Extract `radon.halstead` **Volume V** and record as `halstead_volume` in the JSON.
-- [X] T015 [US1] Implement logic in `code/analyze_metrics.py` to execute `pytest` against the HumanEval test suite for each sample and record the binary `pass_rate` (1 = all tests passed, 0 = any failure) per sample in `metrics.json`. **JSON Schema**: `metrics.json` is an array of objects, each containing `task_id`, `source_type`, and `pass_rate` (binary). Aggregated rates are calculated in the report generation phase, not here. (FR-005)
-- [X] T042 [US1] Implement logic in `code/analyze_metrics.py` to run `pytest --cov` for `branch_coverage_pct`, recording `[deferred]` if execution fails while still recording the `pass_rate` (FR-003, Edge Cases)
-- [X] T016 [US1] Implement logic in `code/analyze_metrics.py` to handle execution failures (record `[deferred]` for coverage) (Edge Cases)
-- [X] T017 [US1] Implement aggregation in `code/analyze_metrics.py` to produce `data/analysis/metrics.json` with all required fields (US-1 Independent Test)
+- [ ] T010 [US1] Implement `code/download_data.py` to download HumanEval from HuggingFace using `streaming=True` to process the full dataset without loading it into RAM. Verify SHA256 and save to `data/raw/`. **Constraint**: Must NOT fall back to synthetic data; must raise a `RuntimeError` with a clear message "Failed to download verified real source" if the download fails after max retries. (FR-001, FR-011, Plan: Large real datasets: STREAM the real data)
+- [ ] T011 [US1] Implement stratified sampling logic in `code/download_data.py` to select a representative subset of tasks based on human pass-rate quartiles. **Dependency**: T010. **Includes assertion**: Verify the final selected subset size is, as specified in the Plan's Sampling Strategy. **Constraint**: If T010 fails or returns insufficient data, T011 must not run (enforced by dependency). (Plan: Sampling Strategy)
+- [ ] T012 [US1] Implement `code/generate_code.py` to load `Salesforce/codegen-mono` on CPU and generate code for a set of tasks with 3-retry logic (FR-002)
+- [ ] T013 [US1] Implement error handling in `code/generate_code.py` to log failures to `errors.log` and mark samples as missing (Edge Cases)
+- [ ] T014a [US1] Implement `code/analyze_metrics.py` to run `radon` for **Cyclomatic Complexity** on all samples. **Metric Specifics**: Extract `radon.cc` (cyclomatic complexity) and record as `cyclomatic_complexity` in the JSON. (FR-003)
+- [ ] T014b [US1] Implement `code/analyze_metrics.py` to run `radon` for **Halstead Volume** on all samples. **Metric Specifics**: Extract all Halstead metrics (N, n, N, n, V, L, D, E) for completeness, but record `V` (Volume) as `halstead_volume` in the JSON as the primary metric required by FR-003. (FR-003)
+- [ ] T015 [US1] Implement logic in `code/analyze_metrics.py` to execute `pytest` against the HumanEval test suite for each sample and record the binary `pass_rate` (1 = all tests passed, 0 = any failure) per sample in `metrics.json`. **JSON Schema**: `metrics.json` is an array of objects, each containing `task_id`, `source_type`, and `pass_rate` (binary). Aggregated rates are calculated in the report generation phase, not here. (FR-005)
+- [ ] T042 [US1] Implement logic in `code/analyze_metrics.py` to run `pytest --cov` for `branch_coverage_pct`, recording `[deferred]` if execution fails while still recording the `pass_rate` (FR-003, Edge Cases)
+- [ ] T016 [US1] Implement logic in `code/analyze_metrics.py` to handle execution failures (record `[deferred]` for coverage) (Edge Cases)
+- [ ] T017 [US1] Implement aggregation in `code/analyze_metrics.py` to produce `data/analysis/metrics.json` with all required fields. **Dependencies**: T014a, T014b, T015, T042. (US-1 Independent Test)
 
 **Sensitivity Analysis Sub-Phase (within US1)**
 
-- [X] T028 [US3] Implement sensitivity analysis logic in `code/generate_code.py` to call HuggingFace Inference API for `CodeLlama-7B` for a subset of tasks. **Trigger**: Run only if API is available. (FR-009)
-- [X] T028a [US3] **Fallback**: Execute ONLY if T028 fails. Attempt to load `CodeLlama-3B` locally on CPU with 4-bit quantization in `code/generate_code.py`. **Artifact**: Write `state/model_availability.json` containing a JSON object with keys `available` (boolean), `model_id` (string), and `timestamp` (ISO8601) indicating local fallback availability. (FR-009)
-- [X] T029 [US3] Implement fallback logic in `code/generate_code.py`: If `CodeLlama-7B` API is unavailable AND local 4-bit quantization is available (per `state/model_availability.json`), use `CodeLlama-3B` for generation. If T028a failed, skip sensitivity generation for this path. (FR-009)
-- [X] T041 [US1/US2] **Dependency**: Must run after T028/T029. Re-run analysis (T014/T042 logic) on sensitivity samples generated by T028/T029 and **merge** results into `data/analysis/metrics.json`. **Merge Logic**: Use composite key `task_id + source_type` to ensure distinct entries for 7B vs 3B samples, preserving the Plan's Data Model Traceability. **Conflict Resolution**: If a collision occurs for the same (task_id, source_type) key, the new entry overwrites the old one, and the task must log this event. (FR-009, Plan: Data Model Traceability)
+- [ ] T028 [US3] Implement sensitivity analysis logic in `code/generate_code.py` to call HuggingFace Inference API for `CodeLlama-7B` for a subset of tasks. **Trigger**: Run only if API is available. (FR-009)
+- [ ] T028a [US3] **Model Check**: Implement logic in `code/generate_code.py` to check local model availability for `CodeLlama-3B` with 4-bit quantization. **Artifact**: Write `state/model_availability.json` containing a JSON object with keys `available` (boolean), `model_id` (string), and `timestamp` (ISO8601). (FR-009)
+- [ ] T028c [US3] **Fallback Initialization**: Implement logic in `code/generate_code.py` to ensure `state/model_availability.json` exists with a default state `{"available": false, "model_id": "none", "timestamp": "..."}` if T028 (API check) or T028a (local check) fail or are skipped. **Dependency**: Runs before T029. **Constraint**: This ensures T029 can read the file without FileNotFoundError. (FR-009, Plan: 4-bit Quantization Fallback)
+- [ ] T028b [US3] **Fallback Generation**: Execute ONLY if T028 fails AND T028a indicates local availability is true. Load `CodeLlama-3B` locally on CPU with 4-bit quantization and generate code. (FR-009)
+- [ ] T029 [US3] Implement fallback logic in `code/generate_code.py`: If `CodeLlama-7B` API is unavailable AND local 4-bit quantization is available (per `state/model_availability.json`), use `CodeLlama-3B` for generation. If T028a failed, skip sensitivity generation for this path. **Dependency**: T028c. (FR-009)
+- [ ] T041a [US1/US2] **Validation**: Validate `data/analysis/metrics.json` contains all required fields and distinct `source_type` entries. **Dependency**: Runs after T017 and T028/T029. (Plan: Pipeline Execution Order)
+- [ ] T041b [US1/US2] **Versioned Merge**: Merge sensitivity results into `data/analysis/metrics.json` using composite key `task_id + source_type`. **Constraint**: Instead of overwriting, append new entries to a versioned file `data/analysis/metrics_v{N}.json` and update a `state/metrics_versions.yaml` index. **Dependency**: Runs after T041a. (Plan: Data Model Traceability)
+- [ ] T041c [US1/US2] **Conflict Resolution & Logging**: Detect collisions (same `task_id + source_type` across versions). **Resolution Strategy**: Keep the entry with the latest timestamp and log the discarded entry to `state/collision_log.json` with a warning. **Constraint**: This step MUST complete before T045 to ensure a unified, conflict-free dataset. (Plan: Data Model Traceability)
 
-- [X] T018 [US1] Write unit tests for `code/download_data.py` to verify checksum logic and sampling distribution (tests/unit/test_download.py)
-- [X] T019 [US1] Write integration test for `code/analyze_metrics.py` to verify metric extraction on a known Python snippet (tests/integration/test_metrics.py)
+- [ ] T018 [US1] Write unit tests for `code/download_data.py` to verify checksum logic and sampling distribution (tests/unit/test_download.py)
+- [ ] T019 [US1] Write integration test for `code/analyze_metrics.py` to verify metric extraction on a known Python snippet (tests/integration/test_metrics.py)
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (including sensitivity data merged into metrics.json)
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (including sensitivity data merged into metrics_v{N}.json)
 
 ---
 
-## Phase 3.5: Data Consolidation (Blocking for US2)
+## Phase 3.5: Sensitivity Analysis Computation (Blocking for US2/US3)
 
-**Purpose**: Ensure metrics.json is complete and valid before statistical testing.
+**Purpose**: Compute comparative metrics for sensitivity analysis before reporting.
 
-- [X] T041 [US1/US2] **Blocking Task**: Validate `data/analysis/metrics.json` contains all required fields and distinct `source_type` entries. **Merge Logic**: Ensure sensitivity results are merged using `task_id + source_type` as the unique key. **Dependency**: Blocks Phase 4 (US2) start. (Plan: Pipeline Execution Order)
+- [ ] T045 [US1/US3] **Sensitivity Analysis Computation**: Implement logic to compute effect sizes (Cohen's d) and delta calculations between `codegen-350M` and `codellama` variants. **Input**: `data/analysis/metrics_v{N}.json` (canonical merged file from T041c). **Output**: Update `data/analysis/metrics_v{N}.json` with new sensitivity analysis fields (e.g., `effect_size_complexity`, `delta_coverage`). **Constraint**: Do NOT create a separate intermediate file; update the canonical source directly. (FR-009, Plan: Single Source of Truth)
+- [ ] T046 [US3] **Sensitivity Comparison Logic**: Implement the comparative analysis logic required by FR-009. **Logic**: Aggregate results from `data/analysis/metrics_v{N}.json` to generate a comparative summary (e.g., mean difference in complexity, coverage delta) between CodeGen and CodeLlama models. **Output**: Update `data/analysis/metrics_v{N}.json` with comparative summary fields. **Dependency**: T045. (FR-009)
 
 ---
 
@@ -114,15 +122,15 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/statistical_tests.py` with Wilcoxon Signed-Rank test for continuous metrics: **Cyclomatic Complexity, Halstead Volume, AND Branch Coverage** (FR-004, US-2)
-- [X] T021 [US2] Implement `code/statistical_tests.py` with McNemar's test for binary pass-rate (FR-004)
-- [X] T022 [US2] Implement `code/statistical_tests.py` with Fisher's Exact Test for **unpaired exploratory checks ONLY** (FR-004). **Note**: Paired coverage data uses T040 (Permutation Test) as per Plan Complexity Tracking.
-- [X] T040 [US2] Implement `code/statistical_tests.py` with Permutation Test specifically for paired branch coverage data (Plan: Complexity Tracking)
-- [X] T023 [US2] Implement A Priori Power Analysis in `code/statistical_tests.py` (d=0.5, α=0.05, power≥0.8) to validate sample size (FR-008)
-- [X] T024 [US2] Implement Post-Hoc Power Analysis in `code/statistical_tests.py` based on observed effect sizes (FR-008)
+- [ ] T020 [US2] Implement `code/statistical_tests.py` with Wilcoxon Signed-Rank test for continuous metrics: **Cyclomatic Complexity and Halstead Volume ONLY**. **Note**: Branch Coverage is excluded per Plan Complexity Tracking; use T040 for coverage. (FR-004, US-2)
+- [ ] T021 [US2] Implement `code/statistical_tests.py` with McNemar's test for binary pass-rate (FR-004)
+- [ ] T022 [US2] Implement `code/statistical_tests.py` with Fisher's Exact Test for **unpaired exploratory checks ONLY** (FR-004). **Note**: Paired coverage data uses T040 (Permutation Test) as per Plan Complexity Tracking.
+- [ ] T040 [US2] Implement `code/statistical_tests.py` with Permutation Test specifically for paired branch coverage data (Plan: Complexity Tracking)
+- [ ] T023 [US2] Implement A Priori Power Analysis in `code/statistical_tests.py` (d=0.5, α=0.05, power≥0.8) to validate sample size (FR-008)
+- [ ] T024 [US2] Implement Post-Hoc Power Analysis in `code/statistical_tests.py` based on observed effect sizes (FR-008)
 - **Note**: Independence of structural complexity from functional success is verified via T020 (Wilcoxon) and T021 (McNemar) tests as per the Plan. T025 (Spearman correlation) was removed as it was scope creep not in the Plan.
-- [X] T026 [US2] Write unit tests for statistical functions using mock data with known p-values (tests/unit/test_statistics.py)
-- [X] T027 [US2] Write integration test verifying the full statistical report generation from `metrics.json` (tests/integration/test_stats_pipeline.py)
+- [ ] T026 [US2] Write unit tests for statistical functions using mock data with known p-values (tests/unit/test_statistics.py)
+- [ ] T027 [US2] Write integration test verifying the full statistical report generation from `metrics.json` (tests/integration/test_stats_pipeline.py)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,11 +144,11 @@
 
 ### Implementation for User Story 3
 
-- [X] T030 [US3] Implement `code/report_generator.py` to create histograms and boxplots using `matplotlib` for all continuous metrics (US-3)
-- [X] T031 [US3] Implement `code/report_generator.py` with Jinja2 template to compile `results_report.md` including figures, tables, and power analysis (FR-006)
-- [X] T032 [US3] Implement logic to include sensitivity analysis comparison (7B/3B vs 350M) in the final report. **Logic**: Extract data from `metrics.json` grouped by `source_type`, generate comparative boxplots for complexity/coverage, and include a summary table of effect sizes. **Verification**: Ensure the report contains comparative visualizations and a summary table as required by the US3 independent test. (FR-009)
-- [X] T033 [US3] Write unit tests for `code/report_generator.py` to verify figure generation and template rendering (tests/unit/test_report.py)
-- [X] T034 [US3] Write integration test for the full pipeline from `metrics.json` to `results_report.md` (tests/integration/test_full_pipeline.py)
+- [ ] T030 [US3] Implement `code/report_generator.py` to create histograms and boxplots using `matplotlib` for all continuous metrics. **Dependency**: T009 (results/figures/ directory must exist). (US-3)
+- [ ] T031 [US3] Implement `code/report_generator.py` with Jinja2 template to compile `results_report.md` including figures, tables, and power analysis (FR-006)
+- [ ] T032 [US3] Implement logic to include sensitivity analysis comparison (7B/3B vs 350M) in the final report. **Logic**: Extract data from `data/analysis/metrics_v{N}.json` (canonical merged file from T041c, T045, T046), generate comparative boxplots for complexity/coverage, and include a summary table of effect sizes. **Verification**: Ensure the report contains comparative visualizations and a summary table as required by the US3 independent test. **Constraint**: Do NOT read from intermediate files; use only the canonical `metrics_v{N}.json`. (FR-009, Plan: Single Source of Truth)
+- [ ] T033 [US3] Write unit tests for `code/report_generator.py` to verify figure generation and template rendering (tests/unit/test_report.py)
+- [ ] T034 [US3] Write integration test for the full pipeline from `metrics.json` to `results_report.md` (tests/integration/test_full_pipeline.py)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,7 +162,8 @@
 - [X] T036 Code cleanup and refactoring of `code/utils.py`
 - [X] T037 Performance optimization for `code/analyze_metrics.py` (parallel processing if safe)
 - [ ] T038 [P] Additional unit tests for edge cases (e.g., 0 coverage, missing LLM samples) in `tests/unit/`
-- [X] T039 [US1/US2/US3] Execute full pipeline end-to-end to verify reproducibility. **Artifact**: Generate `state/reproducibility_report.md` containing logs, screenshots of key figures, and test results proving the pipeline runs as per Constitution Principle I. **Verification**: Ensure the report contains all required artifacts and confirms end-to-end execution. (Plan: Constitution Check)
+- [X] T043 [US1] Implement robust retry logic with exponential backoff for HuggingFace dataset downloads in `code/download_data.py` to handle transient network failures. **Constraint**: Must NOT fall back to synthetic data; must raise an explicit error if the verified real source is unreachable after max retries. (Plan: Data Hygiene, FR-001)
+- [X] T044 [US2] Add explicit handling in `code/statistical_tests.py` for zero-variance cases in the Permutation Test to prevent division-by-zero errors when coverage is [deferred] or [deferred] for all samples. (Plan: Complexity Tracking, FR-004)
 
 ---
 
@@ -164,17 +173,17 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **Phase 3 (US1)**: **Depends on Phase 2 (Foundational) completion**. T007 must complete before T010 starts. **Includes T041** which must complete before Phase 4 starts.
-- **Phase 3.5 (Consolidation)**: **Depends on Phase 3 (US1) completion**. T041 is the blocking task for Phase 4.
-- **Phase 4 (US2)**: **Depends on Phase 3.5 (T041) completion** (requires `metrics.json` from T017 and T041).
-- **Phase 5 (US3)**: **Depends on Phase 4 (US2) completion** and **T041 completion** (requires statistical results and sensitivity analysis data).
+- **Phase 3 (US1)**: **Depends on Phase 2 (Foundational) completion**. T007b must complete before T010 starts. **Includes T041c** which must complete before Phase 4 starts.
+- **Phase 3.5 (Sensitivity Computation)**: **Depends on Phase 3 (US1) completion**. T046 is the blocking task for Phase 5.
+- **Phase 4 (US2)**: **Depends on Phase 3 (T041c) completion** (requires `metrics_v{N}.json` from T017 and T041c).
+- **Phase 5 (US3)**: **Depends on Phase 4 (US2) completion** and **T046 completion** (requires statistical results and sensitivity analysis data from `metrics_v{N}.json`).
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. Includes sensitivity generation and analysis (T028a, T028, T029, T041).
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (`metrics.json` including sensitivity data).
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data, US2 results, and T041 for report generation.
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. Includes sensitivity generation and analysis (T028a, T028, T029, T041c).
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (`metrics_v{N}.json` including sensitivity data).
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data, US2 results, and T046 for report generation.
 
 ### Within Each User Story
 
@@ -215,7 +224,7 @@ Task: "Create [Entity2] model in src/models/[entity2].py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (including T041 for sensitivity data merge)
+3. Complete Phase 3: User Story 1 (including T041c for sensitivity data merge)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -233,9 +242,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
+   - Developer A: User Story 1
+   - Developer B: User Story 2
+   - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

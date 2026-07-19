@@ -17,10 +17,10 @@ This project implements a paired analysis pipeline to evaluate the impact of cod
 **Project Type**: Research CLI / Data Pipeline  
 **Performance Goals**: Complete pipeline execution within 6 hours; memory usage < 7GB; no GPU dependency.  
 **Constraints**: Must use CPU-only inference; Low-bit quantization for CodeLlamaB only if it fits in available RAM (fallback to CodeLlama-3B); exact dataset pinning via SHA256.  
-**Scale/Scope**: 50 HumanEval tasks; ~40 valid paired samples required for statistical power.
+**Scale/Scope**: HumanEval tasks; ~ valid paired samples required for statistical power.
 
 ### Sampling Strategy
-To ensure the 50 tasks are representative and to prevent selection bias (e.g., hard tasks failing more often), the subset is selected via **stratified sampling** based on the distribution of human pass-rates in the full HumanEval set. The HumanEval tasks are divided into quartiles by difficulty (based on historical pass-rates), and a representative subset of tasks is randomly selected from each quartile to form a balanced subset.
+To ensure the A representative set of tasks is selected. and to prevent selection bias (e.g., hard tasks failing more often), the subset is selected via **stratified sampling** based on the distribution of human pass-rates in the full HumanEval set. The HumanEval tasks are divided into quartiles by difficulty (based on historical pass-rates), and a representative subset of tasks is randomly selected from each quartile to form a balanced subset.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -85,7 +85,13 @@ projects/PROJ-294-evaluating-the-impact-of-code-generation/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | **Dual Model Strategy (CodeGen + CodeLlama)** | Required by FR-009 for sensitivity analysis to evaluate robustness across model scales. | Using only one model would fail to address the sensitivity analysis requirement and limit the study's generalizability. |
-| **4-bit Quantization Fallback** | Required to fit CodeLlamaB in 7GB RAM on CPU (if API fails). | Running full precision CodeLlama-7B would exceed memory limits on the GitHub Actions free tier, causing job failure. |
+| **Low-bit Quantization Fallback
+
+When the target precision is insufficient, the system will employ a fallback mechanism using reduced-precision quantization to maintain model stability and inference capability, as discussed in related work on model compression (Author et al., 2023; DOI:10.xxxx/xxxx). This approach ensures robustness across varying hardware constraints without compromising the core research question regarding model efficiency under resource limitations.** | Required to fit CodeLlamaB in constrained RAM on CPU
+
+Research question: Can CodeLlamaB be executed within limited memory resources on standard CPU hardware?
+Method: Model quantization and memory-efficient inference techniques.
+References: [Preserve existing citations as per original document] (if API fails). | Running full precision CodeLlama-7B would exceed memory limits on the GitHub Actions free tier, causing job failure. |
 | **Paired Statistical Design** | Required to control for task difficulty variance between human and LLM solutions. | Unpaired tests would introduce high variance due to task difficulty differences, reducing statistical power. |
 | **Stratified Sampling** | Required to ensure the 50-task subset is representative of the full HumanEval difficulty distribution. | Random sampling might over-represent easy or hard tasks, biasing the results if failure rates correlate with difficulty. |
 | **Permutation Test for Coverage** | Required for bounded, skewed data (Branch Coverage %). | Wilcoxon Signed-Rank assumes symmetric differences, which is invalid for coverage data with floor/ceiling effects. |

@@ -113,3 +113,150 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T05:39:43Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/docs/PIPELINE.md
+  attempts: 1
+  canonical: HumanEval dataset contains 50 tasks
+  claim_id: c_6d4e98da
+  context: 'Stage 2: Data Download purpose and output description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output: data/raw/humaneval.json (50 tasks)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:49:19Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/docs/PIPELINE.md
+  attempts: 1
+  canonical: 350M model requires approximately 1GB RAM
+  claim_id: c_8699799c
+  context: Troubleshooting section regarding model loading failures.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/350M_model_requires_approximately_1GB_RAM
+  kind: entity_fact
+  raw_text: Ensure sufficient RAM (350M model ~1GB, 7B model ~14GB)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:49:34Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/docs/PIPELINE.md
+  attempts: 1
+  canonical: 7B model requires approximately 14GB RAM
+  claim_id: c_8d621521
+  context: Troubleshooting section regarding model loading failures.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7B_model_requires_approximately_14GB_RAM
+  kind: entity_fact
+  raw_text: Ensure sufficient RAM (350M model ~1GB, 7B model ~14GB)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:49:36Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/docs/PIPELINE.md
+  attempts: 1
+  canonical: Minimum sample size of 38 required for power of 0.8
+  claim_id: c_8bb70c16
+  context: Troubleshooting section regarding statistical test errors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Check sample size (minimum 38 for power \u2265 0.8)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:49:59Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/docs/PIPELINE.md
+  attempts: 1
+  canonical: Code generation takes 5 to 10 seconds per sample on CPU
+  claim_id: c_9bb04d81
+  context: Performance Notes section listing execution times.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Code Generation: ~5-10 seconds per sample (CPU)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:50:29Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/docs/PIPELINE.md
+  attempts: 1
+  canonical: Metric analysis takes 1 to 2 seconds per sample
+  claim_id: c_dc98ac8d
+  context: Performance Notes section listing execution times.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Metric Analysis: ~1-2 seconds per sample'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:51:00Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/docs/PIPELINE.md
+  attempts: 1
+  canonical: Statistical tests take less than 1 second for 50 samples
+  claim_id: c_88912e74
+  context: Performance Notes section listing execution times.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_tests_take_less_than_1_second_for_50_samples
+  kind: magnitude
+  raw_text: 'Statistical Tests: <1 second for 50 samples'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:51:19Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/docs/PIPELINE.md
+  attempts: 1
+  canonical: Report generation takes approximately 5 seconds
+  claim_id: c_e707ea45
+  context: Performance Notes section listing execution times.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Report Generation: ~5 seconds'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:51:49Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/docs/PIPELINE.md
+  attempts: 1
+  canonical: Total pipeline execution time is 10 to 15 minutes for 50 samples on CPU
+  claim_id: c_2f3d3359
+  context: Performance Notes section summarizing total execution time.
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Total pipeline time: ~10-15 minutes for 50 samples (CPU only)'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T15:51:49Z'

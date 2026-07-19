@@ -1,67 +1,71 @@
-"""
-Setup script to create the required data directory structure for the project.
-Creates: data/raw/, data/generated/, data/analysis/
-"""
 import os
 import sys
+import logging
 from utils import get_logger, set_task_id, get_task_id
-
-# Set task ID for logging
-set_task_id("T008")
-logger = get_logger()
-
-# Define the required directories relative to the project root
-# The project root is assumed to be the parent of the 'code' directory
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_ROOT = os.path.join(PROJECT_ROOT, "data")
-
-DIRECTORIES_TO_CREATE = [
-    "data/raw",
-    "data/generated",
-    "data/analysis"
-]
 
 def create_directories():
     """
-    Creates the required data directories if they do not already exist.
-    Logs success or failure for each directory.
+    Creates the required data directory structure:
+    - data/raw/
+    - data/generated/
+    - data/analysis/
+
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
     """
-    logger.info(f"Starting directory creation for task {get_task_id()}")
-    logger.info(f"Project root detected at: {PROJECT_ROOT}")
+    task_id = get_task_id()
+    logger = get_logger()
+    logger.info(f"[{task_id}] Starting directory creation for data structure.")
+
+    # Define the base data directory relative to the project root
+    # We assume the script is run from the project root or code/ directory
+    # The paths must be relative to the project root as per constraints
+    base_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
     
-    created_count = 0
-    skipped_count = 0
+    directories = [
+        os.path.join(base_dir, 'raw'),
+        os.path.join(base_dir, 'generated'),
+        os.path.join(base_dir, 'analysis')
+    ]
 
-    for dir_path in DIRECTORIES_TO_CREATE:
-        full_path = os.path.join(PROJECT_ROOT, dir_path)
-        
-        if os.path.exists(full_path):
-            logger.info(f"Directory already exists: {full_path}")
-            skipped_count += 1
-        else:
-            try:
-                os.makedirs(full_path, exist_ok=True)
-                logger.info(f"Successfully created directory: {full_path}")
-                created_count += 1
-            except OSError as e:
-                logger.error(f"Failed to create directory {full_path}: {e}")
-                return False
+    success = True
+    for directory in directories:
+        try:
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+                logger.info(f"[{task_id}] Created directory: {directory}")
+            else:
+                logger.info(f"[{task_id}] Directory already exists: {directory}")
+        except OSError as e:
+            logger.error(f"[{task_id}] Failed to create directory {directory}: {e}")
+            success = False
 
-    logger.info(f"Directory setup complete. Created: {created_count}, Skipped: {skipped_count}")
-    return True
+    if success:
+        logger.info(f"[{task_id}] Data directory structure creation completed successfully.")
+    else:
+        logger.error(f"[{task_id}] Data directory structure creation failed.")
+
+    return success
 
 def main():
     """
     Entry point for the script.
-    Returns 0 on success, 1 on failure.
+    Sets up logging and executes directory creation.
     """
-    success = create_directories()
-    if success:
-        logger.info("Task T008 completed successfully.")
-        return 0
-    else:
-        logger.error("Task T008 failed due to directory creation errors.")
-        return 1
+    set_task_id('T008')
+    setup_logging()
+    logger = get_logger()
+    
+    try:
+        if create_directories():
+            logger.info("Task T008 completed successfully.")
+            sys.exit(0)
+        else:
+            logger.error("Task T008 failed due to directory creation errors.")
+            sys.exit(1)
+    except Exception as e:
+        logger.critical(f"Unexpected error in T008: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
