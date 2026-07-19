@@ -27,7 +27,7 @@
         "openai.gpt-oss-120b",
         "qwen.qwen3.5-122b"
       ],
-      "owning_slice": 7,
+      "owning_slice": 8,
       "symbol": "KNOWN_FREE_MODELS"
     },
     {
@@ -2134,7 +2134,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_inventory.py",
       "kind": "model_id_literal",
-      "line": 419,
+      "line": 425,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -2843,7 +2843,7 @@
       "category": "test_double",
       "file": "tests/unit/test_multimodal_content.py",
       "kind": "model_id_literal",
-      "line": 87,
+      "line": 91,
       "models": [
         "Qwen/Qwen2.5-3B-Instruct"
       ],

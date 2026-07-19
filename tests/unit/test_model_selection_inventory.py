@@ -362,10 +362,16 @@ def test_categorize_reasoning_models_symbol_is_canonical_but_known_free_migrates
         "src/llmxive/backends/dartmouth.py", kind="module_constant",
         symbol="_REASONING_MODELS", models=("qwen3.5",),
     ) == ("canonical_layer", None)
+    # Still a migration target — but owned by SLICE 8, matching this docstring:
+    # slice 7 only removes ``test_config_consistency``'s dependence on it (US5
+    # AC4); the constant itself is deleted alongside DEFAULT_MODEL /
+    # MODEL_FALLBACKS in slice 8. Labelling it slice 7 made "no owning_slice==7
+    # rows remain" impossible to satisfy, so the slice-7 completion gate could
+    # never be self-verifying.
     assert _cat(
         "src/llmxive/backends/dartmouth.py", kind="module_constant",
         symbol="KNOWN_FREE_MODELS",
-    ) == ("migration_target", 7)
+    ) == ("migration_target", 8)
 
 
 def _mini_repo(root):

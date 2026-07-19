@@ -5,7 +5,11 @@ from __future__ import annotations
 import pytest
 
 from llmxive.backends.base import (
-    ChatMessage, ImagePart, PermanentBackendError, TextPart, UnsupportedFeatureError,
+    ChatMessage,
+    ImagePart,
+    PermanentBackendError,
+    TextPart,
+    UnsupportedFeatureError,
 )
 from llmxive.backends.router import CandidateDisposition, disposition_of
 from llmxive.model_selection import tokens

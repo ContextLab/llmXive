@@ -123,6 +123,7 @@ _NO_LLM_SENTINEL = "deterministic-no-llm"
 #: Advisory (later slices confirm ownership); the *category* is the binding part.
 _ROUTER_PATH = "src/llmxive/backends/router.py"
 _EXECUTION_STATUS_PATH = "src/llmxive/state/execution_status.py"
+_DARTMOUTH_PATH = "src/llmxive/backends/dartmouth.py"
 
 
 def categorize(entry: dict) -> tuple[str, int | None]:
@@ -151,6 +152,14 @@ def categorize(entry: dict) -> tuple[str, int | None]:
         return ("migration_target", 5)
     if rel == _EXECUTION_STATUS_PATH:
         return ("migration_target", 6)
+    # The free-model ALLOWLIST is retired together with DEFAULT_MODEL /
+    # MODEL_FALLBACKS in slice 8, not slice 7: slice 7 only removes
+    # ``test_config_consistency``'s DEPENDENCE on it (US5 AC4), because the
+    # capability policy — not an allowlist — becomes the free/paid authority.
+    # Labelling it slice 7 would make "no owning_slice==7 rows remain" unable to
+    # ever hold, so the slice-7 completion gate could never be self-verifying.
+    if (rel, entry["symbol"]) == (_DARTMOUTH_PATH, "KNOWN_FREE_MODELS"):
+        return ("migration_target", 8)
     return ("migration_target", 7)
 
 

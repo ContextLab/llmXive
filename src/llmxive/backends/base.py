@@ -17,7 +17,6 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from typing import TypeVar
 
-
 #: Allowed image MIME types (Dartmouth's OpenAI-compatible vision endpoint).
 _IMAGE_MIMES = frozenset({"image/png", "image/jpeg", "image/webp"})
 

@@ -10,17 +10,17 @@ from llmxive.model_selection.select import select
 from llmxive.model_selection.types import CallBudget, ModelUnavailable, RequirementOverrides
 from llmxive.state import execution_status as es
 
-# Import the existing fixed-snapshot helper rather than rebuilding one.
-from tests.unit.test_model_selection_select import _snapshot  # noqa: E402
-
 # Import the established route_chat injection pattern (fake backend factory +
 # fixed snapshot) rather than inventing a new one (Task 1 review finding).
-from tests.unit.test_model_selection_route import (  # noqa: E402
+from tests.unit.test_model_selection_route import (
     _MSGS,
     _RecordingBackend,
 )
-from tests.unit.test_model_selection_route import _factory as _route_factory  # noqa: E402
-from tests.unit.test_model_selection_route import _snapshot as _route_snapshot  # noqa: E402
+from tests.unit.test_model_selection_route import _factory as _route_factory
+from tests.unit.test_model_selection_route import _snapshot as _route_snapshot
+
+# Import the existing fixed-snapshot helper rather than rebuilding one.
+from tests.unit.test_model_selection_select import _snapshot
 
 _CB = CallBudget(max_input_tokens=1000, max_output_tokens=500)
 

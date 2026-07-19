@@ -22,7 +22,7 @@ Checked artifact: regenerate with `python -m llmxive.model_selection.inventory` 
 |src/llmxive/backends/router.py|99|module_constant|DEFAULT_MODEL|qwen.qwen3.5-122b|
 |src/llmxive/backends/router.py|105|module_constant|PAID_FALLBACK_MODELS|anthropic.claude-haiku-4-5-20251001|
 
-### Slice 7 (1)
+### Slice 8 (1)
 
 |file|line|kind|symbol|models|
 |-|-|-|-|-|
