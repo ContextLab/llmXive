@@ -1,11 +1,17 @@
+T017:
+  c: false
+  h: ea7419261f8921e59aa50713bb6981674165422a292e03600f9f9c39be021443
+  r: The script `code/03_gwas.sh` exists but is truncated and never actually creates
+    or writes `data/interim/gwas_raw.tsv`; the required conversion/renaming step is
+    missing. Consequently the artifact does not reliably produce the specified raw
+    association output file.
 T022:
-  c: true
-  h: 4476c4784c16f898e26c1505694b28a369f6b0a139565419b3b066a95e532fbf
-  r: "The `code/04_apply_fdr.sh` script exists, is non\u2011empty, references the\
-    \ required input file, invokes `code/utils/fdr_correction.py` with `--input` and\
-    \ `--output` arguments, and writes results to `data/processed/gwas_results_fdr.tsv`.\
-    \ The supporting utility script is also present. No required artifact is missing\
-    \ for the creation task itself."
+  c: false
+  h: cf50872493f593e2c5192af5974dd97e548d69b26338ab968fbfbe59e6f662d4
+  r: "The script `code/04_apply_fdr.sh` exists, but it does not invoke PLINK nor pipe\
+    \ its output to the Python utility as required, and the expected input file `data/interim/gwas_raw.tsv`\
+    \ and output file `data/processed/gwas_results_fdr.tsv` are missing. The task\u2019\
+    s core requirement is therefore not satisfied."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

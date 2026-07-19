@@ -1,23 +1,20 @@
 #!/bin/bash
-# T022: Apply FDR Correction to GWAS Results
-#
-# This script post-processes the raw GWAS output using the Benjamini-Hochberg
-# method implemented in code/utils/fdr_correction.py.
-#
-# Input: data/interim/gwas_raw.tsv (produced by T017/code/03_gwas.sh)
+# T022: Apply Benjamini-Hochberg FDR correction to GWAS results
+# Input: data/interim/gwas_raw.tsv (produced by T017)
 # Output: data/processed/gwas_results_fdr.tsv
-#
-# Dependency: code/utils/fdr_correction.py (T020)
+# Dependencies: code/utils/fdr_correction.py (T020)
 
 set -e
 
 INPUT_FILE="data/interim/gwas_raw.tsv"
 OUTPUT_FILE="data/processed/gwas_results_fdr.tsv"
 
+echo "Starting FDR correction pipeline step..."
+
 # Verify input file exists
 if [ ! -f "$INPUT_FILE" ]; then
-    echo "ERROR: Input file not found: $INPUT_FILE"
-    echo "Please ensure T017 (code/03_gwas.sh) has been executed successfully."
+    echo "Error: Input file not found: $INPUT_FILE"
+    echo "Ensure T017 (code/03_gwas.sh) has been executed successfully."
     exit 1
 fi
 
@@ -28,25 +25,16 @@ echo "Applying Benjamini-Hochberg FDR correction..."
 echo "Input:  $INPUT_FILE"
 echo "Output: $OUTPUT_FILE"
 
-# Execute the FDR correction utility
-# The script handles reading the TSV, calculating q-values, and writing the output
-# with the mandatory disclaimer.
+# Execute the Python FDR correction utility
 python code/utils/fdr_correction.py \
     --input "$INPUT_FILE" \
     --output "$OUTPUT_FILE"
 
-# Verify output was created
-if [ ! -f "$OUTPUT_FILE" ]; then
-    echo "ERROR: Output file was not created: $OUTPUT_FILE"
+if [ $? -eq 0 ] && [ -f "$OUTPUT_FILE" ]; then
+    echo "SUCCESS: FDR correction complete."
+    echo "Results written to: $OUTPUT_FILE"
+    echo "Significant SNPs (q < 0.05) flagged in 'significant' column."
+else
+    echo "Error: FDR correction failed or output file not created."
     exit 1
 fi
-
-echo "FDR correction complete. Results written to $OUTPUT_FILE"
-
-# Display a summary of significant SNPs
-SIGNIFICANT_COUNT=$(tail -n +3 "$OUTPUT_FILE" | awk -F'\t' '$NF == "True"' | wc -l)
-TOTAL_COUNT=$(tail -n +3 "$OUTPUT_FILE" | wc -l)
-
-echo "Summary:"
-echo "  Total SNPs analyzed: $TOTAL_COUNT"
-echo "  Significant (q < 0.05): $SIGNIFICANT_COUNT"

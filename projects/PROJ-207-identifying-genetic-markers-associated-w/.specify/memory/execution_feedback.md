@@ -17,6 +17,12 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…ON report validating the synthetic data against FR-011.     """…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""Main function to generate synthetic VCF and phenotype data."…”
 
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+
+- `python code/01_download.py`
+
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
@@ -27,10 +33,14 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 23 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Honeybee C…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Validation.  This module generates deterministic synthetic VCF and Phenotype data f…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…al biological data.  The synthetic data generation strictly adhe…”; 2 command(s) failed: python code/04_ml_validation.py (rc=2); python code/05_annotation.py (rc=1); 4 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/gwas_results_fdr.tsv
+**Summary**: 16 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Honeybee C…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Validation.  This module generates deterministic synthetic VCF and Phenotype data f…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…al biological data.  The synthetic data generation strictly adhe…”; 3 command(s) failed: python code/01_download.py (rc=1); python code/04_ml_validation.py (rc=2); python code/05_annotation.py (rc=1); 6 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/collinearity_report.tsv
 
 ## Failing / missing run-book commands
 
+- python code/01_download.py -> rc=1
+    Verifying SSL connection to NCBI...
+
+WARNING: Network error during SSL check: HTTP Error 405: Method Not Allowed
 - python code/04_ml_validation.py -> rc=2
     usage: 04_ml_validation.py [-h] --gwas GWAS --pheno PHENO --geno GENO
                            [--output-dir OUTPUT_DIR]
@@ -42,7 +52,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - data/interim/gwas_raw.tsv
 - data/processed/annotated_snps.tsv
+- data/processed/collinearity_report.tsv
 - data/processed/gwas_results_fdr.tsv
+- data/processed/ml_validation_report.json
 - data/processed/threshold_sensitivity_report.tsv
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -50,14 +62,23 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/interim/gwas_raw.tsv` is declared but was NOT written. Scripts referencing it:
-    - `code/utils/threshold_sensitivity.py` — NOT invoked by the run-book
+    - `code/utils/fdr_correction.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/interim/gwas_raw.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/annotated_snps.tsv` is declared but was NOT written. Scripts referencing it:
     - `code/05_annotation.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/annotated_snps.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/collinearity_report.tsv` is declared but was NOT written. Scripts referencing it:
+    - `code/04_ml_validation.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/collinearity_report.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/gwas_results_fdr.tsv` is declared but was NOT written. Scripts referencing it:
     - `code/05_annotation.py` — IS a run-book command
+    - `code/04_ml_validation.py` — IS a run-book command
+    - `code/utils/fdr_correction.py` — NOT invoked by the run-book
+    - `code/utils/threshold_sensitivity.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/gwas_results_fdr.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/ml_validation_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/04_ml_validation.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/ml_validation_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/threshold_sensitivity_report.tsv` is declared but was NOT written. Scripts referencing it:
     - `code/utils/threshold_sensitivity.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/threshold_sensitivity_report.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
@@ -70,5 +91,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/processed/gwas_results_fdr.tsv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/05_annotation.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/gwas_results_fdr.tsv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/05_annotation.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/05_annotation.py`, `code/04_ml_validation.py`, `code/utils/fdr_correction.py`, `code/utils/threshold_sensitivity.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/gwas_results_fdr.tsv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/05_annotation.py`, `code/04_ml_validation.py`, `code/utils/fdr_correction.py`, `code/utils/threshold_sensitivity.py`.
