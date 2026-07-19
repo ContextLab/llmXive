@@ -661,8 +661,8 @@ class RunLogEntry(_Strict):
     task_id: str
     inputs: list[str] = Field(default_factory=list)
     outputs: list[str] = Field(default_factory=list)
-    backend: BackendName
-    model_name: str = Field(min_length=1)
+    backend: BackendName | None = None
+    model_name: str | None = Field(default=None, min_length=1)
     prompt_version: SemverField
     started_at: datetime
     ended_at: datetime
@@ -674,6 +674,16 @@ class RunLogEntry(_Strict):
     def _time_order(self) -> RunLogEntry:
         if self.ended_at < self.started_at:
             raise ValueError("ended_at must be >= started_at")
+        return self
+
+    @model_validator(mode="after")
+    def _attribution_on_success(self) -> RunLogEntry:
+        # A SUCCESSFUL run must name the model that actually answered; a run that
+        # failed before any ChatResponse has nothing truthful to record. Seeding
+        # from a registry default (pre-spec-026) invented a model for a call that
+        # may never have happened — and this field feeds paper authorship.
+        if self.outcome is Outcome.SUCCESS and (self.backend is None or not self.model_name):
+            raise ValueError("a SUCCESS run-log entry must record backend and model_name")
         return self
 
 

@@ -134,13 +134,15 @@ class Agent(abc.ABC):
         outcome = Outcome.SUCCESS
         failure_reason: str | None = None
         outputs: list[str] = []
-        # Placeholder values for the run-log entry if the call fails before a
-        # response is captured (overwritten below on success). The registry no
-        # longer pins a raw backend/model per agent (spec 026 US5 — routing is
-        # profile-driven); ``dartmouth`` is the platform's sole live serving
-        # backend today.
-        backend_used = BackendName.DARTMOUTH
-        model_used = "unknown"
+        # No attribution yet — nothing truthful to record until a real
+        # ChatResponse comes back (overwritten below on success). Seeding a
+        # placeholder backend/model here would write a fiction into a field
+        # that feeds paper authorship for a call that may never have
+        # happened; RunLogEntry's validator requires both fields ONLY when
+        # outcome is SUCCESS, so a pre-response failure legitimately records
+        # neither (spec 026 slice 7 / D4).
+        backend_used: BackendName | None = None
+        model_used: str | None = None
         # Spec 015 T080: capture verbatim I/O for inspection-record audit
         # when LLMXIVE_INSPECTION_DIR is set. Mirrors the speckit
         # SlashCommandAgent's inspection-capture flow so flesh_out /
@@ -231,7 +233,7 @@ class Agent(abc.ABC):
                 failure_reason=failure_reason,
                 outputs=outputs,
                 model=model_used,
-                backend=backend_used.value if hasattr(backend_used, "value") else str(backend_used),
+                backend=backend_used.value if backend_used is not None else None,
                 messages=captured_messages,
                 response=captured_response,
             )
@@ -247,8 +249,8 @@ def _capture_non_speckit_inspection(
     outcome: Outcome,
     failure_reason: str | None,
     outputs: list[str],
-    model: str,
-    backend: str,
+    model: str | None,
+    backend: str | None,
     messages: list[ChatMessage] | None,
     response: ChatResponse | None,
 ) -> None:
