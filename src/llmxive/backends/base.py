@@ -43,6 +43,18 @@ def _parse_png_dimensions(data: bytes) -> tuple[int, int]:
     if len(data) < 24 or data[12:16] != b"IHDR":
         raise ValueError("ImagePart: truncated/invalid PNG (missing IHDR chunk)")
     ihdr_declared_len = int.from_bytes(data[8:12], "big")
+    # The PNG spec fixes IHDR at EXACTLY 13 bytes (4 width + 4 height + 1 each
+    # of bit depth, colour type, compression, filter, interlace). Requiring it
+    # is cheap and definitive, and it is what makes the fixed-offset
+    # width/height read below legitimate: without it a forged 0-length IHDR
+    # passes the buffer check (which then only needs 20 bytes) while the
+    # dimensions are read from data[16:24] — bytes lying OUTSIDE the declared
+    # IHDR data, i.e. dimensions that are not the canonical header at all.
+    if ihdr_declared_len != 13:
+        raise ValueError(
+            "ImagePart: truncated/invalid PNG (IHDR length is "
+            f"{ihdr_declared_len}, but the PNG spec fixes it at 13)"
+        )
     # IHDR chunk layout after the 8-byte signature: 4(length) + 4(type) +
     # <declared length> data bytes + 4(CRC). The buffer must actually
     # contain that many bytes, or this is a truncated/forged chunk.
