@@ -949,6 +949,8 @@ class LLMReviewer:
             profile=self._profile,
             selection_policy_version=SELECTION_POLICY_VERSION,
             overrides=self._overrides,
+            temperature=self._temperature,
+            max_tokens=self._max_tokens,
         )
         cached = review_cache.load(self._repo_root, cache_key)
         if cached is not None:

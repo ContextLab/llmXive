@@ -145,6 +145,8 @@ def compose_key(
     profile: str,
     selection_policy_version: int,
     overrides: RequirementOverrides | None = None,
+    temperature: float,
+    max_tokens: int | None,
 ) -> str:
     """Hash ALL review-determining inputs into a stable 64-char sha256.
 
@@ -176,6 +178,16 @@ def compose_key(
     fields = (
         user, system, lens, stage, profile, str(selection_policy_version),
         _canonical_overrides(overrides),
+        # Sampling settings are review-DETERMINING: temperature changes what the
+        # model produces from identical inputs, and max_tokens changes where a
+        # long review gets truncated. LLMReviewer exposes both as constructor
+        # parameters, so two otherwise-identical reviewers can legitimately
+        # differ here — without binding them, the one configured at temperature
+        # 0.7 would serve the deterministic reviewer's cached concerns. They are
+        # invariant across the standard production panel today; this keeps the
+        # docstring's "ALL review-determining inputs" claim true regardless.
+        repr(float(temperature)),
+        "none" if max_tokens is None else str(int(max_tokens)),
     )
     canonical = _SENTINEL.join(f"{len(f)}:{f}" for f in fields)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()

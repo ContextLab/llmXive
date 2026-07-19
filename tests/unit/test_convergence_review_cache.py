@@ -313,6 +313,7 @@ def test_cache_module_round_trip(tmp_path):
     key = review_cache.compose_key(
         user="U", system="S", lens="lens", stage="clarified",
         profile="deep_review", selection_policy_version=1,
+        temperature=0.0, max_tokens=32_768,
     )
     review_cache.store(tmp_path, key, concerns)
     got = review_cache.load(tmp_path, key)
@@ -325,7 +326,8 @@ def test_cache_key_is_deterministic_and_sensitive():
     (a real int) in place of the retired raw model-id pin — every
     review-determining input, string or int, must independently move the key."""
     base = dict(user="U", system="S", lens="L", stage="ST",
-                profile="deep_review", selection_policy_version=1)
+                profile="deep_review", selection_policy_version=1,
+                temperature=0.0, max_tokens=32_768)
     k = review_cache.compose_key(**base)
     assert k == review_cache.compose_key(**base)
     assert len(k) == 64
@@ -350,7 +352,8 @@ def test_cache_key_none_and_default_overrides_are_identical():
     cache entry written by a caller that happened to pass an explicit
     default instance."""
     base = dict(user="U", system="S", lens="L", stage="ST",
-                profile="deep_review", selection_policy_version=1)
+                profile="deep_review", selection_policy_version=1,
+                temperature=0.0, max_tokens=32_768)
     assert (
         review_cache.compose_key(**base, overrides=None)
         == review_cache.compose_key(**base, overrides=RequirementOverrides())
@@ -363,7 +366,8 @@ def test_cache_key_sensitive_to_overrides():
     tier 1's ``exclude_leader=True``) would silently reuse a prior tier's
     cached review instead of reaching the model."""
     base = dict(user="U", system="S", lens="L", stage="ST",
-                profile="deep_review", selection_policy_version=1)
+                profile="deep_review", selection_policy_version=1,
+                temperature=0.0, max_tokens=32_768)
     k_none = review_cache.compose_key(**base, overrides=None)
     k_exclude_leader = review_cache.compose_key(
         **base, overrides=RequirementOverrides(exclude_leader=True)
@@ -389,7 +393,8 @@ def test_cache_key_overrides_field_order_independent_but_field_sensitive():
     """``exclude_models`` is a ``frozenset`` (unordered) — the canonicalization
     must sort it so key equality doesn't depend on set iteration order."""
     base = dict(user="U", system="S", lens="L", stage="ST",
-                profile="deep_review", selection_policy_version=1)
+                profile="deep_review", selection_policy_version=1,
+                temperature=0.0, max_tokens=32_768)
     ov_a = RequirementOverrides(exclude_models=frozenset({"m1", "m2"}))
     ov_b = RequirementOverrides(exclude_models=frozenset({"m2", "m1"}))
     assert (
@@ -490,3 +495,28 @@ def tmp_root_with_prompts(tmp_path: Path) -> Path:
     prompts_dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(prompts_src, prompts_dst)
     return tmp_path
+
+
+def test_cache_key_sensitive_to_sampling_settings():
+    """``LLMReviewer`` exposes ``temperature`` and ``max_tokens`` as constructor
+    parameters, and both are review-DETERMINING: temperature changes what the
+    model produces from identical inputs, and max_tokens changes where a long
+    review is truncated. Without binding them, a reviewer configured at
+    temperature 0.7 would be served the deterministic reviewer's cached
+    concerns. They are invariant across the standard production panel today —
+    this test keeps ``compose_key``'s "ALL review-determining inputs" claim
+    true if that ever stops being so."""
+    base = dict(user="U", system="S", lens="L", stage="ST",
+                profile="deep_review", selection_policy_version=1)
+    k = review_cache.compose_key(**base, temperature=0.0, max_tokens=32_768)
+    assert review_cache.compose_key(**base, temperature=0.7, max_tokens=32_768) != k, (
+        "a different temperature must MISS — it changes what the model emits"
+    )
+    assert review_cache.compose_key(**base, temperature=0.0, max_tokens=8_192) != k, (
+        "a different max_tokens must MISS — it changes where the review truncates"
+    )
+    assert review_cache.compose_key(**base, temperature=0.0, max_tokens=None) != k, (
+        "an unbounded max_tokens must MISS against a bounded one"
+    )
+    # ...and identical settings still HIT.
+    assert review_cache.compose_key(**base, temperature=0.0, max_tokens=32_768) == k
