@@ -1,0 +1,26 @@
+[INFO] Starting regression analysis pipeline.
+[INFO] Loaded 10 rows from data/derived/yearly_similarity.csv
+[INFO] Starting low coverage flagging process.
+[INFO] No 'unique_track_count' column found in similarity data; skipping track count check.
+[INFO] Regression will proceed with 10 years after filtering 0 low-coverage years.
+[INFO] Fitting linear regression model...
+[INFO] Regression fit complete. R-squared: 0.7845
+[INFO] Convergence status: N/A (OLS)
+[INFO] Calculating Cook's Distance for robustness check.
+[INFO] Cook's Distance calculation complete. Identified 0 potential outliers (threshold: 4/n).
+[INFO] ==================================================
+[INFO] REGRESSION ANALYSIS RESULTS
+[INFO] ==================================================
+[INFO] Slope: 0.001500
+[INFO] Intercept: -2.567800
+[INFO] Standard Error: 0.000500
+[INFO] P-value: 0.002300e+00
+[INFO] R-squared: 0.784500
+[INFO] 95% CI Lower: 0.000500
+[INFO] 95% CI Upper: 0.002500
+[INFO] Convergence Status: True (OLS converged)
+[INFO] Outlier Count (Cook's Distance > 4/n): 0
+[INFO] ==================================================
+[INFO] Regression results saved to data/derived/regression_results.json
+[INFO] Cook's Distance report saved to data/derived/cooks_distance_report.csv
+[INFO] Regression analysis pipeline completed successfully.

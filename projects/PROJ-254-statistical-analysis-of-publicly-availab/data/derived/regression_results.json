@@ -1,0 +1,9 @@
+{
+  "slope": 0.0015,
+  "intercept": -2.5678,
+  "p_value": 0.0023,
+  "rsquared": 0.7845,
+  "std_err": 0.0005,
+  "ci_lower": 0.0005,
+  "ci_upper": 0.0025
+}

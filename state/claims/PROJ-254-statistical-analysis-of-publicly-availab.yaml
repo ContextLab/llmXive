@@ -1,0 +1,147 @@
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: Pipeline uses Million Playlist Dataset and MusicBrainz to train Word2Vec
+    embeddings and perform regression
+  claim_id: c_8de106ed
+  context: This project implements an automated pipeline to analyze the evolution
+    of music genres over time using publicly available streaming data (Million Playlist
+    Dataset - MPD).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_Million_Playlist_Dataset_and_MusicBrainz_to_tr
+  kind: entity_fact
+  raw_text: The pipeline ingests raw playlist data, enriches it with metadata from
+    MusicBrainz, trains Word2Vec-based genre embeddings, computes temporal similarity
+    metrics, and performs statistical regression to test for significant trends.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:46:32Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: 6GB RAM recommended for full dataset processing
+  claim_id: c_b977a364
+  context: 'Prerequisites: Python 3.11 or higher, pip (Python package installer),
+    6GB+ RAM (recommended for full dataset processing).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/6GB_RAM_recommended_for_full_dataset_processing
+  kind: entity_fact
+  raw_text: 6GB+ RAM is recommended for full dataset processing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:46:55Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: 14GB disk space required for raw and derived data
+  claim_id: c_465b7f1a
+  context: 'Prerequisites: ... 14GB+ disk space (for raw and derived data).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/14GB_disk_space_required_for_raw_and_derived_data
+  kind: entity_fact
+  raw_text: 14GB+ disk space is required for raw and derived data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:47:22Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: Yearly genre embeddings have shape (num_genres, 100)
+  claim_id: c_3d3a040c
+  context: 'Yearly Genre Embeddings: Format: {year}.npy files containing vectors of
+    shape (num_genres, 100).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Yearly genre embeddings are stored as vectors of shape (num_genres, 100).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:47:37Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: Years with fewer than 1000 unique tracks are flagged and zero-filled
+  claim_id: c_560c9e1d
+  context: 'Low-Coverage Years: Years with <1,000 unique tracks are flagged in logs
+    but included (with zero-fill for missing genres).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Years_with_fewer_than_1000_unique_tracks_are_flagged_and_zer
+  kind: magnitude
+  raw_text: Years with less than 1,000 unique tracks are flagged in logs but included
+    with zero-fill for missing genres.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:47:58Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: Missing genre rate above 20% triggers warning
+  claim_id: c_4a4e759c
+  context: 'Missing Genre Rate > 20%: Logged as a warning; may indicate unreliable
+    genre tagging for that year.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Missing_genre_rate_above_20%25_triggers_warning
+  kind: magnitude
+  raw_text: A missing genre rate greater than 20% is logged as a warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:48:46Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: Million Playlist Dataset is primary data source
+  claim_id: c_856cdd76
+  context: 'Primary Data: Million Playlist Dataset (MPD) - Source: [Kaggle - Million
+    Playlist Dataset].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Million_Playlist_Dataset_is_primary_data_source
+  kind: entity_fact
+  raw_text: The Million Playlist Dataset is the primary data source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:49:11Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: MusicBrainz API fetches track metadata
+  claim_id: c_9c9e5823
+  context: 'Metadata Enrichment: MusicBrainz API - Purpose: Fetches track metadata
+    (year, genre, artist) to enrich MPD data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MusicBrainz_API_fetches_track_metadata
+  kind: entity_fact
+  raw_text: MusicBrainz API is used to fetch track metadata including year, genre,
+    and artist.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:49:28Z'

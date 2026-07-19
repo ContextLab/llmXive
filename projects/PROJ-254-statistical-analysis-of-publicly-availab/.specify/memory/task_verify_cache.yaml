@@ -1,0 +1,63 @@
+T012:
+  c: false
+  h: 6f6c8cb87d4fde2aa27453f04e6b61c4fa3542cd2232670d21389392c396bded
+  r: The repository lacks a `join_mpd_mb` implementation in `src/code/ingest.py` (the
+    file is truncated and does not define the required function), and the expected
+    output file `data/derived/metadata_mpd.parquet` is absent. Both the core function
+    and its resulting artifact are missing, so the task is not satisfied.
+T017:
+  c: false
+  h: 216fe701b4e05c518a15974eaf6b8fe4d8f3240a2e8279fac114362b248bc5d7
+  r: The required test file `tests/contract/test_similarity_schema.py` does not exist,
+    so no function `test_similarity_schema_validation` is present to validate `yearly_similarity.csv`
+    against the provided schema. Without this artifact, the contract test cannot be
+    run.
+T025:
+  c: false
+  h: 36bb7834a36efdaac14c3f618dab62801a9e0dfcaa58b318514a29ec4090c443
+  r: The provided `tests/unit/test_cooks_distance.py` exists, but the required fixture
+    file `tests/fixtures/cooks_input.csv` is missing, so the test cannot load data
+    or perform the asserted tolerance check. The missing CSV must be added with the
+    expected columns (including `expected_cooks_distance`) for the task to be fulfilled.
+T026:
+  c: false
+  h: 66023f1e9c6c2848979879035bb22af9cfff23e985d8cc2ed2988f06d4e87ddf
+  r: "The repository lacks the required `data/derived/yearly_similarity.csv` file,\
+    \ and the `fit_linear_regression` implementation in `src/code/regression.py` is\
+    \ truncated and does not contain the full logic for loading the CSV, applying\
+    \ the low\u2011coverage year filter, or fitting a robust linear regression model.\
+    \ Both the data artifact and a complete function implementation are missing."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `pipeline_log.txt` file or excerpt showing logging of model parameters, convergence
+    status, and outlier counts was provided; without such evidence the requirement
+    cannot be verified as met.
+T031a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` file with updated \u201CInstallation\u201D, \u201CUsage\u201D\
+    , \u201CData Sources\u201D, or \u201CResults Interpretation\u201D sections was\
+    \ presented; the evidence provided contains only the feature specification and\
+    \ test scenarios, with no indication that the README was modified. The required\
+    \ artifact is missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No new test files are present in `tests/unit/` that cover the specified edge
+    cases (e.g., handling of empty years or simulated API failure/retry logic). The
+    required additional unit tests are missing, so the task is not satisfied.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide any artifact showing that `quickstart.md` was\
+    \ executed or validated (e.g., no log file, no success report, no generated outputs).\
+    \ Consequently there is no evidence that the end\u2011to\u2011end reproducibility\
+    \ check was performed. The required validation artifact is missing."
+T036:
+  c: false
+  h: b9e10ab25cfc170982d25367e9082d478a681adad72ea1cbd171453a6346e2d9
+  r: The repository lacks a `calculate_cooks_distance` implementation in `src/code/regression.py`
+    (the shown code never defines it) and the required `data/derived/cooks_distance_report.csv`
+    file does not exist. Both the function and its output report are missing, so the
+    task is not satisfied.
