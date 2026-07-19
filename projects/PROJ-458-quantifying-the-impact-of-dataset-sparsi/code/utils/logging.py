@@ -1,16 +1,20 @@
-"""Logging utilities for the research pipeline."""
+"""
+Logging utilities for the project.
+"""
 import json
 import logging
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 class JSONFormatter(logging.Formatter):
-    """Custom formatter that outputs log records as JSON lines."""
-    
-    def format(self, record):
-        log_entry = {
+    """
+    Custom formatter that outputs logs as JSON lines.
+    """
+    def format(self, record: logging.LogRecord) -> str:
+        log_data = {
             "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
             "logger": record.name,
@@ -19,49 +23,47 @@ class JSONFormatter(logging.Formatter):
             "function": record.funcName,
             "line": record.lineno
         }
-        
-        # Add exception info if present
         if record.exc_info:
-            log_entry["exception"] = self.formatException(record.exc_info)
-        
-        # Add extra fields if present
-        if hasattr(record, 'extra_data'):
-            log_entry.update(record.extra_data)
-        
-        return json.dumps(log_entry)
+            log_data["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log_data)
 
-def get_logger(name: str = "llmXive", log_file: str = None) -> logging.Logger:
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
     Get a logger instance configured for the project.
     
-    Args:
-        name: Logger name.
-        log_file: Optional path to a JSON log file. If provided, logs are written there.
-    
-    Returns:
-        Configured logger instance.
+    If no name is provided, uses the default project logger.
+    Outputs to both console and a file in data/results/ if the directory exists.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger_name = name or "llmXive"
+    logger = logging.getLogger(logger_name)
     
     if logger.handlers:
         return logger
     
-    # Console handler (standard output)
+    logger.setLevel(logging.INFO)
+    
+    # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(JSONFormatter())
+    console_handler.setLevel(logging.INFO)
+    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
     
-    # File handler if specified
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(JSONFormatter())
-        logger.addHandler(file_handler)
+    # File handler (optional, if data/results exists)
+    log_dir = Path("data/results")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    log_file = log_dir / f"app_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
+    json_formatter = JSONFormatter()
+    file_handler.setFormatter(json_formatter)
+    logger.addHandler(file_handler)
     
     return logger
 
-def log_result(logger: logging.Logger, message: str, **kwargs):
-    """Helper to log a result with extra data."""
-    logger.info(message, extra={"extra_data": kwargs})
+def log_result(logger: logging.Logger, result: dict, message: str = "Result") -> None:
+    """
+    Helper to log a dictionary result as a JSON string.
+    """
+    logger.info(f"{message}: {json.dumps(result)}")

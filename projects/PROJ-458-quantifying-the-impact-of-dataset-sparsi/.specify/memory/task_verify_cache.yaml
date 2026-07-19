@@ -1,0 +1,45 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or file listing is provided as evidence; the required
+    folders (`code/utils`, `data/raw`, `data/processed`, `data/results`, `data/metadata`,
+    `tests/unit`, `tests/integration`, `docs`) are not shown to exist or contain any
+    content. The implementer must supply a concrete proof (e.g., a directory tree
+    snapshot) that the specified structure has been created.
+T020:
+  c: false
+  h: 1d00e6890d88623bdee366a122b0845d64dc987379a99b682ea0101297874208
+  r: "The repository contains `code/test_split.py`, but the required output file `data/processed/test_set.csv`\
+    \ is absent, and the provided script is truncated before any code that writes\
+    \ the test set or generates metadata/checksum files. Without a generated CSV,\
+    \ the task\u2019s core requirement is not satisfied."
+T024:
+  c: false
+  h: b94950da7088061c56082c6d2906cfe00cca3676a164246786209737af675a8d
+  r: The provided `code/data_ingestion.py` is truncated (the `main()` function is
+    incomplete and the script never calls the fetch or save functions), and the required
+    output file `data/raw/raw_pool.csv` does not exist. Consequently the script does
+    not actually download and store a substantial corpus as specified.
+T025:
+  c: false
+  h: fbe53f3bd3ff054b91d03001b2cc7c213fc2206f3a76abcb42cd240603f9c781
+  r: "The required output file `data/processed/filtered_pool.csv` does not exist,\
+    \ and the provided `code/data_ingestion.py` does not implement the filtering step\
+    \ (it writes all fetched rows without checking for non\u2011null `formation_energy`\
+    \ or `dft_computed == True`). The task\u2019s core requirement is therefore unmet."
+T026:
+  c: false
+  h: 6d2a86e7a04a1584197b8fe585a241681d53beac5342824ed5a1186564644785
+  r: The provided `code/data_ingestion.py` contains only placeholder API fetching
+    and CSV writing logic; it never imports or uses `matminer` nor the `ElementalPropertyFeatureExtractor`,
+    nor does it generate the required descriptor columns. Additionally, the expected
+    output file `data/processed/descriptors_pool.csv` is absent from the repository.
+    Both the required code implementation and the output artifact are missing.
+T027:
+  c: false
+  h: 1c879a6d3ebd2c48fb195e6ae472a1a6b9b749b6e8f83ec6d46cbc0320b486d0
+  r: "The provided `code/data_ingestion.py` is truncated and contains only placeholder\
+    \ API fetching logic; it lacks any mean\u2011imputation, row\u2011dropping, logging\
+    \ to `data/results/ingestion_log.json`, or writing the final dataset to `data/processed/full_pool_final.csv`.\
+    \ Both required output files are missing from the repository. The task requirements\
+    \ are therefore not met."

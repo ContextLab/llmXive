@@ -1,25 +1,16 @@
-# Core Data & Scientific Computing
-numpy==1.26.4
-pandas==2.2.1
-
-# Materials Science Specific
-pymatgen==2024.3.1
-matminer==0.9.1
-
-# Machine Learning
-scikit-learn==1.4.2
-
-# Statistical Analysis
-statsmodels==0.14.1
-
-# Visualization
-matplotlib==3.8.4
-
-# Utilities & API
-requests==2.31.0
-python-dotenv==1.0.1
-psutil==5.9.8
-
-# Code Quality (Optional for runtime but good practice)
-# ruff
-# black
+# Core dependencies
+pymatgen>=2023.0.0
+matminer>=0.9.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+psutil>=5.9.0
+# Additional for data handling
+tqdm>=4.65.0
+# Testing (optional but recommended)
+pytest>=7.4.0
+pytest-cov>=4.1.0

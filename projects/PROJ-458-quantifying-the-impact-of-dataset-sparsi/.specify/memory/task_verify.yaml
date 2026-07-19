@@ -1,10 +1,8 @@
-? 'T001 Create project structure: `mkdir -p code/utils data/raw data/processed data/results
-  data/metadata tests/unit tests/integration docs`'
-: 2
-? 'T016 Implement `code/utils/cpu_constraints.py` with `enforce_memory_limit` to enforce
-  a configurable memory constraint and `chunked_iterator()` function. Note: This utility
-  is a blocking prerequisite for all memory-intensive tasks (T035, T039).'
-: 2
-? T017 [P] Implement `code/utils/contract_validator.py` with `validate_schema(data,
-  schema_path)` returning bool and error handling
-: 2
+T001: 1
+T020: 1
+T024: 1
+T025: 1
+T026: 1
+T027: 1
+T028: 1
+T035: 1

@@ -1,263 +1,226 @@
+"""Contract tests for knot data schemas.
+
+These tests validate that the data produced by the pipeline conforms to the
+expected schema defined in the project specifications. They serve as a guard
+against schema drift and ensure downstream consumers can rely on the data
+structure.
 """
-Contract tests for data schema validation.
+from __future__ import annotations
 
-These tests verify that the data schemas defined in specs/001-knot-complexity-analysis/contracts/
-are properly structured and can validate data correctly.
-
-Per Constitution Principle I: All random seeds must be pinned for reproducibility.
-"""
-
+import csv
 import json
-import yaml
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any, Dict, List, Set
+
 import pytest
+import pandas as pd
 
-# Pin random seed for reproducibility per Constitution Principle I
-import random
-random.seed(42)
+# Project root relative to this test file
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+DATA_RAW = PROJECT_ROOT / "data" / "raw"
 
-# Test data schema paths
-SCHEMAS_DIR = Path(__file__).parent.parent.parent / "specs" / "001-knot-complexity-analysis" / "contracts"
-KNOT_RECORD_SCHEMA = SCHEMAS_DIR / "knot-record.schema.yaml"
-REGRESSION_MODEL_SCHEMA = SCHEMAS_DIR / "regression-model.schema.yaml"
-DATASET_SCHEMA = SCHEMAS_DIR / "dataset.schema.yaml"
+# Expected schema for the cleaned CSV (from T014)
+# Based on T012/T014 requirements: crossing_number, braid_index, hyperbolic_volume,
+# is_alternating, knot_id, missing_invariant_flags, data_quality_flags
+EXPECTED_CSV_COLUMNS = {
+    "knot_id",
+    "crossing_number",
+    "braid_index",
+    "hyperbolic_volume",
+    "is_alternating",
+    "missing_invariant_flags",
+    "data_quality_flags",
+    "diagram_representation",  # Optional but expected if parsed
+    "atlas_source",
+}
 
-
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a YAML schema file."""
-    with open(schema_path, 'r') as f:
-        return yaml.safe_load(f)
-
-
-def validate_knot_record_schema() -> None:
-    """Validate the knot record schema structure."""
-    schema = load_schema(KNOT_RECORD_SCHEMA)
-
-    # Check required top-level keys
-    assert "name" in schema, "Schema must have 'name' field"
-    assert "type" in schema, "Schema must have 'type' field"
-    assert "properties" in schema, "Schema must have 'properties' field"
-
-    # Check required knot record fields
-    required_fields = [
-        "knot_id",
-        "crossing_number",
-        "braid_index",
-        "hyperbolic_volume",
-        "is_alternating"
-    ]
-
-    for field in required_fields:
-        assert field in schema["properties"], f"Schema must have '{field}' property"
+# Expected schema for the raw JSON (from T014)
+# We expect a list of dictionaries or a dictionary containing a list
+EXPECTED_RAW_KEYS = {"knots", "metadata", "source_url", "timestamp"}
+REQUIRED_KNOT_FIELDS = {
+    "id",
+    "crossing_number",
+    "braid_index",
+    "hyperbolic_volume",
+    "is_alternating",
+}
 
 
-def validate_regression_model_schema() -> None:
-    """Validate the regression model schema structure."""
-    schema = load_schema(REGRESSION_MODEL_SCHEMA)
+class TestCleanedDataSchema:
+    """Tests for data/processed/knots_cleaned.csv"""
 
-    # Check required top-level keys
-    assert "name" in schema, "Schema must have 'name' field"
-    assert "type" in schema, "Schema must have 'type' field"
-    assert "properties" in schema, "Schema must have 'properties' field"
+    @pytest.fixture(scope="class")
+    def df(self) -> pd.DataFrame:
+        """Load the cleaned dataset."""
+        path = DATA_PROCESSED / "knots_cleaned.csv"
+        if not path.exists():
+            pytest.skip(f"Data file not found: {path}. Run pipeline first.")
+        return pd.read_csv(path)
 
-    # Check required regression model fields
-    required_fields = [
-        "model_id",
-        "model_type",
-        "features",
-        "target",
-        "coefficients"
-    ]
+    def test_file_exists(self):
+        """Verify the cleaned data file exists."""
+        assert (DATA_PROCESSED / "knots_cleaned.csv").exists(), \
+            "knots_cleaned.csv must exist after T014"
 
-    for field in required_fields:
-        assert field in schema["properties"], f"Schema must have '{field}' property"
+    def test_required_columns_present(self, df: pd.DataFrame):
+        """Verify all required columns are present."""
+        actual_cols = set(df.columns)
+        missing = EXPECTED_CSV_COLUMNS - actual_cols
+        assert not missing, f"Missing required columns: {missing}"
 
+    def test_no_null_core_invariants(self, df: pd.DataFrame):
+        """Verify core invariants (crossing_number, braid_index) are never null."""
+        # FR-009: Core invariants must not trigger missing_invariant_flags
+        # and should be present in the cleaned data.
+        core_cols = ["crossing_number", "braid_index"]
+        for col in core_cols:
+            null_count = df[col].isna().sum()
+            assert null_count == 0, f"Column {col} has {null_count} null values"
 
-def validate_dataset_schema() -> None:
-    """Validate the dataset schema structure."""
-    schema = load_schema(DATASET_SCHEMA)
+    def test_crossing_number_positive(self, df: pd.DataFrame):
+        """Verify crossing numbers are positive integers."""
+        assert (df["crossing_number"] > 0).all(), "Crossing numbers must be > 0"
+        assert df["crossing_number"].dtype in [int, "int64", "int32"], \
+            "Crossing number should be integer type"
 
-    # Check required top-level keys
-    assert "name" in schema, "Schema must have 'name' field"
-    assert "type" in schema, "Schema must have 'type' field"
-    assert "properties" in schema, "Schema must have 'properties' field"
+    def test_braid_index_valid(self, df: pd.DataFrame):
+        """Verify braid index is positive and <= crossing number."""
+        assert (df["braid_index"] > 0).all(), "Braid index must be > 0"
+        assert (df["braid_index"] <= df["crossing_number"]).all(), \
+            "Braid index must be <= crossing number"
 
-    # Check required dataset fields
-    required_fields = [
-        "dataset_id",
-        "name",
-        "description",
-        "created_at",
-        "records",
-        "metadata"
-    ]
+    def test_hyperbolic_volume_non_negative(self, df: pd.DataFrame):
+        """Verify hyperbolic volume is non-negative."""
+        # Some knots might be non-hyperbolic (volume=0 or null depending on parser)
+        # but for the hyperbolic subset, it must be > 0.
+        # We allow nulls here if the parser sets them, but if present, must be >= 0.
+        if "hyperbolic_volume" in df.columns:
+            non_null = df["hyperbolic_volume"].dropna()
+            if len(non_null) > 0:
+                assert (non_null >= 0).all(), "Hyperbolic volume must be >= 0"
 
-    for field in required_fields:
-        assert field in schema["properties"], f"Schema must have '{field}' property"
+    def test_is_alternating_boolean(self, df: pd.DataFrame):
+        """Verify is_alternating is boolean-like."""
+        valid_vals = {True, False, 0, 1, "True", "False", "true", "false"}
+        unique_vals = set(df["is_alternating"].astype(str).str.lower())
+        # Allow some flexibility for CSV parsing
+        assert all(v in valid_vals for v in unique_vals), \
+            f"is_alternating contains invalid values: {unique_vals}"
 
+    def test_knot_id_uniqueness(self, df: pd.DataFrame):
+        """Verify knot_id is unique."""
+        assert df["knot_id"].is_unique, "knot_id must be unique"
 
-class TestKnotRecordSchema:
-    """Contract tests for knot record schema."""
-
-    def test_schema_file_exists(self):
-        """Test that the knot record schema file exists."""
-        assert KNOT_RECORD_SCHEMA.exists(), f"Schema file not found: {KNOT_RECORD_SCHEMA}"
-
-    def test_schema_structure(self):
-        """Test that the knot record schema has required structure."""
-        validate_knot_record_schema()
-
-    def test_schema_valid_yaml(self):
-        """Test that the knot record schema is valid YAML."""
-        schema = load_schema(KNOT_RECORD_SCHEMA)
-        assert isinstance(schema, dict), "Schema must be a dictionary"
-        assert schema["type"] == "object", "Schema type must be 'object'"
-
-    def test_schema_has_version(self):
-        """Test that the schema has a version field."""
-        schema = load_schema(KNOT_RECORD_SCHEMA)
-        assert "version" in schema, "Schema must have 'version' field"
-
-    def test_schema_properties_are_objects(self):
-        """Test that all properties in the schema are objects."""
-        schema = load_schema(KNOT_RECORD_SCHEMA)
-        for prop_name, prop_def in schema["properties"].items():
-            assert isinstance(prop_def, dict), f"Property '{prop_name}' must be a dictionary"
-
-
-class TestRegressionModelSchema:
-    """Contract tests for regression model schema."""
-
-    def test_schema_file_exists(self):
-        """Test that the regression model schema file exists."""
-        assert REGRESSION_MODEL_SCHEMA.exists(), f"Schema file not found: {REGRESSION_MODEL_SCHEMA}"
-
-    def test_schema_structure(self):
-        """Test that the regression model schema has required structure."""
-        validate_regression_model_schema()
-
-    def test_schema_valid_yaml(self):
-        """Test that the regression model schema is valid YAML."""
-        schema = load_schema(REGRESSION_MODEL_SCHEMA)
-        assert isinstance(schema, dict), "Schema must be a dictionary"
-        assert schema["type"] == "object", "Schema type must be 'object'"
-
-    def test_schema_has_version(self):
-        """Test that the schema has a version field."""
-        schema = load_schema(REGRESSION_MODEL_SCHEMA)
-        assert "version" in schema, "Schema must have 'version' field"
+    def test_missing_invariant_flags_format(self, df: pd.DataFrame):
+        """Verify missing_invariant_flags is a string or list representation."""
+        # Typically stored as a string like "[]" or "field1,field2" or JSON string
+        col = df["missing_invariant_flags"]
+        # Just check it's not NaN for the core fields (per FR-009)
+        # If the column exists, it should have a value (even if empty)
+        assert col.notna().all(), "missing_invariant_flags should not be NaN"
 
 
-class TestDatasetSchema:
-    """Contract tests for dataset schema."""
+class TestRawDataSchema:
+    """Tests for data/raw/knot_atlas_raw.json"""
 
-    def test_schema_file_exists(self):
-        """Test that the dataset schema file exists."""
-        assert DATASET_SCHEMA.exists(), f"Schema file not found: {DATASET_SCHEMA}"
+    @pytest.fixture(scope="class")
+    def raw_data(self) -> Dict[str, Any]:
+        """Load the raw JSON data."""
+        path = DATA_RAW / "knot_atlas_raw.json"
+        if not path.exists():
+            pytest.skip(f"Raw data file not found: {path}. Run T011 first.")
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data
 
-    def test_schema_structure(self):
-        """Test that the dataset schema has required structure."""
-        validate_dataset_schema()
+    def test_file_exists(self):
+        """Verify the raw data file exists."""
+        assert (DATA_RAW / "knot_atlas_raw.json").exists(), \
+            "knot_atlas_raw.json must exist after T011"
 
-    def test_schema_valid_yaml(self):
-        """Test that the dataset schema is valid YAML."""
-        schema = load_schema(DATASET_SCHEMA)
-        assert isinstance(schema, dict), "Schema must be a dictionary"
-        assert schema["type"] == "object", "Schema type must be 'object'"
+    def test_top_level_structure(self, raw_data: Dict[str, Any]):
+        """Verify top-level keys are present."""
+        # The structure might be {"knots": [...]} or just a list
+        if isinstance(raw_data, list):
+            # If it's a list, that's acceptable too
+            pass
+        elif isinstance(raw_data, dict):
+            # Check for expected keys
+            assert any(key in raw_data for key in EXPECTED_RAW_KEYS), \
+                f"Raw data missing expected keys. Found: {raw_data.keys()}"
+        else:
+            pytest.fail("Raw data must be a dict or list")
 
-    def test_schema_has_version(self):
-        """Test that the schema has a version field."""
-        schema = load_schema(DATASET_SCHEMA)
-        assert "version" in schema, "Schema must have 'version' field"
+    def test_knot_records_have_required_fields(self, raw_data: Dict[str, Any]):
+        """Verify each knot record has required fields."""
+        knots = raw_data.get("knots", raw_data) if isinstance(raw_data, dict) else raw_data
 
+        if not isinstance(knots, list):
+            pytest.skip("Raw data does not contain a list of knots")
 
-class TestDataQualityFlagsSchema:
-    """Contract tests for data quality flags validation."""
+        if len(knots) == 0:
+            pytest.skip("Raw data contains no knots")
 
-    def test_data_quality_flags_field_exists(self):
-        """Test that data quality flags are defined in the schema."""
-        schema = load_schema(KNOT_RECORD_SCHEMA)
-        assert "data_quality_flags" in schema["properties"], \
-            "Schema must have 'data_quality_flags' property"
+        first_knot = knots[0]
+        missing = REQUIRED_KNOT_FIELDS - set(first_knot.keys())
+        assert not missing, f"Knot records missing required fields: {missing}"
 
-    def test_missing_invariant_flags_field_exists(self):
-        """Test that missing invariant flags are defined in the schema."""
-        schema = load_schema(KNOT_RECORD_SCHEMA)
-        assert "missing_invariant_flags" in schema["properties"], \
-            "Schema must have 'missing_invariant_flags' property"
-
-
-class TestSampleDataValidation:
-    """Contract tests for sample data validation against schemas."""
-
-    def test_sample_knot_record_validates(self):
-        """Test that a sample knot record validates against the schema."""
-        schema = load_schema(KNOT_RECORD_SCHEMA)
-
-        # Sample valid knot record data
-        sample_record = {
-            "knot_id": "5_2",
-            "crossing_number": 5,
-            "braid_index": 3,
-            "hyperbolic_volume": 2.828,
-            "is_alternating": False,
-            "data_quality_flags": [],
-            "missing_invariant_flags": []
-        }
-
-        # Basic validation: check all required fields are present
-        for field in ["knot_id", "crossing_number", "braid_index", "hyperbolic_volume", "is_alternating"]:
-            assert field in sample_record, f"Sample record missing required field: {field}"
-
-        # Verify field types
-        assert isinstance(sample_record["knot_id"], str), "knot_id must be string"
-        assert isinstance(sample_record["crossing_number"], int), "crossing_number must be int"
-        assert isinstance(sample_record["braid_index"], int), "braid_index must be int"
-        assert isinstance(sample_record["hyperbolic_volume"], (int, float)), "hyperbolic_volume must be numeric"
-        assert isinstance(sample_record["is_alternating"], bool), "is_alternating must be bool"
-
-    def test_sample_regression_model_validates(self):
-        """Test that a sample regression model validates against the schema."""
-        schema = load_schema(REGRESSION_MODEL_SCHEMA)
-
-        # Sample valid regression model data
-        sample_model = {
-            "model_id": "linear_crossing_braid",
-            "model_type": "linear",
-            "features": ["crossing_number"],
-            "target": "braid_index",
-            "coefficients": [0.5],
-            "r_squared": 0.85,
-            "created_at": "2024-01-01T00:00:00Z"
-        }
-
-        # Basic validation: check all required fields are present
-        for field in ["model_id", "model_type", "features", "target", "coefficients"]:
-            assert field in sample_model, f"Sample model missing required field: {field}"
-
-    def test_sample_dataset_validates(self):
-        """Test that a sample dataset validates against the schema."""
-        schema = load_schema(DATASET_SCHEMA)
-
-        # Sample valid dataset data
-        sample_dataset = {
-            "dataset_id": "knot_atlas_c13",
-            "name": "Knot Atlas Crossing Number <= 13",
-            "description": "Prime knots with crossing number <= 13 from Knot Atlas",
-            "created_at": "2024-01-01T00:00:00Z",
-            "records": [],
-            "metadata": {
-                "source": "Knot Atlas",
-                "url": "https://katlas.org",
-                "version": "1.0"
-            }
-        }
-
-        # Basic validation: check all required fields are present
-        for field in ["dataset_id", "name", "description", "created_at", "records", "metadata"]:
-            assert field in sample_dataset, f"Sample dataset missing required field: {field}"
+    def test_crossing_number_in_raw(self, raw_data: Dict[str, Any]):
+        """Verify crossing numbers are present in raw data."""
+        knots = raw_data.get("knots", raw_data) if isinstance(raw_data, dict) else raw_data
+        if isinstance(knots, list) and len(knots) > 0:
+            for i, knot in enumerate(knots):
+                assert "crossing_number" in knot, \
+                    f"Knot at index {i} missing crossing_number"
+                assert isinstance(knot["crossing_number"], int), \
+                    f"Knot at index {i} crossing_number is not int"
 
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+class TestDataIntegrityContract:
+    """Cross-file integrity tests."""
+
+    def test_record_count_consistency(self):
+        """Verify record counts match between raw and processed (if applicable)."""
+        # This is a soft contract: processed might filter some records (e.g. non-hyperbolic)
+        # so we just ensure processed count <= raw count (if both exist)
+        raw_path = DATA_RAW / "knot_atlas_raw.json"
+        proc_path = DATA_PROCESSED / "knots_cleaned.csv"
+
+        if not raw_path.exists() or not proc_path.exists():
+            pytest.skip("Both raw and processed files must exist for this test")
+
+        with open(raw_path, "r") as f:
+            raw_data = json.load(f)
+        raw_knots = raw_data.get("knots", raw_data) if isinstance(raw_data, dict) else raw_data
+        raw_count = len(raw_knots) if isinstance(raw_knots, list) else 0
+
+        df = pd.read_csv(proc_path)
+        proc_count = len(df)
+
+        # Processed should not have more records than raw
+        assert proc_count <= raw_count, \
+            f"Processed count ({proc_count}) exceeds raw count ({raw_count})"
+
+    def test_knot_ids_consistency(self):
+        """Verify knot IDs in processed are a subset of raw."""
+        raw_path = DATA_RAW / "knot_atlas_raw.json"
+        proc_path = DATA_PROCESSED / "knots_cleaned.csv"
+
+        if not raw_path.exists() or not proc_path.exists():
+            pytest.skip("Both files must exist")
+
+        with open(raw_path, "r") as f:
+            raw_data = json.load(f)
+        raw_knots = raw_data.get("knots", raw_data) if isinstance(raw_data, dict) else raw_data
+        raw_ids = {k["id"] for k in raw_knots} if isinstance(raw_knots, list) else set()
+
+        df = pd.read_csv(proc_path)
+        proc_ids = set(df["knot_id"].unique())
+
+        if not raw_ids:
+            pytest.skip("No raw IDs found")
+
+        missing_in_raw = proc_ids - raw_ids
+        assert not missing_in_raw, \
+            f"Processed data contains IDs not in raw: {missing_in_raw}"

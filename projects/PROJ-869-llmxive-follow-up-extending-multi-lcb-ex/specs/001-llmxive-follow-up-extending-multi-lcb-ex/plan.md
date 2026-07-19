@@ -115,7 +115,7 @@ projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/code/
 - **T039**: **Re-verify Baseline**: Re-run the "blind" condition on the **final filtered set** (T015) to establish the empirical baseline for the paired test. **(Pre-requisite for T022)**.
 - **T022**: **Run Guided Condition**: Generate code for the *same* 200 tasks with the Partial Logic Trace anchor.
 - **T023**: **Execute & Classify**: Run sandbox execution.
-    - **Logic Transfer Failure Logic**: Explicitly verify if generated code implements the 3 anchor steps (keyword/control-flow matching).
+    - **Logic Transfer Failure Logic**: Explicitly verify if generated code implements the anchor steps (keyword/control-flow matching).
     - **Categorize**: Syntax, Library, Runtime, Logic Transfer Failure.
 - **T024**: **Stability Monitoring**: Track runner crashes/hangs to calculate Sandbox Stability Rate (SC-005).
 

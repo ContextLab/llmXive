@@ -1,4 +1,6 @@
-"""Data models for the research pipeline."""
+"""
+Data models for the project.
+"""
 from dataclasses import dataclass, field
 from typing import Dict, List, Any, Optional
 import hashlib
@@ -6,42 +8,39 @@ import json
 
 @dataclass
 class MaterialEntry:
-    """Represents a single material entry from the database."""
+    """
+    Represents a single material entry from the Materials Project.
+    """
     id: str
     composition: str
-    formation_energy: Optional[float]
-    descriptors: Dict[str, float] = field(default_factory=dict)
+    formation_energy: float
+    descriptors: Dict[str, float]
     dft_computed: bool = True
-    
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "material_id": self.id,
-            "composition": self.composition,
-            "formation_energy": self.formation_energy,
-            "dft_computed": self.dft_computed,
-            "descriptors": self.descriptors
-        }
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class SparsitySubset:
-    """Represents a stratified subset of the material pool."""
+    """
+    Represents a subset of the dataset created for sparsity analysis.
+    """
     level: str
     seed: int
     percentage: float
-    checksum: str
-    material_ids: List[str] = field(default_factory=list)
-    
-    def calculate_checksum(self) -> str:
-        """Calculate SHA-256 checksum of the sorted material IDs."""
-        sorted_ids = sorted(self.material_ids)
-        data_str = ",".join(sorted_ids)
-        return hashlib.sha256(data_str.encode('utf-8')).hexdigest()
-    
+    checksum: Optional[str] = None
+    criteria: str = ""
+    filename: Optional[str] = None
+    row_count: int = 0
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
     def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
         return {
             "level": self.level,
             "seed": self.seed,
             "percentage": self.percentage,
             "checksum": self.checksum,
-            "material_ids": self.material_ids
+            "criteria": self.criteria,
+            "filename": self.filename,
+            "row_count": self.row_count,
+            "metadata": self.metadata
         }

@@ -238,26 +238,6 @@
   updated_at: '2026-07-02T10:03:59Z'
 - artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
   attempts: 1
-  canonical: full_pool_final.csv contains greater than 150000 rows with non-null formation
-    energy and feature vectors
-  claim_id: c_51c6359d
-  context: 'Independent Test: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
-    contains >150,000 rows with non-null formation energy and feature vectors.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Full_pool_final.csv_contains_greater_than_150000_rows_with_n
-  kind: magnitude
-  raw_text: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
-    contains >150,000 rows with non-null formation energy and feature vectors.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-02T10:04:47Z'
-- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
-  attempts: 1
   canonical: generate multiple stratified subsets preserving chemical space using
     K-Means clustering
   claim_id: c_f07716df
@@ -339,3 +319,79 @@
   source_type: external
   status: verified
   updated_at: '2026-07-02T10:11:22Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 2
+  canonical: full_pool_final.csv contains greater than 150000 rows with non-null formation
+    energy and feature vectors
+  claim_id: c_51c6359d
+  context: 'Independent Test: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pool_final.csv_contains_greater_than_150000_rows_with_n
+  kind: magnitude
+  raw_text: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:23:29Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 2
+  canonical: full_pool_final.csv contains >150,000 rows with non-null formation energy
+    and feature vectors
+  claim_id: c_9f47d690
+  context: 'Independent Test: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:25:35Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: full_pool_final.csv contains greater than 150000 rows with non-null formation
+    energy and feature vectors
+  claim_id: c_8d7e7644
+  context: 'Independent Test: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pool_final.csv_contains_greater_than_150000_rows_with_n
+  kind: magnitude
+  raw_text: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:30:07Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 2
+  canonical: full_pool_final.csv contains >150,000 rows with non-null formation energy
+    and feature vectors
+  claim_id: c_9d5a4bda
+  context: 'Independent Test: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:32:24Z'

@@ -64,7 +64,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/JasonXF/US3D-Enhanced/7f60acedd7f2c766cdc27a1e9e62bcc9c7d3428e/prompt.json?%2Fdatasets%2FJasonXF%2FUS3D-Enhanced%2Fresolve%2Fmain%2Fprompt.json=&etag=%22b1e79c038446025d54f94493aedb58c848fe8d2c%22
   verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: 01417d4bf918610c019c6c0d241dc314fb92c8f522725d37520e3aa1eeacc7af
+- artifact_hash: 20088e06b0ae7afb56a185dfc552749f7d441cf8ff147e8865d5639c488c980b
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -72,10 +72,10 @@
   fetched_title: Assert - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q131143974
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q131143974
-  verified_at: '2026-07-14T19:06:52.238720Z'
-- artifact_hash: 01417d4bf918610c019c6c0d241dc314fb92c8f522725d37520e3aa1eeacc7af
+  verified_at: '2026-07-19T16:21:37.677650Z'
+- artifact_hash: 20088e06b0ae7afb56a185dfc552749f7d441cf8ff147e8865d5639c488c980b
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -84,10 +84,10 @@
     Games'
   kind: url
   value: https://arxiv.org/abs/2503.02686
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2503.02686
-  verified_at: '2026-07-14T19:06:52.238720Z'
-- artifact_hash: 01417d4bf918610c019c6c0d241dc314fb92c8f522725d37520e3aa1eeacc7af
+  verified_at: '2026-07-19T16:21:37.677650Z'
+- artifact_hash: 20088e06b0ae7afb56a185dfc552749f7d441cf8ff147e8865d5639c488c980b
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -95,10 +95,10 @@
   fetched_title: Power - Wikipedia
   kind: url
   value: https://en.wikipedia.org/wiki/Power_
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-07-14T19:06:52.238720Z'
-- artifact_hash: 01417d4bf918610c019c6c0d241dc314fb92c8f522725d37520e3aa1eeacc7af
+  verified_at: '2026-07-19T16:21:37.677650Z'
+- artifact_hash: 20088e06b0ae7afb56a185dfc552749f7d441cf8ff147e8865d5639c488c980b
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -106,10 +106,10 @@
   fetched_title: '[2202.05773] Visualising Multiplayer Game Spaces'
   kind: url
   value: https://arxiv.org/abs/2202.05773
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2202.05773
-  verified_at: '2026-07-14T19:06:52.238720Z'
-- artifact_hash: 01417d4bf918610c019c6c0d241dc314fb92c8f522725d37520e3aa1eeacc7af
+  verified_at: '2026-07-19T16:21:37.677650Z'
+- artifact_hash: 20088e06b0ae7afb56a185dfc552749f7d441cf8ff147e8865d5639c488c980b
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -117,6 +117,6 @@
   fetched_title: Bootstrapping - Wikipedia
   kind: url
   value: https://en.wikipedia.org/wiki/Bootstrapping_
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-07-14T19:06:52.238720Z'
+  verified_at: '2026-07-19T16:21:37.677650Z'

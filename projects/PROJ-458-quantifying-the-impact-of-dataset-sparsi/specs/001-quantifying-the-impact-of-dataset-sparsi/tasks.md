@@ -56,8 +56,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T015 Implement `code/utils/logging.py` with `get_logger()` returning a JSON formatter that writes to `data/results/`
-- [ ] T016 Implement `code/utils/cpu_constraints.py` with `enforce_memory_limit` to enforce a configurable memory constraint and `chunked_iterator()` function. Note: This utility is a blocking prerequisite for all memory-intensive tasks (T035, T039).
-- [ ] T017 [P] Implement `code/utils/contract_validator.py` with `validate_schema(data, schema_path)` returning bool and error handling
+- [X] T016 Implement `code/utils/cpu_constraints.py` with `enforce_memory_limit` to enforce a configurable memory constraint and `chunked_iterator()` function. Note: This utility is a blocking prerequisite for all memory-intensive tasks (T035, T039).
+- [X] T017 [P] Implement `code/utils/contract_validator.py` with `validate_schema(data, schema_path)` returning bool and error handling
 - [X] T018 Create base `MaterialEntry` data class (fields: id, composition, formation_energy, descriptors) and `SparsitySubset` data class (fields: level, seed, percentage, checksum) in `code/utils/data_models.py`
 - [X] T019 Setup environment configuration: Create `code/.env.example` with `MP_API_KEY=placeholder` and `code/config.py` with `load_env()` that raises error if `MP_API_KEY` missing. Note: The spec's Assumption regarding 'no authentication barriers' is incorrect; this task implements the required API key configuration per the Plan.
 
@@ -94,12 +94,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T024 [US1] Implement `code/data_ingestion.py` to download a substantial corpus of entries via Materials Project API. (using `MP_API_KEY`), with exponential backoff (limited retry attempts), outputting raw data to `data/raw/raw_pool.csv` with columns: `material_id`, `composition`, `formation_energy`, `dft_computed`.
-- [~] T025 [US1] Implement filtering logic in `code/data_ingestion.py` to retain only rows where `formation_energy` is not null and `dft_computed` is True, saving to `data/processed/filtered_pool.csv`.
-- [~] T026 [US1] Implement descriptor generation in `code/data_ingestion.py` using `matminer` `ElementalPropertyFeatureExtractor` with properties: `atomic_number`, `electronegativity`, `atomic_radius`, outputting to `data/processed/descriptors_pool.csv`.
-- [~] T027 [US1] Implement imputation logic in `code/data_ingestion.py` to mean-fill missing numeric descriptors; drop rows with >50% missing values and log count to `data/results/ingestion_log.json`. Output final dataset to `data/processed/full_pool_final.csv`. <!-- FAILED: unspecified -->
+- [ ] T024 [US1] Implement `code/data_ingestion.py` to download a substantial corpus of entries via Materials Project API. (using `MP_API_KEY`), with exponential backoff (limited retry attempts), outputting raw data to `data/raw/raw_pool.csv` with columns: `material_id`, `composition`, `formation_energy`, `dft_computed`.
+- [ ] T025 [US1] Implement filtering logic in `code/data_ingestion.py` to retain only rows where `formation_energy` is not null and `dft_computed` is True, saving to `data/processed/filtered_pool.csv`.
+- [ ] T026 [US1] Implement descriptor generation in `code/data_ingestion.py` using `matminer` `ElementalPropertyFeatureExtractor` with properties: `atomic_number`, `electronegativity`, `atomic_radius`, outputting to `data/processed/descriptors_pool.csv`.
+- [ ] T027 [US1] Implement imputation logic in `code/data_ingestion.py` to mean-fill missing numeric descriptors; drop rows with >50% missing values and log count to `data/results/ingestion_log.json`. Output final dataset to `data/processed/full_pool_final.csv`. <!-- FAILED: unspecified -->
 - [ ] T028 [US1] Save cleaned full pool to `data/processed/full_pool_final.csv` with SHA-256 checksum generation (write to `data/processed/full_pool_final.csv.sha256`) (Constitution III)
-- [~] T020 [US1] [P] Implement `code/test_split.py` to partition a subset of the `full_pool_final.csv` into a **Fixed Test Set** for model evaluation, following the research question and method outlined in prior work [Citation]. (`data/processed/test_set.csv`) using a fixed random seed. (FR-009, Plan Phase 0.5). Note: This task now correctly depends on T027.
+- [ ] T020 [US1] [P] Implement `code/test_split.py` to partition a subset of the `full_pool_final.csv` into a **Fixed Test Set** for model evaluation, following the research question and method outlined in prior work [Citation]. (`data/processed/test_set.csv`) using a fixed random seed. (FR-009, Plan Phase 0.5). Note: This task now correctly depends on T027.
 - [~] T021 [US1] [P] Verify test set independence and log metadata (row count, checksum) to `data/metadata/test_set_metadata.json` (FR-009)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -119,10 +119,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] Implement `code/sparsity_generation.py` to cap the training pool at a Representative Stratified Sample (RSS) by reading the baseline size from `config.RSS_SIZE` (resolving the '[deferred]' placeholder from the Plan). Implement stratified random sampling based on formation_energy bins. (Plan Phase 1.1).
-- [ ] T032 [US2] Implement K-Means clustering on elemental fingerprints in `code/sparsity_generation.py` to generate multiple stratified subsets ([deferred], [deferred], [deferred], [deferred], [deferred], [deferred], [deferred] of the RSS pool) preserving chemical space (FR-003)
-- [ ] T033 [US2] Implement stratification validation in `code/validate_stratification.py` using Jensen-Shannon divergence (threshold < 0.05) and KS-test (p > 0.05); block training if thresholds exceeded (Plan Phase 1.3)
-- [ ] T034 [US2] Generate `data/metadata/sparsity_<level>_<seed>.json` for each subset containing keys: `seed`, `percentage`, `criteria`, `checksum` (Constitution VII)
+- [X] T031 [US2] Implement `code/sparsity_generation.py` to cap the training pool at a Representative Stratified Sample (RSS) by reading the baseline size from `config.RSS_SIZE` (resolving the '[deferred]' placeholder from the Plan). Implement stratified random sampling based on formation_energy bins. (Plan Phase 1.1).
+- [X] T032 [US2] Implement K-Means clustering on elemental fingerprints in `code/sparsity_generation.py` to generate multiple stratified subsets ([deferred], [deferred], [deferred], [deferred], [deferred], [deferred], [deferred] of the RSS pool) preserving chemical space (FR-003)
+- [X] T033 [US2] Implement stratification validation in `code/validate_stratification.py` using Jensen-Shannon divergence (threshold < 0.05) and KS-test (p > 0.05); block training if thresholds exceeded (Plan Phase 1.3)
+- [~] T034 [US2] Generate `data/metadata/sparsity_<level>_<seed>.json` for each subset containing keys: `seed`, `percentage`, `criteria`, `checksum` (Constitution VII)
 - [ ] T035 [US2] Implement `code/model_training.py` to train GPR (RBF kernel, `normalize_y=True`, `max_iter_predict=1000`) and Random Forest models (n_estimators=100) on CPU only. Implement Linear Mixed-Effects Modeling (LMM) using `statsmodels.MixedLM` for statistical analysis as per Plan 'Note on Spec Contradictions' (FR-010).
 - [ ] T036 [US2] Implement k-fold Cross-Validation with multiple independent seeds per sparsity level in `code/model_training.py` (FR-005)
 - [ ] T037 [US2] Implement evaluation logic in `code/model_training.py` to score all models against the **Fixed Test Set** (not training subsets) and calculate RMSE, MAE, Predictive Variance, Calibration Slope. Note: Includes Predictive Variance and Calibration Slope per Constitution Principle VI and FR-005, exceeding SC-001.

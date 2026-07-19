@@ -28402,25 +28402,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T18:46:15Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: Wikipedia article on Power (statistics)
-  claim_id: c_06343197
-  context: 'Implement power analysis in code/analysis/power.py: Estimate detectable
-    effect size for N=1000, alpha=0.05, {{claim:c_d4139ed9}} (Wikipedia: Power (statistics),
-    https://en.wikipedia.org/wiki/Power_(statistics)); flag if {{claim:c_48c03e05}}.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Wikipedia_article_on_Power_(statistics)
-  kind: entity_fact
-  raw_text: 'Wikipedia: Power (statistics)'
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T18:47:09Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 0
   canonical: Wikidata Q131143974
   claim_id: c_cb792ca3
@@ -28643,3 +28624,92 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T19:06:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Wikidata identifier Q131143974
+  claim_id: c_6eddbb80
+  context: 'Implement validation logic in code/metrics/validator.py: {{claim:c_e0e74a46}}
+    (Wikidata Q131143974, https://www.wikidata.org/wiki/Q131143974); log errors for
+    failed games.'
+  evidence:
+    entailment_evidence: Wikidata identifier Q131143974 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_identifier_Q131143974
+  kind: entity_fact
+  raw_text: Wikidata Q131143974
+  resolved_value: Wikidata identifier Q131143974
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T16:19:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv identifier 2503.02686
+  claim_id: c_27e37f74
+  context: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for {{claim:c_5ddf2989}} (2503.02686, https://arxiv.org/abs/2503.02686).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2503.02686'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:19:34Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv identifier 2202.05773
+  claim_id: c_7687a4ef
+  context: Implement game simulation for varying agent counts ({{claim:c_c9888c5b}}
+    (2202.05773, https://arxiv.org/abs/2202.05773)) in code/run_experiment.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2202.05773'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:19:48Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: Wikipedia article on Power (statistics)
+  claim_id: c_06343197
+  context: 'Implement power analysis in code/analysis/power.py: Estimate detectable
+    effect size for N=1000, alpha=0.05, {{claim:c_d4139ed9}} (Wikipedia: Power (statistics),
+    https://en.wikipedia.org/wiki/Power_(statistics)); flag if {{claim:c_48c03e05}}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikipedia_article_on_Power_(statistics)
+  kind: entity_fact
+  raw_text: 'Wikipedia: Power (statistics)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:20:35Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Wikipedia article on Bootstrapping (statistics)
+  claim_id: c_65ef8b74
+  context: 'Compute 95% confidence intervals for fitted exponents using bootstrapping
+    ({{claim:c_ef4c6ea1}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics)))
+    and output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikipedia_article_on_Bootstrapping_(statistics)
+  kind: entity_fact
+  raw_text: 'Wikipedia: Bootstrapping (statistics)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:21:17Z'

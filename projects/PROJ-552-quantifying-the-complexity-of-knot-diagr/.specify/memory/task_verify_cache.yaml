@@ -4,3 +4,16 @@ T008:
   r: No database schema definitions, migration scripts, or any related code artifacts
     are provided; the claim cannot be verified against any tangible output. The required
     schema and migration framework are missing.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No authentication/authorization code, configuration, or documentation is present\
+    \ in the provided artifacts, and the only evidence relates to knot\u2011data download\
+    \ and analysis, which is unrelated to the required authentication framework. The\
+    \ task therefore lacks the necessary implementation artifact."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration files, or documentation for API routing or middleware
+    structure were presented. The only artifacts described relate to knot data download
+    and analysis, not to any API setup, so the required deliverable is missing.

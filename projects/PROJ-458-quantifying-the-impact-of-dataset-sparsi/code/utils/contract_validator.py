@@ -7,7 +7,7 @@ from utils.logging import get_logger
 
 logger = get_logger("contract_validator")
 
-def validate_schema(data: Dict[str, Any], schema_path: str) -> Tuple[bool, Optional[str]]:
+def validate_schema(data: Dict[str, Any], schema_path: str) -> bool:
     """
     Validate data against a JSON schema.
     
@@ -16,30 +16,40 @@ def validate_schema(data: Dict[str, Any], schema_path: str) -> Tuple[bool, Optio
         schema_path: Path to the JSON schema file.
     
     Returns:
-        Tuple of (is_valid, error_message). Returns (False, "jsonschema library missing")
-        if the jsonschema package is not installed.
+        bool: True if data is valid against the schema, False otherwise.
+            Errors are logged but not returned; this function returns a simple bool.
+    
+    Raises:
+        FileNotFoundError: If the schema file does not exist.
+        json.JSONDecodeError: If the schema file contains invalid JSON.
+        ImportError: If the jsonschema library is not installed.
     """
     try:
         import jsonschema
     except ImportError:
         logger.error("jsonschema library not found. Please install it.")
-        return False, "jsonschema library missing"
+        raise ImportError("jsonschema library missing. Please install it via requirements.txt.")
 
     try:
         with open(schema_path, 'r') as f:
             schema = json.load(f)
     except FileNotFoundError:
-        return False, f"Schema file not found: {schema_path}"
+        logger.error(f"Schema file not found: {schema_path}")
+        raise
     except json.JSONDecodeError as e:
-        return False, f"Invalid JSON in schema file: {e}"
+        logger.error(f"Invalid JSON in schema file: {e}")
+        raise
 
     try:
         jsonschema.validate(instance=data, schema=schema)
-        return True, None
+        logger.debug(f"Data validated successfully against schema: {schema_path}")
+        return True
     except jsonschema.ValidationError as e:
-        return False, str(e.message)
+        logger.error(f"Validation error: {e.message}")
+        return False
     except Exception as e:
-        return False, str(e)
+        logger.error(f"Unexpected error during validation: {e}")
+        return False
 
 def validate_contract(data: Dict[str, Any], contract_rules: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
     """

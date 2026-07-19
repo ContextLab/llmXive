@@ -24648,3 +24648,215 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T14:22:48Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Validate core tabulated invariants against KnotInfo references with 1e-6
+    tolerance
+  claim_id: c_90f010e2
+  context: T016 [US1] Validate core tabulated invariants (crossing number, braid index)
+    against KnotInfo references with 1e-6 tolerance. Generate docs/reproducibility/core_precision_consistency.md
+    (FR-013, SC-014, SC-015).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate core tabulated invariants (crossing number, braid index) against
+    KnotInfo references with 1e-6 tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:07:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Validate hyperbolic volume consistency against KnotInfo references with
+    1e-6 tolerance
+  claim_id: c_6eff2554
+  context: T017 [US1] Validate hyperbolic volume consistency against KnotInfo references
+    with 1e-6 tolerance. Generate docs/reproducibility/hyperbolic_volume_validation.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate hyperbolic volume consistency against KnotInfo references with
+    1e-6 tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:07:34Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Identify families deviating >= 2 SD
+  claim_id: c_e2d70bfa
+  context: "Create code/analysis/residual_analysis.py: Logic for identifying families\
+    \ deviating \u2265 2 SD (SC-011)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_families_deviating_%3E=_2_SD
+  kind: magnitude
+  raw_text: Identify families deviating greater than or equal to 2 standard deviations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:08:01Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Reconcile record counts between 476 and 9988
+  claim_id: c_691e7e26
+  context: 'T048 [US1] Resolve Report Contradictions: Update docs/reproducibility/data_quality_report.md,
+    docs/reproducibility/data_quantities.md, and docs/reproducibility/invariant_coverage.md
+    to reflect consistent record counts (reconcile ''476'' vs ''9,988'') and correct
+    flag statuses.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reconcile record counts between '476' and '9,988' in documentation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:08:30Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Report VIF values >> 5 due to braid_index <= crossing_number constraint
+  claim_id: c_7fa320bf
+  context: 'T054 [US3] Verify Multicollinearity Calculation: Re-implement VIF calculation
+    in code/analysis/model_fitting.py to ensure it operates on actual loaded data.
+    Verify that reported VIF values reflect the expected high multicollinearity (VIF
+    >> 5) due to the braid_index <= crossing_number constraint, or explicitly document
+    the data source failure if not.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report VIF values reflecting expected high multicollinearity (VIF >> 5)
+    due to the braid_index <= crossing_number constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:08:34Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: generate excluded_knots.md documenting excluded records for hyperbolic
+    knot filtering
+  claim_id: c_02525859
+  context: T015 [US1] Filter dataset for hyperbolic knots, logging exclusions, and
+    generate docs/reproducibility/excluded_knots.md documenting excluded records (FR-012,
+    SC-012)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_excluded_knots.md_documenting_excluded_records_for
+  kind: entity_fact
+  raw_text: Filter dataset for hyperbolic knots, logging exclusions, and generate
+    docs/reproducibility/excluded_knots.md documenting excluded records
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:12:47Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: validate core tabulated invariants against KnotInfo references with 1e-6
+    tolerance
+  claim_id: c_663991e8
+  context: T016 [US1] Validate core tabulated invariants (crossing number, braid index)
+    against KnotInfo references with 1e-6 tolerance. Generate docs/reproducibility/core_precision_consistency.md
+    (FR-013, SC-014, SC-015).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate core tabulated invariants (crossing number, braid index) against
+    KnotInfo references with 1e-6 tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:12:52Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: validate hyperbolic volume consistency against KnotInfo references with
+    1e-6 tolerance
+  claim_id: c_a4821b00
+  context: T017 [US1] Validate hyperbolic volume consistency against KnotInfo references
+    with 1e-6 tolerance. Generate docs/reproducibility/hyperbolic_volume_validation.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate hyperbolic volume consistency against KnotInfo references with
+    1e-6 tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:12:56Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: implement regression model fitting for Linear, Polynomial, and Logarithmic
+    models
+  claim_id: c_0150b53a
+  context: T026 [US3] Implement regression model fitting in code/analysis/model_fitting.py
+    for Linear, Polynomial, and Logarithmic models only. Explicitly exclude Ridge
+    regression per FR-005 census data constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_regression_model_fitting_for_Linear,_Polynomial,_a
+  kind: entity_fact
+  raw_text: Implement regression model fitting for Linear, Polynomial, and Logarithmic
+    models only
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:13:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 2
+  canonical: reconcile record counts 476 and 9988
+  claim_id: c_eed417c8
+  context: 'T048 [US1] Resolve Report Contradictions: Update docs/reproducibility/data_quality_report.md,
+    docs/reproducibility/data_quantities.md, and docs/reproducibility/invariant_coverage.md
+    to reflect consistent record counts (reconcile "476" vs "9,988") and correct flag
+    statuses.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reconcile record counts of 476 vs 9,988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:14:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: verify VIF values reflect high multicollinearity greater than 5
+  claim_id: c_93777baf
+  context: 'T054 [US3] Verify Multicollinearity Calculation: Re-implement VIF calculation
+    in code/analysis/model_fitting.py to ensure it operates on actual loaded data.
+    Verify that reported VIF values reflect the expected high multicollinearity (VIF
+    >> 5) due to the braid_index <= crossing_number constraint, or explicitly document
+    the data source failure if not.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_VIF_values_reflect_high_multicollinearity_greater_tha
+  kind: magnitude
+  raw_text: Verify that reported VIF values reflect the expected high multicollinearity
+    (VIF >> 5) due to the braid_index <= crossing_number constraint
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T16:15:09Z'
