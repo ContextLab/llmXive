@@ -1,233 +1,303 @@
+"""
+Feature Engineering Module for Z-Reward dataset.
+
+This module calculates:
+- Statistical descriptors (variance, entropy, skewness, kurtosis) per sample
+- Global eigenvalue for the full dataset
+- Dimensional fidelity loss
+"""
 import argparse
 import json
 import logging
 import sys
 import os
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 import numpy as np
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
-# --- Core Feature Calculations (US2 Implementation) ---
-
-def calculate_variance_and_range(distribution: np.ndarray) -> Tuple[float, float]:
-    """Calculate variance and range for a 1D distribution."""
-    if distribution.size == 0:
+def calculate_variance_and_range(data: np.ndarray) -> Tuple[float, float]:
+    """
+    Calculate variance and range for a 1D array.
+    
+    Args:
+        data: 1D numpy array of values
+        
+    Returns:
+        Tuple of (variance, range)
+    """
+    if len(data) == 0:
         return 0.0, 0.0
-    variance = float(np.var(distribution))
-    range_val = float(np.max(distribution) - np.min(distribution))
-    return variance, range_val
+    
+    variance = np.var(data)
+    range_val = np.max(data) - np.min(data) if len(data) > 0 else 0.0
+    
+    return float(variance), float(range_val)
 
-def calculate_entropy(distribution: np.ndarray) -> float:
-    """Calculate Shannon entropy for a normalized probability distribution."""
-    if distribution.size == 0 or np.all(distribution == 0):
+def calculate_entropy(data: np.ndarray) -> float:
+    """
+    Calculate entropy for a 1D array (normalized to probability distribution).
+    
+    Args:
+        data: 1D numpy array of values
+        
+    Returns:
+        Entropy value
+    """
+    if len(data) == 0 or np.all(data == 0):
         return 0.0
-    # Ensure non-negative and normalized
-    p = np.clip(distribution, 1e-10, None)
-    p = p / np.sum(p)
-    entropy = -np.sum(p * np.log(p))
+    
+    # Normalize to probability distribution
+    total = np.sum(data)
+    if total == 0:
+        return 0.0
+    
+    probs = data / total
+    # Filter out zero probabilities to avoid log(0)
+    probs = probs[probs > 0]
+    
+    entropy = -np.sum(probs * np.log(probs))
     return float(entropy)
 
-def calculate_skewness_and_kurtosis(distribution: np.ndarray) -> Tuple[float, float]:
-    """Calculate skewness and kurtosis."""
-    if distribution.size < 3:
+def calculate_skewness_and_kurtosis(data: np.ndarray) -> Tuple[float, float]:
+    """
+    Calculate skewness and kurtosis for a 1D array.
+    
+    Args:
+        data: 1D numpy array of values
+        
+    Returns:
+        Tuple of (skewness, kurtosis)
+    """
+    if len(data) < 3:
         return 0.0, 0.0
-    skewness = float(scipy.stats.skew(distribution))
-    kurtosis = float(scipy.stats.kurtosis(distribution))
+    
+    skewness = float(np.skew(data))
+    kurtosis = float(np.kurtosis(data))
+    
     return skewness, kurtosis
 
-def calculate_per_sample_stats(distribution: np.ndarray) -> Dict[str, float]:
-    """Compute all per-sample statistical descriptors."""
-    variance, range_val = calculate_variance_and_range(distribution)
-    entropy = calculate_entropy(distribution)
-    skewness, kurtosis = calculate_skewness_and_kurtosis(distribution)
+def calculate_per_sample_stats(samples: List[Dict]) -> Dict[str, Dict]:
+    """
+    Calculate per-sample statistics for all samples.
     
-    return {
-        "variance": variance,
-        "range": range_val,
-        "entropy": entropy,
-        "skewness": skewness,
-        "kurtosis": kurtosis
-    }
-
-def calculate_global_entanglement_score(data_matrix: np.ndarray) -> float:
+    Args:
+        samples: List of sample dictionaries with teacher_logits
+        
+    Returns:
+        Dictionary mapping sample_id to statistics
     """
-    Compute the global entanglement score as the dominant eigenvalue
-    of the covariance matrix across all samples for the 4 dimensions.
-    """
-    if data_matrix.shape[0] < 2 or data_matrix.shape[1] != 4:
-        logger.warning("Insufficient data or incorrect dimensions for global entanglement.")
-        return 0.0
+    stats = {}
     
-    try:
-        cov_matrix = np.cov(data_matrix, rowvar=False)
-        eigenvalues = np.linalg.eigvalsh(cov_matrix)
-        dominant_eigenvalue = float(np.max(eigenvalues))
-        return dominant_eigenvalue
-    except np.linalg.LinAlgError:
-        logger.error("Failed to compute eigenvalues for covariance matrix.")
-        return 0.0
-
-def calculate_dimensional_fidelity_loss(
-    student_scores: np.ndarray,
-    human_annotations: np.ndarray,
-    primary_dimensions: List[str],
-    rubric_keys: List[str]
-) -> List[float]:
-    """
-    Compute MAE between student scalar output and human-annotated score
-    for the primary dimension selected via metadata.
-    """
-    if len(student_scores) != len(human_annotations) or len(student_scores) != len(primary_dimensions):
-        raise ValueError("Input arrays lengths must match.")
-    
-    fidelity_losses = []
-    for i, dim in enumerate(primary_dimensions):
-        if dim not in rubric_keys:
-            fidelity_losses.append(float('nan'))
+    for sample in samples:
+        sample_id = sample.get("sample_id")
+        teacher_logits = sample.get("teacher_logits")
+        
+        if not teacher_logits:
             continue
         
-        idx = rubric_keys.index(dim)
-        student_val = student_scores[i]
-        human_val = human_annotations[i, idx]
+        # Convert to numpy array
+        logits_array = np.array(teacher_logits, dtype=float)
         
-        if np.isnan(human_val):
-            fidelity_losses.append(float('nan'))
-        else:
-            loss = abs(student_val - human_val)
-            fidelity_losses.append(float(loss))
+        # Calculate statistics
+        variance, range_val = calculate_variance_and_range(logits_array)
+        entropy = calculate_entropy(logits_array)
+        skewness, kurtosis = calculate_skewness_and_kurtosis(logits_array)
+        
+        stats[sample_id] = {
+            "variance": variance,
+            "range": range_val,
+            "entropy": entropy,
+            "skewness": skewness,
+            "kurtosis": kurtosis
+        }
+    
+    return stats
+
+def calculate_global_entanglement_score(samples: List[Dict]) -> float:
+    """
+    Calculate global entanglement score using the dominant eigenvalue
+    of the global covariance matrix across all samples.
+    
+    Args:
+        samples: List of sample dictionaries with teacher_logits
+        
+    Returns:
+        Dominant eigenvalue (global entanglement score)
+    """
+    # Extract teacher logits as a matrix (samples x dimensions)
+    logits_matrix = []
+    for sample in samples:
+        teacher_logits = sample.get("teacher_logits")
+        if teacher_logits:
+            logits_matrix.append(teacher_logits)
+    
+    if len(logits_matrix) == 0:
+        return 0.0
+    
+    logits_array = np.array(logits_matrix, dtype=float)
+    
+    # Calculate global covariance matrix
+    # Shape: (4, 4) for 4 dimensions
+    covariance_matrix = np.cov(logits_array, rowvar=False)
+    
+    # Calculate eigenvalues
+    eigenvalues = np.linalg.eigvalsh(covariance_matrix)
+    
+    # Return the dominant (largest) eigenvalue
+    dominant_eigenvalue = float(np.max(eigenvalues))
+    
+    return dominant_eigenvalue
+
+def calculate_dimensional_fidelity_loss(samples: List[Dict]) -> List[float]:
+    """
+    Calculate dimensional fidelity loss for each sample.
+    MAE between student scalar output and human-annotated score for the primary dimension.
+    
+    Args:
+        samples: List of sample dictionaries
+        
+    Returns:
+        List of fidelity loss values
+    """
+    fidelity_losses = []
+    
+    for sample in samples:
+        student_score = sample.get("student_scores")
+        primary_dimension = sample.get("primary_dimension", "Alignment")
+        
+        # Map primary dimension to human annotation column
+        dimension_map = {
+            "Alignment": "human_alignment",
+            "Realism": "human_realism",
+            "Aesthetics": "human_aesthetics",
+            "Plausibility": "human_plausibility"
+        }
+        
+        human_annotation_col = dimension_map.get(primary_dimension)
+        
+        if not human_annotation_col or human_annotation_col not in sample:
+            # Skip samples with missing annotations
+            continue
+        
+        human_score = sample.get(human_annotation_col)
+        
+        if human_score is None or student_score is None:
+            continue
+        
+        # Calculate MAE (absolute difference)
+        try:
+            human_score = float(human_score)
+            student_score = float(student_score)
+            loss = abs(student_score - human_score)
+            fidelity_losses.append(loss)
+        except (ValueError, TypeError):
+            # Skip samples with invalid scores
+            continue
     
     return fidelity_losses
 
-# --- Pipeline Integration Functions ---
-
-def load_aligned_data(input_path: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray, List[str], List[str]]:
+def load_aligned_data(filepath: str) -> List[Dict]:
     """
-    Load aligned data from the ingest pipeline output (JSON).
+    Load aligned data from a JSON file.
+    
+    Args:
+        filepath: Path to the JSON file
+        
     Returns:
-        data_matrix: (N, 4) array of teacher distributions
-        student_scores: (N,) array of student scalars
-        human_annotations: (N, 4) array of human annotations
-        primary_dimensions: List of primary dimension strings per sample
-        rubric_keys: List of rubric dimension names (e.g., ['Alignment', ...])
+        List of aligned data dictionaries
     """
-    with open(input_path, 'r') as f:
+    with open(filepath, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    
-    samples = data.get("samples", [])
-    if not samples:
-        raise ValueError("No samples found in aligned data file.")
-    
-    # Extract rubric keys from the first sample
-    first_sample = samples[0]
-    rubric_keys = [k for k in first_sample.get("teacher_distribution", {}).keys()]
-    
-    data_list = []
-    student_list = []
-    human_list = []
-    primary_list = []
-    
-    for sample in samples:
-        # Teacher distribution
-        dist = [sample["teacher_distribution"][k] for k in rubric_keys]
-        data_list.append(dist)
-        
-        # Student score
-        student_list.append(sample["student_score"])
-        
-        # Human annotations
-        human_vals = [sample["human_annotations"].get(k, np.nan) for k in rubric_keys]
-        human_list.append(human_vals)
-        
-        # Primary dimension
-        primary_list.append(sample.get("primary_quality_dimension", ""))
-    
-    return (
-        np.array(data_list),
-        np.array(student_list),
-        np.array(human_list),
-        primary_list,
-        rubric_keys
-    )
+    return data
 
-def compute_all_features(aligned_data_path: str) -> Dict[str, Any]:
+def compute_all_features(samples: List[Dict]) -> Dict[str, Any]:
     """
-    Orchestrate the computation of all features: per-sample stats, global entanglement,
-    and dimensional fidelity loss.
+    Compute all features for the dataset.
+    
+    Args:
+        samples: List of sample dictionaries
+        
+    Returns:
+        Dictionary containing all computed features
     """
-    logger.info(f"Loading aligned data from {aligned_data_path}")
-    data_matrix, student_scores, human_annotations, primary_dims, rubric_keys = load_aligned_data(aligned_data_path)
+    # Per-sample statistics
+    per_sample_stats = calculate_per_sample_stats(samples)
     
-    logger.info("Computing per-sample statistics...")
-    per_sample_features = []
-    for i in range(data_matrix.shape[0]):
-        stats = calculate_per_sample_stats(data_matrix[i])
-        stats["sample_id"] = i
-        stats["primary_dimension"] = primary_dims[i]
-        per_sample_features.append(stats)
+    # Global entanglement score
+    global_entanglement = calculate_global_entanglement_score(samples)
     
-    logger.info("Computing global entanglement score...")
-    global_entanglement = calculate_global_entanglement_score(data_matrix)
+    # Dimensional fidelity loss
+    fidelity_loss = calculate_dimensional_fidelity_loss(samples)
     
-    logger.info("Computing dimensional fidelity loss...")
-    fidelity_losses = calculate_dimensional_fidelity_loss(
-        student_scores, human_annotations, primary_dims, rubric_keys
-    )
-    
-    # Attach fidelity loss to per-sample features
-    for i, loss in enumerate(fidelity_losses):
-        per_sample_features[i]["fidelity_loss"] = loss
-    
-    result = {
+    return {
+        "per_sample_stats": per_sample_stats,
         "global_entanglement_score": global_entanglement,
-        "rubric_keys": rubric_keys,
-        "samples": per_sample_features,
-        "total_samples": len(per_sample_features)
+        "fidelity_loss": fidelity_loss
     }
-    
-    return result
 
-def save_features_to_json(features: Dict[str, Any], output_path: str) -> None:
-    """Save computed features to a JSON file."""
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+def save_features_to_json(features: Dict[str, Any], output_path: str):
+    """
+    Save computed features to a JSON file.
     
-    with open(output_path, 'w') as f:
+    Args:
+        features: Dictionary of computed features
+        output_path: Output path for the JSON file
+    """
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(features, f, indent=2)
     logger.info(f"Features saved to {output_path}")
 
-# --- CLI Entry Point ---
-
 def parse_args():
-    parser = argparse.ArgumentParser(description="Compute and save feature engineering results.")
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Compute features from aligned data")
     parser.add_argument(
-        "--input", "-i",
+        "--input",
         type=str,
-        default="data/processed/aligned_data.json",
-        help="Path to the aligned data JSON file from ingest.py"
+        default="data/raw/aligned_data.json",
+        help="Input JSON file with aligned data"
     )
     parser.add_argument(
-        "--output", "-o",
+        "--output",
         type=str,
         default="data/processed/features.json",
-        help="Path to save the computed features JSON"
+        help="Output JSON file for computed features"
     )
     return parser.parse_args()
 
 def main():
+    """Main entry point for the feature engineering script."""
     args = parse_args()
-    logger.info(f"Starting feature engineering pipeline. Input: {args.input}, Output: {args.output}")
     
-    try:
-        features = compute_all_features(args.input)
-        save_features_to_json(features, args.output)
-        logger.info("Pipeline completed successfully.")
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+    if not Path(args.input).exists():
+        logger.error(f"Input file not found: {args.input}")
         sys.exit(1)
+    
+    # Load aligned data
+    logger.info(f"Loading data from {args.input}")
+    samples = load_aligned_data(args.input)
+    
+    # Compute features
+    logger.info("Computing features...")
+    features = compute_all_features(samples)
+    
+    # Save features
+    logger.info(f"Saving features to {args.output}")
+    save_features_to_json(features, args.output)
+    
+    # Print summary
+    logger.info(f"Computed {len(features['per_sample_stats'])} per-sample stats")
+    logger.info(f"Global entanglement score: {features['global_entanglement_score']:.4f}")
+    logger.info(f"Fidelity loss samples: {len(features['fidelity_loss'])}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

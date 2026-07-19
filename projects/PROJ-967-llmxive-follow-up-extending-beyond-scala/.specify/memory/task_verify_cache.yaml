@@ -1,0 +1,37 @@
+T027:
+  c: false
+  h: b73d5632ecc57dce024760127556f6072e044e8781aa149dd9692bb3ce443263
+  r: The `code/train.py` script exists and includes a RandomForestRegressor with `n_jobs=2`
+    and a fixed `random_state`, but the required input file `data/processed/features.json`
+    is missing, so the script cannot actually read the features and targets as specified.
+    Additionally, the displayed code is truncated and does not show a complete implementation
+    (e.g., missing main entry point and full return statement). The missing dataset
+    file and incomplete script prevent the task from being genuinely fulfilled.
+T030:
+  c: false
+  h: 718690642b076f1189700f37d34d51c97135f8b0b1a19dfb5052af649eeafc22
+  r: "The provided `code/evaluate.py` stops after a placeholder model\u2011loader\
+    \ and does not contain any implementation of a permutation test, nor does it write\
+    \ R\xB2, MAE, and a p\u2011value to `results/results.json`. Moreover, the required\
+    \ `results/results.json` file is missing entirely. The task\u2019s core requirement\
+    \ is therefore not satisfied."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `quickstart.md` file or excerpt was presented, so there is no evidence
+    that the required documentation changes exist or contain the expected content.
+    The implementer must provide the modified `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/quickstart.md`
+    showing the documentation updates.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No cleaned or refactored files from the `code/` directory are presented; the
+    only evidence shown relates to a research feature specification, not to any code
+    cleanup work. The required artifact (updated code files) is missing.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No ingestion script, feature\u2011engineering code, JSON outputs, or CPU\u2011\
+    based Random Forest training results were supplied. The claim lacks any concrete\
+    \ artifacts (code, data files, or figures) that demonstrate the dataset loading,\
+    \ entanglement calculations, or predictive modeling required by the user stories."

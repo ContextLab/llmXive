@@ -1,21 +1,18 @@
 """
-Script to initialize the project directory structure for PROJ-967.
-This script creates the required directories and empty configuration files
-as specified in task T001a, T001b, and T001c.
-
-Usage:
-    python code/setup_project.py
+Script to create empty project files (requirements.txt, pytest.ini, etc.).
+This implements T001b and T001c logic, but T001a specifically asks for directories.
+This file ensures the structure is fully set up.
 """
 import os
 from pathlib import Path
+import logging
 
-def setup_directories():
-    """Create the required project directory structure."""
-    # Define the root project directory
-    root = Path(__file__).resolve().parent.parent
-    
-    # Define required directories relative to root
-    dirs_to_create = [
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def setup_directories() -> None:
+    """Create required directories."""
+    dirs = [
         "data/raw",
         "data/processed",
         "code",
@@ -23,42 +20,35 @@ def setup_directories():
         "results",
         "projects/PROJ-967-llmxive-follow-up-extending-beyond-scala"
     ]
-    
-    print(f"Project root identified at: {root}")
-    
-    for dir_path in dirs_to_create:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
-    
-    return root
+    for d in dirs:
+        path = Path(d)
+        path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {path}")
 
-def create_empty_files(root: Path):
-    """Create the required empty configuration files."""
-    # Define files to create as empty
-    files_to_create = [
-        "code/requirements.txt",
-        ".gitignore",
-        "pytest.ini"
-    ]
-    
-    for file_path in files_to_create:
-        full_path = root / file_path
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created empty file: {full_path}")
-        else:
-            print(f"File already exists: {full_path}")
+def create_empty_files() -> None:
+    """Create empty project configuration files."""
+    files = {
+        "code/requirements.txt": "# Dependencies\nnumpy\npandas\nscikit-learn\nrequests\ntorch\ndatasets\n",
+        ".gitignore": "data/raw/\ndata/processed/\nresults/\nfigures/\n__pycache__/\n*.pyc\n*.pyo\n*.pyd\n.Python\nenv/\nvenv/\n*.egg-info/\n",
+        "pytest.ini": "[pytest]\npython_files = test_*.py\naddopts = -v --tb=short\n",
+        "projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/requirements.txt": "# Project specific deps\n",
+        "projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/.gitignore": "data/\nresults/\n",
+        "projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/pytest.ini": "[pytest]\npython_files = test_*.py\naddopts = -v\n"
+    }
 
-def main():
-    """Main entry point for project setup."""
-    print("Starting project setup for PROJ-967...")
-    root = setup_directories()
-    create_empty_files(root)
-    print("Project setup complete.")
+    for file_path, content in files.items():
+        path = Path(file_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if not path.exists():
+            path.write_text(content)
+            logger.info(f"Created file: {path}")
+        else:
+            logger.info(f"File already exists: {path}")
+
+def main() -> None:
+    setup_directories()
+    create_empty_files()
+    logger.info("Project setup complete.")
 
 if __name__ == "__main__":
     main()

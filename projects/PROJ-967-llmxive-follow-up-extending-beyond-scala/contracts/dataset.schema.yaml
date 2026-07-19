@@ -1,0 +1,85 @@
+# Schema for Z-Reward Dataset used in llmXive analysis
+# This schema defines the structure for both real data ingestion and synthetic test data generation.
+type: object
+required:
+  - sample_id
+  - prompt
+  - teacher_logits
+  - student_scalar
+  - human_annotations
+  - metadata
+properties:
+  sample_id:
+    type: string
+    description: Unique identifier for the sample
+  prompt:
+    type: string
+    description: The input prompt text
+  teacher_logits:
+    type: object
+    description: Teacher model logits for the four rubric dimensions
+    required:
+      - alignment
+      - realism
+      - aesthetics
+      - plausibility
+    properties:
+      alignment:
+        type: number
+        format: float
+      realism:
+        type: number
+        format: float
+      aesthetics:
+        type: number
+        format: float
+      plausibility:
+        type: number
+        format: float
+  student_scalar:
+    type: number
+    format: float
+    description: Single scalar score output by the student model
+  human_annotations:
+    type: object
+    description: Human annotated scores for the four rubric dimensions
+    required:
+      - alignment
+      - realism
+      - aesthetics
+      - plausibility
+    properties:
+      alignment:
+        type: number
+        format: float
+        minimum: 0
+        maximum: 1
+      realism:
+        type: number
+        format: float
+        minimum: 0
+        maximum: 1
+      aesthetics:
+        type: number
+        format: float
+        minimum: 0
+        maximum: 1
+      plausibility:
+        type: number
+        format: float
+        minimum: 0
+        maximum: 1
+  metadata:
+    type: object
+    description: Additional metadata including primary quality dimension
+    required:
+      - primary_quality_dimension
+    properties:
+      primary_quality_dimension:
+        type: string
+        enum:
+          - alignment
+          - realism
+          - aesthetics
+          - plausibility
+        description: The dimension selected as primary based on prompt metadata

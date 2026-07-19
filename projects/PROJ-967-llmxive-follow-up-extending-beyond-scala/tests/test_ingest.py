@@ -1,155 +1,150 @@
 """
-Tests for the ingest module (User Story 1).
+Tests for the ingestion module.
+
+These tests verify:
+- Data loading and schema validation
+- Missing data handling and exclusion logic
 """
-import os
-import tempfile
-from pathlib import Path
-import csv
-
 import pytest
+import os
+import json
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+import csv
+import tempfile
 
-# Import the module under test
-# Note: We are testing within the project root where ingest.py is located.
-# The import assumes the test runner is invoked from the project root or code/ is in sys.path.
-# To ensure robustness in the test environment, we attempt to import from 'code.ingest' if 'ingest' fails,
-# or rely on the user adding 'code' to sys.path. However, per the prompt's existing test file,
-# it assumes 'from ingest import ...'. We will maintain this assumption but ensure the test
-# handles the scenario where the data file has missing values (the core of T011).
-try:
-    from ingest import parse_args, setup_directories, validate_schema
-except ImportError:
-    # Fallback for if tests are run from a different directory structure
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-    from ingest import parse_args, setup_directories, validate_schema
+# Import the module to test
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+from ingest import (
+    validate_schema,
+    identify_primary_quality_dimension,
+    load_and_align_data,
+    print_summary,
+    calculate_sha256
+)
 
+@pytest.fixture
+def sample_csv_file():
+    """Create a temporary CSV file with valid schema for testing."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            "sample_id", "prompt", "image_url", "teacher_logits", "student_scores",
+            "human_alignment", "human_realism", "human_aesthetics", "human_plausibility",
+            "primary_dimension"
+        ])
+        writer.writerow([
+            "1", "Test prompt 1", "http://example.com/1.jpg", "[0.1, 0.2, 0.3, 0.4]",
+            "0.8", "0.9", "0.7", "0.85", "Alignment"
+        ])
+        writer.writerow([
+            "2", "Test prompt 2", "http://example.com/2.jpg", "[0.2, 0.3, 0.4, 0.1]",
+            "0.7", "", "0.6", "0.75", "Realism"
+        ])
+        temp_path = f.name
+    
+    yield temp_path
+    
+    # Cleanup
+    if os.path.exists(temp_path):
+        os.unlink(temp_path)
 
-class TestSetupDirectories:
-    """Tests for the setup_directories function."""
+@pytest.fixture
+def invalid_csv_file():
+    """Create a temporary CSV file with invalid schema for testing."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        writer = csv.writer(f)
+        writer.writerow(["sample_id", "prompt", "wrong_column"])
+        writer.writerow(["1", "Test", "value"])
+        temp_path = f.name
+    
+    yield temp_path
+    
+    if os.path.exists(temp_path):
+        os.unlink(temp_path)
 
-    def test_creates_required_directories(self, tmp_path):
-        """Test that setup_directories creates the expected directory structure."""
-        # Define expected directories
-        expected_dirs = ["data/raw", "data/processed", "results"]
+def test_validate_schema_valid(sample_csv_file):
+    """Test schema validation with a valid CSV file."""
+    is_valid, missing = validate_schema(sample_csv_file)
+    assert is_valid is True
+    assert len(missing) == 0
 
-        # Run setup
-        setup_directories(tmp_path)
+def test_validate_schema_invalid(invalid_csv_file):
+    """Test schema validation with an invalid CSV file."""
+    is_valid, missing = validate_schema(invalid_csv_file)
+    assert is_valid is False
+    assert len(missing) > 0
+    assert "human_alignment" in missing
 
-        # Verify directories exist
-        for dir_name in expected_dirs:
-            dir_path = tmp_path / dir_name
-            assert dir_path.exists(), f"Directory {dir_path} was not created"
-            assert dir_path.is_dir(), f"{dir_path} exists but is not a directory"
+def test_identify_primary_quality_dimension_valid():
+    """Test primary dimension identification with valid input."""
+    metadata = {"primary_dimension": "Aesthetics"}
+    result = identify_primary_quality_dimension(metadata)
+    assert result == "Aesthetics"
 
-    def test_does_not_fail_if_directories_exist(self, tmp_path):
-        """Test that setup_directories handles existing directories gracefully."""
-        # Pre-create a directory
-        existing_dir = tmp_path / "data" / "raw"
-        existing_dir.mkdir(parents=True)
+def test_identify_primary_quality_dimension_default():
+    """Test primary dimension identification with missing field."""
+    metadata = {}
+    result = identify_primary_quality_dimension(metadata)
+    assert result == "Alignment"
 
-        # Should not raise an exception
-        setup_directories(tmp_path)
-        assert existing_dir.exists()
+def test_identify_primary_quality_dimension_invalid():
+    """Test primary dimension identification with invalid value."""
+    metadata = {"primary_dimension": "InvalidDimension"}
+    result = identify_primary_quality_dimension(metadata)
+    assert result == "Alignment"  # Should default to Alignment
 
+def test_load_and_align_data(sample_csv_file):
+    """Test data loading and alignment."""
+    data = load_and_align_data(sample_csv_file)
+    assert len(data) == 2
+    assert data[0]["sample_id"] == "1"
+    assert data[1]["primary_dimension"] == "Realism"
 
-class TestValidateSchema:
-    """Tests for the validate_schema function."""
+def test_load_and_align_data_missing_values(sample_csv_file):
+    """Test data loading with missing values."""
+    data = load_and_align_data(sample_csv_file)
+    assert len(data) == 2
+    # Second row has missing human_realism
+    assert data[1]["human_realism"] is None or data[1]["human_realism"] == ""
 
-    def test_valid_schema(self, tmp_path):
-        """Test validation passes with a correctly structured file."""
-        # Create a mock CSV with required columns
-        csv_path = tmp_path / "valid.csv"
-        content = "sample_id,alignment,realism,aesthetics,plausibility,human_score\n1,0.5,0.6,0.7,0.8,0.9\n"
-        csv_path.write_text(content)
+def test_print_summary(sample_csv_file, capsys):
+    """Test summary printing functionality."""
+    data = load_and_align_data(sample_csv_file)
+    print_summary(data)
+    
+    captured = capsys.readouterr()
+    assert "DATASET SUMMARY" in captured.out
+    assert "Total samples:" in captured.out
+    assert "Missing data counts:" in captured.out
 
-        # Should not raise
-        result = validate_schema(str(csv_path))
-        assert result is True
+def test_calculate_sha256(sample_csv_file):
+    """Test SHA256 calculation."""
+    checksum = calculate_sha256(sample_csv_file)
+    assert checksum.startswith("sha256:")
+    assert len(checksum) == 71  # sha256: + 64 hex chars
 
-    def test_missing_required_column(self, tmp_path):
-        """Test validation fails if a required rubric dimension is missing."""
-        csv_path = tmp_path / "invalid.csv"
-        # Missing 'alignment' column
-        content = "sample_id,realism,aesthetics,plausibility,human_score\n1,0.5,0.6,0.7,0.9\n"
-        csv_path.write_text(content)
+def test_load_and_align_data_chunking(sample_csv_file):
+    """Test that chunking works correctly with small chunk size."""
+    data = load_and_align_data(sample_csv_file, chunk_size=1)
+    assert len(data) == 2
+    assert data[0]["sample_id"] == "1"
+    assert data[1]["sample_id"] == "2"
 
-        with pytest.raises(ValueError, match="Missing required columns"):
-            validate_schema(str(csv_path))
-
-    def test_empty_file(self, tmp_path):
-        """Test validation fails on an empty file."""
-        csv_path = tmp_path / "empty.csv"
-        csv_path.write_text("")
-
-        with pytest.raises(ValueError):
-            validate_schema(str(csv_path))
-
-
-    def test_missing_data_handling_and_exclusion_logic(self, tmp_path):
-        """
-        Integration test for missing data handling and exclusion logic.
-        
-        Verifies that:
-        1. validate_schema does NOT crash on rows with missing values (empty strings or 'NaN').
-        2. The function correctly identifies the presence of the schema.
-        3. The logic implies that downstream processing (T012/T016) will need to exclude these,
-           but the schema validator itself should only care about column headers and data type presence.
-           
-        Note: Based on T038, the schema validation checks for the *presence* of columns.
-        T011 specifically tests the behavior when data *within* those columns is missing,
-        ensuring the pipeline doesn't crash and flags these rows for exclusion later.
-        """
-        csv_path = tmp_path / "missing_data.csv"
-        # Create a CSV with valid headers but missing values in the data rows
-        # Row 2 has missing 'alignment'
-        # Row 3 has missing 'human_score'
-        content = (
-            "sample_id,alignment,realism,aesthetics,plausibility,human_score\n"
-            "1,0.5,0.6,0.7,0.8,0.9\n"
-            "2,,0.6,0.7,0.8,0.9\n"
-            "3,0.5,0.6,0.7,0.8,\n"
-        )
-        csv_path.write_text(content)
-
-        # Schema validation should pass because columns exist
-        # It does NOT check for missing values in rows (that is a data cleaning step)
-        # However, if the implementation of validate_schema is too strict and checks for non-empty rows,
-        # we need to ensure it handles this gracefully or raises a specific warning.
-        # Per T038, it verifies presence of dimensions.
-        
-        # We expect validate_schema to return True (schema is valid)
-        # The actual exclusion of missing rows is a downstream concern (T016/T024),
-        # but T011 ensures the system doesn't crash here.
-        result = validate_schema(str(csv_path))
-        assert result is True
-
-        # Additional check: ensure the file can be read and missing values detected
-        # This simulates the "flagging" logic mentioned in T011 description
-        with open(csv_path, 'r', newline='') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            
-        # Verify we have 3 rows
-        assert len(rows) == 3
-        
-        # Verify row 2 has missing alignment
-        assert rows[1]['alignment'] == ''
-        
-        # Verify row 3 has missing human_score
-        assert rows[2]['human_score'] == ''
-
-class TestParseArgs:
-    """Tests for the argument parser."""
-
-    def test_default_values(self):
-        """Test that parse_args returns correct default values."""
-        args = parse_args([])
-        assert args.input_url is None
-        assert args.output_dir == Path("data/raw")
-        assert args.validate_only is False
-
-    def test_custom_output_dir(self):
-        """Test that custom output directory is parsed correctly."""
-        test_dir = "/tmp/test_output"
-        args = parse_args(["--output-dir", test_dir])
-        assert args.output_dir == Path(test_dir)
+def test_load_and_align_data_empty_file():
+    """Test loading an empty CSV file."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            "sample_id", "prompt", "image_url", "teacher_logits", "student_scores",
+            "human_alignment", "human_realism", "human_aesthetics", "human_plausibility",
+            "primary_dimension"
+        ])
+        temp_path = f.name
+    
+    try:
+        data = load_and_align_data(temp_path)
+        assert len(data) == 0
+    finally:
+        os.unlink(temp_path)

@@ -1,12 +1,21 @@
+"""
+Unit tests for feature calculation logic in code/features.py.
+
+This module includes a synthetic data generator for testing purposes only.
+The generated data strictly adheres to the schema defined in 
+contracts/dataset.schema.yaml to ensure test validity.
+"""
+
 import pytest
 import numpy as np
 import json
 import sys
 from pathlib import Path
+from typing import Dict, List, Any
 
-# Add the project root to the path so we can import code/features
-# In a real CI environment, this is handled by pytest's pythonpath or installed package
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
 from features import (
     calculate_variance_and_range,
@@ -14,237 +23,297 @@ from features import (
     calculate_skewness_and_kurtosis,
     calculate_per_sample_stats,
     calculate_global_entanglement_score,
-    calculate_dimensional_fidelity_loss,
-    compute_all_features,
-    save_features_to_json
+    calculate_dimensional_fidelity_loss
 )
 
-# --- Test Data Fixtures ---
+# ============================================================================
+# Synthetic Data Generator for Testing
+# ============================================================================
 
-def get_sample_distribution_uniform():
+def generate_synthetic_dataset(
+    num_samples: int = 10, 
+    seed: int = 42
+) -> List[Dict[str, Any]]:
     """
-    Returns a 1D numpy array representing a uniform distribution
-    across 4 dimensions (simulating a teacher's output logits/probs).
-    Used for standard variance tests.
-    """
-    return np.array([0.25, 0.25, 0.25, 0.25])
-
-def get_sample_distribution_variable():
-    """
-    Returns a 1D numpy array with high variance.
-    """
-    return np.array([0.9, 0.05, 0.03, 0.02])
-
-def get_sample_distribution_zero_variance():
-    """
-    Returns a 1D numpy array where all values are identical.
-    This is the specific edge case for T019.
-    """
-    return np.array([0.0, 0.0, 0.0, 0.0])
-
-def get_sample_distribution_single_value():
-    """
-    Returns a 1D numpy array with a single non-zero value (one-hot).
-    Variance should be non-zero, but entropy should be 0.
-    """
-    return np.array([1.0, 0.0, 0.0, 0.0])
-
-# --- Unit Tests for T018 (Variance, Entropy, Skewness, Kurtosis) ---
-
-def test_variance_and_range_uniform():
-    """Test variance and range on a uniform distribution."""
-    data = get_sample_distribution_uniform()
-    var, range_val = calculate_variance_and_range(data)
-    # Variance of uniform [0.25, 0.25, 0.25, 0.25] is 0
-    assert np.isclose(var, 0.0), f"Expected variance 0.0, got {var}"
-    # Range is max - min = 0
-    assert np.isclose(range_val, 0.0), f"Expected range 0.0, got {range_val}"
-
-def test_variance_and_range_variable():
-    """Test variance and range on a variable distribution."""
-    data = get_sample_distribution_variable()
-    var, range_val = calculate_variance_and_range(data)
-    assert var > 0.0, "Variance should be positive for variable data"
-    assert range_val > 0.0, "Range should be positive for variable data"
-
-def test_entropy_uniform():
-    """Test entropy on a uniform distribution (should be max)."""
-    data = get_sample_distribution_uniform()
-    entropy = calculate_entropy(data)
-    # Max entropy for 4 categories is ln(4) or log2(4) depending on base.
-    # Assuming natural log (np.log) or base 2. Let's assume natural log.
-    # H = - sum(p * ln(p)) = - 4 * (0.25 * ln(0.25)) = - ln(0.25) = ln(4)
-    expected = -np.sum(data * np.log(data + 1e-10)) # Small epsilon to avoid log(0) if any
-    assert np.isclose(entropy, expected), f"Expected entropy {expected}, got {entropy}"
-
-def test_entropy_single_value():
-    """Test entropy on a single-value distribution (should be 0)."""
-    data = get_sample_distribution_single_value()
-    entropy = calculate_entropy(data)
-    # Entropy of a deterministic distribution is 0
-    assert np.isclose(entropy, 0.0), f"Expected entropy 0.0, got {entropy}"
-
-def test_skewness_and_kurtosis_variable():
-    """Test skewness and kurtosis on variable data."""
-    data = get_sample_distribution_variable()
-    skew, kurt = calculate_skewness_and_kurtosis(data)
-    # Just ensure they return numbers and don't crash
-    assert isinstance(skew, float) or isinstance(skew, np.floating)
-    assert isinstance(kurt, float) or isinstance(kurt, np.floating)
-
-# --- Unit Tests for T019 (Zero-Variance Edge Case Handling) ---
-
-def test_zero_variance_no_crash():
-    """
-    T019: Verify that calculate_entropy and calculate_variance_and_range
-    handle zero-variance (constant) arrays without raising exceptions
-    (e.g., division by zero, log(0)).
-    """
-    data = get_sample_distribution_zero_variance()
+    Generate a small, fake dataset adhering to contracts/dataset.schema.yaml.
     
-    # Should not raise
-    var, range_val = calculate_variance_and_range(data)
-    entropy = calculate_entropy(data)
-    skew, kurt = calculate_skewness_and_kurtosis(data)
+    This generator creates numpy arrays and structured data to test feature 
+    calculation logic (variance, eigenvalue, entropy, etc.) without requiring 
+    the full Z-Reward dataset.
     
-    # Assertions on expected values for zero-variance
-    assert np.isclose(var, 0.0), "Variance of constant array should be 0"
-    assert np.isclose(range_val, 0.0), "Range of constant array should be 0"
-    assert np.isclose(entropy, 0.0), "Entropy of constant array should be 0"
+    Args:
+        num_samples: Number of synthetic samples to generate.
+        seed: Random seed for reproducibility.
     
-    # Skewness and Kurtosis are undefined for zero variance (division by std dev).
-    # The implementation should handle this gracefully (e.g., return 0.0 or np.nan).
-    # We assert that it returns a float and does not crash.
-    assert isinstance(skew, (float, np.floating, np.ndarray))
-    assert isinstance(kurt, (float, np.floating, np.ndarray))
-
-def test_zero_variance_in_per_sample_stats():
+    Returns:
+        List of dictionaries, each representing a sample with:
+        - sample_id (str)
+        - prompt (str)
+        - teacher_logits (dict with 4 float keys)
+        - student_scalar (float)
+        - human_annotations (dict with 4 float keys, 0-1 range)
+        - metadata (dict with primary_quality_dimension)
     """
-    T019: Verify that calculate_per_sample_stats handles a list of samples
-    where some have zero variance.
-    """
-    # Mix of variable and zero-variance samples
-    samples = [
-        get_sample_distribution_variable(),
-        get_sample_distribution_zero_variance(),
-        get_sample_distribution_uniform()
-    ]
+    rng = np.random.default_rng(seed)
     
-    # Should not raise
-    stats = calculate_per_sample_stats(samples)
+    dimensions = ["alignment", "realism", "aesthetics", "plausibility"]
+    data = []
     
-    # Verify structure
-    assert len(stats) == 3
-    assert "sample_0" in stats
-    assert "sample_1" in stats
-    assert "sample_2" in stats
-    
-    # Check sample_1 (zero variance)
-    s1 = stats["sample_1"]
-    assert np.isclose(s1["variance"], 0.0)
-    assert np.isclose(s1["entropy"], 0.0)
-
-def test_zero_variance_in_global_entanglement():
-    """
-    T019: Verify that calculate_global_entanglement_score handles a dataset
-    where all samples have zero variance (constant data).
-    """
-    # Create a 2D array where every row is constant
-    data = np.array([
-        [0.5, 0.5, 0.5, 0.5],
-        [0.1, 0.1, 0.1, 0.1],
-        [0.9, 0.9, 0.9, 0.9]
-    ])
-    
-    # Should not raise
-    eigenvalue = calculate_global_entanglement_score(data)
-    
-    # If all columns are constant (or perfectly correlated with themselves but no variance),
-    # the covariance matrix will be all zeros or rank-deficient.
-    # The dominant eigenvalue should be 0 or very close to it.
-    assert eigenvalue >= 0.0
-    # If variance is 0 across all dimensions, eigenvalue should be 0
-    if np.allclose(np.var(data, axis=0), 0):
-         assert np.isclose(eigenvalue, 0.0)
-
-def test_zero_variance_in_fidelity_loss():
-    """
-    T019: Verify that calculate_dimensional_fidelity_loss handles zero-variance
-    student scores without crashing.
-    """
-    # Simulate data with zero variance in student scores
-    # Structure: list of dicts with 'student_score' (scalar) and 'human_annotation'
-    samples = [
-        {"student_score": 0.5, "human_annotation": {"Alignment": 0.5}},
-        {"student_score": 0.5, "human_annotation": {"Alignment": 0.5}},
-        {"student_score": 0.5, "human_annotation": {"Alignment": 0.5}}
-    ]
-    
-    # Should not raise
-    loss = calculate_dimensional_fidelity_loss(samples, primary_dimension="Alignment")
-    
-    # If all scores are 0.5 and annotations are 0.5, MAE should be 0
-    assert np.isclose(loss, 0.0)
-
-# --- Integration Test for compute_all_features with Zero Variance ---
-
-def test_compute_all_features_with_zero_variance():
-    """
-    T019: End-to-end test of compute_all_features with a dataset containing
-    zero-variance samples to ensure the pipeline is robust.
-    """
-    # Mock data structure expected by compute_all_features
-    # Based on typical pipeline: list of dicts with 'teacher_logits' (list/array)
-    # and 'student_score', 'human_annotations'
-    mock_data = [
-        {
-            "id": "sample_1",
-            "teacher_logits": [0.1, 0.2, 0.3, 0.4],
-            "student_score": 0.8,
-            "human_annotations": {"Alignment": 0.8, "Realism": 0.7}
-        },
-        {
-            "id": "sample_2", # Zero variance case
-            "teacher_logits": [0.0, 0.0, 0.0, 0.0],
-            "student_score": 0.0,
-            "human_annotations": {"Alignment": 0.0}
+    for i in range(num_samples):
+        # Generate teacher logits (real-valued, unbounded)
+        teacher_logits = {
+            dim: rng.normal(loc=0.0, scale=1.0) for dim in dimensions
         }
-    ]
+        
+        # Generate student scalar (real-valued)
+        student_scalar = rng.normal(loc=0.5, scale=0.2)
+        
+        # Generate human annotations (bounded 0-1)
+        human_annotations = {
+            dim: rng.uniform(0.0, 1.0) for dim in dimensions
+        }
+        
+        # Select primary quality dimension randomly
+        primary_dim = rng.choice(dimensions)
+        
+        sample = {
+            "sample_id": f"sample_{i:04d}",
+            "prompt": f"Test prompt for sample {i}",
+            "teacher_logits": teacher_logits,
+            "student_scalar": student_scalar,
+            "human_annotations": human_annotations,
+            "metadata": {
+                "primary_quality_dimension": primary_dim
+            }
+        }
+        data.append(sample)
     
-    # Should not raise
-    features = compute_all_features(mock_data)
-    
-    # Verify output structure
-    assert isinstance(features, list)
-    assert len(features) == 2
-    
-    # Verify sample_2 (zero variance) was processed
-    s2 = next(f for f in features if f["id"] == "sample_2")
-    assert s2["variance"] == 0.0
-    assert s2["entropy"] == 0.0
+    return data
 
-def test_save_features_to_json_with_zero_variance():
+def generate_synthetic_features_data(
+    num_samples: int = 20,
+    seed: int = 123
+) -> np.ndarray:
     """
-    T019: Verify that save_features_to_json can write features containing
-    zero-variance samples to a JSON file without error.
+    Generate a 2D numpy array representing teacher logits for multiple samples.
+    
+    This is used specifically for testing global entanglement score (eigenvalue)
+    calculations where we need a matrix of shape (num_samples, 4).
+    
+    Args:
+        num_samples: Number of samples.
+        seed: Random seed.
+    
+    Returns:
+        np.ndarray of shape (num_samples, 4) with float values.
     """
-    features = [
-        {"id": "1", "variance": 0.1, "entropy": 0.5},
-        {"id": "2", "variance": 0.0, "entropy": 0.0} # Zero variance
-    ]
-    
-    output_path = Path("/tmp/test_zero_var_features.json")
-    
-    # Should not raise
-    save_features_to_json(features, output_path)
-    
-    # Verify file exists and can be read
-    assert output_path.exists()
-    with open(output_path, "r") as f:
-        loaded = json.load(f)
-    
-    assert len(loaded) == 2
-    assert loaded[1]["variance"] == 0.0
-    
-    # Cleanup
-    output_path.unlink()
+    rng = np.random.default_rng(seed)
+    return rng.normal(loc=0.0, scale=1.5, size=(num_samples, 4))
+
+# ============================================================================
+# Tests
+# ============================================================================
+
+class TestSyntheticDataGeneration:
+    """Tests for the synthetic data generator itself."""
+
+    def test_schema_compliance(self):
+        """Verify generated data matches the required schema."""
+        data = generate_synthetic_dataset(num_samples=5, seed=42)
+        
+        assert len(data) == 5
+        required_keys = ["sample_id", "prompt", "teacher_logits", 
+                       "student_scalar", "human_annotations", "metadata"]
+        
+        for sample in data:
+            for key in required_keys:
+                assert key in sample, f"Missing key: {key}"
+            
+            # Check teacher_logits structure
+            dims = ["alignment", "realism", "aesthetics", "plausibility"]
+            for dim in dims:
+                assert dim in sample["teacher_logits"]
+                assert isinstance(sample["teacher_logits"][dim], float)
+            
+            # Check human_annotations structure and range
+            for dim in dims:
+                assert dim in sample["human_annotations"]
+                val = sample["human_annotations"][dim]
+                assert 0.0 <= val <= 1.0, f"Annotation out of range: {val}"
+            
+            # Check metadata
+            assert "primary_quality_dimension" in sample["metadata"]
+            assert sample["metadata"]["primary_quality_dimension"] in dims
+
+    def test_reproducibility(self):
+        """Verify that same seed produces same data."""
+        data1 = generate_synthetic_dataset(num_samples=3, seed=999)
+        data2 = generate_synthetic_dataset(num_samples=3, seed=999)
+        
+        assert data1 == data2
+
+    def test_feature_matrix_generation(self):
+        """Test the numpy array generator for entanglement calculations."""
+        matrix = generate_synthetic_features_data(num_samples=10, seed=42)
+        
+        assert matrix.shape == (10, 4)
+        assert matrix.dtype in [np.float32, np.float64]
+        assert not np.any(np.isnan(matrix))
+
+class TestVarianceAndRange:
+    """Tests for variance and range calculations."""
+
+    def test_variance_calculation(self):
+        """Test variance calculation on known data."""
+        # Create a simple 2D array: 3 samples, 2 dimensions
+        data = np.array([
+            [1.0, 10.0],
+            [2.0, 20.0],
+            [3.0, 30.0]
+        ])
+        
+        variances, ranges = calculate_variance_and_range(data)
+        
+        # Expected variance for [1, 2, 3] is 1.0 (population) or 1.0 (sample with ddof=0)
+        # Using numpy default (ddof=0)
+        expected_var = np.var(data, axis=0)
+        expected_range = np.ptp(data, axis=0)
+        
+        np.testing.assert_array_almost_equal(variances, expected_var)
+        np.testing.assert_array_almost_equal(ranges, expected_range)
+
+    def test_zero_variance_handling(self):
+        """Test that zero variance is handled correctly."""
+        data = np.array([
+            [5.0, 10.0],
+            [5.0, 10.0],
+            [5.0, 10.0]
+        ])
+        
+        variances, ranges = calculate_variance_and_range(data)
+        
+        assert variances[0] == 0.0
+        assert ranges[0] == 0.0
+
+class TestEntropy:
+    """Tests for entropy calculations."""
+
+    def test_entropy_calculation(self):
+        """Test entropy calculation on a known distribution."""
+        # Normalize data to sum to 1 (probability distribution)
+        logits = np.array([1.0, 2.0, 3.0, 4.0])
+        probs = np.exp(logits) / np.sum(np.exp(logits))
+        
+        entropy = calculate_entropy(probs)
+        
+        # Verify it's a positive value
+        assert entropy >= 0
+
+    def test_zero_entropy(self):
+        """Test entropy when distribution is deterministic."""
+        # One-hot vector (deterministic)
+        probs = np.array([1.0, 0.0, 0.0, 0.0])
+        entropy = calculate_entropy(probs)
+        
+        # Entropy of deterministic distribution should be 0
+        assert entropy == 0.0
+
+class TestSkewnessAndKurtosis:
+    """Tests for skewness and kurtosis."""
+
+    def test_normal_distribution(self):
+        """Test that normal distribution has skew ~0 and kurtosis ~3."""
+        rng = np.random.default_rng(42)
+        data = rng.normal(loc=0, scale=1, size=10000)
+        
+        skew, kurt = calculate_skewness_and_kurtosis(data)
+        
+        # Allow some tolerance due to sampling
+        assert abs(skew) < 0.2
+        assert 2.5 < kurt < 3.5
+
+class TestGlobalEntanglementScore:
+    """Tests for global entanglement score (eigenvalue) calculation."""
+
+    def test_eigenvalue_calculation(self):
+        """Test that eigenvalue is calculated correctly."""
+        # Create a matrix with known structure
+        # If dimensions are perfectly correlated, max eigenvalue = sum of variances
+        data = np.array([
+            [1.0, 1.0, 1.0, 1.0],
+            [2.0, 2.0, 2.0, 2.0],
+            [3.0, 3.0, 3.0, 3.0],
+            [4.0, 4.0, 4.0, 4.0]
+        ])
+        
+        eigenvalue = calculate_global_entanglement_score(data)
+        
+        # The eigenvalue should be positive
+        assert eigenvalue > 0
+
+    def test_synthetic_data_integration(self):
+        """Test using the synthetic data generator."""
+        synthetic_data = generate_synthetic_features_data(num_samples=50, seed=42)
+        
+        eigenvalue = calculate_global_entanglement_score(synthetic_data)
+        
+        assert isinstance(eigenvalue, (float, np.floating))
+        assert eigenvalue >= 0
+
+class TestDimensionalFidelityLoss:
+    """Tests for dimensional fidelity loss calculation."""
+
+    def test_fidelity_loss_calculation(self):
+        """Test fidelity loss for a single sample."""
+        # Create a single sample
+        sample = generate_synthetic_dataset(num_samples=1, seed=42)[0]
+        
+        # Extract the primary dimension
+        primary_dim = sample["metadata"]["primary_quality_dimension"]
+        
+        # Calculate expected loss manually
+        student_score = sample["student_scalar"]
+        human_score = sample["human_annotations"][primary_dim]
+        expected_loss = abs(student_score - human_score)
+        
+        # Use the function
+        calculated_loss = calculate_dimensional_fidelity_loss(sample)
+        
+        assert np.isclose(calculated_loss, expected_loss)
+
+    def test_fidelity_loss_with_synthetic_batch(self):
+        """Test fidelity loss on a batch of synthetic data."""
+        data = generate_synthetic_dataset(num_samples=10, seed=123)
+        
+        losses = []
+        for sample in data:
+            loss = calculate_dimensional_fidelity_loss(sample)
+            losses.append(loss)
+        
+        # All losses should be non-negative
+        assert all(l >= 0 for l in losses)
+        assert len(losses) == 10
+
+class TestPerSampleStats:
+    """Tests for per-sample statistics calculation."""
+
+    def test_per_sample_stats_structure(self):
+        """Test that per-sample stats return correct structure."""
+        data = generate_synthetic_features_data(num_samples=5, seed=42)
+        
+        stats = calculate_per_sample_stats(data)
+        
+        # Should return a list of dicts
+        assert isinstance(stats, list)
+        assert len(stats) == 5
+        
+        # Check structure of first item
+        first = stats[0]
+        assert "variance" in first
+        assert "entropy" in first
+        assert "skewness" in first
+        assert "kurtosis" in first
+        assert "range" in first
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

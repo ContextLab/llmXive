@@ -1,0 +1,6 @@
+# Standalone Ruff configuration file
+# This file is redundant if pyproject.toml exists but serves as an explicit
+# configuration entry point for tools that look for .ruff.toml specifically.
+# Configuration is primarily defined in pyproject.toml [tool.ruff] section.
+
+extend = "pyproject.toml"
