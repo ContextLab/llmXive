@@ -11,9 +11,12 @@ instead of re-calling the model — making outages cheap to recover from.
 CORRECTNESS IS PARAMOUNT. A wrong cache HIT is a wrong scientific review.
 The cache key (:func:`compose_key`) hashes EVERY input that determines the
 review output — the exact composed user message, the system prompt, the
-lens, the stage, and the model. If ANY of these differ it is a guaranteed
-MISS (a fresh model call). A HIT returns an exact round-trip of the stored
-``list[Concern]`` (pydantic ``model_dump`` / ``model_validate``).
+lens, the stage, the named capability PROFILE the review resolves under, and
+the SELECTION_POLICY_VERSION (spec 026 slice 7: reviewers never pin a raw
+model id, so there is no model id to hash — see ``llm_reviewer.LLMReviewer``).
+If ANY of these differ it is a guaranteed MISS (a fresh model call). A HIT
+returns an exact round-trip of the stored ``list[Concern]`` (pydantic
+``model_dump`` / ``model_validate``).
 
 This mirrors the on-disk approach of ``llmxive.grounding.cache``: one JSON
 file per key-hash under ``state/convergence-cache/``, an atomic write, a
@@ -97,7 +100,8 @@ def compose_key(
     system: str,
     lens: str,
     stage: str,
-    model: str | None,
+    profile: str,
+    selection_policy_version: int,
 ) -> str:
     """Hash ALL review-determining inputs into a stable 64-char sha256.
 
@@ -106,13 +110,18 @@ def compose_key(
     a different set's concatenation (i.e. no boundary ambiguity — e.g.
     ``user='ab', system='c'`` cannot collide with ``user='a', system='bc'``).
 
-    ``model`` distinguishes ``None`` (no model pinned) from ``""`` (an
-    empty model string) via a one-char presence flag, since those are
-    different inputs to the backend router.
+    ``profile`` + ``selection_policy_version`` replace the old raw model-id
+    pin (spec 026 slice 7): a reviewer never names a model, so there is
+    nothing to distinguish ``None`` from ``""`` for anymore — ``profile`` is
+    always a non-empty named profile string and ``selection_policy_version``
+    is always a real int. Reusing a cached review across a materially
+    different selection DECISION is prevented by binding the version that
+    changes whenever the capability→model policy table changes (see
+    ``llmxive.model_selection.policy.SELECTION_POLICY_VERSION``); it does
+    NOT bind the live runtime-snapshot digest (see the caller-side rationale
+    in ``llm_reviewer.LLMReviewer.identify``).
     """
-    model_flag = "0" if model is None else "1"
-    model_val = "" if model is None else model
-    fields = (user, system, lens, stage, model_flag, model_val)
+    fields = (user, system, lens, stage, profile, str(selection_policy_version))
     canonical = _SENTINEL.join(f"{len(f)}:{f}" for f in fields)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 

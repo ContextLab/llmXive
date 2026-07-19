@@ -1,12 +1,13 @@
 """Spec 026 Slice 6: ``RequirementOverrides`` threading (escalation constraints).
 
-Proves the typed escalation-constraint channel rides ALONGSIDE the existing
-``model=`` channel, from the speckit ``SlashCommandContext`` down to
-``chat_with_fallback``, and from ``build_*_reviewspec`` down to BOTH the panel
-reviewers (``chat_with_model_fallback``) AND the reviser (``reasoning_chat``),
-including the REAL concurrent panel-execution path (the engine's
-ThreadPoolExecutor runner). Default ``None`` everywhere keeps existing callers
-unchanged.
+Proves the typed escalation-constraint channel threads from the speckit
+``SlashCommandContext`` down to ``chat_with_fallback``, and from
+``build_*_reviewspec`` down to BOTH the panel reviewers
+(``chat_with_model_fallback``) AND the reviser (``reasoning_chat``), including
+the REAL concurrent panel-execution path (the engine's ThreadPoolExecutor
+runner). Default ``None`` everywhere keeps existing callers unchanged. (The
+raw ``model=`` pin channel these calls used to ride alongside was retired in
+spec 026 slice 7 — see ``test_slice7_review_panel_profile_propagation.py``.)
 
 Constitution III: the captured/asserted objects are REAL — the immutable
 ``RequirementOverrides`` value, real ``LLMReviewer``/reviser instances built by
@@ -158,7 +159,6 @@ def test_reviewer_carries_overrides_and_forwards(monkeypatch):
         stage="clarified",
         backend=_FakeBackend(),
         repo_root=_REPO_ROOT,
-        model=None,
         overrides=RequirementOverrides(require_paid=True),
     )
     r.identify(_ARTIFACTS, constitution=None, advisory=[])
@@ -174,7 +174,7 @@ def test_reviewer_default_overrides_none(monkeypatch):
     _disable_review_cache(monkeypatch)
     r = LLMReviewer(
         lens="requirements_coverage", stage="clarified",
-        backend=_FakeBackend(), repo_root=_REPO_ROOT, model=None,
+        backend=_FakeBackend(), repo_root=_REPO_ROOT,
     )
     r.identify(_ARTIFACTS, constitution=None, advisory=[])
     assert captured["overrides"] is None
@@ -198,7 +198,7 @@ def test_concurrent_reviewers_share_immutable_override_via_real_path(monkeypatch
     ov = RequirementOverrides(allow_paid=True, require_paid=True)
     spec = build_plan_reviewspec(
         backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="P",
-        model=None, requirement_overrides=ov,
+        requirement_overrides=ov,
     )
     # The real engine panel runner — bounded ThreadPoolExecutor over the 5 plan
     # lenses (default concurrency 8 → the pool path fires, not the serial path).
@@ -232,7 +232,7 @@ def test_reviser_declared_overrides_field_reaches_reasoning_chat(monkeypatch):
     ov = RequirementOverrides(allow_paid=True)
     spec = build_plan_reviewspec(
         backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="P",
-        model=None, requirement_overrides=ov,
+        requirement_overrides=ov,
     )
     invoke_reviser_backend(spec.reviser, [ChatMessage(role="user", content="x")])
     assert captured["overrides"] is ov
@@ -248,7 +248,7 @@ def test_reviser_default_overrides_none(monkeypatch):
         lambda backend, messages, **kw: (captured.update(kw), ChatResponse(text="ok", model="m", backend="dartmouth"))[1],
     )
     spec = build_plan_reviewspec(
-        backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="P", model=None,
+        backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="P",
     )
     invoke_reviser_backend(spec.reviser, [ChatMessage(role="user", content="x")])
     assert captured["overrides"] is None

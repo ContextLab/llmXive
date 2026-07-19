@@ -266,7 +266,6 @@ def run_tasker_via_engine(
     backend: Any,
     constitution_text: str | None = None,
     analyze_report_text: str = "",
-    model: str | None = None,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ProjectRunResult:
     """Run the spec-015 convergence engine in place of the legacy
@@ -302,7 +301,7 @@ def run_tasker_via_engine(
     # tier ladder for this stage would be a permanent no-op.
     spec = build_tasks_reviewspec(
         backend=backend, repo_root=repo_root, project_id=project_id,
-        model=model, requirement_overrides=requirement_overrides,
+        requirement_overrides=requirement_overrides,
     )
     concerns = analyze_findings_to_concerns(
         analyze_findings, default_artifact_path=tasks_key,

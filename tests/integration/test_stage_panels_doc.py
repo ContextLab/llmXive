@@ -636,7 +636,6 @@ def test_tasks_bridge_keeps_live_panel_and_analyze_reviewer(monkeypatch, tmp_pat
         backend=backend,
         constitution_text=None,
         analyze_report_text="report",
-        model="fake-model",
     )
     # The live panel had the 4 lenses (wired by build_tasks_reviewspec); the
     # bridge appended the analyze reviewer → its panel ran ALL of them.

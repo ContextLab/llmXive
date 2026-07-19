@@ -1562,20 +1562,9 @@
       "category": "test_double",
       "file": "tests/unit/test_llm_reviewer_model_fallback.py",
       "kind": "model_id_literal",
-      "line": 77,
+      "line": 88,
       "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": null,
-      "symbol": "model"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
-      "kind": "model_id_literal",
-      "line": 85,
-      "models": [
-        "openai.gpt-oss-120b"
+        "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
       "symbol": "replies"
@@ -1584,9 +1573,9 @@
       "category": "test_double",
       "file": "tests/unit/test_llm_reviewer_model_fallback.py",
       "kind": "model_id_literal",
-      "line": 91,
+      "line": 94,
       "models": [
-        "openai.gpt-oss-120b"
+        "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
       "symbol": "test_healthy_primary_no_fallback"
@@ -1595,18 +1584,7 @@
       "category": "test_double",
       "file": "tests/unit/test_llm_reviewer_model_fallback.py",
       "kind": "model_id_literal",
-      "line": 99,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": null,
-      "symbol": "replies"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
-      "kind": "model_id_literal",
-      "line": 100,
+      "line": 102,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -1617,9 +1595,20 @@
       "category": "test_double",
       "file": "tests/unit/test_llm_reviewer_model_fallback.py",
       "kind": "model_id_literal",
-      "line": 102,
+      "line": 103,
       "models": [
-        "openai.gpt-oss-120b"
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_llm_reviewer_model_fallback.py",
+      "kind": "model_id_literal",
+      "line": 105,
+      "models": [
+        "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
       "symbol": "transient_models"
@@ -1628,9 +1617,9 @@
       "category": "test_double",
       "file": "tests/unit/test_llm_reviewer_model_fallback.py",
       "kind": "model_id_literal",
-      "line": 109,
+      "line": 112,
       "models": [
-        "qwen.qwen3.5-122b"
+        "google.gemma-4-31B-it"
       ],
       "owning_slice": null,
       "symbol": "test_primary_transient_walks_to_peer"
@@ -1639,9 +1628,9 @@
       "category": "test_double",
       "file": "tests/unit/test_llm_reviewer_model_fallback.py",
       "kind": "model_id_literal",
-      "line": 110,
+      "line": 113,
       "models": [
-        "openai.gpt-oss-120b"
+        "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
       "symbol": "test_primary_transient_walks_to_peer"
@@ -3333,17 +3322,6 @@
       ],
       "owning_slice": null,
       "symbol": "model_name"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/unit/test_review_r1_action_items_gate.py",
-      "kind": "model_id_literal",
-      "line": 54,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": null,
-      "symbol": "model"
     },
     {
       "category": "test_double",

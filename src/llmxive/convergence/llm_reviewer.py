@@ -41,6 +41,7 @@ import yaml
 
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_model_fallback
+from llmxive.model_selection.policy import SELECTION_POLICY_VERSION
 
 from . import review_cache
 from .types import Concern, Verdict, coerce_severity
@@ -828,7 +829,12 @@ class LLMReviewer:
         stage: str,
         backend: Any,
         repo_root: Path,
-        model: str | None = None,
+        # Named capability-requirement profile (spec 026 slice 7 / FR-012,
+        # FR-013): every review lens is a JUDGMENT call over an artifact, not
+        # a generation task, so the profile is "deep_review" — never a raw
+        # model id pin. Resolved fresh per call via
+        # ``route_chat(profile=...)``; the caller never names a model.
+        profile: str = "deep_review",
         # Reasoning-safe but BOUNDED: a measured full-spec review used ~9.7K
         # completion tokens; 32_768 is ~3x headroom. 128K invites the reasoning
         # model to keep thinking past the wall-clock deadline (→ hang/thrash).
@@ -842,7 +848,7 @@ class LLMReviewer:
         # plainly says "See US-5". The research/paper reviewers already pin
         # temperature=0; the convergence panels must too.
         temperature: float = 0.0,
-        # Spec 026 slice 6: escalation constraints carried ALONGSIDE ``model=``
+        # Spec 026 slice 6: escalation constraints carried ALONGSIDE ``profile``
         # and forwarded to ``chat_with_model_fallback`` → ``route_chat``.
         # Immutable (frozen), so it is safe to share read-only across the panel
         # ThreadPoolExecutor. ``None`` = no override.
@@ -853,7 +859,7 @@ class LLMReviewer:
         self._stage = stage
         self._backend = backend
         self._repo_root = Path(repo_root)
-        self._model = model
+        self._profile = profile
         self._overrides = overrides
         self._temperature = temperature
         # Spec 015: qwen3.5-122b is a *reasoning* model — its hidden
@@ -893,16 +899,41 @@ class LLMReviewer:
         )
         # Resumable cache (spec: make qwen-outage recovery cheap). The key
         # hashes EVERY review-determining input (composed user message +
-        # system prompt + lens + stage + model); a HIT is byte-for-byte
-        # equivalent to a fresh call's INPUTS, so reusing it cannot change
-        # the review. On MISS we call the model and STORE before returning.
-        # All cache ops are best-effort — never crash / change a review.
+        # system prompt + lens + stage + profile + selection_policy_version);
+        # a HIT is byte-for-byte equivalent to a fresh call's INPUTS, so
+        # reusing it cannot change the review. On MISS we call the model and
+        # STORE before returning. All cache ops are best-effort — never
+        # crash / change a review.
+        #
+        # Spec 026 slice 7 (F2 fix): the key no longer pins a raw model id
+        # (there is none to pin — the reviewer never names one). Instead it
+        # binds the PROFILE (which capability class this review resolves
+        # under) and the SELECTION_POLICY_VERSION (bumped whenever the
+        # capability→model mapping changes — see
+        # ``llmxive.model_selection.policy``): a cached review from before
+        # either changed is a guaranteed MISS, so it can never be silently
+        # reused across a materially different selection decision. This
+        # deliberately does NOT bind the live runtime-snapshot digest (the
+        # catalog/pricing/credit state ``select()`` actually resolves
+        # against): computing that digest here would require acquiring a
+        # fresh snapshot (a network fetch of the model catalog + credit
+        # balance) purely to build a cache key, BEFORE the reviewer's own
+        # call acquires its own snapshot for the real routing decision —
+        # doubling the network cost of every ``identify()`` call and
+        # racing the key's snapshot against the call's actual snapshot (the
+        # two could legitimately differ). profile + selection_policy_version
+        # is the practical, network-free proxy: together they pin every
+        # DELIBERATE, reviewed change to what the reviewer is allowed to
+        # resolve to; the live snapshot only picks WHICH already-eligible
+        # model serves a given call, which is exactly the kind of automatic
+        # fallback substitution a resumable review cache is meant to survive.
         cache_key = review_cache.compose_key(
             user=user,
             system=self._system_prompt,
             lens=self._lens,
             stage=self._stage,
-            model=self._model,
+            profile=self._profile,
+            selection_policy_version=SELECTION_POLICY_VERSION,
         )
         cached = review_cache.load(self._repo_root, cache_key)
         if cached is not None:
@@ -1098,21 +1129,23 @@ class LLMReviewer:
         return "(unknown)"
 
     def _call_backend(self, messages: list[ChatMessage]) -> str:
-        # Route through the SAME-BACKEND peer-model fallback chain
-        # (:func:`chat_with_model_fallback`): a transient outage/hang on the
-        # primary model (e.g. a qwen3.5-122b vLLM stall) walks to gpt-oss-120b /
-        # gemma on the same injected backend instead of retrying the dead model
-        # and stalling the whole panel. The reasoning-safe ``max_tokens`` is
-        # carried to every peer (they're also reasoning models). The helper owns
-        # the kwarg-degradation for backends/test fakes whose ``chat`` signature
-        # omits ``max_tokens``/``temperature``.
+        # Route through model SELECTION (:func:`chat_with_model_fallback` →
+        # ``route_chat``): a transient outage/hang on the selected primary
+        # (e.g. a qwen3.5-122b vLLM stall) walks the selected chain to a peer
+        # instead of retrying the dead model and stalling the whole panel. The
+        # reasoning-safe ``max_tokens`` is carried to every peer (they're also
+        # reasoning models). ``model=None`` (spec 026 slice 7): the reviewer
+        # NEVER pins a raw model id — every call expresses its intent purely
+        # via ``profile``, so ``caller_model`` arrives at ``route_chat`` as
+        # None (no fake "caller preference" promoting a legacy default).
         response = chat_with_model_fallback(
             self._backend,
             messages,
-            model=self._model,
+            model=None,
             max_tokens=self._max_tokens,
             temperature=self._temperature,
             overrides=self._overrides,
+            profile=self._profile,
         )
         return getattr(response, "text", "") or ""
 
@@ -1126,7 +1159,6 @@ def build_panel(
     lenses: list[str],
     backend: Any,
     repo_root: Path,
-    model: str | None = None,
     overrides: RequirementOverrides | None = None,
 ) -> list[LLMReviewer]:
     """Build a full LLMReviewer panel for one stage. Drivers (T068
@@ -1134,11 +1166,13 @@ def build_panel(
     placeholder reviewers with live implementations.
 
     ``overrides`` (spec 026 slice 6) is passed to EVERY reviewer so the whole
-    panel carries the same immutable escalation constraints."""
+    panel carries the same immutable escalation constraints. No model id
+    channel (spec 026 slice 7) — every reviewer resolves its model via its
+    own ``"deep_review"`` profile (:class:`LLMReviewer`'s default)."""
     return [
         LLMReviewer(
             lens=lens, stage=stage, backend=backend,
-            repo_root=repo_root, model=model, overrides=overrides,
+            repo_root=repo_root, overrides=overrides,
         )
         for lens in lenses
     ]

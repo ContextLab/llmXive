@@ -15,8 +15,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from llmxive.backends.router import DEFAULT_MODEL
-
 from .types import Concern, ConcernResponse, Reviewer, ReviewSpec, Severity
 
 if TYPE_CHECKING:
@@ -90,7 +88,7 @@ def _todo_reviewers(lenses: list[str], *, prompt_task: str, wiring_task: str) ->
 
 
 def _wire_live_panel(
-    base: ReviewSpec, *, backend: object, repo_root: object, model: str | None,
+    base: ReviewSpec, *, backend: object, repo_root: object,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> None:
     """Replace ``base``'s static ``_TodoReviewer`` placeholders with a live
@@ -99,7 +97,13 @@ def _wire_live_panel(
 
     No-op when ``backend`` is None so callers that only exercise the static
     reviser / kickback routing (some unit fixtures) keep the placeholders and
-    don't accidentally require a real backend."""
+    don't accidentally require a real backend.
+
+    No raw model id is threaded through here (spec 026 slice 7): every
+    ``LLMReviewer`` built by :func:`~.llm_reviewer.build_panel` carries its own
+    named capability profile (``"deep_review"`` — a review lens is a judgment
+    call, not a generation task) and resolves its model via
+    ``route_chat(profile=...)``, never a caller-pinned model."""
     if backend is None:
         return
     from pathlib import Path as _Path
@@ -117,7 +121,6 @@ def _wire_live_panel(
         lenses=lenses,
         backend=backend,
         repo_root=_Path(str(repo_root)),
-        model=model,
         overrides=requirement_overrides,
     )
     base.reviewers = cast("list[Reviewer]", panel)
@@ -431,7 +434,6 @@ def build_idea_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str = DEFAULT_MODEL,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the idea convergence unit (FR-027).
@@ -458,7 +460,7 @@ def build_idea_reviewspec(
         overrides=requirement_overrides,
     )
     _wire_live_panel(
-        base, backend=backend, repo_root=repo_root, model=model,
+        base, backend=backend, repo_root=repo_root,
         requirement_overrides=requirement_overrides,
     )
     return base
@@ -469,7 +471,6 @@ def build_spec_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str = DEFAULT_MODEL,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the spec convergence unit (T054).
@@ -497,7 +498,7 @@ def build_spec_reviewspec(
         overrides=requirement_overrides,
     )
     _wire_live_panel(
-        base, backend=backend, repo_root=repo_root, model=model,
+        base, backend=backend, repo_root=repo_root,
         requirement_overrides=requirement_overrides,
     )
     return base
@@ -508,7 +509,6 @@ def build_paper_spec_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str = DEFAULT_MODEL,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the paper-spec convergence unit (T055).
@@ -527,7 +527,7 @@ def build_paper_spec_reviewspec(
         overrides=requirement_overrides,
     )
     _wire_live_panel(
-        base, backend=backend, repo_root=repo_root, model=model,
+        base, backend=backend, repo_root=repo_root,
         requirement_overrides=requirement_overrides,
     )
     return base
@@ -538,7 +538,6 @@ def build_plan_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str = DEFAULT_MODEL,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the research-plan convergence unit (T056).
@@ -556,7 +555,7 @@ def build_plan_reviewspec(
         overrides=requirement_overrides,
     )
     _wire_live_panel(
-        base, backend=backend, repo_root=repo_root, model=model,
+        base, backend=backend, repo_root=repo_root,
         requirement_overrides=requirement_overrides,
     )
     return base
@@ -567,7 +566,6 @@ def build_paper_plan_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str = DEFAULT_MODEL,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the paper-plan convergence unit (T056).
@@ -584,7 +582,7 @@ def build_paper_plan_reviewspec(
         overrides=requirement_overrides,
     )
     _wire_live_panel(
-        base, backend=backend, repo_root=repo_root, model=model,
+        base, backend=backend, repo_root=repo_root,
         requirement_overrides=requirement_overrides,
     )
     return base
@@ -595,7 +593,6 @@ def build_tasks_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str = DEFAULT_MODEL,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the research-tasks convergence unit (T057).
@@ -615,7 +612,7 @@ def build_tasks_reviewspec(
         overrides=requirement_overrides,
     )
     _wire_live_panel(
-        base, backend=backend, repo_root=repo_root, model=model,
+        base, backend=backend, repo_root=repo_root,
         requirement_overrides=requirement_overrides,
     )
     return base
@@ -626,7 +623,6 @@ def build_paper_tasks_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str = DEFAULT_MODEL,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the paper-tasks convergence unit (T057).
@@ -643,7 +639,7 @@ def build_paper_tasks_reviewspec(
         overrides=requirement_overrides,
     )
     _wire_live_panel(
-        base, backend=backend, repo_root=repo_root, model=model,
+        base, backend=backend, repo_root=repo_root,
         requirement_overrides=requirement_overrides,
     )
     return base
@@ -655,7 +651,6 @@ def build_implement_reviewspec(
     repo_root: object,
     project_id: str,
     project_root: object | None = None,
-    model: str = DEFAULT_MODEL,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the research-implement convergence unit (T058).
@@ -681,7 +676,7 @@ def build_implement_reviewspec(
         overrides=requirement_overrides,
     )
     _wire_live_panel(
-        base, backend=backend, repo_root=repo_root, model=model,
+        base, backend=backend, repo_root=repo_root,
         requirement_overrides=requirement_overrides,
     )
     return base
@@ -692,7 +687,6 @@ def build_paper_implement_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str = DEFAULT_MODEL,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the paper-implement convergence unit (T059).
@@ -713,7 +707,7 @@ def build_paper_implement_reviewspec(
         overrides=requirement_overrides,
     )
     _wire_live_panel(
-        base, backend=backend, repo_root=repo_root, model=model,
+        base, backend=backend, repo_root=repo_root,
         requirement_overrides=requirement_overrides,
     )
     return base
@@ -741,7 +735,6 @@ def build_research_review_reviewspec(
     backend: object | None = None,
     repo_root: object | None = None,
     project_id: str | None = None,
-    model: str = DEFAULT_MODEL,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ReviewSpec:
     """Build the LIVE ``ReviewSpec`` for the research-review convergence
@@ -755,9 +748,9 @@ def build_research_review_reviewspec(
     :func:`llmxive.convergence.revision_adapter.kickback_to_revision_spec`
     to write the auto-revisions round dir the implementer picks up.
 
-    ``backend`` / ``repo_root`` / ``project_id`` / ``model`` are
-    accepted for API parity with the other ``build_*`` helpers."""
-    _ = (backend, repo_root, project_id, model, requirement_overrides)
+    ``backend`` / ``repo_root`` / ``project_id`` are accepted for API
+    parity with the other ``build_*`` helpers."""
+    _ = (backend, repo_root, project_id, requirement_overrides)
     base = _spec_research_unit()
     base.reviser = None
     base.max_rounds = 1
@@ -769,7 +762,6 @@ def build_paper_review_reviewspec(
     backend: object | None = None,
     repo_root: object | None = None,
     project_id: str | None = None,
-    model: str = DEFAULT_MODEL,
     requirement_overrides: RequirementOverrides | None = None,
 ) -> ReviewSpec:
     """Build the LIVE ``ReviewSpec`` for the paper-review convergence
@@ -783,9 +775,9 @@ def build_paper_review_reviewspec(
     :func:`llmxive.convergence.revision_adapter.kickback_to_revision_spec`
     to write the auto-revisions round dir the implementer picks up.
 
-    ``backend`` / ``repo_root`` / ``project_id`` / ``model`` are
-    accepted for API parity with the other ``build_*`` helpers."""
-    _ = (backend, repo_root, project_id, model, requirement_overrides)
+    ``backend`` / ``repo_root`` / ``project_id`` are accepted for API
+    parity with the other ``build_*`` helpers."""
+    _ = (backend, repo_root, project_id, requirement_overrides)
     base = _spec_paper_implement()
     base.reviser = None
     base.max_rounds = 1

@@ -70,10 +70,10 @@ _ARTIFACTS = {"specs/000-x/spec.md": "# spec\n- FR-002: do Y\n"}
 
 
 def _reviewer(backend, *, lens="requirements_coverage", stage="clarified",
-              repo_root=_REPO_ROOT, model=None):
+              repo_root=_REPO_ROOT, profile="deep_review"):
     return LLMReviewer(
         lens=lens, stage=stage, backend=backend,
-        repo_root=repo_root, model=model,
+        repo_root=repo_root, profile=profile,
     )
 
 
@@ -120,12 +120,12 @@ def test_round_trip_fidelity(tmp_path):
 
 def _two_calls_changing(tmp_path, *, second_kwargs=None, second_artifacts=None,
                         lens="requirements_coverage", stage="clarified",
-                        model=None, second_model="__same__"):
+                        profile="deep_review", second_profile="__same__"):
     """Run identify() twice; the second varies ONE input. Returns the
     backend so the caller can assert ``calls == 2`` (a MISS)."""
     root = tmp_root_with_prompts(tmp_path)
     backend = _CountingBackend(responses=[_VALID_RESPONSE, _VALID_RESPONSE])
-    rev1 = _reviewer(backend, lens=lens, stage=stage, repo_root=root, model=model)
+    rev1 = _reviewer(backend, lens=lens, stage=stage, repo_root=root, profile=profile)
     rev1.identify(_ARTIFACTS, constitution=None, advisory=[])
     assert backend.calls == 1
     return backend, root
@@ -196,11 +196,14 @@ def test_miss_on_changed_stage(tmp_path):
     assert backend.calls == 2
 
 
-def test_miss_on_changed_model(tmp_path):
+def test_miss_on_changed_profile(tmp_path):
+    """Spec 026 slice 7: the cache key binds the named capability PROFILE
+    (there is no raw model id to pin anymore) — two reviewers that differ
+    only in profile must MISS each other's cache entry."""
     root = tmp_root_with_prompts(tmp_path)
     backend = _CountingBackend(responses=[_VALID_RESPONSE, _VALID_RESPONSE])
-    rev_a = _reviewer(backend, model="model-a", repo_root=root)
-    rev_b = _reviewer(backend, model="model-b", repo_root=root)
+    rev_a = _reviewer(backend, profile="deep_review", repo_root=root)
+    rev_b = _reviewer(backend, profile="deep_code", repo_root=root)
     rev_a.identify(_ARTIFACTS, constitution=None, advisory=[])
     rev_b.identify(_ARTIFACTS, constitution=None, advisory=[])
     assert backend.calls == 2
@@ -305,7 +308,8 @@ def test_cache_module_round_trip(tmp_path):
                 artifact="a.md", location="", text="t2", round=1),
     ]
     key = review_cache.compose_key(
-        user="U", system="S", lens="lens", stage="clarified", model="m",
+        user="U", system="S", lens="lens", stage="clarified",
+        profile="deep_review", selection_policy_version=1,
     )
     review_cache.store(tmp_path, key, concerns)
     got = review_cache.load(tmp_path, key)
@@ -314,25 +318,25 @@ def test_cache_module_round_trip(tmp_path):
 
 
 def test_cache_key_is_deterministic_and_sensitive():
-    base = dict(user="U", system="S", lens="L", stage="ST", model="M")
+    """Spec 026 slice 7: the key hashes ``profile`` + ``selection_policy_version``
+    (a real int) in place of the retired raw model-id pin — every
+    review-determining input, string or int, must independently move the key."""
+    base = dict(user="U", system="S", lens="L", stage="ST",
+                profile="deep_review", selection_policy_version=1)
     k = review_cache.compose_key(**base)
     assert k == review_cache.compose_key(**base)
     assert len(k) == 64
-    for field_name in ("user", "system", "lens", "stage", "model"):
+    for field_name in ("user", "system", "lens", "stage", "profile"):
         changed = dict(base)
         changed[field_name] = base[field_name] + "X"
         assert review_cache.compose_key(**changed) != k, (
             f"changing {field_name} must change the key"
         )
-
-
-def test_cache_key_model_none_distinct_from_empty():
-    """model=None and model='' must not collide (different inputs)."""
-    k_none = review_cache.compose_key(
-        user="U", system="S", lens="L", stage="ST", model=None)
-    k_empty = review_cache.compose_key(
-        user="U", system="S", lens="L", stage="ST", model="")
-    assert k_none != k_empty
+    changed_version = dict(base)
+    changed_version["selection_policy_version"] = base["selection_policy_version"] + 1
+    assert review_cache.compose_key(**changed_version) != k, (
+        "changing selection_policy_version must change the key"
+    )
 
 
 # --- helper: a tmp repo root carrying the real panel prompts -------------
