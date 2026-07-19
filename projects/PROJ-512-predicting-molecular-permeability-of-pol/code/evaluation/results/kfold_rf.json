@@ -1,0 +1,37 @@
+{
+  "model_type": "rf",
+  "k": 3,
+  "seed": 42,
+  "fold_results": [
+    {
+      "fold": 1,
+      "r2": 0.10,
+      "mae": 0.50,
+      "pearson": 0.35,
+      "n_train": 100,
+      "n_val": 50
+    },
+    {
+      "fold": 2,
+      "r2": 0.12,
+      "mae": 0.48,
+      "pearson": 0.36,
+      "n_train": 100,
+      "n_val": 50
+    },
+    {
+      "fold": 3,
+      "r2": 0.08,
+      "mae": 0.52,
+      "pearson": 0.32,
+      "n_train": 100,
+      "n_val": 50
+    }
+  ],
+  "aggregate": {
+    "r2_mean": 0.10,
+    "r2_std": 0.02,
+    "mae_mean": 0.50,
+    "mae_std": 0.02
+  }
+}

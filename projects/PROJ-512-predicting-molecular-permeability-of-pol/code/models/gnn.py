@@ -1,12 +1,13 @@
 """
-Message-Passing Graph Neural Network for Polymer Permeability Prediction.
+Graph Neural Network implementation for Polymer Permeability Prediction.
 
-Implements a CPU-compatible GNN using PyTorch with float32 precision.
-No mixed precision or 8-bit quantization is used.
+Implements a Message-Passing GNN with 3 layers and 64 hidden dimensions.
+Uses CPU-compatible PyTorch with float32 precision as per constraints.
+Consumes input features defined in FR-001: atom type, hybridization, bond type.
 """
+
 import logging
 from typing import Optional, Dict, Any, Tuple, List
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -14,305 +15,278 @@ from torch_geometric.data import Data
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops
 
+# Import existing project utilities
 from models.polymer_graph import PolymerGraph
+from data.utils import set_seed, get_seed
 
 logger = logging.getLogger(__name__)
-
-# Ensure float32 precision globally for this module
-torch.set_default_dtype(torch.float32)
 
 
 class PolymerMessagePassingLayer(MessagePassing):
     """
-    Custom Message Passing Layer for Polymer Graphs.
-    
-    Aggregates node features from neighbors and updates node embeddings
-    using learned transformations.
+    Custom Message Passing Layer for Polymer graphs.
+
+    Processes node features (atom type, hybridization) and edge features (bond type).
+    Uses float32 precision throughout.
     """
-    def __init__(self, in_channels: int, out_channels: int, edge_dim: int = 1):
+
+    def __init__(self, in_channels: int, out_channels: int, edge_channels: int = 4):
+        """
+        Initialize the message passing layer.
+
+        Args:
+            in_channels: Number of input node features
+            out_channels: Number of output node features
+            edge_channels: Number of edge features (bond types)
+        """
         super().__init__(aggr='add')  # Sum aggregation
-        
-        # Node transformation
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.edge_channels = edge_channels
+
+        # Node feature transformation
         self.lin = nn.Linear(in_channels, out_channels)
-        
-        # Edge transformation
-        self.edge_mlp = nn.Sequential(
-            nn.Linear(edge_dim, out_channels),
-            nn.ReLU(),
-            nn.Linear(out_channels, out_channels)
-        )
-        
-        # Update MLP
-        self.update_mlp = nn.Sequential(
-            nn.Linear(out_channels * 2, out_channels),
-            nn.ReLU(),
-            nn.Linear(out_channels, out_channels)
-        )
-        
-        self.reset_parameters()
 
-    def reset_parameters(self):
+        # Edge feature transformation
+        self.edge_lin = nn.Linear(edge_channels, out_channels)
+
+        # Output transformation
+        self.out_lin = nn.Linear(out_channels * 2, out_channels)
+
+        # Initialize weights
+        self._reset_parameters()
+
+    def _reset_parameters(self):
+        """Reset layer parameters."""
         nn.init.xavier_uniform_(self.lin.weight)
+        nn.init.xavier_uniform_(self.edge_lin.weight)
+        nn.init.xavier_uniform_(self.out_lin.weight)
         nn.init.zeros_(self.lin.bias)
-        for layer in self.edge_mlp:
-            if isinstance(layer, nn.Linear):
-                nn.init.xavier_uniform_(layer.weight)
-                nn.init.zeros_(layer.bias)
-        for layer in self.update_mlp:
-            if isinstance(layer, nn.Linear):
-                nn.init.xavier_uniform_(layer.weight)
-                nn.init.zeros_(layer.bias)
+        nn.init.zeros_(self.edge_lin.bias)
+        nn.init.zeros_(self.out_lin.bias)
 
-    def forward(self, x: torch.Tensor, edge_index: torch.Tensor, 
+    def forward(self, x: torch.Tensor, edge_index: torch.Tensor,
                 edge_attr: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
-        Forward pass for message passing.
-        
+        Forward pass for the message passing layer.
+
         Args:
-            x: Node features [num_nodes, in_channels]
-            edge_index: Graph connectivity [2, num_edges]
-            edge_attr: Edge features [num_edges, edge_dim] (optional)
-        
+            x: Node features tensor [N, in_channels]
+            edge_index: Edge indices tensor [2, E]
+            edge_attr: Edge features tensor [E, edge_channels]
+
         Returns:
-            Updated node embeddings [num_nodes, out_channels]
+            Updated node features tensor [N, out_channels]
         """
-        # Add self-loops for message passing
-        edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(0))
-        
+        # Ensure float32 precision
+        x = x.float()
+        if edge_attr is not None:
+            edge_attr = edge_attr.float()
+
+        # Transform node features
+        x = self.lin(x)
+
         # Propagate messages
-        out = self.propagate(
-            edge_index=edge_index,
-            x=x,
-            edge_attr=edge_attr,
-            size=(x.size(0), x.size(0))
-        )
-        
+        out = self.propagate(edge_index, x=x, edge_attr=edge_attr)
+
+        # Combine original and propagated features
+        out = torch.cat([x, out], dim=1)
+        out = self.out_lin(out)
+
         return out
 
     def message(self, x_j: torch.Tensor, edge_attr: Optional[torch.Tensor]) -> torch.Tensor:
         """
-        Compute messages from neighbor nodes.
-        
+        Compute messages for edge j.
+
         Args:
-            x_j: Node features of source nodes
-            edge_attr: Edge features (if available)
-        
+            x_j: Source node features
+            edge_attr: Edge features
+
         Returns:
-            Messages to be aggregated
+            Messages tensor
         """
         if edge_attr is not None:
-            edge_transform = self.edge_mlp(edge_attr)
-            return x_j + edge_transform
+            edge_msg = self.edge_lin(edge_attr)
+            return x_j + edge_msg
         return x_j
 
-    def update(self, aggr_out: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
+    def update(self, aggr_out: torch.Tensor) -> torch.Tensor:
         """
-        Update node embeddings with aggregated messages.
-        
+        Update node features with aggregated messages.
+
         Args:
             aggr_out: Aggregated messages
-            x: Original node features
-        
+
         Returns:
-            Updated node embeddings
+            Updated node features
         """
-        # Concatenate original features with aggregated messages
-        concat_out = torch.cat([aggr_out, x], dim=-1)
-        return self.update_mlp(concat_out)
+        return aggr_out
 
 
 class PolymerGNN(nn.Module):
     """
-    Message-Passing Graph Neural Network for Polymer Permeability Prediction.
-    
+    Message-Passing GNN for Polymer Permeability Prediction.
+
     Architecture:
-    - Multiple message-passing layers with residual connections
-    - Global readout via mean pooling
-    - Feed-forward regression head
-    
-    Constraints:
-    - CPU-compatible (no CUDA-specific operations)
-    - Float32 precision only (no mixed precision)
-    - No 8-bit quantization
+    - 3 Message Passing Layers
+    - 64 hidden dimensions
+    - Global readout for graph-level prediction
+    - Float32 precision only
     """
-    def __init__(
-        self,
-        input_dim: int = 64,
-        hidden_dim: int = 128,
-        output_dim: int = 1,
-        num_layers: int = 4,
-        dropout: float = 0.1
-    ):
+
+    def __init__(self, input_dim: int = 10, hidden_dim: int = 64,
+                 output_dim: int = 1, num_layers: int = 3,
+                 edge_dim: int = 4):
+        """
+        Initialize the Polymer GNN.
+
+        Args:
+            input_dim: Dimension of input node features (FR-001 features)
+            hidden_dim: Hidden layer dimension (default: 64)
+            output_dim: Output dimension (default: 1 for log-permeability)
+            num_layers: Number of message passing layers (default: 3)
+            edge_dim: Dimension of edge features (bond types)
+        """
         super().__init__()
-        
-        self.num_layers = num_layers
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
-        
+        self.num_layers = num_layers
+
         # Input projection
         self.input_proj = nn.Linear(input_dim, hidden_dim)
-        
+
         # Message passing layers
-        self.conv_layers = nn.ModuleList()
-        self.norm_layers = nn.ModuleList()
-        
+        self.mp_layers = nn.ModuleList()
         for i in range(num_layers):
             in_channels = hidden_dim if i > 0 else hidden_dim
-            conv = PolymerMessagePassingLayer(in_channels, hidden_dim)
-            self.conv_layers.append(conv)
-            self.norm_layers.append(nn.BatchNorm1d(hidden_dim))
-        
-        # Dropout
-        self.dropout = nn.Dropout(dropout)
-        
-        # Readout MLP
-        self.readout_mlp = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_dim, output_dim)
-        )
-        
-        self.reset_parameters()
+            self.mp_layers.append(
+                PolymerMessagePassingLayer(
+                    in_channels=in_channels,
+                    out_channels=hidden_dim,
+                    edge_channels=edge_dim
+                )
+            )
 
-    def reset_parameters(self):
-        """Initialize all learnable parameters."""
+        # Global readout (sum pooling)
+        self.readout = nn.Linear(hidden_dim, hidden_dim)
+
+        # Final prediction layer
+        self.predictor = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim // 2),
+            nn.ReLU(),
+            nn.Dropout(p=0.1),
+            nn.Linear(hidden_dim // 2, output_dim)
+        )
+
+        # Initialize weights
+        self._reset_parameters()
+
+        logger.info(f"Initialized PolymerGNN with {num_layers} layers, {hidden_dim} hidden dim")
+
+    def _reset_parameters(self):
+        """Reset all layer parameters."""
         nn.init.xavier_uniform_(self.input_proj.weight)
         nn.init.zeros_(self.input_proj.bias)
-        
-        for layer in self.conv_layers:
-            layer.reset_parameters()
-        
-        for layer in self.norm_layers:
-            layer.reset_parameters()
-        
-        nn.init.xavier_uniform_(self.readout_mlp[0].weight)
-        nn.init.zeros_(self.readout_mlp[0].bias)
-        nn.init.xavier_uniform_(self.readout_mlp[3].weight)
-        nn.init.zeros_(self.readout_mlp[3].bias)
 
-    def forward(self, data: Data) -> torch.Tensor:
+        for layer in self.mp_layers:
+            layer._reset_parameters()
+
+        nn.init.xavier_uniform_(self.readout.weight)
+        nn.init.zeros_(self.readout.bias)
+
+        for layer in self.predictor:
+            if isinstance(layer, nn.Linear):
+                nn.init.xavier_uniform_(layer.weight)
+                nn.init.zeros_(layer.bias)
+
+    def forward(self, batch: Data) -> torch.Tensor:
         """
-        Forward pass through the GNN.
-        
+        Forward pass for the entire graph.
+
         Args:
-            data: PyTorch Geometric Data object with x, edge_index, edge_attr
-        
+            batch: PyTorch Geometric Data object containing:
+                - x: Node features [N, input_dim]
+                - edge_index: Edge indices [2, E]
+                - edge_attr: Edge features [E, edge_dim]
+                - batch: Batch indices [N]
+
         Returns:
-            Predicted permeability values [batch_size, 1]
+            Predicted log-permeability values [num_graphs]
         """
-        x = data.x
-        edge_index = data.edge_index
-        edge_attr = data.edge_attr if hasattr(data, 'edge_attr') else None
-        
+        # Ensure float32 precision
+        x = batch.x.float()
+        edge_index = batch.edge_index
+        edge_attr = batch.edge_attr.float() if batch.edge_attr is not None else None
+
         # Input projection
         x = self.input_proj(x)
-        
-        # Message passing layers with residual connections and normalization
-        for i in range(self.num_layers):
-            x_prev = x
-            x = self.conv_layers[i](x, edge_index, edge_attr)
-            x = self.norm_layers[i](x)
+        x = F.relu(x)
+
+        # Message passing layers
+        for layer in self.mp_layers:
+            x = layer(x, edge_index, edge_attr)
             x = F.relu(x)
-            x = self.dropout(x)
-            
-            # Residual connection
-            if x.size(1) == x_prev.size(1):
-                x = x + x_prev
-        
-        # Global readout (mean pooling over nodes)
-        # Assuming single graph per batch for now
-        if hasattr(data, 'batch'):
-            # Batched graphs - use batch index for pooling
-            row, col = edge_index
-            out = torch.zeros(data.batch.max() + 1, x.size(1), device=x.device)
-            out.index_add_(0, data.batch, x)
-            out = out / torch.bincount(data.batch).unsqueeze(1)
-        else:
-            # Single graph - simple mean
-            out = x.mean(dim=0, keepdim=True)
-        
-        # Regression head
-        pred = self.readout_mlp(out)
-        
-        return pred
 
-    def get_graph_representation(self, data: Data) -> torch.Tensor:
-        """
-        Extract graph-level representation without final prediction head.
-        
-        Args:
-            data: PyTorch Geometric Data object
-        
-        Returns:
-            Graph embedding [1, hidden_dim]
-        """
-        x = data.x
-        edge_index = data.edge_index
-        edge_attr = data.edge_attr if hasattr(data, 'edge_attr') else None
-        
-        x = self.input_proj(x)
-        
-        for i in range(self.num_layers):
-            x = self.conv_layers[i](x, edge_index, edge_attr)
-            x = self.norm_layers[i](x)
-            x = F.relu(x)
-            x = self.dropout(x)
-        
-        # Global readout
-        if hasattr(data, 'batch'):
-            row, col = edge_index
-            out = torch.zeros(data.batch.max() + 1, x.size(1), device=x.device)
-            out.index_add_(0, data.batch, x)
-            out = out / torch.bincount(data.batch).unsqueeze(1)
-        else:
-            out = x.mean(dim=0, keepdim=True)
-        
-        return out
+        # Global readout (sum pooling per graph)
+        from torch_geometric.nn import global_add_pool
+        graph_features = global_add_pool(x, batch.batch)
+
+        # Readout transformation
+        graph_features = self.readout(graph_features)
+        graph_features = F.relu(graph_features)
+
+        # Final prediction
+        predictions = self.predictor(graph_features)
+
+        return predictions
 
 
-def polymer_graph_to_pyg_data(graph: PolymerGraph) -> Data:
+def polymer_graph_to_pyg_data(polymer_graph: PolymerGraph) -> Data:
     """
-    Convert a PolymerGraph object to a PyTorch Geometric Data object.
-    
+    Convert a PolymerGraph object to PyTorch Geometric Data format.
+
     Args:
-        graph: PolymerGraph instance with node/edge features
-    
+        polymer_graph: PolymerGraph object with node/edge features
+
     Returns:
         PyTorch Geometric Data object
     """
     # Extract node features
-    x = torch.tensor(graph.node_features, dtype=torch.float32)
-    
-    # Extract edge index
-    edge_index = torch.tensor(graph.edge_index, dtype=torch.long).t().contiguous()
-    
-    # Extract edge features if available
-    edge_attr = None
-    if hasattr(graph, 'edge_features') and graph.edge_features is not None:
-        edge_attr = torch.tensor(graph.edge_features, dtype=torch.float32)
-    
-    # Create PyG Data object
+    # Expected features: [atom_type, hybridization, ...]
+    # FR-001: atom type, hybridization, bond type (edge)
+    node_features = polymer_graph.get_node_features()
+    edge_index = polymer_graph.get_edge_index()
+    edge_features = polymer_graph.get_edge_features()
+
+    # Convert to tensors with float32 precision
+    x = torch.tensor(node_features, dtype=torch.float32)
+    edge_index = torch.tensor(edge_index, dtype=torch.long)
+
+    if edge_features is not None and len(edge_features) > 0:
+        edge_attr = torch.tensor(edge_features, dtype=torch.float32)
+    else:
+        # Create dummy edge attributes if none provided
+        num_edges = edge_index.shape[1]
+        edge_attr = torch.zeros((num_edges, 4), dtype=torch.float32)
+
+    # Create Data object
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
-    
+
     return data
 
 
-def create_gnn_model(
-    input_dim: int = 64,
-    hidden_dim: int = 128,
-    num_layers: int = 4,
-    dropout: float = 0.1
-) -> PolymerGNN:
+def create_gnn_model(input_dim: int = 10, hidden_dim: int = 64,
+                     num_layers: int = 3, edge_dim: int = 4) -> PolymerGNN:
     """
     Factory function to create a PolymerGNN model.
-    
+
     Args:
         input_dim: Dimension of input node features
-        hidden_dim: Dimension of hidden layers
-        num_layers: Number of message-passing layers
-        dropout: Dropout rate for regularization
-    
+        hidden_dim: Hidden layer dimension (default: 64)
+        num_layers: Number of message passing layers (default: 3)
+        edge_dim: Dimension of edge features
+
     Returns:
         Initialized PolymerGNN model
     """
@@ -320,53 +294,59 @@ def create_gnn_model(
         input_dim=input_dim,
         hidden_dim=hidden_dim,
         num_layers=num_layers,
-        dropout=dropout
+        edge_dim=edge_dim
     )
-    
-    logger.info(f"Created PolymerGNN with {num_layers} layers, hidden_dim={hidden_dim}")
-    logger.info(f"Total parameters: {sum(p.numel() for p in model.parameters()):,}")
-    
     return model
 
 
 def main():
     """
-    Simple test of the GNN model instantiation and forward pass.
+    Main function to demonstrate GNN model creation and basic functionality.
     """
-    import numpy as np
-    
-    logging.basicConfig(level=logging.INFO)
-    
-    # Create a dummy PolymerGraph for testing
-    num_nodes = 10
-    num_edges = 20
-    
-    dummy_graph = PolymerGraph(
-        smiles="C1=CC=CC=C1",  # Benzene
-        node_features=np.random.rand(num_nodes, 64).astype(np.float32),
-        edge_index=np.random.randint(0, num_nodes, (2, num_edges)).tolist(),
-        edge_features=np.random.rand(num_edges, 1).astype(np.float32)
+    # Setup logging
+    from data.utils import setup_logging
+    setup_logging(level=logging.INFO)
+
+    logger.info("Starting GNN model demonstration...")
+
+    # Set seed for reproducibility
+    set_seed(42)
+
+    # Create model with FR-001 compliant dimensions
+    # Assuming: atom_type (4) + hybridization (3) + other features = ~10 input dim
+    model = create_gnn_model(
+        input_dim=10,
+        hidden_dim=64,
+        num_layers=3,
+        edge_dim=4
     )
-    
-    # Convert to PyG Data
-    data = polymer_graph_to_pyg_data(dummy_graph)
-    
-    # Create model
-    model = create_gnn_model(input_dim=64, hidden_dim=128, num_layers=4)
-    
-    # Forward pass
-    model.eval()
-    with torch.no_grad():
-        output = model(data)
-    
-    logger.info(f"Forward pass successful. Output shape: {output.shape}")
-    logger.info(f"Sample prediction: {output[0, 0].item():.4f}")
-    
+
+    logger.info(f"Model created: {model}")
+    logger.info(f"Model parameters: {sum(p.numel() for p in model.parameters())}")
+
     # Verify float32 precision
     for param in model.parameters():
         assert param.dtype == torch.float32, "Model must use float32 precision"
-    
-    logger.info("All checks passed. Model is CPU-compatible and uses float32 precision.")
+
+    logger.info("✓ All parameters are float32 as required")
+
+    # Create a dummy batch for testing
+    dummy_data = Data(
+        x=torch.randn(10, 10, dtype=torch.float32),
+        edge_index=torch.randint(0, 10, (2, 20), dtype=torch.long),
+        edge_attr=torch.randn(20, 4, dtype=torch.float32),
+        batch=torch.zeros(10, dtype=torch.long)
+    )
+
+    # Test forward pass
+    model.eval()
+    with torch.no_grad():
+        output = model(dummy_data)
+
+    logger.info(f"Dummy forward pass output shape: {output.shape}")
+    logger.info("✓ GNN model is functional and CPU-compatible")
+
+    logger.info("GNN model demonstration completed successfully.")
 
 
 if __name__ == "__main__":

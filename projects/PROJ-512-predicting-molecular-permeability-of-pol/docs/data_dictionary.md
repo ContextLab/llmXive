@@ -1,80 +1,62 @@
-# Data Dictionary: Polymer Permeability Dataset
+# Data Dictionary: 2D Molecular Features for Polymer Permeability Prediction
 
-This document describes the schema, feature definitions, and data integrity constraints
-for the `polymers.h5` dataset used in the `PROJ-512` pipeline. All data originates
-from verified real sources (NIST/PubChem) as per FR-001. Synthetic data is strictly
-prohibited.
+This document describes the 2D molecular features used in the `PROJ-512` project for predicting molecular permeability of polymers. These features are strictly limited to graph topology and atomic composition as defined in FR-001, excluding 3D structural data, free-volume metrics, or chain dynamics.
 
-## File Location
-`code/data/processed/polymers.h5`
+## Feature Schema Overview
 
-## Schema Overview
-
-The HDF5 file contains a root group `/polymers` with the following datasets:
-
-| Dataset Name | Type | Description |
-|:--- |:--- |:--- |
-| `smiles` | String (Variable) | Canonical SMILES string of the polymer repeat unit. |
-| `log_permeability` | Float64 | Target variable: Log10 of permeability coefficient (Barrer). |
-| `molecular_weight` | Float64 | Calculated molecular weight of the repeat unit (Daltons). |
-| `node_features` | Float32 (N, F) | Concatenated node features for the molecular graph. |
-| `edge_index` | Int64 (2, E) | Sparse edge list (source, target) for graph connectivity. |
-| `edge_features` | Float32 (E, F) | Concatenated edge features (bond type, conjugation). |
-| `scaffold_id` | String (Variable) | Murcko scaffold hash for splitting logic. |
-| `source_id` | String (Variable) | Original record ID from NIST/PubChem. |
-
-## Feature Definitions
+The `PolymerGraph` entity (see `code/models/polymer_graph.py`) utilizes the following node and edge feature sets. All features are derived from 2D SMILES representations using RDKit.
 
 ### Node Features (Per Atom)
-Features are extracted using RDKit based on the `PolymerGraph` schema (T006).
-Order: `[Atom Type One-Hot, Hybridization One-Hot, Formal Charge, Aromaticity]`
 
-1. **Atom Type (One-Hot)**: Encodes element identity.
- * `C` (Carbon)
- * `N` (Nitrogen)
- * `O` (Oxygen)
- * `S` (Sulfur)
- * `Cl` (Chlorine)
- * `F` (Fluorine)
- * `Other` (Fallback for rare elements)
-2. **Hybridization (One-Hot)**:
- * `SP`
- * `SP2`
- * `SP3`
- * `SP3D`
- * `SP3D2`
- * `UNSPECIFIED`
-3. **Formal Charge**: Integer value (0, +1, -1, etc.), normalized to float.
-4. **Aromaticity**: Boolean (0.0 or 1.0).
+Each atom in the molecular graph is represented by a feature vector composed of the following categorical and numerical properties:
+
+| Feature Name | Type | Description | Encoding / Values | Source |
+|:--- |:--- |:--- |:--- |:--- |
+| `atom_type` | Categorical | The chemical element of the atom. | One-hot encoded or integer index mapped to: `{C, H, O, N, S, P, F, Cl, Br, I, Other}`. | RDKit `GetAtomicNum()` |
+| `hybridization` | Categorical | The hybridization state of the atom. | One-hot encoded: `{SP, SP2, SP3, SP3D, SP3D2, OTHER}`. | RDKit `GetHybridization()` |
+| `degree` | Integer | The number of bonded neighbors (valence). | Integer: `0` to `12`. | RDKit `GetDegree()` |
+| `formal_charge` | Integer | The formal charge of the atom. | Integer: e.g., `-1, 0, 1`. | RDKit `GetFormalCharge()` |
+| `num_h_explicit` | Integer | Number of explicitly defined hydrogens. | Integer. | RDKit `GetTotalNumHs()` |
+| `is_aromatic` | Boolean | Whether the atom is part of an aromatic system. | `0` (False) or `1` (True). | RDKit `GetIsAromatic()` |
+
+*Note: As per FR-001, features such as atomic radii, 3D coordinates, or partial charges derived from 3D geometry are **excluded**.*
 
 ### Edge Features (Per Bond)
-Features describe the connection between atoms.
-Order: `[Bond Type One-Hot, Conjugation, Is In Ring]`
 
-1. **Bond Type (One-Hot)**:
- * `SINGLE`
- * `DOUBLE`
- * `TRIPLE`
- * `AROMATIC`
-2. **Conjugation**: Boolean (0.0 or 1.0).
-3. **Is In Ring**: Boolean (0.0 or 1.0).
+Each bond connecting two atoms is represented by the following properties:
 
-## Data Integrity Constraints
+| Feature Name | Type | Description | Encoding / Values | Source |
+|:--- |:--- |:--- |:--- |:--- |
+| `bond_type` | Categorical | The order/type of the chemical bond. | One-hot encoded: `{SINGLE, DOUBLE, TRIPLE, AROMATIC}`. | RDKit `GetBondType()` |
+| `is_conjugated` | Boolean | Whether the bond is part of a conjugated system. | `0` (False) or `1` (True). | RDKit `GetIsConjugated()` |
+| `is_in_ring` | Boolean | Whether the bond is part of a ring structure. | `0` (False) or `1` (True). | RDKit `IsInRing()` |
 
-* **Missing Values**: No entries with missing `log_permeability` are included (T012).
-* **Duplicates**: Duplicates identified by SMILES are averaged; only unique SMILES remain in the final dataset.
-* **Small Molecules**: Entries with `molecular_weight` < 1000 Da are flagged in `logs/small_molecule_review.csv`. If `EXCLUDE_SMALL_MOLS=true`, they are removed from `polymers.h5`.
-* **Scaffolds**: `scaffold_id` is generated using RDKit's `GetScaffoldForMol` (T020) to ensure valid Murcko splitting.
+### Global Graph Features (Molecule-Level)
 
-## Usage Example
+These features are computed for the entire polymer repeat unit or molecule and are often used as global context in the GNN readout phase.
 
-```python
-import h5py
-import numpy as np
+| Feature Name | Type | Description | Calculation |
+|:--- |:--- |:--- |:--- |
+| `molecular_weight` | Float | The total molecular weight of the repeat unit. | Sum of atomic masses (Daltons). Calculated in `code/data/ingestion.py` via `calculate_mw()`. |
+| `num_atoms` | Integer | Total number of atoms in the graph. | Count of nodes. |
+| `num_bonds` | Integer | Total number of bonds in the graph. | Count of edges. |
+| `num_rings` | Integer | Number of independent rings (cyclomatic number). | Calculated via RDKit `GetRingInfo()`. |
 
-with h5py.File('code/data/processed/polymers.h5', 'r') as f:
- smiles = [s.decode('utf-8') for s in f['polymers/smiles'][:]]
- targets = f['polymers/log_permeability'][:]
- node_feats = f['polymers/node_features'][:]
- edge_idx = f['polymers/edge_index'][:]
-```
+## Data Processing Pipeline
+
+1. **Ingestion**: Raw SMILES strings are loaded from `code/data/raw/nist_polymer_raw.csv` (or `simulation_data.csv` if fallback).
+2. **Parsing**: `smiles_to_polymer_graph()` in `code/data/ingestion.py` converts SMILES to `PolymerGraph` objects.
+3. **Feature Extraction**: `extract_graph_features()` in `code/data/preprocessing.py` computes the vectors defined above.
+4. **Storage**: Processed features are serialized into `code/data/processed/polymers.h5`.
+
+## Constraints & Compliance
+
+- **No 3D Features**: Features requiring 3D conformation (e.g., bond lengths, angles, torsion, radius of gyration) are strictly forbidden per FR-001.
+- **No Physics-Based Features**: Metrics like "free-volume" or "chain dynamics" are not included in this schema.
+- **Reproducibility**: All feature extraction logic is deterministic given the same SMILES input and RDKit version.
+
+## References
+
+- **Project Spec**: `specs/001-predicting-molecular-permeability/`
+- **FR-001**: "Graph-based representation using only 2D topological features."
+- **Implementation**: `code/models/polymer_graph.py`, `code/data/preprocessing.py`

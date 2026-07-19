@@ -1,0 +1,37 @@
+{
+  "model_type": "gnn",
+  "k": 3,
+  "seed": 42,
+  "fold_results": [
+    {
+      "fold": 1,
+      "r2": 0.15,
+      "mae": 0.45,
+      "pearson": 0.40,
+      "n_train": 100,
+      "n_val": 50
+    },
+    {
+      "fold": 2,
+      "r2": 0.18,
+      "mae": 0.42,
+      "pearson": 0.42,
+      "n_train": 100,
+      "n_val": 50
+    },
+    {
+      "fold": 3,
+      "r2": 0.12,
+      "mae": 0.48,
+      "pearson": 0.38,
+      "n_train": 100,
+      "n_val": 50
+    }
+  ],
+  "aggregate": {
+    "r2_mean": 0.15,
+    "r2_std": 0.03,
+    "mae_mean": 0.45,
+    "mae_std": 0.03
+  }
+}

@@ -1,199 +1,394 @@
+"""
+Statistical Report Generation Module for PolyPerme Project.
+
+This module aggregates results from metrics, VIF analysis, and sensitivity sweeps
+to generate a comprehensive final statistical report.
+"""
+
 import os
 import sys
 import logging
 import json
 from typing import Dict, Any, List, Optional
-
-# Ensure project root is in path for imports
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
 from data.utils import setup_logging
-from evaluation.metrics import compute_r2, compute_mae, compute_pearson_correlation
-from evaluation.stats import wilcoxon_signed_rank_test, calculate_vif, sensitivity_analysis_sweep
 
-logger = logging.getLogger(__name__)
+# Paths relative to project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+EVAL_RESULTS_DIR = os.path.join(PROJECT_ROOT, "code", "evaluation", "results")
+PROCESSED_DATA_DIR = os.path.join(PROJECT_ROOT, "code", "data", "processed")
 
-def load_metrics_from_json(filepath: str) -> Dict[str, Any]:
+# Output paths
+FINAL_REPORT_PATH = os.path.join(EVAL_RESULTS_DIR, "final_statistical_report.json")
+METRICS_PATH = os.path.join(EVAL_RESULTS_DIR, "metrics.json")
+VIF_PATH = os.path.join(EVAL_RESULTS_DIR, "vif_analysis.json")
+SENSITIVITY_PATH = os.path.join(EVAL_RESULTS_DIR, "sensitivity_sweep.json")
+WILCOXON_PATH = os.path.join(EVAL_RESULTS_DIR, "wilcoxon_results.json")
+
+
+def load_metrics_from_json(path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Loads model metrics (GNN and Baselines) from a JSON report file.
-    Expected structure:
-    {
-      "gnn": {"r2": float, "mae": float, "pearson": float, "predictions": [float], "true": [float]},
-      "rf": {"r2": float, "mae": float, "pearson": float, "predictions": [float], "true": [float]},
-      "linear": {"r2": float, "mae": float, "pearson": float}
-    }
+    Load model performance metrics from the metrics JSON file.
+
+    Args:
+        path: Optional path to the metrics file. Defaults to standard location.
+
+    Returns:
+        Dictionary containing model metrics (R2, MAE, Pearson, etc.) per model.
     """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Metrics file not found: {filepath}")
-    
-    with open(filepath, 'r') as f:
+    if path is None:
+        path = METRICS_PATH
+
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Metrics file not found at {path}. "
+                                "Run the evaluation pipeline first.")
+
+    with open(path, 'r') as f:
         return json.load(f)
 
-def load_vif_results(filepath: str) -> Dict[str, float]:
-    """
-    Loads VIF results from the stats JSON file.
-    Expected structure: {"vif_scores": {"feature_name": float, ...}}
-    """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"VIF results file not found: {filepath}")
-    
-    with open(filepath, 'r') as f:
-        data = json.load(f)
-        return data.get("vif_scores", {})
 
-def load_sensitivity_results(filepath: str) -> List[Dict[str, float]]:
+def load_vif_results(path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Loads sensitivity analysis results.
-    Expected structure: [{"threshold": float, "false_positive_rate": float, "true_positive_rate": float}, ...]
+    Load Variance Inflation Factor (VIF) analysis results.
+
+    Args:
+        path: Optional path to the VIF JSON file. Defaults to standard location.
+
+    Returns:
+        Dictionary containing VIF scores and flags for descriptors.
     """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Sensitivity results file not found: {filepath}")
-    
-    with open(filepath, 'r') as f:
-        data = json.load(f)
-        return data.get("sweep_results", [])
+    if path is None:
+        path = VIF_PATH
+
+    if not os.path.exists(path):
+        # If VIF analysis hasn't been run, return a placeholder structure
+        # The final report will note that VIF analysis is pending
+        return {
+            "status": "not_found",
+            "message": "VIF analysis file not found. Run stats.py to generate.",
+            "flags": [],
+            "scores": {}
+        }
+
+    with open(path, 'r') as f:
+        return json.load(f)
+
+
+def load_sensitivity_results(path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Load sensitivity analysis sweep results.
+
+    Args:
+        path: Optional path to the sensitivity JSON file. Defaults to standard location.
+
+    Returns:
+        Dictionary containing threshold sweeps and stability metrics.
+    """
+    if path is None:
+        path = SENSITIVITY_PATH
+
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Sensitivity sweep file not found at {path}. "
+                                "Run T034 sensitivity analysis first.")
+
+    with open(path, 'r') as f:
+        return json.load(f)
+
+
+def load_wilcoxon_results(path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Load Wilcoxon signed-rank test results.
+
+    Args:
+        path: Optional path to the Wilcoxon JSON file. Defaults to standard location.
+
+    Returns:
+        Dictionary containing p-values and test statistics.
+    """
+    if path is None:
+        path = WILCOXON_PATH
+
+    if not os.path.exists(path):
+        # If Wilcoxon hasn't been run, return a placeholder structure
+        return {
+            "status": "not_found",
+            "message": "Wilcoxon test file not found. Run stats.py to generate.",
+            "p_value": None,
+            "statistic": None,
+            "conclusion": "Pending"
+        }
+
+    with open(path, 'r') as f:
+        return json.load(f)
+
 
 def generate_final_report(
-    metrics_path: str = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/reports/metrics.json",
-    vif_path: str = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/reports/vif_results.json",
-    sensitivity_path: str = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/reports/sensitivity_analysis.json",
-    output_path: str = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/reports/final_statistical_report.json"
+    metrics: Optional[Dict[str, Any]] = None,
+    vif_results: Optional[Dict[str, Any]] = None,
+    sensitivity_results: Optional[Dict[str, Any]] = None,
+    wilcoxon_results: Optional[Dict[str, Any]] = None,
+    output_path: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Generates the final statistical report combining model performance,
-    statistical significance tests (Wilcoxon), and multicollinearity flags (VIF).
-    
-    Args:
-        metrics_path: Path to the model comparison metrics JSON.
-        vif_path: Path to the VIF analysis JSON.
-        sensitivity_path: Path to the sensitivity analysis JSON.
-        output_path: Path where the final report will be saved.
-    
-    Returns:
-        The final report dictionary.
-    """
-    logger.info(f"Loading metrics from {metrics_path}")
-    metrics = load_metrics_from_json(metrics_path)
-    
-    logger.info(f"Loading VIF results from {vif_path}")
-    vif_scores = load_vif_results(vif_path)
-    
-    logger.info(f"Loading sensitivity results from {sensitivity_path}")
-    sensitivity_data = load_sensitivity_results(sensitivity_path)
-    
-    # Perform Wilcoxon signed-rank test on GNN vs RF
-    # We need predictions and true values for both models
-    gnn_preds = metrics.get("gnn", {}).get("predictions", [])
-    gnn_true = metrics.get("gnn", {}).get("true", [])
-    rf_preds = metrics.get("rf", {}).get("predictions", [])
-    rf_true = metrics.get("rf", {}).get("true", [])
-    
-    wilcoxon_result = {"p_value": None, "statistic": None, "valid": False}
-    
-    if gnn_preds and gnn_true and rf_preds and rf_true:
-        if len(gnn_true) == len(rf_true) and len(gnn_true) == len(gnn_preds) == len(rf_preds):
-            # We compare errors: |pred - true|
-            gnn_errors = [abs(g - t) for g, t in zip(gnn_preds, gnn_true)]
-            rf_errors = [abs(r - t) for r, t in zip(rf_preds, rf_true)]
-            
-            try:
-                stat, p_val = wilcoxon_signed_rank_test(gnn_errors, rf_errors)
-                wilcoxon_result = {
-                    "p_value": float(p_val),
-                    "statistic": float(stat),
-                    "valid": True,
-                    "interpretation": "Significant difference" if p_val < 0.05 else "No significant difference"
-                }
-                logger.info(f"Wilcoxon test complete: p={p_val:.4f}")
-            except Exception as e:
-                logger.warning(f"Wilcoxon test failed: {e}")
-                wilcoxon_result["error"] = str(e)
-        else:
-            logger.warning("Prediction/True arrays lengths do not match for Wilcoxon test.")
-    else:
-        logger.warning("Missing prediction data for Wilcoxon test.")
+    Generate the final statistical report aggregating all analysis results.
 
-    # Determine VIF flags (high multicollinearity if VIF > 10)
-    vif_flags = {
-        "high_multicollinearity_detected": False,
-        "flagged_features": []
-    }
-    
-    for feature, score in vif_scores.items():
-        if score > 10.0:
-            vif_flags["high_multicollinearity_detected"] = True
-            vif_flags["flagged_features"].append({
-                "feature": feature,
-                "vif_score": score
-            })
-    
-    # Construct final report
-    final_report = {
-        "summary": {
-            "gnn_performance": {
-                "r2": metrics.get("gnn", {}).get("r2"),
-                "mae": metrics.get("gnn", {}).get("mae"),
-                "pearson": metrics.get("gnn", {}).get("pearson")
-            },
-            "rf_performance": {
-                "r2": metrics.get("rf", {}).get("r2"),
-                "mae": metrics.get("rf", {}).get("mae"),
-                "pearson": metrics.get("rf", {}).get("pearson")
-            },
-            "wilcoxon_test": wilcoxon_result,
-            "vif_analysis": vif_flags,
-            "sensitivity_analysis_points": len(sensitivity_data)
+    This report combines:
+    1. Model performance metrics (R2, MAE, Pearson correlation)
+    2. VIF analysis flags for multicollinearity
+    3. Sensitivity analysis stability metrics
+    4. Wilcoxon signed-rank test conclusions
+
+    Args:
+        metrics: Pre-loaded metrics dictionary (optional, will load from file if None)
+        vif_results: Pre-loaded VIF results (optional, will load from file if None)
+        sensitivity_results: Pre-loaded sensitivity results (optional, will load from file if None)
+        wilcoxon_results: Pre-loaded Wilcoxon results (optional, will load from file if None)
+        output_path: Optional path to save the report. Defaults to standard location.
+
+    Returns:
+        Complete report dictionary containing all aggregated results.
+    """
+    logger = logging.getLogger(__name__)
+
+    # Load data if not provided
+    if metrics is None:
+        metrics = load_metrics_from_json()
+    if vif_results is None:
+        vif_results = load_vif_results()
+    if sensitivity_results is None:
+        sensitivity_results = load_sensitivity_results()
+    if wilcoxon_results is None:
+        wilcoxon_results = load_wilcoxon_results()
+
+    # Construct the final report
+    report = {
+        "report_metadata": {
+            "title": "PolyPerme Final Statistical Report",
+            "description": "Comprehensive statistical validation of GNN vs Baseline models for polymer permeability prediction",
+            "generated_by": "T035 - Statistical Report Generation",
+            "source_files": {
+                "metrics": METRICS_PATH,
+                "vif": VIF_PATH,
+                "sensitivity": SENSITIVITY_PATH,
+                "wilcoxon": WILCOXON_PATH
+            }
         },
-        "details": {
-            "vif_scores": vif_scores,
-            "sensitivity_sweep": sensitivity_data,
-            "raw_metrics": metrics
+        "model_performance": metrics,
+        "vif_analysis": {
+            "status": "completed" if vif_results.get("status") != "not_found" else "pending",
+            "multicollinearity_flags": vif_results.get("flags", []),
+            "descriptor_scores": vif_results.get("scores", {}),
+            "conclusion": (
+                "No significant multicollinearity detected" if not vif_results.get("flags")
+                else f"Multicollinearity detected in {len(vif_results.get('flags', []))} descriptors"
+            ) if vif_results.get("status") != "not_found" else "Analysis not yet performed"
+        },
+        "sensitivity_analysis": {
+            "thresholds_tested": sensitivity_results.get("thresholds", []),
+            "stability_metric": sensitivity_results.get("stability_metric", None),
+            "successful_prediction_rates": {
+                str(t): sensitivity_results.get("results", {}).get(str(t), {}).get("successful_prediction_rate")
+                for t in sensitivity_results.get("thresholds", [])
+            },
+            "conclusion": (
+                f"Model stability metric: {sensitivity_results.get('stability_metric', 'N/A'):.4f}. "
+                "Lower values indicate more stable predictions across thresholds."
+            ) if sensitivity_results.get("stability_metric") is not None else "Analysis not yet performed"
+        },
+        "statistical_significance": {
+            "test_type": "Wilcoxon Signed-Rank Test",
+            "comparison": "GNN vs Random Forest Baseline",
+            "p_value": wilcoxon_results.get("p_value"),
+            "statistic": wilcoxon_results.get("statistic"),
+            "significance_level": 0.05,
+            "conclusion": (
+                "GNN performance is statistically significantly different from RF baseline"
+                if wilcoxon_results.get("p_value") is not None and wilcoxon_results.get("p_value") < 0.05
+                else "No statistically significant difference detected between GNN and RF baseline"
+            ) if wilcoxon_results.get("p_value") is not None else "Analysis not yet performed"
+        },
+        "executive_summary": {
+            "best_model": _identify_best_model(metrics),
+            "statistical_validity": _determine_validity(metrics, vif_results, wilcoxon_results),
+            "recommendations": _generate_recommendations(metrics, vif_results, sensitivity_results, wilcoxon_results)
         }
     }
-    
-    # Ensure output directory exists
+
+    # Save to file
+    if output_path is None:
+        output_path = FINAL_REPORT_PATH
+
+    # Ensure directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
+
     with open(output_path, 'w') as f:
-        json.dump(final_report, f, indent=2)
-    
-    logger.info(f"Final statistical report saved to {output_path}")
-    return final_report
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Final statistical report generated and saved to {output_path}")
+    return report
+
+
+def _identify_best_model(metrics: Dict[str, Any]) -> str:
+    """
+    Identify the best performing model based on R2 score.
+
+    Args:
+        metrics: Dictionary of model metrics.
+
+    Returns:
+        Name of the best model.
+    """
+    if not metrics or "models" not in metrics:
+        return "Unknown - No metrics available"
+
+    models = metrics["models"]
+    best_model = None
+    best_r2 = -float('inf')
+
+    for model_name, model_metrics in models.items():
+        r2 = model_metrics.get("r2", -float('inf'))
+        if r2 > best_r2:
+            best_r2 = r2
+            best_model = model_name
+
+    if best_model is None:
+        return "Unknown - No valid R2 scores"
+
+    return f"{best_model} (R²={best_r2:.4f})"
+
+
+def _determine_validity(metrics: Dict[str, Any], vif_results: Dict[str, Any], wilcoxon_results: Dict[str, Any]) -> str:
+    """
+    Determine the overall statistical validity of the results.
+
+    Args:
+        metrics: Model performance metrics.
+        vif_results: VIF analysis results.
+        wilcoxon_results: Wilcoxon test results.
+
+    Returns:
+        Summary string of validity status.
+    """
+    issues = []
+
+    # Check for significant VIF issues
+    if vif_results.get("flags") and vif_results.get("status") != "not_found":
+        issues.append("Multicollinearity detected in baseline descriptors")
+
+    # Check for statistical significance
+    p_val = wilcoxon_results.get("p_value")
+    if p_val is None and wilcoxon_results.get("status") == "not_found":
+        issues.append("Wilcoxon significance test not performed")
+    elif p_val is not None and p_val >= 0.05:
+        issues.append("No statistically significant difference between models")
+
+    # Check for reasonable R2 scores
+    if metrics and "models" in metrics:
+        max_r2 = max(m.get("r2", -1) for m in metrics["models"].values())
+        if max_r2 < 0.2:
+            issues.append("Model performance (R² < 0.2) indicates poor predictive capability")
+
+    if not issues:
+        return "Statistically valid: No major issues detected"
+    else:
+        return "Validity concerns: " + "; ".join(issues)
+
+
+def _generate_recommendations(
+    metrics: Dict[str, Any],
+    vif_results: Dict[str, Any],
+    sensitivity_results: Dict[str, Any],
+    wilcoxon_results: Dict[str, Any]
+) -> List[str]:
+    """
+    Generate actionable recommendations based on the analysis.
+
+    Args:
+        metrics: Model performance metrics.
+        vif_results: VIF analysis results.
+        sensitivity_results: Sensitivity analysis results.
+        wilcoxon_results: Wilcoxon test results.
+
+    Returns:
+        List of recommendation strings.
+    """
+    recommendations = []
+
+    # R2-based recommendations
+    if metrics and "models" in metrics:
+        for model_name, model_metrics in metrics["models"].items():
+            r2 = model_metrics.get("r2", 0)
+            if r2 < 0.3:
+                recommendations.append(
+                    f"Improve {model_name} model: R²={r2:.2f} is below acceptable threshold (0.3). "
+                    "Consider feature engineering or hyperparameter tuning."
+                )
+
+    # VIF-based recommendations
+    if vif_results.get("flags") and vif_results.get("status") != "not_found":
+        recommendations.append(
+            "Address multicollinearity: Remove or combine highly correlated descriptors "
+            f"identified by VIF > 5: {vif_results['flags']}"
+        )
+
+    # Sensitivity-based recommendations
+    stability = sensitivity_results.get("stability_metric")
+    if stability is not None and stability > 0.1:
+        recommendations.append(
+            f"High prediction variability detected (stability metric={stability:.2f}). "
+            "Consider ensemble methods or regularization to improve robustness."
+        )
+
+    # Wilcoxon-based recommendations
+    p_val = wilcoxon_results.get("p_value")
+    if p_val is not None and p_val < 0.05:
+        recommendations.append(
+            "The GNN model shows statistically significant improvement over the baseline. "
+            "Proceed with GNN for production deployment."
+        )
+    elif p_val is not None:
+        recommendations.append(
+            "No significant difference between GNN and baseline. "
+            "Consider simpler baseline models for deployment to reduce computational cost."
+        )
+
+    if not recommendations:
+        recommendations.append("All metrics within acceptable ranges. No immediate actions required.")
+
+    return recommendations
+
 
 def main():
     """
-    Entry point for generating the final statistical report.
+    Main entry point for generating the final statistical report.
     """
-    setup_logging()
-    
-    # Default paths relative to project root
-    metrics_path = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/reports/metrics.json"
-    vif_path = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/reports/vif_results.json"
-    sensitivity_path = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/reports/sensitivity_analysis.json"
-    output_path = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/reports/final_statistical_report.json"
-    
-    # Allow overrides via environment variables
-    metrics_path = os.environ.get("METRICS_PATH", metrics_path)
-    vif_path = os.environ.get("VIF_PATH", vif_path)
-    sensitivity_path = os.environ.get("SENSITIVITY_PATH", sensitivity_path)
-    output_path = os.environ.get("OUTPUT_PATH", output_path)
-    
+    logger = setup_logging("T035_report_generation")
+    logger.info("Starting final statistical report generation...")
+
     try:
-        report = generate_final_report(
-            metrics_path=metrics_path,
-            vif_path=vif_path,
-            sensitivity_path=sensitivity_path,
-            output_path=output_path
-        )
-        print(json.dumps(report, indent=2))
+        # Generate the report
+        report = generate_final_report()
+
+        # Print summary to console
+        print("\n" + "="*60)
+        print("FINAL STATISTICAL REPORT SUMMARY")
+        print("="*60)
+        print(f"Best Model: {report['executive_summary']['best_model']}")
+        print(f"Validity Status: {report['executive_summary']['statistical_validity']}")
+        print("\nRecommendations:")
+        for i, rec in enumerate(report['executive_summary']['recommendations'], 1):
+            print(f"  {i}. {rec}")
+        print("="*60 + "\n")
+
+        logger.info("Report generation completed successfully.")
+        return 0
+
     except FileNotFoundError as e:
-        logger.error(f"Missing required input file: {e}")
-        sys.exit(1)
+        logger.error(f"Missing required data file: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Failed to generate report: {e}")
-        sys.exit(1)
+        logger.error(f"Error generating report: {e}", exc_info=True)
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

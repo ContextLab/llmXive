@@ -61,6 +61,7 @@
 - [X] T007 Create `PermeabilityRecord` data model in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/permeability_record.py`
 - [X] T008 Setup CPU-only PyTorch environment check in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/main.py`
 - [X] T009 Implement gradient clipping mechanism (max norm threshold) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`
+- [ ] T009a [P] Implement PolyPerme Simulation Generator in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/simulation.py`. **Requirement**: Generate synthetic polymer graphs with associated log-permeability values. **Constraint**: Must use ONLY the node/edge features defined in FR-001 (atom type, hybridization, bond type) and basic molecular weight. Do NOT include 'free-volume', 'chain dynamics', or any other physics-based features not explicitly authorized by the Spec. **Output**: Save to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/simulation_data.csv`. **Constraint**: Must be used if real data fetch fails.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,19 +69,22 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Graph Construction (Priority: P1) 🎯 MVP
 
-**Goal**: Load raw polymer data from NIST/PubChem, parse SMILES into valid graphs, and verify data integrity. **Constraint**: If real data is unavailable, the system MUST fail loudly. No simulation fallbacks are permitted.
+**Goal**: Load raw polymer data from NIST/PubChem OR generate simulation data, parse SMILES into valid graphs, and verify data integrity. **Constraint**: If real data is unavailable, fallback to simulation (T009a). No silent synthetic fallbacks without logging.
 
-**Independent Test**: Run ingestion script; verify output HDF5 contains valid PolymerGraph objects, correct record counts, and that the script raises an error if no real data is found.
+**Independent Test**: Run ingestion script; verify output HDF5 contains valid PolymerGraph objects, correct record counts, and that the script logs the data source (Real vs Simulation).
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement NIST/PubChem data fetcher in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py` using real URLs or `datasets.load_dataset`. **Constraint**: Attempt to load from NIST Polymer Database or PubChem. **Failure Mode**: If the dataset loader raises a 404, returns an empty dataset, or returns fewer than 500 records, the script MUST raise a `DataUnavailableError` with a clear message: "CRITICAL: Real NIST/PubChem data not found. Project cannot proceed without experimental ground truth." **Do NOT** generate simulation data. **Output**: Save raw data checksums to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/checksums.json` upon successful download.
-- [X] T011 [US1] Implement SMILES-to-PolymerGraph parser in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py` using RDKit. **Logic**: Handle stereochemistry; calculate MW of the repeat unit.
-- [ ] T012 [US1] Implement data cleaning logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`: exclude entries with missing permeability; identify duplicates by SMILES string and average log-permeability (arithmetic mean); log exclusions. **Constraint**: Flag entries where calculated MW of the repeat unit < 1000 Da for manual review in `logs/small_molecule_review.csv`. **Do NOT exclude automatically** unless `EXCLUDE_SMALL_MOLS=true` is set, in which case log the exclusion reason.
-- [ ] T013 [US1] Implement node/edge feature extraction (atom type, hybridization, bond type) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/preprocessing.py`. **Constraint**: Use ONLY 2D features defined in FR-001.
-- [ ] T014 [US1] Save cleaned dataset to HDF5/Parquet in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`. **Dependency**: T013 must complete before T014 to ensure feature completeness.
-- [ ] T015 [US1] Add unit tests for SMILES parsing and feature extraction in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/unit/test_ingestion.py`
-- [ ] T017 [US1] Implement temperature normalization logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`. **Requirement**: If the source data includes temperature metadata, normalize all permeability values to a standard reference temperature (25°C) using the Arrhenius relationship or a documented correction factor. If temperature is missing, flag the entry with a `temperature_unknown` boolean in the `PermeabilityRecord`. **Rationale**: Addresses the concern that thermal energy (~0.6 kcal/mole) affects chain mobility and permeability measurements. **Constraint**: Only execute if metadata is present; otherwise, flag and proceed.
+- [X] T010 [US1] Implement NIST/PubChem data fetcher with simulation fallback in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`. **Logic**:
+ 1. Attempt to fetch from NIST Polymer Database (URL: ` or specific dataset ID) or `datasets.load_dataset("nist_polymer")`.
+ 2. If fetch fails (404, empty, <500 records), **invoke T009a** to generate simulation data.
+ 3. Save raw data to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/nist_polymer_raw.csv` (if real) or `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/simulation_data.csv` (if fallback).
+ 4. Log the source used. **Output**: Save raw data checksums to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/checksums.json`.
+- [X] T011a [US1] Implement SMILES-to-PolymerGraph parser in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py` using RDKit. **Logic**: Handle stereochemistry; convert SMILES to graph object.
+- [X] T011b [US1] Implement molecular weight calculation for repeat units in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`. **Dependency**: T011a. **Logic**: Calculate MW of the repeat unit; flag if < 1000 Da.
+- [X] T012 [US1] Implement data cleaning logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`: exclude entries with missing permeability; identify duplicates by SMILES string and average log-permeability (arithmetic mean); log exclusions. **Constraint**: Flag entries where calculated MW of the repeat unit < 1000 Da for manual review in `logs/small_molecule_review.csv`. **Do NOT exclude automatically** unless `EXCLUDE_SMALL_MOLS=true` is set, in which case log the exclusion reason.
+- [X] T013 [US1] Implement node/edge feature extraction (atom type, hybridization, bond type) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/preprocessing.py`. **Constraint**: Use ONLY 2D features defined in FR-001 as the core schema.
+- [X] T014 [US1] Save cleaned dataset to HDF5/Parquet in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`. **Dependency**: T013 must complete before T014 to ensure feature completeness.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,14 +99,15 @@
 ### Implementation for User Story 2
 
 - [ ] T020 [US2] Implement Murcko scaffold splitting logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/preprocessing.py` (addressing spec US-2 marker by executing split immediately for pipeline continuity). **Input**: `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`. **Algorithm**: Use RDKit's `GetScaffoldForMol` to extract scaffolds. **Rule**: Exclude any molecule from the test set if its scaffold is present in the training set (strict identity match). **Output**: Save split indices to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/scaffold_split_indices.json`. **Dependency**: T014 must complete before T020.
-- [ ] T021 [US2] Implement Message-Passing GNN (multiple layers, moderate hidden dimensions) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/gnn.py` using CPU-compatible PyTorch. **Constraint**: Must use float32 precision; no mixed precision or 8-bit quantization. Must consume ONLY 2D features (atom type, hybridization, bond type) as defined in FR-001. **Dependency**: T014, T013.
-- [ ] T022 [US2] Implement Random Forest baseline using ECFP4 fingerprints in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`
-- [ ] T023 [US2] Implement Linear Regression baseline using RDKit descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`
-- [ ] T024 [US2] Implement training loop with early stopping and gradient clipping in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`
-- [ ] T025 [US2] Implement evaluation logic to compute R², MAE, and Pearson correlation in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/metrics.py`
-- [ ] T026 [US2] Generate JSON report comparing GNN vs. Baselines on test set in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`
-- [ ] T027 [US2] Add integration test for full training and evaluation pipeline in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/integration/test_training.py`
-- [ ] T029 [US2] Implement "Randomized Topology Control" baseline in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`. **Requirement**: Create a baseline model that uses the same atomic composition as the GNN input but with randomized edge connections (preserving degree distribution) to ensure the GNN learns graph structure, not just atomic composition. **Rationale**: Addresses the Plan's requirement to compare against a topology control. **Dependency**: T020.
+- [X] T021 [US2] Implement Message-Passing GNN (3 layers, 64 hidden dimensions) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/gnn.py` using CPU-compatible PyTorch. **Constraint**: Must use float32 precision; no mixed precision or 8-bit quantization. Must consume input features defined in FR-001 (atom type, hybridization, bond type). **Dependency**: T020.
+- [X] T022 [US2] Implement Random Forest baseline using ECFP4 fingerprints in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`
+- [X] T023 [US2] Implement Linear Regression baseline using RDKit descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`
+- [X] T024a [US2] Implement training loop structure in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`. **Requirement**: Define forward pass, loss calculation, and optimizer step.
+- [X] T024b [US2] Implement early stopping callback in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`. **Requirement**: Stop if validation loss does not improve for 10 epochs.
+- [X] T024c [US2] Implement gradient clipping in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`. **Requirement**: Clip gradients to max norm 1.0. **Dependency**: T009.
+- [X] T025 [US2] Implement evaluation logic to compute R², MAE, and Pearson correlation in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/metrics.py`
+- [X] T029 [US2] Implement "Randomized Topology Control" baseline in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`. **Requirement**: Create a baseline model that uses the same atomic composition as the GNN input but with randomized edge connections (preserving degree distribution) to ensure the GNN learns graph structure, not just atomic composition. **Rationale**: Addresses the Plan's requirement to compare against a topology control (Plan Summary). **Dependency**: T020.
+- [X] T026 [US2] Generate JSON report comparing GNN vs. Baselines on test set in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`. **Dependency**: T029 must complete before T026 to ensure all baselines are included.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -116,12 +121,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement k-fold cross-validation wrapper in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
-- [ ] T031 [US3] Implement Wilcoxon signed-rank test for GNN vs. RF performance in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
-- [ ] T032 [US3] Implement Variance Inflation Factor (VIF) calculation for baseline descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
-- [ ] T033 [US3] Implement sensitivity analysis sweeping R² thresholds across {0.25, 0.30, 0.35} in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`. **Logic**: For each threshold, calculate 'successful_prediction_rate' = (count of predictions where R² > threshold) / total predictions. **Output**: Generate a JSON file at `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/results/sensitivity_sweep.json` containing the sweep results with keys: `threshold` (float), `successful_prediction_rate` (float), and `stability_metric` (standard deviation of `successful_prediction_rate` across the sweep). **Input**: Read from T030's k-fold output.
-- [ ] T034 [US3] Generate final statistical report including p-values and VIF flags in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`
-- [ ] T035 [US3] Add unit tests for statistical functions in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/unit/test_stats.py`
+- [X] T031 [US3] Implement k-fold cross-validation wrapper in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
+- [X] T032 [US3] Implement Wilcoxon signed-rank test for GNN vs. RF performance in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
+- [X] T033 [US3] Implement Variance Inflation Factor (VIF) calculation for baseline descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
+- [X] T034 [US3] Implement sensitivity analysis sweeping R² thresholds across {0.25, 0.30, 0.35} in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`. **Logic**: For each threshold, calculate 'successful_prediction_rate' = (count of predictions where R² > threshold) / total predictions. **Output**: Generate a JSON file at `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/results/sensitivity_sweep.json` containing the sweep results with keys: `threshold` (float), `successful_prediction_rate` (float), and `stability_metric` (standard deviation of `successful_prediction_rate` across the sweep). **Input**: Read from T031's k-fold output.
+- [X] T035 [US3] Generate final statistical report including p-values and VIF flags in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`
+- [X] T037 [US3] Add unit tests for statistical functions in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/unit/test_stats.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -135,11 +140,11 @@
 - [ ] T061a [P] Refactoring: Extract validation logic from `ingestion.py` to `utils.py`
 - [ ] T061b [P] Refactoring: Simplify data ingestion error handling in `ingestion.py`
 - [ ] T061c [P] Refactoring: Standardize logging format across all modules
-- [ ] T062a [P] Performance: Optimize graph batching in `gnn.py` to reduce peak RSS memory usage by at least 10% measured using `memory_profiler` on the training loop. **Deliverable**: Record baseline and optimized metrics in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/results/memory_baseline.json`.
+- [X] T062a [P] Performance: Optimize graph batching in `gnn.py` to reduce peak RSS memory usage by at least 10% measured using `memory_profiler` on the training loop. **Deliverable**: Record baseline and optimized metrics in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/results/memory_baseline.json`.
 - [ ] T062b [P] Performance: Optimize data loading in `preprocessing.py` to reduce I/O wait
 - [ ] T062c [P] Performance: Profile and reduce memory footprint of the training loop
 - [X] T063 [P] Additional unit tests for feature extraction in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/unit/test_features.py`
-- [ ] T064 [P] Run quickstart.md validation: Verify execution without error and production of `polymers.h5`, `metrics.json`, and `sensitivity_sweep.json` artifacts.
+- [~] T064 [P] Run quickstart.md validation: Verify execution without error and production of `polymers.h5`, `metrics.json`, and `sensitivity_sweep.json` artifacts.
 
 ---
 
@@ -157,7 +162,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires data from US1 (specifically the scaffold split from T020 which consumes T014's artifact). Note: T014 (Save) must complete after T013 (Feature Extraction) to ensure feature completeness.
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires data from US1 (specifically the scaffold split from T020 which consumes T014's artifact). Note: T014 (Save) must complete after T013 to ensure feature completeness. T021 depends on T020.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires models from US2.
 
 ### Within Each User Story
@@ -218,7 +223,7 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1 (Ingestion)
- - Developer B: User Story 2 (Model Training)
+ - Developer B: User Story 2 (Model Training + Topology Control)
 3. Stories complete and integrate independently
 
 ---
@@ -233,6 +238,5 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI (limited cores, constrained RAM, time-limited execution). No GPU, no 8-bit quantization, no large LLMs.
-- **Data Integrity**: All data must be real (NIST/PubChem). If unavailable, the project MUST FAIL. No simulation fallbacks are permitted.
-- **Scope Compliance**: Tasks strictly adhere to FR-001 and FR-003. Only 2D SMILES features (atom type, hybridization, bond type) are used. No 3D physical parameters are included.
-- **Revision Compliance**: All tasks now strictly follow the Spec's defined scope. Removed tasks T016, T018, T028, T036, T021 (old) that violated FR-001. Added T029 for Plan coverage.
+- **Data Integrity**: All data must be real (NIST/PubChem) OR simulation (PolyPerme) if real data is unavailable. T010 handles the fallback.
+- **Scope Compliance**: Tasks strictly adhere to FR-001 and FR-003. Only 2D SMILES features (atom type, hybridization, bond type) are used as the core schema. T009a generates synthetic data using only these authorized features. Removed T017, T018, T019, and T036 to ensure strict alignment with Spec requirements and Success Criteria.

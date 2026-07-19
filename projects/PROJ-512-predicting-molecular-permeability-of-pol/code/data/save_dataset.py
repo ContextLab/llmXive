@@ -6,179 +6,154 @@ import json
 import numpy as np
 from typing import List, Dict, Any, Optional
 
-# Import from existing API surface
 from models.polymer_graph import PolymerGraph
-from models.permeability_record import PermeabilityRecord
 from data.utils import setup_logging
 
 logger = logging.getLogger(__name__)
 
 def serialize_polymer_graph(graph: PolymerGraph) -> Dict[str, Any]:
     """
-    Serializes a PolymerGraph object into a dictionary suitable for HDF5 storage.
-    Extracts node features, edge features, and metadata.
+    Convert a PolymerGraph instance into a JSON-serializable dictionary
+    suitable for storage in HDF5 attributes or datasets.
     """
-    if not hasattr(graph, 'nodes') or not hasattr(graph, 'edges'):
-        raise ValueError("Invalid PolymerGraph: missing nodes or edges")
-
-    node_features = []
-    for node_id, node_data in graph.nodes.items():
-        # Ensure all feature arrays are numpy arrays for HDF5 compatibility
-        features = {}
-        for key, value in node_data.items():
-            if isinstance(value, (list, np.ndarray)):
-                features[key] = np.array(value, dtype=np.float32)
-            else:
-                features[key] = value
-        node_features.append({
-            'id': node_id,
-            'features': features
-        })
-
-    edge_features = []
-    for edge_data in graph.edges:
-        features = {}
-        for key, value in edge_data.items():
-            if isinstance(value, (list, np.ndarray)):
-                features[key] = np.array(value, dtype=np.float32)
-            else:
-                features[key] = value
-        edge_features.append(features)
-
-    return {
-        'nodes': node_features,
-        'edges': edge_features,
-        'metadata': {
-            'smiles': graph.metadata.get('smiles', ''),
-            'molecular_weight': graph.metadata.get('molecular_weight', 0.0),
-            'repeat_unit': graph.metadata.get('repeat_unit', ''),
-            'source': graph.metadata.get('source', 'unknown')
-        }
+    data = {
+        "smiles": graph.smiles,
+        "mw": float(graph.mw),
+        "log_permeability": float(graph.log_permeability) if graph.log_permeability is not None else None,
+        "source": graph.source,
+        "node_features": graph.node_features.tolist() if isinstance(graph.node_features, np.ndarray) else graph.node_features,
+        "edge_features": graph.edge_features.tolist() if isinstance(graph.edge_features, np.ndarray) else graph.edge_features,
+        "edge_index": graph.edge_index.tolist() if isinstance(graph.edge_index, np.ndarray) else graph.edge_index,
+        "metadata": graph.metadata or {}
     }
+    return data
 
-def save_to_hdf5(graphs: List[PolymerGraph], output_path: str) -> None:
+def save_to_hdf5(
+    graphs: List[PolymerGraph],
+    output_path: str,
+    metadata: Optional[Dict[str, Any]] = None
+) -> None:
     """
-    Saves a list of PolymerGraph objects to an HDF5 file.
+    Save a list of PolymerGraph objects to an HDF5 file.
+
     Structure:
-    /dataset
-      /graphs
-        /0, /1, ... (groups for each graph)
-          /nodes (dataset of serialized nodes)
-          /edges (dataset of serialized edges)
-          /metadata (attributes)
-    /stats (attributes: count, avg_mw, etc.)
+    /graphs (dataset of serialized JSON strings or structured arrays)
+    /metadata (attributes)
     """
     if not graphs:
-        raise ValueError("No graphs provided to save.")
+        raise ValueError("Cannot save an empty list of graphs.")
 
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    logger.info(f"Saving {len(graphs)} graphs to {output_path}")
+    logger.info(f"Saving {len(graphs)} PolymerGraph objects to {output_path}")
 
-    with h5py.File(output_path, 'w') as f:
-        # Create a group for the dataset
-        ds = f.create_group('dataset')
-        
-        # Create a group for graphs
-        graphs_group = ds.create_group('graphs')
-        
-        # Create a group for metadata/stats
-        stats_group = ds.create_group('stats')
-        
-        total_mw = 0.0
-        count = 0
+    with h5py.File(output_path, "w") as f:
+        # Store metadata as attributes
+        if metadata:
+            for key, value in metadata.items():
+                if isinstance(value, (str, int, float, bool)):
+                    f.attrs[key] = value
+                elif isinstance(value, (list, tuple)):
+                    f.attrs[key] = json.dumps(value)
+                else:
+                    f.attrs[key] = str(value)
+
+        # Create a dataset for the graph data
+        # We will store each graph as a JSON string to preserve complex nested structures
+        # like numpy arrays, which HDF5 doesn't handle natively in a simple way without extra schemas.
+        dt = h5py.special_dtype(vlen=str)
+        ds = f.create_dataset("graphs", (len(graphs),), dtype=dt)
 
         for i, graph in enumerate(graphs):
             serialized = serialize_polymer_graph(graph)
-            
-            grp = graphs_group.create_group(str(i))
-            
-            # Save nodes
-            # We store nodes as a structured dataset or JSON string for simplicity
-            # Given variable node counts, JSON string is safer for variable length
-            nodes_json = json.dumps(serialized['nodes'])
-            grp.create_dataset('nodes_json', data=nodes_json, dtype=h5py.string_dtype())
-            
-            # Save edges
-            edges_json = json.dumps(serialized['edges'])
-            grp.create_dataset('edges_json', data=edges_json, dtype=h5py.string_dtype())
-            
-            # Save metadata as attributes
-            grp.attrs['smiles'] = serialized['metadata']['smiles']
-            mw = float(serialized['metadata']['molecular_weight'])
-            grp.attrs['molecular_weight'] = mw
-            total_mw += mw
-            count += 1
-            grp.attrs['repeat_unit'] = serialized['metadata']['repeat_unit']
-            grp.attrs['source'] = serialized['metadata']['source']
+            # Convert numpy arrays to lists for JSON serialization
+            # The serialize_polymer_graph function already handles this for known fields.
+            # Ensure nested metadata is clean.
+            ds[i] = json.dumps(serialized)
 
-        # Write summary stats
-        stats_group.attrs['count'] = count
-        stats_group.attrs['average_molecular_weight'] = total_mw / count if count > 0 else 0.0
-        stats_group.attrs['timestamp'] = str(os.path.getmtime(output_path) if os.path.exists(output_path) else 'N/A')
-
-    logger.info(f"Successfully saved {count} graphs to {output_path}")
+        logger.info(f"Successfully saved {len(graphs)} graphs to {output_path}")
 
 def main() -> None:
     """
-    Main entry point for saving the cleaned dataset.
-    Expects the cleaned dataset to be available via a mechanism defined in ingestion.py
-    or passed as a command line argument. For this task, we assume the pipeline
-    calls this function after T013 processing.
-    
-    In a real pipeline, the 'graphs' list would be passed from the ingestion step.
-    Since we are implementing the script to be run, we simulate the flow by
-    importing the process_dataset function if available, or expecting the user
-    to provide the data.
-    
-    However, per task T014 description: "Save cleaned dataset to HDF5".
-    We assume the 'cleaned dataset' is the output of the previous steps.
-    To make this script executable and produce the artifact, we will:
-    1. Try to load the processed data if it exists in a temporary state (e.g. from a previous run or pickle)
-    2. OR, if this is a standalone script, it should be called by a runner that provides the data.
-    
-    Given the constraints of "real code", and that T010-T013 are "completed",
-    we assume the data flow is:
-    ingestion.py -> process_dataset() -> list of PolymerGraph
-    
-    We will create a simple runner that calls the ingestion process and saves it.
+    Main entry point for saving the processed dataset to HDF5.
+    Expects the processed data to be available in the expected location
+    or passed via arguments (for this script, we assume it's called after T013).
+
+    Since T013 produces processed graphs, this script acts as the saver.
+    In a real pipeline, the data would be passed or loaded from a temporary location.
+    Here, we assume the caller loads the processed data (e.g., from a pickle or memory)
+    and passes it to this function, or we load from the intermediate CSV if T013 wrote one.
+
+    For this implementation, we assume the script is run after T013 has populated
+    the processed data, or we read from a standard intermediate file if T013 output one.
+    However, T013 description says "Implement node/edge feature extraction".
+    Let's assume T013 outputs a CSV or JSON intermediate that we load here.
+    If T013 directly produces objects, this script would need to import that logic.
+
+    Given the task dependency "T013 must complete before T014", we assume the
+    processed data exists in `data/processed/intermediate_features.json` or similar,
+    or we re-run the extraction logic.
+
+    To be robust: We will attempt to load from `data/processed/intermediate_features.json`
+    (if T013 writes there) or we re-execute the logic from `preprocessing.py` if needed.
+    However, the cleanest way is to have T013 output a file we read here.
+    Let's assume T013 writes to `data/processed/processed_graphs.json` (list of dicts).
+
+    If that file doesn't exist, we raise an error.
     """
-    setup_logging(level=logging.INFO)
-    
-    # Import process_dataset from ingestion to get the data
-    # This ensures we use the real data pipeline defined in T010-T013
-    try:
-        from data.ingestion import process_dataset
-    except ImportError:
-        logger.error("Could not import process_dataset from data.ingestion. Please ensure T010-T013 are correctly implemented.")
+    logger = setup_logging("save_dataset")
+
+    input_file = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/processed_graphs.json"
+    output_file = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5"
+
+    if not os.path.exists(input_file):
+        # Fallback: Try to load from the raw/processed CSV if JSON doesn't exist,
+        # but the task implies T013 produces the features.
+        # If T013 didn't write a file, we can't proceed.
+        logger.error(f"Intermediate processed data file not found: {input_file}")
+        logger.error("Ensure T013 has run and produced the required intermediate file.")
         sys.exit(1)
 
-    output_path = os.environ.get('OUTPUT_PATH', 'projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5')
-    
-    # Ensure the output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    logger.info(f"Loading processed graphs from {input_file}")
+    with open(input_file, "r") as f:
+        raw_data = json.load(f)
 
-    try:
-        # Run the ingestion pipeline to get the cleaned graphs
-        # This executes T010, T011, T012, T013 logic
-        graphs = process_dataset()
-        
-        if not graphs:
-            logger.warning("No graphs returned from process_dataset. Saving empty file or exiting.")
-            # Per spec, we should not save empty/fake data.
-            # But if the pipeline returns empty, we log and exit.
-            sys.exit(0)
+    graphs = []
+    for item in raw_data:
+        # Reconstruct PolymerGraph from the dict
+        # This assumes the dict structure matches what serialize_polymer_graph expects
+        # or we reconstruct it manually.
+        # Since PolymerGraph is a dataclass, we can try to instantiate it.
+        # We need to handle numpy arrays if they were saved as lists.
+        node_feat = np.array(item["node_features"]) if isinstance(item["node_features"], list) else item["node_features"]
+        edge_feat = np.array(item["edge_features"]) if isinstance(item["edge_features"], list) else item["edge_features"]
+        edge_idx = np.array(item["edge_index"]) if isinstance(item["edge_index"], list) else item["edge_index"]
 
-        save_to_hdf5(graphs, output_path)
-        
-        logger.info(f"Dataset saved successfully to {output_path}")
-        
-    except Exception as e:
-        logger.error(f"Failed to save dataset: {e}")
-        raise
+        graph = PolymerGraph(
+            smiles=item["smiles"],
+            mw=item["mw"],
+            log_permeability=item.get("log_permeability"),
+            source=item.get("source", "unknown"),
+            node_features=node_feat,
+            edge_features=edge_feat,
+            edge_index=edge_idx,
+            metadata=item.get("metadata", {})
+        )
+        graphs.append(graph)
+
+    logger.info(f"Reconstructed {len(graphs)} PolymerGraph objects.")
+
+    save_to_hdf5(
+        graphs,
+        output_file,
+        metadata={
+            "source": "T013 processed features",
+            "count": len(graphs),
+            "version": "1.0"
+        }
+    )
+
+    logger.info(f"Dataset saved to {output_file}")
 
 if __name__ == "__main__":
     main()

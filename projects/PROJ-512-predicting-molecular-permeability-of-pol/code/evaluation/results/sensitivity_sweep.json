@@ -1,0 +1,25 @@
+{
+  "thresholds": [0.25, 0.30, 0.35],
+  "results": [
+    {
+      "threshold": 0.25,
+      "successful_prediction_rate": 0.6,
+      "count": 3,
+      "total": 5
+    },
+    {
+      "threshold": 0.3,
+      "successful_prediction_rate": 0.4,
+      "count": 2,
+      "total": 5
+    },
+    {
+      "threshold": 0.35,
+      "successful_prediction_rate": 0.2,
+      "count": 1,
+      "total": 5
+    }
+  ],
+  "stability_metric": 0.1632993161855452,
+  "metric": "r2"
+}

@@ -1,173 +1,207 @@
 """
-Utility functions for data processing, including seed management and logging.
+Utility functions for data processing, seeding, and validation.
+
+This module centralizes common utilities used across the data pipeline,
+including random seed management, logging setup, and data validation.
 """
 import os
 import random
 import hashlib
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List, Union
+from dataclasses import dataclass, field
 
-# Constants
-DEFAULT_SEED = 42
-SEED_ENV_VAR = "MOL_PERM_SEED"
-LOG_LEVEL_ENV_VAR = "MOL_PERM_LOG_LEVEL"
+from data.logging_config import configure_logging, get_logger
 
-# Global state for reproducibility
-_global_seed: Optional[int] = None
-_seed_hash: Optional[str] = None
+# Seed management
+_SEED = 42
+_SEED_HASH = None
 
-
-def set_seed(seed: Optional[int] = None) -> int:
+def set_seed(seed: int) -> None:
     """
-    Initialize random seeds for reproducibility across Python, NumPy (if available),
-    and PyTorch (if available).
-
+    Set the global random seed for reproducibility.
+    
     Args:
-        seed: The seed value to use. If None, reads from environment variable
-              `MOL_PERM_SEED`, or defaults to 42.
-
-    Returns:
-        The seed value that was set.
+        seed: The integer seed value.
     """
-    global _global_seed, _seed_hash
-
-    if seed is None:
-        seed = int(os.getenv(SEED_ENV_VAR, DEFAULT_SEED))
-
-    _global_seed = seed
-    _seed_hash = hashlib.sha256(str(seed).encode()).hexdigest()[:16]
-
-    # Set Python's random seed
+    global _SEED, _SEED_HASH
+    _SEED = seed
+    _SEED_HASH = hashlib.sha256(str(seed).encode()).hexdigest()[:8]
     random.seed(seed)
-
-    # Set NumPy seed if available
-    try:
+    if 'numpy' in sys.modules:
         import numpy as np
         np.random.seed(seed)
-    except ImportError:
-        pass
-
-    # Set PyTorch seeds if available
-    try:
+    if 'torch' in sys.modules:
         import torch
         torch.manual_seed(seed)
         if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
             torch.cuda.manual_seed_all(seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-    except ImportError:
-        pass
 
-    return seed
-
-
-def get_seed() -> Optional[int]:
-    """
-    Get the currently set global seed.
-
-    Returns:
-        The global seed integer, or None if not yet set.
-    """
-    return _global_seed
-
+def get_seed() -> int:
+    """Return the current global seed."""
+    return _SEED
 
 def get_seed_hash() -> Optional[str]:
-    """
-    Get the hash of the currently set seed for logging and tracking.
+    """Return the hash of the current seed."""
+    return _SEED_HASH
 
-    Returns:
-        The SHA-256 hash (truncated to 16 chars) of the seed, or None.
-    """
-    return _seed_hash
-
-
-def _get_log_level_from_env() -> int:
-    """
-    Determine the logging level from environment variables.
-    
-    Checks MOL_PERM_LOG_LEVEL for a string representation (DEBUG, INFO, WARNING, ERROR, CRITICAL).
-    Falls back to logging.INFO if not set or invalid.
-    
-    Returns:
-        The logging level constant.
-    """
-    level_str = os.getenv(LOG_LEVEL_ENV_VAR, "INFO").upper()
-    level_map = {
-        "DEBUG": logging.DEBUG,
-        "INFO": logging.INFO,
-        "WARNING": logging.WARNING,
-        "WARN": logging.WARNING,
-        "ERROR": logging.ERROR,
-        "CRITICAL": logging.CRITICAL,
-    }
-    return level_map.get(level_str, logging.INFO)
-
+def ensure_seed_initialized() -> None:
+    """Ensure the seed is set if not already initialized."""
+    if _SEED_HASH is None:
+        set_seed(_SEED)
 
 def setup_logging(
-    level: Optional[int] = None,
-    log_file: Optional[str] = None,
-    name: str = "mol_perm"
-) -> logging.Logger:
+    level: str = "INFO",
+    log_to_file: bool = True,
+    log_file: Optional[str] = None
+) -> None:
     """
-    Configure and return a logger with console and optional file handlers.
+    Configure the logging system using the standardized configuration.
     
-    The logging level can be provided explicitly or determined from the 
-    MOL_PERM_LOG_LEVEL environment variable.
-
     Args:
-        level: Logging level (e.g., logging.DEBUG, logging.INFO). If None,
-               reads from environment variable `MOL_PERM_LOG_LEVEL`, or defaults to INFO.
-        log_file: Optional path to a log file. If None, only console logging.
-        name: Logger name.
-
-    Returns:
-        Configured logger instance.
+        level: Logging level string (e.g., 'DEBUG', 'INFO', 'WARNING').
+        log_to_file: Whether to log to a file.
+        log_file: Optional path to the log file.
     """
-    if level is None:
-        level = _get_log_level_from_env()
+    numeric_level = getattr(logging, level.upper(), logging.INFO)
+    file_path = Path(log_file) if log_file else None
+    configure_logging(level=numeric_level, log_to_file=log_to_file, log_file=file_path)
 
-    logger = logging.getLogger(name)
+@dataclass
+class ValidationResult:
+    """Container for validation results."""
+    is_valid: bool
+    errors: List[str] = field(default_factory=list)
+    warnings: List[str] = field(default_factory=list)
+
+def validate_smiles(smiles: str) -> ValidationResult:
+    """
+    Validate a SMILES string.
     
-    # Only configure if handlers are not already present to avoid duplication
-    if not logger.handlers:
-        logger.setLevel(level)
-
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-
-        # Console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-        # File handler (optional)
-        if log_file:
-            # Ensure directory exists
-            log_dir = os.path.dirname(log_file)
-            if log_dir and not os.path.exists(log_dir):
-                os.makedirs(log_dir, exist_ok=True)
-
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(level)
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
-    else:
-        # If handlers exist, just ensure the level is correct
-        logger.setLevel(level)
-
-    return logger
-
-
-def ensure_seed_initialized() -> int:
-    """
-    Ensure a seed has been set. If not, initialize it with the default.
-
+    Args:
+        smiles: The SMILES string to validate.
+    
     Returns:
-        The seed value in use.
+        ValidationResult indicating validity and any issues.
     """
-    if _global_seed is None:
-        return set_seed()
-    return _global_seed
+    errors = []
+    warnings = []
+    
+    if not smiles or not isinstance(smiles, str):
+        errors.append("SMILES string is empty or invalid type.")
+        return ValidationResult(is_valid=False, errors=errors, warnings=warnings)
+    
+    # Basic structural checks
+    if smiles.count('(') != smiles.count(')'):
+        errors.append("Unbalanced parentheses in SMILES.")
+    
+    # Check for invalid characters (basic set)
+    valid_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[]()=-#/:@.$")
+    if not all(c in valid_chars for c in smiles):
+        warnings.append("SMILES contains non-standard characters.")
+    
+    return ValidationResult(
+        is_valid=len(errors) == 0,
+        errors=errors,
+        warnings=warnings
+    )
+
+def validate_mw(mw: float, min_mw: float = 1000.0) -> ValidationResult:
+    """
+    Validate molecular weight.
+    
+    Args:
+        mw: The molecular weight to validate.
+        min_mw: Minimum acceptable molecular weight.
+    
+    Returns:
+        ValidationResult indicating validity and any issues.
+    """
+    errors = []
+    warnings = []
+    
+    if mw is None or not isinstance(mw, (int, float)):
+        errors.append("Molecular weight is not a number.")
+        return ValidationResult(is_valid=False, errors=errors, warnings=warnings)
+    
+    if mw < 0:
+        errors.append("Molecular weight cannot be negative.")
+    elif mw < min_mw:
+        warnings.append(f"Molecular weight ({mw}) is below threshold ({min_mw}).")
+    
+    return ValidationResult(
+        is_valid=len(errors) == 0,
+        errors=errors,
+        warnings=warnings
+    )
+
+def validate_record(record: Dict[str, Any]) -> ValidationResult:
+    """
+    Validate a single data record.
+    
+    Args:
+        record: Dictionary representing a data record.
+    
+    Returns:
+        ValidationResult indicating validity and any issues.
+    """
+    errors = []
+    warnings = []
+    
+    required_fields = ['smiles', 'permeability']
+    for field_name in required_fields:
+        if field_name not in record:
+            errors.append(f"Missing required field: {field_name}")
+    
+    if 'smiles' in record:
+        smiles_result = validate_smiles(record['smiles'])
+        errors.extend(smiles_result.errors)
+        warnings.extend(smiles_result.warnings)
+    
+    if 'permeability' in record:
+        if record['permeability'] is None:
+            errors.append("Permeability value is missing.")
+        elif not isinstance(record['permeability'], (int, float)):
+            errors.append("Permeability value is not numeric.")
+    
+    return ValidationResult(
+        is_valid=len(errors) == 0,
+        errors=errors,
+        warnings=warnings
+    )
+
+def validate_dataset(records: List[Dict[str, Any]]) -> ValidationResult:
+    """
+    Validate a list of data records.
+    
+    Args:
+        records: List of dictionaries representing data records.
+    
+    Returns:
+        ValidationResult indicating validity and summary statistics.
+    """
+    errors = []
+    warnings = []
+    valid_count = 0
+    invalid_count = 0
+    
+    for i, record in enumerate(records):
+        result = validate_record(record)
+        if result.is_valid:
+            valid_count += 1
+        else:
+            invalid_count += 1
+            errors.extend([f"Record {i}: {e}" for e in result.errors])
+            warnings.extend([f"Record {i}: {w}" for w in result.warnings])
+    
+    return ValidationResult(
+        is_valid=len(errors) == 0,
+        errors=errors,
+        warnings=warnings,
+        # Note: ValidationResult dataclass doesn't support extra fields by default,
+        # but we return the counts in the message or handle them separately if needed.
+    )
+
+# Import sys here to avoid circular imports if set_seed is called early
+import sys
+from pathlib import Path

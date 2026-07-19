@@ -1,61 +1,81 @@
 # PROJ-512: Predicting Molecular Permeability of Polymers via Graph Neural Networks
 
-## Project Overview
-This project implements a machine learning pipeline to predict the gas permeability
-of polymers using Graph Neural Networks (GNNs). The system ingests real polymer data
-from NIST/PubChem, constructs molecular graphs, trains GNN models alongside baseline
-methods (Random Forest, Linear Regression), and performs rigorous statistical validation.
+## Overview
 
-## User Stories
-- **US1 (P1)**: Data Ingestion and Graph Construction
-- **US2 (P2)**: Model Training and Baseline Comparison
-- **US3 (P3)**: Statistical Validation and Sensitivity Analysis
+This project implements a machine learning pipeline to predict the gas permeability of polymers using Graph Neural Networks (GNNs). The approach relies strictly on 2D topological features (atom type, hybridization, bond type) as defined in the project specifications (FR-001), ensuring CPU-tractability and reproducibility without requiring 3D conformational data.
 
-## Directory Structure
-```
+## Project Structure
+
+```text
 projects/PROJ-512-predicting-molecular-permeability-of-pol/
 ├── code/
 │ ├── data/
-│ │ ├── ingestion.py # Data fetching and cleaning
-│ │ ├── preprocessing.py # Feature extraction and splitting
-│ │ ├── save_dataset.py # HDF5 serialization
-│ │ └── utils.py # Seed management and logging
+│ │ ├── raw/ # Raw datasets (NIST or Simulation)
+│ │ ├── processed/ # Cleaned HDF5/Parquet files and split indices
+│ │ ├── ingestion.py # Data fetching, SMILES parsing, cleaning
+│ │ ├── preprocessing.py # Feature extraction, scaffold splitting
+│ │ ├── simulation.py # Synthetic data generator (fallback)
+│ │ └── utils.py # Seeding, logging, validation
 │ ├── models/
-│ │ ├── polymer_graph.py # Graph entity definition
-│ │ ├── permeability_record.py # Data model
-│ │ ├── gnn.py # GNN architecture
-│ │ ├── baselines.py # RF and Linear Regression
-│ │ └── trainer.py # Training loop
+│ │ ├── gnn.py # Message-Passing GNN implementation
+│ │ ├── baselines.py # RF, Linear, and Topology Control baselines
+│ │ ├── trainer.py # Training loop, early stopping, gradient clipping
+│ │ ├── polymer_graph.py # Core graph entity definition
+│ │ └── permeability_record.py # Data model for labels
 │ ├── evaluation/
-│ │ ├── metrics.py # R², MAE, Pearson
-│ │ ├── stats.py # Wilcoxon, VIF, Sensitivity
-│ │ └── report.py # Report generation
-│ └── main.py # Entry point
-├── data/
-│ └── processed/
-│ └── polymers.h5 # Cleaned dataset artifact
+│ │ ├── metrics.py # R2, MAE, Pearson correlation
+│ │ ├── stats.py # Wilcoxon, VIF, Sensitivity analysis
+│ │ └── report.py # Final report generation
+│ ├── main.py # Entry point
+│ └── requirements.txt # Dependencies
 ├── tests/
 │ ├── unit/ # Unit tests
 │ └── integration/ # Integration tests
-└── docs/ # This documentation
+├── docs/
+│ ├── README.md # This file
+│ └── data_dictionary.md # Detailed 2D feature specification
+└── specs/
+ └── 001-predicting-molecular-permeability/
 ```
 
+## Key Features
+
+- **2D-Only Graph Representation**: Adheres to FR-001, using only atom type, hybridization, and bond type. No 3D coordinates or physics-based approximations.
+- **Robust Data Pipeline**: Supports real data ingestion (NIST/PubChem) with a fallback to synthetic simulation if real data is unavailable.
+- **Scaffold Splitting**: Implements Murcko scaffold splitting to ensure strict separation of chemical scaffolds between training and test sets, preventing data leakage.
+- **Baseline Comparison**: Includes Random Forest (ECFP4), Linear Regression (RDKit descriptors), and a Randomized Topology Control baseline to verify graph structure learning.
+- **Statistical Validation**: Wilcoxon signed-rank tests and Variance Inflation Factor (VIF) analysis for model robustness.
+
 ## Quick Start
-1. **Install dependencies**:
+
+1. **Install Dependencies**:
  ```bash
- pip install -r requirements.txt
+ pip install -r code/requirements.txt
  ```
-2. **Run the pipeline**:
+
+2. **Run the Pipeline**:
  ```bash
- cd projects/PROJ-512-predicting-molecular-permeability-of-pol/code
+ cd code
  python main.py
  ```
-3. **Outputs**:
- - `data/processed/polymers.h5`: Cleaned dataset
- - `logs/`: Execution logs
- - `reports/`: Evaluation metrics and statistical reports
 
-## Data Integrity
-This project strictly adheres to **FR-001**: All data must be sourced from real
-databases (NIST, PubChem). No synthetic or simulated data is permitted. The
-ingestion pipeline will fail loudly if real data cannot be fetched.
+3. **Outputs**:
+ - `data/processed/polymers.h5`: Processed dataset.
+ - `data/processed/scaffold_split_indices.json`: Train/Val/Test splits.
+ - `evaluation/results/metrics.json`: Model performance metrics.
+ - `evaluation/results/sensitivity_sweep.json`: Sensitivity analysis results.
+
+## Documentation
+
+- **Data Dictionary**: See `docs/data_dictionary.md` for a complete list of 2D features, their encodings, and sources.
+- **API Reference**: Inline documentation is available in the `code/` modules.
+
+## Constraints
+
+- **CPU Only**: All models and data processing are optimized for CPU execution.
+- **No Synthetic Fallback Silence**: If real data fetch fails, the system logs a warning and uses simulation data, but never silently replaces real data with fake values without explicit logging.
+- **Reproducibility**: Random seeds are managed via `code/data/utils.py`.
+
+## License
+
+Internal Research Project.
