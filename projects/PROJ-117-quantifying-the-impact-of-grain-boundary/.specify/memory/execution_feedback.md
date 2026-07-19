@@ -7,9 +7,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download.py -> rc=1
-    7-16 07:39:27 - utils - ERROR - MP_API_KEY not found in environment variables.
-2026-07-16 07:39:27 - utils - WARNING - OPENKIM_API_KEY not found. Skipping OpenKIM fetch.
-2026-07-16 07:39:27 - utils - INFO - Total records retrieved: 0
+    7-19 21:53:04 - utils - ERROR - MP_API_KEY not found in environment variables.
+2026-07-19 21:53:04 - utils - WARNING - OPENKIM_API_KEY not found. Skipping OpenKIM fetch.
+2026-07-19 21:53:04 - utils - INFO - Total records retrieved: 0
 
 Data Insufficiency: Retrieved 0, Valid 0, Required 500
 Traceback (most recent call last):
@@ -24,7 +24,7 @@ Traceback (most recent call last):
 error_handling.DataInsufficiencyError: Data Insufficiency: Retrieved 0, Valid 0, Required 500
 - python code/preprocess.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/preprocess.py", line 15, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/preprocess.py", line 12, in <module>
     from data_streamer import stream_data_source
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/data_streamer.py", line 25, in <module>
     logger = setup_logging("data_streamer")
@@ -39,14 +39,22 @@ error_handling.DataInsufficiencyError: Data Insufficiency: Retrieved 0, Valid 0,
 ValueError: Unknown level: 'data_streamer'
 - python code/diagnostics.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/diagnostics.py", line 17, in <module>
-    from sklearn.metrics import mutual_info_regression
-ImportError: cannot import name 'mutual_info_regression' from 'sklearn.metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/.venv/lib/python3.11/site-packages/sklearn/metrics/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/diagnostics.py", line 18, in <module>
+    logger = setup_logging("diagnostics")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/utils.py", line 26, in setup_logging
+    logger.setLevel(level)
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 1464, in setLevel
+    self.level = _checkLevel(level)
+                 ^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 207, in _checkLevel
+    raise ValueError("Unknown level: %r" % level)
+ValueError: Unknown level: 'diagnostics'
 - python code/train.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/train.py", line 18, in <module>
     from preprocess import load_parsed_data
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/preprocess.py", line 15, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/preprocess.py", line 12, in <module>
     from data_streamer import stream_data_source
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/data_streamer.py", line 25, in <module>
     logger = setup_logging("data_streamer")
@@ -61,7 +69,7 @@ ImportError: cannot import name 'mutual_info_regression' from 'sklearn.metrics' 
 ValueError: Unknown level: 'data_streamer'
 - python code/validate.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/validate.py", line 36, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/validate.py", line 20, in <module>
     logger = setup_logging("validate")
              ^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/utils.py", line 26, in setup_logging
@@ -74,7 +82,7 @@ ValueError: Unknown level: 'data_streamer'
 ValueError: Unknown level: 'validate'
 - python code/interpret.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/interpret.py", line 17, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/interpret.py", line 21, in <module>
     logger = setup_logging("interpret")
              ^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/utils.py", line 26, in setup_logging
@@ -96,14 +104,14 @@ ValueError: Unknown level: 'interpret'
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/cleaned_dataset.parquet` is declared but was NOT written. Scripts referencing it:
-    - `code/interpret.py` — IS a run-book command
-    - `code/diagnostics.py` — IS a run-book command
-    - `code/train.py` — IS a run-book command
-    - `code/preprocess.py` — IS a run-book command
-    - `code/train_final.py` — NOT invoked by the run-book
-    - `code/train_tuning.py` — NOT invoked by the run-book
     - `code/validate_quickstart.py` — NOT invoked by the run-book
     - `code/validate.py` — IS a run-book command
+    - `code/train_final.py` — NOT invoked by the run-book
+    - `code/train.py` — IS a run-book command
+    - `code/interpret.py` — IS a run-book command
+    - `code/diagnostics.py` — IS a run-book command
+    - `code/train_tuning.py` — NOT invoked by the run-book
+    - `code/preprocess.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/cleaned_dataset.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/parsed_geometry.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/preprocess.py` — IS a run-book command
@@ -117,5 +125,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `models/best_model.json`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/interpret.py`, `code/train.py`, `code/train_final.py`, `code/validate.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `models/best_model.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/interpret.py`, `code/train.py`, `code/train_final.py`, `code/validate_quickstart.py`, `code/validate.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/validate.py`, `code/train_final.py`, `code/train.py`, `code/interpret.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `models/best_model.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/validate_quickstart.py`, `code/validate.py`, `code/train_final.py`, `code/train.py`, `code/interpret.py`.

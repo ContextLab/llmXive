@@ -71,10 +71,10 @@
 
 - [X] T009a [US1] Implement `code/download_mp.py` to:
  - Fetch raw structures (POSCAR/CIF) from Materials Project API.
- - **Search Strategy**: Use query parameters `keywords=["grain boundary", "bicrystal"]` and `properties=["diffusivity"]`.
- - **Volume Goal**: Aim to retrieve a volume of raw records sufficient to yield at least 500 valid records after filtering (per FR-001).
+ - **SearchStrategy**: Use query parameters `keywords=["grain boundary", "bicrystal"]` and `properties=["diffusivity"]`.
+ - **Volume Goal**: {{claim:c_87038c32}} (Wikidata Q4503831, https://www.wikidata.org/wiki/Q4503831) (per FR-001).
  - Validate returned JSON schema and store raw files in `data/raw/mp/` with checksums.
- - **Strict Source Adherence**: Do NOT implement fallbacks to other repositories.
+ - **Strict Source Adherence**: Do NOT implement fallbacks to otherrepositories.
  - **Log** the raw record count but **DO NOT** perform the n >= 500 validation or exit here. Defer this check to T011.
  - **Sampling Fallback**: If the full dataset exceeds available RAM capacity, implement a deterministic sampling strategy (e.g., `itertools.islice` first N rows) as defined in `data/sample_config.yaml` (T040).
 - [X] T009b [US1] Implement `code/download_kim.py` to:
@@ -134,12 +134,12 @@
  - Train final XGBoost model on the training set using best hyperparameters from T012a.
  - **Evaluate**: Evaluate the final model **ONLY** on the held-out test set.
  - **Calculate Metrics**: Calculate R², RMSE, MAPE on the held-out test set.
- - **Calculate SD**: **MUST** calculate the **standard deviation of R² across k=5 folds of the held-out test set** (using repeated k-fold CV on the test set, or nested CV outer loop on test) to satisfy SC-001.
+ - **Calculate SD**: **MUST** calculate the **standard deviation of R² across k=5 folds of the held-out test set [UNRESOLVED-CLAIM: c_e44e1e65 — status=not_enough_info]** (using repeated k-fold CV on the test set, or nested CV outer loop on test) to satisfy SC-001.
  - **Collinearity Framing**: **MUST** read `artifacts/reports/collinearity_diagnostic.json` from T016. **Unconditionally** write a framing statement for the joint relationship of misorientation and Σ value in `artifacts/reports/training_metrics.json` stating: "The relationship between misorientation and Σ value is descriptive, not causal, as Σ is derived from misorientation. " (This applies regardless of the MI score).
  - Save `models/best_model.json`.
  - Log R², RMSE, MAPE, and SD to `artifacts/reports/training_metrics.json`.
 - [X] T013 [P] [US1] Add unit tests in `tests/unit/test_geometry_parser.py` for parsing logic and encoding correctness (including boundary plane normal derivation).
-- [X] T014 [P] [US1] Add unit tests in `tests/unit/test_preprocess.py` for feature engineering, Σ value extraction/calculation logic, and missing value handling. <!-- FAILED: unspecified -->
+- [ ] T014 [P] [US1] Add unit tests in `tests/unit/test_preprocess.py` for feature engineering, Σ value extraction/calculation logic, and missing value handling. <!-- FAILED: unspecified -->
 - [X] T015 [US1] Add integration test in `tests/integration/test_pipeline.py` to verify end-to-end execution (T009a-c -> T010 -> T011 -> T016 -> T012a -> T012b) within 6 hours and <7 GB RAM. **Removed [P] tag**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -154,15 +154,15 @@
 
 ### Implementation for User Story 2
 
-- [X] T017 [US2] Implement `code/validate.py` to:
+- [ ] T017 [US2] Implement `code/validate.py` to:
  - **Dependency**: Must run AFTER T012b. **Removed [P] tag**.
  - Perform k=5 cross-validation **on the held-out test set** (repeated split) to assess generalization stability and measure test-set performance variance.
  - Report average R², RMSE, MAPE and **calculate standard deviation of R² across the k=5 folds on the test set** (must be <= 0.05). **This metric satisfies SC-001.**
  - Execute regression bias test (y_true ~ y_pred) on the **held-out test set** to calculate intercept, slope, and p-values.
- - Apply Bonferroni correction (α_adj = 0.05 / 3 ≈ 0.017) for multiple hypothesis tests.
+ - Apply Bonferroni correction (α_adj = 0.05 / 3 ≈ 0.017) [UNRESOLVED-CLAIM: c_806c40f0 — status=not_enough_info] for multiple hypothesis tests.
  - Generate `artifacts/reports/validation_report.json`.
-- [X] T018 [P] [US2] Add unit tests in `tests/unit/test_diagnostics.py` for MI calculation (if not covered in T013). <!-- FAILED: unspecified -->
-- [X] T019 [P] [US2] Add unit tests in `tests/unit/test_validate.py` for bias test logic and FWER correction. <!-- FAILED: unspecified -->
+- [ ] T018 [P] [US2] Add unit tests in `tests/unit/test_diagnostics.py` for MI calculation (if not covered in T013). <!-- FAILED: unspecified -->
+- [ ] T019 [P] [US2] Add unit tests in `tests/unit/test_validate.py` for bias test logic and FWER correction. <!-- FAILED: unspecified -->
 - [X] T020 [US2] Add integration test in `tests/integration/test_validation.py` to verify report generation and metric thresholds.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -177,7 +177,7 @@
 
 ### Implementation for User Story 3
 
-- [X] T021 [US3] Implement `code/interpret.py` to: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T021 [US3] Implement `code/interpret.py` to: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Dependency**: This task MUST run AFTER T017 (Validation) to ensure `validation_report.json` is available. **Removed [P] tag**.
  - Generate SHAP summary plot and ranked feature-importance list.
  - Perform sensitivity analysis sweeping R² threshold across the range **defined in `config.yaml` (`thresholds.r2.sweep_range`)**. **Do NOT hardcode values.**
@@ -188,8 +188,8 @@
  - **Generate** `threshold-sensitivity-table.csv` artifact with columns: `threshold, pass_rate, fpr_proxy, sample_size`.
  - **Include** a one-line justification for the R² ≥ 0.7 threshold by loading the `thresholds.r2.citation` field from `config.yaml` (created in T030) and embedding it in the report.
  - Save plots to `artifacts/figures/` and reports to `artifacts/reports/`.
-- [X] T022 [P] [US3] Add logic to `code/interpret.py` to load the R² threshold justification from `config.yaml` (created in T030) and include it in the final report. <!-- FAILED: unspecified -->
-- [X] T023 [P] [US3] Add unit tests in `tests/unit/test_interpret.py` for SHAP value extraction. <!-- FAILED: unspecified -->
+- [ ] T022 [P] [US3] Add logic to `code/interpret.py` to load the R² threshold justification from `config.yaml` (created in T030) and include it in the final report. <!-- FAILED: unspecified -->
+- [ ] T023 [P] [US3] Add unit tests in `tests/unit/test_interpret.py` for SHAP value extraction. <!-- FAILED: unspecified -->
 - [ ] T024 [US3] Add integration test in `tests/integration/test_interpretability.py` to verify plot generation and sensitivity table accuracy.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -202,8 +202,8 @@
 
 - [X] T025a [P] Documentation updates: Write API usage and data schema sections in `README.md` and `docs/`, ensuring traceability to `data/metadata.yaml` as per Constitution Principle IV.
 - [X] T025b [P] Documentation updates: Write Installation and Environment setup sections in `README.md`.
-- [X] T026a [P] Code cleanup: Remove unused imports from `code/utils.py`.
-- [X] T026b [P] Code cleanup: Standardize logging format in `code/utils.py`.
+- [ ] T026a [P] Code cleanup: Remove unused imports from `code/utils.py`.
+- [ ] T026b [P] Code cleanup: Standardize logging format in `code/utils.py`.
 - [X] T029 Verify `state.yaml` updates with content hashes after successful pipeline run.
 - [ ] T034 [US1] Add unit tests in `tests/unit/test_download.py` to verify that the download script logs the raw count but does NOT halt on insufficiency (delegating to T011), ensuring no synthetic fallback is used (addressing edge case: data insufficiency).
 - [ ] T036 [US1] Update `code/download.py` (and sub-modules) to include exponential backoff logic for API rate limits (Materials Project, OpenKIM) to prevent premature failures during bulk fetches.

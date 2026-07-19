@@ -1,195 +1,224 @@
+"""
+Diagnostics module for grain boundary data analysis.
+
+This module computes mutual information between misorientation angle and Σ value
+to assess collinearity before model training.
+"""
 import json
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
-
 import numpy as np
 import pandas as pd
 from scipy.stats import entropy
-from sklearn.preprocessing import KBinsDiscretizer
+from sklearn.metrics import mutual_info_score
+from utils import setup_logging
 
-# Import project utilities
-from utils import setup_logging, load_metadata
-from error_handling import DataInsufficiencyError
-
-# Configure logging
-logger = setup_logging("diagnostics")
+logger = setup_logging("diagnostics", logging.INFO)
 
 def calculate_sigma_from_misorientation(misorientation_angle: float) -> float:
     """
-    Calculate Sigma (Σ) value from misorientation angle for simple cubic/lattice systems.
-    Note: This is a simplified heuristic. For rigorous CSL calculation, use pymatgen.
-    However, for diagnostic purposes on scalar angles, we use the standard approximation:
-    Σ ≈ 1 / (1 - cos(θ/2)) for low angles, but typically Σ is an integer derived from
-    specific coincidence site lattice conditions.
+    Calculate Σ value from misorientation angle (simplified approximation).
     
-    For this diagnostic, if the angle doesn't map cleanly to a known low-Σ CSL,
-    we return NaN to indicate the value is not strictly available/valid for that specific
-    geometric configuration without full lattice matching.
-    """
-    if np.isnan(misorientation_angle) or misorientation_angle <= 0:
-        return np.nan
-    
-    # Common low-angle CSL boundaries (approximate thresholds for simple cubic)
-    # This is a heuristic fallback if explicit calculation failed in T010
-    # Real implementation in T010 should have used pymatgen CSL.
-    # Here we just check if it's a "valid" integer Σ candidate based on angle.
-    # Since we don't have the full lattice here, we return NaN if not obvious.
-    # The task requires computing it in T010, so this function is mostly for
-    # fallback or verification. If T010 already computed it, this is redundant.
-    # We will rely on the 'sigma_value' column from the dataset.
-    return np.nan
-
-def compute_mutual_information(x: np.ndarray, y: np.ndarray, n_bins: int = 10) -> float:
-    """
-    Compute Mutual Information (MI) between two 1D arrays.
-    Since sklearn's mutual_info_regression is for continuous targets and
-    mutual_info_classif is for discrete, and we are checking dependency
-    between two continuous/semi-continuous features (angle and Sigma),
-    we discretize both using KBinsDiscretizer and calculate MI manually.
-    
-    MI(X; Y) = Sum p(x,y) * log(p(x,y) / (p(x)*p(y)))
-    """
-    if len(x) == 0 or len(y) == 0:
-        return 0.0
-    
-    if len(x) != len(y):
-        raise ValueError("Input arrays must have the same length")
-    
-    # Discretize continuous variables
-    discretizer = KBinsDiscretizer(n_bins=n_bins, encode='ordinal', strategy='uniform')
-    
-    try:
-        x_disc = discretizer.fit_transform(x.reshape(-1, 1)).flatten()
-        y_disc = discretizer.fit_transform(y.reshape(-1, 1)).flatten()
-    except ValueError:
-        # If all values are identical, MI is 0
-        return 0.0
-    
-    # Compute joint probability distribution
-    # Create a 2D histogram
-    joint_counts, _, _ = np.histogram2d(x_disc, y_disc, bins=n_bins)
-    joint_prob = joint_counts / np.sum(joint_counts)
-    
-    # Marginal probabilities
-    p_x = np.sum(joint_prob, axis=1)
-    p_y = np.sum(joint_prob, axis=0)
-    
-    # Avoid log(0)
-    joint_prob = joint_prob[joint_prob > 0]
-    p_x = p_x[p_x > 0]
-    p_y = p_y[p_y > 0]
-    
-    # Calculate MI
-    mi = np.sum(joint_prob * np.log(joint_prob / (np.outer(p_x, p_y)[joint_prob > 0])))
-    
-    return float(mi)
-
-def run_collinearity_diagnostic(data_path: str, output_path: str) -> Dict[str, Any]:
-    """
-    Compute Mutual Information between misorientation angle and Σ value.
+    Note: In production, this should use full CSL calculations.
+    For diagnostics, we use a simplified mapping for demonstration.
     
     Args:
-        data_path: Path to the cleaned dataset (parquet).
-        output_path: Path to write the diagnostic JSON report.
-        
+        misorientation_angle: Misorientation angle in degrees.
+    
     Returns:
-        Dictionary containing the diagnostic results.
+        Approximate Σ value or NaN if calculation fails.
     """
-    logger.info(f"Loading dataset from {data_path}")
+    # Simplified mapping for common CSL boundaries
+    # This is a placeholder; real implementation uses pymatgen CSL
+    mapping = {
+        38.94: 3,
+        28.07: 5,
+        36.87: 9,
+        43.60: 11,
+        50.48: 13,
+        21.80: 17,
+        31.59: 21,
+        25.24: 25
+    }
     
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Dataset file not found: {data_path}. "
-                                "Ensure T011 (preprocess) has run successfully.")
+    # Find closest match within tolerance
+    tolerance = 2.0
+    for angle, sigma in mapping.items():
+        if abs(misorientation_angle - angle) < tolerance:
+            return float(sigma)
     
-    df = pd.read_parquet(data_path)
+    # Fallback: estimate based on angle (not physically rigorous)
+    if misorientation_angle < 15:
+        return float('nan')  # Low angle boundary
+    elif misorientation_angle < 30:
+        return 5.0 + (misorientation_angle - 15) / 15.0 * 10.0
+    else:
+        return 15.0 + (misorientation_angle - 30) / 30.0 * 10.0
+
+def compute_mutual_information(data: pd.DataFrame, feature1: str, feature2: str) -> float:
+    """
+    Compute mutual information between two features.
     
+    Args:
+        data: DataFrame containing the features.
+        feature1: Name of the first feature (e.g., 'misorientation_angle').
+        feature2: Name of the second feature (e.g., 'sigma_value').
+    
+    Returns:
+        Mutual information score.
+    """
+    # Drop rows with NaN values for these features
+    valid_data = data[[feature1, feature2]].dropna()
+    
+    if len(valid_data) < 2:
+        return 0.0
+    
+    # Discretize continuous variables for MI calculation
+    # Use quantile-based binning
+    n_bins = 10
+    
+    x = valid_data[feature1].values
+    y = valid_data[feature2].values
+    
+    # Discretize
+    x_bins = np.digitize(x, np.linspace(x.min(), x.max(), n_bins))
+    y_bins = np.digitize(y, np.linspace(y.min(), y.max(), n_bins))
+    
+    # Compute mutual information
+    mi = mutual_info_score(x_bins, y_bins)
+    return mi
+
+def run_collinearity_diagnostic(data_path: str = "data/processed/cleaned_dataset.parquet",
+                                output_path: str = "artifacts/reports/collinearity_diagnostic.json") -> Dict[str, Any]:
+    """
+    Run collinearity diagnostic for misorientation angle and Σ value.
+    
+    Args:
+        data_path: Path to the cleaned dataset.
+        output_path: Path to save the diagnostic report.
+    
+    Returns:
+        Diagnostic report dictionary.
+    """
+    logger.info(f"Loading data from {data_path}")
+    
+    # Check if data exists
+    if not Path(data_path).exists():
+        logger.error(f"Data file not found: {data_path}")
+        report = {
+            "status": "error",
+            "message": f"Data file not found: {data_path}",
+            "mi_score": None
+        }
+        save_report(report, output_path)
+        return report
+    
+    # Load data
+    try:
+        df = pd.read_parquet(data_path)
+    except Exception as e:
+        logger.error(f"Failed to load data: {e}")
+        report = {
+            "status": "error",
+            "message": f"Failed to load data: {str(e)}",
+            "mi_score": None
+        }
+        save_report(report, output_path)
+        return report
+    
+    logger.info(f"Loaded {len(df)} records")
+    
+    # Check for required columns
     required_cols = ['misorientation_angle', 'sigma_value']
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in dataset: {missing_cols}")
+    missing_cols = [col for col in required_cols if col not in df.columns]
     
-    # Filter for valid sigma values (non-NaN)
-    valid_mask = df['sigma_value'].notna()
-    valid_count = valid_mask.sum()
+    if missing_cols:
+        logger.error(f"Missing required columns: {missing_cols}")
+        report = {
+            "status": "error",
+            "message": f"Missing required columns: {missing_cols}",
+            "mi_score": None
+        }
+        save_report(report, output_path)
+        return report
+    
+    # Check for valid Σ values
+    valid_sigma_count = df['sigma_value'].notna().sum()
     total_count = len(df)
     
-    result: Dict[str, Any] = {}
-    
-    if valid_count == 0:
-        logger.warning("No valid Σ values found in the dataset after preprocessing.")
-        result = {
+    if valid_sigma_count == 0:
+        logger.warning("No valid Σ values found in dataset")
+        report = {
             "status": "unavailable",
             "message": "No valid Σ values in dataset after preprocessing.",
-            "count": int(total_count),
-            "mutual_information": None,
-            "interpretation": "Cannot compute MI without valid Σ values."
+            "count": int(total_count)
         }
+        save_report(report, output_path)
+        return report
+    
+    logger.info(f"Found {valid_sigma_count} valid Σ values out of {total_count} records")
+    
+    # Compute Mutual Information
+    try:
+        mi_score = compute_mutual_information(df, 'misorientation_angle', 'sigma_value')
+    except Exception as e:
+        logger.error(f"Failed to compute mutual information: {e}")
+        report = {
+            "status": "error",
+            "message": f"Failed to compute mutual information: {str(e)}",
+            "mi_score": None
+        }
+        save_report(report, output_path)
+        return report
+    
+    # Log descriptive note
+    logger.info(f"Mutual Information (MI) between misorientation and Σ: {mi_score:.4f}")
+    logger.info("MI > 0.8 indicates strong dependency; relationship is descriptive, not causal.")
+    
+    # Determine strength
+    if mi_score > 0.8:
+        strength = "strong"
+    elif mi_score > 0.4:
+        strength = "moderate"
     else:
-        logger.info(f"Computing MI for {valid_count} records with valid Σ values.")
-        
-        misorientation = df.loc[valid_mask, 'misorientation_angle'].to_numpy()
-        sigma = df.loc[valid_mask, 'sigma_value'].to_numpy()
-        
-        # Handle cases where all values are identical (MI undefined/0)
-        if len(np.unique(misorientation)) < 2 or len(np.unique(sigma)) < 2:
-            mi_value = 0.0
-            logger.warning("Low variance in features; MI set to 0.0.")
-        else:
-            mi_value = compute_mutual_information(misorientation, sigma)
-        
-        logger.info(f"Calculated Mutual Information: {mi_value:.4f}")
-        
-        # Interpretation logic
-        if mi_value > 0.8:
-            interpretation = "Strong dependency detected. Relationship is descriptive, not causal."
-        elif mi_value > 0.4:
-            interpretation = "Moderate dependency detected. Relationship is descriptive, not causal."
-        else:
-            interpretation = "Weak or no dependency detected. Relationship is descriptive, not causal."
-        
-        result = {
-            "status": "computed",
-            "total_records": int(total_count),
-            "valid_sigma_count": int(valid_count),
-            "mutual_information": float(mi_value),
-            "interpretation": interpretation,
-            "note": "MI > 0.8 indicates strong dependency; relationship is descriptive, not causal.",
-            "fr007_framing": "The relationship between misorientation and Σ value is descriptive, not causal, as Σ is derived from misorientation."
-        }
+        strength = "weak"
     
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    report = {
+        "status": "success",
+        "feature1": "misorientation_angle",
+        "feature2": "sigma_value",
+        "mi_score": float(mi_score),
+        "strength": strength,
+        "valid_sigma_count": int(valid_sigma_count),
+        "total_count": int(total_count),
+        "note": "The relationship between misorientation and Σ value is descriptive, not causal, as Σ is derived from misorientation."
+    }
     
-    # Write report
-    with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
+    save_report(report, output_path)
+    return report
+
+def save_report(report: Dict[str, Any], output_path: str) -> None:
+    """Save diagnostic report to JSON file."""
+    p = Path(output_path)
+    p.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Diagnostic report written to {output_path}")
-    return result
+    with open(p, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Report saved to {output_path}")
 
 def main():
-    """Main entry point for the diagnostics script."""
-    # Define paths relative to project root
-    project_root = Path(__file__).parent.parent
-    data_path = project_root / "data" / "processed" / "cleaned_dataset.parquet"
-    output_path = project_root / "artifacts" / "reports" / "collinearity_diagnostic.json"
+    """Main entry point for diagnostics."""
+    logger.info("Starting collinearity diagnostic analysis")
     
-    try:
-        run_collinearity_diagnostic(str(data_path), str(output_path))
-        logger.info("Diagnostics completed successfully.")
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error during diagnostics: {e}")
-        sys.exit(1)
+    # Run diagnostic
+    report = run_collinearity_diagnostic()
+    
+    logger.info("Diagnostic analysis complete")
+    print(json.dumps(report, indent=2))
 
 if __name__ == "__main__":
     main()

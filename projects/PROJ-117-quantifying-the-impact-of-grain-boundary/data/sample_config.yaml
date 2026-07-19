@@ -16,10 +16,13 @@
 
 sampling_strategy:
   # Strategy type: "head" (first N rows) or "random" (fixed seed random sample)
+  # "head" uses itertools.islice to take the first N records.
+  # "random" uses a fixed seed to select N random records.
   type: "head"
   
   # Number of records to retain if strategy is "head"
   # This corresponds to itertools.islice(data, N)
+  # Must be >= min_required in validation section.
   sample_size: 500
   
   # Random seed for reproducibility if strategy is "random"

@@ -12,17 +12,18 @@ from typing import Dict, Any, Optional
 import yaml
 import sys
 
-def setup_logging(level: int = logging.INFO) -> logging.Logger:
+def setup_logging(name: str, level: int = logging.INFO) -> logging.Logger:
     """
     Configure and return a logger instance.
     
     Args:
-        level: Logging level.
+        name: Name of the logger (e.g., "download", "preprocess").
+        level: Logging level (default: INFO).
         
     Returns:
         Configured logger.
     """
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger(name)
     logger.setLevel(level)
     
     if not logger.handlers:
