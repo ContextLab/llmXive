@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 345d22474735665896995cd559969d09164174737168d3240c60a06019468a35
+  artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_JPEG2000_folding.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Hilbert curve - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Hilbert_curve
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Hilbert_curve
+  verified_at: '2026-07-19T17:10:18.140390Z'

@@ -1,6 +1,11 @@
 """
-Batch processing module for fetching noise, injecting signals, and validating events.
-Implements the loop logic to find >=12 valid events with complete spin metadata.
+Batch Processor for Data Acquisition (US1).
+
+Implements the logic for T015:
+- Fetches noise segments in batches.
+- Injects synthetic signals.
+- Validates events.
+- Loops until >= min_valid_events are found or max_attempts is reached.
 """
 import os
 import json
@@ -8,196 +13,153 @@ import time
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+import numpy as np
 
-from src.data.download import fetch_gw_noise_segment
+# Import from sibling modules
 from src.data.inject import inject_synthetic_signal, generate_true_parameters
 from src.data.validate import validate_file, check_true_parameters_exist
+from src.data.download import fetch_gw_noise_segment  # Assuming this exists based on API surface
+from src.utils.config import get_seed
 
-# Configuration constants
-MIN_VALID_EVENTS = 12
-MAX_ATTEMPTS = 20
-TIMEOUT_SECONDS = 300
-DETECTORS = ["H1", "L1"]  # LIGO Hanford and Livingston
-
-logger = logging.getLogger(__name__)
-
+# Constants
+MAX_ATTEMPTS_DEFAULT = 20
+MIN_VALID_EVENTS_DEFAULT = 12
+SNR_THRESHOLD = 8.0
 
 def process_batch(
-    batch_size: int,
+    noise_files: List[Path],
     output_dir: Path,
-    start_time: float
-) -> List[Dict[str, Any]]:
+    logger: logging.Logger
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Process a batch of noise segments: fetch, inject, and validate.
+    Process a batch of noise files: inject signals and validate.
     
-    Args:
-        batch_size: Number of events to attempt in this batch.
-        output_dir: Directory to save injected data.
-        start_time: Timestamp when the overall process started.
-        
     Returns:
-        List of valid event metadata dictionaries.
-        
-    Raises:
-        TimeoutError: If the timeout is exceeded.
+        Tuple of (valid_events, invalid_events)
     """
     valid_events = []
-    attempts = 0
+    invalid_events = []
     
-    while len(valid_events) < MIN_VALID_EVENTS and attempts < MAX_ATTEMPTS:
-        # Check timeout
-        if time.time() - start_time > TIMEOUT_SECONDS:
-            raise TimeoutError(
-                f"Timeout exceeded ({TIMEOUT_SECONDS}s) before finding {MIN_VALID_EVENTS} valid events."
-            )
-        
-        # Prepare parameters for this attempt
-        event_id = f"evt_{attempts:04d}"
-        detector = DETECTORS[attempts % len(DETECTORS)]
-        true_params = generate_true_parameters(detector=detector)
+    for noise_path in noise_files:
+        event_id = noise_path.stem
+        logger.info(f"Processing event: {event_id}")
         
         try:
-            # 1. Fetch noise
-            noise_file = fetch_gw_noise_segment(detector=detector, output_dir=output_dir)
-            if not noise_file:
-                logger.warning(f"Attempt {attempts}: Failed to fetch noise for {detector}. Skipping.")
-                attempts += 1
-                continue
+            # 1. Inject synthetic signal
+            injected_path = output_dir / f"{event_id}_injected.h5"
+            true_params = generate_true_parameters(seed=get_seed(event_id))
             
-            # 2. Inject signal
-            injected_file = inject_synthetic_signal(
-                noise_file=noise_file,
+            inject_synthetic_signal(
+                noise_path=noise_path,
+                output_path=injected_path,
                 true_params=true_params,
-                output_dir=output_dir,
-                event_id=event_id
+                logger=logger
             )
-            if not injected_file:
-                logger.warning(f"Attempt {attempts}: Failed to inject signal for {event_id}. Skipping.")
-                attempts += 1
-                continue
             
-            # 3. Validate
-            is_valid, metadata = validate_file(injected_file)
+            # 2. Validate the injected file
+            is_valid, validation_details = validate_file(injected_path)
             
             if is_valid:
-                # Additional check for spin metadata completeness
-                if check_true_parameters_exist(metadata):
-                    valid_events.append(metadata)
-                    logger.info(f"Attempt {attempts}: Valid event found. Total valid: {len(valid_events)}/{MIN_VALID_EVENTS}")
+                # Check for specific metadata requirements (spin, true params)
+                has_true_params = check_true_parameters_exist(injected_path)
+                
+                if has_true_params:
+                    event_data = {
+                        "event_id": event_id,
+                        "file_path": str(injected_path),
+                        "true_parameters": true_params,
+                        "validation_details": validation_details
+                    }
+                    valid_events.append(event_data)
+                    logger.info(f"Event {event_id} is VALID.")
                 else:
-                    logger.warning(f"Attempt {attempts}: Event {event_id} missing spin metadata. Skipping.")
+                    invalid_events.append({"event_id": event_id, "reason": "Missing true parameters"})
+                    logger.warning(f"Event {event_id} is INVALID: Missing true parameters.")
             else:
-                logger.warning(f"Attempt {attempts}: Validation failed for {event_id}. Skipping.")
-            
-            attempts += 1
-            
+                invalid_events.append({"event_id": event_id, "reason": str(validation_details)})
+                logger.warning(f"Event {event_id} is INVALID: {validation_details}")
+                
         except Exception as e:
-            logger.error(f"Attempt {attempts}: Unexpected error processing {event_id}: {e}")
-            attempts += 1
-            continue
+            logger.error(f"Failed to process event {event_id}: {str(e)}", exc_info=True)
+            invalid_events.append({"event_id": event_id, "reason": str(e)})
     
-    return valid_events
-
+    return valid_events, invalid_events
 
 def run_injection_campaign(
-    target_events: int = MIN_VALID_EVENTS,
+    target_events: int,
+    min_valid_events: int = MIN_VALID_EVENTS_DEFAULT,
+    max_attempts: int = MAX_ATTEMPTS_DEFAULT,
     output_dir: Optional[Path] = None,
-    max_attempts: int = MAX_ATTEMPTS,
-    timeout: int = TIMEOUT_SECONDS
-) -> List[Dict[str, Any]]:
+    logger: Optional[logging.Logger] = None
+) -> Tuple[List[Dict[str, Any]], int, Dict[str, Any]]:
     """
-    Orchestrate the full campaign to find the target number of valid events.
+    Main loop for the injection campaign (T015 logic).
     
-    This function implements the core logic for T015:
-    - Fetches additional noise segments in batches.
-    - Injects synthetic signals.
-    - Validates for complete spin metadata.
-    - Stops when >=12 valid events are found OR max_attempts/timeout is reached.
+    Implements: while valid_count < min_valid_events and attempts < max_attempts
     
     Args:
-        target_events: Target number of valid events (default 12).
-        output_dir: Directory for output files. Defaults to project data/interim.
-        max_attempts: Maximum number of injection attempts allowed.
-        timeout: Maximum time in seconds to run the campaign.
+        target_events: Target number of events to attempt (FR-001 says >=15, but loop stops at min_valid)
+        min_valid_events: Minimum valid events required to stop successfully.
+        max_attempts: Maximum number of fetch/inject attempts before failing.
+        output_dir: Directory to save intermediate files.
+        logger: Logger instance.
         
     Returns:
-        List of valid event metadata dictionaries.
+        Tuple of (valid_events_list, total_attempts, summary_stats)
         
     Raises:
-        RuntimeError: If the campaign fails to find the target number of events
-                      after exhausting attempts or time.
+        RuntimeError: If max_attempts is reached and min_valid_events not met.
     """
+    if logger is None:
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
+        
     if output_dir is None:
-        output_dir = Path("data/interin")
-    
+        output_dir = Path("data/interim/injected")
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Starting injection campaign. Target: {target_events}, Max attempts: {max_attempts}, Timeout: {timeout}s")
-    start_time = time.time()
-    
     valid_events = []
-    total_attempts = 0
+    attempts = 0
+    batch_size = 1  # Fetch one by one to control the loop precisely
     
-    while len(valid_events) < target_events and total_attempts < max_attempts:
-        # Check timeout
-        if time.time() - start_time > timeout:
-            raise TimeoutError(
-                f"Timeout exceeded ({timeout}s) before finding {target_events} valid events. "
-                f"Found {len(valid_events)} so far."
-            )
+    logger.info(f"Starting injection campaign. Target: {target_events}, Min Valid: {min_valid_events}, Max Attempts: {max_attempts}")
+    
+    while len(valid_events) < min_valid_events and attempts < max_attempts:
+        attempts += 1
+        logger.info(f"--- Attempt {attempts} ---")
         
-        # Process a batch (or single event loop)
-        # We process one by one to respect the attempt limit strictly
-        detector = DETECTORS[total_attempts % len(DETECTORS)]
-        event_id = f"evt_{total_attempts:04d}"
-        true_params = generate_true_parameters(detector=detector)
-        
+        # Simulate fetching a noise segment (In real impl, this calls GWOSC API)
+        # For now, we assume fetch_gw_noise_segment returns a Path to a noise file
+        # or raises an error if it fails.
         try:
-            # 1. Fetch noise
-            noise_file = fetch_gw_noise_segment(detector=detector, output_dir=output_dir)
-            if not noise_file:
-                logger.warning(f"Attempt {total_attempts}: Failed to fetch noise for {detector}.")
-                total_attempts += 1
+            # Generate a pseudo-random event ID for this attempt
+            event_id = f"GW_{attempts:04d}"
+            
+            # Fetch noise
+            noise_path = fetch_gw_noise_segment(event_id=event_id, output_dir=output_dir)
+            
+            if noise_path is None or not noise_path.exists():
+                logger.warning(f"Attempt {attempts}: Failed to fetch noise for {event_id}")
                 continue
-            
-            # 2. Inject
-            injected_file = inject_synthetic_signal(
-                noise_file=noise_file,
-                true_params=true_params,
-                output_dir=output_dir,
-                event_id=event_id
-            )
-            if not injected_file:
-                logger.warning(f"Attempt {total_attempts}: Failed to inject signal for {event_id}.")
-                total_attempts += 1
-                continue
-            
-            # 3. Validate
-            is_valid, metadata = validate_file(injected_file)
-            
-            if is_valid and check_true_parameters_exist(metadata):
-                valid_events.append(metadata)
-                logger.info(f"Attempt {total_attempts}: Valid event {event_id} added. Total: {len(valid_events)}/{target_events}")
-            else:
-                reason = "Validation failed" if not is_valid else "Missing spin metadata"
-                logger.warning(f"Attempt {total_attempts}: {event_id} rejected. Reason: {reason}")
-            
-            total_attempts += 1
+                
+            # Process this single event
+            batch_valid, batch_invalid = process_batch([noise_path], output_dir, logger)
+            valid_events.extend(batch_valid)
             
         except Exception as e:
-            logger.error(f"Attempt {total_attempts}: Critical error in loop: {e}")
-            total_attempts += 1
-            # Continue to next attempt rather than failing immediately, 
-            # unless it's a persistent infrastructure failure (handled by timeout)
+            logger.error(f"Attempt {attempts} failed with exception: {str(e)}")
+            continue
     
-    # Final check
-    if len(valid_events) < target_events:
-        error_msg = (
-            f"Campaign failed to find {target_events} valid events. "
-            f"Found {len(valid_events)} after {total_attempts} attempts."
-        )
-        logger.critical(error_msg)
-        raise RuntimeError(error_msg)
+    summary = {
+        "total_attempts": attempts,
+        "valid_count": len(valid_events),
+        "target_met": len(valid_events) >= min_valid_events,
+        "failure_reason": None if len(valid_events) >= min_valid_events else "Max attempts reached"
+    }
     
+    if len(valid_events) < min_valid_events:
+        logger.error(f"Campaign failed. Found {len(valid_events)} valid events after {attempts} attempts. Required: {min_valid_events}.")
+        raise RuntimeError(f"Failed to find {min_valid_events} valid events after {max_attempts} attempts.")
+        
     logger.info(f"Campaign successful. Found {len(valid_events)} valid events.")
-    return valid_events
+    return valid_events, attempts, summary

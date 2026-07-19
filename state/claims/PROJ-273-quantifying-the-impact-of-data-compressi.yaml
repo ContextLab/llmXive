@@ -1655,3 +1655,161 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T16:51:51Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Bilby/Dynesty used for parameter estimation on at least 12 events replacing
+    LALInference
+  claim_id: c_1f747556
+  context: Update spec.md to formally amend FR-005 and Constitution Principle VII
+    to authorize Bilby/Dynesty as the Parameter Estimation engine for this project.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bilby/Dynesty_used_for_parameter_estimation_on_at_least_12_e
+  kind: magnitude
+  raw_text: "System MUST run Parameter Estimation using Bilby with Dynesty (Fast PE)\
+    \ on both original and compressed datasets for \u226512 events, replacing LALInference\
+    \ due to CI constraints."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:05:18Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Generate at least 15 synthetic CBC injections into GWOSC noise using
+    LALSimulation
+  claim_id: c_f9991774
+  context: Update spec.md to formally amend FR-001 to replace download requirement
+    with synthetic injection generation due to lack of public injection campaigns.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_15_synthetic_CBC_injections_into_GWOSC_noi
+  kind: magnitude
+  raw_text: "System MUST generate \u226515 synthetic CBC injections into real GW noise\
+    \ segments fetched from GWOSC, using LALSimulation with known ground truth parameters,\
+    \ replacing the requirement to download public injection campaigns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:05:39Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Hierarchical Bayesian shift test fallback to Paired t-tests if ESS is
+    less than 100
+  claim_id: c_2f40f1ec
+  context: Update spec.md to formally amend FR-007 to authorize Paired t-tests/Wilcoxon
+    as a valid fallback if Hierarchical Bayesian Shift Test convergence fails.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hierarchical_Bayesian_shift_test_fallback_to_Paired_t-tests
+  kind: magnitude
+  raw_text: System MUST attempt hierarchical Bayesian shift tests. If convergence
+    fails (ESS < 100), the system MUST fallback to Paired t-tests (alpha=0.05) with
+    Benjamini-Hochberg correction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:06:07Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: JPEG2000 compression implemented via 1D-to-2D folding using Hilbert curve
+    algorithm
+  claim_id: c_a6c70078
+  context: Update spec.md to formally record the JPEG2000 folding deviation and associated
+    provenance file location.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/JPEG2000_compression_implemented_via_1D-to-2D_folding_using
+  kind: entity_fact
+  raw_text: JPEG2000 compression MUST be implemented via 1D-to-2D folding (Hilbert
+    curve algorithm) to adapt 2D codecs to 1D strain data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:06:22Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: SNR degradation computed with precision of at least 0.1 dB
+  claim_id: c_9217df49
+  context: Implement src/compression/metrics.py to compute MSE and SNR degradation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SNR_degradation_computed_with_precision_of_at_least_0.1_dB
+  kind: magnitude
+  raw_text: "Implement src/compression/metrics.py to compute MSE and SNR degradation\
+    \ (precision \u2265 0.1 dB)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:06:46Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Bilby/Dynesty parameter estimation with max_iter 5000 and nlive 200
+  claim_id: c_9deecdc4
+  context: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
+    specifically chosen to meet the h/event constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
+    (max_iter=5000, nlive=200) specifically chosen to meet the h/event constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:07:03Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Paired t-tests with Benjamini-Hochberg correction applied if ESS is less
+    than 100
+  claim_id: c_6de159a5
+  context: Attempt Hierarchical Bayesian Shift Test first; if convergence fails (ESS
+    < 100), fallback to Paired t-tests with Benjamini-Hochberg correction.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Paired_t-tests_with_Benjamini-Hochberg_correction_applied_if
+  kind: magnitude
+  raw_text: If convergence fails (defined as ESS < 100), fallback to Paired t-tests
+    (alpha=0.05) APPLYING THE BENJAMINI-HOCHBERG CORRECTION.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:07:26Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time optimized to be less than or equal to 6
+    hours
+  claim_id: c_c2eb8e31
+  context: "Performance optimization to ensure full pipeline execution \u2264 6 hours\
+    \ (CI constraint)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_optimized_to_be_less_than_or_eq
+  kind: magnitude
+  raw_text: "Performance optimization to ensure full pipeline execution \u2264 6 hours\
+    \ (CI constraint)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:07:49Z'

@@ -1,11 +1,11 @@
-T001:
+T001#1:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission provides no evidence that the listed directories (e.g., `src/data`,\
-    \ `src/compression`, `tests/unit`, `data/raw`, etc.) were actually created; no\
-    \ file\u2011system snapshot, command output, or directory listing is present to\
-    \ verify the required project structure. Consequently the task requirement is\
-    \ not satisfied."
+  r: "No updated `spec.md` file or excerpt showing the required amendment to FR\u2011\
+    005 and Constitution Principle VII is provided. Without the actual file content\
+    \ containing the exact replacement text, we cannot confirm that the specification\
+    \ was modified as requested. The implementer must supply the modified `spec.md`\
+    \ with the specified wording."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,13 +21,6 @@ T004:
     \ the required formal amendment was made. The implementer must supply the modified\
     \ `spec.md` with the new wording authorizing Bilby/Dynesty as the Parameter Estimation\
     \ engine."
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the required directories (`data/raw/`, `data/interim/`,
-    `data/processed/`, `data/external/`) actually exist; the response contains no
-    file listings, screenshots, or code creating them. The implementer must add the
-    directory structure to the repository (or provide proof of its presence).
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -47,12 +40,3 @@ T010:
   r: "The provided `tests/unit/test_validate.py` is truncated (ends mid\u2011function)\
     \ and thus not a complete, runnable test suite, and the required `src/data/validate.py`\
     \ module is missing, so the unit test cannot be executed."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or output files were provided that demonstrate a loop fetching\
-    \ additional noise segments in batches, validating them, and ensuring \u226512\
-    \ valid events with complete spin metadata. Without such artifacts, the requirement\
-    \ cannot be verified. The implementer must supply the actual implementation (e.g.,\
-    \ a function or module) and evidence (logs, test results, or data files) showing\
-    \ the batch\u2011fetching and validation logic works as specified."

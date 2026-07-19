@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-273-quantifying-the-impact-of-data-compressi",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: code/provenance/deviation_constitution_principle_ii.md, state/projects/PROJ-273-quantifying-the-impact-of-data-compressi.yaml",
+      "first_seen": "2026-07-19T17:13:46.107926+00:00",
+      "last_seen": "2026-07-19T17:13:46.107926+00:00"
+    },
+    {
+      "task_key": "T006",
+      "reject_count": 1,
+      "last_reason": "No evidence was provided that the required directories (`data/raw/`, `data/interim/`, `data/processed/`, `data/external/`) actually exist; the response contains no file listings, screenshots, or code creating them. The implementer must add the directory structure to the repository (or provide proof of its presence).",
+      "first_seen": "2026-07-19T17:13:47.438632+00:00",
+      "last_seen": "2026-07-19T17:13:47.438632+00:00"
+    },
+    {
+      "task_key": "T015",
+      "reject_count": 1,
+      "last_reason": "No code, script, or output files were provided that demonstrate a loop fetching additional noise segments in batches, validating them, and ensuring \u226512 valid events with complete spin metadata. Without such artifacts, the requirement cannot be verified. The implementer must supply the actual implementation (e.g., a function or module) and evidence (logs, test results, or data files) showing the batch\u2011fetching and validation logic works as specified.",
+      "first_seen": "2026-07-19T17:13:47.440326+00:00",
+      "last_seen": "2026-07-19T17:13:47.440326+00:00"
+    },
+    {
+      "task_key": "T016",
+      "reject_count": 1,
+      "last_reason": "No updated description of T015 is present in the provided evidence; the claim that the specification now clarifies stopping after 12 valid events cannot be verified because the artifact itself is missing. The next implementer must supply the revised T015 text showing the required clarification.",
+      "first_seen": "2026-07-19T17:13:48.993462+00:00",
+      "last_seen": "2026-07-19T17:13:48.993462+00:00"
+    }
+  ],
+  "updated_at": "2026-07-19T17:13:48.993462+00:00"
+}
