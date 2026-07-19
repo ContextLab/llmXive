@@ -4,86 +4,114 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+import csv
+
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.data.generate_primes import simple_sieve, segmented_sieve, compute_normalized_gap, run_pipeline
-from src.utils.config import get_project_paths
+from src.utils.config import ensure_directories
 
 class TestSimpleSieve:
-    def test_simple_sieve_small(self):
-        primes = simple_sieve(20)
-        expected = [2, 3, 5, 7, 11, 13, 17, 19]
-        assert primes == expected
+    def test_small_limit(self):
+        primes = simple_sieve(10)
+        assert primes == [2, 3, 5, 7]
 
-    def test_simple_sieve_empty(self):
+    def test_limit_below_two(self):
         assert simple_sieve(1) == []
         assert simple_sieve(0) == []
 
-    def test_simple_sieve_single(self):
-        assert simple_sieve(2) == [2]
-
-class TestSegmentedSieve:
-    def test_segmented_sieve_small(self):
-        primes = list(segmented_sieve(20, segment_size=5))
-        expected = [2, 3, 5, 7, 11, 13, 17, 19]
+    def test_known_primes(self):
+        primes = simple_sieve(30)
+        expected = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
         assert primes == expected
 
-    def test_segmented_sieve_limit(self):
-        primes = list(segmented_sieve(100, segment_size=10))
-        # Just check the count and that the last one is <= 100
-        assert len(primes) == 25
-        assert primes[-1] == 97
-        assert all(p <= 100 for p in primes)
+class TestSegmentedSieve:
+    def test_first_segment(self):
+        primes = list(segmented_sieve(30, segment_size=10))
+        # Should yield primes in chunks: [2,3,5,7], [11,13,17,19], [23,29]
+        # But the implementation yields a single list per segment call
+        # Let's check the logic: 
+        # Segment 1: 2-11 -> [2,3,5,7]
+        # Segment 2: 12-22 -> [13,17,19] (11 is in first segment if range is inclusive of start?)
+        # Actually, the loop is: low=2, high=12. Primes in [2,12): 2,3,5,7,11.
+        # Wait, the range is `while low <= n`. 
+        # Segment 1: low=2, high=12. Primes: 2,3,5,7,11.
+        # Segment 2: low=12, high=22. Primes: 13,17,19.
+        # Segment 3: low=22, high=32. Primes: 23,29.
+        
+        all_primes = []
+        for seg in segmented_sieve(30, segment_size=10):
+            all_primes.extend(seg)
+        
+        expected = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+        assert sorted(all_primes) == expected
+
+    def test_large_limit(self):
+        # Test a slightly larger limit to ensure no memory issues in unit test
+        count = 0
+        for seg in segmented_sieve(10000, segment_size=1000):
+            count += len(seg)
+        # Approximate pi(10000) = 1229
+        assert count == 1229
 
 class TestComputeNormalizedGap:
-    def test_compute_normalized_gap_basic(self):
-        # Gap between 2 and 3 is 1. log(2)^2 approx 0.48.
-        # We test the function logic.
-        gap = 1
-        prime_before = 2
-        result = compute_normalized_gap(prime_before, gap)
-        expected = gap / (math.log(prime_before) ** 2)
-        assert math.isclose(result, expected, rel_tol=1e-9)
+    def test_normal_case(self):
+        # Gap between 2 and 3 is 1. log(2)^2 approx 0.48
+        gap = compute_normalized_gap(1, 2)
+        assert gap == 1 / (math.log(2) ** 2)
 
-    def test_compute_normalized_gap_large(self):
-        # Test with a larger prime
-        prime_before = 1000003
-        gap = 14
-        result = compute_normalized_gap(prime_before, gap)
-        expected = gap / (math.log(prime_before) ** 2)
-        assert math.isclose(result, expected, rel_tol=1e-9)
+    def test_large_prime(self):
+        # Gap between 100 and 101 (if 101 is prime) - 100 not prime, use 97, 101
+        # Gap 4. log(97)^2
+        gap = compute_normalized_gap(4, 97)
+        expected = 4 / (math.log(97) ** 2)
+        assert math.isclose(gap, expected)
+
+    def test_edge_case_small_prime(self):
+        # Gap 1 for prime 2
+        gap = compute_normalized_gap(1, 2)
+        assert gap > 0
 
 class TestRunPipeline:
-    def test_run_pipeline_creates_file(self):
-        # Create a temporary directory for testing
+    def test_pipeline_creates_file(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Mock the paths to use the temporary directory
-            # We need to patch the get_project_paths or set environment variables if used
-            # Since the code uses get_project_paths which returns a dict, we can't easily mock it without modifying the code.
-            # Instead, we will test the logic by running the pipeline and checking if the file is created in the expected location.
-            # For this unit test, we assume the default paths are used, but we can't easily change them without modifying the config.
-            # A better approach for a unit test is to test the core logic (segmented_sieve) which we already did.
-            # However, to satisfy the requirement of testing the pipeline, we can check if the file is created.
-            # We will skip the actual run for N=10^10 in unit tests due to time constraints.
-            # Instead, we will test with a small N.
+            # Mock the paths to use temp dir
+            import src.utils.config as config_module
+            original_paths = config_module.get_project_paths
             
-            # We need to patch the get_project_paths to return our temp dir
-            # But since we can't easily patch it in the module, we will rely on the fact that the function
-            # writes to a specific path. For a true unit test, we would refactor run_pipeline to accept an output path.
-            # Given the constraints, we will test the function's ability to handle a small N without crashing.
+            def mock_paths():
+                class MockPaths:
+                    processed = Path(tmpdir)
+                return MockPaths()
             
-            # Let's assume the default paths are in a temp directory for this test.
-            # We will create a temporary directory and set it as the project root.
-            # This requires modifying the config module, which is out of scope for this task.
-            # Instead, we will test the function with a small N and check if it completes without error.
-            # We will not check the file content in this unit test, but rather the execution flow.
+            config_module.get_project_paths = mock_paths
+            ensure_directories() # Ensure dirs exist in mock path
             
-            # Since we can't easily mock the paths, we will skip the file creation check in this unit test.
-            # We will instead test the function with a small N and ensure it doesn't raise an exception.
-            # This is a limitation of the current design.
-            pass
-
-    def test_run_pipeline_small_n(self):
-        # Test with a small N to ensure the pipeline runs without error
-        # We will not check the file content in this unit test, but rather the execution flow.
-        # This is a limitation of the current design.
-        pass
+            try:
+                # Run with small limit for testing
+                run_pipeline(n=100, segment_size=10)
+                
+                output_file = Path(tmpdir) / 'primes_gaps.csv'
+                assert output_file.exists()
+                
+                with open(output_file, 'r') as f:
+                    reader = csv.reader(f)
+                    header = next(reader)
+                    assert header == ['prime_before', 'prime_after', 'gap_size', 'normalized_gap']
+                    
+                    rows = list(reader)
+                    # Primes up to 100: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97
+                    # Gaps: 24 gaps
+                    assert len(rows) == 24
+                    
+                    # Check first row
+                    p_before, p_after, gap, norm = rows[0]
+                    assert int(p_before) == 2
+                    assert int(p_after) == 3
+                    assert int(gap) == 1
+                    
+            finally:
+                config_module.get_project_paths = original_paths

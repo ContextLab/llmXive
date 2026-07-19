@@ -1,32 +1,16 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listings were provided showing the required folders
-    (`src/data/`, `src/analysis/`, `src/utils/`, `src/cli/`, `tests/unit/`, `tests/integration/`,
-    `data/raw/`, `data/processed/`, `data/results/`, `results/`, `state/`). Without
-    concrete evidence that these paths exist, the task is not satisfied. The implementer
-    must create and show the full project structure.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no linting or formatting configuration files (e.g.,
-    `pyproject.toml`, `.ruff.toml`, or `black` settings) nor any evidence that `ruff`
-    and `black` were installed or integrated into the project. Without these artifacts,
-    the requirement to configure linting (ruff) and formatting (black) is not satisfied.
 T009:
   c: false
   h: 4590b66282d73ef584a6040f8912f5e3146b0cfcd19327e9e80ed76f13fa8881
   r: The required file `tests/unit/test_sieve.py` does not exist, so no unit test
     for the segmented sieve logic is present to verify primality or chunk boundaries.
     The task remains undone.
-T012:
+T010a:
   c: false
-  h: f0f68fc769e18c02b7e52a6ab77f5452cd13721b1d73a80d9fb5dcd699a3ae2f
-  r: The provided `src/data/generate_primes.py` ends abruptly (truncated at `set_global_seed(confi`)
-    and does not contain a complete pipeline that writes the required CSV, nor does
-    it define the logic to stream results to `data/processed/primes_gaps.csv`. Moreover,
-    the expected output file `data/processed/primes_gaps.csv` is missing entirely.
-    The task therefore remains unfinished.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No file such as `data-model.md` containing the required GUE\u2011derived extreme\u2011\
+    value CDF definition, Tracy\u2011Widom approximation, and normalization derivation\
+    \ was provided. Without the actual written formula the task\u2019s deliverable\
+    \ is absent."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

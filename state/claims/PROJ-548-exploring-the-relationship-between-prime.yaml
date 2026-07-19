@@ -88,3 +88,338 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T14:37:49Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Generate primes up to 10^10
+  claim_id: c_8c650128
+  context: The primary target is N=10^10 per FR-001. The pipeline MUST complete within
+    the CI time limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline generates primes up to 10^10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:45:31Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Prime generation peak RAM under 7GB
+  claim_id: c_95800958
+  context: Implement segmented sieve algorithm in src/data/generate_primes.py to generate
+    primes up to 10^10, processing in chunks to stay within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prime_generation_peak_RAM_under_7GB
+  kind: entity_fact
+  raw_text: The pipeline processes primes in chunks to stay within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:48:24Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Sliding window length set to 10^6
+  claim_id: c_c9e222b6
+  context: Create configuration management in src/utils/config.py (defines N=10^10,
+    W=10^6, file paths, and WINDOW_STEP for sliding window stride).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines a window length W of 10^6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:51:05Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Zeta zeros sourced from LMFDB API
+  claim_id: c_dffb5b7c
+  context: 'Implement logic in src/data/ingest_zeros.py to verify and fetch zeta zeros
+    from the following hardcoded verified sources: LMFDB: https://www.lmfdb.org/api/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zeta_zeros_sourced_from_LMFDB_API
+  kind: entity_fact
+  raw_text: Zeta zeros are fetched from the LMFDB API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:53:52Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Zeta zeros sourced from Odlyzko
+  claim_id: c_a3206744
+  context: Verify and fetch zeta zeros from the following hardcoded verified sources...
+    Odlyzko.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zeta_zeros_sourced_from_Odlyzko
+  kind: entity_fact
+  raw_text: Zeta zeros are fetched from Odlyzko.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:59:50Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps window sizes 10^5, 10^6, and 10^7
+  claim_id: c_d806ccca
+  context: The specific window sizes to sweep are W in {10^5, 10^6, 10^7}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis sweeps window sizes W over the set {10^5, 10^6, 10^7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:01:06Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Tracy-Widom distribution used for GUE maxima
+  claim_id: c_6be604f5
+  context: This includes the Tracy-Widom distribution approximation for GUE maxima
+    and the normalization logic, explicitly deriving it from the pair-correlation
+    distribution required by FR-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tracy-Widom_distribution_used_for_GUE_maxima
+  kind: entity_fact
+  raw_text: The analysis uses the Tracy-Widom distribution approximation for GUE maxima.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:01:26Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Montgomery's Pair Correlation Conjecture states Riemann zeta zero spacings
+    match GUE eigenvalue spacing distribution
+  claim_id: c_8cee1844
+  context: Montgomery's Pair Correlation Conjecture states that the statistical distribution
+    of the spacings between consecutive non-trivial zeros of the Riemann zeta function,
+    $\rho_n = \frac{1}{2} + i\gamma_n$, is identical to the eigenvalue spacing distribution
+    of large random matrices from the Gaussian Unitary Ensemble (GUE).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Montgomery's_Pair_Correlation_Conjecture_states_Riemann_zeta
+  kind: entity_fact
+  raw_text: Montgomery's Pair Correlation Conjecture states that the statistical distribution
+    of the spacings between consecutive non-trivial zeros of the Riemann zeta function
+    is identical to the eigenvalue spacing distribution of large random matrices from
+    the Gaussian Unitary Ensemble (GUE).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:08:32Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Pair correlation function R2(u) converges to 1 - (sin(pi u) / pi u)^2
+  claim_id: c_4332a4c3
+  context: 'If we normalize the zero spacings $\delta_n = \gamma_{n+1} - \gamma_n$
+    by their mean spacing (which is $2\pi / \log \gamma_n$), the pair correlation
+    function $R_2(u)$ converges to: $$ R_2(u) = 1 - \\left( \\frac{\\sin(\\pi u)}{\\pi
+    u} \\right)^2 $$'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pair correlation function $R_2(u)$ converges to $1 - (\\sin(\\pi u)
+    / \\pi u)^2$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:13:26Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Mean spacing between Riemann zeta non-trivial zeros is 2pi / log gamma_n
+  claim_id: c_72700821
+  context: 'If we normalize the zero spacings $\delta_n = \gamma_{n+1} - \gamma_n$
+    by their mean spacing (which is $2\pi / \log \gamma_n$), the pair correlation
+    function $R_2(u)$ converges to:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean spacing between consecutive non-trivial zeros of the Riemann
+    zeta function is $2\pi / \log \gamma_n$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:17:18Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Mean gap between primes is log p
+  claim_id: c_5136d272
+  context: While the mean gap is $\log p_n$, the maximal gap scales as $(\log p_n)^2$.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Riemann hypothesis
+        url: https://en.wikipedia.org/wiki/Riemann_hypothesis
+        value: log p
+      quote: "The first such distribution found is \u03C0(N) ~ \u2060N/log(N)\u2060\
+        , where \u03C0(N) is the prime-counting function (the number of primes less\
+        \ than or equal to N) and log(N) is the natural logarithm of N. This means\
+        \ that for large enough N, the probability that a random integer not greater\
+        \ than N is prime is very close to 1 / log(N). In other words, the average\
+        \ gap between consecutive prime numbers among the first N integers is roughly\
+        \ log(N). Consequently, a random integer with at most 2n digits (for large\
+        \ enough n) is about half as likely to be prime as a random integer with at\
+        \ most n digits. For example, among the positive integers of at most 1000\
+        \ digits, about one in 2300 is prime (log(101000) \u2248 2302.6), whereas\
+        \ among positive integers of at most 2000 digits, about one in 4600 is prime\
+        \ (log(102000) \u2248 4605.2)."
+      source_id: Prime number theorem
+      url: https://en.wikipedia.org/wiki/Prime_number_theorem
+      value: log(N)
+    filled: true
+  kind: entity_fact
+  raw_text: The mean gap between primes is $\log p$.
+  resolved_value: log(N)
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T02:18:04Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Maximal gap between primes scales as log p squared
+  claim_id: c_5c8b232d
+  context: While the mean gap is $\log p_n$, the maximal gap scales as $(\log p_n)^2$.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 7 20831323
+      source_id: A111943
+      url: https://oeis.org/A111943
+      value: '20831323'
+    filled: true
+  kind: numeric
+  raw_text: The maximal gap between primes scales as $(\log p)^2$.
+  resolved_value: '20831323'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T02:18:43Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Largest eigenvalue of NxN GUE matrix converges to Tracy-Widom TW2 distribution
+  claim_id: c_50a87c14
+  context: The extreme value statistics for GUE eigenvalues are governed by the distribution
+    of the largest eigenvalue $\lambda_{max}$ in an $N \times N$ matrix as $N \to
+    \infty$. After centering and scaling, this distribution converges to the **Tracy-Widom
+    distribution** (specifically $TW_2$ for GUE).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Largest_eigenvalue_of_NxN_GUE_matrix_converges_to_Tracy-Wido
+  kind: magnitude
+  raw_text: The distribution of the largest eigenvalue in an $N \times N$ Gaussian
+    Unitary Ensemble matrix, after centering and scaling, converges to the Tracy-Widom
+    distribution $TW_2$.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:21:11Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Tracy-Widom F2(s) defined by integral of square of Painleve II solution
+  claim_id: c_552a5507
+  context: "The CDF is given by: $$ F_2(s) = \\\\exp\\\\left( -\\\\int_s^\\\\infty\
+    \ (t-s) u(t)^2 \\\\, dt \\\\right) $$ where $u(t)$ is the solution to the Painlev\xE9\
+    \ II differential equation."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tracy-Widom_F2(s)_defined_by_integral_of_square_of_Painleve
+  kind: entity_fact
+  raw_text: "The Tracy-Widom distribution $F_2(s)$ is defined by the integral of the\
+    \ square of the solution to the Painlev\xE9 II differential equation."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:21:33Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Tracy and Widom 1994 paper title is Level-spacing distributions and the
+    Airy kernel
+  claim_id: c_8e7dd014
+  context: References 1. Tracy, C. A., & Widom, H. (1994). 'Level-spacing distributions
+    and the Airy kernel'. *Communications in Mathematical Physics*.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Tracy, C. A., & Widom, H. (1994) paper is titled 'Level-spacing distributions
+    and the Airy kernel'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:21:39Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Odlyzko 1987 paper title is On the distribution of spacings between zeros
+    of the zeta function
+  claim_id: c_34032076
+  context: References 2. Odlyzko, A. M. (1987). 'On the distribution of spacings between
+    zeros of the zeta function'. *Mathematics of Computation*.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Odlyzko, A. M. (1987) paper is titled 'On the distribution of spacings
+    between zeros of the zeta function'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:25:37Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Keating and Snaith 2000 paper title is Random matrix theory and zeta(1/2+it)
+  claim_id: c_7d17a6bf
+  context: References 3. Keating, J. P., & Snaith, N. C. (2000). 'Random matrix theory
+    and $\zeta(1/2+it)$'. *Communications in Mathematical Physics*.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Keating, J. P., & Snaith, N. C. (2000) paper is titled 'Random matrix
+    theory and $\zeta(1/2+it)$'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:25:43Z'

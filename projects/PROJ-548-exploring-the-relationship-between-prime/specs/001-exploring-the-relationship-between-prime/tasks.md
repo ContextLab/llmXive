@@ -59,8 +59,8 @@
 - [X] T005 [P] Create configuration management in `src/utils/config.py` (defines N=10^10, W=10^6, file paths, and `WINDOW_STEP` for sliding window stride).
 - [X] T006 Implement deterministic random seed management in `src/utils/config.py` by defining a `GLOBAL_SEED` constant and ensuring all random generators use it. **(Not [P] as it writes to config.py which T005 also edits. Must follow T005.)**
 - [X] T007 Create base data models in `src/utils/models.py` (PrimeGap, ZetaZero, WindowStats entities per spec)
-- [ ] T008a [P] **Initialize State File**: Create and initialize the file `state/projects/PROJ-548-exploring-the-relationship-between-prime.yaml` with the required schema, including an empty `artifact_hashes` map and `updated_at` timestamp, to satisfy Constitution Principles III and V.
-- [ ] T008 [US1] Implement checksumming logic in `src/utils/io.py` for updates to `state/projects/PROJ-548-exploring-the-relationship-between-prime.yaml`. **(Depends on T008a).**
+- [X] T008a [P] **Initialize State File**: Create and initialize the file `state/projects/PROJ-548-exploring-the-relationship-between-prime.yaml` with the required schema, including an empty `artifact_hashes` map and `updated_at` timestamp, to satisfy Constitution Principles III and V.
+- [X] T008 [US1] Implement checksumming logic in `src/utils/io.py` for updates to `state/projects/PROJ-548-exploring-the-relationship-between-prime.yaml`. **(Depends on T008a).**
 - [ ] T010a [US2] **Define Formula**: Author the mathematical definition of the **GUE-derived extreme value CDF** for maximal gaps in `data-model.md`. This includes the Tracy-Widom distribution approximation for GUE maxima and the normalization logic, explicitly deriving it from the pair-correlation distribution required by FR-004. **(Moved to Phase 2 to break circular dependency with T021b).**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -84,7 +84,7 @@
 - [ ] T012 [US1] Implement logic in `src/data/generate_primes.py` to compute consecutive prime gaps and stream results to `data/processed/primes_gaps.csv` (format: `prime_before, prime_after, gap_size, normalized_gap`)
 - [X] T013a [US1] **Verified Accuracy Check**: Implement logic in `src/data/ingest_zeros.py` to verify and fetch zeta zeros from the following **hardcoded verified sources** (per Constitution Principle II):
  1. LMFDB: `https://www.lmfdb.org/api/` (or equivalent API endpoint for first non-trivial zeros)
- 2. Odlyzko: `https://www.dtc.umn.edu/~odlyzko/doc/zeta.zeros.100000.txt`
+ 2. Odlyzko: `
  If these specific URLs are unreachable, the pipeline MUST halt with a clear "Data Unavailable" error. Do NOT fall back to synthetic data. Record verification status in `state/projects/PROJ-548-exploring-the-relationship-between-prime.yaml`.
 - [X] T014 [US1] Implement data validation in `src/data/ingest_zeros.py` to skip malformed zero entries and log warnings. If verification fails, the pipeline MUST halt with a clear error message.
 

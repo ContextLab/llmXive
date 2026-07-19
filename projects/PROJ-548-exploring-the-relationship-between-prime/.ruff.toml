@@ -1,5 +1,5 @@
-# This file is a redundant entry point for ruff configuration.
-# The primary configuration is in pyproject.toml under [tool.ruff].
-# This file ensures 'ruff check .' works if pyproject.toml is ignored
-# or if ruff is invoked specifically targeting this file.
+# This file is a legacy configuration file for ruff.
+# The primary configuration is now in pyproject.toml under [tool.ruff].
+# This file is kept for compatibility with older ruff versions if needed,
+# but pyproject.toml is the source of truth.
 extend = "pyproject.toml"

@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "prime-gap-riemann"
+name = "llmxive-prime-gaps"
 version = "0.1.0"
 description = "Exploring the relationship between prime gaps and the Riemann Hypothesis"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "numpy",
     "scipy",
@@ -18,42 +18,29 @@ dependencies = [
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.ruff]
 line-length = 88
-target-version = "py311"
-include = ["*.py"]
-exclude = [
-    ".eggs",
-    ".git",
-    ".mypy_cache",
-    ".ruff_cache",
-    ".venv",
-    "build",
-    "dist",
-]
-
-[tool.ruff.lint]
+target-version = "py39"
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
-    "F",   # Pyflakes
+    "F",   # pyflakes
     "I",   # isort
     "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
@@ -61,25 +48,20 @@ select = [
 ignore = [
     "E501", # line too long (black handles this)
     "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
 ]
 
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.per-file-ignores]
 "tests/*" = ["S101"] # Allow asserts in tests
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "unit: marks tests as unit tests",
-    "integration: marks tests as integration tests",
-]
