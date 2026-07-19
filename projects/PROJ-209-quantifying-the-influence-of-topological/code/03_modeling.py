@@ -1,369 +1,260 @@
+"""
+code/03_modeling.py
+Implements Random Forest modeling pipeline for 2D material properties.
+Handles feature selection, model training, and cross-validation.
+"""
 import os
 import json
 import logging
+import pickle
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Tuple, Any, Optional
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import KFold, cross_validate
+from sklearn.metrics import r2_score, mean_absolute_percentage_error
+from sklearn.inspection import permutation_importance
+from scipy.stats import variance_inflation_factor
 from pathlib import Path
-import hashlib
-import subprocess
 
-# Local imports based on project structure
-# Assuming these are available in the same directory or added to sys.path
-# The prompt implies they are sibling modules or part of the same package
-try:
-    from infrastructure.path_utils import get_project_root, ensure_dir
-except ImportError:
-    # Fallback for direct execution if infrastructure is not imported correctly
-    def get_project_root():
-        return Path(__file__).parent.parent
-    def ensure_dir(path):
-        os.makedirs(path, exist_ok=True)
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Project root and logging setup
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+def get_project_root() -> Path:
+    return PROJECT_ROOT
+
 def get_git_hash() -> str:
-    """Get the current git commit hash."""
     try:
+        import subprocess
         return subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
     except Exception:
         return "unknown"
 
-def compute_sha256(file_path: str) -> str:
-    """Compute SHA-256 hash of a file."""
+def compute_sha256(filepath: Path) -> str:
+    import hashlib
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
 def ensure_output_directories():
-    """Ensure all required output directories exist."""
-    root = get_project_root()
     dirs = [
-        root / "data" / "processed",
-        root / "data" / "state",
-        root / "data" / "validation"
+        PROJECT_ROOT / "data" / "processed",
+        PROJECT_ROOT / "data" / "state",
+        PROJECT_ROOT / "figures"
     ]
     for d in dirs:
-        ensure_dir(str(d))
+        d.mkdir(parents=True, exist_ok=True)
 
-def load_processed_data() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """
-    Load processed features, targets, and metadata.
-    Expects data/processed/features.csv and data/processed/targets.csv
-    """
-    root = get_project_root()
-    features_path = root / "data" / "processed" / "features.csv"
-    targets_path = root / "data" / "processed" / "targets.csv"
+def load_processed_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Load features and targets from processed data."""
+    features_path = PROJECT_ROOT / "data" / "processed" / "final_features.csv"
+    targets_path = PROJECT_ROOT / "data" / "processed" / "targets.csv"
     
     if not features_path.exists() or not targets_path.exists():
-        raise FileNotFoundError(
-            f"Processed data not found. Expected at {features_path} and {targets_path}. "
-            "Please run T018 (data processing) first."
-        )
+        raise FileNotFoundError(f"Processed data not found. Run T020 first. Expected: {features_path}")
     
-    features = pd.read_csv(features_path)
-    targets = pd.read_csv(targets_path)
-    
-    # Load metadata if exists, otherwise create empty
-    metadata_path = root / "data" / "processed" / "metadata.json"
-    metadata = {}
-    if metadata_path.exists():
-        with open(metadata_path, 'r') as f:
-            metadata = json.load(f)
-    
-    return features, targets, metadata
+    X = pd.read_csv(features_path)
+    y = pd.read_csv(targets_path)
+    return X, y
 
-def compute_vif(X: pd.DataFrame) -> pd.Series:
-    """
-    Compute Variance Inflation Factor (VIF) for each feature.
-    VIF > 5 indicates high collinearity.
-    """
-    # Add constant for intercept if not present
-    if 'intercept' not in X.columns:
-        X_temp = X.copy()
-        X_temp['intercept'] = 1.0
-    else:
-        X_temp = X.copy()
+def load_preliminary_model() -> RandomForestRegressor:
+    """Load the preliminary model trained in T021a."""
+    model_path = PROJECT_ROOT / "data" / "processed" / "preliminary_model.pkl"
+    if not model_path.exists():
+        raise FileNotFoundError(f"Preliminary model not found. Run T021a first. Expected: {model_path}")
     
-    vif_data = pd.Series(index=X.columns, dtype=float)
-    
-    for col in X.columns:
-        # Regress current feature against all other features
-        y = X_temp[col]
-        # Ensure we have at least 2 features to regress against
-        if len(X_temp.columns) > 1:
-            X_other = X_temp.drop(columns=[col])
-            # Fit linear model to get R^2
-            # Using simple OLS from statsmodels if available, else manual
-            try:
-                import statsmodels.api as sm
-                model = sm.OLS(y, sm.add_constant(X_other, has_constant='add'))
-                results = model.fit()
-                r_squared = results.rsquared
-            except ImportError:
-                # Fallback: manual OLS calculation
-                # X_other = sm.add_constant(X_other) # Already handled in sm.OLS logic above usually, but safe to ensure
-                # Actually, for manual: y = X_other @ beta + e
-                # beta = (X^T X)^-1 X^T y
-                # R^2 = 1 - (SS_res / SS_tot)
-                X_other_arr = X_other.values
-                y_arr = y.values
-                
-                # Add constant manually for manual calc
-                X_other_const = np.column_stack([np.ones(len(X_other_arr)), X_other_arr])
-                
-                try:
-                    beta = np.linalg.lstsq(X_other_const, y_arr, rcond=None)[0]
-                    y_pred = X_other_const @ beta
-                    ss_res = np.sum((y_arr - y_pred) ** 2)
-                    ss_tot = np.sum((y_arr - np.mean(y_arr)) ** 2)
-                    r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
-                except np.linalg.LinAlgError:
-                    r_squared = 0.0
-            
-            vif = 1.0 / (1.0 - r_squared) if r_squared < 1.0 else float('inf')
-        else:
-            vif = 1.0 # Only one feature, no collinearity
-        
-        vif_data[col] = vif
-    
+    with open(model_path, 'rb') as f:
+        return pickle.load(f)
+
+def compute_vif(X: pd.DataFrame) -> Dict[str, float]:
+    """Compute Variance Inflation Factor for all features."""
+    vif_data = {}
+    X_const = sm.add_constant(X)
+    for i, col in enumerate(X.columns):
+        try:
+            vif = variance_inflation_factor(X_const.values, i+1) # +1 because of constant
+            vif_data[col] = vif
+        except Exception as e:
+            logger.warning(f"Could not compute VIF for {col}: {e}")
+            vif_data[col] = float('inf')
     return vif_data
 
-def train_initial_rf_for_importance(X: pd.DataFrame, y: pd.Series, 
-                                    target_name: str = "conductivity", 
-                                    random_state: int = 42) -> Dict[str, float]:
-    """
-    Train a preliminary Random Forest to derive initial feature importances.
-    Used for collinearity handling to decide which feature to drop.
-    """
-    from sklearn.ensemble import RandomForestRegressor
-    
-    # Handle non-numeric columns if any (though processed data should be numeric)
-    X_num = X.select_dtypes(include=[np.number])
-    
-    if X_num.empty:
-        logger.warning("No numeric features found for importance training.")
-        return {}
-    
-    model = RandomForestRegressor(
-        n_estimators=100, 
-        random_state=random_state,
-        n_jobs=-1
-    )
-    
-    try:
-        model.fit(X_num, y)
-        importance_dict = dict(zip(X_num.columns, model.feature_importances_))
-        return importance_dict
-    except Exception as e:
-        logger.error(f"Failed to train preliminary RF: {e}")
-        return {}
+def compute_permutation_importance(model: RandomForestRegressor, X: pd.DataFrame, y: pd.DataFrame) -> Dict[str, float]:
+    """Compute permutation importance for all features."""
+    result = permutation_importance(model, X, y, n_repeats=10, random_state=42, scoring='r2')
+    return dict(zip(X.columns, result.importances_mean))
 
-def save_preliminary_importance(importance_dict: Dict[str, float], target_name: str):
-    """Save preliminary importance scores to JSON."""
-    root = get_project_root()
-    output_path = root / "data" / "processed" / "preliminary_importance.json"
+def run_feature_selection_loop(X: pd.DataFrame, y: pd.DataFrame, model: RandomForestRegressor) -> Tuple[pd.DataFrame, Dict]:
+    """Iteratively remove lowest importance features until VIF <= 5."""
+    log = {"iterations": [], "final_vif": {}, "excluded_features": []}
+    current_X = X.copy()
     
-    data = {
-        "target": target_name,
-        "importances": importance_dict,
-        "git_hash": get_git_hash()
-    }
-    
-    with open(output_path, 'w') as f:
-        json.dump(data, f, indent=2)
-    logger.info(f"Preliminary importance saved to {output_path}")
-
-def run_preliminary_model_training(features: pd.DataFrame, targets: pd.DataFrame):
-    """
-    Step 4.1: Preliminary Model Training.
-    Trains RFs for each target to get initial importances.
-    """
-    ensure_output_directories()
-    
-    # Iterate over targets
-    target_cols = [c for c in targets.columns if c not in ['defect_id', 'material_id']]
-    
-    for target_name in target_cols:
-        y = targets[target_name]
-        # Drop non-numeric columns from features if any
-        X = features.select_dtypes(include=[np.number])
+    max_iter = 10
+    for i in range(max_iter):
+        vif = compute_vif(current_X)
+        max_vif = max(vif.values()) if vif else 0
         
-        if X.empty:
-            logger.warning(f"No numeric features for target {target_name}")
-            continue
+        if max_vif <= 5:
+            logger.info(f"VIF condition met after {i} iterations. Max VIF: {max_vif:.2f}")
+            break
         
-        importance = train_initial_rf_for_importance(X, y, target_name)
-        save_preliminary_importance(importance, target_name)
+        logger.info(f"Iteration {i}: Max VIF = {max_vif:.2f}. Selecting features...")
+        importances = compute_permutation_importance(model, current_X, y)
+        min_feat = min(importances, key=importances.get)
+        
+        log["iterations"].append({
+            "iteration": i,
+            "max_vif": max_vif,
+            "removed_feature": min_feat,
+            "importance": importances[min_feat]
+        })
+        log["excluded_features"].append(min_feat)
+        
+        current_X = current_X.drop(columns=[min_feat])
+        
+        # Re-train model on reduced features for next iteration's importance calculation
+        model.fit(current_X, y)
+    
+    log["final_vif"] = compute_vif(current_X)
+    return current_X, log
 
-def handle_collinearity(features: pd.DataFrame, targets: pd.DataFrame, 
-                        max_iterations: int = 10, vif_threshold: float = 5.0) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def save_feature_selection_log(log: Dict):
+    """Save feature selection log to JSON."""
+    path = PROJECT_ROOT / "data" / "processed" / "feature_selection_log.json"
+    with open(path, 'w') as f:
+        json.dump(log, f, indent=2)
+    logger.info(f"Feature selection log saved to {path}")
+
+def load_confounding_config() -> Dict:
+    """Load confounding configuration from T027a."""
+    path = PROJECT_ROOT / "data" / "processed" / "confounding_config.json"
+    if not path.exists():
+        logger.warning("Confounding config not found. Proceeding without stratification/covariates.")
+        return {}
+    with open(path, 'r') as f:
+        return json.load(f)
+
+def train_models(X: pd.DataFrame, y: pd.DataFrame) -> Dict[str, RandomForestRegressor]:
+    """Train final Random Forest models for each target property."""
+    models = {}
+    for col in y.columns:
+        logger.info(f"Training model for {col}...")
+        rf = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
+        rf.fit(X, y[col])
+        models[col] = rf
+        logger.info(f"Model for {col} trained.")
+    return models
+
+def check_vif_after_training(X: pd.DataFrame):
+    """Check VIF after training to ensure no collinearity issues were introduced."""
+    vif = compute_vif(X)
+    max_vif = max(vif.values()) if vif else 0
+    if max_vif > 5:
+        logger.warning(f"VIF > 5 after training (Max: {max_vif}). Consider re-running feature selection.")
+        return False
+    return True
+
+def run_cross_validation(models: Dict[str, RandomForestRegressor], X: pd.DataFrame, y: pd.DataFrame) -> Dict[str, Dict]:
     """
-    Step 4: Collinearity Handling.
-    Computes VIF, iteratively removes low-importance features until VIF <= 5 or max iterations reached.
-    Uses preliminary importance to decide which feature to drop.
+    Perform 5-fold cross-validation on all models.
+    Computes mean R², MAPE, and standard deviation of R².
+    Flags HIGH_VARIANCE if cv_std > 0.1.
     """
-    ensure_output_directories()
-    root = get_project_root()
+    results = {}
+    kf = KFold(n_splits=5, shuffle=True, random_state=42)
     
-    log_data = {
-        "iterations": [],
-        "final_vif": {},
-        "excluded_features": [],
-        "status": "SUCCESS"
-    }
-    
-    current_features = features.copy()
-    # Ensure we only have numeric features for VIF
-    current_features = current_features.select_dtypes(include=[np.number])
-    
-    # Get preliminary importances for the first target (or aggregate if needed)
-    # For simplicity, we use the first target found in targets
-    target_cols = [c for c in targets.columns if c not in ['defect_id', 'material_id']]
-    if not target_cols:
-        logger.error("No target columns found.")
-        return current_features, log_data
-    
-    primary_target = target_cols[0]
-    y = targets[primary_target]
-    
-    # Load preliminary importance if exists, else train one
-    importance_path = root / "data" / "processed" / "preliminary_importance.json"
-    if importance_path.exists():
-        with open(importance_path, 'r') as f:
-            prelim_data = json.load(f)
-            if prelim_data.get("target") == primary_target:
-                importance_map = prelim_data.get("importances", {})
+    for target_name, model in models.items():
+        logger.info(f"Performing 5-fold CV for {target_name}...")
+        y_target = y[target_name]
+        
+        # Use cross_validate for R²
+        cv_results_r2 = cross_validate(model, X, y_target, cv=kf, scoring='r2', n_jobs=-1)
+        r2_scores = cv_results_r2['test_score']
+        
+        # Manual MAPE calculation because sklearn's mean_absolute_percentage_error doesn't have CV wrapper
+        mape_scores = []
+        for train_idx, test_idx in kf.split(X):
+            X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
+            y_train, y_test = y_target.iloc[train_idx], y_target.iloc[test_idx]
+            y_pred = model.fit(X_train, y_train).predict(X_test)
+            # Handle zero values in y_test to avoid division by zero
+            mask = y_test != 0
+            if mask.sum() > 0:
+                mape = mean_absolute_percentage_error(y_test[mask], y_pred[mask])
             else:
-                importance_map = train_initial_rf_for_importance(current_features, y, primary_target)
-    else:
-        importance_map = train_initial_rf_for_importance(current_features, y, primary_target)
-    
-    iteration = 0
-    while iteration < max_iterations:
-        # Compute VIF
-        vif_series = compute_vif(current_features)
-        max_vif = vif_series.max()
+                mape = 0.0
+            mape_scores.append(mape)
         
-        log_entry = {
-            "iteration": iteration,
-            "max_vif": float(max_vif),
-            "remaining_features": list(current_features.columns)
+        mean_r2 = np.mean(r2_scores)
+        std_r2 = np.std(r2_scores)
+        mean_mape = np.mean(mape_scores)
+        
+        variance_flag = "HIGH_VARIANCE" if std_r2 > 0.1 else "OK"
+        
+        results[target_name] = {
+            "mean_r2": float(mean_r2),
+            "std_r2": float(std_r2),
+            "mean_mape": float(mean_mape),
+            "variance_flag": variance_flag,
+            "r2_scores": r2_scores.tolist(),
+            "mape_scores": mape_scores
         }
         
-        logger.info(f"Iteration {iteration}: Max VIF = {max_vif:.2f}")
-        
-        if max_vif <= vif_threshold:
-            log_entry["action"] = "STOP: VIF acceptable"
-            log_data["iterations"].append(log_entry)
-            log_data["status"] = "SUCCESS"
-            break
-        
-        # Find feature with highest VIF
-        # If multiple, pick the one with lowest importance
-        high_vif_features = vif_series[vif_series > vif_threshold]
-        
-        if high_vif_features.empty:
-            break
-        
-        # Sort by VIF descending, then by importance ascending (to drop low importance among high VIF)
-        # If importance missing, assume 0
-        candidates = high_vif_features.to_dict()
-        sorted_candidates = sorted(
-            candidates.items(), 
-            key=lambda x: (x[1], importance_map.get(x[0], 0.0)), 
-            reverse=True
-        )
-        
-        # Actually, we want to drop the one with LOWEST importance among those with HIGH VIF
-        # So sort by importance ASC
-        sorted_by_importance = sorted(
-            candidates.items(),
-            key=lambda x: importance_map.get(x[0], 0.0)
-        )
-        
-        feature_to_drop = sorted_by_importance[0][0]
-        
-        log_entry["action"] = f"DROP: {feature_to_drop} (VIF={candidates[feature_to_drop]:.2f}, Imp={importance_map.get(feature_to_drop, 0.0):.4f})"
-        log_data["excluded_features"].append(feature_to_drop)
-        log_data["iterations"].append(log_entry)
-        
-        # Drop feature
-        current_features = current_features.drop(columns=[feature_to_drop])
-        
-        # Re-train preliminary model? 
-        # The task says "re-train model, re-calculate VIF". 
-        # We assume the importance map is updated or we just re-calculate VIF.
-        # To be safe, we could re-calculate importance, but VIF is the primary driver here.
-        # We'll stick to re-calculating VIF.
-        
-        if current_features.empty:
-            log_entry["action"] = "STOP: No features left"
-            log_data["iterations"].append(log_entry)
-            log_data["status"] = "FAILURE_NO_FEATURES"
-            break
-        
-        iteration += 1
+        logger.info(f"CV Results for {target_name}: R²={mean_r2:.4f} (±{std_r2:.4f}), MAPE={mean_mape:.4f} [{variance_flag}]")
     
-    if iteration >= max_iterations and compute_vif(current_features).max() > vif_threshold:
-        log_data["status"] = "VIF_FAILURE"
-        logger.warning(f"VIF > {vif_threshold} after {max_iterations} iterations. Marked as VIF_FAILURE.")
-    
-    final_vif = compute_vif(current_features).to_dict()
-    log_data["final_vif"] = {k: float(v) for k, v in final_vif.items()}
-    
-    return current_features, log_data
+    return results
 
-def save_feature_selection_log(log_data: Dict[str, Any]):
-    """Save feature selection log to JSON."""
-    root = get_project_root()
-    output_path = root / "data" / "processed" / "feature_selection_log.json"
-    
-    with open(output_path, 'w') as f:
-        json.dump(log_data, f, indent=2)
-    logger.info(f"Feature selection log saved to {output_path}")
+def save_cv_results(results: Dict):
+    """Save cross-validation results to JSON."""
+    path = PROJECT_ROOT / "data" / "processed" / "cv_results.json"
+    with open(path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"CV results saved to {path}")
 
 def main():
-    """Main entry point for T020: Collinearity Handling."""
-    logger.info("Starting T020: Collinearity Handling")
+    """Main entry point for T022: Cross-Validation Step."""
+    logger.info("Starting T022: Cross-Validation Step")
     ensure_output_directories()
     
     try:
         # Load data
-        features, targets, metadata = load_processed_data()
-        logger.info(f"Loaded {len(features)} samples with {len(features.columns)} features.")
+        X, y = load_processed_data()
+        logger.info(f"Loaded data: {X.shape} features, {y.shape} targets")
         
-        # Step 4.1: Preliminary Model Training (if not done yet, though T020a should have done it)
-        # We check if preliminary_importance.json exists
-        root = get_project_root()
-        importance_path = root / "data" / "processed" / "preliminary_importance.json"
-        if not importance_path.exists():
-            logger.info("Preliminary importance not found. Running preliminary training.")
-            run_preliminary_model_training(features, targets)
+        # Load models (trained in T021)
+        # Note: T021 trains models. We assume they are saved or we re-train the final ones here if not saved.
+        # The task description says "Perform k-fold cross-validation on the models trained in T021".
+        # We need to ensure the models from T021 are available. 
+        # If T021 saved them, we load. If not, we re-train the final models based on the final features.
+        # Given the flow, T021 should have saved models. Let's try to load or re-train if missing.
         
-        # Step 4: Collinearity Handling
-        final_features, log_data = handle_collinearity(features, targets)
+        models_path = PROJECT_ROOT / "data" / "processed" / "final_models.pkl"
+        if models_path.exists():
+            with open(models_path, 'rb') as f:
+                models = pickle.load(f)
+            logger.info("Loaded final models from T021.")
+        else:
+            logger.warning("Final models not found. Re-training on final features for CV.")
+            models = train_models(X, y)
+            # Save for future steps
+            with open(models_path, 'wb') as f:
+                pickle.dump(models, f)
         
-        # Save outputs
-        final_features_path = root / "data" / "processed" / "final_features.csv"
-        final_features.to_csv(final_features_path, index=False)
-        logger.info(f"Final features saved to {final_features_path}")
+        # Run Cross-Validation
+        cv_results = run_cross_validation(models, X, y)
         
-        save_feature_selection_log(log_data)
+        # Save results
+        save_cv_results(cv_results)
         
-        logger.info("T020 completed successfully.")
-        return 0
+        logger.info("T022 Cross-Validation completed successfully.")
         
     except Exception as e:
-        logger.error(f"T020 failed: {e}", exc_info=True)
-        return 1
+        logger.error(f"T022 failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()
