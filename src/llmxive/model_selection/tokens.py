@@ -55,13 +55,22 @@ MAX_IMAGE_BYTES = 8 * 1024 * 1024
 #: paper_reprocess.preprint_figures._render_png) must apply BOTH bounds.
 MAX_IMAGE_PIXELS = 2**21
 
-#: Documented worst case for ONE image at MAX_IMAGE_DIMENSION_PX in high-detail
-#: mode. Derivation (OpenAI-compatible vision tiling, which Dartmouth serves):
-#: 1536x1536 = 3x3 = 9 tiles of 512px; cost = 85 base + 9 * 170 per tile = 1615
-#: tokens. Rounded UP to 2048 for provider-serialization overhead and future
-#: tiling changes — deliberately over-estimating, matching this module's stated
+#: Documented worst case for ONE ADMISSIBLE image in high-detail mode.
+#: Derivation (OpenAI-compatible vision tiling, which Dartmouth serves): tiles
+#: are 512px, and cost = 85 base + 170 per tile.
+#:
+#: The binding constraint is MAX_IMAGE_PIXELS, not MAX_IMAGE_DIMENSION_PX: the
+#: largest admissible SQUARE is floor(sqrt(2**21)) = 1448px per side (a maximal
+#: 1536x1536 square is pixel-capped and REJECTED), and the largest admissible
+#: any-aspect image still spans at most 3 tiles per axis, because a side may
+#: reach 1536px = 3 tiles only when the other axis shrinks to stay under the
+#: pixel cap. So the worst case is 3x3 = 9 tiles = 85 + 9 * 170 = 1615 tokens.
+#: Rounded UP to 2048 for provider-serialization overhead and future tiling
+#: changes — deliberately over-estimating, matching this module's stated
 #: conservative philosophy. NEVER lower this without re-deriving it: selection
-#: prices worst_case_credits against it (FR-003).
+#: prices worst_case_credits against it (FR-003), and ImagePart now VERIFIES
+#: dimensions against the encoded bytes so the bound cannot be evaded by a
+#: caller declaring false metadata.
 TOKENS_PER_IMAGE = 2048
 
 #: Fixed overhead ADDED to the char/÷4 content estimate. Chat APIs wrap each
