@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-844-llmxive-follow-up-extending-mega-asr-tow",
+  "ok": false,
+  "reason": "every produced artifact is gitignored (data/derived/resource_monitoring_report.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python code/data_loader.py --download (rc=1); python code/data_loader.py --verify (rc=1); python code/main.py --config code/config.yaml (rc=1); 3 declared deliverable(s) absent: data/derived/regression_results.json; data/derived/sensitivity_analysis.csv; data/validation/human_annotations.csv",
+  "artifacts": [
+    "data/derived/resource_monitoring_report.json"
+  ],
+  "failures": [
+    "python code/data_loader.py --download -> rc=1\n    download the dataset.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 223, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 202, in main\n    librispeech_data = load_librispeech_subset(config)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extendin",
+    "python code/data_loader.py --verify -> rc=1\n    download the dataset.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 223, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 202, in main\n    librispeech_data = load_librispeech_subset(config)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-",
+    "python code/main.py --config code/config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/main.py\", line 20, in <module>\n    from distortion_engine import DistortionEngine, generate_all_distortion_vectors\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/distortion_engine.py\", line 4, in <module>\n    from typing import List, DistortionConfig, Dict, Tuple, Optional, Any\nImportError: cannot import name 'DistortionConfig' from 'typing",
+    "python code/analysis.py --validate-sss -> rc=1\n    INFO:__main__:Loading sensitivity analysis data...\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/analysis.py\", line 275, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/analysis.py\", line 239, in main\n    sensitivity_data = load_sensitivity_analysis(config)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-84"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-19T09:55:16Z"
+}

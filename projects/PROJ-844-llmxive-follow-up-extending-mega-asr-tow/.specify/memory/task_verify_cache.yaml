@@ -1,8 +1,16 @@
-T030b:
+T015:
   c: false
-  h: e08dd2ef99a85e77e98fe72b8d66a2ee74bcbd201151cc38426d9caaa5a2ff23
-  r: "The repository lacks the required input files `data/validation/human_annotations.csv`\
-    \ and `data/derived/stress_curves.parquet`, so the HVCM target cannot be derived.\
-    \ Moreover, the provided `code/metrics.py` excerpt shows only SSS/WER utilities\
-    \ and does not contain any function that reads those files or computes the Human\u2011\
-    Validated Collapse Margin. Both the data and the core implementation are missing."
+  h: 9b5737eec656975b53e5fd285e6a2ad692631633c344685fe9813e9e1e8ea2ff
+  r: The repository contains a `code/main.py` file, but the shown excerpt stops before
+    any CLI argument parsing or logic that writes a `stress_curves.parquet` file,
+    and the required `data/derived/stress_curves.parquet` file is absent. Consequently
+    the orchestration script does not demonstrably generate and save the stress curves
+    as specified.
+T030a:
+  c: false
+  h: 6dabf4eaddb3c094b03ecfd28b6e272cc12df07a27bca54c4b14d521ea9060a2
+  r: "The required `data/validation/human_annotations.csv` file is absent, and the\
+    \ provided script itself admits it can only produce a template with placeholder\
+    \ or simulated scores\u2014not genuine human\u2011annotated intelligibility ratings.\
+    \ Both the missing output file and the reliance on simulated data mean the task\u2019\
+    s core requirement is not satisfied."

@@ -1,57 +1,39 @@
-"""
-Configuration module for llmXive project.
-Defines paths, seeds, and hyperparameters.
-"""
 import os
 from pathlib import Path
 from typing import Dict, Any
 
-PROJECT_ROOT = Path(__file__).parent.parent
-
-# Data Paths
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_DERIVED_DIR = PROJECT_ROOT / "data" / "derived"
-DATA_VALIDATION_DIR = PROJECT_ROOT / "data" / "validation"
-
-# Hyperparameters
-RANDOM_SEED = 42
-VALIDATION_SAMPLE_SIZE = 500
-
-# ASR Models
-ASR_MODEL_NAME = "whisper-tiny"
-EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
-
-# Thresholds
-COLLAPSE_SSS_THRESHOLD = 0.5
-COLLAPSE_WER_MULTIPLIER = 2.0
-
-# Distortion Parameters
-SNR_RANGE = (0, 30)  # dB
-RT60_RANGE = (0.1, 2.0)  # seconds
-
 def get_config() -> Dict[str, Any]:
     """
-    Returns the configuration dictionary.
+    Returns the project configuration dictionary.
+    This function centralizes all paths, seeds, and hyperparameters.
     """
-    return {
-        "paths": {
-            "raw": str(DATA_RAW_DIR),
-            "derived": str(DATA_DERIVED_DIR),
-            "validation": str(DATA_VALIDATION_DIR),
-            "project_root": str(PROJECT_ROOT)
-        },
-        "hyperparameters": {
-            "random_seed": RANDOM_SEED,
-            "validation_sample_size": VALIDATION_SAMPLE_SIZE,
-            "collapse_sss_threshold": COLLAPSE_SSS_THRESHOLD,
-            "collapse_wer_multiplier": COLLAPSE_WER_MULTIPLIER
-        },
-        "models": {
-            "asr": ASR_MODEL_NAME,
-            "embedding": EMBEDDING_MODEL_NAME
-        },
-        "distortion": {
-            "snr_range": SNR_RANGE,
-            "rt60_range": RT60_RANGE
-        }
+    project_root = Path(__file__).resolve().parent.parent
+    
+    config = {
+        "project_root": str(project_root),
+        "data_raw": str(project_root / "data" / "raw"),
+        "data_derived": str(project_root / "data" / "derived"),
+        "data_validation": str(project_root / "data" / "validation"),
+        "code_path": str(project_root / "code"),
+        "derived_path": str(project_root / "data" / "derived"),  # Explicitly added for analysis.py
+        
+        # Random seeds for reproducibility
+        "random_seed": 42,
+        "np_seed": 42,
+        
+        # Hyperparameters
+        "thresholds": [0.40, 0.45, 0.50, 0.55, 0.60],
+        "distortion_count": 10,
+        "snr_range": (-20, 20),
+        "rt60_range": (0.1, 1.5),
+        
+        # ASR and Embedding models
+        "asr_model": "whisper-tiny",
+        "embedding_model": "all-MiniLM-L6-v2",
+        
+        # Resource limits
+        "max_workers": 4,
+        "batch_size": 16,
     }
+    
+    return config

@@ -1,266 +1,125 @@
-"""
-Base entity classes for the llmXive automated science pipeline.
-
-Defines the core data structures for audio clips, distortion vectors,
-and stress curves used throughout the semantic collapse threshold analysis.
-"""
-
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 import json
 import hashlib
+import numpy as np
 
-
-@dataclass(frozen=True)
+@dataclass
 class AudioClip:
-    """
-    Represents a single audio sample with its metadata.
-
-    Attributes:
-        path: Absolute or relative path to the audio file.
-        speaker_id: Unique identifier for the speaker.
-        transcript: Ground truth text transcription.
-        snr_bucket: Signal-to-Noise Ratio bucket assignment (e.g., "clean", "low_snr").
-        duration_seconds: Duration of the audio clip in seconds.
-        sample_rate: Audio sample rate in Hz.
-    """
-    path: str
+    """Represents a single audio clip with metadata."""
+    clip_id: str
     speaker_id: str
     transcript: str
-    snr_bucket: str
-    duration_seconds: float
-    sample_rate: int
+    audio_path: str
+    snr_db: Optional[float] = None
+    rt60: Optional[float] = None
 
-    def __post_init__(self):
-        # Validate path existence if it's a local file path (optional check)
-        # We do not enforce existence here to allow for lazy loading or remote paths
-        if not isinstance(self.path, str):
-            raise TypeError("path must be a string")
-        if not isinstance(self.speaker_id, str):
-            raise TypeError("speaker_id must be a string")
-        if not isinstance(self.transcript, str):
-            raise TypeError("transcript must be a string")
-        if not isinstance(self.snr_bucket, str):
-            raise TypeError("snr_bucket must be a string")
-        if not isinstance(self.duration_seconds, (int, float)):
-            raise TypeError("duration_seconds must be numeric")
-        if not isinstance(self.sample_rate, int):
-            raise TypeError("sample_rate must be an integer")
-
-    @property
-    def id(self) -> str:
-        """Generate a unique ID based on path hash."""
-        return hashlib.md5(self.path.encode()).hexdigest()[:12]
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return {
-            "path": self.path,
-            "speaker_id": self.speaker_id,
-            "transcript": self.transcript,
-            "snr_bucket": self.snr_bucket,
-            "duration_seconds": self.duration_seconds,
-            "sample_rate": self.sample_rate,
-            "id": self.id
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AudioClip":
-        """Create an AudioClip instance from a dictionary."""
-        return cls(
-            path=data["path"],
-            speaker_id=data["speaker_id"],
-            transcript=data["transcript"],
-            snr_bucket=data["snr_bucket"],
-            duration_seconds=data["duration_seconds"],
-            sample_rate=data["sample_rate"]
-        )
-
-
-@dataclass(frozen=True)
+@dataclass
 class DistortionVector:
-    """
-    Represents a specific combination of acoustic distortions.
-
-    Attributes:
-        vector_id: Unique identifier for this distortion combination.
-        snr_db: Signal-to-Noise Ratio in decibels.
-        rt60_seconds: Reverberation time (RT60) in seconds.
-        distortion_type: Label for the type of distortion (e.g., "compound_snr_rt60").
-        intensity: Normalized intensity level (0.0 to 1.0) if applicable.
-    """
+    """Represents a specific combination of distortion parameters."""
     vector_id: str
     snr_db: float
-    rt60_seconds: float
-    distortion_type: str = "compound_snr_rt60"
-    intensity: Optional[float] = None
-
-    def __post_init__(self):
-        if not isinstance(self.vector_id, str):
-            raise TypeError("vector_id must be a string")
-        if not isinstance(self.snr_db, (int, float)):
-            raise TypeError("snr_db must be numeric")
-        if not isinstance(self.rt60_seconds, (int, float)):
-            raise TypeError("rt60_seconds must be numeric")
-        if self.intensity is not None and not isinstance(self.intensity, (int, float)):
-            raise TypeError("intensity must be numeric or None")
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return {
-            "vector_id": self.vector_id,
-            "snr_db": self.snr_db,
-            "rt60_seconds": self.rt60_seconds,
-            "distortion_type": self.distortion_type,
-            "intensity": self.intensity
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "DistortionVector":
-        """Create a DistortionVector instance from a dictionary."""
-        return cls(
-            vector_id=data["vector_id"],
-            snr_db=data["snr_db"],
-            rt60_seconds=data["rt60_seconds"],
-            distortion_type=data.get("distortion_type", "compound_snr_rt60"),
-            intensity=data.get("intensity")
-        )
-
+    rt60: float
+    distortion_type: str = "compound"
 
 @dataclass
 class StressCurve:
+    """Represents a stress curve for a specific clip and distortion scenario."""
+    clip_id: str
+    model_id: str
+    scenario_id: str
+    points: List[Dict[str, Any]] = field(default_factory=list)
+    collapse_point: Optional[Dict[str, Any]] = None
+
+def generate_interaction_terms(df: np.ndarray, feature_indices: List[int]) -> np.ndarray:
     """
-    Represents the stress curve for a single audio clip under a specific distortion scenario.
+    Generate interaction terms (SNR×RT60, SNR², RT60²) for regression features.
 
-    This entity aggregates the results of applying multiple distortion intensities
-    to a single audio clip, tracking the Semantic Similarity Score (SSS) and
-    Word Error Rate (WER) at each step.
+    Args:
+        df: Input feature array (N x M)
+        feature_indices: Indices of SNR and RT60 columns [snr_idx, rt60_idx]
 
-    Attributes:
-        audio_clip: The AudioClip being tested.
-        distortion_vector: The base DistortionVector configuration for this curve.
-        data_points: List of dictionaries containing intensity, sss, wer, and hypothesis.
-        collapse_point: The intensity value where semantic collapse is detected (if any).
-        baseline_sss: The SSS at intensity 0 (clean audio).
-        baseline_wer: The WER at intensity 0 (clean audio).
+    Returns:
+        Extended feature array with interaction terms appended.
     """
-    audio_clip: AudioClip
-    distortion_vector: DistortionVector
-    data_points: List[Dict[str, Any]] = field(default_factory=list)
-    collapse_point: Optional[float] = None
-    baseline_sss: Optional[float] = None
-    baseline_wer: Optional[float] = None
+    if len(feature_indices) != 2:
+        raise ValueError("feature_indices must contain exactly 2 indices: [snr_idx, rt60_idx]")
 
-    def add_point(self, intensity: float, sss: float, wer: float, hypothesis: str):
-        """
-        Add a data point to the stress curve.
+    snr_idx, rt60_idx = feature_indices
+    snr = df[:, snr_idx]
+    rt60 = df[:, rt60_idx]
 
-        Args:
-            intensity: The distortion intensity level (0.0 to 1.0).
-            sss: Semantic Similarity Score.
-            wer: Word Error Rate.
-            hypothesis: The ASR hypothesis text.
-        """
-        if not isinstance(intensity, (int, float)):
-            raise TypeError("intensity must be numeric")
-        if not isinstance(sss, (int, float)):
-            raise TypeError("sss must be numeric")
-        if not isinstance(wer, (int, float)):
-            raise TypeError("wer must be numeric")
-        if not isinstance(hypothesis, str):
-            raise TypeError("hypothesis must be a string")
+    interaction_snr_rt60 = snr * rt60
+    snr_sq = snr ** 2
+    rt60_sq = rt60 ** 2
 
-        point = {
-            "intensity": intensity,
-            "sss": sss,
-            "wer": wer,
-            "hypothesis": hypothesis
-        }
-        self.data_points.append(point)
+    interaction_terms = np.column_stack([interaction_snr_rt60, snr_sq, rt60_sq])
+    return np.hstack([df, interaction_terms])
 
-        # Update baselines if this is the first point (intensity 0)
-        if intensity == 0.0:
-            self.baseline_sss = sss
-            self.baseline_wer = wer
+def validate_hvcm_target(
+    training_data_path: str,
+    required_columns: List[str] = None
+) -> bool:
+    """
+    Enforce FR-011: Assert that the regression target (HVCM) is derived from 
+    human annotations and not from the SSS metric itself.
 
-    def get_curve_data(self) -> List[Dict[str, Any]]:
-        """Return the sorted list of data points."""
-        return sorted(self.data_points, key=lambda x: x["intensity"])
+    This function reads the training data (typically a parquet or CSV containing 
+    stress curve data merged with human annotations) and verifies the presence 
+    of the `human_intelligibility_score` column. If this column is missing, 
+    it raises a RuntimeError to prevent circularity where the model predicts 
+    a metric derived from itself.
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert the entire curve to a dictionary for serialization."""
-        return {
-            "audio_clip_id": self.audio_clip.id,
-            "audio_clip_path": self.audio_clip.path,
-            "speaker_id": self.audio_clip.speaker_id,
-            "distortion_vector_id": self.distortion_vector.vector_id,
-            "distortion_params": self.distortion_vector.to_dict(),
-            "data_points": self.get_curve_data(),
-            "collapse_point": self.collapse_point,
-            "baseline_sss": self.baseline_sss,
-            "baseline_wer": self.baseline_wer
-        }
+    Args:
+        training_data_path: Path to the training data file (CSV or Parquet).
+        required_columns: List of columns that must be present. Defaults to 
+                          checking for 'human_intelligibility_score'.
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "StressCurve":
-        """Create a StressCurve instance from a dictionary."""
-        audio_clip = AudioClip.from_dict({
-            "path": data["audio_clip_path"],
-            "speaker_id": data["speaker_id"],
-            "transcript": "", # Transcript not stored in curve dict usually, or needs separate lookup
-            "snr_bucket": "", # Similar to above
-            "duration_seconds": 0.0,
-            "sample_rate": 0
-        })
-        # Note: Reconstructing AudioClip fully requires transcript/duration which might not be in the curve file.
-        # For now, we create a minimal clip or assume external lookup.
-        # To make this robust, we might just store the ID and look up the full object.
-        # However, for serialization round-trip, we assume the caller handles the full object reconstruction
-        # or we store minimal necessary info. Here we store the ID and path.
+    Raises:
+        RuntimeError: If 'human_intelligibility_score' is missing from the data,
+                      indicating a potential circularity violation.
+        FileNotFoundError: If the training data file does not exist.
+        ValueError: If the file format is unsupported or unreadable.
+    """
+    if required_columns is None:
+        required_columns = ["human_intelligibility_score"]
 
-        # A better approach for from_dict is to expect the full audio_clip dict if available,
-        # or reconstruct a minimal one. Let's assume the dict passed has the necessary fields for AudioClip
-        # if they were serialized. If not, we rely on the ID.
-        
-        # For simplicity in this base class, we assume the dict contains the full audio_clip data
-        # if it was serialized via to_dict.
-        if "audio_clip" in data:
-            audio_clip = AudioClip.from_dict(data["audio_clip"])
+    path = Path(training_data_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Training data file not found: {training_data_path}")
+
+    # Determine loader based on extension
+    suffix = path.suffix.lower()
+    try:
+        if suffix == '.csv':
+            import pandas as pd
+            df = pd.read_csv(path)
+        elif suffix == '.parquet':
+            import pandas as pd
+            df = pd.read_parquet(path)
         else:
-            # Fallback if only ID/path available (common in derived data)
-            audio_clip = AudioClip(
-                path=data.get("audio_clip_path", "unknown"),
-                speaker_id=data.get("speaker_id", "unknown"),
-                transcript="",
-                snr_bucket="",
-                duration_seconds=0.0,
-                sample_rate=16000
+            raise ValueError(f"Unsupported file format: {suffix}. Expected .csv or .parquet.")
+    except ImportError:
+        raise RuntimeError("Pandas is required to validate training data. Install it via 'pip install pandas'.")
+
+    # Check for the critical human annotation column
+    missing_cols = [col for col in required_columns if col not in df.columns]
+    
+    if missing_cols:
+        # Specifically check for the HVCM breaking condition
+        if "human_intelligibility_score" in missing_cols:
+            raise RuntimeError(
+                f"CAUSALITY VIOLATION DETECTED: Training data at '{training_data_path}' "
+                f"is missing the 'human_intelligibility_score' column. "
+                f"Per FR-011, the HVCM target MUST be derived from human annotations. "
+                f"Without this column, the model would predict SSS-based collapse points, "
+                f"creating a circular dependency. Please ensure the training dataset includes "
+                f"merged human validation data (see T030a)."
             )
+        else:
+            raise ValueError(f"Training data is missing required columns: {missing_cols}")
 
-        distortion_vector = DistortionVector.from_dict(data["distortion_params"])
-
-        curve = cls(
-            audio_clip=audio_clip,
-            distortion_vector=distortion_vector,
-            data_points=data.get("data_points", []),
-            collapse_point=data.get("collapse_point"),
-            baseline_sss=data.get("baseline_sss"),
-            baseline_wer=data.get("baseline_wer")
-        )
-        return curve
-
-    def save_to_json(self, filepath: str):
-        """Save the stress curve to a JSON file."""
-        path = Path(filepath)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(self.to_dict(), f, indent=2)
-
-    @classmethod
-    def load_from_json(cls, filepath: str) -> "StressCurve":
-        """Load a stress curve from a JSON file."""
-        path = Path(filepath)
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return cls.from_dict(data)
+    logging.info(f"Validation passed: Training data contains human_intelligibility_score. "
+                 f"Shape: {df.shape}, Columns: {list(df.columns)}")
+    return True

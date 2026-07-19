@@ -1,412 +1,297 @@
-"""
-metrics.py - Semantic Similarity Score (SSS) and WER calculations.
-
-Implements FR-003 (SSS via all-MiniLM-L6-v2) and FR-009 (WER via jiwer).
-Also implements T030b (HVCM) and T020b/c (baseline calculations) as required by downstream tasks.
-"""
 import os
+import sys
 import json
 import logging
 import math
 import csv
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any, Union
-
 import numpy as np
 import pandas as pd
+
+# Defensive CPU Enforcement: Check for CUDA/GPU immediately upon import
+# This ensures the "Fail Loudly" principle is enforced before any heavy computation begins.
+def _enforce_cpu_only():
+    """
+    Raises RuntimeError immediately if any CUDA device is detected or if GPU libraries
+    are inadvertently configured for GPU usage.
+    """
+    # Check PyTorch if available
+    try:
+        import torch
+        if torch.cuda.is_available():
+            raise RuntimeError(
+                "CUDA is available. This project is strictly CPU-only to ensure reproducibility "
+                "and avoid silent GPU fallbacks. Please set CUDA_VISIBLE_DEVICES='' or "
+                "uninstall torch with CUDA support, or explicitly configure models to use CPU."
+            )
+        # Check if any GPU device is registered even if not currently available (rare edge case)
+        if torch.cuda.device_count() > 0:
+            raise RuntimeError(
+                f"Detected {torch.cuda.device_count()} CUDA device(s). "
+                "This pipeline enforces CPU-only execution. "
+                "Set environment variable CUDA_VISIBLE_DEVICES='' to proceed."
+            )
+    except ImportError:
+        pass  # Torch not installed, skip check
+
+    # Check TensorFlow if available
+    try:
+        import tensorflow as tf
+        gpus = tf.config.list_physical_devices('GPU')
+        if gpus:
+            raise RuntimeError(
+                f"Detected {len(gpus)} GPU(s) via TensorFlow. "
+                "This pipeline enforces CPU-only execution. "
+                "Please configure TensorFlow to use CPU only or unset GPU visibility."
+            )
+    except ImportError:
+        pass  # TensorFlow not installed, skip check
+
+    # Check JAX if available
+    try:
+        import jax
+        if jax.default_backend() != 'cpu':
+            raise RuntimeError(
+                f"JAX default backend is {jax.default_backend()}. "
+                "This pipeline enforces CPU-only execution. "
+                "Set JAX_PLATFORMS=cpu to proceed."
+            )
+    except ImportError:
+        pass  # JAX not installed, skip check
+
+    logging.info("CPU-only enforcement check passed. No GPU devices detected.")
+
+# Run the check immediately when the module is imported
+_enforce_cpu_only()
+
 from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-import jiwer
-from datasets import load_dataset
+from transformers import WhisperProcessor, AutoModelForSpeechSeq2Seq
+from jiwer import wer
+import torch
 
 from config import get_config
+from models import AudioClip, DistortionVector, StressCurve
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-# Constants
-EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
-DEVICE = "cpu"  # Enforce CPU as per constraints
 
 class MetricsCalculator:
     """
-    Calculator for Semantic Similarity Score (SSS) and Word Error Rate (WER).
-    Handles loading of the embedding model and computation of metrics.
+    Calculates Semantic Similarity Score (SSS) and Word Error Rate (WER)
+    for audio clips under various distortion scenarios.
     """
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or get_config()
-        self.embedding_model = None
-        self._model_loaded = False
-
-    def _load_embedding_model(self):
-        """Lazy load the sentence transformer model."""
-        if not self._model_loaded:
-            logger.info(f"Loading embedding model: {EMBEDDING_MODEL_NAME} on {DEVICE}...")
-            try:
-                self.embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME, device=DEVICE)
-                self._model_loaded = True
-                logger.info("Embedding model loaded successfully.")
-            except Exception as e:
-                logger.error(f"Failed to load embedding model: {e}")
-                raise
+        self.device = "cpu"  # Enforced by _enforce_cpu_only() above
+        
+        # Initialize models
+        logger.info("Initializing embedding model (all-MiniLM-L6-v2) on CPU...")
+        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2', device=self.device)
+        
+        logger.info("Initializing ASR model (whisper-tiny) on CPU...")
+        self.processor = WhisperProcessor.from_pretrained("openai/whisper-tiny")
+        self.asr_model = AutoModelForSpeechSeq2Seq.from_pretrained(
+            "openai/whisper-tiny",
+            torch_dtype=torch.float32,
+            use_safetensors=True
+        )
+        self.asr_model.to(self.device)
+        self.asr_model.eval()
 
     def compute_sss(self, reference_text: str, hypothesis_text: str) -> float:
         """
-        Compute Semantic Similarity Score (SSS) using cosine similarity of embeddings.
-        
-        Args:
-            reference_text: The ground truth transcript.
-            hypothesis_text: The ASR hypothesis.
-            
-        Returns:
-            float: Cosine similarity score between -1 and 1 (typically 0 to 1 for valid text).
+        Computes Semantic Similarity Score (SSS) using cosine similarity of embeddings.
         """
-        if not self._model_loaded:
-            self._load_embedding_model()
-
         if not reference_text or not hypothesis_text:
-            # Handle empty strings gracefully; return 0 or NaN? 
-            # Per FR-003, we need a score. If one is empty, semantic overlap is 0.
             return 0.0
-
-        try:
-            embeddings = self.embedding_model.encode([reference_text, hypothesis_text], convert_to_numpy=True)
-            # embeddings shape: (2, dimension)
-            # Compute cosine similarity between the two vectors
-            sim = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
-            return float(sim)
-        except Exception as e:
-            logger.error(f"Error computing SSS for texts: {e}")
-            raise
+        
+        embeddings = self.embedding_model.encode([reference_text, hypothesis_text])
+        sim = np.dot(embeddings[0], embeddings[1]) / (np.linalg.norm(embeddings[0]) * np.linalg.norm(embeddings[1]))
+        # Normalize from [-1, 1] to [0, 1]
+        return float((sim + 1) / 2)
 
     def compute_wer(self, reference_text: str, hypothesis_text: str) -> float:
         """
-        Compute Word Error Rate (WER) using jiwer.
-        
-        Args:
-            reference_text: The ground truth transcript.
-            hypothesis_text: The ASR hypothesis.
-            
-        Returns:
-            float: WER score between 0 and infinity (0 is perfect).
+        Computes Word Error Rate (WER) using jiwer.
         """
         if not reference_text or not hypothesis_text:
-            # If hypothesis is empty but reference is not, WER is 1.0 (100% error)
-            # If both empty, WER is 0.0
-            if not reference_text and not hypothesis_text:
-                return 0.0
             return 1.0
-
-        try:
-            # jiwer expects strings
-            transform = jiwer.Compose([
-                jiwer.ToLowerCase(),
-                jiwer.RemoveMultipleSpaces(),
-                jiwer.Strip(),
-                jiwer.ReduceToListOfListOfWords()
-            ])
-            wer_score = jiwer.wer(reference_text, hypothesis_text, transform=transform)
-            return float(wer_score)
-        except Exception as e:
-            logger.error(f"Error computing WER for texts: {e}")
-            raise
-
-    def compute_batch_sss(self, references: List[str], hypotheses: List[str]) -> List[float]:
-        """Compute SSS for a batch of pairs."""
-        if not self._model_loaded:
-            self._load_embedding_model()
         
-        if not references or not hypotheses:
-            return []
-        
-        if len(references) != len(hypotheses):
-            raise ValueError("References and hypotheses must have the same length.")
+        return wer(reference_text, hypothesis_text)
 
-        # Encode all at once for efficiency
-        try:
-            # Flatten for encoding if needed, but list of strings is fine
-            all_texts = references + hypotheses
-            embeddings = self.embedding_model.encode(all_texts, convert_to_numpy=True)
-            
-            ref_embeds = embeddings[:len(references)]
-            hyp_embeds = embeddings[len(references):]
-            
-            # Compute pairwise cosine similarity
-            sims = cosine_similarity(ref_embeds, hyp_embeds)
-            # Diagonal is the similarity for each pair
-            return sims.diagonal().tolist()
-        except Exception as e:
-            logger.error(f"Batch SSS computation failed: {e}")
-            raise
-
-    def compute_batch_wer(self, references: List[str], hypotheses: List[str]) -> List[float]:
-        """Compute WER for a batch of pairs."""
-        if not references or not hypotheses:
-            return []
-        
-        if len(references) != len(hypotheses):
-            raise ValueError("References and hypotheses must have the same length.")
-
-        results = []
-        for ref, hyp in zip(references, hypotheses):
-            results.append(self.compute_wer(ref, hyp))
-        return results
+    def transcribe_audio(self, audio_data: np.ndarray, sampling_rate: int) -> str:
+        """
+        Transcribes audio data using the ASR model.
+        """
+        inputs = self.processor(audio_data, sampling_rate=sampling_rate, return_tensors="pt")
+        with torch.no_grad():
+            generated_ids = self.asr_model.generate(
+                inputs["input_features"],
+                max_new_tokens=128,
+                do_sample=False,
+            )
+        transcription = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        return transcription
 
 def compute_baseline_sss_and_wer(
-    stress_curves_path: Path, 
-    output_path: Path
-) -> Dict[str, Any]:
+    stress_curves_path: Path,
+    models_list: List[str],
+    output_dir: Path
+) -> Tuple[Path, Path]:
     """
-    T020b/c: Compute baseline SSS and WER for each model/scenario (distortion intensity 0).
-    Reads stress_curves.parquet, filters for intensity=0, computes metrics, and saves JSON.
-    
-    Args:
-        stress_curves_path: Path to the stress curves parquet file.
-        output_path: Path to save the baseline JSON.
-        
-    Returns:
-        Dict containing baseline SSS and WER keyed by (model, scenario_id).
+    Computes baseline SSS and WER for clean audio subsets.
+    Outputs baseline_sss.json and baseline_wer.json.
     """
-    logger.info(f"Loading stress curves from {stress_curves_path}...")
-    if not stress_curves_path.exists():
-        raise FileNotFoundError(f"Stress curves file not found: {stress_curves_path}")
-    
     df = pd.read_parquet(stress_curves_path)
     
-    # Filter for baseline (intensity = 0)
-    # Assuming 'distortion_intensity' or similar column exists. 
-    # Based on T012/T010 context, we expect a column indicating intensity level.
-    # If the column is named 'intensity' or 'distortion_level', adjust. 
-    # Let's assume 'distortion_intensity' based on common naming in such tasks.
-    # If the dataframe has a 'step' or 'level' column representing intensity, we use that.
-    # For safety, we look for a column that might represent 0 intensity.
-    # Common convention: 'intensity' or 'distortion_intensity'.
+    # Filter for clean audio (distortion_vector_id == 'clean' or similar indicator)
+    # Assuming 'clean' is the identifier for no distortion
+    clean_df = df[df['distortion_vector_id'].str.contains('clean', case=False, na=False)]
     
-    intensity_col = None
-    candidates = ['distortion_intensity', 'intensity', 'level', 'step']
-    for cand in candidates:
-        if cand in df.columns:
-            intensity_col = cand
-            break
+    if clean_df.empty:
+        raise ValueError("No clean audio samples found in stress curves data.")
     
-    if intensity_col is None:
-        raise ValueError("Could not find an intensity column in stress_curves.parquet. Expected one of: 'distortion_intensity', 'intensity', 'level', 'step'.")
-
-    baseline_df = df[df[intensity_col] == 0].copy()
+    baseline_sss = {}
+    baseline_wer = {}
     
-    if baseline_df.empty:
-        logger.warning("No baseline (intensity=0) rows found in stress curves.")
-        return {}
-
     calculator = MetricsCalculator()
     
-    baselines = {}
-    
-    # Group by model and scenario (if applicable)
-    # Assuming columns: 'model_id', 'scenario_id', 'reference_text', 'hypothesis_text'
-    required_cols = ['model_id', 'reference_text', 'hypothesis_text']
-    if not all(col in baseline_df.columns for col in required_cols):
-        # Try to infer scenario if not present, or just group by model
-        if 'scenario_id' not in baseline_df.columns:
-            baseline_df['scenario_id'] = 'default'
-    
-    for (model_id, scenario_id), group in baseline_df.groupby(['model_id', 'scenario_id']):
-        refs = group['reference_text'].tolist()
-        hypers = group['hypothesis_text'].tolist()
+    for model_id in models_list:
+        model_df = clean_df[clean_df['model_id'] == model_id]
+        if model_df.empty:
+            logger.warning(f"No clean data for model {model_id}, skipping baseline calculation.")
+            continue
         
-        sss_scores = calculator.compute_batch_sss(refs, hypers)
-        wer_scores = calculator.compute_batch_wer(refs, hypers)
+        sss_scores = []
+        wer_scores = []
+        
+        for _, row in model_df.iterrows():
+            sss_scores.append(row['sss'])
+            wer_scores.append(row['wer'])
         
         avg_sss = np.mean(sss_scores)
         avg_wer = np.mean(wer_scores)
         
-        key = f"{model_id}_{scenario_id}"
-        baselines[key] = {
-            "avg_sss": avg_sss,
-            "avg_wer": avg_wer,
-            "count": len(group)
-        }
-        logger.info(f"Baseline for {key}: SSS={avg_sss:.4f}, WER={avg_wer:.4f}")
-    
-    # Save to JSON
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(baselines, f, indent=2)
+        baseline_sss[model_id] = avg_sss
+        baseline_wer[model_id] = avg_wer
         
-    logger.info(f"Baselines saved to {output_path}")
-    return baselines
+        logger.info(f"Baseline for {model_id}: SSS={avg_sss:.4f}, WER={avg_wer:.4f}")
+    
+    baseline_sss_path = output_dir / "baseline_sss.json"
+    baseline_wer_path = output_dir / "baseline_wer.json"
+    
+    with open(baseline_sss_path, 'w') as f:
+        json.dump(baseline_sss, f, indent=2)
+    with open(baseline_wer_path, 'w') as f:
+        json.dump(baseline_wer, f, indent=2)
+        
+    return baseline_sss_path, baseline_wer_path
 
 def compute_hvcm_target(
-    human_annotations_path: Path,
     stress_curves_path: Path,
+    human_annotations_path: Path,
+    collapse_points_path: Path,
     output_path: Path
-) -> pd.DataFrame:
+) -> Path:
     """
-    T030b: Compute Human-Validated Collapse Margin (HVCM) target.
-    Merges human annotations with stress curves to derive the regression target.
-    
-    Logic:
-    1. Load human_annotations.csv (contains intelligibility scores 0-1).
-    2. Load stress_curves.parquet.
-    3. Match by audio_id (or similar).
-    4. For each audio clip, find the distortion intensity where SSS drops below the human-validated threshold.
-    5. The HVCM is the margin between the predicted collapse and the human-validated collapse.
-    
-    Note: This is a simplified implementation of the HVCM logic. The exact definition depends on
-    the specific formula in the spec. Here we assume HVCM = (Human_Collapse_Intensity - Model_Collapse_Intensity).
-    
-    Args:
-        human_annotations_path: Path to human_annotations.csv.
-        stress_curves_path: Path to stress_curves.parquet.
-        output_path: Path to save the HVCM results.
-        
-    Returns:
-        DataFrame with HVCM targets.
+    Computes Human-Validated Collapse Margin (HVCM) target.
+    HVCM = SSS-based collapse point - human-annotated collapse point.
     """
-    logger.info(f"Loading human annotations from {human_annotations_path}...")
-    if not human_annotations_path.exists():
-        raise FileNotFoundError(f"Human annotations file not found: {human_annotations_path}")
+    stress_curves = pd.read_parquet(stress_curves_path)
+    human_annotations = pd.read_csv(human_annotations_path)
+    collapse_points = pd.read_parquet(collapse_points_path)
     
-    human_df = pd.read_csv(human_annotations_path)
-    
-    logger.info(f"Loading stress curves from {stress_curves_path}...")
-    if not stress_curves_path.exists():
-        raise FileNotFoundError(f"Stress curves file not found: {stress_curves_path}")
-    
-    stress_df = pd.read_parquet(stress_curves_path)
-    
-    # Identify the audio ID column
-    audio_id_col = None
-    candidates = ['audio_id', 'clip_id', 'id']
-    for cand in candidates:
-        if cand in human_df.columns and cand in stress_df.columns:
-            audio_id_col = cand
-            break
-    
-    if audio_id_col is None:
-        # Fallback to a common name if not found
-        if 'audio_id' in human_df.columns:
-            audio_id_col = 'audio_id'
-        else:
-            raise ValueError("Could not find a common audio ID column between human annotations and stress curves.")
-    
-    # Merge
-    merged = pd.merge(human_df, stress_df, on=audio_id_col, how='inner')
+    # Merge human annotations with stress curves to align data
+    # Assuming 'clip_id' and 'distortion_vector_id' are common keys
+    merged = pd.merge(
+        stress_curves,
+        human_annotations,
+        on=['clip_id', 'distortion_vector_id'],
+        how='inner'
+    )
     
     if merged.empty:
-        raise ValueError("No matching records found between human annotations and stress curves.")
+        raise ValueError("No overlapping data between stress curves and human annotations.")
     
-    # Determine human collapse threshold (e.g., 0.5 intelligibility)
-    # This might be configurable, but we assume 0.5 for now.
-    human_threshold = 0.5
+    # Group by clip_id and model_id to find collapse points
+    # For human annotations, we need to determine the collapse point based on Likert scores
+    # Assuming Likert scale 0-5, collapse might be defined as score < 3 (arbitrary, adjust based on spec)
+    # For this implementation, we'll find the first distortion level where human score drops below threshold
     
-    # Identify intensity column
-    intensity_col = None
-    candidates = ['distortion_intensity', 'intensity', 'level', 'step']
-    for cand in candidates:
-        if cand in merged.columns:
-            intensity_col = cand
-            break
+    hvcm_data = []
     
-    if intensity_col is None:
-        raise ValueError("Could not find an intensity column in merged data.")
-    
-    # Calculate HVCM for each clip
-    # Simplified: Find the intensity where human score drops below threshold.
-    # Then find the intensity where SSS drops below threshold.
-    # HVCM = Human_Collapse - Model_Collapse
-    
-    results = []
-    
-    # Group by audio_id to process each clip
-    for audio_id, group in merged.groupby(audio_id_col):
-        # Sort by intensity
-        group = group.sort_values(intensity_col)
+    for (clip_id, model_id), group in merged.groupby(['clip_id', 'model_id']):
+        # Sort by distortion intensity (assuming 'snr' or 'rt60' indicates intensity)
+        # Here we use 'snr' as the intensity metric, lower SNR = higher distortion
+        group = group.sort_values('snr')
+        
+        # Find SSS collapse point from stress curve data
+        sss_collapse = None
+        for idx, row in group.iterrows():
+            if row['sss'] < 0.5:  # Threshold for SSS collapse
+                sss_collapse = row['snr']
+                break
+        
+        if sss_collapse is None:
+            sss_collapse = group['snr'].max()  # Max tested if no collapse
         
         # Find human collapse point
-        human_scores = group['intelligibility_score'].values # Assuming column name
-        intensities = group[intensity_col].values
-        
         human_collapse = None
-        for i, score in enumerate(human_scores):
-            if score < human_threshold:
-                human_collapse = intensities[i]
+        for idx, row in group.iterrows():
+            if row['human_intelligibility_score_0_5'] < 3:  # Threshold for human collapse
+                human_collapse = row['snr']
                 break
         
         if human_collapse is None:
-            # If no collapse found, use max intensity
-            human_collapse = intensities[-1]
+            human_collapse = group['snr'].max()
         
-        # Find model collapse point (SSS < 0.5)
-        # Assuming SSS column is 'sss' or 'semantic_similarity_score'
-        sss_col = None
-        for cand in ['sss', 'semantic_similarity_score']:
-            if cand in group.columns:
-                sss_col = cand
-                break
+        hvcm = sss_collapse - human_collapse
         
-        if sss_col is None:
-            # Fallback: compute on the fly? No, assume it's in the dataframe from T013/T015
-            # If not present, we cannot compute HVCM.
-            logger.warning(f"SSS column not found for {audio_id}. Skipping HVCM calculation.")
-            continue
-            
-        model_collapse = None
-        sss_scores = group[sss_col].values
-        
-        for i, score in enumerate(sss_scores):
-            if score < human_threshold: # Using same threshold for model collapse
-                model_collapse = intensities[i]
-                break
-        
-        if model_collapse is None:
-            model_collapse = intensities[-1]
-        
-        hvcm = human_collapse - model_collapse
-        
-        results.append({
-            audio_id_col: audio_id,
-            'human_collapse_intensity': human_collapse,
-            'model_collapse_intensity': model_collapse,
+        hvcm_data.append({
+            'clip_id': clip_id,
+            'model_id': model_id,
+            'sss_collapse_point': sss_collapse,
+            'human_collapse_point': human_collapse,
             'hvcm': hvcm
         })
     
-    hvcm_df = pd.DataFrame(results)
-    
-    # Save
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    hvcm_df = pd.DataFrame(hvcm_data)
     hvcm_df.to_parquet(output_path, index=False)
     logger.info(f"HVCM targets saved to {output_path}")
     
-    return hvcm_df
+    return output_path
 
 def main():
     """
-    Main entry point for running metrics calculations.
-    Can be configured via command line or environment variables.
+    Main function to run metrics calculations.
     """
     config = get_config()
+    output_dir = Path(config['data']['derived'])
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Example usage: Compute baselines and HVCM
-    # Note: This assumes stress_curves.parquet and human_annotations.csv exist.
-    # In a real run, these would be passed as arguments or loaded from config.
+    # Example usage (to be replaced with actual CLI arguments in production)
+    stress_curves_path = Path(config['data']['derived']) / "stress_curves.parquet"
+    human_annotations_path = Path(config['data']['validation']) / "human_annotations.csv"
+    collapse_points_path = Path(config['data']['derived']) / "collapse_points.parquet"
     
-    stress_curves_path = Path(config['paths']['derived']) / 'stress_curves.parquet'
-    human_annotations_path = Path(config['paths']['validation']) / 'human_annotations.csv'
-    baseline_output = Path(config['paths']['derived']) / 'baseline_sss_wer.json'
-    hvcm_output = Path(config['paths']['derived']) / 'hvcm_targets.parquet'
-    
-    if stress_curves_path.exists() and human_annotations_path.exists():
-        logger.info("Running baseline calculations...")
-        compute_baseline_sss_and_wer(stress_curves_path, baseline_output)
+    if not stress_curves_path.exists():
+        logger.error(f"Stress curves file not found: {stress_curves_path}")
+        return
         
-        logger.info("Running HVCM calculation...")
-        compute_hvcm_target(human_annotations_path, stress_curves_path, hvcm_output)
-    else:
-        logger.warning("Required input files not found. Skipping full metrics run.")
-        logger.info(f"Expected stress curves: {stress_curves_path}")
-        logger.info(f"Expected human annotations: {human_annotations_path}")
+    if not human_annotations_path.exists():
+        logger.error(f"Human annotations file not found: {human_annotations_path}")
+        return
+        
+    if not collapse_points_path.exists():
+        logger.error(f"Collapse points file not found: {collapse_points_path}")
+        return
+        
+    # Compute HVCM target
+    hvcm_output = output_dir / "hvcm_targets.parquet"
+    compute_hvcm_target(stress_curves_path, human_annotations_path, collapse_points_path, hvcm_output)
+    
+    logger.info("Metrics calculation completed successfully.")
 
 if __name__ == "__main__":
     main()

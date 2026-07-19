@@ -1,0 +1,11 @@
+status: none
+intent: real open-source Voices-in-the-Wild-2M audio corpus python package dataset
+required_fields:
+- audio_path
+- speaker_id
+- transcription
+- language
+- sample_rate
+cache_key: 85e8e2336b897cf6ad8c029772ef652fc5517d25ea6d2a948bbc6b221a172d89
+searched_at: '2026-07-19T10:02:12.883927+00:00'
+retry_count: 1

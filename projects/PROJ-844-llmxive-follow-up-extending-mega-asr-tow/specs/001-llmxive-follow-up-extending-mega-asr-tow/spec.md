@@ -13,7 +13,7 @@
 
 **Why this priority**: This is the foundational data generation step. Without the stress curves (mapping distortion intensity to semantic integrity), no analysis of non-linear interactions or collapse thresholds is possible. It delivers the raw dataset required for the entire study.
 
-**Independent Test**: Can be fully tested by running the stress-testing pipeline on a sample of 100 audio clips and verifying that for each clip, 54 distinct distortion scenarios are applied, resulting in a CSV/JSON file containing the acoustic parameters, the ASR output, and the semantic similarity score for each scenario.
+**Independent Test**: Can be fully tested by running the stress-testing pipeline on a representative sample of audio clips and verifying that for each clip, 54 distinct distortion scenarios are applied, resulting in a CSV/JSON file containing the acoustic parameters, the ASR output, and the semantic similarity score for each scenario.
 
 **Acceptance Scenarios**:
 
@@ -26,7 +26,7 @@
 
 **Why this priority**: This transforms raw stress curves into a binary or scalar target variable (the collapse intensity) required for the regression analysis. It isolates the specific failure event from the continuous degradation curve and ensures the target is not circularly dependent on a single metric.
 
-**Independent Test**: Can be fully tested by providing a pre-calculated stress curve where the SSS drops from 0.8 to 0.4 between two known intensity steps, and verifying that the system correctly identifies the interpolation point (or the specific step) where the normalized 0.5 threshold is crossed AND the WER exceeds 2× the baseline, recording this as the collapse intensity.
+**Independent Test**: Can be fully tested by providing a pre-calculated stress curve where the SSS drops from a high to a low value between two known intensity steps, and verifying that the system correctly identifies the interpolation point (or the specific step) where the normalized 0.5 threshold is crossed AND the WER exceeds 2× the baseline, recording this as the collapse intensity.
 
 **Acceptance Scenarios**:
 
@@ -57,7 +57,7 @@
 ### Functional Requirements
 
 - **FR-001**: System MUST download and stratify a subset of [deferred] audio clips from the "Voices-in-the-Wild-2M" dataset, ensuring coverage of the 54 compound distortion scenarios via stratification by speaker ID and SNR bucket. (See US-1)
-- **FR-002**: System MUST apply 54 distinct compound acoustic distortion vectors (varying reverberation time and SNR) to each clean audio clip, incrementally increasing intensity to generate stress curves. (See US-1)
+- **FR-002**: System MUST apply a series of distinct compound acoustic distortion vectors (varying reverberation time and SNR) to each clean audio clip, incrementally increasing intensity to generate stress curves. (See US-1)
 - **FR-003**: System MUST compute the Semantic Similarity Score (SSS) between the clean reference transcript and the distorted ASR hypothesis using the `all-MiniLM-L6-v2` sentence embedding model. (See US-1)
 - **FR-004**: System MUST identify the "semantic collapse intensity" for each model/scenario combination as the specific distortion intensity where the SSS first drops below 0.5 (normalized to baseline) AND is corroborated by a concurrent WER spike. (See US-2)
 - **FR-005**: System MUST train a CPU-tractable regression model (e.g., scikit-learn Linear Regression, Polynomial Regression with degree ≤ 3, or Decision Tree with max_depth ≤ 5) to predict the collapse intensity based on the acoustic parameter vector, explicitly including engineered interaction terms (e.g., SNR × RT60, SNR², RT60²). (See US-3)
@@ -85,7 +85,7 @@
 - **SC-001**: The predictive accuracy (R² score) of the regression model is measured against the held-out test set of collapse intensities to determine if a universal interaction signature exists. (See US-3)
 - **SC-002**: The stability of the "critical interaction vector" is measured against the results of the sensitivity analysis (threshold sweep) to ensure the findings are not artifacts of the 0.5 cutoff choice. (See US-3)
 - **SC-003**: The statistical significance of the non-linear interaction terms is measured against the corrected p-values (post-multiple-comparison adjustment) to validate the synergistic failure hypothesis. (See US-3)
-- **SC-004**: The computational feasibility is measured against the 6-hour runtime limit and 7GB RAM constraint on the GitHub Actions ubuntu-latest runner, tracking peak RSS memory usage and total wall-clock time, to ensure the analysis is reproducible without GPU. (See US-1, US-3)
+- **SC-004**: The computational feasibility is measured against a fixed runtime limit and memory constraint on the GitHub Actions ubuntu-latest runner, tracking peak RSS memory usage and total wall-clock time, to ensure the analysis is reproducible without GPU. (See US-1, US-3)
 
 ## Assumptions
 

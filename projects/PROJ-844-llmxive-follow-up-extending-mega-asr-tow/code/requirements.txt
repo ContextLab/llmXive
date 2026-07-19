@@ -16,3 +16,6 @@ datasets>=2.14.0
 
 # Metrics
 jiwer>=3.0.0
+jax  # auto-added: imported by run-book but missing from venv
+tensorflow  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

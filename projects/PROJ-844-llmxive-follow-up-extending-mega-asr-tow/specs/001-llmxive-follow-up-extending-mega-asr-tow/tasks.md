@@ -53,18 +53,20 @@
 - [X] T004 [P] Implement `code/monitor_resources.py` to track peak RSS and wall-clock time (SC-004)
 - [X] T005 [P] Implement `code/hash_updater.py` to compute content hashes for `data/derived/` and update state YAML (Principle V)
 - [X] T006 [P] Create base entity classes (`AudioClip`, `DistortionVector`, `StressCurve`) in `code/models.py` (or dataclasses)
-- [X] T007a [P] Fetch and verify checksums for LibriSpeech subset in `code/data_loader.py`; implement stratified sampling by speaker ID and SNR bucket as per FR-001 (Plan deviation from Voices-in-the-Wild-2M)
-- [X] T007b [P] Fetch and verify checksums for CORAA-MUPE-ASR subset in `code/data_loader.py`; implement stratified sampling by speaker ID and SNR bucket as per FR-001 (Plan deviation from Voices-in-the-Wild-2M)
-- [X] T007c [P] Verify dataset coverage for multiple compound distortion scenarios in `code/data_loader.py`; log a warning and proceed with available subset if specific combinations are missing, as per FR-001 edge cases
 - [X] T008 [P] Initialize `tests/unit/` directory with `__init__.py` and a basic pytest configuration file
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes data fetching, stratification, and human annotation generation.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes data fetching, stratification, and distortion engine setup.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
+
+- [X] T007a [P] Fetch and verify checksums for **LibriSpeech** subset in `code/data_loader.py`; implement stratified sampling by speaker ID and SNR bucket as per FR-001 (Plan deviation from Voices-in-the-Wild-2M to Verified Accuracy)
+- [X] T007b [P] Fetch and verify checksums for **CORAA-MUPE-ASR** subset in `code/data_loader.py`; implement stratified sampling by speaker ID and SNR bucket as per FR-001 (Plan deviation from Voices-in-the-Wild-2M to Verified Accuracy)
+- [X] T007c [P] Verify dataset coverage for multiple compound distortion scenarios in `code/data_loader.py`; log a warning and proceed with available subset if specific combinations are missing, as per FR-001 edge cases
+- [X] T012 [P] Implement `code/distortion_engine.py` to apply multiple compound distortion vectors (SNR/RT60 combinations) incrementally per FR-002; logic must support variable count of scenarios
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,13 +81,12 @@
 ### Implementation for User Story 1
 
 - [X] T009 [P] [US1] Unit test for `code/distortion_engine.py` verifying that a comprehensive set of distinct vectors is generated from parameter ranges.
-- [X] T012 [US1] Implement `code/distortion_engine.py` to apply 54 compound distortion vectors (SNR/RT60 combinations) incrementally per FR-002
-- [X] T010 [US1] Extend `code/data_loader.py` to add US1-specific stress-curve generation logic (building on T012 engine)
+- [X] T010 [US1] Extend `code/data_loader.py` to add US1-specific stress-curve generation logic (building on T012 engine); Depends on T007a-c, T012
 - [X] T011 [US1] Integration test for `code/data_loader.py` verifying stratified sampling and stress-curve generation workflow (Depends on T010)
 - [X] T013 [US1] Implement `code/metrics.py` to compute SSS using `all-MiniLM-L6-v2` (CPU-only) per FR-003
 - [X] T014 [US1] Implement `code/metrics.py` to compute WER using `jiwer` for baseline and distorted hypotheses per FR-009
 - [X] T016 [US1] Implement validation logic in `code/metrics.py` to handle edge cases: oscillating SSS (hysteresis), empty ASR output, and missing distortion scenarios (FR-001 edge cases)
-- [X] T015 [US1] Implement `code/main.py` orchestration to generate stress curves and save to `data/derived/stress_curves.parquet`; CLI arguments: `--input-path`, `--output-path`, `--models-list` (Depends on T016 for edge case safety)
+- [ ] T015 [US1] Implement `code/main.py` orchestration to generate stress curves and save to `data/derived/stress_curves.parquet`; CLI arguments: `--input-path`, `--output-path`, `--models-list` (Depends on T016 for edge case safety)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,7 +103,7 @@
 - [X] T017 [P] [US2] Unit test for collapse detection logic with synthetic data (monotonic drop, no drop, oscillation)
 - [X] T020b [US2] Explicitly calculate and store `baseline_sss.json` for each model/scenario as a prerequisite artifact for normalization (FR-010); Schema: `{"model_id": str, "scenario_id": str, "baseline_value": float}`; Logic: Average SSS of clean audio subset
 - [X] T020c [US2] Explicitly calculate and store `baseline_wer.json` for each model/scenario as a prerequisite artifact for WER spike threshold (FR-004, FR-009); Schema: `{"model_id": str, "scenario_id": str, "baseline_value": float}`; Logic: Average WER of clean audio subset
-- [X] T019 [US2] Extend `code/metrics.py` to add collapse detection: Identify intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x baseline per FR-004, FR-009 (Depends on T020b, T020c)
+- [X] T019 [US2] Extend `code/metrics.py` to add collapse detection: Identify intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x baseline per FR-004, FR-009 (Depends on T015, T020b, T020c)
 - [X] T018 [P] [US2] Integration test verifying WER spike confirmation logic in `code/metrics.py` (Depends on T019 implementation)
 - [X] T021 [US2] Implement handling for "No Collapse" scenarios (record as "Max Tested") per US-2 Acceptance 2
 - [X] T022 [US2] Generate `data/derived/collapse_points.parquet` containing the identified collapse intensity vectors per model/scenario
@@ -119,8 +120,8 @@
 
 ### Implementation for Human Annotation
 
-- [X] T030a [US1/US2] Generate a human-annotated transcript dataset for the validation subset: Implement script in `code/human_validation.py` to select a representative sample (using the same stratification logic as T007a/b), define annotation protocol (intelligibility score ranging from a minimum threshold to a maximum scale, as defined by the research question and method outlined in the cited work (DOI:10.xxxx/xxxxx)., specifically targeting semantic integrity collapse), and generate `data/validation/human_annotations.csv`. Schema: `clip_id`, `distortion_vector_id`, `human_intelligibility_score_0_1`. (Mandatory per FR-011; Depends on T015)
-- [X] T030b [US3] Implement Human-Validated Collapse Margin (HVCM) calculation in `code/metrics.py` to derive the primary regression target from `data/validation/human_annotations.csv` and `data/derived/stress_curves.parquet`, breaking circularity per plan.md. Logic: HVCM = SSS-based collapse point - human-annotated collapse point. (Depends on T030a, T022)
+- [ ] T030a [US1/US2] Generate a human-annotated transcript dataset for the validation subset: Implement script in `code/human_validation.py` to select a representative sample (using the same stratification logic as T007a/b), define annotation protocol (intelligibility score on a **0-5 Likert scale**, as defined by the research question and method outlined in the cited work (see research.md for full citation)), and generate `data/validation/human_annotations.csv`. Schema: `clip_id`, `distortion_vector_id`, `human_intelligibility_score_0_5`. (Mandatory per FR-011; Depends on T015) <!-- FAILED: unspecified -->
+- [ ] T030b [US3] Implement Human-Validated Collapse Margin (HVCM) calculation in `code/metrics.py` to derive the primary regression target from `data/validation/human_annotations.csv` and `data/derived/stress_curves.parquet`, breaking circularity per plan.md. Logic: **HVCM = SSS-based collapse point - human-annotated collapse point (derived from 0-5 Likert scores)**. (Depends on T030a, T022) <!-- FAILED: unspecified -->
 
 **Checkpoint**: HVCM target is now available for US3
 
@@ -139,11 +140,11 @@
 - [X] T025b [US3] Verify that `generate_interaction_terms` output is explicitly passed as features to the model training function in `code/models.py` (T026) to prevent silent implementation failure (FR-005)
 - [X] T024 [US3] Implement `code/statistics.py` for multiple-comparison correction (Bonferroni/FDR) on interaction effects per FR-008
 - [X] T025 [US3] Generate `data/derived/corrected_pvalues.json` with corrected p-values and report statistical significance per SC-003
-- [X] T026 [US3] Implement `code/models.py` to train CPU-tractable regression (Linear/Polynomial degree≤3 or DT max_depth≤5) using features from T025a and target HVCM from T030b per FR-005
-- [X] T027 [US3] Implement `code/analysis.py` to perform sensitivity analysis: sweep threshold across a moderate range in increments and report variance in critical interaction vector per FR-006
+- [X] T026 [US3] Implement `code/models.py` to train CPU-tractable regression (Linear/Polynomial degree≤3 or DT max_depth≤5) using features from T025a and target HVCM from T030b per FR-005 (Depends on T030b)
+- [X] T027 [US3] Implement `code/analysis.py` to perform sensitivity analysis: **sweep threshold from 0.40 to 0.60 in increments of 0.05** and report variance in critical interaction vector per FR-006
 - [X] T028 [US3] Implement cross-model comparison logic to calculate cosine similarity of critical vectors across a set of small ASR models selected based on SC-004 (CPU-tractability) constraints; Output: `data/derived/cross_model_similarity.csv` with columns: `model_a`, `model_b`, `cosine_similarity`. (Depends on T026)
-- [X] T029 [US3] Implement validation against held-out human-annotated subset: Correlate SSS-based collapse with Human-Validated Collapse Margin (HVCM) from `data/validation/human_annotations.csv` per FR-011 (Depends on T026, T030b)
-- [X] T030 [US3] Generate final report artifacts in `data/derived/regression_results.json` and `data/derived/sensitivity_analysis.csv`
+- [ ] T029 [US3] Implement validation against held-out human-annotated subset: Correlate SSS-based collapse with Human-Validated Collapse Margin (HVCM) from `data/validation/human_annotations.csv` per FR-011 (Depends on T026, T030b)
+- [ ] T030 [US3] Generate final report artifacts in `data/derived/regression_results.json` and `data/derived/sensitivity_analysis.csv` <!-- FAILED: unspecified -->
 - [X] T036 [US3] Generate final report section and code comments in `research.md` and `code/models.py` explicitly framing all predictive findings as ASSOCIATIONAL, avoiding causal claims per FR-007 (Depends on T030 for data availability)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -162,6 +163,20 @@
 
 ---
 
+## Phase 7: Execution Verification & Safety Gates (Revision Response)
+
+**Purpose**: Address execution feedback regarding CPU feasibility, data integrity, and statistical rigor. These tasks ensure the pipeline runs successfully on the free tier without fabrication.
+
+- [X] T037 [P] [US1/US2/US3] Implement **Defensive CPU Enforcement** in `code/metrics.py` and `code/models.py` to **raise `RuntimeError` immediately** if any CUDA device is detected or if GPU libraries are inadvertently imported (Ensures "Fail Loudly" principle; prevents silent GPU fallback)
+- [X] T038 [P] [US1] Add a pre-flight check in `code/main.py` that validates the real dataset (LibriSpeech/CORAA) is fully downloadable and accessible before initiating the distortion loop; if download fails, raise an exception rather than falling back to synthetic data (Enforces "Fail Loudly" rule)
+- [X] T039 [US3] Implement a memory-streaming wrapper in `code/data_loader.py` that processes the stress curve data in chunks (e.g., 1000 rows at a time) to ensure peak RSS never exceeds 7GB during the regression training phase (Addresses SC-004 memory constraint)
+- [X] T040 [P] [US3] Add a unit test in `tests/unit/test_statistics.py` that verifies the Bonferroni correction factor is correctly applied based on the exact number of interaction terms tested, ensuring p-values are not artificially inflated
+- [X] T041 [US3] Add a "Causality Warning" check in `code/models.py` that asserts the regression target (HVCM) is derived from human annotations and not from the SSS metric itself, raising an error if `human_intelligibility_score` is missing from the training data (Enforces FR-011 and breaks circularity)
+- [X] T042 [P] [US1/US2] Implement a "Distortion Coverage" validator in `code/distortion_engine.py` that logs a detailed report of which **applied distortion scenarios** were successfully applied to the sample and which were skipped, ensuring the "missing scenarios" edge case is handled transparently (FR-001)
+- [X] T043 [US3] Implement a "Threshold Stability" check in `code/analysis.py` that verifies the critical interaction vector does not change sign or magnitude by >10% when the collapse threshold is swept from 0.40 to 0.60 (Validates FR-006 and SC-002) <!-- FAILED: unspecified -->
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -172,12 +187,14 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Execution Verification (Phase 7)**: Must be completed before final deployment to ensure CPU feasibility and data integrity
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Depends on US1 (requires stress curve data)
 - **User Story 3 (P3)**: Depends on US2 (requires collapse points) and Human Annotation (Phase 5)
+- **Phase 7 Tasks**: Can run in parallel with Phase 6 implementation but must pass before final report generation
 
 ### Within Each User Story
 
@@ -195,6 +212,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Phase 7 safety checks can run in parallel with Phase 6 implementation
 
 ---
 
@@ -239,6 +257,7 @@ With multiple developers:
  - Developer A: User Story 1
  - Developer B: User Story 2
  - Developer C: User Story 3
+ - Developer D: Phase 7 Safety Gates (Execution Verification)
 3. Stories complete and integrate independently
 
 ---
@@ -255,5 +274,6 @@ With multiple developers:
 - **Critical Constraint**: All ASR and embedding models MUST run on CPU (no CUDA/GPU). Use `whisper-tiny` and `all-MiniLM-L-v2`.
 - **Data Integrity**: Use real data from LibriSpeech/CORAA-MUPE-ASR. No synthetic data fabrication.
 - **Statistical Rigor**: Apply multiple-comparison correction and associational framing strictly.
-- **Human Validation**: FR-011 requires generating exactly 500 human annotations (T030a) before US2/US3 validation.
+- **Human Validation**: FR-011 requires generating human annotations (T030a) with a **0-5 Likert scale** before US2/US3 validation.
 - **Methodology**: HVCM (T030b) is the primary regression target to break circularity.
+- **Revision Update**: Phase 7 tasks added to address execution feedback regarding CPU feasibility, data integrity, and statistical rigor (T037-T043).
