@@ -2,12 +2,14 @@
 chokepoint — now delegates to ``model_selection.route.route_chat`` (select() →
 execute()) instead of walking ``MODEL_FALLBACKS`` by hand.
 
-These pin the WRAPPER contract: intent is forwarded (profile + caller model +
-budget), the redundant ``default_backend``/``fallback_backends`` are IGNORED
-(execute dispatches each candidate through its own ``ModelRef.backend``), and the
-legacy outage-classification contract is preserved — a fully-ineligible or
-fully-exhausted chain surfaces as ``BackendUnavailable`` (a clean run-loop abort
-with state preserved) rather than a human-escalating ``BackendError``, while a
+Spec 026 slice 7: the obsolete ``default_backend`` / ``fallback_backends`` /
+``model`` bridge parameters have been REMOVED from ``chat_with_fallback`` now
+that every caller expresses its intent purely via ``profile`` — a call site
+never pins a raw model id. These tests pin the WRAPPER contract: ``profile``
+(+ budget) is forwarded to ``route_chat`` unchanged, and the legacy outage-
+classification contract is preserved — a fully-ineligible or fully-exhausted
+chain surfaces as ``BackendUnavailable`` (a clean run-loop abort with state
+preserved) rather than a human-escalating ``BackendError``, while a
 request-level permanent refusal propagates unchanged.
 """
 
@@ -37,7 +39,7 @@ def _patch_route(monkeypatch, impl):
     monkeypatch.setattr(route_mod, "route_chat", impl)
 
 
-def test_chat_with_fallback_forwards_intent_and_ignores_backends(monkeypatch):
+def test_chat_with_fallback_forwards_profile_and_budget(monkeypatch):
     seen = {}
 
     def _fake_route(messages, **kwargs):
@@ -48,18 +50,17 @@ def test_chat_with_fallback_forwards_intent_and_ignores_backends(monkeypatch):
     _patch_route(monkeypatch, _fake_route)
     resp = chat_with_fallback(
         _MSGS,
-        default_backend="dartmouth",
-        fallback_backends=["local"],
-        model=QWEN,
+        profile="deep_review",
         max_tokens=4096,
         temperature=0.0,
     )
     assert resp.text == "OK"
-    assert seen["profile"] == "standard_generation"
-    assert seen["caller_model"] == QWEN
+    assert seen["profile"] == "deep_review"
     assert seen["max_tokens"] == 4096
     assert seen["temperature"] == 0.0
-    # The redundant backend inputs are NOT threaded into selection/execution.
+    # No caller-side model pin exists anymore — the wrapper never threads one.
+    assert "caller_model" not in seen
+    assert "model" not in seen
     assert "default_backend" not in seen
     assert "fallback_backends" not in seen
 
@@ -72,8 +73,9 @@ def test_chat_with_fallback_defaults_to_generation_budget(monkeypatch):
         return ChatResponse(text="OK", model=QWEN, backend="dartmouth")
 
     _patch_route(monkeypatch, _fake_route)
-    chat_with_fallback(_MSGS, default_backend="dartmouth", fallback_backends=[], model=QWEN)
+    chat_with_fallback(_MSGS)
     assert seen["max_tokens"] == GENERATION_MAX_TOKENS
+    assert seen["profile"] == "standard_generation"  # the documented default
 
 
 def test_chat_with_fallback_translates_model_unavailable_to_backend_unavailable(monkeypatch):
@@ -82,7 +84,7 @@ def test_chat_with_fallback_translates_model_unavailable_to_backend_unavailable(
 
     _patch_route(monkeypatch, _fake_route)
     with pytest.raises(BackendUnavailable):
-        chat_with_fallback(_MSGS, default_backend="dartmouth", fallback_backends=[], model=QWEN)
+        chat_with_fallback(_MSGS)
 
 
 def test_chat_with_fallback_translates_chain_exhausted_to_backend_unavailable(monkeypatch):
@@ -91,7 +93,7 @@ def test_chat_with_fallback_translates_chain_exhausted_to_backend_unavailable(mo
 
     _patch_route(monkeypatch, _fake_route)
     with pytest.raises(BackendUnavailable):
-        chat_with_fallback(_MSGS, default_backend="dartmouth", fallback_backends=[], model=QWEN)
+        chat_with_fallback(_MSGS)
 
 
 def test_chat_with_fallback_propagates_permanent_refusal(monkeypatch):
@@ -100,7 +102,7 @@ def test_chat_with_fallback_propagates_permanent_refusal(monkeypatch):
 
     _patch_route(monkeypatch, _fake_route)
     with pytest.raises(PermanentBackendError):
-        chat_with_fallback(_MSGS, default_backend="dartmouth", fallback_backends=[], model=QWEN)
+        chat_with_fallback(_MSGS)
 
 
 def test_chat_with_fallback_forwards_overrides(monkeypatch):
@@ -117,9 +119,6 @@ def test_chat_with_fallback_forwards_overrides(monkeypatch):
     ov = RequirementOverrides(allow_paid=False, exclude_models=frozenset({"m"}))
     chat_with_fallback(
         _MSGS,
-        default_backend="dartmouth",
-        fallback_backends=[],
-        model=QWEN,
         overrides=ov,
     )
     assert seen["overrides"] is ov

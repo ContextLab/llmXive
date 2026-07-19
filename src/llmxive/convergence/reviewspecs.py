@@ -454,7 +454,7 @@ def build_idea_reviewspec(
         backend=backend,
         repo_root=repo_root,  # type: ignore[arg-type]
         project_id=project_id,
-        model=model,
+        profile="deep_code",
         overrides=requirement_overrides,
     )
     _wire_live_panel(
@@ -493,7 +493,7 @@ def build_spec_reviewspec(
         backend=backend,
         repo_root=repo_root,  # type: ignore[arg-type]
         project_id=project_id,
-        model=model,
+        profile="deep_code",
         overrides=requirement_overrides,
     )
     _wire_live_panel(
@@ -523,7 +523,7 @@ def build_paper_spec_reviewspec(
         backend=backend,
         repo_root=repo_root,  # type: ignore[arg-type]
         project_id=project_id,
-        model=model,
+        profile="deep_code",
         overrides=requirement_overrides,
     )
     _wire_live_panel(
@@ -552,7 +552,7 @@ def build_plan_reviewspec(
         backend=backend,
         repo_root=repo_root,  # type: ignore[arg-type]
         project_id=project_id,
-        model=model,
+        profile="deep_code",
         overrides=requirement_overrides,
     )
     _wire_live_panel(
@@ -580,7 +580,7 @@ def build_paper_plan_reviewspec(
         backend=backend,
         repo_root=repo_root,  # type: ignore[arg-type]
         project_id=project_id,
-        model=model,
+        profile="deep_code",
         overrides=requirement_overrides,
     )
     _wire_live_panel(
@@ -611,7 +611,7 @@ def build_tasks_reviewspec(
         backend=backend,
         repo_root=repo_root,  # type: ignore[arg-type]
         project_id=project_id,
-        model=model,
+        profile="deep_code",
         overrides=requirement_overrides,
     )
     _wire_live_panel(
@@ -639,7 +639,7 @@ def build_paper_tasks_reviewspec(
         backend=backend,
         repo_root=repo_root,  # type: ignore[arg-type]
         project_id=project_id,
-        model=model,
+        profile="deep_code",
         overrides=requirement_overrides,
     )
     _wire_live_panel(
@@ -677,7 +677,7 @@ def build_implement_reviewspec(
         repo_root=repo_root,  # type: ignore[arg-type]
         project_id=project_id,
         project_root=project_root,  # type: ignore[arg-type]
-        model=model,
+        profile="deep_code",
         overrides=requirement_overrides,
     )
     _wire_live_panel(
@@ -709,7 +709,7 @@ def build_paper_implement_reviewspec(
         backend=backend,
         repo_root=repo_root,  # type: ignore[arg-type]
         project_id=project_id,
-        model=model,
+        profile="deep_code",
         overrides=requirement_overrides,
     )
     _wire_live_panel(

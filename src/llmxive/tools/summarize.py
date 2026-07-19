@@ -42,6 +42,10 @@ CHARS_PER_TOKEN = 4  # heuristic, consistent with paper_reviewer.py ("180KB ~= 4
 # completion reserve below to leave room for output + reasoning.
 DEFAULT_MODEL_BUDGET = 128_000  # safe fallback for any unknown model
 COMPLETION_RESERVE = 0.25  # leave headroom for the model's own output
+# Spec 026 slice 7: keyed by raw model id (Task 8 re-keys this by capability
+# PROFILE — out of scope here). Both current entries already equal
+# ``DEFAULT_MODEL_BUDGET``, so a profile-keyed lookup miss below falls back to
+# the identical value; Task 8 owns re-keying this table itself.
 _MODEL_BUDGETS: dict[str, int] = {
     "openai.gpt-oss-120b": 128_000,
     "meta.llama-3.2-11b-vision-instruct": 128_000,
@@ -55,10 +59,10 @@ def estimate_tokens(text: str) -> int:
     return (len(text) + CHARS_PER_TOKEN - 1) // CHARS_PER_TOKEN
 
 
-def _usable_budget(model: str, token_budget: int | None) -> int:
+def _usable_budget(profile: str, token_budget: int | None) -> int:
     if token_budget is not None:
         return max(1, int(token_budget))
-    raw = _MODEL_BUDGETS.get(model, DEFAULT_MODEL_BUDGET)
+    raw = _MODEL_BUDGETS.get(profile, DEFAULT_MODEL_BUDGET)
     return max(1, int(raw * (1.0 - COMPLETION_RESERVE)))
 
 
@@ -140,7 +144,7 @@ def _build_manifest(
     out_dir: Path,
     *,
     goal: str,
-    model: str,
+    profile: str,
     budget: int,
     summarize_fn: Callable[[str, str], str] | None,
     chunk_max: int | None = None,
@@ -160,7 +164,7 @@ def _build_manifest(
         # AND can actually be split further; otherwise store it verbatim on disk (still
         # fully recoverable). This bounds recursion (chunk_max shrinks each level).
         if estimate_tokens(chunk) > budget and len(_chunk_by_chars(chunk, finer)) > 1:
-            sub = _build_manifest(chunk, out_dir / f"sub_{i:03d}", goal=goal, model=model,
+            sub = _build_manifest(chunk, out_dir / f"sub_{i:03d}", goal=goal, profile=profile,
                                   budget=budget, summarize_fn=summarize_fn, chunk_max=finer)
             entries.append({"element_id": f"e{i:03d}", "kind": "pointer",
                             "file": str(sub.relative_to(out_dir)), "critical": crit,
@@ -174,7 +178,7 @@ def _build_manifest(
         "schema": _SCHEMA,
         "root_hash": _sha(content),
         "goal": goal,
-        "model": model,
+        "profile": profile,
         "token_budget": budget,
         "created_at": datetime.now(UTC).isoformat(),
         "entries": entries,
@@ -245,23 +249,25 @@ def summarize(
     content: str,
     *,
     goal: str,
-    model: str = "openai.gpt-oss-120b",
+    profile: str = "cheap_structured",
     token_budget: int | None = None,
     cache_dir: str | Path | None = None,
     summarize_fn: Callable[[str, str], str] | None = None,
 ) -> str:
-    """Return ``content`` verbatim if it fits ``token_budget`` (resolved from ``model``);
-    otherwise return a compact pointer block referencing an on-disk inode-table manifest
-    that preserves every check-critical element verbatim. ``summarize_fn(text, goal)``
-    (optional) produces goal-targeted prose summaries; when absent, a lossless excerpt is
+    """Return ``content`` verbatim if it fits ``token_budget`` (resolved from
+    ``profile`` — the named capability profile of the caller invoking the
+    summarization, spec 026 slice 7); otherwise return a compact pointer block
+    referencing an on-disk inode-table manifest that preserves every
+    check-critical element verbatim. ``summarize_fn(text, goal)`` (optional)
+    produces goal-targeted prose summaries; when absent, a lossless excerpt is
     used (the full content is always on disk regardless).
     """
-    budget = _usable_budget(model, token_budget)
+    budget = _usable_budget(profile, token_budget)
     if estimate_tokens(content) <= budget:
         return content
     cache = Path(cache_dir) if cache_dir is not None else Path(".summaries")
     out_dir = cache / _sha(content)
-    manifest_path = _build_manifest(content, out_dir, goal=goal, model=model,
+    manifest_path = _build_manifest(content, out_dir, goal=goal, profile=profile,
                                     budget=budget, summarize_fn=summarize_fn)
     return _render_pointer_block(manifest_path, goal=goal, budget=budget)
 

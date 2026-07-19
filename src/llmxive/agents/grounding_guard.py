@@ -81,15 +81,10 @@ logger = logging.getLogger(__name__)
 
 _EXTRACTION_BLOCK_PATH = "agents/prompts/_shared/factual_grounding_extraction_block.md"
 
-# qwen3.5-122b (default panel/reviser model) is a reasoning model whose hidden
-# chain-of-thought counts against the response budget; mirror F-13's
-# reasoning-safe budget so the extraction call is not truncated.
-# The repo-wide default chat model (mirrors librarian/* + reviser fallbacks).
-# Real backends (Dartmouth) require ``model`` as a non-optional kwarg, so when a
-# caller threads ``model=None`` (the reviser path may, see ``spec_reviser`` which
-# itself falls back to this) the extraction call resolves to this default rather
-# than crashing with a missing-kwarg TypeError.
-_DEFAULT_MODEL = "openai.gpt-oss-120b"
+# The factual-grounding extraction call is a deep-review-class reasoning call
+# (spec 026 slice 7): it resolves via the named "deep_review" capability
+# profile rather than a hardcoded model pin. An explicit ``model=`` override
+# from the caller (when supplied) still rides alongside the profile.
 
 
 @dataclass(frozen=True, slots=True)
@@ -508,7 +503,7 @@ def extract_cited_claims(
         ChatMessage(role="user", content="# Document to audit\n\n" + text + "\n\n# Task\n\nExtract the claims per the contract above; return the single YAML document."),
     ]
     try:
-        response = reasoning_chat(backend, messages, model=model or _DEFAULT_MODEL)
+        response = reasoning_chat(backend, messages, model=model, profile="deep_review")
         reply = getattr(response, "text", "") or ""
         if not reply.strip():
             raise ValueError("extraction reply was empty")

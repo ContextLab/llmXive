@@ -37,7 +37,6 @@ import dataclasses
 import hashlib
 import json
 import logging
-from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -231,9 +230,7 @@ def judge_one(
     query: str,
     candidate_title: str,
     candidate_abstract: str,
-    model: str = "openai.gpt-oss-120b",
-    default_backend: str = "dartmouth",
-    fallback_backends: Sequence[str] = ("local",),
+    profile: str = "deep_review",
     candidate_pointer: str | None = None,
     repo_root: Path | None = None,
 ) -> JudgeVerdict:
@@ -274,9 +271,7 @@ def judge_one(
                 ChatMessage(role="system", content=_JUDGE_SYSTEM_PROMPT),
                 ChatMessage(role="user", content=user_payload),
             ],
-            default_backend=default_backend,
-            fallback_backends=list(fallback_backends),
-            model=model,
+            profile=profile,
             temperature=JUDGE_TEMPERATURE,
             # Verdicts are short structured outputs — the reasoning budget,
             # not the 128K generation budget (router token policy).
@@ -344,9 +339,7 @@ def filter_by_relevance(
     citations: list[VerifiedCitation],
     *,
     query: str,
-    model: str = "openai.gpt-oss-120b",
-    default_backend: str = "dartmouth",
-    fallback_backends: Sequence[str] = ("local",),
+    profile: str = "deep_review",
     repo_root: Path | None = None,
 ) -> tuple[list[VerifiedCitation], list[tuple[VerifiedCitation, JudgeVerdict]]]:
     """Apply the relevance judge to each VerifiedCitation; return
@@ -369,9 +362,7 @@ def filter_by_relevance(
             query=query,
             candidate_title=title,
             candidate_abstract=abstract,
-            model=model,
-            default_backend=default_backend,
-            fallback_backends=fallback_backends,
+            profile=profile,
             candidate_pointer=(c.primary_pointer or "").strip() or None,
             repo_root=repo_root,
         )

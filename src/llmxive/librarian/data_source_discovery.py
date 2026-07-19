@@ -5,10 +5,11 @@ discovers a concrete, machine-loadable source and HARD-verifies it so that LLM
 hallucinations are filtered out:
 
   1. Web search (``ddgs``) seeds candidates from real search results.
-  2. An LLM (``openai.gpt-oss-120b`` via the project router) proposes sources as
-     JSON: either a pip-installable dataset package or a directly-streamable
-     data URL, each with a self-contained ``access_python`` snippet that LOADS
-     real data and prints ``RECORDS=<count>``.
+  2. An LLM (routed via the ``cheap_structured`` capability profile — spec 026
+     slice 7, no raw model pin) proposes sources as JSON: either a
+     pip-installable dataset package or a directly-streamable data URL, each
+     with a self-contained ``access_python`` snippet that LOADS real data and
+     prints ``RECORDS=<count>``.
   3. Each proposal is verified for real:
        - ``pypi_package``: install into a FRESH ``python -m venv``; if install
          fails the package is not real → reject. Run the snippet and gate on
@@ -46,10 +47,8 @@ from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_fallback
 from llmxive.librarian.dataset_resolver import sample_records
 
-# Free reasoning model on the Dartmouth catalog (router falls back to local).
 logger = logging.getLogger(__name__)
 
-_MODEL = "openai.gpt-oss-120b"
 #: When the caller specifies required_fields, a verified source must cover at
 #: least this fraction of them — else it's the wrong dataset (e.g. a name-only
 #: census) and is rejected (a wrong-schema source is worse than none).
@@ -361,9 +360,7 @@ def _propose_sources(
     """Ask the LLM for candidate sources; return a list of {kind,ref,access_python}."""
     resp = chat_with_fallback(
         _build_propose_messages(intent, seeds, required_fields),
-        default_backend="dartmouth",
-        fallback_backends=["local"],
-        model=_MODEL,
+        profile="cheap_structured",
     )
     obj = _extract_json_object(resp.text)
     if not obj:
@@ -532,9 +529,7 @@ def _repair_snippet(
             ChatMessage(role="system", content=_REPAIR_SYSTEM),
             ChatMessage(role="user", content=user),
         ],
-        default_backend="dartmouth",
-        fallback_backends=["local"],
-        model=_MODEL,
+        profile="cheap_structured",
     )
     fixed = _strip_code_fences(resp.text)
     return fixed or None

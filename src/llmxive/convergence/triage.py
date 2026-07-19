@@ -195,7 +195,7 @@ Comment:
 def llm_topic_judge(
     backend: object,
     *,
-    model: str = "openai.gpt-oss-120b",
+    profile: str = "deep_review",
     max_tokens: int = 512,
 ) -> JudgeFn:
     """Factory for an LLM-backed :class:`JudgeFn` that ``triage_submission``
@@ -221,7 +221,7 @@ def llm_topic_judge(
             resp = reasoning_chat(
                 backend,  # type: ignore[arg-type]
                 [ChatMessage(role="user", content=prompt)],
-                model=model,
+                profile=profile,
                 max_tokens=max_tokens,
             )
             raw = resp.text

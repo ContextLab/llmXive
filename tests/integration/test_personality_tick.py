@@ -141,7 +141,11 @@ class TestDispatchComment:
         # Comment fixture targets the spec.md we created in _make_repo.
         raw = (FIXTURES / "action_comment.json").read_text(encoding="utf-8")
         action = p.parse_action(raw)
-        result = p.dispatch(action, persona, repo)
+        # Spec 026 slice 7: routing is profile-driven — the caller (tick())
+        # passes the REAL model that answered; here we drive dispatch()
+        # directly, so supply one explicitly to exercise the attribution
+        # wiring end-to-end.
+        result = p.dispatch(action, persona, repo, model_used="qwen.qwen3.5-122b")
         assert result.outcome == p.OUTCOME_COMMITTED
         assert len(result.committed_paths) == 1
         # The review file MUST be under reviews/research/ (the spec.md is
@@ -149,10 +153,10 @@ class TestDispatchComment:
         rev_path = repo / result.committed_paths[0]
         assert rev_path.is_file()
         assert "-simulated__" in rev_path.name
-        # Front-matter MUST tag this as an LLM review at openai.gpt-oss-120b.
+        # Front-matter MUST tag this as an LLM review at the real model used.
         text = rev_path.read_text(encoding="utf-8")
         assert "reviewer_kind: llm" in text
-        assert "model_name: openai.gpt-oss-120b" in text
+        assert "model_name: qwen.qwen3.5-122b" in text
         # Body contains the persona's content AND the disclaimer footer.
         assert "System 1" in text
         assert "simulated AI persona" in text
@@ -294,9 +298,11 @@ class TestTickPointerRule:
     def test_run_log_entry_has_all_required_fields(self, tmp_path: Path) -> None:
         repo = _make_repo(tmp_path)
         entry = p.tick(repo, llm_fixture=str(FIXTURES / "action_comment.json"))
-        # Required attribution markers (data-model.md E6 + FR-010).
+        # Required attribution markers (data-model.md E6 + FR-010). Spec 026
+        # slice 7: routing is profile-driven, so there is no static pinned
+        # model; a fixture-driven tick (no live call) records "fixture".
         assert entry["agent_name"] == "personality"
-        assert entry["model_name"] == "openai.gpt-oss-120b"
+        assert entry["model_name"] == "fixture"
         assert entry["model_kind"] == "personality_simulator"
         assert entry["personality_slug"] == "kahneman"
         assert entry["display_name"] == "Daniel Kahneman (simulated)"

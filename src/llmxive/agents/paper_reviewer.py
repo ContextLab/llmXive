@@ -241,9 +241,6 @@ _CHUNK_SUMMARY_PROMPT_SUFFIX = (
 def _summarize_chunk(
     chunk: str,
     *,
-    default_backend: str = "dartmouth",
-    fallback_backends: list[str] | None = None,
-    model: str | None = None,
     profile: str = "standard_generation",
 ) -> str:
     """Single real LLM call (no mocks) that summarizes one chunk of the
@@ -258,9 +255,6 @@ def _summarize_chunk(
     prompt = _CHUNK_SUMMARY_PROMPT_PREFIX + chunk + _CHUNK_SUMMARY_PROMPT_SUFFIX
     response = chat_with_fallback(
         [ChatMessage(role="user", content=prompt)],
-        default_backend=default_backend,
-        fallback_backends=list(fallback_backends) if fallback_backends is not None else ["local"],
-        model=model,
         profile=profile,
     )
     summary = (response.text or "").strip() or "(summarizer returned empty content)"

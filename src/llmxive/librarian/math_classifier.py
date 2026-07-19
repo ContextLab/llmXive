@@ -42,7 +42,6 @@ import datetime as _dt
 import json
 import logging
 import sys
-from collections.abc import Sequence
 from pathlib import Path
 
 from llmxive.agents.prompts import render_prompt
@@ -140,9 +139,7 @@ def classify(
     *,
     project_id: str | None,
     librarian_prompt_version: str,
-    model: str = "openai.gpt-oss-120b",
-    default_backend: str = "dartmouth",
-    fallback_backends: Sequence[str] = ("local",),
+    profile: str = "cheap_structured",
     repo_root: Path | None = None,
 ) -> MathClassifierResult:
     """Decide whether ``question`` is a pure-math theorem/proof/formal-structure
@@ -182,9 +179,7 @@ def classify(
                 ChatMessage(role="system", content=system_prompt),
                 ChatMessage(role="user", content=user_payload),
             ],
-            default_backend=default_backend,
-            fallback_backends=list(fallback_backends),
-            model=model,
+            profile=profile,
         )
     except Exception as exc:  # fail open by design — librarian must proceed on SS+arXiv
         msg = str(exc)
@@ -221,9 +216,7 @@ def is_math_theory_question(
     *,
     project_id: str | None = None,
     librarian_prompt_version: str = "0.0.0",
-    model: str = "openai.gpt-oss-120b",
-    default_backend: str = "dartmouth",
-    fallback_backends: list[str] | None = None,
+    profile: str = "cheap_structured",
     repo_root: Path | None = None,
 ) -> bool:
     """Thin convenience wrapper: ``classify(...).verdict or False``."""
@@ -233,9 +226,7 @@ def is_math_theory_question(
             idea_body_excerpt,
             project_id=project_id,
             librarian_prompt_version=librarian_prompt_version,
-            model=model,
-            default_backend=default_backend,
-            fallback_backends=list(fallback_backends or ("local",)),
+            profile=profile,
             repo_root=repo_root,
         ).verdict
     )

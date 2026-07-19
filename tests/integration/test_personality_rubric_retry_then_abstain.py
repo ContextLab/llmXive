@@ -91,7 +91,10 @@ class TestRubricGateConvertsToAbstainOnDoubleFail(unittest.TestCase):
             "content": "Wonderful paper! Fantastic work!",  # still manufactured
         })
 
-        with patch.object(p, "_call_llm_for_persona", return_value=retry_payload):
+        with patch.object(
+            p, "_call_llm_for_persona",
+            return_value=(retry_payload, "qwen.qwen3.5-122b"),
+        ):
             new_action, note = _rubric_gate_or_convert_to_abstain(
                 original, "raw original body", _persona(),
                 [CatalogEntry(id="PROJ-TEST-001", title="t", field="f",
@@ -130,7 +133,10 @@ class TestRubricGateConvertsToAbstainOnDoubleFail(unittest.TestCase):
             ),
         })
 
-        with patch.object(p, "_call_llm_for_persona", return_value=retry_payload):
+        with patch.object(
+            p, "_call_llm_for_persona",
+            return_value=(retry_payload, "qwen.qwen3.5-122b"),
+        ):
             new_action, note = _rubric_gate_or_convert_to_abstain(
                 original, "raw original body", _persona(),
                 [CatalogEntry(id="PROJ-TEST-001", title="t", field="f",

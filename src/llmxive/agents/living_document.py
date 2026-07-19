@@ -78,7 +78,7 @@ def ingest_comment(
     stage: str = "posted",
     lenses: list[str] | None = None,
     backend: object | None = None,
-    model: str = "openai.gpt-oss-120b",
+    profile: str = "deep_review",
 ) -> IngestResult:
     """Ingest one post-``posted`` comment.
 
@@ -106,7 +106,7 @@ def ingest_comment(
     judge = None
     if backend is not None:
         from llmxive.convergence.triage import llm_topic_judge
-        judge = llm_topic_judge(backend, model=model)
+        judge = llm_topic_judge(backend, profile=profile)
     record = triage_submission(
         comment_text,
         source="human" if source not in {"human", "personality"} else source,  # type: ignore[arg-type]
@@ -511,7 +511,7 @@ def is_off_topic(
     *,
     lenses: list[str] | None = None,
     backend: object | None = None,
-    model: str = "openai.gpt-oss-120b",
+    profile: str = "deep_review",
 ) -> bool:
     """Convenience wrapper for the off-topic check used by the
     publisher's UI / GitHub-action layer to give an immediate
@@ -535,7 +535,7 @@ def is_off_topic(
     judge = None
     if backend is not None:
         from llmxive.convergence.triage import llm_topic_judge
-        judge = llm_topic_judge(backend, model=model)
+        judge = llm_topic_judge(backend, profile=profile)
     record = triage_submission(
         comment_text,
         source="human",

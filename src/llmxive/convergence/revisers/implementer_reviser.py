@@ -145,7 +145,7 @@ class ImplementerReviser:
         repo_root: Path,
         project_id: str,
         project_root: Path | None = None,
-        model: str | None = None,
+        profile: str = "deep_code",
         overrides: RequirementOverrides | None = None,
         token_budget: int = _DEFAULT_INPUT_TOKEN_BUDGET,
         summarize_cache_dir: Path | None = None,
@@ -160,7 +160,7 @@ class ImplementerReviser:
         self._repo_root = Path(repo_root)
         self._project_root = Path(project_root) if project_root is not None else self._repo_root
         self._project_id = project_id
-        self._model = model
+        self._profile = profile
         self._overrides = overrides
         self._token_budget = token_budget
         self._summarize_cache_dir = (
@@ -211,7 +211,7 @@ class ImplementerReviser:
                 spec_text = summarize(
                     spec_text,
                     goal="preserve every FR/SC id verbatim + every constraint",
-                    model=self._model or "qwen3.5-122b",
+                    profile=self._profile,
                     token_budget=max(2_000, self._token_budget // 6),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -219,7 +219,7 @@ class ImplementerReviser:
                 plan_text = summarize(
                     plan_text,
                     goal="preserve every plan element + every method choice",
-                    model=self._model or "qwen3.5-122b",
+                    profile=self._profile,
                     token_budget=max(2_000, self._token_budget // 6),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -227,7 +227,7 @@ class ImplementerReviser:
                 comments_block = summarize(
                     comments_block,
                     goal="extract every reviewer concern + every requested change",
-                    model=self._model or "qwen3.5-122b",
+                    profile=self._profile,
                     token_budget=max(1_500, self._token_budget // 8),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -281,7 +281,7 @@ class ImplementerReviser:
         # FR-011 self-consistency pass: first pass + ONE corrective re-pass.
         return run_with_self_consistency(
             backend=self._backend,
-            model=self._model,
+            profile=self._profile,
             repo_root=self._repo_root,
             concerns=concerns,
             first_pass=run_pass_with_artifact_retry(
@@ -304,7 +304,7 @@ class ImplementerReviser:
                 "imported symbol, every public API, and the exact location "
                 "of TODO/FIXME/XXX comments"
             ),
-            model=self._model or "qwen3.5-122b",
+            profile=self._profile,
             token_budget=_PER_ARTIFACT_SUMMARIZE_THRESHOLD_TOKENS,
             cache_dir=self._summarize_cache_dir,
         )

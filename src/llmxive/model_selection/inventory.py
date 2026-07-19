@@ -100,10 +100,18 @@ _CANONICAL_FILES = frozenset({"src/llmxive/model_selection/policy.py"})
 #: model_selection`` import cycle (decision A, 2026-07-17 maintainer review). Its
 #: file-sibling ``KNOWN_FREE_MODELS`` is deliberately NOT here: the live-catalog
 #: pricing + LKG store supersede that hardcoded free-ness allowlist, so it stays a
-#: migration_target (deleted in slice 8). Extend only for a genuinely canonical
-#: symbol, in a reviewed PR.
+#: migration_target (deleted in slice 8). ``local.list_models`` is the SAME kind of
+#: acquisition-layer serving-mode knowledge: the local transformers fallback has no
+#: live discovery mechanism (unlike Dartmouth's catalog fetch), so the single
+#: checkpoint it serves is inherently a fixed identifier here, not a call-site
+#: profile pin (spec 026 slice 7) — moving it into ``policy.py`` would likewise
+#: create a ``backends → model_selection`` import cycle. Extend only for a
+#: genuinely canonical symbol, in a reviewed PR.
 _CANONICAL_SYMBOLS = frozenset(
-    {("src/llmxive/backends/dartmouth.py", "_REASONING_MODELS")}
+    {
+        ("src/llmxive/backends/dartmouth.py", "_REASONING_MODELS"),
+        ("src/llmxive/backends/local.py", "list_models"),
+    }
 )
 _TESTS_PREFIX = "tests/"
 _REGISTRY_PATH = "agents/registry.yaml"

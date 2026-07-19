@@ -79,12 +79,9 @@ def test_summarize_chunk_preserves_required_macros() -> None:
 
     summary = _summarize_chunk(
         _SAMPLE_CHUNK,
-        default_backend="dartmouth",
-        fallback_backends=[],
-        # Pins a specific model (spec 026 US5: the registry no longer carries
-        # a raw model id — paper_reviewer's real profile is "deep_review",
-        # exercised separately by the profile-routing tests).
-        model="qwen.qwen3.5-122b",
+        # Spec 026 slice 7: routes purely by named capability profile — the
+        # registry no longer carries a raw model id.
+        profile="deep_review",
     )
 
     # The summary must not be empty.

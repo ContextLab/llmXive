@@ -162,7 +162,7 @@ class _AbstractPlanReviser:
         backend: Any,
         repo_root: Path,
         project_id: str,
-        model: str | None = None,
+        profile: str = "deep_code",
         overrides: RequirementOverrides | None = None,
         token_budget: int = _DEFAULT_INPUT_TOKEN_BUDGET,
         summarize_cache_dir: Path | None = None,
@@ -170,7 +170,7 @@ class _AbstractPlanReviser:
         self._backend = backend
         self._repo_root = Path(repo_root)
         self._project_id = project_id
-        self._model = model
+        self._profile = profile
         self._overrides = overrides
         self._token_budget = token_budget
         self._summarize_cache_dir = (
@@ -213,7 +213,7 @@ class _AbstractPlanReviser:
                         "extract every FR/SC id verbatim, every constraint, "
                         "every named dataset, and the exact research question"
                     ),
-                    model=self._model or "qwen3.5-122b",
+                    profile=self._profile,
                     token_budget=max(3_000, self._token_budget // 3),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -224,7 +224,7 @@ class _AbstractPlanReviser:
                         "extract every reviewer concern, requested change, "
                         "and the FR/SC ids each refers to"
                     ),
-                    model=self._model or "qwen3.5-122b",
+                    profile=self._profile,
                     token_budget=max(1_500, self._token_budget // 6),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -251,7 +251,7 @@ class _AbstractPlanReviser:
         # FR-011 self-consistency pass: first pass + ONE corrective re-pass.
         return run_with_self_consistency(
             backend=self._backend,
-            model=self._model,
+            profile=self._profile,
             repo_root=self._repo_root,
             concerns=concerns,
             first_pass=run_pass_with_artifact_retry(

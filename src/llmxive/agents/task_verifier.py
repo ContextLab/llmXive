@@ -243,9 +243,7 @@ def verify_task(
     task_text: str,
     evidence: str,
     spec_context: str = "",
-    model: str = "openai.gpt-oss-120b",
-    default_backend: str = "dartmouth",
-    fallback_backends: tuple[str, ...] = ("local",),
+    profile: str = "deep_review",
 ) -> TaskVerdict:
     """Independently judge whether ``task_text`` is genuinely complete given the
     ACTUAL ``evidence``. DEFERS (``complete=None``) on a backend failure so an
@@ -269,9 +267,7 @@ def verify_task(
                 ChatMessage(role="system", content=_SYSTEM_PROMPT),
                 ChatMessage(role="user", content=user),
             ],
-            default_backend=default_backend,
-            fallback_backends=list(fallback_backends),
-            model=model,
+            profile=profile,
             temperature=VERIFIER_TEMPERATURE,
             max_tokens=REASONING_MAX_TOKENS,
         )
@@ -431,9 +427,7 @@ def run_verification_pass(
     *,
     already_verified: set[str],
     spec_context: str = "",
-    model: str = "openai.gpt-oss-120b",
-    default_backend: str = "dartmouth",
-    fallback_backends: tuple[str, ...] = ("local",),
+    profile: str = "deep_review",
     notes_path: Path,
     state_path: Path,
     cap: int = DEFAULT_VERIFY_CAP,
@@ -572,9 +566,7 @@ def run_verification_pass(
                 task_text=task_text,
                 evidence=evidence,
                 spec_context=spec_context,
-                model=model,
-                default_backend=default_backend,
-                fallback_backends=fallback_backends,
+                profile=profile,
             )
             complete = verdict.complete
             reason = verdict.reason

@@ -74,7 +74,7 @@ _MATH_KEYWORDS_RE = re.compile(
 )
 
 
-def _is_math_claim(claim: Claim, *, backend: Any, model: str | None,
+def _is_math_claim(claim: Claim, *, backend: Any,
                    repo_root: Path | None) -> bool:
     """Return True if the claim looks like a math/theorem question.
 
@@ -95,9 +95,7 @@ def _is_math_claim(claim: Claim, *, backend: Any, model: str | None,
             idea_body_excerpt=None,
             project_id=None,
             librarian_prompt_version="017",
-            model=model or "openai.gpt-oss-120b",
-            default_backend=getattr(backend, "name", "dartmouth"),
-            fallback_backends=["local"],
+            profile="cheap_structured",
             repo_root=repo_root,
         )
         if result.verdict is not None:
@@ -364,7 +362,7 @@ def fill_claim(
         q = subject_query(claim, backend=backend, model=model, repo_root=repo_root)
 
         # Step 3: determine math flag and channel list
-        math = _is_math_claim(claim, backend=backend, model=model, repo_root=repo_root)
+        math = _is_math_claim(claim, backend=backend, repo_root=repo_root)
         channel_names = channels_for(claim.kind, math=math)
 
         # Gating (Fix E, extended to "paper"): "theorem" (authority 4) and

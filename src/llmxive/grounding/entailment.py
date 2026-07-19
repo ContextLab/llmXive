@@ -15,7 +15,6 @@ from llmxive.librarian.verify import jaccard_tokens
 logger = logging.getLogger(__name__)
 
 _ENTAILMENT_BLOCK = "agents/prompts/_shared/claim_entailment_block.md"
-_DEFAULT_MODEL = "openai.gpt-oss-120b"
 _WINDOW = 320  # chars on each side of an anchor
 _MAX_PASSAGES = 5
 _SENT_RE = re.compile(r"[^.!?\n]+[.!?]?")
@@ -122,7 +121,7 @@ def assess(claim: str, doc: Any, *, backend: Any, model: str | None,
                             "Return the single YAML verdict."),
     ]
     try:
-        resp = reasoning_chat(backend, messages, model=model or _DEFAULT_MODEL)
+        resp = reasoning_chat(backend, messages, model=model, profile="deep_review")
         reply = getattr(resp, "text", "") or ""
         if not reply.strip():
             raise ValueError("empty entailment reply")

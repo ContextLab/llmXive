@@ -33,7 +33,7 @@ def test_manifest_schema_and_content_files(tmp_path):
     mpath = _manifest_path(block)
     manifest = json.loads(mpath.read_text())
     assert manifest["schema"] == "llmxive-summary/1"
-    for key in ("root_hash", "goal", "model", "token_budget", "created_at", "entries"):
+    for key in ("root_hash", "goal", "profile", "token_budget", "created_at", "entries"):
         assert key in manifest, f"manifest missing {key}"
     assert manifest["entries"], "manifest has no entries"
     for e in manifest["entries"]:

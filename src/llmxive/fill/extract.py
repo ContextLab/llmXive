@@ -244,9 +244,6 @@ def _offline_numeric_lookup(source: FetchedSource, claim: Claim) -> str | None:
     return None
 
 
-_DEFAULT_MODEL = "openai.gpt-oss-120b"
-
-
 def _call_llm_locator(
     source: FetchedSource,
     claim: Claim,
@@ -280,7 +277,7 @@ def _call_llm_locator(
         # against the response budget; a small max_tokens yields empty content
         # (finish_reason=length). Mirror grounding/entailment's reasoning-safe
         # budget, degrading gracefully for backends/fakes that omit the kwarg.
-        response = reasoning_chat(backend, messages, model=model or _DEFAULT_MODEL)
+        response = reasoning_chat(backend, messages, model=model, profile="cheap_structured")
         text = getattr(response, "text", None) or ""
     except Exception:
         return None

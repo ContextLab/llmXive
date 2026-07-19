@@ -139,14 +139,14 @@ def _resolved(v: Verdict) -> bool:
     return v.status == "pass" and not v.stale and not v.self_review
 
 
-def _maybe_reduce(artifacts: dict[str, str], *, goal: str, model: str,
+def _maybe_reduce(artifacts: dict[str, str], *, goal: str, profile: str,
                   budget: int) -> dict[str, str]:
     """Route any oversized artifact through the SSoT summarizer (FR-006) so no
     reviewer/reviser input silently overflows the model context."""
     out: dict[str, str] = {}
     for path, content in artifacts.items():
         if estimate_tokens(content) > budget:
-            out[path] = summarize(content, goal=goal, model=model, token_budget=budget)
+            out[path] = summarize(content, goal=goal, profile=profile, token_budget=budget)
         else:
             out[path] = content
     return out
@@ -397,7 +397,7 @@ def run_convergence(
     constitution: str | None = None,
     advisory: list[str] | None = None,
     producer: str | None = None,
-    model: str = "openai.gpt-oss-120b",
+    profile: str = "deep_review",
     reviewer_token_budget: int | None = None,
     max_rounds: int | None = None,
     per_round_budget_s: float | None = None,
@@ -425,10 +425,10 @@ def run_convergence(
     budget = reviewer_token_budget
     if budget is None:
         from llmxive.tools.summarize import _usable_budget  # SSoT budget resolution
-        budget = _usable_budget(model, None)
+        budget = _usable_budget(profile, None)
 
     def _present(arts: dict[str, str]) -> dict[str, str]:
-        return _maybe_reduce(arts, goal=spec.overflow_goal, model=model, budget=budget)
+        return _maybe_reduce(arts, goal=spec.overflow_goal, profile=profile, budget=budget)
 
     @contextmanager
     def _abort_provenance(round_index: int) -> Iterator[None]:

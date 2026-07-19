@@ -34,8 +34,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_MODEL = "openai.gpt-oss-120b"
-
 
 # ---------------------------------------------------------------------------
 # US1 — numeric / citation resolver (full implementation)
@@ -120,7 +118,7 @@ def resolve_numeric_or_citation(claim: Claim, *, backend: Any, model: str | None
         source_kind=kind_str,
         source_value=source_value,
     )
-    grounding = ground_cited_claim(cited, backend=backend, model=model or _DEFAULT_MODEL,
+    grounding = ground_cited_claim(cited, backend=backend, model=model,
                                    repo_root=repo_root)
 
     if grounding.ok:

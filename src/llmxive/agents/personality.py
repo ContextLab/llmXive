@@ -65,10 +65,6 @@ UMBRELLA_PROMPT_PATH = "agents/prompts/personality.md"
 """The decision-protocol umbrella prompt prepended to every persona's
 grounding card at LLM call time."""
 
-MODEL_NAME = "openai.gpt-oss-120b"
-"""Canonical Dartmouth-Chat model id (the registry form). Recorded in
-run-log entries; also the only allowed model for FR-015."""
-
 MODEL_KIND = "personality_simulator"
 """Distinguishes simulated personas from other LLM agents in the run-log."""
 
@@ -91,21 +87,30 @@ DEFAULT_TIMEOUT_S = 600
 CONTENT_MAX_WORDS = 2000
 """Guardrail on the LLM-emitted ``content`` field length."""
 
-# Human-readable label for the disclaimer, DERIVED from MODEL_NAME so it can
-# never drift out of sync with the actual model again (2026-06: the registry
-# migrated off the retired qwen family to openai.gpt-oss-120b, but this footer
-# still said "qwen-3.5-122b" because it was hard-coded).
-_MODEL_LABEL = MODEL_NAME.split(".", 1)[-1]  # e.g. "gpt-oss-120b"
-
+# Spec 026 slice 7: routing is profile-driven (no per-agent model pin), so the
+# label can no longer be derived once at import time — it must reflect
+# whichever model ACTUALLY answered a given call (a live chain over
+# qwen/gemma/gpt-oss, resolved per call). ``_model_label`` derives the
+# human-readable form from the real ``ChatResponse.model``; ``_make_disclaimer``
+# formats it in per call, so the footer never drifts out of sync with the
+# model that produced it (2026-06 history: the registry migrated off the
+# retired qwen family to openai.gpt-oss-120b, but a HARD-CODED footer still
+# said "qwen-3.5-122b" — the reason this is derived, not baked in).
 DISCLAIMER_TEMPLATE = (
     "\n\n---\n\n"
     "> *Note: this contribution was authored by **{display_name}** — "
     "a simulated AI persona shaped from the public-record writings of {real_name}, "
-    f"running on `{_MODEL_LABEL}` via Dartmouth Chat. It is not the actual "
+    "running on `{model_label}` via Dartmouth Chat. It is not the actual "
     "{real_name}.*\n"
 )
 """Verbatim disclaimer footer (data-model.md E5). Placed at the very bottom
 of every committed artifact, after a horizontal-rule separator."""
+
+
+def _model_label(model_used: str) -> str:
+    """Human-readable model label for the disclaimer (e.g.
+    ``openai.gpt-oss-120b`` -> ``gpt-oss-120b``)."""
+    return model_used.split(".", 1)[-1] if "." in model_used else model_used
 
 
 # ---------------------------------------------------------------------------
@@ -732,11 +737,13 @@ def parse_action(raw_response: str) -> Action:
 # ---------------------------------------------------------------------------
 
 
-def _make_disclaimer(persona: Personality) -> str:
-    """The verbatim FR-012 disclaimer footer for `persona`."""
+def _make_disclaimer(persona: Personality, model_used: str) -> str:
+    """The verbatim FR-012 disclaimer footer for `persona`, naming the REAL
+    model that answered this tick's call (``model_used``)."""
     return DISCLAIMER_TEMPLATE.format(
         display_name=display_name_for_render(persona),
         real_name=persona.display_name,
+        model_label=_model_label(model_used),
     )
 
 
@@ -815,7 +822,10 @@ def _sha256_of_path(path: Path) -> str:
         return "0" * 64
 
 
-def dispatch(action: Action, persona: Personality, repo_root: Path) -> DispatchResult:
+def dispatch(
+    action: Action, persona: Personality, repo_root: Path, *,
+    model_used: str = "unknown",
+) -> DispatchResult:
     """Route the parsed action through the right existing pipe.
 
     Per Constitution Principle I, we reuse:
@@ -824,6 +834,12 @@ def dispatch(action: Action, persona: Personality, repo_root: Path) -> DispatchR
       - The submission-intake feedback path (synthesized issue body) for
         ``contribute`` and ``propose_arxiv``.
       - No-op for ``abstain``.
+
+    ``model_used`` (spec 026 slice 7): the REAL model that answered this
+    tick's call (from ``ChatResponse.model``) — routing is profile-driven, so
+    there is no longer a single static per-agent model to record; callers
+    that don't have one (e.g. tests exercising dispatch in isolation) get the
+    honest ``"unknown"`` default rather than a stale hard-coded pin.
     """
     if action.action == ACTION_ABSTAIN:
         return DispatchResult(outcome=OUTCOME_ABSTAINED, committed_paths=[])
@@ -841,11 +857,11 @@ def dispatch(action: Action, persona: Personality, repo_root: Path) -> DispatchR
             )
 
     if action.action == ACTION_COMMENT:
-        result = _dispatch_comment(action, persona, repo_root)
+        result = _dispatch_comment(action, persona, repo_root, model_used=model_used)
     elif action.action == ACTION_CONTRIBUTE:
-        result = _dispatch_contribute(action, persona, repo_root)
+        result = _dispatch_contribute(action, persona, repo_root, model_used=model_used)
     elif action.action == ACTION_PROPOSE_ARXIV:
-        result = _dispatch_propose_arxiv(action, persona, repo_root)
+        result = _dispatch_propose_arxiv(action, persona, repo_root, model_used=model_used)
     else:
         # Unreachable — parse_action enforces enum.
         return DispatchResult(outcome=OUTCOME_MODEL_ERROR, committed_paths=[],
@@ -881,7 +897,10 @@ def _project_id_from_artifact_path(artifact_rel: str) -> str | None:
     return pid
 
 
-def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> DispatchResult:
+def _dispatch_comment(
+    action: Action, persona: Personality, repo_root: Path, *,
+    model_used: str = "unknown",
+) -> DispatchResult:
     """Comment branch — writes a review file via the canonical
     :func:`llmxive.state.reviews.write` helper.
 
@@ -916,7 +935,7 @@ def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> 
 
     # Body = persona's content + disclaimer footer (F8 placement: bottom,
     # after horizontal rule).
-    body = (action.content or "").strip() + _make_disclaimer(persona)
+    body = (action.content or "").strip() + _make_disclaimer(persona, model_used)
 
     # Spec 015 T040 / FR-021-022: stage-aware triage. Personality comments
     # are advisory inputs to the formal review panels — they are gated by
@@ -1022,7 +1041,7 @@ def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> 
         feedback=(action.content or "")[:500],
         reviewed_at=datetime.now(_dt.UTC),
         prompt_version="1.0.0",
-        model_name=MODEL_NAME,
+        model_name=model_used,
         backend=BackendName.DARTMOUTH,
     )
     try:
@@ -1047,7 +1066,10 @@ def _dispatch_comment(action: Action, persona: Personality, repo_root: Path) -> 
     return DispatchResult(outcome=OUTCOME_COMMITTED, committed_paths=[rel])
 
 
-def _dispatch_contribute(action: Action, persona: Personality, repo_root: Path) -> DispatchResult:
+def _dispatch_contribute(
+    action: Action, persona: Personality, repo_root: Path, *,
+    model_used: str = "unknown",
+) -> DispatchResult:
     """Contribute branch — records the persona's improvement as a feedback
     file on disk. The maintenance-agent / feedback-triage pipeline picks
     it up the same way it picks up website-submitted feedback.
@@ -1072,14 +1094,14 @@ def _dispatch_contribute(action: Action, persona: Personality, repo_root: Path) 
         "submitter": display_name_for_render(persona),
         "submitter_kind": "llm",
         "personality_slug": persona.slug,
-        "model_name": MODEL_NAME,
+        "model_name": model_used,
         "model_kind": MODEL_KIND,
         "target_artifact": action.target_artifact_path,
         "target_artifact_kind": action.target_artifact_kind,
         "submitted_at": datetime.now(_dt.UTC).isoformat(),
         "kind": "feedback",
     }
-    body = (action.content or "").strip() + _make_disclaimer(persona)
+    body = (action.content or "").strip() + _make_disclaimer(persona, model_used)
     text = "---\n" + yaml.safe_dump(frontmatter, sort_keys=True) + "---\n\n" + body + "\n"
     path.write_text(text, encoding="utf-8")
     try:
@@ -1089,7 +1111,10 @@ def _dispatch_contribute(action: Action, persona: Personality, repo_root: Path) 
     return DispatchResult(outcome=OUTCOME_COMMITTED, committed_paths=[rel])
 
 
-def _dispatch_propose_arxiv(action: Action, persona: Personality, repo_root: Path) -> DispatchResult:
+def _dispatch_propose_arxiv(
+    action: Action, persona: Personality, repo_root: Path, *,
+    model_used: str = "unknown",
+) -> DispatchResult:
     """Propose-arXiv branch — records an arxiv-submission stub the
     submission-intake pipeline can pick up.
 
@@ -1111,13 +1136,13 @@ def _dispatch_propose_arxiv(action: Action, persona: Personality, repo_root: Pat
         "submitter": display_name_for_render(persona),
         "submitter_kind": "llm",
         "personality_slug": persona.slug,
-        "model_name": MODEL_NAME,
+        "model_name": model_used,
         "model_kind": MODEL_KIND,
         "submitted_at": datetime.now(_dt.UTC).isoformat(),
         "arxiv_url": action.arxiv_url,
         "search_terms": action.arxiv_search_terms or [],
         "rationale": (action.content or "").strip(),
-        "disclaimer": _make_disclaimer(persona).strip(),
+        "disclaimer": _make_disclaimer(persona, model_used).strip(),
     }
     path.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
     try:
@@ -1157,12 +1182,16 @@ def _classify_llm_exception(exc: BaseException) -> str:
 
 
 def _call_llm_for_persona(persona: Personality, catalog: list[CatalogEntry],
-                          repo_root: Path, *, extra_hint: str | None = None) -> str:
-    """One LLM call per tick. Returns the raw response text.
+                          repo_root: Path, *, extra_hint: str | None = None,
+                          ) -> tuple[str, str]:
+    """One LLM call per tick. Returns ``(raw_response_text, model_used)``.
 
     Uses the existing chat_with_fallback router with the personality agent's
     registry entry (spec 026 US5: routed by its named capability ``profile``,
-    "standard_generation" — see registry entry in T002).
+    "standard_generation" — see registry entry in T002). ``model_used`` (spec
+    026 slice 7) is the REAL model that answered (``ChatResponse.model``) —
+    routing is profile-driven, so which model actually served the call is
+    known only after the response comes back, not pinned in advance.
 
     ``extra_hint`` (spec 009 FR-004 retry path): when present, an additional
     coaching instruction appended to the user prompt. Used by the rubric gate
@@ -1199,7 +1228,7 @@ def _call_llm_for_persona(persona: Personality, catalog: list[CatalogEntry],
         max_tokens=8192,
         temperature=0.7,
     )
-    return response.text
+    return response.text, response.model
 
 
 def _write_run_log_entry(repo_root: Path, entry: dict[str, Any]) -> None:
@@ -1289,6 +1318,10 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
 
     # ── 4. Call LLM (or fixture) ──
     raw_response: str
+    # Spec 026 slice 7: no static per-agent model pin — this is the REAL
+    # model that answered (or "fixture" when the LLM call is a test fixture
+    # replay, never a live call).
+    model_used: str = "unknown"
     outcome: str
     action_obj: Action | None = None
     dispatch_result: DispatchResult | None = None
@@ -1298,8 +1331,9 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
         fixture_path = llm_fixture or os.environ.get("LLMXIVE_PERSONALITY_FIXTURE")
         if fixture_path:
             raw_response = Path(fixture_path).read_text(encoding="utf-8")
+            model_used = "fixture"
         else:
-            raw_response = _call_llm_for_persona(persona, catalog, repo_root)
+            raw_response, model_used = _call_llm_for_persona(persona, catalog, repo_root)
     except Exception as exc:
         # Distinguish rate-limit / transient backend errors from any other
         # failure — rate-limit explicitly records OUTCOME_RATE_LIMITED so
@@ -1329,6 +1363,7 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
             started, ended, slug=persona.slug, display_name=display,
             action=None, outcome=outcome,
             project_id=None, committed_paths=[], note=note,
+            model_used=model_used,
         )
         _write_run_log_entry(repo_root, entry)
         _maybe_advance_pointer(repo_root, state, persona, outcome, ended, None, [])
@@ -1354,6 +1389,7 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
                 project_id=action_obj.target_project_id,
                 committed_paths=[],
                 note=f"target artifact not found: {artifact_rel}",
+                model_used=model_used,
             )
             _write_run_log_entry(repo_root, entry)
             if not force_slug:
@@ -1374,7 +1410,7 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
             note = rubric_note
 
     # ── 6. Dispatch ──
-    dispatch_result = dispatch(action_obj, persona, repo_root)
+    dispatch_result = dispatch(action_obj, persona, repo_root, model_used=model_used)
     outcome = dispatch_result.outcome
     ended = _dt.datetime.now(_dt.UTC)
     entry = _build_log_entry(
@@ -1383,6 +1419,7 @@ def tick(repo_root: Path, *, force_slug: str | None = None,
         project_id=action_obj.target_project_id,
         committed_paths=dispatch_result.committed_paths,
         note=dispatch_result.error,
+        model_used=model_used,
     )
     _write_run_log_entry(repo_root, entry)
 
@@ -1437,14 +1474,19 @@ def _build_log_entry(
     action: str | None, outcome: str,
     project_id: str | None, committed_paths: list[str],
     note: str | None = None,
+    model_used: str = "unknown",
 ) -> dict[str, Any]:
-    """Construct the run-log entry dict per contracts/run-log-entry.example.json."""
+    """Construct the run-log entry dict per contracts/run-log-entry.example.json.
+
+    ``model_used`` (spec 026 slice 7) is the REAL model that answered this
+    tick's call; ``"unknown"`` for entries built before any call was made
+    (empty pool, no persona selected, or the call itself failed)."""
     return {
         "started_at": started.isoformat(),
         "ended_at": ended.isoformat(),
         "duration_s": (ended - started).total_seconds(),
         "agent_name": AGENT_NAME,
-        "model_name": MODEL_NAME,
+        "model_name": model_used,
         "model_kind": MODEL_KIND,
         "personality_slug": slug,
         "display_name": display_name,
@@ -1550,7 +1592,7 @@ def _rubric_gate_or_convert_to_abstain(
     log.info("rubric rejected first pass for %s: %s — retrying once", persona.slug, hint)
 
     try:
-        retry_raw = _call_llm_for_persona(
+        retry_raw, _retry_model = _call_llm_for_persona(
             persona, catalog, repo_root,
             extra_hint=(
                 "RUBRIC FAILED on previous attempt: " + hint + ". "

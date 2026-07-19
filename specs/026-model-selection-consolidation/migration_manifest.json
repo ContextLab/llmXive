@@ -1,72 +1,6 @@
 {
   "entries": [
     {
-      "category": "migration_target",
-      "file": "src/llmxive/agents/grounding_guard.py",
-      "kind": "module_constant",
-      "line": 92,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "_DEFAULT_MODEL"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/agents/living_document.py",
-      "kind": "model_id_literal",
-      "line": 81,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/agents/living_document.py",
-      "kind": "model_id_literal",
-      "line": 514,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/agents/personality.py",
-      "kind": "module_constant",
-      "line": 68,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "MODEL_NAME"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/agents/task_verifier.py",
-      "kind": "model_id_literal",
-      "line": 246,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/agents/task_verifier.py",
-      "kind": "model_id_literal",
-      "line": 434,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
       "category": "canonical_layer",
       "file": "src/llmxive/backends/dartmouth.py",
       "kind": "module_constant",
@@ -97,14 +31,14 @@
       "symbol": "KNOWN_FREE_MODELS"
     },
     {
-      "category": "migration_target",
+      "category": "canonical_layer",
       "file": "src/llmxive/backends/local.py",
       "kind": "model_id_literal",
       "line": 38,
       "models": [
         "Qwen/Qwen2.5-3B-Instruct"
       ],
-      "owning_slice": 7,
+      "owning_slice": null,
       "symbol": "list_models"
     },
     {
@@ -142,391 +76,6 @@
       ],
       "owning_slice": 5,
       "symbol": "PAID_FALLBACK_MODELS"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/claims/extract.py",
-      "kind": "module_constant",
-      "line": 26,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "_DEFAULT_MODEL"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/claims/resolve.py",
-      "kind": "module_constant",
-      "line": 37,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "_DEFAULT_MODEL"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/engine.py",
-      "kind": "model_id_literal",
-      "line": 400,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/flesh_out_reviser.py",
-      "kind": "model_id_literal",
-      "line": 139,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/implementer_reviser.py",
-      "kind": "model_id_literal",
-      "line": 214,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/implementer_reviser.py",
-      "kind": "model_id_literal",
-      "line": 222,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/implementer_reviser.py",
-      "kind": "model_id_literal",
-      "line": 230,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/implementer_reviser.py",
-      "kind": "model_id_literal",
-      "line": 307,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
-      "kind": "model_id_literal",
-      "line": 167,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
-      "kind": "model_id_literal",
-      "line": 178,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
-      "kind": "model_id_literal",
-      "line": 189,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
-      "kind": "model_id_literal",
-      "line": 197,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/paper_implement_reviser.py",
-      "kind": "model_id_literal",
-      "line": 249,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/paper_spec_reviser.py",
-      "kind": "model_id_literal",
-      "line": 125,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/paper_spec_reviser.py",
-      "kind": "model_id_literal",
-      "line": 137,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/plan_reviser.py",
-      "kind": "model_id_literal",
-      "line": 216,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/plan_reviser.py",
-      "kind": "model_id_literal",
-      "line": 227,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/spec_reviser.py",
-      "kind": "model_id_literal",
-      "line": 232,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/spec_reviser.py",
-      "kind": "model_id_literal",
-      "line": 244,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
-      "kind": "model_id_literal",
-      "line": 139,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
-      "kind": "model_id_literal",
-      "line": 150,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
-      "kind": "model_id_literal",
-      "line": 161,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/revisers/tasks_reviser.py",
-      "kind": "model_id_literal",
-      "line": 172,
-      "models": [
-        "qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/convergence/triage.py",
-      "kind": "model_id_literal",
-      "line": 198,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/execution/data_source.py",
-      "kind": "model_id_literal",
-      "line": 118,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/fill/extract.py",
-      "kind": "module_constant",
-      "line": 247,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "_DEFAULT_MODEL"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/fill/service.py",
-      "kind": "model_id_literal",
-      "line": 98,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/grounding/entailment.py",
-      "kind": "module_constant",
-      "line": 18,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "_DEFAULT_MODEL"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/librarian/data_source_discovery.py",
-      "kind": "module_constant",
-      "line": 52,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "_MODEL"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/librarian/expand.py",
-      "kind": "model_id_literal",
-      "line": 61,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/librarian/math_classifier.py",
-      "kind": "model_id_literal",
-      "line": 143,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/librarian/math_classifier.py",
-      "kind": "model_id_literal",
-      "line": 224,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/librarian/query_extractor.py",
-      "kind": "model_id_literal",
-      "line": 141,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/librarian/relevance_judge.py",
-      "kind": "model_id_literal",
-      "line": 234,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/librarian/relevance_judge.py",
-      "kind": "model_id_literal",
-      "line": 347,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
     },
     {
       "category": "canonical_layer",
@@ -598,24 +147,13 @@
       "category": "migration_target",
       "file": "src/llmxive/tools/summarize.py",
       "kind": "module_constant",
-      "line": 45,
+      "line": 49,
       "models": [
         "meta.llama-3.2-11b-vision-instruct",
         "openai.gpt-oss-120b"
       ],
       "owning_slice": 7,
       "symbol": "_MODEL_BUDGETS"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/tools/summarize.py",
-      "kind": "model_id_literal",
-      "line": 248,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "model"
     },
     {
       "category": "test_double",
@@ -863,14 +401,36 @@
     },
     {
       "category": "test_double",
-      "file": "tests/integration/test_personality_tick.py",
+      "file": "tests/integration/test_personality_rubric_retry_then_abstain.py",
       "kind": "model_id_literal",
-      "line": 299,
+      "line": 96,
       "models": [
-        "openai.gpt-oss-120b"
+        "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
-      "symbol": "test_run_log_entry_has_all_required_fields"
+      "symbol": "return_value"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_personality_rubric_retry_then_abstain.py",
+      "kind": "model_id_literal",
+      "line": 138,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "return_value"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_personality_tick.py",
+      "kind": "model_id_literal",
+      "line": 148,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_used"
     },
     {
       "category": "test_double",
@@ -995,17 +555,6 @@
     },
     {
       "category": "test_double",
-      "file": "tests/phase2/test_math_classifier.py",
-      "kind": "module_constant",
-      "line": 62,
-      "models": [
-        "qwen.qwen3.5-122b"
-      ],
-      "owning_slice": null,
-      "symbol": "_PLUMBING"
-    },
-    {
-      "category": "test_double",
       "file": "tests/phase2/test_submission_intake.py",
       "kind": "model_id_literal",
       "line": 243,
@@ -1070,17 +619,6 @@
       ],
       "owning_slice": null,
       "symbol": "list_models"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/real_call/test_dartmouth_outage_falls_back.py",
-      "kind": "model_id_literal",
-      "line": 103,
-      "models": [
-        "qwen.qwen3.5-122b"
-      ],
-      "owning_slice": null,
-      "symbol": "model"
     },
     {
       "category": "test_double",
@@ -1315,39 +853,6 @@
     },
     {
       "category": "test_double",
-      "file": "tests/real_call/test_paper_reviewer_chunk_summary.py",
-      "kind": "model_id_literal",
-      "line": 87,
-      "models": [
-        "qwen.qwen3.5-122b"
-      ],
-      "owning_slice": null,
-      "symbol": "model"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/real_call/test_relevance_judge_real.py",
-      "kind": "model_id_literal",
-      "line": 33,
-      "models": [
-        "qwen.qwen3.5-122b"
-      ],
-      "owning_slice": null,
-      "symbol": "MODEL"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/real_call/test_summarize_fidelity.py",
-      "kind": "module_constant",
-      "line": 26,
-      "models": [
-        "qwen.qwen3.5-122b"
-      ],
-      "owning_slice": null,
-      "symbol": "MODEL"
-    },
-    {
-      "category": "test_double",
       "file": "tests/real_call/test_triple_real.py",
       "kind": "module_constant",
       "line": 45,
@@ -1515,7 +1020,7 @@
       "category": "test_double",
       "file": "tests/unit/test_chat_with_fallback_delegation.py",
       "kind": "module_constant",
-      "line": 29,
+      "line": 31,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -3401,9 +2906,20 @@
       "category": "test_double",
       "file": "tests/unit/test_personality_attribution.py",
       "kind": "model_id_literal",
-      "line": 129,
+      "line": 127,
       "models": [
-        "openai.gpt-oss-120b"
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_used"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 132,
+      "models": [
+        "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
       "symbol": "test_entry_has_all_required_attribution_fields"
@@ -3412,7 +2928,18 @@
       "category": "test_double",
       "file": "tests/unit/test_personality_attribution.py",
       "kind": "model_id_literal",
-      "line": 152,
+      "line": 149,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "footer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_attribution.py",
+      "kind": "model_id_literal",
+      "line": 155,
       "models": [
         "gpt-oss-120b"
       ],
@@ -3588,20 +3115,9 @@
       "category": "test_double",
       "file": "tests/unit/test_reviser_self_consistency.py",
       "kind": "model_id_literal",
-      "line": 466,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": null,
-      "symbol": "__init__"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/unit/test_reviser_self_consistency.py",
-      "kind": "model_id_literal",
       "line": 469,
       "models": [
-        "openai.gpt-oss-120b"
+        "google.gemma-4-31B-it"
       ],
       "owning_slice": null,
       "symbol": "replies"
@@ -3623,7 +3139,7 @@
       "kind": "model_id_literal",
       "line": 470,
       "models": [
-        "openai.gpt-oss-120b"
+        "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
       "symbol": "transient_models"
@@ -3632,20 +3148,9 @@
       "category": "test_double",
       "file": "tests/unit/test_reviser_self_consistency.py",
       "kind": "model_id_literal",
-      "line": 489,
-      "models": [
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": null,
-      "symbol": "__init__"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/unit/test_reviser_self_consistency.py",
-      "kind": "model_id_literal",
       "line": 491,
       "models": [
-        "openai.gpt-oss-120b"
+        "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
       "symbol": "replies"
