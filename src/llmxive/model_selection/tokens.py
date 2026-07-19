@@ -25,12 +25,29 @@ from llmxive.model_selection.types import CallBudget
 from llmxive.tools.summarize import estimate_tokens
 
 __all__ = [
+    "MAX_IMAGE_BYTES",
+    "MAX_IMAGE_DIMENSION_PX",
+    "TOKENS_PER_IMAGE",
     "call_budget_for",
     "estimate_message_tokens",
     "estimate_tokens",
     "fits_budget",
     "max_input_tokens_upper_bound",
 ]
+
+#: Images are bounded BEFORE selection so the per-image charge below is a true
+#: upper bound. Callers downscale to fit; an oversize ImagePart is REJECTED.
+MAX_IMAGE_DIMENSION_PX = 1536
+MAX_IMAGE_BYTES = 8 * 1024 * 1024
+
+#: Documented worst case for ONE image at MAX_IMAGE_DIMENSION_PX in high-detail
+#: mode. Derivation (OpenAI-compatible vision tiling, which Dartmouth serves):
+#: 1536x1536 = 3x3 = 9 tiles of 512px; cost = 85 base + 9 * 170 per tile = 1615
+#: tokens. Rounded UP to 2048 for provider-serialization overhead and future
+#: tiling changes — deliberately over-estimating, matching this module's stated
+#: conservative philosophy. NEVER lower this without re-deriving it: selection
+#: prices worst_case_credits against it (FR-003).
+TOKENS_PER_IMAGE = 2048
 
 #: Fixed overhead ADDED to the char/÷4 content estimate. Chat APIs wrap each
 #: message with role tags + delimiters and each request with system/tool framing.
@@ -48,10 +65,12 @@ _REQUEST_OVERHEAD_TOKENS = 16
 _SAFETY_MARGIN = 1.5
 
 
-def _role_content(message: Any) -> tuple[str, str]:
+def _role_content_raw(message: Any) -> tuple[str, Any]:
     """Extract ``(role, content)`` from a ``ChatMessage`` object, a mapping, or —
-    as a last resort — the object's ``str``. Non-str content (e.g. a vision
-    parts list) is coerced to ``str`` so the char estimate stays conservative."""
+    as a last resort — the object's ``str``. Unlike :func:`_role_content`,
+    ``content`` is returned UNCOERCED (``str``, a ``ContentPart`` tuple, or
+    whatever the message carries) so a content-aware caller (the hard upper
+    bound) can account for multimodal parts instead of a stringified blob."""
     role = getattr(message, "role", None)
     content = getattr(message, "content", None)
     if role is None and content is None and isinstance(message, dict):
@@ -59,7 +78,45 @@ def _role_content(message: Any) -> tuple[str, str]:
         content = message.get("content")
     if content is None:
         content = message if isinstance(message, str) else str(message)
-    return str(role or ""), str(content)
+    return str(role or ""), content
+
+
+def _role_content(message: Any) -> tuple[str, str]:
+    """Extract ``(role, content)`` from a ``ChatMessage`` object, a mapping, or —
+    as a last resort — the object's ``str``. Non-str content (e.g. a vision
+    parts list) is coerced to ``str`` so the char estimate stays conservative."""
+    role, content = _role_content_raw(message)
+    return role, content if isinstance(content, str) else str(content)
+
+
+def _content_upper_bound_tokens(content: Any) -> int:
+    """Bounded token contribution for one message's ``content``: the UTF-8 byte
+    length for ``str`` (the existing hard-bound basis, UNCHANGED), or — for a
+    parts tuple — the sum of each part's contribution: UTF-8 bytes for a
+    :class:`~llmxive.backends.base.TextPart`'s text, and the fixed, DEMONSTRABLY
+    conservative :data:`TOKENS_PER_IMAGE` charge for each
+    :class:`~llmxive.backends.base.ImagePart` (bounded at construction by
+    :data:`MAX_IMAGE_DIMENSION_PX` / :data:`MAX_IMAGE_BYTES`, which is what makes
+    a fixed per-image charge a true upper bound rather than a guess)."""
+    if isinstance(content, str):
+        return len(content.encode("utf-8"))
+    if isinstance(content, tuple):
+        # Local import: backends.base must stay import-cycle-free of
+        # model_selection at module scope; this module already sits inside the
+        # model_selection package that backends.base's ImagePart itself
+        # function-locally imports from, so keep the dependency lazy here too.
+        from llmxive.backends.base import ImagePart, TextPart
+
+        total = 0
+        for part in content:
+            if isinstance(part, TextPart):
+                total += len(part.text.encode("utf-8"))
+            elif isinstance(part, ImagePart):
+                total += TOKENS_PER_IMAGE
+            else:  # pragma: no cover - the ContentPart union is closed
+                total += len(str(part).encode("utf-8"))
+        return total
+    return len(str(content).encode("utf-8"))
 
 
 def estimate_message_tokens(messages: Iterable[Any]) -> int:
@@ -87,11 +144,21 @@ def max_input_tokens_upper_bound(messages: Iterable[Any]) -> int:
     UTF-8 byte length is a true ceiling on the token count — ``len(text)`` in Python
     CHARACTERS is NOT (one char can be several bytes/tokens). Deliberately
     over-conservative (~4x the average); acceptable because paid calls are opt-in
-    and rare, and oversized inputs are reduced by the summarize primitive upstream."""
+    and rare, and oversized inputs are reduced by the summarize primitive upstream.
+
+    Content-aware (spec 026 slice 7): ``str`` content keeps this exact byte-based
+    accounting unchanged; a parts tuple (:class:`~llmxive.backends.base.TextPart` /
+    :class:`~llmxive.backends.base.ImagePart`) is priced part-by-part via
+    :func:`_content_upper_bound_tokens` so an image contributes the DEMONSTRABLE
+    :data:`TOKENS_PER_IMAGE` upper bound instead of vanishing from the estimate."""
     total = _REQUEST_OVERHEAD_TOKENS
     for m in messages:
-        role, content = _role_content(m)
-        total += _PER_MESSAGE_OVERHEAD_TOKENS + len(role.encode("utf-8")) + len(content.encode("utf-8"))
+        role, content = _role_content_raw(m)
+        total += (
+            _PER_MESSAGE_OVERHEAD_TOKENS
+            + len(role.encode("utf-8"))
+            + _content_upper_bound_tokens(content)
+        )
     return total
 
 

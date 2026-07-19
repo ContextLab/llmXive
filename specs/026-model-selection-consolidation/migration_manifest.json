@@ -2244,7 +2244,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/backends/dartmouth.py",
       "kind": "module_constant",
-      "line": 86,
+      "line": 112,
       "models": [
         "gpt-oss",
         "qwen3",
@@ -2257,7 +2257,7 @@
       "category": "migration_target",
       "file": "src/llmxive/backends/dartmouth.py",
       "kind": "module_constant",
-      "line": 510,
+      "line": 536,
       "models": [
         "google.gemma-3-27b-it",
         "google.gemma-4-31B-it",
@@ -2274,7 +2274,7 @@
       "category": "migration_target",
       "file": "src/llmxive/backends/local.py",
       "kind": "model_id_literal",
-      "line": 37,
+      "line": 38,
       "models": [
         "Qwen/Qwen2.5-3B-Instruct"
       ],
@@ -2285,7 +2285,7 @@
       "category": "migration_target",
       "file": "src/llmxive/backends/router.py",
       "kind": "module_constant",
-      "line": 56,
+      "line": 57,
       "models": [
         "anthropic.claude-haiku-4-5-20251001",
         "google.gemma-3-27b-it",
@@ -2299,7 +2299,7 @@
       "category": "migration_target",
       "file": "src/llmxive/backends/router.py",
       "kind": "module_constant",
-      "line": 97,
+      "line": 98,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -2310,7 +2310,7 @@
       "category": "migration_target",
       "file": "src/llmxive/backends/router.py",
       "kind": "module_constant",
-      "line": 103,
+      "line": 104,
       "models": [
         "anthropic.claude-haiku-4-5-20251001"
       ],
@@ -3132,7 +3132,7 @@
       "category": "migration_target",
       "file": "src/llmxive/speckit/slash_command.py",
       "kind": "field_consumer",
-      "line": 318,
+      "line": 321,
       "models": [],
       "owning_slice": 7,
       "symbol": "default_model"
@@ -5999,6 +5999,17 @@
       ],
       "owning_slice": null,
       "symbol": "price"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_multimodal_content.py",
+      "kind": "model_id_literal",
+      "line": 87,
+      "models": [
+        "Qwen/Qwen2.5-3B-Instruct"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
     },
     {
       "category": "test_double",

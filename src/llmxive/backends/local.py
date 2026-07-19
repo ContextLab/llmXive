@@ -15,6 +15,7 @@ from llmxive.backends.base import (
     BaseBackend,
     ChatMessage,
     ChatResponse,
+    UnsupportedFeatureError,
 )
 
 # Loaded (tokenizer, model) pairs, keyed by model id. Loading a checkpoint
@@ -50,6 +51,12 @@ class LocalBackend(BaseBackend):
         # single blocking ``generate`` bounded by ``max_new_tokens`` and cannot be
         # abandoned mid-call, so there is no wall-clock enforcement to apply.
         _ = deadline_s
+        messages_list = list(messages)
+        if any(not isinstance(m.content, str) for m in messages_list):
+            raise UnsupportedFeatureError(
+                "local backend serves a text-only checkpoint and cannot accept image "
+                "content — skip this candidate"
+            )
         try:
             from transformers import (  # type: ignore[import-not-found]
                 AutoModelForCausalLM,
@@ -82,7 +89,7 @@ class LocalBackend(BaseBackend):
                     f"({type(exc).__name__}: {exc})"
                 ) from exc
             _MODEL_CACHE[model] = (tokenizer, llm)
-        msg_list = list(messages)
+        msg_list = messages_list
         # Instruct checkpoints only behave (follow the system prompt, emit
         # EOS instead of rambling) when fed through their chat template;
         # fall back to plain role-prefixed concatenation for bare LMs

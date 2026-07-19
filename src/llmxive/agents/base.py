@@ -19,7 +19,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
-from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.backends.base import ChatMessage, ChatResponse, render_text_content
 from llmxive.backends.router import chat_with_fallback
 from llmxive.state import runlog
 from llmxive.types import (
@@ -291,8 +291,11 @@ def _capture_non_speckit_inspection(
         # Messages → prompts dict (concat by role to fit speckit schema).
         prompts = {"system": "", "user": ""}
         if messages:
-            sys_parts = [m.content for m in messages if m.role == "system"]
-            usr_parts = [m.content for m in messages if m.role == "user"]
+            # render_text_content keeps this join safe even when a message
+            # carries multimodal parts (spec 026 slice 7): images become a
+            # metadata-only placeholder, never raw bytes, in the audit log.
+            sys_parts = [render_text_content(m.content) for m in messages if m.role == "system"]
+            usr_parts = [render_text_content(m.content) for m in messages if m.role == "user"]
             prompts["system"] = "\n\n".join(sys_parts)
             prompts["user"] = "\n\n".join(usr_parts)
 

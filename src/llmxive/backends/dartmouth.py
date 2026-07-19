@@ -27,6 +27,32 @@ from llmxive.backends.base import (
     invoke_with_deadline,
 )
 
+
+def _lc_content(content):
+    """Serialize canonical ChatMessage content for langchain_core. A plain ``str``
+    passes through unchanged (byte-identical payloads for every existing caller);
+    a parts tuple becomes langchain's content-block list, which the
+    OpenAI-compatible endpoint renders as the multimodal content array."""
+    from llmxive.backends.base import ImagePart, TextPart
+
+    if isinstance(content, str):
+        return content
+    blocks: list[dict] = []
+    for part in content:
+        if isinstance(part, TextPart):
+            blocks.append({"type": "text", "text": part.text})
+        elif isinstance(part, ImagePart):
+            import base64
+
+            b64 = base64.b64encode(part.data).decode()
+            blocks.append({
+                "type": "image_url",
+                "image_url": {"url": f"data:{part.mime};base64,{b64}"},
+            })
+        else:  # pragma: no cover - the union is closed
+            raise PermanentBackendError(f"unknown content part {type(part).__name__}")
+    return blocks
+
 # --- centralized transient-error retry (T015-class outages) --------------
 #
 # Dartmouth Chat occasionally goes into maintenance windows (the gateway
@@ -792,11 +818,11 @@ class DartmouthBackend(BaseBackend):
         msg_objs: list[_BaseMessage] = []
         for m in messages:
             if m.role == "system":
-                msg_objs.append(SystemMessage(content=m.content))
+                msg_objs.append(SystemMessage(content=_lc_content(m.content)))
             elif m.role == "assistant":
-                msg_objs.append(AIMessage(content=m.content))
+                msg_objs.append(AIMessage(content=_lc_content(m.content)))
             else:
-                msg_objs.append(HumanMessage(content=m.content))
+                msg_objs.append(HumanMessage(content=_lc_content(m.content)))
 
         kwargs: dict[str, object] = {}
         if max_tokens is not None:

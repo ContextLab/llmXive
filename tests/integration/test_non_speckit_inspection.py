@@ -21,7 +21,7 @@ from pathlib import Path
 import pytest
 
 from llmxive.agents.base import Agent, AgentContext
-from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.backends.base import ChatMessage, ChatResponse, ImagePart, TextPart
 from llmxive.types import BackendName
 
 # --- Test doubles ---------------------------------------------------------
@@ -46,6 +46,30 @@ class _FakeAgent(Agent):
         return [
             ChatMessage(role="system", content="you are a test agent"),
             ChatMessage(role="user", content=f"do the thing for {ctx.project_id}"),
+        ]
+
+    def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
+        return ["projects/PROJ-001-test/output.md"]
+
+
+_PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 512
+
+
+class _MultimodalFakeAgent(Agent):
+    """Same as _FakeAgent but its user message carries multimodal parts
+    (spec 026 slice 7) — proves the inspection writer degrades gracefully
+    instead of crashing on a JSON-unserializable parts tuple."""
+
+    def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
+        return [
+            ChatMessage(role="system", content="you are a test agent"),
+            ChatMessage(
+                role="user",
+                content=(
+                    TextPart(f"do the thing for {ctx.project_id}"),
+                    ImagePart(mime="image/png", data=_PNG, width=64, height=32),
+                ),
+            ),
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
@@ -167,3 +191,41 @@ def test_inspection_capture_failure_does_not_break_agent_run(
     finally:
         # Restore writability so pytest can clean up tmp_path.
         tmp_path.chmod(0o755)
+
+
+def test_multimodal_message_records_image_metadata_not_raw_bytes(
+    monkeypatch, tmp_path: Path
+):
+    """spec 026 slice 7: a ChatMessage carrying an ImagePart must not crash the
+    JSON-serialized inspection writer, and the raw image bytes/base64 payload
+    must NEVER land in the audit record — only mime/dimensions/byte-length
+    metadata."""
+    monkeypatch.setenv("LLMXIVE_INSPECTION_DIR", str(tmp_path))
+
+    from llmxive.agents import base as base_mod
+    monkeypatch.setattr(base_mod.runlog, "append_entry", lambda entry: None)
+    monkeypatch.setattr(
+        base_mod, "chat_with_fallback",
+        lambda *a, **kw: ChatResponse(text="ok", model="m", backend="dartmouth"),
+    )
+
+    agent = _MultimodalFakeAgent(_FakeRegistryEntry())  # type: ignore[arg-type]
+    agent.run(_make_ctx())
+
+    expected = tmp_path / "non-speckit" / "PROJ-001-test" / "fake_test_agent.json"
+    assert expected.exists()
+
+    raw_json = expected.read_text()
+    # The raw image bytes must never be dumped into the audit log, verbatim
+    # or base64-encoded.
+    assert _PNG.hex() not in raw_json
+    import base64
+    assert base64.b64encode(_PNG).decode() not in raw_json
+
+    record = json.loads(raw_json)
+    user_prompt = record["prompts"]["user"]
+    assert "do the thing for PROJ-001-test" in user_prompt
+    # Metadata-only placeholder — mime, dimensions, byte length.
+    assert "image/png" in user_prompt
+    assert "64x32" in user_prompt
+    assert str(len(_PNG)) in user_prompt

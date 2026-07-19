@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
-from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.backends.base import ChatMessage, ChatResponse, render_text_content
 from llmxive.backends.router import chat_with_fallback
 from llmxive.state import runlog
 from llmxive.types import (
@@ -203,8 +203,11 @@ def _maybe_write_inspection(
         return
     try:
         from llmxive.speckit._inspection import capture
-        sys_prompt = next((m.content for m in messages if m.role == "system"), "")
-        usr_prompt = next((m.content for m in messages if m.role == "user"), "")
+        # render_text_content keeps this JSON-serialized record safe even when
+        # a message carries multimodal parts (spec 026 slice 7): images become
+        # a metadata-only placeholder, never raw bytes, in the audit log.
+        sys_prompt = render_text_content(next((m.content for m in messages if m.role == "system"), ""))
+        usr_prompt = render_text_content(next((m.content for m in messages if m.role == "user"), ""))
         # spec 014 / FR-004: an agent that ran an analyze loop (the Tasker)
         # accumulates per-round sub-records on ``_inspection_rounds``; capture
         # them here. Every other agent leaves the attribute unset → ``[]``.

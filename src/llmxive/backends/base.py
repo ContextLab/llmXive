@@ -18,10 +18,61 @@ from dataclasses import dataclass
 from typing import TypeVar
 
 
+#: Allowed image MIME types (Dartmouth's OpenAI-compatible vision endpoint).
+_IMAGE_MIMES = frozenset({"image/png", "image/jpeg", "image/webp"})
+
+
+@dataclass(frozen=True)
+class TextPart:
+    """A text span inside a multimodal message."""
+
+    text: str
+
+
+@dataclass(frozen=True)
+class ImagePart:
+    """An image inside a multimodal message.
+
+    Dimensions and payload size are BOUNDED and validated here so the token
+    estimator's per-image charge is a true UPPER bound (FR-003/FR-010): an
+    unbounded payload priced at a fixed constant would invalidate the cost bound
+    ``select()`` reserves against.
+    """
+
+    mime: str
+    data: bytes
+    width: int
+    height: int
+
+    def __post_init__(self) -> None:
+        # Function-local: backends.base must not import model_selection at module scope.
+        from llmxive.model_selection.tokens import MAX_IMAGE_BYTES, MAX_IMAGE_DIMENSION_PX
+
+        if self.mime not in _IMAGE_MIMES:
+            raise ValueError(
+                f"ImagePart: unsupported mime {self.mime!r} (allowed: {sorted(_IMAGE_MIMES)})"
+            )
+        if self.width <= 0 or self.height <= 0:
+            raise ValueError("ImagePart: dimension must be positive")
+        if self.width > MAX_IMAGE_DIMENSION_PX or self.height > MAX_IMAGE_DIMENSION_PX:
+            raise ValueError(
+                f"ImagePart: dimension {self.width}x{self.height} exceeds the estimator's "
+                f"supported maximum {MAX_IMAGE_DIMENSION_PX}px — downscale before selection "
+                f"(the token upper bound is derived from it)"
+            )
+        if len(self.data) > MAX_IMAGE_BYTES:
+            raise ValueError(
+                f"ImagePart: {len(self.data)} bytes exceeds MAX_IMAGE_BYTES={MAX_IMAGE_BYTES}"
+            )
+
+
+ContentPart = TextPart | ImagePart
+
+
 @dataclass(frozen=True)
 class ChatMessage:
     role: str  # "system" | "user" | "assistant" | "tool"
-    content: str
+    content: str | tuple[ContentPart, ...]
 
 
 @dataclass(frozen=True)
@@ -102,6 +153,41 @@ class PaidGuardDenied(PermanentBackendError):
     ``PermanentBackendError`` (breaking to the next peer) — keeps IDENTICAL
     behavior; the split only gives the new ``execute`` seam a typed skip signal.
     """
+
+
+class UnsupportedFeatureError(PermanentBackendError):
+    """This backend/model cannot serve a feature THIS request needs (e.g. image
+    content on a text-only local checkpoint). Like ``PaidGuardDenied`` this is a
+    CANDIDATE-ineligibility signal, not a request-level refusal: it says nothing
+    about other candidates, so the chain walker SKIPS to the next one
+    (``CandidateDisposition.SKIP``) instead of aborting. Without this dedicated
+    type it would land on the generic ``PermanentBackendError`` branch and ABORT
+    the chain (``router.disposition_of``, line 211).
+    """
+
+
+def render_text_content(content: str | tuple[ContentPart, ...]) -> str:
+    """Render ``ChatMessage.content`` as a display/audit-safe string.
+
+    ``str`` content passes through unchanged. Parts-tuple content joins each
+    :class:`TextPart`'s text; each :class:`ImagePart` renders as a
+    METADATA-only placeholder (mime, dimensions, byte length) — the raw image
+    bytes are NEVER included, so callers that log or JSON-serialize this value
+    (e.g. the speckit inspection-record writer) cannot leak image payloads
+    into audit logs, and string ops (``+``, ``.join``, slicing) that assume a
+    plain string keep working on the result.
+    """
+    if isinstance(content, str):
+        return content
+    pieces: list[str] = []
+    for part in content:
+        if isinstance(part, TextPart):
+            pieces.append(part.text)
+        elif isinstance(part, ImagePart):
+            pieces.append(f"[image: {part.mime}, {part.width}x{part.height}, {len(part.data)} bytes]")
+        else:  # pragma: no cover - the union is closed
+            raise TypeError(f"unknown content part {type(part).__name__}")
+    return "\n".join(pieces)
 
 
 _T = TypeVar("_T")
@@ -192,11 +278,16 @@ __all__ = [
     "BaseBackend",
     "ChatMessage",
     "ChatResponse",
+    "ContentPart",
     "DeadlineExceededError",
     "EmptyReplyError",
+    "ImagePart",
     "ModelDownError",
     "PaidGuardDenied",
     "PermanentBackendError",
+    "TextPart",
     "TransientBackendError",
+    "UnsupportedFeatureError",
     "invoke_with_deadline",
+    "render_text_content",
 ]

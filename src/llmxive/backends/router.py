@@ -20,6 +20,7 @@ from llmxive.backends.base import (
     PaidGuardDenied,
     PermanentBackendError,
     TransientBackendError,
+    UnsupportedFeatureError,
 )
 from llmxive.backends.dartmouth import DartmouthBackend
 from llmxive.backends.local import LocalBackend
@@ -204,6 +205,8 @@ def disposition_of(exc: BaseException) -> CandidateDisposition:
     """
     if isinstance(exc, PaidGuardDenied):
         return CandidateDisposition.SKIP
+    if isinstance(exc, UnsupportedFeatureError):
+        return CandidateDisposition.SKIP  # candidate can't serve this feature → advance
     if isinstance(exc, BackendUnavailable):
         return CandidateDisposition.RETRY_ADVANCE  # breaker open → try next candidate
     if isinstance(exc, TransientBackendError):  # incl. ModelDown/Deadline/EmptyReply
