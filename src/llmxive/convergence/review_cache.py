@@ -11,12 +11,23 @@ instead of re-calling the model — making outages cheap to recover from.
 CORRECTNESS IS PARAMOUNT. A wrong cache HIT is a wrong scientific review.
 The cache key (:func:`compose_key`) hashes EVERY input that determines the
 review output — the exact composed user message, the system prompt, the
-lens, the stage, the named capability PROFILE the review resolves under, and
-the SELECTION_POLICY_VERSION (spec 026 slice 7: reviewers never pin a raw
-model id, so there is no model id to hash — see ``llm_reviewer.LLMReviewer``).
-If ANY of these differ it is a guaranteed MISS (a fresh model call). A HIT
+lens, the stage, the named capability PROFILE the review resolves under, the
+SELECTION_POLICY_VERSION (spec 026 slice 7: reviewers never pin a raw model
+id, so there is no model id to hash — see ``llm_reviewer.LLMReviewer``), and
+the caller's effective ``RequirementOverrides`` (spec 026 slice 6 escalation
+constraints, e.g. ``exclude_leader`` — see the "escalation" note below). If
+ANY of these differ it is a guaranteed MISS (a fresh model call). A HIT
 returns an exact round-trip of the stored ``list[Concern]`` (pydantic
 ``model_dump`` / ``model_validate``).
+
+Escalation note: when the panel hits its kickback cap, ``bump_model_tier``
+advances the execution tier and re-dispatches with a DIFFERENT
+``RequirementOverrides`` (e.g. tier 1's ``exclude_leader=True``, the "free
+second opinion" rung whose entire purpose is to get a different model's
+view). Binding ``overrides`` into the key is what makes that re-dispatch a
+guaranteed MISS instead of silently re-serving the prior tier's cached
+review — without it, escalation would advance the ladder while the panel
+kept re-reading the SAME model's opinion.
 
 This mirrors the on-disk approach of ``llmxive.grounding.cache``: one JSON
 file per key-hash under ``state/convergence-cache/``, an atomic write, a
@@ -34,6 +45,7 @@ cache, byte-identical to the pre-cache behavior.
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import logging
@@ -41,6 +53,8 @@ import os
 import tempfile
 import time
 from pathlib import Path
+
+from llmxive.model_selection.types import RequirementOverrides
 
 from .types import Concern
 
@@ -94,6 +108,34 @@ def convergence_cache_dir(repo_root: Path) -> Path:
 # --- key composition ------------------------------------------------------
 
 
+def _canonical_overrides(overrides: RequirementOverrides | None) -> str:
+    """Canonicalize the EFFECTIVE ``RequirementOverrides`` into a stable string.
+
+    ``overrides=None`` (no override object at all) and an all-default
+    ``RequirementOverrides()`` are semantically IDENTICAL to ``route_chat``
+    (both mean "no escalation constraints" — see ``model_selection.route``);
+    normalizing ``None`` to a fresh default instance up front makes them
+    canonicalize to the SAME string, so a no-override run never spuriously
+    MISSES a no-override cache entry.
+
+    Fields are read via :func:`dataclasses.fields` rather than a hand-written
+    tuple of attribute names, so a future field added to
+    ``RequirementOverrides`` is picked up HERE automatically instead of being
+    silently dropped from the cache key — a hand-written list would keep
+    compiling and hashing happily while a new escalation constraint quietly
+    stopped busting the cache. ``frozenset`` fields (``exclude_models``) are
+    sorted first since set iteration order is not stable/meaningful.
+    """
+    effective = overrides if overrides is not None else RequirementOverrides()
+    parts: list[str] = []
+    for f in dataclasses.fields(effective):
+        value = getattr(effective, f.name)
+        if isinstance(value, frozenset):
+            value = tuple(sorted(value))
+        parts.append(f"{f.name}={value!r}")
+    return "|".join(parts)
+
+
 def compose_key(
     *,
     user: str,
@@ -102,6 +144,7 @@ def compose_key(
     stage: str,
     profile: str,
     selection_policy_version: int,
+    overrides: RequirementOverrides | None = None,
 ) -> str:
     """Hash ALL review-determining inputs into a stable 64-char sha256.
 
@@ -120,8 +163,20 @@ def compose_key(
     ``llmxive.model_selection.policy.SELECTION_POLICY_VERSION``); it does
     NOT bind the live runtime-snapshot digest (see the caller-side rationale
     in ``llm_reviewer.LLMReviewer.identify``).
+
+    ``overrides`` (spec 026 slice 6 escalation constraints, canonicalized by
+    :func:`_canonical_overrides`) is bound for the SAME reason: it is exactly
+    as deliberate/reviewed a change to what the reviewer may resolve to as
+    ``profile`` or ``selection_policy_version`` are — the panel's own
+    kickback-cap escalation (``bump_model_tier``) mutates it mid-run
+    specifically to force a DIFFERENT model's opinion (e.g.
+    ``exclude_leader=True``), so it must independently move the key or that
+    escalation would silently no-op against a stale cache entry.
     """
-    fields = (user, system, lens, stage, profile, str(selection_policy_version))
+    fields = (
+        user, system, lens, stage, profile, str(selection_policy_version),
+        _canonical_overrides(overrides),
+    )
     canonical = _SENTINEL.join(f"{len(f)}:{f}" for f in fields)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 

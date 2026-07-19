@@ -908,25 +908,39 @@ class LLMReviewer:
         # Spec 026 slice 7 (F2 fix): the key no longer pins a raw model id
         # (there is none to pin — the reviewer never names one). Instead it
         # binds the PROFILE (which capability class this review resolves
-        # under) and the SELECTION_POLICY_VERSION (bumped whenever the
+        # under), the SELECTION_POLICY_VERSION (bumped whenever the
         # capability→model mapping changes — see
-        # ``llmxive.model_selection.policy``): a cached review from before
-        # either changed is a guaranteed MISS, so it can never be silently
-        # reused across a materially different selection decision. This
-        # deliberately does NOT bind the live runtime-snapshot digest (the
-        # catalog/pricing/credit state ``select()`` actually resolves
-        # against): computing that digest here would require acquiring a
-        # fresh snapshot (a network fetch of the model catalog + credit
-        # balance) purely to build a cache key, BEFORE the reviewer's own
-        # call acquires its own snapshot for the real routing decision —
-        # doubling the network cost of every ``identify()`` call and
-        # racing the key's snapshot against the call's actual snapshot (the
-        # two could legitimately differ). profile + selection_policy_version
-        # is the practical, network-free proxy: together they pin every
-        # DELIBERATE, reviewed change to what the reviewer is allowed to
-        # resolve to; the live snapshot only picks WHICH already-eligible
-        # model serves a given call, which is exactly the kind of automatic
-        # fallback substitution a resumable review cache is meant to survive.
+        # ``llmxive.model_selection.policy``), and ``self._overrides`` (the
+        # spec 026 slice 6 escalation constraints — see the fix note below):
+        # a cached review from before ANY of those changed is a guaranteed
+        # MISS, so it can never be silently reused across a materially
+        # different selection decision. This deliberately does NOT bind the
+        # live runtime-snapshot digest (the catalog/pricing/credit state
+        # ``select()`` actually resolves against): computing that digest
+        # here would require acquiring a fresh snapshot (a network fetch of
+        # the model catalog + credit balance) purely to build a cache key,
+        # BEFORE the reviewer's own call acquires its own snapshot for the
+        # real routing decision — doubling the network cost of every
+        # ``identify()`` call and racing the key's snapshot against the
+        # call's actual snapshot (the two could legitimately differ).
+        # profile + selection_policy_version + overrides is the practical,
+        # network-free proxy: together they pin every DELIBERATE, reviewed
+        # change to what the reviewer is allowed to resolve to; the live
+        # snapshot only picks WHICH already-eligible model serves a given
+        # call, which is exactly the kind of automatic fallback substitution
+        # a resumable review cache is meant to survive.
+        #
+        # Escalation-cache fix (review finding, blocker): ``overrides`` was
+        # PREVIOUSLY omitted from the key on the theory that it was not a
+        # "deliberate, reviewed" change in the same sense as profile/policy
+        # version. That reasoning was WRONG: ``bump_model_tier`` mutating
+        # ``self._overrides`` (e.g. tier 1's ``exclude_leader=True`` — the
+        # "free second opinion" rung) is EXACTLY such a deliberate change —
+        # its whole purpose is to force a different model's opinion. Without
+        # binding it, a tier-0 cache entry silently satisfied every later
+        # tier's ``identify()`` call, so escalation never reached
+        # ``route_chat`` and the ladder exhausted while re-serving the
+        # original model's review.
         cache_key = review_cache.compose_key(
             user=user,
             system=self._system_prompt,
@@ -934,6 +948,7 @@ class LLMReviewer:
             stage=self._stage,
             profile=self._profile,
             selection_policy_version=SELECTION_POLICY_VERSION,
+            overrides=self._overrides,
         )
         cached = review_cache.load(self._repo_root, cache_key)
         if cached is not None:

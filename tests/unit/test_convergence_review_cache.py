@@ -15,12 +15,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import pytest
 
+from llmxive.backends.base import ChatResponse
 from llmxive.convergence import review_cache
 from llmxive.convergence.llm_reviewer import LLMReviewer
 from llmxive.convergence.types import Concern, Severity
+from llmxive.model_selection.types import RequirementOverrides
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -337,6 +340,136 @@ def test_cache_key_is_deterministic_and_sensitive():
     assert review_cache.compose_key(**changed_version) != k, (
         "changing selection_policy_version must change the key"
     )
+
+
+def test_cache_key_none_and_default_overrides_are_identical():
+    """``overrides=None`` (no override object at all) and an all-default
+    ``RequirementOverrides()`` are semantically IDENTICAL to ``route_chat``
+    (both mean "no escalation constraints"). They MUST canonicalize to the
+    SAME key, or a no-override run would spuriously MISS a no-override
+    cache entry written by a caller that happened to pass an explicit
+    default instance."""
+    base = dict(user="U", system="S", lens="L", stage="ST",
+                profile="deep_review", selection_policy_version=1)
+    assert (
+        review_cache.compose_key(**base, overrides=None)
+        == review_cache.compose_key(**base, overrides=RequirementOverrides())
+    )
+
+
+def test_cache_key_sensitive_to_overrides():
+    """FINDING 1 (BLOCKER) regression: two effective ``RequirementOverrides``
+    that differ MUST produce different keys, or an escalation rung (e.g.
+    tier 1's ``exclude_leader=True``) would silently reuse a prior tier's
+    cached review instead of reaching the model."""
+    base = dict(user="U", system="S", lens="L", stage="ST",
+                profile="deep_review", selection_policy_version=1)
+    k_none = review_cache.compose_key(**base, overrides=None)
+    k_exclude_leader = review_cache.compose_key(
+        **base, overrides=RequirementOverrides(exclude_leader=True)
+    )
+    k_require_paid = review_cache.compose_key(
+        **base, overrides=RequirementOverrides(require_paid=True)
+    )
+    k_exclude_models = review_cache.compose_key(
+        **base, overrides=RequirementOverrides(exclude_models=frozenset({"m1"}))
+    )
+    k_max_credits = review_cache.compose_key(
+        **base, overrides=RequirementOverrides(max_credits=5)
+    )
+    k_allow_paid = review_cache.compose_key(
+        **base, overrides=RequirementOverrides(allow_paid=True)
+    )
+    keys = [k_none, k_exclude_leader, k_require_paid, k_exclude_models,
+            k_max_credits, k_allow_paid]
+    assert len(set(keys)) == len(keys), "every distinct overrides value must move the key"
+
+
+def test_cache_key_overrides_field_order_independent_but_field_sensitive():
+    """``exclude_models`` is a ``frozenset`` (unordered) — the canonicalization
+    must sort it so key equality doesn't depend on set iteration order."""
+    base = dict(user="U", system="S", lens="L", stage="ST",
+                profile="deep_review", selection_policy_version=1)
+    ov_a = RequirementOverrides(exclude_models=frozenset({"m1", "m2"}))
+    ov_b = RequirementOverrides(exclude_models=frozenset({"m2", "m1"}))
+    assert (
+        review_cache.compose_key(**base, overrides=ov_a)
+        == review_cache.compose_key(**base, overrides=ov_b)
+    )
+
+
+# --- Finding 1 (BLOCKER) regression: escalation overrides bust the cache ---
+#
+# Tier 0 caches a review; the panel escalates (bump_model_tier) and tier 1
+# dispatches with RequirementOverrides(exclude_leader=True) — the "free
+# second opinion" rung. Before the fix, compose_key ignored overrides
+# entirely, so identify() returned the tier-0 cached review WITHOUT ever
+# reaching route_chat — silently defeating escalation. These tests drive
+# the REAL LLMReviewer.identify() path and monkeypatch the TRUE routing
+# chokepoint (llmxive.model_selection.route.route_chat, one level below
+# chat_with_model_fallback — see test_slice7_review_panel_profile_propagation.py)
+# to prove whether routing was actually reached, not merely that the keys differ.
+
+
+def test_tier1_overrides_miss_tier0_cache_and_reach_route_chat(tmp_path, monkeypatch):
+    root = tmp_root_with_prompts(tmp_path)
+    seen: list[dict[str, Any]] = []
+
+    def _fake_route_chat(messages, **kw):  # type: ignore[no-untyped-def]
+        seen.append(kw)
+        return ChatResponse(text=_VALID_RESPONSE, model="m", backend="dartmouth")
+
+    monkeypatch.setattr("llmxive.model_selection.route.route_chat", _fake_route_chat)
+
+    backend = _CountingBackend(responses=[])  # never reached directly; route_chat is faked
+    rev_tier0 = _reviewer(backend, repo_root=root, profile="deep_review")
+    rev_tier1 = LLMReviewer(
+        lens="requirements_coverage", stage="clarified", backend=backend,
+        repo_root=root, profile="deep_review",
+        overrides=RequirementOverrides(exclude_leader=True),
+    )
+
+    rev_tier0.identify(_ARTIFACTS, constitution=None, advisory=[])
+    assert len(seen) == 1, "tier-0 identify() must reach route_chat (cold cache)"
+    assert seen[0].get("overrides") is None
+
+    # Tier-1 override MUST NOT be served the tier-0 cache entry: it must
+    # independently reach route_chat with its OWN overrides.
+    rev_tier1.identify(_ARTIFACTS, constitution=None, advisory=[])
+    assert len(seen) == 2, (
+        "tier-1 identify() incorrectly served the tier-0 cache entry — "
+        "escalation overrides did not bust the cache key"
+    )
+    assert seen[1]["overrides"] == RequirementOverrides(exclude_leader=True)
+
+
+def test_none_and_default_overrides_reviewers_hit_same_cache_entry(tmp_path, monkeypatch):
+    """A reviewer with ``overrides=None`` and a separately-constructed reviewer
+    with an explicit all-default ``RequirementOverrides()`` must be treated as
+    the SAME escalation state — a HIT, not a spurious MISS."""
+    root = tmp_root_with_prompts(tmp_path)
+    seen: list[dict[str, Any]] = []
+
+    def _fake_route_chat(messages, **kw):  # type: ignore[no-untyped-def]
+        seen.append(kw)
+        return ChatResponse(text=_VALID_RESPONSE, model="m", backend="dartmouth")
+
+    monkeypatch.setattr("llmxive.model_selection.route.route_chat", _fake_route_chat)
+
+    backend = _CountingBackend(responses=[])
+    rev_none = LLMReviewer(
+        lens="requirements_coverage", stage="clarified", backend=backend,
+        repo_root=root, profile="deep_review", overrides=None,
+    )
+    rev_default = LLMReviewer(
+        lens="requirements_coverage", stage="clarified", backend=backend,
+        repo_root=root, profile="deep_review", overrides=RequirementOverrides(),
+    )
+
+    rev_none.identify(_ARTIFACTS, constitution=None, advisory=[])
+    assert len(seen) == 1
+    rev_default.identify(_ARTIFACTS, constitution=None, advisory=[])
+    assert len(seen) == 1, "default RequirementOverrides() must HIT the None-overrides cache entry"
 
 
 # --- helper: a tmp repo root carrying the real panel prompts -------------
