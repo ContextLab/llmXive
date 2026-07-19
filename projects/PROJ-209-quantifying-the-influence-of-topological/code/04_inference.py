@@ -1,192 +1,278 @@
-"""
-Inference Module
-- Permutation importance
-- FDR control
-- Sensitivity analysis
-- Confounding control
-"""
 import os
 import json
 import logging
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Tuple, Any, Optional
+import hashlib
+import subprocess
 from pathlib import Path
 
-from infrastructure.path_utils import (
-    DIR_DATA_PROCESSED,
-    FILE_FEATURES,
-    FILE_TARGETS,
-    FILE_MODELS_DIR,
-    ensure_dir
-)
+# Import shared utilities from project infrastructure if available, 
+# otherwise define minimal local versions to ensure standalone execution.
+try:
+    from infrastructure.path_utils import get_project_root, ensure_dir
+except ImportError:
+    def get_project_root():
+        return Path(__file__).parent.parent
 
-logging.basicConfig(level=logging.INFO)
+    def ensure_dir(path: str):
+        Path(path).mkdir(parents=True, exist_ok=True)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
+def get_git_hash():
+    try:
+        return subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
+    except Exception:
+        return "unknown"
+
+def compute_sha256(file_path: str) -> str:
+    if not os.path.exists(file_path):
+        return ""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
 def ensure_output_directories():
-    """Ensure output directories exist."""
-    ensure_dir(DIR_DATA_PROCESSED)
-    return True
+    root = get_project_root()
+    ensure_dir(str(root / "data" / "processed"))
+    ensure_dir(str(root / "data" / "validation"))
 
-def get_git_hash() -> str:
-    """Get git hash."""
-    import subprocess
-    try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"],
-            capture_output=True,
-            text=True,
-            check=True
+def load_processed_data():
+    root = get_project_root()
+    features_path = root / "data" / "processed" / "features.csv"
+    targets_path = root / "data" / "processed" / "targets.csv"
+    
+    if not features_path.exists() or not targets_path.exists():
+        raise FileNotFoundError(
+            f"Processed data files not found at {features_path} or {targets_path}. "
+            "Please run T018 and T020 first."
         )
-        return result.stdout.strip()
-    except:
-        return "no-git"
+    
+    X = pd.read_csv(features_path)
+    y = pd.read_csv(targets_path)
+    return X, y
 
-def load_processed_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Load processed data."""
-    try:
-        features = pd.read_csv(FILE_FEATURES)
-        targets = pd.read_csv(FILE_TARGETS)
-        return features, targets
-    except FileNotFoundError:
-        return pd.DataFrame(), pd.DataFrame()
-
-def load_models() -> Dict[str, Any]:
-    """Load trained models."""
-    import joblib
-    models = {}
-    for path in FILE_MODELS_DIR.glob("*.pkl"):
-        name = path.stem
-        models[name] = joblib.load(path)
+def load_models():
+    root = get_project_root()
+    models_path = root / "data" / "processed" / "models.pkl"
+    if not models_path.exists():
+        raise FileNotFoundError(f"Models file not found at {models_path}. Run T021 first.")
+    
+    import pickle
+    with open(models_path, 'rb') as f:
+        models = pickle.load(f)
     return models
 
-def compute_permutation_p_values(model: Any, X: np.ndarray, y: np.ndarray, feature_names: List[str], n_permutations: int = 100) -> Dict[str, float]:
-    """Compute p-values via permutation importance."""
-    from sklearn.inspection import permutation_importance
-    
-    # Compute permutation importance
-    result = permutation_importance(model, X, y, n_repeats=n_permutations, random_state=42, n_jobs=-1)
-    
-    # Convert to p-values (simplified: use mean importance as proxy)
-    # In a real implementation, we'd do a proper statistical test
-    p_values = {}
-    for i, name in enumerate(feature_names):
-        importance = result.importances_mean[i]
-        # Convert to p-value (simplified)
-        p_values[name] = max(0.0, min(1.0, 1.0 - abs(importance) / (np.std(result.importances_mean) + 1e-8)))
-    
-    return p_values
+def calculate_metrics(y_true, y_pred):
+    from sklearn.metrics import r2_score, mean_absolute_percentage_error
+    r2 = r2_score(y_true, y_pred)
+    mape = mean_absolute_percentage_error(y_true, y_pred)
+    return {"r2": r2, "mape": mape}
 
-def rank_features(p_values: Dict[str, float]) -> List[Tuple[str, float]]:
-    """Rank features by p-value (ascending)."""
-    ranked = sorted(p_values.items(), key=lambda x: x[1])
+def run_holdout_evaluation():
+    # Placeholder for T024 logic if needed here, but T024 is separate.
+    pass
+
+def compute_permutation_p_values(X: pd.DataFrame, y: pd.Series, models: Dict[str, Any], n_permutations: int = 1000, random_state: int = 42):
+    """
+    Computes p-values for feature importance using permutation testing.
+    
+    For each feature, we:
+    1. Calculate the baseline score (R2) of the model.
+    2. Permute the feature values n_permutations times.
+    3. Calculate the score after permutation.
+    4. The p-value is the proportion of permutations where the permuted score 
+       is greater than or equal to the baseline score (indicating the feature 
+       is not important).
+    
+    Returns a dictionary of p-values for each feature across the three models.
+    """
+    rng = np.random.default_rng(random_state)
+    feature_names = X.columns.tolist()
+    results = {model_name: {feat: [] for feat in feature_names} for model_name in models}
+    
+    logger.info(f"Starting permutation importance for {len(feature_names)} features and {len(models)} models.")
+    logger.info(f"Performing {n_permutations} permutations.")
+
+    for model_name, model in models.items():
+        # Get baseline score
+        y_pred_base = model.predict(X)
+        # We use R2 as the metric. Higher is better.
+        # If we want to test "is this feature important?", we check if shuffling it 
+        # significantly decreases performance.
+        # P-value = P(Score_permuted >= Score_baseline) under the null hypothesis that the feature is irrelevant.
+        # Actually, standard permutation test: 
+        # Null Hypothesis: Feature Xj has no effect on Y.
+        # If we permute Xj, and the model performance drops significantly, we reject null.
+        # P-value = (count of permuted scores >= baseline score) / n_permutations? 
+        # No, usually we look at the distribution of permuted scores. 
+        # If the baseline is better than most permuted scores, the feature is important.
+        # Let's define p-value as the fraction of times the permuted score is >= baseline.
+        # If p is low, it means permuted scores are usually worse, so the feature is important.
+        
+        baseline_score = r2_score(y, y_pred_base)
+        
+        for i, feat in enumerate(feature_names):
+            logger.debug(f"Model {model_name}: Permuting feature {feat} ({i+1}/{len(feature_names)})")
+            perm_scores = []
+            for _ in range(n_permutations):
+                X_perm = X.copy()
+                X_perm[feat] = rng.permutation(X_perm[feat])
+                y_pred_perm = model.predict(X_perm)
+                score = r2_score(y, y_pred_perm)
+                perm_scores.append(score)
+            
+            # Calculate p-value: proportion of permuted scores that are >= baseline
+            # If the feature is important, permuting it should hurt performance (lower score).
+            # So we expect few permuted scores to be >= baseline.
+            # Thus, a small p-value indicates importance.
+            p_val = np.mean(np.array(perm_scores) >= baseline_score)
+            results[model_name][feat] = p_val
+
+    return results
+
+def apply_benjamini_hochberg(p_values: Dict[str, Dict[str, float]], q: float = 0.05) -> Dict[str, Dict[str, bool]]:
+    """
+    Applies the Benjamini-Hochberg procedure to control the False Discovery Rate (FDR).
+    
+    Args:
+        p_values: Dictionary mapping model_name -> {feature_name -> p_value}
+        q: FDR threshold (default 0.05)
+    
+    Returns:
+        Dictionary mapping model_name -> {feature_name -> is_significant (bool)}
+    """
+    results = {}
+    for model_name, model_pvals in p_values.items():
+        # Flatten to list of (feature, p_value)
+        items = list(model_pvals.items())
+        m = len(items)
+        if m == 0:
+            continue
+        
+        # Sort by p-value
+        sorted_items = sorted(items, key=lambda x: x[1])
+        
+        # BH procedure
+        # We want to find the largest k such that p_(k) <= (k/m) * q
+        # Then reject all hypotheses with p <= p_(k)
+        
+        significant = {}
+        k_star = 0
+        threshold = 0.0
+        
+        # Calculate thresholds
+        # p_(i) <= (i/m) * q
+        # We iterate from smallest p to largest
+        # Find the largest i where condition holds
+        
+        indices = []
+        for i, (feat, p_val) in enumerate(sorted_items):
+            rank = i + 1
+            if p_val <= (rank / m) * q:
+                k_star = rank
+                threshold = p_val
+                indices.append(feat)
+        
+        # All features with p <= threshold are significant
+        for feat, p_val in model_pvals.items():
+            significant[feat] = p_val <= threshold
+        
+        results[model_name] = significant
+        
+        logger.info(f"Model {model_name}: Applied BH FDR (q={q}). Found {sum(significant.values())} significant features out of {m}.")
+        
+    return results
+
+def rank_features(p_values: Dict[str, Dict[str, float]]) -> Dict[str, List[Tuple[str, float]]]:
+    """
+    Ranks features by p-value (ascending) for each model.
+    Lower p-value = more significant.
+    """
+    ranked = {}
+    for model_name, model_pvals in p_values.items():
+        sorted_items = sorted(model_pvals.items(), key=lambda x: x[1])
+        ranked[model_name] = sorted_items
     return ranked
 
-def run_sensitivity_analysis(metrics: Dict[str, Any], thresholds: List[float] = None) -> pd.DataFrame:
-    """Run sensitivity analysis on thresholds."""
-    if thresholds is None:
-        thresholds = [0.01, 0.05, 0.1, 0.2, 0.5]
-    
-    results = []
-    for threshold in thresholds:
-        # Simulate FPR/FNR variation
-        fpr = threshold * 0.8  # Simplified
-        fnr = (1 - threshold) * 0.5  # Simplified
-        results.append({
-            "threshold": threshold,
-            "fpr": fpr,
-            "fnr": fnr
-        })
-    
-    return pd.DataFrame(results)
+def run_sensitivity_analysis():
+    # Placeholder for T026 logic
+    pass
 
-def run_confounding_control(features: pd.DataFrame, targets: pd.DataFrame):
-    """Control for confounding variables."""
-    confounders = ["synthesis_method", "grain_size"]
-    available_confounders = [c for c in confounders if c in features.columns]
-    
-    if not available_confounders:
-        logger.warning("No confounding variables found. Unable to control confounding.")
-        # Flag as limitation
-        return {"status": "limitation", "message": "No confounding variables available"}
-    
-    # In a real implementation, we'd stratify folds or include as covariates
-    logger.info(f"Controlling for confounders: {available_confounders}")
-    return {"status": "success", "confounders": available_confounders}
+def run_confounding_control():
+    # Placeholder for T027a logic
+    pass
 
 def run_inference_analysis():
-    """Main inference pipeline."""
+    """
+    Main entry point for T025: Permutation Importance & FDR.
+    """
     ensure_output_directories()
     
-    features, targets = load_processed_data()
-    models = load_models()
+    try:
+        X, y = load_processed_data()
+        models = load_models()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        return
     
-    if features.empty or not models:
-        logger.error("No data or models for inference.")
-        return False
+    logger.info("Computing permutation p-values...")
+    # Use a sufficient number of permutations (e.g., 1000) as per task description
+    p_values = compute_permutation_p_values(X, y, models, n_permutations=1000, random_state=42)
     
-    X = features.select_dtypes(include=[np.number]).values
-    feature_names = features.select_dtypes(include=[np.number]).columns.tolist()
+    logger.info("Applying Benjamini-Hochberg FDR control...")
+    fdr_results = apply_benjamini_hochberg(p_values, q=0.05)
     
-    # Permutation importance
-    all_p_values = {}
-    for target_name, model in models.items():
-        if target_name in targets.columns:
-            y = targets[target_name].values
-            p_values = compute_permutation_p_values(model, X, y, feature_names)
-            all_p_values[target_name] = p_values
+    logger.info("Ranking features...")
+    rankings = rank_features(p_values)
     
-    # Rank features
-    ranked_features = {}
-    for target_name, p_values in all_p_values.items():
-        ranked_features[target_name] = rank_features(p_values)
-    
-    # FDR control (Benjamini-Hochberg)
-    fdr_results = {}
-    for target_name, p_values in all_p_values.items():
-        p_vals = list(p_values.values())
-        sorted_indices = np.argsort(p_vals)
-        sorted_p = np.array(p_vals)[sorted_indices]
-        n = len(sorted_p)
-        
-        # Benjamini-Hochberg
-        adjusted = sorted_p * n / (np.arange(1, n + 1) + 1e-8)
-        adjusted = np.minimum.accumulate(adjusted[::-1])[::-1]
-        adjusted = np.minimum(adjusted, 1.0)
-        
-        fdr_results[target_name] = dict(zip(feature_names, adjusted))
-    
-    # Sensitivity analysis
-    sensitivity_results = run_sensitivity_analysis({})
-    
-    # Confounding control
-    confounding_results = run_confounding_control(features, targets)
-    
-    # Save results
-    results = {
+    # Prepare output
+    output_data = {
         "git_hash": get_git_hash(),
-        "ranked_features": {k: [(name, float(p)) for name, p in v] for k, v in ranked_features.items()},
-        "fdr_results": {k: {name: float(p) for name, p in v.items()} for k, v in fdr_results.items()},
-        "sensitivity_analysis": sensitivity_results.to_dict(orient="records"),
-        "confounding_control": confounding_results
+        "n_permutations": 1000,
+        "fdr_threshold": 0.05,
+        "p_values": p_values,
+        "fdr_significant": fdr_results,
+        "rankings": rankings
     }
     
-    output_path = DIR_DATA_PROCESSED / "inference_results.json"
+    # Save results
+    root = get_project_root()
+    output_path = root / "data" / "processed" / "permutation_fdr_results.json"
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(output_data, f, indent=2)
     
-    logger.info(f"Inference results saved to {output_path}")
-    return True
+    logger.info(f"Results saved to {output_path}")
+    
+    # Also create a summary CSV for easy viewing
+    summary_rows = []
+    for model_name, model_ranking in rankings.items():
+        for rank, (feat, p_val) in enumerate(model_ranking, 1):
+            is_sig = fdr_results[model_name].get(feat, False)
+            summary_rows.append({
+                "model": model_name,
+                "rank": rank,
+                "feature": feat,
+                "p_value": p_val,
+                "is_significant_fdr_005": is_sig
+            })
+    
+    summary_df = pd.DataFrame(summary_rows)
+    summary_path = root / "data" / "processed" / "feature_influence_rankings.csv"
+    summary_df.to_csv(summary_path, index=False)
+    logger.info(f"Summary rankings saved to {summary_path}")
 
 def main():
-    """Entry point."""
-    success = run_inference_analysis()
-    if success:
-        logger.info("Inference analysis completed.")
-    else:
-        logger.error("Inference analysis failed.")
-        exit(1)
+    run_inference_analysis()
 
 if __name__ == "__main__":
     main()

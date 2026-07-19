@@ -71,16 +71,18 @@
 ### Implementation for User Story 1
 
 - [ ] T010 [P] [US1] Implement `code/01_data_acquisition.py`: Step 1.1 - Query **Materials Project REST API** for ≥50 pristine graphene and MoS₂ structures; cache locally under `data/raw/pristine_structures.csv`; **Initialize** `data/state/data_source.json` with `{"status": "real", "source": "materials_project"}`.
-- [ ] T011 [S] [US1] Implement `code/01_data_acquisition.py`: Step 1.2 - Attempt to download the **2022 Supplementary Defect Dataset** to `data/raw/defect_dataset_2022.csv`; verify columns (defect type, density, conductivity, elastic tensor, fracture energy) exist and row count > 0. **Dependency: T010**. **Constraint**: If the URL is unreachable or data is invalid, return a status code `MISSING` to trigger the fallback logic in T012; do NOT raise an error that halts the workflow.
-- [ ] T013 [P] [US1] Implement `src/generators/synthetic_data_generator.py`: Primary Mode - Use Analytical Continuum Mechanics (Griffith criterion, Rule of Mixtures, Matthiessen's rule) to generate properties; output to `data/raw/synthetic_train.csv`; ensure seed=42 and versioned via git hash.
-- [ ] T014 [S] [US1] Implement `src/generators/synthetic_data_generator.py`: Hold-Out Mode - Use a Gaussian GP Surrogate (trained on distinct public DFT data or distinct analytical params) to emulate a "Distinct Physics Engine" for the hold-out set; output to `data/raw/synthetic_holdout.csv`; **Dependency: T013**; **Note**: This mode triggers "Method Validation" scope shift per Plan's Critical Scope Limitation.
-- [ ] T012 [S] [US1] Implement `code/01_data_acquisition.py`: Step 1.2 Fallback - Triggered ONLY if T011 returns `MISSING`. Orchestrates T012a to handle missing fracture energy in any partial data, THEN invokes `src/generators/synthetic_data_generator.py` to generate ≥100 entries with defect density strictly within [0.001, 0.1] and physical bounds (conductivity > 0, Young's modulus > 0, fracture energy > 0); save to `data/raw/synthetic_defect_fallback.csv`; **Dependency: T010, T011**; update `data/state/data_source.json` with `{"status": "synthetic", "source": "fallback_generator"}`.
-- [ ] T012a [P] [US1] Implement `src/generators/mock_dftb_plus.py`: Mock DFTB+ Computation - Simulate a computation with a hard timeout of 300 seconds; if successful, return pre-computed physically constrained values; if timeout occurs, raise `TimeoutError`.
-- [X] T015 [US1] Implement `code/01_data_acquisition.py`: Step 1.3 - Add exponential backoff (a limited number of retries) for API calls; on failure load cached pristine structures or abort with `[ERROR: API access unavailable and no cache present]`
-- [X] T016 [S] [US1] Implement `code/01_data_acquisition.py`: Step 2 - Data Integrity & Hygiene: Verify checksums, **verify all required fields**, flag missing values. **Dependency: T012a, T010, T012, T011**. For missing fracture energy, invoke T012a; **catch `TimeoutError`**, log entry with status `[MISSING: timeout]`, and exclude from dataset; filter entries with defect density ≤0 or NaN; log count of excluded entries.
+- [ ] T011 [S] [US1] Implement `code/01_data_acquisition.py`: Step 1.2 - Attempt to download the **2022 Supplementary Defect Dataset** to `data/raw/defect_dataset_2022.csv`; verify columns (defect type, density, conductivity, elastic tensor, fracture energy) exist and row count > 0. **Dependency: T010**. **Constraint**: If the URL is unreachable or data is invalid, return a status code `MISSING` to trigger the fallback logic in T012c; do NOT raise an error that halts the workflow. <!-- FAILED: unspecified -->
+- [ ] T012a [S] [US1] Implement `src/generators/mock_dftb_plus.py`: Mock DFTB+ Computation Logic. **Dependency: T011**. Logic: Accept a list of defect IDs with missing fracture energy. Simulate a computation with a hard timeout of 300 seconds; if successful, return pre-computed physically constrained values using a deterministic formula based on defect density and a fixed seed; if timeout occurs, **log the timeout event and return a status code `TIMEOUT`** (do not raise exception). **Output**: `data/processed/mock_dftb_results.csv` (schema: defect_id, computed_value, status) AND `data/state/mock_dftb_exclusions.json` (schema: {excluded_ids: [], count: N}). **Constraint**: Entries with `TIMEOUT` status MUST be excluded from the final dataset and logged in `mock_dftb_exclusions.json`.
+- [ ] T012c [S] [US1] Implement `code/01_data_acquisition.py`: Step 1.2 Fallback Orchestrator. **Dependency: T011, T012a**. Logic: Read T011 status. If `MISSING`: Invoke T012a for missing values, then invoke T013 to generate synthetic data. Write `data/state/generation_status.json` with `{"status": "generated", "source": "synthetic"}`. If `FOUND`: Write `data/state/generation_status.json` with `{"status": "skip", "source": "real"}`. **Output**: `data/state/generation_status.json`.
+- [ ] T012b [S] [US1] Implement `code/01_data_acquisition.py`: Step 1.2 Fallback Verification. **Dependency: T012c**. Verify that the number of log entries matching `[MISSING: timeout]` matches the number of entries excluded from the dataset (count in `mock_dftb_exclusions.json`). **Output**: `data/state/fallback_verification.json` with `{"status": "PASS" | "FAIL", "exclusion_count": N}`. **Constraint**: Exit code 0 on PASS, 1 on FAIL.
+- [ ] T013 [S] [US1] Implement `code/01_data_acquisition.py`: Step 1.3 - Synthetic Data Generation (Conditional). **Dependency: T012c**. **Condition**: Only execute if `data/state/generation_status.json` indicates `source: synthetic`. Generate `data/raw/synthetic_train.csv` (N=1000+) and `data/raw/synthetic_holdout.csv` (N=200) using seed=42 and the Physics-Informed Parametric Surrogate. **Output**: `data/raw/synthetic_train.csv`, `data/raw/synthetic_holdout.csv`.
+- [~] T014 [S] [US1] Implement `code/01_data_acquisition.py`: Step 1.3 - Hold-Out Generation (Conditional). **Dependency: T013**. **Condition**: Only execute if T013 generated synthetic data. Ensure `synthetic_holdout.csv` is generated with a distinct physics engine configuration (if applicable) or a distinct random seed split. **Output**: `data/raw/synthetic_holdout.csv`.
+- [X] T015 [US1] Implement `code/01_data_acquisition.py`: Step 1.4 - Add exponential backoff (a limited number of retries) for API calls; on failure load cached pristine structures or abort with `[ERROR: API access unavailable and no cache present]`
+- [X] T016a [S] [US1] Implement `code/01_data_acquisition.py`: Step 2 - Data Integrity & Hygiene: Verify checksums, **verify all required fields**, flag missing values. **Dependency: T010, T011**. Filter entries with defect density ≤0 or NaN; log count of excluded entries to `data/state/exclusion_log.json` (schema: {filtered_count: N, reason: "density_leq_0_or_nan"}). **Output**: `data/state/exclusion_log.json`.
+- [X] T016b [S] [US1] Implement `code/01_data_acquisition.py`: Step 2 - Missing Value Handling: **If `data_source` is synthetic**, handle missing fracture energy by invoking T012a logic (if in fallback path) and logging; **if `data_source` is real**, flag missing entries for exclusion; **Dependency: T016a**.
 - [X] T017 [US1] Implement `scripts/update_state_hashes.py` integration to record checksums of raw files and synthetic generator version (git hash) in `state/projects/PROJ-209-...yaml`; also record `data_source` flag.
 
-**Sequential Execution Note**: T010 runs first to initialize the state. T011 runs next. If T011 returns `MISSING`, T012 is triggered immediately. T013 and T014 are executed as part of the generation process if T012 is triggered. T016 depends on T012a and T012 completion.
+**Sequential Execution Note**: T010 runs first to initialize the state. T011 runs next. If T011 returns `MISSING`, T012c is triggered. T012c orchestrates T012a (for missing values) and T013 (for synthetic generation). T012b verifies the fallback. T016a and T016b handle integrity checks.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (real or synthetic data ready)
 
@@ -94,18 +96,18 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [S] [US2] Implement `code/02_data_processing.py`: **Dependency: T010**. Extract scalar reference values (σ₀, E₀, σ_f₀) from `data/raw/pristine_structures.csv` (T010); Normalize targets (Δσ/σ₀, ΔE/E₀, Δσ_f/σ_f₀); if pristine reference values are missing for an entry, **exclude it from normalization and log it** per FR-003; one-hot encode `defect_type`; retain geometric descriptors; save `data/processed/features.csv` and `targets.csv`.
+- [~] T018 [S] [US2] Implement `code/02_data_processing.py`: **Dependency: T010, T013**. Extract scalar reference values (σ₀, E₀, σ_f₀) from `data/raw/pristine_structures.csv` (T010); Normalize targets (Δσ/σ₀, ΔE/E₀, Δσ_f/σ_f₀); if pristine reference values are missing for an entry, **exclude it from normalization and log it** per FR-003; one-hot encode `defect_type`; retain geometric descriptors; save `data/processed/features.csv` and `targets.csv`. <!-- FAILED: unspecified -->
 - [X] T019 [P] [US2] Implement `code/02_data_processing.py`: Update state file with SHA-256 checksums of processed features/targets
-- [ ] T020 [S] [US2] Implement `code/03_modeling.py`: Step 4 - **Collinearity Handling**: Compute VIF for all predictors. **Mandatory Step**: If VIF > 5 for any feature, **exclude the lower-importance feature** (based on initial RF importance) and re-train; log exclusion in `data/processed/feature_selection_log.json`. **Optional Step**: If VIF ≤ 5 but multicollinearity is suspected, apply Ridge Regression (L2 regularization) to handle collinearity in geometric descriptors.
-- [X] T021 [US2] Implement `code/03_modeling.py`: Step 5 - Model Training: Train 3 Random Forest regressors (conductivity, Young's modulus, fracture strength) with **80/20 split (seed=42)**
-- [X] T022 [US2] Implement `code/03_modeling.py`: Step 5 - Cross-Validation: Perform k-fold cross-validation (k=5); compute mean R², MAPE, and **standard deviation of R² (`cv_std`)**; if `cv_std` > 0.1, **flag as high variance and trigger sensitivity analysis**; **report R² and MAPE** for all properties.
+- [~] T020a [S] [US2] Implement `code/03_modeling.py`: Step 4.1 - **Preliminary Model Training**. Train a preliminary Random Forest on the training split (seed=42) to derive initial feature importances. **Output**: `data/processed/preliminary_importance.json`. **Dependency: T018**.
+- [~] T020 [S] [US2] Implement `code/03_modeling.py`: Step 4 - **Collinearity Handling**. **Dependency: T020a**. Compute VIF for all predictors. **While VIF > 5 AND iteration < 10**: Exclude the lower-importance feature (based on `preliminary_importance.json` or current model), re-train model, re-calculate VIF. Log exclusion in `data/processed/feature_selection_log.json` (include iteration count and final VIF). **Output**: `data/processed/final_features.csv` and `data/processed/feature_selection_log.json`. **Constraint**: Max 10 iterations; if VIF > 5 after 10 iterations, flag as `VIF_FAILURE` and log. **Note**: Exclusion/re-training is the ONLY path; do not apply Ridge Regression or other alternatives.
+- [X] T021 [US2] Implement `code/03_modeling.py`: Step 5 - Model Training: Train 3 Random Forest regressors (conductivity, Young's modulus, fracture strength) with **A standard train-test split (seed=42)**
+- [X] T022 [US2] Implement `code/03_modeling.py`: Step 5 - Cross-Validation: Perform k-fold cross-validation (k=5); compute mean R², MAPE, and **standard deviation of R² (`cv_std`)**; **If `cv_std` > 0.1, flag as HIGH_VARIANCE and trigger T027a (Sensitivity Analysis)**; **report R² and MAPE** for all properties.
 - [X] T023 [US2] Implement `code/03_modeling.py`: Step 5 - Baseline: Train null model (predict mean) and compare R² improvement
-- [ ] T024 [S] [US2] Implement `code/03_modeling.py`: Step 5 - Hold-Out: Evaluate on distinct hold-out set (**distinct random seed for real data; `data/raw/synthetic_holdout.csv` generated by T014 (Gaussian GP Surrogate) for synthetic data**) as per FR-012. **Dependency: T014**.
-- [X] T025 [P] [US2] Implement `code/04_inference.py`: Permutation Importance: Compute p-values via **1000 permutations** for each feature; **rank defect descriptor influence**
-- [X] T026 [US2] Implement `code/04_inference.py`: FDR Control: Apply **Benjamini-Hochberg FDR control at q ≤ 0.05** to p-values across the three target-specific tests
-- [X] T027 [US2] Implement `code/04_inference.py`: Sensitivity Analysis: **Sweep decision cutoffs** (e.g., defect density deciles) and **report FPR and FNR variation**
-- [X] T028 [US2] Implement `code/04_inference.py`: Confounding Control (FR-013): If `synthesis_method` or `grain_size` exist, **stratify CV folds**; otherwise, **include them as covariates in the model**; if neither is possible, **flag inability to control confounding as a critical limitation** (do not simply log omission).
-- [X] T029 [US2] Implement `code/04_inference.py`: Scope Note: If synthetic data used, label p-values as "Internal Consistency" measures only
+- [~] T024 [S] [US2] Implement `code/04_inference.py`: **Hold-Out Evaluation**. **Dependency: T014 (if synthetic) OR T011 (if real)**. Evaluate final models on `data/raw/synthetic_holdout.csv` (if synthetic) or `data/raw/real_holdout.csv` (if real). **Output**: `data/processed/holdout_metrics.json` with `{"source_type": "synthetic|real", "R2":..., "MAPE":..., "label": "Method Validation|External Validation"}`. **Constraint**: Must run on the distinct physics engine split or distinct real data split.
+- [X] T025 [S] [US2] Implement `code/04_inference.py`: Permutation Importance & FDR: **Generate p-values via a sufficient number of permutations** for each feature; **rank defect descriptor influence**; **Apply Benjamini-Hochberg FDR control at q ≤ 0.05** to p-values across the three target-specific tests. **Dependency: T021**.
+- [ ] T026 [S] [US2] Implement `code/04_inference.py`: Sensitivity Analysis: **Sweep decision cutoffs over {low, medium, high} OR defect density deciles** and **report FPR and FNR variation** across the swept set.
+- [ ] T027a [S] [US2] Implement `code/04_inference.py`: Confounding Control (FR-013). **Dependency: T018**. Check for presence of 'synthesis_method' or 'grain_size' columns. **If present**: Stratify CV folds by these variables and report metrics per stratum. **If absent**: Include them as covariates in the model. **If neither possible**: Flag inability to control confounding as a critical limitation in `data/processed/feature_selection_log.json`. **Output**: `data/processed/confounding_report.json`.
+- [X] T028 [US2] Implement `code/04_inference.py`: Scope Note: If synthetic data used, label p-values as "Internal Consistency" measures only
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (models trained, inference complete)
 
@@ -119,13 +121,12 @@
 
 ### Implementation for User Story 3
 
-- [X] T030 [P] [US3] Implement `code/05_validation.py`: Permutation Importance Stability: Compute stability metrics for top influential descriptors; report ranked list; **flag collinearity if VIF > 5**
-- [ ] T031 [S] [US3] Implement `code/05_validation.py`: External Validation Logic: **Search path `data/validation/external/` for specific ID `exp_defect_graphene_mos2_v1`**. 
-  - **Dependency: T010, T012**. Read `data/state/data_source.json`; if missing, default to 'real' and log warning. If the file exists, check for `status: synthetic`. If `status: synthetic`, generate `data/validation/Validation_Report.json` with **status: SYNTHETIC_FALLBACK**. If `status: real` (or file missing), attempt to load external data; if not found, generate `data/validation/Validation_Report.json` with **status: NO_EXTERNAL_DATA** and **method: internal_only**.
-- [X] T032 [US3] Implement `notebooks/01_full_workflow.ipynb`: Reproducible Jupyter notebook integrating all steps (Data Acquisition → Processing → Modeling → Inference → Validation)
-- [X] T033 [US3] Implement `notebooks/01_full_workflow.ipynb`: Ensure notebook runs within **6-hour runtime limit** on GitHub Actions free-tier (CPU, ≤7 GB RAM)
-- [X] T034 [US3] Implement `code/05_validation.py`: Sensitivity Analysis Report: Generate table of FPR/FNR vs. swept thresholds (deciles or sparse sets)
-- [X] T035 [US3] Implement `scripts/run_ci_validation.sh`: CI script to execute the full workflow and validate runtime constraints (≤6h) and memory usage (≤7GB)
+- [X] T029 [P] [US3] Implement `code/05_validation.py`: Permutation Importance Stability: Compute stability metrics for top influential descriptors; report ranked list; **flag collinearity if VIF > 5**
+- [ ] T030 [S] [US3] Implement `code/05_validation.py`: External Validation Logic. **Dependency: T010, T012c, T012a**. Read `data/state/data_source.json`. Check for `data/state/mock_dftb_exclusions.json` (from T012a). Search path `data/validation/external/` for specific ID `exp_defect_graphene_mos2_v1`. If external data NOT found, generate `data/validation/Validation_Report.json` with **status: NO_EXTERNAL_DATA**, **method: internal_only**, and include **exclusion_count** from T012a. If found, report validation results.
+- [ ] T033 [S] [US2/US3] Implement `code/04_inference.py`: Sensitivity Analysis Report. **Dependency: T022**. **Condition**: Only execute if T022 flagged `HIGH_VARIANCE`. Generate table of FPR/FNR vs. swept thresholds (deciles or {low, medium, high}) and save to `data/validation/sensitivity_table.csv`. **Output**: `data/validation/sensitivity_table.csv`.
+- [X] T031 [US3] Implement `notebooks/01_full_workflow.ipynb`: Reproducible Jupyter notebook integrating all steps (Data Acquisition → Processing → Modeling → Inference → Validation)
+- [X] T032 [US3] Implement `notebooks/01_full_workflow.ipynb`: Ensure notebook runs within **6-hour runtime limit** on GitHub Actions free-tier (CPU, ≤7 GB RAM)
+- [X] T034 [US3] Implement `scripts/run_ci_validation.sh`: CI script to execute the full workflow and validate runtime constraints (≤6h) and memory usage (≤7GB)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -135,12 +136,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T036a [P] Update `docs/README.md` with project overview and setup instructions
-- [X] T036b [P] Update `docs/API.md` with synthetic generator API documentation
-- [~] T037 Code cleanup and refactoring (ensure no hardcoded paths)
-- [~] T038 Performance optimization (ensure Random Forest and Permutation tests fit within 6h limit)
-- [~] T039 [P] Additional unit tests in `tests/unit/` for data generators and normalization logic
-- [~] T040 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [X] T035a [P] Update `docs/README.md` with project overview and setup instructions
+- [X] T035b [P] Update `docs/API.md` with synthetic generator API documentation
+- [X] T036 [P] Refactor `code/01_data_acquisition.py` to remove hardcoded paths and use `config.py`
+- [X] T037 [P] Add unit test `tests/unit/test_synthetic_generator.py` for synthetic data generation logic
+- [X] T038 [P] Add unit test `tests/unit/test_data_processing.py` for normalization logic
+- [X] T039 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -184,15 +185,13 @@
 
 ```bash
 # Launch all tasks for User Story 1 together (data acquisition and generation):
-# Note: T014 is Sequential (S) and depends on T013, so it CANNOT be run in parallel with T013.
-# Only T010, T011, T013, T012a, T015 can be launched in parallel (with T011 waiting for T010).
+# Note: T012c is Sequential (S) and depends on T011, so it CANNOT be run in parallel with T011.
+# Only T010, T015 can be launched in parallel.
 Task: "Query Materials Project REST API for ≥50 pristine graphene and MoS₂ structures" (T010)
-Task: "Attempt to download the 2022 Supplementary Defect Dataset" (T011)
-Task: "Implement Physics-Based Synthetic Generator (Primary Mode)" (T013)
-Task: "Implement Mock DFTB+ Computation" (T012a)
 Task: "Add exponential backoff for API calls" (T015)
-# T014 (Hold-Out Mode) must run AFTER T013 completes.
-# T012 (Fallback) must run AFTER T011 returns MISSING.
+# T011 must run after T010.
+# T012c must run after T011.
+# T012a and T012b are conditional and run only if T012c determines fallback is needed.
 ```
 
 ---

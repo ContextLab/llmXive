@@ -19,7 +19,7 @@ This plan implements a computational workflow to quantify how topological defect
 **Project Type**: Computational research pipeline / data analysis.
 **Performance Goals**: Complete full workflow (download/generate -> process -> model -> validate) within 6 hours.
 **Constraints**: No GPU; no external API credentials beyond public endpoints; strict memory limits requiring streaming or sampling; no fabrication of data (must use verified sources or explicit synthetic generation).
-**Scale/Scope**: **N=1000+** synthetic data points (generated to ensure statistical stability for permutation testing). 3 target properties; 5-fold CV.
+**Scale/Scope**: **N=1000+** synthetic data points (generated to ensure statistical stability for permutation testing). A small set of target properties; k-fold CV.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

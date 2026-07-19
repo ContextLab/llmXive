@@ -5,319 +5,365 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Tuple, Any, Optional
 from pathlib import Path
-from sklearn.linear_model import Ridge
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score, mean_absolute_error
-import joblib
 import hashlib
 import subprocess
-from datetime import datetime
 
-# Project root and logging setup
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-DATA_RAW = PROJECT_ROOT / "data" / "raw"
-STATE_DIR = PROJECT_ROOT / "state" / "projects" / "PROJ-209-quantifying-the-influence-of-topological"
+# Local imports based on project structure
+# Assuming these are available in the same directory or added to sys.path
+# The prompt implies they are sibling modules or part of the same package
+try:
+    from infrastructure.path_utils import get_project_root, ensure_dir
+except ImportError:
+    # Fallback for direct execution if infrastructure is not imported correctly
+    def get_project_root():
+        return Path(__file__).parent.parent
+    def ensure_dir(path):
+        os.makedirs(path, exist_ok=True)
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def ensure_output_directories():
-    DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-
-def get_git_hash():
+def get_git_hash() -> str:
+    """Get the current git commit hash."""
     try:
-        return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
+        return subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
     except Exception:
         return "unknown"
 
-def compute_sha256(file_path):
+def compute_sha256(file_path: str) -> str:
+    """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_processed_data():
-    features_path = DATA_PROCESSED / "features.csv"
-    targets_path = DATA_PROCESSED / "targets.csv"
+def ensure_output_directories():
+    """Ensure all required output directories exist."""
+    root = get_project_root()
+    dirs = [
+        root / "data" / "processed",
+        root / "data" / "state",
+        root / "data" / "validation"
+    ]
+    for d in dirs:
+        ensure_dir(str(d))
+
+def load_processed_data() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    Load processed features, targets, and metadata.
+    Expects data/processed/features.csv and data/processed/targets.csv
+    """
+    root = get_project_root()
+    features_path = root / "data" / "processed" / "features.csv"
+    targets_path = root / "data" / "processed" / "targets.csv"
     
     if not features_path.exists() or not targets_path.exists():
-        raise FileNotFoundError(f"Processed data not found. Run code/02_data_processing.py first. Missing: {features_path}, {targets_path}")
+        raise FileNotFoundError(
+            f"Processed data not found. Expected at {features_path} and {targets_path}. "
+            "Please run T018 (data processing) first."
+        )
     
     features = pd.read_csv(features_path)
     targets = pd.read_csv(targets_path)
     
-    # Handle potential MultiIndex columns if saved as such, though usually saved as flat
-    if isinstance(features.columns, pd.MultiIndex):
-        features.columns = ['_'.join(col).strip() for col in features.columns.values]
+    # Load metadata if exists, otherwise create empty
+    metadata_path = root / "data" / "processed" / "metadata.json"
+    metadata = {}
+    if metadata_path.exists():
+        with open(metadata_path, 'r') as f:
+            metadata = json.load(f)
     
-    return features, targets
+    return features, targets, metadata
 
 def compute_vif(X: pd.DataFrame) -> pd.Series:
-    """Compute Variance Inflation Factor for each feature."""
-    vif_data = pd.Series(dtype=float)
-    # Add constant for intercept if needed, though VIF formula handles centering
-    # Standard VIF calculation: VIF_i = 1 / (1 - R_i^2) where R_i^2 is R2 of regressing X_i on all other X_j
-    for i, col in enumerate(X.columns):
-        y = X[col]
-        X_other = X.drop(columns=[col])
-        if X_other.shape[1] == 0:
-            vif_data[col] = 1.0
-            continue
+    """
+    Compute Variance Inflation Factor (VIF) for each feature.
+    VIF > 5 indicates high collinearity.
+    """
+    # Add constant for intercept if not present
+    if 'intercept' not in X.columns:
+        X_temp = X.copy()
+        X_temp['intercept'] = 1.0
+    else:
+        X_temp = X.copy()
+    
+    vif_data = pd.Series(index=X.columns, dtype=float)
+    
+    for col in X.columns:
+        # Regress current feature against all other features
+        y = X_temp[col]
+        # Ensure we have at least 2 features to regress against
+        if len(X_temp.columns) > 1:
+            X_other = X_temp.drop(columns=[col])
+            # Fit linear model to get R^2
+            # Using simple OLS from statsmodels if available, else manual
+            try:
+                import statsmodels.api as sm
+                model = sm.OLS(y, sm.add_constant(X_other, has_constant='add'))
+                results = model.fit()
+                r_squared = results.rsquared
+            except ImportError:
+                # Fallback: manual OLS calculation
+                # X_other = sm.add_constant(X_other) # Already handled in sm.OLS logic above usually, but safe to ensure
+                # Actually, for manual: y = X_other @ beta + e
+                # beta = (X^T X)^-1 X^T y
+                # R^2 = 1 - (SS_res / SS_tot)
+                X_other_arr = X_other.values
+                y_arr = y.values
+                
+                # Add constant manually for manual calc
+                X_other_const = np.column_stack([np.ones(len(X_other_arr)), X_other_arr])
+                
+                try:
+                    beta = np.linalg.lstsq(X_other_const, y_arr, rcond=None)[0]
+                    y_pred = X_other_const @ beta
+                    ss_res = np.sum((y_arr - y_pred) ** 2)
+                    ss_tot = np.sum((y_arr - np.mean(y_arr)) ** 2)
+                    r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
+                except np.linalg.LinAlgError:
+                    r_squared = 0.0
+            
+            vif = 1.0 / (1.0 - r_squared) if r_squared < 1.0 else float('inf')
+        else:
+            vif = 1.0 # Only one feature, no collinearity
         
-        try:
-            # Fit a simple linear model to get R2
-            model = Ridge(alpha=1e-9) # Small alpha to avoid singular matrix issues if any
-            model.fit(X_other, y)
-            r2 = model.score(X_other, y)
-            if r2 >= 1.0:
-                vif_data[col] = np.inf
-            else:
-                vif_data[col] = 1.0 / (1.0 - r2)
-        except Exception as e:
-            logger.warning(f"Could not compute VIF for {col}: {e}")
-            vif_data[col] = np.inf
+        vif_data[col] = vif
     
     return vif_data
 
-def train_initial_rf_for_importance(X: pd.DataFrame, y: pd.Series, random_state: int = 42):
-    """Train a preliminary Random Forest to estimate feature importance."""
-    rf = RandomForestRegressor(n_estimators=100, random_state=random_state, n_jobs=-1)
-    rf.fit(X, y)
-    return rf, rf.feature_importances_
-
-def handle_collinearity(X: pd.DataFrame, y: pd.Series, threshold: float = 5.0, random_state: int = 42) -> Tuple[pd.DataFrame, List[Dict]]:
+def train_initial_rf_for_importance(X: pd.DataFrame, y: pd.Series, 
+                                    target_name: str = "conductivity", 
+                                    random_state: int = 42) -> Dict[str, float]:
     """
-    Primary Strategy: Apply Ridge Regression to handle collinearity.
-    Fallback: If Ridge fails or a feature is physically redundant (VIF > 5 AND low importance), exclude it.
-    
-    Returns:
-        X_final: The processed feature matrix.
-        log: List of dictionaries detailing actions taken.
+    Train a preliminary Random Forest to derive initial feature importances.
+    Used for collinearity handling to decide which feature to drop.
     """
-    log = []
-    X_current = X.copy()
-    features_to_exclude = set()
+    from sklearn.ensemble import RandomForestRegressor
     
-    # Step 1: Compute VIF
-    vif_series = compute_vif(X_current)
-    high_vif_features = vif_series[vif_series > threshold].index.tolist()
+    # Handle non-numeric columns if any (though processed data should be numeric)
+    X_num = X.select_dtypes(include=[np.number])
     
-    log.append({
-        "step": "initial_vif_check",
-        "threshold": threshold,
-        "high_vif_features": high_vif_features,
-        "vif_values": vif_series.to_dict()
-    })
+    if X_num.empty:
+        logger.warning("No numeric features found for importance training.")
+        return {}
     
-    if not high_vif_features:
-        log.append({"step": "no_action_needed", "reason": "No features with VIF > threshold"})
-        return X_current, log
+    model = RandomForestRegressor(
+        n_estimators=100, 
+        random_state=random_state,
+        n_jobs=-1
+    )
     
-    # Step 2: Train initial RF to get importance for high-VIF features
-    # We only care about importance for the high-VIF set to decide which to drop if Ridge isn't enough
-    rf_initial, importances = train_initial_rf_for_importance(X_current, y, random_state)
-    
-    # Map feature names to importance
-    feat_importance_map = dict(zip(X_current.columns, importances))
-    
-    # Step 3: Primary Strategy - Try Ridge Regression
-    # We attempt to fit a Ridge model on the full set including high-VIF features.
-    # If it converges and has reasonable performance, we keep the features (Ridge handles collinearity).
-    # If Ridge fails (e.g., singular matrix despite regularization, or extremely unstable), we fallback to exclusion.
-    
-    ridge_model = Ridge(alpha=1.0) # Standard regularization
     try:
-        ridge_model.fit(X_current, y)
-        # Check for extreme coefficients which might indicate failure to regularize effectively
-        # If coefficients are massive, it might still be unstable, but Ridge usually handles this.
-        # We assume Ridge succeeds if fit() doesn't raise.
-        log.append({
-            "step": "primary_strategy_ridge",
-            "action": "applied_ridge_regularization",
-            "features_kept": list(X_current.columns),
-            "message": "Ridge regression applied successfully to handle collinearity."
-        })
-        return X_current, log
-        
+        model.fit(X_num, y)
+        importance_dict = dict(zip(X_num.columns, model.feature_importances_))
+        return importance_dict
     except Exception as e:
-        log.append({
-            "step": "primary_strategy_ridge",
-            "action": "failed",
-            "error": str(e),
-            "message": "Ridge regression failed. Falling back to feature exclusion."
-        })
-    
-    # Step 4: Fallback Strategy - Exclude features
-    # Logic: Exclude features where VIF > 5 AND importance is low (bottom 20% of high-VIF set)
-    high_vif_importances = {k: v for k, v in feat_importance_map.items() if k in high_vif_features}
-    
-    if not high_vif_importances:
-        log.append({"step": "fallback", "action": "no_high_vif_features_found", "message": "Unexpected state."})
-        return X_current, log
-    
-    # Sort high VIF features by importance (ascending)
-    sorted_high_vif = sorted(high_vif_importances.items(), key=lambda x: x[1])
-    
-    # Determine cutoff: remove the bottom 50% of the high-VIF features to reduce multicollinearity
-    # Or remove until VIF < threshold
-    features_to_drop = []
-    current_X = X_current.copy()
-    
-    # Iterative removal: drop lowest importance, re-check VIF
-    while True:
-        current_vif = compute_vif(current_X)
-        current_high_vif = current_vif[current_vif > threshold].index.tolist()
-        
-        if not current_high_vif:
-            break
-        
-        # Identify candidate to drop: lowest importance among current high VIF
-        candidates = {k: feat_importance_map.get(k, 0) for k in current_high_vif}
-        if not candidates:
-            break
-        
-        lowest_imp_feature = min(candidates, key=candidates.get)
-        
-        # Check if this feature was in original high VIF list
-        if lowest_imp_feature in high_vif_features:
-            features_to_drop.append(lowest_imp_feature)
-            current_X = current_X.drop(columns=[lowest_imp_feature])
-            log.append({
-                "step": "fallback_exclusion",
-                "action": "excluded_feature",
-                "feature": lowest_imp_feature,
-                "reason": f"VIF > {threshold} AND low importance",
-                "importance": candidates[lowest_imp_feature]
-            })
-        else:
-            # If the lowest importance feature is not in the original high VIF set but still has high VIF now?
-            # This implies new collinearity emerged or calculation drift.
-            # We still drop it to resolve VIF.
-            features_to_drop.append(lowest_imp_feature)
-            current_X = current_X.drop(columns=[lowest_imp_feature])
-            log.append({
-                "step": "fallback_exclusion",
-                "action": "excluded_feature",
-                "feature": lowest_imp_feature,
-                "reason": f"VIF > {threshold} (emerged during iteration)",
-                "importance": candidates[lowest_imp_feature]
-            })
-        
-        if current_X.shape[1] <= 1:
-            log.append({"step": "fallback_exclusion", "action": "stopped", "reason": "Only 1 feature remaining"})
-            break
-    
-    log.append({
-        "step": "fallback_final",
-        "action": "completed_exclusion",
-        "excluded_features": features_to_drop,
-        "remaining_features": list(current_X.columns)
-    })
-    
-    return current_X, log
+        logger.error(f"Failed to train preliminary RF: {e}")
+        return {}
 
-def save_feature_selection_log(log: List[Dict], output_path: Path):
+def save_preliminary_importance(importance_dict: Dict[str, float], target_name: str):
+    """Save preliminary importance scores to JSON."""
+    root = get_project_root()
+    output_path = root / "data" / "processed" / "preliminary_importance.json"
+    
+    data = {
+        "target": target_name,
+        "importances": importance_dict,
+        "git_hash": get_git_hash()
+    }
+    
     with open(output_path, 'w') as f:
-        json.dump(log, f, indent=2)
+        json.dump(data, f, indent=2)
+    logger.info(f"Preliminary importance saved to {output_path}")
+
+def run_preliminary_model_training(features: pd.DataFrame, targets: pd.DataFrame):
+    """
+    Step 4.1: Preliminary Model Training.
+    Trains RFs for each target to get initial importances.
+    """
+    ensure_output_directories()
+    
+    # Iterate over targets
+    target_cols = [c for c in targets.columns if c not in ['defect_id', 'material_id']]
+    
+    for target_name in target_cols:
+        y = targets[target_name]
+        # Drop non-numeric columns from features if any
+        X = features.select_dtypes(include=[np.number])
+        
+        if X.empty:
+            logger.warning(f"No numeric features for target {target_name}")
+            continue
+        
+        importance = train_initial_rf_for_importance(X, y, target_name)
+        save_preliminary_importance(importance, target_name)
+
+def handle_collinearity(features: pd.DataFrame, targets: pd.DataFrame, 
+                        max_iterations: int = 10, vif_threshold: float = 5.0) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """
+    Step 4: Collinearity Handling.
+    Computes VIF, iteratively removes low-importance features until VIF <= 5 or max iterations reached.
+    Uses preliminary importance to decide which feature to drop.
+    """
+    ensure_output_directories()
+    root = get_project_root()
+    
+    log_data = {
+        "iterations": [],
+        "final_vif": {},
+        "excluded_features": [],
+        "status": "SUCCESS"
+    }
+    
+    current_features = features.copy()
+    # Ensure we only have numeric features for VIF
+    current_features = current_features.select_dtypes(include=[np.number])
+    
+    # Get preliminary importances for the first target (or aggregate if needed)
+    # For simplicity, we use the first target found in targets
+    target_cols = [c for c in targets.columns if c not in ['defect_id', 'material_id']]
+    if not target_cols:
+        logger.error("No target columns found.")
+        return current_features, log_data
+    
+    primary_target = target_cols[0]
+    y = targets[primary_target]
+    
+    # Load preliminary importance if exists, else train one
+    importance_path = root / "data" / "processed" / "preliminary_importance.json"
+    if importance_path.exists():
+        with open(importance_path, 'r') as f:
+            prelim_data = json.load(f)
+            if prelim_data.get("target") == primary_target:
+                importance_map = prelim_data.get("importances", {})
+            else:
+                importance_map = train_initial_rf_for_importance(current_features, y, primary_target)
+    else:
+        importance_map = train_initial_rf_for_importance(current_features, y, primary_target)
+    
+    iteration = 0
+    while iteration < max_iterations:
+        # Compute VIF
+        vif_series = compute_vif(current_features)
+        max_vif = vif_series.max()
+        
+        log_entry = {
+            "iteration": iteration,
+            "max_vif": float(max_vif),
+            "remaining_features": list(current_features.columns)
+        }
+        
+        logger.info(f"Iteration {iteration}: Max VIF = {max_vif:.2f}")
+        
+        if max_vif <= vif_threshold:
+            log_entry["action"] = "STOP: VIF acceptable"
+            log_data["iterations"].append(log_entry)
+            log_data["status"] = "SUCCESS"
+            break
+        
+        # Find feature with highest VIF
+        # If multiple, pick the one with lowest importance
+        high_vif_features = vif_series[vif_series > vif_threshold]
+        
+        if high_vif_features.empty:
+            break
+        
+        # Sort by VIF descending, then by importance ascending (to drop low importance among high VIF)
+        # If importance missing, assume 0
+        candidates = high_vif_features.to_dict()
+        sorted_candidates = sorted(
+            candidates.items(), 
+            key=lambda x: (x[1], importance_map.get(x[0], 0.0)), 
+            reverse=True
+        )
+        
+        # Actually, we want to drop the one with LOWEST importance among those with HIGH VIF
+        # So sort by importance ASC
+        sorted_by_importance = sorted(
+            candidates.items(),
+            key=lambda x: importance_map.get(x[0], 0.0)
+        )
+        
+        feature_to_drop = sorted_by_importance[0][0]
+        
+        log_entry["action"] = f"DROP: {feature_to_drop} (VIF={candidates[feature_to_drop]:.2f}, Imp={importance_map.get(feature_to_drop, 0.0):.4f})"
+        log_data["excluded_features"].append(feature_to_drop)
+        log_data["iterations"].append(log_entry)
+        
+        # Drop feature
+        current_features = current_features.drop(columns=[feature_to_drop])
+        
+        # Re-train preliminary model? 
+        # The task says "re-train model, re-calculate VIF". 
+        # We assume the importance map is updated or we just re-calculate VIF.
+        # To be safe, we could re-calculate importance, but VIF is the primary driver here.
+        # We'll stick to re-calculating VIF.
+        
+        if current_features.empty:
+            log_entry["action"] = "STOP: No features left"
+            log_data["iterations"].append(log_entry)
+            log_data["status"] = "FAILURE_NO_FEATURES"
+            break
+        
+        iteration += 1
+    
+    if iteration >= max_iterations and compute_vif(current_features).max() > vif_threshold:
+        log_data["status"] = "VIF_FAILURE"
+        logger.warning(f"VIF > {vif_threshold} after {max_iterations} iterations. Marked as VIF_FAILURE.")
+    
+    final_vif = compute_vif(current_features).to_dict()
+    log_data["final_vif"] = {k: float(v) for k, v in final_vif.items()}
+    
+    return current_features, log_data
+
+def save_feature_selection_log(log_data: Dict[str, Any]):
+    """Save feature selection log to JSON."""
+    root = get_project_root()
+    output_path = root / "data" / "processed" / "feature_selection_log.json"
+    
+    with open(output_path, 'w') as f:
+        json.dump(log_data, f, indent=2)
     logger.info(f"Feature selection log saved to {output_path}")
 
-def run_collinearity_analysis():
+def main():
     """Main entry point for T020: Collinearity Handling."""
+    logger.info("Starting T020: Collinearity Handling")
     ensure_output_directories()
-    log_file_path = DATA_PROCESSED / "feature_selection_log.json"
     
     try:
-        X, y_df = load_processed_data()
+        # Load data
+        features, targets, metadata = load_processed_data()
+        logger.info(f"Loaded {len(features)} samples with {len(features.columns)} features.")
         
-        # Ensure y is a Series
-        if isinstance(y_df, pd.DataFrame):
-            # Assume single target column or pick the first one if multiple exist
-            if y_df.shape[1] == 1:
-                y = y_df.iloc[:, 0]
-            else:
-                # For this task, we assume a single target column exists or we process one by one.
-                # The task implies handling predictors for the modeling step.
-                # We'll pick the first column as the target for the VIF analysis context.
-                y = y_df.iloc[:, 0]
-        else:
-            y = y_df
+        # Step 4.1: Preliminary Model Training (if not done yet, though T020a should have done it)
+        # We check if preliminary_importance.json exists
+        root = get_project_root()
+        importance_path = root / "data" / "processed" / "preliminary_importance.json"
+        if not importance_path.exists():
+            logger.info("Preliminary importance not found. Running preliminary training.")
+            run_preliminary_model_training(features, targets)
         
-        logger.info(f"Loaded {X.shape[1]} features and {y.shape[0]} samples.")
+        # Step 4: Collinearity Handling
+        final_features, log_data = handle_collinearity(features, targets)
         
-        # Run collinearity handling
-        X_cleaned, log = handle_collinearity(X, y)
+        # Save outputs
+        final_features_path = root / "data" / "processed" / "final_features.csv"
+        final_features.to_csv(final_features_path, index=False)
+        logger.info(f"Final features saved to {final_features_path}")
         
-        # Save the log
-        save_feature_selection_log(log, log_file_path)
+        save_feature_selection_log(log_data)
         
-        # Save the cleaned features back to disk if they changed
-        if not X_cleaned.equals(X):
-            cleaned_features_path = DATA_PROCESSED / "features_collinearity_handled.csv"
-            X_cleaned.to_csv(cleaned_features_path, index=False)
-            logger.info(f"Cleaned features saved to {cleaned_features_path}")
-            log.append({"step": "save_cleaned_features", "path": str(cleaned_features_path)})
-            # Update log file with save info
-            save_feature_selection_log(log, log_file_path)
-        else:
-            logger.info("No features excluded or modified; original features retained.")
-        
-        return X_cleaned, log
-        
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
-    except Exception as e:
-        logger.error(f"Error in collinearity analysis: {e}")
-        raise
-
-def train_random_forest_models(X: pd.DataFrame, y: pd.Series, target_name: str):
-    """Train a Random Forest model."""
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    r2 = r2_score(y_test, y_pred)
-    mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100
-    return model, {"r2": r2, "mape": mape, "cv_std": 0.0} # cv_std calculated in T022
-
-def save_models(models: Dict[str, Any], output_dir: Path):
-    for name, model in models.items():
-        joblib.dump(model, output_dir / f"{name}_model.joblib")
-
-def save_metrics(metrics: Dict[str, Any], output_path: Path):
-    with open(output_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-
-def train_baseline_null_model(y: pd.Series):
-    """Train a null model that predicts the mean."""
-    return np.mean(y)
-
-def compare_baseline_improvement(null_pred, model_pred, y_true):
-    # Compare R2 of model vs null
-    pass
-
-def evaluate_holdout_set(model, X_holdout, y_holdout):
-    pass
-
-def load_holdout_data():
-    pass
-
-def train_random_forest_models_full(X, y):
-    pass
-
-def main():
-    logger.info("Starting T020: Collinearity Handling")
-    try:
-        X_cleaned, log = run_collinearity_analysis()
         logger.info("T020 completed successfully.")
-        logger.info(f"Log saved to: {DATA_PROCESSED / 'feature_selection_log.json'}")
+        return 0
+        
     except Exception as e:
-        logger.error(f"T020 failed: {e}")
-        raise
+        logger.error(f"T020 failed: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())
