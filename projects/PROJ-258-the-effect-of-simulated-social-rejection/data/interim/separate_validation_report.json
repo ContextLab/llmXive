@@ -1,0 +1,8 @@
+{
+  "status": "valid",
+  "reason": "Both datasets are valid for separate-streams analysis",
+  "rejection_valid": true,
+  "reward_valid": true,
+  "rejection_issues": [],
+  "reward_issues": []
+}

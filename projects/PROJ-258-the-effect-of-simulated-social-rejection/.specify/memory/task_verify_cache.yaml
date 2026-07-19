@@ -1,3 +1,10 @@
+T017a:
+  c: false
+  h: 34108d0b98a7773976710cf4ea8680d67a09fde8664cedee0729a68a531ea7ff
+  r: The repository lacks the required `validate_separate_datasets` implementation
+    in `code/ingest.py` (the file is truncated and does not contain such a function),
+    and the expected output file `data/interim/separate_validation_report.json` is
+    absent. Both the core function and its JSON report artifact are missing.
 T033:
   c: false
   h: 2057f2824f07e6496d8b33f86ef48177314d627540f57fac30fc5e20f71683a9

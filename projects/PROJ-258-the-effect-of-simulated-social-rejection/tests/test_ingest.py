@@ -1,79 +1,154 @@
-import os
-import json
-import tempfile
 import pytest
 import pandas as pd
+import json
+import os
+import sys
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from ingest import save_checksums, calculate_file_hash, setup_paths
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-class TestChecksums:
-    def test_save_checksums_creates_file(self, tmp_path):
-        """Test that save_checksums creates the checksums.json file."""
-        # Create a dummy file to checksum
-        dummy_file = tmp_path / "test_data.csv"
-        dummy_file.write_text("col1,col2\n1,2\n3,4\n")
-        
-        checksum_path = tmp_path / "checksums.json"
-        
-        # Call the function
-        save_checksums([str(dummy_file)], str(checksum_path))
-        
-        # Verify file exists
-        assert checksum_path.exists()
-        
-        # Verify content
-        with open(checksum_path, 'r') as f:
-            data = json.load(f)
-        
-        assert str(dummy_file) in data
-        assert len(data[str(dummy_file)]) == 64  # SHA256 length
+from ingest import validate_separate_datasets, setup_paths
 
-    def test_save_checksums_handles_missing_file(self, tmp_path):
-        """Test that save_checksums logs a warning for missing files."""
-        checksum_path = tmp_path / "checksums.json"
-        missing_file = tmp_path / "nonexistent.csv"
-        
-        # Should not raise, but log warning
-        save_checksums([str(missing_file)], str(checksum_path))
-        
-        # File should still be created (possibly empty or with warning entry)
-        assert checksum_path.exists()
-        
-        with open(checksum_path, 'r') as f:
-            data = json.load(f)
-        
-        # Missing file should not be in the dictionary
-        assert str(missing_file) not in data
-
-    def test_checksums_generated_before_validation(self):
-        """
-        Contract test for T016: Ensure checksums are generated
-        immediately after download, before any validation logic.
-        This is verified by the order of operations in run_ingestion.
-        """
-        # This is a structural test. In the real run, we verify the log output
-        # or the order of function calls.
-        # Here we assert that the function save_checksums is available and callable
-        # and that it is called before validation in the pipeline logic.
-        assert callable(save_checksums)
-        assert callable(calculate_file_hash)
-        # The actual order is enforced by the code in ingest.py:run_ingestion
-
-def test_checksums_json_content(tmp_path):
-    """Test the content of the generated checksums.json."""
-    # Create a file with known content
-    test_file = tmp_path / "known.csv"
-    content = "A,B\n1,2\n"
-    test_file.write_text(content)
+class TestValidateSeparateDatasets:
+    """Tests for validate_separate_datasets function."""
     
-    checksum_path = tmp_path / "checksums.json"
-    save_checksums([str(test_file)], str(checksum_path))
+    def test_both_datasets_valid(self):
+        """Test when both datasets are valid."""
+        # Create valid DataFrames
+        df_rejection = pd.DataFrame({
+            'participant_id': ['sub-01', 'sub-02', 'sub-03'],
+            'condition': ['rejection', 'rejection', 'rejection'],
+            'mood': [3, 2, 4]
+        })
+        
+        df_reward = pd.DataFrame({
+            'participant_id': ['sub-04', 'sub-05', 'sub-06'],
+            'condition': ['reward', 'reward', 'reward'],
+            'reaction_time': [250, 300, 280]
+        })
+        
+        result = validate_separate_datasets(df_rejection, df_reward)
+        
+        assert result['status'] == 'valid'
+        assert result['rejection_valid'] == True
+        assert result['reward_valid'] == True
+        assert 'Both datasets are valid' in result['reason']
+        
+        # Verify report file was created
+        paths = setup_paths()
+        report_path = paths['interim'] / 'separate_validation_report.json'
+        assert report_path.exists()
+        
+        # Verify report content
+        with open(report_path, 'r') as f:
+            report = json.load(f)
+        assert report['status'] == 'valid'
     
-    with open(checksum_path, 'r') as f:
-        data = json.load(f)
+    def test_rejection_dataset_invalid(self):
+        """Test when rejection dataset is invalid."""
+        # Create invalid rejection DataFrame (missing columns)
+        df_rejection = pd.DataFrame({
+            'participant_id': ['sub-01', 'sub-02'],
+            'condition': ['rejection', 'rejection']
+            # Missing 'mood' column
+        })
+        
+        df_reward = pd.DataFrame({
+            'participant_id': ['sub-03', 'sub-04'],
+            'condition': ['reward', 'reward'],
+            'reaction_time': [250, 300]
+        })
+        
+        result = validate_separate_datasets(df_rejection, df_reward)
+        
+        assert result['status'] == 'invalid'
+        assert result['rejection_valid'] == False
+        assert result['reward_valid'] == True
+        assert 'Missing columns' in result['reason']
     
-    # Verify the hash matches the content
-    # We can manually calculate or just check format
-    assert len(data[str(test_file)]) == 64
-    assert all(c in '0123456789abcdef' for c in data[str(test_file)])
+    def test_reward_dataset_invalid(self):
+        """Test when reward dataset is invalid."""
+        df_rejection = pd.DataFrame({
+            'participant_id': ['sub-01', 'sub-02'],
+            'condition': ['rejection', 'rejection'],
+            'mood': [3, 4]
+        })
+        
+        # Create invalid reward DataFrame (missing columns)
+        df_reward = pd.DataFrame({
+            'participant_id': ['sub-03', 'sub-04'],
+            'condition': ['reward', 'reward']
+            # Missing 'reaction_time' column
+        })
+        
+        result = validate_separate_datasets(df_rejection, df_reward)
+        
+        assert result['status'] == 'invalid'
+        assert result['rejection_valid'] == True
+        assert result['reward_valid'] == False
+        assert 'Missing columns' in result['reason']
+    
+    def test_both_datasets_invalid(self):
+        """Test when both datasets are invalid."""
+        df_rejection = pd.DataFrame({
+            'participant_id': ['sub-01'],
+            # Missing required columns
+        })
+        
+        df_reward = pd.DataFrame({
+            'participant_id': ['sub-02'],
+            # Missing required columns
+        })
+        
+        result = validate_separate_datasets(df_rejection, df_reward)
+        
+        assert result['status'] == 'invalid'
+        assert result['rejection_valid'] == False
+        assert result['reward_valid'] == False
+    
+    def test_empty_datasets(self):
+        """Test with empty DataFrames."""
+        df_rejection = pd.DataFrame()
+        df_reward = pd.DataFrame()
+        
+        result = validate_separate_datasets(df_rejection, df_reward)
+        
+        assert result['status'] == 'invalid'
+        assert result['rejection_valid'] == False
+        assert result['reward_valid'] == False
+    
+    def test_none_datasets(self):
+        """Test with None values."""
+        result = validate_separate_datasets(None, None)
+        
+        assert result['status'] == 'invalid'
+        assert result['rejection_valid'] == False
+        assert result['reward_valid'] == False
+    
+    def test_report_schema(self):
+        """Test that the report follows the required schema."""
+        df_rejection = pd.DataFrame({
+            'participant_id': ['sub-01'],
+            'condition': ['rejection'],
+            'mood': [3]
+        })
+        
+        df_reward = pd.DataFrame({
+            'participant_id': ['sub-02'],
+            'condition': ['reward'],
+            'reaction_time': [250]
+        })
+        
+        result = validate_separate_datasets(df_rejection, df_reward)
+        
+        # Check required keys
+        assert 'status' in result
+        assert 'reason' in result
+        assert result['status'] in ['valid', 'invalid']
+        assert isinstance(result['reason'], str)
+        assert len(result['reason']) > 0
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -1,5 +1,2 @@
-"""
-llmXive Science Pipeline - Tests Package
-
-This package contains all test modules for the automated science pipeline.
-"""
+# llmXive Research Pipeline - Tests Package
+# This file makes the 'tests' directory a Python package.
