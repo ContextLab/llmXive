@@ -265,10 +265,8 @@ def record(
     Both are cleared on success.
     """
     existing = load(project_id, repo_root=repo_root) or {}
-    prior_rounds = existing.get("fix_rounds", 0)
-    prior_rounds = int(prior_rounds) if isinstance(prior_rounds, int) and prior_rounds >= 0 else 0
-    prior_tier = existing.get("model_tier", 0)
-    prior_tier = int(prior_tier) if isinstance(prior_tier, int) and prior_tier >= 0 else 0
+    prior_rounds = _nonneg_int(existing.get("fix_rounds"))
+    prior_tier = _nonneg_int(existing.get("model_tier"))
     prior_attempts = _nonneg_int(existing.get("total_attempts"))
     rec = {
         "project_id": project_id,
@@ -408,10 +406,8 @@ def record_offload(
     transitions.
     """
     existing = load(project_id, repo_root=repo_root) or {}
-    prior_rounds = existing.get("fix_rounds", 0)
-    prior_rounds = int(prior_rounds) if isinstance(prior_rounds, int) and prior_rounds >= 0 else 0
-    prior_tier = existing.get("model_tier", 0)
-    prior_tier = int(prior_tier) if isinstance(prior_tier, int) and prior_tier >= 0 else 0
+    prior_rounds = _nonneg_int(existing.get("fix_rounds"))
+    prior_tier = _nonneg_int(existing.get("model_tier"))
     prior_offload = existing.get("offload") or {}
     submitted_at = (
         prior_offload.get("submitted_at")

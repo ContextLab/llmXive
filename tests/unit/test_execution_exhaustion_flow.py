@@ -82,6 +82,35 @@ def test_model_tier_defaults_to_zero_and_record_preserves_it(tmp_path: Path) -> 
     assert es.fix_rounds(pid, repo_root=tmp_path) == 1  # bumped from 0
 
 
+def test_record_bool_safety_read_write_cycle(tmp_path: Path) -> None:
+    """A corrupt persisted BOOLEAN counter must not survive a record()/record_offload()
+    read->write cycle. ``isinstance(True, int)`` is True, so the pre-fix inline coercion
+    in record() read a stored ``"model_tier": true`` as tier 1 and rewrote it, and turned
+    ``"fix_rounds": true`` into 2 on the next failure — silently defeating the read-path
+    bool-safety fix. Both write paths must route through the bool-safe ``_nonneg_int``."""
+    d = tmp_path / "state" / "execution_status"
+    d.mkdir(parents=True)
+    pid = "PROJ-013-boolsafe"
+    p = d / f"{pid}.json"
+    corrupt = {"project_id": pid, "ok": False, "model_tier": True, "fix_rounds": True}
+
+    # record() on a failure must read True as 0 (not tier 1 / round 1) and rewrite ints.
+    p.write_text(json.dumps(corrupt))
+    es.record(pid, ok=False, reason="boom", artifacts=[], failures=["x"], repo_root=tmp_path)
+    rec = json.loads(p.read_text())
+    assert rec["model_tier"] == 0 and not isinstance(rec["model_tier"], bool)
+    assert rec["fix_rounds"] == 1 and not isinstance(rec["fix_rounds"], bool)  # 0+1, not True+1==2
+    assert es.model_tier(pid, repo_root=tmp_path) == 0
+    assert es.fix_rounds(pid, repo_root=tmp_path) == 1
+
+    # record_offload() likewise never reintroduces a bool from a still-corrupt record.
+    p.write_text(json.dumps(corrupt))
+    es.record_offload(pid, status="submitted", kernel_ref="k1", repo_root=tmp_path)
+    rec2 = json.loads(p.read_text())
+    assert rec2["model_tier"] == 0 and not isinstance(rec2["model_tier"], bool)
+    assert rec2["fix_rounds"] == 0 and not isinstance(rec2["fix_rounds"], bool)
+
+
 def test_ladder_skips_paid_tiers_when_opt_in_off(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
