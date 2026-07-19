@@ -305,19 +305,20 @@ def test_route_chat_rejects_the_sentinel_profile_before_any_snapshot(monkeypatch
         )
 
 
-def test_registry_dispatch_bypasses_no_llm_agents():
-    """Layer 1: the no-LLM agent never enters routing at all."""
-    from llmxive.agents.registry import load_registry
-
-    entries = {a.name: a for a in load_registry().agents}
-    assert entries["paper_publisher"].profile == DETERMINISTIC_NO_LLM
-    assert all(
-        e.profile != DETERMINISTIC_NO_LLM
-        for name, e in entries.items() if name != "paper_publisher"
-    )
+def test_route_chat_still_rejects_the_sentinel_via_caller_model():
+    """The pre-existing caller_model spelling must keep failing closed until
+    Task 7 removes the last caller_model pins."""
+    with pytest.raises(ValueError, match="deterministic-no-llm"):
+        route_chat(
+            [ChatMessage(role="user", content="hi")],
+            caller_model=DETERMINISTIC_NO_LLM,
+            max_tokens=100,
+        )
 ```
 
-Note: the second test depends on Task 5's schema. Mark it `@pytest.mark.xfail(reason="profile field lands in Task 5", strict=False)` in this task and REMOVE the marker in Task 5.
+**Layer 1 (registry dispatch) is tested in Task 5**, where `entry.profile` exists. Do NOT write an
+`xfail` placeholder here: a test marked `xfail(strict=False)` asserts nothing and passes whether or
+not the behavior is correct. Task 5 Step 6 adds the layer-1 test to `test_profile_schema.py`.
 
 - [ ] **Step 2: Run it to verify it fails**
 
@@ -434,9 +435,11 @@ def test_string_content_still_valid_and_unchanged():
 
 
 def test_parts_content_is_an_immutable_tuple():
+    import dataclasses
+
     m = ChatMessage(role="user", content=(TextPart("look:"), _img()))
     assert isinstance(m.content, tuple)
-    with pytest.raises(Exception):
+    with pytest.raises(dataclasses.FrozenInstanceError):
         m.content = "mutated"          # frozen dataclass
 
 
@@ -939,12 +942,23 @@ def test_every_agent_loads_with_a_canonical_profile():
 
 
 def test_unknown_profile_is_a_load_time_failure():
-    with pytest.raises(Exception):
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError, match="profile"):
         AgentRegistryEntry(
             name="bogus_agent", purpose="x" * 20, prompt_path="agents/prompts/x.md",
             prompt_version="1.0.0", profile="not_a_real_profile",
             wall_clock_budget_seconds=60,
         )
+
+
+def test_no_llm_agent_is_bypassed_by_registry_dispatch():
+    """US5 AC3 layer 1 (deferred here from Task 2, where entry.profile did not
+    yet exist): the no-LLM agent is identified by its PROFILE, so dispatch can
+    bypass it before any routing."""
+    entries = {a.name: a for a in load_registry().agents}
+    assert entries["paper_publisher"].profile == NO_LLM
+    assert [n for n, e in entries.items() if e.profile == NO_LLM] == ["paper_publisher"]
 
 
 def test_paid_opt_in_is_retained_and_defaults_false():
@@ -1498,9 +1512,48 @@ def test_standard_generation_keeps_the_free_chain_plus_the_guarded_paid_tail():
     assert "anthropic.claude-haiku-4-5-20251001" in ids, "paid tail truncated by max_candidates"
 ```
 
-Repeat for `deep_review`, `deep_code`, `cheap_structured` and `vision`, asserting the intended chain
-for each. **Raise `max_candidates` to 8 on those profiles in `profiles.py`** so the guarded paid
-tail stays reachable — the as-built behavior, since every caller currently routes through
+Write the same explicit assertion for each remaining profile — do not collapse them into a loop or
+leave them as "repeat for the others"; each profile's intended chain is a separate reviewed claim:
+
+```python
+def test_deep_review_keeps_the_free_chain_plus_the_guarded_paid_tail():
+    ids = _ids(select(build_requirement("deep_review", _CB, allow_paid=True), _composite()))
+    assert ids[:3] == ["qwen.qwen3.5-122b", "google.gemma-4-31B-it", "openai.gpt-oss-120b"]
+    assert "anthropic.claude-haiku-4-5-20251001" in ids
+
+
+def test_deep_code_keeps_the_free_chain_plus_the_guarded_paid_tail():
+    ids = _ids(select(build_requirement("deep_code", _CB, allow_paid=True), _composite()))
+    assert ids[:3] == ["qwen.qwen3.5-122b", "google.gemma-4-31B-it", "openai.gpt-oss-120b"]
+    assert "anthropic.claude-haiku-4-5-20251001" in ids
+
+
+def test_cheap_structured_keeps_the_free_chain_plus_the_guarded_paid_tail():
+    ids = _ids(select(build_requirement("cheap_structured", _CB, allow_paid=True), _composite()))
+    assert ids[:3] == ["qwen.qwen3.5-122b", "google.gemma-4-31B-it", "openai.gpt-oss-120b"]
+    assert "anthropic.claude-haiku-4-5-20251001" in ids
+
+
+def test_vision_leads_with_qwen35_and_keeps_the_vl_peer():
+    ids = _ids(select(build_requirement("vision", _CB), _composite()))
+    assert ids[0] == "qwen.qwen3.5-122b"
+    assert "qwen.qwen3-vl:32b" in ids
+    # gemma-4/gpt-oss have no vision attribution and must NOT appear
+    assert "google.gemma-4-31B-it" not in ids and "openai.gpt-oss-120b" not in ids
+
+
+def test_independent_review_requires_a_different_family():
+    from llmxive.model_selection.types import IndependenceBaseline
+
+    ids = _ids(select(build_requirement(
+        "independent_review", _CB,
+        independence_against=IndependenceBaseline(families=frozenset({"qwen3.5"})),
+    ), _composite()))
+    assert "qwen.qwen3.5-122b" not in ids, "required family independence not honored"
+```
+
+**Raise `max_candidates` to 8 on `cheap_structured`, `deep_review`, `deep_code` and `vision` in
+`profiles.py`** so the guarded paid tail stays reachable — the as-built behavior, since every caller currently routes through
 `standard_generation` (cap 8). If a profile is deliberately given a narrower surface, record it in
 the commit message as an intentional delta with its rationale.
 
