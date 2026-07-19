@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.08131",
+  "judged_at": "2026-07-19T19:00:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it provides a foundational framework and state-of-the-art baseline for \"open-vocabulary detection,\" which is the core technical mechanism referenced in the user's question regarding the extension of \"IndusAgent\" for open-vocabulary industrial anomaly detection. Even though the paper focuses on general datasets (COCO, LVIS) rather than industrial anomalies specifically, it establishes the canonical methodology for the \"open-vocabulary\" component that t",
+  "relevant": true
+}

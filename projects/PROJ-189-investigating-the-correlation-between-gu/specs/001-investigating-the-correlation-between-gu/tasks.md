@@ -46,7 +46,7 @@
 - [ ] T001a Create root project directory `projects/PROJ-189-investigating-the-correlation-between-gu/`
 - [ ] T001b Create subdirectories: `data/raw`, `data/processed`, `data/models`, `code`, `code/utils`, `tests`, `tests/contract`, `tests/integration`, `tests/unit`, `docs`
 - [ ] T001c Initialize `.gitignore` with patterns for large data files (`data/raw/*`), Python cache (`__pycache__`), and environment files (`venv/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
 - [ ] T003 Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -58,10 +58,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 Implement deterministic data fetching utilities with checksum validation in `code/utils/data_fetchers.py`
-- [ ] T006 Setup logging infrastructure and memory usage monitoring in `code/utils/logging.py`
+- [X] T006 Setup logging infrastructure and memory usage monitoring in `code/utils/logging.py`
 - [X] T007 Create base data models/entities (Sample, Taxon) in `code/utils/data_models.py`
 - [ ] T008 Implement CPU-only execution guard and resource limit checks (≤7GB RAM, ≤6h) in `code/utils/resource_guard.py`
-- [~] T009 Setup environment configuration management for dataset paths and random seeds <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [ ] T009 Setup environment configuration management for dataset paths and random seeds <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
@@ -89,14 +89,14 @@
 - [X] T013 [US1] Implement HRS cognitive metadata fetcher from official HRS portal in `code/01_data_ingestion.py` <!-- FAILED: unspecified -->
 - [X] T014 [US1] Implement participant ID merge logic with overlap logging (≥500 samples required) in `code/01_data_ingestion.py`
 - [X] T015 [US1] Implement age ≥ 60 filter and covariate (BMI, education) imputation logic in `code/02_preprocessing.py`
-- [ ] T016 [US1] Implement Rarefaction to uniform depth (minimum read depth of retained samples) and collapse to genus-level relative abundances in `code/02_preprocessing.py` (Per Spec FR-002)
+- [X] T016 [US1] Implement Rarefaction to uniform depth (minimum read depth of retained samples) and collapse to genus-level relative abundances in `code/02_preprocessing.py` (Per Spec FR-002)
 - [ ] T017 [US1] Add validation to ensure no null values remain in the final analysis dataset
-- [ ] T018 [US1] Log mismatch counts and proceed only if overlap ≥ 500 samples; fail gracefully otherwise
+- [~] T018 [US1] Log mismatch counts and proceed only if overlap ≥ 500 samples; fail gracefully otherwise
 
 ### Phase 3b: Test Execution (Run after Implementation)
 
-- [ ] T045 Execute contract tests for merged dataframe schema
-- [ ] T046 Execute integration tests for age filtering and missing value imputation
+- [~] T045 Execute contract tests for merged dataframe schema
+- [~] T046 Execute integration tests for age filtering and missing value imputation
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

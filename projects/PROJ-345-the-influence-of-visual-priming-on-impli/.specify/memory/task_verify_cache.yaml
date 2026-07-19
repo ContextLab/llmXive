@@ -1,0 +1,43 @@
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., `pyproject.toml` with ruff/black\
+    \ settings, `.pre-commit-config.yaml`, or installed hook scripts) are present\
+    \ or referenced, so the required setup for ruff, black, and pre\u2011commit hooks\
+    \ is missing. The task therefore is not satisfied."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `config.py` file or its contents are present in the provided evidence; the\
+    \ required path definitions and random seed pinning are not demonstrated. The\
+    \ implementer must add a non\u2011empty `config.py` that defines the specified\
+    \ data directories and sets a fixed random seed."
+T011:
+  c: false
+  h: 2a525523383cc1bc2d5bfbd6e9d0d7e288e23ffaff2884f60867c65a8fcc431f
+  r: The required artifact `tests/unit/test_ingest.py` does not exist on disk, so
+    no unit tests for URL validation and CSV parsing are present. The task cannot
+    be considered completed until this file is created with appropriate test cases.
+T012:
+  c: false
+  h: 832ee4739203bc9f5d46e6d0f0088573850cc319eb279ef1d241fc44d1f98169
+  r: "The required file `tests/integration/test_ingest_integration.py` is missing\
+    \ from the repository, so no integration test for missing image handling exists.\
+    \ The task\u2019s primary artifact is absent, making the claim unsubstantiated."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log, or data artifact demonstrating the fallback linkage derivation\
+    \ was provided; there is no evidence that trials are mapped to stimulus IDs, that\
+    \ a >10% failure rate triggers the required halt, or that the proportion of successfully\
+    \ linked trials meets SC\u2011001. The implementer must supply the implementation\
+    \ (e.g., a Python module or script) and output showing the mapping results and\
+    \ the halt condition when applicable."
+T023:
+  c: false
+  h: 299293fed1ece7f85cbfafd1dac0724bd5caad5adee62af6b7086f40b65ae3bb
+  r: "The repository lacks the required `data/processed/confounding_report.json` file,\
+    \ and the shown `code/data/preprocess.py` does not contain any implementation\
+    \ of a confounding check or generation of a correlation matrix/report. Consequently,\
+    \ the task\u2019s deliverable is missing and the code does not fulfill the specified\
+    \ requirement."

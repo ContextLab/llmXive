@@ -1,1 +1,3 @@
-# This directory is intentionally empty to track .gitignore patterns for model artifacts.
+# This directory is intentionally empty.
+# It exists to ensure the directory structure is preserved in git.
+# Model artifacts will be saved here during execution.

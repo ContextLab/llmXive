@@ -24860,3 +24860,91 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T16:15:09Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Knot Atlas data includes invariants for prime knots with crossing number
+    <= 13
+  claim_id: c_64c43fe9
+  context: "Goal: Download knot data from Knot Atlas including crossing numbers, braid\
+    \ indices, hyperbolic volume, and alternating/non-alternating classification for\
+    \ all prime knots with crossing number \u2264 13."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Download knot data from Knot Atlas including crossing numbers, braid\
+    \ indices, hyperbolic volume, and alternating/non-alternating classification for\
+    \ all prime knots with crossing number \u2264 13."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T18:30:46Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 2
+  canonical: Reconcile record counts 476 vs 9988
+  claim_id: c_58dad457
+  context: Update `docs/reproducibility/data_quality_report.md`, `docs/reproducibility/data_quantities.md`,
+    and `docs/reproducibility/invariant_coverage.md` to reflect consistent record
+    counts (reconcile "476" vs "9,988") and correct flag statuses.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reconcile record counts between '476' and '9,988' in data quality documentation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T18:31:19Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: VIF values expected >> 5 due to braid index <= crossing number constraint
+  claim_id: c_61538d7e
+  context: Verify that reported VIF values reflect the expected high multicollinearity
+    (VIF >> 5) due to the `braid_index <= crossing_number` constraint, or explicitly
+    document the data source failure if not.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that reported VIF values reflect the expected high multicollinearity
+    (VIF >> 5) due to the braid_index <= crossing_number constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T18:31:24Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Identify families deviating >= 2 SD
+  claim_id: c_743da058
+  context: "Create `code/analysis/residual_analysis.py`: Logic for identifying families\
+    \ deviating \u2265 2 SD (SC-011)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Logic for identifying families deviating \u2265 2 standard deviations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T18:31:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: Split model fitting module into 3 modules under 200 lines each
+  claim_id: c_536db90e
+  context: Split `code/analysis/model_fitting.py` into three distinct modules, each
+    under 200 lines
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Split `code/analysis/model_fitting.py` into three distinct modules, each
+    under 200 lines.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T18:31:52Z'

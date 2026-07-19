@@ -1,80 +1,85 @@
 """
-Utility script to run Black formatting and Ruff linting.
-Usage: python code/format.py [--check] [--fix]
+Formatting and linting utility script.
+Provides commands to run black and ruff against the project codebase.
 """
 import subprocess
 import sys
 import argparse
+from pathlib import Path
 
-def run_command(cmd_args, description):
-    """Run a command and report status."""
+def run_command(cmd: list[str], description: str) -> bool:
+    """Run a shell command and report status."""
     print(f"Running: {description}")
-    print(f"Command: {' '.join(cmd_args)}")
-    result = subprocess.run(cmd_args)
-    if result.returncode != 0:
-        print(f"❌ {description} failed.")
+    try:
+        result = subprocess.run(
+            cmd,
+            check=True,
+            capture_output=False,
+            text=True
+        )
+        print(f"✓ {description} completed successfully.")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"✗ {description} failed with code {e.returncode}")
         return False
-    print(f"✅ {description} passed.")
-    return True
 
 def main():
-    parser = argparse.ArgumentParser(description="Run formatting and linting checks.")
+    parser = argparse.ArgumentParser(description="Run formatting and linting tools.")
     parser.add_argument(
-        "--check",
+        "--check-only",
         action="store_true",
-        help="Check formatting and linting without modifying files."
+        help="Only check formatting/linting without fixing."
     )
     parser.add_argument(
         "--fix",
         action="store_true",
-        help="Automatically fix linting errors where possible."
+        help="Automatically fix issues where possible."
     )
     args = parser.parse_args()
 
-    code_dir = "code"
-    tests_dir = "tests"
-    success = True
+    project_root = Path(__file__).parent
+    code_dir = project_root / "code"
+    tests_dir = project_root / "tests"
 
-    # Black formatting
-    black_args = [
-        "black",
-        "--config", f"{code_dir}/pyproject.toml" if False else None, # Fallback to default if no config
-        code_dir,
-        tests_dir,
-    ]
-    if args.check:
+    # Determine black arguments
+    black_args = [sys.executable, "-m", "black"]
+    if args.check_only:
         black_args.append("--check")
-    if not args.fix:
-        black_args.append("--diff")
+    if args.fix:
+        black_args.append("--diff") # or just run without --check to fix in place
     
-    # Remove None values
-    black_args = [a for a in black_args if a is not None]
+    black_targets = [str(code_dir), str(tests_dir)]
 
-    if not run_command(black_args, "Black formatting"):
-        success = False
-
-    # Ruff linting
-    ruff_args = [
-        "ruff",
-        "check",
-        code_dir,
-        tests_dir,
-    ]
+    # Determine ruff arguments
+    ruff_args = [sys.executable, "-m", "ruff", "check"]
     if args.fix:
         ruff_args.append("--fix")
-    if args.check:
-        # In check mode, we just report errors
-        pass
+    if args.check_only and not args.fix:
+        ruff_args.append("--exit-zero") # ruff check exits 0 if no errors, but we want to see output
+    
+    ruff_targets = [str(code_dir), str(tests_dir)]
 
-    if not run_command(ruff_args, "Ruff linting"):
-        success = False
+    success = True
 
-    if success:
-        print("\n✅ All checks passed!")
-        sys.exit(0)
-    else:
-        print("\n❌ Some checks failed.")
+    # Run Black
+    success &= run_command(
+        black_args + black_targets,
+        "Black formatting check" if args.check_only else "Black formatting"
+    )
+
+    # Run Ruff
+    success &= run_command(
+        ruff_args + ruff_targets,
+        "Ruff linting check" if args.check_only else "Ruff linting"
+    )
+
+    if not success:
         sys.exit(1)
+
+    if args.check_only:
+        print("\nAll checks passed.")
+    else:
+        print("\nFormatting and linting complete.")
 
 if __name__ == "__main__":
     main()

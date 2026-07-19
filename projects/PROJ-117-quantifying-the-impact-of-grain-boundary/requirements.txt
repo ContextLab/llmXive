@@ -7,9 +7,6 @@ matplotlib
 requests
 pymatgen
 pyarrow
-scipy
+pyyaml
 python-dotenv
-pytest
-black
-ruff
 psutil

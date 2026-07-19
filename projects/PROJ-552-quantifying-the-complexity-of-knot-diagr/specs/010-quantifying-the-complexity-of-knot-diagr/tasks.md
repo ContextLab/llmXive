@@ -61,7 +61,7 @@ description: "Task list for Quantifying the Complexity of Knot Diagrams via Cros
 - [X] T005 [P] Setup CI/CD pipeline with linting, formatting, and basic build steps.
 - [X] T006 [P] Setup initial testing framework with unit tests.
 - [X] T007 Create `code/data/tie_breaking_validator.py` script that returns exit code 0 on success and generate `docs/reproducibility/tie_breaking_rules.md` (SC-007)
-- [ ] T008 [P] Setup database schema and migrations framework (if applicable) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T008 [P] Setup database schema and migrations framework (if applicable) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T009 [P] Implement authentication/authorization framework (if applicable)
 - [ ] T010 [P] Setup API routing and middleware structure (if applicable) <!-- ATOMIZE: requested -->
 
@@ -101,7 +101,7 @@ description: "Task list for Quantifying the Complexity of Knot Diagrams via Cros
 ### Tests for User Story 2 (OPTIONAL)
 
 - [X] T023 [P] [US2] Contract test for precision validation module in `tests/contract/test_precision.py`
-- [ ] T024 [P] [US2] Integration test for data quality check in `tests/integration/test_data_quality.py`
+- [X] T024 [P] [US2] Integration test for data quality check in `tests/integration/test_data_quality.py`
 
 **Checkpoint**: User Story 2 should be fully functional and testable independently.
 
@@ -118,8 +118,8 @@ description: "Task list for Quantifying the Complexity of Knot Diagrams via Cros
 
 ### Tests for User Story 3 (OPTIONAL)
 
-- [ ] T029 [P] [US3] Contract test for regression model in `tests/contract/test_regression.py`
-- [ ] T030 [P] [US3] Integration test for residual analysis in `tests/integration/test_residual_analysis.py`
+- [X] T029 [P] [US3] Contract test for regression model in `tests/contract/test_regression.py` <!-- FAILED: unspecified -->
+- [X] T030 [P] [US3] Integration test for residual analysis in `tests/integration/test_residual_analysis.py`
 
 **Checkpoint**: User Story 3 should be fully functional and testable independently.
 
@@ -135,8 +135,8 @@ description: "Task list for Quantifying the Complexity of Knot Diagrams via Cros
 
 ### Tests for User Story 4 (OPTIONAL)
 
-- [ ] T034 [P] [US4] Unit tests for edge case handling scenarios in `tests/unit/test_edge_cases.py`
-- [ ] T035 [P] [US4] Integration test for reproducibility documentation generation in `tests/integration/test_reproducibility.py`
+- [X] T034 [P] [US4] Unit tests for edge case handling scenarios in `tests/unit/test_edge_cases.py`
+- [X] T035 [P] [US4] Integration test for reproducibility documentation generation in `tests/integration/test_reproducibility.py`
 
 **Checkpoint**: User Story 4 should be fully functional and testable independently.
 
@@ -160,7 +160,7 @@ description: "Task list for Quantifying the Complexity of Knot Diagrams via Cros
 
 ### Refactoring: Analysis Module Splitting (Addressing Code Quality Review)
 
-- [ ] T041 [US3] **Split `code/analysis/model_fitting.py`** into three distinct modules, each under 200 lines:
+- [X] T041 [US3] **Split `code/analysis/model_fitting.py`** into three distinct modules, each under 200 lines:
  - [ ] Create `code/analysis/model_fitting.py`: Pure model fitting (Linear, Polynomial, Logarithmic) and metric calculation (R², AIC, BIC, MAE).
  - [ ] Create `code/analysis/residual_analysis.py`: Logic for identifying families deviating ≥ 2 SD (SC-011).
  - [ ] Create `code/analysis/plotting.py`: All figure generation logic (FR-004, SC-016).

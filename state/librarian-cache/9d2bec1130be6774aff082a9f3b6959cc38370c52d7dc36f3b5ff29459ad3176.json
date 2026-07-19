@@ -1,0 +1,637 @@
+{
+  "fetched_at": "2026-07-19T19:01:05Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection w\"",
+      "target_n": 5
+    },
+    "duration_seconds": 50.091,
+    "ended_at": "2026-07-19T19:01:05Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "open-vocabulary anomaly detection in industrial settings"
+        ],
+        [
+          2,
+          "vision-language models for industrial defect detection"
+        ],
+        [
+          3,
+          "zero-shot anomaly detection using large language models"
+        ],
+        [
+          4,
+          "reinforcement learning for open-set industrial inspection"
+        ],
+        [
+          5,
+          "text-guided anomaly detection in manufacturing"
+        ],
+        [
+          6,
+          "large multimodal models for surface defect recognition"
+        ],
+        [
+          7,
+          "open-vocabulary visual anomaly localization"
+        ],
+        [
+          8,
+          "generative AI for industrial quality control"
+        ],
+        [
+          9,
+          "cross-modal anomaly detection with CLIP-based architectures"
+        ],
+        [
+          10,
+          "few-shot anomaly detection in industrial imagery"
+        ],
+        [
+          11,
+          "semantic anomaly detection using natural language queries"
+        ],
+        [
+          12,
+          "unsupervised industrial anomaly detection with foundation models"
+        ],
+        [
+          13,
+          "integrating LLMs with computer vision for defect diagnosis"
+        ],
+        [
+          14,
+          "open-world anomaly detection for automated visual inspection"
+        ],
+        [
+          15,
+          "text-to-image models for industrial defect synthesis"
+        ],
+        [
+          16,
+          "domain adaptation for open-vocabulary industrial vision tasks"
+        ],
+        [
+          17,
+          "multi-modal reinforcement learning for visual inspection agents"
+        ],
+        [
+          18,
+          "semantic segmentation for unknown industrial anomalies"
+        ],
+        [
+          19,
+          "prompt engineering for industrial anomaly detection systems"
+        ],
+        [
+          20,
+          "foundation models for zero-shot industrial defect classification"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection w\" computer science": 0,
+        "open-vocabulary anomaly detection in industrial settings": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "unsupervised anomaly localization industrial datasets",
+      "MVTec AD VisA MVTec LOCO AD benchmark",
+      "patch-core sparse coding industrial defect",
+      "zero-shot defect detection open-vocabulary evaluation",
+      "foundation model adaptation domain shift industrial"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2306.15880"
+      ]
+    },
+    "per_query_hit_count": {
+      "MVTec AD VisA MVTec LOCO AD benchmark": 3,
+      "foundation model adaptation domain shift industrial": 3,
+      "llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection w\" computer science": 3,
+      "patch-core sparse coding industrial defect": 2,
+      "unsupervised anomaly localization industrial datasets": 3,
+      "zero-shot defect detection open-vocabulary evaluation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-19T19:00:14Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+      "raw": "llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection w\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Anomaly localization is a practical technology for improving industrial production line efficiency. Due to anomalies are manifold and hard to be collected, existing unsupervised researches are usually equipped with anomaly synthesis methods. However, most of them are biased towards structural defects synthesis while ignoring the underlying logical constraints. To fill the gap and boost anomaly localization performance, we propose an edge manipulation based anomaly synthesis framework, named LogicAL, that produces photo-realistic both logical and structural anomalies. We introduce a logical anomaly generation strategy that is adept at breaking logical constraints and a structural anomaly generation strategy that complements to the structural defects synthesis. We further improve the anomaly localization performance by introducing edge reconstruction into the network structure. Extensive experiments on the challenge MVTecLOCO, MVTecAD, VisA and MADsim datasets verify the advantage of proposed LogicAL on both logical and structural anomaly localization.",
+          "claimed_authors": [
+            "Ying Zhao"
+          ],
+          "claimed_title": "LogicAL: Towards logical anomaly synthesis for unsupervised anomaly localization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.06875"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='LogicAL: Towards logical anomaly synthesis for unsupervised anomaly localization')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Currently, deep learning-based visual inspection has been highly successful with the help of supervised learning methods. However, in real industrial scenarios, the scarcity of defect samples, the cost of annotation, and the lack of a priori knowledge of defects may render supervised-based methods ineffective. In recent years, unsupervised anomaly localization algorithms have become more widely used in industrial inspection tasks. This paper aims to help researchers in this field by comprehensively surveying recent achievements in unsupervised anomaly localization in industrial images using deep learning. The survey reviews more than 120 significant publications covering different aspects of anomaly localization, mainly covering various concepts, challenges, taxonomies, benchmark datasets, and quantitative performance comparisons of the methods reviewed. In reviewing the achievements to date, this paper provides detailed predictions and analysis of several future research directions. This review provides detailed technical information for researchers interested in industrial anomaly localization and who wish to apply it to the localization of anomalies in other fields.",
+          "claimed_authors": [
+            "Xian Tao",
+            "Xinyi Gong",
+            "Xin Zhang",
+            "Shaohua Yan",
+            "Chandranath Adak"
+          ],
+          "claimed_title": "Deep Learning for Unsupervised Anomaly Localization in Industrial Images: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.10298"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Deep Learning for Unsupervised Anomaly Localization in Industrial Images: A Survey')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Given the tremendous success of the Internet of Things in interconnecting consumer devices, we observe a natural trend to likewise interconnect devices in industrial settings, referred to as Industrial Internet of Things or Industry 4.0. While this coupling of industrial components provides many benefits, it also introduces serious security challenges. Although sharing many similarities with the consumer Internet of Things, securing the Industrial Internet of Things introduces its own challenges but also opportunities, mainly resulting from a longer lifetime of components and a larger scale of networks. In this paper, we identify the unique security goals and challenges of the Industrial Internet of Things, which, unlike consumer deployments, mainly follow from safety and productivity requirements. To address these security goals and challenges, we provide a comprehensive survey of research efforts to secure the Industrial Internet of Things, discuss their applicability, and analyze their security benefits.",
+          "claimed_authors": [
+            "Martin Serror",
+            "Sacha Hack",
+            "Martin Henze",
+            "Marko Schuba",
+            "Klaus Wehrle"
+          ],
+          "claimed_title": "Challenges and Opportunities in Securing the Industrial Internet of Things",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.11714"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Challenges and Opportunities in Securing the Industrial Internet of Things')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, performance on existing anomaly detection benchmarks like MVTec AD and VisA has started to saturate in terms of segmentation AU-PRO, with state-of-the-art models often competing in the range of less than one percentage point. This lack of discriminatory power prevents a meaningful comparison of models and thus hinders progress of the field, especially when considering the inherent stochastic nature of machine learning results. We present MVTec AD 2, a collection of eight anomaly detection scenarios with more than 8000 high-resolution images. It comprises challenging and highly relevant industrial inspection use cases that have not been considered in previous datasets, including transparent and overlapping objects, dark-field and back light illumination, objects with high variance in the normal data, and extremely small defects. We provide comprehensive evaluations of state-of-the-art methods and show that their performance remains below 60% average AU-PRO. Additionally, our dataset provides test scenarios with lighting condition changes to assess the robustness of methods under real-world distribution shifts. We host a publicly accessible evaluation server that holds the pixel-precise ground truth of the test set (https://benchmark.mvtec.com/). All image data is available at https://www.mvtec.com/company/research/datasets/mvtec-ad-2.",
+          "claimed_authors": [
+            "Lars Heckler-Kram",
+            "Jan-Hendrik Neudeck",
+            "Ulla Scheler",
+            "Rebecca König",
+            "Carsten Steger"
+          ],
+          "claimed_title": "The MVTec AD 2 Dataset: Advanced Scenarios for Unsupervised Anomaly Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.21622"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='The MVTec AD 2 Dataset: Advanced Scenarios for Unsupervised Anomaly Detection')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The goal of entity matching in knowledge graphs is to identify entities that refer to the same real-world objects using some similarity metric. The result of entity matching can be seen as a set of entity pairs interpreted as the same-as relation. However, the identified set of pairs may fail to satisfy some structural properties, in particular transitivity, that are expected from the same-as relation. In this work, we show that an ad-hoc enforcement of transitivity, i.e. taking the transitive closure, on the identified set of entity pairs may decrease precision dramatically. We therefore propose a methodology that starts with a given similarity measure, generates a set of entity pairs that are identified as referring to the same real-world objects, and applies the cluster editing algorithm to enforce transitivity without adding many spurious links, leading to overall improved performance.",
+          "claimed_authors": [
+            "Jurian Baas",
+            "Mehdi Dastani",
+            "Ad Feelders"
+          ],
+          "claimed_title": "Exploiting Transitivity Constraints for Entity Matching in Knowledge Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.12589"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Exploiting Transitivity Constraints for Entity Matching in Knowledge Graphs')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In online display advertising, selecting the most effective ad creative (ad image) for each impression is a crucial task for DSPs (Demand-Side Platforms) to fulfill their goals (click-through rate, number of conversions, revenue, and brand improvement). As widely recognized in the marketing literature, the effect of ad creative changes with the number of repetitive ad exposures. In this study, we propose an efficient and easy-to-implement ad creative selection algorithm that explicitly considers user's psychological status when selecting ad creatives. The proposed system was deployed in a real-world production environment and tested against the baseline algorithms. The results show superiority of the proposed algorithm.",
+          "claimed_authors": [
+            "Daisuke Moriwaki",
+            "Komei Fujita",
+            "Shota Yasui",
+            "Takahiro Hoshino"
+          ],
+          "claimed_title": "Fatigue-Aware Ad Creative Selection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.08936"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Fatigue-Aware Ad Creative Selection')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The goal of predictive sparse coding is to learn a representation of examples as sparse linear combinations of elements from a dictionary, such that a learned hypothesis linear in the new representation performs well on a predictive task. Predictive sparse coding algorithms recently have demonstrated impressive performance on a variety of supervised tasks, but their generalization properties have not been studied. We establish the first generalization error bounds for predictive sparse coding, covering two settings: 1) the overcomplete setting, where the number of features k exceeds the original dimensionality d; and 2) the high or infinite-dimensional setting, where only dimension-free bounds are useful. Both learning bounds intimately depend on stability properties of the learned sparse encoder, as measured on the training sample. Consequently, we first present a fundamental stability result for the LASSO, a result characterizing the stability of the sparse codes with respect to perturbations to the dictionary. In the overcomplete setting, we present an estimation error bound that decays as \\tilde{O}(sqrt(d k/m)) with respect to d and k. In the high or infinite-dimensional setting, we show a dimension-free bound that is \\tilde{O}(sqrt(k^2 s / m)) with respect to k and s, where s is an upper bound on the number of non-zeros in the sparse code for any training data point.",
+          "claimed_authors": [
+            "Nishant A. Mehta",
+            "Alexander G. Gray"
+          ],
+          "claimed_title": "On the Sample Complexity of Predictive Sparse Coding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4050"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='On the Sample Complexity of Predictive Sparse Coding')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Metarobotics aims to combine next generation wireless communication, multi-sense immersion, and collective intelligence to provide a pervasive, itinerant, and non-invasive access and interaction with distant robotized applications. Industry and society are expected to benefit from these functionalities. For instance, robot programmers will no longer travel worldwide to plan and test robot motions, even collaboratively. Instead, they will have a personalized access to robots and their environments from anywhere, thus spending more time with family and friends. Students enrolled in robotics courses will be taught under authentic industrial conditions in real-time. This paper describes objectives of Metarobotics in society, industry, and in-between. It identifies and surveys technologies likely to enable their completion and provides an architecture to put forward the interplay of key components of Metarobotics. Potentials for self-determination, self-efficacy, and work-life-flexibility in robotics-related applications in Society 5.0, Industry 4.0, and Industry 5.0 are outlined.",
+          "claimed_authors": [
+            "Eric Guiffo Kaigom"
+          ],
+          "claimed_title": "Metarobotics for Industry and Society: Vision, Technologies, and Opportunities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.00797"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Metarobotics for Industry and Society: Vision, Technologies, and Opportunities')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present OpenSeeD, a simple Open-vocabulary Segmentation and Detection framework that jointly learns from different segmentation and detection datasets. To bridge the gap of vocabulary and annotation granularity, we first introduce a pre-trained text encoder to encode all the visual concepts in two tasks and learn a common semantic space for them. This gives us reasonably good results compared with the counterparts trained on segmentation task only. To further reconcile them, we locate two discrepancies: $i$) task discrepancy -- segmentation requires extracting masks for both foreground objects and background stuff, while detection merely cares about the former; $ii$) data discrepancy -- box and mask annotations are with different spatial granularity, and thus not directly interchangeable. To address these issues, we propose a decoupled decoding to reduce the interference between foreground/background and a conditioned mask decoding to assist in generating masks for given boxes. To this end, we develop a simple encoder-decoder model encompassing all three techniques and train it jointly on COCO and Objects365. After pre-training, our model exhibits competitive or stronger zero-shot transferability for both segmentation and detection. Specifically, OpenSeeD beats the state-of-the-art method for open-vocabulary instance and panoptic segmentation across 5 datasets, and outperforms previous work for open-vocabulary detection on LVIS and ODinW under similar settings. When transferred to specific tasks, our model achieves new SoTA for panoptic segmentation on COCO and ADE20K, and instance segmentation on ADE20K and Cityscapes.\n  Finally, we note that OpenSeeD is the first to explore the potential of joint training on segmentation and detection, and hope it can be received as a strong baseline for developing a single model for both tasks in open world.",
+          "claimed_authors": [
+            "Hao Zhang",
+            "Feng Li",
+            "Xueyan Zou",
+            "Shilong Liu",
+            "Chunyuan Li",
+            "Jianfeng Gao",
+            "Jianwei Yang",
+            "Lei Zhang"
+          ],
+          "claimed_title": "A Simple Framework for Open-Vocabulary Segmentation and Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.08131"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='A Simple Framework for Open-Vocabulary Segmentation and Detection')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Open-vocabulary 3D instance segmentation transcends traditional closed-vocabulary methods by enabling the identification of both previously seen and unseen objects in real-world scenarios. It leverages a dual-modality approach, utilizing both 3D point clouds and 2D multi-view images to generate class-agnostic object mask proposals. Previous efforts predominantly focused on enhancing 3D mask proposal models; consequently, the information that could come from 2D association to 3D was not fully exploited. This bias towards 3D data, while effective for familiar indoor objects, limits the system's adaptability to new and varied object types, where 2D models offer greater utility. Addressing this gap, we introduce Zero-Shot Dual-Path Integration Framework that equally values the contributions of both 3D and 2D modalities. Our framework comprises three components: 3D pathway, 2D pathway, and Dual-Path Integration. 3D pathway generates spatially accurate class-agnostic mask proposals of common indoor objects from 3D point cloud data using a pre-trained 3D model, while 2D pathway utilizes pre-trained open-vocabulary instance segmentation model to identify a diverse array of object proposals from multi-view RGB-D images. In Dual-Path Integration, our Conditional Integration process, which operates in two stages, filters and merges the proposals from both pathways adaptively. This process harmonizes output proposals to enhance segmentation capabilities. Our framework, utilizing pre-trained models in a zero-shot manner, is model-agnostic and demonstrates superior performance on both seen and unseen data, as evidenced by comprehensive evaluations on the ScanNet200 and qualitative results on ARKitScenes datasets.",
+          "claimed_authors": [
+            "Tri Ton",
+            "Ji Woo Hong",
+            "SooHwan Eom",
+            "Jun Yeop Shim",
+            "Junyeong Kim",
+            "Chang D. Yoo"
+          ],
+          "claimed_title": "Zero-Shot Dual-Path Integration Framework for Open-Vocabulary 3D Instance Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.08591"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Zero-Shot Dual-Path Integration Framework for Open-Vocabulary 3D Instance Segmentation')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work builds upon the Euphemism Detection Shared Task proposed in the EMNLP 2022 FigLang Workshop, and extends it to few-shot and zero-shot settings. We demonstrate a few-shot and zero-shot formulation using the dataset from the shared task, and we conduct experiments in these settings using RoBERTa and GPT-3. Our results show that language models are able to classify euphemistic terms relatively well even on new terms unseen during training, indicating that it is able to capture higher-level concepts related to euphemisms.",
+          "claimed_authors": [
+            "Sedrick Scott Keh"
+          ],
+          "claimed_title": "Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.12926"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Unsupervised domain adaptation (UDA) aims to learn transferable representation across domains. Recently a few UDA works have successfully applied Transformer-based methods and achieved state-of-the-art (SOTA) results. However, it remains challenging when there exists a large domain gap between the source and target domain. Inspired by humans' exceptional transferability abilities to adapt knowledge from familiar to uncharted domains, we try to apply the universally existing organizational structure in the human functional brain networks, i.e., the core-periphery principle to design the Transformer and improve its UDA performance. In this paper, we propose a novel brain-inspired robust core-periphery constrained transformer (RCCT) for unsupervised domain adaptation, which brings a large margin of performance improvement on various datasets. Specifically, in RCCT, the self-attention operation across image patches is rescheduled by an adaptively learned weighted graph with the Core-Periphery structure (CP graph), where the information communication and exchange between images patches are manipulated and controlled by the connection strength, i.e., edge weight of the learned weighted CP graph. Besides, since the data in domain adaptation tasks can be noisy, to improve the model robustness, we intentionally add perturbations to the patches in the latent space to ensure generating robust learned weighted core-periphery graphs. Extensive evaluations are conducted on several widely tested UDA benchmarks. Our proposed RCCT consistently performs best compared to existing works, including 88.3\\% on Office-Home, 95.0\\% on Office-31, 90.7\\% on VisDA-2017, and 46.0\\% on DomainNet.",
+          "claimed_authors": [
+            "Xiaowei Yu",
+            "Zeyu Zhang",
+            "Dajiang Zhu",
+            "Tianming Liu"
+          ],
+          "claimed_title": "Robust Core-Periphery Constrained Transformer for Domain Adaptation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.13515"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Robust Core-Periphery Constrained Transformer for Domain Adaptation')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Batch normalization (BN) is widely used in modern deep neural networks, which has been shown to represent the domain-related knowledge, and thus is ineffective for cross-domain tasks like unsupervised domain adaptation (UDA). Existing BN variant methods aggregate source and target domain knowledge in the same channel in normalization module. However, the misalignment between the features of corresponding channels across domains often leads to a sub-optimal transferability. In this paper, we exploit the cross-domain relation and propose a novel normalization method, Reciprocal Normalization (RN). Specifically, RN first presents a Reciprocal Compensation (RC) module to acquire the compensatory for each channel in both domains based on the cross-domain channel-wise correlation. Then RN develops a Reciprocal Aggregation (RA) module to adaptively aggregate the feature with its cross-domain compensatory components. As an alternative to BN, RN is more suitable for UDA problems and can be easily integrated into popular domain adaptation methods. Experiments show that the proposed RN outperforms existing normalization counterparts by a large margin and helps state-of-the-art adaptation approaches achieve better results. The source code is available on https://github.com/Openning07/reciprocal-normalization-for-DA.",
+          "claimed_authors": [
+            "Zhiyong Huang",
+            "Kekai Sheng",
+            "Ke Li",
+            "Jian Liang",
+            "Taiping Yao",
+            "Weiming Dong",
+            "Dengwen Zhou",
+            "Xing Sun"
+          ],
+          "claimed_title": "Reciprocal Normalization for Domain Adaptation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.10474"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Reciprocal Normalization for Domain Adaptation')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Big progress has been achieved in domain adaptation in decades. Existing works are always based on an ideal assumption that testing target domain are i.i.d. with training target domains. However, due to unpredictable corruptions (e.g., noise and blur) in real data like web images, domain adaptation methods are increasingly required to be corruption robust on target domains. In this paper, we investigate a new task, Corruption-agnostic Robust Domain Adaptation (CRDA): to be accurate on original data and robust against unavailable-for-training corruptions on target domains. This task is non-trivial due to large domain discrepancy and unsupervised target domains. We observe that simple combinations of popular methods of domain adaptation and corruption robustness have sub-optimal CRDA results. We propose a new approach based on two technical insights into CRDA: 1) an easy-to-plug module called Domain Discrepancy Generator (DDG) that generates samples that enlarge domain discrepancy to mimic unpredictable corruptions; 2) a simple but effective teacher-student scheme with contrastive loss to enhance the constraints on target domains. Experiments verify that DDG keeps or even improves performance on original data and achieves better corruption robustness that baselines.",
+          "claimed_authors": [
+            "Yifan Xu",
+            "Kekai Sheng",
+            "Weiming Dong",
+            "Baoyuan Wu",
+            "Changsheng Xu",
+            "Bao-Gang Hu"
+          ],
+          "claimed_title": "Towards Corruption-Agnostic Robust Domain Adaptation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.10376"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Towards Corruption-Agnostic Robust Domain Adaptation')",
+        "failed_at": "2026-07-19T19:00:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hao Zhang",
+            "Feng Li",
+            "Xueyan Zou",
+            "Shilong Liu",
+            "Chunyuan Li",
+            "Jianfeng Gao",
+            "Jianwei Yang",
+            "Lei Zhang"
+          ],
+          "title": "A Simple Framework for Open-Vocabulary Segmentation and Detection",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.08131",
+        "summary": "We present OpenSeeD, a simple Open-vocabulary Segmentation and Detection framework that jointly learns from different segmentation and detection datasets. To bridge the gap of vocabulary and annotation granularity, we first introduce a pre-trained text encoder to encode all the visual concepts in two tasks and learn a common semantic space for them. This gives us reasonably good results compared with the counterparts trained on segmentation task only. To further reconcile them, we locate two discrepancies: $i$) task discrepancy -- segmentation requires extracting masks for both foreground objects and background stuff, while detection merely cares about the former; $ii$) data discrepancy -- box and mask annotations are with different spatial granularity, and thus not directly interchangeable. To address these issues, we propose a decoupled decoding to reduce the interference between foreground/background and a conditioned mask decoding to assist in generating masks for given boxes. To this end, we develop a simple encoder-decoder model encompassing all three techniques and train it jointly on COCO and Objects365. After pre-training, our model exhibits competitive or stronger zero-shot transferability for both segmentation and detection. Specifically, OpenSeeD beats the state-of-the-art method for open-vocabulary instance and panoptic segmentation across 5 datasets, and outperforms previous work for open-vocabulary detection on LVIS and ODinW under similar settings. When transferred to specific tasks, our model achieves new SoTA for panoptic segmentation on COCO and ADE20K, and instance segmentation on ADE20K and Cityscapes.\n  Finally, we note that OpenSeeD is the first to explore the potential of joint training on segmentation and detection, and hope it can be received as a strong baseline for developing a single model for both tasks in open world.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.08131",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T19:00:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mathis Kruse",
+            "Bodo Rosenhahn"
+          ],
+          "title": "Multi-Flow: Multi-View-Enriched Normalizing Flows for Industrial Anomaly Detection",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.03306",
+        "summary": "With more well-performing anomaly detection methods proposed, many of the single-view tasks have been solved to a relatively good degree. However, real-world production scenarios often involve complex industrial products, whose properties may not be fully captured by one single image. While normalizing flow based approaches already work well in single-camera scenarios, they currently do not make use of the priors in multi-view data. We aim to bridge this gap by using these flow-based models as a strong foundation and propose Multi-Flow, a novel multi-view anomaly detection method. Multi-Flow makes use of a novel multi-view architecture, whose exact likelihood estimation is enhanced by fusing information across different views. For this, we propose a new cross-view message-passing scheme, letting information flow between neighboring views. We empirically validate it on the real-world multi-view data set Real-IAD and reach a new state-of-the-art, surpassing current baselines in both image-wise and sample-wise anomaly detection tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.03306",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T19:00:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alessandro Erba",
+            "Nils Ole Tippenhauer"
+          ],
+          "title": "No Need to Know Physics: Resilience of Process-based Model-free Anomaly Detection for Industrial Control Systems",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.03586",
+        "summary": "In recent years, a number of process-based anomaly detection schemes for Industrial Control Systems were proposed. In this work, we provide the first systematic analysis of such schemes, and introduce a taxonomy of properties that are verified by those detection systems. We then present a novel general framework to generate adversarial spoofing signals that violate physical properties of the system, and use the framework to analyze four anomaly detectors published at top security conferences. We find that three of those detectors are susceptible to a number of adversarial manipulations (e.g., spoofing with precomputed patterns), which we call Synthetic Sensor Spoofing and one is resilient against our attacks. We investigate the root of its resilience and demonstrate that it comes from the properties that we introduced. Our attacks reduce the Recall (True Positive Rate) of the attacked schemes making them not able to correctly detect anomalies. Thus, the vulnerabilities we discovered in the anomaly detectors show that (despite an original good detection performance), those detectors are not able to reliably learn physical properties of the system. Even attacks that prior work was expected to be resilient against (based on verified properties) were found to be successful. We argue that our findings demonstrate the need for both more complete attacks in datasets, and more critical analysis of process-based anomaly detectors. We plan to release our implementation as open-source, together with an extension of two public datasets with a set of Synthetic Sensor Spoofing attacks as generated by our framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.03586",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T19:00:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rongbin Tan",
+            "Fangfang Lin",
+            "Zhenlong Yuan",
+            "Min Qiu",
+            "Kejin Cui",
+            "Mengmeng Wang",
+            "Yi Wang",
+            "Zijian Song",
+            "Zhiyuan Wang",
+            "Jiyuan Wang",
+            "Yue Wang",
+            "Shuhan Song§",
+            "Huawei Cao"
+          ],
+          "title": "IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection with Agentic Tools",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.20682",
+        "summary": "Multimodal large language models (MLLMs) have shown remarkable capability in bridging visual perception and textual reasoning, enabling zero-shot understanding across diverse industrial scenarios. However, their performance in open-vocabulary industrial anomaly detection (IAD) is often limited by domain-misaligned reasoning and hallucinated structural inferences. To address these challenges, we propose \\textbf{IndusAgent}, a tool-augmented agentic framework for open-vocabulary IAD. Specifically, we first construct \\textbf{Indus-CoT}, a structured dataset that integrates global visual observations, high-resolution local patches, and expert normalcy priors, providing supervision for fine-tuning the model on rigorous industrial inspection trajectories. Building on this, IndusAgent dynamically orchestrates a set of external tools, including dynamic region cropping, high-frequency feature enhancement, and prior retrieval, thus enabling the agent to actively resolve visual ambiguities and disentangle subtle anomalies. Furthermore, we introduce a gated reinforcement learning objective that jointly optimizes anomaly classification, localization accuracy, anomaly type reasoning, and efficient tool usage, ensuring that tool invocation occurs only when beneficial. Extensive evaluations on five industrial anomaly benchmarks, including MVTec-AD, VisA, MPDD, DTD, and SDD, demonstrate that IndusAgent achieves state-of-the-art zero-shot performance among all existing methods, validating our robustness and generalization capacity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.20682",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T19:00:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jianzong Wu",
+            "Xiangtai Li",
+            "Shilin Xu",
+            "Haobo Yuan",
+            "Henghui Ding",
+            "Yibo Yang",
+            "Xia Li",
+            "Jiangning Zhang",
+            "Yunhai Tong",
+            "Xudong Jiang",
+            "Bernard Ghanem",
+            "Dacheng Tao"
+          ],
+          "title": "Towards Open Vocabulary Learning: A Survey",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.15880",
+        "summary": "In the field of visual scene understanding, deep neural networks have made impressive advancements in various core tasks like segmentation, tracking, and detection. However, most approaches operate on the close-set assumption, meaning that the model can only identify pre-defined categories that are present in the training set. Recently, open vocabulary settings were proposed due to the rapid progress of vision language pre-training. These new approaches seek to locate and recognize categories beyond the annotated label space. The open vocabulary approach is more general, practical, and effective compared to weakly supervised and zero-shot settings. This paper provides a thorough review of open vocabulary learning, summarizing and analyzing recent developments in the field. In particular, we begin by comparing it to related concepts such as zero-shot learning, open-set recognition, and out-of-distribution detection. Then, we review several closely related tasks in the case of segmentation and detection, including long-tail problems, few-shot, and zero-shot settings. For the method survey, we first present the basic knowledge of detection and segmentation in close-set as the preliminary knowledge. Next, we examine various scenarios in which open vocabulary learning is used, identifying common design elements and core ideas. Then, we compare the recent detection and segmentation approaches in commonly used datasets and benchmarks. Finally, we conclude with insights, issues, and discussions regarding future research directions. To our knowledge, this is the first comprehensive literature review of open vocabulary learning. We keep tracing related works at https://github.com/jianzongwu/Awesome-Open-Vocabulary.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.15880",
+          "http_status": 200,
+          "pdf_sample_score": 0.2665,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T19:00:51Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

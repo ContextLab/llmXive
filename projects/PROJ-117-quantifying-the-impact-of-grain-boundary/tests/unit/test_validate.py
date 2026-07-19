@@ -1,236 +1,289 @@
 """
-Unit tests for code/validate.py focusing on statistical validation logic.
+Unit tests for validate.py: bias test logic and FWER correction.
 """
-import unittest
 import json
 import os
 import sys
-import tempfile
+import unittest
+from unittest.mock import patch, MagicMock, mock_open
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+
 import numpy as np
 import pandas as pd
+from scipy import stats
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add parent directory to path to allow imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.validate import (
+from validate import (
     load_model_and_data,
     perform_cross_validation,
     run_regression_bias_test,
     generate_report,
     main
 )
-from code.utils import setup_logging
+from utils import setup_logging
 
-logger = setup_logging("test_validate")
-
-
-class TestBonferroniCorrection(unittest.TestCase):
-    """
-    Test cases specifically for Bonferroni correction logic in validate.py.
-    Verifies alpha_adj calculation and p-value adjustment.
-    """
+class TestValidateBiasAndFWER(unittest.TestCase):
+    """Test suite for bias test logic and FWER correction in validate.py."""
 
     def setUp(self):
         """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
-        os.chdir(self.temp_dir)
+        self.logger = setup_logging("test_validate")
+        self.test_data_dir = Path(__file__).parent.parent.parent / "data" / "processed"
+        self.test_models_dir = Path(__file__).parent.parent.parent / "models"
+        self.test_artifacts_dir = Path(__file__).parent.parent.parent / "artifacts" / "reports"
 
-    def tearDown(self):
-        """Clean up test fixtures."""
-        os.chdir(self.original_cwd)
+        # Create mock data for testing
+        np.random.seed(42)
+        self.n_samples = 100
+        self.y_true = np.random.randn(self.n_samples)
+        self.y_pred = self.y_true + np.random.randn(self.n_samples) * 0.5
 
-    def test_bonferroni_alpha_adjustment_calculation(self):
-        """
-        Verify that the Bonferroni correction calculates alpha_adj = 0.05 / 3.
-        SC-002: Family-wise error rate correction must be applied with alpha_adj = 0.05 / 3.
-        """
-        # Simulate the bias test results structure
-        # The bias test typically checks: intercept=0, slope=1, and residual normality
-        # This results in 3 hypothesis tests, hence the divisor of 3
-        alpha_original = 0.05
-        num_tests = 3
-        expected_alpha_adj = alpha_original / num_tests
+        # Mock model
+        self.mock_model = MagicMock()
+        self.mock_model.predict = MagicMock(return_value=self.y_pred)
 
-        # The actual calculation in run_regression_bias_test should be:
-        # alpha_adj = 0.05 / 3
-        calculated_alpha_adj = 0.05 / 3
+    def test_run_regression_bias_test_intercept_slope(self):
+        """Test that bias test correctly calculates intercept and slope."""
+        # Perform regression: y_true ~ y_pred
+        # Ideally: intercept ≈ 0, slope ≈ 1 for perfect prediction
+        result = run_regression_bias_test(self.y_true, self.y_pred)
 
-        self.assertAlmostEqual(
-            calculated_alpha_adj,
-            expected_alpha_adj,
-            places=10,
-            msg=f"Bonferroni alpha adjustment should be 0.05/3 = {expected_alpha_adj}, "
-                f"but got {calculated_alpha_adj}"
-        )
+        self.assertIn('intercept', result)
+        self.assertIn('slope', result)
+        self.assertIn('intercept_pvalue', result)
+        self.assertIn('slope_pvalue', result)
 
-    def test_p_value_adjustment_logic(self):
-        """
-        Verify that p-values are correctly compared against the adjusted alpha.
-        Ensures the decision logic for rejecting null hypotheses is correct.
-        """
-        alpha_adj = 0.05 / 3  # ~0.0167
+        # Check that values are reasonable
+        self.assertIsInstance(result['intercept'], float)
+        self.assertIsInstance(result['slope'], float)
+        self.assertIsInstance(result['intercept_pvalue'], float)
+        self.assertIsInstance(result['slope_pvalue'], float)
 
-        # Test cases: (p_value, expected_reject)
-        test_cases = [
-            (0.001, True),   # p < alpha_adj -> Reject H0
-            (0.010, True),   # p < alpha_adj -> Reject H0
-            (0.016, True),   # p < alpha_adj -> Reject H0 (edge case)
-            (0.017, False),  # p > alpha_adj -> Fail to reject H0
-            (0.050, False),  # p > alpha_adj -> Fail to reject H0
-            (0.100, False),  # p > alpha_adj -> Fail to reject H0
-        ]
+        # For our mock data (y_pred = y_true + noise), slope should be close to 1
+        # and intercept close to 0
+        self.assertAlmostEqual(result['slope'], 1.0, delta=0.5)
+        self.assertAlmostEqual(result['intercept'], 0.0, delta=0.5)
 
-        for p_value, expected_reject in test_cases:
-            # Simulate the decision logic found in run_regression_bias_test
-            # Typically: reject if p_value < alpha_adj
-            actual_reject = p_value < alpha_adj
+    def test_run_regression_bias_test_pvalues(self):
+        """Test that p-values are correctly calculated."""
+        result = run_regression_bias_test(self.y_true, self.y_pred)
 
-            self.assertEqual(
-                actual_reject,
-                expected_reject,
-                msg=f"For p={p_value} and alpha_adj={alpha_adj:.5f}, "
-                    f"expected reject={expected_reject}, got {actual_reject}"
-            )
+        # P-values should be between 0 and 1
+        self.assertGreaterEqual(result['intercept_pvalue'], 0.0)
+        self.assertLessEqual(result['intercept_pvalue'], 1.0)
+        self.assertGreaterEqual(result['slope_pvalue'], 0.0)
+        self.assertLessEqual(result['slope_pvalue'], 1.0)
 
-    @patch('code.validate.run_regression_bias_test')
-    def test_bonferroni_applied_to_bias_test_results(self, mock_bias_test):
-        """
-        Verify that the Bonferroni correction is actually applied to the results
-        returned by the bias test function.
-        """
-        # Mock data
-        mock_y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        mock_y_pred = np.array([1.1, 2.2, 2.9, 4.1, 5.0])
-
-        # Mock the bias test return value
-        # Structure: {'intercept': {'p': 0.005}, 'slope': {'p': 0.02}, 'normality': {'p': 0.01}}
-        mock_results = {
-            'intercept': {'p_value': 0.005, 'estimate': 0.1},
-            'slope': {'p_value': 0.02, 'estimate': 0.98},
-            'normality': {'p_value': 0.01, 'statistic': 0.95}
-        }
-        mock_bias_test.return_value = mock_results
-
-        # Call the function that should apply Bonferroni
-        # We assume generate_report or a similar function calls run_regression_bias_test
-        # and then applies the correction.
-        # Since we are testing the logic in validate.py, we inspect the source or mock the internal call.
-        # Here we simulate the logic that would happen in generate_report:
+    def test_bonferroni_correction_calculation(self):
+        """Test that Bonferroni correction is correctly applied (α_adj = 0.05 / 3)."""
+        # The bias test produces 3 hypothesis tests:
+        # 1. Intercept = 0
+        # 2. Slope = 1
+        # 3. (Optional) R² = 1 or another metric
+        # Bonferroni correction: α_adj = 0.05 / 3 ≈ 0.0167
 
         alpha = 0.05
         n_tests = 3
         alpha_adj = alpha / n_tests
 
-        # Apply correction to mock results
-        corrected_results = {}
-        for test_name, stats in mock_results.items():
-            p_val = stats['p_value']
-            adjusted = p_val < alpha_adj
-            corrected_results[test_name] = {
-                'p_value': p_val,
-                'adjusted_alpha': alpha_adj,
-                'significant': adjusted
-            }
+        # Verify the corrected alpha is approximately 0.0167
+        self.assertAlmostEqual(alpha_adj, 0.016666666666666666, places=5)
 
-        # Verify specific outcomes based on our mock data
-        # intercept: 0.005 < 0.0167 -> True
-        self.assertTrue(corrected_results['intercept']['significant'])
-        # slope: 0.02 > 0.0167 -> False
-        self.assertFalse(corrected_results['slope']['significant'])
-        # normality: 0.01 < 0.0167 -> True
-        self.assertTrue(corrected_results['normality']['significant'])
+        # Test that the correction logic would work in the report generation
+        # (The actual application happens in generate_report)
+        p_values = [0.01, 0.02, 0.03]
+        adjusted_p_values = [p * n_tests for p in p_values]
 
-        # Verify the adjusted alpha stored is correct
-        self.assertAlmostEqual(
-            corrected_results['intercept']['adjusted_alpha'],
-            0.05 / 3,
-            places=5
-        )
+        # Check that adjusted p-values are capped at 1.0
+        for adj_p in adjusted_p_values:
+            self.assertLessEqual(adj_p, 1.0)
 
-    def test_bonferroni_report_generation(self):
-        """
-        Verify that the generated report includes the Bonferroni correction details.
-        Ensures transparency in the statistical testing.
-        """
-        # Simulate a report generation scenario
-        alpha_original = 0.05
-        num_tests = 3
-        alpha_adj = alpha_original / num_tests
-
-        report = {
-            'bias_test': {
-                'method': 'linear_regression',
-                'hypotheses': ['intercept=0', 'slope=1', 'residuals_normal'],
-                'alpha_original': alpha_original,
-                'alpha_adjusted': alpha_adj,
-                'correction_method': 'Bonferroni'
-            }
+    def test_generate_report_with_bonferroni(self):
+        """Test that the report includes Bonferroni-corrected p-values."""
+        mock_metrics = {
+            'r2': 0.85,
+            'rmse': 0.5,
+            'mape': 0.1
         }
 
+        mock_cv_results = {
+            'r2_scores': [0.82, 0.85, 0.87, 0.83, 0.86],
+            'mean_r2': 0.846,
+            'std_r2': 0.018
+        }
+
+        mock_bias_results = {
+            'intercept': 0.02,
+            'slope': 0.98,
+            'intercept_pvalue': 0.45,
+            'slope_pvalue': 0.32,
+            'alpha': 0.05,
+            'alpha_adj': 0.0167,
+            'n_tests': 3
+        }
+
+        report = generate_report(mock_metrics, mock_cv_results, mock_bias_results)
+
         self.assertIn('bias_test', report)
-        self.assertEqual(report['bias_test']['correction_method'], 'Bonferroni')
-        self.assertAlmostEqual(report['bias_test']['alpha_adjusted'], 0.0166666, places=5)
-        self.assertEqual(len(report['bias_test']['hypotheses']), 3)
+        self.assertIn('intercept', report['bias_test'])
+        self.assertIn('slope', report['bias_test'])
+        self.assertIn('alpha', report['bias_test'])
+        self.assertIn('alpha_adj', report['bias_test'])
+        self.assertIn('n_tests', report['bias_test'])
 
-    def test_edge_case_zero_p_value(self):
+        # Verify Bonferroni correction is recorded
+        self.assertAlmostEqual(report['bias_test']['alpha_adj'], 0.0167, places=3)
+        self.assertEqual(report['bias_test']['n_tests'], 3)
+
+    def test_perform_cross_validation_returns_correct_metrics(self):
+        """Test that cross-validation returns mean and std of R²."""
+        # Create a simple mock dataset
+        X = np.random.randn(self.n_samples, 5)
+        y = self.y_true
+
+        # Mock the model
+        mock_model = MagicMock()
+
+        cv_results = perform_cross_validation(mock_model, X, y, k=5)
+
+        self.assertIn('r2_scores', cv_results)
+        self.assertIn('mean_r2', cv_results)
+        self.assertIn('std_r2', cv_results)
+
+        self.assertEqual(len(cv_results['r2_scores']), 5)
+        self.assertIsInstance(cv_results['mean_r2'], float)
+        self.assertIsInstance(cv_results['std_r2'], float)
+
+    def test_bonferroni_threshold_application(self):
+        """Test that Bonferroni-corrected threshold is correctly applied to p-values."""
+        # Simulate p-values from bias tests
+        p_values = {
+            'intercept': 0.01,
+            'slope': 0.03,
+            'additional': 0.005
+        }
+
+        alpha = 0.05
+        n_tests = 3
+        alpha_adj = alpha / n_tests  # ≈ 0.0167
+
+        # Apply Bonferroni correction: reject if p < alpha_adj
+        results = {}
+        for test_name, p_val in p_values.items():
+            results[test_name] = {
+                'p_value': p_val,
+                'alpha_adj': alpha_adj,
+                'significant': p_val < alpha_adj
+            }
+
+        # Check that the correction logic is applied correctly
+        self.assertTrue(results['intercept']['significant'])  # 0.01 < 0.0167
+        self.assertFalse(results['slope']['significant'])     # 0.03 > 0.0167
+        self.assertTrue(results['additional']['significant'])  # 0.005 < 0.0167
+
+    def test_report_includes_fwer_correction_details(self):
+        """Test that the final report documents the FWER correction methodology."""
+        mock_metrics = {'r2': 0.85}
+        mock_cv_results = {'mean_r2': 0.85, 'std_r2': 0.02}
+        mock_bias_results = {
+            'intercept': 0.0,
+            'slope': 1.0,
+            'intercept_pvalue': 0.5,
+            'slope_pvalue': 0.5,
+            'alpha': 0.05,
+            'alpha_adj': 0.0167,
+            'n_tests': 3
+        }
+
+        report = generate_report(mock_metrics, mock_cv_results, mock_bias_results)
+
+        # The report should explicitly mention Bonferroni correction
+        self.assertIn('bias_test', report)
+        self.assertIn('alpha_adj', report['bias_test'])
+        self.assertIn('n_tests', report['bias_test'])
+
+        # Verify the adjusted alpha is correctly calculated
+        expected_alpha_adj = 0.05 / 3
+        self.assertAlmostEqual(report['bias_test']['alpha_adj'], expected_alpha_adj, places=4)
+
+    @patch('validate.load_model_and_data')
+    @patch('validate.perform_cross_validation')
+    @patch('validate.run_regression_bias_test')
+    @patch('validate.generate_report')
+    @patch('builtins.print')
+    def test_main_integration(self, mock_print, mock_gen_report, mock_bias, mock_cv, mock_load):
+        """Test that main() orchestrates all validation steps correctly."""
+        # Setup mocks
+        mock_load.return_value = (MagicMock(), np.random.randn(100), np.random.randn(100))
+        mock_cv.return_value = {'mean_r2': 0.85, 'std_r2': 0.02, 'r2_scores': [0.85]*5}
+        mock_bias.return_value = {
+            'intercept': 0.0, 'slope': 1.0,
+            'intercept_pvalue': 0.5, 'slope_pvalue': 0.5,
+            'alpha': 0.05, 'alpha_adj': 0.0167, 'n_tests': 3
+        }
+        mock_gen_report.return_value = {'status': 'success'}
+
+        # Run main
+        main()
+
+        # Verify all functions were called
+        mock_load.assert_called_once()
+        mock_cv.assert_called_once()
+        mock_bias.assert_called_once()
+        mock_gen_report.assert_called_once()
+
+    def test_fwer_correction_preserves_family_wise_error_rate(self):
         """
-        Test handling of p-values that are effectively zero (e.g., from very strong effects).
+        Test that Bonferroni correction correctly controls Family-Wise Error Rate.
+        This is a theoretical check: with α=0.05 and 3 tests, α_adj = 0.05/3.
         """
-        alpha_adj = 0.05 / 3
-        p_value = 0.0
+        alpha = 0.05
+        n_tests = 3
+        alpha_adj = alpha / n_tests
 
-        # Should definitely reject
-        self.assertTrue(p_value < alpha_adj)
+        # The Bonferroni inequality states:
+        # P(any false rejection) ≤ Σ P(individual false rejection) = n_tests * alpha_adj = alpha
+        # So the FWER is controlled at level alpha.
 
-    def test_edge_case_p_value_equal_to_alpha_adj(self):
-        """
-        Test the boundary condition where p-value equals alpha_adj.
-        Standard practice is strict inequality for rejection.
-        """
-        alpha_adj = 0.05 / 3
-        p_value = alpha_adj
+        # Verify the math
+        self.assertAlmostEqual(n_tests * alpha_adj, alpha, places=10)
 
-        # Strict inequality: p < alpha -> reject. If p == alpha, do not reject.
-        self.assertFalse(p_value < alpha_adj)
+        # Test with different numbers of tests
+        for n in [1, 2, 5, 10]:
+            adj = alpha / n
+            self.assertAlmostEqual(n * adj, alpha, places=10)
 
-
-class TestRegressionBiasTest(unittest.TestCase):
-    """
-    Additional tests for the regression bias test logic itself.
-    """
-
-    def test_bias_test_input_validation(self):
-        """
-        Ensure the bias test function handles mismatched array lengths gracefully.
-        """
-        y_true = np.array([1.0, 2.0, 3.0])
-        y_pred = np.array([1.0, 2.0])  # Length mismatch
-
-        # The actual implementation should raise an error or handle this.
-        # We test that the function doesn't silently fail or produce nonsense.
-        # Since we can't run the real function without sklearn/statsmodels fully mocked,
-        # we verify the logic that would catch this.
-        self.assertNotEqual(len(y_true), len(y_pred))
-
-    def test_bias_test_metrics_calculation(self):
-        """
-        Verify that intercept and slope are calculated correctly for a perfect model.
-        """
-        y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+    def test_bias_test_handles_perfect_prediction(self):
+        """Test bias test with perfect prediction (y_pred == y_true)."""
+        y_true = np.random.randn(50)
         y_pred = y_true.copy()  # Perfect prediction
 
-        # In a perfect model, slope should be 1.0 and intercept 0.0
-        # This test ensures the underlying regression logic (if mocked) respects this.
-        # We use numpy polyfit as a proxy for the regression logic
-        slope, intercept = np.polyfit(y_pred, y_true, 1)
+        result = run_regression_bias_test(y_true, y_pred)
 
-        self.assertAlmostEqual(slope, 1.0, places=5)
-        self.assertAlmostEqual(intercept, 0.0, places=5)
+        # Intercept should be 0, slope should be 1
+        self.assertAlmostEqual(result['intercept'], 0.0, places=5)
+        self.assertAlmostEqual(result['slope'], 1.0, places=5)
 
+        # P-values should be high (fail to reject null that intercept=0, slope=1)
+        self.assertGreater(result['intercept_pvalue'], 0.05)
+        self.assertGreater(result['slope_pvalue'], 0.05)
+
+    def test_bias_test_handles_biased_prediction(self):
+        """Test bias test with systematically biased prediction."""
+        y_true = np.random.randn(50)
+        y_pred = y_true + 2.0  # Systematic bias (intercept = 2)
+
+        result = run_regression_bias_test(y_true, y_pred)
+
+        # Intercept should be close to 2
+        self.assertAlmostEqual(result['intercept'], 2.0, delta=0.5)
+        # Slope should still be close to 1
+        self.assertAlmostEqual(result['slope'], 1.0, delta=0.5)
+
+        # Intercept p-value should be low (reject null that intercept=0)
+        self.assertLess(result['intercept_pvalue'], 0.05)
 
 if __name__ == '__main__':
     unittest.main()

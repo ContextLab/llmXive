@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T18:23:50.159941Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-963-llmxive-follow-up-extending-indusagent-r
-last_run_id: null
+last_run_id: 46207dcb-2707-4b92-87a4-757352c5d7ba
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "IndusAgent: Reinforcing Open-Vocabulary Industrial
   Anomaly Detection w"'
-updated_at: '2026-07-03T18:23:50.159941Z'
+updated_at: '2026-07-19T19:01:38.625281Z'

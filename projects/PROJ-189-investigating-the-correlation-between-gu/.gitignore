@@ -1,4 +1,8 @@
-# Python cache and bytecode
+# Large data files
+data/raw/*
+!data/raw/.gitkeep
+
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
@@ -9,14 +13,6 @@ venv/
 env/
 .env/
 
-# Large data files (raw and processed)
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/models/*
-!data/models/.gitkeep
-
 # IDE and editor files
 .idea/
 .vscode/
@@ -24,25 +20,23 @@ data/models/*
 *.swo
 *~
 
-# OS generated files
+# OS files
 .DS_Store
 Thumbs.db
 
-# Logs and temporary files
+# Logs
 *.log
-tmp/
-.tmp/
+logs/
 
-# Jupyter notebook checkpoints
+# Jupyter notebooks
 .ipynb_checkpoints/
 
-# Coverage and test artifacts
-.coverage
-htmlcov/
-.pytest_cache/
+# Temporary files
+tmp/
+temp/
 
-# Secrets and credentials
-*.pem
-*.key
-secrets.json
-.env.local
+# Data models and processed files (keep raw, exclude intermediate)
+data/models/*
+data/processed/*
+!data/processed/.gitkeep
+!data/models/.gitkeep

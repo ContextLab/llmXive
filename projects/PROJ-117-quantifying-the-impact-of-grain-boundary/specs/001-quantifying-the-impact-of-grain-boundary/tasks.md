@@ -135,7 +135,7 @@
  - **Evaluate**: Evaluate the final model **ONLY** on the held-out test set.
  - **Calculate Metrics**: Calculate R², RMSE, MAPE on the held-out test set.
  - **Calculate SD**: **MUST** calculate the **standard deviation of R² across k=5 folds of the held-out test set** (using repeated k-fold CV on the test set, or nested CV outer loop on test) to satisfy SC-001.
- - **Collinearity Framing**: **MUST** read `artifacts/reports/collinearity_diagnostic.json` from T016. **Unconditionally** write a framing statement for the joint relationship of misorientation and Σ value in `artifacts/reports/training_metrics.json` stating: "The relationship between misorientation and Σ value is descriptive, not causal, as Σ is derived from misorientation. [UNRESOLVED-CLAIM: c_31c070b9 — status=not_enough_info]" (This applies regardless of the MI score).
+ - **Collinearity Framing**: **MUST** read `artifacts/reports/collinearity_diagnostic.json` from T016. **Unconditionally** write a framing statement for the joint relationship of misorientation and Σ value in `artifacts/reports/training_metrics.json` stating: "The relationship between misorientation and Σ value is descriptive, not causal, as Σ is derived from misorientation. " (This applies regardless of the MI score).
  - Save `models/best_model.json`.
  - Log R², RMSE, MAPE, and SD to `artifacts/reports/training_metrics.json`.
 - [X] T013 [P] [US1] Add unit tests in `tests/unit/test_geometry_parser.py` for parsing logic and encoding correctness (including boundary plane normal derivation).
@@ -159,10 +159,10 @@
  - Perform k=5 cross-validation **on the held-out test set** (repeated split) to assess generalization stability and measure test-set performance variance.
  - Report average R², RMSE, MAPE and **calculate standard deviation of R² across the k=5 folds on the test set** (must be <= 0.05). **This metric satisfies SC-001.**
  - Execute regression bias test (y_true ~ y_pred) on the **held-out test set** to calculate intercept, slope, and p-values.
- - Apply Bonferroni correction (α_adj = 0.05 / 3 ≈ 0.017) for multiple hypothesis tests. [UNRESOLVED-CLAIM: c_3af9f8fd — status=not_enough_info]
+ - Apply Bonferroni correction (α_adj = 0.05 / 3 ≈ 0.017) for multiple hypothesis tests.
  - Generate `artifacts/reports/validation_report.json`.
 - [X] T018 [P] [US2] Add unit tests in `tests/unit/test_diagnostics.py` for MI calculation (if not covered in T013). <!-- FAILED: unspecified -->
-- [ ] T019 [P] [US2] Add unit tests in `tests/unit/test_validate.py` for bias test logic and FWER correction. <!-- FAILED: unspecified -->
+- [X] T019 [P] [US2] Add unit tests in `tests/unit/test_validate.py` for bias test logic and FWER correction. <!-- FAILED: unspecified -->
 - [X] T020 [US2] Add integration test in `tests/integration/test_validation.py` to verify report generation and metric thresholds.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -177,7 +177,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Implement `code/interpret.py` to: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T021 [US3] Implement `code/interpret.py` to: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Dependency**: This task MUST run AFTER T017 (Validation) to ensure `validation_report.json` is available. **Removed [P] tag**.
  - Generate SHAP summary plot and ranked feature-importance list.
  - Perform sensitivity analysis sweeping R² threshold across the range **defined in `config.yaml` (`thresholds.r2.sweep_range`)**. **Do NOT hardcode values.**
@@ -188,8 +188,8 @@
  - **Generate** `threshold-sensitivity-table.csv` artifact with columns: `threshold, pass_rate, fpr_proxy, sample_size`.
  - **Include** a one-line justification for the R² ≥ 0.7 threshold by loading the `thresholds.r2.citation` field from `config.yaml` (created in T030) and embedding it in the report.
  - Save plots to `artifacts/figures/` and reports to `artifacts/reports/`.
-- [ ] T022 [P] [US3] Add logic to `code/interpret.py` to load the R² threshold justification from `config.yaml` (created in T030) and include it in the final report. <!-- FAILED: unspecified -->
-- [ ] T023 [P] [US3] Add unit tests in `tests/unit/test_interpret.py` for SHAP value extraction. <!-- FAILED: unspecified -->
+- [X] T022 [P] [US3] Add logic to `code/interpret.py` to load the R² threshold justification from `config.yaml` (created in T030) and include it in the final report. <!-- FAILED: unspecified -->
+- [X] T023 [P] [US3] Add unit tests in `tests/unit/test_interpret.py` for SHAP value extraction. <!-- FAILED: unspecified -->
 - [ ] T024 [US3] Add integration test in `tests/integration/test_interpretability.py` to verify plot generation and sensitivity table accuracy.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -264,7 +264,7 @@
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI (limited cores, constrained RAM, within a fixed time budget). No GPU/CUDA, no 8-bit quantization, no large LLMs.
 - **CPU Limit**: The GitHub Actions free-tier limit is a hard constraint of **2 CPU cores**.
-- **Data Source Constraint**: {{claim:c_919349f5}} (Wikidata Q37499364, https://www.wikidata.org/wiki/Q37499364) No fallbacks are permitted.
+- **Data Source Constraint**: {{claim:c_919349f5}} ({{claim:c_100df441}}, https://www.wikidata.org/wiki/Q37499364) No fallbacks are permitted.
 - **Σ Value Constraint**: Σ value must be calculated from misorientation if not in metadata; it is a required feature. Missing values result in record exclusion.
 - **Reproducibility Constraint**: All datasets must be downloaded, chunked if necessary, and checksummed locally. Streaming without local storage is prohibited. **Exception**: For datasets >7GB, sampling with immediate processing (T040) is required to maintain RAM limits, but MUST result in a static, checksummed local copy.
 - **New Task Rationale**: T034-T040 address specific reviewer concerns regarding API robustness (backoff), data transparency (missing value logging), statistical rigor (Bonferroni verification), metric correctness (FPR proxy for regression), and reproducible sampling strategies for out-of-memory scenarios. T027 and T028 were removed as they were ungrounded scope creep.

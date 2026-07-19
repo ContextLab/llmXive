@@ -1,16 +1,12 @@
-"""Pure model fitting logic for knot complexity analysis.
-
-This module contains ONLY the logic for fitting regression models (linear,
-polynomial, logarithmic) and computing goodness-of-fit metrics (R², AIC, BIC,
-MAE). It does NOT perform residual analysis, family identification, or plotting.
-Those responsibilities have been moved to:
-  - code/analysis/residual_analysis.py (residual calculation and family ID)
-  - code/analysis/plotting.py (figure generation)
-
-Output from this module is limited to model coefficients and metrics;
-residuals are returned as data but not analyzed or logged here.
 """
+Model Fitting Module for Knot Complexity Analysis.
 
+This module handles the fitting of regression models (Linear, Polynomial, Logarithmic)
+to assess the relationship between hyperbolic volume, crossing number, and braid index.
+It calculates metrics (R², AIC, BIC, MAE) and identifies outlier families.
+
+Note: Per FR-005, Ridge regression is explicitly excluded.
+"""
 from __future__ import annotations
 
 import json
@@ -22,486 +18,447 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from scipy import stats
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.preprocessing import PolynomialFeatures
 
-from analysis._utils import load_cleaned_knots
+from code.reproducibility.logs import get_logger, log_operation
+
+logger = get_logger(__name__)
 
 
 @dataclass
 class RegressionMetrics:
-    """Goodness-of-fit metrics for a regression model."""
+    """Container for regression model metrics."""
     model_type: str
     r_squared: float
     aic: float
     bic: float
     mae: float
+    rmse: float
+    n_params: int
+    n_obs: int
     coefficients: Dict[str, float]
-    intercept: float
-
+    variance_explained: float
 
 @dataclass
 class LinearModelResult:
-    """Result of fitting a linear model."""
-    model: LinearRegression
+    """Result of a linear model fit."""
+    model_type: str
+    formula: str
     metrics: RegressionMetrics
-    residuals: np.ndarray
-    predictions: np.ndarray
-
+    fitted_values: List[float]
+    residuals: List[float]
+    summary_text: str
 
 @dataclass
 class ResidualEntry:
-    """Entry for residual analysis output."""
+    """Entry for residual analysis."""
     knot_id: str
+    family: str
     crossing_number: float
     braid_index: float
     hyperbolic_volume: float
     predicted_volume: float
     residual: float
-    residual_std: float
-    is_outlier: bool
-    family: Optional[str]
+    standardized_residual: float
 
 
 @log_operation
 def fit_linear_model(
     df: pd.DataFrame,
-    features: List[str],
-    target: str = "hyperbolic_volume"
+    x_col: str,
+    y_col: str,
+    model_name: str = "Linear"
 ) -> LinearModelResult:
     """
-    Fit a linear regression model to predict the target variable.
+    Fit a simple linear regression model.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing the data.
-    features : List[str]
-        List of column names to use as features.
-    target : str
-        Column name of the target variable.
+    Args:
+        df: DataFrame containing the data.
+        x_col: Name of the independent variable column.
+        y_col: Name of the dependent variable column.
+        model_name: Name for the model in reports.
 
-    Returns
-    -------
-    LinearModelResult
-        Result containing the fitted model, metrics, residuals, and predictions.
+    Returns:
+        LinearModelResult object containing metrics and fit data.
     """
-    logger = get_logger(__name__)
-    logger.info("Fitting linear model with features: %s", features)
+    x = df[x_col].dropna().values
+    y = df[y_col].dropna().values
 
-    # Prepare data
-    X = df[features].dropna().values
-    y = df.loc[X.index, target].values
+    if len(x) != len(y) or len(x) < 2:
+        raise ValueError("Insufficient data for linear regression.")
 
-    if len(X) == 0:
-        raise ValueError("No data available after dropping NaN values.")
+    # Perform linear regression
+    slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
 
-    # Fit model
-    model = LinearRegression()
-    model.fit(X, y)
+    fitted = slope * x + intercept
+    residuals = y - fitted
 
-    # Predictions and residuals
-    predictions = model.predict(X)
-    residuals = y - predictions
-
-    # Metrics
-    r2 = r2_score(y, predictions)
-    mae = mean_absolute_error(y, predictions)
+    # Calculate metrics
+    r_squared = r_value ** 2
+    n = len(x)
+    n_params = 2  # slope, intercept
 
     # AIC and BIC calculation
-    n = len(y)
-    k = len(features)
-    rss = np.sum(residuals ** 2)
-    sigma2 = rss / (n - k - 1) if (n - k - 1) > 0 else 1e-10
+    # SSE = Sum of Squared Errors
+    sse = np.sum(residuals ** 2)
+    mse = sse / n
+    # Log-likelihood approximation for linear regression with Gaussian errors
+    # LL = -n/2 * (log(2*pi) + log(SSE/n) + 1)
+    # AIC = 2k - 2LL
+    # BIC = k*log(n) - 2LL
+    # Simplified for comparison:
+    aic = n * np.log(sse / n) + 2 * n_params
+    bic = n * np.log(sse / n) + n_params * np.log(n)
 
-    # AIC = n * ln(RSS/n) + 2k (simplified for linear regression)
-    aic = n * np.log(rss / n) + 2 * (k + 1)
-    # BIC = n * ln(RSS/n) + k * ln(n)
-    bic = n * np.log(rss / n) + (k + 1) * np.log(n)
+    mae = np.mean(np.abs(residuals))
+    rmse = np.sqrt(mse)
 
-    # Coefficients
-    coeff_dict = {feat: float(coef) for feat, coef in zip(features, model.coef_)}
+    # Variance explained (R^2)
+    variance_explained = r_squared
+
+    coefficients = {"intercept": float(intercept), "slope": float(slope)}
 
     metrics = RegressionMetrics(
-        model_type="linear",
-        r_squared=float(r2),
+        model_type=model_name,
+        r_squared=float(r_squared),
         aic=float(aic),
         bic=float(bic),
         mae=float(mae),
-        coefficients=coeff_dict,
-        intercept=float(model.intercept_)
+        rmse=float(rmse),
+        n_params=n_params,
+        n_obs=n,
+        coefficients=coefficients,
+        variance_explained=variance_explained
     )
 
-    logger.debug("Model fitted: R²=%.4f, MAE=%.4f", r2, mae)
+    summary = (
+        f"{model_name} Model: {y_col} = {intercept:.4f} + {slope:.4f} * {x_col}\n"
+        f"R² = {r_squared:.4f}, MAE = {mae:.4f}, RMSE = {rmse:.4f}"
+    )
 
     return LinearModelResult(
-        model=model,
+        model_type=model_name,
+        formula=f"{y_col} = {intercept:.4f} + {slope:.4f} * {x_col}",
         metrics=metrics,
-        residuals=residuals,
-        predictions=predictions
+        fitted_values=fitted.tolist(),
+        residuals=residuals.tolist(),
+        summary_text=summary
     )
 
 
 @log_operation
 def fit_polynomial_model(
     df: pd.DataFrame,
-    feature: str,
+    x_col: str,
+    y_col: str,
     degree: int = 2,
-    target: str = "hyperbolic_volume"
+    model_name: str = "Polynomial"
 ) -> LinearModelResult:
     """
     Fit a polynomial regression model.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing the data.
-    feature : str
-        Column name of the single feature to use.
-    degree : int
-        Degree of the polynomial.
-    target : str
-        Column name of the target variable.
+    Args:
+        df: DataFrame containing the data.
+        x_col: Name of the independent variable column.
+        y_col: Name of the dependent variable column.
+        degree: Degree of the polynomial.
+        model_name: Name for the model in reports.
 
-    Returns
-    -------
-    LinearModelResult
-        Result containing the fitted model and metrics.
+    Returns:
+        LinearModelResult object.
     """
-    logger = get_logger(__name__)
-    logger.info("Fitting polynomial model (degree=%d) for feature: %s", degree, feature)
+    x = df[x_col].dropna().values
+    y = df[y_col].dropna().values
 
-    # Prepare data
-    X = df[[feature]].dropna()
-    y = df.loc[X.index, target]
+    if len(x) != len(y) or len(x) <= degree:
+        raise ValueError(f"Insufficient data for polynomial degree {degree}.")
 
-    if len(X) == 0:
-        raise ValueError("No data available after dropping NaN values.")
+    # Fit polynomial
+    coeffs = np.polyfit(x, y, degree)
+    poly_func = np.poly1d(coeffs)
 
-    X_values = X.values
-    y_values = y.values
-
-    # Polynomial features
-    poly = PolynomialFeatures(degree=degree, include_bias=False)
-    X_poly = poly.fit_transform(X_values)
-
-    # Fit model
-    model = LinearRegression()
-    model.fit(X_poly, y_values)
-
-    # Predictions and residuals
-    predictions = model.predict(X_poly)
-    residuals = y_values - predictions
+    fitted = poly_func(x)
+    residuals = y - fitted
 
     # Metrics
-    r2 = r2_score(y_values, predictions)
-    mae = mean_absolute_error(y_values, predictions)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
+    ss_res = np.sum(residuals ** 2)
+    r_squared = 1 - (ss_res / ss_tot)
 
-    # AIC and BIC
-    n = len(y_values)
-    k = degree  # number of polynomial terms (excluding bias)
-    rss = np.sum(residuals ** 2)
-    sigma2 = rss / (n - k - 1) if (n - k - 1) > 0 else 1e-10
+    n = len(x)
+    n_params = degree + 1
 
-    aic = n * np.log(rss / n) + 2 * (k + 1)
-    bic = n * np.log(rss / n) + (k + 1) * np.log(n)
+    sse = ss_res
+    aic = n * np.log(sse / n) + 2 * n_params
+    bic = n * np.log(sse / n) + n_params * np.log(n)
 
-    # Coefficients (map to polynomial terms)
-    coeff_dict = {}
-    for i, coef in enumerate(model.coef_):
-        if i == 0:
-            coeff_dict[f"{feature}^1"] = float(coef)
-        else:
-            coeff_dict[f"{feature}^{i+1}"] = float(coef)
+    mae = np.mean(np.abs(residuals))
+    rmse = np.sqrt(sse / n)
+
+    coeffs_dict = {f"coeff_{i}": float(c) for i, c in enumerate(reversed(coeffs))}
 
     metrics = RegressionMetrics(
-        model_type=f"polynomial_degree_{degree}",
-        r_squared=float(r2),
+        model_type=model_name,
+        r_squared=float(r_squared),
         aic=float(aic),
         bic=float(bic),
         mae=float(mae),
-        coefficients=coeff_dict,
-        intercept=float(model.intercept_)
+        rmse=float(rmse),
+        n_params=n_params,
+        n_obs=n,
+        coefficients=coeffs_dict,
+        variance_explained=float(r_squared)
     )
 
-    logger.debug("Polynomial model fitted: R²=%.4f, MAE=%.4f", r2, mae)
+    formula = f"{y_col} = " + " + ".join([f"{c:.4f}*{x_col}^{i}" if i > 0 else f"{c:.4f}" for i, c in enumerate(reversed(coeffs))])
+
+    summary = f"{model_name} (deg={degree}): R² = {r_squared:.4f}, MAE = {mae:.4f}"
 
     return LinearModelResult(
-        model=model,
+        model_type=model_name,
+        formula=formula,
         metrics=metrics,
-        residuals=residuals,
-        predictions=predictions
+        fitted_values=fitted.tolist(),
+        residuals=residuals.tolist(),
+        summary_text=summary
     )
 
 
 @log_operation
 def fit_logarithmic_model(
     df: pd.DataFrame,
-    feature: str,
-    target: str = "hyperbolic_volume"
+    x_col: str,
+    y_col: str,
+    model_name: str = "Logarithmic"
 ) -> LinearModelResult:
     """
-    Fit a logarithmic regression model (y = a + b * ln(x)).
+    Fit a logarithmic regression model: y = a + b * log(x).
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing the data.
-    feature : str
-        Column name of the feature to use.
-    target : str
-        Column name of the target variable.
+    Args:
+        df: DataFrame containing the data.
+        x_col: Name of the independent variable column.
+        y_col: Name of the dependent variable column.
+        model_name: Name for the model in reports.
 
-    Returns
-    -------
-    LinearModelResult
-        Result containing the fitted model and metrics.
+    Returns:
+        LinearModelResult object.
     """
-    logger = get_logger(__name__)
-    logger.info("Fitting logarithmic model for feature: %s", feature)
+    x = df[x_col].dropna().values
+    y = df[y_col].dropna().values
 
-    # Prepare data (filter out non-positive values for log)
-    mask = df[feature] > 0
-    X = df.loc[mask, [feature]]
-    y = df.loc[mask, target]
+    # Filter out non-positive x values for log
+    mask = x > 0
+    x_valid = x[mask]
+    y_valid = y[mask]
 
-    if len(X) == 0:
-        raise ValueError("No data available with positive feature values.")
+    if len(x_valid) < 2:
+        raise ValueError("Insufficient positive data for logarithmic regression.")
 
-    X_values = np.log(X.values)
-    y_values = y.values
+    log_x = np.log(x_valid)
 
-    # Fit model
-    model = LinearRegression()
-    model.fit(X_values, y_values)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(log_x, y_valid)
 
-    # Predictions and residuals
-    predictions = model.predict(X_values)
-    residuals = y_values - predictions
+    fitted = slope * log_x + intercept
+    residuals = y_valid - fitted
 
-    # Metrics
-    r2 = r2_score(y_values, predictions)
-    mae = mean_absolute_error(y_values, predictions)
+    r_squared = r_value ** 2
+    n = len(x_valid)
+    n_params = 2
 
-    # AIC and BIC
-    n = len(y_values)
-    k = 1
-    rss = np.sum(residuals ** 2)
+    sse = np.sum(residuals ** 2)
+    aic = n * np.log(sse / n) + 2 * n_params
+    bic = n * np.log(sse / n) + n_params * np.log(n)
 
-    aic = n * np.log(rss / n) + 2 * (k + 1)
-    bic = n * np.log(rss / n) + (k + 1) * np.log(n)
+    mae = np.mean(np.abs(residuals))
+    rmse = np.sqrt(sse / n)
 
-    coeff_dict = {f"ln({feature})": float(model.coef_[0])}
+    coefficients = {"intercept": float(intercept), "log_slope": float(slope)}
 
     metrics = RegressionMetrics(
-        model_type="logarithmic",
-        r_squared=float(r2),
+        model_type=model_name,
+        r_squared=float(r_squared),
         aic=float(aic),
         bic=float(bic),
         mae=float(mae),
-        coefficients=coeff_dict,
-        intercept=float(model.intercept_)
+        rmse=float(rmse),
+        n_params=n_params,
+        n_obs=n,
+        coefficients=coefficients,
+        variance_explained=float(r_squared)
     )
 
-    logger.debug("Logarithmic model fitted: R²=%.4f, MAE=%.4f", r2, mae)
+    summary = f"{model_name} Model: R² = {r_squared:.4f}, MAE = {mae:.4f}"
 
     return LinearModelResult(
-        model=model,
+        model_type=model_name,
+        formula=f"{y_col} = {intercept:.4f} + {slope:.4f} * log({x_col})",
         metrics=metrics,
-        residuals=residuals,
-        predictions=predictions
+        fitted_values=fitted.tolist(),
+        residuals=residuals.tolist(),
+        summary_text=summary
     )
 
 
 @log_operation
 def identify_residual_families(
     df: pd.DataFrame,
-    result: LinearModelResult,
-    threshold_std: float = 2.0
-) -> Tuple[List[ResidualEntry], Dict[str, int]]:
+    residuals: List[float],
+    family_col: str = "family",
+    threshold_sd: float = 2.0
+) -> List[ResidualEntry]:
     """
-    Identify knot families with large residuals and categorize them.
+    Identify knot families with residuals deviating >= threshold_sd standard deviations.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing knot data.
-    result : LinearModelResult
-        Result from a fitted model.
-    threshold_std : float
-        Number of standard deviations to consider an outlier.
+    Args:
+        df: DataFrame with knot data.
+        residuals: List of residuals corresponding to the DataFrame rows.
+        family_col: Column name for knot families.
+        threshold_sd: Number of standard deviations for outlier detection.
 
-    Returns
-    -------
-    tuple[List[ResidualEntry], Dict[str, int]]
-        List of outlier entries and a count of families.
+    Returns:
+        List of ResidualEntry objects for outliers.
     """
-    logger = get_logger(__name__)
-    logger.info("Identifying residual families with threshold=%.2f std", threshold_std)
+    if len(residuals) == 0:
+        return []
 
-    # Align indices
-    valid_indices = df.dropna(subset=["hyperbolic_volume"]).index
-    df_valid = df.loc[valid_indices]
-
-    # Ensure residuals align
-    residuals = result.residuals[:len(df_valid)]
-    predictions = result.predictions[:len(df_valid)]
-
-    # Calculate mean and std of residuals
     mean_res = np.mean(residuals)
     std_res = np.std(residuals)
 
-    outlier_entries = []
-    family_counts: Dict[str, int] = {}
+    if std_res == 0:
+        return []
 
-    for idx, row in df_valid.iterrows():
-        res_idx = list(df_valid.index).index(idx)
-        residual = residuals[res_idx]
-        pred = predictions[res_idx]
-
-        is_outlier = abs(residual - mean_res) > threshold_std * std_res
-
-        # Heuristic family classification based on knot ID or properties
-        # This is a simplified heuristic; real classification would use knot family info
-        knot_id = str(row.get("knot_id", "unknown"))
-        family = "unknown"
-
-        if "pretzel" in knot_id.lower() or row.get("family", "").lower() == "pretzel":
-            family = "pretzel"
-        elif row.get("hyperbolic_volume", 0) > 0 and not row.get("alternating", False):
-            family = "hyperbolic_non_alternating"
-        else:
-            family = "other"
-
-        family_counts[family] = family_counts.get(family, 0) + 1
-
-        if is_outlier:
+    outliers = []
+    for idx, res in enumerate(residuals):
+        std_res_val = (res - mean_res) / std_res
+        if abs(std_res_val) >= threshold_sd:
+            row = df.iloc[idx]
             entry = ResidualEntry(
-                knot_id=knot_id,
-                crossing_number=float(row["crossing_number"]),
-                braid_index=float(row["braid_index"]),
-                hyperbolic_volume=float(row["hyperbolic_volume"]),
-                predicted_volume=float(pred),
-                residual=float(residual),
-                residual_std=float(std_res),
-                is_outlier=True,
-                family=family
+                knot_id=str(row.get("knot_id", f"idx_{idx}")),
+                family=str(row.get(family_col, "Unknown")),
+                crossing_number=float(row.get("crossing_number", 0)),
+                braid_index=float(row.get("braid_index", 0)),
+                hyperbolic_volume=float(row.get("hyperbolic_volume", 0)),
+                predicted_volume=float(row.get("predicted_volume", 0)),
+                residual=float(res),
+                standardized_residual=float(std_res_val)
             )
-            outlier_entries.append(entry)
+            outliers.append(entry)
 
-    logger.debug("Found %d outliers", len(outlier_entries))
-    return outlier_entries, family_counts
+    logger.log("residual_outliers_identified", parameters={"count": len(outliers), "threshold": threshold_sd})
+    return outliers
 
 
 @log_operation
 def write_regression_metrics_report(
-    output_path: Path,
-    metrics_list: List[RegressionMetrics]
+    results: List[LinearModelResult],
+    output_path: Path
 ) -> None:
     """
-    Serialize regression metrics to JSON.
+    Write regression metrics to a JSON report file.
+
+    Args:
+        results: List of LinearModelResult objects.
+        output_path: Path to the output JSON file.
     """
+    report_data = []
+    for res in results:
+        report_data.append({
+            "model_type": res.model_type,
+            "formula": res.formula,
+            "metrics": asdict(res.metrics),
+            "summary": res.summary_text
+        })
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    report = [asdict(m) for m in metrics_list]
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-    logger = get_logger(__name__)
-    logger.info("Regression metrics report written to %s", output_path)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(report_data, f, indent=2)
+
+    logger.log("regression_metrics_report_written", parameters={"path": str(output_path), "models": len(results)})
 
 
 @log_operation
 def write_residual_analysis_report(
-    output_path: Path,
-    outlier_entries: List[ResidualEntry],
-    family_counts: Dict[str, int]
+    outliers: List[ResidualEntry],
+    output_path: Path
 ) -> None:
     """
-    Write residual analysis report to Markdown.
+    Write residual analysis outliers to a JSON file.
+
+    Args:
+        outliers: List of ResidualEntry objects.
+        output_path: Path to the output JSON file.
     """
+    data = [asdict(o) for o in outliers]
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", encoding="utf-8") as f:
-        f.write("# Residual Analysis Report\n\n")
-        f.write("## Outlier Knots\n\n")
-        f.write("| Knot ID | Crossing | Braid | Volume | Predicted | Residual | Family |\n")
-        f.write("|---|---|---|---|---|---|---|\n")
-        for entry in outlier_entries:
-            f.write(f"| {entry.knot_id} | {entry.crossing_number} | "
-                    f"{entry.braid_index} | {entry.hyperbolic_volume:.4f} | "
-                    f"{entry.predicted_volume:.4f} | {entry.residual:.4f} | "
-                    f"{entry.family} |\n")
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
 
-        f.write("\n## Family Distribution\n\n")
-        for family, count in family_counts.items():
-            f.write(f"- {family}: {count}\n")
-
-    logger = get_logger(__name__)
-    logger.info("Residual analysis report written to %s", output_path)
+    logger.log("residual_analysis_report_written", parameters={"path": str(output_path), "outliers": len(outliers)})
 
 
-@log_operation
 def main() -> None:
     """
-    Entry-point for regression analysis.
+    Main entry point for model fitting analysis.
+    Loads cleaned data, fits models, and generates reports.
     """
-    logger = get_logger(__name__)
-    logger.info("Starting regression analysis pipeline")
+    logger.log("model_fitting_start", parameters={})
 
-    df = load_cleaned_knots()
+    # Load data
+    data_path = Path("data/processed/knots_cleaned.csv")
+    if not data_path.exists():
+        logger.log("model_fitting_error", parameters={"error": "Data file not found", "path": str(data_path)})
+        raise FileNotFoundError(f"Data file not found: {data_path}")
 
-    # Filter for hyperbolic knots (volume > 0)
-    df_hyper = df[df["hyperbolic_volume"] > 0].copy()
+    df = pd.read_csv(data_path)
 
-    if len(df_hyper) == 0:
-        logger.error("No hyperbolic knots found in dataset.")
-        return
+    # Filter for required columns
+    required_cols = ["crossing_number", "braid_index", "hyperbolic_volume", "family"]
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+
+    # Drop rows with NaN in key columns
+    df_clean = df.dropna(subset=required_cols)
 
     # Fit models
-    metrics_list: List[RegressionMetrics] = []
+    x_col = "crossing_number"
+    y_col = "hyperbolic_volume"
 
-    # 1. Linear model: Volume ~ Crossing + Braid
+    models = []
+
+    # 1. Linear
     try:
-        result_linear = fit_linear_model(
-            df_hyper,
-            features=["crossing_number", "braid_index"],
-            target="hyperbolic_volume"
-        )
-        metrics_list.append(result_linear.metrics)
-
-        # Identify outliers
-        outliers, families = identify_residual_families(df_hyper, result_linear)
-        out_path = Path("docs/reproducibility/residual_analysis.md")
-        write_residual_analysis_report(out_path, outliers, families)
-
+        linear_res = fit_linear_model(df_clean, x_col, y_col)
+        models.append(linear_res)
     except Exception as e:
-        logger.error("Linear model failed: %s", str(e))
+        logger.log("model_fit_error", parameters={"model": "Linear", "error": str(e)})
 
-    # 2. Polynomial model: Volume ~ Crossing^2
+    # 2. Polynomial (degree 2)
     try:
-        result_poly = fit_polynomial_model(
-            df_hyper,
-            feature="crossing_number",
-            degree=2,
-            target="hyperbolic_volume"
-        )
-        metrics_list.append(result_poly.metrics)
+        poly_res = fit_polynomial_model(df_clean, x_col, y_col, degree=2)
+        models.append(poly_res)
     except Exception as e:
-        logger.error("Polynomial model failed: %s", str(e))
+        logger.log("model_fit_error", parameters={"model": "Polynomial", "error": str(e)})
 
-    # 3. Logarithmic model: Volume ~ ln(Crossing)
+    # 3. Logarithmic
     try:
-        result_log = fit_logarithmic_model(
-            df_hyper,
-            feature="crossing_number",
-            target="hyperbolic_volume"
-        )
-        metrics_list.append(result_log.metrics)
+        log_res = fit_logarithmic_model(df_clean, x_col, y_col)
+        models.append(log_res)
     except Exception as e:
-        logger.error("Logarithmic model failed: %s", str(e))
+        logger.log("model_fit_error", parameters={"model": "Logarithmic", "error": str(e)})
 
     # Write metrics report
-    metrics_path = Path("data/analysis/regression_metrics.json")
-    write_regression_metrics_report(metrics_path, metrics_list)
+    metrics_path = Path("data/reports/regression_metrics.json")
+    write_regression_metrics_report(models, metrics_path)
 
-    print(f"Regression analysis complete. Metrics saved to {metrics_path}")
-    print(f"Residual analysis saved to docs/reproducibility/residual_analysis.md")
+    # Residual analysis for best model (highest R^2)
+    best_model = max(models, key=lambda m: m.metrics.r_squared)
+    outliers = identify_residual_families(df_clean, best_model.residuals)
+
+    outliers_path = Path("data/reports/residual_outliers.json")
+    write_residual_analysis_report(outliers, outliers_path)
+
+    logger.log("model_fitting_complete", parameters={"models_fitted": len(models), "outliers_found": len(outliers)})
+
+
+if __name__ == "__main__":
+    main()

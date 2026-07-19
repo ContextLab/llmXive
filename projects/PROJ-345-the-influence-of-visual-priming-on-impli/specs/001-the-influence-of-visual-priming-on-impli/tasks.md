@@ -49,8 +49,8 @@
 - [X] T001d [P] Create `data/targets` directory per plan.md
 - [X] T002a [P] Create `code/`, `tests/`, `state/` directories per plan.md
 - [X] T002b [P] Create `state/projects/PROJ-345/` directory structure
-- [ ] T003a [P] Create `requirements.txt` with pinned versions: `pandas==2.0.3`, `numpy==1.24.3`, `statsmodels==0.14.0`, `scikit-learn==1.3.0`, `torch` (CPU-only, pinned via `--index-url https://download.pytorch.org/whl/cpu`), `requests==2.31.0`, `pyyaml==6.0.1`, `pillow==10.0.0`
-- [ ] T003b [P] Create Python 3.11 virtualenv and install dependencies from `requirements.txt` <!-- FAILED: unspecified -->
+- [X] T003a [P] Create `requirements.txt` with pinned versions: `pandas==2.0.3`, `numpy==1.24.3`, `statsmodels==0.14.0`, `scikit-learn==1.3.0`, `torch` (CPU-only, pinned via `--index-url https://download.pytorch.org/whl/cpu`), `requests==2.31.0`, `pyyaml==6.0.1`, `pillow==10.0.0`
+- [X] T003b [P] Create Python 3.11 virtualenv and install dependencies from `requirements.txt` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T004 [P] Configure linting (ruff), formatting (black), and pre-commit hooks
 
 ---
@@ -62,7 +62,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T005 [P] Setup `config.py` with paths for `data/raw`, `data/processed`, `data/primes`, `data/targets`, `state` and random seed pinning
-- [ ] T006 [P] Implement `code/data/integrity.py` for Principle VI (Distinct Stimulus Set Validation) ensuring primes and targets are never merged prematurely
+- [X] T006 [P] Implement `code/data/integrity.py` for Principle VI (Distinct Stimulus Set Validation) ensuring primes and targets are never merged prematurely
 - [ ] T007 [P] Setup `state/projects/PROJ-345/` structure and `state.yaml` initialization script for Principle V (Versioning)
 - [X] T008 [P] Create base data classes/entities for `Trial`, `Participant`, and `Stimulus` in `code/data/models.py`
 - [X] T009 [P] Setup logging configuration in `code/main.py`
@@ -80,8 +80,8 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T011 [P] [US1] Unit test for `ingest.py` URL validation and CSV parsing in `tests/unit/test_ingest.py`
-- [~] T012 [P] [US1] Integration test for missing image handling (halting vs. warning) in `tests/integration/test_ingest_integration.py`
+- [ ] T011 [P] [US1] Unit test for `ingest.py` URL validation and CSV parsing in `tests/unit/test_ingest.py`
+- [ ] T012 [P] [US1] Integration test for missing image handling (halting vs. warning) in `tests/integration/test_ingest_integration.py`
 
 ### Implementation for User Story 1
 
@@ -90,7 +90,7 @@
 - [X] T015 [US1] Implement "Missing Image" logic in `code/data/ingest.py`:
  - If >10% images missing: Halt and log 'Data Gap: Image files missing for >10% of trials'
  - If ≤10% missing: Log warning, exclude trials, and proceed
-- [~] T016 [US1] Implement linkage derivation fallback: If metadata is missing for a trial, attempt derivation by mapping trial ID to nearest image filename via hash. If derivation fails for >10% of trials, halt with 'Data Gap: No linkage data available'. **Verify a high proportion of trials have mapped stimulus_id (or are flagged for exclusion) to meet SC-001**.
+- [ ] T016 [US1] Implement linkage derivation fallback: If metadata is missing for a trial, attempt derivation by mapping trial ID to nearest image filename via hash. If derivation fails for >10% of trials, halt with 'Data Gap: No linkage data available'. **Verify a high proportion of trials have mapped stimulus_id (or are flagged for exclusion) to meet SC-001**.
 - [ ] T017 [US1] Generate `data/processed/linked_trials.csv` with columns: `trial_id`, `response_time`, `stimulus_id`, `prime_condition`, `participant_id`
 - [ ] T018 [US1] Add checksum verification for downloaded raw data to `state.yaml` and **calculate/report final 'linked metadata percentage' in logs to verify against SC-001 'vast majority' target (defined as configurable threshold, default 0.95)**.
 
@@ -125,7 +125,7 @@ The Plan's "Critical Design Change #2" (requiring human-rated ambiguity only) is
  - **Output**: Write derived ambiguity scores to `data/processed/stimulus_metadata.csv`.
  - **Failure**: If derivation fails, halt with 'Data Gap: Ambiguity derivation failed'.
  - **Dependency**: **T022b must complete before T022 (consumer) and T024 (Modeling) can start.**
-- [~] T023 [US2] Implement confounding check in `code/data/preprocess.py` (after T021/T022b) to verify "prime" is not confounded with trial order/block structure. **Output artifact: `data/processed/confounding_report.json` (correlation matrix, trial-order check results)**.
+- [ ] T023 [US2] Implement confounding check in `code/data/preprocess.py` (after T021/T022b) to verify "prime" is not confounded with trial order/block structure. **Output artifact: `data/processed/confounding_report.json` (correlation matrix, trial-order check results)**.
 - [X] T024 [US2] Implement `code/models/lmm.py` to aggregate data to `Stimulus` level (mean response time per stimulus per participant) to ensure within-stimulus variance
 - [X] T025 [US2] Implement LMM fitting in `code/models/lmm.py`: `mean_response_time ~ prime_valence * stimulus_ambiguity + (1 | participant_id)` (NO `stimulus_id` as random effect)
 - [X] T026 [US2] Implement optimizer retry logic in `code/models/lmm.py`: On convergence failure, attempt alternative optimizers before flagging dataset as unsuitable

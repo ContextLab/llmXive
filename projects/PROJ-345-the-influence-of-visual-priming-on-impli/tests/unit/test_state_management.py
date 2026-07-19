@@ -1,5 +1,5 @@
 """
-Unit tests for state_management module (T007).
+Unit tests for state management functionality (T007).
 """
 import os
 import sys
@@ -7,167 +7,127 @@ import tempfile
 import yaml
 from pathlib import Path
 import pytest
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path
-parent_dir = Path(__file__).parent.parent
-if str(parent_dir) not in sys.path:
-    sys.path.insert(0, str(parent_dir))
+# Add code directory to path
+code_dir = Path(__file__).parent.parent.parent / "code"
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
 from state_management import (
-    init_state_file, 
-    update_state, 
-    get_state, 
-    add_task_status,
-    log_artifact
+    init_state_file,
+    save_state_file,
+    add_artifact_record,
+    log_execution,
+    get_project_state_dir,
+    get_state_root
 )
-from config import get_path as config_get_path
 
 
-class MockConfig:
-    """Mock config to override get_path for testing"""
-    def __init__(self, temp_dir):
-        self.temp_dir = Path(temp_dir)
-    
-    def get_path(self, key):
-        if key == "state":
-            return self.temp_dir / "state"
-        return self.temp_dir / key
+class TestStateManagement:
+    """Tests for state management functions."""
 
+    @pytest.fixture
+    def temp_state_dir(self):
+        """Create a temporary directory for testing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
 
-@pytest.fixture
-def temp_state_dir():
-    """Create a temporary directory for state files during tests"""
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        yield tmpdirname
+    @patch('state_management.get_path')
+    def test_init_state_file_creates_new(self, mock_get_path, temp_state_dir):
+        """Test that init_state_file creates a new state.yaml when it doesn't exist."""
+        project_id = "TEST-PROJECT"
+        mock_get_path.return_value = temp_state_dir
 
+        state = init_state_file(project_id)
 
-def test_init_state_file_creates_structure(temp_state_dir):
-    """Test that init_state_file creates the directory and state.yaml"""
-    # Temporarily override get_path
-    import state_management
-    original_get_path = state_management.get_path
-    state_management.get_path = lambda key: Path(temp_state_dir) / key
+        # Verify state structure
+        assert state["project_id"] == project_id
+        assert "initialized_at" in state
+        assert state["version"] == "1.0.0"
+        assert "principle_v" in state
+        assert state["principle_v"]["status"] == "initialized"
 
-    try:
-        project_id = "TEST-001"
-        state_file = init_state_file(project_id)
-        
+        # Verify file was created
+        state_file = get_project_state_dir(project_id) / "state.yaml"
         assert state_file.exists()
-        assert state_file.name == "state.yaml"
-        
-        # Check content
-        with open(state_file, 'r') as f:
-            content = yaml.safe_load(f)
-        
-        assert content["project_id"] == project_id
-        assert "created_at" in content
-        assert "last_modified" in content
-        assert "version" in content
-        assert "principle_v" in content
-        assert "tasks" in content
-    finally:
-        state_management.get_path = original_get_path
 
+    @patch('state_management.get_path')
+    def test_init_state_file_loads_existing(self, mock_get_path, temp_state_dir):
+        """Test that init_state_file loads existing state.yaml."""
+        project_id = "TEST-PROJECT-EXISTING"
+        mock_get_path.return_value = temp_state_dir
 
-def test_init_state_file_updates_timestamp(temp_state_dir):
-    """Test that calling init_state_file again updates the timestamp"""
-    import state_management
-    original_get_path = state_management.get_path
-    state_management.get_path = lambda key: Path(temp_state_dir) / key
-
-    try:
-        project_id = "TEST-002"
-        state_file = init_state_file(project_id)
-        
-        with open(state_file, 'r') as f:
-            first_content = yaml.safe_load(f)
-        
-        import time
-        time.sleep(0.1)  # Small delay to ensure timestamp change
-        
-        init_state_file(project_id)
-        
-        with open(state_file, 'r') as f:
-            second_content = yaml.safe_load(f)
-        
-        assert first_content["last_modified"] != second_content["last_modified"]
-    finally:
-        state_management.get_path = original_get_path
-
-
-def test_update_state(temp_state_dir):
-    """Test updating state with new values"""
-    import state_management
-    original_get_path = state_management.get_path
-    state_management.get_path = lambda key: Path(temp_state_dir) / key
-
-    try:
-        project_id = "TEST-003"
-        init_state_file(project_id)
-        
-        updates = {
-            "version": "0.2.0",
-            "custom_field": "test_value"
+        # Create a pre-existing state file
+        state_dir = get_project_state_dir(project_id)
+        state_dir.mkdir(parents=True, exist_ok=True)
+        existing_state = {
+            "project_id": project_id,
+            "initialized_at": "2023-01-01T00:00:00",
+            "version": "1.0.0",
+            "custom_field": "custom_value"
         }
-        
-        result = update_state(project_id, updates)
-        
-        assert result["version"] == "0.2.0"
-        assert result["custom_field"] == "test_value"
-    finally:
-        state_management.get_path = original_get_path
+        with open(state_dir / "state.yaml", 'w') as f:
+            yaml.dump(existing_state, f)
 
+        # Load the state
+        state = init_state_file(project_id)
 
-def test_add_task_status(temp_state_dir):
-    """Test adding task status to state"""
-    import state_management
-    original_get_path = state_management.get_path
-    state_management.get_path = lambda key: Path(temp_state_dir) / key
+        assert state["project_id"] == project_id
+        assert state["custom_field"] == "custom_value"
+        assert "initialized_at" in state
 
-    try:
-        project_id = "TEST-004"
+    @patch('state_management.get_path')
+    def test_add_artifact_record(self, mock_get_path, temp_state_dir):
+        """Test adding an artifact record to state."""
+        project_id = "TEST-PROJECT-ARTIFACT"
+        mock_get_path.return_value = temp_state_dir
+
         init_state_file(project_id)
-        
-        add_task_status(project_id, "T001", "completed")
-        
-        state = get_state(project_id)
-        assert "T001" in state["tasks"]["completed"]
-        
-        add_task_status(project_id, "T001", "in_progress")
-        
-        state = get_state(project_id)
-        assert "T001" not in state["tasks"]["completed"]
-        assert "T001" in state["tasks"]["in_progress"]
-    finally:
-        state_management.get_path = original_get_path
 
+        add_artifact_record(
+            project_id,
+            "data/processed/test.csv",
+            "data",
+            {"rows": 1000, "columns": 5}
+        )
 
-def test_log_artifact(temp_state_dir):
-    """Test logging an artifact to state"""
-    import state_management
-    import hashlib
-    original_get_path = state_management.get_path
-    state_management.get_path = lambda key: Path(temp_state_dir) / key
+        state_file = get_project_state_dir(project_id) / "state.yaml"
+        with open(state_file, 'r') as f:
+            state = yaml.safe_load(f)
 
-    try:
-        project_id = "TEST-005"
+        assert len(state["artifacts"]) == 1
+        assert state["artifacts"][0]["name"] == "data/processed/test.csv"
+        assert state["artifacts"][0]["type"] == "data"
+        assert state["artifacts"][0]["details"]["rows"] == 1000
+
+    @patch('state_management.get_path')
+    def test_log_execution(self, mock_get_path, temp_state_dir):
+        """Test logging an execution event."""
+        project_id = "TEST-PROJECT-LOG"
+        mock_get_path.return_value = temp_state_dir
+
         init_state_file(project_id)
-        
-        # Create a dummy file
-        dummy_file = Path(temp_state_dir) / "dummy.txt"
-        dummy_file.write_text("test content")
-        
-        log_artifact(project_id, str(dummy_file))
-        
-        state = get_state(project_id)
-        artifacts = state["principle_v"]["artifacts"]
-        
-        assert len(artifacts) == 1
-        assert artifacts[0]["path"] == str(dummy_file)
-        assert "checksum" in artifacts[0]
-        
-        # Verify checksum
-        expected_checksum = hashlib.sha256(b"test content").hexdigest()
-        assert artifacts[0]["checksum"] == expected_checksum
-    finally:
-        state_management.get_path = original_get_path
+
+        log_execution(project_id, "T007", "success", "Initialization complete")
+
+        state_file = get_project_state_dir(project_id) / "state.yaml"
+        with open(state_file, 'r') as f:
+            state = yaml.safe_load(f)
+
+        assert len(state["execution_log"]) == 1
+        assert state["execution_log"][0]["task_id"] == "T007"
+        assert state["execution_log"][0]["status"] == "success"
+        assert "message" in state["execution_log"][0]
+
+    @patch('state_management.get_path')
+    def test_get_project_state_dir(self, mock_get_path, temp_state_dir):
+        """Test getting the project state directory path."""
+        project_id = "TEST-PROJECT-PATH"
+        mock_get_path.return_value = temp_state_dir
+
+        path = get_project_state_dir(project_id)
+
+        expected = temp_state_dir / "projects" / project_id
+        assert path == expected
+        assert path.exists()

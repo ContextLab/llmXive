@@ -1563,6 +1563,10 @@
     "classified_at": "2026-07-10T10:25:53Z",
     "verdict": false
   },
+  "PROJ-963-llmxive-follow-up-extending-indusagent-r::1.6.0": {
+    "classified_at": "2026-07-19T19:00:43Z",
+    "verdict": false
+  },
   "PROJ-964-llmxive-follow-up-extending-wan-streamer::1.6.0": {
     "classified_at": "2026-07-04T18:41:34Z",
     "verdict": false
