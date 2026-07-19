@@ -1,0 +1,200 @@
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: N=32 subjects yields ~6 test subjects in 5-fold cross-validation
+  claim_id: c_3d297a89
+  context: 'FR-005 Cross-Validation: Spec requires ''nested 5-fold cross-validation''.
+    Plan implements Nested Leave-One-Subject-Out (LOSO). Justification: N=32 subjects
+    yields insufficient test subjects (~6) in 5-fold CV for robust generalization
+    error estimation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=32 subjects yields insufficient test subjects (~6) in 5-fold CV for
+    robust generalization error estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T00:58:45Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Nagelkerke's R squared is undefined for Random Forests
+  claim_id: c_ae54984d
+  context: "FR-005/FR-007 Model Strategy: Spec mandates Random Forest for all variance\
+    \ analysis. Plan implements Dual Model Strategy (Random Forest + Logistic Regression).\
+    \ Justification: Nagelkerke's R\xB2 is mathematically undefined for Random Forests."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Nagelkerke's_R_squared_is_undefined_for_Random_Forests
+  kind: entity_fact
+  raw_text: "Nagelkerke's R\xB2 is mathematically undefined for Random Forests."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:00:21Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: "DEAP dataset source is emre-ozg\xFCr/DEAP-EMG on HuggingFace"
+  claim_id: c_78c508f6
+  context: "FR-001 Dataset URL: Spec URL contained SSL error artifacts. Plan uses\
+    \ verified HuggingFace source ('emre-ozg\xFCr/DEAP-EMG')."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEAP_dataset_source_is_emre-ozg%C3%BCr/DEAP-EMG_on_HuggingFace
+  kind: entity_fact
+  raw_text: "The Plan uses verified HuggingFace source ('emre-ozg\xFCr/DEAP-EMG')."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:06:14Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Project implements Nested Leave-One-Subject-Out cross-validation
+  claim_id: c_08860931
+  context: 'Plan Deviation Log: FR-005 Cross-Validation: Spec requires ''nested 5-fold
+    cross-validation''. Plan implements Nested Leave-One-Subject-Out (LOSO).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_implements_Nested_Leave-One-Subject-Out_cross-valida
+  kind: entity_fact
+  raw_text: The project implements Nested Leave-One-Subject-Out (LOSO) cross-validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:07:11Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Project uses Dual Model Strategy with Random Forest and Logistic Regression
+  claim_id: c_69aa178e
+  context: 'Plan Deviation Log: FR-005/FR-007 Model Strategy: Spec mandates Random
+    Forest for all variance analysis. Plan implements Dual Model Strategy (Random
+    Forest + Logistic Regression).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Dual_Model_Strategy_with_Random_Forest_and_Logi
+  kind: entity_fact
+  raw_text: The project uses a Dual Model Strategy consisting of Random Forest and
+    Logistic Regression.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:08:01Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: DEAP dataset contains corrugator, zygomaticus, and orbicularis EMG channels
+  claim_id: c_20fa05c0
+  context: "Task T005a: Create 'code/download.py' to fetch the official DEAP dataset\
+    \ from the verified HuggingFace source ('emre-ozg\xFCr/DEAP-EMG'), extract specific\
+    \ EMG channels (corrugator, zygomaticus, orbicularis), and save to 'data/raw/'."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEAP_dataset_contains_corrugator,_zygomaticus,_and_orbicular
+  kind: entity_fact
+  raw_text: The DEAP dataset contains EMG channels for corrugator, zygomaticus, and
+    orbicularis muscles.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:08:56Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Project runtime target is less than 6 hours
+  claim_id: c_44a804d1
+  context: 'Task T043: Run ''quickstart.md'' validation to ensure full pipeline execution
+    <6 hours and <7GB RAM.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The film's storyline draws loose inspiration from multiple real-life
+        geopolitical events and conflicts in South Asia, including the 1999 IC-814
+        hijacking, the 2001 Indian Parliament attack, the 2008 Mumbai attacks, and
+        developments linked to Pakistan's Operation Lyari. Principal photography for
+        Dhurandhar took place from July 2024 to October 2025 across multiple locations
+        in India and abroad, including the states and union territories of Punjab,
+        Maharashtra, Chandigarh, Ladakh and Himachal Pradesh, as well as Thailand.
+        The film features music composed by Shashwat Sachdev, cinematography by Vikash
+        Nowlakha, and editing by Shivkumar V. Panicker. With a runtime of 214 minutes,
+        Dhurandhar ranks as one of the longest Indian films ever produced.
+      source_id: Dhurandhar
+      url: https://en.wikipedia.org/wiki/Dhurandhar
+      value: 214 minutes
+    filled: true
+  kind: magnitude
+  raw_text: The project targets a runtime of less than 6 hours.
+  resolved_value: 214 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T01:09:33Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Project memory target is less than 7GB RAM
+  claim_id: c_76e83418
+  context: 'Task T043: Run ''quickstart.md'' validation to ensure full pipeline execution
+    <6 hours and <7GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Project_memory_target_is_less_than_7GB_RAM
+  kind: magnitude
+  raw_text: The project targets a memory usage of less than 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:11:22Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Project runs on CPU-only GitHub Actions
+  claim_id: c_3e937e7b
+  context: 'Notes: Critical Constraint: All tasks must run on CPU-only GitHub Actions
+    (limited CPU resources, 7GB RAM, 6h limit).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_runs_on_CPU-only_GitHub_Actions
+  kind: entity_fact
+  raw_text: The project runs on CPU-only GitHub Actions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:11:55Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps valence threshold over 4.9, 5.0, and 5.1
+  claim_id: c_d79f26c9
+  context: 'Task T037: Implement sensitivity analysis sweeping the valence binarization
+    threshold over the specific values {4.9, 5.0, 5.1} required by FR-009 and SC-003
+    in ''code/validate.py''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the valence binarization threshold over
+    the specific values {4.9, 5.0, 5.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:12:27Z'

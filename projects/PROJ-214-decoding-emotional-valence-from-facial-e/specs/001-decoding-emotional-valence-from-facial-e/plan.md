@@ -28,7 +28,7 @@ Statistical validation includes a **Permutation Test (1000 shuffles)** AND a **P
 **Project Type**: Data Science / Research Pipeline  
 **Performance Goals**: Complete nested LOSO and reporting within 6 hours; peak RAM < 7 GB.  
 **Constraints**: No GPU/CUDA; no large model training; **Parallelize outer LOSO folds** to meet time constraints; strict adherence to DEAP-EMG dataset structure.  
-**Scale/Scope**: 32 participants, ~30 trials each, 32 channels (subset to 3 EMG), [deferred] of data per subject.
+**Scale/Scope**: participants, ~30 trials each, 32 channels (subset to 3 EMG), [deferred] of data per subject.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

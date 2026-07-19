@@ -1,4 +1,4 @@
 """
 llmXive Project: Decoding Emotional Valence from Facial EMG Patterns
-Core implementation package.
+Package initialization for the code module.
 """

@@ -1,3 +1,11 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that `code/` and `tests/` directories actually\
+    \ exist in the repository (or contain any files). The implementer\u2019s claim\
+    \ cannot be verified without such artifacts. The next implementer should create\
+    \ the two directories at the repository root and ensure they are present in the\
+    \ project\u2019s file tree."
 T018:
   c: false
   h: b39adeefba8d6b52b95641796221308ad90f8d3f4efae4842eb1ba2c68adea6d

@@ -1,3 +1,3 @@
 """
-Unit tests for the emotional valence decoding pipeline.
+Unit tests package for the EMG decoding pipeline.
 """
