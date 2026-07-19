@@ -235,7 +235,7 @@ class ImagePart:
     height: int
 
     @classmethod
-    def from_bytes(cls, mime: str, data: bytes) -> "ImagePart":
+    def from_bytes(cls, mime: str, data: bytes) -> ImagePart:
         """Preferred constructor: derive ``width``/``height`` from the encoded
         ``data`` instead of asking the caller to compute (and possibly get
         wrong, or lie about) them."""
