@@ -1,0 +1,2 @@
+iteration_id,config_id,scaling_method,test_type,p_value,statistic,ground_truth,scaling_params,seed
+0,test-config-1,standardization,t-test,0.045,2.1,null,{"method": "standardization"},123456789

@@ -1,17 +1,14 @@
 T027c:
   c: false
-  h: e9e9d9aadaaa1a9997f5d887d69523a0e0c1e388d516378a32d5e8e598e43a43
-  r: The required output file `results/real_world_ingestion_log.csv` does not exist
-    in the repository, so the deliverable specified by the task is missing. Consequently
-    the ingestion result cannot be verified, and the task is not fully satisfied.
-T028a:
-  c: false
-  h: 795a8e9b100e43d0735ed179715246aad5947c5336c0b3760f4813053cc6438e
-  r: "The repository lacks the required `results/simulation_results.csv` file, and\
-    \ the shown `code/main.py` does not contain a completed simulation loop that iterates\
-    \ over all configurations, runs \u226510,000 iterations per config, or writes\
-    \ the specified columns (including seed) to that CSV. Consequently the deliverable\
-    \ and core logic are missing."
+  h: 766899941467a687a11798fa6baab724d3aaf91c019b15d5d4f7507beeed41c4
+  r: "The required output file `results/real_world_ingestion_log.csv` does not exist,\
+    \ so the ingestion pipeline\u2019s deliverable is missing. Additionally, the provided\
+    \ `ingestion.py` is truncated and does not clearly implement all required functions\
+    \ (e.g., `clean_dataset`, `compute_checksum`, `update_manifest`, `process_real_world_dataset`,\
+    \ `run_ingestion_pipeline`, `validate_dataset_availability`) needed for the unit\
+    \ test to pass. The next implementer must create the missing CSV log with the\
+    \ specified columns and ensure the full ingestion logic and all referenced functions\
+    \ are implemented and exercise"
 T028b:
   c: false
   h: 0aaaf589fdd7c3d4c2e1ed84795107daef8e89080e2f21c906e6ee37b2f84eb8
@@ -22,13 +19,28 @@ T028b:
     \ checkpoint mechanism in `main.py` and add a test that confirms `partial_checkpoint.csv`\
     \ is created and populated as expected."
 T028c:
+  c: true
+  h: 762dc5ca2f483733eec0637d8df12f30918df270c911d3c184428c2a915c9f4c
+  r: "The repository contains `code/main.py` with the required implementation (including\
+    \ a `write_simulation_results` function) and a unit test `code/tests/unit/simulation/test_main.py`\
+    \ that creates a CSV at a temporary path, checks that the file is written, and\
+    \ validates the schema. The test imports the function successfully, confirming\
+    \ the aggregation and CSV\u2011writing logic is present."
+T029:
   c: false
-  h: 8ac8d12385c148383a81f00eb7239f26ce5bd321ef8d8f0f29dff7f33e742bcb
-  r: The repository does not contain `results/simulation_results.csv` (the file is
-    missing) and the shown portion of `code/main.py` stops after scaling without any
-    code that aggregates iteration results or writes them to a CSV. Moreover, the
-    unit test only checks a CSV created at a custom path, not the required `results/simulation_results.csv`.
-    The required aggregation and default CSV output are therefore not implemented.
+  h: 0990ab58877cac85ce1d3711cfda7c2e2f0758171068336f934d2f22fdaf958f
+  r: "The `calculate_aggregate_metrics` function is cut off and never finishes computing\
+    \ Type\u202FI error or power (e.g., it ends with `null_rejections = results` and\
+    \ lacks the rest of the logic). Additionally, the required `results/simulation_results.csv`\
+    \ file is absent, so the function cannot be exercised on real data. Both the implementation\
+    \ and the dependent data artifact are missing."
+T039:
+  c: false
+  h: 7ce3bfe1c83a7a1af0d44673bce7447d7abc93bd6b75a815203391c8869d2f3b
+  r: "The required artifact `results/comparison_report.md` is missing, and the only\
+    \ test present writes to `results/test_comparison_report.md` (a different path)\
+    \ and is truncated, so it does not verify the exact schema or content demanded.\
+    \ The task\u2019s deliverable has not been produced."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
