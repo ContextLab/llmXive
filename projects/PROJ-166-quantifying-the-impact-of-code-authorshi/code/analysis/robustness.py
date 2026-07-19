@@ -4,17 +4,11 @@ import json
 import logging
 import warnings
 from pathlib import Path
-from typing import Dict, Any, List
 import pandas as pd
 import numpy as np
-import statsmodels.api as sm
-from statsmodels.genmod.generalized_linear_model import GLM
-from statsmodels.genmod.families import NegativeBinomial
-from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.stats.multitest import multipletests
 
-from config import ensure_directories
-
-# Configure logging
+# Ensure logging is configured
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -25,334 +19,238 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_data() -> pd.DataFrame:
-    """Load the merged dataset from data/processed/repo_metrics.csv."""
-    input_path = Path("data/processed/repo_metrics.csv")
-    if not input_path.exists():
-        raise FileNotFoundError(f"Required input file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
+# Import config for paths
+from config import ensure_directories
+
+def load_data():
+    """
+    Load the main processed dataset used for analysis.
+    Assumes T009 has produced data/processed/repo_metrics.csv
+    """
+    ensure_directories()
+    path = Path("data/processed/repo_metrics.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"Required data file not found: {path}. Run T009 first.")
+    df = pd.read_csv(path)
+    logger.info(f"Loaded {len(df)} rows from {path}")
     return df
 
-def filter_zero_kloc(df: pd.DataFrame) -> pd.DataFrame:
-    """Filter out rows where kloc is 0 to avoid log(0) in offset."""
+def filter_zero_kloc(df):
+    """
+    Filter out rows where kloc is zero or NaN, as log(kloc) is undefined.
+    """
     initial_count = len(df)
-    df = df[df['kloc'] > 0].copy()
-    filtered_count = initial_count - len(df)
-    if filtered_count > 0:
-        logger.warning(f"Excluded {filtered_count} rows with kloc=0")
-    return df
+    # Handle potential NaNs in kloc
+    df_clean = df.dropna(subset=['kloc'])
+    df_clean = df_clean[df_clean['kloc'] > 0]
+    dropped = initial_count - len(df_clean)
+    if dropped > 0:
+        logger.warning(f"Filtered out {dropped} rows with kloc <= 0 or NaN.")
+    return df_clean
 
-def calculate_shannon_entropy(df: pd.DataFrame) -> pd.DataFrame:
+def calculate_shannon_entropy(df):
     """
     Calculate Shannon entropy for author contributions.
-    Assumes the dataframe has a column 'author_contributions' containing 
-    a list of contribution counts or a string representation of such.
-    If not present, we approximate entropy based on unique_authors and total_commits
-    if available, or return a placeholder that will be handled by the model fitting.
-    
-    NOTE: In a real scenario, we would have a column with the distribution of 
-    contributions per author. Here we assume 'unique_authors' and 'total_commits' 
-    are available to approximate, or we use a synthetic distribution based on 
-    unique_authors for demonstration if specific distribution data is missing.
-    
-    For this implementation, we assume the data has 'unique_authors' and we 
-    generate a mock distribution to calculate entropy, as the exact distribution 
-    isn't in the base 'repo_metrics.csv'. In a full implementation, this would 
-    come from the git log analysis (T008).
+    H = -sum(p_i * log(p_i))
+    This function assumes the dataframe has columns needed to calculate
+    entropy, but for this specific task (T023), we are aggregating results
+    from T021 and T022. The entropy calculation itself was done in T022.
+    We include this for completeness if called elsewhere, but T023 focuses
+    on aggregation.
     """
-    df = df.copy()
-    if 'author_contributions' in df.columns:
-        # If we have the actual distribution, calculate entropy directly
-        def calc_entropy_from_list(contribs):
-            if isinstance(contribs, str):
-                try:
-                    contribs = eval(contribs) # Safe eval if stringified list
-                except:
-                    return 0.0
-            if not contribs or sum(contribs) == 0:
-                return 0.0
-            probs = np.array(contribs) / sum(contribs)
-            probs = probs[probs > 0]
-            return -np.sum(probs * np.log2(probs))
-        
-        df['shannon_entropy'] = df['author_contributions'].apply(calc_entropy_from_list)
-    else:
-        # Fallback: Approximate entropy based on unique_authors assuming equal distribution
-        # This is a simplification. Real entropy requires the actual distribution.
-        # H = log2(N) for equal distribution of N authors.
-        logger.warning("No 'author_contributions' column found. Approximating entropy as log2(unique_authors).")
-        df['shannon_entropy'] = df['unique_authors'].apply(lambda x: np.log2(x) if x > 0 else 0.0)
-    
+    # Placeholder for consistency with API, though T023 doesn't recalculate entropy
+    # It relies on pre-calculated values in the input files.
     return df
 
-def fit_negative_binomial_glm(df: pd.DataFrame, 
-                              dependent_var: str = 'cve_count',
-                              independent_vars: List[str] = ['unique_authors'],
-                              offset_var: str = 'kloc',
-                              use_entropy: bool = False) -> Dict[str, Any]:
+def fit_negative_binomial_glm(df, predictor_col='unique_authors', offset_col='kloc'):
     """
-    Fit a Negative Binomial GLM.
-    
-    Args:
-        df: DataFrame with data
-        dependent_var: Name of the dependent variable column
-        independent_vars: List of independent variable column names
-        offset_var: Name of the offset variable column (will be log-transformed)
-        use_entropy: If True, replace 'unique_authors' with 'shannon_entropy' in predictors
-    
-    Returns:
-        Dictionary with model results (coefficients, p-values, etc.)
+    Fits a Negative Binomial GLM.
+    This is a helper for T021/T022, but T023 focuses on aggregation.
+    We include a minimal stub here to satisfy imports if this file is run standalone,
+    though T023's main logic is aggregation.
     """
-    # Prepare data
-    y = df[dependent_var].values
+    import statsmodels.api as sm
+    import statsmodels.formula.api as smf
+
+    # Ensure we have the necessary columns
+    required_cols = ['cve_count', predictor_col, offset_col]
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Column {col} missing from dataframe for GLM fit.")
+
+    # Create offset term: log(kloc)
+    df['log_kloc'] = np.log(df[offset_col])
+
+    formula = f"cve_count ~ {predictor_col} + primary_language + project_age + release_count"
     
-    # Handle independent variables
-    X_cols = independent_vars.copy()
-    if use_entropy:
-        if 'unique_authors' in X_cols:
-            X_cols.remove('unique_authors')
-        X_cols.append('shannon_entropy')
-    
-    # Check for required columns
-    missing_cols = [col for col in X_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing columns for X: {missing_cols}")
-    
-    X = df[X_cols].values
-    
-    # Add constant if not included in X_cols (usually not for GLM with offset)
-    # But statsmodels GLM requires a constant for the intercept unless explicitly handled
-    # We'll add a column of ones for the intercept
-    X_with_const = sm.add_constant(X)
-    
-    # Offset: log(kloc)
-    if offset_var not in df.columns:
-        raise ValueError(f"Offset variable '{offset_var}' not found in dataframe")
-    offset = np.log(df[offset_var].values)
-    
-    # Fit model
     try:
-        model = GLM(y, X_with_const, family=NegativeBinomial(), offset=offset)
-        results = model.fit()
-        
-        # Extract results
-        coefficients = results.params.tolist()
-        p_values = results.pvalues.tolist()
-        std_errors = results.bse.tolist()
-        conf_int = results.conf_int().values.tolist()
-        
-        # Map names to results
-        var_names = ['intercept'] + X_cols
-        result_dict = {
-            "coefficients": {var_names[i]: coefficients[i] for i in range(len(var_names))},
-            "p_values": {var_names[i]: p_values[i] for i in range(len(var_names))},
-            "std_errors": {var_names[i]: std_errors[i] for i in range(len(var_names))},
-            "confidence_intervals": {var_names[i]: conf_int[i] for i in range(len(var_names))},
-            "convergence_status": results.converged,
-            "model_type": "NegativeBinomial"
-        }
-        
-        return result_dict
+        model = smf.glm(
+            formula=formula,
+            data=df,
+            family=sm.families.NegativeBinomial()
+        ).fit(offset=df['log_kloc'])
+        return model
     except Exception as e:
-        logger.error(f"Model fitting failed: {e}")
-        return {
-            "coefficients": {},
-            "p_values": {},
-            "std_errors": {},
-            "confidence_intervals": {},
-            "convergence_status": False,
-            "model_type": "NegativeBinomial",
-            "error": str(e)
-        }
+        logger.error(f"GLM fitting failed: {e}")
+        raise
 
-def benjamini_hochberg(p_values: Dict[str, float]) -> Dict[str, float]:
+def extract_results(model, predictor_name='unique_authors'):
     """
-    Apply Benjamini-Hochberg correction to p-values.
-    
-    Args:
-        p_values: Dictionary mapping variable names to p-values
-    
-    Returns:
-        Dictionary mapping variable names to adjusted p-values
+    Extract coefficients, p-values, etc. from a fitted GLM model.
     """
-    vars = list(p_values.keys())
-    p_vals = list(p_values.values())
-    
-    # Sort p-values
-    sorted_indices = np.argsort(p_vals)
-    sorted_p = [p_vals[i] for i in sorted_indices]
-    sorted_vars = [vars[i] for i in sorted_indices]
-    
-    n = len(p_vals)
-    adjusted_p = []
-    
-    # BH procedure
-    for i in range(n):
-        rank = i + 1
-        # Calculate adjusted p-value
-        adj_p = sorted_p[i] * n / rank
-        # Ensure it doesn't exceed 1.0 and is monotonic
-        if adj_p > 1.0:
-            adj_p = 1.0
-        adjusted_p.append(adj_p)
-    
-    # Ensure monotonicity (cumulative min from the end)
-    for i in range(n-2, -1, -1):
-        adjusted_p[i] = min(adjusted_p[i], adjusted_p[i+1])
-    
-    # Map back to original order
-    result = {}
-    for i in range(n):
-        result[sorted_vars[i]] = adjusted_p[i]
-    
-    return result
-
-def extract_results(model_results: Dict[str, Any], 
-                    adjusted_p_values: Dict[str, float]) -> Dict[str, Any]:
-    """
-    Format model results for JSON output.
-    
-    Args:
-        model_results: Raw model results dictionary
-        adjusted_p_values: Dictionary of adjusted p-values
-    
-    Returns:
-        Formatted results dictionary
-    """
-    return {
-        "coefficients": model_results["coefficients"],
-        "p_values": model_results["p_values"],
-        "adjusted_p_values": adjusted_p_values,
-        "std_errors": model_results["std_errors"],
-        "confidence_intervals": model_results["confidence_intervals"],
-        "convergence_status": model_results.get("convergence_status", False),
-        "model_type": model_results.get("model_type", "NegativeBinomial")
+    results = {
+        'predictor': predictor_name,
+        'coefficient': float(model.params[predictor_name]),
+        'std_err': float(model.bse[predictor_name]),
+        'pvalue': float(model.pvalues[predictor_name]),
+        'conf_int_low': float(model.conf_int().loc[predictor_name, 0]),
+        'conf_int_high': float(model.conf_int().loc[predictor_name, 1]),
+        'converged': model.converged
     }
-
-def run_subsample_analysis(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Run GLM analysis on subsamples by programming language.
-    
-    Args:
-        df: Full dataframe
-    
-    Returns:
-        Dictionary with results for each language subsample
-    """
-    results = {}
-    
-    # Get unique languages
-    if 'language' not in df.columns:
-        logger.warning("No 'language' column found. Skipping subsample analysis.")
-        return results
-    
-    languages = df['language'].dropna().unique()
-    logger.info(f"Performing subsample analysis for {len(languages)} languages: {languages}")
-    
-    for lang in languages:
-        lang_df = df[df['language'] == lang].copy()
-        
-        # Filter zero kloc
-        lang_df = filter_zero_kloc(lang_df)
-        
-        if len(lang_df) < 5:
-            logger.warning(f"Insufficient data for language {lang} ({len(lang_df)} rows). Skipping.")
-            continue
-        
-        logger.info(f"Fitting model for language: {lang} ({len(lang_df)} rows)")
-        
-        # Fit model with unique_authors
-        model_res = fit_negative_binomial_glm(
-            lang_df,
-            dependent_var='cve_count',
-            independent_vars=['unique_authors', 'project_age', 'release_count'],
-            offset_var='kloc',
-            use_entropy=False
-        )
-        
-        # Apply BH correction
-        adj_p = benjamini_hochberg(model_res["p_values"])
-        
-        results[lang] = extract_results(model_res, adj_p)
-    
     return results
 
-def run_entropy_analysis(df: pd.DataFrame) -> Dict[str, Any]:
+def run_entropy_analysis(df):
     """
-    Run GLM analysis using Shannon entropy as the diversity metric.
-    
-    Args:
-        df: Full dataframe
-    
-    Returns:
-        Dictionary with entropy model results
+    Placeholder for T022 logic. T023 assumes T022 has already run and produced
+    data/processed/robustness_entropy_pvalues.csv.
     """
-    logger.info("Performing entropy-based analysis")
+    pass
+
+def benjamini_hochberg(p_values):
+    """
+    Apply Benjamini-Hochberg correction to a list of p-values.
+    Returns adjusted p-values.
+    """
+    m = len(p_values)
+    if m == 0:
+        return []
     
-    # Calculate entropy
-    df_with_entropy = calculate_shannon_entropy(df)
+    # Sort p-values and keep track of original indices
+    sorted_indices = np.argsort(p_values)
+    sorted_pvals = np.array(p_values)[sorted_indices]
     
-    # Filter zero kloc
-    df_with_entropy = filter_zero_kloc(df_with_entropy)
+    # Calculate BH adjusted p-values
+    # rank is 1-based
+    ranks = np.arange(1, m + 1)
+    # BH formula: p_adj = p * m / rank
+    # Ensure monotonicity (cumulative min from the end)
+    adj_pvals = sorted_pvals * m / ranks
     
-    if len(df_with_entropy) < 10:
-        logger.warning(f"Insufficient data for entropy analysis ({len(df_with_entropy)} rows).")
-        return {}
+    # Enforce monotonicity: p_adj[i] = min(p_adj[i], p_adj[i+1], ..., p_adj[m])
+    # We iterate backwards
+    for i in range(m - 2, -1, -1):
+        adj_pvals[i] = min(adj_pvals[i], adj_pvals[i+1])
     
-    logger.info(f"Fitting entropy model with {len(df_with_entropy)} rows")
+    # Clip to 1.0
+    adj_pvals = np.clip(adj_pvals, 0, 1.0)
     
-    # Fit model with shannon_entropy instead of unique_authors
-    model_res = fit_negative_binomial_glm(
-        df_with_entropy,
-        dependent_var='cve_count',
-        independent_vars=['shannon_entropy', 'project_age', 'release_count'],
-        offset_var='kloc',
-        use_entropy=True
-    )
+    # Map back to original order
+    final_adj_pvals = np.empty(m)
+    final_adj_pvals[sorted_indices] = adj_pvals
     
-    # Apply BH correction
-    adj_p = benjamini_hochberg(model_res["p_values"])
+    return final_adj_pvals.tolist()
+
+def aggregate_and_correct():
+    """
+    T023 Implementation:
+    1. Load robustness_subsample_pvalues.csv (from T021)
+    2. Load robustness_entropy_pvalues.csv (from T022)
+    3. Combine all p-values into a single list.
+    4. Apply Benjamini-Hochberg correction globally.
+    5. Update data/processed/robustness_results.json with adjusted p-values.
+    """
+    ensure_directories()
     
-    return extract_results(model_res, adj_p)
+    subsample_path = Path("data/processed/robustness_subsample_pvalues.csv")
+    entropy_path = Path("data/processed/robustness_entropy_pvalues.csv")
+    results_path = Path("data/processed/robustness_results.json")
+
+    # Check dependencies
+    if not subsample_path.exists():
+        raise FileNotFoundError(f"Dependency missing: {subsample_path}. Run T021 first.")
+    if not entropy_path.exists():
+        raise FileNotFoundError(f"Dependency missing: {entropy_path}. Run T022 first.")
+
+    logger.info("Aggregating p-values from subsample and entropy analyses...")
+
+    # Load subsample p-values
+    df_sub = pd.read_csv(subsample_path)
+    # Expected columns: language, predictor, pvalue (based on T021 description)
+    # We need to be flexible with column names, looking for 'pvalue' or 'p_value'
+    pval_col_sub = 'pvalue' if 'pvalue' in df_sub.columns else 'p_value'
+    if pval_col_sub not in df_sub.columns:
+        raise ValueError(f"Could not find p-value column in {subsample_path}")
+    
+    subsample_pvals = df_sub[pval_col_sub].tolist()
+    subsample_rows = df_sub.to_dict(orient='records') # Keep context for output
+
+    # Load entropy p-values
+    df_ent = pd.read_csv(entropy_path)
+    pval_col_ent = 'pvalue' if 'pvalue' in df_ent.columns else 'p_value'
+    if pval_col_ent not in df_ent.columns:
+        raise ValueError(f"Could not find p-value column in {entropy_path}")
+    
+    entropy_pvals = df_ent[pval_col_ent].tolist()
+    entropy_rows = df_ent.to_dict(orient='records')
+
+    # Combine all p-values
+    all_pvals = subsample_pvals + entropy_pvals
+    logger.info(f"Total p-values to correct: {len(all_pvals)}")
+
+    if len(all_pvals) == 0:
+        logger.warning("No p-values found to correct.")
+        adjusted_pvals = []
+    else:
+        # Apply BH correction
+        adjusted_pvals = benjamini_hochberg(all_pvals)
+        logger.info("Benjamini-Hochberg correction applied globally.")
+
+    # Reconstruct the full result list with adjusted p-values
+    # We need to map the adjusted p-values back to the original rows
+    results_list = []
+    
+    idx = 0
+    for row in subsample_rows:
+        row['pvalue_adjusted'] = adjusted_pvals[idx]
+        row['correction_method'] = 'Benjamini-Hochberg (Global)'
+        results_list.append(row)
+        idx += 1
+    
+    for row in entropy_rows:
+        row['pvalue_adjusted'] = adjusted_pvals[idx]
+        row['correction_method'] = 'Benjamini-Hochberg (Global)'
+        results_list.append(row)
+        idx += 1
+
+    # Prepare final JSON structure
+    output_data = {
+        'summary': {
+            'total_tests': len(all_pvals),
+            'correction_method': 'Benjamini-Hochberg (Global)',
+            'significant_at_0.05': sum(1 for p in adjusted_pvals if p < 0.05)
+        },
+        'results': results_list
+    }
+
+    # Write to JSON
+    with open(results_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    logger.info(f"Updated robustness results saved to {results_path}")
+    return output_data
 
 def main():
     """
-    Main function to run robustness checks and generate the final JSON output.
+    Entry point for T023: Global BH Correction.
     """
-    logger.info("Starting robustness analysis (T024)")
-    
-    # Ensure directories exist
-    ensure_directories()
-    
-    # Load data
-    df = load_data()
-    
-    # Run subsample analysis
-    subsample_results = run_subsample_analysis(df)
-    
-    # Run entropy analysis
-    entropy_results = run_entropy_analysis(df)
-    
-    # Compile final results
-    final_results = {
-        "subsample_analysis": subsample_results,
-        "entropy_analysis": entropy_results,
-        "metadata": {
-            "total_repos_analyzed": len(df),
-            "languages_processed": list(subsample_results.keys()),
-            "timestamp": pd.Timestamp.now().isoformat()
-        }
-    }
-    
-    # Write output
-    output_path = Path("data/processed/robustness_results.json")
-    with open(output_path, 'w') as f:
-        json.dump(final_results, f, indent=2)
-    
-    logger.info(f"Robustness results written to {output_path}")
-    print(f"Success: Generated {output_path}")
+    logger.info("Starting T023: Global Benjamini-Hochberg Correction")
+    try:
+        result = aggregate_and_correct()
+        logger.info("T023 completed successfully.")
+        return result
+    except Exception as e:
+        logger.error(f"T023 failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

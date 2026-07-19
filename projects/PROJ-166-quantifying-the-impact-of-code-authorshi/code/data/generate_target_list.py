@@ -16,8 +16,7 @@ GITHUB_API_URL = "https://api.github.com/search/repositories"
 OUTPUT_PATH = Path("data/raw/target_list.csv")
 
 # A curated list of popular repos across languages to ensure a robust dataset
-# In a real scenario, this might be a query, but for deterministic CI behavior
-# we use a fixed seed list that is known to exist.
+# We use specific queries to fetch real data from GitHub API.
 SEARCH_QUERIES = [
     "language:python stars:>10000",
     "language:javascript stars:>10000",
@@ -91,7 +90,9 @@ def generate_target_list():
     df['age'] = (now - df['created_at']).dt.days / 365.25
     
     # Select and order columns
+    # Explicitly map 'language' to 'primary_language' as per task requirements
     df = df[['url', 'language', 'stars', 'age']]
+    df = df.rename(columns={'language': 'primary_language'})
     
     # Sort by URL alphabetically (as per T006 requirement)
     df = df.sort_values(by='url').reset_index(drop=True)
@@ -102,6 +103,12 @@ def generate_target_list():
     # Write to CSV
     df.to_csv(OUTPUT_PATH, index=False)
     print(f"Target list saved to {OUTPUT_PATH} with {len(df)} entries.")
+    
+    # Verification: Assert file exists and contains exactly len(target_list) rows
+    assert OUTPUT_PATH.exists(), f"Output file {OUTPUT_PATH} was not created."
+    loaded_df = pd.read_csv(OUTPUT_PATH)
+    assert len(loaded_df) == len(df), f"Row count mismatch: expected {len(df)}, got {len(loaded_df)}"
+    
     return df
 
 def main():

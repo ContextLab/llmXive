@@ -1,0 +1,604 @@
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: pipeline processes at least 500 repos within 6 hours
+  claim_id: c_20333dc2
+  context: "T030 [P] Implement parallel processing in code/data/extract_github.py\
+    \ using multiprocessing with max_workers=2 (to match CI CPU limit) and a memory\
+    \ limit check (abort if RAM > 6GB). Ensure pipeline processes \u2265500 repos\
+    \ within 6 hours."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_processes_at_least_500_repos_within_6_hours
+  kind: magnitude
+  raw_text: "Ensure pipeline processes \u2265500 repos within 6 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:20:52Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: total time must be less than 6 hours or 21600 seconds
+  claim_id: c_c10b90bf
+  context: 'T027 [P] Create benchmark script tests/unit/test_performance.py to measure
+    time to process a full set of 500 repos. Output format: JSON with total_time_seconds.
+    Pass/fail threshold: Total time must be < 6 hours (21600 seconds).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1954: 342762'
+      source_id: Q2881721
+      url: https://www.wikidata.org/wiki/Q2881721
+      value: '342762'
+    filled: true
+  kind: magnitude
+  raw_text: Total time must be < 6 hours (21600 seconds).
+  resolved_value: '342762'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T07:21:01Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: multiprocessing max_workers set to 2
+  claim_id: c_7f06fd58
+  context: T030 [P] Implement parallel processing in code/data/extract_github.py using
+    multiprocessing with max_workers=2 (to match CI CPU limit) and a memory limit
+    check (abort if RAM > 6GB).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use multiprocessing with max_workers=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:21:19Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: abort if RAM exceeds 6GB
+  claim_id: c_0948c2c1
+  context: T030 [P] Implement parallel processing in code/data/extract_github.py using
+    multiprocessing with max_workers=2 (to match CI CPU limit) and a memory limit
+    check (abort if RAM > 6GB).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Abort_if_RAM_exceeds_6GB
+  kind: entity_fact
+  raw_text: Abort if RAM > 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:21:50Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: shallow clones since 2015-01-01
+  claim_id: c_cc249644
+  context: 'T008a [P] [US1] Implement code/data/extract_github.py (Part 1: Clone)
+    to perform shallow clones (--shallow-since=2015-01-01) for each repo in target_list.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform shallow clones with --shallow-since=2015-01-01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:22:08Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: dependencies pinned to pandas 2.1.0, statsmodels 0.14.0, scikit-learn
+    1.3.0, requests 2.31.0, gitpython 3.1.37, pyyaml 6.0.1, numpy 1.24.0, scipy 1.11.0,
+    pytest 7.4.0
+  claim_id: c_739c2122
+  context: 'T002 Initialize Python 3.11 project with pinned dependencies. Create requirements.txt
+    with exact versions: pandas==2.1.0, statsmodels==0.14.0, scikit-learn==1.3.0,
+    requests==2.31.0, gitpython==3.1.37, pyyaml==6.0.1, numpy==1.24.0, scipy==1.11.0,
+    pytest==7.4.0.'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Use pandas==2.1.0, statsmodels==0.14.0, scikit-learn==1.3.0, requests==2.31.0,
+    gitpython==3.1.37, pyyaml==6.0.1, numpy==1.24.0, scipy==1.11.0, pytest==7.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T07:22:08Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11
+  claim_id: c_4be6e6e8
+  context: T002 Initialize Python 3.11 project with pinned dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:22:24Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: black line-length 88 and flake8 max-line-length 88
+  claim_id: c_d84f867b
+  context: T003 [P] Configure linting and formatting tools. Create pyproject.toml
+    with [tool.black] (line-length=88) and .flake8 (max-line-length=88, exclude=venv)
+    files.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set black line-length=88 and flake8 max-line-length=88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:22:37Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: integration test uses 5-repo seed
+  claim_id: c_57ea0081
+  context: T012 [US1] Integration test for full pipeline on 5-repo seed in tests/integration/test_data_pipeline.py.
+    Run T006->T007->T008->T009 and assert output file exists with correct data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a 5-repo seed for the integration test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:23:06Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: benchmark measures time to process 500 repos
+  claim_id: c_37ad654b
+  context: T027 [P] Create benchmark script tests/unit/test_performance.py to measure
+    time to process a full set of 500 repos.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Measure time to process a full set of 500 repos.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:23:39Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: robustness subsampling by Python and JavaScript
+  claim_id: c_bb457b8c
+  context: 'T021 [US3] Implement code/analysis/robustness.py (Part 1: Subsampling)
+    to perform subsampling by language (Python, JavaScript) and re-fit GLMs using
+    the same offset and controls.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Robustness_subsampling_by_Python_and_JavaScript
+  kind: entity_fact
+  raw_text: Subsampling by language includes Python and JavaScript.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:23:49Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: Shannon entropy calculated as negative sum of p_i times log(p_i) for
+    unique commits
+  claim_id: c_e9ae8d34
+  context: 'T022 [US3] Implement code/analysis/robustness.py (Part 2: Shannon Entropy)
+    to calculate Shannon entropy for author contributions: H = -sum(p_i * log(p_i))
+    where p_i is the proportion of unique commits by author i.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shannon_entropy_calculated_as_negative_sum_of_p_i_times_log(
+  kind: entity_fact
+  raw_text: Calculate Shannon entropy using H = -sum(p_i * log(p_i)) where p_i is
+    the proportion of unique commits by author i.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:24:00Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: interaction term author_count times project_age tested
+  claim_id: c_dd6db024
+  context: 'T033 [P] [US3] Implement interaction term analysis in code/analysis/robustness.py
+    to test if the effect of diversity varies by project age (interaction: author_count
+    * project_age).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Interaction_term_author_count_times_project_age_tested
+  kind: entity_fact
+  raw_text: Test interaction term author_count * project_age.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:24:13Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: process at least 500 repos within 6 hours
+  claim_id: c_4302b990
+  context: "Ensure parallel processing in code/data/extract_github.py using multiprocessing\
+    \ with max_workers=2 and a memory limit check. Ensure pipeline processes \u2265\
+    500 repos within 6 hours."
+  evidence:
+    candidates:
+    - - Create account Log in Process at least
+      - 500.0
+    - - Process at least 500 repos within
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Process_at_least_500_repos_within_6_hours
+  kind: magnitude
+  raw_text: "Ensure pipeline processes \u2265500 repos within 6 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-19T07:29:14Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: raise ValueError if kloc or cve_count is null in repo_metrics.csv
+  claim_id: c_1bb8b3eb
+  context: Implement a validation function in code/data/merge_datasets.py that checks
+    repo_metrics.csv for null values in kloc and cve_count. If nulls are found, raise
+    a ValueError immediately.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raise_ValueError_if_kloc_or_cve_count_is_null_in_repo_metric
+  kind: entity_fact
+  raw_text: Implement a validation function that checks repo_metrics.csv for null
+    values in kloc and cve_count. If nulls are found, raise a ValueError immediately.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:29:30Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: exclude rows where kloc is zero
+  claim_id: c_afb54e6c
+  context: Strictly use log(kloc) as an offset. Exclude rows where kloc is zero (log(0)
+    undefined) with a warning log.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude rows where kloc is zero (log(0) undefined) with a warning log.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:29:45Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg correction to main model p-values
+  claim_id: c_4df8ebc4
+  context: Calculate VIF for all predictors. Apply Benjamini-Hochberg correction to
+    the main model p-values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_correction_to_main_model_p-values
+  kind: entity_fact
+  raw_text: Apply Benjamini-Hochberg correction to the main model p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:30:11Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: perform subsampling by Python and JavaScript languages and re-fit GLMs
+  claim_id: c_da4b0209
+  context: 'Implement code/analysis/robustness.py (Part 1: Subsampling) to perform
+    subsampling by language (Python, JavaScript) and re-fit GLMs using the same offset
+    and controls.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_subsampling_by_Python_and_JavaScript_languages_and_r
+  kind: entity_fact
+  raw_text: Perform subsampling by language (Python, JavaScript) and re-fit GLMs using
+    the same offset and controls.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:30:28Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: calculate Shannon entropy for author contributions as sum of negative
+    p_i times log p_i
+  claim_id: c_33a152d1
+  context: 'Implement code/analysis/robustness.py (Part 2: Shannon Entropy) to calculate
+    Shannon entropy for author contributions: H = -sum(p_i * log(p_i)) where p_i is
+    the proportion of unique commits by author i.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Shannon_entropy_for_author_contributions_as_sum_of
+  kind: entity_fact
+  raw_text: 'Calculate Shannon entropy for author contributions: H = -sum(p_i * log(p_i))
+    where p_i is the proportion of unique commits by author i.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:30:49Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: test interaction between author_count and project_age
+  claim_id: c_b6d6e34e
+  context: 'Implement interaction term analysis in code/analysis/robustness.py to
+    test if the effect of diversity varies by project age (interaction: author_count
+    * project_age).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_interaction_between_author_count_and_project_age
+  kind: entity_fact
+  raw_text: Test if the effect of diversity varies by project age using interaction
+    term author_count * project_age.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:31:19Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: use max_workers of 2 for multiprocessing
+  claim_id: c_940b2ca4
+  context: Implement parallel processing in code/data/extract_github.py using multiprocessing
+    with max_workers=2 (to match CI CPU limit) and a memory limit check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use max_workers=2 to match CI CPU limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:31:30Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: abort pipeline if RAM exceeds 6GB
+  claim_id: c_b159087c
+  context: Implement parallel processing in code/data/extract_github.py using multiprocessing
+    with max_workers=2 and a memory limit check (abort if RAM > 6GB).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Abort_pipeline_if_RAM_exceeds_6GB
+  kind: entity_fact
+  raw_text: Abort if RAM usage exceeds 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:32:03Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: Pipeline processes at least 500 repos within 6 hours
+  claim_id: c_add75c35
+  context: "Task T030: Implement parallel processing in code/data/extract_github.py\
+    \ using multiprocessing with max_workers=2 (to match CI CPU limit) and a memory\
+    \ limit check (abort if RAM > 6GB). Ensure pipeline processes \u2265500 repos\
+    \ within 6 hours."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_processes_at_least_500_repos_within_6_hours
+  kind: magnitude
+  raw_text: "Ensure pipeline processes \u2265500 repos within 6 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:38:15Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: Use multiprocessing with max_workers=2 and 6GB RAM limit
+  claim_id: c_d21b3125
+  context: "Task T030: Implement parallel processing in code/data/extract_github.py\
+    \ using multiprocessing with max_workers=2 (to match CI CPU limit) and a memory\
+    \ limit check (abort if RAM > 6GB). Ensure pipeline processes \u2265500 repos\
+    \ within 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use multiprocessing with max_workers=2 (to match CI CPU limit) and a memory
+    limit check (abort if RAM > 6GB).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:38:28Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: Shannon entropy formula H = -sum(p_i * log(p_i)) for unique commit proportions
+  claim_id: c_6f8f25b7
+  context: 'Task T022: Implement code/analysis/robustness.py (Part 2: Shannon Entropy)
+    to calculate Shannon entropy for author contributions: H = -sum(p_i * log(p_i))
+    where p_i is the proportion of unique commits by author i.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shannon_entropy_formula_H_%3D_-sum(p_i_*_log(p_i))_for_unique
+  kind: entity_fact
+  raw_text: 'Calculate Shannon entropy for author contributions: H = -sum(p_i * log(p_i))
+    where p_i is the proportion of unique commits by author i.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:38:30Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: pipeline processes 500 repos within 6 hours
+  claim_id: c_e91d22c4
+  context: "Ensure pipeline processes \u2265500 repos within 6 hours. Ensure parallel\
+    \ processing in code/data/extract_github.py using multiprocessing with max_workers=2\
+    \ (to match CI CPU limit) and a memory limit check (abort if RAM > 6GB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure pipeline processes \u2265500 repos within 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:39:32Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: multiprocessing max_workers 2
+  claim_id: c_a669bf9e
+  context: Implement parallel processing in code/data/extract_github.py using multiprocessing
+    with max_workers=2 (to match CI CPU limit) and a memory limit check (abort if
+    RAM > 6GB).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use multiprocessing with max_workers=2 to match CI CPU limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:39:48Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: abort if RAM > 6GB
+  claim_id: c_f5f3b978
+  context: Implement parallel processing in code/data/extract_github.py using multiprocessing
+    with max_workers=2 (to match CI CPU limit) and a memory limit check (abort if
+    RAM > 6GB).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/abort_if_RAM_%3E_6GB
+  kind: entity_fact
+  raw_text: Abort if RAM usage exceeds 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:39:49Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: shallow clone since 2015-01-01
+  claim_id: c_52eb7929
+  context: 'Implement code/data/extract_github.py (Part 1: Clone) to perform shallow
+    clones (--shallow-since=2015-01-01) for each repo in target_list.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform shallow clones with --shallow-since=2015-01-01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:39:49Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: Python 3.11 dependencies pinned
+  claim_id: c_927f2f49
+  context: 'Initialize Python 3.11 project with pinned dependencies. Create requirements.txt
+    with exact versions: pandas==2.1.0, statsmodels==0.14.0, scikit-learn==1.3.0,
+    requests==2.31.0, gitpython==3.1.37, pyyaml==6.0.1, numpy==1.24.0, scipy==1.11.0,
+    pytest==7.4.0.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Python 3.11 project initialized with pandas==2.1.0, statsmodels==0.14.0,
+    scikit-learn==1.3.0, requests==2.31.0, gitpython==3.1.37, pyyaml==6.0.1, numpy==1.24.0,
+    scipy==1.11.0, pytest==7.4.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T07:39:49Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: black line-length 88
+  claim_id: c_4fc85e3f
+  context: Configure linting and formatting tools. Create pyproject.toml with [tool.black]
+    (line-length=88) and .flake8 (max-line-length=88, exclude=venv) files.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Black line-length configured to 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:40:13Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: flake8 max-line-length 88
+  claim_id: c_f685fe76
+  context: Configure linting and formatting tools. Create pyproject.toml with [tool.black]
+    (line-length=88) and .flake8 (max-line-length=88, exclude=venv) files.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flake8 max-line-length configured to 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:40:35Z'

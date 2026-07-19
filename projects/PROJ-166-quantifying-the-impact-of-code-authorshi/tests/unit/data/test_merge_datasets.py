@@ -1,83 +1,43 @@
-import pytest
 import pandas as pd
-from code.data.merge_datasets import merge_datasets
-
+import pytest
+from data.merge_datasets import merge_datasets
 
 def test_url_matching():
     """
-    Mock NVD data and assert exact match logic works and ambiguous matches are ignored.
+    Test that exact URL matching works correctly and ambiguous matches are ignored.
+    Mock NVD data and target list, then assert exact match logic.
     """
-    # Target list data
-    target_df = pd.DataFrame({
-        'url': [
-            'https://github.com/org/exact-match-repo',
-            'https://github.com/org/ambiguous-repo',
-            'https://github.com/org/no-match-repo'
-        ],
-        'language': ['Python', 'JavaScript', 'Go'],
-        'stars': [100, 200, 50],
-        'age': [1000, 2000, 3000]
+    # Mock target list
+    target_list = pd.DataFrame({
+        'url': ['https://github.com/org/repo1', 'https://github.com/org/repo2', 'https://github.com/org/repo3'],
+        'primary_language': ['Python', 'JavaScript', 'Java'],
+        'unique_authors': [10, 20, 30],
+        'kloc': [1.5, 2.5, 3.5]
     })
 
-    # NVD CVE data (simulated)
-    # Only has exact match for the first repo
-    nvd_df = pd.DataFrame({
-        'url': [
-            'https://github.com/org/exact-match-repo',
-            'https://github.com/org/ambiguous-repo-suffix' # Ambiguous (substring)
-        ],
-        'cve_id': ['CVE-2023-1234', 'CVE-2023-5678'],
-        'summary': ['Test CVE 1', 'Test CVE 2']
+    # Mock NVD CVE data (with exact and ambiguous matches)
+    nvd_data = pd.DataFrame({
+        'url': ['https://github.com/org/repo1', 'https://github.com/org/repo11', 'https://github.com/org/repo2'],
+        'cve_count': [5, 3, 2]
     })
 
-    # Expected result after merge:
-    # - exact-match-repo: cve_count = 1 (exact match found)
-    # - ambiguous-repo: cve_count = 0 (no exact match, ambiguous suffix ignored)
-    # - no-match-repo: cve_count = 0 (no match)
-    
-    # We need to mock the internal counting logic or call merge_datasets
-    # Since merge_datasets likely does the join, let's test the logic
-    # by constructing the expected behavior manually if the function is complex.
-    # However, the task asks to assert the logic works.
-    
-    # Let's simulate the merge logic:
-    # 1. Group NVD by URL and count
-    nvd_counts = nvd_df.groupby('url').size().reset_index(name='cve_count')
-    
-    # 2. Merge on exact URL
-    merged = target_df.merge(nvd_counts, on='url', how='left')
-    merged['cve_count'] = merged['cve_count'].fillna(0).astype(int)
-    
-    # Verify results
-    assert merged.loc[merged['url'] == 'https://github.com/org/exact-match-repo', 'cve_count'].iloc[0] == 1
-    assert merged.loc[merged['url'] == 'https://github.com/org/ambiguous-repo', 'cve_count'].iloc[0] == 0
-    assert merged.loc[merged['url'] == 'https://github.com/org/no-match-repo', 'cve_count'].iloc[0] == 0
+    # Expected result:
+    # - repo1: exact match -> cve_count = 5
+    # - repo2: exact match -> cve_count = 2
+    # - repo3: no match -> cve_count = 0
+    # - repo11: ambiguous (substring) -> should be ignored (not merged)
 
-    # Verify that the ambiguous suffix was NOT matched
-    # If it were matched (substring), 'ambiguous-repo' might have a count > 0 if logic was wrong
-    assert not merged['url'].str.contains('ambiguous-repo-suffix').any(), "Ambiguous match should not be in target list"
+    merged_df = merge_datasets(target_list, nvd_data)
 
-def test_ambiguous_matches_ignored():
-    """
-    Specific test to ensure substring matches do not inflate CVE counts.
-    """
-    target_df = pd.DataFrame({
-        'url': ['https://github.com/org/project'],
-        'language': ['Python'],
-        'stars': [10],
-        'age': [100]
-    })
+    # Assert exact matches are present
+    assert merged_df.loc[merged_df['url'] == 'https://github.com/org/repo1', 'cve_count'].values[0] == 5
+    assert merged_df.loc[merged_df['url'] == 'https://github.com/org/repo2', 'cve_count'].values[0] == 2
 
-    # NVD has a CVE for a slightly different URL
-    nvd_df = pd.DataFrame({
-        'url': ['https://github.com/org/project-legacy'],
-        'cve_id': ['CVE-2023-9999'],
-        'summary': ['Old CVE']
-    })
+    # Assert no match gets cve_count = 0
+    assert merged_df.loc[merged_df['url'] == 'https://github.com/org/repo3', 'cve_count'].values[0] == 0
 
-    nvd_counts = nvd_df.groupby('url').size().reset_index(name='cve_count')
-    merged = target_df.merge(nvd_counts, on='url', how='left')
-    merged['cve_count'] = merged['cve_count'].fillna(0).astype(int)
+    # Assert ambiguous match (repo11) is not in the merged dataframe
+    assert 'https://github.com/org/repo11' not in merged_df['url'].values
 
-    # Should be 0 because 'project' != 'project-legacy'
-    assert merged['cve_count'].iloc[0] == 0, "Substring match should be ignored"
+    # Assert the number of rows is the same as the target list (no new rows added)
+    assert len(merged_df) == len(target_list)

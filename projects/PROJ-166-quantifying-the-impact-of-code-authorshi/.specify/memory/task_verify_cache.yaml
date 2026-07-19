@@ -1,20 +1,42 @@
-T023:
+T006:
+  c: false
+  h: 689260447686c41011d9ebdd4d2f83f90ca4a9a055e065accd36a4e211bca0d0
+  r: The `data/raw/target_list.csv` file does not exist, and the provided `generate_target_list.py`
+    is truncated before it maps `language` to `primary_language`, sorts by `url`,
+    writes the CSV, and asserts row count. These required steps and the output artifact
+    are missing.
+T008c:
+  c: false
+  h: c974f872ea1fd158683ec77be2096e025ca553d1dc7de5b8ef1a47e181a00ac8
+  r: The repository contains `code/data/extract_github.py`, but the file is truncated
+    in the provided view and does not clearly show the required cloc execution, KLOC
+    calculation, or merging logic. Moreover, the required output `data/processed/github_raw_metrics.csv`
+    is absent. Both the implementation and the expected output artifact are missing.
+T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., script, notebook, or output file) showing the Benjamini\u2011\
-    Hochberg correction applied to the p\u2011values from the subsample and entropy\
-    \ models was provided. Without a concrete corrected\u2011p\u2011values dataset\
-    \ or code implementing the correction, the task requirement is not satisfied."
-T025:
+  r: No unit test files, test code, or any other artifacts were presented; the evidence
+    section contains no concrete test implementations or files to verify the data
+    ingestion logic. Consequently, the requirement to create unit tests for the ingestion
+    pipeline is not satisfied.
+T017:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md file or its contents were provided, so we cannot confirm that a
-    CLI usage section, a Methods section describing the GLM offset approach, and a
-    Data section were added as required. The implementer must supply the updated README.md
-    showing these three sections.
-T028:
+  h: 9477dde394f00537a2b30d4c11419b3175a664e4e7f0517c77aac594a08529e2
+  r: "The `fit_models.py` file is truncated and does not show any model fitting, offset\
+    \ handling, Benjamini\u2011Hochberg correction, or JSON writing logic, and the\
+    \ required output file `data/processed/model_results.json` is missing. The implementation\
+    \ therefore does not meet the task\u2019s specifications."
+T021:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No unit test files or code were presented under `tests/unit/analysis/`; the\
-    \ claim provides only the task description without any actual test artifacts,\
-    \ so the required additional edge\u2011case tests are missing."
+  h: 9caefd0f123a116c6360f9e3a3df3ce2f8f74af789488bd77daee1a934625d16
+  r: "The `robustness.py` script does not contain any implementation of language\u2011\
+    based subsampling or code that writes raw p\u2011values to `data/processed/robustness_subsample_pvalues.csv`.\
+    \ Moreover, the required CSV file is absent from the repository. The task\u2019\
+    s core requirement is therefore unmet."
+T022:
+  c: false
+  h: 1057a6573a9e76735501284608d49d21a45c084e7895d4812912e2620a22bb55
+  r: "The provided `robustness.py` contains only placeholder stubs for entropy calculation\
+    \ and does not compute Shannon entropy, re\u2011fit a GLM with entropy as predictor,\
+    \ or compute/report the coefficient difference. Moreover, the required output\
+    \ file `data/processed/robustness_entropy_pvalues.csv` is absent."

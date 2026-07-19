@@ -1,234 +1,131 @@
 # Quantifying the Impact of Code Authorship Diversity on Software Security
 
-This project investigates the relationship between code authorship diversity (number of unique contributors) and software security (vulnerability counts), controlling for project size (KLOC) and other factors.
-
-## Table of Contents
-
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Data Pipeline](#data-pipeline)
-- [Analysis & Modeling](#analysis--modeling)
-- [CLI Usage](#cli-usage)
-- [Methods](#methods)
- - [GLM Offset Approach](#glm-offset-approach)
- - [Statistical Controls](#statistical-controls)
-- [Data](#data)
- - [Raw Data Sources](#raw-data-sources)
- - [Processed Data](#processed-data)
-- [Project Structure](#project-structure)
-- [Testing](#testing)
+This project implements a research pipeline to analyze the relationship between code authorship diversity and software vulnerability counts. It ingests data from GitHub and the NVD/CVE database, performs statistical modeling using Generalized Linear Models (GLM), and conducts robustness checks.
 
 ## Prerequisites
 
 - Python 3.11+
-- Git
-- `cloc` (version >= 1.88)
-- Access to GitHub API (token required)
-- Access to NVD API (optional, for CVE data)
+- `cloc` (for lines of code analysis)
+- `git` (for repository cloning and log parsing)
+- A GitHub Personal Access Token (optional, for higher rate limits)
 
 ## Installation
 
 1. Clone the repository:
  ```bash
- git clone
- cd quantifying-authorship-diversity
+ git clone <repository-url>
+ cd <repository-name>
  ```
 
-2. Create a virtual environment and install dependencies:
+2. Create and activate a virtual environment:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. Install dependencies:
+ ```bash
  pip install -r requirements.txt
  ```
 
-3. Set up environment variables:
- ```bash
- export GITHUB_TOKEN=your_github_token_here
- ```
+## CLI Usage
 
-## Data Pipeline
+The pipeline is executed via a series of Python scripts located in the `code/` directory. Run them in the order specified below.
 
-The data pipeline consists of several stages to collect, process, and merge data from GitHub and the National Vulnerability Database (NVD).
-
-### Step 1: Generate Target List
-Fetches a list of target repositories based on criteria (e.g., stars, language).
+### 1. Generate Target List
+Fetches the list of repositories to analyze from the GitHub API.
 ```bash
 python code/data/generate_target_list.py
 ```
-Output: `data/raw/target_list.csv`
+**Output**: `data/raw/target_list.csv`
 
-### Step 2: Download NVD Data
-Downloads and merges CVE data from the NVD.
+### 2. Download NVD Data
+Downloads and merges historical NVD/CVE JSON feeds.
 ```bash
 python code/data/download_nvd.py
 ```
-Output: `data/raw/nvd_cve_merged.json.gz` and checksum file.
+**Output**: `data/raw/nvd_cve_merged.json.gz` and checksum file.
 
-### Step 3: Extract GitHub Metrics
-Clones repositories, parses git logs for author counts, and runs `cloc` for KLOC.
+### 3. Extract GitHub Metrics
+Clones repositories, parses commit logs for author counts, and runs `cloc` for lines of code.
 ```bash
 python code/data/extract_github.py
 ```
-Output: `data/processed/github_raw_metrics.csv`
+**Output**: `data/processed/github_raw_metrics.csv`
 
-### Step 4: Merge Datasets
-Joins GitHub metrics with NVD CVE counts.
+### 4. Merge Datasets
+Joins GitHub metrics with NVD CVE counts using exact URL matching.
 ```bash
 python code/data/merge_datasets.py
 ```
-Output: `data/processed/repo_metrics.csv`
+**Output**: `data/processed/repo_metrics.csv`
 
-## Analysis & Modeling
-
-### Fit Statistical Models
-Fits a Negative Binomial GLM to predict vulnerability counts.
+### 5. Fit Statistical Models
+Fits a Negative-Binomial GLM to predict vulnerability counts.
 ```bash
 python code/analysis/fit_models.py
 ```
-Output: `data/processed/model_results.json`
+**Output**: `data/processed/model_results.json`
 
-### Robustness Checks
-Performs subsampling by language and alternative diversity metrics (Shannon entropy).
+### 6. Robustness Analysis
+Performs subsampling by language and entropy-based sensitivity analysis.
 ```bash
 python code/analysis/robustness.py
 ```
-Output: `data/processed/robustness_results.json`
-
-## CLI Usage
-
-The project provides several entry points for running the pipeline components.
-
-### Run the Full Pipeline
-Execute all data ingestion and analysis steps in sequence:
-```bash
-bash scripts/run_full_pipeline.sh
-```
-
-### Run Specific Components
-- **Target List Generation**:
- ```bash
- python -m code.data.generate_target_list
- ```
-- **NVD Download**:
- ```bash
- python -m code.data.download_nvd
- ```
-- **GitHub Extraction**:
- ```bash
- python -m code.data.extract_github
- ```
-- **Data Merging**:
- ```bash
- python -m code.data.merge_datasets
- ```
-- **Model Fitting**:
- ```bash
- python -m code.analysis.fit_models
- ```
-- **Robustness Analysis**:
- ```bash
- python -m code.analysis.robustness
- ```
-
-### Configuration
-Configuration is handled via `code/config.py`. Environment variables can override specific settings:
-- `GITHUB_TOKEN`: GitHub API token
-- `NVD_API_KEY`: NVD API key (if required)
-- `OUTPUT_DIR`: Base directory for output files (default: `data/`)
+**Output**: `data/processed/robustness_results.json`
 
 ## Methods
 
-### GLM Offset Approach
+### Statistical Modeling Approach
 
-To analyze the relationship between authorship diversity and vulnerability counts while controlling for project size, we employ a Generalized Linear Model (GLM) with a Negative Binomial distribution.
+The core analysis uses a **Negative-Binomial Generalized Linear Model (GLM)** to model the count of vulnerabilities (`cve_count`) as a function of code authorship diversity (`unique_authors`) and control variables.
 
-The model is specified as:
+#### The Offset Approach
+To normalize for project size, we use the natural logarithm of the Lines of Code (KLOC) as an **offset** term in the model. This is mathematically equivalent to modeling the *rate* of vulnerabilities per unit of code, rather than the raw count.
 
-$$ \log(\mathbb{E}[CVE\_Count]) = \beta_0 + \beta_1 \cdot \text{AuthorCount} + \sum \beta_i \cdot \text{Controls}_i + \log(\text{KLOC}) $$
+The model specification is:
+$$ \log(E[Y]) = \beta_0 + \beta_1 X_1 + \dots + \beta_k X_k + \log(\text{KLOC}) $$
 
 Where:
-- **Response Variable**: `CVE_Count` (number of vulnerabilities).
-- **Primary Predictor**: `AuthorCount` (number of unique contributors).
-- **Controls**: Project age, release count, and language dummies.
-- **Offset**: $\log(\text{KLOC})$.
+- $Y$ is the vulnerability count (response variable).
+- $X_i$ are the predictors (e.g., author count, project age).
+- $\log(\text{KLOC})$ is the offset with a fixed coefficient of 1.
+- The link function is the log link.
 
-**Why use an offset?**
-Using `log(KLOC)` as an offset (rather than a standard predictor) normalizes the vulnerability count by project size. This allows us to model the *rate* of vulnerabilities per thousand lines of code, rather than the raw count. It assumes that the expected number of vulnerabilities scales linearly with the size of the codebase, isolating the effect of authorship diversity on the vulnerability rate.
+By including `log(KLOC)` as an offset, the coefficient $\beta_1$ for author count represents the multiplicative change in the *vulnerability rate* for a one-unit increase in author count, holding other factors constant.
 
-Rows with `KLOC = 0` are excluded from the analysis because $\log(0)$ is undefined.
-
-### Statistical Controls
-
-- **Multicollinearity**: Variance Inflation Factors (VIF) are calculated for all predictors to detect multicollinearity.
-- **Multiple Testing**: Benjamini-Hochberg correction is applied to p-values to control the False Discovery Rate (FDR) across multiple hypothesis tests.
-- **Robustness**: Sensitivity analyses are performed by:
- 1. Subsampling data by programming language (Python, JavaScript).
- 2. Replacing `AuthorCount` with Shannon Entropy of author contributions.
+#### Model Selection
+- **Distribution**: Negative-Binomial (chosen over Poisson to handle overdispersion common in vulnerability count data).
+- **Inference**: P-values are adjusted using the Benjamini-Hochberg procedure to control the False Discovery Rate (FDR).
+- **Diagnostics**: Variance Inflation Factor (VIF) is calculated to check for multicollinearity among predictors.
 
 ## Data
 
-### Raw Data Sources
+### Data Sources
+1. **GitHub API**: Used to identify target repositories and extract metadata (stars, language, age).
+2. **Git Repositories**: Shallow clones (since 2015-01-01) are used to parse `git log` for unique author counts and `cloc` for code volume.
+3. **NVD/CVE Database**: Historical JSON feeds are downloaded and merged to count vulnerabilities associated with each repository.
 
-1. **GitHub API**: Used to fetch repository metadata (stars, language, age) and commit history.
- - **Artifact**: `data/raw/target_list.csv`
-2. **NVD/CVE Feeds**: Downloaded JSON feeds containing vulnerability data.
- - **Artifact**: `data/raw/nvd_cve_merged.json.gz`
-3. **Git Repositories**: Shallow clones of target repositories.
- - **Artifact**: Temporary clones during `extract_github.py` execution.
+### Data Pipeline
+The pipeline follows a strict ETL process:
+1. **Extraction**: Raw data is pulled from APIs and local clones.
+2. **Transformation**:
+ - Repositories with missing data (e.g., deleted, private) are skipped.
+ - CVEs are matched to repositories using **exact URL matching** to prevent false positives.
+ - Rows with zero KLOC are excluded from the modeling phase (log(0) undefined).
+3. **Loading**: Processed data is saved to `data/processed/` in CSV and JSON formats for analysis.
 
-### Processed Data
-
-1. **GitHub Metrics**: Extracted author counts and KLOC.
- - **File**: `data/processed/github_raw_metrics.csv`
- - **Columns**: `url`, `unique_authors`, `raw_line_count`, `kloc`
-2. **Merged Dataset**: Combined GitHub metrics with CVE counts.
- - **File**: `data/processed/repo_metrics.csv`
- - **Columns**: `url`, `language`, `unique_authors`, `kloc`, `cve_count`, `project_age`, `release_count`
-3. **Model Results**: Coefficients, standard errors, p-values, and confidence intervals.
- - **File**: `data/processed/model_results.json`
-4. **Robustness Results**: Subsample and entropy model outputs.
- - **File**: `data/processed/robustness_results.json`
-
-## Project Structure
-
-```
-.
-├── code/
-│ ├── __init__.py
-│ ├── config.py
-│ ├── data/
-│ │ ├── __init__.py
-│ │ ├── generate_target_list.py
-│ │ ├── download_nvd.py
-│ │ ├── extract_github.py
-│ │ ├── merge_datasets.py
-│ │ ├── schemas.py
-│ │ └── utils.py
-│ └── analysis/
-│ ├── __init__.py
-│ ├── fit_models.py
-│ ├── entropy_glm.py
-│ └── robustness.py
-├── data/
-│ ├── raw/
-│ └── processed/
-├── tests/
-│ ├── unit/
-│ ├── integration/
-│ └── contract/
-├── requirements.txt
-└── README.md
-```
+### Data Integrity
+All scripts are designed to fail loudly if real data sources are unreachable. No synthetic or placeholder data is generated.
 
 ## Testing
 
-Run the test suite using pytest:
-
+Run the unit and integration tests:
 ```bash
 pytest tests/
 ```
 
-Specific test categories:
-- **Unit Tests**: `pytest tests/unit/`
-- **Integration Tests**: `pytest tests/integration/`
-- **Contract Tests**: `pytest tests/contract/`
+Specific test suites:
+- `tests/unit/`: Unit tests for data ingestion and parsing.
+- `tests/contract/`: Schema validation tests.
+- `tests/integration/`: End-to-end pipeline tests on a seed dataset.

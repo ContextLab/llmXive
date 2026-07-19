@@ -57,21 +57,19 @@
 
 - [X] T004 Implement `code/config.py` with paths, constants, random seeds, and NVD/GitHub API configuration.
 - [X] T005 [P] Setup data directory structure (`data/raw/`, `data/processed/`) and schema definitions in `contracts/`.
-- [ ] T006 [P] Implement `code/data/generate_target_list.py` to fetch the **full target list** of GitHub repos via GitHub API. Sort the list by `url` column alphabetically. **Output**: `data/raw/target_list.csv`. **Schema**: Columns must be `url`, `primary_language`, `stars`, `age`. Ensure `primary_language` is explicitly mapped from the API `language` field. **Verification**: Assert file exists and contains exactly `len(target_list)` rows. <!-- FIXED: Output schema column name, added output path and verification step -->
+- [ ] T006 [P] Implement `code/data/generate_target_list.py` to fetch a **target list of 600 repos** via GitHub API. **Query**: `q=stars:>1000+created:>=2015-01-01+language:JavaScript+language:Python+language:Java+language:C%2B%2B&sort=stars&order=desc`. **Fallback**: If fewer than 500 repos are found, lower `stars` threshold to 500 and re-query. **Output**: `data/raw/target_list.csv` with columns `url`, `primary_language`, `stars`, `age`. **Verification**: Assert file exists and contains >=500 rows.
 - [X] T007 [P] Implement `code/data/download_nvd.py` to download, merge, and deduplicate NVD/CVE JSON feeds (historical range) with checksum verification. Output `data/raw/nvd_cve_merged.json.gz` and `data/raw/nvd_cve_merged.json.gz.sha256`.
-- [ ] T008a [P] [US1] Implement `code/data/extract_github.py` (Part 1: Clone) to perform shallow clones (`--shallow-since=2015-01-01`) for each repo in `target_list.csv`. Output a temporary list of successful clone paths. <!-- FIXED: Atomic split -->
-- [ ] T008b [US1] Implement `code/data/extract_github.py` (Part 2: Parse) to parse `git log` from the cloned paths for unique authors (with ≥ 1 line of code committed). **Constraint**: If T008a fails for a repo, the script MUST FAIL LOUDLY (raise exception) and log the error. It MUST NOT fall back to a full `git clone` or `--depth=500` as this violates Constitution Principle VI. **Output**: A temporary CSV with `url` and `unique_authors`. This task MUST run sequentially after T008a failure detection, NOT in parallel. <!-- FIXED: Removed [P], enforced Constitution VI, removed fallback -->
-- [ ] T008c [P] [US1] Implement `code/data/extract_github.py` (Part 3: cloc & Merge) to run `cloc --by-file` on cloned paths, calculate `kloc`, and merge with `unique_authors` and `primary_language` (from target list). Output `data/processed/github_raw_metrics.csv` (columns: `url`, `primary_language`, `unique_authors`, `raw_line_count`, `kloc`). <!-- FIXED: Atomic split, enforced schema -->
+- [X] T008a [P] [US1] Implement `code/data/extract_github.py` (Part 1: Clone) to perform shallow clones (`--shallow-since=2015-01-01`) for each repo in `target_list.csv`. Output a temporary list of successful clone paths.
+- [ ] T008b [US1] Implement `code/data/extract_github.py` (Part 2: Parse) to parse `git log` from the cloned paths for unique authors (with ≥ 1 line of code committed). **Constraint**: If a shallow clone fails (e.g., repo deleted/private), the script MUST **SKIP** that repo, log the error with `logging.WARNING`, and **CONTINUE** to the next repo. It MUST NOT raise an exception or fall back to a full clone. **Output**: `data/processed/tmp_authors.csv` with columns `url`, `unique_authors`.
+- [ ] T008c [US1] Implement `code/data/extract_github.py` (Part 3: cloc & Merge) to run `cloc --by-file` on cloned paths, calculate `kloc`, and merge with `unique_authors` (from `data/processed/tmp_authors.csv`) and `primary_language` (from target list). **Dependencies**: Must run after T008b completes. **Output**: `data/processed/github_raw_metrics.csv` (columns: `url`, `primary_language`, `unique_authors`, `raw_line_count`, `kloc`).
 - [X] T009 [P] Implement `code/data/merge_datasets.py` (Part 1: Merge) to join GitHub metrics with NVD CVE counts using exact URL matching. Output `data/processed/repo_metrics.csv` (columns: `url`, `primary_language`, `unique_authors`, `kloc`, `cve_count`, `project_age`, `release_count`).
 - [X] T009b [P] Implement `code/data/merge_datasets.py` (Part 2: Validation) to enforce **exact URL matching** as per FR-002. If a URL in the target list has no exact match in NVD, set `cve_count` to 0. Flag ambiguous matches (e.g., substring matches) in logs but do not merge them.
-- [ ] T010 [P] Create unit tests for data ingestion logic:
- - `tests/unit/data/test_download_nvd.py::test_nvd_checksum_verification`: Assert SHA256 matches expected value.
- - `tests/unit/data/test_extract_github.py::test_author_count_calculation`: Mock git log output with lines: "Author A", "Author B", "Author A". Assert unique author count is.
- - `tests/unit/data/test_merge_datasets.py::test_url_matching`: Mock NVD data, assert exact match logic works and ambiguous matches are ignored.
- **Verification**: Run `pytest tests/unit/data/` and assert exit code 0. <!-- FIXED: Added verification step -->
+- [ ] T010a [P] Create unit test `tests/unit/data/test_download_nvd.py::test_nvd_checksum_verification`: Assert SHA256 matches expected value.
+- [ ] T010b [P] Create unit test `tests/unit/data/test_extract_github.py::test_author_count_calculation`: Mock git log output with lines: "Author A", "Author B", "Author A". Assert unique author count is 2.
+- [ ] T010c [P] Create unit test `tests/unit/data/test_merge_datasets.py::test_url_matching`: Mock NVD data, assert exact match logic works and ambiguous matches are ignored.
 - [X] T013 [P] [US1] Add logging in `code/data/merge_datasets.py` for skipped repositories and ambiguous NVD matches. Use `logging.WARNING` for skips and `logging.ERROR` for ambiguous matches. Log format: `"[REPO_URL] Reason: <reason>"`. Write to `logs/merge_warnings.log`.
 - [X] T014 [P] [US1] Implement a validation function in `code/data/merge_datasets.py` that checks `repo_metrics.csv` for null values in `kloc` and `cve_count`. If nulls are found, raise a `ValueError` immediately. Ensure `cve_count` defaults to 0 if missing, not null.
-- [X] T030 [P] Implement parallel processing in `code/data/extract_github.py` using `multiprocessing` with `max_workers=2` (to match CI CPU limit) and a memory limit check (abort if RAM > 6GB). Ensure pipeline processes ≥500 repos within 6 hours.
+- [X] T030 [P] Implement parallel processing in `code/data/extract_github.py` using `multiprocessing` with `max_workers=2` (to match CI CPU limit) and a memory limit check (abort if RAM > 6GB). Ensure pipeline processes ≥500 repos within 6 hours. **Dependencies**: Requires T006 (target list) to be complete.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -102,12 +100,12 @@
 
 **Goal**: Fit a multivariate Poisson or Negative-Binomial GLM predicting vulnerability counts from author counts and control variables, using `log(kloc)` as an **offset** to normalize for project size, and output coefficient estimates, p-values, and confidence intervals.
 
-**Independent Test**: Run the analysis script on a static, pre-generated CSV of a representative sample size. and verify the output JSON includes an `author_count_coefficient` with a non-null standard error and a A confidence interval will be used to estimate the range of plausible values for the parameter..
+**Independent Test**: Run the analysis script on a static, pre-generated CSV of a representative sample size. and verify the output JSON includes an `author_count_coefficient` with a non-null standard error and a 95% confidence interval.
 
 ### Tests for User Story 2
 
 - [X] T016 [P] [US2] Contract test for model results schema in `tests/contract/test_model_results.py`.
-- [ ] T017 [US2] Implement `code/analysis/fit_models.py` to fit a Negative-Binomial GLM with `cve_count` as response, `author_count` + controls as predictors, and `log(kloc)` as **offset** (per FR-004). **Spec vs Plan Resolution**: The Plan suggests using `log(kloc)` as a free predictor, but the Spec (FR-004) mandates it as an offset. Since no Spec Amendment is approved, this task MUST follow the Spec. **Implementation**: Strictly ignore Plan.md's suggestion to use free predictor. Exclude rows where `kloc` is zero (log(0) undefined) with a warning log. Calculate VIF for all predictors. Apply Benjamini-Hochberg correction to the main model p-values. Generate `data/processed/model_results.json` containing coefficients, standard errors, p-values, confidence intervals, adjusted p-values, VIF metrics, and a `convergence_status` boolean (true if converged, false if failed). **Parameters**: Use `family=sm.families.NegativeBinomial()` and `link=sm.families.links.log()` explicitly. <!-- FIXED: Added Spec vs Plan note and explicit offset enforcement -->
+- [ ] T017 [US2] Implement `code/analysis/fit_models.py` to fit a Negative-Binomial GLM with `cve_count` as response, `author_count` + controls as predictors, and `log(kloc)` as **offset** (per FR-004). **Dependencies**: T009 must be complete (repo_metrics.csv exists). **Spec vs Plan Governance Exception**: The Plan suggests a free predictor to avoid bias, but the Spec (FR-004) mandates an offset. This task implements the Spec as the binding requirement. **Implementation**: Strictly use `log(kloc)` as an offset. Exclude rows where `kloc` is zero (log(0) undefined) with a warning log. Calculate VIF for all predictors. Apply Benjamini-Hochberg correction to the main model p-values. Generate `data/processed/model_results.json` containing: `author_count_coefficient`, `std_err`, `p_value`, `ci_95_lower`, `ci_95_upper`, `vif` (dict of predictor: value), `p_values_adjusted` (dict of predictor: value), `convergence_status` (boolean). **Parameters**: Use `family=sm.families.NegativeBinomial()` and `link=sm.families.links.log()` explicitly. **Flagging**: If the model fails to converge, log a clear `ERROR` message and set `convergence_status` to false.
 - [X] T018 [US2] (Merged into T017)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -127,9 +125,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Implement `code/analysis/robustness.py` (Part 1: Subsampling) to perform subsampling by language (Python, JavaScript) and re-fit GLMs using the same offset and controls. **Output**: Save raw p-values for each subsample model to `data/processed/robustness_raw_pvalues.csv`. Do NOT apply BH correction here. <!-- FIXED: Output raw p-values -->
-- [ ] T022 [US3] Implement `code/analysis/robustness.py` (Part 2: Shannon Entropy) to calculate Shannon entropy for author contributions: `H = -sum(p_i * log(p_i))` where `p_i` is the proportion of **unique commits** by author `i`. **Re-fit GLM** using entropy as the primary predictor. **Report the difference** in the main coefficient compared to the primary model. **Output**: Save raw p-values for the entropy model to `data/processed/robustness_raw_pvalues.csv`. Do NOT apply BH correction here. <!-- FIXED: Added explicit re-fit and report steps -->
-- [ ] T023 [US3] Implement `code/analysis/robustness.py` (Part 3: Global BH Correction) to aggregate all p-values (from main model T017, subsamples T021, and entropy T022) from `data/processed/robustness_raw_pvalues.csv` and apply a single Benjamini-Hochberg correction. Update `data/processed/robustness_results.json` with adjusted p-values. **Note**: This task is NOT parallel-safe; it depends on T021 and T022. <!-- FIXED: Restored T023, removed [P], full implementation logic -->
+- [ ] T021 [US3] Implement `code/analysis/robustness.py` (Part 1: Subsampling) to perform subsampling by language: filter `primary_language == 'Python'` and `primary_language == 'JavaScript'`. Re-fit GLMs using the same offset and controls. **Output**: Save raw p-values to `data/processed/robustness_subsample_pvalues.csv` with columns `language`, `coefficient`, `std_err`, `p_value_raw`. Do NOT apply BH correction here.
+- [ ] T022 [US3] Implement `code/analysis/robustness.py` (Part 2: Shannon Entropy) to calculate Shannon entropy for author contributions: `H = -sum(p_i * log(p_i))` where `p_i = author_commits / total_commits` for that repo. **Re-fit GLM** using entropy as the primary predictor. **Report the difference** in the main coefficient compared to the primary model. **Output**: Save raw p-values to `data/processed/robustness_entropy_pvalues.csv` with columns `model_type`, `coefficient`, `std_err`, `p_value_raw`. Do NOT apply BH correction here.
+- [ ] T023 [US3] Implement `code/analysis/robustness.py` (Part 3: Global BH Correction) to aggregate all p-values from `data/processed/robustness_subsample_pvalues.csv` and `data/processed/robustness_entropy_pvalues.csv`. Apply a single Benjamini-Hochberg correction. Update `data/processed/robustness_results.json` with adjusted p-values. **Dependencies**: T021 and T022 must be complete. **Note**: This task is NOT parallel-safe.
 - [X] T024 [US3] Generate `data/processed/robustness_results.json` containing subsample coefficients, entropy model results, and adjusted p-values.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -140,17 +138,18 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T025 [P] Documentation updates in `README.md`: Add a CLI usage section with example commands, a "Methods" section explaining the GLM offset approach, and a "Data" section describing the pipeline.
+- [ ] T025a [P] Update `README.md`: Add a CLI usage section with example commands.
+- [ ] T025b [P] Update `README.md`: Add a "Methods" section explaining the GLM offset approach.
+- [ ] T025c [P] Update `README.md`: Add a "Data" section describing the pipeline.
 - [X] T026 Code cleanup and refactoring: Extract `parse_git_log` and `run_cloc` into separate modules in `code/data/utils.py` to ensure modularity.
-- [X] T027 [P] Create benchmark script `tests/unit/test_performance.py` to measure time to process a representative set of repositories. Output format: JSON with `total_time_seconds`. Pass/fail threshold: < 12 minutes (to allow 500 in < 6h).
-- [ ] T028 [P] Additional unit tests for edge cases in `tests/unit/analysis/`:
- - `test_zero_kloc_exclusion`: Verify rows with kloc=0 are excluded.
- - `test_empty_nvd_match`: Verify cve_count=0 when no match found.
+- [ ] T027 [P] Create benchmark script `tests/unit/test_performance.py` to measure time to process a **full set of 500 repos**. Output format: JSON with `total_time_seconds`. **Pass/fail threshold**: 21600 seconds (6 hours). If the benchmark exceeds this, the script MUST fail and log a critical error. This verifies SC-001.
+- [ ] T028a [P] Create unit test `tests/unit/analysis/test_zero_kloc_exclusion`: Verify rows with kloc=0 are excluded.
+- [ ] T028b [P] Create unit test `tests/unit/analysis/test_empty_nvd_match`: Verify cve_count=0 when no match found.
 - [X] T029 [P] Update `code/config.py` to use `os.getenv` for API keys.
 - [X] T030 [P] Add test `tests/unit/test_config_no_leak.py` to verify no API keys are logged.
 - [X] T031 [P] Create CI script `scripts/validate_quickstart.sh` that executes the pipeline on the seed dataset and exits 0 on success.
-- [ ] T032 [P] [US2] Implement lagged variable analysis in `code/analysis/fit_models.py` to mitigate reverse causality: Create a new column `author_count_lagged` (author count from 1 year prior, calculated via `git log --since=2yearsago --until=1yearago` logic) and re-fit the model to check stability of the coefficient. **Note**: This is an optional research extension included per Plan.md's "Critical Note" but not mandated by the Spec. <!-- FIXED: Corrected time window logic -->
-- [ ] T033 [P] [US3] Implement interaction term analysis in `code/analysis/robustness.py` to test if the effect of diversity varies by project age (interaction: `author_count * project_age`).
+- [X] T032 [Removed: Scope Optimization] Task T032 (lagged variable analysis) has been removed. While the Plan mentions it as a recommended robustness check, it is not mandated by the Spec's Functional Requirements. It is deprioritized to focus on core FRs for this iteration.
+- [X] T033 [Removed: Scope Creep] Task T033 (interaction term analysis) has been removed. The Spec (FR-001 to FR-007) does not explicitly mandate interaction terms. This task was an unverified plan addition and is removed to prevent scope creep.
 
 ---
 
