@@ -1,19 +1,23 @@
 {
   "project_id": "PROJ-873-llmxive-follow-up-extending-active-learn",
   "ok": false,
-  "reason": "4 command(s) failed: python code/data_loader.py --prepare (rc=1); python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 5 (rc=1); python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 5 (rc=1)",
-  "artifacts": [],
-  "failures": [
-    "python code/data_loader.py --prepare -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/data_loader.py\", line 244, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/data_loader.py\", line 213, in main\n    parser = argparse.ArgumentParser(description=\"Prepare data for llmXive pipeline.\")\n             ^^^^^^^^\nNameError: name 'argparse' is not defined",
-    "python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 5 -> rc=1\n    2026-07-19 09:23:55,707 - logging_config - INFO - Logging initialized\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/run_pipeline.py\", line 216, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/run_pipeline.py\", line 181, in main\n    check_data_integrity()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-e",
-    "python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 5 -> rc=1\n    2026-07-19 09:24:01,543 - logging_config - INFO - Logging initialized\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/run_pipeline.py\", line 216, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/run_pipeline.py\", line 181, in main\n    check_data_integrity()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-fol",
-    "python code/run_pipeline.py --variant unique_baseline --budgets 20 50 100 --seeds 5 -> rc=1\n    2026-07-19 09:24:07,329 - logging_config - INFO - Logging initialized\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/run_pipeline.py\", line 216, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/run_pipeline.py\", line 181, in main\n    check_data_integrity()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-foll"
+  "reason": "every produced artifact is gitignored (data/raw/nfcorpus/qrels/dev.tsv, data/raw/nfcorpus/qrels/test.tsv, data/raw/nfcorpus/qrels/train.tsv) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python code/data_loader.py --prepare (rc=1); python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 5 (rc=1); python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 5 (rc=1); 1 declared deliverable(s) absent: data/results/consensus_sample.json",
+  "artifacts": [
+    "data/raw/nfcorpus/qrels/dev.tsv",
+    "data/raw/nfcorpus/qrels/test.tsv",
+    "data/raw/nfcorpus/qrels/train.tsv"
   ],
-  "fix_rounds": 3,
+  "failures": [
+    "python code/data_loader.py --prepare -> rc=1\n    <00:00, 22.21it/s]\n2026-07-19 11:06:49,813 - __main__ - ERROR - Data injection failed for nfcorpus: Injected similarity 0.9139 is below threshold 0.95. Paraphrasing failed to generate sufficient semantic similarity for document MED-3910.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/data_loader.py\", line 401, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/data_loader.py\",",
+    "python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 5 -> rc=1\n    2026-07-19 11:06:51,413 - logging_config - INFO - Logging initialized\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/run_pipeline.py\", line 84, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/run_pipeline.py\", line 68, in main\n    check_data_integrity()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-ext",
+    "python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 5 -> rc=1\n    2026-07-19 11:06:51,460 - logging_config - INFO - Logging initialized\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/run_pipeline.py\", line 84, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/run_pipeline.py\", line 68, in main\n    check_data_integrity()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follo",
+    "python code/run_pipeline.py --variant unique_baseline --budgets 20 50 100 --seeds 5 -> rc=2\n    2026-07-19 11:06:51,507 - logging_config - INFO - Logging initialized\n\nusage: run_pipeline.py [-h] --variant {baseline,clustering_aided}\n                       [--budgets BUDGETS [BUDGETS ...]]\n                       [--seeds SEEDS [SEEDS ...]]\nrun_pipeline.py: error: argument --variant: invalid choice: 'unique_baseline' (choose from 'baseline', 'clustering_aided')"
+  ],
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-19T09:24:19Z"
+  "updated_at": "2026-07-19T11:07:01Z"
 }

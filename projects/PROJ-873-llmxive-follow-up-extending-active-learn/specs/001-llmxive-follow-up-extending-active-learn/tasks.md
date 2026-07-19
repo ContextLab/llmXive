@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (beir, sentence-transformers, datasketch, scikit-learn, scipy, pandas, numpy, pytest, nltk)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (beir, sentence-transformers, datasketch, scikit-learn, scipy, pandas, numpy, pytest, nltk, ollama/transformers)
 - [X] T003 [P] Configure linting (ruff/flake) and formatting (black) tools
 
 ---
@@ -55,15 +55,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup configuration management in `code/config.py` with hardcoded runtime limit of **6 hours** and memory limit of **7GB** (as mandated by FR-006 and US-2), removing vague references to 'varying configurations' or 'moderate size'
-- [X] T004a Implement watchdog/signal handler in `code/config.py` or `code/utils.py` to terminate the pipeline if runtime exceeds 6 hours or memory exceeds 7GB, serving FR-006 enforcement
-- [X] T004b [P] Implement OS-level resource limit enforcement (e.g., `ulimit` or `cgroups` configuration script) in `code/validate_env.sh` to harden the 7GB RAM constraint, serving Constitution Principle VII
-- [X] T005 [P] Implement BEIR data loader in `code/data_loader.py` to fetch `nfcorpus` and `scifact` via `beir` library
-- [X] T005a [P] Calculate SHA-256 checksums of raw BEIR files fetched by T005 and record them in `state/projects/PROJ-873-llmxive-follow-up-extending-active-learn.yaml` under `artifact_hashes`, serving Constitution Principle III (Data Hygiene)
-- [X] T005b [P] Implement BEIR data loader extension in `code/data_loader.py` to fetch `trec-covid` dataset via `beir` library specifically for FR-009 validation
-- [X] T006 [P] Implement logging infrastructure in `code/logging_config.py` to record every pairwise comparison and resource usage stats
-- [X] T007 Create base entities: `CandidateList` and `ComparisonPair` dataclasses in `code/models.py`
+- [X] T004 [P] Setup configuration management in `code/config.py` with a schema for `MAX_RUNTIME_HOURS` and `MAX_MEMORY_GB` allowing parameterization, setting default values to standard baseline levels respectively, serving FR-006 and Constitution Principle VII.
+- [X] T004a [P] Implement watchdog/signal handler in `code/config.py` or `code/utils.py` to terminate the pipeline if runtime exceeds a predefined threshold or memory exceeds 7GB, serving FR-006 enforcement.
+- [X] T004b [P] Implement OS-level resource limit enforcement (e.g., `ulimit` or `cgroups` configuration script) in `code/validate_env.sh` to harden the GB RAM constraint, serving Constitution Principle VII.
+- [X] T005 [P] Implement BEIR data loader in `code/data_loader.py` to fetch `nfcorpus` and `scifact` via `beir` library.
+- [X] T005a [P] Calculate SHA-256 checksums of raw BEIR files fetched by T005 and record them in `state/projects/PROJ-873-llmxive-follow-up-extending-active-learn.yaml` under `artifact_hashes`, serving Constitution Principle III (Data Hygiene).
+- [X] T005b [P] Implement BEIR data loader extension in `code/data_loader.py` to fetch `trec-covid` dataset via `beir` library specifically for FR-009 validation.
+- [X] T006 [P] Implement logging infrastructure in `code/logging_config.py` to record every pairwise comparison and resource usage stats.
+- [X] T007 Create base entities: `CandidateList` and `ComparisonPair` dataclasses in `code/models.py`.
 - [X] T008 [P] [Foundational] Implement environment validation script `code/validate_env.sh` to verify CPU-only constraints: check for CUDA availability (must be absent or ignored), ensure no GPU dependencies in `requirements.txt`, and exit 0 on success; serve FR-006 and Constitution Principle VII by confirming the runner environment matches constraints.
+- [X] T050 [P] [Foundational] Update `code/validate_env.sh` to include a check for `all-MiniLM-L6-v2` model availability and CPU compatibility, ensuring the embedding model can run without GPU dependencies, serving Constitution Principle VII.
+- [X] T042 [P] [Foundational] Implement a "Synthetic Data Fallback Blocker" test in `tests/unit/test_data_loader.py` that asserts `RuntimeError` is raised when `beir` fetch fails (simulating network block), preventing any silent fallback to synthetic/mock data, serving Constitution Principle III and the "Loader must fail loudly" rule.
 - [X] T041 [Foundational] Add a "Data Integrity Check" task in `code/run_pipeline.py` that verifies the presence and non-empty status of all intermediate artifacts (e.g., `unique_subset.json`, `consensus_sample.json`) before proceeding to the next stage, ensuring no silent failures in the pipeline, serving Constitution Principle III.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -80,25 +82,26 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for synthetic redundancy injection logic in `tests/unit/test_data_loader.py` <!-- FAILED: unspecified -->
+- [X] T010 [P] [US1] Unit test for synthetic redundancy injection logic in `tests/unit/test_data_loader.py::test_synthetic_injection_creates_clusters`; assert that injected clusters contain items with pairwise cosine similarity > 0.95, serving FR-002.
 - [X] T011 [P] [US1] Unit test for "wasted" call classification proxy (cosine > 0.95) in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement synthetic redundancy injection logic in `code/data_loader.py` (synonym replacement via NLTK WordNet, sentence shuffling) to create multiple clusters of near-duplicates per dataset, serving FR-002
-- [X] T012a [US1] **Execute** T012 to generate the injected dataset artifacts for `nfcorpus` and `scifact`, writing the results to `data/processed/injected_datasets.json`, serving FR-002
-- [X] T013 [US1] Implement cosine similarity proxy calculation logic in `code/metrics.py` using `all-MiniLM-L6-v2` to flag pairs with similarity > 0.95 as "wasted", serving FR-003
-- [X] T013a [US1] **Execute** T013 on the injected dataset to produce the list of flagged pairs and their counts, writing the result to `data/results/flagged_pairs_count.json`, serving FR-003
-- [X] T013c [US1] Calculate the dynamic sample size for LLM consensus validation using the count from T013a, capped at a maximum limit, and write the result to `data/results/sample_config.json`, serving FR-003
-- [ ] T013b [US1] Filter logged comparisons from T013a for similarity > 0.95, read sample size from `data/results/sample_config.json`, and select a stratified random sample, writing the sample indices to `data/results/consensus_sample.json`, serving FR-003
-- [X] T014 [US1] Implement LLM consensus validation logic in `code/ranker.py` function `validate_proxy_consensus` to estimate ground truth accuracy on the sample defined in `data/results/consensus_sample.json`, serving FR-003. Configure the LLM to use `gpt-4o-mini` with temperature=0.0, max_tokens=200, and prompt template `code/prompts/consensus_validation.txt`.
-- [X] T014a [US1] Configure the LLM consensus execution to use `gpt-4o-mini` with temperature=0.0, max_tokens=200, and prompt template `code/prompts/consensus_validation.txt`, ensuring deterministic results
-- [X] T014b [US1] **Execute** the LLM consensus validation (T014/T014a) on the sample from T013b to generate ground truth accuracy metrics, writing the result to `data/results/consensus_accuracy.json`, serving FR-003
-- [X] T015 [US1] Implement baseline active ranker execution loop in `code/ranker.py` that processes the full candidate list without clustering, serving FR-003
-- [X] T015a [US1] Generate the "unique subset" of the candidate list by removing near-duplicates identified in T012a, writing the result to `data/processed/unique_subset.json`, serving US-1
-- [X] T015b [US1] Run the baseline active ranker against the unique subset generated in T015a to establish the reference NDCG@10, calculate and log the NDCG@10 drop percentage to `data/results/us1_baseline_metrics.json`, serving US-1
-- [X] T016 [US1] Implement NDCG@10 calculation against BEIR ground truth in `code/metrics.py` for both the full redundant run and the unique subset run, serving FR-004
-- [X] T017 [US1] Implement synthetic redundancy validation logic in `code/data_loader.py` against the `trec-covid` dataset fetched in T005b to ensure generalizability, serving FR-009 <!-- FAILED: unspecified -->
+- [X] T012 [US1] Implement synthetic redundancy injection logic in `code/data_loader.py` (synonym replacement via NLTK WordNet, sentence shuffling) to create multiple clusters of near-duplicates per dataset, serving FR-002.
+- [X] T012a [US1] **Execute** T012 to generate the injected dataset artifacts for `nfcorpus` and `scifact`, writing the results to `data/processed/injected_datasets.json`, serving FR-002.
+- [X] T043 [US1] Implement a "Semantic Similarity Threshold Validator" in `code/data_loader.py` that verifies the injected redundancy actually achieves the target similarity > 0.95 before proceeding; if the average injected similarity is < 0.95, raise `DataInjectionError` with details, serving Edge Case 2 and FR-002. **Execute T043** to validate the injected datasets from T012a.
+- [X] T013 [US1] Implement cosine similarity proxy calculation logic in `code/metrics.py` using `all-MiniLM-L6-v2` to flag pairs with similarity > 0.95 as "wasted", serving FR-003.
+- [X] T013a [US1] **Execute** T013 on the injected dataset to produce the list of flagged pairs and their counts, writing the result to `data/results/flagged_pairs_count.json`, serving FR-003.
+- [X] T013c [US1] Calculate the dynamic sample size for LLM consensus validation using the count from T013a ([deferred] of flagged pairs, minimum threshold), and write the result to `data/results/sample_config.json`, serving FR-003.
+- [ ] T013b [US1] Filter logged comparisons from T013a for similarity > 0.95, read sample size from `data/results/sample_config.json`, and select a stratified random sample (stratify by similarity score bins of narrow width from 0.95 to 1.0), writing the sample indices to `data/results/consensus_sample.json` (schema: list of indices), serving FR-003.
+- [ ] T014 [US1] Implement LLM consensus validation logic in `code/ranker.py` function `validate_proxy_consensus` to estimate ground truth accuracy on the sample defined in `data/results/consensus_sample.json`, serving FR-003. Configure the LLM to use a local, CPU-tractable model (e.g., `llama-3-8b-instruct` via `ollama` or `transformers` with 4-bit quantization) with temperature=0.0, max_tokens=200, and prompt template `code/prompts/consensus_validation.txt`.
+- [X] T014a [US1] Configure the LLM consensus execution to use a local, CPU-tractable model (e.g., `llama-3-8b-instruct` via `ollama` or `transformers` with 4-bit quantization) with temperature=0.0, max_tokens=200, and prompt template `code/prompts/consensus_validation.txt`, ensuring deterministic results and compliance with resource constraints.
+- [X] T014b [US1] **Execute** the LLM consensus validation (T014/T014a) on the sample from T013b to generate ground truth accuracy metrics, writing the result to `data/results/consensus_accuracy.json`, serving FR-003.
+- [X] T015 [US1] Implement baseline active ranker execution loop in `code/ranker.py` that processes the full candidate list without clustering, serving FR-003.
+- [X] T015a [US1] Generate the "unique subset" of the candidate list by removing near-duplicates identified in T012a, writing the result to `data/processed/unique_subset.json`, serving US-1.
+- [X] T015b [US1] Run the baseline active ranker against the unique subset generated in T015a to establish the reference NDCG@10, calculate and log the NDCG@10 drop percentage to `data/results/us1_baseline_metrics.json`, serving US-1.
+- [X] T016 [US1] Implement NDCG@10 calculation against BEIR ground truth in `code/metrics.py` for both the full redundant run and the unique subset run, serving FR-004.
+- [ ] T017 [US1] Implement synthetic redundancy validation logic in `code/data_loader.py` against the `trec-covid` dataset fetched in T005b to ensure generalizability; verify injected similarity > 0.95 and output `data/results/trec_covid_validation.json` with pass/fail status, serving FR-009.
 - [ ] T037 [US1] Implement explicit failure mode handling in `code/data_loader.py` for the "paraphrasing fails to generate sufficient semantic similarity" edge case: if injected similarity < 0.95, raise a `DataInjectionError` with details rather than silently proceeding, serving Edge Case 2.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Baseline behavior on redundant data)
@@ -113,21 +116,25 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test for MinHash-LSH clustering logic with Jaccard threshold > 0.95 in `tests/unit/test_clustering.py`
-- [X] T019 [P] [US2] Integration test for full pipeline execution with resource limits in `tests/integration/test_full_pipeline.py`
- - [X] T019a [P] [US2] Unit test for timeout enforcement in `tests/integration/test_full_pipeline.py`
- - [X] T019b [P] [US2] Unit test for memory limit enforcement in `tests/integration/test_full_pipeline.py`
+- [X] T018 [P] [US2] Unit test for MinHash-LSH clustering logic with Jaccard threshold > 0.95 in `tests/unit/test_clustering.py`.
+- [X] T019 [P] [US2] Integration test for full pipeline execution with resource limits in `tests/integration/test_full_pipeline.py`.
+ - [X] T019a [P] [US2] Unit test for timeout enforcement in `tests/integration/test_full_pipeline.py`.
+ - [X] T019b [P] [US2] Unit test for memory limit enforcement in `tests/integration/test_full_pipeline.py`.
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] Implement MinHash-LSH algorithm in `code/clustering.py` to group near-duplicate passages with Jaccard similarity > 0.95, serving FR-001
-- [X] T021 [US2] Implement pre-clustering filter logic in `code/ranker.py` to reduce the candidate pool before ranking (using output from T012a and T020), ensuring pool size reduction >= 30%; if reduction < 30%, abort execution and log a constraint violation, serving US-2
-- [X] T022 [US2] Implement NDCG@10 calculation for the clustering-aided variant in `code/metrics.py`, comparing against the unique-only baseline, serving FR-004
-- [ ] T023 [US2] Implement resource monitoring (time/memory) in `code/run_pipeline.py` to enforce runtime and RAM limits, serving FR-006
-- [X] T024a [US2] Generate the labeled subset of pairs required for T024 by computing ground-truth similarity via high-precision embedding (`all-MiniLM-L6-v2`), writing the result to `data/results/labeled_subset.json`, serving FR-008
-- [X] T024 [US2] Implement correlation validation logic in `code/metrics.py` between Jaccard (MinHash) and Cosine (Embeddings) similarity on the labeled subset generated in T024a, serving FR-008
-- [ ] T025 [US2] Implement parameter sweep for MinHash-LSH threshold in `code/run_pipeline.py` to measure sensitivity of NDCG recovery, serving SC-005
-- [X] T025a [US2] Compare resulting NDCG curves from T025 against the baseline and output the optimal threshold and sensitivity data to `data/results/threshold_sweep.json` as a machine-readable artifact, serving SC-005
+- [X] T020 [P] [US2] Implement MinHash-LSH algorithm in `code/clustering.py` to group near-duplicate passages with Jaccard similarity > 0.95, serving FR-001.
+- [X] T044 [US2] Implement a "Cluster Integrity Check" in `code/clustering.py` that verifies the Jaccard similarity of items within each cluster against the ground truth; if > 5% of cluster members have Jaccard < 0.95, log a warning and trigger a re-run with adjusted parameters, serving Edge Case 1 and FR-001. **Execute T044** after T020.
+- [X] T021 [US2] Implement pre-clustering filter logic in `code/ranker.py` to reduce the candidate pool before ranking (using output from T012a and T020); measure and log pool reduction; if reduction < 30%, halt execution and report a `ReductionThresholdNotMetError`, serving US-2.
+- [X] T045 [US1/US2] Implement a "Budget Exhaustion Early Exit" in `code/ranker.py` that checks the remaining LLM call budget after every periodic batch of comparisons; if the budget is insufficient to complete the current candidate list (remaining < 5% of total), halt execution and log `BudgetExhaustedError`, serving Edge Case 3 and US-1/US-2.
+- [X] T024a [US2] Generate the labeled subset of pairs required for T024 by computing ground-truth similarity via LLM consensus validation (using the sample from T013b), writing the result to `data/results/labeled_subset.json`, serving FR-008.
+- [X] T024 [US2] Implement correlation validation logic in `code/metrics.py` between Jaccard (MinHash) and Cosine (Embeddings) similarity on the labeled subset generated in T024a, serving FR-008.
+- [X] T022 [US2] Implement NDCG@10 calculation for the clustering-aided variant in `code/metrics.py`, comparing against the unique-only baseline, serving FR-004.
+- [ ] T023 [US2] Implement resource monitoring (time/memory) in `code/run_pipeline.py` to enforce runtime and RAM limits, serving FR-006.
+- [ ] T025 [US2] Define the MinHash-LSH threshold sweep range (e.g., to 0.99 in steps of 0.01) in `code/config.py`, serving SC-005.
+- [X] T025b [US2] **Execute** the parameter sweep loop for T025, running the pipeline for each threshold and collecting NDCG@10 and wasted call ratio metrics, writing intermediate results to `data/results/sweep_intermediate.json`, serving SC-005.
+- [X] T025c [US2] Implement data aggregation logic for the sweep results in `code/metrics.py`, computing average metrics and standard deviations for each threshold, serving SC-005.
+- [X] T025a [US2] Compare resulting NDCG curves from T025c against the baseline and output the optimal threshold and sensitivity data to `data/results/threshold_sweep.json` as a machine-readable artifact, serving SC-005.
 - [X] T038 [US2] Implement strict threshold validation in `code/clustering.py` to detect and log "false positive merges" (unique docs merged) by comparing cluster centroids against original documents; if merge rate > 5%, trigger a warning and fallback to unique-only processing, serving Edge Case 1.
 - [X] T039 [US1/US2] Implement a "Low Budget Guardrail" in `code/ranker.py` that halts execution and reports a `BudgetExhaustedError` if the active ranker cannot explore the candidate pool sufficiently (e.g., remaining budget < 5% of pool size) before distinguishing redundant vs. unique items, serving Edge Case 3.
 - [X] T040 [US2] Implement a "Consensus Timeout Fallback" in `code/ranker.py` for the LLM consensus validation step: if the validation sample exceeds the allocated time slice, gracefully degrade to using only the cosine proxy for the main loop and log the degradation event, serving Edge Case 4.
@@ -144,17 +151,20 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T026 [P] [US3] Unit test for Wilcoxon signed-rank test implementation and Bonferroni correction in `tests/unit/test_metrics.py`
+- [X] T026 [P] [US3] Unit test for Wilcoxon signed-rank test implementation and Bonferroni correction in `tests/unit/test_metrics.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement multi-seed execution loop in `code/run_pipeline.py` for both baseline and clustering-aided variants, enforcing exactly **5 independent runs** as per US-3
-- [X] T028 [US3] Implement Wilcoxon signed-rank test on NDCG@10 scores in `code/metrics.py`, serving FR-005
-- [X] T029 [US3] Implement Wilcoxon signed-rank test on "wasted call" ratios in `code/metrics.py`, serving FR-005
-- [X] T030 [US3] Apply Bonferroni correction for multiple hypothesis testing (NDCG and efficiency) in `code/metrics.py`, serving FR-007
-- [X] T031 [US3] Generate final statistical report in `data/results/statistical_report.md` explicitly including Bonferroni-corrected p-values and "wasted call" ratio metrics as required by FR-007 and SC-003, serving US-3
+- [ ] T027 [P] [US3] Implement multi-seed execution loop in `code/run_pipeline.py` for both baseline and clustering-aided variants, enforcing exactly **5 independent runs** as per US-3.
+- [ ] T048 [US1/US2] Implement a "Cross-Dataset Generalization Check" in `code/run_pipeline.py` that compares the "wasted call" ratios between `nfcorpus`, `scifact`, and `trec-covid` to ensure the redundancy effect is not dataset-specific, serving FR-009 and US-1. **Execute T048** after T027.
+- [X] T047 [US2] Implement a "MinHash Parameter Sensitivity Report" in `data/results/minhash_sensitivity.md` that documents the impact of varying the Jaccard threshold across a high-similarity range on NDCG recovery and wasted call reduction, serving SC-005 and FR-008. **Execute T047** using data from T025a.
+- [X] T028 [US3] Implement Wilcoxon signed-rank test on NDCG@10 scores in `code/metrics.py`, serving FR-005.
+- [X] T029 [US3] Implement Wilcoxon signed-rank test on "wasted call" ratios in `code/metrics.py`, serving FR-005.
+- [X] T030 [US3] Apply Bonferroni correction for multiple hypothesis testing (NDCG and efficiency) in `code/metrics.py`, serving FR-007.
+- [X] T049 [US3] Implement a "Multiple Comparison Correction Audit" in `data/results/correction_audit.md` that explicitly lists all hypotheses tested, the correction method used (Bonferroni), and the adjusted p-values, serving FR-007 and SC-003. **Execute T049** to generate the audit report.
+- [X] T031 [US3] Generate final statistical report in `data/results/statistical_report.md` explicitly including Bonferroni-corrected p-values and "wasted call" ratio metrics as required by FR-007 and SC-003, serving US-3.
 
-**Checkpoint**: All user stories should now be independently functional and statistically validated
+**Checkpoint**: All user stories should now be independently functional and statistically validated with the fixed 5-run design.
 
 ---
 
@@ -164,8 +174,10 @@
 
 - [X] T032 [P] Documentation updates: Update `README.md` with usage instructions and `docs/quickstart.md` / `docs/data-model.md` with function signatures; verify `README.md` contains `--help` output and all paths are correct; serve Constitution Principle I and V.
 - [X] T033 [P] Code cleanup: Run `ruff --fix` on `code/` and `tests/`; verify exit code is 0 and no errors remain; commit the changes with the exact message "Cleanup: ruff fixes"; serve Constitution Principle I and V.
-- [X] T034 [P] Performance optimization of MinHash-LSH for CPU efficiency: profile `code/clustering.py`, identify bottlenecks, and optimize using vectorized operations or reduced hash sets if necessary; document changes in `code/clustering.py` comments.
-- [X] T035 [P] Additional unit tests for edge cases (strict thresholds, low budgets) in `tests/unit/`
+- [X] T034a [P] Add profiling instrumentation to `code/clustering.py` and `code/ranker.py` to measure execution time and memory usage of key functions, serving SC-005.
+- [X] T034b [P] Run profile and record bottleneck report in `data/results/performance_bottlenecks.json`, serving SC-005.
+- [X] T034c [P] Implement specific optimization (e.g., vectorization) in `code/clustering.py` based on T034b report, serving SC-005.
+- [X] T035 [P] Additional unit tests for edge cases (strict thresholds, low budgets) in `tests/unit/`.
 - [X] T036 Run quickstart.md validation to ensure reproducibility
 
 ---
@@ -268,4 +280,21 @@ After initial runs:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Tasks T037-T041 are mandatory for scientific rigor and must not be skipped; they address specific failure modes that could invalidate the research conclusions.
+- **Critical**: Tasks T037-T050 are mandatory for scientific rigor and must not be skipped; they address specific failure modes that could invalidate the research conclusions.
+
+---
+
+## Phase N+1: Review-Driven Robustness (Addressing Analysis Findings)
+
+**Purpose**: Address specific failure modes and edge cases identified during initial analysis to ensure scientific validity.
+
+### Implementation for Review-Driven Robustness
+
+- [X] T042 [P] [Foundational] (Moved to Phase 2) - Synthetic Data Fallback Blocker.
+- [X] T043 [US1] (Moved to Phase 3) - Semantic Similarity Threshold Validator.
+- [X] T044 [US2] (Moved to Phase 4) - Cluster Integrity Check.
+- [X] T045 [US1/US2] (Moved to Phase 4) - Budget Exhaustion Early Exit.
+- [X] T047 [US2] (Moved to Phase 5) - MinHash Parameter Sensitivity Report.
+- [X] T048 [US1/US2] (Moved to Phase 5) - Cross-Dataset Generalization Check.
+- [X] T049 [US3] (Moved to Phase 5) - Multiple Comparison Correction Audit.
+- [X] T050 [P] [Foundational] (Moved to Phase 2) - Environment Validation for Embedding Model.

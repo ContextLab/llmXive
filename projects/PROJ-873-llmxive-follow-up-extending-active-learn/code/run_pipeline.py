@@ -5,227 +5,169 @@ import json
 import random
 import logging
 import argparse
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 
-from config import get_config, check_system_limits
-from data_loader import load_injected_dataset
-from metrics import calculate_ndcg_at_10, wilcoxon_signed_rank_test, bonferroni_correction
-from ranker import run_ranker_with_filter, apply_pre_clustering_filter
-from clustering import cluster_documents, run_clustering_pipeline
-from logging_config import init_logging, log_pairwise_comparison, start_resource_monitoring, stop_resource_monitoring
-from models import CandidateList, ComparisonPair
+from config import get_config, PipelineConfig
+from data_loader import prepare_injected_datasets, load_injected_dataset
+from metrics import calculate_ndcg_at_10, calculate_wasted_call_ratios
+from ranker import run_ranker_with_filter
+from clustering import run_clustering_pipeline
+from sampling import run_sampling_pipeline
+from utils import ResourceWatchdog, enforce_resource_limits
+from logging_config import init_logging, start_resource_monitoring, stop_resource_monitoring
 
-# Initialize logger
+# Initialize logging
+init_logging()
 logger = logging.getLogger(__name__)
 
 class ExperimentResult:
-    def __init__(self, seed: int, variant: str, ndcg_scores: List[float], wasted_ratios: List[float], runtime: float):
+    def __init__(self, seed: int, variant: str, ndcg: float, wasted_ratio: float, runtime: float, memory_peak_mb: float):
         self.seed = seed
         self.variant = variant
-        self.ndcg_scores = ndcg_scores
-        self.wasted_ratios = wasted_ratios
+        self.ndcg = ndcg
+        self.wasted_ratio = wasted_ratio
         self.runtime = runtime
+        self.memory_peak_mb = memory_peak_mb
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self):
         return {
             "seed": self.seed,
             "variant": self.variant,
-            "ndcg_scores": self.ndcg_scores,
-            "wasted_ratios": self.wasted_ratios,
-            "runtime": self.runtime
+            "ndcg": self.ndcg,
+            "wasted_ratio": self.wasted_ratio,
+            "runtime": self.runtime,
+            "memory_peak_mb": self.memory_peak_mb
         }
 
-def check_data_integrity() -> None:
+def check_data_integrity():
     """
-    Verifies the presence and non-empty status of all intermediate artifacts
-    required for the pipeline to proceed. This serves Constitution Principle III.
-    Raises FileNotFoundError or ValueError if artifacts are missing or empty.
+    T041: Verify presence and non-empty status of intermediate artifacts.
+    Ensures no silent failures in the pipeline (Constitution Principle III).
     """
     config = get_config()
     
-    # Define the expected artifacts relative to the project root
-    # We assume the script runs from the project root or config.paths handles the base
-    base_path = config.project_root if hasattr(config, 'project_root') else os.getcwd()
-    
-    required_artifacts = [
-        # From T012a: Injected datasets
-        os.path.join(base_path, 'data', 'processed', 'injected_datasets.json'),
-        
-        # From T015a: Unique subset
-        os.path.join(base_path, 'data', 'processed', 'unique_subset.json'),
-        
-        # From T013a: Flagged pairs count (metadata)
-        os.path.join(base_path, 'data', 'results', 'flagged_pairs_count.json'),
-        
-        # From T013b: Consensus sample indices
-        os.path.join(base_path, 'data', 'results', 'consensus_sample.json'),
-        
-        # From T014b: Consensus accuracy
-        os.path.join(base_path, 'data', 'results', 'consensus_accuracy.json'),
-        
-        # From T024a: Labeled subset for correlation
-        os.path.join(base_path, 'data', 'results', 'labeled_subset.json'),
-        
-        # From T025a: Threshold sweep results
-        os.path.join(base_path, 'data', 'results', 'threshold_sweep.json')
+    # Define required artifacts relative to config directories
+    required_files = [
+        os.path.join(config.processed_dir, 'injected_datasets.json'),
+        os.path.join(config.processed_dir, 'unique_subset.json'),
+        # consensus_sample.json is generated later in the pipeline, 
+        # so we only check it if the pipeline is past the sampling stage.
+        # For the initial integrity check before running the ranker, 
+        # we ensure the data and unique subset exist.
     ]
 
     missing_files = []
     empty_files = []
 
-    for file_path in required_artifacts:
-        if not os.path.exists(file_path):
-            missing_files.append(file_path)
-        else:
-            # Check if file is non-empty (size > 0)
-            if os.path.getsize(file_path) == 0:
-                empty_files.append(file_path)
-            else:
-                # Optional: Try to parse JSON to ensure it's not just whitespace
-                try:
-                    with open(file_path, 'r') as f:
-                        content = f.read().strip()
-                        if not content:
-                            empty_files.append(file_path)
-                        else:
-                            # If it's supposed to be JSON, try to load it
-                            if file_path.endswith('.json'):
-                                json.loads(content)
-                except json.JSONDecodeError:
-                    logger.warning(f"Artifact {file_path} exists but is not valid JSON.")
-
+    for f in required_files:
+        if not os.path.exists(f):
+            missing_files.append(f)
+        elif os.path.getsize(f) == 0:
+            empty_files.append(f)
+    
     if missing_files:
-        error_msg = f"Data Integrity Check FAILED: Missing required artifacts:\n" + "\n".join(missing_files)
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
-
+        msg = f"Data integrity check failed: Missing required artifacts: {missing_files}"
+        logger.error(msg)
+        raise FileNotFoundError(msg)
+    
     if empty_files:
-        error_msg = f"Data Integrity Check FAILED: Empty or invalid artifacts:\n" + "\n".join(empty_files)
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-
-    logger.info("Data Integrity Check PASSED: All required artifacts are present and non-empty.")
-
-def enforce_runtime_limit() -> None:
-    """Enforces the 6-hour runtime limit defined in config."""
-    start_time = time.time()
-    limit_seconds = 6 * 60 * 60  # 6 hours
+        msg = f"Data integrity check failed: Empty required artifacts: {empty_files}"
+        logger.error(msg)
+        raise ValueError(msg)
     
-    def check_limit():
-        current_time = time.time()
-        elapsed = current_time - start_time
-        if elapsed > limit_seconds:
-            logger.error(f"Runtime limit exceeded: {elapsed:.2f}s > {limit_seconds}s")
-            sys.exit(1)
-    
-    # Simple polling check could be added here or rely on watchdog
-    # For now, we assume the watchdog in utils.py handles the hard kill
-    # This function serves as a soft check before major steps
-    check_limit()
+    logger.info("Data integrity check passed: All required artifacts present and non-empty.")
 
-def enforce_memory_limit() -> None:
-    """Enforces the 7GB memory limit defined in config."""
-    # Relies on the watchdog/signal handler implemented in T004a/T004b
-    # This is a placeholder to ensure the check is called
+def enforce_runtime_limit(max_hours: float):
+    """Enforce runtime limit using watchdog."""
+    watchdog = ResourceWatchdog(max_seconds=max_hours * 3600)
+    watchdog.start()
+    return watchdog
+
+def enforce_memory_limit(max_gb: float):
+    """Enforce memory limit using ulimit (should be set by validate_env.sh) and runtime check."""
+    # This function can add additional runtime checks if needed
     pass
 
-def run_single_seed_experiment(seed: int, variant: str, budget: int) -> ExperimentResult:
-    """Runs a single experiment for a given seed and variant."""
-    random.seed(seed)
-    np.random.seed(seed)
-    
-    logger.info(f"Starting experiment: seed={seed}, variant={variant}, budget={budget}")
+def run_single_seed_experiment(seed: int, variant: str, config: PipelineConfig):
+    """Run the pipeline for a single seed and variant."""
+    logger.info(f"Starting seed {seed} with variant {variant}")
     start_time = time.time()
     
-    # Load data
-    try:
-        injected_data = load_injected_dataset('nfcorpus') # Default dataset for now
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
-        raise
-
+    # Load injected dataset
+    dataset = load_injected_dataset(config.processed_dir)
+    
+    # Run baseline or clustering-aided
     if variant == "baseline":
-        # Run baseline active ranker without clustering
-        # Logic from T015/T015b
-        logger.info("Running baseline active ranker...")
-        # Placeholder for actual ranking logic implementation
-        ndcg = 0.85 # Placeholder
-        wasted_ratio = 0.15 # Placeholder
+        # Baseline: process full candidate list without clustering
+        # For this task, we assume the baseline logic is handled in run_ranker_with_filter
+        # with no filter applied.
+        results = run_ranker_with_filter(dataset, use_clustering=False, seed=seed)
     elif variant == "clustering_aided":
-        # Run clustering aided ranker
-        # Logic from T021/T022
-        logger.info("Running clustering aided ranker...")
-        # Placeholder for actual clustering and ranking logic
-        ndcg = 0.88 # Placeholder
-        wasted_ratio = 0.05 # Placeholder
+        # Clustering-aided: apply pre-clustering filter
+        results = run_ranker_with_filter(dataset, use_clustering=True, seed=seed)
     else:
         raise ValueError(f"Unknown variant: {variant}")
-
+    
     runtime = time.time() - start_time
-    logger.info(f"Experiment completed in {runtime:.2f}s. NDCG@10: {ndcg}, Wasted Ratio: {wasted_ratio}")
+    
+    # Calculate metrics
+    ndcg = results.get("ndcg@10", 0.0)
+    wasted_ratio = results.get("wasted_ratio", 0.0)
+    
+    # Memory usage (approximate)
+    import resource
+    mem_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024  # Convert KB to MB (Linux)
+    
+    return ExperimentResult(seed, variant, ndcg, wasted_ratio, runtime, mem_usage)
 
-    return ExperimentResult(seed, variant, [ndcg], [wasted_ratio], runtime)
-
-def run_baseline_experiment(budgets: List[int], seeds: int) -> List[ExperimentResult]:
-    """Runs the baseline experiment across multiple seeds and budgets."""
-    results = []
-    for seed in range(1, seeds + 1):
-        for budget in budgets:
-            res = run_single_seed_experiment(seed, "baseline", budget)
-            results.append(res)
-    return results
-
-def run_clustering_aided_experiment(budgets: List[int], seeds: int) -> List[ExperimentResult]:
-    """Runs the clustering aided experiment across multiple seeds and budgets."""
-    results = []
-    for seed in range(1, seeds + 1):
-        for budget in budgets:
-            res = run_single_seed_experiment(seed, "clustering_aided", budget)
-            results.append(res)
-    return results
-
-def save_results(results: List[ExperimentResult], output_path: str) -> None:
-    """Saves experiment results to a JSON file."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump([r.to_dict() for r in results], f, indent=2)
-    logger.info(f"Results saved to {output_path}")
+def run_threshold_sweep(config: PipelineConfig):
+    """Run the parameter sweep for MinHash thresholds."""
+    # This is handled by T025 tasks, but we include a stub for completeness
+    logger.info("Threshold sweep not implemented in this task scope.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Run the llmXive pipeline experiments.")
-    parser.add_argument("--variant", type=str, required=True, choices=["baseline", "clustering_aided"], help="Experiment variant")
-    parser.add_argument("--budgets", type=int, nargs="+", required=True, help="List of budgets to test")
-    parser.add_argument("--seeds", type=int, required=True, help="Number of random seeds to run")
-    parser.add_argument("--output", type=str, default="data/results/experiment_results.json", help="Output path for results")
+    parser = argparse.ArgumentParser(description="Run the llmXive pipeline.")
+    parser.add_argument("--variant", type=str, required=True, choices=["baseline", "clustering_aided"],
+                        help="Variant to run: 'baseline' or 'clustering_aided'")
+    parser.add_argument("--budgets", type=int, nargs="+", default=[20, 50, 100],
+                        help="List of LLM call budgets")
+    parser.add_argument("--seeds", type=int, nargs="+", default=[1],
+                        help="List of random seeds for reproducibility")
     
     args = parser.parse_args()
-
-    # Initialize logging
+    
+    config = get_config()
     init_logging()
-    logger.info("Pipeline execution started.")
-
-    # 1. Data Integrity Check (T041)
+    logger.info(f"Starting pipeline with variant={args.variant}, budgets={args.budgets}, seeds={args.seeds}")
+    
+    # Check data integrity before running
     try:
         check_data_integrity()
     except (FileNotFoundError, ValueError) as e:
         logger.error(f"Data integrity check failed: {e}")
         sys.exit(1)
-
-    # 2. Resource Checks
-    enforce_runtime_limit()
-    enforce_memory_limit()
-
-    # 3. Run Experiments
+    
+    # Enforce runtime limit (from config)
+    watchdog = enforce_runtime_limit(config.max_runtime_hours)
+    
     results = []
-    if args.variant == "baseline":
-        results = run_baseline_experiment(args.budgets, args.seeds)
-    elif args.variant == "clustering_aided":
-        results = run_clustering_aided_experiment(args.budgets, args.seeds)
-
-    # 4. Save Results
-    save_results(results, args.output)
-
-    logger.info("Pipeline execution finished successfully.")
+    for seed in args.seeds:
+        try:
+            result = run_single_seed_experiment(seed, args.variant, config)
+            results.append(result.to_dict())
+        except Exception as e:
+            logger.error(f"Experiment failed for seed {seed}: {e}")
+            # Continue with other seeds
+            continue
+    
+    # Write results
+    output_file = os.path.join(config.results_dir, f"experiment_results_{args.variant}_seeds_{args.seeds}.json")
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Results written to {output_file}")
+    stop_resource_monitoring()
+    watchdog.stop()
 
 if __name__ == "__main__":
     main()

@@ -1,110 +1,89 @@
 #!/bin/bash
-#
-# validate_env.sh - OS-level resource limit enforcement script
-#
-# Purpose: Harden the 7GB RAM constraint (FR-006, Constitution Principle VII)
-# by setting OS-level resource limits via ulimit before pipeline execution.
-#
-# This script must be sourced or executed before running the main pipeline.
-# It sets:
-#   - Max resident set size (RAM) to 7GB
-#   - Max CPU time to 6 hours (21600 seconds)
-#   - Max open files to 1024 (standard for most workloads)
-#
-# Exit codes:
-#   0 - Limits set successfully or already set
-#   1 - Failed to set limits or environment check failed
-#
+# T004b: OS-level resource limit enforcement script
+# Purpose: Harden the GB RAM constraint (7GB) using ulimit to serve Constitution Principle VII.
+# This script sets a soft/hard memory limit for the current shell session and its children.
+# It also verifies CPU-only constraints (CUDA) as part of the environment validation.
 
 set -e
 
 # Configuration
-RAM_LIMIT_GB=7
-RAM_LIMIT_KB=$((RAM_LIMIT_GB * 1024 * 1024))
-CPU_LIMIT_HOURS=6
-CPU_LIMIT_SECONDS=$((CPU_LIMIT_HOURS * 3600))
-OPEN_FILES_LIMIT=1024
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+MAX_MEMORY_MB=7168  # 7GB in MB
+MAX_MEMORY_KB=$((MAX_MEMORY_MB * 1024))
+SCRIPT_NAME="validate_env.sh"
 
 log_info() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
-
-log_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
+    echo "[INFO] $1"
 }
 
 log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo "[ERROR] $1" >&2
 }
 
-# Check if running in a shell that supports ulimit
+log_success() {
+    echo "[SUCCESS] $1"
+}
+
+# 1. Check if running in an environment that supports ulimit (Linux/Unix)
 if ! command -v ulimit &> /dev/null; then
-    log_error "ulimit command not found. Cannot enforce resource limits."
+    log_error "ulimit command not found. This script requires a POSIX-compliant shell."
     exit 1
 fi
 
-# Check if we have permission to set limits
-if [ "$EUID" -ne 0 ] && [ -z "$ALLOW_NON_ROOT" ]; then
-    log_warn "Running as non-root. Some limits may not be enforceable."
+log_info "Checking system memory limits..."
+
+# 2. Set the memory limit (virtual memory)
+# Note: ulimit -v sets the virtual memory limit in KB.
+# We set both soft and hard limits to enforce the constraint strictly.
+log_info "Setting memory limit to ${MAX_MEMORY_MB}MB (${MAX_MEMORY_KB}KB)..."
+
+if ! ulimit -v -S ${MAX_MEMORY_KB} 2>/dev/null; then
+    log_error "Failed to set soft memory limit. You may need root privileges or the limit may be restricted by the OS."
+    # In some CI environments, ulimit might be restricted. We log a warning but proceed if the check is informational.
+    # However, for Constitution Principle VII, we must enforce it if possible.
+    # If we can't set it, we fail loudly as per the task requirement to "harden" the constraint.
+    log_error "Cannot enforce memory limit via ulimit. Aborting to ensure safety."
+    exit 1
 fi
 
-# Set soft and hard limits for RAM (max resident set size)
-log_info "Setting RAM limit to ${RAM_LIMIT_GB}GB (${RAM_LIMIT_KB} KB)..."
-if ! ulimit -v -S ${RAM_LIMIT_KB} 2>/dev/null; then
-    # Try virtual memory limit if resident set doesn't work
-    log_warn "Could not set resident set limit, trying virtual memory limit..."
-    if ! ulimit -v -S ${RAM_LIMIT_KB} 2>/dev/null; then
-        log_error "Failed to set RAM limit. Continuing with current limits."
+if ! ulimit -v -H ${MAX_MEMORY_KB} 2>/dev/null; then
+    log_error "Failed to set hard memory limit. Aborting."
+    exit 1
+fi
+
+log_success "Memory limits set successfully: ${MAX_MEMORY_MB}MB."
+
+# 3. Verify CUDA availability (Must be absent or ignored for CPU-only)
+log_info "Checking CUDA availability..."
+if command -v nvidia-smi &> /dev/null; then
+    log_info "nvidia-smi found. Checking for GPU usage..."
+    if nvidia-smi --query-gpu=index,name,memory.total --format=csv,noheader 2>/dev/null | grep -q "."; then
+        log_error "GPU detected. This pipeline is CPU-only. Please disable GPU or run in a CPU-only environment."
+        exit 1
     fi
-else
-    log_info "RAM limit set successfully."
 fi
 
-# Set hard limit for CPU time (6 hours)
-log_info "Setting CPU time limit to ${CPU_LIMIT_HOURS} hours (${CPU_LIMIT_SECONDS} seconds)..."
-if ! ulimit -t -S ${CPU_LIMIT_SECONDS} 2>/dev/null; then
-    log_error "Failed to set CPU time limit."
+# Check if CUDA environment variables are set (common indicators)
+if [ -n "${CUDA_VISIBLE_DEVICES}" ]; then
+    if [ "${CUDA_VISIBLE_DEVICES}" != "-1" ]; then
+        log_error "CUDA_VISIBLE_DEVICES is set to '${CUDA_VISIBLE_DEVICES}'. Set to '-1' for CPU-only."
+        exit 1
+    fi
+fi
+
+log_success "CUDA check passed: No GPU detected or GPU is disabled."
+
+# 4. Verify memory limit is actually enforced (Self-test)
+log_info "Verifying memory limit enforcement..."
+# We attempt to allocate a large block of memory using a simple Python one-liner.
+# If the limit is working, this should fail with a MemoryError or OOM kill.
+# However, we just want to confirm the limit is set correctly.
+CURRENT_LIMIT=$(ulimit -v)
+if [ "$CURRENT_LIMIT" != "unlimited" ]; then
+    log_success "Memory limit is active: ${CURRENT_LIMIT} KB."
+else
+    log_error "Memory limit appears to be 'unlimited'. This violates the safety constraint."
     exit 1
 fi
-log_info "CPU time limit set successfully."
 
-# Set open files limit
-log_info "Setting open files limit to ${OPEN_FILES_LIMIT}..."
-if ! ulimit -n -S ${OPEN_FILES_LIMIT} 2>/dev/null; then
-    log_warn "Could not set open files limit. Continuing with current limit."
-else
-    log_info "Open files limit set successfully."
-fi
-
-# Verify the limits were applied
-log_info "Verifying resource limits..."
-CURRENT_RAM=$(ulimit -v -S 2>/dev/null || echo "unlimited")
-CURRENT_CPU=$(ulimit -t -S 2>/dev/null || echo "unlimited")
-CURRENT_FILES=$(ulimit -n -S 2>/dev/null || echo "unlimited")
-
-log_info "Current soft limits:"
-log_info "  RAM (virtual memory): ${CURRENT_RAM} KB"
-log_info "  CPU time: ${CURRENT_CPU} seconds"
-log_info "  Open files: ${CURRENT_FILES}"
-
-# Check if limits are reasonable
-if [ "$CURRENT_RAM" != "unlimited" ] && [ "$CURRENT_RAM" -lt "$RAM_LIMIT_KB" ]; then
-    log_info "RAM limit is within expected range."
-elif [ "$CURRENT_RAM" = "unlimited" ]; then
-    log_warn "RAM limit is unlimited. This may violate FR-006."
-fi
-
-if [ "$CURRENT_CPU" != "unlimited" ] && [ "$CURRENT_CPU" -le "$CPU_LIMIT_SECONDS" ]; then
-    log_info "CPU time limit is within expected range."
-elif [ "$CURRENT_CPU" = "unlimited" ]; then
-    log_warn "CPU time limit is unlimited. This may violate FR-006."
-fi
-
-log_info "Resource limit enforcement script completed successfully."
+log_success "Environment validation passed: Memory limit enforced, GPU constraints met."
 exit 0

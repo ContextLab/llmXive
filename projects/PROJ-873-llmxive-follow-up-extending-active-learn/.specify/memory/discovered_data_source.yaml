@@ -1,11 +1,38 @@
-status: none
-intent: BEIR benchmark scifact nfcorpus trec-covid retrieval python package dataset
+status: verified
+kind: pypi_package
+ref: beir
+access_python: "import os, tempfile, shutil\nfrom beir import util\nfrom beir.datasets.data_loader\
+  \ import GenericDataLoader\n\ndatasets = [\"scifact\", \"nfcorpus\", \"trec-covid\"\
+  ]\nrecords = []\n\nfor ds in datasets:\n    url = f\"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{ds}.zip\"\
+  \n    out_dir = tempfile.mkdtemp()\n    data_path = util.download_and_unzip(url,\
+  \ out_dir)\n    data_folder = os.path.join(data_path, ds) if os.path.isdir(os.path.join(data_path,\
+  \ ds)) else data_path\n    corpus, queries, qrels = GenericDataLoader(data_folder=data_folder).load(split=\"\
+  test\")\n    for qid, rels in qrels.items():\n        query_obj = queries[qid]\n\
+  \        query_text = query_obj[\"text\"] if isinstance(query_obj, dict) else query_obj\n\
+  \        for docid, score in rels.items():\n            doc_obj = corpus[docid]\n\
+  \            doc_text = doc_obj[\"text\"] if isinstance(doc_obj, dict) else doc_obj\n\
+  \            records.append({\n                \"query_id\": qid,\n            \
+  \    \"query_text\": query_text,\n                \"doc_id\": docid,\n         \
+  \       \"doc_text\": doc_text,\n                \"relevance_score\": score,\n \
+  \               \"split\": \"test\"\n            })\n    shutil.rmtree(out_dir)\n\
+  \nprint(f\"RECORDS={len(records)}\")\nif records:\n    print(\"FIELDS=\" + \",\"\
+  .join(records[0].keys()))"
+record_count: 79009
+sample_fields:
+- query_id
+- query_text
+- doc_id
+- doc_text
+- relevance_score
+- split
+field_coverage: 1.0
 required_fields:
 - query_id
-- query
+- query_text
 - doc_id
-- document
-- relevance
-cache_key: 20bbb34b0101bfe888e03c0c01f219f4d3582fee7a56ff0ae51a6cf1afdf85f4
-searched_at: '2026-07-19T09:25:42.273927+00:00'
-retry_count: 1
+- doc_text
+- relevance_score
+- split
+intent: download BEIR benchmark datasets scifact nfcorpus trec-covid python package
+  dataset
+cache_key: c9dc71715f43910994746b860ac0ec538149e9833407c3388f32bd5d48c048f9

@@ -1,10 +1,9 @@
 T013b:
   c: false
   h: 93f4380df308d24420646a4f1d15e145c90afe25125ef0864076cd5e297b2b2b
-  r: The required output file `data/results/consensus_sample.json` is missing, and
-    there is no evidence that the logged comparisons were filtered or a stratified
-    random sample was generated. The implementer must create the `consensus_sample.json`
-    file with the sampled indices as specified.
+  r: The required output file `data/results/consensus_sample.json` is missing, so
+    the stratified sampling result was not produced. The existing `sample_config.json`
+    is present, but without the consensus sample file the task is not fulfilled.
 T019:
   c: false
   h: 96296957c986942207ca42fece3101dbc6c07a5fb8bfb6ab4fee27a3faa9f70a
@@ -25,15 +24,6 @@ T033:
     are present; the only evidence is the task description itself, which does not
     demonstrate that any readability improvements were made. The required artifact
     (refactored code files or a summary of changes) is missing.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains only the textual specification of the user stories and\
-    \ acceptance criteria; there are no actual artifacts such as code implementing\
-    \ MinHash\u2011LSH pre\u2011clustering, experimental datasets, runtime logs, memory/CPU\
-    \ usage measurements, or reported NDCG@10 and \u201Cwasted call\u201D ratios.\
-    \ Consequently the required evidence to demonstrate CPU\u2011efficient performance\
-    \ optimization is missing."
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

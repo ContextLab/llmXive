@@ -1,84 +1,121 @@
 """
-Configuration management for llmXive pipeline.
-Enforces FR-006: 6h runtime limit and 7GB memory limit.
+Configuration management module for llmXive pipeline.
+Provides PipelineConfig class and utility functions for resource management.
 """
+
 import os
 import sys
 from dataclasses import dataclass, field
-from typing import Optional, Any
+from typing import Optional, Any, Dict
 import resource
 import logging
 
-# Constants for limits (FR-006)
-MAX_RUNTIME_SECONDS = 6 * 60 * 60  # 6 hours
-MAX_MEMORY_BYTES = 7 * 1024 * 1024 * 1024  # 7 GB
+logger = logging.getLogger(__name__)
 
 @dataclass
 class PipelineConfig:
-    """
-    Central configuration object.
-    Includes paths, limits, and tolerant attribute access for logger-like usage.
-    """
-    project_root: str = field(default_factory=lambda: os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    data_dir: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data"))
-    code_dir: str = field(default_factory=lambda: os.path.dirname(os.path.abspath(__file__)))
-    output_dir: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "results"))
-    processed_dir: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "processed"))
-    figures_dir: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "figures"))
+    """Configuration for the llmXive pipeline."""
     
-    runtime_limit: int = MAX_RUNTIME_SECONDS
-    memory_limit: int = MAX_MEMORY_BYTES
+    # Resource limits
+    max_runtime_hours: float = 6.0
+    max_memory_gb: float = 7.0
     
-    # Logging defaults
+    # Data paths
+    data_dir: str = "data"
+    raw_data_dir: str = "data/raw"
+    processed_data_dir: str = "data/processed"
+    results_dir: str = "data/results"
+    figures_dir: str = "figures"
+    
+    # Model settings
+    embedding_model: str = "all-MiniLM-L6-v2"
+    llm_model: str = "llama-3-8b-instruct"
+    
+    # Pipeline settings
+    redundancy_threshold: float = 0.95
+    jaccard_threshold: float = 0.95
+    minhash_num_permutations: int = 128
+    
+    # Experiment settings
+    num_seeds: int = 5
+    budgets: list = field(default_factory=lambda: [20, 50, 100])
+    
+    # Logging
     log_level: str = "INFO"
-    log_dir: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs"))
-
-    def __post_init__(self):
-        """Ensure directories exist."""
-        for d in [self.data_dir, self.output_dir, self.processed_dir, self.figures_dir, self.log_dir]:
-            os.makedirs(d, exist_ok=True)
-
-    # Tolerant attribute access for logger-like usage (fixing shared-module contract)
+    log_dir: str = "logs"
+    
     def __getattr__(self, name: str) -> Any:
-        # If a script calls config.info(), config.debug(), etc., return a no-op callable
-        # to prevent AttributeError while maintaining existing attributes.
-        if name in ('info', 'debug', 'warning', 'error', 'critical', 'exception'):
-            def _noop(*args, **kwargs):
-                return None
-            return _noop
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        """
+        Permissive fallback for unknown attributes.
+        Returns a no-op callable for logger-style methods.
+        """
+        def _noop(*args, **kwargs):
+            return None
+        return _noop
+
+_config_instance: Optional[PipelineConfig] = None
 
 def get_config() -> PipelineConfig:
-    """Return the singleton configuration instance."""
-    # In a real scenario, this might load from env or a file.
-    # For now, we return a fresh instance with defaults, which is safe.
-    return PipelineConfig()
+    """Get or create the global PipelineConfig instance."""
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = PipelineConfig()
+    return _config_instance
 
 def format_bytes(num_bytes: int) -> str:
-    """Format bytes to human-readable string."""
+    """Format bytes into human-readable string."""
     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
         if num_bytes < 1024.0:
             return f"{num_bytes:.2f} {unit}"
         num_bytes /= 1024.0
     return f"{num_bytes:.2f} PB"
 
-def check_system_limits() -> bool:
+def check_system_limits(max_memory_gb: Optional[float] = None) -> Dict[str, Any]:
     """
-    Check if current resource usage is within limits.
-    Returns True if OK, False if exceeded.
-    """
-    # Check Memory
-    try:
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        # ru_maxrss is in KB on Linux, bytes on macOS?
-        # On Linux: ru_maxrss is in kilobytes.
-        current_mem_kb = usage.ru_maxrss
-        current_mem_bytes = current_mem_kb * 1024
-        
-        if current_mem_bytes > MAX_MEMORY_BYTES:
-            logging.error(f"Memory limit exceeded: {format_bytes(current_mem_bytes)} > {format_bytes(MAX_MEMORY_BYTES)}")
-            return False
-    except Exception as e:
-        logging.warning(f"Could not check memory limit: {e}")
+    Check current system resource usage against limits.
     
-    return True
+    Args:
+        max_memory_gb: Maximum allowed memory in GB (uses config default if None)
+        
+    Returns:
+        Dictionary with current usage and limit status
+    """
+    config = get_config()
+    max_mem = max_memory_gb or config.max_memory_gb
+    
+    # Get current memory usage
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    current_memory_mb = usage.ru_maxrss / 1024  # Convert KB to MB (Linux)
+    current_memory_gb = current_memory_mb / 1024
+    
+    # Check limits
+    memory_ok = current_memory_gb < max_mem
+    
+    return {
+        "current_memory_gb": current_memory_gb,
+        "max_memory_gb": max_mem,
+        "memory_ok": memory_ok,
+        "max_runtime_hours": config.max_runtime_hours
+    }
+
+def update_config(**kwargs) -> PipelineConfig:
+    """Update configuration with provided values."""
+    config = get_config()
+    for key, value in kwargs.items():
+        if hasattr(config, key):
+            setattr(config, key, value)
+        else:
+            logger.warning(f"Unknown config key: {key}")
+    return config
+
+def main():
+    """Main entry point for config module."""
+    config = get_config()
+    print(f"Pipeline Configuration:")
+    print(f"  Max Runtime: {config.max_runtime_hours} hours")
+    print(f"  Max Memory: {config.max_memory_gb} GB")
+    print(f"  Data Dir: {config.data_dir}")
+    print(f"  Embedding Model: {config.embedding_model}")
+
+if __name__ == "__main__":
+    main()

@@ -97,6 +97,6 @@
 - The BEIR "nfcorpus" and "scifact" datasets contain sufficient semantic variety to allow for the creation of meaningful near-duplicate clusters via the described paraphrasing methods (synonym replacement, sentence shuffling) without destroying the original semantic intent.
 - The `all-MiniLM-L6-v2` embedding model is sufficiently accurate on CPU to distinguish near-duplicates (similarity > 0.95) from unique documents, serving as a reliable proxy for LLM-based similarity in the "wasted" call classification.
 - The active ranker implementation (based on the Mohajer preprint) is available and compatible with the Python environment provided by the GitHub Actions runner, requiring no GPU-specific dependencies.
-- The artificial injection of redundancy (clusters of 3–5 items) accurately simulates the behavior of real-world retrievers that return noisy, near-duplicate lists, serving as a valid proxy for production data.
+- The artificial injection of redundancy (clusters of small groups of items) accurately simulates the behavior of real-world retrievers that return noisy, near-duplicate lists, serving as a valid proxy for production data.
 - The Jaccard similarity threshold of > 0.95 for MinHash-LSH is a defensible community standard for identifying "near-duplicates" in text clustering, justifying the specific cutoff used for the sensitivity analysis.
 - The unique-only baseline performance is derived from the unique subset of the redundant list to ensure a fair comparison of ranking quality independent of pool size.
