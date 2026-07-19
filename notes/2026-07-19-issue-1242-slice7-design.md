@@ -39,7 +39,7 @@ Slice-7 work. **Slice 7 is not done while any `owning_slice==7` row survives the
 |D4|Run-log attribution on the pre-call failure path|**Nullable `backend`/`model_name` + a SUCCESS validator requiring BOTH.**|
 |D5|`paper_reviewer_figure_critic`'s profile|**`deep_review`** (vision intent lives at the real vision call site).|
 |D6|The figure-review call bypasses the backend layer and cannot carry multimodal content|**Extend the canonical path to multimodal** (§4.1) so the call genuinely routes through `select()`/`execute()` with all FR-010 safeguards.|
-|D7|Is `AgentRegistryEntry.paid_opt_in` real per-agent authorization?|**Keep it and thread it into routing** as an `allow_paid` ceiling; escalation precedence defined in §1.2.|
+|D7|Is `AgentRegistryEntry.paid_opt_in` real per-agent authorization?|**Retain the field with its ORIGINAL narrowed meaning; do NOT thread it as a routing ceiling** (rev-2's ceiling would have broken SC-007(b) — reversed in rev 3, §1.2).|
 |D8|Traceability|**File a spec-026 issue (#1285)** and reference both it and the #1242 derivation.|
 
 ## Hard constraints (inherited)
@@ -83,31 +83,31 @@ class AgentRegistryEntry(_Strict):
 plus a unit test asserting `set(get_args(ProfileName)) - {"deterministic-no-llm"} == set(PROFILES)`,
 so the two cannot drift. Pydantic gives a load-time failure on an unknown profile (Constitution V).
 
-### §1.2 `paid_opt_in` becomes real authorization (D7, review finding 7)
+### §1.2 `paid_opt_in`: retained, narrowed, NOT a routing ceiling (D7 — REVERSED in rev 3)
 
-Today `route_chat` derives `allow_paid` from the **process-level** credit snapshot
-(`route.py:199`, `allow_paid_eff = snap.credit.paid_opt_in`) and `entry.paid_opt_in` is never
-threaded — so the per-agent field is decorative, and the AC4 assertion as originally drafted could
-only pass by constructing requirements differently from production.
+**Rev 2 proposed** `allow_paid_eff = snap.credit.paid_opt_in and entry.paid_opt_in`, to make the
+per-agent flag "real authorization." **That was wrong and is reversed.** Since all 54 agents set
+`paid_opt_in: false`, the conjunction is always false, so the guarded paid tail would vanish from
+**every ordinary registry call** — breaking SC-007(b) ("paid opt-in ON with headroom → that sequence
+plus the guarded paid fallback", `spec.md:228`). That is a new behavior change well outside the
+sanctioned deltas, not the activation of dormant authorization.
 
-**New contract:** the registry entry's flag is an `allow_paid` **ceiling** for ordinary calls:
+The legacy behavior confirms the narrower reading: `MODEL_FALLBACKS` carried the `claude-haiku` peer
+for **all** agents, and `test_config_consistency:85` gates it as "only PEER fallbacks may be a guarded
+paid model" — never per-agent. The guarded tail was never conditioned on `entry.paid_opt_in`.
 
-```python
-allow_paid_eff = snap.credit.paid_opt_in and entry.paid_opt_in
-```
+**Contract (unchanged from as-built):**
 
-**Escalation precedence (NEW contract — flagged for review).** Slice 6's tier-2 rung
-(`require_paid=True`) **overrides** the per-agent ceiling. Rationale: escalation is not an agent
-electing to spend — it is the *operator* authorizing spend for a stuck project, and it is already
-quadruple-gated (`LLMXIVE_EXECUTION_PAID_ESCALATION` + process opt-in + the credit guard + the
-reservation ledger). Making the per-agent flag a hard ceiling instead would render tier 2 **inert for
-all 54 agents** (none set `paid_opt_in: true`), silently disabling a Slice-6 feature — a behavior
-regression disguised as a tightening.
-
-The alternative (hard ceiling, escalation dead-ends honestly into the exhaustion → re-plan path) is
-defensible on a strict reading of the `types.py:701-705` constitutional comment. **This is the one
-decision in rev 2 I want explicitly confirmed**, because it defines whether "authorization" means
-"for ordinary work" or "ever". It is cheaply reversible (one boolean expression + its test).
+- The paid gate stays **process-level**: `LLMXIVE_PAID_OPT_IN` + the credit guard + the reservation
+  ledger. `route.py:199` (`allow_paid_eff = snap.credit.paid_opt_in`) is **not** modified.
+- `AgentRegistryEntry.paid_opt_in` is **retained** with its original documented meaning, narrowed
+  explicitly in its docstring: it permits an agent to configure a **paid-preferring default or
+  profile**; it does **NOT** prohibit the platform's globally-enabled guarded fallback.
+- No Slice-7 profile requires paid, so the field has no routing consumer this slice. That is
+  intentional: it is a declaration surface governed by the `types.py:701-705` constitutional comment,
+  not a per-call gate.
+- The Slice-6 escalation ladder is therefore untouched — tier 2 needs no override semantics, because
+  no per-agent ceiling exists to override.
 
 ### §1.3 Consumers
 
@@ -193,7 +193,8 @@ excluding-`qwen3.5` are the same operation while `qwen3.5` *is* the leader, so S
 
 **Tests (review-requested):** interaction with required independence (an excluded leader cascading
 into an independence failure), pre-existing `exclude_models`, a live-absent former default, quality
-ties, `max_candidates` truncation, and pass 1 raising `ModelUnavailable` (pass 2 must too).
+ties, `max_candidates` truncation, and pass 1 raising `ModelUnavailable` — which **propagates
+immediately; pass 2 is never invoked** (rev-2 said "pass 2 must too", which was incoherent).
 
 **No persisted-state migration.** `state/execution_status/<project>.json` stores `model_tier` as an
 integer *index*; Slice 6 already converted the rungs to `RequirementOverrides`. Only the dispatch-time
@@ -232,21 +233,69 @@ expressed as a `ChatMessage` at all. `profile="vision"` was **not implementable*
 tractable:
 
 - `ChatMessage.content: str | tuple[ContentPart, ...]`, where `ContentPart` is a small frozen union
-  (`TextPart(text)` / `ImagePart(mime, data)`). A plain `str` stays valid — every existing caller is
-  unaffected.
+  (`TextPart(text)` / `ImagePart(mime, data, width, height)`). A plain `str` stays valid — every
+  existing caller is unaffected.
+- **`ImagePart` validates** `mime` (an allowlist), `width`/`height` against the documented maximum
+  (§4.1.2), and a bounded encoded byte size. Without this a caller could submit an arbitrarily large
+  payload while being charged a fixed token estimate.
 - `DartmouthBackend.chat` serializes parts into the OpenAI content array (the existing
   `enable_thinking=False` handling is already backend-level SSoT, so the figure call stops carrying
   its own copy).
-- `LocalBackend.chat` **rejects** multimodal input with a permanent, clearly-typed error (it serves a
-  text-only checkpoint) — so `execute()` classifies it as skip-candidate and advances, rather than
-  failing the chain.
-- `execute()` passes content through unchanged; its FR-010 fail-fast budget check must handle parts.
-- **`tokens.py` must price images.** The estimator is char÷4 over text and would price an image at
-  ~0, invalidating the cost bound `select()` reserves against. Add a deliberately generous fixed
-  per-`ImagePart` token constant, consistent with the estimator's stated over-estimation philosophy,
-  with a test asserting a known image message prices above a realistic floor.
+- `LocalBackend.chat` **rejects** multimodal input — see §4.1.1 for the exception CLASS, which is
+  load-bearing.
+- `execute()` passes content through unchanged; its FR-010 fail-fast budget check must handle parts
+  using the SAME estimator selection used (§4.1.2).
 - `preprint_figures` then deletes `_VISION_MODEL` and its urllib path and calls
   `route_chat(profile="vision", max_tokens=2000, temperature=0)`.
+
+#### §4.1.1 A permanent rejection would ABORT, not skip (review finding 2)
+
+Rev 2 claimed a permanent typed error from `LocalBackend` would be "skipped." **The disposition
+contract does the opposite.** `router.py:205-213` classifies:
+
+```
+PaidGuardDenied        -> SKIP            (checked BEFORE its PermanentBackendError base)
+BackendUnavailable     -> RETRY_ADVANCE   (breaker open)
+TransientBackendError  -> RETRY_ADVANCE
+PermanentBackendError  -> ABORT           <-- a naive "unsupported multimodal" error lands here
+unknown                -> ABORT           (conservative)
+```
+
+So an "unsupported multimodal input" `PermanentBackendError` would **abort the whole chain**,
+violating FR-010/SC-006.
+
+**Resolution:** introduce `UnsupportedFeatureError` — a candidate-ineligibility class whose
+disposition is **SKIP**, checked before its `PermanentBackendError` base, exactly mirroring the
+existing `PaidGuardDenied` split. This is more robust than relying on selection to guarantee a
+text-only model never enters a vision chain, because multimodal content may later be used with
+profiles other than `vision`. Test: a chain whose first candidate is text-only **advances** to the
+vision-capable peer instead of aborting.
+
+#### §4.1.2 Image pricing must be a demonstrable UPPER bound (review finding 3)
+
+Rev 2's "generous fixed constant + a test that pricing exceeds a realistic floor" **proves the wrong
+direction.** `worst_case_credits` is an *upper* bound under FR-003/FR-010; a floor test says nothing
+about underestimation, which is the dangerous failure. Real image token cost varies with dimensions,
+tiling/detail mode, and provider serialization.
+
+**Resolution — bounded inputs + a documented worst case:**
+
+- `ImagePart` enforces documented **maximum dimensions**; images exceeding them are **rejected**
+  (fail fast, Constitution V) rather than silently under-priced.
+- The per-image token charge is a **documented worst-case constant derived from those maximum
+  dimensions and the detail mode** the backend requests — recorded with its derivation, not chosen
+  by feel.
+- Tests assert the estimator returns **at least the documented maximum** for representative
+  *boundary* images (max-dimension, max-byte-size), not merely above an average-looking floor.
+- `execute()`'s pre-call input check uses **exactly the same estimator** as selection, so the bound
+  it reserves against and the bound it enforces cannot diverge.
+
+#### §4.1.3 Repository-wide `content` audit (review requirement)
+
+Changing `ChatMessage.content` reaches beyond the two `chat()` implementations. Task 3 includes a
+repo-wide audit of every `.content` usage: token counting, inspection/audit serialization, test
+doubles, message copying/`replace`, and any code doing string operations (`len`, slicing, `+`,
+regex) on `.content`. Each site either keeps its `str` fast path or handles parts explicitly.
 
 This is what FR-010/FR-013 actually require, and it is the only option that does not either leave a
 sanctioned pin behind or duplicate `execute()`'s safeguards in a second executor (Constitution I).
@@ -258,12 +307,19 @@ sanctioned pin behind or duplicate `execute()`'s safeguards in a second executor
 it is part of `select()`'s pure input, SC-001). The figure call then resolves to
 `qwen.qwen3.5-122b` — identical model to today — with `qwen3-vl:32b` as the tier-2 peer behind it.
 
-**Gate (Constitution II).** Ships ONLY after a real call proves `qwen.qwen3.5-122b` genuinely
-**understands** image input — per the review, asserting payload acceptance is insufficient. The test
-renders a figure with a known, checkable visual property and asserts the response reports it (a
-model that ignored the image cannot). Requires `DARTMOUTH_CHAT_API_KEY`; lives in `tests/real_call/`
-beside the SC-008 matrix. **If it fails, STOP and escalate** — the fallback is migrating the call to
-`qwen3-vl` as a sanctioned delta, which also needs `qwen3-vl` added to the conftest offline snapshot.
+**Gate (Constitution II) — TWO required real calls, not one (review finding 5).**
+
+1. **`qwen.qwen3.5-122b` image *understanding*** — justifies the new attribution. Asserting payload
+   acceptance is insufficient: the test renders a figure with a known, checkable visual property and
+   asserts the response reports it (a model that ignored the image cannot). **If this fails, STOP and
+   escalate** — the fallback is migrating the call to `qwen3-vl` as a sanctioned delta, which also
+   needs `qwen3-vl` added to the conftest offline snapshot.
+2. **`qwen.qwen3-vl:32b` through `execute()`** — required **independently** by SC-008, which names
+   the vision tier as that model (`spec.md:229`; plan.md:17 enumerates a real call through `execute`
+   for it). Rev 2 made it a fallback but required no call to it. This also proves the selected
+   fallback can consume the new canonical multimodal representation.
+
+Both require `DARTMOUTH_CHAT_API_KEY` and live in `tests/real_call/` beside the SC-008 matrix.
 
 **Exact test fallout of the version bump** (located, not predicted):
 
@@ -330,7 +386,7 @@ removes `test_config_consistency`'s dependency on it.
 
 |current test|becomes|
 |-|-|
-|`test_registry_models_are_free_unless_paid_opt_in` (:59)|every agent's `profile` is canonical; under a **paid-opt-in-OFF** snapshot every profile's chain is free-only; with opt-in ON, a paid tail appears ONLY for agents whose `entry.paid_opt_in` is true (§1.2 — asserts the *production* routing path, not a differently-constructed requirement)|
+|`test_registry_models_are_free_unless_paid_opt_in` (:59)|every agent's `profile` is canonical; under a **paid-opt-in-OFF** snapshot every profile's chain is free-only; with opt-in ON **and headroom**, the guarded paid tail appears — **independent of `entry.paid_opt_in`** (§1.2, preserving SC-007(b)). Asserts the *production* routing path, not a differently-constructed requirement.|
 |`test_model_fallback_chains_are_free` (:77)|the **policy** admits no paid family except the sanctioned `claude-haiku-4-5`|
 |`test_every_llm_registry_model_has_a_fallback_chain` (:95)|every profile resolves to ≥2 candidates (the outage-stranding guard, re-expressed)|
 |`test_readme_model_names_match_registry` (:134)|re-pointed at the policy table — the registry no longer names models|
@@ -345,39 +401,67 @@ at `base.py:162-163`. Verified safe: `state/runlog.py:237` filters non-SUCCESS *
 paper authorship, and `pipeline/authors.py:207-213` null-guards both fields. `ReviewRecord`
 (`types.py:618`) already uses this nullable+validator idiom.
 
+## §8 — Spec amendments (review finding 4) — REQUIRED, not optional
+
+Two Slice-7 semantics currently live only in this design, while `spec.md` says the only general
+migration delta is Gemma-3→Gemma-4 and US6's sanctioned text specifically says tier 1 excludes **the
+registered default**. Left unrecorded, a future review would correctly flag the implementation as
+drift. `spec.md` MUST be amended in the same slice:
+
+|amendment|where|
+|-|-|
+|Tier 1's semantics change from "exclude the registered default" to **"exclude whatever `select()` ranks first"** — necessarily, since the registered default ceases to exist (§3). Behavior is identical under the fixed snapshot.|US6 "Sanctioned migration delta" paragraph|
+|`qwen3.5` gains the **`vision`** capability, widening vision eligibility and incrementing `SELECTION_POLICY_VERSION` to 2 (§4.2). Verified by real call.|Assumptions + a new sanctioned-delta note alongside the Gemma correction|
+|SC-007 gains a note that the vision projection's leader is `qwen.qwen3.5-122b` with `qwen3-vl:32b` as peer.|SC-007|
+
+These are amendments to a **binding, approved spec** — they get written as explicit sanctioned
+deltas with their rationale, in the same style as the Slice-6 tier-1 delta already recorded there.
+
 ## §7 — Task sequencing (each independently green + committed)
 
 |#|task|clears|
 |-|-|-|
 |1|`exclude_leader` two-pass translation in `route_chat` + `execution_status`/`graph.py` de-parameterization|§3|
 |2|`deterministic-no-llm` two-layer bypass + AC3|§3.5|
-|3|**Multimodal canonical path**: `ContentPart`, both backends, `execute()` passthrough, image token pricing|§4.1|
-|4|**Real-call vision *understanding* verification** → policy `vision` + `SELECTION_POLICY_VERSION` 2 (STOP + escalate on failure)|§4.2|
-|5|`ProfileName` Literal + `AgentRegistryEntry` schema + 54 registry entries + `SlashCommandContext` + `paid_opt_in` threading|§1, 161+3 rows|
+|3|**Multimodal canonical path**: `ContentPart` + `ImagePart` validation, `UnsupportedFeatureError` SKIP class, both backends, `execute()` passthrough, upper-bound image pricing, repo-wide `.content` audit|§4.1|
+|4|**Two real-call vision verifications** (qwen3.5 understanding → policy `vision` + `SELECTION_POLICY_VERSION` 2; qwen3-vl through `execute()` for SC-008). STOP + escalate if #1 fails|§4.2|
+|5|`ProfileName` Literal + `AgentRegistryEntry` schema + 54 registry entries + `SlashCommandContext` (`paid_opt_in` retained, docstring narrowed — NOT threaded)|§1, 161+3 rows|
 |6|the 91 `field_consumer` sites|§1.3|
 |7|all four wrappers take `profile`; object-state + secondary-path interface migration; the 43 direct pins|§5.1-5.2|
 |8|`_MODEL_BUDGETS` → policy; `local.py` reclassification in `inventory.py`|§5.3|
 |9|`RunLogEntry` nullable + validator + `base.py` attribution|§6|
 |10|AC1 test + per-profile composite projections (§2.1) + `test_config_consistency` rewrite + README|§2.1, §6|
-|11|manifest regeneration + full non-slow suite + zero surviving `owning_slice==7` rows|all|
+|11|**`spec.md` amendments** (tier-1 semantics, qwen3.5 vision, SC-007 vision projection)|§8|
+|12|manifest regeneration + full non-slow suite + zero surviving `owning_slice==7` rows|all|
 
-Manifest regenerates after every pin-moving task, not only at task 11.
+Manifest regenerates after every pin-moving task, not only at task 12.
+
+### Required tests for the multimodal task (review-specified)
+
+Dartmouth serialization of text AND image parts · existing string messages remaining
+byte-equivalent · unsupported-feature **skip** behavior (chain advances, does not abort) · mixed
+text/image token accounting **at maximum dimensions** · retry/fallback preserving immutable content ·
+inspection capture serializing image **metadata** without duplicating raw image bytes into audit logs ·
+paid vision candidates reserving against the **image-inclusive** estimate.
 
 ## Risks
 
 |risk|mitigation|
 |-|-|
 |Vision real-call verification fails|Task 4 is gated and STOPS the slice; the `qwen3-vl` fallback is pre-designed.|
-|Multimodal contract change breaks a backend or a test double|Only 2 `chat()` implementations; `str` content stays valid so existing callers are untouched; the local backend's rejection path is explicitly tested.|
-|Image token pricing under-estimates → an invalid cost bound|Deliberately generous fixed per-image constant + a floor assertion test.|
-|`paid_opt_in` escalation precedence (§1.2) chosen wrongly|Flagged for explicit confirmation; one boolean expression + test to reverse.|
+|Multimodal contract change breaks a backend, a test double, or a `.content` string consumer|Only 2 `chat()` implementations; `str` content stays valid so existing callers are untouched; §4.1.3's repo-wide `.content` audit is part of task 3, not an afterthought.|
+|A text-only backend ABORTS a vision chain instead of skipping|`UnsupportedFeatureError` with SKIP disposition (§4.1.1), mirroring the existing `PaidGuardDenied` split; tested by a chain that must advance past a text-only candidate.|
+|Image token pricing under-estimates → an invalid cost bound|Bounded `ImagePart` (max dimensions + byte size, oversize REJECTED) + a worst-case constant derived from those bounds + boundary tests asserting the estimator is **≥** the documented maximum (§4.1.2). The same estimator gates execution.|
+|Slice-7 semantics read as drift in a later review|§8 amends `spec.md` (US6 tier-1 wording, the qwen3.5 vision delta, the SC-007 vision projection) as an explicit slice task.|
 |A profile mis-assignment goes unnoticed|Leaders are all `qwen3.5` under the fixed snapshot, so AC1 cannot catch a wrong-but-plausible profile. Per-profile composite projections (§2.1) catch capability/tail mistakes; assignment is reviewed per task.|
 |Deleting `default_backend` breaks a test double|The schema change is a load-time failure — breakage is loud, not silent.|
 
 ## Definition of done (Slice 7)
 
-Zero surviving `owning_slice==7` manifest rows; `AgentRegistryEntry` carries `profile` (+ threaded
-`paid_opt_in`) and no model ids; `exclude_leader` replaces the tier-1 model-id exclusion; the
-multimodal path lands and the figure call routes through `execute()`; US5 AC1 + AC3 + AC4 landed;
-README consistent with the policy table; vision real-call verified; full non-slow suite green.
-**Then** Slice 8.
+Zero surviving `owning_slice==7` manifest rows; `AgentRegistryEntry` carries `profile` and no model
+ids (`paid_opt_in` retained, un-threaded, docstring narrowed); `exclude_leader` replaces the tier-1
+model-id exclusion; the multimodal path lands with a SKIP-class unsupported-feature error and a
+demonstrable image-pricing upper bound, and the figure call routes through `execute()`; US5 AC1 +
+AC3 + AC4 landed; README consistent with the policy table; **both** vision real calls verified
+(qwen3.5 understanding + qwen3-vl through `execute()` for SC-008); `spec.md` amended with the
+sanctioned Slice-7 deltas; full non-slow suite green. **Then** Slice 8.
