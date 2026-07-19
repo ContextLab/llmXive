@@ -10,268 +10,258 @@ from typing import List, Dict, Any, Optional, Tuple
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-from peft import PeftModel
+from datasets import load_dataset
+
+from config import (
+    get_model_path,
+    get_timeout_inference,
+    get_seed_global,
+    get_semantic_threshold,
+    get_budget_generations,
+    ensure_directories,
+)
 from utils.logging import get_inference_logger, log_inference_event
-from config import ensure_directories
+from utils.state import get_state, increment_generations, is_exhausted, save_state
 from model.sandbox import execute_code, ExecutionStatus
-from model.execution_results import ExecutionTag, tag_execution_result
 
-# Global logger
-logger = None
+# --- Logger Setup ---
+_logger: Optional[logging.Logger] = None
 
-def get_logger():
-    global logger
-    if logger is None:
-        logger = get_inference_logger()
-    return logger
+def get_logger() -> logging.Logger:
+    global _logger
+    if _logger is None:
+        _logger = get_inference_logger()
+    return _logger
 
-def load_model(model_name: str = "starcoder2-3b", quantize: bool = True, device: str = "cpu") -> Tuple[Any, Any]:
+# --- Model Loading ---
+_model = None
+_tokenizer = None
+_model_lock = threading.Lock()
+
+def load_model():
     """
-    Load StarCoder2-3B with 4-bit quantization on CPU.
-    Returns (model, tokenizer).
+    Loads the StarCoder2-3B model with 4-bit quantization on CPU.
+    Implements OOM handling at the loading stage if necessary, though
+    the primary OOM handling for this task is during generation.
     """
-    ensure_directories()
-    log = get_logger()
-    log.info(f"Loading model {model_name} on {device} with quantization={quantize}")
+    global _model, _tokenizer
+    with _model_lock:
+        if _model is not None:
+            return _model, _tokenizer
 
-    if quantize:
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.float16 if device == "cuda" else torch.float32
-        )
-    else:
-        bnb_config = None
+        logger = get_logger()
+        model_path = get_model_path()
+        logger.info(f"Loading model from {model_path} with CPU device and 4-bit quantization...")
 
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            quantization_config=bnb_config if quantize else None,
-            device_map="auto" if device == "cuda" else None,
-            torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-            trust_remote_code=True
-        )
-        
-        if device == "cpu":
-            model = model.to("cpu")
-        
-        log.info("Model loaded successfully.")
-        return model, tokenizer
-    except Exception as e:
-        log.error(f"Failed to load model: {e}")
-        raise
+        try:
+            # Configure 4-bit quantization for CPU compatibility
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.float32, # CPU compatible
+            )
 
+            _tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+            _model = AutoModelForCausalLM.from_pretrained(
+                model_path,
+                quantization_config=bnb_config,
+                device_map="cpu", # Force CPU as per US2
+                trust_remote_code=True,
+                torch_dtype=torch.float32,
+            )
+            _model.eval()
+            logger.info("Model loaded successfully.")
+            return _model, _tokenizer
+
+        except MemoryError as e:
+            logger.error(f"CRITICAL: Out of Memory (OOM) during model loading: {e}")
+            # If we can't load the model, we cannot proceed.
+            # We raise to fail the pipeline loudly rather than returning None.
+            raise RuntimeError("Model loading failed due to OOM. Cannot proceed.") from e
+        except Exception as e:
+            logger.error(f"Error loading model: {e}")
+            raise e
+
+# --- Code Generation ---
 def generate_code(
-    model: Any,
-    tokenizer: Any,
     prompt: str,
     max_new_tokens: int = 256,
     temperature: float = 0.2,
+    do_sample: bool = True,
     top_p: float = 0.95,
-    timeout_seconds: int = 60
-) -> Tuple[Optional[str], str]:
+) -> Tuple[Optional[str], Optional[str]]:
     """
-    Generate code from a prompt.
-    Returns (generated_code, status) where status is 'success', 'timeout', 'oom', or 'error'.
+    Generates code for a given prompt.
+    Returns (generated_code, error_message).
+    If generation fails due to OOM, raises MemoryError.
     """
-    log = get_logger()
-    log.info(f"Generating code for prompt length {len(prompt)}")
+    model, tokenizer = load_model()
+    logger = get_logger()
 
     try:
-        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+        inputs = tokenizer(prompt, return_tensors="pt")
         
-        start_time = time.time()
+        # Move inputs to CPU explicitly
+        input_ids = inputs.input_ids.to("cpu")
+        
         with torch.no_grad():
-            # Use a thread to enforce timeout if the model hangs
-            generated_ids = None
-            error_occurred = None
-            
-            def run_generation():
-                nonlocal generated_ids, error_occurred
-                try:
-                    generated_ids = model.generate(
-                        **inputs,
-                        max_new_tokens=max_new_tokens,
-                        temperature=temperature,
-                        top_p=top_p,
-                        do_sample=True,
-                        pad_token_id=tokenizer.eos_token_id
-                    )
-                except Exception as e:
-                    error_occurred = e
-
-            thread = threading.Thread(target=run_generation)
-            thread.start()
-            thread.join(timeout=timeout_seconds)
-
-            if thread.is_alive():
-                log.warning("Generation timed out")
-                return None, "timeout"
-            
-            if error_occurred:
-                if "CUDA out of memory" in str(error_occurred) or "OOM" in str(error_occurred):
-                    return None, "oom"
-                log.error(f"Generation error: {error_occurred}")
-                return None, "error"
-
-        output_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+            # Generate
+            output = model.generate(
+                input_ids,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                do_sample=do_sample,
+                top_p=top_p,
+                pad_token_id=tokenizer.eos_token_id,
+                eos_token_id=tokenizer.eos_token_id,
+                # No CUDA specific settings
+            )
         
-        # Extract code block if present
-        if "```python" in output_text:
-            start = output_text.find("```python") + len("```python")
-            end = output_text.find("```", start)
-            if end == -1:
-                end = len(output_text)
-            code = output_text[start:end].strip()
-        else:
-            code = output_text.strip()
+        generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
+        
+        # Extract code block if present (simple heuristic)
+        if "```python" in generated_text:
+            start = generated_text.find("```python") + len("```python")
+            end = generated_text.find("```", start)
+            if end != -1:
+                generated_text = generated_text[start:end].strip()
+        
+        return generated_text, None
 
-        elapsed = time.time() - start_time
-        log.info(f"Generated {len(code)} chars in {elapsed:.2f}s")
-        return code, "success"
-
-    except RuntimeError as e:
-        err_str = str(e)
-        if "out of memory" in err_str.lower() or "oom" in err_str.lower():
-            log.error("OOM detected during generation")
-            return None, "oom"
-        log.error(f"Runtime error during generation: {e}")
-        return None, "error"
+    except MemoryError as e:
+        logger.error(f"OOM during generation for prompt length {len(prompt)}: {e}")
+        raise e
     except Exception as e:
-        log.error(f"Unexpected error during generation: {e}")
-        traceback.print_exc()
-        return None, "error"
+        logger.error(f"Generation failed: {e}")
+        return None, str(e)
 
+# --- Main Execution Loop with OOM Handling ---
 def run_generation_loop(
-    model: Any,
-    tokenizer: Any,
     tasks: List[Dict[str, Any]],
     output_path: str,
-    timeout_per_task: int = 60
 ) -> List[Dict[str, Any]]:
     """
-    Run inference on a list of tasks, executing the generated code in the sandbox.
-    Handles OOM by skipping the sample and logging the flag.
+    Iterates through tasks, generates code, and handles OOM errors.
+    OOM events result in the sample being skipped and logged with an 'OOM' flag.
     """
-    log = get_logger()
+    logger = get_logger()
     results = []
+    
+    # Ensure output directory exists
     ensure_directories()
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    for i, task in enumerate(tasks):
-        task_id = task.get("task_id", f"task_{i}")
+    logger.info(f"Starting generation loop for {len(tasks)} tasks.")
+
+    for idx, task in enumerate(tasks):
+        task_id = task.get("task_id", f"task_{idx}")
         prompt = task.get("prompt", "")
         
-        log.info(f"Processing task {i+1}/{len(tasks)}: {task_id}")
+        # Check budget state
+        if is_exhausted():
+            logger.warning("Budget exhausted. Stopping generation loop.")
+            break
 
-        # Generate code
-        generated_code, gen_status = generate_code(
-            model, tokenizer, prompt, timeout_seconds=timeout_per_task
-        )
+        logger.info(f"Processing task {task_id} ({idx+1}/{len(tasks)})...")
 
-        if gen_status == "oom":
-            # OOM Handling: Skip sample and log "OOM" flag
-            log.warning(f"OOM detected for task {task_id}. Skipping sample.")
-            result_entry = {
+        try:
+            # Attempt generation
+            generated_code, error = generate_code(prompt)
+            
+            if error:
+                # Non-OOM error
+                results.append({
+                    "task_id": task_id,
+                    "status": "error",
+                    "error_type": "generation_error",
+                    "error_message": error,
+                    "generated_code": None,
+                    "oom_flag": False
+                })
+                log_inference_event(task_id, "error", error)
+            else:
+                # Success
+                results.append({
+                    "task_id": task_id,
+                    "status": "success",
+                    "error_type": None,
+                    "error_message": None,
+                    "generated_code": generated_code,
+                    "oom_flag": False
+                })
+                log_inference_event(task_id, "success", None)
+                increment_generations()
+
+        except MemoryError as e:
+            # SPECIFIC OOM HANDLING FOR T025
+            # Skip sample, log "OOM" flag, and continue to next task.
+            logger.error(f"OOM encountered for task {task_id}. Skipping sample and logging OOM flag.")
+            
+            results.append({
                 "task_id": task_id,
                 "status": "skipped",
-                "reason": "OOM",
+                "error_type": "oom",
+                "error_message": "Out of Memory during generation",
                 "generated_code": None,
-                "execution_status": None,
-                "execution_tag": ExecutionTag.OOM.value
-            }
-            results.append(result_entry)
-            log_inference_event("OOM_SKIP", {"task_id": task_id})
-            continue
-
-        if gen_status != "success":
-            log.error(f"Generation failed for {task_id} with status: {gen_status}")
-            result_entry = {
-                "task_id": task_id,
-                "status": "failed",
-                "reason": f"Generation {gen_status}",
-                "generated_code": None,
-                "execution_status": None,
-                "execution_tag": ExecutionTag.GENERATION_ERROR.value
-            }
-            results.append(result_entry)
-            continue
-
-        # Execute code in sandbox
-        try:
-            exec_result = execute_code(generated_code, task.get("tests", []), timeout=timeout_per_task)
-            exec_status = exec_result.status.value
-            execution_tag = tag_execution_result(exec_result)
+                "oom_flag": True
+            })
             
-            result_entry = {
-                "task_id": task_id,
-                "status": "completed",
-                "reason": None,
-                "generated_code": generated_code,
-                "execution_status": exec_status,
-                "execution_tag": execution_tag,
-                "execution_details": {
-                    "passed_tests": exec_result.passed,
-                    "total_tests": exec_result.total,
-                    "error_message": exec_result.error
-                }
-            }
+            log_inference_event(task_id, "oom", str(e))
+            # Do NOT increment_generations() for skipped tasks
+            continue
+
         except Exception as e:
-            log.error(f"Sandbox execution failed for {task_id}: {e}")
-            result_entry = {
+            # Catch-all for unexpected errors
+            logger.error(f"Unexpected error for task {task_id}: {traceback.format_exc()}")
+            results.append({
                 "task_id": task_id,
-                "status": "failed",
-                "reason": f"Sandbox error: {str(e)}",
-                "generated_code": generated_code,
-                "execution_status": "error",
-                "execution_tag": ExecutionTag.SANDBOX_ERROR.value
-            }
-
-        results.append(result_entry)
-
-        # Log progress
-        log_inference_event("TASK_COMPLETE", {
-            "task_id": task_id,
-            "status": result_entry["status"],
-            "execution_tag": result_entry["execution_tag"]
-        })
+                "status": "error",
+                "error_type": "unexpected",
+                "error_message": str(e),
+                "generated_code": None,
+                "oom_flag": False
+            })
 
     # Save results
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2, default=str)
+    save_results_to_json(results, output_file)
+    logger.info(f"Generation loop completed. Results saved to {output_file}.")
     
-    log.info(f"Saved {len(results)} results to {output_path}")
     return results
+
+def save_results_to_json(results: List[Dict[str, Any]], path: Path):
+    """Saves the results list to a JSON file."""
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
 
 def main():
     """
-    Entry point for the inference pipeline.
-    Expects tasks in data/processed/perturbed_tasks.json (or similar)
-    and outputs to data/processed/inference_results.json.
+    Entry point for the inference script.
+    Loads HumanEval tasks (or perturbed tasks) and runs the generation loop.
     """
-    ensure_directories()
-    log = get_logger()
-    
-    # Load tasks
+    logger = get_logger()
+    logger.info("Inference pipeline starting...")
+
+    # Load tasks from data/processed (assuming T017/T018 produced them)
+    # If T017 hasn't run, this will fail loudly, which is correct behavior.
     tasks_path = Path("data/processed/perturbed_tasks.json")
+    
     if not tasks_path.exists():
-        log.error(f"Tasks file not found: {tasks_path}")
+        # Fallback to original if perturbed not found, but prefer perturbed
+        tasks_path = Path("data/raw/humaneval.json")
+    
+    if not tasks_path.exists():
+        logger.error("No tasks found. Please run download_humaneval.py and generate_perturbations.py first.")
         sys.exit(1)
 
-    with open(tasks_path, "r", encoding="utf-8") as f:
+    with open(tasks_path, "r") as f:
         tasks = json.load(f)
 
-    log.info(f"Loaded {len(tasks)} tasks")
+    logger.info(f"Loaded {len(tasks)} tasks from {tasks_path}.")
 
-    # Load model
-    model, tokenizer = load_model()
-
-    # Run loop
     output_path = "data/processed/inference_results.json"
-    results = run_generation_loop(model, tokenizer, tasks, output_path)
-
-    log.info("Inference pipeline completed.")
+    run_generation_loop(tasks, output_path)
 
 if __name__ == "__main__":
     main()

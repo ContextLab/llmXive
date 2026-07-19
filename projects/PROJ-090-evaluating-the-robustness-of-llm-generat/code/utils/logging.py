@@ -1,9 +1,11 @@
 """
 Logging infrastructure for the research pipeline.
+Captures raw scores, perturbation types, and execution errors.
 """
 import logging
 import os
 import sys
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional, List
@@ -11,12 +13,13 @@ from typing import Any, Dict, Optional, List
 from config import ensure_directories
 
 LOG_DIR = Path("data/logs")
-LOG_FILE = LOG_DIR / "pipeline.log"
+DATA_PROCESSED_DIR = Path("data/processed")
+
+# Ensure directories exist on import
+ensure_directories()
 
 def init_logging():
     """Initialize the logging infrastructure."""
-    ensure_directories()
-    
     # Create logger
     logger = logging.getLogger("llmXive")
     logger.setLevel(logging.DEBUG)
@@ -25,6 +28,7 @@ def init_logging():
     logger.handlers.clear()
     
     # File handler
+    LOG_FILE = LOG_DIR / "pipeline.log"
     fh = logging.FileHandler(LOG_FILE, mode='a')
     fh.setLevel(logging.DEBUG)
     
@@ -117,10 +121,29 @@ def get_budget_logger():
         logger.addHandler(ch)
     return logger
 
+def _write_json_log_entry(file_path: Path, entry: Dict[str, Any]):
+    """Append a JSON entry to a log file (newline-delimited JSON)."""
+    with open(file_path, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(entry) + '\n')
+
 def log_perturbation_candidate(task_id: str, perturbation_type: str, raw_score: float, is_valid: bool, reason: str = ""):
-    """Log a perturbation candidate."""
+    """
+    Log a perturbation candidate to both the log file and the structured JSON candidates file.
+    Captures raw scores, perturbation types, and validity status.
+    """
     logger = get_perturbation_logger()
     logger.info(f"Candidate: task_id={task_id}, type={perturbation_type}, score={raw_score:.4f}, valid={is_valid}, reason={reason}")
+    
+    # Write to structured JSON for downstream analysis (T018 requirement)
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "task_id": task_id,
+        "perturbation_type": perturbation_type,
+        "raw_score": raw_score,
+        "is_valid": is_valid,
+        "reason": reason
+    }
+    _write_json_log_entry(DATA_PROCESSED_DIR / "perturbation_candidates.json", entry)
 
 def log_excluded_perturbation(task_id: str, perturbation_type: str, raw_score: float, reason: str):
     """Log an excluded perturbation."""
@@ -128,7 +151,9 @@ def log_excluded_perturbation(task_id: str, perturbation_type: str, raw_score: f
     logger.warning(f"Excluded: task_id={task_id}, type={perturbation_type}, score={raw_score:.4f}, reason={reason}")
 
 def log_execution_result(task_id: str, status: str, error_type: Optional[str] = None):
-    """Log an execution result."""
+    """
+    Log an execution result including raw status and error classification.
+    """
     logger = get_execution_logger()
     msg = f"Result: task_id={task_id}, status={status}"
     if error_type:

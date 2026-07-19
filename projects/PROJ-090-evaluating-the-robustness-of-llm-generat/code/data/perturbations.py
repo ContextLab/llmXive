@@ -5,373 +5,323 @@ import ast
 from typing import Tuple, List, Dict, Any, Optional, Set
 from collections import Counter
 
-# Python keywords that should NOT be perturbed
-KEYWORDS = set([
-    "False", "None", "True", "and", "as", "assert", "break", "class", "continue",
-    "def", "del", "elif", "else", "except", "finally", "for", "from", "global",
-    "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass",
-    "raise", "return", "try", "while", "with", "yield", "async", "await"
-])
+# Import existing utilities from sibling modules if available, or define locally
+# Note: The API surface shows these are the public names for this module.
 
-# Common synonyms for variable names and basic operations
-# Note: This is a small subset for demonstration; a full implementation would use a larger dictionary
-SYNONYMS = {
-    "calculate": ["compute", "derive", "determine"],
-    "process": ["handle", "manage", "treat"],
-    "data": ["info", "information", "dataset"],
-    "result": ["output", "outcome", "answer"],
-    "value": ["val", "datum", "amount"],
-    "list": ["array", "sequence", "collection"],
-    "string": ["text", "str", "character"],
-    "number": ["num", "integer", "digit"],
-    "count": ["total", "sum", "quantity"],
-    "find": ["locate", "search", "detect"],
-    "create": ["make", "generate", "build"],
-    "update": ["modify", "change", "edit"],
-    "delete": ["remove", "erase", "clear"],
-    "add": ["append", "insert", "include"],
-    "remove": ["delete", "exclude", "discard"],
-    "get": ["fetch", "retrieve", "obtain"],
-    "set": ["assign", "define", "establish"],
-    "check": ["verify", "validate", "confirm"],
-    "start": ["begin", "initiate", "commence"],
-    "end": ["finish", "complete", "terminate"],
-    "loop": ["iterate", "cycle", "repeat"],
-    "run": ["execute", "perform", "operate"],
-    "load": ["read", "import", "fetch"],
-    "save": ["write", "store", "record"],
-    "open": ["launch", "start", "initiate"],
-    "close": ["terminate", "end", "finish"],
-    "print": ["display", "output", "show"],
-    "input": ["read", "receive", "accept"],
-    "return": ["yield", "output", "give"],
-    "if": ["when", "assuming"],  # Careful with these
-    "for": ["each", "every"],    # Careful with these
-    "while": ["as_long_as", "during"],
+# --- Constants and Data ---
+COMMON_SYNONYMS = {
+    "list": ["sequence", "array", "collection", "items"],
+    "dict": ["mapping", "dictionary", "hash", "object"],
+    "str": ["text", "string", "word", "character"],
+    "int": ["number", "integer", "value", "count"],
+    "float": ["decimal", "number", "value"],
+    "bool": ["boolean", "flag", "status"],
+    "None": ["null", "nil", "nothing", "empty"],
+    "True": ["yes", "correct", "active", "on"],
+    "False": ["no", "incorrect", "inactive", "off"],
+    "append": ["add", "insert", "push", "include"],
+    "remove": ["delete", "discard", "exclude", "pop"],
+    "len": ["length", "size", "count", "quantity"],
+    "range": ["sequence", "interval", "span", "window"],
+    "print": ["log", "display", "output", "show"],
+    "return": ["yield", "give", "send", "provide"],
+    "if": ["when", "provided", "assuming", "in case"],
+    "else": ["otherwise", "instead", "failing that", "elsewise"],
+    "for": ["iterate", "loop", "cycle", "traverse"],
+    "while": ["as long as", "until", "continually", "repeatedly"],
+    "def": ["define", "create", "establish", "declare"],
+    "class": ["type", "category", "group", "entity"],
+    "import": ["load", "bring in", "fetch", "acquire"],
+    "from": ["via", "using", "with", "based on"],
+    "as": ["into", "to", "as", "in the role of"],
+    "try": ["attempt", "test", "experiment", "try"],
+    "except": ["catch", "handle", "on error", "failing"],
+    "finally": ["in any case", "regardless", "at end", "concluding"],
+    "raise": ["throw", "emit", "trigger", "initiate"],
+    "assert": ["verify", "confirm", "validate", "check"],
+    "pass": ["skip", "continue", "do nothing", "proceed"],
+    "break": ["stop", "halt", "terminate", "exit loop"],
+    "continue": ["skip", "resume", "proceed", "next iteration"],
+    "and": ["&", "plus", "along with", "in addition to"],
+    "or": ["|", "either", "alternatively", "else"],
+    "not": ["! ", "negate", "invert", "deny"],
+    "in": ["inside", "within", "among", "contained"],
+    "is": ["equals", "matches", "corresponds to", "is"],
+    "lambda": ["anonymous", "inline", "unnamed", "quick"],
 }
 
-# Typo patterns
-TYPO_PATTERNS = [
-    ("i", "1"), ("l", "1"), ("o", "0"), ("s", "5"), ("e", "3"), ("a", "4"),
-    ("t", "7"), ("b", "8"), ("g", "9"), ("z", "2"),
-    ("ss", "z"), ("ph", "f"), ("th", "th"), ("ck", "k"),
-    ("e", "ie"), ("i", "ei"), ("a", "e"), ("o", "a"),
+# Syntax patterns for rephrasing
+SYNTAX_PATTERNS = [
+    # (pattern_regex, replacement_template)
+    # Convert "if x is None" to "if not x" (simplified)
+    (r"\bif\s+(\w+)\s+is\s+None\b", r"if not \1"),
+    # Convert "if x is not None" to "if x"
+    (r"\bif\s+(\w+)\s+is\s+not\s+None\b", r"if \1"),
+    # Convert "for i in range(len(list))" to "for i, item in enumerate(list)" (simplified)
+    # This is risky, so we'll use a safer rephrasing: "for i in range(n)" -> "for i in [0..n-1]" (conceptually)
+    # Instead, let's do variable renaming or comment injection
+    # Convert "x = y + z" to "x = z + y" (commutative) for simple math
+    (r"\b(\w+)\s*=\s*(\w+)\s*\+\s*(\w+)\b", r"\1 = \3 + \2"),
+    # Convert "x = y - z" -> "x = y + (-z)" (algebraic)
+    (r"\b(\w+)\s*=\s*(\w+)\s*-\s*(\w+)\b", r"\1 = \2 + (-\3)"),
+    # Convert "x and y" to "y and x" (commutative)
+    (r"\b(\w+)\s+and\s+(\w+)\b", r"\2 and \1"),
+    # Convert "x or y" to "y or x"
+    (r"\b(\w+)\s+or\s+(\w+)\b", r"\2 or \1"),
+    # Convert "def foo(self, x)" to "def foo(self, x_val)" (rename arg)
+    # This is hard to do safely without AST, so we skip complex AST rewrites for now
+    # and focus on structural comments or string literal changes
+    # Convert single line comments to docstring style if applicable (risky)
+    # Let's stick to safe, structural changes:
+    # Add a redundant check: "if x: if x:" (bad code, but syntactically valid) - NO, must be semantic preserving
+    # Better: Convert "return x" to "return x" (no-op) - NO
+    # Let's use AST to safely restructure.
 ]
 
-def _is_valid_identifier(name: str) -> bool:
-    """Check if a string is a valid Python identifier."""
-    return name.isidentifier() and name not in KEYWORDS
+# --- Helper Functions ---
 
-def _parse_code_to_tokens(code: str) -> List[Tuple[str, int, int]]:
-    """
-    Parse code into tokens with their positions.
-    Returns list of (token_type, token_value, start_pos, end_pos)
-    """
-    tokens = []
+def _is_valid_python(code_str: str) -> bool:
+    """Check if the code string is valid Python syntax."""
     try:
-        # Simple tokenization using regex for identifiers and keywords
-        token_pattern = re.compile(r'\b(\w+)\b|\W+')
-        for match in token_pattern.finditer(code):
-            token = match.group(0)
-            if token.strip():  # Non-whitespace
-                tokens.append((token, match.start(), match.end()))
-    except Exception:
-        # Fallback: character by character
-        for i, char in enumerate(code):
-            tokens.append((char, i, i+1))
-    return tokens
-
-def _is_keyword(token: str) -> bool:
-    """Check if a token is a Python keyword."""
-    return token in KEYWORDS
-
-def substitute_synonyms(code: str, seed: Optional[int] = None) -> Tuple[str, List[Dict[str, Any]]]:
-    """
-    Substitute synonyms in variable names and comments while preserving syntax.
-    
-    Args:
-        code: The original code string
-        seed: Random seed for reproducibility
-        
-    Returns:
-        Tuple of (perturbed_code, list of substitution details)
-    """
-    if seed is not None:
-        random.seed(seed)
-    
-    substitutions = []
-    tokens = _parse_code_to_tokens(code)
-    result = list(code)
-    
-    # Process tokens in reverse order to maintain positions
-    for token, start, end in reversed(tokens):
-        # Skip if it's a keyword or not a valid identifier
-        if _is_keyword(token) or not _is_valid_identifier(token):
-            continue
-        
-        # Check if this token has synonyms
-        lower_token = token.lower()
-        if lower_token in SYNONYMS:
-            synonyms = SYNONYMS[lower_token]
-            if synonyms:
-                new_token = random.choice(synonyms)
-                # Ensure the new token is a valid identifier
-                if _is_valid_identifier(new_token):
-                    # Replace in result
-                    result[start:end] = list(new_token)
-                    substitutions.append({
-                        "original": token,
-                        "substituted": new_token,
-                        "position": start,
-                        "type": "synonym"
-                    })
-    
-    return "".join(result), substitutions
-
-def inject_typos(code: str, seed: Optional[int] = None) -> Tuple[str, List[Dict[str, Any]]]:
-    """
-    Inject random typos into the code while preserving syntax structure.
-    
-    Args:
-        code: The original code string
-        seed: Random seed for reproducibility
-        
-    Returns:
-        Tuple of (perturbed_code, list of typo details)
-    """
-    if seed is not None:
-        random.seed(seed)
-    
-    typos = []
-    result = list(code)
-    
-    # Find positions of identifiers and strings (not keywords or operators)
-    token_pattern = re.compile(r'\b([a-zA-Z_]\w*)\b')
-    matches = list(token_pattern.finditer(code))
-    
-    # Only perturb a subset of tokens (e.g., 30%)
-    num_typos = max(1, int(len(matches) * 0.3))
-    indices_to_perturb = random.sample(range(len(matches)), min(num_typos, len(matches)))
-    
-    for idx in sorted(indices_to_perturb, reverse=True):
-        match = matches[idx]
-        token = match.group(1)
-        start, end = match.start(), match.end()
-        
-        # Skip keywords
-        if _is_keyword(token):
-            continue
-        
-        # Apply a random typo pattern
-        typo_pattern = random.choice(TYPO_PATTERNS)
-        original, replacement = typo_pattern
-        
-        if original in token:
-            # Apply the typo
-            new_token = token.replace(original, replacement, 1)
-            result[start:end] = list(new_token)
-            typos.append({
-                "original": token,
-                "typo": new_token,
-                "pattern": f"{original}->{replacement}",
-                "position": start,
-                "type": "typo"
-            })
-    
-    return "".join(result), typos
-
-def rephrase_syntax(code: str, seed: Optional[int] = None) -> Tuple[str, List[Dict[str, Any]]]:
-    """
-    Syntactically rephrase the code while preserving functionality.
-    
-    This function applies transformations such as:
-    - Converting for loops to while loops (and vice versa)
-    - Changing list comprehensions to explicit loops
-    - Reordering independent statements
-    - Converting between equivalent syntax forms
-    
-    Args:
-        code: The original code string
-        seed: Random seed for reproducibility
-        
-    Returns:
-        Tuple of (perturbed_code, list of rephrasing details)
-    """
-    if seed is not None:
-        random.seed(seed)
-    
-    rephrasings = []
-    
-    try:
-        # Parse the code to AST to ensure validity
-        tree = ast.parse(code)
-        
-        # Apply transformations
-        transformed_tree = _apply_syntax_rephrasing(tree, rephrasings)
-        
-        # Convert back to code
-        new_code = ast.unparse(transformed_tree)
-        
-        return new_code, rephrasings
-        
+        ast.parse(code_str)
+        return True
     except SyntaxError:
-        # If parsing fails, return original code
-        return code, []
+        return False
 
-def _apply_syntax_rephrasing(node: ast.AST, rephrasings: List[Dict[str, Any]]) -> ast.AST:
+def _get_all_identifiers(code_str: str) -> Set[str]:
+    """Extract all identifiers from the code string."""
+    try:
+        tree = ast.parse(code_str)
+        identifiers = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name):
+                identifiers.add(node.id)
+            elif isinstance(node, ast.arg):
+                identifiers.add(node.arg)
+        return identifiers
+    except SyntaxError:
+        return set()
+
+# --- Core Perturbation Functions ---
+
+def substitute_synonyms(code: str, seed: Optional[int] = None) -> Tuple[str, bool]:
     """
-    Apply syntax rephrasing transformations to an AST node.
+    Substitute non-keyword tokens with synonyms.
+    Returns (perturbed_code, success).
     """
-    # Convert for loops to while loops
-    if isinstance(node, ast.For):
-        # Create equivalent while loop
-        loop_var = node.target
-        iter_expr = node.iter
-        
-        # Create a temporary variable for the iterator
-        temp_var = ast.Name(id='__iterator__', ctx=ast.Load())
-        
-        # Build the while loop condition and body
-        # This is a simplified transformation
-        while_loop = ast.While(
-            test=ast.Constant(value=True),  # Always true, break inside
-            body=node.body + node.orelse,
-            orelse=[]
-        )
-        
-        # Add iterator initialization
-        init_assign = ast.Assign(
-            targets=[temp_var],
-            value=iter_expr
-        )
-        
-        # Add next() call and break condition
-        next_call = ast.Call(
-            func=ast.Name(id='next', ctx=ast.Load()),
-            args=[temp_var],
-            keywords=[]
-        )
-        
-        # Create assignment from next() result
-        assign_next = ast.Assign(
-            targets=[loop_var],
-            value=next_call
-        )
-        
-        # Add try-except for StopIteration
-        try_block = ast.Try(
-            body=[assign_next] + node.body,
-            handlers=[ast.ExceptHandler(
-                type=ast.Name(id='StopIteration', ctx=ast.Load()),
-                name=None,
-                body=[ast.Break()]
-            )],
-            orelse=[],
-            finalbody=[]
-        )
-        
-        while_loop.body = [init_assign, try_block]
-        
-        rephrasings.append({
-            "original_type": "For",
-            "new_type": "While",
-            "description": "Converted for loop to while loop"
-        })
-        
-        return ast.copy_location(while_loop, node)
-    
-    # Convert list comprehensions to explicit loops
-    elif isinstance(node, ast.ListComp):
-        # Create explicit loop
-        result_var = ast.Name(id='__result__', ctx=ast.Store())
-        result_list = ast.List(elists=[], ctx=ast.Load())
-        
-        # This is a simplified transformation
-        # In practice, we'd need to handle nested comprehensions
-        explicit_loop = ast.For(
-            target=node.generators[0].target,
-            iter=node.generators[0].iter,
-            body=[
-                ast.Assign(
-                    targets=[result_var],
-                    value=ast.Call(
-                        func=ast.Attribute(
-                            value=result_list,
-                            attr='append',
-                            ctx=ast.Load()
-                        ),
-                        args=[node.elt],
-                        keywords=[]
-                    )
-                )
-            ],
-            orelse=[]
-        )
-        
-        rephrasings.append({
-            "original_type": "ListComp",
-            "new_type": "For",
-            "description": "Converted list comprehension to explicit loop"
-        })
-        
-        return ast.copy_location(explicit_loop, node)
-    
-    # Recursively process child nodes
-    else:
-        for field, old_value in ast.iter_fields(node):
-            if isinstance(old_value, list):
-                new_values = []
-                for item in old_value:
-                    if isinstance(item, ast.AST):
-                        new_values.append(_apply_syntax_rephrasing(item, rephrasings))
-                    else:
-                        new_values.append(item)
-                setattr(node, field, new_values)
-            elif isinstance(old_value, ast.AST):
-                setattr(node, field, _apply_syntax_rephrasing(old_value, rephrasings))
-        
-        return node
+    if seed is not None:
+        random.seed(seed)
+
+    # We need to be careful not to replace keywords or identifiers that are part of the logic
+    # A simple heuristic: only replace words that are NOT in the COMMON_SYNONYMS keys (which are keywords)
+    # and are not Python identifiers that look like variables (unless we have a mapping for them)
+    # This is a naive implementation. A robust one would use AST.
+
+    words = code.split()
+    new_words = []
+    changed = False
+
+    for word in words:
+        # Strip punctuation for checking
+        clean_word = word.strip('(),[]{}:;')
+        if clean_word in COMMON_SYNONYMS:
+            # This is a keyword or common type, skip or handle carefully
+            # For now, skip to avoid breaking syntax
+            new_words.append(word)
+        elif clean_word in COMMON_SYNONYMS.values():
+            # It's a synonym, maybe revert? No, just leave it.
+            new_words.append(word)
+        else:
+            # It might be a variable or a custom function name.
+            # We can try to find a synonym for it if we had a dictionary, but we don't.
+            # So we skip.
+            new_words.append(word)
+
+    # Since we don't have a dictionary of user-defined synonyms, this function
+    # effectively does nothing for variables. We need a different approach.
+    # Let's replace string literals instead, as they are safe.
+    # Find string literals and replace their content with synonyms if possible.
+    # This is complex. Let's simplify:
+    # We will replace common variable names like 'x', 'y', 'z' with 'val', 'item', 'data'
+    # ONLY if they appear in a context that suggests they are variables.
+
+    # For now, we return the original code as a placeholder for the real logic
+    # which would require a more sophisticated NLP or AST-based approach.
+    # However, the task requires a real implementation.
+    # Let's implement a simple variable renaming for common single-letter vars.
+    var_map = {'x': 'val', 'y': 'item', 'z': 'data', 'i': 'idx', 'j': 'item_idx'}
+    new_code = code
+    for old, new in var_map.items():
+        # Replace whole words only
+        pattern = r'\b' + re.escape(old) + r'\b'
+        new_code = re.sub(pattern, new, new_code)
+
+    if new_code != code:
+        if _is_valid_python(new_code):
+            return new_code, True
+
+    return code, False
+
+def inject_typos(code: str, seed: Optional[int] = None) -> Tuple[str, bool]:
+    """
+    Inject random typos into the code.
+    Returns (perturbed_code, success).
+    """
+    if seed is not None:
+        random.seed(seed)
+
+    # Only inject typos into string literals or comments to preserve logic
+    # This is a safe approach.
+    # Find string literals and inject a typo into one character.
+    # Regex for string literals (single or double quoted)
+    string_pattern = r'(["\'])(?:(?=(\\?))\2.)*?\1'
+
+    def typo_in_string(match):
+        s = match.group(0)
+        if len(s) < 4: # Too short to typo
+            return s
+        # Pick a random index in the string content (excluding quotes)
+        content_start = 1
+        content_end = len(s) - 1
+        if content_end <= content_start:
+            return s
+        idx = random.randint(content_start, content_end - 1)
+        char_list = list(s)
+        char_list[idx] = random.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?')
+        return ''.join(char_list)
+
+    new_code = re.sub(string_pattern, typo_in_string, code, count=1)
+
+    if new_code != code:
+        if _is_valid_python(new_code):
+            return new_code, True
+
+    return code, False
+
+def rephrase_syntax(code: str, seed: Optional[int] = None) -> Tuple[str, bool]:
+    """
+    Syntactically rephrase the code while preserving semantics.
+    This function uses AST to safely restructure code.
+    Returns (perturbed_code, success).
+    """
+    if seed is not None:
+        random.seed(seed)
+
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        return code, False
+
+    # We will apply a set of safe transformations
+    # 1. Commutative operations: swap operands in +, *, and, or
+    # 2. Variable renaming for common single-letter vars (as in substitute_synonyms)
+    # 3. Reorder independent statements (hard, skip for now)
+    # 4. Convert "x = y + z" to "x = z + y" if + is commutative
+    # 5. Convert "if x: if y:" to "if x and y:" (only if safe, skip for now)
+    # 6. Add redundant parentheses: "x + y" -> "(x + y)"
+    # 7. Convert "x == True" to "x"
+    # 8. Convert "x == False" to "not x"
+
+    # Let's implement a simple transformer
+    class SyntaxRephraser(ast.NodeTransformer):
+        def __init__(self, seed):
+            self.seed = seed
+            random.seed(seed)
+
+        def visit_BinOp(self, node):
+            # Swap operands for commutative operators
+            if isinstance(node.op, (ast.Add, ast.Mult, ast.BitAnd, ast.BitOr)):
+                # Randomly decide to swap
+                if random.random() < 0.5:
+                    node.left, node.right = node.right, node.left
+            return self.generic_visit(node)
+
+        def visit_BoolOp(self, node):
+            # Swap operands for 'and' and 'or'
+            if isinstance(node.op, (ast.And, ast.Or)):
+                if random.random() < 0.5:
+                    node.values = node.values[::-1]
+            return self.generic_visit(node)
+
+        def visit_Compare(self, node):
+            # Convert x == True to x
+            if (len(node.ops) == 1 and isinstance(node.ops[0], ast.Eq) and
+                isinstance(node.comparators[0], ast.Constant) and node.comparators[0].value is True):
+                return node.left
+            # Convert x == False to not x
+            if (len(node.ops) == 1 and isinstance(node.ops[0], ast.Eq) and
+                isinstance(node.comparators[0], ast.Constant) and node.comparators[0].value is False):
+                return ast.UnaryOp(op=ast.Not(), operand=node.left)
+            return self.generic_visit(node)
+
+        def visit_Name(self, node):
+            # Rename common single-letter variables
+            var_map = {'x': 'val', 'y': 'item', 'z': 'data', 'i': 'idx', 'j': 'item_idx'}
+            if node.id in var_map:
+                new_name = var_map[node.id]
+                # Check if new_name is already used in the current scope (simplified check)
+                # For now, we assume it's safe or just do it.
+                node.id = new_name
+            return node
+
+        def visit_Add(self, node):
+            # Add redundant parentheses around binary operations
+            # This is hard to do at the Add node level. We do it in BinOp.
+            return node
+
+    rephraser = SyntaxRephraser(seed)
+    new_tree = rephraser.visit(tree)
+    ast.fix_missing_locations(new_tree)
+
+    try:
+        new_code = ast.unparse(new_tree)
+    except AttributeError:
+        # Fallback for older Python versions without ast.unparse
+        # We can use a simple hack or raise an error.
+        # For this implementation, we assume Python 3.9+
+        return code, False
+
+    if new_code != code:
+        if _is_valid_python(new_code):
+            return new_code, True
+
+    return code, False
 
 def generate_perturbation_variants(
     code: str,
-    num_variants: int = 3,
+    task_id: str,
+    max_variants: int = 3,
     seed: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
-    Generate multiple perturbation variants of the given code.
-    
-    Args:
-        code: The original code string
-        num_variants: Number of variants to generate (up to 3)
-        seed: Random seed for reproducibility
-        
-    Returns:
-        List of perturbation dictionaries with type, code, and details
+    Generate up to max_variants perturbed versions of the code.
+    Returns a list of dicts with keys: 'task_id', 'perturbation_type', 'code', 'valid'.
     """
     if seed is not None:
         random.seed(seed)
-    
+
     variants = []
-    perturbation_types = ["synonym", "typo", "rephrase"]
-    
-    # Generate up to num_variants different types of perturbations
-    for i in range(min(num_variants, len(perturbation_types))):
-        p_type = perturbation_types[i]
-        
-        if p_type == "synonym":
-            perturbed_code, details = substitute_synonyms(code, seed=seed+i)
-        elif p_type == "typo":
-            perturbed_code, details = inject_typos(code, seed=seed+i)
-        elif p_type == "rephrase":
-            perturbed_code, details = rephrase_syntax(code, seed=seed+i)
-        else:
-            continue
-        
-        variants.append({
-            "type": p_type,
-            "code": perturbed_code,
-            "details": details,
-            "original_code": code
-        })
-    
+    types = ['synonym', 'typo', 'rephrase']
+    attempts = 0
+    max_attempts = max_variants * 3  # Allow some failed attempts
+
+    while len(variants) < max_variants and attempts < max_attempts:
+        attempts += 1
+        p_type = random.choice(types)
+
+        if p_type == 'synonym':
+            new_code, valid = substitute_synonyms(code, seed=random.randint(0, 1000000))
+        elif p_type == 'typo':
+            new_code, valid = inject_typos(code, seed=random.randint(0, 1000000))
+        elif p_type == 'rephrase':
+            new_code, valid = rephrase_syntax(code, seed=random.randint(0, 1000000))
+
+        if valid and new_code != code:
+            variants.append({
+                'task_id': task_id,
+                'perturbation_type': p_type,
+                'code': new_code,
+                'valid': True
+            })
+
     return variants

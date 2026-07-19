@@ -1,9 +1,10 @@
-T029b:
+T023:
   c: false
-  h: 0e6a6e8d778f26c958b447dfaad3ee058675c79a8d7c93d10908037262f7eab5
-  r: "The required `code/main.py` file does not exist, so the budget\u2011cap enforcer\
-    \ cannot be present or verified. Without this script, the task of reading `MAX_SAMPLES`\
-    \ and ordering prompts as specified is not fulfilled."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation for a sandbox executor with a fixed\
+    \ per\u2011test\u2011case timeout was provided; the claim lacks any artifact demonstrating\
+    \ that such an executor has been integrated or that it enforces the required timeout.\
+    \ The required implementation and evidence are missing."
 T036:
   c: false
   h: 6f7e4334f75c4de3c9a090e2ba1635062126901d2caa6fafdcab91deb5d2d9bf
