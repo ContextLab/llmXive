@@ -1,16 +1,18 @@
 {
   "project_id": "PROJ-326-investigating-the-impact-of-network-stru",
   "ok": false,
-  "reason": "1 command(s) failed: python code/main.py --config code/config.yaml --output data/ (rc=1); 5 declared deliverable(s) absent: data/analysis/final_results.json; data/analysis/power_analysis_report.json; data/analysis/sensitivity_sweep.json",
-  "artifacts": [],
-  "failures": [
-    "python code/main.py --config code/config.yaml --output data/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/main.py\", line 15, in <module>\n    from code.src.analysis.run_analysis import main as run_analysis\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/src/analysis/__init__.py\", line 6, in <module>\n    from .sensitivity import run_sensitivity_sweep\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impac"
+  "reason": "every produced artifact is gitignored (data/run_log.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 command(s) failed: python code/main.py --config code/config.yaml --output data/ (rc=1); 5 declared deliverable(s) absent: data/analysis/final_results.json; data/analysis/power_analysis_report.json; data/analysis/sensitivity_sweep.json",
+  "artifacts": [
+    "data/run_log.json"
   ],
-  "fix_rounds": 2,
+  "failures": [
+    "python code/main.py --config code/config.yaml --output data/ -> rc=1\n    2026-07-19 13:54:10,891 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Non-scalable fonts are not supported\n2026-07-19 13:54:10,943 - matplotlib.font_manager - INFO - generated new fontManager\n2026-07-19 13:54:11,233 - __main__ - INFO - Step 1: Injecting seeds into run log for reproducibility...\n2026-07-19 13:54:11,236 - __main__ - ERROR - Pipeline failed: Config must contain 'random_seed' key for reproducibility.\nTraceback (most recent call las"
+  ],
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-17T15:15:29Z"
+  "updated_at": "2026-07-19T13:54:13Z"
 }

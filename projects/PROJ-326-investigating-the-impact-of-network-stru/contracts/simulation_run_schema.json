@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SimulationRun",
-  "description": "Schema for a single simulation run result entry as defined in US2.",
+  "description": "Schema for a single simulation run result, ensuring data hygiene and provenance (Constitution Principle VI).",
   "type": "object",
   "required": [
     "network_id",
@@ -9,7 +9,10 @@
     "diffusion_rate",
     "topology_class",
     "steps_run",
-    "status"
+    "status",
+    "runtime_duration_seconds",
+    "generation_algorithm",
+    "parameter_values"
   ],
   "properties": {
     "network_id": {
@@ -18,24 +21,39 @@
     },
     "seed": {
       "type": "integer",
-      "description": "Random seed used for this specific simulation run."
+      "description": "Random seed used for the simulation run."
     },
     "diffusion_rate": {
       "type": "number",
       "format": "float",
-      "description": "Calculated rate of change of spatial variance (finite difference)."
+      "description": "Calculated rate of energy diffusion (change in spatial variance per step)."
     },
     "topology_class": {
       "type": "string",
-      "description": "Class of the network topology (e.g., 'Erdos-Renyi', 'Watts-Strogatz', 'Barabasi-Albert')."
+      "enum": ["erdos_renyi", "watts_strogatz", "barabasi_albert"],
+      "description": "The class of network topology generated."
     },
     "steps_run": {
       "type": "integer",
-      "description": "Number of time steps executed in the simulation."
+      "description": "Number of simulation time steps executed."
     },
     "status": {
       "type": "string",
-      "description": "Execution status of the simulation (e.g., 'SUCCESS', 'SIMULATION_DIVERGENCE', 'DISCONNECTED_NETWORK_FAILURE')."
+      "description": "Final status of the run (e.g., 'SUCCESS', 'SIMULATION_DIVERGENCE', 'DISCONNECTED_NETWORK_FAILURE')."
+    },
+    "runtime_duration_seconds": {
+      "type": "number",
+      "format": "float",
+      "description": "Wall-clock execution time in seconds."
+    },
+    "generation_algorithm": {
+      "type": "string",
+      "description": "Name of the algorithm used to generate the graph (e.g., 'erdos_renyi', 'watts_strogatz')."
+    },
+    "parameter_values": {
+      "type": "object",
+      "description": "Dictionary of parameters used during graph generation.",
+      "additionalProperties": true
     }
   },
   "additionalProperties": false

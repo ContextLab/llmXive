@@ -1,43 +1,50 @@
-# Global Configuration for Network Topology Energy Transfer Project
-# This file serves as the immutable source of truth for seeds and targets (FR-007)
+# Global Configuration for Network Topology Energy Transfer Study
+# This file serves as the immutable source of truth for all simulation parameters.
 
-# Global Random Seeds
+# Reproducibility
+random_seed: 42
 global_seed: 42
-seed_generation: 1001
-seed_simulation: 1002
-seed_analysis: 1003
+generator_seed: 42
+simulation_seed: 42
 
-# Simulation Parameters
-simulation:
-  target_graph_count: 1000
-  min_nodes: 10
-  max_nodes: 100
-  edge_probability_er: 0.1
-  rewiring_probability_sw: 0.1
-  avg_degree_sf: 3
-  simulation_timeout_seconds: 300
-  max_retries: 10
+# Logging
+log_level: INFO
 
-# Topology Targets
-topology:
-  er:
-    target_clustering: 0.1
-    target_degree: 5.0
-  sw:
-    target_clustering: 0.5
-    target_path_length: 2.0
-  sf:
-    target_power_law_r2: 0.95
+# Topology Targets (User Story 1)
+topology_targets:
+  erdos_renyi:
+    n: 100
+    p: [0.05, 0.1]
+    batch_size: 10
+  watts_strogatz:
+    n: 100
+    k: [4, 6]
+    p: [0.1, 0.2]
+    batch_size: 10
+  barabasi_albert:
+    n: 100
+    m: [2, 3]
+    batch_size: 10
 
-# Analysis Parameters
-analysis:
-  clustering_thresholds: [0.1, 0.3, 0.5, 0.7]
+# Simulation Parameters (User Story 2)
+simulation_params:
+  temperature: 1.0
+  steps: 100
+  initial_excitation_ratio: 0.1
+  tolerance: 1e-6
+  max_attempts: 10
+
+# Analysis Parameters (User Story 3)
+analysis_params:
+  sensitivity_thresholds: [0.0, 0.2, 0.4, 0.6, 0.8]
   regression_models: ["linear", "polynomial"]
-  anova_correction: "benjamini_hochberg"
+  anova_groups: ["erdos_renyi", "watts_strogatz", "barabasi_albert"]
 
-# Paths
-paths:
-  data_raw: "data/raw"
-  data_analysis: "data/analysis"
-  figures: "figures"
-  logs: "data"
+# Timeouts and Limits
+simulation_timeout_seconds: 3600
+max_batch_size: 100
+
+# Paths (relative to project root)
+data_dir: data
+figures_dir: paper
+results_dir: data/analysis

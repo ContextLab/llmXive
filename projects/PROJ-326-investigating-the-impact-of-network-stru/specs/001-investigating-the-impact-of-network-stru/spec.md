@@ -109,7 +109,7 @@ The researcher can perform regression analysis (linear and non-linear) to correl
 ## Assumptions
 
 - Python runtime environment with NetworkX, NumPy, SciPy, Matplotlib, and Seaborn packages available in the execution environment
-- GitHub Actions free-tier runner (limited CPU cores, ~7 GB RAM, ~14 GB disk, no GPU) is available for all simulation and analysis execution
+- GitHub Actions free-tier runner (limited CPU cores, limited RAM, ~14 GB disk, no GPU) is available for all simulation and analysis execution
 - Synthetic network generation is algorithmic; no external data sources or downloads are required
 - The simplified Ising spin-flip model uses non-equilibrium relaxation dynamics to simulate energy propagation; quantum effects are out of scope for this research
 - Network size is bounded to a moderate-to-large scale per graph (DOI/arXiv/author-year). The research question remains: [Insert Research Question]. The method remains: [Insert Method]. to ensure memory constraints are met on the free-tier runner
