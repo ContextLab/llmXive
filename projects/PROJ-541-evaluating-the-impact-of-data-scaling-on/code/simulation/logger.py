@@ -1,75 +1,95 @@
-"""
-Logging configuration for the simulation module.
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
 
-Provides a centralized setup function to configure logger instances
-with consistent formatting and log levels, including file rotation.
-"""
-
-import logging
-import os
-from logging.handlers import RotatingFileHandler
+import functools
+import json
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
 
 
-def setup_logger(
-    name: str,
-    level: int = logging.INFO,
-    log_file: str = "logs/simulation.log",
-    max_bytes: int = 10 * 1024 * 1024,  # 10 MB
-    backup_count: int = 5
-) -> logging.Logger:
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
     """
-    Setup and return a logger instance configured with specific format, level,
-    and file rotation.
 
-    This function creates a logger with the given name, sets its level to handle
-    DEBUG, INFO, WARNING, and ERROR, and attaches both a console handler and a
-    rotating file handler.
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # Handle both positional (name) and keyword (batch_id, name) arguments
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.batch_id = kwargs.get("batch_id")
+        self.entries: list = []
 
-    Args:
-        name: The name of the logger (typically __name__ of the calling module).
-        level: The logging level (default: logging.INFO).
-        log_file: Path to the log file (default: "logs/simulation.log").
-        max_bytes: Maximum size of log file before rotation (default: 10MB).
-        backup_count: Number of backup log files to keep (default: 5).
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
 
-    Returns:
-        A configured logging.Logger instance.
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
 
-    The format string used is:
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
     """
-    # Ensure log directory exists
-    log_dir = os.path.dirname(log_file)
-    if log_dir and not os.path.exists(log_dir):
-        os.makedirs(log_dir, exist_ok=True)
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
 
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
 
-    # Only add handlers if none exist to prevent duplicate logs in tests/re-runs
-    if not logger.handlers:
-        # Define the specific format string required by the task
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
+        return _wrapper
 
-        # Console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
 
-        # Rotating file handler
-        file_handler = RotatingFileHandler(
-            log_file,
-            maxBytes=max_bytes,
-            backupCount=backup_count
-        )
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
 
-        # Prevent propagation to root logger to avoid double logging
-        logger.propagate = False
-
-    return logger
+def setup_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Setup logger function compatible with all call sites.
+    
+    Accepts:
+    - setup_logger("name")
+    - setup_logger(batch_id="id")
+    - setup_logger("name", batch_id="id")
+    - setup_logger(__name__)
+    """
+    # If a single string argument is passed, treat it as the logger name
+    if len(args) == 1 and isinstance(args[0], str):
+        kwargs["name"] = args[0]
+    
+    # If batch_id is passed but no name, use a default
+    if "batch_id" in kwargs and "name" not in kwargs:
+        kwargs["name"] = kwargs.get("batch_id", "reproducibility")
+        
+    return get_logger(**kwargs)

@@ -8,19 +8,31 @@ T027:
     the specified schema. The essential output artifact is missing.
 T028#1:
   c: false
-  h: 814cb27647c8037a27a6cc3e38d349735086bb7e08f952178bd34c6ae4184aa1
-  r: "The provided `code/main.py` is truncated and does not contain a complete simulation\
-    \ loop that iterates over distribution types, scaling methods, and test types,\
-    \ nor does it write any results to a CSV. Additionally, the required output file\
-    \ `results/simulation_results.csv` is missing from the repository. The task\u2019\
-    s core requirements are therefore not satisfied."
-T038:
+  h: a141d08ca0e2355c9ec27278458f17e0029db00bf2ef117cd0e3bbf43435a9c0
+  r: "The `results/simulation_results.csv` and `results/partial_checkpoint.csv` files\
+    \ are missing, and `code/main.py` does not contain a complete simulation loop\
+    \ (the function is truncated and never iterates over configurations). Moreover,\
+    \ the provided unit test calls `enforce_iteration_threshold` with a non\u2011\
+    existent `minimum` argument, indicating the test suite does not actually verify\
+    \ the required 10,000\u2011row output. The task\u2019s deliverables are therefore\
+    \ not present."
+T029:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or output artifacts were provided that demonstrate the scaling\
-    \ and testing pipeline being applied to real data, nor evidence of streaming or\
-    \ a fixed\u2011size (N=5000) materialization. The claim cannot be verified without\
-    \ such concrete implementation and results."
+  h: 16f3b09f3bf5d585c8466e6a211579ddd78c4fd29ed20547550ae6cc981c2e7e
+  r: "The repository lacks the required `results/simulation_results.csv` file, so\
+    \ the aggregation function cannot operate on real data. Moreover, the provided\
+    \ excerpt of `code/analysis/metrics.py` does not show a `calculate_aggregate_metrics`\
+    \ implementation (the file is truncated before any such function appears), leaving\
+    \ no evidence that the function computes Type\u202FI error and power as required.\
+    \ The missing data file and absent implementation must be added to satisfy the\
+    \ task."
+T039:
+  c: false
+  h: 90983603a21c9c5e1e3e3d6fa075605b71f12cc8ef6d45c9f7579d6758074a66
+  r: "The required `results/comparison_report.md` file does not exist, and the provided\
+    \ `code/analysis/metrics.py` shows no implemented function that creates such a\
+    \ report (the file is truncated and contains no report\u2011generation logic).\
+    \ Consequently the task\u2019s deliverable is missing."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,3 +52,39 @@ T044:
     \ screenshots, or a reproducibility report) was provided, and no artifacts confirming\
     \ end\u2011to\u2011end reproducibility are present. The implementer therefore\
     \ has not satisfied the task requirement."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No streaming loader code, data, or documentation is present; the only artifacts\
+    \ referenced are the high\u2011level feature specification for data scaling simulations,\
+    \ which does not include any implementation of a streaming loader. Consequently\
+    \ the required artifact is missing."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or visualizations were supplied; the implementer did not\
+    \ provide the synthetic data generator, scaling\u2011and\u2011testing pipeline,\
+    \ or aggregated results required by the user stories. Consequently the task\u2019\
+    s core artifacts are missing."
+T048:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No dataset configuration file or updated configuration content is present; the\
+    \ only provided material is a high\u2011level feature specification without any\
+    \ concrete artifact (e.g., a YAML/JSON config file, diff, or commit) showing that\
+    \ IDs from\u202Fresearch.md were incorporated. The required update is therefore\
+    \ missing."
+T049:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or visualizations were supplied; the implementer did not\
+    \ provide the required simulation generator, scaling\u2011and\u2011testing pipeline,\
+    \ or aggregation/visualization artifacts described in the user stories. Consequently\
+    \ the task\u2019s deliverables are missing."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or results were supplied; the implementer did not provide\
+    \ the required simulation generator, scaling pipeline, statistical test outputs,\
+    \ or any aggregated visualizations. Consequently, the task\u2019s core deliverables\
+    \ are absent."

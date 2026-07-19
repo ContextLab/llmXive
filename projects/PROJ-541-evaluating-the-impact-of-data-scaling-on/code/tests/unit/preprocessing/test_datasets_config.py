@@ -3,104 +3,74 @@ import yaml
 import os
 from pathlib import Path
 import sys
-
-# Ensure the code directory is in the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from preprocessing.ingestion import load_dataset_config
 
 class TestDatasetConfigValidation:
     """
-    Tests for T027: Create Verified Dataset Configuration.
-    Validates that data/config/datasets.yaml exists, is unique, and accessible.
+    T034b: Validate the configuration in `data/config/datasets.yaml` created by T027.
+    
+    This test ensures:
+    1. The YAML file exists and is valid.
+    2. All dataset IDs are unique.
+    3. Required fields (id, name, source) are present.
+    4. The file can be loaded by the ingestion module.
     """
 
     @pytest.fixture
     def config_path(self):
+        """Return the path to the datasets.yaml configuration file."""
         return Path("data/config/datasets.yaml")
 
-    def test_config_file_exists(self, config_path):
-        """Verify that the datasets.yaml configuration file exists."""
-        assert config_path.exists(), f"Configuration file {config_path} does not exist."
+    def test_file_exists(self, config_path):
+        """Assert that the datasets.yaml file exists."""
+        assert config_path.exists(), f"Configuration file not found at {config_path}"
 
-    def test_config_loads_valid_yaml(self, config_path):
-        """Verify that the configuration file is valid YAML."""
-        try:
-            with open(config_path, 'r') as f:
+    def test_yaml_loads_successfully(self, config_path):
+        """Assert that the YAML file can be parsed without errors."""
+        with open(config_path, 'r') as f:
+            try:
                 data = yaml.safe_load(f)
-            assert isinstance(data, dict), "Root element must be a dictionary."
-            assert 'datasets' in data, "Root dictionary must contain 'datasets' key."
-            assert isinstance(data['datasets'], list), "'datasets' must be a list."
-        except yaml.YAMLError as e:
-            pytest.fail(f"Invalid YAML in {config_path}: {e}")
+                assert data is not None, "YAML file is empty or invalid"
+            except yaml.YAMLError as e:
+                pytest.fail(f"Failed to parse YAML: {e}")
+
+    def test_datasets_key_exists(self, config_path):
+        """Assert that the 'datasets' key exists in the configuration."""
+        with open(config_path, 'r') as f:
+            data = yaml.safe_load(f)
+            assert 'datasets' in data, "Missing 'datasets' key in configuration"
+            assert isinstance(data['datasets'], list), "'datasets' must be a list"
 
     def test_unique_dataset_ids(self, config_path):
-        """Verify that all dataset IDs in the configuration are unique."""
+        """Assert that all dataset IDs are unique."""
         with open(config_path, 'r') as f:
             data = yaml.safe_load(f)
-        
-        ids = [ds['id'] for ds in data['datasets']]
-        seen = set()
-        duplicates = []
-        for ds_id in ids:
-            if ds_id in seen:
-                duplicates.append(ds_id)
-            seen.add(ds_id)
-        
-        assert len(duplicates) == 0, f"Duplicate dataset IDs found: {duplicates}"
+            ids = [ds['id'] for ds in data['datasets']]
+            assert len(ids) == len(set(ids)), "Duplicate dataset IDs found"
 
     def test_required_fields_present(self, config_path):
-        """Verify that each dataset entry has required fields: id, source, description."""
+        """Assert that all required fields are present in each dataset config."""
+        required_fields = ['id', 'name', 'source']
         with open(config_path, 'r') as f:
             data = yaml.safe_load(f)
-        
-        required_fields = ['id', 'source', 'description']
-        for i, ds in enumerate(data['datasets']):
-            for field in required_fields:
-                assert field in ds, f"Dataset at index {i} is missing required field: {field}"
+            for i, ds in enumerate(data['datasets']):
+                for field in required_fields:
+                    assert field in ds, f"Missing required field '{field}' in dataset {i}"
 
-    def test_load_dataset_config_function_exists(self):
-        """Verify that the load_dataset_config function exists and is callable."""
-        assert callable(load_dataset_config), "load_dataset_config must be callable."
+    def test_load_dataset_config_function(self, config_path):
+        """Assert that the load_dataset_config function works correctly."""
+        config = load_dataset_config(config_path)
+        assert config is not None, "load_dataset_config returned None"
+        assert 'datasets' in config, "Loaded config missing 'datasets' key"
+        assert len(config['datasets']) > 0, "Loaded config has no datasets"
 
-    def test_load_dataset_config_returns_list(self, config_path):
-        """Verify that load_dataset_config returns a list of datasets."""
-        datasets = load_dataset_config(config_path)
-        assert isinstance(datasets, list), "load_dataset_config must return a list."
-        assert len(datasets) > 0, "load_dataset_config must return a non-empty list."
-
-    def test_load_dataset_config_preserves_fields(self, config_path):
-        """Verify that load_dataset_config preserves all fields from YAML."""
-        datasets = load_dataset_config(config_path)
-        for ds in datasets:
-            assert 'id' in ds
-            assert 'source' in ds
-            assert 'description' in ds
-            # Optional fields check
-            assert 'type' in ds or 'expected_size' in ds, "Each dataset should have at least 'type' or 'expected_size'."
-
-    def test_config_ids_are_formatted_correctly(self, config_path):
-        """Verify that dataset IDs follow the expected format (e.g., 'uciml/iris' or 'openml/d/2')."""
+    def test_verified_flag_present(self, config_path):
+        """Assert that all datasets have a 'verified' flag set to True."""
         with open(config_path, 'r') as f:
             data = yaml.safe_load(f)
-        
-        valid_prefixes = ['uciml/', 'openml/d/']
-        for ds in data['datasets']:
-            ds_id = ds['id']
-            assert any(ds_id.startswith(prefix) for prefix in valid_prefixes), \
-                f"Dataset ID '{ds_id}' does not start with a valid prefix (uciml/ or openml/d/)."
-            
-            # Additional check: no spaces in IDs
-            assert ' ' not in ds_id, f"Dataset ID '{ds_id}' contains spaces."
-            
-            # Additional check: no trailing slashes
-            assert not ds_id.endswith('/'), f"Dataset ID '{ds_id}' ends with a slash."
+            for ds in data['datasets']:
+                assert 'verified' in ds, f"Dataset {ds.get('id', 'unknown')} missing 'verified' flag"
+                assert ds['verified'] is True, f"Dataset {ds.get('id', 'unknown')} is not marked as verified"
 
-    def test_no_empty_descriptions(self, config_path):
-        """Verify that no dataset has an empty or whitespace-only description."""
-        with open(config_path, 'r') as f:
-            data = yaml.safe_load(f)
-        
-        for i, ds in enumerate(data['datasets']):
-            desc = ds.get('description', '')
-            assert desc.strip(), f"Dataset at index {i} has an empty or whitespace-only description."
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

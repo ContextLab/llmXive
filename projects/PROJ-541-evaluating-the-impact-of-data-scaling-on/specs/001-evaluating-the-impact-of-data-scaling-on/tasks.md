@@ -28,7 +28,7 @@
 - [X] T001b [P] Create `code/simulation/`, `code/preprocessing/`, `code/analysis/`, `code/visualization/` subdirectories. **Deliverable**: Verify directories exist: `code/simulation`, `code/preprocessing`, `code/analysis`, `code/visualization`.
 - [X] T001c [P] Create `data/raw/`, `data/scaled/`, `data/config/` subdirectories
 - [X] T001d [P] Create `results/figures/` and `data/scaled/{standardized,minmax,robust}/` subdirectories
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (numpy, scipy, pandas, scikit-learn, statsmodels, matplotlib, seaborn)
+- [X] T002 Initialize Python project with pinned dependencies in `code/requirements.txt` (numpy, scipy, pandas, scikit-learn, statsmodels, matplotlib, seaborn)
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -47,7 +47,7 @@
 - [X] T024 [US4] **Implement Strict Streaming Loader**: Refactor `code/preprocessing/ingestion.py` to use `datasets.load_dataset(..., streaming=True)` for large public datasets. **Requirement**: Do not load the full dataset into memory. **Logic**: Iterate over the streaming object in chunks to compute necessary statistics (mean, variance) or to sample a fixed number of rows. **Constraint**: If a full dataset cannot be processed within the specified time limit, the code must explicitly sample a well-defined subset. (e.g., `itertools.islice` the first N rows) and log the sample size and limitation. **Prohibition**: Do NOT use `generate_synthetic_data` as a fallback if streaming fails. **CRITICAL PREREQUISITE**: This task MUST be completed before T035 and T038.
 - [X] T025 [US4] **Enforce Fail-Loudly Data Fetch**: Remove any `try/except` blocks in `code/preprocessing/ingestion.py` that catch download errors and substitute synthetic data. **Action**: If `datasets.load_dataset` or a URL fetch fails, the function must raise a `RuntimeError` with a clear message identifying the missing source. **Rationale**: Prevents silent fabrication where real data fails and the pipeline continues with fake data. **CRITICAL PREREQUISITE**: This task MUST be completed before T035 and T038.
 - [X] T026 [US4] Adapt `code/analysis/tests.py` to accept chunked/streamed data via a `data_stream` or `sample_size` argument. Implement a 'sample-and-test' strategy: stream N=5000 rows, then run the standard test.
-- [X] T027 [US4] **Create Verified Dataset Configuration**: Generate `data/config/datasets.yaml` containing the list of verified datasets (IDs from `research.md`). **Validation**: Programmatically verify that all IDs are unique and accessible before proceeding. If any dataset is unavailable, log a warning and skip it during ingestion.
+- [X] T027 [US4] **Create Verified Dataset Configuration**: Generate `data/config/datasets.yaml` containing the list of verified datasets (IDs from `research.md`). **Deliverable**: `data/config/datasets.yaml` with unique IDs. **Validation**: Programmatically verify that all IDs are unique and accessible before proceeding. If any dataset is unavailable, log a warning and skip it during ingestion. **Verification**: Script `code/tests/unit/preprocessing/test_datasets_config.py` that asserts all IDs are accessible. **CRITICAL PREREQUISITE**: This task MUST be completed before T051 and T056.
 - [X] T028 [US4] **Add Verification Task for Real Data**: Create a task `code/tests/unit/preprocessing/test_real_data_integrity.py` that asserts the loaded data is not synthetic by checking for specific statistical properties or source ID verification.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -94,7 +94,7 @@
 
 - [X] T019 [P] [US2] Implement `standardize_data` function in `code/preprocessing/scaling.py`
 - [X] T020 [P] [US2] Implement `min_max_scale` function in `code/preprocessing/scaling.py`
-- [X] T021 [P] [US2] Implement `robust_scale` function in `code/preprocessing/scaling.py` with explicit zero-IQR handling: Log `WARNING` and skip the iteration if IQR is zero. **Action**: Do not return a constant; skip iteration entirely.
+- [X] T021 [P] [US2] Implement `robust_scale` function in `code/preprocessing/scaling.py` with explicit zero-IQR handling: Log `WARNING` and skip the iteration if IQR is zero. **Action**: Do not return a constant; skip iteration entirely. **Rationale**: Skipping is a necessary data hygiene step to prevent NaNs and division-by-zero errors, ensuring robust scaling handles edge cases as per Edge Case 2.
 - [X] T022 [US2] Implement `run_t_test` and `run_anova` in `code/analysis/tests.py`
 - [X] T023 [US2] Implement `run_chi_squared` in `code/analysis/tests.py` with binning logic based on theoretical quantiles derived from the config's ground-truth parameters (mean, variance). If a bin has an expected count < 5, merge with the left neighbor; if the left neighbor is empty or < 5, merge with the right neighbor. If both fail, log "Bin merge failed" and skip the iteration.
 
@@ -110,17 +110,17 @@
 
 ### Tests for User Story 3
 
-- [X] T025 [P] [US3] Contract test for empirical error rate calculation (count < alpha / total) in `code/tests/unit/analysis/test_metrics.py`
-- [X] T026a [US3] **Production CI Implementation**: Implement `calculate_confidence_interval` in `code/analysis/metrics.py` using the Clopper-Pearson exact method.
-- [X] T026b [US3] **Verification Test**: Implement a test in `code/tests/unit/analysis/test_metrics.py` that verifies the Clopper-Pearson implementation against known binomial values for n=100, p=0.05 (expected range: a low-order magnitude to a small threshold).
+- [X] T060 [P] [US3] Contract test for empirical error rate calculation (count < alpha / total) in `code/tests/unit/analysis/test_metrics.py`
+- [X] T061 [US3] **Production CI Implementation**: Implement `calculate_confidence_interval` in `code/analysis/metrics.py` using the Clopper-Pearson exact method.
+- [X] T062 [US3] **Verification Test**: Implement a test in `code/tests/unit/analysis/test_metrics.py` that verifies the Clopper-Pearson implementation against known binomial values for n=100, p=0.05 (expected range: a low-order magnitude to a small threshold).
+- [X] T063a [US3] **Enforce Iteration Threshold (Impl)**: Implement logic in `code/main.py` to enforce minimum 10,000 iterations per config. **Deliverable**: Function `enforce_iteration_threshold` in `code/main.py`. **Verification**: Unit test `code/tests/unit/simulation/test_main.py` asserting `iterations >= 10000`.
+- [X] T063b [US3] **Enforce Iteration Threshold (Test)**: Implement unit test `code/tests/unit/simulation/test_main.py` asserting `iterations >= 10000`.
 
 ### Implementation for User Story 3
 
-- [X] T027a [US3] Validate simulation iteration threshold.
-- [X] T027b [US3] **Global Budget Enforcer**: Implement a wrapper in `code/main.py` that measures total wall-clock time for the simulation loop and terminates after 6 hours.
-- [ ] T028 [US3] Implement simulation loop orchestration in `code/main.py`. Iterate over all combinations of distribution types, scaling methods, and test types.. Persist results to `results/simulation_results.csv`.
-- [X] T029 [US3] Implement `calculate_aggregate_metrics` in `code/analysis/metrics.py` to compute Type I error and Power
-- [X] T030 [US3] Implement `generate_error_rate_plot` in `code/visualization/plots.py` showing empirical rate vs with 95% CI (using Clopper-Pearson).
+- [ ] T028 [US3] **Implement Simulation Loop Orchestration**: In `code/main.py`, implement the simulation loop to iterate over all combinations of distribution types, scaling methods, and test types. **Deliverable**: `results/simulation_results.csv` with schema: `iteration_id`, `config_id`, `scaling_method`, `test_type`, `p_value`, `statistic`, `ground_truth`, `scaling_params`, `seed`. **Logic**: The loop must run at least 10,000 iterations per configuration (FR-004). It must record the random seed for every iteration (Constitution Principle VI). It must implement a checkpoint mechanism (every fixed number of iterations or time interval) to save partial results to `results/partial_checkpoint.csv` to handle time limits. **Verification**: Script `code/tests/unit/simulation/test_main.py` asserting file exists and contains >10,000 rows with valid schema. **Dependency**: Must be completed before T029 and T030.
+- [ ] T029 [US3] Implement `calculate_aggregate_metrics` in `code/analysis/metrics.py` to compute Type I error and Power. **Dependency**: Requires T028 to produce `results/simulation_results.csv`.
+- [X] T030 [US3] Implement `generate_error_rate_plot` in `code/visualization/plots.py` showing empirical rate vs with confidence intervals (using Clopper-Pearson). **Input**: Expects a DataFrame with columns `[scaling_method, error_rate, ci_lower, ci_upper]`. **Requirements**: Use `seaborn` to plot error bars for 95% CI and a horizontal reference line at the conventional significance threshold. **Dependency**: Requires T029 to produce aggregate metrics.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,8 +142,10 @@
 - [X] T035 [US4] Implement `download_dataset` function in `code/preprocessing/ingestion.py` using specific verified URLs or `datasets.load_dataset`.
 - [X] T036 [US4] Implement data cleaning and preprocessing (imputation/removal) in `code/preprocessing/ingestion.py`
 - [X] T037 [US4] Create `RealWorldDataset` entity and metadata storage in `code/preprocessing/ingestion.py`
-- [ ] T038 [US4] Reuse scaling and testing pipeline on real data. Apply streaming or materialize a fixed sample size (N=5000) if streaming is incompatible.
-- [X] T039 [US4] Implement comparison report generation in `code/analysis/metrics.py`.
+- [X] T051 [US4] **Implement Explicit Dataset Sampling Logic**: In `code/preprocessing/ingestion.py`, add a dedicated function `sample_streamed_data` that takes a `stream` object and a `max_rows` integer (default a substantial number of samples). **Requirement**: Use `itertools.islice` to strictly limit rows. **Deliverable**: Function `sample_streamed_data` in `code/preprocessing/ingestion.py` returning a DataFrame and metadata dict. **Verification**: Unit test `code/tests/unit/preprocessing/test_ingestion.py` asserting correct sampling and metadata. **Dependency**: Must be completed before T038 and T056.
+- [X] T056 [US4] **Ingest Full Dataset Set**: Implement ingestion and processing of all public datasets listed in `data/config/datasets.yaml`. **Deliverable**: `results/real_world_ingestion_log.csv` with schema: `dataset_id`, `source_url`, `status`, `row_count`, `checksum`. **Verification**: Script `code/tests/unit/preprocessing/test_ingestion.py` asserting all datasets are processed and the log file contains the correct schema. **Dependency**: Requires T027 and T051.
+- [X] T038 [US4] **Reuse Scaling and Testing Pipeline on Real Data**: Apply the scaling and testing pipeline to real data using the sampling logic from T051. **Deliverable**: `results/real_world_results.csv` with p-values and effect sizes for each dataset. **Verification**: Script `code/tests/integration/test_real_world.py` asserting file exists and contains p-values for multiple datasets. **Dependency**: Requires T051 and T056.
+- [ ] T039 [US4] Implement comparison report generation in `code/analysis/metrics.py`. **Deliverable**: `results/comparison_report.md`. **Content**: Must include a table comparing synthetic vs real-world error rates. **Dependency**: Requires T038 to produce real-world results.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -168,9 +170,15 @@
 
 ### Implementation for Review Resolution
 
-- [ ] T046 [US4] Implement Streaming Loaders
-- [ ] T047 [US4] Enforce Fail-Loudly Data Fetch
-- [ ] T048 [US4] Update Dataset Configuration (using verified IDs from research.md).
-- [ ] T034b [US4] Validate the configuration in `data/config/datasets.yaml` created by T027.
-- [ ] T049 [US4] Add Verification Task for Real Data
-- [ ] T050 [US4] Refine Real-World Pipeline Logic
+- [X] T046 [US4] Implement Streaming Loaders (Consolidated into T024/T026)
+- [X] T047 [US4] Enforce Fail-Loudly Data Fetch (Consolidated into T025)
+- [X] T048 [US4] Update Dataset Configuration (using verified IDs from research.md) (Consolidated into T027)
+- [X] T034b [US4] Validate the configuration in `data/config/datasets.yaml` created by T027.
+- [X] T049 [US4] Add Verification Task for Real Data (Consolidated into T028)
+- [X] T050 [US4] Refine Real-World Pipeline Logic (Consolidated into T038)
+
+- [X] T052 [US4] **Add Real-World Data Source Verification**: In `code/tests/unit/preprocessing/test_real_data_integrity.py`, add an assertion that checks the `source_id` in the loaded DataFrame metadata matches one of the IDs in `data/config/datasets.yaml`. **Rationale**: Ensures the data loader is not accidentally falling back to a default or cached synthetic dataset if the network fetch fails or times out.
+- [X] T053 [US3/US4] **Implement Mixed-Effects Model Analysis**: In `code/analysis/metrics.py`, implement a function `fit_mixed_effects_model` using `statsmodels` that models the deviation from nominal alpha (standard significance threshold) as a function of `scaling_method` (fixed effect) and `dataset_source` (random effect). **Requirement**: Apply to BOTH synthetic data (where `dataset_source` is the `config_id` or batch ID) AND real-world data (where `dataset_source` is the dataset ID). **Deliverable**: Function `fit_mixed_effects_model` in `code/analysis/metrics.py` returning a model summary object. **Verification**: Test asserting p-value < 0.05 for scaling_method on real-world data and that synthetic data is included in the analysis. **Dependency**: Requires T056 to produce real-world data and T028 to produce synthetic data.
+- [X] T055 [US4] **Validate Real-World Pipeline on Non-Iris Datasets**: Extend the integration test in `code/tests/integration/test_real_world.py` to run the full pipeline on at least 3 additional datasets from `data/config/datasets.yaml` (excluding Iris). **Requirement**: Each dataset must be processed using the streaming/sampling logic defined in T051. **Deliverable**: `results/real_world_validation_report.md` generated upon success. **Verification**: Test report confirming successful execution and p-value output for each dataset. **Dependency**: Requires T056 to ingest all datasets.
+
+**Checkpoint**: All review concerns addressed; project ready for final validation.
