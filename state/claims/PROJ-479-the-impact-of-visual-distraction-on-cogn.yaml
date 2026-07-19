@@ -596,3 +596,341 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T20:16:02Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: sample size N at least 100 with missing values at most 5 percent
+  claim_id: c_f8ff9799
+  context: "Goal: Acquire or generate synthetic participant-level data linking cognitive\
+    \ metrics and workspace images, ensuring N \u2265 100 and \u22645% missing values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_N_at_least_100_with_missing_values_at_most_5_per
+  kind: magnitude
+  raw_text: "The study aims to acquire or generate synthetic participant-level data\
+    \ ensuring N \u2265 100 and \u22645% missing values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:24:14Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: default target correlation for synthetic data is negative 0.3
+  claim_id: c_dc37c397
+  context: 'Constraint: Correlation structure must be derived from a `target_correlation`
+    parameter (default -0.3), not hardcoded.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic data generator must derive correlation structure from a
+    target_correlation parameter with a default value of -0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:24:38Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: target effect size for power analysis is 0.3 Cohen d
+  claim_id: c_a8187a9c
+  context: Use a configurable power analysis method (e.g., `statsmodels.stats.power.tt_solve_power`)
+    with `target_effect_size` defaulting to **0.3 (Cohen's d, Cohen, 1988)**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses a target effect size defaulting to 0.3 (Cohen's
+    d).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:26:21Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: achieved power calculated for sample size 100
+  claim_id: c_d3e2a4b2
+  context: Calculate the achieved power for the fixed sample size N=100 (as per SC-004
+    constraint)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis calculates the achieved power for a fixed sample size
+    of N=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:26:46Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: object count uses ultralytics YOLOv5n tiny model in CPU mode
+  claim_id: c_30f4d6d2
+  context: Implement object count calculation in `code/02_visual_metrics.py` using
+    `ultralytics` YOLOv5n/tiny (CPU mode).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Object_count_uses_ultralytics_YOLOv5n_tiny_model_in_CPU_mode
+  kind: entity_fact
+  raw_text: Object count calculation uses the ultralytics YOLOv5n/tiny model in CPU
+    mode.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:27:05Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: object count assigned NaN on model failure timeout or zero objects
+  claim_id: c_3e3290db
+  context: 'CRITICAL: If the model fails, times out, or returns no objects for an
+    image, assign NaN to the object count for that image.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Object_count_assigned_NaN_on_model_failure_timeout_or_zero_o
+  kind: entity_fact
+  raw_text: If the object counting model fails, times out, or returns no objects,
+    the object count is assigned NaN.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:27:33Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni method used for family-wise error correction
+  claim_id: c_b3281b5a
+  context: 'Generate a text snippet explicitly stating: ''The Holm-Bonferroni method
+    was used for family-wise error correction.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_method_used_for_family-wise_error_correction
+  kind: entity_fact
+  raw_text: Holm-Bonferroni correction is used for family-wise error correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:27:55Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: alpha threshold justification minimum length 150 words
+  claim_id: c_48671d7e
+  context: 'Minimum length: 150 words.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alpha_threshold_justification_minimum_length_150_words
+  kind: magnitude
+  raw_text: The alpha threshold justification document must be at least 150 words.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:28:20Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling at least 1000 iterations
+  claim_id: c_70ab5968
+  context: "Implement bootstrap resampling (\u22651000 iterations) in `code/03_analysis.py`"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_at_least_1000_iterations
+  kind: magnitude
+  raw_text: Bootstrap resampling must perform at least 1000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:28:56Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: binning results magnitude stability less than 0.1 change
+  claim_id: c_5086392c
+  context: Verify `results/sensitivity/binning_results.csv` shows magnitude stability
+    (<0.1 change).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Binning_results_magnitude_stability_less_than_0.1_change
+  kind: magnitude
+  raw_text: The binning results must show magnitude stability with a change of less
+    than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:29:39Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Wilkinson 1999 Statistical methods in psychology journals American Psychologist
+    54 594
+  claim_id: c_6edc3911
+  context: "Generate a dedicated text justification for the p<0.05 significance threshold...\
+    \ Citation: 'Wilkinson, L., & Task Force on Statistical Inference. (1999). Statistical\
+    \ methods in psychology journals: Guidelines and explanations. American Psychologist,\
+    \ 54(8), 594\u2013604.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Citation: Wilkinson, L., & Task Force on Statistical Inference. (1999).\
+    \ Statistical methods in psychology journals: Guidelines and explanations. American\
+    \ Psychologist, 54(8), 594\u2013604."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:33:01Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 0
+  canonical: synthetic participant records N greater than or equal to 100
+  claim_id: c_6c2aabbc
+  context: "Branch C (Full Synthetic): If NO real cognitive dataset is found: Generate\
+    \ synthetic participant records (N \u2265 100) with participant_id, reaction_time,\
+    \ accuracy."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P6366: 160920958'
+      source_id: Q7662746
+      url: https://www.wikidata.org/wiki/Q7662746
+      value: '160920958'
+    filled: true
+  kind: magnitude
+  raw_text: "Generate synthetic participant records (N \u2265 100) with participant_id,\
+    \ reaction_time, accuracy."
+  resolved_value: '160920958'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T20:33:47Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: target effect size 0.3 Cohen's d Cohen 1988
+  claim_id: c_bd961ffd
+  context: 'Implement power analysis calculation in code/01_data_acquisition.py (or
+    code/utils.py called by it) to: (1) Use a configurable power analysis method (e.g.,
+    statsmodels.stats.power.tt_solve_power) with target_effect_size defaulting to
+    0.3 (Cohen''s d, Cohen, 1988)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a configurable power analysis method with target_effect_size defaulting
+    to 0.3 (Cohen's d, Cohen, 1988).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:33:48Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Wilkinson 1999 American Psychologist 54 594-604
+  claim_id: c_63f15253
+  context: "Generate a dedicated text justification for the p<0.05 significance threshold.\
+    \ ... (c) Citation: 'Wilkinson, L., & Task Force on Statistical Inference. (1999).\
+    \ Statistical methods in psychology journals: Guidelines and explanations. American\
+    \ Psychologist, 54(8), 594\u2013604.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The justification must include: Citation: 'Wilkinson, L., & Task Force\
+    \ on Statistical Inference. (1999). Statistical methods in psychology journals:\
+    \ Guidelines and explanations. American Psychologist, 54(8), 594\u2013604.'"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:34:08Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: generate synthetic images using Pillow
+  claim_id: c_03bb96b6
+  context: 'Branch B (Hybrid): ... Generate Synthetic Images: Use Pillow to generate
+    N synthetic workspace images corresponding to the real participant_ids.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_images_using_Pillow
+  kind: entity_fact
+  raw_text: Generate synthetic images using Pillow.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:34:29Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations scipy.stats.bootstrap
+  claim_id: c_598dcb25
+  context: "Implement bootstrap resampling (\u22651000 iterations) in code/03_analysis.py\
+    \ using scipy.stats.bootstrap to compute 95% confidence intervals for correlation\
+    \ coefficients."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement bootstrap resampling (\u22651000 iterations) in code/03_analysis.py\
+    \ using scipy.stats.bootstrap."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:34:29Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 2
+  canonical: target effect size 0.3 Cohen's d Cohen 1988
+  claim_id: c_96e2d891
+  context: 'Implement power analysis calculation in code/01_data_acquisition.py to:
+    (1) Use a configurable power analysis method (e.g., statsmodels.stats.power.tt_solve_power)
+    with target_effect_size defaulting to 0.3 (Cohen''s d, Cohen, 1988)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a configurable power analysis method with target_effect_size defaulting
+    to 0.3 (Cohen's d, Cohen, 1988)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:38:56Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Wilkinson 1999 statistical methods psychology journals American Psychologist
+    54 594
+  claim_id: c_2f871178
+  context: "The justification must include: ... (c) Citation: 'Wilkinson, L., & Task\
+    \ Force on Statistical Inference. (1999). Statistical methods in psychology journals:\
+    \ Guidelines and explanations. American Psychologist, 54(8), 594\u2013604.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Citation: 'Wilkinson, L., & Task Force on Statistical Inference. (1999).\
+    \ Statistical methods in psychology journals: Guidelines and explanations. American\
+    \ Psychologist, 54(8), 594\u2013604.'"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T20:38:56Z'
