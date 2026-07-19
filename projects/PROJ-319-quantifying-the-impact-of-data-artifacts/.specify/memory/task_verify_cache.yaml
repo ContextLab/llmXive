@@ -1,3 +1,12 @@
+T006:
+  c: false
+  h: bc4c5b400ee4dcda7a004043882f80809c4cdd34c8465f785f39fc1f01e23918
+  r: "The provided `code/synthetic/generator.py` stops mid\u2011function and does\
+    \ not contain any code that iterates over\u202FN images, writes FITS files with\
+    \ the required `synth_{id:03d}.fits` naming, computes checksums, or creates the\
+    \ `gt_metadata.json` file. Moreover, the expected `data/synthetic/gt_metadata.json`\
+    \ is absent from the repository. Consequently the required artifacts are missing\
+    \ and the task is not fulfilled."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -48,7 +48,7 @@
 
 - [X] T000 [P] **Generate Research Document**: Create `research.md` in `specs/PROJ-308-001-quantifying-entanglement/`. Populate with:
  - Scaling ansatz: $S(L) \approx c_{eff} \log L$ (critical) vs Area Law (localized).
- - Citation: Refael-Moore (Phys. Rev. Lett., ()). [UNRESOLVED-CLAIM: c_13f5ba32 — status=not_enough_info]
+ - Citation: Refael-Moore (Phys. Rev. Lett., ()).
  - Hypothesis: "S(L) $\propto L^\alpha$ with $\alpha$ indicating an area-law in the localized regime and $\alpha$ indicating logarithmic scaling in the critical regime".
  - Verify file creation via `ls`.
 
@@ -75,7 +75,7 @@
 
 - [X] T002 [P] Implement `code/config.py` with strict input validation for $L$ (20-40), $\delta$ (0-1), $N_{\text{real}}$ (50-200), and random seed; raise clear errors for out-of-bounds (FR-009). Verify via `test_config.py::test_validation`.
 - [X] T003 [P] Implement `code/hamiltonian.py` to generate XXZ Heisenberg Hamiltonian with random nearest-neighbour couplings $J_i \sim \mathcal{U}[1-\delta, 1+\delta]$ (FR-002). Verify via `test_hamiltonian.py::test_coupling_range`.
-- [ ] T004 [P] Implement `code/ground_state.py` using TeNPy for imaginary-time TEBD evolution; enforce double-precision (64 (1304.4292, https://arxiv.org/abs/1304.4292)-bit), convergence tolerance $10^{-8}$, and adaptive bond dimension (max $\chi=400$) with 'numerically unresolved' flagging (FR-003, Plan). Verify via `test_ground_state.py::test_convergence`.
+- [X] T004 [P] Implement `code/ground_state.py` using TeNPy for imaginary-time TEBD evolution; enforce double-precision (64 (1304.4292, https://arxiv.org/abs/1304.4292)-bit), convergence tolerance $10^{-8}$, and adaptive bond dimension (max $\chi=400$) with 'numerically unresolved' flagging (FR-003, Plan). Verify via `test_ground_state.py::test_convergence`.
 - [X] T005 [P] Implement `code/entropy.py` to compute von Neumann entropy $S(l)$ for all bipartitions $l \in \{1, \dots, L-1\}$ per realization (FR-004). Verify via `test_entropy.py::test_entropy_calc`.
 - [X] T005a Implement `code/analysis.py` documentation header to explicitly state: "Model selection uses AIC per Plan.md, superseding Spec FR-005 (R²) which is methodologically incorrect for Area Law detection." This task documents the deviation to satisfy 'No silent constitution drift'. Verify via `grep "AIC" code/analysis.py`.
 - [X] T006 [P] **Implement AIC Model Selection**: Implement `code/analysis.py` core: Linear regression of $S(l)$ vs $\log l$ (log-fit) and $S(l)$ vs $l$ (linear-fit); implement AIC-based model selection to distinguish Area Law (Constant), Logarithmic, and Volume Law (Linear). **Note**: Implementation follows Plan's methodological correction (AIC) over Spec's R² requirement. Verify via `test_analysis.py::test_aic_selection_logic` using synthetic data with known slopes.
@@ -105,9 +105,9 @@
 - [ ] T015 [US1] Run Reference-Validator Agent on `specs/PROJ-308-001-quantifying-entanglement/research.md` to validate the new Refael-Moore citation against primary sources (Constitution Principle II). Verify via `validator_output.log`.
 - [ ] T016 [US1] Update `specs/PROJ-308-001-quantifying-entanglement/research.md` to include specific hypothesis: "S(L) $\propto L^\alpha$ with $\alpha \approx 0$ (area-law) in localized regime and $\alpha \approx 0$ (logarithmic) in critical regime" (Refael-Moore context). Verify via `grep "hypothesis" specs/PROJ-308-001-quantifying-entanglement/research.md`.
 - [ ] T017 [US1] Run Reference-Validator Agent on `specs/PROJ-308-001-quantifying-entanglement/research.md` to validate the hypothesis context and citations (Constitution Principle II). Verify via `validator_output.log`.
-- [ ] T018 [US1] Implement "Toy Model" verification in `code/analysis.py`: Generate a short chain (L=10) with random couplings using TEBD only [UNRESOLVED-CLAIM: c_da128885 — status=not_enough_info] (no exact diagonalization), compute entropy, and plot $S(L)$ vs $\log L$ to visually confirm slope (Richard Feynman review). Verify via `test_analysis.py::test_toy_model`.
+- [ ] T018 [US1] Implement "Toy Model" verification in `code/analysis.py`: Generate a short chain (L=10) with random couplings using TEBD only (no exact diagonalization), compute entropy, and plot $S(L)$ vs $\log L$ to visually confirm slope (Richard Feynman review). Verify via `test_analysis.py::test_toy_model`.
 - [ ] T019 [US1] Add a `toy_model_output/` directory and script to generate a table of $S(L)$ values for $L=4, 8, 16 $ to demonstrate the slope explicitly (Richard Feynman review). Verify via `ls toy_model_output/`.
-- [ ] T020 [US1] Ensure all citations in `specs/PROJ-308-001-quantifying-entanglement/research.md` and `code/analysis.py` (Refael-Moore, arXiv:cond-mat/0406730 [UNRESOLVED-CLAIM: c_4efe3146 — status=not_enough_info]) are correct and formatted (Constitution Principle II). Verify via `validator_output.log`.
+- [ ] T020 [US1] Ensure all citations in `specs/PROJ-308-001-quantifying-entanglement/research.md` and `code/analysis.py` (Refael-Moore, arXiv:cond-mat/0406730) are correct and formatted (Constitution Principle II). Verify via `validator_output.log`.
 - [ ] T021 [P] **Documentation Updates**: Update `docs/` and `quickstart.md` to reflect the validated research findings and AIC method. **Dependency**: T020 (Citation Validation) must pass. Verify via `quickstart.md` validation.
 
 **Checkpoint**: Research claims are grounded in literature and validated by toy models
@@ -118,7 +118,7 @@
 
 **Goal**: Obtain entanglement-entropy scaling exponent $\alpha$ for a specific $L$ and $\delta$ with bootstrap CI and plots.
 
-**Independent Test**: Execute workflow with $L=30, \delta=0.2, N=100$ [UNRESOLVED-CLAIM: c_65ed748a — status=not_enough_info]; verify `entropy_data.csv`, `scaling_fit.txt` (exponent, CI, p-value, R²), `entropy_vs_l.png`, and `bootstrap_summary.txt` are generated within 6 hours.
+**Independent Test**: Execute workflow with $L=30, \delta=0.2, N=100$; verify `entropy_data.csv`, `scaling_fit.txt` (exponent, CI, p-value, R²), `entropy_vs_l.png`, and `bootstrap_summary.txt` are generated within 6 hours.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -131,7 +131,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T026 [US1] **Implement Pilot Variance Estimation**: Implement logic in `code/cli.py` (pre-run step) to dynamically adjust $N_{\text{real}}$ if variance of the fitted exponent **alpha** is too high. Threshold: if `{{claim:c_851e35dc}}`, suggest increase. Enforce strict cap at max $N_{\text{real}}=200$ and 6-hour runtime limit [UNRESOLVED-CLAIM: c_0e6273e2 — status=not_enough_info]; abort with clear error if limits exceeded (Plan, FR-001, FR-008). Verify via `test_analysis.py::test_pilot_abort`.
+- [ ] T026 [US1] **Implement Pilot Variance Estimation**: Implement logic in `code/cli.py` (pre-run step) to dynamically adjust $N_{\text{real}}$ if variance of the fitted exponent **alpha** is too high. Threshold: if `{{claim:c_851e35dc}}`, suggest increase. Enforce strict cap at max $N_{\text{real}}=200$ and 6-hour runtime limit; abort with clear error if limits exceeded (Plan, FR-001, FR-008). Verify via `test_analysis.py::test_pilot_abort`.
 - [ ] T027 [US1] Implement output generation for `entropy_data.csv`, `scaling_fit.txt`, `bootstrap_summary.txt` in `code/cli.py` (FR-007). Verify via `test_cli.py::test_outputs`.
 - [ ] T028 [US1] Add logic to detect statistical significance (p-value $\le 0.05$) and mark "statistically significant" in `scaling_fit.txt` (US-1 Scenario 2). Verify via `test_cli.py::test_significance_flag`.
 - [ ] T029 [US1] Implement wall-clock timeout check (6h) in `code/cli.py` to abort with informative error if exceeded (FR-008). Verify via `test_cli.py::test_timeout`.
@@ -216,7 +216,7 @@
 
 ### Implementation for Research Validation
 
-- [ ] T050 [US1] Ensure all citations in `specs/PROJ-308-001-quantifying-entanglement/research.md` and `code/analysis.py` (Refael-Moore, arXiv:cond-mat/0406730 [UNRESOLVED-CLAIM: c_4efe3146 — status=not_enough_info]) are correct and formatted (Constitution Principle II). Verify via `validator_output.log`.
+- [ ] T050 [US1] Ensure all citations in `specs/PROJ-308-001-quantifying-entanglement/research.md` and `code/analysis.py` (Refael-Moore, arXiv:cond-mat/0406730) are correct and formatted (Constitution Principle II). Verify via `validator_output.log`.
 
 **Checkpoint**: Research claims are grounded in literature and validated by toy models
 
@@ -227,7 +227,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T051 [P] Code cleanup and refactoring of `code/analysis.py` for readability. Verify via `ruff check`.
-- [ ] T052 [P] Performance optimization: Ensure TEBD runs within 6h limit for $L=30, N=100$ on CPU [UNRESOLVED-CLAIM: c_bba5caf8 — status=not_enough_info]. Verify via `test_workflow_us1.py::test_runtime`.
+- [ ] T052 [P] Performance optimization: Ensure TEBD runs within 6h limit for $L=30, N=100$ on CPU. Verify via `test_workflow_us1.py::test_runtime`.
 - [ ] T053 [P] Additional unit tests for edge cases (e.g., $\delta=0$, $\delta=1$, $L=40$) in `tests/unit/`. Verify via `pytest`.
 - [ ] T054 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility. Verify via `quickstart.md` execution.
 - [ ] T055 [P] Verify all artifacts (CSVs, PNGs, TXTs) are parsable and match `state/` checksums. Verify via `test_state.py::test_artifacts`.

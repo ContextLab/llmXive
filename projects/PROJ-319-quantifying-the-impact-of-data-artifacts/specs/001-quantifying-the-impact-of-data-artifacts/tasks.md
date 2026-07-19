@@ -45,14 +45,14 @@
 
 - [X] T037a [P] **Create Decision Document**: Create `docs/decisions/001-saturation-range.md` formally resolving the saturation range to `0.0 to 0.5 in 0.05 increments`. (FR-003, SC-003)
 - [X] T037b [P] **Update Spec**: Update `spec.md` (FR-003, SC-003, Assumptions, US2 Acceptance 1) to replace all `[deferred]` placeholders with `0.0 to 0.5 in 0.05 increments` based on T037a. **Specific Updates**: Replace `spanning [deferred] to [deferred] in [deferred] increments` in FR-003 and SC-003, and `saturation = 0–[deferred]` in Assumptions. The spec text MUST reflect the decision record values to ensure testability. (FR-003, SC-003)
-- [ ] T037c [P] **Update Config**: Update `code/config.py` to reflect saturation range `0.0 to 0.5` with step `0.05` as defaults. (FR-003)
+- [X] T037c [P] **Update Config**: Update `code/config.py` to reflect saturation range `0.0 to 0.5` with step `0.05` as defaults. (FR-003)
 - [X] T009 [S] **CRITICAL**: Acquire, vet, checksum, and process a small set (minimum 2, up to 5) of real HST images (MAST) for **qualitative validation only** as required by Constitution Principle VII. **Targets**: Prefer NGC 7009 (Saturn Nebula), NGC 6543 (Cat's Eye). **Fallback**: If validation fails, use NGC 6572. **Criteria**: Bipolar/elliptical morphology, calibrated flux, valid WCS. **Implementation**: Use `astroquery.mast` to query `target='NGC 7009' OR target='NGC 6543' filter='F658N' instrument='ACS'`. Download files, verify checksums, and store in `data/validation/`. Create `data/validation/validation_manifest.json` with schema `{ "target_id": str, "file_path": str, "morphology_type": str, "checksum": str, "acquisition_script": str }`. **Mandatory Deliverable**: Generate `data/validation/validation_report.md` containing the qualitative validation results and explicit links to the final paper draft to satisfy Constitution Principle VII. **Fallback Logic**: If the minimum set (2 images) cannot be acquired, abort with a clear error. **Output**: Store in `data/validation/`, create `data/validation/validation_manifest.json` and `data/validation/validation_report.md`. Note: This task is for qualitative validation only; bias quantification remains synthetic. (Plan: Constitution Check Principle VII)
 - [ ] T006 [S] **CRITICAL**: Create `code/synthetic/generator.py` to generate a configurable set of N synthetic planetary nebulae (default N=50, defined in `code/config.py`) with known ground-truth ellipticity and asymmetry (no GPU, CPU-only). **Naming**: Save images as `data/synthetic/synth_{id:03d}.fits` where `id` ranges from `000` to `N-1`. **Ground Truth**: Save exact ground-truth values to `data/synthetic/gt_metadata.json` with schema `{ "image_id": str, "filename": str, "ellipticity": float, "asymmetry": float, "checksum": str }`. **Seed**: Use multiple synthetic sources with ellipticity in a moderate range and asymmetry within a low-to-moderate interval. (FR-001, Constitution Principle IV)
 - [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` (numpy, scikit-image, astropy, scipy, statsmodels, pandas, matplotlib, pytest)
-- [ ] T004 [P] Create `code/config.py` with pinned random seeds, default paths, and **concrete** artifact parameters: noise levels `{0.01, 0.05, 0.10}`, saturation range `0.0` to `0.5` in `0.05` increments (FR-002, FR-003, SC-003)
+- [X] T004 [P] Create `code/config.py` with pinned random seeds, default paths, and **concrete** artifact parameters: noise levels `{0.01, 0.05, 0.10}`, saturation range `0.0` to `0.5` in `0.05` increments (FR-002, FR-003, SC-003)
 - [X] T007 [P] Implement `code/io/writer.py` to save generated images and logs with checksums for reproducibility (FR-008)
 - [X] T008 [P] Setup `tests/unit/` structure and `pytest` configuration
-- [ ] T046a [P] **Create CLI Stub**: Create `code/main.py` as the single CLI entry point with `--run-all` flag. Implement `main()` stub and basic argument parsing. Do NOT implement `validate_pipeline_state()` yet. (FR-001, FR-008)
+- [X] T046a [P] **Create CLI Stub**: Create `code/main.py` as the single CLI entry point with `--run-all` flag. Implement `main()` stub and basic argument parsing. Do NOT implement `validate_pipeline_state()` yet. (FR-001, FR-008)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -273,11 +273,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All tasks must run on CPU-only CI with a limited number of cores and memory. No GPU, no 8-bit quantization, no deep learning.
+- **Constraint**: All tasks must run on CPU-only CI with a limited number of cores and memory. [UNRESOLVED-CLAIM: c_117e15ae — status=not_enough_info] No GPU, no 8-bit quantization, no deep learning.
 - **Data**: Synthetic data generation must be deterministic and checksummed. No fake data for final metrics; use synthetic ground truth for validation.
 - **Ground Truth**: All ground-truth values MUST be saved to machine-readable artifacts (JSON/CSV) as per Constitution Principle IV.
 - **Saturation Range**: Concrete values (0.0-0.5, step 0.05) are defined in T037a and used in T021/T024.
 - **Real HST Validation**: T009 must be completed before T028/T031 to satisfy Constitution Principle VII (qualitative only).
-- **Power Analysis**: T030 must be executed after US1/US2 data collection to use observed effect size. **Blocking**: Pipeline fails if power < 80%.
+- **Power Analysis**: T030 must be executed after US1/US2 data collection to use observed effect size. **Blocking**: Pipeline fails if power < 80%. [UNRESOLVED-CLAIM: c_d5c1b05e — status=not_enough_info]
 - **CLI**: T046a/46b/46c define the single entry point; T015/T022/T029 implement functions within it.
 - **Review Resolution**: Tasks T051-T055 address specific reviewer concerns regarding data flow, edge cases, and statistical rigor with explicit deliverables.

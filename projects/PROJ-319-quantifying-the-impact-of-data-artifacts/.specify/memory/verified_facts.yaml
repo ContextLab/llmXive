@@ -1,15 +1,9 @@
-6543|include ngc target validation:
-  quote: Planetary Nebulae NGC 7009 and NGC 6543
-  source_id: '2003.01737'
-  url: https://arxiv.org/abs/2003.01737
-  value: NGC 7009 and NGC 6543
-'|alpha statistical test use':
-  quote: "The error that a practising statistician would consider the more important\
-    \ to avoid (which is a subjective judgment) is called the error of the first kind.\
-    \ The first demand of the mathematical theory is to deduce such test criteria\
-    \ as would ensure that the probability of committing an error of the first kind\
-    \ would equal (or approximately equal, or not exceed) a preassigned number \u03B1\
-    , such as \u03B1 = 0.05 or 0.01, etc. This number is called the level of significance."
-  source_id: P-value
-  url: https://en.wikipedia.org/wiki/P-value
+'|alpha analysi cohen effect power sample size test two type use':
+  quote: 'The table shown on the right can be used in a two-sample t-test to estimate
+    the sample sizes of an experimental group and a control group that are of equal
+    size, that is, the total number of individuals in the trial is twice that of the
+    number given, and the desired significance level is 0.05. The parameters used
+    are:'
+  source_id: Sample size determination
+  url: https://en.wikipedia.org/wiki/Sample_size_determination
   value: '0.05'

@@ -1,0 +1,45 @@
+T008:
+  c: false
+  h: 36916910eaaf5c18509275d669e0be0c0c24090c9cd5c8f7572b3cc587eaaa62
+  r: "The provided `code/utils/check_weights.py` ends abruptly (`def ` line truncated)\
+    \ and lacks the script\u2019s entry\u2011point, error handling, and exit\u2011\
+    code logic required to abort on missing manifest, missing files, or checksum/size\
+    \ mismatches. Consequently it does not fully implement the pre\u2011flight checks\
+    \ described in the task."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No JSON schema files for `TeacherRoutingDataset`, `InferenceResult`, or `DecisionTreeMetadata`
+    were presented in `specs/contracts/`; the required artifacts are missing, so the
+    task is not satisfied.
+T012b:
+  c: false
+  h: bb93ab5c2ba609c5259b31c6d87adde47d64d5e28affcec2cd51acdddc74eb04
+  r: The required parquet files `data/raw/imageNet_samples.parquet` and `data/raw/laion_samples.parquet`
+    are missing, so the implementer cannot load any samples, perform the length assertions,
+    or combine them as specified. The core artifact needed to satisfy the task does
+    not exist.
+T013a:
+  c: false
+  h: 16433e4f6d0cf5aac76d62dc0148ff701d37cdddf09fbdc82d793bddc2bd05b4
+  r: "The provided `code/00_teacher_inference.py` contains only placeholder stubs\
+    \ (e.g., `load_teacher_model` returns `None`, no GPU detection, no actual inference,\
+    \ and no logic to write `teacher_ground_truth.parquet`). The required fallback\
+    \ file `data/raw/teacher_ground_truth.parquet` is missing, and the script does\
+    \ not abort with a clear error when neither GPU inference nor a verified fallback\
+    \ is available. Consequently, the task\u2019s primary and fallback requirements\
+    \ are not met."
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, logs, or dataset modifications were presented that demonstrate detection
+    of undefined routing paths, counting/logging of such occurrences, and exclusion
+    of those samples from the final output. The required artifact (implementation
+    and evidence of the exclusion behavior) is missing.
+T014:
+  c: false
+  h: 4569c60fecf2a69cb3b53e93c3c7f0b6517a0661904b33794882ff1f47bc52f8
+  r: "The `code/00_data_extraction.py` file is truncated and ends mid\u2011statement,\
+    \ showing no implementation for extracting the required fields or writing them\
+    \ to a Parquet file. Additionally, the expected output file `data/processed/teacher_routing_dataset.parquet`\
+    \ is missing entirely. Both the implementation and the required artifact are absent."

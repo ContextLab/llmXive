@@ -1,6 +1,6 @@
-'|arithmetic double floating point precision system use':
-  quote: "64-bit word [1]. We assume that the bit-\uFB02ip happens randomly so it\
-    \ has equi-probability"
-  source_id: '1304.4292'
-  url: https://arxiv.org/abs/1304.4292
-  value: '64'
+'|defined le significance statistical':
+  quote: "compared with the nominal signi\uFB01cance level of 0.05 to determine whe\
+    \ ther or not to reject"
+  source_id: '1809.08503'
+  url: https://arxiv.org/abs/1809.08503
+  value: '0.05'

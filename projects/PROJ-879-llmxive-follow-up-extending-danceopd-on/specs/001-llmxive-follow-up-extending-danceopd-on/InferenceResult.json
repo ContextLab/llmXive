@@ -1,49 +1,29 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/InferenceResult.json",
   "title": "InferenceResult",
-  "description": "Schema for the result of a single inference run, containing generated image metadata and fidelity metrics.",
+  "description": "Schema for the raw output of a single inference step during teacher model execution or tree-based regeneration.",
   "type": "object",
-  "required": [
-    "sample_id",
-    "generation_mode",
-    "expert_id",
-    "image_path",
-    "fidelity_metrics"
-  ],
   "properties": {
-    "sample_id": {
-      "type": "string",
-      "description": "Reference to the original sample ID."
+    "sample_id": { "type": "string" },
+    "expert_type": { "type": "string", "description": "Type of expert field used (e.g., 'motion', 'texture', 'structure')" },
+    "routing_label": { "type": "string", "description": "The expert ID chosen for this sample" },
+    "noise_level": { "type": "number" },
+    "velocity_vector": {
+      "type": "array",
+      "items": { "type": "number" },
+      "description": "The computed velocity vector for this step"
     },
-    "generation_mode": {
-      "type": "string",
-      "description": "The mode used for generation.",
-      "enum": ["tree_predicted", "teacher_baseline"]
-    },
-    "expert_id": {
-      "type": "integer",
-      "description": "The expert ID used for generation.",
-      "minimum": 0
-    },
-    "image_path": {
-      "type": "string",
-      "description": "Relative path to the generated image file under data/results/."
-    },
-    "fidelity_metrics": {
+    "image_path": { "type": "string", "description": "Relative path to the generated image artifact" },
+    "metrics": {
       "type": "object",
-      "description": "Metrics comparing this generation to the baseline.",
       "properties": {
-        "clip_score": {
-          "type": "number",
-          "description": "CLIP similarity score."
-        },
-        "fid_score": {
-          "type": "number",
-          "description": "Fréchet Inception Distance score."
-        }
-      },
-      "required": ["clip_score", "fid_score"]
-    }
+        "fid_score": { "type": "number" },
+        "clip_score": { "type": "number" }
+      }
+    },
+    "generation_source": { "type": "string", "enum": ["teacher", "tree"], "description": "Whether this result came from the teacher or a decision tree" },
+    "tree_depth": { "type": "integer", "minimum": 2, "maximum": 20, "nullable": true }
   },
-  "additionalProperties": false
+  "required": ["sample_id", "expert_type", "routing_label", "noise_level", "velocity_vector", "generation_source"]
 }

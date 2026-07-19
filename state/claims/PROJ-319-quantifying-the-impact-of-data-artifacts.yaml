@@ -1447,3 +1447,630 @@
   source_type: external
   status: verified
   updated_at: '2026-07-17T22:37:57Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Generate qualitative validation report with links to final paper draft
+  claim_id: c_8d25ee37
+  context: 'T009 [S] CRITICAL: Acquire, vet, checksum, and process a small set (minimum
+    2, up to 5) of real HST images (MAST) for qualitative validation only...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_qualitative_validation_report_with_links_to_final_p
+  kind: entity_fact
+  raw_text: Generate data/validation/validation_report.md containing the qualitative
+    validation results and explicit links to the final paper draft to satisfy Constitution
+    Principle VII.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:16:44Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Generate 50 synthetic planetary nebulae with ground-truth ellipticity
+    and asymmetry
+  claim_id: c_c3441e7f
+  context: 'T006 [S] CRITICAL: Create code/synthetic/generator.py to generate a configurable
+    set of N synthetic planetary nebulae (default N=50, defined in code/config.py)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a configurable set of N synthetic planetary nebulae (default N=50)
+    with known ground-truth ellipticity and asymmetry.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:16:56Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Save synthetic images with filenames ranging from 000 to N-1
+  claim_id: c_61028bd0
+  context: 'T006 [S] CRITICAL... Naming: Save images as data/synthetic/synth_{id:03d}.fits
+    where id ranges from 000 to N-1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Save images as data/synthetic/synth_{id:03d}.fits where id ranges from
+    000 to N-1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:17:31Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Use synthetic sources with moderate ellipticity and low-to-moderate asymmetry
+  claim_id: c_efae42e1
+  context: 'T006 [S] CRITICAL... Seed: Use multiple synthetic sources with ellipticity
+    in a moderate range and asymmetry within a low-to-moderate interval.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_synthetic_sources_with_moderate_ellipticity_and_low-to-m
+  kind: entity_fact
+  raw_text: Use multiple synthetic sources with ellipticity in a moderate range and
+    asymmetry within a low-to-moderate interval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:17:58Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 project with specific libraries
+  claim_id: c_f616b055
+  context: T002 [P] Initialize Python 3.11 project with requirements.txt (numpy, scikit-image,
+    astropy, scipy, statsmodels, pandas, matplotlib, pytest)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with requirements.txt (numpy, scikit-image,
+    astropy, scipy, statsmodels, pandas, matplotlib, pytest).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:18:14Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Configure noise levels 0.01, 0.05, 0.10 and saturation range 0.0 to 0.5
+    in 0.05 increments
+  claim_id: c_9c16aa92
+  context: 'T004 [P] Create code/config.py with pinned random seeds, default paths,
+    and concrete artifact parameters: noise levels {0.01, 0.05, 0.10}, saturation
+    range 0.0 to 0.5 in 0.05 increments...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure noise levels {0.01, 0.05, 0.10} and saturation range 0.0 to
+    0.5 in 0.05 increments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:18:32Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Aggregate noise injection results into noise_trend_report.csv to verify
+    monotonic bias trends
+  claim_id: c_5b162239
+  context: 'T014 [S] [US1] Implement code/synthetic/artifacts.py noise injection function:
+    Iterate over representative sigma levels... Aggregate results into data/processed/noise_trend_report.csv
+    to verify monotonic bias trends (SC-003).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aggregate_noise_injection_results_into_noise_trend_report.cs
+  kind: entity_fact
+  raw_text: Aggregate results into data/processed/noise_trend_report.csv to verify
+    monotonic bias trends.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:19:01Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Perform Linear Regression with Bonferroni correction for artifact magnitude
+    vs parameter deviation
+  claim_id: c_5de463c7
+  context: 'T016 [S] [US1] Implement statistical test logic in code/analysis/statistics.py:
+    Function run_noise_regression performing Linear Regression linking artifact magnitude
+    to parameter deviation with Bonferroni correction...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_Linear_Regression_with_Bonferroni_correction_for_art
+  kind: entity_fact
+  raw_text: Perform Linear Regression linking artifact magnitude to parameter deviation
+    with Bonferroni correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:19:32Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Output regression coefficients and p-values to noise_stats.csv
+  claim_id: c_4fdec769
+  context: 'T016 [S] [US1] ...output coefficients and p-values to data/processed/noise_stats.csv
+    with schema { "sigma": float, "mean_bias": float, "p_value": float, "significant":
+    bool, "slope": float }...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_regression_coefficients_and_p-values_to_noise_stats.c
+  kind: entity_fact
+  raw_text: Output coefficients and p-values to data/processed/noise_stats.csv with
+    schema { sigma, mean_bias, p_value, significant, slope }.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:19:48Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Use Conselice 2003 definition for asymmetry calculation
+  claim_id: c_a3fa0908
+  context: 'T019 [P] [US2] Unit test for asymmetry calculation in tests/unit/test_asymmetry.py:
+    Function test_asymmetry_conselice asserting that the A-statistic matches the Conselice
+    (2003) definition...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Conselice (2003) definition for asymmetry calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:20:02Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Generate saturation files for range 0.00 to 0.50 in 0.05 increments
+  claim_id: c_6f23baa9
+  context: 'T021 [S] [US2] Implement code/synthetic/artifacts.py saturation clipping
+    function: Generate files for the saturation range defined in T037a (0.00 to 0.50,
+    step 0.05).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate files for the saturation range 0.00 to 0.50 with step 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:20:32Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Output regression coefficients and p-values to saturation_stats.csv
+  claim_id: c_e4f09b20
+  context: 'T023 [S] [US2] Implement statistical test logic in code/analysis/statistics.py:
+    Function run_saturation_regression performing Linear Regression... output coefficients
+    and p-values to data/processed/saturation_stats.csv with schema { "saturation_fraction":
+    float, "mean_bias": float, "p_value": float, "significant": bool, "slope": float
+    }...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_regression_coefficients_and_p-values_to_saturation_st
+  kind: entity_fact
+  raw_text: Output coefficients and p-values to data/processed/saturation_stats.csv
+    with schema { saturation_fraction, mean_bias, p_value, significant, slope }.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:21:09Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Verify n=50 achieves 80% power for effect size
+  claim_id: c_21bb901f
+  context: 'T030 [S] [US3] Power Analysis and Cross-Validation: Implement code/analysis/power_analysis.py
+    to perform a Post-hoc Limitation Check verifying n=50 achieves >= 80% power for
+    effect size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a Post-hoc Limitation Check verifying n=50 achieves >= 80% power
+    for effect size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:21:09Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Use alpha 0.05, two-sample t-test, and Cohen's d for power analysis
+  claim_id: c_6765d2c9
+  context: 'T030 [S] [US3] ...Parameters: alpha=0.05, test_type=''two-sample t-test'',
+    effect_size=''Cohen''s d''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use alpha=0.05, test_type='two-sample t-test', effect_size='Cohen's d'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:21:17Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Use statsmodels TTestIndPower with observed Cohen's d
+  claim_id: c_e97749e0
+  context: 'T030 [S] [US3] ...Method: Use statsmodels.stats.power.TTestIndPower with
+    observed Cohen''s d.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_statsmodels_TTestIndPower_with_observed_Cohen's_d
+  kind: entity_fact
+  raw_text: Use statsmodels.stats.power.TTestIndPower with observed Cohen's d.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:21:25Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Raise PowerAnalysisError with exit code 1 if power is less than 80%
+  claim_id: c_78ab8a8d
+  context: 'T030 [S] [US3] ...Blocking Condition: If power < 80%, the pipeline MUST
+    raise a PowerAnalysisError with exit code 1...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_PowerAnalysisError_with_exit_code_1_if_power_is_less_t
+  kind: magnitude
+  raw_text: If power < 80%, the pipeline MUST raise a PowerAnalysisError with exit
+    code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:21:38Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Ensure sensitivity sweep runs in less than 4 hours on 2 CPU cores
+  claim_id: c_ddb48508
+  context: 'T034 [P] Performance optimization: Ensure full sensitivity sweep runs
+    < 4 hours on 2 CPU cores'
+  evidence:
+    candidates:
+    - - ''
+      - 4.0
+    - - ''
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Ensure_sensitivity_sweep_runs_in_less_than_4_hours_on_2_CPU
+  kind: magnitude
+  raw_text: Ensure full sensitivity sweep runs < 4 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-19T07:21:49Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Calculate Minimum Detectable Effect Size for n=50
+  claim_id: c_9fd6334a
+  context: 'T052 [US3] Formalize Power Analysis Output: Update code/analysis/power_analysis.py
+    to explicitly calculate and report the "Minimum Detectable Effect Size" (MDES)
+    given the n=50 constraint...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate and report the Minimum Detectable Effect Size (MDES) given the
+    n=50 constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:21:56Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Use statsmodels TTestIndPower with alpha 0.05, power 0.80, and observed
+    effect size
+  claim_id: c_02fb08db
+  context: T052 [US3] ...using statsmodels.stats.power.TTestIndPower with alpha=0.05,
+    power=0.80, and the observed effect size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use statsmodels.stats.power.TTestIndPower with alpha=0.05, power=0.80,
+    and the observed effect size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:21:58Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Include minimum_detectable_effect_size key in power analysis report
+  claim_id: c_6d034231
+  context: 'T052 [US3] ...Deliverable: Ensure data/validation/power_analysis_report.md
+    includes a key minimum_detectable_effect_size with the calculated value.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Include_minimum_detectable_effect_size_key_in_power_analysis
+  kind: entity_fact
+  raw_text: Ensure data/validation/power_analysis_report.md includes a key minimum_detectable_effect_size
+    with the calculated value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:22:40Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Default synthetic planetary nebula generation count is 50
+  claim_id: c_26c3521c
+  context: 'T006 [S] CRITICAL: Create code/synthetic/generator.py to generate a configurable
+    set of N synthetic planetary nebulae (default N=50, defined in code/config.py)
+    with known ground-truth ellipticity and asymmetry (no GPU, CPU-only).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a configurable set of N synthetic planetary nebulae (default
+    N=50, defined in code/config.py) with known ground-truth ellipticity and asymmetry
+    (no GPU, CPU-only).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:24:13Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Real HST image acquisition for validation requires minimum 2 and maximum
+    5 images
+  claim_id: c_29600fe1
+  context: 'T009 [S] CRITICAL: Acquire, vet, checksum, and process a small set (minimum
+    2, up to 5) of real HST images (MAST) for qualitative validation only as required
+    by Constitution Principle VII.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Acquire, vet, checksum, and process a small set (minimum 2, up to 5) of
+    real HST images (MAST) for qualitative validation only as required by Constitution
+    Principle VII.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:24:16Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Asymmetry A-statistic matches Conselice 2003 definition
+  claim_id: c_90be3d86
+  context: 'T019 [P] [US2] Unit test for asymmetry calculation in tests/unit/test_asymmetry.py:
+    Function test_asymmetry_conselice asserting that the A-statistic matches the Conselice
+    (2003) definition (FR-004)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for asymmetry calculation asserts that the A-statistic matches
+    the Conselice (2003) definition.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:24:19Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Pipeline execution fails if statistical power is less than 80 percent
+  claim_id: c_d5c1b05e
+  context: 'Power Analysis: T030 must be executed after US1/US2 data collection to
+    use observed effect size. Blocking: Pipeline fails if power < 80%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_fails_if_statistical_power_is_less_than_8
+  kind: magnitude
+  raw_text: Pipeline fails if power < 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:24:30Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Pipeline execution restricted to CPU-only environment
+  claim_id: c_117e15ae
+  context: 'Constraint: All tasks must run on CPU-only CI with a limited number of
+    cores and memory. No GPU, no 8-bit quantization, no deep learning.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_restricted_to_CPU-only_environment
+  kind: entity_fact
+  raw_text: All tasks must run on CPU-only CI with a limited number of cores and memory.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:24:41Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Saturation range is 0.0 to 0.5 with 0.05 increments
+  claim_id: c_041c47d5
+  context: 'T037a [P] Create Decision Document: Create docs/decisions/001-saturation-range.md
+    formally resolving the saturation range to 0.0 to 0.5 in 0.05 increments.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Saturation_range_is_0.0_to_0.5_with_0.05_increments
+  kind: entity_fact
+  raw_text: The saturation range is defined as 0.0 to 0.5 in 0.05 increments.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:24:49Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep range is 0.00 to 0.50 with 0.05 increments
+  claim_id: c_cfcdd9ae
+  context: 'T024 [S] [US2] Implement sensitivity analysis sweep: range from 0.00 to
+    0.50 in 0.05 increments (as defined in T037a)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep uses a range from 0.00 to 0.50 in 0.05
+    increments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:24:54Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Configured noise levels are 0.01, 0.05, and 0.10
+  claim_id: c_ea91b08f
+  context: 'T004 [P] Create code/config.py with pinned random seeds, default paths,
+    and concrete artifact parameters: noise levels {0.01, 0.05, 0.10}, saturation
+    range 0.0 to 0.5 in 0.05 increments (FR-002, FR-003, SC-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Noise levels are defined as {0.01, 0.05, 0.10}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:25:00Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Full sensitivity sweep runtime limit is 4 hours on 2 CPU cores
+  claim_id: c_4803179d
+  context: 'T034 [P] Performance optimization: Ensure full sensitivity sweep runs
+    < 4 hours on 2 CPU cores'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_sensitivity_sweep_runtime_limit_is_4_hours_on_2_CPU_cor
+  kind: magnitude
+  raw_text: The full sensitivity sweep must run in less than 4 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:25:08Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters are alpha 0.05, two-sample t-test, and Cohen's
+    d
+  claim_id: c_00a25c5c
+  context: "T030 [S] [US3] Power Analysis and Cross-Validation: Implement code/analysis/power_analysis.py\
+    \ to perform a Post-hoc Limitation Check verifying n=50 achieves \u226580% power\
+    \ for effect size. Parameters: alpha=0.05, test_type='two-sample t-test', effect_size='Cohen's\
+    \ d'."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'The table shown on the right can be used in a two-sample t-test to estimate
+        the sample sizes of an experimental group and a control group that are of
+        equal size, that is, the total number of individuals in the trial is twice
+        that of the number given, and the desired significance level is 0.05. The
+        parameters used are:'
+      source_id: Sample size determination
+      url: https://en.wikipedia.org/wiki/Sample_size_determination
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis uses alpha=0.05, test_type='two-sample t-test', and
+    effect_size='Cohen's d'.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T07:25:17Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Power analysis verifies sample size 50 achieves 80 percent power
+  claim_id: c_42c74d46
+  context: "T030 [S] [US3] Power Analysis and Cross-Validation: Implement code/analysis/power_analysis.py\
+    \ to perform a Post-hoc Limitation Check verifying n=50 achieves \u226580% power\
+    \ for effect size."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis verifies n=50 achieves \u226580% power for effect\
+    \ size."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:25:52Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Power analysis uses statsmodels TTestIndPower with observed Cohen's d
+  claim_id: c_7798efe0
+  context: 'T030 [S] [US3] Power Analysis and Cross-Validation: ... Method: Use statsmodels.stats.power.TTestIndPower
+    with observed Cohen''s d.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_uses_statsmodels_TTestIndPower_with_observed
+  kind: entity_fact
+  raw_text: The power analysis method uses statsmodels.stats.power.TTestIndPower with
+    observed Cohen's d.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:26:00Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Minimum detectable effect size calculated with alpha 0.05 and power 0.80
+    for n=50
+  claim_id: c_c9f34bab
+  context: 'T052 [US3] Formalize Power Analysis Output: Update code/analysis/power_analysis.py
+    to explicitly calculate and report the Minimum Detectable Effect Size (MDES) given
+    the n=50 constraint using statsmodels.stats.power.TTestIndPower with alpha=0.05,
+    power=0.80, and the observed effect size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum detectable effect size (MDES) is calculated given the n=50
+    constraint using statsmodels.stats.power.TTestIndPower with alpha=0.05, power=0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T07:26:03Z'

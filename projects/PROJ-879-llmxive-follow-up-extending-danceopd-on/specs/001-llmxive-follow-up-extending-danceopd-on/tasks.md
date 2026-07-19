@@ -51,16 +51,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for data schema validation in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/unit/test_data_schema.py`
+- [X] T010 [P] [US1] Unit test for data schema validation in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/unit/test_data_schema.py`
 - [ ] T011 [P] [US1] Integration test for data generation pipeline in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/integration/test_data_generation.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement data streaming logic in `code/_data_streaming.py` to perform a stratified random sample of images from ImageNet‑1K and LAION‑400M, writing raw batches to `data/raw/`. The script must monitor cumulative CPU time; if the 6‑hour limit is reached it must **save partial results** (e.g., current batches) and exit cleanly with status `partial`.
-- [~] T012b [P] [US1] Load the streamed samples from `data/raw/imageNet_samples.parquet` (and `data/raw/laion_samples.parquet`), assert `len(imageNet_samples) > 0` and `len(laion_samples) > 0`, and combine them into a unified list for downstream processing.
-- [~] T013a [US1] Implement teacher model loading and inference in `code/00_teacher_inference.py`. **Primary Path**: Attempt GPU inference to generate `teacher_ground_truth.parquet` from the streamed samples. **Fallback Path**: If GPU is unavailable, check for a verified `data/raw/teacher_ground_truth.parquet` (checksum validated against manifest). If found, load it; if not found, abort with a clear error indicating that GPU inference is required or a verified fallback must be provided. This task is the sole producer of the dataset or the gatekeeper for the verified fallback.
-- [~] T013b [US1] Detect undefined routing paths during inference, log the count, and **exclude** those samples from the final dataset (no fallback label assigned).
-- [~] T014 [US1] Implement logic in `code/00_data_extraction.py` to extract `prompt_embedding`, `noise_level`, `routing_label`, and `velocity_vector` from inference outputs and stream them to `data/processed/teacher_routing_dataset.parquet`.
+- [X] T012 [P] [US1] Implement data streaming logic in `code/_data_streaming.py` to perform a stratified random sample of images from ImageNet‑1K and LAION‑400M, writing raw batches to `data/raw/`. The script must monitor cumulative CPU time; if the 6‑hour limit is reached it must **save partial results** (e.g., current batches) and exit cleanly with status `partial`.
+- [ ] T012b [P] [US1] Load the streamed samples from `data/raw/imageNet_samples.parquet` (and `data/raw/laion_samples.parquet`), assert `len(imageNet_samples) > 0` and `len(laion_samples) > 0`, and combine them into a unified list for downstream processing.
+- [ ] T013a [US1] Implement teacher model loading and inference in `code/00_teacher_inference.py`. **Primary Path**: Attempt GPU inference to generate `teacher_ground_truth.parquet` from the streamed samples. **Fallback Path**: If GPU is unavailable, check for a verified `data/raw/teacher_ground_truth.parquet` (checksum validated against manifest). If found, load it; if not found, abort with a clear error indicating that GPU inference is required or a verified fallback must be provided. This task is the sole producer of the dataset or the gatekeeper for the verified fallback.
+- [ ] T013b [US1] Detect undefined routing paths during inference, log the count, and **exclude** those samples from the final dataset (no fallback label assigned).
+- [ ] T014 [US1] Implement logic in `code/00_data_extraction.py` to extract `prompt_embedding`, `noise_level`, `routing_label`, and `velocity_vector` from inference outputs and stream them to `data/processed/teacher_routing_dataset.parquet`.
 - [X] T015 [US1] Add validation in `code/00_data_extraction.py` to ensure each `routing_label` matches a known expert field ID from the DanceOPD configuration.
 - [X] T016 [US1] Implement checksumming and versioning of the generated dataset using `code/03_versioning.py`.
 - [~] T016b [US1] Validate that `teacher_routing_dataset.parquet` contains samples from **both** ImageNet‑1K and LAION‑400M sources.
@@ -113,11 +113,11 @@
  2. **Teacher‑Baseline**: For each sample, use the stored `routing_label` from the teacher dataset, re‑run the corresponding expert to obtain a fresh `velocity_vector`, and integrate to produce an image.
  Images are saved under `data/results/` with prefixes `tree_depth{D}_sample_{idx}.png` and `teacher_baseline_sample_{idx}.png`. **Note**: This task depends on T005b (metrics) and T029 (integrator) being complete.
 - [ ] T030 [US3] Compute FID and CLIP Score **on the entire dataset** comparing Tree‑Generated images vs. Teacher‑Baseline images. Store results in `data/results/fidelity_metrics.csv`. Derive total degradation metrics (ΔFID, ΔCLIP) and write them to the same CSV.
-- [ ] T030a [US3] Perform a bootstrap hypothesis test on the FID distribution. Increase the sample size by 10 samples per iteration until statistical power ≥ 0.8 **or** remaining runtime < 30 min; if the time budget would be exceeded, save current results to `data/results/partial_results.json` with `status: partial` and exit with code 2.
+- [X] T030a [US3] Perform a bootstrap hypothesis test on the FID distribution. Increase the sample size by 10 samples per iteration until statistical power ≥ 0.8 **or** remaining runtime < 30 min; if the time budget would be exceeded, save current results to `data/results/partial_results.json` with `status: partial` and exit with code 2.
 - [~] T030c [US3] Perform a paired t‑test on per‑sample CLIP scores using the same power‑checking loop as Ta. Handle runtime limits identically.
 - [ ] T031 [US3] After successful power checks, write final statistical test outputs (p‑values, confidence intervals) to `data/results/statistical_tests.json`.
 - [X] T032 [US3] Generate a summary report `data/results/fidelity_summary.md` that includes degradation metrics, statistical significance statements, and any partial‑result notes.
-- [ ] T033 [US3] Implement a hard 6‑hour timeout using the `signal` module. On timeout **or** on early exit due to **statistical power insufficiency**, ensure all completed depth results and any partial metrics are persisted to `data/results/partial_results.json` with a `status: partial` flag.
+- [X] T033 [US3] Implement a hard 6‑hour timeout using the `signal` module. On timeout **or** on early exit due to **statistical power insufficiency**, ensure all completed depth results and any partial metrics are persisted to `data/results/partial_results.json` with a `status: partial` flag.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -127,7 +127,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates in `docs/` and `README.md`.
+- [~] T034 [P] Documentation updates in `docs/` and `README.md`.
 - [ ] T035 Code cleanup and refactoring in `code/`.
 - [ ] T036 Performance optimization for data streaming and batch processing.
 - [ ] T037 [P] Additional unit tests for edge cases (memory exhaustion, undefined routes) in `tests/unit/`.
