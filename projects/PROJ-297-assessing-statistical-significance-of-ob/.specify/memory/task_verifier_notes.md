@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T041** — The repository lacks the required `output/reports/runtime_log.json` file, and the provided `code/main.py` does not contain code that records the total pipeline runtime, writes the JSON with the specified keys, or exits with code 1 when the 6‑hour limit is exceeded. The timer and logging functionality are therefore missing.
-- **T035** — The `code/loaders.py` file only defines checksum helper functions but does not show any logic that uses them to verify downloaded files against known UCI checksums or to write SHA256 hashes to `data/raw/checksums.json`. Moreover, the required `data/raw/checksums.json` file is absent from the repository. Both the integration and the persisted checksum artifact are missing.
-- **T060** — The repository lacks the required `output/reports/profiling_log.json` file, and the provided excerpt of `code/main.py` shows no implementation of a profiling step that measures and logs the time spent in data loading, permutation, correction, or visualization. Consequently, the task’s core requirement is not satisfied.

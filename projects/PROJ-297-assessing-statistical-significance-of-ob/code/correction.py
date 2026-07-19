@@ -20,10 +20,24 @@ def benjamini_yekutieli(p_values: np.ndarray, alpha: float = 0.05) -> Tuple[np.n
         Tuple containing:
             - q_values: Adjusted q-values (FDR-corrected p-values).
             - is_significant: Boolean array indicating which hypotheses are significant.
+
+    Raises:
+        ValueError: If p_values is empty, or contains values outside [0, 1].
     """
+    # Input Validation (T074)
+    if p_values is None or len(p_values) == 0:
+        raise ValueError("Input p_values array is empty. BY correction requires at least one p-value.")
+
+    if not np.all((p_values >= 0) & (p_values <= 1)):
+        invalid_mask = (p_values < 0) | (p_values > 1)
+        invalid_indices = np.where(invalid_mask)[0]
+        raise ValueError(
+            f"Input p_values contain values outside the range [0, 1]. "
+            f"Invalid values found at indices: {invalid_indices.tolist()}. "
+            f"Values: {p_values[invalid_mask].tolist()}"
+        )
+
     n = len(p_values)
-    if n == 0:
-        return np.array([]), np.array([], dtype=bool)
 
     # Sort p-values and keep track of original indices
     sorted_indices = np.argsort(p_values)
@@ -78,11 +92,23 @@ def apply_correction_to_results(
 
     Returns:
         Updated list of dictionaries with 'q_value' and 'is_significant' keys added.
+
+    Raises:
+        ValueError: If results is empty or contains invalid p_values.
     """
     if not results:
-        return results
+        raise ValueError("Input results list is empty. Cannot apply correction.")
 
     p_values = np.array([r["p_value"] for r in results])
+    
+    # Validate p_values before proceeding
+    if not np.all((p_values >= 0) & (p_values <= 1)):
+        invalid_indices = np.where((p_values < 0) | (p_values > 1))[0]
+        raise ValueError(
+            f"Results contain invalid p-values at indices: {invalid_indices.tolist()}. "
+            f"All p-values must be in range [0, 1]."
+        )
+
     q_values, is_significant = benjamini_yekutieli(p_values, alpha)
 
     for i, result in enumerate(results):

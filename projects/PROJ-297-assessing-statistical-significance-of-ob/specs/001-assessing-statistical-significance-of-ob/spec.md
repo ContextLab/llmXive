@@ -69,7 +69,7 @@ The system must perform a sensitivity analysis on the correlation threshold (|r|
 - **FR-001**: System MUST download and load 6 specific multivariate datasets from the UCI Machine Learning Repository (Wine, Abalone, Breast Cancer Wisconsin, Student Performance, Air Quality, Concrete Compressive Strength) containing ≥20 continuous variables; if a dataset has <20 continuous variables, it is excluded from the analysis. (See US-1)
 - **FR-002**: System MUST compute Pearson and Spearman correlation matrices for each dataset using `scipy.stats` and construct an undirected weighted graph by thresholding absolute Pearson correlations at |r| > 0.3. (See US-1)
 - **FR-003**: System MUST perform a sufficient number of random permutations per dataset, preserving marginal distributions, to generate empirical null distributions for mean absolute correlation, edge density, maximum absolute correlation, and average clustering coefficient. (See US-1)
-- **FR-004**: System MUST calculate two-sided empirical p-values and apply the Benjamini-Yekutieli procedure across all tests (multiple datasets × 4 statistics) to control the False Discovery Rate at 0.05 under dependence. (See US-2)
+- **FR-004**: System MUST calculate two-sided empirical p-values and apply the Benjamini-Yekutieli procedure across all tests (multiple datasets × multiple statistics) to control the False Discovery Rate at 0.05 under dependence. (See US-2)
 - **FR-005**: System MUST execute a sensitivity analysis by sweeping the correlation threshold over a range of low to moderate values and report the variation in network density and significance counts. (See US-3)
 - **FR-006**: System MUST generate visualizations including heatmaps of observed vs. null correlation matrices and histograms of null distributions with observed values overlaid. (See US-3)
 - **FR-007**: System MUST frame all significant findings as "associational" evidence of non-random structure, explicitly avoiding causal language in the output report. (See US-2)
@@ -91,7 +91,7 @@ The system must perform a sensitivity analysis on the correlation threshold (|r|
 
 - **SC-001**: The proportion of synthetic datasets with known independence (true null) correctly identified as non-significant (p > 0.05) is measured against the ground truth of the synthetic generation process, with a required pass rate of ≥ 95%. (See US-1)
 - **SC-002**: The system must output q-values calculated via the Benjamini-Yekutieli procedure; in synthetic tests with known signals, the system must detect ≥ 90% of true positives. (See US-2)
-- **SC-003**: The stability of the "significant" count is measured against the variation in the correlation threshold sweep (|r| ∈ {0.1, 0.2, 0.3, 0.4, 0.5}) to assess robustness. (See US-3)
+- **SC-003**: The stability of the "significant" count is measured against the variation in the correlation threshold sweep (|r| ∈ {low, 0.2, 0.3, 0.4, 0.5}) to assess robustness. (See US-3)
 - **SC-004**: The total runtime of the full pipeline (datasets × a substantial number of permutations) is measured against the time limit of the GitHub Actions free-tier runner. (See US-1)
 
 ## Assumptions

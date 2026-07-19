@@ -20,6 +20,7 @@ CONFIG: Dict[str, Any] = {
         "output_plots_primary": "output/plots/primary",
         "output_reports": "output/reports",
         "output_exploratory": "output/exploratory",
+        "output_logs": "output/logs",
     },
     "random_seed": 42,
     "thresholds": [0.1, 0.2, 0.3, 0.4, 0.5],
@@ -28,6 +29,66 @@ CONFIG: Dict[str, Any] = {
     "n_permutations_large_clustering": 500,
     "min_continuous_vars": 20,
     "max_line_length": 88,
+    "datasets": {
+        "wine": {
+            "name": "Wine",
+            "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data",
+            "header": None,
+            "sep": ",",
+        },
+        "abalone": {
+            "name": "Abalone",
+            "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data",
+            "header": None,
+            "sep": ",",
+        },
+        "breast_cancer": {
+            "name": "Breast Cancer Wisconsin",
+            "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data",
+            "header": None,
+            "sep": ",",
+        },
+        "student_performance": {
+            "name": "Student Performance",
+            "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00256/student-mat.csv",
+            "header": 0,
+            "sep": ";",
+        },
+        "air_quality": {
+            "name": "Air Quality",
+            "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00360/AirQualityUCI.csv",
+            "header": 0,
+            "sep": ";",
+            "encoding": "cp1252",
+            "note": "Direct CSV link from UCI repository to avoid ZIP extraction complexity."
+        },
+        "concrete": {
+            "name": "Concrete Compressive Strength",
+            "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/Concrete_Data.xls",
+            "header": 0,
+            "ext": "xls",
+        },
+    },
+    "fallback_datasets": {
+        "parkinsons": {
+            "name": "Parkinsons",
+            "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/parkinsons/parkinsons.data",
+            "header": None,
+            "sep": ",",
+        },
+        "libras": {
+            "name": "Libras",
+            "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00242/Libras_movement.data",
+            "header": None,
+            "sep": ",",
+        },
+        "isolet": {
+            "name": "Isolet",
+            "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/isolet/isolet_train_data",
+            "header": None,
+            "sep": " ",
+        },
+    },
 }
 
 
