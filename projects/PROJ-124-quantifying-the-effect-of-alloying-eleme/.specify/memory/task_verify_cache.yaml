@@ -1,3 +1,25 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings, screenshots, or other evidence were provided to show that
+    the required folders (`code/data`, `code/models`, `code/utils`, `code/config`,
+    `data/raw`, `data/processed`, `state`, `output`, `tests/contract`, `tests/integration`,
+    `tests/unit`, `docs/paper`, `docs/reports`) actually exist in the project. Without
+    concrete proof of the created structure, the task cannot be considered completed.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, `black` settings) or related scripts were presented. The claim provides
+    no artifact demonstrating that ruff/flake8 and black have been set up, so the
+    requirement is not satisfied.
+T004a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/` and `data/processed/` directories was
+    provided; the artifact list is empty, so the filesystem structure cannot be confirmed
+    as created. The implementer must add the actual directories (or a screenshot/listing)
+    to satisfy the task.
 T005:
   c: true
   h: 5d2c5af92a4d279ce4e077bd02e3c91d1bb6d76add991a268d46b08a3ec718e8
@@ -5,31 +27,33 @@ T005:
     \ `update_artifact_hash(path)`, which computes a SHA\u2011256 hash of the given\
     \ file and writes/updates an entry in `state/artifact_hashes.yaml`, creating the\
     \ state directory and file if needed. This fulfills the specified requirement."
-T008a:
+T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration artifact (e.g., a YAML/JSON settings file, .env template, or
-    code that centralizes dataset URLs and random seed handling) is present in the
-    provided evidence. The only artifacts described relate to data ingestion, feature
-    engineering, and model training, which do not satisfy the requirement to configure
-    environment configuration management for dataset URLs and random seeds. The implementer
-    must add a concrete configuration solution (e.g., a config module or file) that
-    defines and loads these parameters.
-T009:
+  r: "The implementer supplied no code, configuration files, or documentation showing\
+    \ a logging system or error\u2011handling mechanisms for pipeline failures. No\
+    \ artifacts (e.g., a logger module, log configuration, try/except wrappers, or\
+    \ example log output) were presented, so the requirement to create base logging\
+    \ infrastructure and error handling is not met."
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The task explicitly requires setting up a `contracts/` directory containing schema
-    definitions in CSV and JSON formats, but there is no evidence in the provided
-    context that this directory or any schema files exist. The available text describes
-    high-level feature specifications and user stories for data processing and model
-    training, which are distinct from the specific deliverable of creating schema
-    definition files. Without the actual `contracts/` directory and its contents,
-    the requirement is not met.
-T012:
+  r: "No `code/utils/` directory or module files were provided, and there is no evidence\
+    \ of implementations for a novelty\u2011check utility or SHAP\u2011related helper\
+    \ functions. The required shared\u2011utility code is missing entirely."
+T014:
   c: false
-  h: 6b8fcb6138293c5af4a5c24ae14bbc56709965bbc883e3afad3db3aa4e380402
-  r: "The repository contains `code/data/download.py`, but the required output artifacts\
-    \ `data/raw/gfa_dataset.csv` and `data/raw/gfa_dataset.csv.sha256` are absent.\
-    \ Since the success condition explicitly demands these files be created, the implementation\
-    \ does not satisfy the task. The next implementer must ensure the download script\
-    \ actually writes the CSV and its SHA\u2011256 checksum to the `data/raw/` directory."
+  h: a319711081234d5f0cf85b92ece986dfddd76267e536c2254d4ddea3ad0e1a98
+  r: "The repository contains `code/data/features.py`, but the file is truncated and\
+    \ does not show a complete implementation that reads raw data, computes the required\
+    \ descriptors, and writes `data/processed/features.csv`. Moreover, the expected\
+    \ output file `data/processed/features.csv` is absent from the project directory.\
+    \ Without this CSV matching the schema, the task\u2019s primary deliverable is\
+    \ missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, log files, or test results were provided that demonstrate the
+    addition of validation logic to detect unknown elements, exclude those rows, and
+    emit specific warnings. The required artifact (implementation and evidence of
+    its behavior) is missing.

@@ -61,9 +61,10 @@
 - [ ] T006 [P] Create base logging infrastructure and error handling for pipeline failures
 - [ ] T007 Create `code/utils/` module for shared utilities (novelty check, SHAP utils)
 - [ ] T008a Configure environment configuration management for dataset URLs and random seeds
-- [X] T008b Define and save the '30 most abundant metallic elements' list to `data/config/elements.yaml` and `code/config/elements.py` (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc) for use by T030
-- [X] T008c [P] Download or generate `data/known_alloys.csv` for novelty checks (FR-013); if external source is unavailable, create a placeholder file with a clear warning to be populated later, but the task must ensure the file path exists before T036 runs.
-- [ ] T009 Setup `contracts/` directory for schema definitions (CSV and JSON)
+- [X] T008b [P] Define and save the list of the most abundant metallic elements to `data/config/elements.yaml` and `code/config/elements.py` (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc). **Verification**: Add a comment in the file noting that Si, Na, and K are included per spec assumption but may not form stable metallic glasses in all ternary systems. (FR-005)
+- [X] T008c [P] Download or generate `data/known_alloys.csv` for novelty checks (FR-013). **Logic**: If external source is unavailable, create an empty file with a header row only (`composition,novelty_status`) and log a warning. **Requirement**: Ensure the file path exists before T036 runs. (Plan, Edge Cases)
+- [X] T009a [P] Create `contracts/candidates_csv.schema.yaml` defining the schema for `output/candidates.csv` (columns: composition, predicted_log10_Rc, ci_lower, ci_upper, risk_score, final_score, novelty_status) (Plan, FR-006, FR-007)
+- [X] T009b [P] Create `contracts/verification.schema.yaml` defining the schema for `output/verification_requests.json` (fields: composition, predicted_log10_Rc, confidence_interval, novelty_status, status) with `novelty_status` enum strictly ["novel", "known", "unverified_external"] (Plan, FR-008, FR-013)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,10 +85,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data/download.py` to fetch Dataset (Recent Experimental GFA) from HuggingFace with retry logic and SHA-256 verification; success condition: produces `data/raw/gfa_dataset.csv` and `data/raw/gfa_dataset.csv.sha256` (FR-001)
-- [ ] T013 [US1] Implement `code/data/ingest.py` to parse CSV, normalize elemental fractions to sum to 1.0 ± 0.01, and log warnings for unknown elements (US-1, FR-001)
-- [ ] T014 [US1] Implement `code/data/features.py` to compute atomic radius, electronegativity, VEC_raw, and weighted mean VEC_avg using Pymatgen; output: `data/processed/features.csv` with columns [composition, log10_Rc, atomic_radius_mean, electronegativity_mean, VEC_avg, size_mismatch, etc.] (FR-002)
-- [ ] T015 [US1] Implement pairwise size mismatch descriptor calculation in `code/data/features.py` for unique element pairs (FR-002b)
+- [ ] T012 [US1] Implement `code/data/download.py` to fetch Dataset (Recent Experimental GFA) from HuggingFace (`https://huggingface.co/datasets/GFA-D/pilot_flags`). **Requirements**: Use `huggingface_hub.hf_hub_download` or `requests` with **explicit retry logic (a fixed number of attempts, 5-second exponential backoff)**. **Output**: Save the raw file to `data/raw/gfa_dataset.csv`. **Schema Verification**: Immediately after download, verify the CSV contains `composition` and `log10_Rc` (or `Rc`) columns. **Failure Condition**: If columns are missing, raise an exception and halt execution. **Checksum**: Generate `data/raw/gfa_dataset.csv.sha256` using `code/data/checksums.py` ONLY after schema verification passes. **Error Handling**: Explicitly handle 401/403 errors (authentication/permission issues) and fail with a clear message if they persist. **CRITICAL**: Do NOT implement any fallback to synthetic data; if the download fails after retries or schema check fails, the script MUST raise an exception and halt execution. (FR-001, Edge Cases)
+- [X] T013 [US1] Implement `code/data/ingest.py` to parse CSV, normalize elemental fractions to sum to 1.0 ± 0.01, and log warnings for unknown elements (US-1, FR-001)
+- [ ] T014 [US1] Implement `code/data/features.py` to compute atomic radius, electronegativity, VEC_raw, and weighted mean VEC_avg using Pymatgen. **Output**: `data/processed/features.csv` matching the schema in `contracts/data_schema.yaml` (columns: composition, log10_Rc, atomic_radius_mean, electronegativity_mean, VEC_avg, size_mismatch, etc. as defined in contract). (FR-002)
+- [X] T015 [US1] Implement pairwise size mismatch descriptor calculation in `code/data/features.py` for unique element pairs (FR-002b)
 - [ ] T016 [US1] Add validation logic to exclude rows with unknown elements and log specific warnings (US-1, Edge Cases)
 - [ ] T017 [US1] Save processed feature-engineered dataset to `data/processed/features.csv` with `source_row_id` traceability (Constitution Principle IV)
 
@@ -112,7 +113,7 @@
 - [ ] T021 [US2] Implement LOCO cross-validation logic in `code/models/train.py` based on primary metallic element families; **CRITICAL**: Fit a StandardScaler on the training features, save the fitted scaler as `data/processed/scaler.pkl`, and save the transformed `X_train.pkl` and `y_train.pkl` (FR-004)
 - [ ] T022 [US2] Implement model selection logic to save `best_model.pkl` based on lowest LOCO-MAE (US-2, FR-003)
 - [ ] T023 [US2] Implement `code/models/validate.py` to perform Breusch-Pagan test for heteroscedasticity; output: `state/heteroscedasticity_test.json` containing `p_value` and `heteroscedasticity_flag` (boolean) (FR-010)
-- [ ] T024 [US2] Implement weighted loss retraining in `code/models/validate.py` (binning residuals, local variance estimation) if `heteroscedasticity_flag` is true; save `best_model_weighted.pkl` (FR-010)
+- [ ] T024 [US2] Implement weighted loss retraining in `code/models/validate.py` **ONLY IF** `heteroscedasticity_flag` is true. **Logic**: Bin residuals by feature-space quantiles (ensure sufficient samples per bin), fit a local variance estimator, derive weights inversely proportional to the estimated local variance. Retrain the model with these weights. Save as `best_model_weighted.pkl`. **Fallback**: If binning is unstable, use a global log-variance model or Huber loss, but log the deviation from FR-010. **Verification**: Save `best_model_weighted.pkl` and update `state/heteroscedasticity_test.json` with the fallback method used. (FR-010)
 - [ ] T025 [US2] Implement `code/utils/shap_utils.py` to generate global SHAP values for the best model (FR-011)
 - [ ] T026 [US2] Save `shap_feature_importance.json` with global SHAP values (FR-012)
 
@@ -135,14 +136,15 @@
 
 - [ ] T030 [US3] Implement `code/models/predict.py` to generate all unique ternary combinations from the most abundant metallic elements defined in `data/config/elements.yaml` (FR-005)
 - [ ] T031 [US3] Implement prediction logic using the best model (or weighted if applicable) for all ternary combinations (FR-005)
-- [ ] T032 [US3] Implement `code/models/predict.py::calculate_doa` to calculate the Domain of Applicability (DoA). **Logic**: First, attempt to compute the convex hull of the training feature space (loaded from `data/processed/X_train.pkl`). **Fallback**: If convex hull computation fails (e.g., due to high dimensionality), reduce features to PCA components (retaining [deferred] variance) and calculate Mahalanobis distance. **Do NOT raise a fatal error**; use the fallback method. Save `state/convex_hull_model.pkl` if successful, otherwise save `state/pca_doa_model.pkl`. (FR-009)
-- [ ] T033 [US3] Apply +1.0 penalty to $log_{10}(R_c)$ for candidates outside DoA before ranking (FR-009)
-- [ ] T034 [US3] Implement filtering logic to retain candidates in the bottom 10th percentile of the dataset distribution or < 4.0 (FR-006)
-- [ ] T035 [US3] Generate **a set of bootstrapped Random Forest models** on the training data to create an ensemble. **Requirement**: Train these multiple models on **resampled subsets** (bootstrapping) of the training data, ensuring they are **distinct** from the single best model selected in T022. Predict on candidates; calculate confidence intervals (lower and upper percentiles) from the variance of these 10 predictions; output confidence intervals for each candidate (FR-003, FR-007)
-- [ ] T036 [US3] Implement novelty check in `code/utils/novelty.py` against `data/known_alloys.csv`. **Logic**: If the list exists, check and set `novelty_status` to `"novel"` or `"known"`. **Fallback**: If `data/known_alloys.csv` is missing or inaccessible, set `novelty_status` to `"unverified_external"` and log a warning. **Do NOT fail the pipeline** if the list is missing (FR-013)
+- [ ] T032a [US3] **Depends on: T030, T031** Implement `code/models/predict.py::calculate_doa` to calculate the Domain of Applicability (DoA) using the **Convex Hull** of the training feature space (loaded from `data/processed/X_train.pkl`). **Logic**: If a candidate is outside the convex hull, set `high_extrapolation_risk` to `true` and apply the +1.0 penalty. **Artifacts**: Save `state/convex_hull_model.pkl`. **Verification**: Ensure `output/candidates.csv` contains the `high_extrapolation_risk` column. **Failure**: If Convex Hull calculation fails (e.g., dimensionality > 8), log the error and set a flag to trigger T032b. (FR-009)
+- [ ] T032b [US3] **Depends on: T032a (failure)** Implement PCA/Mahalanobis fallback for DoA. **Condition**: Execute ONLY if T032a failed. **Logic**: Reduce features to PCA components (retaining [deferred] variance) and calculate Mahalanobis distance. If distance > 95th percentile, set `high_extrapolation_risk` to `true` and apply the +1.0 penalty. **Artifacts**: Save `state/pca_doa_model.pkl`. **Verification**: Ensure `output/candidates.csv` contains the `high_extrapolation_risk` column and `state/heteroscedasticity_test.json` (or a new log) indicates the fallback was used. (FR-009)
+- [ ] T033 [US3] Apply +1.0 penalty to $log_{10}(R_c)$ for candidates where `high_extrapolation_risk` is true before ranking (FR-009)
+- [ ] T034 [US3] **Depends on: T030, T031** Implement filtering logic: **Step 1**: Calculate the th percentile of the `log10_Rc` distribution in the training data. **Step 2**: If the percentile is valid (not NaN), retain candidates with `predicted_log10_Rc` < 10th percentile. **Step 3**: ONLY if the dataset range is unknown (percentile calculation fails), apply the absolute cutoff `< 4.0`. **Output**: Filtered list for ranking. **Verification**: Ensure the filtering logic strictly follows this conditional sequence. (FR-006)
+- [ ] T035 [US3] **Depends on: T022, T030, T031** Generate **a set of bootstrapped Random Forest models** on the training data to create an ensemble. **Requirements**: Load the **exact hyperparameters** (n_estimators, max_depth, etc.) from `best_model.pkl` (T022). Train multiple models on **resampled subsets** (bootstrapping with replacement) of the training data using these fixed hyperparameters. Save each model as `state/bootstrapped_models/ensemble_{i}.pkl` (i=0..9). Predict on candidates; calculate confidence intervals (lower and upper percentiles) from the variance of these 10 predictions; output confidence intervals for each candidate. **Verification**: Ensure `output/candidates.csv` contains `ci_lower` and `ci_upper` columns. Verify hyperparameters match `best_model.pkl`. (FR-003, FR-007)
+- [ ] T036 [US3] **Depends on: T030, T031** Implement novelty check in `code/utils/novelty.py` against `data/known_alloys.csv`. **Logic**: If the list exists, check and set `novelty_status` to `"novel"` or `"known"`. **Fallback**: If `data/known_alloys.csv` is missing or empty, set `novelty_status` to `"unverified_external"` and log a warning. **Do NOT fail the pipeline** if the list is missing. **Verification**: Ensure `output/verification_requests.json` contains `novelty_status: unverified_external` for all rows when the list is missing. (FR-013, Plan Phase 3 Step 5)
 - [ ] T037 [US3] Rank candidates by ascending `final_score` (predicted + penalty) and select a representative subset of top-ranked items (FR-006)
 - [ ] T038 [US3] Generate `output/candidates.csv` with top-ranked candidates, predictions, CIs, and risk scores (FR-006, FR-007)
-- [ ] T039 [US3] Generate `output/verification_requests.json` containing a list of verification request objects. with fields: `composition`, `predicted_log10_Rc`, `confidence_interval`, `novelty_status` (must be strictly "novel", "known", or "unverified_external"), `status` ("pending_verification"). **Validation**: Run schema validator. **Error Handling**: If validation fails, log the error, set a `validation_status` flag to "failed" in the output, and save the file. Do not abort the pipeline unless the file cannot be written (FR-008, FR-013)
+- [ ] T039 [US3] Generate `output/verification_requests.json` containing a list of verification request objects. with fields: `composition`, `predicted_log10_Rc`, `confidence_interval`, `novelty_status` (strictly "novel", "known", or "unverified_external" per FR-008), `status` ("pending_verification"). **Validation**: Run schema validator against `contracts/verification.schema.yaml`. **Error Handling**: If validation fails, log the error, set a `validation_status` flag to "failed" in the output, and save the file. Do not abort the pipeline unless the file cannot be written. (FR-008, FR-013)
 - [ ] T040 [US3] Handle edge case of zero candidates below threshold by outputting empty CSV with header (Edge Cases)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -156,7 +158,9 @@
 - [ ] T041a [P] Draft `docs/paper/01-introduction.md` (background, problem statement)
 - [ ] T041b [P] Draft `docs/paper/02-methods.md` (data pipeline, model training, screening)
 - [ ] T042 Code cleanup and refactoring across `code/` modules
-- [ ] T043 Performance optimization for combinatorial generation and model training within CPU constraints; success metric: `code/models/predict.py` runtime < 3 hours (to ensure total pipeline ≤ 6 hours) and memory < 7GB on GitHub Actions
+- [ ] T043a [P] Refactor `code/models/predict.py` to use vectorized operations for the prediction loop to reduce runtime (Performance optimization)
+- [ ] T043b [P] Refactor DoA calculation to process candidates in batches to reduce memory usage (Performance optimization)
+- [ ] T043c [P] Profile the pipeline and optimize bottlenecks to ensure total runtime < 6 hours on CPU-only runner (Performance optimization)
 - [ ] T044 [P] Additional unit tests for feature engineering logic in `tests/unit/test_features.py`
 - [ ] T045 Run `quickstart.md` validation to ensure end-to-end reproducibility
 - [ ] T046 Verify all artifacts in `state/artifact_hashes.yaml` are correctly updated
@@ -196,6 +200,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- **Phase 5 Parallelism**: T030 and T031 can run in parallel. T032a is sequential after T030/T031. T032b is sequential after T032a (only if T032a fails). T035 is sequential after T022 and T030/T031. T036 is sequential after T030/T031.
 
 ---
 

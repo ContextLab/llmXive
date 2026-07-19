@@ -1,164 +1,293 @@
 """
-Linting and formatting configuration management.
+Linting and Formatting Configuration Module.
 
-This module provides functions to retrieve and validate
-Ruff and Black configuration settings for the project.
+This module provides functions to generate and validate Ruff and Black
+configuration files for the project. It ensures consistent code style
+and quality across the codebase.
 """
 import os
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
+import logging
 
-# Try to import tomli for reading TOML, fallback to tomllib for Python 3.11+
-try:
-    import tomllib
-except ImportError:
-    try:
-        import tomli as tomllib
-    except ImportError:
-        tomllib = None  # type: ignore
-
+# Configure logger
+logger = logging.getLogger(__name__)
 
 def get_ruff_config() -> Dict[str, Any]:
     """
-    Retrieve the Ruff configuration for the project.
+    Generate the configuration dictionary for Ruff (linter/formatter).
     
     Returns:
-        Dict containing Ruff configuration settings.
+        Dict[str, Any]: Configuration dictionary compatible with ruff.toml or pyproject.toml.
     """
     return {
         "target-version": "py311",
         "line-length": 88,
         "select": [
-            "E",      # pycodestyle errors
-            "W",      # pycodestyle warnings
-            "F",      # Pyflakes
-            "I",      # isort
-            "B",      # flake8-bugbear
-            "C4",     # flake8-comprehensions
-            "UP",     # pyupgrade
-            "ARG",    # flake8-unused-arguments
-            "SIM",    # flake8-simplify
+            "E",  # pycodestyle errors
+            "W",  # pycodestyle warnings
+            "F",  # Pyflakes
+            "I",  # isort
+            "B",  # flake8-bugbear
+            "C4", # flake8-comprehensions
+            "UP", # pyupgrade
+            "N",  # pep8-naming
+            "ARG",# flake8-unused-arguments
+            "SIM",# flake8-simplify
+            "RUF" # Ruff-specific rules
         ],
         "ignore": [
-            "E501",   # line too long (handled by black)
-            "B008",   # do not perform function calls in argument defaults
-            "ARG001", # unused arguments (sometimes needed for interface compatibility)
+            "E501", # Line too long (handled by Black)
+            "B008", # Do not perform function call in argument defaults (common in dataclasses)
+            "SIM105" # Use contextlib.suppress instead of try/except (optional preference)
         ],
         "exclude": [
             ".git",
             "__pycache__",
-            ".eggs",
-            "*.egg-info",
-            "build",
-            "dist",
-            "venv",
             ".venv",
+            "venv",
+            "build",
+            "dist"
         ],
+        "per-file-ignores": {
+            "__init__.py": ["F401", "F403"], # Allow unused imports in init files
+            "tests/*": ["ARG001"] # Allow unused arguments in test fixtures
+        },
+        "isort": {
+            "known-first-party": ["config", "data", "utils", "models", "setup_project_structure"],
+            "force-single-line": false
+        },
+        "mccabe": {
+            "max-complexity": 15
+        }
     }
-
 
 def get_black_config() -> Dict[str, Any]:
     """
-    Retrieve the Black configuration for the project.
+    Generate the configuration dictionary for Black (code formatter).
     
     Returns:
-        Dict containing Black configuration settings.
+        Dict[str, Any]: Configuration dictionary compatible with pyproject.toml.
     """
     return {
         "line-length": 88,
         "target-version": ["py311"],
-        "skip-string-normalization": False,
-        "exclude": r"""
-        (
-            __pycache__
-            | .git
-            | .eggs
-            | \.egg-info
-            | build
-            | dist
-            | venv
-            | \.venv
-        )
-        """,
+        "skip-string-normalization": false,
+        "exclude": r"/(\.git|\.venv|venv|build|dist)/"
     }
 
-
-def validate_linting_setup(project_root: Optional[Path] = None) -> Tuple[bool, str]:
+def write_ruff_config(config: Dict[str, Any], target_path: Path) -> bool:
     """
-    Validate that the linting and formatting tools are properly configured.
-    
-    Checks for:
-    1. Presence of configuration files (pyproject.toml, .ruff.toml, etc.)
-    2. Installation of required packages (ruff, black)
+    Write the Ruff configuration to a .ruff.toml file.
     
     Args:
-        project_root: Path to the project root directory. Defaults to current directory.
+        config: The configuration dictionary.
+        target_path: Path to the target .ruff.toml file.
         
     Returns:
-        Tuple of (is_valid, message)
+        bool: True if successful, False otherwise.
     """
-    if project_root is None:
-        project_root = Path.cwd()
-    
-    issues = []
-    
-    # Check if ruff is installed
     try:
-        import ruff  # type: ignore
-    except ImportError:
-        issues.append("ruff is not installed. Run: pip install ruff")
+        # We will write a simple TOML-like structure manually or use toml if available
+        # To avoid adding a dependency just for config, we construct the string.
+        # Note: In a real scenario, using `tomli_w` or `toml` is preferred.
+        # Here we write a standard ruff.toml format.
+        
+        lines = []
+        lines.append(f"# Ruff configuration generated by code/config/linting.py")
+        lines.append(f"target-version = \"{config.get('target-version', 'py311')}\"")
+        lines.append(f"line-length = {config.get('line-length', 88)}")
+        
+        if "select" in config:
+            lines.append("select = [")
+            for rule in config["select"]:
+                lines.append(f"    \"{rule}\",")
+            lines.append("]")
+            
+        if "ignore" in config:
+            lines.append("ignore = [")
+            for rule in config["ignore"]:
+                lines.append(f"    \"{rule}\",")
+            lines.append("]")
+            
+        if "exclude" in config:
+            lines.append("exclude = [")
+            for ex in config["exclude"]:
+                lines.append(f"    \"{ex}\",")
+            lines.append("]")
+            
+        if "per-file-ignores" in config:
+            lines.append("[per-file-ignores]")
+            for k, v in config["per-file-ignores"].items():
+                ignore_str = ", ".join([f'"{i}"' for i in v])
+                lines.append(f"{k} = [{ignore_str}]")
+                
+        if "isort" in config:
+            lines.append("[isort]")
+            for k, v in config["isort"].items():
+                if isinstance(v, bool):
+                    lines.append(f"{k} = {str(v).lower()}")
+                elif isinstance(v, list):
+                    lines.append(f"{k} = [\"{v[0]}\"]") # Simplified for known-first-party
+                else:
+                    lines.append(f"{k} = \"{v}\"")
+                    
+        if "mccabe" in config:
+            lines.append("[mccabe]")
+            for k, v in config["mccabe"].items():
+                lines.append(f"{k} = {v}")
+
+        target_path.write_text("\n".join(lines) + "\n")
+        logger.info(f"Ruff configuration written to {target_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to write Ruff config: {e}")
+        return False
+
+def write_pyproject_config(black_config: Dict[str, Any], ruff_config: Dict[str, Any], target_path: Path) -> bool:
+    """
+    Write configuration to pyproject.toml (combining Black and Ruff settings).
     
-    # Check if black is installed
+    Args:
+        black_config: Black configuration.
+        ruff_config: Ruff configuration.
+        target_path: Path to pyproject.toml.
+        
+    Returns:
+        bool: True if successful, False otherwise.
+    """
     try:
-        import black  # type: ignore
-    except ImportError:
-        issues.append("black is not installed. Run: pip install black")
-    
-    # Check for configuration files
-    config_files = [
-        project_root / "pyproject.toml",
-        project_root / ".ruff.toml",
-        project_root / ".ruff_cache",
-        project_root / "setup.cfg",
-    ]
-    
-    has_config = any(f.exists() for f in config_files if f.suffix in [".toml", ".cfg"])
-    
-    if not has_config:
-        issues.append(
-            "No linting configuration file found. "
-            "Create pyproject.toml with [tool.ruff] and [tool.black] sections, "
-            "or use .ruff.toml and .black.toml."
-        )
-    
-    if issues:
-        return False, "; ".join(issues)
-    
-    return True, "Linting and formatting tools are properly configured."
+        lines = []
+        lines.append("[tool.black]")
+        for k, v in black_config.items():
+            if k == "target-version":
+                lines.append(f'{k} = ["py311"]')
+            elif isinstance(v, bool):
+                lines.append(f"{k} = {str(v).lower()}")
+            elif isinstance(v, str) and not v.startswith("r"):
+                lines.append(f'{k} = "{v}"')
+            elif isinstance(v, list):
+                # Handle exclude regex specially
+                if k == "exclude":
+                     lines.append(f'{k} = {repr(v[0])}')
+                else:
+                    lines.append(f'{k} = {repr(v)}')
+            else:
+                lines.append(f'{k} = {v}')
+        
+        lines.append("")
+        lines.append("[tool.ruff]")
+        # Re-map ruff config to pyproject format
+        lines.append(f'target-version = "{ruff_config.get("target-version", "py311")}"')
+        lines.append(f'line-length = {ruff_config.get("line-length", 88)}')
+        
+        if "select" in ruff_config:
+            lines.append("select = [")
+            for rule in ruff_config["select"]:
+                lines.append(f'    "{rule}",')
+            lines.append("]")
+            
+        if "ignore" in ruff_config:
+            lines.append("ignore = [")
+            for rule in ruff_config["ignore"]:
+                lines.append(f'    "{rule}",')
+            lines.append("]")
+            
+        if "exclude" in ruff_config:
+            lines.append("exclude = [")
+            for ex in ruff_config["exclude"]:
+                lines.append(f'    "{ex}",')
+            lines.append("]")
+            
+        if "per-file-ignores" in ruff_config:
+            lines.append("[tool.ruff.per-file-ignores]")
+            for k, v in ruff_config["per-file-ignores"].items():
+                ignore_str = ", ".join([f'"{i}"' for i in v])
+                lines.append(f'{k} = [{ignore_str}]')
 
+        target_path.write_text("\n".join(lines) + "\n")
+        logger.info(f"Pyproject configuration written to {target_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to write pyproject config: {e}")
+        return False
 
-def main() -> None:
-    """Main entry point for linting configuration validation."""
-    print("Validating linting and formatting setup...")
+def validate_linting_setup(root_path: Optional[Path] = None) -> Tuple[bool, str]:
+    """
+    Validate that linting configuration files exist and are readable.
     
-    is_valid, message = validate_linting_setup()
-    print(message)
+    Args:
+        root_path: The project root path. Defaults to current directory.
+        
+    Returns:
+        Tuple[bool, str]: (success, message)
+    """
+    if root_path is None:
+        root_path = Path.cwd()
+        
+    ruff_path = root_path / ".ruff.toml"
+    pyproject_path = root_path / "pyproject.toml"
     
-    if not is_valid:
-        sys.exit(1)
+    # Check if either config exists
+    if not ruff_path.exists() and not pyproject_path.exists():
+        return False, "No Ruff or Black configuration found (.ruff.toml or pyproject.toml)"
     
-    # Display current configurations
-    print("\nCurrent Ruff configuration:")
+    if ruff_path.exists():
+        try:
+            content = ruff_path.read_text()
+            if "select" not in content and "target-version" not in content:
+                # It exists but might be empty or malformed
+                logger.warning(f"{ruff_path} exists but might be empty or malformed.")
+        except Exception as e:
+            return False, f"Error reading {ruff_path}: {e}"
+            
+    if pyproject_path.exists():
+        try:
+            content = pyproject_path.read_text()
+            if "[tool.black]" not in content and "[tool.ruff]" not in content:
+                logger.warning(f"{pyproject_path} exists but lacks [tool.black] or [tool.ruff] sections.")
+        except Exception as e:
+            return False, f"Error reading {pyproject_path}: {e}"
+            
+    return True, "Linting configuration validated successfully."
+
+def main() -> int:
+    """
+    Main entry point to generate and validate linting configurations.
+    
+    Returns:
+        int: Exit code (0 for success, 1 for failure).
+    """
+    root = Path(__file__).resolve().parent.parent.parent
+    logger.info(f"Generating linting configurations in {root}")
+    
     ruff_config = get_ruff_config()
-    for key, value in ruff_config.items():
-        print(f"  {key}: {value}")
-    
-    print("\nCurrent Black configuration:")
     black_config = get_black_config()
-    for key, value in black_config.items():
-        print(f"  {key}: {value}")
-
+    
+    # Prefer pyproject.toml for unified config, but also create .ruff.toml for explicitness
+    # We will write to pyproject.toml as it is standard for Black + Ruff
+    pyproject_path = root / "pyproject.toml"
+    
+    # Check if it already exists and has content
+    if pyproject_path.exists():
+        existing = pyproject_path.read_text()
+        if "[tool.black]" in existing or "[tool.ruff]" in existing:
+            logger.info("pyproject.toml already contains tool configurations. Skipping overwrite.")
+            success, msg = validate_linting_setup(root)
+            print(f"Validation: {msg}")
+            return 0 if success else 1
+    
+    success = write_pyproject_config(black_config, ruff_config, pyproject_path)
+    
+    if success:
+        success, msg = validate_linting_setup(root)
+        print(f"Validation: {msg}")
+        return 0 if success else 1
+    else:
+        print("Failed to generate configurations.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    logging.basicConfig(level=logging.INFO)
+    sys.exit(main())

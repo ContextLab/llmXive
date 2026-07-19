@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-124-quantifying-the-effect-of-alloying-eleme
-last_run_id: 99196c92-2590-49fd-a95f-182f111d3a0b
+last_run_id: 243ba926-91f6-4649-bbe3-2e598abdf906
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme
 title: Quantifying the Effect of Alloying Elements on the Glass-Forming Ability of
   Metallic Glasses
-updated_at: '2026-07-16T22:09:37.171441Z'
+updated_at: '2026-07-19T19:53:17.047115Z'

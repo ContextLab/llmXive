@@ -1,8 +1,5 @@
 """
-SHAP (SHapley Additive exPlanations) utility functions for model interpretability.
-
-This module provides functions to compute and visualize SHAP values for
-understanding feature importance in glass-forming ability predictions.
+SHAP (SHapley Additive exPlanations) utilities for model interpretability.
 """
 import logging
 import json
@@ -13,243 +10,159 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-# Try to import shap, but handle gracefully if not available
-SHAP_AVAILABLE = False
-try:
-    import shap
-    SHAP_AVAILABLE = True
-    logger.info("SHAP library is available")
-except ImportError:
-    logger.warning("SHAP library not installed. Install with: pip install shap")
-
 def ensure_shap_available() -> bool:
     """
-    Ensure SHAP library is available.
+    Check if the SHAP library is available.
     
     Returns:
-        True if SHAP is available, False otherwise.
+        True if available, False otherwise.
     """
-    if not SHAP_AVAILABLE:
-        logger.error("SHAP library is not available. Please install it.")
-    return SHAP_AVAILABLE
+    try:
+        import shap
+        return True
+    except ImportError:
+        logger.warning("SHAP library is not installed. Install with: pip install shap")
+        return False
 
-def compute_global_shap_values(model: Any, 
-                              X: Union[pd.DataFrame, np.ndarray],
-                              feature_names: Optional[List[str]] = None,
-                              nsamples: int = 100) -> Dict[str, Any]:
+def compute_global_shap_values(model, X: Union[pd.DataFrame, np.ndarray], 
+                               feature_names: Optional[List[str]] = None, 
+                               background_data: Optional[Union[pd.DataFrame, np.ndarray]] = None,
+                               nsamples: int = 100) -> Dict[str, Any]:
     """
-    Compute global SHAP values for a model on a dataset.
+    Compute global SHAP values for a model.
     
     Args:
-        model: Trained model with predict method
-        X: Feature matrix (DataFrame or array)
-        feature_names: Optional list of feature names
-        nsamples: Number of samples for SHAP approximation
+        model: The trained model (e.g., RandomForestRegressor).
+        X: The feature matrix to explain.
+        feature_names: Optional list of feature names.
+        background_data: Optional background data for KernelExplainer. If None, uses X.
+        nsamples: Number of background samples for KernelExplainer.
         
     Returns:
-        Dictionary containing:
-            - shap_values: Array of SHAP values
-            - expected_value: Expected value of the model output
-            - feature_importance: Mean absolute SHAP values per feature
+        Dictionary containing SHAP values and summary statistics.
     """
     if not ensure_shap_available():
-        raise RuntimeError("SHAP library not available")
+        raise ImportError("SHAP library is required for this function.")
     
-    # Convert to DataFrame if needed
-    if not isinstance(X, pd.DataFrame):
+    import shap
+
+    # Handle feature names
+    if isinstance(X, pd.DataFrame):
         if feature_names is None:
-            feature_names = [f"feature_{i}" for i in range(X.shape[1])]
-        X = pd.DataFrame(X, columns=feature_names)
+            feature_names = list(X.columns)
+        X = X.values
+    elif feature_names is None:
+        feature_names = [f"Feature_{i}" for i in range(X.shape[1])]
+
+    # Handle background data
+    if background_data is None:
+        background_data = X[:nsamples] if len(X) > nsamples else X
     
-    # Create SHAP explainer
+    if isinstance(background_data, pd.DataFrame):
+        background_data = background_data.values
+
+    # Create explainer
+    # Try TreeExplainer for tree-based models, fall back to KernelExplainer
     try:
-        explainer = shap.Explainer(model, X)
-        shap_values = explainer(X)
-    except Exception as e:
-        logger.warning(f"Standard explainer failed: {e}. Trying KernelExplainer.")
-        # Fallback to KernelExplainer for black-box models
-        explainer = shap.KernelExplainer(model.predict, X[:nsamples])
-        shap_values = explainer.shap_values(X[:nsamples])
-    
-    # Handle different output formats
+        explainer = shap.TreeExplainer(model)
+        shap_values = explainer.shap_values(X)
+    except (ValueError, TypeError):
+        logger.info("TreeExplainer failed, trying KernelExplainer...")
+        explainer = shap.KernelExplainer(model.predict, background_data)
+        shap_values = explainer.shap_values(X, nsamples=nsamples)
+
+    # Handle multi-output SHAP (regression usually returns 1D or list of 1D)
     if isinstance(shap_values, list):
-        # For multi-class or multi-output models
-        shap_values = np.array(shap_values)
+        shap_values = shap_values[0] if len(shap_values) > 0 else np.zeros_like(X)
     
-    # Compute feature importance (mean absolute SHAP values)
-    if len(shap_values.shape) == 2:
-        feature_importance = np.mean(np.abs(shap_values), axis=0)
-    else:
-        # Handle 3D case (samples, features, classes)
-        feature_importance = np.mean(np.abs(shap_values), axis=(0, 1))
+    shap_values = np.array(shap_values)
     
-    expected_value = explainer.expected_value
+    # Calculate mean absolute SHAP values for global importance
+    mean_abs_shap = np.mean(np.abs(shap_values), axis=0)
     
-    # If expected_value is an array, take the mean
-    if isinstance(expected_value, (list, np.ndarray)):
-        expected_value = np.mean(expected_value)
-    
+    # Sort by importance
+    importance_indices = np.argsort(mean_abs_shap)[::-1]
+    sorted_features = [feature_names[i] for i in importance_indices]
+    sorted_importance = mean_abs_shap[importance_indices]
+
     return {
-        "shap_values": shap_values,
-        "expected_value": float(expected_value) if np.isscalar(expected_value) else expected_value.tolist(),
-        "feature_importance": feature_importance.tolist() if isinstance(feature_importance, np.ndarray) else feature_importance,
-        "feature_names": list(X.columns)
+        "shap_values": shap_values.tolist(),
+        "feature_names": feature_names,
+        "mean_abs_shap": mean_abs_shap.tolist(),
+        "sorted_features": sorted_features,
+        "sorted_importance": sorted_importance.tolist()
     }
 
-def get_feature_importance_from_shap(shap_results: Dict[str, Any], 
-                                   top_n: int = 10) -> List[Dict[str, Any]]:
+def get_feature_importance_from_shap(shap_results: Dict[str, Any], top_n: int = 10) -> List[Dict[str, Any]]:
     """
-    Extract ranked feature importance from SHAP results.
+    Extract top N feature importances from SHAP results.
     
     Args:
-        shap_results: Dictionary from compute_global_shap_values
-        top_n: Number of top features to return
+        shap_results: Output from compute_global_shap_values.
+        top_n: Number of top features to return.
         
     Returns:
-        List of dicts with feature name, importance, and rank
+        List of dictionaries with feature name and importance score.
     """
-    importance = shap_results.get("feature_importance", [])
-    feature_names = shap_results.get("feature_names", [])
+    features = shap_results["sorted_features"][:top_n]
+    importance = shap_results["sorted_importance"][:top_n]
     
-    if not importance or not feature_names:
-        logger.warning("No SHAP results available")
-        return []
-    
-    # Create list of (name, importance) tuples
-    ranked = list(zip(feature_names, importance))
-    ranked.sort(key=lambda x: x[1], reverse=True)
-    
-    # Return top N
-    result = []
-    for i, (name, imp) in enumerate(ranked[:top_n]):
-        result.append({
-            "rank": i + 1,
-            "feature_name": name,
-            "importance": float(imp)
-        })
-    
-    return result
+    return [
+        {"feature": f, "importance": float(i)} 
+        for f, i in zip(features, importance)
+    ]
 
-def save_shap_results(shap_results: Dict[str, Any], 
-                    output_path: Union[str, Path]) -> None:
+def save_shap_results(shap_results: Dict[str, Any], output_path: Path) -> None:
     """
     Save SHAP results to a JSON file.
     
     Args:
-        shap_results: Dictionary from compute_global_shap_values
-        output_path: Path to save the JSON file
+        shap_results: Output from compute_global_shap_values.
+        output_path: Path to save the JSON file.
     """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Create a copy to avoid modifying original
+    results_to_save = {
+        k: v for k, v in shap_results.items() 
+        if k not in ["shap_values"] # Exclude large array for summary file if needed
+    }
     
-    # Convert numpy arrays to lists for JSON serialization
-    serializable = {}
-    for key, value in shap_results.items():
-        if isinstance(value, np.ndarray):
-            serializable[key] = value.tolist()
-        elif isinstance(value, (np.floating, np.integer)):
-            serializable[key] = float(value)
-        else:
-            serializable[key] = value
-    
+    # Save full results (including values)
     with open(output_path, 'w') as f:
-        json.dump(serializable, f, indent=2)
+        json.dump(shap_results, f, indent=2)
     
-    logger.info(f"Saved SHAP results to {output_path}")
+    logger.info(f"SHAP results saved to {output_path}")
 
-def generate_shap_summary_plot(shap_results: Dict[str, Any],
-                             output_path: Optional[Union[str, Path]] = None) -> Optional[str]:
+def generate_shap_summary_plot(shap_values: np.ndarray, feature_names: List[str], 
+                               output_path: Optional[Path] = None) -> None:
     """
-    Generate a SHAP summary plot.
+    Generate a SHAP summary plot (beeswarm).
     
     Args:
-        shap_results: Dictionary from compute_global_shap_values
-        output_path: Optional path to save the plot
-        
-    Returns:
-        Path to saved plot, or None if not saved
+        shap_values: SHAP values array.
+        feature_names: List of feature names.
+        output_path: Optional path to save the plot.
     """
     if not ensure_shap_available():
-        logger.error("Cannot generate SHAP plot: library not available")
-        return None
+        raise ImportError("SHAP library is required for this function.")
     
-    try:
-        import matplotlib.pyplot as plt
-    except ImportError:
-        logger.error("Matplotlib not available for plotting")
-        return None
-    
-    shap_values = shap_results.get("shap_values")
-    feature_names = shap_results.get("feature_names", [])
-    
-    if shap_values is None:
-        logger.error("No SHAP values available for plotting")
-        return None
-    
-    # Create figure
+    import shap
+    import matplotlib.pyplot as plt
+
     plt.figure(figsize=(10, 8))
-    
-    # Create SHAP summary plot
-    shap.summary_plot(shap_values, feature_names=feature_names, show=False)
+    shap.summary_plot(shap_values, features=None, feature_names=feature_names, show=False)
     
     if output_path:
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        logger.info(f"Saved SHAP summary plot to {output_path}")
-        return str(output_path)
-    else:
-        plt.show()
-        return None
+        logger.info(f"SHAP summary plot saved to {output_path}")
+    
+    plt.close()
 
 def main():
-    """Main function for testing SHAP utilities."""
-    if not SHAP_AVAILABLE:
-        logger.info("SHAP not available, skipping detailed tests")
-        return
-    
-    logger.info("Testing SHAP utilities...")
-    
-    # Create dummy data for testing
-    np.random.seed(42)
-    X_dummy = pd.DataFrame(
-        np.random.rand(100, 5),
-        columns=["feature_1", "feature_2", "feature_3", "feature_4", "feature_5"]
-    )
-    
-    # Create a simple model for testing
-    from sklearn.ensemble import RandomForestRegressor
-    y_dummy = np.random.rand(100)
-    model = RandomForestRegressor(n_estimators=10, random_state=42)
-    model.fit(X_dummy, y_dummy)
-    
-    # Test compute_global_shap_values
-    try:
-        shap_results = compute_global_shap_values(model, X_dummy, nsamples=20)
-        logger.info(f"Computed SHAP values with {len(shap_results['feature_names'])} features")
-        logger.info(f"Expected value: {shap_results['expected_value']}")
-        logger.info(f"Feature importance shape: {len(shap_results['feature_importance'])}")
-    except Exception as e:
-        logger.error(f"SHAP computation failed: {e}")
-    
-    # Test get_feature_importance_from_shap
-    try:
-        importance = get_feature_importance_from_shap(shap_results, top_n=3)
-        logger.info("Top 3 features:")
-        for feat in importance:
-            logger.info(f"  {feat['rank']}. {feat['feature_name']}: {feat['importance']:.4f}")
-    except Exception as e:
-        logger.error(f"Feature importance extraction failed: {e}")
-    
-    # Test save_shap_results
-    try:
-        test_path = Path("output/test_shap_results.json")
-        save_shap_results(shap_results, test_path)
-        logger.info("SHAP results saved successfully")
-    except Exception as e:
-        logger.error(f"Failed to save SHAP results: {e}")
+    """
+    Main entry point for testing SHAP utilities.
+    """
+    logger.info("SHAP Utils module loaded successfully.")
+    print("SHAP utilities available. Use compute_global_shap_values to analyze models.")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

@@ -1,69 +1,92 @@
 """
-Utility module for creating the required data directory structure.
+Module to create the required data directory structure for the project.
 
-This module implements Task T004a: Create `data/raw/` and `data/processed/` 
-directory structure. It ensures that the necessary directories for the 
-pipeline exist before data ingestion and processing tasks run.
+This task (T004a) ensures that the `data/raw` and `data/processed` directories
+exist, along with other necessary subdirectories defined in the project plan.
 """
 import os
 from pathlib import Path
 import sys
+import logging
 
-def create_data_directories(base_path: str = ".") -> bool:
+# Configure logging for the module
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def create_data_directories(base_path: Optional[Path] = None) -> bool:
     """
-    Create the required data directory structure.
+    Create the required directory structure for the project.
     
     Args:
-        base_path: The root directory where the data folders will be created.
-                   Defaults to current working directory.
-    
+        base_path: The root path of the project. Defaults to the current working directory.
+        
     Returns:
-        True if all directories were created successfully, False otherwise.
+        bool: True if all directories were created successfully, False otherwise.
     """
-    base = Path(base_path)
+    if base_path is None:
+        base_path = Path.cwd()
     
-    # Define required directories relative to base_path
-    required_dirs = [
+    # Define the required directory structure relative to the base path
+    # Based on T001 requirements and project conventions
+    directories = [
         "data/raw",
-        "data/processed"
+        "data/processed",
+        "state",
+        "output",
+        "tests/contract",
+        "tests/integration",
+        "tests/unit",
+        "docs/paper",
+        "docs/reports",
+        # Ensure parent data directories exist (though usually created by subdirs)
+        "data",
     ]
     
     success = True
-    for dir_path in required_dirs:
-        full_path = base / dir_path
+    for dir_path in directories:
+        full_path = base_path / dir_path
         try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
+            if not full_path.exists():
+                full_path.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Created directory: {full_path}")
+            else:
+                logger.debug(f"Directory already exists: {full_path}")
         except OSError as e:
-            print(f"Error creating directory {full_path}: {e}")
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            success = False
+        
+        # Verify creation
+        if not full_path.exists():
+            logger.error(f"Verification failed: Directory {full_path} does not exist after creation attempt.")
             success = False
     
     return success
 
 def main():
-    """
-    Main entry point for creating data directories.
+    """Main entry point for creating data directories."""
+    logger.info("Starting directory creation task (T004a)...")
     
-    This function is designed to be run as a script to ensure the
-    required data directories exist before other pipeline tasks run.
-    """
-    # Determine base path: use command line arg or current directory
-    base_path = sys.argv[1] if len(sys.argv) > 1 else "."
+    # Determine project root (assuming this script is in code/utils/)
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent.parent
     
-    print(f"Creating data directories under: {Path(base_path).absolute()}")
+    logger.info(f"Project root detected at: {project_root}")
     
-    if create_data_directories(base_path):
-        print("SUCCESS: All required data directories created.")
-        # List created directories for verification
-        base = Path(base_path)
-        for dir_path in ["data/raw", "data/processed"]:
-            full_path = base / dir_path
-            if full_path.exists():
-                print(f"  - {full_path} exists")
-        return 0
+    success = create_data_directories(project_root)
+    
+    if success:
+        logger.info("All required directories created successfully.")
+        # List the created structure for verification
+        data_raw = project_root / "data" / "raw"
+        data_processed = project_root / "data" / "processed"
+        logger.info(f"Verification: data/raw exists: {data_raw.exists()}")
+        logger.info(f"Verification: data/processed exists: {data_processed.exists()}")
     else:
-        print("FAILURE: Some directories could not be created.")
-        return 1
+        logger.error("Failed to create one or more directories.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

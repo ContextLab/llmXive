@@ -18,7 +18,7 @@ This project implements a computational pipeline to quantify the effect of alloy
 **Project Type**: Data Science Pipeline / CLI
 **Performance Goals**: Complete pipeline execution ≤ 6 hours on CPU-only runner; Memory usage < 7GB.
 **Constraints**: No GPU/CUDA; No large-LLM inference; Deterministic random seeds; CPU-tractable combinatorial generation.
-**Scale/Scope**: [deferred] of experimental compositions; [deferred] unique ternary combinations (30 elements).
+**Scale/Scope**: [deferred] of experimental compositions; [deferred] unique ternary combinations (A set of elements).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
