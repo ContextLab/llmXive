@@ -118,13 +118,31 @@ class SlashCommandAgent(abc.ABC):
         outcome = Outcome.SUCCESS
         failure_reason: str | None = None
         outputs: list[str] = []
-        # Placeholder values for the run-log entry if the call fails before a
-        # response is captured (overwritten below on success). The registry no
-        # longer pins a raw backend/model per agent (spec 026 US5 — routing is
-        # profile-driven); ``dartmouth`` is the platform's sole live serving
-        # backend today.
-        backend_used: BackendName = BackendName.DARTMOUTH
-        model_used: str = "unknown"
+        # No attribution yet — nothing truthful to record until a real
+        # ChatResponse comes back (overwritten below on success). Seeding a
+        # placeholder backend/model here would write a fiction into a field
+        # that feeds paper authorship for a call that may never have
+        # happened; RunLogEntry's validator requires both fields ONLY when
+        # outcome is SUCCESS, so a pre-response failure legitimately records
+        # neither (spec 026 slice 7 / D4 — mirrors agents/base.py).
+        #
+        # This covers THREE distinct failure points identically, by design:
+        #   (a) prompt construction (mechanical_step/build_prompt) raises
+        #       before chat_with_fallback is ever reached;
+        #   (b) selection fails closed (ModelUnavailable) before any backend
+        #       is contacted;
+        #   (c) a real candidate WAS dispatched to a live backend but the
+        #       chain exhausted (ChainExhausted) before a ChatResponse came
+        #       back. chat_with_fallback re-raises both (b) and (c) as the
+        #       SAME BackendUnavailable, so this call site cannot (and need
+        #       not) tell them apart — but even if it could, an
+        #       attempted-but-failed candidate in (c) produced no content
+        #       that fed any artifact. Crediting it would misattribute
+        #       authorship to a call that contributed nothing, exactly what
+        #       D4 forbids. So both (b) and (c) record NO attribution, same
+        #       as (a).
+        backend_used: BackendName | None = None
+        model_used: str | None = None
         # Spec 011 inspection-hook locals — initialized so the finally block
         # can capture even when build_prompt or chat_with_fallback raises.
         messages: list[ChatMessage] = []
@@ -190,8 +208,8 @@ def _maybe_write_inspection(
     failure_reason: str | None,
     messages: list[ChatMessage],
     llm_response_text: str,
-    model_used: str,
-    backend_used: BackendName,
+    model_used: str | None,
+    backend_used: BackendName | None,
     agent: SlashCommandAgent | None = None,
 ) -> None:
     """Spec 011 / FR-003 inspection-record hook (opt-in via env var).
@@ -223,7 +241,9 @@ def _maybe_write_inspection(
             agent_name=ctx.agent_name,
             agent_version=ctx.prompt_version,
             model=model_used,
-            backend=backend_used.value if hasattr(backend_used, "value") else str(backend_used),
+            backend=(
+                backend_used.value if backend_used is not None else None
+            ),
             started_at=started,
             ended_at=ended,
             outcome=("committed" if outcome == Outcome.SUCCESS else "failed"),
