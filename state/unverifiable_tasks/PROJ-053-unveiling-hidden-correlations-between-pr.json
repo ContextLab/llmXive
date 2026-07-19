@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-053-unveiling-hidden-correlations-between-pr",
+  "tasks": [
+    {
+      "task_key": "T026",
+      "reject_count": 1,
+      "last_reason": "No model files (e.g., `gpr_model.pkl` and `linear_regression.pkl` or similar) are present in the `results/models/` directory, nor any evidence (logs, screenshots, or code) showing that the trained GPR model and Linear Regression baseline were saved there. The required artifacts are missing.",
+      "first_seen": "2026-07-19T21:12:36.220541+00:00",
+      "last_seen": "2026-07-19T21:12:36.220541+00:00"
+    }
+  ],
+  "updated_at": "2026-07-19T21:12:36.220541+00:00"
+}

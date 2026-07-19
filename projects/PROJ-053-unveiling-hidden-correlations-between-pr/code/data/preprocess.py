@@ -7,56 +7,46 @@ import numpy as np
 from typing import Dict, Any, Optional, Tuple, List
 from pathlib import Path
 
-from config import (
-    get_raw_data_dir, get_processed_data_dir, get_project_root,
-    get_random_seed, ensure_directories, get_logger
-)
-from data.schema_validator import load_schema, validate_csv_schema
+# Import from project config
+from config import get_project_root, get_processed_data_dir, ensure_directories, get_logger
+from data.schema_validator import validate_csv_schema, load_schema
+from utils.logger import setup_logging
 
-logger = logging.getLogger(__name__)
+# Constants
+REQUIRED_COLUMNS = ['laser_power', 'scan_speed', 'layer_thickness', 'yield_strength', 'ductility']
+OPTIONAL_COLUMNS = ['fatigue_life', 'alloy_type']
+CATEGORICAL_COLUMNS = ['alloy_type']
+NUMERIC_COLUMNS = ['laser_power', 'scan_speed', 'layer_thickness', 'yield_strength', 'ductility', 'fatigue_life']
 
-def load_raw_csv(csv_path: Optional[str] = None) -> Tuple[List[str], List[Dict[str, Any]]]:
-    """Load raw CSV file and return headers and rows."""
-    if csv_path is None:
-        raw_dir = get_raw_data_dir()
-        # Try standard filename
-        csv_path = os.path.join(raw_dir, "am_data.csv")
-        if not os.path.exists(csv_path):
-            # Try any csv in raw dir
-            files = [f for f in os.listdir(raw_dir) if f.endswith('.csv')]
-            if not files:
-                raise FileNotFoundError(f"No CSV file found in {raw_dir}. Please place data there.")
-            csv_path = os.path.join(raw_dir, files[0])
+def load_raw_csv(filepath: str) -> List[Dict[str, Any]]:
+    """Load raw CSV file into a list of dictionaries."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Raw data file not found: {filepath}")
     
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"Raw data file not found: {csv_path}")
-    
-    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+    data = []
+    with open(filepath, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        headers = reader.fieldnames
-        rows = list(reader)
-    
-    logger.info(f"Loaded {len(rows)} rows from {csv_path}")
-    return headers, rows
+        for row in reader:
+            data.append(row)
+    return data
 
-def detect_missing_values(rows: List[Dict[str, Any]], required_cols: List[str]) -> Dict[str, int]:
-    """Detect missing values in required columns."""
-    missing_counts = {col: 0 for col in required_cols}
-    for row in rows:
-        for col in required_cols:
-            val = row.get(col, '')
-            if val is None or str(val).strip() == '':
+def detect_missing_values(data: List[Dict[str, Any]], columns: List[str]) -> Dict[str, int]:
+    """Detect missing values in specified columns."""
+    missing_counts = {col: 0 for col in columns}
+    for row in data:
+        for col in columns:
+            if row.get(col) is None or row.get(col) == '' or row.get(col) == 'NA':
                 missing_counts[col] += 1
     return missing_counts
 
-def compute_medians(rows: List[Dict[str, Any]], numeric_cols: List[str]) -> Dict[str, float]:
+def compute_medians(data: List[Dict[str, Any]], columns: List[str]) -> Dict[str, float]:
     """Compute median values for numeric columns."""
     medians = {}
-    for col in numeric_cols:
+    for col in columns:
         values = []
-        for row in rows:
-            val = row.get(col, '')
-            if val and str(val).strip() != '':
+        for row in data:
+            val = row.get(col)
+            if val is not None and val != '' and val != 'NA':
                 try:
                     values.append(float(val))
                 except ValueError:
@@ -67,183 +57,168 @@ def compute_medians(rows: List[Dict[str, Any]], numeric_cols: List[str]) -> Dict
             medians[col] = 0.0
     return medians
 
-def impute_missing_values(rows: List[Dict[str, Any]], medians: Dict[str, float], cols: List[str]) -> List[Dict[str, Any]]:
-    """Impute missing values with median."""
-    imputed_rows = []
-    for row in rows:
+def impute_missing_values(data: List[Dict[str, Any]], medians: Dict[str, float], columns: List[str]) -> List[Dict[str, Any]]:
+    """Impute missing values using median imputation."""
+    imputed_data = []
+    for row in data:
         new_row = row.copy()
-        for col in cols:
-            val = new_row.get(col, '')
-            if val is None or str(val).strip() == '':
-                new_row[col] = str(medians.get(col, 0.0))
-        imputed_rows.append(new_row)
-    return imputed_rows
+        for col in columns:
+            val = new_row.get(col)
+            if val is None or val == '' or val == 'NA':
+                new_row[col] = medians.get(col, 0.0)
+            else:
+                try:
+                    new_row[col] = float(val)
+                except ValueError:
+                    new_row[col] = float(val) if val != 'NA' else medians.get(col, 0.0)
+        imputed_data.append(new_row)
+    return imputed_data
 
-def encode_categorical(rows: List[Dict[str, Any]], col: str) -> Tuple[List[Dict[str, Any]], List[str]]:
+def encode_categorical(data: List[Dict[str, Any]], column: str) -> Tuple[List[Dict[str, Any]], List[str]]:
     """One-hot encode a categorical column."""
-    if col not in rows[0]:
-        return rows, []
+    if not any(column in row for row in data):
+        return data, []
     
-    unique_vals = sorted(list(set(row[col] for row in rows if row.get(col))))
-    encoded_rows = []
+    unique_values = sorted(set(row.get(column, '') for row in data if row.get(column)))
+    encoded_data = []
     
-    for row in rows:
-        new_row = row.copy()
-        val = row.get(col, '')
-        for v in unique_vals:
-            new_row[f"{col}_{v}"] = 1 if val == v else 0
-        encoded_rows.append(new_row)
+    for row in data:
+        new_row = {k: v for k, v in row.items() if k != column}
+        for val in unique_values:
+            new_row[f"{column}_{val}"] = 1.0 if row.get(column) == val else 0.0
+        encoded_data.append(new_row)
     
-    return encoded_rows, [f"{col}_{v}" for v in unique_vals]
+    return encoded_data, [f"{column}_{val}" for val in unique_values]
 
-def check_sample_count(rows: List[Dict[str, Any]], min_n: int = 50):
-    """Check if sample count is sufficient."""
-    n = len(rows)
-    if n < min_n:
-        raise ValueError(f"Sample count ({n}) is below minimum ({min_n}). Halting execution.")
-    logger.info(f"Sample count check passed: {n} >= {min_n}")
+def check_sample_count(data: List[Dict[str, Any]], min_samples: int = 50) -> None:
+    """Check if sample count meets minimum requirement."""
+    if len(data) < min_samples:
+        raise ValueError(f"Sample count ({len(data)}) is below minimum required ({min_samples})")
 
-def check_zero_variance(rows: List[Dict[str, Any]], cols: List[str]) -> List[str]:
-    """Detect and return columns with zero variance."""
-    zero_var_cols = []
-    for col in cols:
-        values = [float(row.get(col, 0)) for row in rows if row.get(col)]
-        if len(values) > 0 and len(set(values)) == 1:
-            zero_var_cols.append(col)
-    return zero_var_cols
+def check_zero_variance(data: List[Dict[str, Any]], columns: List[str], logger: logging.Logger) -> List[str]:
+    """Detect and drop zero-variance columns."""
+    dropped_columns = []
+    for col in columns:
+        values = [row.get(col) for row in data if col in row]
+        if not values:
+            continue
+        
+        try:
+            numeric_values = [float(v) for v in values if v is not None and v != '']
+            if len(set(numeric_values)) <= 1:
+                logger.warning(f"Column '{col}' has zero variance; dropping to prevent singularity")
+                dropped_columns.append(col)
+        except ValueError:
+            continue
+    
+    return dropped_columns
 
-def split_and_scale(rows: List[Dict[str, Any]], 
-                    target_cols: List[str], 
-                    predictor_cols: List[str],
-                    train_ratio: float = 0.8) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, Dict[str, Any]]:
-    """Split data and scale features (fit on train, transform both)."""
-    np.random.seed(get_random_seed())
+def split_and_scale(data: List[Dict[str, Any]], train_ratio: float = 0.8, random_seed: int = 42) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], Dict[str, Dict[str, float]]]:
+    """Split data into train/test sets and apply MinMax scaling."""
+    np.random.seed(random_seed)
+    indices = np.random.permutation(len(data))
+    split_idx = int(len(data) * train_ratio)
     
-    indices = np.random.permutation(len(rows))
-    split_idx = int(len(rows) * train_ratio)
-    train_idx = indices[:split_idx]
-    test_idx = indices[split_idx:]
+    train_indices = indices[:split_idx]
+    test_indices = indices[split_idx:]
     
-    train_rows = [rows[i] for i in train_idx]
-    test_rows = [rows[i] for i in test_idx]
+    train_data = [data[i] for i in train_indices]
+    test_data = [data[i] for i in test_indices]
     
-    # Convert to numpy arrays
-    X_train = np.array([[float(r[c]) for c in predictor_cols] for r in train_rows])
-    y_train = np.array([[float(r[c]) for c in target_cols] for r in train_rows])
-    X_test = np.array([[float(r[c]) for c in predictor_cols] for r in test_rows])
-    y_test = np.array([[float(r[c]) for c in target_cols] for r in test_rows])
+    # Compute min/max for normalization bounds
+    numeric_cols = [k for k in data[0].keys() if isinstance(data[0][k], (int, float))]
+    normalization_bounds = {}
     
-    # MinMax Scaling (fit on train)
-    X_min = X_train.min(axis=0)
-    X_max = X_train.max(axis=0)
-    X_range = X_max - X_min
-    X_range[X_range == 0] = 1  # Avoid division by zero
+    for col in numeric_cols:
+        train_values = [row.get(col, 0) for row in train_data]
+        min_val = min(train_values)
+        max_val = max(train_values)
+        normalization_bounds[col] = {'min': float(min_val), 'max': float(max_val)}
+        
+        # Apply MinMax scaling to train and test
+        for row in train_data:
+            if max_val > min_val:
+                row[col] = (row.get(col, 0) - min_val) / (max_val - min_val)
+            else:
+                row[col] = 0.0
+        
+        for row in test_data:
+            if max_val > min_val:
+                row[col] = (row.get(col, 0) - min_val) / (max_val - min_val)
+            else:
+                row[col] = 0.0
     
-    X_train_scaled = (X_train - X_min) / X_range
-    X_test_scaled = (X_test - X_min) / X_range
-    
-    bounds = {
-        "min": X_min.tolist(),
-        "max": X_max.tolist(),
-        "range": X_range.tolist()
-    }
-    
-    return X_train_scaled, X_test_scaled, y_train, y_test, bounds
+    return train_data, test_data, normalization_bounds
 
-def save_normalization_bounds(bounds: Dict[str, Any], output_path: str):
-    """Save normalization bounds to JSON."""
-    ensure_directories([os.path.dirname(output_path)])
-    with open(output_path, 'w') as f:
+def save_normalization_bounds(bounds: Dict[str, Dict[str, float]], output_path: str) -> None:
+    """Save normalization bounds to JSON file."""
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(bounds, f, indent=2)
-    logger.info(f"Normalization bounds saved to {output_path}")
 
-def validate_and_preprocess() -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, Dict[str, Any]]:
-    """
-    Full pipeline: Load -> Validate -> Impute -> Encode -> Split -> Scale.
-    Returns: X_train, X_test, y_train, y_test, metadata
-    """
-    logger.info("Starting data validation and preprocessing pipeline.")
+def validate_and_preprocess(raw_csv_path: str, schema_path: str, processed_dir: str, logger: logging.Logger) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Main preprocessing pipeline."""
+    # Validate schema
+    validate_csv_schema(raw_csv_path, schema_path, logger)
     
-    # 1. Load
-    headers, rows = load_raw_csv()
+    # Load raw data
+    data = load_raw_csv(raw_csv_path)
     
-    # 2. Validate Schema
-    schema = load_schema()
-    required_cols = [c['name'] for c in schema.get('required_columns', [])]
-    is_valid, errors = validate_csv_schema(os.path.join(get_raw_data_dir(), "am_data.csv"), schema)
-    if not is_valid:
-        raise ValueError(f"Schema validation failed: {errors}")
+    # Check sample count
+    check_sample_count(data)
     
-    # 3. Check Sample Count
-    check_sample_count(rows)
+    # Detect missing values
+    missing_counts = detect_missing_values(data, REQUIRED_COLUMNS)
+    total_missing = sum(missing_counts.values())
+    logger.info(f"Detected {total_missing} missing values in required columns")
     
-    # 4. Detect & Impute Missing Values
-    missing_counts = detect_missing_values(rows, required_cols)
-    logger.info(f"Missing values detected: {missing_counts}")
+    # Compute medians
+    medians = compute_medians(data, REQUIRED_COLUMNS)
     
-    numeric_cols = [c['name'] for c in schema.get('required_columns', [])]
-    medians = compute_medians(rows, numeric_cols)
-    rows = impute_missing_values(rows, medians, numeric_cols)
-    logger.info(f"Missing values imputed using median.")
+    # Impute missing values
+    data = impute_missing_values(data, medians, REQUIRED_COLUMNS)
     
-    # 5. Encode Categorical
-    # Check for alloy_type in optional columns
-    optional_cols = [c['name'] for c in schema.get('optional_columns', [])]
-    if 'alloy_type' in optional_cols and 'alloy_type' in headers:
-        rows, encoded_cols = encode_categorical(rows, 'alloy_type')
-        logger.info(f"Encoded categorical column 'alloy_type' into {encoded_cols}")
-        # Update predictor list to include encoded cols
-        # For now, we assume standard numeric predictors + encoded ones if present
-        # We'll dynamically construct predictor list
-    else:
-        encoded_cols = []
+    # Encode categorical variables
+    encoded_data, encoded_cols = encode_categorical(data, 'alloy_type')
+    if encoded_cols:
+        logger.info(f"One-hot encoded 'alloy_type' into {len(encoded_cols)} columns")
     
-    # 6. Define Targets and Predictors
-    target_cols = ['yield_strength', 'ductility'] # Based on schema
-    # Predictors: laser_power, scan_speed, layer_thickness + encoded cols
-    base_predictors = ['laser_power', 'scan_speed', 'layer_thickness']
-    predictor_cols = base_predictors + encoded_cols
+    # Check zero variance
+    all_cols = list(encoded_data[0].keys())
+    dropped_cols = check_zero_variance(encoded_data, all_cols, logger)
+    if dropped_cols:
+        logger.warning(f"Dropped {len(dropped_cols)} zero-variance columns: {dropped_cols}")
     
-    # 7. Check Zero Variance
-    zero_var = check_zero_variance(rows, predictor_cols + target_cols)
-    if zero_var:
-        logger.warning(f"Dropping zero-variance columns: {zero_var}")
-        for col in zero_var:
-            if col in predictor_cols:
-                predictor_cols.remove(col)
-            if col in target_cols:
-                target_cols.remove(col)
+    # Split and scale
+    train_data, test_data, normalization_bounds = split_and_scale(encoded_data)
     
-    # 8. Split and Scale
-    X_train, X_test, y_train, y_test, bounds = split_and_scale(rows, target_cols, predictor_cols)
+    # Save normalization bounds
+    bounds_path = os.path.join(processed_dir, 'normalization_bounds.json')
+    save_normalization_bounds(normalization_bounds, bounds_path)
+    logger.info(f"Saved normalization bounds to {bounds_path}")
     
-    # 9. Save Normalization Bounds
-    processed_dir = get_processed_data_dir()
-    bounds_path = os.path.join(processed_dir, "normalization_bounds.json")
-    save_normalization_bounds(bounds, bounds_path)
-    
-    # 10. Log Stats
-    logger.info(f"Preprocessing complete. Train: {X_train.shape}, Test: {X_test.shape}")
-    
-    metadata = {
-        "predictor_cols": predictor_cols,
-        "target_cols": target_cols,
-        "bounds_path": bounds_path,
-        "sample_count": len(rows)
-    }
-    
-    return X_train, X_test, y_train, y_test, metadata
+    return train_data, test_data
 
 def main():
     """Entry point for preprocessing script."""
+    logger = setup_logging()
+    logger.info("Starting preprocessing pipeline")
+    
+    project_root = get_project_root()
+    raw_data_path = os.path.join(project_root, 'data', 'raw', 'am_data.csv')
+    schema_path = os.path.join(project_root, 'contracts', 'dataset.schema.yaml')
+    processed_dir = get_processed_data_dir()
+    ensure_directories()
+    
     try:
-        X_train, X_test, y_train, y_test, metadata = validate_and_preprocess()
-        print("Preprocessing completed successfully.")
-        print(f"Metadata: {metadata}")
-        return 0
+        train_data, test_data = validate_and_preprocess(raw_data_path, schema_path, processed_dir, logger)
+        logger.info(f"Preprocessing complete. Train size: {len(train_data)}, Test size: {len(test_data)}")
     except Exception as e:
-        logger.exception(f"Preprocessing failed: {e}")
-        return 1
+        logger.error(f"Preprocessing failed: {str(e)}")
+        sys.exit(1)
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

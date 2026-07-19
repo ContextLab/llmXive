@@ -1,7 +1,32 @@
-T026:
+T005:
+  c: false
+  h: 8dbca7662ac7806fe831f57a2f84bc69aad983be332a8b84f35212ec82fd8461
+  r: "The `code/data/schema_validator.py` file is present but the implementation is\
+    \ truncated (e.g., missing imports like `pandas`, incomplete `validate_csv_schema`\
+    \ logic) and thus cannot actually validate a CSV. Moreover, the required schema\
+    \ file `contracts/dataset.schema.yaml` is missing entirely, so the validator has\
+    \ no schema to check against. The task\u2019s core requirement\u2014providing\
+    \ a working validator against the specified schema\u2014is not met."
+T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No model files (e.g., `gpr_model.pkl` and `linear_regression.pkl` or similar)
-    are present in the `results/models/` directory, nor any evidence (logs, screenshots,
-    or code) showing that the trained GPR model and Linear Regression baseline were
-    saved there. The required artifacts are missing.
+  r: "No `normalization_bounds.json` file (or any evidence of it) was presented in\
+    \ the artifacts, nor any description showing that the train\u2011set min/max values\
+    \ were computed and saved to `data/processed/`. The required output file is missing,\
+    \ so the task is not satisfied."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, script, data file, or results related to a permutation importance
+    correlation analysis were provided. The task required an implementation (e.g.,
+    a function or script that computes permutation importance for model features and
+    correlates it with processing parameters), but there is no artifact to verify
+    its existence or correctness. The implementer must supply the actual implementation
+    and any accompanying output (e.g., a CSV or plot) demonstrating the analysis.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or visualization files were provided showing that `normalization_bounds.json`
+    was read and used to label axes with physical units in the T034/T035 visualizations.
+    The required artifact (updated visualization scripts and resulting figures with
+    annotated units) is missing.

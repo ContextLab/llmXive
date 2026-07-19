@@ -1,178 +1,111 @@
-"""
-Unit tests for schema validator.
-"""
-import pytest
-import csv
-import yaml
-import tempfile
-from pathlib import Path
-import sys
 import os
+import csv
+import tempfile
+import yaml
+import pytest
+from pathlib import Path
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from code.data.schema_validator import (
-    load_schema,
-    validate_csv_schema,
-    validate_and_report,
-    main
-)
-from code.config import get_project_root
-
+from code.data.schema_validator import load_schema, validate_csv_schema, validate_and_report
 
 @pytest.fixture
-def sample_schema():
+def temp_schema_file():
     """Create a temporary schema file for testing."""
     schema = {
-        'required': ['laser_power', 'scan_speed', 'layer_thickness', 'yield_strength', 'ductility'],
-        'optional': ['fatigue_life', 'alloy_type'],
-        'types': {
-            'laser_power': 'float',
-            'scan_speed': 'float',
-            'layer_thickness': 'float',
-            'yield_strength': 'float',
-            'ductility': 'float',
-            'fatigue_life': 'float',
-            'alloy_type': 'str'
-        }
+        'required_columns': [
+            {'name': 'laser_power', 'type': 'numeric'},
+            {'name': 'scan_speed', 'type': 'numeric'}
+        ],
+        'optional_columns': [
+            {'name': 'alloy_type', 'type': 'categorical'}
+        ]
     }
-    
     with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
         yaml.dump(schema, f)
-        temp_path = f.name
-    
-    yield temp_path
-    
-    os.unlink(temp_path)
-
+        yield f.name
+    os.unlink(f.name)
 
 @pytest.fixture
-def valid_csv():
-    """Create a temporary valid CSV file."""
+def valid_csv_file():
+    """Create a temporary valid CSV file for testing."""
     data = [
-        ['laser_power', 'scan_speed', 'layer_thickness', 'yield_strength', 'ductility'],
-        ['200.0', '500.0', '0.03', '450.5', '12.3'],
-        ['250.0', '600.0', '0.04', '480.2', '15.1'],
-        ['300.0', '700.0', '0.035', '510.8', '18.7']
+        ['laser_power', 'scan_speed', 'alloy_type'],
+        ['200', '500', 'Ti64'],
+        ['300', '600', 'Inconel718']
     ]
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, newline='') as f:
         writer = csv.writer(f)
         writer.writerows(data)
-        temp_path = f.name
-    
-    yield temp_path
-    
-    os.unlink(temp_path)
-
+        yield f.name
+    os.unlink(f.name)
 
 @pytest.fixture
-def invalid_csv_missing_column():
-    """Create a temporary CSV with missing required column."""
+def invalid_csv_file():
+    """Create a temporary invalid CSV file (missing required column) for testing."""
     data = [
-        ['laser_power', 'scan_speed', 'layer_thickness', 'yield_strength'],  # Missing ductility
-        ['200.0', '500.0', '0.03', '450.5'],
-        ['250.0', '600.0', '0.04', '480.2']
+        ['laser_power', 'alloy_type'],  # Missing scan_speed
+        ['200', 'Ti64']
     ]
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, newline='') as f:
         writer = csv.writer(f)
         writer.writerows(data)
-        temp_path = f.name
-    
-    yield temp_path
-    
-    os.unlink(temp_path)
-
+        yield f.name
+    os.unlink(f.name)
 
 @pytest.fixture
-def invalid_csv_wrong_type():
-    """Create a temporary CSV with wrong data type."""
+def bad_type_csv_file():
+    """Create a temporary CSV file with bad numeric type."""
     data = [
-        ['laser_power', 'scan_speed', 'layer_thickness', 'yield_strength', 'ductility'],
-        ['200.0', 'invalid_speed', '0.03', '450.5', '12.3'],  # scan_speed is not float
-        ['250.0', '600.0', '0.04', '480.2', '15.1']
+        ['laser_power', 'scan_speed'],
+        ['200', 'invalid_speed']
     ]
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, newline='') as f:
         writer = csv.writer(f)
         writer.writerows(data)
-        temp_path = f.name
-    
-    yield temp_path
-    
-    os.unlink(temp_path)
+        yield f.name
+    os.unlink(f.name)
 
+def test_load_schema_success(temp_schema_file):
+    """Test successful loading of a schema file."""
+    schema = load_schema(temp_schema_file)
+    assert 'required_columns' in schema
+    assert len(schema['required_columns']) == 2
+    assert schema['required_columns'][0]['name'] == 'laser_power'
 
-def test_load_schema_valid(sample_schema):
-    """Test loading a valid schema file."""
-    schema = load_schema(sample_schema)
-    
-    assert 'required' in schema
-    assert 'optional' in schema
-    assert 'types' in schema
-    assert len(schema['required']) == 5
-    assert 'fatigue_life' in schema['optional']
-
-
-def test_load_schema_missing_file():
-    """Test loading a non-existent schema file."""
+def test_load_schema_not_found():
+    """Test loading a non-existent schema file raises FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
-        load_schema('/nonexistent/path/schema.yaml')
+        load_schema("non_existent_file.yaml")
 
-
-def test_validate_csv_schema_valid(valid_csv, sample_schema):
+def test_validate_csv_schema_valid(valid_csv_file, temp_schema_file):
     """Test validation of a valid CSV file."""
-    schema = load_schema(sample_schema)
-    is_valid, errors = validate_csv_schema(valid_csv, schema)
-    
-    assert is_valid
+    is_valid, errors = validate_csv_schema(valid_csv_file, load_schema(temp_schema_file))
+    assert is_valid is True
     assert len(errors) == 0
 
-
-def test_validate_csv_schema_missing_column(invalid_csv_missing_column, sample_schema):
-    """Test validation of CSV with missing required column."""
-    schema = load_schema(sample_schema)
-    is_valid, errors = validate_csv_schema(invalid_csv_missing_column, schema)
-    
-    assert not is_valid
+def test_validate_csv_schema_missing_columns(invalid_csv_file, temp_schema_file):
+    """Test validation fails when required columns are missing."""
+    is_valid, errors = validate_csv_schema(invalid_csv_file, load_schema(temp_schema_file))
+    assert is_valid is False
     assert len(errors) > 0
-    assert any('ductility' in error for error in errors)
+    assert "Missing required columns" in errors[0]
 
-
-def test_validate_csv_schema_wrong_type(invalid_csv_wrong_type, sample_schema):
-    """Test validation of CSV with wrong data type."""
-    schema = load_schema(sample_schema)
-    is_valid, errors = validate_csv_schema(invalid_csv_wrong_type, schema)
-    
-    assert not is_valid
+def test_validate_csv_schema_bad_type(bad_type_csv_file, temp_schema_file):
+    """Test validation fails when numeric type is invalid."""
+    is_valid, errors = validate_csv_schema(bad_type_csv_file, load_schema(temp_schema_file))
+    assert is_valid is False
     assert len(errors) > 0
-    assert any('scan_speed' in error for error in errors)
+    assert "Invalid numeric value" in errors[0]
 
-
-def test_validate_csv_schema_nonexistent_file():
-    """Test validation of non-existent CSV file."""
-    schema = load_schema('/nonexistent/schema.yaml')
-    
-    with pytest.raises(FileNotFoundError):
-        validate_csv_schema('/nonexistent/file.csv', schema)
-
-
-def test_validate_and_report_valid(valid_csv, sample_schema, capsys):
-    """Test validate_and_report with valid CSV."""
-    result = validate_and_report(valid_csv, sample_schema)
-    
+def test_validate_and_report_valid(valid_csv_file, temp_schema_file, capsys):
+    """Test validate_and_report returns True for valid file."""
+    result = validate_and_report(valid_csv_file, temp_schema_file)
     assert result is True
     captured = capsys.readouterr()
-    assert 'PASSED' in captured.out
+    assert "Validation PASSED" in captured.out
 
-
-def test_validate_and_report_invalid(invalid_csv_missing_column, sample_schema, capsys):
-    """Test validate_and_report with invalid CSV."""
-    result = validate_and_report(invalid_csv_missing_column, sample_schema)
-    
+def test_validate_and_report_invalid(invalid_csv_file, temp_schema_file, capsys):
+    """Test validate_and_report returns False for invalid file."""
+    result = validate_and_report(invalid_csv_file, temp_schema_file)
     assert result is False
     captured = capsys.readouterr()
-    assert 'FAILED' in captured.out
-    assert 'ductility' in captured.out
+    assert "Validation FAILED" in captured.out
