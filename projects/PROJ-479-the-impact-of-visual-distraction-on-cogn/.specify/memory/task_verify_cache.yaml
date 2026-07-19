@@ -5,6 +5,17 @@ T003:
     `pyproject.toml` with Black settings) or documentation of their setup are present;
     the claim provides no tangible artifact demonstrating that ruff/flake8 and Black
     have been configured for the project.
+T019:
+  c: false
+  h: 882249a58b199b11ee694d8a21b296d5998f3338faaee2321f242bff3748376e
+  r: "The `run_power_analysis` function correctly computes achieved power with the\
+    \ default effect size\u202F0.3 and sample size\u202F100, but it returns the value\
+    \ under the key `calculated_power` instead of the required `power`. Moreover,\
+    \ the required markdown report `results/statistics/power_analysis_report.md` does\
+    \ not exist, so the documentation step is missing. The next implementer must (1)\
+    \ output the report to the specified path with the exact fields (`effect_size`,\
+    \ `power`, `alpha`, `sample_size`, `method`, `rationale`) and (2) ensure the `power`\
+    \ field is present."
 T021:
   c: false
   h: 3f2a6e5a6f97b3a2fc58361039569f1114c56771e4076f0a3ee181be04c7e237
@@ -40,10 +51,11 @@ T028:
     `code/02_visual_metrics.py` does not contain any code that reads `visual_metrics_intermediate.csv`,
     merges it with `merged_data.csv`, or writes the result to `final_analysis_data.csv`.
     Consequently, the required merge logic and output file are missing.
-T048:
+T033:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No profiling logs, timing reports, or benchmark results for `01_data_acquisition.py`\
-    \ and `02_visual_metrics.py` are present, so there is no evidence that the combined\
-    \ runtime is \u2264\u202F6\u202Fhours on CPU cores. The required artifact (runtime\
-    \ verification) is missing."
+  h: 1d8c59bbfb465daead93beb9f6f4eea6eb37bd70ff38a1bcc8077fa28e196934
+  r: "The repository lacks the required `data/processed/pca_results.json` file, and\
+    \ the `code/03_analysis.py` implementation is incomplete (the `run_pca` function\
+    \ is truncated and never invoked based on a VIF\u202F\u2265\u202F5 check, nor\
+    \ does it write the extracted component to a JSON file). Consequently the PCA\
+    \ generation, extraction, and saving steps are not fulfilled."

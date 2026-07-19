@@ -1,0 +1,14 @@
+status: none
+intent: OpenML Stroop dataset reaction time accuracy plus HuggingFace flanker dataset
+  python package dataset
+required_fields:
+- participant_id
+- reaction_time
+- accuracy
+- image_id
+- edge_density
+- color_entropy
+- object_count
+cache_key: e3ea8928be1998c62ba59d45fada96c8315ba329db9e02b8aa9f1996fe8e3d4f
+searched_at: '2026-07-19T20:05:16.055136+00:00'
+retry_count: 1
