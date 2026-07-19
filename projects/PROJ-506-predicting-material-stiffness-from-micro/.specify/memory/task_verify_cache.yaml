@@ -1,0 +1,16 @@
+T006a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file listing was provided to confirm that the required folders
+    (`code/data_generation`, `code/training`, `code/evaluation`, `code/utils`, `data/raw`,
+    `data/processed`, `tests/unit`, `tests/contract`, `tests/integration`, `specs/001-predict-stiffness-cnn/contracts`)
+    actually exist. The implementer must supply concrete evidence (e.g., a `tree`
+    output or screenshots) showing the created project structure.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `.flake8`, `black` settings) or setup scripts are present in the provided evidence,\
+    \ so the requirement to configure `ruff`/`flake8` and `black` is not demonstrated.\
+    \ The implementer must add the appropriate configuration files and ensure they\
+    \ are non\u2011empty and correctly set up."

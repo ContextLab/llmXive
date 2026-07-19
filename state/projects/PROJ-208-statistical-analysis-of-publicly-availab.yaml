@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T15:21:58.688452Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-208-statistical-analysis-of-publicly-availab
-last_run_id: 9d10630c-3281-4e44-9848-330dc5367424
+last_run_id: 91d31463-85d0-48f6-89a0-39a2e95e0c3b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available GitHub Issue Resolution Times
-updated_at: '2026-06-28T23:30:28.892580Z'
+updated_at: '2026-07-19T21:47:30.580440Z'

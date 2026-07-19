@@ -32,7 +32,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH
   verified_at: '2026-07-09T14:09:16.396152Z'
-- artifact_hash: 03ba934f96085af56e15c82352ff0189464afafe1cb3cccdb343c064416179aa
+- artifact_hash: d9a479b906e0eda68f1cff3c94875230e8d180a302c9e76a4fd0d7ea60d740c9
   artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,6 +41,6 @@
     2D SEM images using stochastic microstructure modeling and CNNs'
   kind: url
   value: https://arxiv.org/abs/2510.20502
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2510.20502
-  verified_at: '2026-07-13T22:03:46.301188Z'
+  verified_at: '2026-07-19T21:35:50.592421Z'

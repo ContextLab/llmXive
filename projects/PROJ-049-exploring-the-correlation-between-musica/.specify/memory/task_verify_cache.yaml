@@ -1,0 +1,22 @@
+T012:
+  c: false
+  h: 55c26fa05fca1ac58a85667314afc024020b0e23fc4a29a75e600fe17cab1b71
+  r: "The `code/ingest.py` file is truncated and does not demonstrate the required\
+    \ timeout download, fallback logging (`FALLBACK: SYNTHETIC`), invocation of `generate_synthetic_data`,\
+    \ mapping, merging, missing\u2011data handling, or checksum saving. Moreover,\
+    \ the expected output file `data/processed/merged_data.csv` is absent. The task\u2019\
+    s core artifacts are therefore missing or incomplete."
+T017:
+  c: false
+  h: 0a35ad2b764485e5a2608e59fd51ed747deddd75c24eaac0c43ed078bd07f36d
+  r: "The required artifact `data/processed/merged_data.csv` does not exist, so schema\
+    \ verification and checksum logging cannot be performed. The implementer must\
+    \ provide the CSV file (non\u2011empty with the correct columns) and the corresponding\
+    \ verification/log output."
+T020:
+  c: false
+  h: 46127b1d05b4afa565c5455c7f53b45bdc14b3f6290998a79ca541ed5c79c76d
+  r: The repository contains a partially implemented `code/analysis.py` but it never
+    writes the computed Spearman results to `data/processed/correlation_results.csv`,
+    and that CSV file is missing entirely. Consequently the required artifact is absent,
+    so the task is not fulfilled.

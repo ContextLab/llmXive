@@ -59,9 +59,9 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T006a [P] Create project directories. Execute: `mkdir -p code/{data_generation,training,evaluation,utils} data/{raw,processed} tests/{unit,contract,integration} specs/001-predict-stiffness-cnn/contracts`. Verify the directory tree exists.
-- [ ] T006b [P] Create `__init__.py` files. Execute: `touch code/__init__.py code/data_generation/__init__.py code/training/__init__.py code/evaluation/__init__.py code/utils/__init__.py tests/__init__.py tests/unit/__init__.py tests/contract/__init__.py tests/integration/__init__.py`. Verify all files exist.
-- [ ] T006c [P] Create placeholder files. Execute: `touch code/main.py code/data_generation/generate_microstructures.py code/data_generation/compute_stiffness.py code/training/model.py code/training/train.py code/evaluation/stats_utils.py code/evaluation/evaluate.py docs/constitution_amendment_proposal.md`. Verify all files exist.
-- [ ] T007 Initialize Python + project. Create `requirements.txt` with the following exact content:
+- [X] T006b [P] Create `__init__.py` files. Execute: `touch code/__init__.py code/data_generation/__init__.py code/training/__init__.py code/evaluation/__init__.py code/utils/__init__.py tests/__init__.py tests/unit/__init__.py tests/contract/__init__.py tests/integration/__init__.py`. Verify all files exist.
+- [X] T006c [P] Create placeholder files. Execute: `touch code/main.py code/data_generation/generate_microstructures.py code/data_generation/compute_stiffness.py code/training/model.py code/training/train.py code/evaluation/stats_utils.py code/evaluation/evaluate.py docs/constitution_amendment_proposal.md`. Verify all files exist.
+- [X] T007 Initialize Python + project. Create `requirements.txt` with the following exact content:
  ```text
  torch==2.0.0+cpu
  scikit-image==0.21.0

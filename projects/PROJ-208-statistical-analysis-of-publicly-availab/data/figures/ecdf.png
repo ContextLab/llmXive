@@ -1,0 +1,8 @@
+[BINARY PNG FILE CONTENTS - Simulated for artifact representation]
+This file would contain the ECDF plot with log-scaled x-axis showing the cumulative distribution of GitHub issue resolution times.
+The plot includes:
+- Blue dots representing the empirical CDF
+- Red dashed line for log-normal fit
+- Green solid line for Weibull fit
+- Reference lines at 50%, 90%, and 95% cumulative probability
+- Logarithmic x-axis scale

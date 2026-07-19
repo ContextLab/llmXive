@@ -1,3 +1,13 @@
+"""
+Preprocessing module for GitHub issue data.
+
+This module handles:
+- Timestamp parsing and validation
+- Resolution time computation
+- Issue validation (excluding invalid issues)
+- Logging of excluded issues
+"""
+
 import json
 import logging
 import sys
@@ -5,268 +15,272 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
+# Import shared utilities
 from utils.config import get_config, get_path
-from utils.validators import validate_dataset_schema, ValidationError
 
-
-def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
-    """Setup logging configuration for the preprocessing step."""
-    logger = logging.getLogger("preprocess")
-    logger.setLevel(logging.INFO)
-
-    if not logger.handlers:
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-        if log_file:
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
-
-    return logger
-
-
-def parse_timestamp(ts_str: Optional[str]) -> Optional[datetime]:
+def setup_logging(log_file: Path) -> logging.Logger:
     """
-    Parse an ISO 8601 timestamp string into a timezone-aware datetime object.
+    Setup logging configuration for preprocessing.
     
     Args:
-        ts_str: ISO 8601 timestamp string (e.g., "2023-01-15T10:30:00Z")
+        log_file: Path to the log file
         
     Returns:
-        timezone-aware datetime object or None if input is None/empty
+        Configured logger instance
     """
-    if not ts_str:
+    logger = logging.getLogger('preprocessing')
+    logger.setLevel(logging.DEBUG)
+    
+    # Clear existing handlers
+    logger.handlers.clear()
+    
+    # File handler for detailed logs
+    file_handler = logging.FileHandler(log_file, mode='w')
+    file_handler.setLevel(logging.DEBUG)
+    
+    # JSON formatter for structured logging
+    class JSONFormatter(logging.Formatter):
+        def format(self, record):
+            log_record = {
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+                'level': record.levelname,
+                'message': record.getMessage(),
+            }
+            
+            # Add extra fields if present
+            if hasattr(record, 'issue_id'):
+                log_record['issue_id'] = record.issue_id
+            if hasattr(record, 'repo'):
+                log_record['repo'] = record.repo
+            if hasattr(record, 'reason'):
+                log_record['reason'] = record.reason
+            if hasattr(record, 'created_at'):
+                log_record['created_at'] = record.created_at
+            if hasattr(record, 'closed_at'):
+                log_record['closed_at'] = record.closed_at
+                
+            return json.dumps(log_record)
+    
+    file_handler.setFormatter(JSONFormatter())
+    logger.addHandler(file_handler)
+    
+    # Also add a console handler for debugging
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+    logger.addHandler(console_handler)
+    
+    return logger
+
+def parse_timestamp(timestamp_str: Optional[str]) -> Optional[datetime]:
+    """
+    Parse ISO 8601 timestamp string to datetime object.
+    
+    Args:
+        timestamp_str: ISO 8601 formatted timestamp string
+        
+    Returns:
+        Parsed datetime object or None if parsing fails
+    """
+    if not timestamp_str:
         return None
     
     try:
-        # Handle 'Z' suffix by replacing with '+00:00' for fromisoformat
-        if ts_str.endswith('Z'):
-            ts_str = ts_str[:-1] + '+00:00'
+        # Handle various ISO 8601 formats
+        if timestamp_str.endswith('Z'):
+            timestamp_str = timestamp_str[:-1] + '+00:00'
         
-        dt = datetime.fromisoformat(ts_str)
+        # Try parsing with timezone
+        dt = datetime.fromisoformat(timestamp_str)
         
         # Ensure timezone awareness
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
-            
+        
         return dt
     except (ValueError, TypeError) as e:
-        logging.warning(f"Failed to parse timestamp '{ts_str}': {e}")
+        logging.getLogger('preprocessing').warning(
+            f"Failed to parse timestamp: {timestamp_str}. Error: {e}"
+        )
         return None
 
-
-def compute_resolution_time(created_at: Optional[datetime], 
-                            closed_at: Optional[datetime]) -> Optional[float]:
+def compute_resolution_time(created_at: datetime, closed_at: datetime) -> float:
     """
-    Compute the resolution time in hours between creation and closure.
+    Compute resolution time in hours between creation and closure.
     
     Args:
-        created_at: The creation datetime
-        closed_at: The closure datetime
+        created_at: Issue creation datetime
+        closed_at: Issue closure datetime
         
     Returns:
-        Resolution time in hours (float) or None if either timestamp is missing
+        Resolution time in hours (can be negative if closed before created)
     """
-    if created_at is None or closed_at is None:
-        return None
-    
-    if closed_at < created_at:
-        return None  # Invalid: closed before created
-    
     delta = closed_at - created_at
     return delta.total_seconds() / 3600.0
 
-
 def is_valid_issue(issue: Dict[str, Any], logger: Optional[logging.Logger] = None) -> Tuple[bool, Optional[str]]:
     """
-    Validate an issue record for inclusion in the cleaned dataset.
+    Validate an issue for inclusion in the cleaned dataset.
     
-    Validation rules (FR-002, FR-003):
-    1. Must have both created_at and closed_at timestamps
-    2. Resolution time must be non-negative (closed_at >= created_at)
-    3. Resolution time must be finite (not NaN or Inf)
-    4. Must have a non-empty 'state' field indicating 'closed'
+    Checks:
+    - Both created_at and closed_at timestamps exist and are valid
+    - Resolution time is non-negative
     
     Args:
-        issue: The issue dictionary from the API
+        issue: Issue dictionary from GitHub API
         logger: Optional logger for recording exclusion reasons
         
     Returns:
-        Tuple of (is_valid, reason_for_exclusion)
+        Tuple of (is_valid, exclusion_reason)
     """
-    # Check for required fields
-    if not issue.get("state") or issue.get("state") != "closed":
+    repo = issue.get('repository_url', 'unknown')
+    issue_id = issue.get('id', 'unknown')
+    created_at_str = issue.get('created_at')
+    closed_at_str = issue.get('closed_at')
+    
+    # Parse timestamps
+    created_at = parse_timestamp(created_at_str)
+    closed_at = parse_timestamp(closed_at_str)
+    
+    # Check for missing timestamps
+    if created_at is None or closed_at is None:
+        reason = "Missing or invalid timestamp (created_at or closed_at)"
         if logger:
-            logger.debug(f"Issue #{issue.get('number', 'unknown')} excluded: state is not 'closed'")
-        return False, "state_not_closed"
+            logger.warning(
+                f"Issue excluded: {reason}",
+                extra={
+                    'issue_id': issue_id,
+                    'repo': repo,
+                    'reason': reason,
+                    'created_at': created_at_str,
+                    'closed_at': closed_at_str
+                }
+            )
+        return False, reason
     
-    created_at = parse_timestamp(issue.get("created_at"))
-    closed_at = parse_timestamp(issue.get("closed_at"))
-    
-    if created_at is None:
-        if logger:
-            logger.debug(f"Issue #{issue.get('number', 'unknown')} excluded: missing created_at")
-        return False, "missing_created_at"
-    
-    if closed_at is None:
-        if logger:
-            logger.debug(f"Issue #{issue.get('number', 'unknown')} excluded: missing closed_at")
-        return False, "missing_closed_at"
-    
-    if closed_at < created_at:
-        if logger:
-            logger.debug(f"Issue #{issue.get('number', 'unknown')} excluded: closed_at < created_at")
-        return False, "negative_resolution_time"
-    
+    # Compute resolution time
     resolution_time = compute_resolution_time(created_at, closed_at)
-    if resolution_time is None or resolution_time < 0:
-        if logger:
-            logger.debug(f"Issue #{issue.get('number', 'unknown')} excluded: invalid resolution time")
-        return False, "invalid_resolution_time"
     
-    if not (resolution_time == resolution_time and resolution_time != float('inf')):  # Check for NaN/Inf
+    # Check for negative resolution time
+    if resolution_time < 0:
+        reason = f"Negative resolution time: {resolution_time:.2f} hours"
         if logger:
-            logger.debug(f"Issue #{issue.get('number', 'unknown')} excluded: resolution time is NaN or Inf")
-        return False, "invalid_resolution_value"
+            logger.warning(
+                f"Issue excluded: {reason}",
+                extra={
+                    'issue_id': issue_id,
+                    'repo': repo,
+                    'reason': reason,
+                    'created_at': created_at.isoformat(),
+                    'closed_at': closed_at.isoformat()
+                }
+            )
+        return False, reason
     
     return True, None
 
-
-def preprocess_issues(issues: List[Dict[str, Any]], 
-                     log_file: Optional[Path] = None) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
+def preprocess_issues(issues: List[Dict[str, Any]], logger: logging.Logger) -> List[Dict[str, Any]]:
     """
-    Preprocess a list of raw issue records.
-    
-    This function:
-    1. Validates each issue using is_valid_issue
-    2. Computes resolution_time_hours for valid issues
-    3. Excludes invalid issues and logs reasons
-    4. Returns cleaned dataset and exclusion statistics
+    Preprocess a list of issues, computing resolution times and filtering invalid entries.
     
     Args:
-        issues: List of raw issue dictionaries from GitHub API
-        log_file: Optional path to write exclusion logs
+        issues: List of issue dictionaries from GitHub API
+        logger: Logger instance for recording exclusions
         
     Returns:
-        Tuple of (cleaned_issues, exclusion_stats)
-        - cleaned_issues: List of valid issues with resolution_time_hours computed
-        - exclusion_stats: Dict with counts of excluded issues by reason
+        List of valid issues with computed resolution_time_hours
     """
-    logger = setup_logging(log_file)
-    
-    cleaned_issues = []
-    exclusion_stats = {
-        "total_input": len(issues),
-        "total_valid": 0,
-        "total_excluded": 0,
-        "reasons": {}
-    }
+    valid_issues = []
+    excluded_count = 0
     
     for issue in issues:
         is_valid, reason = is_valid_issue(issue, logger)
         
         if is_valid:
-            created_at = parse_timestamp(issue.get("created_at"))
-            closed_at = parse_timestamp(issue.get("closed_at"))
+            # Compute resolution time
+            created_at = parse_timestamp(issue['created_at'])
+            closed_at = parse_timestamp(issue['closed_at'])
             resolution_time = compute_resolution_time(created_at, closed_at)
             
-            # Create cleaned record with computed field
-            cleaned_record = issue.copy()
-            cleaned_record["resolution_time_hours"] = resolution_time
-            cleaned_record["created_at_parsed"] = created_at.isoformat()
-            cleaned_record["closed_at_parsed"] = closed_at.isoformat()
+            # Add computed fields
+            processed_issue = issue.copy()
+            processed_issue['resolution_time_hours'] = resolution_time
+            processed_issue['created_at_parsed'] = created_at.isoformat()
+            processed_issue['closed_at_parsed'] = closed_at.isoformat()
             
-            cleaned_issues.append(cleaned_record)
-            exclusion_stats["total_valid"] += 1
+            valid_issues.append(processed_issue)
         else:
-            exclusion_stats["total_excluded"] += 1
-            exclusion_stats["reasons"][reason] = exclusion_stats["reasons"].get(reason, 0) + 1
+            excluded_count += 1
     
-    logger.info(f"Preprocessing complete: {exclusion_stats['total_valid']} valid, "
-               f"{exclusion_stats['total_excluded']} excluded out of {exclusion_stats['total_input']}")
-    
-    return cleaned_issues, exclusion_stats
-
+    logger.info(f"Preprocessing complete: {len(valid_issues)} valid, {excluded_count} excluded")
+    return valid_issues
 
 def main():
     """
-    Main entry point for the preprocessing script.
+    Main entry point for preprocessing script.
     
-    Reads raw issues from data/raw/fetched_issues.json,
-    preprocesses them, and writes cleaned data to data/processed/cleaned_issues.csv.
-    Also logs exclusion details to data/logs/preprocessing.log.
+    Loads preprocessed issues from raw data, validates them, and saves cleaned dataset.
+    Also generates a JSON log of excluded issues.
     """
+    # Get configuration
     config = get_config()
+    data_dir = get_path('data_dir')
+    raw_dir = data_dir / 'raw'
+    processed_dir = data_dir / 'processed'
+    logs_dir = data_dir / 'logs'
     
-    # Define paths
-    raw_input_path = get_path("raw_fetched_issues", "data/raw/fetched_issues.json")
-    output_path = get_path("cleaned_issues", "data/processed/cleaned_issues.csv")
-    log_path = get_path("preprocessing_log", "data/logs/preprocessing.log")
+    # Ensure directories exist
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    logs_dir.mkdir(parents=True, exist_ok=True)
     
-    logger = setup_logging(log_path)
-    logger.info("Starting preprocessing pipeline...")
+    # Setup logging
+    log_file = logs_dir / 'preprocessing.log'
+    logger = setup_logging(log_file)
     
-    # Validate input file exists
-    if not Path(raw_input_path).exists():
-        logger.error(f"Input file not found: {raw_input_path}")
-        sys.exit(1)
+    logger.info("Starting preprocessing pipeline")
     
     # Load raw issues
-    try:
-        with open(raw_input_path, 'r', encoding='utf-8') as f:
-            raw_issues = json.load(f)
-        logger.info(f"Loaded {len(raw_issues)} raw issues from {raw_input_path}")
-    except (json.JSONDecodeError, IOError) as e:
-        logger.error(f"Failed to load raw issues: {e}")
+    raw_file = raw_dir / 'issues.json'
+    if not raw_file.exists():
+        logger.error(f"Raw issues file not found: {raw_file}")
         sys.exit(1)
+    
+    with open(raw_file, 'r', encoding='utf-8') as f:
+        issues = json.load(f)
+    
+    logger.info(f"Loaded {len(issues)} issues from {raw_file}")
     
     # Preprocess issues
-    cleaned_issues, stats = preprocess_issues(raw_issues, log_path)
-    
-    if not cleaned_issues:
-        logger.warning("No valid issues found after preprocessing. Check exclusion logs.")
+    valid_issues = preprocess_issues(issues, logger)
     
     # Save cleaned dataset
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+    cleaned_file = processed_dir / 'cleaned_issues.csv'
     
-    try:
-        import pandas as pd
-        df = pd.DataFrame(cleaned_issues)
+    if valid_issues:
+        import csv
         
-        # Ensure resolution_time_hours column exists and is numeric
-        if "resolution_time_hours" in df.columns:
-            df["resolution_time_hours"] = pd.to_numeric(df["resolution_time_hours"], errors='coerce')
+        # Get all unique keys from issues
+        fieldnames = set()
+        for issue in valid_issues:
+            fieldnames.update(issue.keys())
         
-        df.to_csv(output_path, index=False, encoding='utf-8')
-        logger.info(f"Saved {len(cleaned_issues)} cleaned issues to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to save cleaned issues: {e}")
-        sys.exit(1)
+        # Remove parsed timestamps from CSV (keep ISO strings)
+        fieldnames.discard('created_at_parsed')
+        fieldnames.discard('closed_at_parsed')
+        
+        # Sort fieldnames for consistency
+        fieldnames = sorted(fieldnames)
+        
+        with open(cleaned_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+            writer.writeheader()
+            writer.writerows(valid_issues)
+        
+        logger.info(f"Saved {len(valid_issues)} issues to {cleaned_file}")
+    else:
+        logger.warning("No valid issues to save")
     
-    # Save exclusion statistics
-    stats_path = output_path_obj.parent / "preprocessing_stats.json"
-    with open(stats_path, 'w', encoding='utf-8') as f:
-        json.dump(stats, f, indent=2)
-    logger.info(f"Saved preprocessing statistics to {stats_path}")
-    
-    # Validate schema
-    try:
-        validate_dataset_schema(cleaned_issues, logger=logger)
-        logger.info("Schema validation passed")
-    except ValidationError as e:
-        logger.warning(f"Schema validation warning: {e}")
-    
-    logger.info("Preprocessing pipeline completed successfully.")
-    return 0
+    logger.info("Preprocessing pipeline completed")
 
-
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,21 @@
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, results, or report showing that log\u2011normal and Weibull models\
+    \ were fitted with scipy.stats, nor any KS statistic, p\u2011value, or AIC values\
+    \ are present. The required artifact (e.g., a script or output file) is missing,\
+    \ so the task is not satisfied."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data file, or report was provided that demonstrates detection of resolution\u2011\
+    time outliers >30\u202Fdays or the calculation of their percentage of the total\
+    \ dataset, as required by FR\u2011002. The implementer\u2019s claim cannot be\
+    \ verified without such artifacts."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output files implementing leave-one-repository-out\
+    \ cross\u2011validation for MAE and R\xB2 are present; the only artifacts described\
+    \ are unrelated user\u2011story specifications, so the required implementation\
+    \ is missing."

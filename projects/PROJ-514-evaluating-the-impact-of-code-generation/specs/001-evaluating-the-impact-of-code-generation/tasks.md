@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan: `mkdir -p code/01_data_collection code/02_static_analysis code/03_statistical_analysis code/04_reporting code/utils tests/contract tests/integration tests/unit data/raw/human_samples data/raw/llm_samples data/intermediate data/processed reports specs/001-code-smell-comparison`
-- [X] T002 Initialize Python project with `code/requirements.txt`: Pin `requests`, `GitPython`, `pandas`, `scipy`, `matplotlib`, `pyyaml`, `pytest` to latest stable versions (e.g., `pandas>=2.0.0`, `pytest>=7.0.0`).
-- [X] T003 [P] Configure linting (ruff/black) and formatting tools
+- [ ] T002 Initialize Python project with `code/requirements.txt`: Pin dependencies to exact versions for reproducibility (e.g., `requests==2.31.0`, `GitPython==3.1.40`, `pandas==2.2.1`, `scipy==1.13.0`, `matplotlib==3.9.0`, `pyyaml==6.0.1`, `pytest==8.2.0`).
+- [ ] T003 [P] Configure linting (ruff/black) and formatting tools
 
 ---
 
@@ -55,29 +55,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup environment configuration management (`code/utils/config.py` for seeds, paths, timeouts, API keys)
-- [X] T005 [P] Implement logging infrastructure (`code/utils/logger.py`) to track commit SHAs, Issue URLs, and API responses
-- [X] T006 [P] Setup data directory structure (`data/raw/human_samples`, `data/raw/llm_samples`, `data/intermediate`, `data/processed`)
-- [X] T007 Create base data models (`code/utils/data_models.py`) defining:
+- [ ] T004 Setup environment configuration management (`code/utils/config.py` for seeds, paths, timeouts, API keys)
+- [ ] T005 [P] Implement logging infrastructure (`code/utils/logger.py`) to track commit SHAs, Issue URLs, and API responses
+- [ ] T006 [P] Setup data directory structure (`data/raw/human_samples`, `data/raw/llm_samples`, `data/intermediate`, `data/processed`)
+- [ ] T007 Create base data models (`code/utils/data_models.py`) defining:
  - `class CodeSample`: attributes `source_type`, `repository_id`, `issue_id`, `task_id`, `language`, `file_path`, `function_name`, `is_fresh_commit`.
  - `class SmellMetric`: attributes `sample_id`, `smell_type`, `count`, `threshold_used`, `continuous_metric_value`.
  - `class StatResult`: attributes `smell_type`, `p_value`, `effect_size`, `confidence_interval`, `correction_method`, `test_method_used`.
-- [X] T008 Implement syntax validation utility (`code/utils/validators.py`) for Python/Java file integrity checks
-- [X] T009 Setup CI environment check for PMD/JRE availability (Dockerfile or CI script to install PMD CLI)
-
-### Phase 2.5: Spec/Plan Alignment Verification (Critical Prerequisite)
-
-**Purpose**: Verify that the `spec.md` and `plan.md` are aligned on the 150/150 Balanced Blocked Design before any data collection begins. This replaces the failed update tasks with a verification step.
-
-- [ ] T016 [Verification] Verify Spec/Plan Alignment:
- - Confirm `specs/001-code-smell-comparison/spec.md` FR-001 states **150 human samples** (3 per repo × 50 repos).
- - Confirm `specs/001-code-smell-comparison/spec.md` FR-002 states **150 LLM samples** (3 per repo × 50 repos).
- - Confirm `specs/001-code-smell-comparison/spec.md` SC-001 states **300 total samples**.
- - Confirm `specs/001-code-smell-comparison/spec.md` FR-007 is marked **REJECTED**.
- - Confirm `specs/001-code-smell-comparison/spec.md` US-3 Scenario 1 specifies **Blocked Permutation Test**.
- - **Deliverable**: If any mismatch is found, halt and flag for human review. If aligned, mark task complete and proceed to Phase 3.
-
-**Checkpoint**: Spec and Plan are verified aligned; implementation can proceed without constraint contradictions.
+- [ ] T008 Implement syntax validation utility (`code/utils/validators.py`) for Python/Java file integrity checks
+- [ ] T009 Setup CI environment check for PMD/JRE availability (Dockerfile or CI script to install PMD CLI)
 
 ---
 
@@ -91,28 +77,35 @@
 
 > **NOTE**: These contract tests define the interface for the implementation. They must be written FIRST to define the expected behavior, even if they fail to import unimplemented modules.
 
-- [X] T010 [US1] Contract test for repository selection logic in `tests/contract/test_repo_selection.py` (Defines interface for T012)
-- [X] T011 [US1] Contract test for LLM generation logic in `tests/contract/test_llm_generation.py` (Defines interface for T013)
+- [ ] T010 [US1] Contract test for repository selection logic in `tests/contract/test_repo_selection.py` (Defines interface for T012)
+- [ ] T011 [US1] Contract test for LLM generation logic in `tests/contract/test_llm_generation.py` (Defines interface for T013)
 
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement `code/01_data_collection/fetch_human_samples.py`:
  - **Algorithm**: Query GitHub API for 50 public repos with `stars:>100` AND `pushed:>2022-01-01` (ensure active repos with fresh commits) AND `created:<2019-01-01` (ensure 5+ years history).
- - **Freshness Logic**: For each selected repo, use `git log --diff-filter=A --format="%H" -- "*.py" "*.java"` to find commits that *added* functions. Select a representative subset of the most recent such commits per repo.
- - **Extraction**: Extract the function code from each commit. Save to `data/raw/human_samples/` with metadata JSON sidecars containing `repo_id`, `commit_sha`, `issue_id` (if linked), `file_path`, `function_name`.
- - **Constraint**: A total of multiple samples (3 × 50).
- - **Logging**: Log every sample's `commit_sha` and `repo_id` to `data/raw/api_logs.json`.
+ - **Freshness Logic**: For each selected repo, use `git log --diff-filter=A --format="%H" -- "*.py" "*.java"` to find commits that *added* functions.
+ - **Selection**: Select the **most recent commits per repo** that added a .py or .java file.
+ - **Extraction**: Extract the function code from each commit. Save to `data/raw/human_samples/` with metadata JSON sidecars containing `repo_id`, `commit_sha`, `issue_id` (if linked), `issue_url` (full URL), `file_path`, `function_name`.
+ - **Constraint**: Total samples collected (3 per repository across 50 repositories).
+ - **Logging**: Log every sample's `commit_sha`, `repo_id`, and `issue_url` to `data/raw/api_logs.json`.
+ - **Traceability**: Ensure `issue_url` is logged to satisfy Constitution Principle II (Verified Accuracy).
+- [ ] T012.5 [US1] Implement `code/01_data_collection/export_task_descriptions.py`:
+ - **Purpose**: Extract Issue/PR descriptions from the metadata collected in T012 to create a structured task list for LLM generation.
+ - **Input**: Read `data/raw/api_logs.json` and `data/raw/human_samples/` metadata.
+ - **Output**: Generate `data/intermediate/tasks.json` containing `task_id`, `issue_url`, `description_text`, `language`, `repo_id`.
+ - **Dependency**: Must run after T012 completes.
 - [ ] T013 [US1] Implement `code/01_data_collection/generate_llm_samples.py`:
- - **Task Derivation**: Derive 50 coding tasks from the same Issue/PR descriptions used for human samples (or equivalent open issues in the selected repos).
+ - **Task Derivation**: Derive a set of coding tasks from the same Issue/PR descriptions used for human samples (read from `data/intermediate/tasks.json` produced by T012.5).
  - **Generation**: Query HuggingFace Inference API (or similar) with a reasonable timeout and exponential backoff (3 retries).
- - **Sampling**: Generate a representative set of samples per task to support the analysis.
- - **Storage**: Save files to `data/raw/llm_samples/` with metadata JSON sidecars containing `task_id`, `model_id`, `prompt_hash`, `generation_seed`.
- - **Constraint**: Total 150 samples (3 × 50).
+ - **Sampling**: **Generate 3 samples per task** (Total 150 samples across 50 tasks).
+ - **Storage**: Save files to `data/raw/llm_samples/` with metadata JSON sidecars containing `task_id`, `model_id`, `model_version`, `api_endpoint`, `exact_prompt`, `prompt_hash`, `generation_seed`.
+ - **Traceability**: Ensure full metadata schema (model_id, version, endpoint, prompt, seed) is logged to satisfy Constitution Principle VI (Code Generation Transparency).
 - [ ] T014 [US1] Implement `code/01_data_collection/validate_dataset.py`:
- - **Validation**: Run syntax validation on all 300 samples using `code/utils/validators.py`.
- - **Threshold**: Log and exclude samples failing validation. Target ≥95% validity (≥143 valid per group).
+ - **Validation**: Run syntax validation on all samples using `code/utils/validators.py`.
+ - **Action**: Log and exclude samples failing validation. **Do not impose a hard threshold** (e.g., 95%); simply report the final count of valid samples in the report.
  - **Reporting**: Generate `data/intermediate/validation_report.json` listing excluded samples, reasons, and the final count of valid samples.
- - **Constraint**: If valid count < 140 per group, flag for re-collection.
+ - **Constraint**: If valid count is critically low, flag for manual review, but do not auto-halt based on an arbitrary percentage.
 - [ ] T015 [US1] Implement `code/01_data_collection/export_manifest.py`:
  - **Manifest**: Generate `data/raw/manifest.csv` with columns: `sample_id`, `source_type`, `repository_id`, `issue_id`, `task_id`, `commit_sha`, `file_path`, `language`.
 
@@ -132,7 +125,7 @@
  - **Interface**: Define tests for `run_pmd(file_path, ruleset_path)` returning `exit_code` and `stdout`.
  - **Interface**: Define tests for `parse_output(xml_content)` returning a list of `SmellMetric` objects.
  - **Constraint**: Must handle timeout and memory limit errors gracefully.
-- [X] T020 [US2] Contract test for parallel analysis execution in `tests/contract/test_static_analysis_interface.py` (Defines interface for T021/T023)
+- [ ] T020 [US2] Contract test for parallel analysis execution in `tests/contract/test_static_analysis_interface.py` (Defines interface for T021/T023)
 
 ### Implementation for User Story 2
 
@@ -145,10 +138,16 @@
  - **Parser**: Parse PMD XML/JSON output into `data/intermediate/analysis_results.json`.
  - **Dependency**: Must run after T021 completes.
  - **Mapping**: Map smells to `SmellMetric` entities.
+- [ ] T022.5 [US2] Implement `code/02_static_analysis/generate_reference_set.py`:
+ - **Purpose**: Generate or locate a known "clean" reference set for tool validity testing.
+ - **Action**: Create a set of pre-validated clean code files (Python/Java) with known zero smells, or fetch a verified subset from a trusted source.
+ - **Output**: Save to `data/raw/reference_set/`.
+ - **Dependency**: Must run before T023.
 - [ ] T023 [US2] Implement `code/02_static_analysis/tool_validity_check.py`:
- - **Validity**: Run analysis on a known "clean" reference set (e.g., pre-validated clean files).
+ - **Validity**: Run analysis on the "clean" reference set produced by T022.5 (`data/raw/reference_set/`).
  - **Threshold**: Calculate false-positive rate. If >5%, flag tool configuration as invalid in logs.
- - **Dependency**: Must run after T022 completes.
+ - **Traceability**: Explicitly reference **Spec FR-005** for tool validity.
+ - **Dependency**: Must run after T022 and T022.5 complete.
  - **Output**: Generate `data/intermediate/tool_validity_status.json` with keys `is_valid` (boolean) and `false_positive_rate` (float).
 - [ ] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
  - **Aggregation**: Aggregate results into `data/processed/smell_metrics.csv` with columns: `sample_id`, `source_type`, `smell_type`, `count`, `continuous_metric_value` (e.g., cyclomatic complexity).
@@ -166,19 +165,19 @@
 
 ### Tests for User Story 3 (MANDATORY - Interface Definition)
 
-- [X] T025 [US3] Contract test for permutation test logic in `tests/contract/test_permutation_test_interface.py` (Defines interface for T026)
-- [X] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T028)
+- [ ] T025 [US3] Contract test for permutation test logic in `tests/contract/test_permutation_test_interface.py` (Defines interface for T027)
+- [ ] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T029)
 
 ### Implementation for User Story 3
 
 - [ ] T027 [US3] Implement `code/03_statistical_analysis/compare_distributions.py`:
  - **Method**: Implement Blocked Permutation Test (stratified by repository) per plan.md.
  - **Handling**: Handle zero-inflation and non-normality by using exact permutation counts.
- - **Correction**: Apply Bonferroni correction for 4 hypothesis tests (family-wise error rate ≤ 0.05).
+ - **Correction**: Apply **Bonferroni correction for the 4 hypothesis tests** to control family-wise error rate (α ≤ 0.05).
  - **Metrics**: Calculate effect sizes (Cohen's d or equivalent for permutation tests).
  - **Output**: Save results to `data/intermediate/stat_results.json`.
 - [ ] T028 [US3] Implement `code/03_statistical_analysis/sensitivity_analysis.py`:
- - **Sweep**: Sweep "Long Method" threshold values across a range of low, medium, and high line-count magnitudes.
+ - **Sweep**: Sweep "Long Method" threshold values across a specific range: **[, 30, 40, 50, 60] lines**.
  - **Comparison**: Compare results against continuous metrics (cyclomatic complexity) to verify stability.
  - **Dependency**: Must run after T027 completes.
  - **Output**: Generate `data/intermediate/sensitivity_analysis_report.json` with threshold vs. p-value tables.
@@ -212,7 +211,6 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **Spec/Plan Verification (Phase 2.5)**: Depends on Phase 2 completion; MUST complete before Phase 3 implementation to resolve spec contradictions.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -222,7 +220,12 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires valid data from US1
+ - **T012.5** depends on T012.
+ - **T013** depends on T012.5.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires valid metrics from US2
+ - **T022.5** depends on T007 (models).
+ - **T023** depends on T022 and T022.5.
+ - **T027** depends on T024.
 
 ### Within Each User Story
 
@@ -240,6 +243,16 @@
 - All tests for a user story marked [P] can run in parallel (if interface defined)
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+
+### Explicit Model Dependencies
+
+- **T007** (Data Models) must complete before:
+ - **T014** (Validation)
+ - **T021** (PMD Wrapper)
+ - **T022** (Parser)
+ - **T023** (Validity Check)
+ - **T024** (Aggregation)
+ - **T027** (Statistics)
 
 ---
 
@@ -263,19 +276,17 @@ Task: "Implement generate_llm_samples.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 2.5: Spec/Plan Verification (CRITICAL - resolves contradictions)
-4. Complete Phase 3: User Story 1
-5. **STOP and VALIDATE**: Test User Story 1 independently
-6. Deploy/demo if ready
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
-2. Add Spec/Plan Verification (Phase 2.5) → Resolve contradictions
-3. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-4. Add User Story 2 → Test independently → Deploy/Demo
-5. Add User Story 3 → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -299,4 +310,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Design Note**: This plan implements a **Balanced Blocked Design (150/150)** instead of the Spec's 1000/50 split to ensure statistical validity, as per `plan.md` section "Updated Sample Size Justification & Deviation". Task T016 verifies this alignment.
+- **Critical Design Note**: This plan implements a **Balanced Blocked Design** with equal allocation instead of the Spec's 1000/50 split to ensure statistical validity, as per `plan.md` section "Updated Sample Size Justification & Deviation".

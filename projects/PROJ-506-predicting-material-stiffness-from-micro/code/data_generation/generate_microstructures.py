@@ -1,85 +1,103 @@
 """
-Stratified microstructure generator.
-Generates 128x128 binary PNG images representing material microstructures
-with varying void/inclusion densities.
+Microstructure Generator for Synthetic Data.
+
+Generates 2D microstructure images with varying void/inclusion densities.
 """
+
 import numpy as np
 from skimage.draw import disk, ellipse
 from pathlib import Path
 import random
 
-def generate_microstructure(seed: int, density: float, topology: str, size: int = 128) -> np.ndarray:
+def generate_microstructure(
+    size: int = 128,
+    inclusion_density: float = 0.2,
+    seed: int = 42,
+    n_inclusions: int = 10
+) -> np.ndarray:
     """
-    Generate a single microstructure image.
-    
+    Generate a synthetic microstructure image.
+
     Args:
-        seed: Random seed for reproducibility
-        density: Target inclusion density (0.0 to 1.0)
-        topology: 'random' or 'clustered'
-        size: Image dimensions (default 128x128)
-        
+        size: Image size (size x size).
+        inclusion_density: Target fraction of inclusion pixels.
+        seed: Random seed for reproducibility.
+        n_inclusions: Number of inclusion shapes to place.
+
     Returns:
-        2D numpy array (0=void, 1=inclusion)
+        2D numpy array (size x size) with values 0.0 (matrix) and 1.0 (inclusion).
     """
-    np.random.seed(seed)
     random.seed(seed)
+    np.random.seed(seed)
     
+    # Initialize empty image
     image = np.zeros((size, size), dtype=np.float32)
     
-    if topology == 'random':
-        # Generate random circular inclusions
-        n_inclusions = int((density * size * size) / (np.pi * (size * 0.05)**2))
-        for _ in range(n_inclusions):
-            center = (np.random.randint(10, size-10), np.random.randint(10, size-10))
-            radius = np.random.uniform(3, 8)
-            rr, cc = disk(center, radius, shape=image.shape)
-            image[rr, cc] = 1.0
-    elif topology == 'clustered':
-        # Generate clustered inclusions
-        n_clusters = int(density * 20)
-        for _ in range(n_clusters):
-            cluster_center = (np.random.randint(20, size-20), np.random.randint(20, size-20))
-            for _ in range(5):
-                offset = (np.random.normal(0, 10), np.random.normal(0, 10))
-                center = (int(cluster_center[0] + offset[0]), int(cluster_center[1] + offset[1]))
-                if 0 <= center[0] < size and 0 <= center[1] < size:
-                    radius = np.random.uniform(2, 6)
-                    rr, cc = disk(center, radius, shape=image.shape)
-                    image[rr, cc] = 1.0
-    else:
-        raise ValueError(f"Unknown topology: {topology}")
+    # Generate inclusions
+    for _ in range(n_inclusions):
+        # Random center
+        cy = random.randint(10, size - 10)
+        cx = random.randint(10, size - 10)
         
+        # Random radius
+        r = random.randint(5, 15)
+        
+        # Random shape type (disk or ellipse)
+        if random.random() > 0.5:
+            # Disk
+            rr, cc = disk((cy, cx), r, shape=(size, size))
+        else:
+            # Ellipse
+            ry = random.randint(5, 12)
+            rx = random.randint(5, 12)
+            angle = random.uniform(0, np.pi)
+            rr, cc = ellipse(cy, cx, ry, rx, rotation=angle, shape=(size, size))
+        
+        # Clip to image bounds
+        rr = np.clip(rr, 0, size - 1)
+        cc = np.clip(cc, 0, size - 1)
+        
+        # Set inclusion pixels
+        image[rr, cc] = 1.0
+    
+    # Normalize density if needed (simple approach)
+    current_density = np.mean(image)
+    if current_density > inclusion_density:
+        # Randomly remove some pixels
+        mask = image > 0.5
+        n_to_remove = int((current_density - inclusion_density) * size * size)
+        indices = np.where(mask)[0]
+        if len(indices) > n_to_remove:
+            remove_idx = np.random.choice(indices, n_to_remove, replace=False)
+            image[remove_idx // size, remove_idx % size] = 0.0
+    
     return image
 
-def save_microstructure(image: np.ndarray, output_path: Path, seed: int):
-    """Save microstructure as PNG."""
-    from skimage.io import imsave
-    # Normalize to 0-255 and save
-    imsave(str(output_path), (image * 255).astype(np.uint8))
+def save_microstructure(
+    image: np.ndarray,
+    output_path: Path,
+    seed: int,
+    density: float
+) -> None:
+    """
+    Save a microstructure image to disk.
+
+    Args:
+        image: 2D numpy array.
+        output_path: Path to save the PNG file.
+        seed: Random seed used.
+        density: Actual inclusion density.
+    """
+    from skimage import io
+    
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save as grayscale PNG
+    # Scale to 0-255 for better visibility
+    img_scaled = (image * 255).astype(np.uint8)
+    io.imsave(output_path, img_scaled, check_contrast=False)
 
 def main():
-    """CLI entry point for generation."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Generate microstructures")
-    parser.add_argument("--n_samples", type=int, default=10, help="Number of samples")
-    parser.add_argument("--output_dir", type=str, default="data/raw", help="Output directory")
-    args = parser.parse_args()
-    
-    output_path = Path(args.output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    densities = [0.1, 0.2, 0.3, 0.4, 0.5]
-    topologies = ['random', 'clustered']
-    
-    for i in range(args.n_samples):
-        seed = i
-        density = densities[i % len(densities)]
-        topology = topologies[i % len(topologies)]
-        
-        image = generate_microstructure(seed, density, topology)
-        save_microstructure(image, output_path / f"micro_{seed}.png", seed)
-        
-    print(f"Generated {args.n_samples} microstructures in {output_path}")
-
-if __name__ == "__main__":
-    main()
+    """Generate sample microstructures."""
+    print("Microstructure generator loaded.")

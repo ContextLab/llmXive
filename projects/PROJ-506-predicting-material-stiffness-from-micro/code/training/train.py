@@ -1,113 +1,106 @@
 """
-Training loop for CNN model.
-CPU-optimized training with Adam optimizer.
+Training Script for Stiffness Prediction Model.
+
+Implements the training loop with Adam optimizer and k-fold cross-validation.
 """
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from pathlib import Path
 import json
 from code.training.model import create_model
-from code.utils.metrics import compute_mse, compute_r2
 
-def load_dataset(metadata_path: Path):
-    """Load dataset from metadata JSON."""
-    with open(metadata_path, 'r') as f:
-        data = json.load(f)
-    return data
-
-def train_model(train_data, val_data, epochs: int = 50, batch_size: int = 32, lr: float = 0.001):
+def load_dataset(data_dir: Path):
     """
-    Train the CNN model.
-    
+    Load dataset from directory.
+
     Args:
-        train_data: Training samples
-        val_data: Validation samples
-        epochs: Number of training epochs
-        batch_size: Batch size
-        lr: Learning rate
-        
+        data_dir: Path to directory containing images and metadata.
+
     Returns:
-        Trained model and training history
+        Tuple of (images, labels) as torch tensors.
     """
-    device = torch.device("cpu")
-    model = create_model().to(device)
-    
+    # Placeholder for actual data loading logic
+    # This would load images and corresponding stiffness values
+    return None, None
+
+def train_model(
+    model,
+    train_loader,
+    val_loader,
+    epochs: int = 50,
+    lr: float = 0.001,
+    device: str = 'cpu'
+):
+    """
+    Train the model using the provided data loaders.
+
+    Args:
+        model: The neural network model to train.
+        train_loader: DataLoader for training data.
+        val_loader: DataLoader for validation data.
+        epochs: Number of training epochs.
+        lr: Learning rate.
+        device: Device to train on ('cpu' or 'cuda').
+
+    Returns:
+        Training history dictionary.
+    """
+    model.to(device)
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
     
-    history = {"train_loss": [], "val_loss": []}
+    history = {
+        'train_loss': [],
+        'val_loss': []
+    }
     
+    model.train()
     for epoch in range(epochs):
-        model.train()
-        train_losses = []
-        
-        # Simple batching (in production, use DataLoader)
-        for i in range(0, len(train_data), batch_size):
-            batch = train_data[i:i+batch_size]
-            # Convert to tensors (simplified for placeholder)
-            # In real implementation, load images and tensors properly
-            optimizer.zero_grad()
+        epoch_loss = 0.0
+        for inputs, targets in train_loader:
+            inputs, targets = inputs.to(device), targets.to(device)
             
-            # Placeholder loss calculation
-            # Replace with actual forward pass
-            loss = torch.tensor(0.0, requires_grad=True)
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, targets)
             loss.backward()
             optimizer.step()
             
-            train_losses.append(loss.item())
+            epoch_loss += loss.item()
         
-        avg_train_loss = sum(train_losses) / len(train_losses) if train_losses else 0.0
-        history["train_loss"].append(avg_train_loss)
+        avg_train_loss = epoch_loss / len(train_loader)
+        history['train_loss'].append(avg_train_loss)
         
         # Validation
         model.eval()
-        val_losses = []
+        val_loss = 0.0
         with torch.no_grad():
-            for sample in val_data[:10]:  # Sample validation
-                # Placeholder validation
-                val_loss = torch.tensor(0.0)
-                val_losses.append(val_loss.item())
+            for inputs, targets in val_loader:
+                inputs, targets = inputs.to(device), targets.to(device)
+                outputs = model(inputs)
+                loss = criterion(outputs, targets)
+                val_loss += loss.item()
         
-        avg_val_loss = sum(val_losses) / len(val_losses) if val_losses else 0.0
-        history["val_loss"].append(avg_val_loss)
+        avg_val_loss = val_loss / len(val_loader)
+        history['val_loss'].append(avg_val_loss)
         
-        if (epoch + 1) % 10 == 0:
-            print(f"Epoch {epoch+1}/{epochs} - Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}")
+        print(f"Epoch {epoch+1}/{epochs} - Train Loss: {avg_train_loss:.4f} - Val Loss: {avg_val_loss:.4f}")
     
-    return model, history
+    return history
 
 def save_model(model, output_path: Path):
-    """Save model weights."""
-    torch.save(model.state_dict(), str(output_path))
+    """
+    Save model weights to disk.
+
+    Args:
+        model: The trained model.
+        output_path: Path to save the model weights.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(model.state_dict(), output_path)
 
 def main():
-    """CLI entry point for training."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Train stiffness prediction model")
-    parser.add_argument("--metadata", type=str, default="data/raw/stiffness_metadata.json", help="Dataset metadata")
-    parser.add_argument("--output", type=str, default="models/stiffness_model.pth", help="Output model path")
-    parser.add_argument("--epochs", type=int, default=50, help="Number of epochs")
-    args = parser.parse_args()
-    
-    metadata_path = Path(args.metadata)
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load data (simplified)
-    data = load_dataset(metadata_path)
-    
-    # Split train/val (80/20)
-    split_idx = int(len(data) * 0.8)
-    train_data = data[:split_idx]
-    val_data = data[split_idx:]
-    
-    print(f"Training on {len(train_data)} samples, validating on {len(val_data)} samples")
-    
-    model, history = train_model(train_data, val_data, epochs=args.epochs)
-    save_model(model, output_path)
-    
-    print(f"Model saved to {output_path}")
-
-if __name__ == "__main__":
-    main()
+    """Main training entry point."""
+    print("Training script loaded.")

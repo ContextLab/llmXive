@@ -81,14 +81,14 @@ The research question, method, and references remain unchanged as per the planni
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Define test cases in `tests/test_mapping.py`: `test_map_raw_tags_to_standard` using inputs `['alt', 'rock']` and expected output from `contracts/genre_lookup.yaml`
-- [ ] T011 [P] [US1] Define test cases in `tests/test_ingest.py`: `test_missing_data_imputation` verifying strategy and logging
+- [X] T010 [P] [US1] Define test cases in `tests/test_mapping.py`: `test_map_raw_tags_to_standard` using inputs `['alt', 'rock']` and expected output from `contracts/genre_lookup.yaml`
+- [X] T011 [P] [US1] Define test cases in `tests/test_ingest.py`: `test_missing_data_imputation` verifying strategy and logging
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `code/mapping.py`: Load lookup table from `contracts/genre_lookup.yaml` and map raw genre tags to standard categories + 'Other'.
-- [ ] T015 [US1] Implement `code/ingest.py`: Merge personality and listening data on `user_id`; exclude users with zero listening minutes.
-- [ ] T016 [US1] Implement `code/ingest.py`: Handle missing demographic data (impute numeric with median, categorical with mode) or exclude; log counts.
+- [X] T014 [US1] Implement `code/mapping.py`: Load lookup table from `contracts/genre_lookup.yaml` and map raw genre tags to standard categories + 'Other'.
+- [X] T015 [US1] Implement `code/ingest.py`: Merge personality and listening data on `user_id`; exclude users with zero listening minutes.
+- [X] T016 [US1] Implement `code/ingest.py`: Handle missing demographic data (impute numeric with median, categorical with mode) or exclude; log counts.
 - [ ] T012 [US1] Implement `code/ingest.py`: **Orchestration**: Attempt to download BFI-2 and Last.fm data with s timeout (FR-001). If successful, use real data. If HTTP 404/Timeout occurs, catch exception, log `FALLBACK: SYNTHETIC`, and invoke `code/synthetic_data.py` (T008). Then, apply mapping (T014), merge (T015), handle missing data (T016), and save final merged dataset to `data/processed/merged_data.csv` with checksum.
 - [ ] T017 [US1] Verify `data/processed/merged_data.csv` schema integrity (non-empty, correct columns) and log checksum.
 
@@ -104,15 +104,15 @@ The research question, method, and references remain unchanged as per the planni
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for Spearman correlation calculation in `tests/test_analysis.py` (verify against synthetic ground truth)
-- [ ] T019 [P] [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/test_analysis.py` (verify p-value adjustment logic)
+- [X] T018 [P] [US2] Unit test for Spearman correlation calculation in `tests/test_analysis.py` (verify against synthetic ground truth)
+- [X] T019 [P] [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/test_analysis.py` (verify p-value adjustment logic)
 
 ### Implementation for User Story 2
 
 - [ ] T020 [US2] Implement `code/analysis.py`: Log-transform `listening_minutes` and compute Spearman rho and p-values for all trait-genre pairs; write intermediate results to `data/processed/correlation_results.csv`.
-- [ ] T021 [US2] Implement `code/analysis.py`: Run multiple linear regression for each trait with age, gender, and country (one-hot encoded) as covariates.
-- [ ] T022 [FR-004] [US2] Implement `code/analysis.py`: Detect collinear predictors (VIF > 5). If dropped, log the specific predictor name, update the regression model, and output a `model_definition` column in results listing the *actual* covariates used to ensure traceability against FR-004.
-- [ ] T023 [US2] Implement `code/analysis.py`: Apply Benjamini-Hochberg FDR correction (q < 0.05) to all p-values based on the dynamic count of tests.
+- [X] T021 [US2] Implement `code/analysis.py`: Run multiple linear regression for each trait with age, gender, and country (one-hot encoded) as covariates.
+- [X] T022 [FR-004] [US2] Implement `code/analysis.py`: Detect collinear predictors (VIF > 5). If dropped, log the specific predictor name, update the regression model, and output a `model_definition` column in results listing the *actual* covariates used to ensure traceability against FR-004.
+- [X] T023 [US2] Implement `code/analysis.py`: Apply Benjamini-Hochberg FDR correction (q < 0.05) to all p-values based on the dynamic count of tests.
 - [ ] T024 [US2] Save final analysis results (rho, p-value, adjusted p-value, is_significant, beta coefficients, model_definition) to `data/processed/analysis_results.csv`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

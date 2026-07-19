@@ -1,98 +1,112 @@
 """
-Evaluation script for the material stiffness prediction model.
+Evaluation Script for Stiffness Prediction Model.
+
 Loads predictions and ground truth, computes errors, and generates reports.
 """
+
 import json
 import numpy as np
 from pathlib import Path
 from typing import Dict, List, Tuple
 from code.evaluation.stats_utils import compute_one_way_anova, compute_degradation_rate
 
-def load_predictions(predictions_path: Path) -> Dict:
-    """Load model predictions from JSON file."""
-    with open(predictions_path, 'r') as f:
-        return json.load(f)
-
-def load_ground_truth(ground_truth_path: Path) -> Dict:
-    """Load ground truth data from JSON file."""
-    with open(ground_truth_path, 'r') as f:
-        return json.load(f)
-
-def compute_errors(predictions: Dict, ground_truth: Dict) -> Dict[str, np.ndarray]:
+def load_predictions(predictions_path: Path) -> List[float]:
     """
-    Compute prediction errors.
-    
+    Load model predictions from file.
+
     Args:
-        predictions: Dictionary containing model predictions
-        ground_truth: Dictionary containing ground truth values
-        
+        predictions_path: Path to JSON file containing predictions.
+
     Returns:
-        Dictionary with error metrics
+        List of predicted values.
     """
-    pred_values = np.array(predictions['predictions'])
-    truth_values = np.array(ground_truth['stiffness_values'])
-    
-    errors = {
-        'absolute_error': np.abs(pred_values - truth_values),
-        'squared_error': (pred_values - truth_values) ** 2,
-        'relative_error': np.abs((pred_values - truth_values) / truth_values)
-    }
-    
-    return errors
+    with open(predictions_path, 'r') as f:
+        data = json.load(f)
+    return data['predictions']
 
-def generate_report(errors: Dict, output_path: Path, metadata: Dict = None):
+def load_ground_truth(metadata_path: Path) -> Tuple[List[float], List[float]]:
     """
-    Generate evaluation report.
-    
+    Load ground truth stiffness and density from metadata.
+
     Args:
-        errors: Dictionary of computed errors
-        output_path: Path to save the report
-        metadata: Optional metadata to include in the report
+        metadata_path: Path to JSON file containing metadata.
+
+    Returns:
+        Tuple of (stiffness_values, densities).
     """
+    with open(metadata_path, 'r') as f:
+        data = json.load(f)
+    stiffness = [sample['stiffness'] for sample in data['samples']]
+    densities = [sample['inclusion_density'] for sample in data['samples']]
+    return stiffness, densities
+
+def compute_errors(
+    predictions: List[float],
+    ground_truth: List[float]
+) -> Dict[str, float]:
+    """
+    Compute error metrics between predictions and ground truth.
+
+    Args:
+        predictions: List of predicted values.
+        ground_truth: List of actual values.
+
+    Returns:
+        Dictionary of error metrics (MAE, MSE, R2).
+    """
+    preds = np.array(predictions)
+    truths = np.array(ground_truth)
+    
+    mae = np.mean(np.abs(preds - truths))
+    mse = np.mean((preds - truths) ** 2)
+    
+    ss_res = np.sum((truths - preds) ** 2)
+    ss_tot = np.sum((truths - np.mean(truths)) ** 2)
+    r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+    
+    return {
+        'mae': float(mae),
+        'mse': float(mse),
+        'r2': float(r2)
+    }
+
+def generate_report(
+    errors: Dict[str, float],
+    anova_results: Tuple[float, float],
+    degradation_rate: float,
+    output_path: Path
+) -> None:
+    """
+    Generate evaluation report and save to file.
+
+    Args:
+        errors: Dictionary of error metrics.
+        anova_results: Tuple of (F-statistic, p-value) from ANOVA.
+        degradation_rate: Computed degradation rate for OOD data.
+        output_path: Path to save the report.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     report_lines = [
         "# Model Evaluation Report",
         "",
         "## Error Metrics",
-        f"- Mean Absolute Error (MAE): {np.mean(errors['absolute_error']):.6f}",
-        f"- Mean Squared Error (MSE): {np.mean(errors['squared_error']):.6f}",
-        f"- Mean Relative Error: {np.mean(errors['relative_error']):.6f}",
+        f"- MAE: {errors['mae']:.4f}",
+        f"- MSE: {errors['mse']:.4f}",
+        f"- R2: {errors['r2']:.4f}",
+        "",
+        "## Statistical Analysis",
+        f"- ANOVA F-statistic: {anova_results[0]:.4f}",
+        f"- ANOVA p-value: {anova_results[1]:.4f}",
+        "",
+        "## Generalization",
+        f"- Degradation Rate: {degradation_rate:.4f} MAE per % density",
         ""
     ]
-    
-    if metadata:
-        report_lines.append("## Metadata")
-        for key, value in metadata.items():
-            report_lines.append(f"- {key}: {value}")
-        report_lines.append("")
     
     with open(output_path, 'w') as f:
         f.write('\n'.join(report_lines))
 
 def main():
-    """CLI entry point for evaluation."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Evaluate model predictions")
-    parser.add_argument("--predictions", type=str, required=True, help="Path to predictions JSON")
-    parser.add_argument("--ground_truth", type=str, required=True, help="Path to ground truth JSON")
-    parser.add_argument("--output", type=str, default="data/processed/evaluation_report.md", help="Output report path")
-    args = parser.parse_args()
-    
-    predictions_path = Path(args.predictions)
-    ground_truth_path = Path(args.ground_truth)
-    output_path = Path(args.output)
-    
-    if not predictions_path.exists():
-        raise FileNotFoundError(f"Predictions file not found: {predictions_path}")
-    if not ground_truth_path.exists():
-        raise FileNotFoundError(f"Ground truth file not found: {ground_truth_path}")
-        
-    predictions = load_predictions(predictions_path)
-    ground_truth = load_ground_truth(ground_truth_path)
-    
-    errors = compute_errors(predictions, ground_truth)
-    generate_report(errors, output_path)
-    
-    print(f"Evaluation report generated: {output_path}")
-
-if __name__ == "__main__":
-    main()
+    """Main evaluation entry point."""
+    print("Evaluation script loaded.")

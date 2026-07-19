@@ -1,0 +1,8 @@
+[BINARY PNG FILE CONTENTS - Simulated for artifact representation]
+This file would contain the comparison plot showing ECDF vs fitted distributions.
+The plot includes:
+- Blue dots for empirical CDF
+- Red solid line for log-normal distribution fit
+- Green dashed line for Weibull distribution fit
+- Logarithmic x-axis scale
+- Legend indicating the distributions

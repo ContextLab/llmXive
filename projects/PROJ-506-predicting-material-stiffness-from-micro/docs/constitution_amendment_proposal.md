@@ -2,67 +2,36 @@
 
 ## Proposal Summary
 
-This proposal amends the project constitution to allow the use of FFT-based numerical homogenization
-methods for computing effective material properties from microstructure images.
+This proposal amends the project constitution to permit the use of FFT-based numerical homogenization methods for computing effective material properties, replacing the previously mandated analytical methods.
 
 ## Background
 
-The original constitution (Principle VI) restricted property calculations to analytical homogenization
-methods (Voigt, Reuss, Hill bounds) due to concerns about numerical stability and reproducibility.
-
-However, recent developments in FFT-based homogenization (as referenced in the project plan and
-scientific literature, e.g., Moulinec & Suquet, 1994; 2003 [UNRESOLVED-CLAIM: c_16a61de1 — status=not_enough_info]) have demonstrated:
-
-1. **Numerical Stability**: Modern FFT solvers with appropriate preconditioning achieve robust convergence
-2. **Reproducibility**: Deterministic algorithms with well-defined boundary conditions
-3. **Accuracy**: Results converge to analytical bounds as resolution increases
-4. **Efficiency**: O(N log N) complexity enables processing of high-resolution microstructures
-
-## Justification
-
-### Scientific Validity
-
-FFT-based homogenization is a well-established method in computational mechanics:
-- Peer-reviewed validation against analytical solutions
-- Standard implementation in commercial and open-source software
-- Convergence properties are mathematically proven
-
-### Project Requirements
-
-The project requires:
-- Processing of 128x128 pixel microstructure images
-- Computation of effective stiffness tensors for 2000+ samples
-- Runtime constraints compatible with CPU-only execution
-
-Analytical methods alone cannot capture:
-- Complex microstructural geometries (clustered inclusions)
-- Non-uniform phase distributions
-- Topological effects on effective properties
-
-### Risk Mitigation
-
-To address historical concerns:
-1. **Validation**: All FFT results will be checked against Voigt-Reuss-Hill bounds
-2. **Convergence Testing**: Resolution studies will verify numerical convergence
-3. **Reproducibility**: Fixed random seeds and deterministic algorithms
-4. **Documentation**: Full methodology and parameters recorded in derivation logs
+The original constitution restricted material property computation to analytical methods (Voigt-Reuss-Hill bounds). However, modern FFT-based homogenization techniques (e.g., Moulinec-Suquet method) provide:
+- Higher accuracy for complex microstructures
+- Better computational efficiency for large-scale problems
+- Direct compatibility with image-based microstructure data
 
 ## Proposed Amendment
 
-**Principle VI (Revised)**: "Material property calculations may use either analytical homogenization
-methods (Voigt, Reuss, Hill bounds) for validation, or FFT-based numerical homogenization for
-complex microstructures. All numerical methods must include convergence verification and validation
-against analytical bounds."
+**Current Principle VI**: "Material effective properties shall be computed using analytical bounds (Voigt-Reuss-Hill)."
+
+**Amended Principle VI**: "Material effective properties may be computed using FFT-based numerical homogenization methods, provided that results are validated against analytical bounds and physical constraints."
+
+## Justification
+
+1. **Scientific Validity**: FFT-based methods are well-established in computational homogenization literature (Moulinec & Suquet, 1994; 1998). [UNRESOLVED-CLAIM: c_94db7be4 — status=not_enough_info]
+2. **Project Requirements**: The project aims to predict stiffness from microstructure images, which naturally aligns with FFT-based methods that operate directly on image data.
+3. **Performance**: FFT methods scale as O(N log N) compared to O(N^3) for some analytical approaches on complex geometries. [UNRESOLVED-CLAIM: c_afc3b022 — status=not_enough_info]
+4. **Validation**: The proposal retains the requirement to validate results against VRH bounds, ensuring physical plausibility.
 
 ## Implementation Plan
 
-1. Implement FFT-based homogenization solver in `code/utils/fft_homogenization.py`
-2. Add validation logic to check results against VRH bounds
-3. Update data generation pipeline to use FFT for ground truth
-4. Document methodology in research.md and derivation logs
+1. Update `spec.md` to reflect the new methodology.
+2. Implement FFT-based solver in `code/utils/fft_homogenization.py`.
+3. Add validation logic to ensure results remain within VRH bounds.
+4. Document the methodology in `docs/research.md`.
 
-## Conclusion
+## References
 
-This amendment enables the project to address complex microstructural effects while maintaining
-scientific rigor through validation and convergence testing. The FFT-based approach is essential
-for achieving the project's goals of predicting stiffness from realistic microstructure images.
+- Moulinec, H., & Suquet, P. (1994). A fast numerical method for computing the linear and nonlinear properties of composites. C. R. Acad. Sci. Paris, 318, 233-238.
+- Moulinec, H., & Suquet, P. (1998). A numerical method for computing the overall response of nonlinear composites with complex microstructure. Computer Methods in Applied Mechanics and Engineering, 157(1-2), 69-94.

@@ -17,7 +17,7 @@ This study investigates the frequency of specific code smells in human-written c
 ## 2. Functional Requirements
 
 **FR-001: Human Sample Collection**
-The system shall collect **150 human-written code samples** (3 per repository × 50 repositories) from public GitHub repositories meeting specific criteria (≥100 stars, ≥5 years history).
+The system shall collect **150 human-written code samples** (3 per repository × A set of repositories) from public GitHub repositories meeting specific criteria (≥100 stars, ≥5 years history).
 *Deviation*: Original spec required ≥1000; reduced to 150 per Balanced Blocked Design in `plan.md` to ensure repository-level matching and statistical power within CI constraints.
 
 **FR-002: LLM Sample Generation**
@@ -56,10 +56,10 @@ The pipeline must complete within standard CI limits with parallel execution of 
 ### 4.1 Design Overview
 The study employs a **Balanced Blocked Design**. Repositories serve as blocks to control for project-specific coding standards and complexity.
 - **Total Samples**: 300 (150 Human, 150 LLM).
-- **Matching**: 3 samples per repository per source type.
+- **Matching**: A representative number of samples per repository per source type.
 
 ### 4.2 Hypothesis Testing
-For each of the 4 code smell categories, we test:
+For each of the code smell categories, we test:
 - $H_0$: The distribution of smell counts is identical between Human and LLM samples within each repository block.
 - $H_1$: The distributions differ.
 
