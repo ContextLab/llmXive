@@ -189,7 +189,7 @@ capability **profile** (`cheap_structured`, `standard_generation`,
 model id; [`model_selection/profiles.py`](src/llmxive/model_selection/profiles.py)
 resolves each profile against the live Dartmouth model catalog at call time
 into a free-first, backend-diverse model chain (e.g. **Qwen 3.5 122B** →
-**Gemma 3 27B** → **GPT-OSS 120B** for a standard reasoning call), so a single
+**Gemma 4 31B** → **GPT-OSS 120B** for a standard reasoning call), so a single
 model's endpoint flapping never strands an agent. Only as a last resort, when
 every free candidate is unavailable, does the chain reach the guarded paid
 model **Claude Haiku 4.5** (`anthropic.claude-haiku-4-5-20251001`). That paid

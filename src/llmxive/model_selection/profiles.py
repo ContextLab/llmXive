@@ -88,6 +88,16 @@ PROFILES: dict[str, RequirementProfile] = {
     "cheap_structured": RequirementProfile(
         name="cheap_structured",
         capability="cheap",
+        # Slice 7 Task 10 (US5 AC1/AC4 test-hardening): against the composite
+        # snapshot the "cheap" capability's eligible free set is already FOUR
+        # (qwen3.5, gemma-4, gpt-oss, local qwen2.5 all attribute "cheap"), so
+        # the default cap of 4 truncated the guarded claude-haiku paid tail
+        # (free-before-paid, FR-008) — same shape as the standard_generation
+        # finding above. Raised to 8 to match: EVERY caller routed through
+        # standard_generation (cap 8) before this slice's per-profile
+        # migration, so this preserves that as-built reachability rather than
+        # narrowing it now that the profile is actually exercised.
+        max_candidates=8,
     ),
     "standard_generation": RequirementProfile(
         name="standard_generation",
@@ -105,14 +115,31 @@ PROFILES: dict[str, RequirementProfile] = {
     "deep_review": RequirementProfile(
         name="deep_review",
         capability="deep",
+        # Slice 7 Task 10: the "deep" eligible set (qwen3.5, gemma-4, gpt-oss,
+        # claude-haiku) is exactly 4 today, so cap 4 does not currently truncate
+        # it — but raised to 8 anyway for parity with standard_generation /
+        # cheap_structured: pre-migration EVERY caller (deep review included)
+        # routed through the same standard_generation-shaped chain (cap 8), so
+        # this keeps deep_review from being a narrower surface than the
+        # behavior it replaced as the policy/catalog grow.
+        max_candidates=8,
     ),
     "deep_code": RequirementProfile(
         name="deep_code",
         capability="deep",
+        # Same rationale as deep_review immediately above.
+        max_candidates=8,
     ),
     "vision": RequirementProfile(
         name="vision",
         capability="vision",
+        # Slice 7 Task 10: vision has no paid tail today (claude-haiku-4-5 is
+        # not attributed "vision"), so cap 4 is not truncating anything yet —
+        # raised to 8 purely for parity with the other profiles ahead of the
+        # same catalog-growth headroom, since a caller-agnostic
+        # standard_generation cap of 8 was the uniform as-built surface before
+        # this slice's per-profile migration.
+        max_candidates=8,
     ),
     "independent_review": RequirementProfile(
         name="independent_review",
