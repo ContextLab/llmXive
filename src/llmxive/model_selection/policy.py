@@ -26,6 +26,19 @@ the approved gemma-3→gemma-4 correction makes gemma-3 ineligible), plus the
 vision peer ``qwen.qwen3-vl`` and the local ``Qwen/Qwen2.5-3B-Instruct``
 fallback. The qwen→gemma-4→gpt-oss order is produced by ``select``'s tie-breaks
 (quality tier, then stable model id), matching the legacy ``MODEL_FALLBACKS``.
+
+v2 (spec 026 slice 7, 2026-07-19) attributes ``qwen3.5`` the ``vision``
+capability + feature. This is NOT a guess: a real call gave
+``qwen.qwen3.5-122b`` a pure-red 256x256 PNG and a pure-blue 256x256 PNG (as
+:class:`~llmxive.backends.base.ImagePart` content, routed through
+``route_chat(profile="vision")``) and it answered "Red" and "Blue"
+respectively — genuine image UNDERSTANDING, not merely payload acceptance
+(Constitution II; see ``tests/real_call/test_vision_real.py``,
+``test_qwen35_actually_understands_images``). ``qwen3-vl`` remains the
+dedicated vision peer (its own attribution is unchanged) so the paper
+figure-review call (``paper_reprocess.preprint_figures``) can still reach it
+via ``RequirementOverrides(exclude_leader=True)`` when it needs a second
+opinion independent of qwen3.5.
 """
 
 from __future__ import annotations
@@ -39,7 +52,7 @@ from llmxive.model_selection.types import Capability
 #: Bump when the table below changes in a way that can alter a decision. Part of
 #: ``select``'s pure input so the same snapshot+requirement under a different
 #: policy version is a DIFFERENT (distinguishable) decision.
-SELECTION_POLICY_VERSION = 1
+SELECTION_POLICY_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -100,19 +113,21 @@ class CapabilityPolicy:
 
 
 # --------------------------------------------------------------------------- #
-# The v1 canonical policy. Context windows are the maintainer-verified usable
+# The canonical policy. Context windows are the maintainer-verified usable
 # limits (router notes: qwen3.5 256K, gpt-oss/gemma-4 128K, claude-haiku ~200K).
-# Vision (``qwen3-vl``) is attributed ONLY ``vision`` so it never intrudes on the
-# text chains (behavior-preserving vs the legacy MODEL_FALLBACKS, which never
-# routed text through a VL model); the paid ``claude-haiku-4-5`` stays a TEXT
-# fallback (no vision) — its role in the legacy chain.
+# qwen3.5 is ALSO attributed ``vision`` as of v2 (real-call verified — see the
+# module docstring); ``qwen3-vl`` is attributed ONLY ``vision`` so it never
+# intrudes on the text chains (behavior-preserving vs the legacy
+# MODEL_FALLBACKS, which never routed text through a VL model); the paid
+# ``claude-haiku-4-5`` stays a TEXT fallback (no vision) — its role in the
+# legacy chain.
 # --------------------------------------------------------------------------- #
 CAPABILITY_POLICY = CapabilityPolicy(
     version=SELECTION_POLICY_VERSION,
     entries={
         "qwen3.5": PolicyEntry(
-            capabilities=frozenset({"cheap", "standard", "deep"}),
-            features=frozenset({"reasoning", "structured"}),
+            capabilities=frozenset({"cheap", "standard", "deep", "vision"}),
+            features=frozenset({"reasoning", "structured", "vision"}),
             quality_tier=3,
             max_context_tokens=256_000,
         ),

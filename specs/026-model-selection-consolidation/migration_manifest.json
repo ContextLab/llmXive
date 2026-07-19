@@ -2749,7 +2749,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 113,
+      "line": 128,
       "models": [
         "qwen3.5"
       ],
@@ -2760,7 +2760,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 119,
+      "line": 134,
       "models": [
         "gemma-4"
       ],
@@ -2771,7 +2771,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 125,
+      "line": 140,
       "models": [
         "gpt-oss"
       ],
@@ -2782,7 +2782,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 131,
+      "line": 146,
       "models": [
         "claude-haiku-4-5"
       ],
@@ -2793,7 +2793,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 137,
+      "line": 152,
       "models": [
         "qwen3-vl"
       ],
@@ -2804,7 +2804,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 143,
+      "line": 158,
       "models": [
         "qwen2.5"
       ],
@@ -2891,17 +2891,6 @@
       "models": [],
       "owning_slice": 7,
       "symbol": "default_model"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/paper_reprocess/preprint_figures.py",
-      "kind": "module_constant",
-      "line": 34,
-      "models": [
-        "qwen.qwen3.5-122b"
-      ],
-      "owning_slice": 7,
-      "symbol": "_VISION_MODEL"
     },
     {
       "category": "migration_target",
@@ -4069,6 +4058,28 @@
       ],
       "owning_slice": null,
       "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_vision_real.py",
+      "kind": "model_id_literal",
+      "line": 35,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_qwen35_actually_understands_images"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_vision_real.py",
+      "kind": "model_id_literal",
+      "line": 46,
+      "models": [
+        "qwen.qwen3-vl:32b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_qwen3_vl_serves_the_canonical_multimodal_representation"
     },
     {
       "category": "test_double",
@@ -5663,7 +5674,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 373,
+      "line": 374,
       "models": [
         "gemma-4"
       ],
@@ -5674,7 +5685,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 394,
+      "line": 395,
       "models": [
         "qwen3.5"
       ],
@@ -5685,7 +5696,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 408,
+      "line": 409,
       "models": [
         "gemma-4"
       ],
@@ -5696,7 +5707,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 408,
+      "line": 409,
       "models": [
         "gpt-oss"
       ],
@@ -5707,7 +5718,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 408,
+      "line": 409,
       "models": [
         "qwen3.5"
       ],
@@ -5718,7 +5729,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 423,
+      "line": 424,
       "models": [
         "gemma-4"
       ],
@@ -5729,7 +5740,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 470,
+      "line": 471,
       "models": [
         "gemma-4"
       ],
@@ -5740,7 +5751,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_select.py",
       "kind": "model_id_literal",
-      "line": 470,
+      "line": 471,
       "models": [
         "gpt-oss"
       ],

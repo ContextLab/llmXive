@@ -17,7 +17,7 @@ _EXPECTED_FAMILIES = {"qwen3.5", "gemma-4", "gpt-oss", "claude-haiku-4-5", "qwen
 
 
 def test_policy_version_matches_constant():
-    assert CAPABILITY_POLICY.version == SELECTION_POLICY_VERSION == 1
+    assert CAPABILITY_POLICY.version == SELECTION_POLICY_VERSION == 2
 
 
 def test_expected_families_present_and_gemma3_absent():

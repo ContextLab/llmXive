@@ -269,8 +269,9 @@ def test_capability_not_attributed_excludes_model():
 
 
 def test_vision_requirement_selects_only_vision_family():
+    # qwen3.5 (policy v2) leads on quality tier; qwen3-vl remains the peer.
     chain = select(build_requirement("vision", _cb()), _snapshot())
-    assert _ids(chain) == [VL]
+    assert _ids(chain) == [QWEN, VL]
 
 
 def test_confirmed_absence_excludes_model():
@@ -486,7 +487,7 @@ def test_chain_provenance_fields():
     chain = select(ModelRequirement(capability="deep", call_budget=cb), snap)
     assert chain.resolved_at == snap.observed_at
     assert chain.snapshot_digest == "TEST-DIGEST"
-    assert chain.selection_policy_version == 1
+    assert chain.selection_policy_version == 2
     assert set(chain.snapshot_provenance) == {"catalog", "local", "credit"}
     assert chain.call_budget == cb
 

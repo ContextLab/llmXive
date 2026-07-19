@@ -1,37 +1,39 @@
-"""Vision figure review for Reviewed Preprints (2026-07-01).
+"""Vision figure review for Reviewed Preprints (2026-07-01; migrated to
+``route_chat`` spec 026 slice 7, 2026-07-19).
 
 The text paper-review panel cannot see figures — its ``figure_critic`` lens gets
 only figure FILENAMES + the captions embedded in the LaTeX, so it guesses (and
 often complains about things it can't actually see). This module renders the
-paper's ACTUAL figures and has a free VISION model (``qwen.qwen3.5-122b``, which
-is multimodal given a real token budget + thinking off) review them against
-their captions, producing a normal ``paper_reviewer_figure_critic`` review record.
+paper's ACTUAL figures and has the ``vision`` profile's model review them
+against their captions, producing a normal ``paper_reviewer_figure_critic``
+review record.
 
-It is deliberately ISOLATED from the shared text backend (a direct multimodal
-call to the Dartmouth OpenAI-compatible endpoint) so adding image support does
-not touch the core ``ChatMessage``/router the whole pipeline depends on. It is
-best-effort: if rendering or the vision call fails, ``run_preprint_review`` falls
-back to skipping the figure lens (like any other lens failure).
+The call goes through ``model_selection.route.route_chat(profile="vision")`` —
+the SAME breaker/retry/failure-classification/credit-guard machinery every
+other agent call gets — rather than a private ``urllib`` request to the
+Dartmouth endpoint. ``qwen.qwen3.5-122b`` is real-call verified to genuinely
+UNDERSTAND image input (Constitution II;
+``tests/real_call/test_vision_real.py``) and is attributed the ``vision``
+capability in the policy (``SELECTION_POLICY_VERSION`` 2, see
+``model_selection.policy``); ``qwen.qwen3-vl`` remains the dedicated vision
+peer. It is best-effort: if rendering or the vision call fails,
+``run_preprint_review`` falls back to skipping the figure lens (like any other
+lens failure).
 """
 
 from __future__ import annotations
 
-import base64
 import io
-import json
 import re
-import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
 
+from llmxive.backends.base import ChatMessage, ImagePart, TextPart
 from llmxive.config import repo_root as _repo_root
+from llmxive.model_selection.route import route_chat
+from llmxive.model_selection.tokens import MAX_IMAGE_DIMENSION_PX
 from llmxive.types import Project
 
-# Free vision model. qwen3.5-122b is vision-capable (with a real token budget +
-# thinking OFF — a 150-token budget returns empty because reasoning eats it), is
-# the strongest free model, and — unlike gemma-3-27b (capped at 3 images/prompt)
-# — accepts the whole figure set at once. gpt-oss-120b is text-only.
-_VISION_MODEL = "qwen.qwen3.5-122b"
 _MAX_FIGURES = 12  # cap the number of per-figure review calls per paper
 _RENDER_DPI = 110
 
@@ -65,16 +67,6 @@ def _extract_caption(env: str) -> str:
     return re.sub(r"\s+", " ", raw).strip()[:700] or "(no caption)"
 
 
-def _endpoint() -> str:
-    try:
-        from langchain_dartmouth.definitions import CLOUD_BASE_URL as base
-    except Exception:  # pragma: no cover - offline fallback
-        import os
-
-        base = os.environ.get("LCD_CLOUD_BASE_URL", "https://chat.dartmouth.edu/api/")
-    return base.rstrip("/") + "/chat/completions"
-
-
 def _resolve_graphic(source: Path, ref: str) -> Path | None:
     """Resolve a ``\\includegraphics`` reference to a real file (LaTeX omits the
     extension and searches the tree)."""
@@ -94,8 +86,15 @@ def _resolve_graphic(source: Path, ref: str) -> Path | None:
     return None
 
 
-def _render_png(path: Path) -> bytes | None:
-    """Render one figure file to PNG bytes (PDF via pdf2image, raster via PIL)."""
+def _render_png(path: Path) -> tuple[bytes, int, int] | None:
+    """Render one figure file to PNG bytes (PDF via pdf2image, raster via PIL).
+
+    Downscales so neither dimension exceeds ``MAX_IMAGE_DIMENSION_PX`` — the
+    hard limit :class:`~llmxive.backends.base.ImagePart` validates and REJECTS
+    a render for — rather than letting a legitimately large figure raise.
+    Returns ``(png_bytes, width, height)`` — the REAL post-downscale
+    dimensions ``ImagePart`` needs — or ``None`` on any render failure.
+    """
     try:
         if path.suffix.lower() == ".pdf":
             from pdf2image import convert_from_path
@@ -108,20 +107,22 @@ def _render_png(path: Path) -> bytes | None:
             from PIL import Image
 
             img = Image.open(path).convert("RGB")
-        # Bound the longest side so the payload stays reasonable.
-        max_side = 1600
-        if max(img.size) > max_side:
-            scale = max_side / max(img.size)
-            img = img.resize((int(img.size[0] * scale), int(img.size[1] * scale)))
+        if max(img.size) > MAX_IMAGE_DIMENSION_PX:
+            scale = MAX_IMAGE_DIMENSION_PX / max(img.size)
+            img = img.resize((
+                max(1, int(img.size[0] * scale)),
+                max(1, int(img.size[1] * scale)),
+            ))
         buf = io.BytesIO()
         img.save(buf, format="PNG")
-        return buf.getvalue()
+        return buf.getvalue(), img.size[0], img.size[1]
     except Exception:  # a bad figure must not sink the review
         return None
 
 
-def collect_figures(pdir: Path) -> list[tuple[str, bytes]]:
-    """Return up to ``_MAX_FIGURES`` ``(caption, png_bytes)`` pairs from the paper.
+def collect_figures(pdir: Path) -> list[tuple[str, bytes, int, int]]:
+    """Return up to ``_MAX_FIGURES`` ``(caption, png_bytes, width, height)``
+    tuples from the paper.
 
     Parses ``figure`` environments from the top-level ``.tex`` (in document
     order) to pair each graphic with its caption; renders each to PNG.
@@ -138,7 +139,7 @@ def collect_figures(pdir: Path) -> list[tuple[str, bytes]]:
             tex += p.read_text(encoding="utf-8", errors="replace") + "\n"
         except OSError:
             continue
-    out: list[tuple[str, bytes]] = []
+    out: list[tuple[str, bytes, int, int]] = []
     for env in _FIG_ENV_RE.findall(tex):
         graphics = _GRAPHIC_RE.findall(env)
         if not graphics:
@@ -148,10 +149,11 @@ def collect_figures(pdir: Path) -> list[tuple[str, bytes]]:
             fpath = _resolve_graphic(source, ref)
             if fpath is None:
                 continue
-            png = _render_png(fpath)
-            if png is None:
+            rendered = _render_png(fpath)
+            if rendered is None:
                 continue
-            out.append((f"{caption} [{Path(ref).name}]", png))
+            png, width, height = rendered
+            out.append((f"{caption} [{Path(ref).name}]", png, width, height))
             break  # one representative render per figure environment
         if len(out) >= _MAX_FIGURES:
             break
@@ -189,8 +191,8 @@ _SYSTEM = (
 
 
 def _review_one_figure(
-    index: int, caption: str, png: bytes, *,
-    all_captions: str, title: str, model: str, key: str,
+    index: int, caption: str, png: bytes, width: int, height: int, *,
+    all_captions: str, title: str,
 ) -> tuple[str, str]:
     """Review a SINGLE figure (its image) with the FULL labeled caption set for
     cross-reference. Returns ``(response_text, model_used)``.
@@ -198,54 +200,43 @@ def _review_one_figure(
     Reviewing one figure per call keeps the model focused (a batched call misses
     details), and including every caption lets it resolve captions that
     cross-reference other figures ("follows the format of Figure 1", a legend
-    entry defined in a sibling caption, etc.).
+    entry defined in a sibling caption, etc.). Routes through
+    ``model_selection.route.route_chat`` (the ``vision`` profile), which owns
+    model choice, retry, failure-classification and the credit guard — this
+    module no longer duplicates any of that. thinking-mode is already disabled
+    centrally by the backend (SSoT), so it is NOT re-set here.
     """
-    b64 = base64.b64encode(png).decode()
-    content: list[dict] = [
-        {
-            "type": "text",
-            "text": (
-                f"# Paper title\n{title}\n\n"
-                "# ALL figure captions in this paper (for cross-reference ONLY)\n"
-                f"{all_captions}\n\n"
-                f"# YOUR TASK\nReview ONLY **Figure {index}**, whose rendered image "
-                "is shown below. Its own caption is:\n\n"
-                f"Figure {index}: {caption}\n\n"
-                "Use the other captions above only to resolve cross-references "
-                "(e.g. a legend or symbol defined in another figure's caption, or "
-                "'same format as Figure N'). Before flagging something as missing "
-                "(a legend entry, a symbol, a definition), CHECK whether it is "
-                "already defined in Figure "
-                f"{index}'s caption or a cross-referenced caption. Return the "
-                "review record for Figure "
-                f"{index} per the system contract."
-            ),
-        },
-        {"type": "image_url", "image_url": {"url": "data:image/png;base64," + b64}},
-    ]
-    body = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": _SYSTEM},
-            {"role": "user", "content": content},
-        ],
-        # A REAL budget: reasoning/vision models return empty content when the
-        # budget is too small (the qwen "empty reply" trap). thinking OFF keeps
-        # it fast + bounded (the SSoT backend disables it the same way).
-        "max_tokens": 2000,
-        "temperature": 0,
-        "extra_body": {"chat_template_kwargs": {"enable_thinking": False}},
-    }
-    req = urllib.request.Request(
-        _endpoint(),
-        data=json.dumps(body).encode(),
-        headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
+    prompt_text = (
+        f"# Paper title\n{title}\n\n"
+        "# ALL figure captions in this paper (for cross-reference ONLY)\n"
+        f"{all_captions}\n\n"
+        f"# YOUR TASK\nReview ONLY **Figure {index}**, whose rendered image "
+        "is shown below. Its own caption is:\n\n"
+        f"Figure {index}: {caption}\n\n"
+        "Use the other captions above only to resolve cross-references "
+        "(e.g. a legend or symbol defined in another figure's caption, or "
+        "'same format as Figure N'). Before flagging something as missing "
+        "(a legend entry, a symbol, a definition), CHECK whether it is "
+        "already defined in Figure "
+        f"{index}'s caption or a cross-referenced caption. Return the "
+        "review record for Figure "
+        f"{index} per the system contract."
     )
-    with urllib.request.urlopen(req, timeout=180) as resp:  # fixed Dartmouth host
-        data = json.load(resp)
-    text = data["choices"][0]["message"]["content"] or ""
-    used = data.get("model") or model
-    return text, used
+    # A REAL budget: reasoning/vision models return empty content when the
+    # budget is too small (the qwen "empty reply" trap).
+    resp = route_chat(
+        [
+            ChatMessage(role="system", content=_SYSTEM),
+            ChatMessage(role="user", content=(
+                TextPart(prompt_text),
+                ImagePart(mime="image/png", data=png, width=width, height=height),
+            )),
+        ],
+        profile="vision",
+        max_tokens=2000,
+        temperature=0,
+    )
+    return resp.text, resp.model
 
 
 # Regex fallback: pull `severity`/`text` pairs when the YAML won't load cleanly.
@@ -299,7 +290,7 @@ def _parse_figure(text: str) -> tuple[list[dict], str]:
 
 
 def vision_figure_review(
-    project: Project, *, repo_root: Path | None = None, model: str = _VISION_MODEL
+    project: Project, *, repo_root: Path | None = None
 ) -> Path | None:
     """Render the paper's figures, have the vision model review them, and write a
     ``paper_reviewer_figure_critic`` review record. Returns the record path, or
@@ -307,7 +298,6 @@ def vision_figure_review(
     """
     import logging
 
-    from llmxive.credentials import load_dartmouth_key
     from llmxive.paper_reprocess.reprocess import project_dir
     from llmxive.state import project as project_store  # noqa: F401 - parity
     from llmxive.state import reviews as reviews_store
@@ -324,26 +314,23 @@ def vision_figure_review(
     if not figs:
         log.info("preprint figure review: no renderable figures for %s", project.id)
         return None
-    key = load_dartmouth_key(prompt_if_missing=False)
-    if not key:
-        log.warning("preprint figure review: no Dartmouth key; skipping vision review")
-        return None
 
     # Review ONE figure per call (focused; a batched call misses details), and
     # pass EVERY caption (labeled) each time so caption cross-references resolve.
-    all_captions = "\n".join(f"Figure {i}: {cap}" for i, (cap, _) in enumerate(figs, 1))
-    used_model = model
+    all_captions = "\n".join(f"Figure {i}: {cap}" for i, (cap, _, _, _) in enumerate(figs, 1))
+    used_model = ""
     items: list[dict] = []
     body_parts: list[str] = []
     seen: set[str] = set()
     any_ok = False
-    for i, (caption, png) in enumerate(figs, 1):
+    for i, (caption, png, width, height) in enumerate(figs, 1):
         try:
             text, used_model = _review_one_figure(
-                i, caption, png, all_captions=all_captions,
-                title=project.title, model=model, key=key,
+                i, caption, png, width, height,
+                all_captions=all_captions, title=project.title,
             )
-        except Exception as exc:  # best-effort per figure
+        except Exception as exc:  # best-effort per figure (route_chat auth/breaker/
+            # chain-exhaustion failures land here exactly like a render failure)
             log.warning("preprint figure review: figure %d failed for %s: %s",
                         i, project.id, exc)
             continue
