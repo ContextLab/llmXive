@@ -1,3 +1,10 @@
+T013b:
+  c: false
+  h: 93f4380df308d24420646a4f1d15e145c90afe25125ef0864076cd5e297b2b2b
+  r: The required output file `data/results/consensus_sample.json` is missing, and
+    there is no evidence that the logged comparisons were filtered or a stratified
+    random sample was generated. The implementer must create the `consensus_sample.json`
+    file with the sampled indices as specified.
 T019:
   c: false
   h: 96296957c986942207ca42fece3101dbc6c07a5fb8bfb6ab4fee27a3faa9f70a

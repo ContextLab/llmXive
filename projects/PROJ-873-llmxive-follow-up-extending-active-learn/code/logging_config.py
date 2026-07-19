@@ -4,180 +4,124 @@ import os
 import sys
 import time
 import threading
-from datetime import datetime
-from typing import Dict, Any, Optional
+import resource
+from typing import Optional, Dict, Any, List
 
-# Configuration
-LOG_DIR = "data/logs"
-COMPARISON_LOG_FILE = "comparisons.jsonl"
-RESOURCE_LOG_FILE = "resource_stats.jsonl"
+# Global variables for logging
+comparison_log_file: Optional[str] = None
+resource_log_file: Optional[str] = None
+resource_monitor_thread: Optional[threading.Thread] = None
+stop_monitoring_event: Optional[threading.Event] = None
+_logger: Optional[logging.Logger] = None
 
-# Ensure log directory exists
-os.makedirs(LOG_DIR, exist_ok=True)
+# Ensure the root logger is configured early
+def _ensure_root_logger():
+    global _logger
+    if _logger is None:
+        _logger = logging.getLogger(__name__)
+        # If root hasn't been configured yet, configure it to avoid errors
+        if not logging.root.handlers:
+            logging.basicConfig(
+                level=logging.INFO,
+                format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                handlers=[
+                    logging.StreamHandler(sys.stdout),
+                    logging.FileHandler('data/logs/pipeline.log')
+                ]
+            )
+    return _logger
 
-def init_logging(name: str = "llmXive") -> logging.Logger:
-    """
-    Initializes the logger for the pipeline.
-    """
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-
-    # Console handler
-    if not logger.handlers:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-        # File handler for general logs
-        file_handler = logging.FileHandler(os.path.join(LOG_DIR, f"{name}.log"))
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-    return logger
-
-def log_pairwise_comparison(
-    query_id: str,
-    doc1_id: str,
-    doc2_id: str,
-    similarity: float,
-    is_wasted: bool,
-    timestamp: Optional[float] = None
-) -> None:
-    """
-    Logs a pairwise comparison to the comparisons.jsonl file.
+def init_logging(log_dir: str = 'data/logs'):
+    """Initialize logging infrastructure."""
+    os.makedirs(log_dir, exist_ok=True)
+    timestamp = time.strftime('%Y%m%d_%H%M%S')
     
-    Args:
-        query_id: The query identifier.
-        doc1_id: First document identifier.
-        doc2_id: Second document identifier.
-        similarity: Calculated similarity score.
-        is_wasted: Whether this call is considered 'wasted'.
-        timestamp: Optional timestamp (defaults to current time).
-    """
-    if timestamp is None:
-        timestamp = time.time()
+    global comparison_log_file, resource_log_file
+    comparison_log_file = os.path.join(log_dir, f'comparisons_{timestamp}.jsonl')
+    resource_log_file = os.path.join(log_dir, f'resources_{timestamp}.jsonl')
     
-    log_entry = {
-        "timestamp": timestamp,
-        "query_id": query_id,
-        "doc1_id": doc1_id,
-        "doc2_id": doc2_id,
-        "similarity": similarity,
-        "is_wasted": is_wasted,
-        "datetime": datetime.fromtimestamp(timestamp).isoformat()
-    }
+    # Configure root logger
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler(os.path.join(log_dir, f'pipeline_{timestamp}.log'))
+        ]
+    )
     
-    log_path = os.path.join(LOG_DIR, COMPARISON_LOG_FILE)
-    with open(log_path, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(log_entry) + '\n')
+    logger = _ensure_root_logger()
+    logger.info("Logging initialized")
+    return comparison_log_file, resource_log_file
 
-# Resource monitoring globals
-_monitoring_active = False
-_monitor_thread: Optional[threading.Thread] = None
-_start_time: Optional[float] = None
+def log_pairwise_comparison(pair_data: Dict[str, Any]):
+    """Log a pairwise comparison to the JSONL file."""
+    if comparison_log_file:
+        with open(comparison_log_file, 'a') as f:
+            f.write(json.dumps(pair_data) + '\n')
 
-def _resource_monitor_loop(interval: float = 5.0) -> None:
-    """
-    Background thread that monitors resource usage.
-    """
-    import resource
-    global _monitoring_active
+def _monitor_resources(interval: float = 1.0):
+    """Monitor resource usage in a background thread."""
+    global stop_monitoring_event
+    stop_monitoring_event = threading.Event()
     
-    while _monitoring_active:
+    logger = _ensure_root_logger()
+    
+    while not stop_monitoring_event.is_set():
         usage = resource.getrusage(resource.RUSAGE_SELF)
+        # ru_maxrss is in KB on Linux, MB on macOS
+        if sys.platform == 'darwin':
+            memory_mb = usage.ru_maxrss
+        else:
+            memory_mb = usage.ru_maxrss / 1024
+        
         log_entry = {
-            "timestamp": time.time(),
-            "max_rss_kb": usage.ru_maxrss,
-            "user_time": usage.ru_utime,
-            "system_time": usage.ru_stime,
-            "datetime": datetime.now().isoformat()
+            'timestamp': time.time(),
+            'cpu_time_user': usage.ru_utime,
+            'cpu_time_system': usage.ru_stime,
+            'max_memory_mb': memory_mb
         }
         
-        log_path = os.path.join(LOG_DIR, RESOURCE_LOG_FILE)
-        with open(log_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(log_entry) + '\n')
+        if resource_log_file:
+            with open(resource_log_file, 'a') as f:
+                f.write(json.dumps(log_entry) + '\n')
         
         time.sleep(interval)
 
-def start_resource_monitoring(interval: float = 5.0) -> None:
-    """
-    Starts the background resource monitoring thread.
-    """
-    global _monitoring_active, _monitor_thread, _start_time
-    
-    if _monitoring_active:
-        return
-    
-    _monitoring_active = True
-    _start_time = time.time()
-    _monitor_thread = threading.Thread(target=_resource_monitor_loop, args=(interval,), daemon=True)
-    _monitor_thread.start()
+def start_resource_monitoring(interval: float = 1.0):
+    """Start resource monitoring in a background thread."""
+    global resource_monitor_thread
+    resource_monitor_thread = threading.Thread(target=_monitor_resources, args=(interval,), daemon=True)
+    resource_monitor_thread.start()
+    _ensure_root_logger().info("Resource monitoring started")
 
-def stop_resource_monitoring() -> Dict[str, Any]:
-    """
-    Stops the resource monitoring and returns final stats.
-    """
-    global _monitoring_active, _monitor_thread
-    
-    _monitoring_active = False
-    if _monitor_thread:
-        _monitor_thread.join(timeout=2.0)
-        _monitor_thread = None
-    
-    import resource
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    end_time = time.time()
-    
-    stats = {
-        "total_runtime_seconds": end_time - (_start_time or end_time),
-        "max_rss_kb": usage.ru_maxrss,
-        "user_time": usage.ru_utime,
-        "system_time": usage.ru_stime,
-        "total_cpu_time": usage.ru_utime + usage.ru_stime
-    }
-    
-    # Log final stats
-    log_entry = {
-        "timestamp": end_time,
-        "final": True,
-        "stats": stats,
-        "datetime": datetime.now().isoformat()
-    }
-    
-    log_path = os.path.join(LOG_DIR, RESOURCE_LOG_FILE)
-    with open(log_path, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(log_entry) + '\n')
-    
-    return stats
+def stop_resource_monitoring():
+    """Stop resource monitoring."""
+    global stop_monitoring_event, resource_monitor_thread
+    if stop_monitoring_event:
+        stop_monitoring_event.set()
+    if resource_monitor_thread:
+        resource_monitor_thread.join(timeout=2.0)
+        resource_monitor_thread = None
+    _ensure_root_logger().info("Resource monitoring stopped")
 
-def get_comparison_log_path() -> str:
-    """Returns the path to the comparison log file."""
-    return os.path.join(LOG_DIR, COMPARISON_LOG_FILE)
+def get_comparison_log_path() -> Optional[str]:
+    """Get the path to the comparison log file."""
+    return comparison_log_file
 
-def get_resource_log_path() -> str:
-    """Returns the path to the resource stats log file."""
-    return os.path.join(LOG_DIR, RESOURCE_LOG_FILE)
+def get_resource_log_path() -> Optional[str]:
+    """Get the path to the resource log file."""
+    return resource_log_file
 
 def main():
-    """
-    Test function to verify logging infrastructure.
-    """
-    logger = init_logging("test_logging")
-    logger.info("Logging infrastructure initialized.")
-    
-    start_resource_monitoring(interval=1.0)
-    time.sleep(2.0)
-    
-    log_pairwise_comparison("q1", "d1", "d2", 0.96, True)
-    log_pairwise_comparison("q1", "d3", "d4", 0.50, False)
-    
-    stats = stop_resource_monitoring()
-    print(f"Monitoring stats: {stats}")
-    
-    logger.info("Test completed. Check data/logs/ for output files.")
+    """Main function for testing logging configuration."""
+    init_logging()
+    log_pairwise_comparison({'test': 'data', 'timestamp': time.time()})
+    start_resource_monitoring(interval=0.5)
+    time.sleep(2)
+    stop_resource_monitoring()
+    print(f"Comparison log: {get_comparison_log_path()}")
+    print(f"Resource log: {get_resource_log_path()}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
