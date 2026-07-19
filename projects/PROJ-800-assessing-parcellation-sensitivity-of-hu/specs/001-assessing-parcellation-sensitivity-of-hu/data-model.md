@@ -1,42 +1,71 @@
 # Data Model: Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes
 
-## 1. Entity Relationship Overview
+## 1. Overview
 
-The data model consists of three primary layers: **Raw Input**, **Processed Connectivity**, and **Analysis Results**.
+This document defines the data structures, schemas, and file formats used in the project. All data is stored in `data/` with strict versioning and checksumming.
 
-1.  **Raw Input**: NIfTI files (fMRI time-series).
-2.  **Processed Connectivity**: Adjacency matrices (numpy arrays) and node labels.
-3.  **Analysis Results**: Centrality scores, hub sets, overlap metrics, and statistical outputs.
+## 2. Data Flow
 
-## 2. Data Flow & Transformation
+```mermaid
+graph TD
+    A[Raw fMRI NIfTI] -->|Streaming| B[Preprocessing (if needed)]
+    B --> C[Parcellation: AAL-90]
+    B --> D[Parcellation: Schaefer-200]
+    B --> E[Parcellation: Schaefer-400]
+    C --> F[Adjacency Matrix 90]
+    D --> G[Adjacency Matrix 200]
+    E --> H[Adjacency Matrix 400]
+    F --> I[Centrality: Degree/Betweenness]
+    G --> J[Centrality: Degree/Betweenness]
+    H --> K[Centrality: Degree/Betweenness]
+    I --> L[Hub Set: Top 10%]
+    J --> M[Hub Set: Top 10%]
+    K --> N[Hub Set: Top 10%]
+    L --> O[Overlap Analysis]
+    M --> O
+    N --> O
+    O --> P[Results: Stats, Plots]
+```
 
-1.  **Download**: Raw fMRI (NIfTI) $\rightarrow$ `data/raw/`
-2.  **Masking**: Raw fMRI + Atlas $\rightarrow$ Time-series (N x T)
-3.  **Correlation**: Time-series $\rightarrow$ Adjacency Matrix (N x N) $\rightarrow$ `data/processed/matrices/`
-4.  **Centrality**: Adjacency Matrix $\rightarrow$ Centrality Scores (N x 1) $\rightarrow$ `data/processed/centrality/`
-5.  **Hub Definition**: Centrality Scores $\rightarrow$ Hub Set (Boolean mask or list of IDs)
-6.  **Overlap**: Hub Set A + Hub Set B $\rightarrow$ Jaccard/Dice $\rightarrow$ `data/results/stats.csv`
-7.  **Normalization**: Calculate Expected Jaccard for random sets of sizes |A|, |B| $\rightarrow$ `data/results/stats.csv`
-8.  **Permutation**: Hub Sets + Null Model $\rightarrow$ P-value $\rightarrow$ `data/results/stats.csv`
+## 3. File Specifications
 
-## 3. Schema Definitions
+### 3.1 Raw Data
+-   **Format**: NIfTI (.nii.gz)
+-   **Location**: `data/raw/`
+-   **Naming**: `{subject_id}_task-rest_space-MNI_desc-preproc_bold.nii.gz`
+-   **Checksum**: SHA-256 recorded in `state/...yaml`.
 
-### Adjacency Matrix (Intermediate)
-*   **Format**: `.npz` (compressed numpy) or `.csv`
-*   **Content**: Symmetric matrix of correlation coefficients.
-*   **Metadata**: Subject ID, Atlas Name, Resolution (N).
+### 3.2 Processed Data
+-   **Adjacency Matrices**:
+    -   **Format**: NumPy (.npy)
+    -   **Shape**: (N_nodes, N_nodes)
+    -   **Location**: `data/processed/{subject_id}_{atlas}_adjacency.npy`
+    -   **Schema**: See `contracts/adjacency_matrix.schema.yaml`.
+-   **Centrality Scores**:
+    -   **Format**: CSV (.csv)
+    -   **Columns**: `node_id`, `degree_centrality`, `betweenness_centrality`, `is_hub` (bool)
+    -   **Location**: `data/processed/{subject_id}_{atlas}_centrality.csv`
+    -   **Schema**: See `contracts/hub_set.schema.yaml`.
+-   **Spatial Mapping**:
+    -   **Format**: NumPy (.npy)
+    -   **Content**: Array mapping high-res indices to low-res indices (generated via Voxel-Wise Hub Mask Overlap logic).
+    -   **Location**: `data/processed/mapping_schaefer_to_aal.npy`
 
-### Centrality Output (Intermediate)
-*   **Format**: `.csv`
-*   **Columns**: `subject_id`, `node_id`, `atlas`, `resolution`, `degree_centrality`, `betweenness_centrality`, `hub_status` (0/1).
+### 3.3 Results
+-   **Overlap Statistics**:
+    -   **Format**: JSON (.json)
+    -   **Location**: `data/results/overlap_stats.json`
+    -   **Schema**: See `contracts/overlap_result.schema.yaml`.
+-   **Validation Report**:
+    -   **Format**: JSON (.json)
+    -   **Location**: `data/results/validation_report.json`
+    -   **Content**: Checksums, status, runtime metrics.
+-   **Plots**:
+    -   **Format**: PNG (.png)
+    -   **Location**: `data/results/`
 
-### Analysis Results (Final)
-*   **Format**: `.csv` (aggregated) and `.json` (permutation details)
-*   **Columns**: `resolution_pair`, `metric_type`, `observed_jaccard`, `observed_dice`, `expected_jaccard`, `excess_overlap`, `p_value`, `n_permutations`, `correction_applied`.
+## 4. Data Integrity
 
-## 4. File Naming Conventions
-
-*   **Raw**: `raw/{subject_id}_func.nii.gz`
-*   **Matrices**: `processed/{subject_id}_{atlas}_{resolution}_adj.npz`
-*   **Centrality**: `processed/{subject_id}_{atlas}_{resolution}_centrality.csv`
-*   **Results**: `results/{analysis_type}_{timestamp}.csv`
+-   **Checksumming**: Every file in `data/raw` and `data/processed` is checksummed upon creation.
+-   **Immutability**: Raw files are never modified. Derived files are new.
+-   **PII**: No PII in data; subject IDs are anonymized.

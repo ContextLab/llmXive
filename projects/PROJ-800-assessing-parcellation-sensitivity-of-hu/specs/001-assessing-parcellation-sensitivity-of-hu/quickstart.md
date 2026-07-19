@@ -2,10 +2,9 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Sufficient free disk space (for raw data and processed matrices)
-*   Sufficient RAM (recommended for smooth operation, though a defined target limit is established)
+-   Python 3.11+
+-   Git
+-   Access to GitHub Actions (for CI) or a local environment with sufficient RAM.
 
 ## Installation
 
@@ -15,81 +14,59 @@
     cd projects/PROJ-800-assessing-parcellation-sensitivity-of-hu
     ```
 
-2.  **Create a virtual environment**:
+2.  **Create Virtual Environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Install dependencies**:
+3.  **Install Dependencies**:
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: This installs CPU-only compatible versions of `numpy`, `scipy`, `networkx`, etc. `torch` is NOT included in the dependencies and is not used.*
 
-## Data Setup
-
-The pipeline is designed to download data automatically. However, if you need to manually verify the source:
-
-1.  **Download Sample Data** (Optional, for testing):
-    The `code/download_data.py` script will fetch the first 5 subjects from the OpenNeuro ds000224 by default for testing.
+4.  **Install Pre-commit Hooks** (optional but recommended):
     ```bash
-    python code/download_data.py --subjects 5 --test-mode
+    pre-commit install
     ```
-
-2.  **Full Dataset**:
-    To run the full analysis (N=100):
-    ```bash
-    python code/download_data.py --subjects 100
-    ```
-    *Note: This may take significant time depending on your internet connection.*
 
 ## Running the Pipeline
 
-Execute the main pipeline script:
-
+### 1. Download & Process (Single Subject Test)
+To test the pipeline on a single subject (e.g., `sub-01`):
 ```bash
-python code/main.py
+python code/main.py --subject sub-01 --atlas AAL-90,Schaefer-200,Schaefer-400 --mode test
+```
+*Note: This will download only the required data for `sub-01` and process it.*
+
+### 2. Full Run (N=50 or N=100)
+To run the full analysis (adjust N in config or env var):
+```bash
+export SUBJECT_COUNT=50
+python code/main.py --mode full
 ```
 
-This script will:
-1.  Download/verify data.
-2.  Register data to MNI space if necessary.
-3.  Generate adjacency matrices for AAL and Schaefer parcellations.
-4.  Compute centrality metrics.
-5.  Define hubs and calculate overlap.
-6.  Run Spatial Spin Test.
-7.  Perform sensitivity analysis (threshold sweep).
-8.  Generate visualizations.
+### 3. Generate Results
+The pipeline automatically generates:
+-   Adjacency matrices in `data/processed/`
+-   Centrality scores and hub sets in `data/processed/`
+-   Overlap statistics and plots in `data/results/`
 
-### Output Location
-
-*   **Processed Data**: `data/processed/`
-*   **Results**: `data/results/`
-*   **Plots**: `data/results/plots/`
-
-## Verification
-
-To verify the results:
-
-1.  **Check for missing values**:
-    ```bash
-    python -c "import pandas as pd; df = pd.read_csv('data/results/stats.csv'); print(df.isnull().sum())"
-    ```
-    *Expected: All zeros.*
-
-2.  **Verify Hub Counts**:
-    Ensure the number of hubs matches `floor(N * 0.10)`:
-    *   AAL-90: multiple hubs
-    *   Schaefer-200: a set of hubs
-    *   Schaefer-400: a set of hubs
-
-3.  **Run Unit Tests**:
-    ```bash
-    pytest tests/unit/
-    ```
+### 4. Validation
+Run the validation script to ensure data integrity:
+```bash
+python code/utils/checksums.py --verify
+```
 
 ## Troubleshooting
 
-*   **Memory Error**: If you encounter `MemoryError`, reduce the number of subjects in `download_data.py` or ensure you are running in the virtual environment. The pipeline processes subjects sequentially to minimize memory usage.
-*   **Timeout**: If the Spatial Spin Test takes too long, edit `code/overlap.py` and reduce `n_permutations` from 1000 to 500.
+-   **Memory Error**: Ensure you are using the `streaming=True` mode. If running locally, reduce `SUBJECT_COUNT`.
+-   **Dataset Not Found**: Check `research.md` for the verified dataset URL. Ensure internet connection.
+-   **Permission Denied**: Check file permissions in `data/` directory.
+
+## Output Files
+
+-   `data/results/overlap_stats.json`: Main statistical results.
+-   `data/results/heatmap_centrality.png`: Correlation heatmap.
+-   `data/results/venn_diagram_hubs.png`: Hub overlap visualization.
+-   `data/results/validation_report.json`: Integrity report.

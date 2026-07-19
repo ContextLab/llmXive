@@ -1,35 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Adjacency Matrix Output Schema"
-description: "Schema for the processed adjacency matrices generated for each subject and resolution."
+title: "Adjacency Matrix Schema"
+description: "Schema for adjacency matrices generated from parcellation."
 type: object
 properties:
-  subject_id:
-    type: string
-    description: "Unique identifier for the subject (e.g., 'sub-001')."
-  atlas_name:
-    type: string
-    description: "Name of the atlas used (e.g., 'AAL', 'Schaefer')."
-  resolution:
-    type: integer
-    description: "Number of nodes in the parcellation (e.g., 90, 200, 400)."
-  matrix_path:
-    type: string
-    description: "Relative path to the .npz file containing the adjacency matrix."
-  checksum:
-    type: string
-    description: "MD5 or SHA256 checksum of the matrix file for integrity verification."
-  edge_count:
-    type: integer
-    description: "Number of non-zero edges in the matrix (excluding diagonal)."
-  is_symmetric:
-    type: boolean
-    description: "True if the matrix is symmetric (expected for Pearson correlation)."
+  metadata:
+    type: object
+    properties:
+      subject_id:
+        type: string
+        description: "Unique identifier for the subject."
+      atlas_name:
+        type: string
+        description: "Name of the atlas used (e.g., AAL-90, Schaefer-200)."
+      node_count:
+        type: integer
+        description: "Number of nodes in the matrix."
+      matrix_shape:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+        description: "Shape of the matrix (N, N)."
+      checksum:
+        type: string
+        description: "SHA-256 checksum of the matrix file."
+      creation_timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of file creation."
+    required:
+      - subject_id
+      - atlas_name
+      - node_count
+      - matrix_shape
+      - checksum
+      - creation_timestamp
+  data:
+    type: array
+    description: "Flattened or nested array of matrix values (float32)."
+    items:
+      type: number
+      description: "Edge weight (correlation value)."
 required:
-  - subject_id
-  - atlas_name
-  - resolution
-  - matrix_path
-  - checksum
-  - edge_count
-  - is_symmetric
-additionalProperties: false
+  - metadata
+  - data

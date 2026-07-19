@@ -1,0 +1,19 @@
+status: none
+intent: download HCP 1200 subject resting-state fMRI dataset with AAL and Schaefer
+  atlases python package dataset
+required_fields:
+- subject_id
+- age
+- sex
+- raw_fmri_file_path
+- repetition_time
+- scan_session_id
+- adjacency_matrix_AAL90
+- adjacency_matrix_Schaefer200
+- adjacency_matrix_Schaefer400
+- node_labels_AAL90
+- node_labels_Schaefer200
+- node_labels_Schaefer400
+cache_key: f3d32fd5ca2d0fd38658abc44915f02d87214c5131b6310258e59db60c5df558
+searched_at: '2026-07-19T13:50:49.942370+00:00'
+retry_count: 1

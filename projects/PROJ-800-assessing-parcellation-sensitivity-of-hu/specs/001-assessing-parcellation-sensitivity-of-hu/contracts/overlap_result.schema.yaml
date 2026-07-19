@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Overlap Result Schema"
+description: "Schema for overlap statistics and permutation test results."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      atlas_pair:
+        type: array
+        items:
+          type: string
+        minItems: 2
+        maxItems: 2
+        description: "Pair of atlases compared (e.g., [AAL-90, Schaefer-200])."
+      metric_type:
+        type: string
+        enum: ["degree", "betweenness"]
+        description: "Centrality metric used for comparison."
+      sample_size:
+        type: integer
+        description: "Number of subjects in the analysis."
+      permutation_iterations:
+        type: integer
+        description: "Number of iterations for the permutation test."
+      alpha_threshold:
+        type: number
+        description: "Significance threshold (e.g., 0.05)."
+    required:
+      - atlas_pair
+      - metric_type
+      - sample_size
+      - permutation_iterations
+      - alpha_threshold
+  results:
+    type: object
+    properties:
+      jaccard_index:
+        type: number
+        description: "Mean Jaccard index across subjects."
+      dice_coefficient:
+        type: number
+        description: "Mean Dice coefficient across subjects."
+      spearman_correlation:
+        type: number
+        description: "Mean Spearman correlation of ranks."
+      p_value:
+        type: number
+        description: "Permutation test p-value."
+      is_significant:
+        type: boolean
+        description: "True if p-value < alpha (after correction)."
+      corrected_p_value:
+        type: number
+        description: "Bonferroni/FDR corrected p-value."
+    required:
+      - jaccard_index
+      - dice_coefficient
+      - spearman_correlation
+      - p_value
+      - is_significant
+      - corrected_p_value
+required:
+  - metadata
+  - results

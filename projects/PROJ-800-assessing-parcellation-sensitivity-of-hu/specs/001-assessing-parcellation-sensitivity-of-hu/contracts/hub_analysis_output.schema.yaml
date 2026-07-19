@@ -14,10 +14,10 @@ properties:
     description: "Type of centrality metric used (e.g., 'degree', 'betweenness')."
   observed_jaccard:
     type: number
-    description: "Observed Jaccard index between hub sets."
+    description: "Observed Jaccard index between hub sets (voxel-wise)."
   observed_dice:
     type: number
-    description: "Observed Dice coefficient between hub sets."
+    description: "Observed Dice coefficient between hub sets (voxel-wise)."
   expected_jaccard:
     type: number
     description: "Expected Jaccard index for random sets of the given sizes (cardinality normalization)."
@@ -26,7 +26,7 @@ properties:
     description: "Excess overlap (observed_jaccard - expected_jaccard), the primary stability metric."
   spearman_rho:
     type: number
-    description: "Spearman rank correlation coefficient between centrality scores (post-aggregation)."
+    description: "Spearman rank correlation coefficient between centrality scores (post-aggregation, descriptive only)."
   p_value:
     type: number
     description: "P-value from the Spatial Spin Test."

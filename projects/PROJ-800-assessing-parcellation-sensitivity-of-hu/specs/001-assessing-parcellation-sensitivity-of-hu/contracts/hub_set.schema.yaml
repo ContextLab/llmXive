@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Hub Set Schema"
+description: "Schema for centrality scores and hub identification."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      subject_id:
+        type: string
+        description: "Unique identifier for the subject."
+      atlas_name:
+        type: string
+        description: "Name of the atlas used."
+      threshold_percent:
+        type: number
+        description: "Percentage of top nodes considered hubs (e.g., 10.0)."
+      hub_count:
+        type: integer
+        description: "Number of hubs identified (floor(N * 0.10))."
+      metric_type:
+        type: string
+        enum: ["degree", "betweenness"]
+        description: "Centrality metric used."
+    required:
+      - subject_id
+      - atlas_name
+      - threshold_percent
+      - hub_count
+      - metric_type
+  nodes:
+    type: array
+    description: "List of node data."
+    items:
+      type: object
+      properties:
+        node_id:
+          type: integer
+          description: "Index of the node."
+        centrality_score:
+          type: number
+          description: "Centrality value."
+        is_hub:
+          type: boolean
+          description: "True if node is in top [deferred]."
+      required:
+        - node_id
+        - centrality_score
+        - is_hub
+required:
+  - metadata
+  - nodes
