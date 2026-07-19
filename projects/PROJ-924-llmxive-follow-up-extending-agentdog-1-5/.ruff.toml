@@ -1,4 +1,18 @@
-# Extends pyproject.toml if specific overrides are needed for ruff
-# Currently, configuration is centralized in pyproject.toml [tool.ruff]
-# This file exists to allow `ruff check` to run without explicit path arguments
-extend = "pyproject.toml"
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+ignore = [
+  "E501", # Line too long (handled by Black)
+  "B008", # Do not perform function call in argument (common in tests/fixtures)
+]
+
+[lint.isort]
+known-first-party = ["config", "data_loader", "drift_scoring", "taxonomy_builder", "utils", "validation", "annotator_interface", "generate_test_fixture", "main", "benchmark_performance", "comparison"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

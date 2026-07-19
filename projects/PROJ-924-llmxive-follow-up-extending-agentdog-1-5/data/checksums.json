@@ -1,23 +1,20 @@
 {
   "advbench": {
-    "file": "data/raw/advbench.json",
     "algorithm": "sha256",
-    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "size_bytes": 0,
-    "source": "datasets.load_dataset('advbench')"
+    "value": "pending_fetch",
+    "source": "datasets: llm-attacks/advbench",
+    "description": "SHA256 checksum of the raw 'harmful_behaviors_csv' file from AdvBench dataset. Value will be populated after T005a fetches the data."
   },
   "hf4": {
-    "file": "data/raw/hf4.json",
     "algorithm": "sha256",
-    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "size_bytes": 0,
-    "source": "datasets.load_dataset('agentdog/hf4')"
+    "value": "pending_fetch",
+    "source": "datasets: HuggingFaceH4/ultrachat_200k",
+    "description": "SHA256 checksum of the raw 'train_sft' split from HuggingFace H4 Ultrachat dataset. Value will be populated after T005a fetches the data."
   },
   "taxonomy": {
-    "file": "data/raw/taxonomy.json",
     "algorithm": "sha256",
-    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "size_bytes": 0,
-    "source": "datasets.load_dataset('agentdog/taxonomy-v1.5')"
+    "value": "pending_fetch",
+    "source": "AgentDoG 1.5 Taxonomy Definition",
+    "description": "SHA256 checksum of the raw taxonomy.json file. Value will be populated after T005d fetches the data."
   }
 }

@@ -1,1 +1,2 @@
-# Processed data directory
+# This directory is for processed data (drift scores, merged annotations, stats).
+# Do not commit large files here.

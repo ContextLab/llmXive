@@ -1,0 +1,7 @@
+[
+  {"log_id": "empty_1", "text": ""},
+  {"log_id": "whitespace_1", "text": "   "},
+  {"log_id": "whitespace_2", "text": "\t\n"},
+  {"log_id": "valid_1", "text": "This is a normal log entry."},
+  {"log_id": "valid_2", "text": "Another valid log."}
+]

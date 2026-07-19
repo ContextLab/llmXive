@@ -1,1 +1,2 @@
-# Raw data directory
+# This directory is for raw downloaded datasets (AdvBench, HF4, Taxonomy).
+# Do not commit large files here.

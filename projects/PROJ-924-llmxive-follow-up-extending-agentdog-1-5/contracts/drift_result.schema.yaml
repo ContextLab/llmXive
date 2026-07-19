@@ -1,6 +1,8 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Drift Result
-description: Schema for the output of the drift scoring pipeline.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Drift Result Schema
+description: |
+  Schema for the output of the drift scoring pipeline.
+  Each record represents a single log entry with its computed drift score.
 type: object
 required:
   - log_id
@@ -10,12 +12,18 @@ properties:
   log_id:
     type: string
     description: Unique identifier for the log entry.
+    minLength: 1
   drift_score:
     type: number
+    description: |
+      The cosine distance between the log embedding and the nearest taxonomy centroid.
+      Range is theoretically [0, 2], where 0 is identical and 2 is opposite.
+      Empty/whitespace logs are assigned a score of 2.0.
     minimum: 0.0
-    maximum: 1.0
-    description: Cosine distance score between the log embedding and the taxonomy centroid. 1.0 indicates maximum drift (novelty).
+    maximum: 2.0
   review_flag:
     type: boolean
-    description: Flag indicating if the log requires human review (e.g., true for empty logs or high drift).
+    description: |
+      Flag indicating if the log requires human review.
+      Set to true for empty/whitespace logs or scores exceeding a defined threshold.
 additionalProperties: false
