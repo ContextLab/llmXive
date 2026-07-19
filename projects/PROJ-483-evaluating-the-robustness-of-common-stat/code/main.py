@@ -2,6 +2,7 @@
 Main entry point for the simulation pipeline.
 Implements the sensitivity analysis sweep for User Story 1 (T013)
 and aggregation logic for User Story 2 (T021).
+Includes reporting logic for User Story 3 (T029): Percentage reduction in power.
 """
 import os
 import sys
@@ -14,12 +15,18 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from config import load_config
 from data_loader import load_datasets
-from metrics import calculate_type1_error, calculate_chi_squared_error_rate, clopper_pearson_ci, verify_trend_monotonicity
+from metrics import (
+    calculate_type1_error, 
+    calculate_chi_squared_error_rate, 
+    clopper_pearson_ci, 
+    verify_trend_monotonicity,
+    calculate_power_delta
+)
 from simulation_runner import run_simulation
 
 def main():
-    """Run the sensitivity analysis sweep and aggregate results by test type and dependency structure."""
-    print("Starting sensitivity analysis sweep and aggregation (T013, T021)...")
+    """Run the sensitivity analysis sweep, aggregate results, and report power reduction (T029)."""
+    print("Starting sensitivity analysis sweep, aggregation, and power reduction reporting...")
     
     # Load configuration
     config = load_config()
@@ -131,13 +138,27 @@ def main():
         df_results.to_csv(output_path, index=False)
         print(f"Trend verification results saved to {output_path}")
     
+    # T029: Add reporting logic for percentage reduction in power
+    print("\nCalculating percentage reduction in power (T029)...")
+    # calculate_power_delta expects the aggregated dataframe and returns a summary dict or dataframe
+    # It calculates the delta between r=0.0 and r=0.3 (or other specified r)
+    power_reduction_report = calculate_power_delta(df_results)
+    
+    # Save the power reduction report to a dedicated JSON file
+    power_report_path = 'results/power_reduction_report.json'
+    with open(power_report_path, 'w') as f:
+        json.dump(power_reduction_report, f, indent=2)
+    
+    print(f"Power reduction report saved to {power_report_path}")
+    
     # Update log
     log_entry['status'] = 'completed'
     log_entry['output_file'] = output_path
+    log_entry['power_report_file'] = power_report_path
     with open(perf_log_path, 'w') as f:
         json.dump(log_entry, f, indent=2)
     
-    print("Sensitivity analysis sweep and aggregation complete.")
+    print("Sensitivity analysis sweep, aggregation, and power reduction reporting complete.")
     return 0
 
 if __name__ == "__main__":

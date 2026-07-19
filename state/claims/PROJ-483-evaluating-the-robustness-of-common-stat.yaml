@@ -338,3 +338,54 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-06T08:00:23Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Injected autocorrelation matches target r within 5% tolerance
+  claim_id: c_5e27a52a
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006a validation requirement'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T006a Validation: Verify injected autocorrelation matches target r within
+    5% tolerance'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T04:52:02Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Mean shift delta=1.0 sigma injected for power analysis
+  claim_id: c_803f1f88
+  context: 'Phase 5: User Story 3 - Power Analysis under Dependency - Independent
+    Test description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Independent Test: Inject true effects (mean shift delta=1.0 sigma) into
+    dependency-injected data and measure proportion of significant results vs. baseline'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T04:53:02Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: 10000 replications complete in less than 6 hours
+  claim_id: c_0e9c766e
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T032a task description'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/10000_replications_complete_in_less_than_6_hours
+  kind: magnitude
+  raw_text: T032a Profile code/simulation_runner.py and optimize vectorized operations
+    to ensure 10,000 replications complete in < 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T04:53:33Z'

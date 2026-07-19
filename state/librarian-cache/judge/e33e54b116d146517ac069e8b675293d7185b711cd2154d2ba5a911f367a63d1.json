@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.12980",
+  "judged_at": "2026-07-19T04:55:25Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available climate model output ensembles statistics",
+  "rationale": "This paper belongs in the literature review because it addresses the user's domain of \"publicly available climate model output\" and specifically discusses the statistical properties (systematic biases) and statistical methods (bias correction) applied to these ensembles, satisfying criteria (a) and (b) regarding the same mechanism and domain variables. Although the paper proposes a deep learning alternative to traditional statistics, it is a canonical reference for the current state of processin",
+  "relevant": true
+}

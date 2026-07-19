@@ -5,236 +5,205 @@ from typing import List, Dict, Any, Optional
 import numpy as np
 import os
 
-# Set style for scientific publication quality
+# Set style for scientific plotting
 sns.set_theme(style="whitegrid", context="talk")
 plt.rcParams['font.family'] = 'sans-serif'
-plt.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans', 'Liberation Sans']
+plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
 plt.rcParams['axes.labelsize'] = 12
 plt.rcParams['axes.titlesize'] = 14
 plt.rcParams['legend.fontsize'] = 10
-plt.rcParams['figure.figsize'] = (10, 6)
 
 def plot_error_rate_curve(
-    data: pd.DataFrame,
-    x_col: str = 'dependency_strength',
-    y_col: str = 'type1_error_rate',
-    hue_col: str = 'test_type',
+    df: pd.DataFrame,
+    x_col: str = "dependency_strength",
+    y_col: str = "observed_error_rate",
+    hue_col: str = "test_type",
+    style_col: Optional[str] = None,
     nominal_alpha: float = 0.05,
-    ci_col: Optional[str] = None,
     output_path: Optional[str] = None
-) -> plt.Figure:
+) -> None:
     """
-    Generate comparative line plots of Type I error rates vs dependency strength.
-    
-    Parameters
-    ----------
-    data : pd.DataFrame
-        Aggregated simulation results containing columns for dependency strength,
-        error rate, test type, and optionally confidence intervals.
-    x_col : str
-        Column name for dependency strength (x-axis).
-    y_col : str
-        Column name for error rate (y-axis).
-    hue_col : str
-        Column name for test type (hue/legend).
-    nominal_alpha : float
-        Nominal significance level to plot as horizontal reference line.
-    ci_col : str, optional
-        Column name for confidence interval width (for error bars). If None, no error bars.
-    output_path : str, optional
-        Path to save the figure. If None, figure is not saved.
-        
-    Returns
-    -------
-    plt.Figure
-        The matplotlib figure object.
-        
-    Raises
-    ------
-    ValueError
-        If required columns are missing from the dataframe.
+    Plot Type I error rate curves against dependency strength.
+
+    Args:
+        df: DataFrame containing simulation results (aggregated.csv).
+        x_col: Column name for dependency strength (r).
+        y_col: Column name for observed error rate.
+        hue_col: Column name for grouping by test type (e.g., 't-test', 'anova').
+        style_col: Optional column for line styles (e.g., dependency structure).
+        nominal_alpha: The nominal significance level (horizontal reference line).
+        output_path: If provided, saves the figure to this path.
     """
-    required_cols = {x_col, y_col, hue_col}
-    if not required_cols.issubset(data.columns):
-        missing = required_cols - set(data.columns)
-        raise ValueError(f"Missing required columns in data: {missing}")
-    
-    fig, ax = plt.subplots()
-    
-    # Sort data by dependency strength for proper line plotting
-    data_sorted = data.sort_values(by=[hue_col, x_col])
-    
-    # Plot lines for each test type
-    for test_type, group in data_sorted.groupby(hue_col):
-        group_sorted = group.sort_values(x_col)
-        ax.plot(group_sorted[x_col], group_sorted[y_col], 
-               label=test_type, marker='o', linewidth=2, markersize=6)
-        
-        # Add confidence interval bands if available
-        if ci_col and f'{ci_col}_lower' in data.columns and f'{ci_col}_upper' in data.columns:
-            ax.fill_between(group_sorted[x_col], 
-                           group_sorted[f'{ci_col}_lower'], 
-                           group_sorted[f'{ci_col}_upper'], 
-                           alpha=0.2)
-    
+    plt.figure(figsize=(10, 6))
+
+    # Determine if we have a style column for different dependency structures
+    if style_col and style_col in df.columns:
+        sns.lineplot(
+            data=df,
+            x=x_col,
+            y=y_col,
+            hue=hue_col,
+            style=style_col,
+            marker="o",
+            err_style="band",
+            alpha=0.8
+        )
+    else:
+        sns.lineplot(
+            data=df,
+            x=x_col,
+            y=y_col,
+            hue=hue_col,
+            marker="o",
+            err_style="band",
+            alpha=0.8
+        )
+
     # Add nominal alpha reference line
-    ax.axhline(y=nominal_alpha, color='red', linestyle='--', 
-              label=f'Nominal α = {nominal_alpha}', linewidth=1.5)
-    
-    # Add threshold reference line for α=0.10 if needed for US2 AC-2
-    if nominal_alpha != 0.10:
-        ax.axhline(y=0.10, color='orange', linestyle=':', 
-                  label='Threshold α = 0.10', linewidth=1.5)
-    
-    ax.set_xlabel('Dependency Strength (r)')
-    ax.set_ylabel('Observed Type I Error Rate')
-    ax.set_title('Robustness of Statistical Tests to Non-Independence\n(Type I Error Inflation)')
-    ax.legend(loc='best')
-    ax.set_xlim(left=0)
-    ax.set_ylim(bottom=0, top=max(0.2, data[y_col].max() * 1.1))
-    
-    # Ensure grid is visible
-    ax.grid(True, alpha=0.3)
-    
+    plt.axhline(y=nominal_alpha, color='red', linestyle='--', label=f'Nominal $\alpha$={nominal_alpha}')
+
+    plt.title('Type I Error Rate Inflation vs. Dependency Strength', fontsize=16)
+    plt.xlabel('Dependency Strength ($r$)', fontsize=14)
+    plt.ylabel('Observed Type I Error Rate', fontsize=14)
+    plt.legend(title='Test Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+
     if output_path:
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
-        fig.savefig(output_path, dpi=300, bbox_inches='tight')
-        print(f"Figure saved to {output_path}")
-    
-    return fig
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
+
 
 def plot_power_comparison(
-    data: pd.DataFrame,
-    x_col: str = 'dependency_strength',
-    y_col: str = 'power',
-    hue_col: str = 'test_type',
-    effect_size_col: Optional[str] = None,
+    df: pd.DataFrame,
+    x_col: str = "dependency_strength",
+    y_col: str = "observed_power",
+    hue_col: str = "test_type",
+    effect_size_col: Optional[str] = "effect_size",
     output_path: Optional[str] = None
-) -> plt.Figure:
+) -> None:
     """
-    Generate comparative line plots of statistical power vs dependency strength.
-    
-    Parameters
-    ----------
-    data : pd.DataFrame
-        Aggregated simulation results for power analysis.
-    x_col : str
-        Column name for dependency strength (x-axis).
-    y_col : str
-        Column name for power (y-axis).
-    hue_col : str
-        Column name for test type (hue/legend).
-    effect_size_col : str, optional
-        Column name for effect size if multiple effect sizes are plotted.
-    output_path : str, optional
-        Path to save the figure.
-        
-    Returns
-    -------
-    plt.Figure
-        The matplotlib figure object.
+    Plot Power Loss Curves (US3): x=dependency strength, y=power.
+
+    This visualizes how statistical power decreases as dependency strength increases
+    for a fixed true effect size.
+
+    Args:
+        df: DataFrame containing power analysis results.
+            Expected columns: dependency_strength, observed_power, test_type.
+        x_col: Column name for dependency strength (r).
+        y_col: Column name for observed power.
+        hue_col: Column name for test type.
+        effect_size_col: Column name for effect size (optional, for legend).
+        output_path: If provided, saves the figure to this path.
     """
-    required_cols = {x_col, y_col, hue_col}
-    if not required_cols.issubset(data.columns):
-        missing = required_cols - set(data.columns)
-        raise ValueError(f"Missing required columns in data: {missing}")
-    
-    fig, ax = plt.subplots()
-    
-    data_sorted = data.sort_values(by=[hue_col, x_col])
-    
-    if effect_size_col and effect_size_col in data.columns:
-        # Create subplots or use different markers for effect sizes
-        for (test_type, effect_size), group in data_sorted.groupby([hue_col, effect_size_col]):
-            group_sorted = group.sort_values(x_col)
-            ax.plot(group_sorted[x_col], group_sorted[y_col], 
-                   label=f'{test_type} (δ={effect_size})', marker='o', linewidth=2)
+    plt.figure(figsize=(10, 6))
+
+    # Prepare plotting data
+    # If effect_size_col exists, we might want to facet or color by it,
+    # but for the core US3 task, we usually fix effect size and vary r.
+    # We assume the input df is already filtered or aggregated for a specific effect size
+    # unless specified otherwise.
+
+    if effect_size_col and effect_size_col in df.columns:
+        # If multiple effect sizes exist, we might plot them as separate panels or styles.
+        # For simplicity in this specific task, we plot lines grouped by test_type.
+        # If the user wants to compare effect sizes, they should pass a filtered df.
+        sns.lineplot(
+            data=df,
+            x=x_col,
+            y=y_col,
+            hue=hue_col,
+            marker="s",
+            linewidth=2,
+            markersize=8
+        )
     else:
-        for test_type, group in data_sorted.groupby(hue_col):
-            group_sorted = group.sort_values(x_col)
-            ax.plot(group_sorted[x_col], group_sorted[y_col], 
-                   label=test_type, marker='o', linewidth=2, markersize=6)
-    
-    ax.axhline(y=0.80, color='green', linestyle='--', 
-              label='Target Power = 0.80', linewidth=1.5)
-    
-    ax.set_xlabel('Dependency Strength (r)')
-    ax.set_ylabel('Statistical Power (1 - β)')
-    ax.set_title('Statistical Power Under Non-Independence')
-    ax.legend(loc='best')
-    ax.set_xlim(left=0)
-    ax.set_ylim(bottom=0, top=1.05)
-    ax.grid(True, alpha=0.3)
-    
+        sns.lineplot(
+            data=df,
+            x=x_col,
+            y=y_col,
+            hue=hue_col,
+            marker="s",
+            linewidth=2,
+            markersize=8
+        )
+
+    # Add baseline power reference (r=0) if present in data
+    # This helps visualize the "loss"
+    zero_r_data = df[df[x_col] == 0]
+    if not zero_r_data.empty:
+        # We don't draw a line for r=0, but we ensure the x-axis starts at 0
+        pass
+
+    plt.title('Statistical Power vs. Dependency Strength', fontsize=16)
+    plt.xlabel('Dependency Strength ($r$)', fontsize=14)
+    plt.ylabel('Observed Power', fontsize=14)
+    plt.ylim(0, 1.05)
+    plt.grid(True, which='both', linestyle='--', alpha=0.7)
+    plt.legend(title='Test Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+
     if output_path:
-        os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
-        fig.savefig(output_path, dpi=300, bbox_inches='tight')
-        print(f"Figure saved to {output_path}")
-    
-    return fig
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
+
 
 def plot_ci_bands(
-    data: pd.DataFrame,
-    x_col: str = 'dependency_strength',
-    y_col: str = 'type1_error_rate',
-    hue_col: str = 'test_type',
-    ci_lower_col: str = 'ci_lower',
-    ci_upper_col: str = 'ci_upper',
+    df: pd.DataFrame,
+    x_col: str = "dependency_strength",
+    y_col: str = "observed_error_rate",
+    ci_lower_col: str = "ci_lower",
+    ci_upper_col: str = "ci_upper",
+    hue_col: str = "test_type",
     output_path: Optional[str] = None
-) -> plt.Figure:
+) -> None:
     """
-    Generate plots showing error rates with confidence interval bands.
-    
-    Parameters
-    ----------
-    data : pd.DataFrame
-        Aggregated results with confidence interval columns.
-    x_col : str
-        Column name for dependency strength.
-    y_col : str
-        Column name for error rate.
-    hue_col : str
-        Column name for test type.
-    ci_lower_col : str
-        Column name for lower CI bound.
-    ci_upper_col : str
-        Column name for upper CI bound.
-    output_path : str, optional
-        Path to save the figure.
-        
-    Returns
-    -------
-    plt.Figure
-        The matplotlib figure object.
+    Plot error rate curves with Clopper-Pearson confidence interval bands.
+
+    Args:
+        df: DataFrame with columns for x, y, and CI bounds.
+        x_col: Dependency strength column.
+        y_col: Observed rate column.
+        ci_lower_col: Lower bound of CI.
+        ci_upper_col: Upper bound of CI.
+        hue_col: Grouping column (e.g., test type).
+        output_path: Path to save the figure.
     """
-    required_cols = {x_col, y_col, hue_col, ci_lower_col, ci_upper_col}
-    if not required_cols.issubset(data.columns):
-        missing = required_cols - required_cols.intersection(data.columns)
-        raise ValueError(f"Missing required columns in data: {missing}")
-    
-    fig, ax = plt.subplots()
-    
-    for test_type, group in data.groupby(hue_col):
-        group_sorted = group.sort_values(x_col)
-        ax.plot(group_sorted[x_col], group_sorted[y_col], 
-               label=test_type, marker='o', linewidth=2)
-        ax.fill_between(group_sorted[x_col], 
-                       group_sorted[ci_lower_col], 
-                       group_sorted[ci_upper_col], 
-                       alpha=0.2)
-    
-    ax.axhline(y=0.05, color='red', linestyle='--', label='Nominal α = 0.05')
-    
-    ax.set_xlabel('Dependency Strength (r)')
-    ax.set_ylabel('Type I Error Rate (95% CI)')
-    ax.set_title('Type I Error Rates with Clopper-Pearson Confidence Intervals')
-    ax.legend(loc='best')
-    ax.grid(True, alpha=0.3)
-    
+    plt.figure(figsize=(10, 6))
+
+    # Sort by x to ensure lines are drawn correctly
+    df = df.sort_values(by=[hue_col, x_col])
+
+    for name, group in df.groupby(hue_col):
+        plt.fill_between(
+            group[x_col],
+            group[ci_lower_col],
+            group[ci_upper_col],
+            alpha=0.2,
+            label=f'{name} CI'
+        )
+        plt.plot(
+            group[x_col],
+            group[y_col],
+            marker='o',
+            label=name
+        )
+
+    plt.title('Type I Error Rate with 95% Clopper-Pearson Confidence Intervals', fontsize=16)
+    plt.xlabel('Dependency Strength ($r$)', fontsize=14)
+    plt.ylabel('Observed Error Rate', fontsize=14)
+    plt.legend(title='Test Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+
     if output_path:
-        os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
-        fig.savefig(output_path, dpi=300, bbox_inches='tight')
-        print(f"Figure saved to {output_path}")
-    
-    return fig
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()

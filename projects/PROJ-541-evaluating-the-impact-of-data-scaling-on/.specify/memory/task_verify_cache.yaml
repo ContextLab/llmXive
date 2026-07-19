@@ -6,22 +6,21 @@ T027:
     file. Consequently there is no evidence that the required number of iterations
     are executed, that each row includes a populated `seed`, or that the CSV follows
     the specified schema. The essential output artifact is missing.
-T031a:
+T028#1:
   c: false
-  h: 65f27bd822cd062a38733f544e6111b2988001c14d0e6eba7c0c9b87fa31f37f
-  r: The repository lacks the required `results/simulation_results.csv` input and
-    the `results/anova_synthetic.csv` output file. Moreover, the `fit_synthetic_anova`
-    function in `code/analysis/metrics.py` is truncated and does not contain a complete
-    implementation that performs the ANOVA and writes the results to the expected
-    CSV. These missing artifacts and incomplete code mean the task is not genuinely
-    fulfilled.
-T032:
+  h: 814cb27647c8037a27a6cc3e38d349735086bb7e08f952178bd34c6ae4184aa1
+  r: "The provided `code/main.py` is truncated and does not contain a complete simulation\
+    \ loop that iterates over distribution types, scaling methods, and test types,\
+    \ nor does it write any results to a CSV. Additionally, the required output file\
+    \ `results/simulation_results.csv` is missing from the repository. The task\u2019\
+    s core requirements are therefore not satisfied."
+T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No summary report or any comparable output was provided; the claim contains no
-    artifact (e.g., a document, table, or figure) showing deviations of the scaling
-    methods from the nominal 0.05. The required deliverable is missing, so the task
-    is not satisfied.
+  r: "No code, data, or output artifacts were provided that demonstrate the scaling\
+    \ and testing pipeline being applied to real data, nor evidence of streaming or\
+    \ a fixed\u2011size (N=5000) materialization. The claim cannot be verified without\
+    \ such concrete implementation and results."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,12 +40,3 @@ T044:
     \ screenshots, or a reproducibility report) was provided, and no artifacts confirming\
     \ end\u2011to\u2011end reproducibility are present. The implementer therefore\
     \ has not satisfied the task requirement."
-T045:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No plots, CSV files, or any programmatically generated artifacts are present
-    in the provided evidence, and nothing is shown to reside under a `results/` directory
-    following the required storage schema. Consequently, the claim that all artifacts
-    have been generated and stored correctly cannot be verified. The missing items
-    are the actual result files (e.g., CSVs of simulation outcomes, visualizations)
-    saved in the expected `results/` location.

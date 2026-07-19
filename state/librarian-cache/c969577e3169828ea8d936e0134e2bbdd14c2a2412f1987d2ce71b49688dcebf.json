@@ -1,0 +1,227 @@
+{
+  "fetched_at": "2026-07-19T04:30:23Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"On the Scaling of PEFT: Towards Million Personal Models of Trillion Pa\"",
+      "target_n": 5
+    },
+    "duration_seconds": 347.947,
+    "ended_at": "2026-07-19T04:30:23Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "scaling parameter-efficient fine-tuning"
+        ],
+        [
+          2,
+          "million personalized LLMs"
+        ],
+        [
+          3,
+          "trillion parameter model personalization"
+        ],
+        [
+          4,
+          "efficient adaptation of large language models"
+        ],
+        [
+          5,
+          "low-rank adaptation at scale"
+        ],
+        [
+          6,
+          "distributed PEFT for personal models"
+        ],
+        [
+          7,
+          "multi-tenant fine-tuning strategies"
+        ],
+        [
+          8,
+          "memory-efficient LLM personalization"
+        ],
+        [
+          9,
+          "adapter scaling laws"
+        ],
+        [
+          10,
+          "personalized AI model deployment"
+        ],
+        [
+          11,
+          "parameter-efficient transfer learning"
+        ],
+        [
+          12,
+          "sparse fine-tuning for massive models"
+        ],
+        [
+          13,
+          "LoRA scaling for individual users"
+        ],
+        [
+          14,
+          "federated learning with PEFT"
+        ],
+        [
+          15,
+          "dynamic parameter allocation in LLMs"
+        ],
+        [
+          16,
+          "cost-effective model personalization"
+        ],
+        [
+          17,
+          "modular fine-tuning architectures"
+        ],
+        [
+          18,
+          "scalable inference for personal models"
+        ],
+        [
+          19,
+          "lightweight model adaptation techniques"
+        ],
+        [
+          20,
+          "large-scale model customization frameworks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "LoRA scaling for individual users": 0,
+        "adapter scaling laws": 0,
+        "cost-effective model personalization": 0,
+        "distributed PEFT for personal models": 0,
+        "dynamic parameter allocation in LLMs": 0,
+        "efficient adaptation of large language models": 0,
+        "federated learning with PEFT": 0,
+        "large-scale model customization frameworks": 0,
+        "lightweight model adaptation techniques": 0,
+        "llmXive follow-up: extending \"On the Scaling of PEFT: Towards Million Personal Models of Trillion Pa\" computer science": 0,
+        "low-rank adaptation at scale": 0,
+        "memory-efficient LLM personalization": 0,
+        "million personalized LLMs": 0,
+        "modular fine-tuning architectures": 0,
+        "multi-tenant fine-tuning strategies": 0,
+        "parameter-efficient transfer learning": 0,
+        "personalized AI model deployment": 0,
+        "scalable inference for personal models": 0,
+        "scaling parameter-efficient fine-tuning": 0,
+        "sparse fine-tuning for massive models": 0,
+        "trillion parameter model personalization": 0
+      },
+      "total_queries_issued": 20
+    },
+    "extracted_queries": [
+      "parameter-efficient fine-tuning million personal models",
+      "LoRA adapter scaling trillion parameters",
+      "heterogeneous personalization distributed LLM training",
+      "inference cost per-user adaptation overhead",
+      "catastrophic forgetting multi-tenant PEFT interference"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 0,
+      "sampled_count": 0,
+      "sampled_pointers": []
+    },
+    "per_query_hit_count": {
+      "LoRA adapter scaling trillion parameters": 0,
+      "catastrophic forgetting multi-tenant PEFT interference": 0,
+      "heterogeneous personalization distributed LLM training": 0,
+      "inference cost per-user adaptation overhead": 0,
+      "llmXive follow-up: extending \"On the Scaling of PEFT: Towards Million Personal Models of Trillion Pa\" computer science": 3,
+      "parameter-efficient fine-tuning million personal models": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-19T04:24:35Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"on the scaling of peft: towards million personal models of trillion pa\" computer science",
+      "raw": "llmXive follow-up: extending \"On the Scaling of PEFT: Towards Million Personal Models of Trillion Pa\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"On the Scaling of PEFT: Towards Million Personal M', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-19T04:30:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"On the Scaling of PEFT: Towards Million Personal M', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-19T04:30:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"On the Scaling of PEFT: Towards Million Personal M', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-19T04:30:18Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": []
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"on the scaling of peft: towards million personal models of trillion pa\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

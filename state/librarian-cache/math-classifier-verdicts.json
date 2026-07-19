@@ -1503,6 +1503,10 @@
     "classified_at": "2026-07-16T09:19:59Z",
     "verdict": false
   },
+  "PROJ-935-llmxive-follow-up-extending-on-the-scali::1.6.0": {
+    "classified_at": "2026-07-19T04:30:18Z",
+    "verdict": false
+  },
   "PROJ-937-llmxive-follow-up-extending-minimax-spar::1.6.0": {
     "classified_at": "2026-07-05T12:50:25Z",
     "verdict": false

@@ -6,6 +6,7 @@ import sys
 import os
 import tempfile
 import json
+from scipy import stats
 
 # Add project root to path for imports if running standalone
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -13,7 +14,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from analysis.metrics import (
     calculate_aggregate_metrics, 
     fit_real_world_mixed_effects_model,
-    calculate_deviation_summary
+    calculate_deviation_summary,
+    calculate_confidence_interval
 )
 
 class TestMixedEffectsRealWorld:
@@ -95,10 +97,77 @@ class TestEmpiricalErrorRate:
         assert result['n'] == 0
 
 class TestConfidenceInterval:
-    """Test T026: Contract test for confidence interval calculation."""
-    # Note: This task was marked as FAILED in the prompt, but we provide a basic test
-    # for the metrics function if it were to be extended with CI logic.
-    # For now, we test the basic deviation summary which is a prerequisite.
+    """Test T026b: Verification Test for Clopper-Pearson implementation."""
+
+    def test_clopper_pearson_known_values_n100_p05(self):
+        """
+        Verify the Clopper-Pearson implementation against known binomial values.
+        Scenario: n=100, observed successes k=5 (p=0.05).
+        Expected: The 95% CI lower bound should be a low-order magnitude (e.g. ~0.006)
+        and the upper bound should be a small threshold (e.g. ~0.107).
+        """
+        n = 100
+        k = 5
+        alpha = 0.05  # 95% CI
+        
+        lower, upper = calculate_confidence_interval(k, n, alpha)
+        
+        # Validate types
+        assert isinstance(lower, float)
+        assert isinstance(upper, float)
+        
+        # Validate range: 0 <= lower <= k/n <= upper <= 1
+        assert 0.0 <= lower <= k/n
+        assert k/n <= upper <= 1.0
+        
+        # Validate against known statistical bounds for n=100, k=5, 95% CI
+        # Using scipy.stats.beta.ppf for Clopper-Pearson exact calculation:
+        # Lower: beta.ppf(alpha/2, k, n-k+1)
+        # Upper: beta.ppf(1 - alpha/2, k+1, n-k)
+        expected_lower = stats.beta.ppf(alpha/2, k, n-k+1)
+        expected_upper = stats.beta.ppf(1 - alpha/2, k+1, n-k)
+        
+        # Allow for minor floating point differences, but strict on order of magnitude
+        assert abs(lower - expected_lower) < 1e-6, f"Lower bound mismatch: {lower} vs {expected_lower}"
+        assert abs(upper - expected_upper) < 1e-6, f"Upper bound mismatch: {upper} vs {expected_upper}"
+
+    def test_clopper_pearson_zero_successes(self):
+        """Test CI when k=0."""
+        n = 100
+        k = 0
+        alpha = 0.05
+        
+        lower, upper = calculate_confidence_interval(k, n, alpha)
+        
+        assert lower == 0.0
+        # Upper bound should be small but non-zero
+        assert 0.0 < upper < 0.05
+
+    def test_clopper_pearson_all_successes(self):
+        """Test CI when k=n."""
+        n = 100
+        k = 100
+        alpha = 0.05
+        
+        lower, upper = calculate_confidence_interval(k, n, alpha)
+        
+        # Lower bound should be high, close to 1
+        assert 0.95 < lower < 1.0
+        assert upper == 1.0
+
+    def test_clopper_pearson_invalid_inputs(self):
+        """Test handling of invalid inputs."""
+        with pytest.raises(ValueError):
+            calculate_confidence_interval(-1, 100)
+        
+        with pytest.raises(ValueError):
+            calculate_confidence_interval(101, 100)
+        
+        with pytest.raises(ValueError):
+            calculate_confidence_interval(10, 0)
+
+class TestDeviationSummary:
+    """Test T029: Deviation summary calculation."""
 
     def test_deviation_summary_structure(self):
         """Verify deviation summary returns correct columns."""

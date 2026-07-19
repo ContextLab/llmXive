@@ -1,0 +1,50 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `tests/unit/` directory or mock data fixture files were presented; the claim\
+    \ provides no code, file listings, or content that demonstrates the required unit\u2011\
+    test setup for dependency\u2011injection validation. Consequently the task\u2019\
+    s deliverable is missing."
+T012:
+  c: false
+  h: dd905158090aaff4cd1e24ca667b704a1d982489c1999f59f38641e9bbc48252
+  r: "The repository contains `code/simulation_runner.py`, but the shown content only\
+    \ defines helper functions (e.g., `run_single_replication`) and does not include\
+    \ the required Monte\u202FCarlo loop that generates many replications and writes\
+    \ the raw p\u2011values to `results/simulation_raw.csv`. Moreover, the expected\
+    \ output file `results/simulation_raw.csv` is absent. The task\u2019s core deliverable\
+    \ \u2013 a producer of simulation data \u2013 is therefore not fulfilled."
+T013:
+  c: false
+  h: 62708e591de39e5e0c575cf614d4900ea6203586d5c6ef8ac95f119fa069e4cc
+  r: "The `code/main.py` file is truncated and never reaches the point where simulation\
+    \ results are aggregated or written to `results/aggregated.csv`. Moreover, the\
+    \ required `results/aggregated.csv` file does not exist in the repository. The\
+    \ task\u2019s core requirement\u2014producing an aggregated CSV of the sweep results\u2014\
+    is therefore unmet."
+T014:
+  c: false
+  h: f8e6a8047b87598c59e9f8826f9cea2d5fe2cad974ffa06c3c257d5b4fcd59bd
+  r: "The `code/metrics.py` file does not contain any implementation of a Spearman\
+    \ rank\u2011correlation trend test or logic to add a `trend_status` column, and\
+    \ the file ends with a broken placeholder function. Moreover, the required output\
+    \ file `results/aggregated.csv` is absent, so the task\u2019s consumption and\
+    \ modification of that file cannot have been performed."
+T035:
+  c: false
+  h: 22447444bc8259e07890ec0b91b5fcfef2425a77f5c46fea8d9dd37fa7ffccba
+  r: "The provided `code/data_loader.py` contains a validation check for\u202FN\u202F\
+    \u2265\u202F50, but the snippet ends before any code that writes violations to\
+    \ `results/validation_report.json` or raises `CriticalValidationError` when all\
+    \ datasets fail. Moreover, the required `results/validation_report.json` file\
+    \ does not exist. The task\u2019s core requirements (logging violations to the\
+    \ JSON report and raising the critical error) are therefore not satisfied."
+T041:
+  c: false
+  h: 056181ff1836a015849b41d8201f0212b9e247f50da49dd49f934d9408de3446
+  r: "The repository contains a `code/dependency_injector.py` file, but it only implements\
+    \ AR(1) injection, validation of that injection, and partial block\u2011bootstrap\
+    \ logic; it does not include validation for the \u201Cfeature\u2011space clustering\
+    \ proxy\u201D nor does it write any report to `data/manifests/spatial_proxy_validation.json`.\
+    \ Moreover, the required JSON manifest file is absent. The task\u2019s core requirement\u2014\
+    producing a validation report for the proxy\u2014is therefore unmet."

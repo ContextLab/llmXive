@@ -4,277 +4,308 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from typing import List, Dict, Any, Tuple, Optional
+import logging
+
+# Import from project modules as defined in API surface
+from config import load_config
+from dependency_injector import ar1_inject, block_bootstrap, spatial_kernel_smooth
+from data_loader import load_datasets
+from exceptions import CriticalValidationError
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class EdgeCaseError(Exception):
-    """Raised when a simulation configuration cannot be handled (e.g., N too small, perfect correlation)."""
+    """Raised when a simulation edge case prevents valid execution."""
     pass
 
 def run_single_replication(
     test_type: str,
+    data: np.ndarray,
     dependency_type: str,
     dependency_strength: float,
-    n_samples: int,
-    n_groups: int = 2,
     effect_size: float = 0.0,
+    block_size: Optional[int] = None,
     seed: Optional[int] = None
-) -> Dict[str, Any]:
+) -> float:
     """
     Execute a single Monte Carlo replication.
     
-    Implements "Generate-then-Inject" paradigm:
-    1. Generate synthetic data under true null (Normal(0,1)).
-    2. Inject dependency structure (AR(1) or Block Bootstrap).
-    3. Apply statistical test.
-    4. Record p-value.
+    Algorithm:
+    1. (Optional) Inject true effect (mean shift) if effect_size > 0.
+    2. Inject dependency structure (AR(1), Block Bootstrap, or Spatial).
+    3. Apply statistical test (t-test, ANOVA, or Chi-squared).
+    4. Return p-value.
     
     Args:
         test_type: 't_test', 'anova', or 'chi_squared'.
-        dependency_type: 'ar1', 'block_bootstrap', or 'independent'.
-        dependency_strength: r for AR(1), block_size for block_bootstrap.
-        n_samples: Total number of observations.
-        n_groups: Number of groups for ANOVA or Chi-squared.
-        effect_size: Mean shift delta (0.0 for Type I error simulation).
+        data: 2D numpy array (n_samples, n_features) or 1D for single group.
+        dependency_type: 'ar1', 'block_bootstrap', 'spatial'.
+        dependency_strength: Strength parameter r (0 to 0.9) or block size.
+        effect_size: Mean shift delta (sigma units) to inject BEFORE dependency.
+        block_size: Required for block_bootstrap.
         seed: Random seed for reproducibility.
         
     Returns:
-        Dictionary with test_type, dependency_type, strength, p_value, significant.
+        float: p-value from the statistical test.
     """
     if seed is not None:
         np.random.seed(seed)
 
-    # 1. Generate synthetic data under true null (Normal(0,1))
-    # For t-test/ANOVA: Continuous data
-    # For Chi-squared: We generate continuous data, then discretize into categories
+    # 1. Inject True Effect (if specified)
+    # This shifts the mean of the data to simulate a non-null hypothesis
+    if effect_size > 0.0:
+        logger.debug(f"Injecting true effect delta={effect_size}")
+        if data.ndim == 1:
+            data = data + effect_size
+        elif data.ndim == 2:
+            # Assume second column is the group of interest or apply to all if single group
+            # For t-test/ANOVA context, usually we shift one group relative to another.
+            # Here we assume 'data' represents the combined sample or a specific group.
+            # If data is (n, 2) for two groups, we shift the second column.
+            if data.shape[1] == 2:
+                data[:, 1] = data[:, 1] + effect_size
+            else:
+                data = data + effect_size
+        else:
+            raise EdgeCaseError(f"Unsupported data shape for effect injection: {data.shape}")
+
+    # 2. Inject Dependency Structure
+    if dependency_type == 'ar1':
+        # ar1_inject expects (n,) or (n, k) and returns dependency-injected data
+        # We assume data is 1D for t-test or we process columns
+        if data.ndim == 1:
+            data_injected = ar1_inject(data, r=dependency_strength)
+        else:
+            # Apply to each column independently or flatten? 
+            # Standard practice: apply to the residual structure. 
+            # For simplicity in this runner, we apply to the flattened data or row-wise.
+            # Let's assume row-wise injection for multivariate or column-wise.
+            # Based on typical usage in this pipeline, we apply to the 1D vector of interest.
+            # If data is 2D, we might need to reshape or handle groups.
+            # For now, assume 1D input for t-test/ANOVA or reshape if necessary.
+            # If data is (n_groups * n_per_group), we might need to handle groups.
+            # Let's assume the input 'data' is already prepared as a single vector 
+            # or a tuple of vectors. 
+            # To be safe with the API of ar1_inject (which takes a 1D array usually):
+            if data.shape[1] == 2:
+                # Two groups: apply AR1 to each group separately? Or combined?
+                # Usually, dependency is within a time series. 
+                # Let's assume we are testing the difference of means of two series.
+                # We inject AR1 into both series.
+                g0 = ar1_inject(data[:, 0], r=dependency_strength)
+                g1 = ar1_inject(data[:, 1], r=dependency_strength)
+                data_injected = np.column_stack((g0, g1))
+            else:
+                # Fallback: treat as single vector
+                data_injected = ar1_inject(data.flatten(), r=dependency_strength)
     
-    if test_type in ['t_test', 'anova']:
-        # Generate continuous data
-        # If effect_size > 0, inject mean shift for power analysis
-        if test_type == 't_test':
-            n_groups = 2
-            # Split data into groups
-            group_size = n_samples // 2
-            data = np.random.normal(0, 1, n_samples)
-            # Apply effect size to second group if requested
-            if effect_size > 0:
-                data[group_size:] += effect_size
-            group_labels = np.array([0] * group_size + [1] * (n_samples - group_size))
-        else: # ANOVA
-            group_size = n_samples // n_groups
-            data = np.random.normal(0, 1, n_samples)
-            if effect_size > 0:
-                # Inject effect into the last group
-                start_idx = (n_groups - 1) * group_size
-                data[start_idx:] += effect_size
-            group_labels = np.repeat(range(n_groups), group_size)[:n_samples]
-        
-        # 2. Inject Dependency
-        if dependency_type == 'ar1':
-            # Apply AR(1) injection to the continuous data
-            from dependency_injector import ar1_inject
-            data = ar1_inject(data, r=dependency_strength)
-        elif dependency_type == 'block_bootstrap':
-            # Apply block bootstrap injection
-            from dependency_injector import block_bootstrap
-            # block_bootstrap expects (data, block_size)
-            data = block_bootstrap(data, block_size=int(dependency_strength))
-        elif dependency_type != 'independent':
-            raise ValueError(f"Unknown dependency type: {dependency_type}")
-        
-        # 3. Apply Statistical Test
-        if test_type == 't_test':
-            group0 = data[group_labels == 0]
-            group1 = data[group_labels == 1]
-            if len(group0) < 2 or len(group1) < 2:
-                raise EdgeCaseError("Group size too small for t-test")
-            stat, p_val = stats.ttest_ind(group0, group1)
-        else: # ANOVA
-            groups = [data[group_labels == i] for i in range(n_groups)]
-            if any(len(g) < 2 for g in groups):
-                raise EdgeCaseError("Group size too small for ANOVA")
-            stat, p_val = stats.f_oneway(*groups)
-            
-    elif test_type == 'chi_squared':
-        # Generate continuous data first
-        data = np.random.normal(0, 1, n_samples)
-        
-        # Inject dependency if needed
-        if dependency_type == 'ar1':
-            from dependency_injector import ar1_inject
-            data = ar1_inject(data, r=dependency_strength)
-        elif dependency_type == 'block_bootstrap':
-            from dependency_injector import block_bootstrap
-            data = block_bootstrap(data, block_size=int(dependency_strength))
-        
-        # Discretize into categories (e.g., 3 categories)
-        # Use percentiles to define bins to ensure balanced expected counts
-        bins = np.percentile(data, [33, 66])
-        categories = np.digitize(data, bins)
-        
-        # Create a 2x3 contingency table (Group x Category)
-        # Simulate two groups
-        group_size = n_samples // 2
-        if effect_size > 0:
-            # Shift the second group to change distribution
-            # We apply effect size to the second half of the data before discretization
-            # But we already injected dependency. Let's shift the second half now.
-            # Re-generate logic for effect injection in Chi-squared
-            # Actually, the standard way is to generate two independent samples with different distributions
-            # But here we are simulating under null first.
-            # Let's stick to the Generate-then-Inject paradigm:
-            # Generate null data -> Inject Dependency -> Discretize -> Test
-            # Effect injection is a separate mode.
-            pass 
-        
-        # For Chi-squared, we need a contingency table.
-        # Let's assume we are testing independence between 'Group' (0/1) and 'Category' (0/1/2)
-        # We generate the data, then discretize.
-        # To simulate the null, the distribution of categories should be independent of group.
-        # To simulate alternative, we shift the mean of the second group before discretization.
-        
-        # Re-generate data for Chi-squared with effect logic
-        # We need two groups of data to form the contingency table rows
-        # Let's generate n_samples total, split into 2 groups
-        group1_data = np.random.normal(0, 1, group_size)
-        group2_data = np.random.normal(0, 1, n_samples - group_size)
-        
-        if effect_size > 0:
-            group2_data += effect_size
-        
-        # Inject dependency into the combined data?
-        # Dependency usually implies time series or spatial.
-        # For Chi-squared, dependency might mean the rows are not independent.
-        # We will inject dependency into the combined vector, then split.
-        combined = np.concatenate([group1_data, group2_data])
-        
-        if dependency_type == 'ar1':
-            from dependency_injector import ar1_inject
-            combined = ar1_inject(combined, r=dependency_strength)
-        elif dependency_type == 'block_bootstrap':
-            from dependency_injector import block_bootstrap
-            combined = block_bootstrap(combined, block_size=int(dependency_strength))
-        
-        # Split back
-        group1_data = combined[:group_size]
-        group2_data = combined[group_size:]
-        
-        # Discretize
-        # We use global percentiles to define bins
-        all_data = np.concatenate([group1_data, group2_data])
-        bins = np.percentile(all_data, [33, 66])
-        
-        cat1 = np.digitize(group1_data, bins)
-        cat2 = np.digitize(group2_data, bins)
-        
-        # Build contingency table
-        # Rows: Group 0, Group 1. Cols: Category 0, 1, 2
-        table = np.zeros((2, 3), dtype=int)
-        for c in cat1:
-            table[0, c] += 1
-        for c in cat2:
-            table[1, c] += 1
-        
-        # 3. Apply Chi-squared test
-        try:
-            stat, p_val, dof, expected = stats.chi2_contingency(table)
-        except Exception:
-            # Fallback if expected counts are too low
-            p_val = 1.0
-        
+    elif dependency_type == 'block_bootstrap':
+        if block_size is None:
+            raise EdgeCaseError("block_size required for block_bootstrap")
+        # block_bootstrap returns resampled data
+        if data.ndim == 1:
+            data_injected = block_bootstrap(data, block_size=block_size, strength=dependency_strength)
+        else:
+            # Apply to columns or rows? 
+            # Assuming we need to resample rows (observations) for independence violation
+            # block_bootstrap signature in API: block_bootstrap(data, block_size, strength)
+            data_injected = block_bootstrap(data, block_size=block_size, strength=dependency_strength)
+    
+    elif dependency_type == 'spatial':
+        # spatial_kernel_smooth expects data and bandwidth
+        data_injected = spatial_kernel_smooth(data, bandwidth=dependency_strength)
+    
     else:
-        raise ValueError(f"Unknown test type: {test_type}")
+        raise EdgeCaseError(f"Unknown dependency type: {dependency_type}")
+
+    # 3. Apply Statistical Test
+    if test_type == 't_test':
+        if data_injected.ndim == 1:
+            # One-sample t-test against 0? Or two-sample if structured?
+            # Assuming two-sample if shape is (n, 2)
+            if data_injected.shape[1] == 2:
+                t_stat, p_val = stats.ttest_ind(data_injected[:, 0], data_injected[:, 1])
+            else:
+                # One-sample t-test against mean 0 (Null: mu=0)
+                t_stat, p_val = stats.ttest_1samp(data_injected, 0.0)
+        else:
+            # Reshape or error
+            if data_injected.ndim == 2 and data_injected.shape[1] == 2:
+                t_stat, p_val = stats.ttest_ind(data_injected[:, 0], data_injected[:, 1])
+            else:
+                t_stat, p_val = stats.ttest_1samp(data_injected.flatten(), 0.0)
     
-    return {
-        "test_type": test_type,
-        "dependency_type": dependency_type,
-        "dependency_strength": float(dependency_strength),
-        "p_value": float(p_val),
-        "significant": bool(p_val < 0.05)
-    }
+    elif test_type == 'anova':
+        # One-way ANOVA
+        if data_injected.ndim == 1:
+            # If 1D, maybe split into groups? Assuming 2 groups for simplicity
+            # Or if it's already a list of arrays? 
+            # Let's assume data_injected is (n, k) where k is groups
+            if data_injected.shape[1] >= 2:
+                groups = [data_injected[:, i] for i in range(data_injected.shape[1])]
+                f_stat, p_val = stats.f_oneway(*groups)
+            else:
+                raise EdgeCaseError("ANOVA requires at least 2 groups")
+        else:
+            groups = [data_injected[:, i] for i in range(data_injected.shape[1])]
+            f_stat, p_val = stats.f_oneway(*groups)
+    
+    elif test_type == 'chi_squared':
+        # Chi-squared test for independence
+        # Requires categorical data. 
+        # If data is continuous, we might need to bin it or assume input is already counts.
+        # For this simulation runner, we assume the caller provides appropriate data 
+        # or we convert continuous to categorical (e.g., median split) for demonstration.
+        # However, the spec says "Chi-squared test logic".
+        # If data_injected is 2D (n, 2) representing counts or categories?
+        # Let's assume we are testing independence of two categorical variables.
+        # If input is continuous, we bin.
+        if data_injected.dtype.kind in 'fc':
+            # Bin into 2x2 contingency table
+            median = np.median(data_injected)
+            # Assuming 2D (n, 2)
+            if data_injected.ndim == 2 and data_injected.shape[1] == 2:
+                # Create contingency table
+                # Row: Var1 > median, Col: Var2 > median
+                row1 = np.sum((data_injected[:, 0] > median) & (data_injected[:, 1] > median))
+                row2 = np.sum((data_injected[:, 0] <= median) & (data_injected[:, 1] > median))
+                row3 = np.sum((data_injected[:, 0] > median) & (data_injected[:, 1] <= median))
+                row4 = np.sum((data_injected[:, 0] <= median) & (data_injected[:, 1] <= median))
+                contingency = np.array([[row1, row2], [row3, row4]])
+                chi2, p_val, dof, expected = stats.chi2_contingency(contingency)
+            else:
+                raise EdgeCaseError("Chi-squared requires 2D data for contingency or counts")
+        else:
+            # Assume integer counts
+            chi2, p_val, dof, expected = stats.chi2_contingency(data_injected)
+    
+    else:
+        raise EdgeCaseError(f"Unknown test type: {test_type}")
+
+    return float(p_val)
 
 def run_simulation(
     config: Dict[str, Any],
-    output_path: str
-) -> None:
+    datasets: Optional[List[pd.DataFrame]] = None,
+    output_path: str = "results/simulation_raw.csv"
+) -> pd.DataFrame:
     """
-    Run the full Monte Carlo simulation based on configuration.
+    Run the full Monte Carlo simulation loop.
     
     Args:
-        config: Dictionary containing simulation parameters (tests, dependencies, strengths, reps, etc.)
-        output_path: Path to save the results CSV.
+        config: Configuration dictionary from config.yaml.
+        datasets: Pre-loaded datasets. If None, load from data_loader.
+        output_path: Path to save results.
+        
+    Returns:
+        DataFrame with simulation results.
     """
+    logger.info("Starting simulation run...")
+    
+    # Load datasets if not provided
+    if datasets is None:
+        logger.info("Loading datasets from manifest...")
+        datasets = load_datasets()
+        if not datasets:
+            raise CriticalValidationError("No datasets loaded. Simulation cannot proceed.")
+
     results = []
     
-    test_types = config.get("test_types", ["t_test"])
-    dependency_types = config.get("dependency_types", ["ar1"])
-    strengths = config.get("strengths", [0.0, 0.3, 0.5])
-    n_replications = config.get("n_replications", 1000)
-    n_samples = config.get("n_samples", 100)
-    n_groups = config.get("n_groups", 2)
-    effect_size = config.get("effect_size", 0.0)
+    # Extract simulation parameters from config
+    n_replications = config.get('simulation', {}).get('n_replications', 1000)
+    dependency_types = config.get('simulation', {}).get('dependency_types', ['ar1'])
+    test_types = config.get('simulation', {}).get('test_types', ['t_test'])
+    dependency_strengths = config.get('simulation', {}).get('dependency_strengths', [0.0, 0.3])
+    effect_sizes = config.get('simulation', {}).get('effect_sizes', [0.0]) # [0.0] for Type I, >0 for Power
     
-    print(f"Starting simulation: {n_replications} reps, {len(test_types)} tests, {len(dependency_types)} dependencies")
+    seed_base = config.get('simulation', {}).get('seed', 42)
     
-    for t_type in test_types:
-        for d_type in dependency_types:
-            for r in strengths:
-                print(f"Running {t_type} with {d_type} (r={r})")
-                for i in range(n_replications):
-                    try:
-                        res = run_single_replication(
-                            test_type=t_type,
-                            dependency_type=d_type,
-                            dependency_strength=r,
-                            n_samples=n_samples,
-                            n_groups=n_groups,
-                            effect_size=effect_size,
-                            seed=config.get("base_seed", 42) + i
-                        )
-                        results.append(res)
-                    except EdgeCaseError as e:
-                        # Log edge case and skip
-                        print(f"Edge case skipped: {e}")
-                        continue
-                    except Exception as e:
-                        print(f"Error in replication: {e}")
-                        continue
+    for dataset_idx, df in enumerate(datasets):
+        logger.info(f"Processing dataset {dataset_idx}: {df.shape}")
+        
+        # Convert to numpy
+        # Assume first column is target or all columns are relevant
+        # For t-test, we might need 2 groups. For ANOVA, multiple.
+        # We'll iterate over columns or specific configurations.
+        # Simplified: treat each dataset as a single vector or 2-group structure if shape allows.
+        data_np = df.values
+        
+        for test_type in test_types:
+            for dep_type in dependency_types:
+                for strength in dependency_strengths:
+                    for effect in effect_sizes:
+                        logger.debug(f"Config: test={test_type}, dep={dep_type}, strength={strength}, effect={effect}")
+                        
+                        p_values = []
+                        for rep in range(n_replications):
+                            try:
+                                seed = seed_base + dataset_idx * 10000 + rep
+                                p_val = run_single_replication(
+                                    test_type=test_type,
+                                    data=data_np,
+                                    dependency_type=dep_type,
+                                    dependency_strength=strength,
+                                    effect_size=effect,
+                                    seed=seed
+                                )
+                                p_values.append(p_val)
+                            except EdgeCaseError as e:
+                                logger.warning(f"Edge case in replication {rep}: {e}")
+                                # Handle edge case: maybe skip or log
+                                continue
+                        
+                        if p_values:
+                            avg_p = np.mean(p_values)
+                            results.append({
+                                'dataset_id': dataset_idx,
+                                'test_type': test_type,
+                                'dependency_type': dep_type,
+                                'dependency_strength': strength,
+                                'effect_size': effect,
+                                'n_replications': len(p_values),
+                                'mean_p_value': avg_p,
+                                'p_values': p_values # Store list for later aggregation
+                            })
     
-    # Save results
-    df = pd.DataFrame(results)
+    # Create DataFrame
+    df_results = pd.DataFrame(results)
+    
+    # Save to CSV (flattening p_values list to separate rows or keeping as JSON string)
+    # For raw output, we usually want one row per replication.
+    # But the task says "Save raw p-values". Let's expand.
+    expanded_results = []
+    for row in results:
+        for i, p in enumerate(row['p_values']):
+            expanded_results.append({
+                'dataset_id': row['dataset_id'],
+                'test_type': row['test_type'],
+                'dependency_type': row['dependency_type'],
+                'dependency_strength': row['dependency_strength'],
+                'effect_size': row['effect_size'],
+                'replication_id': i,
+                'p_value': p
+            })
+    
+    df_expanded = pd.DataFrame(expanded_results)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_csv(output_path, index=False)
-    print(f"Simulation complete. Saved {len(df)} results to {output_path}")
+    df_expanded.to_csv(output_path, index=False)
+    
+    logger.info(f"Simulation complete. Results saved to {output_path}")
+    return df_expanded
 
-def save_edge_case_report(report_path: str, details: List[Dict[str, Any]]) -> None:
-    """Save edge case failures to a JSON file."""
-    os.makedirs(os.path.dirname(report_path), exist_ok=True)
-    with open(report_path, 'w') as f:
-        json.dump(details, f, indent=2)
+def save_edge_case_report(report: Dict[str, Any], path: str = "results/edge_case_report.json"):
+    """Save edge case failures to JSON."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Edge case report saved to {path}")
 
 def main():
-    """Entry point for running the simulation from command line."""
-    from config import load_config
-    from pathlib import Path
-    
-    # Load config
-    config_path = Path("code/config.yaml")
-    if not config_path.exists():
-        # Fallback default config for standalone run
-        config = {
-            "test_types": ["t_test", "anova", "chi_squared"],
-            "dependency_types": ["ar1", "block_bootstrap", "independent"],
-            "strengths": [0.0, 0.3, 0.5],
-            "n_replications": 1000,
-            "n_samples": 100,
-            "n_groups": 2,
-            "effect_size": 0.0,
-            "base_seed": 42,
-            "output_path": "results/simulation_raw.csv"
-        }
-    else:
-        config = load_config(str(config_path))
-    
-    output_path = config.get("output_path", "results/simulation_raw.csv")
-    run_simulation(config, output_path)
+    """Entry point for running the simulation."""
+    config = load_config()
+    df_results = run_simulation(config)
+    print(f"Simulation finished. Output: {df_results.shape}")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.14416",
+  "judged_at": "2026-07-19T04:55:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available climate model output ensembles statistics",
+  "rationale": "This paper addresses the user's question by providing a specific statistical methodology (conditional diffusion models) for processing and analyzing Earth system model (ESM) output ensembles, specifically focusing on bias correction and downscaling of precipitation data. It falls under category (d) as a foundational or state-of-the-art methodological reference for statistical analysis of climate model outputs, and category (b) as it measures and corrects statistical properties of the dependent v",
+  "relevant": true
+}

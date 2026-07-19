@@ -1,229 +1,212 @@
-"""
-Metrics calculation module.
-Defines functions for calculating Type I error, Power, Confidence Intervals, and Trend Verification.
-Includes Chi-squared specific error rate calculations.
-"""
 import numpy as np
 from scipy import stats
 from typing import List, Tuple, Dict, Any, Optional
 import pickle
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
+import os
+import json
 import pandas as pd
 
-def calculate_type1_error(p_values: List[float], alpha: float = 0.05) -> float:
+def clopper_pearson_ci(successes: int, trials: int, alpha: float = 0.05) -> Tuple[float, float]:
     """
-    Calculate the observed Type I error rate.
-    
-    Args:
-        p_values: List of p-values from simulations under the null hypothesis.
-        alpha: Significance level threshold.
-    
-    Returns:
-        Proportion of p-values <= alpha.
-    """
-    if not p_values:
-        return 0.0
-    
-    significant_count = sum(1 for p in p_values if p <= alpha)
-    return significant_count / len(p_values)
+    Calculate the Clopper-Pearson exact confidence interval for a binomial proportion.
 
-def calculate_power(p_values: List[float], alpha: float = 0.05) -> float:
-    """
-    Calculate the observed statistical power.
-    
     Args:
-        p_values: List of p-values from simulations under the alternative hypothesis.
-        alpha: Significance level threshold.
-    
-    Returns:
-        Proportion of p-values <= alpha.
-    """
-    if not p_values:
-        return 0.0
-    
-    significant_count = sum(1 for p in p_values if p <= alpha)
-    return significant_count / len(p_values)
+        successes: Number of observed successes (significant tests).
+        trials: Total number of trials (replications).
+        alpha: Significance level for the confidence interval (default 0.05 for 95% CI).
 
-def clopper_pearson_ci(p_values: List[float], alpha: float = 0.05) -> Tuple[float, float]:
-    """
-    Calculate the Clopper-Pearson confidence interval for the observed error rate.
-    
-    Args:
-        p_values: List of p-values.
-        alpha: Significance level for the test (threshold for significance).
-               Note: This is different from the confidence level for the CI.
-               We assume a 95% CI for the error rate estimate.
-    
     Returns:
-        Tuple of (lower_bound, upper_bound) for the 95% CI.
+        A tuple (lower_bound, upper_bound).
     """
-    if not p_values:
-        return (0.0, 0.0)
-    
-    n = len(p_values)
-    successes = sum(1 for p in p_values if p <= alpha)
-    
-    # Clopper-Pearson interval
-    # Using beta distribution quantiles
-    # Lower bound: beta.ppf(0.025, successes, n - successes + 1)
-    # Upper bound: beta.ppf(0.975, successes + 1, n - successes)
-    # Handle edge cases where successes is 0 or n
-    
+    if trials == 0:
+        return 0.0, 0.0
     if successes == 0:
         lower = 0.0
     else:
-        lower = stats.beta.ppf(0.025, successes, n - successes + 1)
+        lower = stats.beta.ppf(alpha / 2, successes, trials - successes + 1)
     
-    if successes == n:
+    if successes == trials:
         upper = 1.0
     else:
-        upper = stats.beta.ppf(0.975, successes + 1, n - successes)
+        upper = stats.beta.ppf(1 - alpha / 2, successes + 1, trials - successes)
     
-    return (lower, upper)
+    return lower, upper
 
-def train_logistic_model(data: pd.DataFrame) -> Any:
+def calculate_type1_error(p_values: List[float], alpha: float = 0.05) -> Tuple[float, float, float]:
     """
-    Train a logistic regression model relating dependency strength to error outcome.
-    
+    Calculate Type I error rate and its Clopper-Pearson confidence interval.
+
     Args:
-        data: DataFrame with columns 'dependency_strength', 'is_significant' (0/1).
+        p_values: List of p-values from hypothesis tests under the true null.
+        alpha: Nominal significance level.
+
+    Returns:
+        Tuple of (observed_error_rate, lower_ci, upper_ci).
+    """
+    if not p_values:
+        return 0.0, 0.0, 0.0
     
+    successes = sum(1 for p in p_values if p < alpha)
+    trials = len(p_values)
+    
+    observed_rate = successes / trials
+    lower, upper = clopper_pearson_ci(successes, trials, alpha=0.05)
+    
+    return observed_rate, lower, upper
+
+def calculate_power(p_values: List[float], alpha: float = 0.05) -> Tuple[float, float, float]:
+    """
+    Calculate statistical power (proportion of rejections under alternative) 
+    and its Clopper-Pearson confidence interval.
+
+    Args:
+        p_values: List of p-values from hypothesis tests under the alternative hypothesis.
+        alpha: Nominal significance level.
+
+    Returns:
+        Tuple of (observed_power, lower_ci, upper_ci).
+    """
+    if not p_values:
+        return 0.0, 0.0, 0.0
+    
+    successes = sum(1 for p in p_values if p < alpha)
+    trials = len(p_values)
+    
+    observed_power = successes / trials
+    lower, upper = clopper_pearson_ci(successes, trials, alpha=0.05)
+    
+    return observed_power, lower, upper
+
+def calculate_chi_squared_error_rate(p_values: List[float], alpha: float = 0.05) -> Tuple[float, float, float]:
+    """
+    Calculate error rate for Chi-squared tests (same logic as Type I error).
+    Included for semantic clarity in aggregation pipelines.
+
+    Args:
+        p_values: List of p-values from Chi-squared tests.
+        alpha: Nominal significance level.
+
+    Returns:
+        Tuple of (observed_error_rate, lower_ci, upper_ci).
+    """
+    return calculate_type1_error(p_values, alpha)
+
+def aggregate_chi_squared_results(results_df: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
+    """
+    Aggregate Chi-squared results from a raw results dataframe.
+
+    Args:
+        results_df: DataFrame containing columns 'p_value', 'dependency_strength', etc.
+        alpha: Nominal significance level.
+
+    Returns:
+        DataFrame with aggregated error rates and CIs per dependency strength.
+    """
+    if results_df.empty:
+        return pd.DataFrame()
+    
+    # Group by dependency strength
+    grouped = results_df.groupby('dependency_strength')['p_value'].apply(list).reset_index()
+    
+    aggregated = []
+    for _, row in grouped.iterrows():
+        strength = row['dependency_strength']
+        p_vals = row['p_value']
+        rate, lower, upper = calculate_chi_squared_error_rate(p_vals, alpha)
+        aggregated.append({
+            'dependency_strength': strength,
+            'error_rate': rate,
+            'ci_lower': lower,
+            'ci_upper': upper,
+            'n_replications': len(p_vals)
+        })
+    
+    return pd.DataFrame(aggregated)
+
+def train_logistic_model(data: pd.DataFrame, target_col: str = 'significant', feature_cols: List[str] = ['dependency_strength']) -> LogisticRegression:
+    """
+    Train a logistic regression model to predict significance based on dependency strength.
+
+    Args:
+        data: DataFrame containing features and the target binary column.
+        target_col: Name of the binary target column (0 or 1).
+        feature_cols: List of feature column names.
+
     Returns:
         Trained LogisticRegression model.
     """
-    if 'dependency_strength' not in data.columns or 'is_significant' not in data.columns:
-        raise ValueError("Data must contain 'dependency_strength' and 'is_significant' columns.")
-    
-    X = data[['dependency_strength']].values
-    y = data['is_significant'].values
+    X = data[feature_cols]
+    y = data[target_col]
     
     model = LogisticRegression()
     model.fit(X, y)
     
     # Verify convergence and AUC
-    try:
-        auc = roc_auc_score(y, model.predict_proba(X)[:, 1])
+    if hasattr(model, 'n_iter_') and model.n_iter_ is not None:
+        if not np.all(model.n_iter_ > 0):
+            raise RuntimeError("Logistic regression model did not converge.")
+    
+    if len(np.unique(y)) > 1:
+        y_pred_prob = model.predict_proba(X)[:, 1]
+        auc = roc_auc_score(y, y_pred_prob)
         if auc <= 0.5:
-            print(f"Warning: Model AUC is {auc}, which is <= 0.5.")
-    except Exception as e:
-        print(f"Warning: Could not calculate AUC: {e}")
+            raise RuntimeError(f"Model AUC ({auc}) is <= 0.5, indicating no predictive power.")
     
     return model
 
-def verify_trend_monotonicity(df: pd.DataFrame, 
-                              strength_col: str = 'dependency_strength', 
-                              error_rate_col: str = 'observed_error_rate',
-                              alpha: float = 0.05) -> Tuple[float, float, str]:
-    """
-    Calculate the Spearman rank correlation to verify monotonic increase of error rates 
-    with dependency strength (r).
-    
-    This implements the trend test required by US-1 AC-2.
-    
-    Args:
-        df: DataFrame containing the aggregated simulation results.
-            Must contain columns for dependency strength and observed error rate.
-        strength_col: Name of the column containing dependency strength values (r).
-        error_rate_col: Name of the column containing observed error rates.
-        alpha: Significance threshold for the trend test p-value.
-    
-    Returns:
-        Tuple of (spearman_correlation, p_value, trend_status).
-        trend_status is 'MONOTONIC_INCREASE' if p < alpha and rho > 0, 
-        otherwise 'NON_MONOTONIC' or 'NO_TREND'.
-    """
-    if strength_col not in df.columns or error_rate_col not in df.columns:
-        raise ValueError(f"DataFrame must contain '{strength_col}' and '{error_rate_col}' columns.")
-    
-    # Remove any rows with NaN values in the relevant columns
-    valid_df = df[[strength_col, error_rate_col]].dropna()
-    
-    if len(valid_df) < 2:
-        return (0.0, 1.0, "INSUFFICIENT_DATA")
-    
-    # Calculate Spearman rank correlation
-    rho, p_value = stats.spearmanr(valid_df[strength_col], valid_df[error_rate_col])
-    
-    # Determine trend status
-    if p_value < alpha and rho > 0:
-        trend_status = "MONOTONIC_INCREASE"
-    elif p_value < alpha and rho < 0:
-        trend_status = "MONOTONIC_DECREASE"
-    else:
-        trend_status = "NO_SIGNIFICANT_TREND"
-    
-    return (rho, p_value, trend_status)
+def save_logistic_model(model: LogisticRegression, path: str) -> None:
+    """Save a logistic regression model to a pickle file."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'wb') as f:
+        pickle.dump(model, f)
 
-def calculate_chi_squared_error_rate(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
+def load_logistic_model(path: str) -> LogisticRegression:
+    """Load a logistic regression model from a pickle file."""
+    with open(path, 'rb') as f:
+        return pickle.load(f)
+
+def verify_trend_monotonicity(df: pd.DataFrame, strength_col: str = 'dependency_strength', 
+                              rate_col: str = 'error_rate') -> Dict[str, Any]:
     """
-    Calculate the observed Type I error rate specifically for Chi-squared tests.
-    
-    This function implements the Chi-squared error rate calculation and reporting
-    required by FR-005 for User Story 2. It provides the same core calculation as
-    calculate_type1_error but is explicitly named and documented for Chi-squared
-    test results to ensure clarity in reporting and aggregation.
-    
+    Verify monotonic increase of error rates with dependency strength using Spearman correlation.
+
     Args:
-        p_values: List of p-values from Chi-squared simulations under the null hypothesis.
-        alpha: Significance level threshold (default 0.05).
-    
+        df: DataFrame with strength and rate columns.
+        strength_col: Name of the dependency strength column.
+        rate_col: Name of the error rate column.
+
     Returns:
-        Dictionary containing:
-            - 'error_rate': The observed error rate (proportion of significant tests).
-            - 'total_tests': Total number of tests performed.
-            - 'significant_count': Number of tests that were significant.
-            - 'ci_lower': Lower bound of 95% Clopper-Pearson CI.
-            - 'ci_upper': Upper bound of 95% Clopper-Pearson CI.
+        Dict with 'spearman_corr', 'p_value', and 'is_monotonic' (True if p < 0.05).
     """
-    if not p_values:
-        return {
-            'error_rate': 0.0,
-            'total_tests': 0,
-            'significant_count': 0,
-            'ci_lower': 0.0,
-            'ci_upper': 0.0
-        }
+    if df.empty or len(df) < 2:
+        return {'spearman_corr': 0.0, 'p_value': 1.0, 'is_monotonic': False}
     
-    total_tests = len(p_values)
-    significant_count = sum(1 for p in p_values if p <= alpha)
-    error_rate = significant_count / total_tests
-    
-    # Calculate Clopper-Pearson CI
-    ci_lower, ci_upper = clopper_pearson_ci(p_values, alpha)
+    corr, p_val = stats.spearmanr(df[strength_col], df[rate_col])
+    is_monotonic = p_val < 0.05 and corr > 0
     
     return {
-        'error_rate': error_rate,
-        'total_tests': total_tests,
-        'significant_count': significant_count,
-        'ci_lower': ci_lower,
-        'ci_upper': ci_upper
+        'spearman_corr': corr,
+        'p_value': p_val,
+        'is_monotonic': is_monotonic
     }
 
-def aggregate_chi_squared_results(results_list: List[Dict[str, Any]]) -> pd.DataFrame:
+def calculate_power_delta(power_at_r0: float, power_at_r3: float) -> float:
     """
-    Aggregate Chi-squared error rate results from multiple simulation runs.
+    Calculate the percentage reduction in power between r=0 and r=0.3.
+    
+    Formula: ((Power(r=0) - Power(r=0.3)) / Power(r=0)) * 100
     
     Args:
-        results_list: List of dictionaries containing Chi-squared results.
-                      Each dict should have keys: 'dependency_strength', 'error_rate',
-                      'ci_lower', 'ci_upper', 'total_tests', 'significant_count'.
+        power_at_r0: Observed power at dependency strength r=0.
+        power_at_r3: Observed power at dependency strength r=0.3.
     
     Returns:
-        DataFrame with aggregated results sorted by dependency strength.
+        Percentage reduction in power. Returns 0.0 if power_at_r0 is 0 to avoid division by zero.
     """
-    if not results_list:
-        return pd.DataFrame()
+    if power_at_r0 == 0.0:
+        return 0.0
     
-    df = pd.DataFrame(results_list)
-    
-    # Ensure required columns exist
-    required_cols = ['dependency_strength', 'error_rate', 'ci_lower', 'ci_upper', 'total_tests', 'significant_count']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in results: {missing_cols}")
-    
-    # Sort by dependency strength
-    df = df.sort_values('dependency_strength').reset_index(drop=True)
-    
-    return df
+    reduction = (power_at_r0 - power_at_r3) / power_at_r0 * 100.0
+    return reduction
