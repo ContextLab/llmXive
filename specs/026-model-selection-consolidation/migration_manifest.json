@@ -1073,34 +1073,8 @@
     {
       "category": "test_double",
       "file": "tests/unit/test_config_consistency.py",
-      "kind": "module_constant",
-      "line": 54,
-      "models": [
-        "claude-haiku-4-5"
-      ],
-      "owning_slice": null,
-      "symbol": "_SANCTIONED_PAID_FAMILY"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/unit/test_config_consistency.py",
-      "kind": "module_constant",
-      "line": 61,
-      "models": [
-        "gemma-4",
-        "gpt-oss",
-        "qwen2.5",
-        "qwen3-vl",
-        "qwen3.5"
-      ],
-      "owning_slice": null,
-      "symbol": "_KNOWN_FREE_POLICY_FAMILIES"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/unit/test_config_consistency.py",
       "kind": "model_id_literal",
-      "line": 70,
+      "line": 78,
       "models": [
         "qwen3.5"
       ],
@@ -1111,7 +1085,7 @@
       "category": "test_double",
       "file": "tests/unit/test_config_consistency.py",
       "kind": "model_id_literal",
-      "line": 71,
+      "line": 79,
       "models": [
         "gemma-4"
       ],
@@ -1122,12 +1096,23 @@
       "category": "test_double",
       "file": "tests/unit/test_config_consistency.py",
       "kind": "model_id_literal",
-      "line": 72,
+      "line": 80,
       "models": [
         "gpt-oss"
       ],
       "owning_slice": null,
       "symbol": "_POLICY_DISPLAY_NAMES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_config_consistency.py",
+      "kind": "model_id_literal",
+      "line": 225,
+      "models": [
+        "qwen3-vl"
+      ],
+      "owning_slice": null,
+      "symbol": "test_policy_family_absent_from_snapshot_is_never_resurrected"
     },
     {
       "category": "test_double",

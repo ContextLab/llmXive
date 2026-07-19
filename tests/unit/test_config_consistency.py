@@ -12,8 +12,10 @@ contradictions cannot silently return:
      opt-in ON with headroom the guarded paid tail is reachable — governed
      by the PROCESS-level credit snapshot alone, never by an agent's own
      ``paid_opt_in`` field (SC-007(b) / D7).
-  2. The versioned capability policy (``model_selection/policy.py``) admits
-     no paid family beyond the one sanctioned guarded fallback.
+  2. No profile's chain ever surfaces a paid candidate beyond the one
+     sanctioned guarded fallback — checked from the runtime SNAPSHOT's own
+     pricing (never a hardcoded family allowlist reconstructed in a test;
+     US5 AC4).
   3. Every canonical profile resolves to at least 2 candidates against a
      realistic multi-model snapshot (a real fallback, not a single point of
      failure).
@@ -38,11 +40,13 @@ from __future__ import annotations
 from pathlib import Path
 
 from llmxive.agents.registry import load as load_registry
+from llmxive.backends.router import PAID_FALLBACK_MODELS
 from llmxive.model_selection.policy import CAPABILITY_POLICY
 from llmxive.model_selection.profiles import PROFILES, build_requirement
 from llmxive.model_selection.select import select
+from llmxive.model_selection.snapshot import _family_of, _vendor_of
 from llmxive.model_selection.types import CallBudget
-from tests.unit.test_model_selection_select import _snapshot
+from tests.unit.test_model_selection_select import GPT_OSS, LOCAL, QWEN, VL, _ids, _snapshot
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -50,15 +54,19 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 NO_LLM = "deterministic-no-llm"
 
 #: The ONE sanctioned paid family (Constitution IV free-first; guarded
-#: fallback governed process-wide by the credit guard, SC-007(b)).
-_SANCTIONED_PAID_FAMILY = "claude-haiku-4-5"
-
-#: Every OTHER family the capability policy currently attributes competence
-#: to — all unconditionally free. Pinned here directly (not derived from
-#: ``KNOWN_FREE_MODELS``, which this file no longer depends on) so a policy
-#: edit that quietly adds another paid-looking family fails loudly and must
-#: be classified on purpose.
-_KNOWN_FREE_POLICY_FAMILIES = frozenset({"qwen3.5", "gemma-4", "gpt-oss", "qwen3-vl", "qwen2.5"})
+#: fallback governed process-wide by the credit guard, SC-007(b)). DERIVED
+#: from the reviewed source-layer contract (``router.PAID_FALLBACK_MODELS``)
+#: rather than hand-typed here — a second, independently-maintained
+#: "sanctioned paid" constant reconstructed inside a test is exactly the
+#: hardcoded-allowlist duplication US5 AC4 forbids. Cost itself is NEVER
+#: asserted from this family name below — only from the runtime snapshot's
+#: own PRICING (see ``test_paid_off_chains_contain_only_snapshot_free_
+#: candidates`` etc.); this identifier is used solely to name the guarded
+#: fallback for the README display-name check.
+_SANCTIONED_PAID_MODEL_ID = next(iter(PAID_FALLBACK_MODELS))
+_SANCTIONED_PAID_FAMILY = _family_of(
+    _SANCTIONED_PAID_MODEL_ID, _vendor_of(_SANCTIONED_PAID_MODEL_ID)
+)
 
 #: Human-readable display name each "text chain" policy family must appear as
 #: verbatim in the README's "Models & cost" prose (issue #294: prose drifted
@@ -124,21 +132,97 @@ def test_registry_models_are_free_unless_paid_opt_in():
     )
 
 
-def test_model_fallback_chains_are_free():
-    # The capability policy attributes competence to exactly one PAID family —
-    # the sanctioned guarded fallback ``claude-haiku-4-5`` — and every other
-    # attributed family is free (Constitution IV free-first). This is the
-    # policy-layer analogue of the retired ``MODEL_FALLBACKS``-vs-
-    # ``KNOWN_FREE_MODELS`` check.
-    families = set(CAPABILITY_POLICY.entries)
-    unexpected = families - _KNOWN_FREE_POLICY_FAMILIES - {_SANCTIONED_PAID_FAMILY}
-    assert not unexpected, (
-        f"CAPABILITY_POLICY attributes competence to unclassified family/families "
-        f"{sorted(unexpected)} — classify as free (add to "
-        f"_KNOWN_FREE_POLICY_FAMILIES) or as a NEW sanctioned paid fallback with "
-        f"written justification (Constitution IV)"
-    )
-    assert families == _KNOWN_FREE_POLICY_FAMILIES | {_SANCTIONED_PAID_FAMILY}
+def test_paid_off_chains_contain_only_snapshot_free_candidates():
+    """US5 AC4: cost is a property of the runtime SNAPSHOT's pricing, never a
+    hardcoded model/family allowlist reconstructed in a test — the capability
+    policy records COMPETENCE, not cost. Every canonical profile's paid-OFF
+    chain (against a realistic composite snapshot) contains only candidates
+    the snapshot itself prices at $0, straight from ``Candidate.pricing``."""
+    off_snap = _snapshot(paid_opt_in=False, credit_source="live")
+    for name in sorted(PROFILES):
+        chain = select(build_requirement(name, _CB, allow_paid=False), off_snap)
+        assert chain.candidates, f"profile {name!r} resolved to zero candidates"
+        assert all(c.pricing.is_free for c in chain.candidates), (
+            f"profile {name!r} paid-OFF chain contains a candidate the "
+            f"snapshot itself does NOT price at $0"
+        )
+
+
+def test_every_canonical_profile_resolves_under_the_fixed_snapshot():
+    """Every one of the six canonical profiles — not merely the ones an
+    ``agents/registry.yaml`` entry currently happens to reference — resolves
+    against a realistic composite snapshot. ``vision``/``independent_review``
+    have no registry agent pinned to them today but must still be usable by
+    any direct ``route_chat(profile=...)`` caller."""
+    snap = _snapshot(paid_opt_in=True, credit_source="live")
+    for name in sorted(PROFILES):
+        chain = select(build_requirement(name, _CB, allow_paid=True), snap)
+        assert chain.candidates, f"profile {name!r} resolved to zero candidates"
+
+
+def test_paid_on_text_profiles_reach_the_sanctioned_guarded_tail():
+    """Every TEXT profile's (non-vision) paid-ON projection reaches the ONE
+    model the reviewed source-layer contract (``router.PAID_FALLBACK_MODELS``)
+    sanctions as a guarded paid fallback — identified by SNAPSHOT membership,
+    never by a family name invented in this test."""
+    on_snap = _snapshot(paid_opt_in=True, credit_source="live")
+    text_profiles = [name for name, p in PROFILES.items() if p.capability != "vision"]
+    assert text_profiles, "expected at least one non-vision canonical profile"
+    for name in sorted(text_profiles):
+        chain = select(build_requirement(name, _CB, allow_paid=True), on_snap)
+        ids = {c.model_ref.model_id for c in chain.candidates}
+        assert ids & PAID_FALLBACK_MODELS, (
+            f"profile {name!r} paid-ON projection never reaches the sanctioned "
+            f"guarded paid tail {sorted(PAID_FALLBACK_MODELS)}"
+        )
+
+
+def test_no_paid_candidate_outside_the_sanctioned_guarded_tail():
+    """Complementary to the check above: the policy/snapshot combination must
+    never surface a paid candidate the source-layer contract doesn't
+    sanction. Every NON-free candidate (per snapshot pricing) across every
+    canonical profile's paid-ON projection is a member of
+    ``router.PAID_FALLBACK_MODELS`` — preserving the "no paid family beyond
+    the one sanctioned guarded fallback" guarantee WITHOUT re-deriving it
+    from a hardcoded family list."""
+    on_snap = _snapshot(paid_opt_in=True, credit_source="live")
+    for name in sorted(PROFILES):
+        chain = select(build_requirement(name, _CB, allow_paid=True), on_snap)
+        paid_ids = {c.model_ref.model_id for c in chain.candidates if not c.pricing.is_free}
+        assert paid_ids <= PAID_FALLBACK_MODELS, (
+            f"profile {name!r} paid-ON projection surfaces an unsanctioned "
+            f"paid candidate {sorted(paid_ids - PAID_FALLBACK_MODELS)}"
+        )
+
+
+def test_unknown_priced_candidate_never_qualifies_as_free():
+    """FR-006/SC-003: an unknown-priced candidate must NEVER be admitted as
+    free — cost authority is the snapshot's own pricing, and 'unknown' is not
+    the same as 'proven $0'. Construct a snapshot where the sanctioned paid
+    model's price is unknown (``None``) and assert it is excluded from the
+    chain regardless of the paid-opt-in switch."""
+    snap = _snapshot(paid_opt_in=True, credit_source="live", paid_pricing=(None, None))
+    for allow_paid in (False, True):
+        chain = select(build_requirement("deep_review", _CB, allow_paid=allow_paid), snap)
+        ids = {c.model_ref.model_id for c in chain.candidates}
+        assert not (ids & PAID_FALLBACK_MODELS), (
+            "an unknown-priced candidate was admitted — unknown pricing must "
+            "never qualify as free"
+        )
+
+
+def test_policy_family_absent_from_snapshot_is_never_resurrected():
+    """US5 AC2: the capability policy may ATTRIBUTE competence to a family
+    (e.g. ``qwen3-vl``) that is simply ABSENT from the live snapshot (a
+    catalog fetch that didn't happen to include it — outage, retirement,
+    etc.). ``select`` must never resurrect/synthesize a candidate for a
+    family the snapshot doesn't actually carry."""
+    snap = _snapshot(model_ids=[QWEN, GPT_OSS, LOCAL])  # VL (qwen3-vl) absent
+    chain = select(build_requirement("vision", _CB), snap)
+    ids = _ids(chain)
+    assert ids == [QWEN]
+    assert VL not in ids
+    assert all(c.model_ref.model_family != "qwen3-vl" for c in chain.candidates)
 
 
 def test_every_llm_registry_model_has_a_fallback_chain():
