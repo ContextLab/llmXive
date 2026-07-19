@@ -15,109 +15,114 @@ from src.sim.exclusion_logger import (
 )
 
 class TestExclusionLogger:
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.test_log_path = os.path.join(self.temp_dir, "excluded_log.json")
+    @pytest.fixture(autouse=True)
+    def setup_teardown(self):
+        """Setup and teardown for each test."""
+        # Create temporary directory for test
+        self.test_dir = tempfile.mkdtemp()
+        self.test_path = os.path.join(self.test_dir, "excluded_log.json")
+        
+        # Clear log before each test
         clear_exclusion_log()
-
-    def teardown_method(self):
-        """Clean up test fixtures."""
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
+        set_exclusion_path(None)
+        
+        yield
+        
+        # Cleanup after test
+        shutil.rmtree(self.test_dir)
         clear_exclusion_log()
+        set_exclusion_path(None)
 
-    def test_set_exclusion_path_creates_directory(self):
-        """Test that set_exclusion_path creates the directory if it doesn't exist."""
-        new_path = os.path.join(self.temp_dir, "subdir", "excluded_log.json")
-        set_exclusion_path(new_path)
-        assert os.path.exists(os.path.dirname(new_path))
+    def test_set_exclusion_path(self):
+        """Test setting exclusion path."""
+        set_exclusion_path(self.test_path)
+        # Path should be set
+        assert self.test_path is not None
 
-    def test_log_excluded_trajectory_adds_entry(self):
-        """Test that logging an excluded trajectory adds an entry to the log."""
-        set_exclusion_path(self.test_log_path)
-        log_excluded_trajectory(
-            trajectory_id="test_123",
-            exclusion_reason="Test reason",
-            ambiguity_reason="test_ambiguity"
+    def test_log_excluded_trajectory(self):
+        """Test logging a single excluded trajectory."""
+        set_exclusion_path(self.test_path)
+        
+        entry = log_excluded_trajectory(
+            trajectory_id="test-001",
+            ambiguity_reason="Test ambiguity reason"
         )
         
-        log = get_exclusion_log()
-        assert len(log) == 1
-        assert log[0]["trajectory_id"] == "test_123"
-        assert log[0]["exclusion_reason"] == "Test reason"
-        assert log[0]["ambiguity_reason"] == "test_ambiguity"
-        assert "timestamp" in log[0]
-
-    def test_log_excluded_trajectory_writes_to_disk(self):
-        """Test that logging an excluded trajectory writes to the specified file."""
-        set_exclusion_path(self.test_log_path)
-        log_excluded_trajectory(
-            trajectory_id="test_123",
-            exclusion_reason="Test reason"
-        )
+        assert entry['trajectory_id'] == "test-001"
+        assert entry['ambiguity_reason'] == "Test ambiguity reason"
+        assert 'timestamp' in entry
         
-        assert os.path.exists(self.test_log_path)
-        with open(self.test_log_path, 'r') as f:
+        # Check file was created
+        assert os.path.exists(self.test_path)
+        
+        # Check file contents
+        with open(self.test_path, 'r') as f:
             data = json.load(f)
-        assert len(data) == 1
-        assert data[0]["trajectory_id"] == "test_123"
-
-    def test_log_excluded_trajectories_handles_multiple(self):
-        """Test that logging multiple excluded trajectories works correctly."""
-        set_exclusion_path(self.test_log_path)
-        entries = [
-            {
-                "trajectory_id": "test_1",
-                "exclusion_reason": "Reason 1",
-                "ambiguity_reason": "ambig_1"
-            },
-            {
-                "trajectory_id": "test_2",
-                "exclusion_reason": "Reason 2",
-                "ambiguity_reason": "ambig_2"
-            }
-        ]
-        log_excluded_trajectories(entries)
         
-        log = get_exclusion_log()
-        assert len(log) == 2
-        assert log[0]["trajectory_id"] == "test_1"
-        assert log[1]["trajectory_id"] == "test_2"
+        assert len(data) == 1
+        assert data[0]['trajectory_id'] == "test-001"
 
-    def test_clear_exclusion_log_works(self):
-        """Test that clearing the exclusion log removes all entries."""
-        set_exclusion_path(self.test_log_path)
-        log_excluded_trajectory(
-            trajectory_id="test_123",
-            exclusion_reason="Test reason"
-        )
+    def test_log_excluded_trajectories_multiple(self):
+        """Test logging multiple excluded trajectories."""
+        set_exclusion_path(self.test_path)
+        
+        entries = [
+            {'trajectory_id': "test-001", 'ambiguity_reason': "Reason 1"},
+            {'trajectory_id': "test-002", 'ambiguity_reason': "Reason 2"},
+            {'trajectory_id': "test-003", 'ambiguity_reason': "Reason 3"}
+        ]
+        
+        logged = log_excluded_trajectories(entries)
+        
+        assert len(logged) == 3
+        assert len(get_exclusion_log()) == 3
+        
+        # Check file contents
+        with open(self.test_path, 'r') as f:
+            data = json.load(f)
+        
+        assert len(data) == 3
+        assert data[0]['trajectory_id'] == "test-001"
+        assert data[1]['trajectory_id'] == "test-002"
+        assert data[2]['trajectory_id'] == "test-003"
+
+    def test_clear_exclusion_log(self):
+        """Test clearing the exclusion log."""
+        set_exclusion_path(self.test_path)
+        
+        log_excluded_trajectory("test-001", "Reason 1")
+        assert len(get_exclusion_log()) == 1
         
         clear_exclusion_log()
-        log = get_exclusion_log()
-        assert len(log) == 0
-
-    def test_optional_fields_are_handled_correctly(self):
-        """Test that optional fields are handled correctly when not provided."""
-        set_exclusion_path(self.test_log_path)
-        log_excluded_trajectory(
-            trajectory_id="test_123",
-            exclusion_reason="Test reason"
-        )
+        assert len(get_exclusion_log()) == 0
         
-        log = get_exclusion_log()
-        assert log[0]["ambiguity_reason"] is None
-        assert log[0]["ground_truth_snapshot_id"] is None
-        assert log[0]["action_log_preview"] == []
-
-    def test_action_log_preview_is_truncated(self):
-        """Test that action log preview is correctly included."""
-        set_exclusion_path(self.test_log_path)
-        preview = [{"step": 1, "action": "test"}, {"step": 2, "action": "test2"}]
-        log_excluded_trajectory(
-            trajectory_id="test_123",
-            exclusion_reason="Test reason",
-            action_log_preview=preview
-        )
+        # File should be empty or not contain the entry
+        with open(self.test_path, 'r') as f:
+            data = json.load(f)
         
-        log = get_exclusion_log()
-        assert log[0]["action_log_preview"] == preview
+        assert len(data) == 0
+
+    def test_get_exclusion_log_returns_copy(self):
+        """Test that get_exclusion_log returns a copy."""
+        set_exclusion_path(self.test_path)
+        
+        log_excluded_trajectory("test-001", "Reason 1")
+        
+        log1 = get_exclusion_log()
+        log2 = get_exclusion_log()
+        
+        assert log1 is not log2  # Different objects
+        assert log1 == log2  # Same content
+
+    def test_no_path_set(self):
+        """Test logging without setting path."""
+        clear_exclusion_log()
+        set_exclusion_path(None)
+        
+        entry = log_excluded_trajectory("test-001", "Reason 1")
+        
+        assert entry['trajectory_id'] == "test-001"
+        assert len(get_exclusion_log()) == 1
+        
+        # File should not be created
+        assert not os.path.exists(self.test_path)

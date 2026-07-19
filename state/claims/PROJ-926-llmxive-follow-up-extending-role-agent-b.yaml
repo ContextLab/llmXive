@@ -567,3 +567,751 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T03:31:55Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Llama-3-8B model used for generating ALFWorld failure trajectories in
+    CPU mode
+  claim_id: c_9fd226d3
+  context: 'Phase 3 Implementation for User Story 1: Implement generation loop to
+    run ALFWorld episodes to generate failures using the specified model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/sim/trajectory_generator.py to load meta-llama/Llama-3-8B
+    (float32, CPU mode) and run ALFWorld episodes to generate failures.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:27:30Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: 500 valid failure trajectories required for baseline dataset
+  claim_id: c_b67d0b97
+  context: 'Phase 3 Goal: Generate a dataset of at least 500 failed agent trajectories
+    in ALFWorld using Llama-3-8B.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generation loop must discard trajectories that fail ground-truth validation
+    and retry until 500 valid failures are reached.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:27:44Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Generation fails if 500 valid trajectories not found within 1000 attempts
+  claim_id: c_eb6642a5
+  context: 'Phase 3 Implementation: Timeout logic and hard count verification for
+    baseline generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the loop exceeds MAX_ATTEMPTS (default 1000) without reaching 500 valid
+    failures, raise a RuntimeError and exit with code 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:28:02Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Baseline failure dataset contains 500 entries with specific schema
+  claim_id: c_62978f65
+  context: 'Phase 3 Deliverable: Save validated failure trajectories to data/raw/baseline_failures.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_failure_dataset_contains_500_entries_with_specific
+  kind: magnitude
+  raw_text: 'The output file data/raw/baseline_failures.json must contain at least
+    500 entries with keys: id, failure_step, ground_truth_id, action_log, failure_description.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:28:50Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: N=1500, Cohen''s d=0.5, alpha=0.05, target
+    power=0.8'
+  claim_id: c_d07c40d8
+  context: 'Phase 6 Statistical Analysis: Pre-experimental power analysis for sample
+    size justification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis assumes Cohen's d=0.5 and alpha=0.05 for a total sample
+    size of N=1500 (500 per cohort) with target power >=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:29:23Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Power calculation flags failure if power < 0.8 for N=1500
+  claim_id: c_bee15332
+  context: 'Phase 6 Statistical Analysis: Final power calculation logic and failure
+    flagging.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_calculation_flags_failure_if_power_%3C_0.8_for_N=1500
+  kind: magnitude
+  raw_text: The final power calculation uses the actual generated N (1500) and flags
+    the result if power is less than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:29:29Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Tests are mandatory per Spec Independent Test requirements
+  claim_id: c_08c58b26
+  context: 'Tests: The examples below include test tasks. Tests are MANDATORY per
+    Spec Independent Test requirements. Organization: Tasks are grouped by user story
+    to enable independent implementation and testing of each story.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_mandatory_per_Spec_Independent_Test_requirements
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are MANDATORY per Spec Independent
+    Test requirements.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:32:00Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: SEED set to 42 in config
+  claim_id: c_88eca126
+  context: '- [X] T004 [P] Implement src/config/config.py with pinned random seeds,
+    paths, and ALFWorld hyperparameters. Define SEED=42, DATA_PATH, MODEL_ID.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/config/config.py with pinned random seeds, paths, and ALFWorld
+    hyperparameters. Define SEED=42, DATA_PATH, MODEL_ID.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:32:02Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: MAX_RAM_GB set to 7 in CPU config
+  claim_id: c_fe6f6482
+  context: '- [X] T009 [P] Implement src/config/cpu_config.yaml with CPU_DEVICE=true
+    and MAX_RAM_GB=7 to enforce CPU-only execution constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/config/cpu_config.yaml with CPU_DEVICE=true and MAX_RAM_GB=7
+    to enforce CPU-only execution constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:32:05Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Generate dataset of at least 500 failed agent trajectories using Llama-3-8B
+  claim_id: c_96c7dbc2
+  context: "Phase 3: User Story 1 - Generate and Validate Baseline Failure Trajectories\
+    \ (Priority: P1) \U0001F3AF MVP Goal: Generate a dataset of at least 500 failed\
+    \ agent trajectories in ALFWorld using Llama-3-8B (Standard WIA) and validate\
+    \ them against ground-truth."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_dataset_of_at_least_500_failed_agent_trajectories_u
+  kind: magnitude
+  raw_text: 'Goal: Generate a dataset of at least 500 failed agent trajectories in
+    ALFWorld using Llama-3-8B (Standard WIA) and validate them against ground-truth.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:32:11Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Verify baseline_failures.json contains at least 500 entries
+  claim_id: c_4a6aac91
+  context: "Independent Test: Run the generation script and verify data/raw/baseline_failures.json\
+    \ contains \u2265500 entries with valid IDs, failure steps, and linked ground-truth\
+    \ transitions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_baseline_failures.json_contains_at_least_500_entries
+  kind: magnitude
+  raw_text: "Independent Test: Run the generation script and verify data/raw/baseline_failures.json\
+    \ contains \u2265500 entries with valid IDs, failure steps, and linked ground-truth\
+    \ transitions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:32:16Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Assert len(data) >= 500 in baseline generation test
+  claim_id: c_ebcf01d6
+  context: '- [X] T012 [P] [US1] Write integration test: Validate end-to-end generation
+    of 500 failures in tests/integration/test_baseline_generation.py. Deliverable:
+    Function test_baseline_generation_reaches_500 that asserts len(data) >= 500 and
+    all entries have required keys.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Deliverable: Function test_baseline_generation_reaches_500 that asserts
+    len(data) >= 500 and all entries have required keys.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:32:23Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if 500 valid failures not found within 1000 attempts
+  claim_id: c_9a8e96be
+  context: 'Timeout Logic: If the loop exceeds MAX_ATTEMPTS (configurable, default
+    1000) without reaching 500 valid failures, raise a RuntimeError with message Generation
+    failed: <N> valid failures found, expected 500 and exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If the loop exceeds MAX_ATTEMPTS (configurable, default 1000) without
+    reaching 500 valid failures, raise a RuntimeError with message Generation failed:
+    <N> valid failures found, expected 500 and exit with code 1.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:32:27Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Deliver baseline_failures.json with at least 500 entries
+  claim_id: c_4424d7dc
+  context: "Deliverable: data/raw/baseline_failures.json containing \u2265500 entries\
+    \ with keys: id, failure_step, ground_truth_id, action_log, failure_description.\
+    \ Do NOT proceed if valid failures < 500."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Deliver_baseline_failures.json_with_at_least_500_entries
+  kind: magnitude
+  raw_text: "Deliverable: data/raw/baseline_failures.json containing \u2265500 entries\
+    \ with keys: id, failure_step, ground_truth_id, action_log, failure_description."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:32:33Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Perform power analysis for N=1500 with target power >= 0.8
+  claim_id: c_85f152dd
+  context: "- [ ] T036a [P] Implement src/analysis/power_analysis.py to perform pre-experimental\
+    \ power analysis for N=1500 total (500 per cohort) with target power \u22650.8.\
+    \ Explicitly assume Cohen's d=0.5 and alpha=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform pre-experimental power analysis for N=1500 total (500 per cohort)\
+    \ with target power \u22650.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:32:39Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Assume Cohen's d=0.5 and alpha=0.05 for power analysis
+  claim_id: c_ea14d902
+  context: Explicitly assume Cohen's d=0.5 and alpha=0.05. Output data/derived/power_analysis_report.json
+    justifying sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly assume Cohen's d=0.5 and alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:32:44Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Output power analysis report to power_analysis_report.json
+  claim_id: c_9eeb61db
+  context: Explicitly assume Cohen's d=0.5 and alpha=0.05. Output data/derived/power_analysis_report.json
+    justifying sample size.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_power_analysis_report_to_power_analysis_report.json
+  kind: entity_fact
+  raw_text: Output data/derived/power_analysis_report.json justifying sample size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:32:52Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Flag power < 0.8 in power_calculation_log.json without halting pipeline
+  claim_id: c_97870c6d
+  context: '- [ ] T036b [P] Implement src/analysis/power_analysis.py to perform the
+    final power calculation using the actual generated N (1500). If power < 0.8, flag
+    the result in data/derived/power_calculation_log.json with status: FAILED and
+    reason: power < 0.8, but DO NOT halt the pipeline.'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: causal
+  raw_text: 'If power < 0.8, flag the result in data/derived/power_calculation_log.json
+    with status: FAILED and reason: power < 0.8, but DO NOT halt the pipeline.'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T15:32:52Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: N=1500 is fixed target; flag if power < 0.8 without increasing N
+  claim_id: c_3e27907d
+  context: 'Power Analysis: N=1500 is a fixed target. If power < 0.8, flag the result
+    and generate report; do not dynamically increase N.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/N=1500_is_fixed_target;_flag_if_power_%3C_0.8_without_increasi
+  kind: entity_fact
+  raw_text: N=1500 is a fixed target. If power < 0.8, flag the result and generate
+    report; do not dynamically increase N.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:33:28Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Pinned dependency versions for llmXive followup project
+  claim_id: c_9f8908d9
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002 Initialize Python project
+    with requirements.txt containing pinned versions.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'The project requires pinned versions: transformers==4.35.0, torch==2.1.0,
+    scipy==1.11.0, datasets==2.14.0, alfworld==1.1.0, pandas==2.1.0, pytest==7.4.0,
+    ruff==0.1.0, black==23.0.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T15:37:28Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Model runs in float32 precision with high matmul setting on CPU
+  claim_id: c_92bdaa3d
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002 Note regarding model precision
+    and T013 implementation details.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_runs_in_float32_precision_with_high_matmul_setting_on
+  kind: entity_fact
+  raw_text: The model runs in standard floating-point precision and torch.set_float32_matmul_precision('high')
+    is enforced in CPU environment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:37:54Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42
+  claim_id: c_8ee5649e
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004 Implement src/config/config.py
+    with pinned random seeds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines SEED=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:38:15Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Maximum RAM limit set to 7 GB for CPU execution
+  claim_id: c_573352ff
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T009 Implement src/config/cpu_config.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CPU-only execution constraints enforce MAX_RAM_GB=7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:38:31Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Verification of meta-llama/Llama-3-8B model accessibility via Hugging
+    Face
+  claim_id: c_3afd5787
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T046 Implement real data
+    source verification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system explicitly verifies that the meta-llama/Llama-3-8B model is
+    accessible via Hugging Face transformers before generation starts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:38:45Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Baseline failure trajectory generation target of 500
+  claim_id: c_5de637c4
+  context: 'Phase 3: User Story 1 - Goal: Generate a dataset of at least 500 failed
+    agent trajectories.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_failure_trajectory_generation_target_of_500
+  kind: magnitude
+  raw_text: The generation loop must reach at least 500 valid failures.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:39:08Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if 500 failures not found within 1000 attempts
+  claim_id: c_e214bc03
+  context: 'Phase 3: User Story 1 - T013 Implementation details for generation loop
+    and timeout logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generation script raises a RuntimeError if the loop exceeds MAX_ATTEMPTS
+    (default 1000) without reaching 500 valid failures.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:39:30Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis target of N=1500 with power >= 0.8
+  claim_id: c_ac585d12
+  context: 'Phase 6: Statistical Analysis & Power Validation - T036a Implement pre-experimental
+    power analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis targets N=1500 total (500 per cohort) with target
+    power >=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:39:52Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: 'Power analysis assumptions: Cohen''s d=0.5 and alpha=0.05'
+  claim_id: c_5e175a9e
+  context: 'Phase 6: Statistical Analysis & Power Validation - T036a Explicit assumptions
+    for power analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis explicitly assumes Cohen's d=0.5 and alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:41:44Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Generate 500 valid failures using meta-llama/Llama-3-8B with MAX_ATTEMPTS
+    default 1000
+  claim_id: c_384cffdb
+  context: 'Phase 3: User Story 1 - Generate and Validate Baseline Failure Trajectories.
+    Implementation task T013 requires generating a dataset of at least 500 failed
+    agent trajectories.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement src/sim/trajectory_generator.py to load meta-llama/Llama-3-8B
+    (float32, CPU mode) and run ALFWorld episodes to generate failures. If the loop
+    exceeds MAX_ATTEMPTS (configurable, default 1000) without reaching 500 valid failures,
+    raise a RuntimeError with message ''Generation failed: <N> valid failures found,
+    expected 500'' and exit with code 1.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:42:10Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Power analysis for N=1500 with target power 0.8, Cohen's d 0.5, and alpha
+    0.05
+  claim_id: c_11d95dc7
+  context: 'Phase 6: Statistical Analysis & Power Validation. Task T036a requires
+    performing pre-experimental power analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform pre-experimental power analysis for N=1500 total (500 per cohort)\
+    \ with target power \u22650.8, explicitly assuming Cohen's d=0.5 and alpha=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:42:34Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: 'Project dependencies: transformers 4.35.0, torch 2.1.0, scipy 1.11.0,
+    datasets 2.14.0, alfworld 1.1.0, pandas 2.1.0, pytest 7.4.0, ruff 0.1.0, black
+    23.0.0'
+  claim_id: c_2829fda9
+  context: 'Phase 1: Setup. Task T002 requires initializing the Python project with
+    these pinned versions in requirements.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use transformers==4.35.0, torch==2.1.0, scipy==1.11.0, datasets==2.14.0,
+    alfworld==1.1.0, pandas==2.1.0, pytest==7.4.0, ruff==0.1.0, and black==23.0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:42:46Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 0
+  canonical: pinned dependency versions for llmXive follow-up project
+  claim_id: c_779d8043
+  context: 'Phase 1: Setup tasks require initializing Python project with specific
+    pinned versions.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'The project requires pinned versions: transformers==4.35.0, torch==2.1.0,
+    scipy==1.11.0, datasets==2.14.0, alfworld==1.1.0, pandas==2.1.0, pytest==7.4.0,
+    ruff==0.1.0, black==23.0.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T15:44:17Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: meta-llama/Llama-3-8B model used for trajectory generation
+  claim_id: c_ab50efbb
+  context: Phase 3 User Story 1 goal specifies generating failures using Llama-3-8B.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model meta-llama/Llama-3-8B is used for generating agent trajectories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:44:32Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: 500 valid failed agent trajectories required for baseline
+  claim_id: c_5dc82a4e
+  context: 'Phase 3 Goal states: ''Generate a dataset of at least 500 failed agent
+    trajectories''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/500_valid_failed_agent_trajectories_required_for_baseline
+  kind: magnitude
+  raw_text: The generation loop must produce at least 500 valid failed agent trajectories.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:44:52Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: 7GB maximum RAM limit for CPU-only execution
+  claim_id: c_4fb6cc86
+  context: Phase 2 Task T009 configures MAX_RAM_GB=7 to enforce CPU-only execution
+    constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7GB_maximum_RAM_limit_for_CPU-only_execution
+  kind: entity_fact
+  raw_text: The CPU-only execution constraint enforces a maximum RAM usage of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:45:14Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: N=1500 total sample size for power analysis
+  claim_id: c_f64d263b
+  context: Phase 6 Task T036a specifies pre-experimental power analysis for N=1500
+    total.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target total sample size for statistical analysis is N=1500 (500 per
+    cohort).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:45:45Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: target statistical power of 0.8
+  claim_id: c_80dc1631
+  context: Phase 6 Task T036a specifies target power >= 0.8 for the analysis.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.8'
+    filled: true
+  kind: magnitude
+  raw_text: The target statistical power for the experiment is at least 0.8.
+  resolved_value: '0.8'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T15:45:54Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: assumed Cohen's d of 0.5 for power analysis
+  claim_id: c_49b9f848
+  context: Phase 6 Task T036a explicitly assumes Cohen's d=0.5 for the power calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis assumes a Cohen's d effect size of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:47:38Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: WIA prediction horizon set to 0 for Degraded condition
+  claim_id: c_b8b71a9d
+  context: 'Phase 4 Goal states: ''Simulate the Degraded condition (WIA horizon=0)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Degraded condition is simulated by setting the WIA prediction horizon
+    to 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:48:20Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: random seed defined as 42
+  claim_id: c_3a71a758
+  context: Phase 2 Task T004 implements config.py with SEED=42.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_seed_defined_as_42
+  kind: entity_fact
+  raw_text: The random seed is defined as 42 in the configuration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T15:48:41Z'

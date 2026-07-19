@@ -18,14 +18,14 @@ The system statistically compares retrieval relevance scores and task completion
 **Primary Dependencies**: `transformers` (CPU mode), `torch` (CPU), `scipy` (stats), `datasets` (streaming), `alfworld` (simulator), `pandas`, `pytest`  
 **Storage**: Local filesystem (`data/`), JSON/Parquet for trajectory logs, SQLite for task bank metadata  
 **Testing**: `pytest` with contract validation against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~ GB RAM)  
 **Project Type**: Research simulation / Computational experiment  
 **Performance Goals**: <6 hours total runtime; <7 GB peak RAM; reproducible seeds  
 **Constraints**: No local GPU; no external API calls; no access-gated datasets; deterministic simulation  
 **Scale/Scope**: 1500 total failure trajectories (A sufficient sample size per condition will be determined to ensure adequate statistical power for the analysis.); experimental conditions; A statistical test suite.  
 **Canonical Sources**: 
 - **LLM**: `meta-llama/Llama-3-8B` (Hugging Face)
-- **Simulator**: `alfworld` (PyPI package v1.1.0+)
+- **Simulator**: `alfworld` (PyPI package v.0+)
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

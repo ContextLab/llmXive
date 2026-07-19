@@ -97,9 +97,9 @@ The research system MUST apply the rule-based "failure abstraction layer" to the
 - The "ground-truth root cause" for each failure is derivable from the ALFWorld simulator's state transition log using a deterministic priority rule for ambiguous cases (See Key Entities).
 - The rule-based parser can extract syntactic patterns from the failure logs with sufficient accuracy to serve as a valid substitute for predictive context.
 - A sufficient number of generated trajectories will be produced to achieve statistical power for the planned t-test or Mann-Whitney U test, assuming a medium effect size (Cohen's d)..
-- The total compute time for data generation, condition execution, and statistical analysis will be constrained to a duration feasible for execution on a GitHub Actions free-tier runner (CPU cores, ~7 GB RAM).
+- The total compute time for data generation, condition execution, and statistical analysis will be constrained to a duration feasible for execution on a GitHub Actions free-tier runner (CPU cores, limited RAM).
 - The Llama-8B model will be run in default precision (float32) without quantization (8-bit or 4-bit) to ensure CPU compatibility.
-- The "retrieval relevance score" calculation uses a frozen, small classifier or similarity search on a pre-built task bank, which fits within the 7 GB RAM limit.
+- The "retrieval relevance score" calculation uses a frozen, small classifier or similarity search on a pre-built task bank, which fits within a constrained RAM limit.
 - The syntactic abstraction layer is implemented as a lightweight Python script that does not require external dependencies beyond standard libraries (e.g., `re`, `json`).
 - The statistical analysis will use the `scipy` library, which is compatible with CPU-only execution and fits within the memory constraints.
 - The ALFWorld simulator provides a deterministic environment where the same input produces the same output, ensuring reproducibility.

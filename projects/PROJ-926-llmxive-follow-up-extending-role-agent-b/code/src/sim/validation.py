@@ -5,229 +5,245 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.config.config import DATA_PATH, SEED
-from src.sim.alfworld_runner import run_episode
+
+# Import exclusion logger to handle ambiguous cases
 from src.sim.exclusion_logger import log_excluded_trajectory, set_exclusion_path
 
-# Priority rules for resolving ambiguous ground-truth causes
-# Higher index = lower priority. If multiple causes match, the one with the highest priority
-# (lowest index) is selected. If multiple causes share the highest priority, it's ambiguous.
-PRIORITY_RULES = [
-    "object_not_found",
-    "navigation_failure",
-    "action_sequence_error",
-    "tool_usage_error",
-    "timeout_exceeded"
-]
+# Import ground truth loading from T007a
+# Assuming T007a populated this function or we load directly
+# Since T007a is marked completed, we assume the file exists and is readable
+# We will implement the loading logic here to be safe and self-contained
 
-def load_ground_truth_raw() -> List[Dict[str, Any]]:
-    """Load the raw ground-truth data from disk."""
-    gt_path = os.path.join(DATA_PATH, "raw", "ground_truth_raw.json")
-    if not os.path.exists(gt_path):
-        raise FileNotFoundError(f"Ground truth raw file not found: {gt_path}")
+def load_ground_truth_raw(filepath: str) -> List[Dict[str, Any]]:
+    """
+    Load ground truth raw data from JSON file.
+    T007a ensures this file exists at data/raw/ground_truth_raw.json
+    """
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Ground truth raw file not found: {filepath}")
     
-    with open(gt_path, 'r', encoding='utf-8') as f:
+    with open(filepath, 'r') as f:
         return json.load(f)
 
-def validate_trajectory(action_log: List[Dict[str, Any]], ground_truth_snapshot: Dict[str, Any]) -> Tuple[str, Optional[str]]:
+def validate_trajectory(trajectory: Dict[str, Any], ground_truth: Dict[str, Any]) -> Tuple[bool, Optional[str], Optional[str]]:
     """
     Validate a trajectory against ground truth.
     
     Returns:
-        Tuple of (validation_status, reason_code)
-        validation_status: 'PASS', 'FAIL', 'AMBIGUOUS', 'EXCLUDED'
-        reason_code: Specific code explaining the status
+        (is_valid, reason_code, ground_truth_snapshot_id)
+        - is_valid: True if trajectory matches ground truth
+        - reason_code: Code indicating validation status (PASS, FAIL, AMBIGUOUS)
+        - ground_truth_snapshot_id: ID of the ground truth entry used
     """
-    # Extract potential failure causes from the action log
-    potential_causes = []
+    # Check if trajectory has required fields
+    if 'action_log' not in trajectory or 'trajectory_id' not in trajectory:
+        return False, "MISSING_FIELDS", None
     
-    # Check for object not found
-    if any("object not found" in step.get("observation", "").lower() for step in action_log):
-        potential_causes.append("object_not_found")
+    # Check if ground truth has required fields
+    if 'transitions' not in ground_truth or 'snapshot_id' not in ground_truth:
+        return False, "INVALID_GROUND_TRUTH", None
     
-    # Check for navigation failure
-    if any("cannot navigate" in step.get("observation", "").lower() or "blocked" in step.get("observation", "").lower() for step in action_log):
-        potential_causes.append("navigation_failure")
+    # Extract action log and ground truth transitions
+    action_log = trajectory.get('action_log', [])
+    transitions = ground_truth.get('transitions', [])
     
-    # Check for action sequence error
-    if any("invalid action" in step.get("observation", "").lower() or "action failed" in step.get("observation", "").lower() for step in action_log):
-        potential_causes.append("action_sequence_error")
+    # Deterministic priority rule: Check transitions in order
+    # If multiple causes are found that cannot be resolved by priority, mark as AMBIGUOUS
+    causes = []
     
-    # Check for tool usage error
-    if any("tool" in step.get("observation", "").lower() and "failed" in step.get("observation", "").lower() for step in action_log):
-        potential_causes.append("tool_usage_error")
+    for i, action in enumerate(action_log):
+        # Check if this action matches a ground truth transition
+        matched = False
+        for j, transition in enumerate(transitions):
+            expected_action = transition.get('expected_action')
+            expected_state = transition.get('expected_state')
+            actual_state = action.get('state')
+            
+            # Simple matching logic - in real implementation, this would be more complex
+            if expected_action and expected_action == action.get('action'):
+                if expected_state and expected_state == actual_state:
+                    matched = True
+                    break
+        
+        if not matched:
+            causes.append({
+                'step': i,
+                'action': action.get('action'),
+                'expected': transitions[i] if i < len(transitions) else None
+            })
     
-    # Check for timeout
-    if len(action_log) > 50:  # Arbitrary threshold for timeout
-        potential_causes.append("timeout_exceeded")
-    
-    if not potential_causes:
-        return "PASS", None
-    
-    # Determine priority of each cause
-    cause_priorities = [(cause, PRIORITY_RULES.index(cause)) for cause in potential_causes if cause in PRIORITY_RULES]
-    
-    if not cause_priorities:
-        # No recognized causes, mark as ambiguous
-        return "AMBIGUOUS", "unrecognized_failure_pattern"
-    
-    # Find the minimum priority (highest priority cause)
-    min_priority = min(priority for _, priority in cause_priorities)
-    highest_priority_causes = [cause for cause, priority in cause_priorities if priority == min_priority]
-    
-    # If multiple causes share the highest priority, it's ambiguous
-    if len(highest_priority_causes) > 1:
-        return "AMBIGUOUS", "multiple_highest_priority_causes"
-    
-    # Single highest priority cause
-    return "FAIL", highest_priority_causes[0]
+    # Apply deterministic priority rule
+    if len(causes) == 0:
+        return True, "PASS", ground_truth.get('snapshot_id')
+    elif len(causes) == 1:
+        # Single cause found - not ambiguous
+        return False, "FAIL", ground_truth.get('snapshot_id')
+    else:
+        # Multiple causes found - check if they can be resolved by priority rule
+        # Priority rule: First mismatch is the primary cause
+        # If multiple mismatches are equally valid (e.g., same step, different interpretations), it's ambiguous
+        
+        # For now, if we have multiple distinct causes at different steps, we use the first one (priority rule)
+        # If we have multiple causes at the same step with different interpretations, it's ambiguous
+        
+        ambiguous = False
+        for i, cause1 in enumerate(causes):
+            for j, cause2 in enumerate(causes):
+                if i < j and cause1['step'] == cause2['step']:
+                    # Same step, different interpretations - ambiguous
+                    ambiguous = True
+                    break
+            if ambiguous:
+                break
+        
+        if ambiguous:
+            return False, "AMBIGUOUS", ground_truth.get('snapshot_id')
+        else:
+            # Use first cause as per priority rule
+            return False, "FAIL", ground_truth.get('snapshot_id')
 
-def process_trajectory_for_ambiguity(trajectory_id: str, action_log: List[Dict[str, Any]], ground_truth_snapshot: Dict[str, Any]) -> Dict[str, Any]:
+def process_trajectory_for_ambiguity(trajectory: Dict[str, Any], ground_truth: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Process a single trajectory to check for ambiguity and handle excluded cases.
+    Process a trajectory to determine if it's ambiguous.
     
     Returns:
-        Dict containing validation result and exclusion info if applicable.
+        Dict with validation status and ambiguity details
     """
-    status, reason_code = validate_trajectory(action_log, ground_truth_snapshot)
+    is_valid, reason_code, gt_id = validate_trajectory(trajectory, ground_truth)
     
     result = {
-        "trajectory_id": trajectory_id,
-        "validation_status": status,
-        "reason_code": reason_code,
-        "timestamp": datetime.utcnow().isoformat()
+        'trajectory_id': trajectory.get('trajectory_id'),
+        'validation_status': reason_code,
+        'ground_truth_snapshot_id': gt_id,
+        'is_ambiguous': reason_code == "AMBIGUOUS"
     }
     
-    # Handle ambiguous cases
-    if status == "AMBIGUOUS":
-        result["exclusion_status"] = "EXCLUDED"
-        result["ambiguity_reason"] = reason_code
-        result["ground_truth_snapshot_id"] = ground_truth_snapshot.get("id", "unknown")
+    if reason_code == "AMBIGUOUS":
+        # Generate ambiguity reason
+        action_log = trajectory.get('action_log', [])
+        transitions = ground_truth.get('transitions', [])
         
-        # Log the excluded trajectory
-        log_excluded_trajectory(
-            trajectory_id=trajectory_id,
-            exclusion_reason=f"Ambiguous failure cause: {reason_code}",
-            ambiguity_reason=reason_code,
-            ground_truth_snapshot_id=ground_truth_snapshot.get("id", "unknown"),
-            action_log_preview=action_log[:3] if action_log else []  # Log first 3 steps for context
-        )
+        causes = []
+        for i, action in enumerate(action_log):
+            matched = False
+            for j, transition in enumerate(transitions):
+                expected_action = transition.get('expected_action')
+                if expected_action and expected_action == action.get('action'):
+                    matched = True
+                    break
+            
+            if not matched:
+                causes.append({
+                    'step': i,
+                    'action': action.get('action')
+                })
         
-        return result
+        # Find ambiguous steps (multiple causes at same step)
+        ambiguous_steps = []
+        for i, cause1 in enumerate(causes):
+            for j, cause2 in enumerate(causes):
+                if i < j and cause1['step'] == cause2['step']:
+                    ambiguous_steps.append(cause1['step'])
+                    break
+        
+        result['ambiguity_reason'] = f"Multiple failure causes detected at steps: {ambiguous_steps}. Cannot resolve with deterministic priority rule."
     
-    result["exclusion_status"] = "INCLUDED"
     return result
 
-def run_validation_with_ambiguity_handling(
-    input_path: str,
-    output_path: str,
-    excluded_path: Optional[str] = None
-) -> Dict[str, int]:
+def run_validation_with_ambiguity_handling(input_file: str, output_file: str, excluded_file: str) -> Dict[str, Any]:
     """
-    Run validation on a dataset of trajectories, handling ambiguous cases.
+    Run validation on all trajectories and handle ambiguous cases.
     
-    Args:
-        input_path: Path to input trajectories JSONL
-        output_path: Path to save validated trajectories
-        excluded_path: Path to save excluded trajectories (if None, uses default)
-    
-    Returns:
-        Dict with counts of PASS, FAIL, AMBIGUOUS, EXCLUDED
+    Ambiguous trajectories are logged to excluded_file with ambiguity_reason.
+    Valid and non-ambiguous failures are saved to output_file.
     """
-    # Set exclusion path if not provided
-    if excluded_path is None:
-        excluded_path = os.path.join(DATA_PATH, "raw", "excluded_log.json")
-    
-    set_exclusion_path(excluded_path)
-    
     # Load ground truth
-    ground_truth_map = {}
-    gt_data = load_ground_truth_raw()
-    for gt in gt_data:
-        gt_id = gt.get("id")
+    gt_path = os.path.join(DATA_PATH, 'raw', 'ground_truth_raw.json')
+    ground_truth_data = load_ground_truth_raw(gt_path)
+    
+    # Create a map of ground truth by ID for quick lookup
+    gt_map = {}
+    for gt in ground_truth_data:
+        gt_id = gt.get('snapshot_id')
         if gt_id:
-            ground_truth_map[gt_id] = gt
+            gt_map[gt_id] = gt
     
-    # Process trajectories
-    validated_results = []
-    counts = {"PASS": 0, "FAIL": 0, "AMBIGUOUS": 0, "EXCLUDED": 0}
+    # Load input trajectories
+    with open(input_file, 'r') as f:
+        trajectories = json.load(f)
     
-    with open(input_path, 'r', encoding='utf-8') as f:
-        for line_num, line in enumerate(f, 1):
-            line = line.strip()
-            if not line:
-                continue
+    validated_trajectories = []
+    excluded_trajectories = []
+    
+    for traj in trajectories:
+        traj_id = traj.get('trajectory_id')
+        
+        # Try to find matching ground truth
+        gt_id = traj.get('ground_truth_id')
+        if gt_id and gt_id in gt_map:
+            gt = gt_map[gt_id]
+            result = process_trajectory_for_ambiguity(traj, gt)
             
-            try:
-                trajectory = json.loads(line)
-                trajectory_id = trajectory.get("trajectory_id", f"line_{line_num}")
-                action_log = trajectory.get("action_log", [])
-                
-                # Find matching ground truth
-                gt_snapshot = None
-                for gt_id in trajectory.get("ground_truth_ids", []):
-                    if gt_id in ground_truth_map:
-                        gt_snapshot = ground_truth_map[gt_id]
-                        break
-                
-                if gt_snapshot is None:
-                    # No ground truth found, mark as ambiguous
-                    result = process_trajectory_for_ambiguity(
-                        trajectory_id, action_log, {"id": "missing_ground_truth"}
-                    )
-                else:
-                    result = process_trajectory_for_ambiguity(
-                        trajectory_id, action_log, gt_snapshot
-                    )
-                
-                validated_results.append(result)
-                counts[result["validation_status"]] += 1
-                
-            except json.JSONDecodeError as e:
-                # Log malformed line as excluded
-                excluded_result = {
-                    "trajectory_id": f"malformed_line_{line_num}",
-                    "validation_status": "EXCLUDED",
-                    "reason_code": "json_parse_error",
-                    "exclusion_status": "EXCLUDED",
-                    "ambiguity_reason": "invalid_json_format",
-                    "timestamp": datetime.utcnow().isoformat()
+            if result['validation_status'] == "AMBIGUOUS":
+                # Log to excluded file
+                excluded_entry = {
+                    'trajectory_id': traj_id,
+                    'ambiguity_reason': result.get('ambiguity_reason', 'Unknown ambiguity'),
+                    'timestamp': datetime.now().isoformat(),
+                    'ground_truth_snapshot_id': result.get('ground_truth_snapshot_id')
                 }
-                log_excluded_trajectory(
-                    trajectory_id=f"malformed_line_{line_num}",
-                    exclusion_reason="Invalid JSON format",
-                    ambiguity_reason="invalid_json_format",
-                    ground_truth_snapshot_id="unknown"
-                )
-                validated_results.append(excluded_result)
-                counts["EXCLUDED"] += 1
+                excluded_trajectories.append(excluded_entry)
+            else:
+                # Add validation result to trajectory
+                traj['validation_status'] = result['validation_status']
+                traj['ground_truth_snapshot_id'] = result.get('ground_truth_snapshot_id')
+                validated_trajectories.append(traj)
+        else:
+            # No ground truth found - mark as failed
+            traj['validation_status'] = "FAIL"
+            traj['ground_truth_snapshot_id'] = None
+            validated_trajectories.append(traj)
     
-    # Write validated results
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        for result in validated_results:
-            f.write(json.dumps(result) + '\n')
+    # Write excluded trajectories to file
+    os.makedirs(os.path.dirname(excluded_file), exist_ok=True)
+    with open(excluded_file, 'w') as f:
+        json.dump(excluded_trajectories, f, indent=2)
     
-    return counts
+    # Write validated trajectories to file
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    with open(output_file, 'w') as f:
+        json.dump(validated_trajectories, f, indent=2)
+    
+    return {
+        'total_processed': len(trajectories),
+        'validated': len(validated_trajectories),
+        'excluded': len(excluded_trajectories),
+        'excluded_file': excluded_file,
+        'output_file': output_file
+    }
 
 def run():
-    """Main entry point for validation with ambiguity handling."""
+    """
+    Main entry point for validation with ambiguity handling.
+    """
     import argparse
     
-    parser = argparse.ArgumentParser(description="Validate trajectories with ambiguity handling")
-    parser.add_argument("--input", required=True, help="Input trajectories JSONL file")
-    parser.add_argument("--output", required=True, help="Output validated trajectories file")
-    parser.add_argument("--excluded", default=None, help="Output excluded trajectories file")
+    parser = argparse.ArgumentParser(description='Validate trajectories with ambiguity handling')
+    parser.add_argument('--input', required=True, help='Input trajectories file')
+    parser.add_argument('--output', required=True, help='Output validated trajectories file')
+    parser.add_argument('--excluded', default=os.path.join(DATA_PATH, 'raw', 'excluded_log.json'),
+                      help='Output excluded trajectories file')
     
     args = parser.parse_args()
     
-    counts = run_validation_with_ambiguity_handling(
-        input_path=args.input,
-        output_path=args.output,
-        excluded_path=args.excluded
-    )
+    result = run_validation_with_ambiguity_handling(args.input, args.output, args.excluded)
     
-    print(f"Validation complete: {counts}")
-    return counts
+    print(f"Validation complete:")
+    print(f"  Total processed: {result['total_processed']}")
+    print(f"  Validated: {result['validated']}")
+    print(f"  Excluded: {result['excluded']}")
+    print(f"  Excluded file: {result['excluded_file']}")
+    print(f"  Output file: {result['output_file']}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run()
